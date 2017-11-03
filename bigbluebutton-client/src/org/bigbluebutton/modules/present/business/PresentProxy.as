@@ -197,7 +197,7 @@ package org.bigbluebutton.modules.present.business
 			currentUploadCommand = null;
 
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, e.podId));
 		}
 
 		/**
@@ -260,17 +260,17 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void {
-      var pod: PresentationModel = podManager.getPod(e.podId);
-      if (pod == null) {
-        LOGGER.info("Ignoring zoom as pod=" + e.podId + " is null.");
-        return;
-      }
+			var pod: PresentationModel = podManager.getPod(e.podId);
+			if (pod == null) {
+				LOGGER.info("Ignoring zoom as pod=" + e.podId + " is null.");
+				return;
+			}
 			var currentPresentation:Presentation = pod.getCurrentPresentation();
 			if (currentPresentation == null) return;
 
 			var currentPage:Page = podManager.getPod(e.podId).getCurrentPage();  
 
-			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+			sender.move(e.podId, currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 
 		/**

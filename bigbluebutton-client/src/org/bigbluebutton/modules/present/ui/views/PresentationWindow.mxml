@@ -483,7 +483,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function becomeViewer():void {
 				setupPresenter(false);
-				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, this.podId));
 				this.customContextMenuItems = new Array();
 				slideView.becomeViewer(amITheCurrentPodPresenter(), this.currentPresenterInPod);
 				if (slideView.thumbnailView.visible)
@@ -609,6 +609,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
 			private function clearPresentation(e:UploadEvent):void{
+				if (e.podId != this.podId) {
+					return;
+				}
 				slideView.visible = false;
 				slideView.slideLoader.source = null; 
 				slideView.setSelectedSlide(0);
@@ -768,12 +771,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function openUploadWindow(_podId: String):void {
 				if (presentOptions.openExternalFileUploadDialog) {
-					var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW);
+					var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW, this.podId);
 					fileEvent.maxFileSize = presentOptions.maxFileSize;
 					var gDispatcher:Dispatcher = new Dispatcher();
 					gDispatcher.dispatchEvent(fileEvent);
 				} else {
-					var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
+					var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW, this.podId);
 					event.maxFileSize = presentOptions.maxFileSize;
 					event.podId = _podId;
 					dispatchEvent(event);

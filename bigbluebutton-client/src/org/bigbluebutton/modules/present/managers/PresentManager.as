@@ -155,7 +155,7 @@ package org.bigbluebutton.modules.present.managers
 			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
 			if (uploadWindow) {
 				uploadWindow.maxFileSize = e.maxFileSize;
-//				uploadWindow.podId = e.podId;
+				uploadWindow.podId = e.podId;
 				uploadWindow.setPodId(e.podId);
 				
 				var point1:Point = new Point();

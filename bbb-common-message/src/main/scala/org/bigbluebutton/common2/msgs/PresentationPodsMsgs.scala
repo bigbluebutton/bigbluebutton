@@ -35,6 +35,15 @@ case class SetPresenterInPodReqMsgBody(podId: String, prevPresenterId: String, n
 object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg"}
 case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
 case class RemovePresentationPubMsgBody(podId: String, presentationId: String)
+
+object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg"}
+case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
+case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
+                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
+
+object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg"}
+case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
+case class SetCurrentPresentationPubMsgBody(podId: String, presentationId: String)
 // ------------ client to akka-apps ------------
 
 
@@ -120,6 +129,15 @@ case class SetPresenterInPodRespMsgBody(podId: String, prevPresenterId: String, 
 object RemovePresentationEvtMsg { val NAME = "RemovePresentationEvtMsg"}
 case class RemovePresentationEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationEvtMsgBody) extends BbbCoreMsg
 case class RemovePresentationEvtMsgBody(podId: String, presentationId: String)
+
+object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg"}
+case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg
+case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
+                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
+
+object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg"}
+case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
+case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
 // ------------ akka-apps to client ------------
 
 
