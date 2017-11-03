@@ -1,3 +1,6 @@
+'use strict';
+
+let HomePage = require('../../pageobjects/home.page');
 var expect = require('chai').expect;
 
 function expectImageMatch(results, errorMessage) {
@@ -7,7 +10,7 @@ function expectImageMatch(results, errorMessage) {
 describe('Screenshots:', function() {
 
   it('Join Audio modal looks good', function() {
-    browser.url('demo/demoHTML5.jsp?username=testuser&meetingname=Demo+Meeting&action=create');
+    HomePage.login('testuser', 'Demo Meeting');
     browser.element('.ReactModal__Content--after-open').waitForExist(7000);
     expectImageMatch(browser.checkElement('.ReactModal__Content--after-open'), 'Join Audio modal isn\'t the same');
   });
