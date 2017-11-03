@@ -8,14 +8,12 @@ describe('Screenshots:', function() {
 
   it('Join Audio modal looks good', function() {
     browser.url('demo/demoHTML5.jsp?username=testuser&meetingname=Demo+Meeting&action=create');
-
     browser.element('.ReactModal__Content--after-open').waitForExist(7000);
     expectImageMatch(browser.checkElement('.ReactModal__Content--after-open'), 'Join Audio modal isn\'t the same');
   });
 
   it('Home page viewport looks good', function() {
-    $('.icon-bbb-listen').click();
-    browser.element('.icon-bbb-mute').waitForExist(5000);
+    $('._imports_ui_components_audio_audio_modal__styles__closeBtn').click();
     expectImageMatch(browser.checkViewport(), 'Home page viewport isn\'t the same');
   });
 
