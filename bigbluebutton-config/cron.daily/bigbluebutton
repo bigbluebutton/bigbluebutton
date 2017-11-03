@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-#
+# 
 
 test -x /var/bigbluebutton || exit 0
 
@@ -115,10 +115,3 @@ remove_raw_of_published_recordings(){
 #
 find /tmp -name "*.afm" -mtime +$history -delete
 find /tmp -name "*.pfb" -mtime +$history -delete
-
-#
-# If there are no users currently logged in, restart libreoffice to clear its memory usage
-#
-if [[ $(netstat -ant | egrep ":1935\ " | egrep -v ":::|0.0.0.0"  | wc | awk '{print $1}') == 0 ]]; then
-  systemctl restart libreoffice.service
-fi

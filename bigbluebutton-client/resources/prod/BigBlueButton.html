@@ -164,7 +164,7 @@
     </script>
     <script type="text/javascript">
       window.onload = function() {
-        var checkRequest = $.ajax({
+        let checkRequest = $.ajax({
            dataType: 'json',
            url: '/html5client/check'
         });
@@ -178,35 +178,8 @@
       };
 
       function html5() {
-        // no Flash detected on the client
-        var originalPath, enterRequest, authToken, meetingId, userId;
-        originalPath = document.location.pathname;
-
-        // use the enter api to detect the meetingid, userid and authToken
-        // and reuse them to join via the HTML5 client
-        enterRequest = $.ajax({
-           dataType: 'json',
-           url: '/bigbluebutton/api/enter' + document.location.search
-        });
-
-        enterRequest.done(function(enterData) {
-          meetingId = enterData.response.meetingID;
-          userId = enterData.response.externUserID;
-          authToken = enterData.response.authToken;
-
-          if ((meetingId != null) && (userId != null) && (authToken != null)) {
-            // redirect to the html5 client with the received info
-            // format <IP>/html5client/<meetingId>/<userId>/<authToken>
-            document.location.pathname = "/html5client/join/"+meetingId+"/"+userId+"/"+authToken;
-          } else {
-            // go back to the redirection page
-            document.location.pathname = originalPath;
-          }
-        });
-
-        enterRequest.fail(function(enterData, textStatus, errorThrown){
-          BBBLog.debug("Enter request failed");
-        });
+        // Navigate to HTML5 login
+        document.location.pathname = "/html5client/join";
       }
     </script>
   </head>

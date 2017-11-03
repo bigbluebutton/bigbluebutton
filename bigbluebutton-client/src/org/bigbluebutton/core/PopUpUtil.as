@@ -17,76 +17,101 @@
  *
  */
 package org.bigbluebutton.core {
-    import flash.display.DisplayObject;
-    import flash.utils.Dictionary;
-    import flash.utils.getQualifiedClassName;
+	import flash.display.DisplayObject;
+	import flash.events.KeyboardEvent;
+	import flash.ui.Keyboard;
+	import flash.utils.Dictionary;
+	import flash.utils.getQualifiedClassName;
 
-    import mx.core.FlexGlobals;
-    import mx.core.IChildList;
-    import mx.core.IFlexDisplayObject;
-    import mx.core.IUIComponent;
-    import mx.managers.PopUpManager;
-    import mx.managers.SystemManager;
+	import mx.controls.Alert;
+	import mx.core.FlexGlobals;
+	import mx.core.IChildList;
+	import mx.core.IFlexDisplayObject;
+	import mx.core.IUIComponent;
+	import mx.managers.PopUpManager;
+	import mx.managers.SystemManager;
 
-    import org.as3commons.logging.api.ILogger;
-    import org.as3commons.logging.api.getClassLogger;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.common.IKeyboardClose;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 
-    public final class PopUpUtil {
+	public final class PopUpUtil {
 
-        private static const LOGGER:ILogger = getClassLogger(PopUpUtil);
+		private static const LOGGER:ILogger = getClassLogger(PopUpUtil);
 
-        private static var popUpDict:Dictionary = new Dictionary(true);
+		private static var popUpDict:Dictionary = new Dictionary(true);
 
-        public static function createNonModelPopUp(parent:DisplayObject, className:Class, center:Boolean = true):IFlexDisplayObject {
-            if (!checkPopUpExists(className)) {
-                return addPopUpToStage(parent, className, false, center);
-            }
-            return null;
-        }
+		public static function initAlert():void {
+			Alert.buttonHeight = 30;
+			Alert.buttonWidth = 100;
+			Alert.cancelLabel = ResourceUtil.getInstance().getString('bbb.alert.cancel');
+			Alert.noLabel = ResourceUtil.getInstance().getString('bbb.alert.no');
+			Alert.okLabel = ResourceUtil.getInstance().getString('bbb.alert.ok');
+			Alert.yesLabel = ResourceUtil.getInstance().getString('bbb.alert.yes');
+		}
 
-        public static function createModalPopUp(parent:DisplayObject, className:Class, center:Boolean = true):IFlexDisplayObject {
-            if (!checkPopUpExists(className)) {
-                return addPopUpToStage(parent, className, true, center);
-            }
-            return null;
-        }
+		public static function createNonModalPopUp(parent:DisplayObject, className:Class, center:Boolean = true):IFlexDisplayObject {
+			if (!checkPopUpExists(className)) {
+				return addPopUpToStage(parent, className, false, center);
+			}
+			return null;
+		}
 
-        public static function removePopUp(classOrInstance:*):void {
-            var fqcn:String = getQualifiedClassName(classOrInstance);
-            if (popUpDict[fqcn] != undefined) {
-                PopUpManager.removePopUp(popUpDict[fqcn])
-                delete popUpDict[fqcn];
-                LOGGER.debug("Removed PopUp with type [{0}]", [fqcn]);
-            }
-        }
+		public static function createModalPopUp(parent:DisplayObject, className:Class, center:Boolean = true):IFlexDisplayObject {
+			if (!checkPopUpExists(className)) {
+				return addPopUpToStage(parent, className, true, center);
+			}
+			return null;
+		}
 
-        private static function checkPopUpExists(className:Class):Boolean {
-            LOGGER.debug("Checking if [{0}] exists as a PopUp", [className]);
-            var systemManager:SystemManager = FlexGlobals.topLevelApplication.systemManager;
+		public static function removePopUp(classOrInstance:*):void {
+			var fqcn:String = getQualifiedClassName(classOrInstance);
+			if (popUpDict[fqcn] != undefined) {
+				PopUpManager.removePopUp(popUpDict[fqcn])
+				delete popUpDict[fqcn];
+				LOGGER.debug("Removed PopUp with type [{0}]", [fqcn]);
+			}
+		}
 
-            var childList:IChildList = systemManager.rawChildren;
-            for (var i:int = childList.numChildren - 1; i >= 0; i--) {
-                var childObject:IUIComponent = childList.getChildAt(i) as IUIComponent;
-                // PopUp already exists
-                if (childObject is className && childObject.isPopUp) {
-                    LOGGER.debug("PopUp with type [{0}] found", [className]);
-                    return true;
-                }
-            }
-            LOGGER.debug("No PopUp with type [{0}] not found", [className]);
-            return false;
-        }
+		private static function checkPopUpExists(className:Class):Boolean {
+			LOGGER.debug("Checking if [{0}] exists as a PopUp", [className]);
+			var systemManager:SystemManager = FlexGlobals.topLevelApplication.systemManager;
 
-        private static function addPopUpToStage(parent:DisplayObject, className:Class, modal:Boolean = false, center:Boolean = true):IFlexDisplayObject {
-            var popUp:IFlexDisplayObject = PopUpManager.createPopUp(parent, className, modal);
-            if (center) {
-                PopUpManager.centerPopUp(popUp)
-            }
-            popUpDict[getQualifiedClassName(className)] = popUp;
+			var childList:IChildList = systemManager.rawChildren;
+			for (var i:int = childList.numChildren - 1; i >= 0; i--) {
+				var childObject:IUIComponent = childList.getChildAt(i) as IUIComponent;
+				// PopUp already exists
+				if (childObject is className && childObject.isPopUp) {
+					LOGGER.debug("PopUp with type [{0}] found", [className]);
+					return true;
+				}
+			}
+			LOGGER.debug("No PopUp with type [{0}] not found", [className]);
+			return false;
+		}
 
-            LOGGER.debug("Created PopUp with type [{0}]", [className]);
+		private static function addPopUpToStage(parent:DisplayObject, className:Class, modal:Boolean = false, center:Boolean = true):IFlexDisplayObject {
+			var popUp:IFlexDisplayObject = PopUpManager.createPopUp(parent, className, modal);
+			if (center) {
+				PopUpManager.centerPopUp(popUp)
+			}
+			popUpDict[getQualifiedClassName(className)] = popUp;
 
-            return popUp;
-        }
-    }
+			if (popUp is IKeyboardClose) {
+				popUp.addEventListener(KeyboardEvent.KEY_DOWN, escapeKeyDownHandler);
+			}
+
+			LOGGER.debug("Created PopUp with type [{0}]", [className]);
+
+			return popUp;
+		}
+
+		private static function escapeKeyDownHandler(event:KeyboardEvent):void {
+			if (event.charCode == Keyboard.ESCAPE) {
+				event.currentTarget.removeEventListener(KeyboardEvent.KEY_DOWN, escapeKeyDownHandler);
+				removePopUp(event.currentTarget);
+			}
+		}
+	}
 }

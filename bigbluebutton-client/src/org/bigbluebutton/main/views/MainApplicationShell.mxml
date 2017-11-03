@@ -153,6 +153,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
@@ -189,7 +190,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var _showToolbar:Boolean = true;
 			private const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
 			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
-			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
 			[Bindable] private var footerHeight:Number = 60;
@@ -206,7 +206,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var heightWatch:ChangeWatcher;
 			private var resizeExecuting:Boolean = false;
 
-      private var _respTimer:ResponsivenessTimer;
+  			private var _respTimer:ResponsivenessTimer;
       
 			public function getLogWindow() : LogWindow
 			{
@@ -223,11 +223,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				updateCopyrightText();
 				loadBackground();
+				initQuote();
 				
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;
-					toolbarPaddingTop = 0;
 					calculateCanvasHeight();
 				}
 				toolbar.displayToolbar();
@@ -250,6 +250,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
 					copyrightText = String(brandingOptions.copyright).replace("{0}", appVersion);
+				}
+			}
+			
+			private function initQuote() : void {
+				if (brandingOptions.showQuote) {
+					quoteView.init();
+				} else {
+					quoteView.dispose();
 				}
 			}
 
@@ -485,21 +493,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function versionCheck():void {
 				var browserOptions : BrowserVersionsOptions = Options.getOptions(BrowserVersionsOptions) as BrowserVersionsOptions;
 				if (!StringUtils.isEmpty(browserOptions.chrome) && !StringUtils.isEmpty(browserOptions.firefox) && !StringUtils.isEmpty(browserOptions.flash)) {
-					//find browser version
-					var browserVersion:Array = ExternalInterface.call("determineBrowser");
 					//check browser version
-					if ((browserVersion[0].toString().toLowerCase() == "chrome" && browserVersion[1] < browserOptions.chrome) || browserVersion[0].toString().toLowerCase() == "firefox" && browserVersion[1] < browserOptions.firefox) {
+					if ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion < browserOptions.chrome) || BrowserCheck.isFirefox() && BrowserCheck.browserMajorVersion < browserOptions.firefox) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.title"), 
-							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [browserVersion[0]+" "+browserVersion[1]]),
+							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [BrowserCheck.browserName+" "+BrowserCheck.browserMajorVersion]),
 							'bbb.clientstatus.browser.message'));
 					}
 					
 					//find flash version
 					var flashVersion:Object = getFlashVersion(); 
 					//check flash version
-					if ((flashVersion.os == 'LNX' && browserVersion[0].toString().toLowerCase() != "chrome" && flashVersion.major < 11) || 
-						((flashVersion.os != 'LNX' || browserVersion[0].toString().toLowerCase() == "chrome") && flashVersion.major < browserOptions.flash)) {
+					if ((flashVersion.os == 'LNX' && !BrowserCheck.isChrome() && flashVersion.major < 11) || 
+						((flashVersion.os != 'LNX' || BrowserCheck.isChrome()) && flashVersion.major < browserOptions.flash)) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.title"), 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.message", [flashVersion.major+"."+flashVersion.minor+"."+flashVersion.build]),
@@ -600,7 +606,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function wrongLocaleVersion():void {
-                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModelPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
+                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModalPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
                 if (localeWindow) {
                     var point1:Point = new Point();
                     // Calculate position of TitleWindow in Application's coordinates. 
@@ -622,9 +628,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
                 var options:PhoneOptions = new PhoneOptions();
                 if (!options.showMicrophoneHint) return;
-                var browser:String = ExternalInterface.call("determineBrowser")[0];
                 var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
-                if (browser == "Firefox") {
+                if (BrowserCheck.isFirefox()) {
                     if (browserPermissionHelper) {
 						if (Capabilities.os.indexOf("Mac") >= 0){
 							browserPermissionHelper.currentState = "firefoxMicMacOSX";
@@ -633,9 +638,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							browserPermissionHelper.currentState = "firefoxMic";
 						}
 						browserPermissionHelper.x = 50;
-						browserPermissionHelper.y = 150;
+						browserPermissionHelper.y = 200;
                     }
-                } else if (browser == "Chrome") {
+                } else if (BrowserCheck.isChrome()) {
                     if (browserPermissionHelper) {
 						browserPermissionHelper.currentState = "chromeMic";
 						browserPermissionHelper.x = 50;
@@ -659,14 +664,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-                if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
+                if (BrowserCheck.isChrome()) {
 					// Show browserPermissionHelper component after showing the webcam window due event listeners registration order
                     setTimeout(showbrowserPermissionHelper, 100);
                 }
             }
 			
 			private function showbrowserPermissionHelper() : void {
-				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModelPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
+				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(mdiCanvas, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
 					browserPermissionHelper.currentState = "chromeCam";
 					browserPermissionHelper.x = 20;
@@ -801,7 +806,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateToolbarHeight():void {
 				if (toolbarHeight != 0) {
-					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0 + 10);
+					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0);
 					if (UsersUtil.isBreakout()) {
 						toolbarHeight += toolbar.breakoutRibbon.height;
 					}
@@ -893,6 +898,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (ResourceUtil.getInstance().isRTLEnabled()) {
 					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
 				}
+				PopUpUtil.initAlert();
 			}
 
 		]]>
@@ -905,13 +911,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
-					   width="100%" 
+					   width="100%"
 					   height="{toolbarHeight}" 
 					   visible="{_showToolbar}"
 					   includeInLayout="{showToolbarOpt}"
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
-					   paddingTop="{toolbarPaddingTop}"
 					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
@@ -923,8 +928,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  height="150"
 					  width="100%">
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
-		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="280" height="15"/>
-		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
+		<mx:VBox horizontalCenter="0" verticalCenter="0" horizontalAlign="center" verticalGap="20">
+			<views:QuotesView id="quoteView"/>
+			<views:LoadingBar id="progressBar" width="280" height="15" labelWidth="280" textAlign="center"/>
+		</mx:VBox>
 	</views:MainCanvas>	
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" styleName="defaultControlBarStyle" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >

@@ -1,0 +1,19 @@
+@import "/imports/ui/components/user-list/styles.scss";
+
+.unreadMessages {
+  @extend %flex-column;
+  justify-content: center;
+}
+
+.unreadMessagesText {
+  @extend %flex-column;
+  @extend %no-margin;
+  justify-content: center;
+  color: $color-white;
+  line-height: calc(1rem + 1px);
+  padding: 0 0.5rem;
+  text-align: center;
+  border-radius: 0.5rem/50%;
+  font-size: 0.8rem;
+  background-color: $unread-messages-bg;
+}

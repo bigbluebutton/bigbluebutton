@@ -1,6 +1,6 @@
-import Chats from '/imports/api/2.0/chat';
-import Users from '/imports/api/2.0/users';
-import Meetings from '/imports/api/2.0/meetings';
+import Chats from '/imports/api/chat';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -110,9 +110,10 @@ const isChatLocked = (receiverID) => {
   if (meeting.lockSettingsProp !== undefined) {
     const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
     const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
-    const isViewer = user.role === "VIEWER";
-  
-    return ((isPublic && isPubChatLocked && isViewer && user.locked) || (!isPublic && isPrivChatLocked && isViewer && user.locked));
+    const isViewer = user.role === 'VIEWER';
+
+    return (isPublic && isPubChatLocked && isViewer && user.locked)
+      || (!isPublic && isPrivChatLocked && isViewer && user.locked);
   }
 
   return false;

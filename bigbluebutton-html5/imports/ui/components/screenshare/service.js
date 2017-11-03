@@ -1,5 +1,5 @@
-import Screenshare from '/imports/api/2.0/screenshare';
-import VertoBridge from '/imports/api/2.0/screenshare/client/bridge';
+import Screenshare from '/imports/api/screenshare';
+import VertoBridge from '/imports/api/screenshare/client/bridge';
 import PresentationService from '/imports/ui/components/presentation/service';
 
 // when the meeting information has been updated check to see if it was

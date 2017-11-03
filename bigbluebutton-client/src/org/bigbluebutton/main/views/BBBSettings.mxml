@@ -3,6 +3,8 @@
 		xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:common="org.bigbluebutton.common.*" 
 		xmlns:mate="http://mate.asfusion.com/"
+		implements="org.bigbluebutton.common.IKeyboardClose"
+		show="this.setFocus()"
 		layout="vertical"
 		horizontalAlign="center"
 		showCloseButton="false"
@@ -14,6 +16,7 @@
 			import mx.core.UIComponent;
 			import mx.managers.PopUpManager;
 			
+			import org.bigbluebutton.common.IKeyboardClose;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -54,7 +57,7 @@
 	<mx:VBox id="addedComponents" paddingTop="12" height="100%" />
 
 	<mx:ControlBar width="100%" horizontalAlign="right">
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" click="onOkClicked()"/>
+		<mx:Button id="okBtn" styleName="mainActionButton" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" click="onOkClicked()"/>
 		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" click="onCancelClicked()"/>
 	</mx:ControlBar>
 </mx:TitleWindow>

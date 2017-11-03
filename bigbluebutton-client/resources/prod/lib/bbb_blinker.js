@@ -97,11 +97,9 @@ function determineBrowser()
 	var nameOffset,verOffset,ix;
 
 	// In Opera, the true version is after "Opera" or after "Version"
-	if ((verOffset=nAgt.indexOf("Opera"))!=-1) {
+	if ((verOffset=nAgt.indexOf("OPR/"))!=-1) {
 		browserName = "Opera";
-		fullVersion = nAgt.substring(verOffset+6);
-		if ((verOffset=nAgt.indexOf("Version"))!=-1) 
-			fullVersion = nAgt.substring(verOffset+8);
+		fullVersion = nAgt.substring(verOffset+4);
 	}
 	// In MSIE, the true version is after "MSIE" in userAgent
 	else if ((verOffset=nAgt.indexOf("MSIE"))!=-1) {

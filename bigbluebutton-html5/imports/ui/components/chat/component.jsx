@@ -1,6 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
@@ -35,7 +37,7 @@ const Chat = (props) => {
     maxMessageLength,
     actions,
     intl,
-    } = props;
+  } = props;
 
   return (
     <div className={styles.chat}>
@@ -86,4 +88,38 @@ const Chat = (props) => {
   );
 };
 
-export default injectIntl(Chat);
+export default injectWbResizeEvent(injectIntl(Chat));
+
+const propTypes = {
+  chatID: PropTypes.string.isRequired,
+  chatName: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  messages: PropTypes.arrayOf(
+    PropTypes.objectOf(
+      PropTypes.oneOfType([
+        PropTypes.array,
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.object,
+      ]),
+    ).isRequired,
+  ).isRequired,
+  scrollPosition: PropTypes.number.isRequired,
+  hasUnreadMessages: PropTypes.bool.isRequired,
+  lastReadMessageTime: PropTypes.number.isRequired,
+  partnerIsLoggedOut: PropTypes.bool.isRequired,
+  isChatLocked: PropTypes.bool.isRequired,
+  minMessageLength: PropTypes.number.isRequired,
+  maxMessageLength: PropTypes.number.isRequired,
+  actions: PropTypes.shape({
+    handleClosePrivateChat: PropTypes.func.isRequired,
+    handleReadMessage: PropTypes.func.isRequired,
+    handleScrollUpdate: PropTypes.func.isRequired,
+    handleSendMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+};
+
+Chat.propTypes = propTypes;

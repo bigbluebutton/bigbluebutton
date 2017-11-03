@@ -1,11 +1,12 @@
-import Users from '/imports/api/2.0/users';
-import Chat from '/imports/api/2.0/chat';
-import Meetings from '/imports/api/2.0/meetings';
+import Users from '/imports/api/users';
+import Chat from '/imports/api/chat';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
+import { EMOJI_STATUSES, EMOJI_NORMALIZE } from '/imports/utils/statuses';
+import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -37,21 +38,20 @@ const sortUsersByName = (a, b) => {
 };
 
 const sortUsersByEmoji = (a, b) => {
-  if ((EMOJI_STATUSES.indexOf(a.emoji.status) > -1)
-    && (EMOJI_STATUSES.indexOf(b.emoji.status) > -1)) {
+  const emojiA = a in EMOJI_STATUSES ? EMOJI_STATUSES[a] : a;
+  const emojiB = b in EMOJI_STATUSES ? EMOJI_STATUSES[b] : b;
+
+  if (emojiA && emojiB) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
     } else if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-
-    return sortUsersByName(a, b);
-  } else if (EMOJI_STATUSES.indexOf(a.emoji.status) > -1) {
+  } else if (emojiA) {
     return -1;
-  } else if (EMOJI_STATUSES.indexOf(b.emoji.status) > -1) {
+  } else if (emojiB) {
     return 1;
   }
-
   return 0;
 };
 
@@ -122,6 +122,10 @@ const sortChatsByIcon = (a, b) => {
 
   return 0;
 };
+
+const isPublicChat = chat => (
+  chat.id === 'public'
+);
 
 const sortChats = (a, b) => {
   let sort = sortChatsByIcon(a, b);
@@ -204,6 +208,33 @@ const getOpenChats = (chatID) => {
     .sort(sortChats);
 };
 
+const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
+  const hasAuthority = currentUser.isModerator || user.isCurrent;
+  const allowedToChatPrivately = !user.isCurrent;
+  const allowedToMuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+  const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
+  const allowedToResetStatus = hasAuthority && user.emoji.status !== EMOJI_STATUSES.none;
+
+  // if currentUser is a moderator, allow kicking other users
+  const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+
+  const allowedToSetPresenter = currentUser.isModerator && !user.isPresenter;
+
+  const allowedToPromote = currentUser.isModerator && !user.isCurrent && !user.isModerator;
+  const allowedToDemote = currentUser.isModerator && !user.isCurrent && user.isModerator;
+
+  return {
+    allowedToChatPrivately,
+    allowedToMuteAudio,
+    allowedToUnmuteAudio,
+    allowedToResetStatus,
+    allowedToKick,
+    allowedToSetPresenter,
+    allowedToPromote,
+    allowedToDemote,
+  };
+};
+
 const getCurrentUser = () => {
   const currentUserId = Auth.userID;
   const currentUser = Users.findOne({ userId: currentUserId });
@@ -211,27 +242,49 @@ const getCurrentUser = () => {
   return (currentUser) ? mapUser(currentUser) : null;
 };
 
+const normalizeEmojiName = emoji => (
+  emoji in EMOJI_NORMALIZE ? EMOJI_NORMALIZE[emoji] : emoji
+);
+
 const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id });
   let isLocked = false;
 
   if (meeting.lockSettingsProp !== undefined) {
     const lockSettings = meeting.lockSettingsProp;
-    
-    if (lockSettings.disableCam 
-        || lockSettings.disableMic 
-        || lockSettings.disablePrivChat 
-        || lockSettings.disablePubChat ) {
+
+    if (lockSettings.disableCam
+      || lockSettings.disableMic
+      || lockSettings.disablePrivChat
+      || lockSettings.disablePubChat) {
       isLocked = true;
     }
   }
 
   return isLocked;
-}
+};
+
+const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none'); };
+
+const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
+
+const kickUser = (userId) => { makeCall('kickUser', userId); };
+
+const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
+
+const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 export default {
+  setEmojiStatus,
+  assignPresenter,
+  kickUser,
+  toggleVoice,
+  changeRole,
   getUsers,
   getOpenChats,
   getCurrentUser,
-  isMeetingLocked
+  getAvailableActions,
+  normalizeEmojiName,
+  isMeetingLocked,
+  isPublicChat,
 };

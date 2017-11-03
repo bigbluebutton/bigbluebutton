@@ -23,16 +23,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
 				close="onCloseClick()"
 				layout="absolute"
 				width="600" xmlns:common="org.bigbluebutton.common.*">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import flash.net.navigateToURL;
-
+			
 			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -47,6 +50,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			protected function joinButtonClickHandler(event:MouseEvent):void {
+				if (LiveMeeting.inst().me.inVoiceConf) {
+					LiveMeeting.inst().me.breakoutEjectFromAudio = true;
+				} else {
+					LiveMeeting.inst().me.breakoutEjectFromAudio = false;
+
+				}
 				dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				dispatcher.dispatchEvent(new StopBroadcastEvent());
 				navigateToURL(new URLRequest(this.joinUrl), "_blank");

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:mate="http://mate.asfusion.com/"
+		 width="620"
+		 alpha="0"
+		 verticalScrollPolicy="off"
+		 horizontalScrollPolicy="off">
+
+	<fx:Declarations>
+		<mx:Fade id="dissolveIn"
+				 duration="250"
+				 alphaFrom="0.0"
+				 alphaTo="1.0"
+				 target="{this}"
+				 startDelay="200" />
+		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}"
+					   method="allModulesLoaded" />
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.EffectEvent;
+
+			import org.as3commons.lang.StringUtils;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private function dissolveOutHandler(event:EffectEvent):void {
+				showNewQuote();
+			}
+
+			private function showNewQuote():void {
+				var randomQuoteId:int = Math.ceil(Math.random() * 5);
+				var quote:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.sentence.' + randomQuoteId);
+				var attribution:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.attribution.' + randomQuoteId);
+				if (StringUtils.isEmpty(quote)) {
+					quote = "Research is creating new knowledge."
+				}
+				if (StringUtils.isEmpty(attribution)) {
+					attribution = "Neil Armstrong"
+				}
+				quoteLabel.text = "“ " + quote + " ”";
+				quoteAttribution.text = attribution;
+				dissolveIn.play();
+			}
+
+			private function allModulesLoaded(event:ModuleLoadEvent):void {
+				dispose();
+			}
+
+			public function init():void {
+				showNewQuote();
+			}
+
+			public function dispose():void {
+				if (parent != null)
+					parent.removeChild(this);
+			}
+		]]>
+	</fx:Script>
+
+	<mx:Image source="{getStyle('iconQuote')}" />
+
+	<s:Label id="quoteLabel"
+			 styleName="quoteSentenceStyle"
+			 width="620" />
+
+	<s:Label id="quoteAttribution"
+			 styleName="quoteAttributionStyle"
+			 width="620" />
+
+	<mx:HRule width="120" />
+</mx:VBox>

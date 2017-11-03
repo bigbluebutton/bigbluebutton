@@ -75,6 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
@@ -89,6 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.NetworkStatsData;
 			import org.bigbluebutton.main.model.options.BrandingOptions;
+			import org.bigbluebutton.main.model.options.HelpOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
@@ -98,8 +100,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(MainToolbar);
-
-			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
 			public static const ALIGN_LEFT:String = "ALIGN_LEFT";
@@ -217,6 +217,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					sequence = StringUtils.substringBefore(sequence, ")");
 					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
 				}
+				
+				if (LiveMeeting.inst().me.logoutTimer > 0 ) {
+					idleLogoutButton.startTimer(LiveMeeting.inst().me.logoutTimer);
+				} else {
+					rightBox.removeChild(idleLogoutButton);
+				}
 
 				logFlashPlayerCapabilities();
 			}
@@ -283,7 +289,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
-				navigateToURL(new URLRequest(DEFAULT_HELP_URL))
+				var helpOptions:HelpOptions = Options.getOptions(HelpOptions) as HelpOptions;
+				navigateToURL(new URLRequest(helpOptions.url));
 			}
 			
 			private function handleEndMeetingEvent(event:BBBEvent):void {
@@ -294,13 +301,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout) {
-					var logoutWindow:LogoutWindow;
-					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
+					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true) as LogoutWindow;
 
 					var newX:Number = this.width - logoutWindow.width - 5;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
-
-					PopUpManager.centerPopUp(logoutWindow);
 
 					logoutWindow.x = newX;
 					logoutWindow.y = newY;
@@ -394,7 +398,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
-					setStyle("backgroundColor", brandingOptions.toolbarColor);
+					mainBox.setStyle("backgroundColor", uint("0x" + brandingOptions.toolbarColor.substr(1)));
 				}
 			}
 			
@@ -511,8 +515,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSettingsButtonClick():void {
-				settingsPopup = BBBSettings(PopUpManager.createPopUp(this.parent, BBBSettings, true));
+				settingsPopup = PopUpUtil.createModalPopUp(this.parent, BBBSettings, true) as BBBSettings;
 				settingsPopup.pushComponents(settingsComponents);
+				PopUpManager.centerPopUp(settingsPopup);
 			}
 
 			private function refreshRole(e:ChangeMyRole):void {
@@ -536,7 +541,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label text="|" visible="{timeRemaining.visible}" includeInLayout="{timeRemaining.visible}"/>
 			<mx:Label id="timeRemaining" visible="false" includeInLayout="{timeRemaining.visible}"
 					  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"
-					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
+					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timerForRoom.toolTip')}"/>
 		</mx:HBox>
 		<!-- Top bar -->
 		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
@@ -580,8 +585,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   styleName="helpLinkButtonStyle"
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
+				<views:IdleLogoutButton id="idleLogoutButton" height="30" visible="false" includeInLayout="{idleLogoutButton.visible}"/>
 				<mx:Button id="btnLogout" styleName="logoutButtonStyle"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="30"/>
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}"
+						   right="10" height="30" click="confirmLogout()"/>
 			</mx:HBox>
 		</mx:HBox>
 

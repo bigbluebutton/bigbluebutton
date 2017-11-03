@@ -21,15 +21,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/" 
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
 				xmlns:common="org.bigbluebutton.common.*"
 				minWidth="340" showCloseButton="false" 
-				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
 	
 	<fx:Script>
 		<![CDATA[
-			import mx.events.CloseEvent;
-			
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
@@ -49,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
-					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+					onCancelClicked();
 				}
 			}
 
@@ -141,7 +140,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="20">
-			<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.save')}" 
+			<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.save')}"
+					   styleName="mainActionButton"
 					   click="onSaveClicked()"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.lockSettings.save.tooltip')}"/>
 			

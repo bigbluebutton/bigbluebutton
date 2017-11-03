@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
-import styles from '../styles';
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
@@ -17,6 +15,8 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+
+import styles from '../styles';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -103,10 +103,12 @@ class SettingsDropdown extends Component {
     }
 
     return (
-      <Dropdown autoFocus={true}
-                isOpen={this.state.isSettingOpen}
-                onShow={this.onActionsShow}
-                onHide={this.onActionsHide}>
+      <Dropdown
+        autoFocus
+        isOpen={this.state.isSettingOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+      >
         <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}

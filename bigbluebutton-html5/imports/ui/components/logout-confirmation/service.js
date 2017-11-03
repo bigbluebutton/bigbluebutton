@@ -1,5 +1,5 @@
-import { makeCall } from '/imports/ui/services/api/index.js';
-import Users from '/imports/api/2.0/users';
+import { makeCall } from '/imports/ui/services/api/index';
+import Users from '/imports/api/users';
 import mapUser from '/imports/ui/services/user/mapUser';
 import Auth from '/imports/ui/services/auth';
 
@@ -14,7 +14,7 @@ const isModerator = () => {
   return (currentUser) ? mapUser(currentUser).isModerator : null;
 };
 
-export default {
+export {
   endMeeting,
   isModerator,
 };

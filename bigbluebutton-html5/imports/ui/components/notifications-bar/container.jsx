@@ -4,7 +4,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
-import { humanizeSeconds } from '/imports/utils/humanizeSeconds';
+import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import NavBarService from '../nav-bar/service';
 
 import NotificationsBar from './component';

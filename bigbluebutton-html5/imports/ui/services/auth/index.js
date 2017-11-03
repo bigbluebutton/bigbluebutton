@@ -3,8 +3,8 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import Users2x from '/imports/api/2.0/users';
-import { makeCall, logClient } from '/imports/ui/services/api';
+import Users from '/imports/api/users';
+import { makeCall, log } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -121,7 +121,7 @@ class Auth {
       // do **not** use the custom call - it relies on expired data
       Meteor.call('userLogout', credentialsSnapshot, (error) => {
         if (error) {
-          logClient('error', { error, method: 'userLogout', credentialsSnapshot });
+          log('error', error, { credentials: credentialsSnapshot });
         } else {
           this.fetchLogoutUrl()
             .then(this.clearCredentials)
@@ -158,7 +158,7 @@ class Auth {
           });
         }, 5000);
 
-        const subscription = Meteor.subscribe('current-user2x', credentials);
+        const subscription = Meteor.subscribe('current-user', credentials);
         if (!subscription.ready()) return;
 
         resolve(c);
@@ -187,7 +187,7 @@ class Auth {
 
       Tracker.autorun((c) => {
         const selector = { meetingId: this.meetingID, userId: this.userID };
-        const query = Users2x.find(selector);
+        const query = Users.find(selector);
 
         query.observeChanges({
           changed: (id, fields) => {
@@ -208,7 +208,7 @@ class Auth {
         });
       });
 
-      makeCall('validateAuthToken2x');
+      makeCall('validateAuthToken');
     });
   }
 
