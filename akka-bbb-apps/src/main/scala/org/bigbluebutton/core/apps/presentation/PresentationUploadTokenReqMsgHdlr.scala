@@ -1,51 +1,18 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.util.RandomStringGenerator
 
 trait PresentationUploadTokenReqMsgHdlr {
   this: PresentationApp2x =>
 
-  def handle(
-    msg:         PresentationUploadTokenReqMsg,
-    liveMeeting: LiveMeeting, bus: MessageBus
-  ): Unit = {
+  def handle(msg: PresentationUploadTokenReqMsg, state: MeetingState2x,
+             liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    // TODO move these in Pods
-    def generateToken(podId: String, userId: String): String = {
-      "LALA-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
-    }
-
-    def userIsAllowedToUploadInPod(podId: String, userId: String): Boolean = {
-      true
-    }
-
-    def handlePresentationUploadTokenReqMsg(msg: PresentationUploadTokenReqMsg): Unit = {
-      log.info("handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +
-        " userId=" + msg.header.userId + " filename=" + msg.body.filename)
-
-      /* for {
-        // pod <- findPodWithId(msg.body.podId)
-        token <- generateToken(msg.body.podId, msg.header.userId)
-      } yield {
-        broadcastEvent(msg, token)
-      } */
-
-      if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
-        val token = generateToken(msg.body.podId, msg.header.userId)
-        broadcastPresentationUploadTokenPassResp(msg, token)
-        broadcastPresentationUploadTokenSysPubMsg(msg, token)
-      } else {
-        broadcastPresentationUploadTokenFailResp(msg)
-      }
-
-    }
-
-    handlePresentationUploadTokenReqMsg(msg)
-
-    // helpers
     def broadcastPresentationUploadTokenPassResp(msg: PresentationUploadTokenReqMsg, token: String): Unit = {
       // send back to client
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -81,6 +48,29 @@ trait PresentationUploadTokenReqMsgHdlr {
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
       bus.outGW.send(msgEvent)
+    }
+
+    def userIsAllowedToUploadInPod(podId: String, userId: String): Boolean = {
+      if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, userId)) {
+        for {
+          pod <- PresentationPodsApp.getPresentationPod(state, podId)
+        } yield {
+          return pod.currentPresenter == userId
+        }
+      }
+
+      false
+    }
+
+    log.info("handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +
+      " userId=" + msg.header.userId + " filename=" + msg.body.filename)
+
+    if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
+      val token = PresentationPodsApp.generateToken(msg.body.podId, msg.header.userId)
+      broadcastPresentationUploadTokenPassResp(msg, token)
+      broadcastPresentationUploadTokenSysPubMsg(msg, token)
+    } else {
+      broadcastPresentationUploadTokenFailResp(msg)
     }
   }
 
