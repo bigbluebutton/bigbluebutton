@@ -83,6 +83,15 @@ Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 meeting_id = opts[:meeting_id]
 break_timestamp = opts[:break_timestamp]
 
+# Determine the filenames for the done and fail files
+if !break_timestamp.nil?
+  done_base = "#{meeting_id}-#{break_timestamp}"
+else
+  done_base = meeting_id
+end
+archive_done_file = "#{recording_dir}/status/archived/#{done_base}.done"
+archive_norecord_file = "#{recording_dir}/status/archived/#{done_base}.norecord"
+
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
 
@@ -111,22 +120,25 @@ if not FileTest.directory?(target_dir)
   archive_directory("#{video_dir}/#{meeting_id}",
                     "#{target_dir}/video/#{meeting_id}")
 
+  # TODO we need to check for recording marks in the segment being archived
   if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
     BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")
 
-    # we need to delete the keys here because the sanity phase won't
-    # automatically happen for this recording
-    BigBlueButton.logger.info("Deleting redis keys")
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
-    events_archiver = BigBlueButton::RedisEventsArchiver.new redis
-    events_archiver.delete_events(meeting_id)
+    if break_timestamp.nil?
+      # we need to delete the keys here because the sanity phase might not
+      # automatically happen for this recording
+      BigBlueButton.logger.info("Deleting redis keys")
+      redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+      events_archiver = BigBlueButton::RedisEventsArchiver.new redis
+      events_archiver.delete_events(meeting_id)
+    end
 
-    File.open("#{recording_dir}/status/archived/#{meeting_id}.norecord", "w") do |archive_norecord|
+    File.open(archive_norecord_file, "w") do |archive_norecord|
       archive_norecord.write("Archived #{meeting_id} (no recording marks")
     end
 
   else
-    File.open("#{recording_dir}/status/archived/#{meeting_id}.done", "w") do |archive_done|
+    File.open(archive_done_file, "w") do |archive_done|
       archive_done.write("Archived #{meeting_id}")
     end
   end
