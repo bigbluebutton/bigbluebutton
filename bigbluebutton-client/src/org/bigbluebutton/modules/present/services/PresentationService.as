@@ -158,7 +158,7 @@ package org.bigbluebutton.modules.present.services
 		var currPresentation:Presentation = podManager.getPod(podId).getCurrentPresentation();
 
 		if(currPresentation && presentationID == currPresentation.id) {
-			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION, podId);
 			dispatcher.dispatchEvent(uploadEvent);
 		}
 

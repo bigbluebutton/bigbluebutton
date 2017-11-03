@@ -122,7 +122,7 @@ package org.bigbluebutton.main.api
     }
         
     private function handleDisplayPresentationRequest(presentationID:String):void {
-      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY, "DEFAULT_PRESENTATION_POD");
       readyEvent.presentationName = presentationID;
       _dispatcher.dispatchEvent(readyEvent);
     }

@@ -197,7 +197,7 @@ package org.bigbluebutton.modules.present.business
 			currentUploadCommand = null;
 
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, e.podId));
 		}
 
 		/**

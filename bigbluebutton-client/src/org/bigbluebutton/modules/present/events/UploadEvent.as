@@ -37,8 +37,9 @@ package org.bigbluebutton.modules.present.events
 		public var maxFileSize:Number;
 		public var podId:String;
 		
-		public function UploadEvent(type:String) {
+		public function UploadEvent(type:String, podId: String) {
 			super(type, true, false);
+			this.podId = podId;
 		}
 
 	}
