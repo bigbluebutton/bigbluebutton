@@ -60,18 +60,33 @@ end
 
 def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
   doc = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
-  if !break_timestamp.nil?
-    # Locate the start time for this recording segment
+
+  # Find the start and stop timestamps for the current recording segment
+  start_timestamp = BigBlueButton::Events.get_segment_start_timestamp(
+          doc, break_timestamp)
+  end_timestamp = BigBlueButton::Events.get_segment_end_timestamp(
+          doc, break_timestamp)
+  BigBlueButton.logger.info("Segment start: #{start_timestamp}, end: #{end_timestamp}")
+
+  BigBlueButton.logger.info("Checking for recording marks for #{meeting_id} segment #{break_timestamp}")
+  rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+          BigBlueButton::Events.get_start_and_stop_rec_events(doc))
+  has_recording_marks = false
+  # Scan for a set of recording start/stop events which fits any of these cases:
+  # - Recording started during segment
+  # - Recording stopped during segment
+  # - Recording started before segment and stopped after segment
+  rec_events.each do |rec_event|
+    if (rec_event[:start_timestamp] > start_timestamp
+        and rec_event[:start_timestamp] < end_timestamp)
+      or (rec_event[:end_timestamp] > start_timestamp
+          and rec_event[:end_timestamp] < end_timestamp)
+      or (rec_event[:start_timestamp] <= start_timestamp
+          and rec_event[:end_timestamp] >= end_timestamp)
+      has_recording_marks = true
+    end
   end
-  BigBlueButton.logger.info("Fetching the recording marks for #{meeting_id}.")
-  has_recording_marks = true
-  begin
-    record_events = BigBlueButton::Events.get_record_status_events(doc)
-    BigBlueButton.logger.info("record_events:\n#{BigBlueButton.hash_to_str(record_events)}")
-    has_recording_marks = (not record_events.empty?)
-  rescue => e
-    BigBlueButton.logger.warn("Failed to fetch the recording marks for #{meeting_id}. " + e.to_s)
-  end
+  BigBlueButton.logger.info("Recording marks found: #{has_recording_marks}")
   has_recording_marks
 end
 
@@ -80,7 +95,7 @@ end
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", type: :string
-  opt :break_timestamp, "Chapter break end timestamp", type: :string
+  opt :break_timestamp, "Chapter break end timestamp", type: :integer
 end
 Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 
@@ -124,7 +139,6 @@ if not FileTest.directory?(target_dir)
   archive_directory("#{video_dir}/#{meeting_id}",
                     "#{target_dir}/video/#{meeting_id}")
 
-  # TODO we need to check for recording marks in the segment being archived
   if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
     BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")
 
@@ -133,7 +147,7 @@ if not FileTest.directory?(target_dir)
       # automatically happen for this recording
       BigBlueButton.logger.info("Deleting redis keys")
       redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
-      events_archiver = BigBlueButton::RedisEventsArchiver.new redis
+      events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
       events_archiver.delete_events(meeting_id)
     end
 

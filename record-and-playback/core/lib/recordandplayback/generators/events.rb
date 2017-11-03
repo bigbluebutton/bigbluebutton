@@ -72,16 +72,14 @@ module BigBlueButton
     
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)
-      BigBlueButton.logger.info("Task: Getting the timestamp of the first event.")
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("recording/event").first["timestamp"].to_i
+      first_event = events_xml.at_xpath('/recording/event[position() = 1]')
+      first_event['timestamp'].to_i
     end
     
     # Get the timestamp of the last event.
     def self.last_event_timestamp(events_xml)
-      BigBlueButton.logger.info("Task: Getting the timestamp of the last event")
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("recording/event").last["timestamp"].to_i
+      last_event = events_xml.at_xpath('/recording/event[position() = last()]')
+      last_event['timestamp'].to_i
     end  
     
     # Determine if the start and stop event matched.
@@ -189,7 +187,8 @@ module BigBlueButton
     end
 
     def self.get_matched_start_and_stop_deskshare_events(events_path)
-      last_timestamp = BigBlueButton::Events.last_event_timestamp(events_path)
+      doc = Nokogiri::XML(File.open(events_path))
+      last_timestamp = BigBlueButton::Events.last_event_timestamp(doc)
       deskshare_start_events = BigBlueButton::Events.get_start_deskshare_events(events_path)
       deskshare_stop_events = BigBlueButton::Events.get_stop_deskshare_events(events_path)
       return BigBlueButton::Events.match_start_and_stop_deskshare_events(
@@ -344,8 +343,7 @@ module BigBlueButton
 
     def self.get_start_stop_events_for_edl(archive_dir)
       doc = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
-      initial_timestamp = BigBlueButton::Events.first_event_timestamp(
-              "#{archive_dir}/events.xml")
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(doc)
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
               BigBlueButton::Events.get_start_and_stop_rec_events(doc))
       start_stop_events.each do |record_event|
@@ -541,6 +539,46 @@ module BigBlueButton
       end
       BigBlueButton.logger.debug("No important presentation events found")
       return false
+    end
+
+    # Get the start timestamp for a recording segment with a given break
+    # timestamp (end of segment timestamp). Pass nil to get the start timestamp
+    # of the last segment in a recording.
+    def self.get_segment_start_timestamp(events_xml, break_timestamp)
+      chapter_breaks = events_xml.xpath('/recording/event[@module="PARTICIPANT" and @eventname="RecordChapterBreakEvent"]')
+
+      # Locate the chapter break event for the end of this segment
+      segment_i = chapter_breaks.length
+      chapter_breaks.each_with_index do |event, i|
+        timestamp = event.at_xpath('timestamp').text.to_i
+        if timestamp == break_timestamp
+          segment_i = i
+          break
+        end
+      end
+
+      if segment_i > 0
+        # Get the timestamp of the previous chapter break event
+        event = chapter_breaks[segment_i - 1]
+        return event.at_xpath('timestamp').text.to_i
+      else
+        # This is the first (or only) segment, so return the timestamp of
+        # recording start (first event)
+        return BigBlueButton::Events.first_event_timestamp(events_xml)
+      end
+    end
+
+    # Get the end timestamp for a recording segment with a given break
+    # timestamp.
+    # In most cases, the break timestamp *is* the recording segment end, but
+    # for the last segment (which has no break timestamp), we return the
+    # recording end timestamp (last event) instead.
+    def self.get_segment_end_timestamp(events_xml, break_timestamp)
+      if !break_timestamp.nil?
+        return break_timestamp
+      else
+        return BigBlueButton::Events.last_event_timestamp(events_xml)
+      end
     end
 
     # Version of the bbb server where it was recorded
