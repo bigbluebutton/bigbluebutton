@@ -5,6 +5,7 @@
     <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
     <window name="PresentationWindow0" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
     <window name="ChatWindow0" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow1" width="0.42125" height="0.571428571428571" x="0.3709375" y="0.014285714285714" />
     <window name="SharedNotesWindow" hidden="true" />
     <window name="BroadcastWindow" hidden="true" />
     <window name="CaptionWindow" hidden="true" />
@@ -98,5 +99,14 @@
     <window name="VideoDock" width="0.22125" height="0.337901785714285" x="0.7709375" y="0.647812500000000" order="0"/>
     <window name="BroadcastWindow" hidden="true"/>
     <window name="CaptionWindow" hidden="true"/>
+  </layout>
+  <layout name="Sample Multi Pod Layout">
+    <window name="ChatWindow1" minimized="false" maximized="false" hidden="false" width="0.30000000000000004" height="0.5999999999999999" minWidth="-1" x="0.6972748815165877" y="0.06689734717416378" order="2"/>
+    <window name="UsersWindow" minimized="false" maximized="false" hidden="false" width="0.1895734597156398" height="0.6447520184544406" minWidth="-1" x="0.007701421800947867" y="0.01384083044982699" order="3"/>
+    <window name="ChatWindow0" minimized="false" maximized="false" hidden="false" width="0.30000000000000004" height="0.5999999999999999" minWidth="-1" x="0.7" y="0.3333333333333333" order="0"/>
+    <window name="VideoDock" minimized="false" maximized="false" hidden="false" width="0.1895734597156398" height="0.3033448673587082" minWidth="-1" x="0.007701421800947867" y="0.6816608996539792" order="6"/>
+    <window name="CaptionWindow" minimized="false" maximized="false" hidden="true" width="0" height="0" minWidth="-1" x="0" y="0" order="5"/>
+    <window name="PresentationWindow0" minimized="false" maximized="false" hidden="false" width="0.48992890995260663" height="0.8194925028835064" minWidth="-1" x="0.20319905213270142" y="0.016147635524798153" order="1"/>
+    <window name="SharedNotesWindow" minimized="false" maximized="false" hidden="true" width="0" height="0" minWidth="-1" x="0" y="0" order="4"/>
   </layout>
 </layouts>

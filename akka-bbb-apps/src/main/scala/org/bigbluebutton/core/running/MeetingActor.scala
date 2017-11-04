@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
@@ -28,10 +29,11 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
-import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
+import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -76,7 +78,8 @@ class MeetingActor(
     with SendBreakoutTimeRemainingMsgHdlr
     with ChangeLockSettingsInMeetingCmdMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr
-    with ClientToServerLatencyTracerMsgHdlr {
+    with ClientToServerLatencyTracerMsgHdlr
+    with ValidateConnAuthTokenSysMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -240,12 +243,12 @@ class MeetingActor(
       case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
-      case m: StartPollReqMsg                => pollApp.handle(m, liveMeeting, msgBus)
-      case m: StartCustomPollReqMsg          => pollApp.handle(m, liveMeeting, msgBus)
-      case m: StopPollReqMsg                 => pollApp.handle(m, liveMeeting, msgBus)
-      case m: ShowPollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StartPollReqMsg                => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: StartCustomPollReqMsg          => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: StopPollReqMsg                 => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: ShowPollResultReqMsg           => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: HidePollResultReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
-      case m: GetCurrentPollReqMsg           => pollApp.handle(m, liveMeeting, msgBus)
+      case m: GetCurrentPollReqMsg           => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: RespondToPollReqMsg            => pollApp.handle(m, liveMeeting, msgBus)
 
       // Breakout
@@ -285,12 +288,7 @@ class MeetingActor(
       case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
 
       // Presentation
-      case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationUploadTokenReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
 
       // Presentation Pods
@@ -303,6 +301,11 @@ class MeetingActor(
       case m: SetCurrentPagePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresenterInPodReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionUpdateSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageGeneratedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageCountErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadTokenReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: ResizeAndMovePagePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
@@ -342,6 +345,8 @@ class MeetingActor(
       case m: GetGroupChatsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
       case m: SendGroupChatMessageMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
+      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
+
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -366,7 +371,7 @@ class MeetingActor(
 
   def handlePresenterChange(msg: AssignPresenterReqMsg): Unit = {
     // Stop poll if one is running as presenter left
-    pollApp.stopPoll(msg.header.userId, liveMeeting, msgBus)
+    pollApp.stopPoll(state, msg.header.userId, liveMeeting, msgBus)
 
     // switch user presenter status for old and new presenter
     usersApp.handleAssignPresenterReqMsg(msg)
@@ -414,7 +419,7 @@ class MeetingActor(
     val elapsedInMs = now - lastRecBreakSentOn
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
 
-    if (elapsedInMin > 1) {
+    if (elapsedInMin > recordingChapterBreakLenghtInMinutes) {
       lastRecBreakSentOn = now
       val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
       outGW.send(event)

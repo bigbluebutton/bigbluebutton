@@ -34,23 +34,23 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
+	import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+	import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+	import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-	import org.bigbluebutton.modules.present.events.UploadEvent;
-	import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
-	import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 	import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
 	import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
-	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
-	import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
+	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.Presentation;
-	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
+	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.services.PresentationService;
 	import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
 	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
@@ -92,7 +92,7 @@ package org.bigbluebutton.modules.present.business
 		public function connect(e:PresentModuleEvent):void {
 			extractAttributes(e.data);
 
-			podManager.requestAllPodsPresentationInfo(); // Instead of sender.getPresentationInfo();     
+			podManager.requestAllPodsPresentationInfo();
 		}
 
 		private function extractAttributes(a:Object):void{
@@ -179,8 +179,7 @@ package org.bigbluebutton.modules.present.business
 			if (currentUploadCommand != null && currentUploadCommand.filename == e.filename) {
 				uploadService.upload(currentUploadCommand.podId, currentUploadCommand.filename, currentUploadCommand.file, currentUploadCommand.isDownloadable);
 				currentUploadCommand = null;
-				
-				// TODO
+
 				uploadService = null; // reset upload service so we can use new token for consecutive upload
 			} else {
 
@@ -198,7 +197,7 @@ package org.bigbluebutton.modules.present.business
 			currentUploadCommand = null;
 
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, e.podId));
 		}
 
 		/**
@@ -261,12 +260,17 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void {
-			var currentPresentation:Presentation = podManager.getPod(e.podId).getCurrentPresentation();
+			var pod: PresentationModel = podManager.getPod(e.podId);
+			if (pod == null) {
+				LOGGER.info("Ignoring zoom as pod=" + e.podId + " is null.");
+				return;
+			}
+			var currentPresentation:Presentation = pod.getCurrentPresentation();
 			if (currentPresentation == null) return;
 
 			var currentPage:Page = podManager.getPod(e.podId).getCurrentPage();  
 
-			sender.move(currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+			sender.move(e.podId, currentPresentation.id, currentPage.id, e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 
 		/**
@@ -288,7 +292,7 @@ package org.bigbluebutton.modules.present.business
 		}
 
 		public function handleSetPresenterInPodReqEvent(e: SetPresenterInPodReqEvent): void {
-			sender.handleSetPresenterInPodReqEvent(e.podId, e.nextPresenterId);
+			sender.handleSetPresenterInPodReqEvent(e.podId, e.prevPresenterId, e.nextPresenterId);
 		}
 
 	}

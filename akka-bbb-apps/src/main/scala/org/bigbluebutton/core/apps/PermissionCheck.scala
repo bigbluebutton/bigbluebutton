@@ -4,7 +4,7 @@ import org.bigbluebutton.core.models.{ Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
-object PermisssionCheck {
+object PermissionCheck {
 
   val MOD_LEVEL = 100
   val AUTHED_LEVEL = 50
@@ -23,8 +23,8 @@ object PermisssionCheck {
     }
   }
 
-  private def roleToLevel(user: UserState): Int = {
-    if (user.presenter) PRESENTER_LEVEL else VIEWER_LEVEL
+  private def roleToLevel(users: Users2x, user: UserState): Int = {
+    if (Users2x.userIsInPresenterGroup(users, user.intId) || user.presenter) PRESENTER_LEVEL else VIEWER_LEVEL
   }
 
   /**
@@ -42,12 +42,11 @@ object PermisssionCheck {
       case Some(user) =>
         println("permissionToLevel = " + permissionToLevel(user) + " permissionLevel=" + permissionLevel)
         val permLevelCheck = permissionToLevel(user) >= permissionLevel
-        println("roleToLevel = " + roleToLevel(user) + " roleLevel=" + roleLevel)
-        val roleLevelCheck = roleToLevel(user) >= roleLevel
+        println("roleToLevel = " + roleToLevel(users, user) + " roleLevel=" + roleLevel)
+        val roleLevelCheck = roleToLevel(users, user) >= roleLevel
 
         println("PERMLEVELCHECK = " + permLevelCheck + " ROLELEVELCHECK=" + roleLevelCheck)
         permLevelCheck && roleLevelCheck
-        false
       case None => false
     }
 

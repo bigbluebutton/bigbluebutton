@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.polling.model
     
     private var _currentPoll:SimplePoll;
     
-    private var _polls:ArrayCollection
+    private var _polls:ArrayCollection;
     
     private var _initialized:Boolean = false;
     

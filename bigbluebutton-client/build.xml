@@ -418,6 +418,7 @@
 			<fileset dir="${PROD_RESOURCES_DIR}/help" />
 		</copy>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true" />
+		<copy file="${PROD_RESOURCES_DIR}/guest-wait.html" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/ScreenshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/get_flash_player.gif" todir="${OUTPUT_DIR}" overwrite="true" />
@@ -508,6 +509,4 @@
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-screenshare-standalone,
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" description="Build BBB client without locales" />
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales" />
-
-	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
 </project>

@@ -122,10 +122,11 @@ package org.bigbluebutton.modules.whiteboard.services
     
     private function handleSendCursorPositionEvtMsg(message:Object):void {
       var userId:String = message.header.userId as String;
+      var whiteboardId:String = message.body.whiteboardId as String;
       var xPercent:Number = message.body.xPercent as Number;
-	  var yPercent:Number = message.body.yPercent as Number;
-      
-    LiveMeeting.inst().whiteboardModel.updateCursorPosition(userId, xPercent, yPercent);
+      var yPercent:Number = message.body.yPercent as Number;
+
+      LiveMeeting.inst().whiteboardModel.updateCursorPosition(whiteboardId, userId, xPercent, yPercent);
     }
     
     private function handleServerToClientLatencyTracerMsg(message:Object):void {

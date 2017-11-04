@@ -101,8 +101,13 @@ class UserActor(val userId: String,
           log.info("-- trace -- " + msg.json)
         }
 
+        // Override the meetingId and userId on the message from client. This
+        // will prevent spoofing of messages. (ralam oct 30, 2017)
+        val newHeader = BbbClientMsgHeader(msgFromClient.header.name, meetingId, userId)
+        val msgClient = msgFromClient.copy(header = newHeader)
+        val json = JsonUtil.toJson(msgClient)
         for {
-          jsonNode <- convertToJsonNode(msg.json)
+          jsonNode <- convertToJsonNode(json)
         } yield {
           val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
           msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
@@ -114,7 +119,7 @@ class UserActor(val userId: String,
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** UserActor handleBbbServerMsg " + msg)
+    //log.debug("**** UserActor handleBbbServerMsg " + msg)
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {
@@ -123,7 +128,7 @@ class UserActor(val userId: String,
   }
 
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** UserActor handleServerMsg " + msg)
+   // log.debug("**** UserActor handleServerMsg " + msg)
     msgType match {
       case MessageTypes.DIRECT => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
@@ -132,7 +137,7 @@ class UserActor(val userId: String,
   }
 
   private def forwardToUser(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("UserActor forwardToUser. Forwarding to connection. " + msg)
+    //log.debug("UserActor forwardToUser. Forwarding to connection. " + msg)
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {

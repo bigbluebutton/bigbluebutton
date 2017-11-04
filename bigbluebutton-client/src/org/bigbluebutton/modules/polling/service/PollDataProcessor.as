@@ -41,10 +41,11 @@ package org.bigbluebutton.modules.polling.service
         ans.push(new SimpleAnswer(Number(String(a.id)), a.key));
       }
 
-      model.setCurrentPoll(new SimplePoll(pollId, ans));
-      dispatcher.dispatchEvent(new PollStartedEvent(new SimplePoll(pollId, ans)));
+      var simplePollInstance:SimplePoll = new SimplePoll(pollId, ans);
+      model.setCurrentPoll(simplePollInstance);
+      dispatcher.dispatchEvent(new PollStartedEvent(simplePollInstance));
     }
-    
+
     public function handlePollStoppedMesage(msg:Object):void {
       dispatcher.dispatchEvent(new PollStoppedEvent());
     }

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
@@ -54,6 +55,11 @@ trait HandlerHelpers extends SystemConfiguration {
         if (!Users2x.hasPresenter(liveMeeting.users2x)) {
           automaticallyAssignPresenter(outGW, liveMeeting)
         }
+
+        if (newUser.role == Roles.MODERATOR_ROLE) {
+          UsersApp.addUserToPresenterGroup(liveMeeting, outGW, newUser.intId, newUser.intId)
+        }
+
         state.update(state.expiryTracker.setUserHasJoined())
       case None =>
         state
@@ -210,6 +216,15 @@ trait HandlerHelpers extends SystemConfiguration {
     val header = BbbCoreBaseHeader(MeetingEndedEvtMsg.NAME)
     val event = MeetingEndedEvtMsg(header, body)
 
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRemoveUserFromPresenterGroup(meetingId: String, userId: String, requesterId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserRemovedFromPresenterGroupEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(UserRemovedFromPresenterGroupEvtMsg.NAME, meetingId, userId)
+    val body = UserRemovedFromPresenterGroupEvtMsgBody(userId, requesterId)
+    val event = UserRemovedFromPresenterGroupEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }

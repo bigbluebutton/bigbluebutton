@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.apps.PermissionCheck
 
 trait ChangeUserRoleCmdMsgHdlr {
   this: UsersApp =>
@@ -11,15 +12,21 @@ trait ChangeUserRoleCmdMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleChangeUserRoleCmdMsg(msg: ChangeUserRoleCmdMsg) {
-    for {
-      uvo <- Users2x.changeRole(liveMeeting.users2x, msg.body.userId, msg.body.role)
-    } yield {
-      val userRole = if (uvo.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to change user role in meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+    } else {
+      for {
+        uvo <- Users2x.changeRole(liveMeeting.users2x, msg.body.userId, msg.body.role)
+      } yield {
+        val userRole = if (uvo.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
 
-      val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
-        msg.body.changedBy, userRole)
+        val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
+          msg.body.changedBy, userRole)
 
-      outGW.send(event)
+        outGW.send(event)
+      }
     }
   }
 

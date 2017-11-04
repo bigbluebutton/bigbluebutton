@@ -24,7 +24,7 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   }
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
-    log.debug("****** Received JSON msg " + msg.data)
+    //log.debug("****** Received JSON msg " + msg.data)
     JsonUtil.fromJson[BbbCommonEnvJsNodeMsg](msg.data) match {
       case Success(m) => msgFromAkkaAppsEventBus.publish(MsgFromAkkaApps(fromAkkaAppsChannel, m))
       case Failure(ex) => log.error("Failed to deserialize message " + ex)

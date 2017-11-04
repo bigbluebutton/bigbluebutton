@@ -160,10 +160,10 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * @param yPercent
 		 * 
 		 */
-		public function sendCursorPosition(xPercent:Number, yPercent:Number):void {
+		public function sendCursorPosition(whiteboardId: String, xPercent:Number, yPercent:Number):void {
 			var message:Object = {
 				header: {name: "SendCursorPositionPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-				body: {xPercent: xPercent, yPercent: yPercent}
+				body: {whiteboardId: whiteboardId, xPercent: xPercent, yPercent: yPercent}
 			};
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();

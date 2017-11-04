@@ -34,6 +34,7 @@ public class VideoStream {
         recordingStreamName = stream.getPublishedName() + "-" + now;
         try {
             log.info("Recording stream " + recordingStreamName);
+            videoStreamListener.setStreamId(recordingStreamName);
             cstream.saveAs(recordingStreamName, false);
         } catch (Exception e) {
             log.error("ERROR while recording stream " + e.getMessage());
@@ -44,12 +45,14 @@ public class VideoStream {
     public synchronized void stopRecording() {
         if (cstream.isRecording()) {
             cstream.stopRecording();
+            videoStreamListener.stopRecording();
             videoStreamListener.reset();
         }
     }
 
     public synchronized void stopStartRecording() {
         stopRecording();
+        videoStreamListener.reset();
         startRecording();
     }
 
