@@ -25,7 +25,9 @@ const defaultProps = {
 
 export default class DropdownContent extends Component {
   render() {
-    const { placement, className, children, style } = this.props;
+    const {
+      placement, className, children, style,
+    } = this.props;
     const { dropdownToggle, dropdownShow, dropdownHide } = this.props;
 
     const placementName = placement.split(' ').join('-');
@@ -40,6 +42,7 @@ export default class DropdownContent extends Component {
       <div
         style={style}
         aria-expanded={this.props['aria-expanded']}
+        data-test="dropdownContent"
         className={cx(styles.content, styles[placementName], className)}
       >
         <div className={styles.scrollable}>

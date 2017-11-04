@@ -111,6 +111,7 @@ class SettingsDropdown extends Component {
       >
         <DropdownTrigger tabIndex={0}>
           <Button
+            data-test="settingsDropdownTrigger"
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             ghost
@@ -149,6 +150,7 @@ class SettingsDropdown extends Component {
               label={intl.formatMessage(intlMessages.leaveSessionLabel)}
               description={intl.formatMessage(intlMessages.leaveSessionDesc)}
               onClick={() => mountModal(<LogoutConfirmationContainer />)}
+              data-test="settingsDropdownLogoutButton"
             />
           </DropdownList>
         </DropdownContent>
