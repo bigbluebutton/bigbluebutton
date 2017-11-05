@@ -29,7 +29,7 @@
 				var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.podId, data.presId);
 				globalDispatch.dispatchEvent(changePresCommand);
 
-				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, data.podId));
 			}
 
 			private function deletePresentation():void {

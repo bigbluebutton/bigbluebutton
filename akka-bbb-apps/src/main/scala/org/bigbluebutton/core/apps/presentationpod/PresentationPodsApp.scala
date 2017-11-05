@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.presentationpod
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.util.RandomStringGenerator
 
 object PresentationPodsApp {
 
@@ -74,6 +75,10 @@ object PresentationPodsApp {
     } yield {
       defPod.copy(ownerId = newOwnerId)
     }
+  }
+
+  def generateToken(podId: String, userId: String): String = {
+    "LALA-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
   }
 }
 

@@ -1,16 +1,17 @@
-package org.bigbluebutton.core.apps.presentation
+package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationPageCountErrorPubMsgHdlr {
-  this: PresentationApp2x =>
+  this: PresentationPodHdlrs =>
 
   def handle(
-    msg:         PresentationPageCountErrorSysPubMsg,
+    msg: PresentationPageCountErrorSysPubMsg, state: MeetingState2x,
     liveMeeting: LiveMeeting, bus: MessageBus
-  ): Unit = {
+  ): MeetingState2x = {
 
     def broadcastEvent(msg: PresentationPageCountErrorSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(
@@ -30,5 +31,6 @@ trait PresentationPageCountErrorPubMsgHdlr {
     }
 
     broadcastEvent(msg)
+    state
   }
 }

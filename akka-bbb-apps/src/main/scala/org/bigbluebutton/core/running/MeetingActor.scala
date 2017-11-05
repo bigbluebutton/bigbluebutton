@@ -288,12 +288,7 @@ class MeetingActor(
       case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
 
       // Presentation
-      case m: ResizeAndMovePagePubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationUploadTokenReqMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationConversionUpdateSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationPageCountErrorSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: PresentationPageGeneratedSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg => handlePresenterChange(m)
 
       // Presentation Pods
@@ -306,6 +301,11 @@ class MeetingActor(
       case m: SetCurrentPagePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresenterInPodReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionUpdateSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageGeneratedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageCountErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadTokenReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: ResizeAndMovePagePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <actionScriptProperties analytics="false" mainApplicationPath="BigBlueButton.mxml" projectUUID="d0ee1158-6eb2-478c-9e78-b5aa55d7b59c" version="11">
-  <compiler additionalCompilerArguments="-locale en_US&#13;&#10;-show-unused-type-selector-warnings=false" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="true" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="false" verifyDigests="true" warn="true">
+  <compiler additionalCompilerArguments="-locale en_US&#13;&#10;-allow-source-path-overlap=true&#13;&#10;-show-unused-type-selector-warnings=false" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="true" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="false" verifyDigests="true" warn="true">
     <compilerSourcePath>
       <compilerSourcePathEntry kind="1" linkType="1" path="branding/default/style/css"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">
@@ -33,6 +34,8 @@
     <module application="src/BigBlueButton.mxml" destPath="ScreenshareModule.swf" optimize="true" sourcePath="src/ScreenshareModule.mxml"/>
   </modules>
   <workers/>
-  <buildCSSFiles/>
+  <buildCSSFiles>
+    <buildCSSFileEntry destPath="bin-debug" sourcePath="branding/default/style/css/V2Theme.css"/>
+  </buildCSSFiles>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
 </actionScriptProperties>

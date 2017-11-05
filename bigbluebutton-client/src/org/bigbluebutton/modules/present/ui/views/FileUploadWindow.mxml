@@ -338,7 +338,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
         enableClosing();
 		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.podId, e.presId));
-        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, e.podId));
       }
 
 		private function disableClosing():void {
@@ -360,13 +360,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function onCancelClicked():void {
-			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, this.podId));
 		}
 		
 		private function retryButtonClikcHandler(event:MouseEvent):void {
-			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, this.podId));
 			setTimeout(function():void {
-				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW, this.podId));
 			}, 100);
 		}
 	]]>

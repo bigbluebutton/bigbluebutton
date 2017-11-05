@@ -1,16 +1,15 @@
-package org.bigbluebutton.core.apps.presentation
+package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationPageGeneratedPubMsgHdlr {
-  this: PresentationApp2x =>
+  this: PresentationPodHdlrs =>
 
-  def handle(
-    msg:         PresentationPageGeneratedSysPubMsg,
-    liveMeeting: LiveMeeting, bus: MessageBus
-  ): Unit = {
+  def handle(msg: PresentationPageGeneratedSysPubMsg, state: MeetingState2x,
+             liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
     def broadcastEvent(msg: PresentationPageGeneratedSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(
@@ -30,5 +29,6 @@ trait PresentationPageGeneratedPubMsgHdlr {
     }
 
     broadcastEvent(msg)
+    state
   }
 }

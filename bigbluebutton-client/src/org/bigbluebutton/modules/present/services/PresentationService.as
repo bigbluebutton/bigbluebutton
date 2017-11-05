@@ -48,18 +48,20 @@ package org.bigbluebutton.modules.present.services
           podManager.getPod(podId).printPresentations("PresentationService::pageChanged aft");
       }       
     }
-    
-    public function pageMoved(pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-//      var np: Page = model.getPage(pageId);
-//      if (np != null) {
-//        np.xOffset = xOffset;
-//        np.yOffset = yOffset;
-//        np.widthRatio = widthRatio;
-//        np.heightRatio = heightRatio;
-////        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
-//        var event: PageChangedEvent = new PageChangedEvent(np.id);
-//        dispatcher.dispatchEvent(event);           
-//      }       
+
+    public function pageMoved(podId: String, pageId:String, xOffset:Number, yOffset:Number,
+                              widthRatio:Number, heightRatio:Number):void {
+
+      var np: Page = podManager.getPod(podId).getPage(pageId);
+      if (np != null) {
+        np.xOffset = xOffset;
+        np.yOffset = yOffset;
+        np.widthRatio = widthRatio;
+        np.heightRatio = heightRatio;
+//        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
+        var event: PageChangedEvent = new PageChangedEvent(podId, np.id);
+        dispatcher.dispatchEvent(event);
+      }
     }
     
     private function copyPageVOToPage(p: PageVO):Page {
@@ -156,7 +158,7 @@ package org.bigbluebutton.modules.present.services
 		var currPresentation:Presentation = podManager.getPod(podId).getCurrentPresentation();
 
 		if(currPresentation && presentationID == currPresentation.id) {
-			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION, podId);
 			dispatcher.dispatchEvent(uploadEvent);
 		}
 
