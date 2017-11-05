@@ -45,15 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 		<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 		<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />	
-		<mate:Listener type="{MeetingNotFoundEvent.MEETING_NOT_FOUND}" method="handleMeetingNotFoundEvent" />
-		<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="handleLogout" />
-	    <mate:Listener type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" method="handleLogout" />
-		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_FAILED}" method="attemptReconnect" />
-		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
-		<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
-		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-		<mate:Listener type="{ExitApplicationEvent.EXIT_APPLICATION}" method="handleExitApplicationEvent" />
-		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
+		<mate:Listener type="{ExitApplicationEvent.CLOSE_APPLICATION}" method="handleCloseApplication"/>
 		<mate:Listener type="{FullscreenToggledEvent.IS_FULLSCREEN_TOGGLED}" method="handleFullscreenToggleState"  />
 		<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
 		<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
@@ -70,30 +62,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
 		<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 		<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
-		<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 		
 		<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
 	
 		<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
-		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
 		<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
 		<mate:Listener type="{NewGuestWaitingEvent.NEW_GUEST_WAITING}" method="refreshGuestView" />
 		<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
 		<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
 		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
     	<mate:Listener type="{RoundTripLatencyReceivedEvent.ROUND_TRIP_LATENCY_RECEIVED}" method="handleRoundTripLatencyReceivedEvent"/>
-    
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.Event;
-			import flash.events.IOErrorEvent;
 			import flash.events.TextEvent;
 			import flash.geom.Point;
-			import flash.net.navigateToURL;
 			import flash.utils.setTimeout;
 			
 			import mx.binding.utils.ChangeWatcher;
@@ -128,10 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
-			import org.bigbluebutton.main.events.ConfigLoadedEvent;
 			import org.bigbluebutton.main.events.ExitApplicationEvent;
-			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -142,7 +126,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
 			import org.bigbluebutton.main.model.options.LanguageOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
@@ -209,10 +192,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return logWindow;
 			}
       
-			public function initOptions(e:Event):void {
-				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
+			public function initOptions():void {
 				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
+				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				
 				updateCopyrightText();
 				loadBackground();
@@ -247,10 +230,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function initQuote() : void {
-				if (brandingOptions.showQuote) {
-					quoteView.init();
-				} else {
+				if (!brandingOptions.showQuote) {
 					quoteView.dispose();
+				} else {
+					quoteView.init();
 				}
 			}
 
@@ -258,6 +241,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				globalDispatcher = new Dispatcher();
 
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
+				
+				initOptions();
 			}
 			
 			// See this stackoverflow post for an explanation on why the size watching is done this way, https://stackoverflow.com/a/2141223
@@ -321,7 +306,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				var logData:Object = UsersUtil.initLogData();
-
+				
 				appVersion = event.appVersion;
 				updateCopyrightText();
 
@@ -436,12 +421,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var window:IBbbModuleWindow = event.window;
 	   			mdiCanvas.addWindow(window);
 	   		}
-	   		
-	   		private function handleCloseWindowEvent(event:CloseWindowEvent):void {
-	   			var window:IBbbModuleWindow = event.window;
-				  mdiCanvas.removeWindow(window);
-	   		}
-	   		
+			
+			private function handleCloseWindowEvent(event:CloseWindowEvent):void {
+				var window:IBbbModuleWindow = event.window;
+				mdiCanvas.removeWindow(window);
+			}
+
 			private function versionCheck():void {
 				var browserOptions : BrowserVersionsOptions = Options.getOptions(BrowserVersionsOptions) as BrowserVersionsOptions;
 				if (!StringUtils.isEmpty(browserOptions.chrome) && !StringUtils.isEmpty(browserOptions.firefox) && !StringUtils.isEmpty(browserOptions.flash)) {
@@ -599,44 +584,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-            private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
-                showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
-            }
-
-            private function showlogoutWindow(reason:String):void {
-                if (layoutOptions != null && layoutOptions.showLogoutWindow) {
-                    if (UsersUtil.iAskedToLogout()) {
-                        handleExitApplicationEvent();
-                        return;
-                    }
-                    var loggedOutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(mdiCanvas, LoggedOutWindow, false) as LoggedOutWindow;
-                    if (loggedOutWindow) {
-                        var point1:Point = new Point();
-                        // Calculate position of TitleWindow in Application's coordinates. 
-                        point1.x = width / 2;
-                        point1.y = height / 2;
-                        loggedOutWindow.x = point1.x - (loggedOutWindow.width / 2);
-                        loggedOutWindow.y = point1.y - (loggedOutWindow.height / 2);
-
-                        loggedOutWindow.setReason(reason);
-                        mdiCanvas.removeAllPopUps();
-                        removeToolBars();
-                    }
-                } else {
-                    mdiCanvas.removeAllPopUps();
-                    removeToolBars();
-                    var serverURL:String = FlexGlobals.topLevelApplication.determineHtmlUrl();
-                    var pageHost:String = serverURL.split("/")[0];
-                    var pageURL:String = serverURL.split("/")[2];
-                    LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
-                    var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-                    var urlLoader:URLLoader = new URLLoader();
-                    urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);
-                    urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
-                    urlLoader.load(request);
-                }
-            }
-
             /**
              * Removes toolbars from the display list.
              * Used only when the user completely logged out.
@@ -646,43 +593,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 this.removeChild(controlBar);
             }
 
-            private function handleLogout(e:ConnectionFailedEvent):void {
-                if (e is ConnectionFailedEvent) {
-                    showlogoutWindow((e as ConnectionFailedEvent).type);
-                } else
-                    showlogoutWindow("You have logged out of the conference");
-            }
-
-            private function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
-                if (! UsersUtil.isBreakout()) {
-                    navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
-                } else {
-                    ExternalInterface.call("window.close");
-                }
-            }
-
-			private function redirectToLogoutUrl ():void {
-        		var logoutURL:String = BBB.getLogoutURL();
-				var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Logging out to: {0}", [logoutURL]);
-				navigateToURL(request, '_self');
-			}
-			
-
-			private function handleLogoutError(e:Event):void {
-				LOGGER.debug("Call to signOut URL failed.");
-				redirectToLogoutUrl();
-			}
-			
-			private function handleLogoutComplete(e:Event):void {	
-				LOGGER.debug("Call to signOut URL succeeded.");
-				redirectToLogoutUrl();
-			}
-			
-			private function attemptReconnect(e:ConnectionFailedEvent):void{
-				handleLogout(e);
-			}
-			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
 					var newComponentTabIndex:int = tabIndexer.startIndex + addedBtns.numChildren + 10;
@@ -702,11 +612,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleWebRTCCallEndedEvent(e:WebRTCCallEvent):void {
 				lblWebRTC.visible = lblWebRTC.includeInLayout = false;
 			}
-
-            private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
-                showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
-                globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
-            }
 
 			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {
 				if (addedBtns.contains(event.button as UIComponent))
@@ -825,6 +730,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				PopUpUtil.initAlert();
 			}
 
+			private function handleCloseApplication(event:ExitApplicationEvent):void {
+				mdiCanvas.removeAllPopUps();
+				removeToolBars();
+			}
 		]]>
 	</fx:Script>
 
@@ -840,7 +749,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   visible="{_showToolbar}"
 					   includeInLayout="{showToolbarOpt}"
 					   verticalAlign="middle" 
-					   toolbarOptions="{layoutOptions}" 
 					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->

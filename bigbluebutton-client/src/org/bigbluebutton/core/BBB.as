@@ -21,7 +21,6 @@ package org.bigbluebutton.core {
 	import flash.system.Capabilities;
 	
 	import mx.core.FlexGlobals;
-	import mx.utils.URLUtil;
 	
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
@@ -127,10 +126,8 @@ package org.bigbluebutton.core {
 			return logoutUrl;
 		}
 
-		private static function getBaseURL():String {
-			var protocol:String = URLUtil.getProtocol(FlexGlobals.topLevelApplication.determineHtmlUrl());
-			var serverName:String = URLUtil.getServerNameWithPort(FlexGlobals.topLevelApplication.determineHtmlUrl());
-			return protocol + "://" + serverName;
+		public static function getBaseURL():String {
+			return FlexGlobals.topLevelApplication.loaderInfo.parameters.origin
 		}
 	}
 }

@@ -23,7 +23,13 @@ package org.bigbluebutton.main.model.options {
 
 		[Bindable]
 		public var userSelectionEnabled:Boolean = true;
+
+		[Bindable]
+		public var localesConfig:String = "";
 		
+		[Bindable]
+		public var localesDirectory:String = "";
+
 		[Bindable]
 		public var rtlEnabled:Boolean = false;
 

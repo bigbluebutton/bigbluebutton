@@ -152,6 +152,7 @@ package org.bigbluebutton.main.model.users
               }
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
             }
       
             if (reconnecting) {
@@ -319,6 +320,7 @@ package org.bigbluebutton.main.model.users
               LiveMeeting.inst().me.authTokenValid = true;
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
             }
 
             if (reconnecting) {
@@ -345,6 +347,7 @@ package org.bigbluebutton.main.model.users
 //              LiveMeeting.inst().me.authTokenValid = true;
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
             }
       
             if (reconnecting) {
