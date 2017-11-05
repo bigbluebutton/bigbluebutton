@@ -232,6 +232,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function initQuote() : void {
 				if (!brandingOptions.showQuote) {
 					quoteView.dispose();
+				} else {
+					quoteView.init();
 				}
 			}
 

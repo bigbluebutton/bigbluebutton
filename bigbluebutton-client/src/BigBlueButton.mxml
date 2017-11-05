@@ -34,6 +34,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Style source="../branding/default/style/css/V2Theme.css" />
 
+	<fx:Metadata> 
+		[ResourceBundle("bbbResources")] 
+	</fx:Metadata>
+
 	<fx:Script>
 		<![CDATA[
 			import org.as3commons.logging.api.ILogger;

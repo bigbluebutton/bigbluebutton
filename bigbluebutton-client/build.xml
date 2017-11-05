@@ -287,7 +287,9 @@
 				<default-background-color>0xFFFFFF</default-background-color>
 				<source-path path-element="@{themeDir}" />
 				<source-path path-element="@{flex}/frameworks" />
+				<source-path path-element="@{app}/locale/{locale}" />
 				<show-unused-type-selector-warnings>false</show-unused-type-selector-warnings>
+				<allow-source-path-overlap>true</allow-source-path-overlap>
 
 				<theme dir="@{flex}/frameworks/themes/Halo">
 					<include name="halo.swc" />

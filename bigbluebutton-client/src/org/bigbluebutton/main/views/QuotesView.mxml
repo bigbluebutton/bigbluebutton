@@ -35,29 +35,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 alphaTo="1.0"
 				 target="{this}"
 				 startDelay="200" />
-		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}"
 					   method="allModulesLoaded" />
 	</fx:Declarations>
 
 	<fx:Script>
 		<![CDATA[
-			import org.as3commons.lang.StringUtils;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-
-			private function localeChanged(e:LocaleChangeEvent):void {
+			public function init():void {
 				var randomQuoteId:int = Math.ceil(Math.random() * 5);
 				var quote:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.sentence.' + randomQuoteId);
 				var attribution:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.attribution.' + randomQuoteId);
-				if (StringUtils.isEmpty(quote)) {
-					quote = "Research is creating new knowledge."
-				}
-				if (StringUtils.isEmpty(attribution)) {
-					attribution = "Neil Armstrong"
-				}
 				quoteLabel.text = "“ " + quote + " ”";
 				quoteAttribution.text = attribution;
 				dissolveIn.play();
