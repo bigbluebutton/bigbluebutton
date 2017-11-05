@@ -30,7 +30,6 @@ package org.bigbluebutton.util.i18n
 	import flash.net.URLRequest;
 	
 	import mx.events.ResourceEvent;
-	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 	
 	import org.as3commons.lang.StringUtils;
@@ -54,7 +53,6 @@ package org.bigbluebutton.util.i18n
 		
 		[Bindable] public var locales:Array = new Array();
 		
-		private var resourceManager:IResourceManager;
 		private var preferredLocale:String
 		private var preferredDirection:String
 		private var masterLocaleLoaded:Boolean = false;
@@ -74,7 +72,6 @@ package org.bigbluebutton.util.i18n
 		public function initialize():void {
 			var languageOptions : LanguageOptions = Options.getOptions(LanguageOptions) as LanguageOptions;
 			
-			resourceManager = ResourceManager.getInstance();
 			// Add a random string on the query so that we always get an up-to-date config.xml
 			var date:Date = new Date();
 			
@@ -199,7 +196,7 @@ package org.bigbluebutton.util.i18n
 			var date:Date = new Date();
 			var localeURI:String = languageOptions.localesDirectory + language + '_resources.swf?a=' + date.time;
       		trace("Loading locale " +  localeURI);
-			return resourceManager.loadResourceModule( localeURI, false);
+			return ResourceManager.getInstance().loadResourceModule( localeURI, false);
 		}		
 		
 		public static function getInstance():ResourceUtil {
@@ -230,7 +227,7 @@ package org.bigbluebutton.util.i18n
 		private function localeChangeComplete(event:ResourceEvent):void {
 			// Set the preferred locale and master as backup.
 			if (preferredLocale != MASTER_LOCALE) {
-				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
+				ResourceManager.getInstance().localeChain = [preferredLocale, MASTER_LOCALE];
 			} else {
 				if (preferredLocale != MASTER_LOCALE) {
                     var logData:Object = UsersUtil.initLogData();
@@ -239,7 +236,7 @@ package org.bigbluebutton.util.i18n
                     trace(JSON.stringify(logData));
 				}
 				masterLocaleLoaded = true;
-				resourceManager.localeChain = [MASTER_LOCALE];
+				ResourceManager.getInstance().localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
 			}
 			
@@ -252,7 +249,7 @@ package org.bigbluebutton.util.i18n
 		 */
 		private function handleResourceNotLoaded(event:ResourceEvent):void {
 			trace("Resource locale [" + preferredLocale + "] could not be loaded.");
-			resourceManager.localeChain = [MASTER_LOCALE];
+			ResourceManager.getInstance().localeChain = [MASTER_LOCALE];
 			preferredLocale = MASTER_LOCALE;
 			update();
 		}
@@ -273,13 +270,13 @@ package org.bigbluebutton.util.i18n
 			 * the key is available in the locale and thus not bother falling back to the master locale.
 			 *    (ralam dec 15, 2011).
 			 */
-			if (resourceManager.getObject(BBB_RESOURCE_BUNDLE, resourceName, locale) == undefined) {
+			if (ResourceManager.getInstance().getObject(BBB_RESOURCE_BUNDLE, resourceName, locale) == undefined) {
 				locale = MASTER_LOCALE;
 			}
 
-			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
+			var localeTxt:String = ResourceManager.getInstance().getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
 			if (locale != MASTER_LOCALE && StringUtils.isEmpty(localeTxt)) {
-				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
+				localeTxt = ResourceManager.getInstance().getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
 			}
 			return localeTxt;
 		}
