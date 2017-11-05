@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
 		<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
-		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
 		<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
 		<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
@@ -78,7 +77,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.model.Config;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigLoadedEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
@@ -129,7 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
 				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
-
+				
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -138,6 +136,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 timer.start();
 
 				BindingUtils.bindSetter(refreshModeratorButtonsVisibility, LiveMeeting.inst().meeting, "recorded");
+				
+				initConfig();
 			}
 
 			private function checkAccessiblity(e:TimerEvent):void {
@@ -389,7 +389,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					addedBtnsWebcam.removeChild(event.button as UIComponent);
 			}
 			
-			private function handleConfigLoadedEvent(e:ConfigLoadedEvent):void{
+			private function initConfig():void{
 				var config:Config = BBB.getConfigManager().config;
 				var shortcutKeysOptions : ShortcutKeysOptions = Options.getOptions(ShortcutKeysOptions) as ShortcutKeysOptions;
 				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = shortcutKeysOptions.showButton;
