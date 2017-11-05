@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.layout.views {
 			_dispatcher.dispatchEvent(evt);
 		}
 		
-		public function enableEdit(editable:Boolean):void {
+		public function set enableEdit(editable:Boolean):void {
 			layoutButton.enableEditOptions(editable);
 		}
 		

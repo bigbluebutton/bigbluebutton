@@ -75,11 +75,11 @@ package org.bigbluebutton.main.model.modules
 			BBB.getConfigManager();
 			BBB.loadConfig();
 		}
-		
+
 		public function useProtocol(tunnel:Boolean):void {
-      BBB.initConnectionManager().isTunnelling = tunnel;			
+			BBB.initConnectionManager().isTunnelling = tunnel;
 		}
-		
+
 		public function get portTestHost():String {
 			return portTestOptions.host;
 		}
@@ -171,13 +171,13 @@ package org.bigbluebutton.main.model.modules
 				loadModule(m.getName());
 			}
 		}
-		
-		public function startLayoutModule():void{
-			for (var i:int = 0; i<sorted.length; i++){
+
+		public function startLayoutModule():void {
+			for (var i:int = 0; i < sorted.length; i++) {
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-        if (m.getName() == "LayoutModule") {
-          startModule(m.getName());
-        }				
+				if (m.getName() == "LayoutModule") {
+					startModule(m.getName());
+				}
 			}
 		}
 
