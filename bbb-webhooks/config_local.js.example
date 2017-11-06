@@ -20,7 +20,7 @@ config.server.port = 3005;
 //  chatChannel: 'from-akka-apps-chat-redis-channel'
 //}
 
-// IP where aggr will be hosted
+// IP where permanent hook will post data (more than 1 URL means more than 1 permanent hook)
 //config.hooks.permanentURLs = ["request.catcher.url", "another.request.catcher.url"]
 
 // Allow global hook to receive all events with raw data
