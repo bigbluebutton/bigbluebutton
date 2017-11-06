@@ -26,6 +26,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
     description: 'Desktop Share option label',
   },
+  stopDesktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
+    description: 'Stop Desktop Share option label',
+  },
   presentationDesc: {
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
@@ -37,6 +41,10 @@ const intlMessages = defineMessages({
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
     description: 'adds context to desktop share option',
+  },
+  stopDesktopShareDesc: {
+    id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
+    description: 'adds context to stop desktop share option',
   },
 });
 
@@ -54,11 +62,33 @@ class ActionsDropdown extends Component {
       intl,
       isUserPresenter,
       handleShareScreen,
+      handleUnshareScreen,
+      isVideoBroadcasting,
     } = this.props;
 
-
+    // temporarily disabling the functionality
     if (!isUserPresenter) return null;
-    //return null; // temporarily disabling the functionality
+
+    //let screenshareDropdown;
+
+    //if (isVideoBroadcasting()) {
+    //  screenshareDropdown =
+    //    <DropdownListItem
+    //      icon="desktop"
+    //      label={intl.formatMessage(intlMessages.stopDesktopShareLabel)}
+    //      description={intl.formatMessage(intlMessages.stopDesktopShareDesc)}
+    //      onClick={() => {handleUnshareScreen(), setTimeout(function() {this.forceUpdate();}, 3500);}}
+    //    />
+    //}
+    //else {
+    //  screenshareDropdown =
+    //        <DropdownListItem
+    //          icon="desktop"
+    //          label={intl.formatMessage(intlMessages.desktopShareLabel)}
+    //          description={intl.formatMessage(intlMessages.desktopShareDesc)}
+    //          onClick={() => {handleShareScreen(), setTimeout(function() {this.forceUpdate();}, 3500);}}
+    //    />
+    //}
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>
@@ -95,6 +125,13 @@ class ActionsDropdown extends Component {
               description={intl.formatMessage(intlMessages.desktopShareDesc)}
               onClick={handleShareScreen}
             />
+            <DropdownListItem
+              icon="desktop"
+              label={intl.formatMessage(intlMessages.stopDesktopShareLabel)}
+              description={intl.formatMessage(intlMessages.stopDesktopShareDesc)}
+              onClick={handleUnshareScreen}
+            />
+
           </DropdownList>
         </DropdownContent>
       </Dropdown>
