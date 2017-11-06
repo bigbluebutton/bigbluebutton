@@ -99,6 +99,8 @@ package org.bigbluebutton.modules.chat.maps {
       // Setup a tracker for the state of this chat.
       var gcBoxMapper:GroupChatBoxMapper = new GroupChatBoxMapper(chatId);
       gcBoxMapper.chatBoxOpen = true;
+      
+      // By default we put all private chats on the main chat window. (ralam nov 5, 2017)
       var winMapper:GroupChatWindowMapper = findGroupChatWindowMapper(MAIN_CHAT_WINID);
       winMapper.addChatBox(gcBoxMapper);
       
