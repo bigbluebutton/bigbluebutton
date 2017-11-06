@@ -28,16 +28,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.net.URLLoader;
-			import flash.net.URLRequest;
-			import flash.net.URLRequestMethod;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.main.events.ExitApplicationEvent;
+			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -46,41 +43,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable]
 			private var message:String;
 
-			private var urlLoader:URLLoader;
-
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 
 			private function callSignOut():void {
-				var logoutURL:String = BBB.getSignoutURL();
-				var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Log out url: " + logoutURL);
-				request.method = URLRequestMethod.GET;
-				urlLoader = new URLLoader();
-				// If the redirect value is set to false handleComplete will be triggered
-				urlLoader.addEventListener(Event.COMPLETE, handleComplete);
-				urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleRedirectError);
-				urlLoader.load(request);
-			}
-
-			private function exitApplication():void {
 				var d:Dispatcher = new Dispatcher();
-				d.dispatchEvent(new ExitApplicationEvent(ExitApplicationEvent.EXIT_APPLICATION));
-			}
-
-			private function handleComplete(e:Event):void {
-				PopUpUtil.removePopUp(this);
-				exitApplication();
-			}
-
-			private function handleRedirectError(e:IOErrorEvent):void {
-				var logData:Object = UsersUtil.initLogData();
-				logData.tags = ["logout"];
-				logData.message = "Log out redirection returned with error.";
-				LOGGER.error(JSON.stringify(logData));
-				PopUpUtil.removePopUp(this);
-				exitApplication();
+				d.dispatchEvent(new LogoutEvent(LogoutEvent.SIGN_OUT));
 			}
 
 			private function onUserLoggedOutWindowClose(e:Event):void {
@@ -123,9 +92,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						break;
+					case MeetingNotFoundEvent.MEETING_NOT_FOUND:
+						message = ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound');
+						break; 
+					case InvalidAuthTokenEvent.INVALID_AUTH_TOKEN:
+						message = ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken')
+						break;  
 				}
 				if (message && UsersUtil.isBreakout()) {
-					message += "\n" + ResourceUtil.getInstance().getString('bbb.logour.breakoutRoomClose');
+					message += "\n" + ResourceUtil.getInstance().getString('bbb.logout.breakoutRoomClose');
 				}
 			}
 		]]>
