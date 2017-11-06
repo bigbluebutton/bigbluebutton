@@ -873,6 +873,8 @@ public class MeetingService implements MessageListener {
           processPresentationUploadToken((PresentationUploadToken) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
+        } else if (message instanceof GuestPolicyChanged) {
+          processGuestPolicyChanged((GuestPolicyChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
         }
@@ -880,6 +882,13 @@ public class MeetingService implements MessageListener {
     };
 
     runExec.execute(task);
+  }
+
+  public void processGuestPolicyChanged(GuestPolicyChanged msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.setGuestPolicy(msg.policy);
+    }
   }
 
   public void processRecordingChapterBreak(RecordChapterBreak msg) {
