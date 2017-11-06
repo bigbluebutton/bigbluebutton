@@ -17,8 +17,9 @@ module.exports = class WebHooks {
     this.subscriberEvents = config.redis.pubSubClient;
   }
 
-  start() {
+  start(callback) {
     this._subscribeToEvents();
+    typeof callback === 'function' ? callback(null,"w") : undefined;
   }
 
   // Subscribe to the events on pubsub that might need to be sent in callback calls.
@@ -73,6 +74,7 @@ module.exports = class WebHooks {
         Logger.error("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e);
       }
     });
+
     for (let k in config.hooks.channels) {
       const channel = config.hooks.channels[k];
       this.subscriberEvents.psubscribe(channel);

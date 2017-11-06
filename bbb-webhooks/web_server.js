@@ -16,13 +16,14 @@ module.exports = class WebServer {
     this._registerRoutes();
   }
 
-  start(port) {
+  start(port, callback) {
     this.server = this.app.listen(port);
     if (this.server.address() == null) {
       Logger.error("[WebServer] aborting, could not bind to port", port,
       process.exit(1));
     }
     Logger.info("[WebServer] listening on port", port, "in", this.app.settings.env.toUpperCase(), "mode");
+    typeof callback === 'function' ? callback(null,"k") : undefined;
   }
 
   _registerRoutes() {
@@ -70,13 +71,14 @@ module.exports = class WebServer {
     }
   }
   // Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
-  createPermanents() {
+  createPermanents(callback) {
     for (let i = 0; i < config.hooks.permanentURLs.length; i++) {
       Hook.addSubscription(config.hooks.permanentURLs[i], null, config.hooks.getRaw, function(error, hook) {
         if (error != null) { // there probably won't be any errors here
           Logger.info("[WebServer] duplicated permanent hook", error);
         } else if (hook != null) {
           Logger.info("[WebServer] permanent hook created successfully");
+          typeof callback === 'function' ? callback(null,"p") : undefined;
         } else {
           Logger.info("[WebServer] error creating permanent hook");
         }
