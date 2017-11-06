@@ -32,7 +32,7 @@ class Settings {
     });
 
     // Sets default locale to browser locale
-    defaultValues.application.locale = navigator.language ||
+    defaultValues.application.locale = navigator.languages[0] ||
                                        defaultValues.application.locale;
 
     this.setDefault(defaultValues);
