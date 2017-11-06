@@ -1,22 +1,46 @@
 
 const helpers = {};
 
-helpers.url = 'http://10.0.3.179';
+helpers.url = 'http://10.0.3.179'; //serverUrl
 helpers.port = ':3005'
 helpers.callback = 'http://we2bh.requestcatcher.com'
 helpers.callbackURL = '?callbackURL=' + helpers.callback
 helpers.apiPath = '/bigbluebutton/api/hooks/'
 helpers.createUrl = helpers.port + helpers.apiPath + 'create/' + helpers.callbackURL
-helpers.destroyUrl = helpers.port + helpers.apiPath + 'destroy/' + helpers.callbackURL + '&hookID=3'
-helpers.destroyPermanent = helpers.port + helpers.apiPath + 'destroy/' + helpers.callbackURL + '&hookID=1'
+helpers.destroyUrl = (id) => { return helpers.port + helpers.apiPath + 'destroy/' + '?hookID=' + id }
+helpers.destroyPermanent = helpers.port + helpers.apiPath + 'destroy/' + '?hookID=1'
 helpers.createRaw = '&getRaw=true'
 helpers.listUrl = 'list/'
-helpers.createMeeting = () => { return '/bigbluebutton/api/create?meetingID=' + Math.floor((Math.random() * 100) + 1) + '&attendeePW=ap&moderatorPW=mp' }
-helpers.endMeeting = () => { return '/bigbluebutton/api/end?meetingID='+ Math.floor((Math.random() * 100) + 1) +'&password=mp' }
-helpers.mappedMessage = {"data": {"type": "event","id": "user-left","attributes": {"meeting": {"external-meeting-id": "random-578101","internal-meeting-id": "0a168dbfbe554287381bf0cfe27e015e33207702-1502212442238"},"user": {"internal-user-id": "lwzhlo27k2zf_1","external-user-id": "lwzhlo27k2zf"},"event": {"ts": 1502810164922}}}}
-helpers.encodedMessage = 'event=' + encodeURIComponent(JSON.stringify(helpers.mappedMessage));
-helpers.rawMessage = {"payload":{"duration":0,"external_meeting_id":"53","create_time":1504639678247,"meeting_id":"c5b76da3e608d34edb07244cd9b875ee86906328-1504639678247","is_breakout":false,"name":"","moderator_pass":"mp","recorded":false,"voice_conf":"08561","viewer_pass":"ap","create_date":"Tue Sep 05 19:27:58 UTC 2017"},"header":{"name":"meeting_created_message","version":"0.0.1","current_time":1504639678250}}
-helpers.encodedRaw = 'event=' + encodeURIComponent(JSON.stringify(helpers.rawMessage));
+helpers.rawMessage = {
+  envelope: {
+    name: 'PresenterAssignedEvtMsg',
+       routing: {
+          msgType: 'BROADCAST_TO_MEETING',
+          meetingId: 'a674bb9c6ff92bfa6d5a0a1e530fabb56023932e-1509387833678',
+          userId: 'w_ysgy0erqgayc'
+      }
+  },
+  core: {
+    header: {
+        name: 'PresenterAssignedEvtMsg',
+        meetingId: 'a674bb9c6ff92bfa6d5a0a1e530fabb56023932e-1509387833678',
+        userId: 'w_ysgy0erqgayc'
+    },
+    body: {
+        presenterId: 'w_ysgy0erqgayc',
+        presenterName: 'User 4125097',
+        assignedBy: 'w_vlnwu1wkhena'
+      }
+  }
+};
 
+helpers.flushall = (rClient) => {
+  let client = rClient;
+  client.flushdb()
+}
+
+helpers.flushredis = (hook) => {
+  hook.redisClient.flushdb();
+}
 
 module.exports = helpers;
