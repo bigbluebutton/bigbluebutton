@@ -41,7 +41,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       messages = Object.assign(messages, JSON.parse(data));
       normalizedLocale = locale
     } catch (e) {
-      console.log('error', locale);
+      // Getting here means the locale is not available on the files.
     }
   });
 
