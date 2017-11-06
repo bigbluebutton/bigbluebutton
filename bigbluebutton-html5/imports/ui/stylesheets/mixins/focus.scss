@@ -7,6 +7,14 @@
   }
 }
 
+@mixin inputFocus($shadow, $color: #0F70D7) {
+  &:focus {
+    outline: none;
+    border-radius: 2px;
+    box-shadow: 0 0 0 2px $shadow, inset 0 0 0 1px $color;
+  }
+} 
+
 @mixin customUserlistItemFocus($focus-border-size, $user-list-bg, $list-item-bg-hover, $color-list-item-hover-bg, $color-list-item-focus-border, $sm-padding-y){
   border: $focus-border-size solid $user-list-bg;
   border-radius: $border-radius;
@@ -46,18 +54,6 @@
     }
   }
 }
-
-@mixin customInputFocus($focus-border-size, $color-primary, $color-primary-input-shadow) {
-  &,
-  &:active {
-    &:focus {
-      outline: none;
-      border: 1px solid $color-primary;
-      border-radius: $focus-border-size;
-      box-shadow: 0 0 0 $focus-border-size $color-primary-input-shadow;
-    }
-  }
-} 
 
 @mixin customLinkFocus($focus-border-size, $color-white, $color-primary) {
   border: $focus-border-size solid $color-white;

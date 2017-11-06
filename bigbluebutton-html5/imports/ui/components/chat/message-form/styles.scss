@@ -43,11 +43,7 @@
 }
 
 .input {
-  @include customInputFocus(
-    $focus-border-size, 
-    $color-primary, 
-    $color-primary-input-shadow
-  );
+  @include inputFocus($color-primary-input-shadow);
   
   flex: 1;
   background: #fff;
