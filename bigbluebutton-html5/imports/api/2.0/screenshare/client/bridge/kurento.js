@@ -21,7 +21,7 @@ export default class KurentoScreenshareBridge {
     window.kurentoWatchVideo(
       'screenshareVideo',
       BridgeService.getConferenceBridge(),
-      getUsername(), 
+      getUsername(),
       getMeetingId(),
       null,
       null,
@@ -32,15 +32,18 @@ export default class KurentoScreenshareBridge {
     window.kurentoExitVideo();
   }
 
-  // TODO parameters? que elementos?
   kurentoShareScreen() {
     window.kurentoShareScreen(
-      null,
+      'screenshareVideo',
       BridgeService.getConferenceBridge(),
-      getUsername(), 
+      getUsername(),
       getMeetingId(),
       null,
       null,
     );
+  }
+
+  kurentoExitScreenShare() {
+    window.kurentoExitScreenShare();
   }
 }

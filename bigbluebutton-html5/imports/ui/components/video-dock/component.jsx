@@ -2,99 +2,25 @@ import React, { Component } from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
 import styles from './styles.scss';
 
-function adjustVideos(centerVideos) {
-  const _minContentAspectRatio = 4 / 3.0;
+window.addEventListener('resize', () => {
+  window.adjustVideos('webcamArea', true);
+});
 
-  function calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, numChildren) {
-    const obj = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows);
-    obj.occupiedArea = obj.width * obj.height * numChildren;
-    obj.numColumns = numColumns;
-    obj.numRows = numRows;
-    obj.cellAspectRatio = _minContentAspectRatio;
-    return obj;
+class VideoElement extends Component {
+  constructor(props) {
+    super(props);
   }
-
-  function calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows) {
-    const obj = {
-      width: Math.floor(canvasWidth / numColumns),
-      height: Math.floor(canvasHeight / numRows),
-    };
-
-    if (obj.width / obj.height > _minContentAspectRatio) {
-      obj.width = Math.min(Math.floor(obj.height * _minContentAspectRatio), Math.floor(canvasWidth / numColumns));
-    } else {
-      obj.height = Math.min(Math.floor(obj.width / _minContentAspectRatio), Math.floor(canvasHeight / numRows));
-    }
-    return obj;
-  }
-
-  function findBestConfiguration(canvasWidth, canvasHeight, numChildrenInCanvas) {
-    let bestConfiguration = {
-      occupiedArea: 0,
-    };
-
-    for (let cols = 1; cols <= numChildrenInCanvas; cols++) {
-      let rows = Math.floor(numChildrenInCanvas / cols);
-
-      // That's a small HACK, different from the original algorithm
-      // Sometimes numChildren will be bigger than cols*rows, this means that this configuration
-      // can't show all the videos and shouldn't be considered. So we just increment the number of rows
-      // and get a configuration which shows all the videos albeit with a few missing slots in the end.
-      //   For example: with numChildren == 8 the loop will generate cols == 3 and rows == 2
-      //   cols * rows is 6 so we bump rows to 3 and then cols*rows is 9 which is bigger than 8
-      if (numChildrenInCanvas > cols * rows) {
-        rows += 1;
-      }
-
-      const currentConfiguration = calculateOccupiedArea(canvasWidth, canvasHeight, cols, rows, numChildrenInCanvas);
-
-      if (currentConfiguration.occupiedArea > bestConfiguration.occupiedArea) {
-        bestConfiguration = currentConfiguration;
-      }
-    }
-
-    return bestConfiguration;
-  }
-
-  // http://stackoverflow.com/a/3437825/414642
-  const e = $('#webcamArea').parent();
-  const x = e.outerWidth() - 1;
-  const y = e.outerHeight() - 1;
-
-  const videos = $('#webcamArea video:visible');
-
-  const best = findBestConfiguration(x, y, videos.length);
-
-  videos.each(function (i) {
-    const row = Math.floor(i / best.numColumns);
-    const col = Math.floor(i % best.numColumns);
-
-    // Free width space remaining to the right and below of the videos
-    const remX = (x - best.width * best.numColumns);
-    const remY = (y - best.height * best.numRows);
-
-    // Center videos
-    const top = Math.floor(((best.height) * row) + remY / 2);
-    const left = Math.floor(((best.width) * col) + remX / 2);
-
-    const videoTop = `top: ${top}px;`;
-    const videoLeft = `left: ${left}px;`;
-
-    $(this).attr('style', videoTop + videoLeft);
-  });
-
-  videos.attr('width', best.width);
-  videos.attr('height', best.height);
 }
 
-window.addEventListener('resize', () => {
-  adjustVideos(true);
-});
 
 export default class VideoDock extends Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      videos: {}
+    };
 
     this.state = {
       // Set a valid kurento application server socket in the settings
@@ -103,7 +29,6 @@ export default class VideoDock extends Component {
       wsQueue: [],
     };
 
-    // Flush websocket queue on connect/reconnect
     this.state.ws.onopen = () => {
       while (this.state.wsQueue.length > 0) {
         this.sendMessage(this.state.wsQueue.pop());
@@ -121,15 +46,13 @@ export default class VideoDock extends Component {
     const that = this;
     const ws = this.state.ws;
     const { users } = this.props;
-
-    // Get users sharing webcam after the component is mounted
     for (let i = 0; i < users.length; i++) {
       if (users[i].has_stream) {
+        console.log("COMPONENT DID MOUNT => " + users[i].userId);
         this.start(users[i].userId, false, this.refs.videoInput);
       }
     }
 
-    // HACK: the video sharing and unsharin button
     document.addEventListener('joinVideo', () => { that.shareWebcam(); });// TODO find a better way to do this
     document.addEventListener('exitVideo', () => { that.unshareWebcam(); });
 
@@ -196,7 +119,13 @@ export default class VideoDock extends Component {
     };
 
     const options = {
-      mediaConstraints: { audio: false, video: true },
+      mediaConstraints: { audio: false,
+        video: {
+          width: {min: 320, ideal: 320},
+          height: {min: 240, ideal:240},
+          frameRate: { min: 5, ideal: 10}
+        }
+      },
       onicecandidate: onIceCandidate,
     };
 
@@ -224,7 +153,6 @@ export default class VideoDock extends Component {
         return;
       }
 
-      // When you share the webcam, store your webrtc peer
       if (shareWebcam) {
         that.state.sharedWebcam = that.state.webRtcPeers[id];
         that.state.myId = id;
@@ -248,12 +176,15 @@ export default class VideoDock extends Component {
   }
 
   stop(id) {
+    const { users } = this.props;
+    if (id == users[0].userId) {
+      this.unshareWebcam();
+    }
     const webRtcPeer = this.state.webRtcPeers[id];
 
     if (webRtcPeer) {
       console.log('Stopping WebRTC peer');
 
-      // When your shared camera is stopped, stop your send peer as well
       if (id == this.state.myId) {
         this.state.sharedWebcam.dispose();
         this.state.sharedWebcam = null;
@@ -272,7 +203,7 @@ export default class VideoDock extends Component {
 
     this.sendMessage({ id: 'stop', cameraId: id });
 
-    adjustVideos(true);
+    window.adjustVideos('webcamArea', true);
   }
 
   shareWebcam() {
@@ -283,12 +214,10 @@ export default class VideoDock extends Component {
   }
 
   unshareWebcam() {
+    console.log("Unsharing webcam");
     const { users } = this.props;
     const id = users[0].userId;
-
     this.sendUserUnshareWebcam(id);
-
-    this.sendMessage({ id: 'stop', cameraId: id });
   }
 
   startResponse(message) {
@@ -339,7 +268,7 @@ export default class VideoDock extends Component {
   handlePlayStart(message) {
     console.log('Handle play start <===================');
 
-    adjustVideos(true);
+    window.adjustVideos('webcamArea', true);
   }
 
   handleError(message) {

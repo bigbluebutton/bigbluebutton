@@ -4,6 +4,8 @@
  *
  */
 
+'use strict';
+
 var cookieParser = require('cookie-parser')
 var express = require('express');
 var session = require('express-session')
@@ -82,26 +84,15 @@ wss.on('connection', function(ws) {
       case 'start':
 
         console.log('[' + message.id + '] connection ' + sessionId);
-
-        var video = new Video(ws, message.cameraId, message.cameraShared);
-        sessions[sessionId].videos[message.cameraId] = video;
-
-        video.start(message.sdpOffer, function(error, sdpAnswer) {
-          if (error) {
-            return ws.sendMessage({id : 'error', message : error });
-          }
-
-          // Get ice candidates that arrived before video was created
-          if (sessions[sessionId].iceQueue) {
-            var queue = sessions[sessionId].iceQueue[message.cameraId];
-            while (queue && queue.length > 0) {
-              video.onIceCandidate(queue.pop());
-            }
-          }
-
-          ws.sendMessage({id : 'startResponse', cameraId: message.cameraId, sdpAnswer : sdpAnswer});
-        });
-
+        if (video) {
+          video.once('READY', function() {
+            console.log("Video is ready");
+            startVideo(message, ws, sessionId);
+          });
+        }
+        else {
+          startVideo(message, ws, sessionId);
+        }
         break;
 
         case 'stop':
@@ -110,6 +101,7 @@ wss.on('connection', function(ws) {
 
           if (video) {
             video.stop(sessionId);
+            delete sessions[sessionId].videos[message.cameraId];
           } else {
             console.log(" [stop] Why is there no video on STOP?");
           }
@@ -129,12 +121,15 @@ wss.on('connection', function(ws) {
 
 var stopSession = function(sessionId) {
 
+  if(typeof sessions[sessionId] === 'undefined') {
+    console.log(' [>] Session ' + sessionId + ' was already terminated');
+    return;
+  }
   console.log(' [>] Stopping session ' + sessionId);
 
-  var videoIds = Object.keys(sessions[sessionId]);
+  var videoIds = Object.keys(sessions[sessionId].videos);
 
   for (var i = 0; i < videoIds.length; i++) {
-
     var video = sessions[sessionId].videos[videoIds[i]];
     if (video){
       console.log(video);
@@ -172,6 +167,27 @@ function onIceCandidate(sessionId, id, candidate) {
     sessions[sessionId].iceQueue[id] = sessions[sessionId].iceQueue[id] || [];
     sessions[sessionId].iceQueue[id].push(candidate);
   }
+}
+
+function startVideo(message, ws, sessionId) {
+  console.log('[' + message.id + '] connection ' + sessionId);
+  let video = new Video(ws, message.cameraId, message.cameraShared);
+  sessions[sessionId].videos[message.cameraId] = video;
+
+  video.start(message.sdpOffer, function(error, sdpAnswer) {
+    if (error) {
+      return ws.sendMessage({id : 'error', message : error });
+    }
+
+    // Get ice candidates that arrived before video was created
+    if (sessions[sessionId].iceQueue) {
+      var queue = sessions[sessionId].iceQueue[message.cameraId];
+      while (queue && queue.length > 0) {
+        video.onIceCandidate(queue.pop());
+      }
+    }
+    ws.sendMessage({id : 'startResponse', cameraId: message.cameraId, sdpAnswer : sdpAnswer});
+  });
 }
 
 process.on('SIGTERM', stopAll);

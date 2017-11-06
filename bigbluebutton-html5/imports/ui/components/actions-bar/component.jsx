@@ -12,12 +12,12 @@ export default class ActionsBar extends Component {
   }
 
   render() {
-    const { isUserPresenter, handleShareScreen } = this.props;
+    const { isUserPresenter, handleShareScreen, handleUnshareScreen, isVideoBroadcasting} = this.props;
 
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          <ActionsDropdown {...{ isUserPresenter, handleShareScreen }} />
+          <ActionsDropdown {...{ isUserPresenter, handleShareScreen, handleUnshareScreen, isVideoBroadcasting }} />
         </div>
         <div className={styles.center}>
           <MuteAudioContainer />
@@ -35,3 +35,4 @@ export default class ActionsBar extends Component {
     );
   }
 }
+

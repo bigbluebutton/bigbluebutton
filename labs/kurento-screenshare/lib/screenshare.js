@@ -53,6 +53,7 @@ module.exports = class Screenshare {
     let candidate = kurento.getComplexType('IceCandidate')(_candidate);
 
     if (this._presenterEndpoint) {
+      console.log("  [screenshare] Adding ICE candidate to presenter");
       this._presenterEndpoint.addIceCandidate(candidate);
     }
     else {
@@ -107,8 +108,7 @@ module.exports = class Screenshare {
 
       // ICE NEGOTIATION WITH THE ENDPOINT
       self._viewersEndpoint[callerName].on('OnIceCandidate', function(event) {
-        let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-        ws.sendMessage({ id : 'iceCandidate', candidate : candidate });
+        let candidate = kurento.getComplexType('IceCandidate')(event.candidate); ws.sendMessage({ id : 'iceCandidate', candidate : candidate });
       });
 
       sdp = h264_sdp.transform(sdp);
@@ -127,13 +127,13 @@ module.exports = class Screenshare {
             return _callback(error);
           }
 
-	  self._viewersEndpoint[callerName].on('MediaFlowInStateChange', function(event) {
-            if (event.state === 'NOT_FLOWING') {                          
-              console.log(" NOT FLOWING ");                              
-            }                                                             
-            else if (event.state === 'FLOWING') {                         
-              console.log(" FLOWING ");      
-            }                                                             
+          self._viewersEndpoint[callerName].on('MediaFlowInStateChange', function(event) {
+            if (event.state === 'NOT_FLOWING') {
+              console.log(" NOT FLOWING ");
+            }
+            else if (event.state === 'FLOWING') {
+              console.log(" FLOWING ");
+            }
           });
         });
       });
@@ -243,8 +243,7 @@ module.exports = class Screenshare {
       this._presenterEndpoint = null;
     } else {
       console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
-    }
-
+    } 
     if (this._ffmpegRtpEndpoint) {
       MediaController.releaseMediaElement(this._ffmpegRtpEndpoint.id);
       this._ffmpegRtpEndpoint = null;
@@ -280,6 +279,7 @@ module.exports = class Screenshare {
   }
 
   _onRtpMediaFlowing(meetingId, rtpParams) {
+    console.log("  [screenshare] Media FLOWING for meeting => " + meetingId);
     let self = this;
     let strm = Messaging.generateStartTranscoderRequestMessage(meetingId, meetingId, rtpParams);
 
@@ -302,7 +302,8 @@ module.exports = class Screenshare {
   };
 
   _stopRtmpBroadcast (meetingId) {
-    var self = this;
+    console.log("  [screenshare] _stopRtmpBroadcast for meeting => " + meetingId);
+    let self = this;
     if(self._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
       let timestamp = now.format('hhmmss');
@@ -313,6 +314,7 @@ module.exports = class Screenshare {
   }
 
   _startRtmpBroadcast (meetingId, output) {
+    console.log("  [screenshare] _startRtmpBroadcast for meeting => " + meetingId);
     var self = this;
     if(self._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
@@ -329,5 +331,17 @@ module.exports = class Screenshare {
     console.log("  [screenshare] TODO RTP NOT_FLOWING");
   };
 
+  _stopViewer(id) {
+    let viewer = this._viewersEndpoint[id];
+    console.log(' [stop] Releasing endpoints for ' + id);
 
+    if (viewer) {
+      MediaController.releaseMediaElement(viewer.id);
+      this._viewersEndpoint[viewer.id] = null;
+    } else {
+      console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
+    }
+
+    delete this._viewersCandidatesQueue[id];
+  };
 };

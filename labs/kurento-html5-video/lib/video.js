@@ -7,6 +7,8 @@ var sharedWebcams = {};
 const kurento = require('kurento-client');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
+const EventEmitter = require('events').EventEmitter;
+const inherits = require('util').inherits;
 
 if (config.get('acceptSelfSignedCertificate')) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED=0;
@@ -64,6 +66,7 @@ function Video(_ws, _id, _shared) {
   var webRtcEndpoint = null;
   var notFlowingTimeout = null;
   var notFlowingTimer = 15000;
+  EventEmitter.call(this);
 
   var candidatesQueue = [];
 
@@ -79,6 +82,7 @@ function Video(_ws, _id, _shared) {
   };
 
   this.start = function(sdpOffer, callback) {
+    var self = this;
 
     getKurentoClient(function(error, kurentoClient) {
 
@@ -114,7 +118,9 @@ function Video(_ws, _id, _shared) {
                 ws.sendMessage({ id : 'playStop', cameraId : id });
               }, notFlowingTimer);
             } else if (event.state === 'FLOWING' && event.type === 'MediaFlowInStateChange') {
+
               console.log(" [o] Media flowing ");
+              self.emit("READY");
               if (notFlowingTimeout) {
                 clearTimeout(notFlowingTimeout);
                 notFlowingTimeout = null;
@@ -127,7 +133,7 @@ function Video(_ws, _id, _shared) {
           _webRtcEndpoint.on('MediaFlowInStateChange', flowInOut);
           _webRtcEndpoint.on('MediaFlowOutStateChange', flowInOut);
 
-          _webRtcEndpoint.on('MediaStateChanged', (e) => { console.log(id); console.log(e)} );
+          _webRtcEndpoint.on('MediaStateChanged', (e) => { self.emit("READY"); console.log(id); console.log(e)} );
 
           connectMediaElements(_webRtcEndpoint, function(error) {
 
@@ -180,6 +186,7 @@ function Video(_ws, _id, _shared) {
       }
 
       webRtcEndpoint = _webRtcEndpoint;
+      console.log("  [webrtc] Created webRtcEndpoint => " + webRtcEndpoint.id);
 
       return callback(null, _webRtcEndpoint);
     });
@@ -200,16 +207,14 @@ function Video(_ws, _id, _shared) {
 
       if (sharedWebcams[id]) {
         var wRtc = sharedWebcams[id];
-
         wRtc.connect(webRtcEndpoint, function(error) {
-
+          console.log("  [webrtc] Connected " + wRtc.id + " => " + webRtcEndpoint.id);
           if (error) {
             return callback(error);
           }
           return callback(null);
         });
       }
-
     }
   };
 
@@ -228,6 +233,7 @@ function Video(_ws, _id, _shared) {
       console.log(' [stop] Webcam is shared, releasing ' + id);
 
       if (mediaPipelines[id]) {
+        console.log(  '[stop] Releasing pipeline ' + id);
         mediaPipelines[id].release();
       } else {
         console.log(" [mediaPipeline] PLEASE DONT TRY STOPPING THINGS TWICE");
@@ -242,5 +248,6 @@ function Video(_ws, _id, _shared) {
 
   return this;
 };
+inherits(Video, EventEmitter);
 
 module.exports = Video;

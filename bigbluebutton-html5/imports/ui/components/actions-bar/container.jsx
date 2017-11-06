@@ -34,6 +34,8 @@ export default withModalMounter(createContainer(({ mountModal }) => {
   const handleExitVideo = () => VideoService.exitVideo();
   const handleJoinVideo = () => VideoService.joinVideo();
   const handleShareScreen = () => ScreenshareService.shareScreen();
+  const handleUnshareScreen = () => ScreenshareService.unshareScreen();
+  const isVideoBroadcasting = () => ScreenshareService.isVideoBroadcasting();
 
   return {
     isUserPresenter: isPresenter,
@@ -42,5 +44,7 @@ export default withModalMounter(createContainer(({ mountModal }) => {
     handleExitVideo,
     handleJoinVideo,
     handleShareScreen,
+    handleUnshareScreen,
+    isVideoBroadcasting
   };
 }, ActionsBarContainer));
