@@ -1,10 +1,9 @@
-@mixin customListFocus($focus-border-size, $user-list-bg, $color-primary){
-  border: $focus-border-size solid $user-list-bg;
-  border-radius: $focus-border-size;
 
+@mixin elementFocus($color: #0F70D7){
   &:focus {
     outline: none;
-    border: $focus-border-size solid $color-list-item-focus-border;
+    box-shadow: inset 0 0 0 3px $color;
+    border-radius: 2px;
   }
 }
 

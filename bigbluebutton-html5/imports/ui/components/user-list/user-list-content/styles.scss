@@ -11,6 +11,6 @@
 }
 
 .scrollableList {
-  @include customListFocus($focus-border-size, $user-list-bg, $color-primary);
+  @include elementFocus($color-list-item-focus-border);
   @include scrollbox-vertical($user-list-bg);
 }
