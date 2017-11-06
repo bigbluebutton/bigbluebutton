@@ -99,8 +99,15 @@ module.exports = class ConnectionManager {
 
     webSocket.on('close', function() {
       console.log('Connection ' + connectionId + ' closed');
-      if (self._screenshareSessions[sessionId] && self._screenshareSessions[sessionId].id == connectionId) { // if presenter  // FIXME  (this conditional was added to prevent screenshare stop when an iOS user quits)
-        self._stopSession(sessionId); 
+      console.log(webSocket.presenter);
+
+      if (webSocket.presenter && self._screenshareSessions[sessionId]) { // if presenter  // FIXME  (this conditional was added to prevent screenshare stop when an iOS user quits)
+      console.log("  [CM] Stopping presenter " + sessionId);
+        self._stopSession(sessionId);
+      }
+      if (webSocket.viewer && typeof webSocket.session !== 'undefined') {
+        console.log("  [CM] Stopping viewer " + webSocket.viewerId);
+        webSocket.session._stopViewer(webSocket.viewerId);
       }
     });
 
@@ -111,6 +118,7 @@ module.exports = class ConnectionManager {
       sessionId = message.voiceBridge;
       if(self._screenshareSessions[sessionId]) {
         session = self._screenshareSessions[sessionId];
+        webSocket.session = session;
       }
 
       switch (message.id) {
@@ -119,11 +127,12 @@ module.exports = class ConnectionManager {
 
           // Checking if there's already a Screenshare session started
           // because we shouldn't overwrite it
+          webSocket.presenter = true;
 
-	  if (!self._screenshareSessions[message.voiceBridge]) {
-	    self._screenshareSessions[message.voiceBridge] = {}
-	    self._screenshareSessions[message.voiceBridge] = session;
-	  }
+          if (!self._screenshareSessions[message.voiceBridge]) {
+            self._screenshareSessions[message.voiceBridge] = {}
+            self._screenshareSessions[message.voiceBridge] = session;
+          }
 
           //session.on('message', self._assembleSessionMessage.bind(self));
           if(session) {
@@ -159,6 +168,10 @@ module.exports = class ConnectionManager {
 
         case 'viewer':
           console.log("[viewer] Session output \n " + session);
+
+          webSocket.viewer = true;
+          webSocket.viewerId = message.callerName;
+
           if (message.sdpOffer && message.voiceBridge) {
             if (session) {
               session._startViewer(webSocket, message.voiceBridge, message.sdpOffer, message.callerName, self._screenshareSessions[message.voiceBridge]._presenterEndpoint);
@@ -182,6 +195,7 @@ module.exports = class ConnectionManager {
 
         case 'onIceCandidate':
           if (session) {
+            console.log(" [CM] What the fluff is happening");
             session._onIceCandidate(message.candidate);
           } else {
             console.log(" [iceCandidate] Why is there no session on ICE CANDIDATE?");
@@ -196,14 +210,14 @@ module.exports = class ConnectionManager {
           break;
 
 
-	case 'viewerIceCandidate':
-	  console.log("[viewerIceCandidate] Session output => " + session);
-	  if (session) {
-	    session._onViewerIceCandidate(message.candidate, message.callerName);
-	  } else {
-	    console.log("[iceCandidate] Why is there no session on ICE CANDIDATE?");
-	  }
-	  break;
+        case 'viewerIceCandidate':
+          console.log("[viewerIceCandidate] Session output => " + session);
+          if (session) {
+            session._onViewerIceCandidate(message.candidate, message.callerName);
+          } else {
+            console.log("[iceCandidate] Why is there no session on ICE CANDIDATE?");
+          }
+          break;
 
         default:
           webSocket.sendMessage({ id : 'error', message : 'Invalid message ' + message });
