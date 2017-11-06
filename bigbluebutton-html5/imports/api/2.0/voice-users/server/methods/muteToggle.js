@@ -12,16 +12,10 @@ export default function muteToggle(credentials, userId) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  const header = {
-    name: EVENT_NAME,
-    meetingId,
-    userId,
-  };
-
   const payload = {
     userId,
     mutedBy: requesterUserId,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }

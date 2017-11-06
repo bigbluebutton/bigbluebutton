@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.screenshare.events
 {
 	import flash.events.Event;
+	
 	import org.bigbluebutton.main.api.JSLog;
 
 	public class WebRTCViewStreamEvent extends Event

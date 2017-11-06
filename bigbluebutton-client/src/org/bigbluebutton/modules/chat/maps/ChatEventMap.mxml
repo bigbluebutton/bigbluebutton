@@ -25,28 +25,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:fx="http://ns.adobe.com/mxml/2009">
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import mx.events.FlexEvent;     
-      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import mx.events.FlexEvent;
+      
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ModuleStartedEvent;
       import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
-      import org.bigbluebutton.modules.chat.events.ChatEvent;
+      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
       import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+      import org.bigbluebutton.modules.chat.services.ChatCopy;
       import org.bigbluebutton.modules.chat.services.ChatMessageService;
+      import org.bigbluebutton.modules.chat.services.ChatSaver;
       import org.bigbluebutton.modules.chat.services.MessageReceiver;
       import org.bigbluebutton.modules.chat.services.MessageSender;
-      import org.bigbluebutton.modules.chat.services.ChatCopy;
-      import org.bigbluebutton.modules.chat.services.ChatSaver;
-      import org.bigbluebutton.modules.chat.views.ChatView;
-      import org.bigbluebutton.modules.chat.views.ChatWindow;
 		]]>
 	</fx:Script>
 	<fx:Declarations>

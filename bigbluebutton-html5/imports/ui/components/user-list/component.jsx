@@ -166,6 +166,14 @@ class UserList extends Component {
       this._usersList.addEventListener('keydown',
         event => this.rovingIndex(event, 'users'));
     }
+
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    // to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
   }
 
   renderHeader() {
@@ -255,6 +263,7 @@ class UserList extends Component {
       intl,
       makeCall,
       meeting,
+      isMeetingLocked,
     } = this.props;
 
     const userActions = {
@@ -326,6 +335,7 @@ class UserList extends Component {
                     currentUser={currentUser}
                     userActions={userActions}
                     meeting={meeting}
+                    isMeetingLocked={isMeetingLocked}
                   />
                 ))
               }
@@ -335,7 +345,7 @@ class UserList extends Component {
       </div>
     );
   }
-  
+
   render() {
     return (
       <div className={styles.userList}>

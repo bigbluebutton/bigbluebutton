@@ -1,6 +1,7 @@
 'use strict';
 
 let chai = require('chai');
+let LandingPage = require('./pageobjects/landing.page');
 
 class Utils {
   assertTitle(title) {
@@ -12,6 +13,9 @@ class Utils {
     browser.remotes.forEach(function(browserName) {
       chai.expect(browser.getUrl()[browserName]).to.equal(url);
     });
+  }
+  setUsername(map) {
+    map.forEach((v, k) => browser.select(k).setValue(LandingPage.usernameInputSelector, v));
   }
 }
 

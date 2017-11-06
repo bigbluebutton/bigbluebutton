@@ -102,9 +102,6 @@ export default function addUser(meetingId, user) {
       return Logger.error(`Adding user to collection: ${err}`);
     }
 
-    // TODO: Do we really need to request the stun/turn everytime?
-    // requestStunTurn(meetingId, userId);
-
     const { insertedId } = numChanged;
     if (insertedId) {
       return Logger.info(`Added user id=${userId} meeting=${meetingId}`);

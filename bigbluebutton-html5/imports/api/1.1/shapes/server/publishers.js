@@ -1,8 +1,8 @@
-import Shapes from './../';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
+import Shapes from './../';
 
 function shapes(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;

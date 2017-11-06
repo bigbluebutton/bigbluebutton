@@ -13,6 +13,7 @@ acl:
       - 'captions'
       - 'breakouts'
       - 'voiceUsers'
+      - 'whiteboard-multi-user'
     methods:
       - 'listenOnlyToggle'
       - 'userLogout'
@@ -33,3 +34,8 @@ acl:
     methods:
       - 'assignPresenter'
       - 'switchSlide'
+      - 'modifyWhiteboardAccess'
+      - 'undoAnnotation'
+      - 'clearWhiteboard'
+      - 'moveCursor'
+      - 'sendAnnotation'

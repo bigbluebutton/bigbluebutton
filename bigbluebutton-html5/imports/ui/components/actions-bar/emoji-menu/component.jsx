@@ -29,7 +29,7 @@ class EmojiMenu extends Component {
    } = this.props;
 
     return (
-      <Dropdown autoFocus={true}>
+      <Dropdown autoFocus>
         <DropdownTrigger tabIndex={0}>
           <Button
             role="button"

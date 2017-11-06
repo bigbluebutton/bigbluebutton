@@ -28,7 +28,6 @@ package org.bigbluebutton.modules.notes.services
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
-  import flash.utils.ByteArray;
   
   import mx.utils.Base64Decoder;
   import mx.utils.Base64Encoder;

@@ -19,9 +19,9 @@
 package org.bigbluebutton.modules.screenshare.services
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import flash.net.NetConnection;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.screenshare.services.red5.Connection;

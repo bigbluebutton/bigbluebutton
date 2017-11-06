@@ -37,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
 		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
 		<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
 		<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 		<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
 		<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
@@ -53,45 +54,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.binding.utils.BindingUtils;
-      import mx.controls.Alert;
-      import mx.core.FlexGlobals;
-      import mx.core.IToolTip;
-      import mx.core.UIComponent;
-      import mx.events.CloseEvent;
-      import mx.events.ToolTipEvent;
-      import mx.managers.PopUpManager;
-      
-      import org.as3commons.lang.StringUtils;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.events.SettingsComponentEvent;
-      import org.bigbluebutton.common.events.ToolbarButtonEvent;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.TimerUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
-      import org.bigbluebutton.core.model.Config;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ConfigLoadedEvent;
-      import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.main.events.NetworkStatsEvent;
-      import org.bigbluebutton.main.events.SettingsEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-      import org.bigbluebutton.main.model.NetworkStatsData;
-      import org.bigbluebutton.main.model.options.BrandingOptions;
-      import org.bigbluebutton.main.model.options.LayoutOptions;
-      import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.users.model.UsersOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.IToolTip;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.ToolTipEvent;
+			import mx.managers.PopUpManager;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.TimerUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
+			import org.bigbluebutton.core.model.Config;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ConfigLoadedEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
+			import org.bigbluebutton.main.events.SettingsEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.model.NetworkStatsData;
+			import org.bigbluebutton.main.model.options.BrandingOptions;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(MainToolbar);
 
@@ -213,6 +217,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					sequence = StringUtils.substringBefore(sequence, ")");
 					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
 				}
+				
+				if (LiveMeeting.inst().me.logoutTimer > 0 ) {
+					idleLogoutButton.startTimer(LiveMeeting.inst().me.logoutTimer);
+				} else {
+					rightBox.removeChild(idleLogoutButton);
+				}
 
 				logFlashPlayerCapabilities();
 			}
@@ -293,7 +303,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var logoutWindow:LogoutWindow;
 					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
 
-					var newX:Number = this.width - logoutWindow.width;
+					var newX:Number = this.width - logoutWindow.width - 5;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
 
 					PopUpManager.centerPopUp(logoutWindow);
@@ -365,7 +375,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					
 					numButtons++;
-					(event.button as UIComponent).tabIndex = quickLinksIndexer.startIndex + 5;
+					(event.button as UIComponent).tabIndex = quickLinksIndexer.startIndex + 6;
 				}
 			}
 			
@@ -408,6 +418,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.addChild(b);
 			}
 			
+			private function localeChanged(event:LocaleChangeEvent) : void {
+				var styleNameExt : String = "";
+				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+					styleNameExt = "RTL";
+				}
+				
+				btnLogout.styleName = "logoutButtonStyle" + styleNameExt;
+			}
+
 			private function openSettings(e:Event = null):void{
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
@@ -486,6 +505,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function hideLogo():void {
 				logo.visible = logo.includeInLayout = false;
+				logoSperatator.visible = logo.includeInLayout = false;
 			}
 
 			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
@@ -508,7 +528,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
 	<fx:Declarations>
-		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
+		<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn, sharedNotesLinkBtn]}"/>
 		<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
@@ -528,7 +548,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
 			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
-				<mx:VRule styleName="toolbarSeparator" height="10" />
+				<mx:VRule id="logoSperatator" styleName="toolbarSeparator" height="10" />
 				<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" width="100%" truncateToFit="true"/>
 			</mx:HBox>
 			<mx:HBox id="actionBox" width="30%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
@@ -566,8 +586,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   styleName="helpLinkButtonStyle"
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
-				<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="30"/>
+				<views:IdleLogoutButton id="idleLogoutButton" height="30" visible="false" includeInLayout="{idleLogoutButton.visible}"/>
+				<mx:Button id="btnLogout" styleName="logoutButtonStyle"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}"
+						   right="10" height="30" click="confirmLogout()"/>
 			</mx:HBox>
 		</mx:HBox>
 

@@ -35,6 +35,7 @@
 		<mate:Listener type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteCreated"/>
 		<mate:Listener type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteDestroyed"/>
 		<mate:Listener type="{ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -51,9 +52,11 @@
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
-			import mx.events.MenuEvent;
 			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
+			
+			import flashx.textLayout.formats.Direction;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
@@ -61,6 +64,7 @@
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.model.LiveMeeting;
@@ -553,6 +557,16 @@
 				if (this.visible) {
 					focusManager.setFocus(titleBarOverlay);
 				}
+			}
+			
+			private function onLocaleChanged(event:LocaleChangeEvent):void {
+				var styleNameExt : String = "";
+				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+					styleNameExt = "RTL";
+				}
+				
+				btnRedo.styleName = "sharedNotesRedoButtonStyle" + styleNameExt;
+				btnUndo.styleName = "sharedNotesUndoButtonStyle" + styleNameExt;
 			}
 
 		]]>

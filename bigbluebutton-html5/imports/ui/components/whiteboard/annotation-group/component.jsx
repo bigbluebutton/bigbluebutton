@@ -1,42 +1,27 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import WhiteboardAnnotationModel from '../annotation-factory/component';
+import AnnotationFactory from '../annotation-factory/component';
 
-const propTypes = {
-  // initial width and height of the slide are required to calculate the coordinates for each annotation
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
+const AnnotationGroup = ({ ...props }) => (
+  <AnnotationFactory
+    annotationsInfo={props.annotationsInfo}
+    slideWidth={props.slideWidth}
+    slideHeight={props.slideHeight}
+  />
+);
+
+AnnotationGroup.propTypes = {
+  // initial width and height of the slide are required
+  // to calculate the coordinates for each annotation
+  slideWidth: PropTypes.number.isRequired,
+  slideHeight: PropTypes.number.isRequired,
 
   // array of annotations, optional
-  annotations: PropTypes.array,
+  annotationsInfo: PropTypes.arrayOf(PropTypes.shape({
+    status: PropTypes.string.isRequired,
+    _id: PropTypes.string.isRequired,
+    annotationType: PropTypes.string.isRequired,
+  })).isRequired,
 };
 
-export default class AnnotationGroup extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const {
-      annotations,
-      width,
-      height,
-    } = this.props;
-
-    return (
-      <g>
-        {annotations ? annotations.map(annotation =>
-          (<WhiteboardAnnotationModel
-            annotation={annotation}
-            key={annotation.id}
-            slideWidth={width}
-            slideHeight={height}
-          />),
-          )
-        : null }
-      </g>
-    );
-  }
-}
-
-AnnotationGroup.propTypes = propTypes;
+export default AnnotationGroup;

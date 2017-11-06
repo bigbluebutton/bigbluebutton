@@ -44,10 +44,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
 		import com.asfusion.mate.core.GlobalDispatcher;
 		
-		import flexlib.mdi.containers.MDIWindow;
-		
 		import mx.events.MoveEvent;
 		import mx.events.ResizeEvent;
+		
+		import flexlib.mdi.containers.MDIWindow;
 		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
@@ -261,7 +261,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void {
-				parent.removeChild(this);
+				if (parent) {
+					parent.removeChild(this);
+				}
 			}
 			
 			private function handleMouseIn(e:MouseEvent):void {

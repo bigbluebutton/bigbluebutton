@@ -10,7 +10,7 @@ export default function publicHistoryClear({ header }, meetingId) {
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
   if (meetingId) {
-    Chat.remove({ meetingId, 'message.toUserId': PUBLIC_CHAT_USERID },
+    Chat.remove({ meetingId, toUserId: PUBLIC_CHAT_USERID },
       Logger.info(`Cleared Chats (${meetingId})`));
 
     addChat(meetingId, {
@@ -20,6 +20,7 @@ export default function publicHistoryClear({ header }, meetingId) {
       toUsername: PUBLIC_CHAT_USERNAME,
       fromUserId: SYSTEM_CHAT_TYPE,
       fromUsername: '',
+      fromColor: '',
     },
     );
   }
