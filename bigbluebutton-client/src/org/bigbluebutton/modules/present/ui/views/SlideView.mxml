@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.model.Page;
+			import org.bigbluebutton.modules.present.model.PagePositionBroadcaster;
 			import org.bigbluebutton.modules.present.model.Presentation;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
@@ -83,6 +84,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
       private var pageCache:ArrayCollection = new ArrayCollection();
+			
+			private var pagePositionBroadcaster:PagePositionBroadcaster = new PagePositionBroadcaster();
       
 			private function onCreationComplete():void {
 				//slideLoader.width = this.width;
@@ -162,7 +165,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				prevMouseX = this.mouseX;
 				prevMouseY = this.mouseY;
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				stage.addEventListener(MouseEvent.MOUSE_UP, endDrag);
 				Mouse.cursor = MouseCursor.HAND;
 			}
 			
@@ -185,12 +188,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			/**
-			 * Triggered when the presenter releases the mouse button.
+			 * Triggered when the presenter releases the mouse button or mouses out of the application
 			 */		
-			private function onMouseUp(e:MouseEvent):void{		
+			private function endDrag(e:MouseEvent = null):void {
 				Mouse.cursor = MouseCursor.AUTO;
 				stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				stage.removeEventListener(MouseEvent.MOUSE_UP, endDrag);
 			}
 						
 			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
@@ -270,12 +273,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 									
 			private function notifyOthersOfZoomEvent():void {
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
-				presentEvent.xOffset = slideModel.viewedRegionX;
-				presentEvent.yOffset = slideModel.viewedRegionY;
-				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;
-				presentEvent.slideToCanvasHeightRatio = slideModel.viewedRegionH;
-				dispatchEvent(presentEvent);
+				pagePositionBroadcaster.broadcastPosition(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
 			}
 			
 			private function presenterIsZoomingOut(delta:Number):Boolean {
@@ -336,6 +334,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function becomeViewer():void {
         removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
         this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        
+        pagePositionBroadcaster.reset();
+        
+        endDrag();
       }
       
 			/**
