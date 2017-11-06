@@ -391,3 +391,45 @@ Check that the tools are now in your path by running the following command.
 $ mxmlc -version
 Version 4.16.0 build 20170305
 ~~~
+
+## Configure the client to use CDN
+
+It is possible to load the SWF application, modules and and locales from an external server; a CDN as a example. Let's suppose that our eternal domain is `cdn.company.org`
+
+1.First create a `crossdomain.xml` file into `/var/www/bigbluebutton-default/`
+
+~~~xml
+<?xml version="1.0"?>
+<!DOCTYPE cross-domain-policy SYSTEM "http://www.adobe.com/xml/dtds/cross-domain-policy.dtd">
+<cross-domain-policy>
+        <site-control permitted-cross-domain-policies="master-only"/>
+        <allow-access-from domain="cdn.company.org"/>
+</cross-domain-policy>
+~~~
+
+For more information about crossdomain policy please visit this link http://www.adobe.com/devnet/articles/crossdomain_policy_file_spec.html
+
+2.In config.xml you can configure some assets to be loaded from an external server. The same can also be done for every `url` property for `module` tag. Please check the example below
+
+~~~xml
+<language ... localesConfig="http://cdn.company.org/client/conf/locales.xml"
+ 		  	  localesDirectory="http://cdn.company.org/client/locale/" />
+    <skinning url="http://cdn.company.org/client/branding/css/V2Theme.css.swf" />
+    <branding logo="http://cdn.company.org/client/logo.swf" ...
+              background="http://cdn.company.org/client/background.png" />
+
+...
+
+<module name="ChatModule" url="http://cdn.company.org/client/ChatModule.swf" ... />
+~~~
+
+3.Then in `BigBlueButton.html` make sure you load the main swf from your remote URL. You can make the same with all other assets.
+
+~~~js
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="http://cdn.company.org/client/BigBlueButton.swf" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="allowfullscreeninteractive" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="always"><param name="seamlesstabbing" value="true"></object>';
+          }
+        };
+      } else {
+        swfobject.embedSWF("http://cdn.company.org/client/BigBlueButton.swf", "altFlash", "100%", "100%", "11.0.0", "http://cdn.company.org/client/expressInstall.swf", flashvars, params, attributes, embedCallback);
+      }
+~~~
