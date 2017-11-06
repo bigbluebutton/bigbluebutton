@@ -5,6 +5,7 @@ const WebHooks = require("./web_hooks.js");
 const WebServer = require("./web_server.js");
 const redis = require("redis");
 const UserMapping = require("./userMapping.js");
+const async = require("async");
 
 // Class that defines the application. Listens for events on redis and starts the
 // process to perform the callback calls.
@@ -18,13 +19,18 @@ module.exports = class Application {
     this.webServer = new WebServer();
   }
 
-  start() {
+  start(callback) {
     Hook.initialize(() => {
       UserMapping.initialize(() => {
         IDMapping.initialize(()=> {
-          this.webServer.start(config.server.port);
-          this.webServer.createPermanents();
-          this.webHooks.start();
+          async.parallel([
+            (callback) => { this.webServer.start(config.server.port, callback) },
+            (callback) => { this.webServer.createPermanents(callback) },
+            (callback) => { this.webHooks.start(callback) }
+          ], (err,results) => {
+            if(err != null) {}
+            typeof callback === 'function' ? callback() : undefined;
+          });
         });
       });
     });
