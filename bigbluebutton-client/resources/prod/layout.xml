@@ -100,7 +100,7 @@
     <window name="BroadcastWindow" hidden="true"/>
     <window name="CaptionWindow" hidden="true"/>
   </layout>
-  <layout name="Sample Multi Pod Layout">
+  <layout name="bbb.layout.name.multipod">
     <window name="ChatWindow1" minimized="false" maximized="false" hidden="false" width="0.30000000000000004" height="0.5999999999999999" minWidth="-1" x="0.6972748815165877" y="0.06689734717416378" order="2"/>
     <window name="UsersWindow" minimized="false" maximized="false" hidden="false" width="0.1895734597156398" height="0.6447520184544406" minWidth="-1" x="0.007701421800947867" y="0.01384083044982699" order="3"/>
     <window name="ChatWindow0" minimized="false" maximized="false" hidden="false" width="0.30000000000000004" height="0.5999999999999999" minWidth="-1" x="0.7" y="0.3333333333333333" order="0"/>
