@@ -7,26 +7,32 @@ const config = require('../config.js');
 const Hook = require('../hook.js');
 const Helpers = require('./helpers.js')
 const sinon = require('sinon');
-const winston = require('winston')
+const winston = require('winston');
 
 // Block winston from logging
-//Logger.remove(winston.transports.Console);
+Logger.remove(winston.transports.Console);
 describe('bbb-webhooks tests', () => {
-  before( () => {
+  before( (done) => {
     config.hooks.queueSize = 10;
+    config.hooks.permanentURLs = ["http://wh.requestcatcher.com"];
     application = new Application();
-    application.start();
-    Hook.flushall();
+    application.start( () => {
+      done();
+    });
   });
+  beforeEach( (done) => {
+    hooks = Hook.allGlobalSync();
+    Helpers.flushall(config.redis.client);
+    hooks.forEach( hook => {
+      Helpers.flushredis(hook);
+    })
+    done();
+  })
   after( () => {
-    Hook.flushall();
-  });
-
-  describe('GET /bbb/api', () => {
-    it('should reach api on server', (done) => {
-      request(Helpers.url)
-      .get('/bigbluebutton/api')
-      .expect(200, done)
+    hooks = Hook.allGlobalSync();
+    Helpers.flushall(config.redis.client);
+    hooks.forEach( hook => {
+      Helpers.flushredis(hook);
     })
   });
 
@@ -34,6 +40,7 @@ describe('bbb-webhooks tests', () => {
     it('should list permanent hook', (done) => {
       let getUrl = utils.checksumAPI(Helpers.url + Helpers.listUrl, config.bbb.sharedSecret);
       getUrl = Helpers.listUrl + '?checksum=' + getUrl
+
       request(Helpers.url)
       .get(getUrl)
       .expect('Content-Type', /text\/xml/)
@@ -50,39 +57,47 @@ describe('bbb-webhooks tests', () => {
   });
 
   describe('GET /hooks/create', () => {
-    after( () => {
+    after( (done) => {
       const hooks = Hook.allGlobalSync();
-      Hook.removeSubscription(hooks[hooks.length-1].id);
+      Hook.removeSubscription(hooks[hooks.length-1].id, () => { done(); });
     });
     it('should create a hook', (done) => {
       let getUrl = utils.checksumAPI(Helpers.url + Helpers.createUrl, config.bbb.sharedSecret);
       getUrl = Helpers.createUrl + '&checksum=' + getUrl
+
       request(Helpers.url)
-      .get(getUrl)
-      .expect('Content-Type', /text\/xml/)
-      .expect(200, (res) => {
-        const hooks = Hook.allGlobalSync();
-        if (hooks && hooks.some( hook => { return !hook.permanent }) ) {
-          done();
-        }
-        else {
-          done(new Error ("hook was not created"));
-        }
-      })
+        .get(getUrl)
+        .expect('Content-Type', /text\/xml/)
+        .expect(200, (res) => {
+          const hooks = Hook.allGlobalSync();
+          if (hooks && hooks.some( hook => { return !hook.permanent }) ) {
+            done();
+          }
+          else {
+            done(new Error ("hook was not created"));
+          }
+        })
     })
   });
 
   describe('GET /hooks/destroy', () => {
-    before( () => {
-      Hook.addSubscription(Helpers.callback,null,false,null);
+    before( (done) => {
+      Hook.addSubscription(Helpers.callback,null,false,() => { done(); });
     });
     it('should destroy a hook', (done) => {
-      let getUrl = utils.checksumAPI(Helpers.url + Helpers.destroyUrl, config.bbb.sharedSecret);
-      getUrl = Helpers.destroyUrl + '&checksum=' + getUrl
+      const hooks = Hook.allGlobalSync();
+      const hook = hooks[hooks.length-1].id;
+      let getUrl = utils.checksumAPI(Helpers.url + Helpers.destroyUrl(hook), config.bbb.sharedSecret);
+      getUrl = Helpers.destroyUrl(hook) + '&checksum=' + getUrl
+
       request(Helpers.url)
-      .get(getUrl)
-      .expect('Content-Type', /text\/xml/)
-      .expect(200, done)
+        .get(getUrl)
+        .expect('Content-Type', /text\/xml/)
+        .expect(200, (res) => {
+          const hooks = Hook.allGlobalSync();
+          if(hooks && hooks.every( hook => { return hook.callbackURL != Helpers.callback }))
+            done();
+        })
     })
   });
 
@@ -95,7 +110,7 @@ describe('bbb-webhooks tests', () => {
       .expect('Content-Type', /text\/xml/)
       .expect(200, (res) => {
         const hooks = Hook.allGlobalSync();
-        if (hooks && hooks[0].callbackURL == config.hooks.aggr) {
+        if (hooks && hooks[0].callbackURL == config.hooks.permanentURLs[0]) {
           done();
         }
         else {
@@ -106,31 +121,33 @@ describe('bbb-webhooks tests', () => {
   });
 
   describe('GET /hooks/create getRaw hook', () => {
-    after( () => {
+    after( (done) => {
       const hooks = Hook.allGlobalSync();
-      Hook.removeSubscription(hooks[hooks.length-1].id);
+      Hook.removeSubscription(hooks[hooks.length-1].id, () => { done(); });
     });
     it('should create a hook with getRaw=true', (done) => {
       let getUrl = utils.checksumAPI(Helpers.url + Helpers.createUrl + Helpers.createRaw, config.bbb.sharedSecret);
       getUrl = Helpers.createUrl + '&checksum=' + getUrl + Helpers.createRaw
+
       request(Helpers.url)
-      .get(getUrl)
-      .expect('Content-Type', /text\/xml/)
-      .expect(200, (res) => {
-        const hooks = Hook.allGlobalSync();
-        if (hooks && hooks.some( (hook) => { return hook.getRaw })) {
-          done();
-        }
-        else {
-          done(new Error("getRaw hook was not created"))
-        }
-      })
+        .get(getUrl)
+        .expect('Content-Type', /text\/xml/)
+        .expect(200, (res) => {
+          const hooks = Hook.allGlobalSync();
+          if (hooks && hooks.some( (hook) => { return hook.getRaw })) {
+            done();
+          }
+          else {
+            done(new Error("getRaw hook was not created"))
+          }
+        })
     })
   });
 
   describe('Hook queues', () => {
     before( () => {
-      Hook.addSubscription(Helpers.callback + 'diff',null,false, (err,reply) => {
+      config.redis.pubSubClient.psubscribe("test-channel");
+      Hook.addSubscription(Helpers.callback,null,false, (err,reply) => {
         const hooks = Hook.allGlobalSync();
         const hook = hooks[0];
         const hook2 = hooks[hooks.length -1];
@@ -145,31 +162,37 @@ describe('bbb-webhooks tests', () => {
       hook._processQueue.restore();
       hook2._processQueue.restore();
       Hook.removeSubscription(hooks[hooks.length-1].id);
+      config.redis.pubSubClient.unsubscribe("test-channel");
     });
     it('should have different queues for each hook', (done) => {
-      const create = Helpers.createMeeting()
-      let getUrl = utils.checksumAPI(Helpers.url + create, config.bbb.sharedSecret)
-      getUrl = create + '&checksum=' + getUrl
-      request(Helpers.url)
-      .get(getUrl)
-      .expect('Content-Type', /text\/xml/)
-      .expect(200, (res) => {
-        const hooks = Hook.allGlobalSync();
-        if (hooks && hooks[0].queue != hooks[hooks.length-1].queue) {
-          done();
-        }
-        else {
-          done(new Error("hooks using same queue"))
-        }
-      })
+      config.redis.client.publish("test-channel", JSON.stringify(Helpers.rawMessage));
+      const hooks = Hook.allGlobalSync();
+
+      if (hooks && hooks[0].queue != hooks[hooks.length-1].queue) {
+        done();
+      }
+      else {
+        done(new Error("hooks using same queue"))
+      }
     })
   });
   // reduce queue size, fill queue with requests, try to add another one, if queue does not exceed, OK
   describe('Hook queues', () => {
+    before( () => {
+      const hooks = Hook.allGlobalSync();
+      const hook = hooks[0];
+      sinon.stub(hook, '_processQueue');
+    });
+    after( () => {
+      const hooks = Hook.allGlobalSync();
+      const hook = hooks[0];
+      hook._processQueue.restore();
+      Helpers.flushredis(hook);
+    })
     it('should limit queue size to defined in config', (done) => {
       let hook = Hook.allGlobalSync();
       hook = hook[0];
-      for(i=0;i<=9;i++) { hook.enqueue("message" + i, true); }
+      for(i=0;i<=9;i++) { hook.enqueue("message" + i); }
 
       if (hook && hook.queue.length <= config.hooks.queueSize) {
         done();
@@ -182,65 +205,67 @@ describe('bbb-webhooks tests', () => {
 
   describe('/POST mapped message', () => {
     before( () => {
+      config.redis.pubSubClient.psubscribe("test-channel");
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
       hook.queue = [];
-      hook.flushredis();
+      Helpers.flushredis(hook);
     });
+    after( () => {
+      const hooks = Hook.allGlobalSync();
+      const hook = hooks[0];
+      Helpers.flushredis(hook);
+      config.redis.pubSubClient.unsubscribe("test-channel");
+    })
     it('should post mapped message ', (done) => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
-      hook.enqueue(Helpers.mappedMessage);
-      const getpost = nock(config.hooks.aggr[0])
-      .filteringPath( (path) => {
-        return path.split('?')[0];
-      })
-      .filteringRequestBody( (body) => {
-        body = body.split("&timestamp")[0];
-        return body;
-      })
-      .post("/", Helpers.encodedMessage)
-      .reply(200, (res) => {
-        done();
-      });
+
+      const getpost = nock(config.hooks.permanentURLs[0])
+                      .filteringRequestBody( (body) => {
+                        let parsed = JSON.parse(body)
+                        return parsed[0].data.id ? "mapped" : "not mapped";
+                      })
+                      .post("/", "mapped")
+                      .reply(200, (res) => {
+                        done();
+                      });
+    config.redis.client.publish("test-channel", JSON.stringify(Helpers.rawMessage));
     })
   });
 
   describe('/POST raw message', () => {
     before( () => {
+      config.redis.pubSubClient.psubscribe("test-channel");
       Hook.addSubscription(Helpers.callback,null,true, (err,hook) => {
-        hook.flushredis();
+        Helpers.flushredis(hook);
       })
     });
     after( () => {
       const hooks = Hook.allGlobalSync();
       Hook.removeSubscription(hooks[hooks.length-1].id);
+      Helpers.flushredis(hooks[hooks.length-1]);
+      config.redis.pubSubClient.unsubscribe("test-channel");
     });
     it('should post raw message ', (done) => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
 
       const getpost = nock(Helpers.callback)
-      .filteringPath( (path) => {
-        return path.split('?')[0];
-      })
-      .filteringRequestBody( (body) => {
-        if (body.indexOf("envelope")) {
-          return "raw message";
-        }
-        else { return "not raw"; }
-      })
-      .post("/", "raw message")
-      .reply(200, () => {
-        done();
-      });
-
-      const create = Helpers.createMeeting()
-      let getUrl = utils.checksumAPI(Helpers.url + create, config.bbb.sharedSecret)
-      getUrl = create + '&checksum=' + getUrl
-      request(Helpers.url)
-      .get(getUrl)
-      .expect(200);
+                      .filteringRequestBody( (body) => {
+                        if (body.indexOf("PresenterAssignedEvtMsg")) {
+                          return "raw message";
+                        }
+                        else { return "not raw"; }
+                      })
+                      .post("/", "raw message")
+                      .reply(200, () => {
+                        done();
+                      });
+      const permanent = nock(config.hooks.permanentURLs[0])
+                        .post("/")
+                        .reply(200)
+      config.redis.client.publish("test-channel", JSON.stringify(Helpers.rawMessage));
     })
   });
 
@@ -248,31 +273,29 @@ describe('bbb-webhooks tests', () => {
     before( () =>{
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
-      hook.queue = [];
-      hook.flushredis();
+      Helpers.flushredis(hook);
+      hook.queue = ["multiMessage1"];
     });
     it('should post multi message ', (done) => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
-      hook.enqueue("multiMessage1", true);
-      hook.enqueue("multiMessage2");
-      const getpost = nock(config.hooks.aggr[0])
-      .filteringPath( (path) => {
-        return path.split('?')[0];
-      })
-      .filteringRequestBody( (body) => {
-        if (body.indexOf("multiMessage1") && body.indexOf("multiMessage2")) {
-          return "multiMess"
-        }
-        else {
-          return "not multi"
-        }
-        return body;
-      })
-      .post("/", "multiMess")
-      .reply(200, (res) => {
-        done();
-      });
+      hook.enqueue("multiMessage2")
+      const getpost = nock(config.hooks.permanentURLs[0])
+                      .filteringPath( (path) => {
+                        return path.split('?')[0];
+                      })
+                      .filteringRequestBody( (body) => {
+                        if (body.indexOf("multiMessage1") != -1 && body.indexOf("multiMessage2") != -1) {
+                          return "multiMess"
+                        }
+                        else {
+                          return "not multi"
+                        }
+                      })
+                      .post("/", "multiMess")
+                      .reply(200, (res) => {
+                        done();
+                      });
     })
   });
 });
