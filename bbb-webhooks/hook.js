@@ -42,7 +42,7 @@ module.exports = class Hook {
   }
 
   save(callback) {
-   this.redisClient.hmset(config.redis.keys.hook(this.id), this.toRedis(), (error, reply) => {
+    this.redisClient.hmset(config.redis.keys.hook(this.id), this.toRedis(), (error, reply) => {
       if (error != null) { Logger.error("[Hook] error saving hook to redis:", error, reply); }
         this.redisClient.sadd(config.redis.keys.hooks, this.id, (error, reply) => {
         if (error != null) { Logger.error("[Hook] error saving hookID to the list of hooks:", error, reply); }
@@ -54,7 +54,7 @@ module.exports = class Hook {
   }
 
   destroy(callback) {
-   this.redisClient.srem(config.redis.keys.hooks, this.id, (error, reply) => {
+    this.redisClient.srem(config.redis.keys.hooks, this.id, (error, reply) => {
       if (error != null) { Logger.error("[Hook] error removing hookID from the list of hooks:", error, reply); }
         this.redisClient.del(config.redis.keys.hook(this.id), error => {
         if (error != null) { Logger.error("[Hook] error removing hook from redis:", error); }
@@ -81,7 +81,7 @@ module.exports = class Hook {
 
   // Puts a new message in the queue. Will also trigger a processing in the queue so this
   // message might be processed instantly.
-  enqueue(message, hold) {
+  enqueue(message) {
     this.redisClient.llen(config.redis.keys.events(this.id), (error, reply) => {
       const length = reply;
       if (length < config.hooks.queueSize && this.queue.length < config.hooks.queueSize) {
@@ -91,7 +91,7 @@ module.exports = class Hook {
           if (error != null) { Logger.error("[Hook] error pushing event to redis queue:", JSON.stringify(message), error); }
         });
         this.queue.push(JSON.stringify(message));
-        if (!hold) { this._processQueue(); }
+        this._processQueue();
       } else {
         Logger.warn(`[Hook] ${this.callbackURL} queue size exceed, event:`, JSON.stringify(message));
       }
@@ -191,7 +191,7 @@ module.exports = class Hook {
           }
         });
       }
-      hook.save((error, hook) => typeof callback === 'function' ? callback(error, hook) : undefined);
+      hook.save((error, hook) => { typeof callback === 'function' ? callback(error, hook) : undefined });
     }
   }
 
@@ -202,7 +202,7 @@ module.exports = class Hook {
       if (hook.externalMeetingID != null) { msg += ` for the meeting: [${hook.externalMeetingID}]`; }
       Logger.info(msg);
 
-      hook.destroy((error, removed) => typeof callback === 'function' ? callback(error, removed) : undefined);
+      hook.destroy((error, removed) => { typeof callback === 'function' ? callback(error, removed) : undefined });
     } else {
       return (typeof callback === 'function' ? callback(null, false) : undefined);
     }
@@ -263,13 +263,6 @@ module.exports = class Hook {
     Hook.resync(callback);
   }
 
-  static flushall() {
-    let client = config.redis.client;
-    client.flushdb()
-  }
-  flushredis() {
-    this.redisClient.flushdb();
-  }
   // Gets all hooks from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
