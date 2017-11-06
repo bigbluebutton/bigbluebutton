@@ -446,10 +446,10 @@ module BigBlueButton
     end
 
     # Get events when the moderator wants the recording to start or stop
-    def self.get_start_and_stop_rec_events(events_xml)
+    def self.get_start_and_stop_rec_events(events_xml, allow_empty_events=false)
       BigBlueButton.logger.info "Getting start and stop rec button events"
       rec_events = BigBlueButton::Events.get_record_status_events(events_xml)
-      if rec_events.empty?
+      if !allow_empty_events and rec_events.empty?
         # old recording generated in a version without the record button
         rec_events << { :timestamp => BigBlueButton::Events.first_event_timestamp(events_xml) }
       end

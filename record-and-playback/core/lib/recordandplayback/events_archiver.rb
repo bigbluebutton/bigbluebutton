@@ -230,19 +230,22 @@ module BigBlueButton
 
       if File.exist?(events_file)
         io = File.open(events_file, 'rb')
-        events_doc = Nokogiri::XML::Document.parse(events_file)
+        events_doc = Nokogiri::XML::Document.parse(io)
         io.close
-        recording = events_doc.create_element('recording',
-                'meeting_id' => meeting_id,
-                'bbb_version' => version)
-        events_doc.root = recording
-      else
-        events_doc = Nokogiri::XML::Document.new()
         recording = events_doc.at_xpath('/recording')
+        if recording.nil?
+          raise "recording is nil"
+        end
         meeting = events_doc.at_xpath('/recording/meeting')
         metadata = events_doc.at_xpath('/recording/metadata')
         breakout = events_doc.at_xpath('/recording/breakout')
         breakoutRooms = events_doc.at_xpath('/recording/breakoutRooms')
+      else
+        events_doc = Nokogiri::XML::Document.new()
+        recording = events_doc.create_element('recording',
+                'meeting_id' => meeting_id,
+                'bbb_version' => version)
+        events_doc.root = recording
       end
 
       meeting_metadata = @redis.metadata_for(meeting_id)
@@ -304,7 +307,7 @@ module BigBlueButton
                 'eventname' => res[EVENTNAME])
         res.each do |k, v|
           if ![TIMESTAMP, MODULE, EVENTNAME, MEETINGID].include?(k)
-            if res[MODULE] == 'PRESENTATION' and key == 'slidesInfo'
+            if res[MODULE] == 'PRESENTATION' and k == 'slidesInfo'
               # The slidesInfo value is XML serialized info, just insert it
               # directly into the event
               event << v
@@ -317,6 +320,7 @@ module BigBlueButton
             end
           end
         end
+        recording << event
 
         # Stop reading events if we've reached the recording break for this
         # segment
@@ -341,38 +345,6 @@ module BigBlueButton
 
     end
 
-    
-    def store_events(meeting_id)
-	Encoding.default_external="UTF-8"
-      xml = Builder::XmlMarkup.new( :indent => 2 )
-      
-            msgs = @redis.events_for(meeting_id)                      
-            msgs.each do |msg|
-              res = @redis.event_info_for(meeting_id, msg)
-              xml.event(:timestamp => res[TIMESTAMP], :module => res[MODULE], :eventname => res[EVENTNAME]) {
-                res.each do |key, val|
-                  if not [TIMESTAMP, MODULE, EVENTNAME, MEETINGID].include?(key)
-                    # a temporary solution for enable a good display of the xml in the presentation module and for add CDATA to chat
-                    if res[MODULE] == "PRESENTATION" && key == "slidesInfo"
-                      xml.method_missing(key){
-                        xml << val
-                      }
-                    elsif res[MODULE] == "CHAT" && res[EVENTNAME] == "PublicChatEvent" && key == "message"
-                      xml.method_missing(key){
-                        xml.cdata!(val.tr("\u0000-\u001f\u007f\u2028",''))
-                      }
-                    else
-                      xml.method_missing(key,  val)
-                    end
-                  end
-                end
-              }
-            end
-          }
-      end  
-      xml.target!
-    end
-
     def delete_events(meeting_id)
       meeting_metadata = @redis.metadata_for(meeting_id)
       if (meeting_metadata != nil)
@@ -387,10 +359,5 @@ module BigBlueButton
       @redis.delete_breakout_rooms_for(meeting_id)
     end
     
-    def save_events_to_file(directory, result)
-      File.open("#{directory}/events.xml", 'w') do |f2|  
-        f2.puts result
-      end 
-    end
   end
 end
