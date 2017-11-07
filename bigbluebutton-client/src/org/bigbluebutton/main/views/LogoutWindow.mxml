@@ -33,16 +33,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.managers.PopUpManager;
-      
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.core.PopUpUtil;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.LogoutEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
 
       private static const LOGGER:ILogger = getClassLogger(LogoutWindow);
       
@@ -70,7 +69,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function close():void {
-        PopUpManager.removePopUp(this);
+		PopUpUtil.unlockPosition(this);
+        PopUpUtil.removePopUp(this);
       }
     ]]>
   </fx:Script>
