@@ -86,6 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public var chatWithUserID:String;
       public var chatWithUsername:String
       public var chatId: String = null;
+      public var parentWindowId:String = null;
       public var publicChat: Boolean = false;
       public var read:Boolean = true;
       public var userHasLeft:Boolean = false;
@@ -134,11 +135,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         scrollTimer = new Timer(750, 1);
         scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
         
-        // Initialize the indicator for the position in the message history, and add the listener for message history navigation
+        // Initialize the indicator for the position in the message history, 
+        // and add the listener for message history navigation
         currentMessage = -1;
         latestMessage = -1;
         
-        ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing	
+        // Listen for locale changing
+        ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); 	
         
         // Listen for the ENTER key to send the message.
         txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
@@ -162,7 +165,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
 //        chatToolbar.registerListeners(chatMessagesList);
         
-        chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, adjustToolbarWidthAccordingToScrollBar);
+        chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, 
+          adjustToolbarWidthAccordingToScrollBar);
       }
       
       

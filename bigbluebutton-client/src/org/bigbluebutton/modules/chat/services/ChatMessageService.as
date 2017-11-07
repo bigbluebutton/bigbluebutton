@@ -41,8 +41,6 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPublicMessageFromApi(event:SendGroupChatMessageEvent):void
     {
-      
-      
       //sendPublicMessage(event.chatId, msgVO);
     }    
     

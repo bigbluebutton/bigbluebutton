@@ -34,6 +34,17 @@ package org.bigbluebutton.modules.chat.maps
       }
     }
     
+    public function findChatBoxMapper(id: String):GroupChatBoxMapper { 
+      for (var i:int=0; i<_chatBoxes.length; i++) {
+        var box:GroupChatBoxMapper = _chatBoxes.getItemAt(i) as GroupChatBoxMapper;
+        if (box.chatBoxId == id) {
+          return box;
+        }
+      }
+      
+      return null;
+    }
+    
     public function getNumChatBoxes():int {
       return _chatBoxes.length;
     }

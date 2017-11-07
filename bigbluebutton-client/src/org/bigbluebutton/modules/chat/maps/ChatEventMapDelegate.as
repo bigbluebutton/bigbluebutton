@@ -18,11 +18,14 @@
  */
 package org.bigbluebutton.modules.chat.maps {
   import com.asfusion.mate.events.Dispatcher;
-  import flash.events.IEventDispatcher; 
+  
+  import flash.events.IEventDispatcher;
+  
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
   import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -145,6 +148,17 @@ package org.bigbluebutton.modules.chat.maps {
       for (var i:int = 0; i < gcIds.length; i++) {
         var cid:String = gcIds[i];
         createNewGroupChat(cid);
+      }
+    }
+    
+    public function chatBoxClosed(event: GroupChatBoxClosedEvent):void {
+      var winMapper:GroupChatWindowMapper = findGroupChatWindowMapper(event.windowId);
+      if (winMapper != null) {
+        var chatBox: GroupChatBoxMapper = winMapper.findChatBoxMapper(event.chatId);
+        if (chatBox != null) {
+          trace("********** CLOSING CHAT BOX " + event.chatId);
+          chatBox.chatBoxOpen = false;
+        }
       }
     }
     

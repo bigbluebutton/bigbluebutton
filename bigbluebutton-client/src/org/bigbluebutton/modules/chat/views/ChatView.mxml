@@ -64,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+      import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
@@ -82,8 +83,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
       [Bindable] public var chatOptions:ChatOptions;
-      public var mainChatId: String;
+      [Bindable] public var mainChatId: String;
       public var openTabBox:Boolean = false;
+      [Bindable] public var windowId:String = ""
       
       private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
       private var publicWaiting:Boolean = false;
@@ -330,6 +332,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         chatBox.name = groupChatId;
         chatBox.chatWithUserID = groupChatId;
+        chatBox.parentWindowId = windowId;
         chatBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
         
         if (publicChat) {
@@ -431,7 +434,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onUserClosedTab(e:SuperTabEvent):void{
-        var name:String = chatTabs.getChildAt(e.tabIndex).name;
+        var chatBox:ChatBox = chatTabs.getChildAt(e.tabIndex) as ChatBox;
+        globalDispatcher.dispatchEvent(new GroupChatBoxClosedEvent(chatBox.chatId, 
+          chatBox.parentWindowId));
       }
       
       private function remoteClosePrivate(e:ShortcutEvent):void {

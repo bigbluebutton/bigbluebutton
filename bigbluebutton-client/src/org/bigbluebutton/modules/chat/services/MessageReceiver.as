@@ -111,7 +111,8 @@ package org.bigbluebutton.modules.chat.services
       var body: Object = msg.body as Object;
       var corrId: String = body.correlationId as String;
       var chatId: String = body.chatId as String;
-      var createdBy: GroupChatUser = new GroupChatUser(body.createdBy.id, body.createdBy.name);
+      var createdBy: GroupChatUser = new GroupChatUser(body.createdBy.id, 
+        body.createdBy.name);
       var name: String = body.name as String;
       var access: String = body.access as String;
       var users: Array = body.users as Array;
