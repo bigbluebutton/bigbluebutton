@@ -43,8 +43,12 @@ def archive_audio(meeting_id, audio_dir, raw_archive_dir)
   BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}-*.wav")
   audio_dest_dir = "#{raw_archive_dir}/#{meeting_id}/audio"
   FileUtils.mkdir_p(audio_dest_dir)
-  ret = BigBlueButton.exec_ret('rsync', '-rstv',
-          *Dir.glob("#{audio_dir}/#{meeting_id}-*.wav"),
+  audio_files = Dir.glob("#{audio_dir}/#{meeting_id}-*.wav")
+  if audio_files.empty?
+    BigBlueButton.logger.warn("No audio found for #{meeting_id}")
+    return
+  end
+  ret = BigBlueButton.exec_ret('rsync', '-rstv', *audio_files,
           "#{raw_archive_dir}/#{meeting_id}/audio/")
   if ret != 0
     BigBlueButton.logger.warn("Failed to archive audio for #{meeting_id}")
