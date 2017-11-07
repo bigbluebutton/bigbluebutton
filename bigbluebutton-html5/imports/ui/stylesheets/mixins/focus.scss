@@ -41,21 +41,6 @@
   }
 }
 
-
-
-@mixin customLinkFocus($focus-border-size, $color-white, $color-primary) {
-  border: $focus-border-size solid $color-white;
-  
-  &,
-  &:active {
-    &:focus {
-      outline: none;
-      border: $focus-border-size solid $color-primary;
-      border-radius: $focus-border-size; 
-    }
-  }
-}
-
 @mixin customBtnFocus($focus-border-size, $focus-border-offset, $color-primary) {
   border: none;
   position: relative;

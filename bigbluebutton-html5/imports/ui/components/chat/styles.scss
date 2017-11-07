@@ -18,12 +18,9 @@
   flex-shrink: 0;
 
   a {
-    @include customLinkFocus(
-      $focus-border-size, 
-      $color-white, 
-      $color-primary
-    );
-    
+    @include elementFocus($color-primary);
+    padding-bottom: $sm-padding-y;
+    padding-left: $sm-padding-y;
     text-decoration: none;
     display: block;
   }
