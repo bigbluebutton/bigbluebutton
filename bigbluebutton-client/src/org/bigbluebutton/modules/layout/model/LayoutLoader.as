@@ -35,6 +35,9 @@ package org.bigbluebutton.modules.layout.model
 	public class LayoutLoader extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(LayoutLoader);      
     
+		[Embed(source = "../../../../../../resources/prod/layout.xml", mimeType = "application/octet-stream")]
+		private const DEFAULT_CONFIG:Class;
+		
 		private var _fileRef:FileReference;
 		
 		public function loadFromUrl(layoutUrl:String):void {
@@ -59,12 +62,16 @@ package org.bigbluebutton.modules.layout.model
 		}
 		
 		private function onComplete(evt:Event):void {
+			LOGGER.debug("layout.xml loaded with success");
+			parseConfiguration(new XML(evt.target.data));
+		}
+		
+		private function parseConfiguration(xmlConfig:XML):void{
 			LOGGER.debug("completed, parsing...");
 			var layouts:LayoutDefinitionFile = new LayoutDefinitionFile();
 			var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
 			try {
-				var data:XML = new XML(evt.target.data);
-				for each (var n:XML in data.layout) {
+				for each (var n:XML in xmlConfig.layout) {
 					layouts.pushXml(n);
 				}
 				event.layouts = layouts;
@@ -93,10 +100,8 @@ package org.bigbluebutton.modules.layout.model
 		} 
 		
 		private function onIOError(evt:IOErrorEvent):void {
-			var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-			event.success = false;
-			event.error = new TypeError(ResourceUtil.getInstance().getString('bbb.layout.load.ioError'));
-			dispatchEvent(event);
+			LOGGER.debug("layout.xml not loaded. Using default fallback configuration");
+			parseConfiguration(new XML(new DEFAULT_CONFIG()));
 		} 
 
 		private function onSecurityError(evt:Event):void { 

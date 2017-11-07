@@ -20,6 +20,7 @@ package org.bigbluebutton.core.managers
 {
     import flash.events.Event;
     import flash.events.EventDispatcher;
+    import flash.events.IOErrorEvent;
     import flash.net.URLLoader;
     import flash.net.URLRequest;
     
@@ -33,6 +34,10 @@ package org.bigbluebutton.core.managers
 		private static const LOGGER:ILogger = getClassLogger(VideoProfileManager);      
 
         public static const DEFAULT_FALLBACK_LOCALE:String = "en_US";
+		
+		[Embed(source = "../../../../../resources/prod/profiles.xml", mimeType = "application/octet-stream")]
+		private const DEFAULT_CONFIG:Class;
+		
         private var _profiles:Array = new Array();
                 
         public function loadProfiles():void {
@@ -40,6 +45,7 @@ package org.bigbluebutton.core.managers
 			
             var urlLoader:URLLoader = new URLLoader();
             urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleError);
             var date:Date = new Date();
             var localeReqURL:String = options.videoProfilesConfig + "?a=" + date.time;
             LOGGER.debug("VideoProfileManager::loadProfiles [{0}]", [localeReqURL]);
@@ -47,17 +53,26 @@ package org.bigbluebutton.core.managers
         }       
         
         private function handleComplete(e:Event):void{
-            LOGGER.debug("VideoProfileManager::handleComplete [{0}]", [new XML(e.target.data)]);
-      
-            // first clear the array
-            _profiles.splice(0);
-
-            var profiles:XML = new XML(e.target.data);
-            var fallbackLocale:String = profiles.@fallbackLocale != undefined ? profiles.@fallbackLocale.toString(): DEFAULT_FALLBACK_LOCALE;
-            for each (var profile:XML in profiles.children()) {
-                _profiles.push(new VideoProfile(profile, fallbackLocale));
-            }
+			LOGGER.debug("profiles.xml loaded with success");
+			parseConfiguration(new XML(e.target.data));
         }
+		
+		private function handleError(e:IOErrorEvent):void {
+			LOGGER.debug("profiles.xml not loaded. Using default fallback configuration");
+			parseConfiguration(new XML(new DEFAULT_CONFIG()));
+		}
+		
+		private function parseConfiguration(xmlConfig:XML):void {
+			LOGGER.debug("VideoProfileManager::handleComplete [{0}]", [xmlConfig]);
+			
+			// first clear the array
+			_profiles.splice(0);
+			
+			var fallbackLocale:String = xmlConfig.@fallbackLocale != undefined ? xmlConfig.@fallbackLocale.toString(): DEFAULT_FALLBACK_LOCALE;
+			for each (var profile:XML in xmlConfig.children()) {
+				_profiles.push(new VideoProfile(profile, fallbackLocale));
+			}
+		}
         
         public function get profiles():Array {
             if (_profiles.length > 0) {
