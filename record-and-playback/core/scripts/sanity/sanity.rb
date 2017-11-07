@@ -138,15 +138,6 @@ Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 meeting_id = opts[:meeting_id]
 break_timestamp = opts[:break_timestamp]
 
-# Determine the filenames for the done and fail files
-if !break_timestamp.nil?
-  done_base = "#{meeting_id}-#{break_timestamp}"
-else
-  done_base = meeting_id
-end
-sanity_done_file = "#{recording_dir}/status/sanity/#{done_base}.done"
-sanity_fail_file = "#{recording_dir}/status/sanity/#{done_base}.fail"
-
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
 log_dir = props['log_dir']
@@ -155,6 +146,15 @@ recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
 redis_host = props['redis_host']
 redis_port = props['redis_port']
+
+# Determine the filenames for the done and fail files
+if !break_timestamp.nil?
+  done_base = "#{meeting_id}-#{break_timestamp}"
+else
+  done_base = meeting_id
+end
+sanity_done_file = "#{recording_dir}/status/sanity/#{done_base}.done"
+sanity_fail_file = "#{recording_dir}/status/sanity/#{done_base}.fail"
 
 BigBlueButton.logger = Logger.new("#{log_dir}/sanity.log", 'daily' )
 

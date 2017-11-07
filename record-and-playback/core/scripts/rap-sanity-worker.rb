@@ -54,7 +54,7 @@ def sanity_archived_meetings(recording_dir)
     step_start_time = BigBlueButton.monotonic_clock
     if !break_timestamp.nil?
       ret = BigBlueButton.exec_ret('ruby', 'sanity/sanity.rb',
-                                   '-m' meeting_id, '-b', break_timestamp)
+                                   '-m', meeting_id, '-b', break_timestamp)
     else
       ret = BigBlueButton.exec_ret('ruby', 'sanity/sanity.rb', '-m', meeting_id)
     end
