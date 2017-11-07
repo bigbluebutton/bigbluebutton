@@ -38,9 +38,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
  * ==========
  */
 .button {
-  @include customBtnFocus(
-    $focus-border-size, 
-    $focus-border-offset, 
+  @include btnFocus(
     $color-primary
   );
 
@@ -81,9 +79,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 }
 
 .buttonWrapper {
-  @include customBtnFocus(
-    $focus-border-size, 
-    $focus-border-offset, 
+  @include btnFocus(
     $color-primary
   );
 
