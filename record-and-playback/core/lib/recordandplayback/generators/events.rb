@@ -550,7 +550,7 @@ module BigBlueButton
       # Locate the chapter break event for the end of this segment
       segment_i = chapter_breaks.length
       chapter_breaks.each_with_index do |event, i|
-        timestamp = event.at_xpath('timestamp').text.to_i
+        timestamp = event.at_xpath('breakTimestamp').text.to_i
         if timestamp == break_timestamp
           segment_i = i
           break
@@ -560,7 +560,7 @@ module BigBlueButton
       if segment_i > 0
         # Get the timestamp of the previous chapter break event
         event = chapter_breaks[segment_i - 1]
-        return event.at_xpath('timestamp').text.to_i
+        return event.at_xpath('breakTimestamp').text.to_i
       else
         # This is the first (or only) segment, so return the timestamp of
         # recording start (first event)

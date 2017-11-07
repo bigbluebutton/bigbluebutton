@@ -297,6 +297,8 @@ module BigBlueButton
       end
 
       # Append event elements, up until the break_timestamp if provided
+      # TODO: check if the break we're looking for is already in the events
+      # file
       msgs = @redis.events_for(meeting_id)
       last_index = -1
       msgs.each_with_index do |msg, i|
