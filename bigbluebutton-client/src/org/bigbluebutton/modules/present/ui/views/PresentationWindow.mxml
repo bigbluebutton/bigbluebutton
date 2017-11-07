@@ -487,7 +487,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
 
-				addContextMenuItems();
+				if (UsersUtil.amIPresenter()) {
+					addContextMenuItems();
+				} else {
+					this.customContextMenuItems = new Array();
+				}
 				
 				setPollMenuData();
 				
