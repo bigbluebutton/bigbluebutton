@@ -293,6 +293,10 @@ public class Meeting {
 		return defaultAvatarURL;
 	}
 
+	public void setGuestPolicy(String policy) {
+		guestPolicy = policy;
+	}
+
 	public String getGuestPolicy() {
     	return guestPolicy;
 	}
