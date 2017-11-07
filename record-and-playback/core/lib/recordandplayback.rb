@@ -94,10 +94,6 @@ module BigBlueButton
     return @redis_publisher
   end
   
-  def self.dir_exists?(dir)
-    FileTest.directory?(dir)
-  end
-    
   def self.execute(command, fail_on_error=true)
     status = ExecutionStatus.new
     status.detailedStatus = Open4::popen4(command) do | pid, stdin, stdout, stderr|
