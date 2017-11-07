@@ -15,6 +15,8 @@
   }
 } 
 
+
+
 @mixin customUserlistItemFocus($focus-border-size, $user-list-bg, $list-item-bg-hover, $color-list-item-hover-bg, $color-list-item-focus-border, $sm-padding-y){
   border: $focus-border-size solid $user-list-bg;
   border-radius: $border-radius;
@@ -39,21 +41,7 @@
   }
 }
 
-@mixin customListItemFocus($focus-border-size, $color-white, $lg-padding-y, $color-list-item-focus-border, $color-list-item-hover-bg) {
-  position: relative;
-  display: inline-block;
-  border: $focus-border-size solid $color-white;
-  border-radius: $border-radius;
-  
-  &,
-  &:active {
-    &:focus {
-      outline: none;
-      border: $focus-border-size solid $color-list-item-focus-border;
-      background-color: $color-list-item-hover-bg;
-    }
-  }
-}
+
 
 @mixin customLinkFocus($focus-border-size, $color-white, $color-primary) {
   border: $focus-border-size solid $color-white;

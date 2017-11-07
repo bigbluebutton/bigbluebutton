@@ -38,18 +38,17 @@
 }
 
 .item {
-  @include customListItemFocus(
-    $focus-border-size, 
-    $color-white, 
-    $lg-padding-y, 
-    $color-list-item-focus-border, 
-    $color-list-item-hover-bg
-  );
-  
   display: flex;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;
   padding-left: ($line-height-computed / 3);
+
+  &:focus {
+    outline: none;
+    border-radius: 2px;
+    box-shadow: 0 0 0 2px $color-list-item-focus-border;
+    background-color: $color-list-item-hover-bg;
+  }
 
   @include mq($small-only) {
     padding: ($line-height-computed / 1.5) 0;
