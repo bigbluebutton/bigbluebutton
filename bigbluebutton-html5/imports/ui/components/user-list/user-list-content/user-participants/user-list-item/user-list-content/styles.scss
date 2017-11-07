@@ -64,26 +64,28 @@
 
 .active {
   background-color: $list-item-bg-hover;
-  border: $focus-border-size solid $color-list-item-focus-border !important;
-  border-right: none !important;
+  box-shadow: inset 0 0 0 2px $color-list-item-focus-border, inset 1px 0 0 1px $color-list-item-focus-border;
   outline: none;
 }
 
 .userListItem {
-  @include customUserlistItemFocus(
-    $focus-border-size, 
-    $user-list-bg, 
-    $list-item-bg-hover, 
-    $color-list-item-hover-bg, 
-    $color-list-item-focus-border, 
-    $sm-padding-y);
-    
+
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;
 
+  padding-top: $lg-padding-y;
+  padding-bottom: $lg-padding-y;
+  padding-left: $lg-padding-y;
+
   &:last-child {
     margin-bottom: 0.5rem;
+  }
+
+  &:focus {
+    background-color: $list-item-bg-hover;
+    box-shadow: inset 0 0 0 2px $color-list-item-focus-border, inset 1px 0 0 1px $color-list-item-focus-border;
+    outline: none;
   }
 }
 
