@@ -3,8 +3,10 @@ package org.bigbluebutton.core.apps.sharednotes
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.SystemConfiguration
 
-trait ClearSharedNotePubMsgHdlr {
+trait ClearSharedNotePubMsgHdlr extends SystemConfiguration {
   this: SharedNotesApp2x =>
 
   def handle(msg: ClearSharedNotePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -20,9 +22,15 @@ trait ClearSharedNotePubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    liveMeeting.notesModel.clearNote(msg.body.noteId) match {
-      case Some(noteReport) => broadcastEvent(msg, noteReport)
-      case None             => log.warning("Could not find note " + msg.body.noteId)
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to clear shared notes in meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+    } else {
+      liveMeeting.notesModel.clearNote(msg.body.noteId) match {
+        case Some(noteReport) => broadcastEvent(msg, noteReport)
+        case None             => log.warning("Could not find note " + msg.body.noteId)
+      }
     }
   }
 }

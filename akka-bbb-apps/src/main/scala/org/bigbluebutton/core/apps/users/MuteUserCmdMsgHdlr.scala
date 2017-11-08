@@ -24,7 +24,7 @@ trait MuteUserCmdMsgHdlrPermCheck extends MuteUserCmdMsgHdlrDefault with SystemC
 
     val isAllowed = PermissionCheck.isAllowed(
       PermissionCheck.MOD_LEVEL,
-      PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
+      PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
     )
 
     if (msg.header.userId != msg.body.userId && applyPermissionCheck && !isAllowed) {

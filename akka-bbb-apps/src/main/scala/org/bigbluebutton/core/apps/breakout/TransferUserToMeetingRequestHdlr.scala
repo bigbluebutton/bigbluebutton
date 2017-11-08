@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.BreakoutModel
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.apps.PermissionCheck
 
 trait TransferUserToMeetingRequestHdlr {
   this: MeetingActor =>
@@ -12,7 +13,18 @@ trait TransferUserToMeetingRequestHdlr {
   val outGW: OutMsgRouter
 
   def handleTransferUserToMeetingRequestMsg(msg: TransferUserToMeetingRequestMsg, state: MeetingState2x): MeetingState2x = {
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to transfer user to voice breakout."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+    } else {
+      processRequest(msg)
+    }
 
+    state
+  }
+
+  def processRequest(msg: TransferUserToMeetingRequestMsg) {
     if (msg.body.fromMeetingId == liveMeeting.props.meetingProp.intId) {
       // want to transfer from parent meeting to breakout
       for {
@@ -46,8 +58,6 @@ trait TransferUserToMeetingRequestHdlr {
         outGW.send(event)
       }
     }
-
-    state
   }
 
   def buildTransferUserToVoiceConfSysMsg(fromVoiceConf: String, toVoiceConf: String, voiceUserId: String): BbbCommonEnvCoreMsg = {

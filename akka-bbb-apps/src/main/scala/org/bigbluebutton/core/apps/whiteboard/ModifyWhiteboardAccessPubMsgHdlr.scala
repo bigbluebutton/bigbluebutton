@@ -3,8 +3,10 @@ package org.bigbluebutton.core.apps.whiteboard
 import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.SystemConfiguration
 
-trait ModifyWhiteboardAccessPubMsgHdlr {
+trait ModifyWhiteboardAccessPubMsgHdlr extends SystemConfiguration {
   this: WhiteboardApp2x =>
 
   def handle(msg: ModifyWhiteboardAccessPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -20,7 +22,13 @@ trait ModifyWhiteboardAccessPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    modifyWhiteboardAccess(msg.body.multiUser, liveMeeting)
-    broadcastEvent(msg)
+    if (!getWhiteboardAccess(liveMeeting) && applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to modify access to the whiteboard."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+    } else {
+      modifyWhiteboardAccess(msg.body.multiUser, liveMeeting)
+      broadcastEvent(msg)
+    }
   }
 }
