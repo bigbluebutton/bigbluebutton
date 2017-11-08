@@ -43,7 +43,7 @@
 }
 
 .input {
-  @include inputFocus($color-primary-input-shadow);
+  @include inputFocus($color-blue-light);
   
   flex: 1;
   background: #fff;

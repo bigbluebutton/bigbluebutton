@@ -1,13 +1,12 @@
 @import "/imports/ui/components/user-list/styles.scss";
 @import "/imports/ui/stylesheets/mixins/focus";
-@import "/imports/ui/stylesheets/variables/_all";
 
 .smallTitle {
   @extend .smallTitle;
 }
 
 .scrollableList {
-  @include elementFocus($color-list-item-focus-border);
+  @include elementFocus($item-focus-border);
   @include scrollbox-vertical($user-list-bg);
 }
 

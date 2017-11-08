@@ -1,6 +1,9 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
+$item-bg-focus: $color-blue-lightest;
+$item-border-focus: $color-blue-lighter;
+
 .list {
   list-style: none;
   font-size: $font-size-base;
@@ -46,8 +49,8 @@
   &:focus {
     outline: none;
     border-radius: 2px;
-    box-shadow: 0 0 0 2px $color-list-item-focus-border;
-    background-color: $color-list-item-hover-bg;
+    box-shadow: 0 0 0 2px $item-border-focus;
+    background-color: $item-bg-focus;
   }
 
   @include mq($small-only) {
