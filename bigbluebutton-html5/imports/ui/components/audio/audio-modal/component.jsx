@@ -4,6 +4,7 @@ import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import styles from './styles';
+import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 
@@ -244,6 +245,7 @@ class AudioModal extends Component {
     const {
       intl,
       isConnecting,
+      showPermissionsOvelay,
     } = this.props;
 
     const {
@@ -251,32 +253,35 @@ class AudioModal extends Component {
     } = this.state;
 
     return (
-      <ModalBase
-        overlayClassName={styles.overlay}
-        className={styles.modal}
-        onRequestClose={this.closeModal}
-      >
-        { isConnecting ? null :
-        <header className={styles.header}>
-          <h3 className={styles.title}>
-            { content ?
-              this.contents[content].title :
-              intl.formatMessage(intlMessages.audioChoiceLabel)}
-          </h3>
-          <Button
-            className={styles.closeBtn}
-            label={intl.formatMessage(intlMessages.closeLabel)}
-            icon={'close'}
-            size={'md'}
-            hideLabel
-            onClick={this.closeModal}
-          />
-        </header>
-        }
-        <div className={styles.content}>
-          { this.renderContent() }
-        </div>
-      </ModalBase>
+      <span>
+        { showPermissionsOvelay ? <PermissionsOverlay /> : null}
+        <ModalBase
+          overlayClassName={styles.overlay}
+          className={styles.modal}
+          onRequestClose={this.closeModal}
+        >
+          { isConnecting ? null :
+          <header className={styles.header}>
+            <h3 className={styles.title}>
+              { content ?
+                this.contents[content].title :
+                intl.formatMessage(intlMessages.audioChoiceLabel)}
+            </h3>
+            <Button
+              className={styles.closeBtn}
+              label={intl.formatMessage(intlMessages.closeLabel)}
+              icon={'close'}
+              size={'md'}
+              hideLabel
+              onClick={this.closeModal}
+            />
+          </header>
+          }
+          <div className={styles.content}>
+            { this.renderContent() }
+          </div>
+        </ModalBase>
+      </span>
     );
   }
 }

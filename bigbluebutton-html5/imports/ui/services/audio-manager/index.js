@@ -27,6 +27,7 @@ class AudioManager {
       isHangingUp: false,
       isListenOnly: false,
       isEchoTest: false,
+      isWaitingPermissions: false,
       error: null,
       outputDeviceId: null,
     });
@@ -65,7 +66,13 @@ class AudioManager {
       isEchoTest,
     } = options;
 
+    const permissionsTimeout = setTimeout(() => {
+      this.isWaitingPermissions = true;
+    }, 100);
+
     const doCall = () => {
+      clearTimeout(permissionsTimeout);
+      this.isWaitingPermissions = false;
       this.devicesInitialized = true;
       this.isConnecting = true;
       this.isMuted = false;
@@ -89,6 +96,8 @@ class AudioManager {
       this.setDefaultOutputDevice(),
     ]).then(doCall)
       .catch(err => {
+        clearTimeout(permissionsTimeout);
+        this.isWaitingPermissions = false;
         this.error = err;
         this.notify(err);
         return Promise.reject();
@@ -194,7 +203,7 @@ class AudioManager {
   changeInputDevice(deviceId) {
     const handleChangeInputDeviceSuccess = (inputDevice) => {
       this.inputDevice = inputDevice;
-      return inputDevice;
+      return Promise.resolve(inputDevice);
     };
 
     const handleChangeInputDeviceError = () => Promise.reject(this.messages.error.MEDIA_ERROR);

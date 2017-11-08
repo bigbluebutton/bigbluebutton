@@ -39,6 +39,7 @@ export default {
   changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
   isConnected: () => AudioManager.isConnected,
   isHangingUp: () => AudioManager.isHangingUp,
+  isWaitingPermissions: () => AudioManager.isWaitingPermissions,
   isMuted: () => AudioManager.isMuted,
   isConnecting: () => AudioManager.isConnecting,
   isListenOnly: () => AudioManager.isListenOnly,
