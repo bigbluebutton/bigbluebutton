@@ -130,10 +130,13 @@ end
 
 
 opts = Trollop::options do
-  opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
+  opt :meeting_id, "Meeting id to archive", type: :string
+  opt :break_timestamp, "Chapter break end timestamp", type: :string
 end
+Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 
 meeting_id = opts[:meeting_id]
+break_timestamp = opts[:break_timestamp]
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
@@ -144,34 +147,53 @@ raw_archive_dir = "#{recording_dir}/raw"
 redis_host = props['redis_host']
 redis_port = props['redis_port']
 
+# Determine the filenames for the done and fail files
+if !break_timestamp.nil?
+  done_base = "#{meeting_id}-#{break_timestamp}"
+else
+  done_base = meeting_id
+end
+sanity_done_file = "#{recording_dir}/status/sanity/#{done_base}.done"
+sanity_fail_file = "#{recording_dir}/status/sanity/#{done_base}.fail"
+
 BigBlueButton.logger = Logger.new("#{log_dir}/sanity.log", 'daily' )
 
 begin
-	BigBlueButton.logger.info("Starting sanity check for recording #{meeting_id}.")
-	BigBlueButton.logger.info("Checking events.xml")
-	check_events_xml(raw_archive_dir,meeting_id)
-	BigBlueButton.logger.info("Checking audio")
-	check_audio_files(raw_archive_dir,meeting_id)
-    BigBlueButton.logger.info("Checking webcam videos")
-    check_webcam_files(raw_archive_dir,meeting_id)
-    BigBlueButton.logger.info("Checking deskshare videos")
-    check_deskshare_files(raw_archive_dir,meeting_id)
-	#delete keys
-	BigBlueButton.logger.info("Deleting keys")
-	redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
-	events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
-    events_archiver.delete_events(meeting_id)
+  BigBlueButton.logger.info("Starting sanity check for recording #{meeting_id}")
+  if !break_timestamp.nil?
+    BigBlueButton.logger.info("Break timestamp is #{break_timestamp}")
+  end
 
-	#create done files for sanity
-	BigBlueButton.logger.info("creating sanity done files")
-	sanity_done = File.new("#{recording_dir}/status/sanity/#{meeting_id}.done", "w")
-	sanity_done.write("sanity check #{meeting_id}")
-	sanity_done.close
+  BigBlueButton.logger.info("Checking events.xml")
+  check_events_xml(raw_archive_dir,meeting_id)
+
+  BigBlueButton.logger.info("Checking audio")
+  check_audio_files(raw_archive_dir,meeting_id)
+
+  BigBlueButton.logger.info("Checking webcam videos")
+  check_webcam_files(raw_archive_dir,meeting_id)
+
+  BigBlueButton.logger.info("Checking deskshare videos")
+  check_deskshare_files(raw_archive_dir,meeting_id)
+
+  if break_timestamp.nil?
+    # Either this recording isn't segmented, or we are working on the last
+    # segment, so go ahead and clean up all the redis data.
+    BigBlueButton.logger.info("Deleting keys")
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
+    events_archiver.delete_events(meeting_id)
+  end
+
+  BigBlueButton.logger.info("creating sanity done files")
+  File.open(sanity_done_file, "w") do |sanity_done|
+    sanity_done.write("sanity check #{meeting_id}")
+  end
 rescue Exception => e
-	BigBlueButton.logger.error("error in sanity check: " + e.message)
-	sanity_done = File.new("#{recording_dir}/status/sanity/#{meeting_id}.fail", "w")
-        sanity_done.write("error: " + e.message)
-        sanity_done.close
+  BigBlueButton.logger.error("error in sanity check: " + e.message)
+  File.open(sanity_fail_file, "w") do |sanity_fail|
+    sanity_fail.write("error: " + e.message)
+  end
 end
 
 

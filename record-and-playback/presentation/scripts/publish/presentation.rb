@@ -1240,14 +1240,15 @@ begin
 
         processing_time = File.read("#{$process_dir}/processing_time")
 
+        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+
         # Retrieve record events and calculate total recording duration.
         $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-          BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
+          BigBlueButton::Events.get_start_and_stop_rec_events(@doc))
 
         recording_time = BigBlueButton::Events.get_recording_length("#{$process_dir}/events.xml")
 
         # presentation_url = "/slides/" + $meeting_id + "/presentation"
-        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
 
         $meeting_start = @doc.xpath("//event")[0][:timestamp]
         $meeting_end = @doc.xpath("//event").last()[:timestamp]
