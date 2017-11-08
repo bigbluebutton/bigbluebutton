@@ -32,6 +32,7 @@ $Id: $
     <fx:Declarations>
         <mate:Listener type="{BBBEvent.ACCEPT_ALL_WAITING_GUESTS}" method="acceptAllWaitingGuests" />
         <mate:Listener type="{BBBEvent.DENY_ALL_WAITING_GUESTS}" method="denyAllWaitingGuests" />
+        <mate:Listener type="{GuestWaitingApprovedEvent.GUEST_WAITING_APPROVED}" method="handleGuestWaitingApprovedEvent" />
         <mate:Listener type="{RemoveGuestFromViewEvent.REMOVE_GUEST}" receive="{remove(event.userid)}" />
     </fx:Declarations>
 
@@ -45,6 +46,7 @@ $Id: $
           import org.bigbluebutton.core.model.LiveMeeting;
           import org.bigbluebutton.core.model.users.GuestWaiting;
           import org.bigbluebutton.main.events.BBBEvent;
+          import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
           import org.bigbluebutton.main.events.RemoveGuestEvent;
           import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
           import org.bigbluebutton.main.events.ResponseModeratorEvent;
@@ -89,6 +91,13 @@ $Id: $
             
             public function denyAllWaitingGuests(event:BBBEvent):void {
                 sendResponseToAllGuests(false);
+            }
+
+            private function handleGuestWaitingApprovedEvent(event: GuestWaitingApprovedEvent): void {
+                refreshGuestView();
+                if (guestUsers.length == 0) {
+                    closeWindow();
+                }
             }
             
             public function removeAllGuests():void {
