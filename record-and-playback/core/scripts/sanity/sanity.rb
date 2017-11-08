@@ -68,17 +68,18 @@ def check_webcam_files(raw_dir, meeting_id)
         end
       end
     end
+
+    events_file = "#{meeting_dir}/events.xml"
+    events_xml = Nokogiri::XML(File.open(events_file))
 	
     BigBlueButton.logger.info "Checking all webcam recorded streams from events were archived."
-    webcams = BigBlueButton::Events.get_start_video_events("#{raw_dir}/#{meeting_id}/events.xml")
+    webcams = BigBlueButton::Events.get_start_video_events(events_xml)
     webcams.each do |webcam|
         raw_webcam_file = "#{raw_dir}/#{meeting_id}/video/#{meeting_id}/#{webcam[:stream]}.flv"
         raise Exception, "Webcam file #{webcam[:stream]}.flv was not archived" if not File.exists? raw_webcam_file
     end
 
     BigBlueButton.logger.info "Checking the length of webcam streams is not zero."
-    events_file = "#{meeting_dir}/events.xml"
-    events_xml = Nokogiri::XML(File.open(events_file))
     original_num_events = events_xml.xpath("//event").size
 
     Dir.glob("#{meeting_dir}/video/#{meeting_id}/*").each do |video|
@@ -121,7 +122,10 @@ def check_deskshare_files(raw_dir, meeting_id)
       end
     end
 
-    desktops = BigBlueButton::Events.get_start_deskshare_events("#{raw_dir}/#{meeting_id}/events.xml")
+    events_file = "#{meeting_dir}/events.xml"
+    events_xml = Nokogiri::XML(File.open(events_file))
+
+    desktops = BigBlueButton::Events.get_start_deskshare_events(events_xml)
     desktops.each do |desktop|
         raw_desktop_file = "#{raw_dir}/#{meeting_id}/deskshare/#{desktop[:stream]}"
         raise Exception, "Deskshare file #{desktop[:stream]} was not archived" if not File.exists? raw_desktop_file
