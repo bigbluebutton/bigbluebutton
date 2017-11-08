@@ -415,9 +415,9 @@ module BigBlueButton
     end
 
     def self.edl_match_recording_marks(edl, events, edl_entry_offset, edl_empty_entry)
-      initial_timestamp = BigBlueButton::Events.first_event_timestamp(doc)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-              BigBlueButton::Events.get_start_and_stop_rec_events(doc))
+              BigBlueButton::Events.get_start_and_stop_rec_events(events))
       start_stop_events.each do |record_event|
         record_event[:start_timestamp] -= initial_timestamp
         record_event[:stop_timestamp] -= initial_timestamp
@@ -489,6 +489,32 @@ module BigBlueButton
         end
       end
       matched_rec_events
+    end
+
+    # Adjust the recoding start and stop events to trim them to a meeting
+    # segment
+    def self.trim_start_and_stop_rec_events(rec_events, start, stop)
+      trimmed_rec_events = []
+      rec_events.each do |event|
+        if event[:start_timestamp] <= start and event[:stop_timestamp] <= start
+          next
+        end
+        if event[:start_timestamp] >= stop and event[:stop_timestamp] >= stop
+          next
+        end
+        new_event = {
+          start_timestamp: event[:start_timestamp],
+          stop_timestamp: event[:stop_timestamp]
+        }
+        if new_event[:start_timestamp] < start
+          new_event[:start_timestamp] = start
+        end
+        if new_event[:stop_timestamp] > stop
+          new_event[:stop_timestamp] = stop
+        end
+        trimmed_rec_events << new_event
+      end
+      return trimmed_rec_events
     end
 
     # Calculate the length of the final recording from the start/stop events
