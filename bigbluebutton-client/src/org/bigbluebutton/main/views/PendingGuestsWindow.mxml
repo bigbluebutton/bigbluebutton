@@ -47,6 +47,7 @@ $Id: $
           import org.bigbluebutton.core.model.users.GuestWaiting;
           import org.bigbluebutton.main.events.BBBEvent;
           import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
+          import org.bigbluebutton.core.events.ClosePendingGuestWindow;
           import org.bigbluebutton.main.events.RemoveGuestEvent;
           import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
           import org.bigbluebutton.main.events.ResponseModeratorEvent;
@@ -117,7 +118,8 @@ $Id: $
           }
             
             public function closeWindow():void {
-              PopUpUtil.removePopUp(this);
+                var event:ClosePendingGuestWindow = new ClosePendingGuestWindow();
+                dispatcher.dispatchEvent(event);
             }
             
         ]]>
