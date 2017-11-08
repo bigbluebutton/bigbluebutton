@@ -40,7 +40,6 @@
   top: $focus-border-offset;
   position: relative;
   background-color: $color-white;
-  border: none;
   padding: .75rem;
 
   i {
@@ -49,9 +48,9 @@
 
   &:focus,
   &:hover{
-    background-color: $color-white;
+    background-color: $color-gray-lighter;
     i{
-      color: $color-primary;
+      color: $color-gray;
     }
   }
 }

@@ -1,4 +1,3 @@
-
 @mixin elementFocus($color: #0F70D7){
   &:focus {
     outline: none;
@@ -14,27 +13,3 @@
     box-shadow: 0 0 0 2px $shadow, inset 0 0 0 1px $color;
   }
 } 
-
-@mixin btnFocus($color: #0F70D7) {
-  border: none;
-  position: relative;
-  overflow: visible;
-  display: inline-block;
-
-  &,
-  &:active {
-    &:focus {
-      outline: none !important;
-
-      span:first-of-type::before {
-        position: absolute;
-        content: '';
-        top: $focus-border-offset;
-        left: $focus-border-offset;
-        right: $focus-border-offset;
-        bottom: $focus-border-offset;
-        box-shadow: inset 0 0 0 2px $color;
-      }
-    }
-  }
-}
