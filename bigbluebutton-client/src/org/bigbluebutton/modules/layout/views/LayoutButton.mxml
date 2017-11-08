@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function refreshRole(amIModerator:Boolean):void {
 				this.amIModerator = amIModerator;
 				visible = includeInLayout = enabled = amIModerator;
-				if (!layoutMenu && layoutMenu.visible) {
+				if (layoutMenu != null && layoutMenu.visible) {
 					layoutMenu.hide();
 				}
 			}
