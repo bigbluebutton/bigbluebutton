@@ -189,7 +189,8 @@
 				var ls:LockSettingsVO = UsersUtil.getLockSettings();
 
 				if (data != null) {
-					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
+					var allowModeratorToSeeOwnSettings: Boolean = !data.me || (data.me && UsersUtil.amIModerator());
+					settingsBtn.visible = rolledOver && allowModeratorToSeeOwnSettings && !UsersUtil.isBreakout();
 
 					if ( !data.inVoiceConf || ( options.moderatorUnmute == false && UsersUtil.amIModerator() && !UsersUtil.isMe(data.userId) ) ) {
 						muteImg.visible = false;
@@ -309,28 +310,30 @@
 				if (data != null) {
 					var myMenuData:Array = [];
 
-					if (data.role != Role.VOICE_ONLY) {
-						if (data.role == Role.MODERATOR) {
+					if (!data.me) {
+						if (data.role != Role.VOICE_ONLY) {
+							if (data.role == Role.MODERATOR) {
+								myMenuData.push({
+									label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
+									icon: getStyle('iconDemote'),
+									callback: demoteUser
+								});
+							} else {
+								myMenuData.push({
+									label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
+									icon: getStyle('iconPromote'),
+									callback: promoteUser
+								});
+							}
+						}
+
+						if (options.allowKickUser) {
 							myMenuData.push({
-								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
-								icon: getStyle('iconDemote'),
-								callback: demoteUser
-							});
-						} else {
-							myMenuData.push({
-								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
-								icon: getStyle('iconPromote'),
-								callback: promoteUser
+								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
+								icon: getStyle('iconEject'),
+								callback: kickUser
 							});
 						}
-					}
-
-					if (options.allowKickUser) {
-						myMenuData.push({
-							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
-							icon: getStyle('iconEject'),
-							callback: kickUser
-						});
 					}
 
 					if (UsersUtil.isUserInPresentationGroup(data.userId)) {
