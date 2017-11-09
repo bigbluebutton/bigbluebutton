@@ -3,23 +3,32 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.BreakoutModel
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.apps.PermissionCheck
 
 trait CreateBreakoutRoomsCmdMsgHdlr {
-  this: BaseMeetingActor =>
+  this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
-    state.breakout match {
-      case Some(breakout) =>
-        log.warning(
-          "CreateBreakoutRooms event received while breakout created for meeting {}", liveMeeting.props.meetingProp.intId
-        )
-        state
-      case None =>
-        processRequest(msg, state)
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to create breakout room for meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+      state
+    } else {
+      state.breakout match {
+        case Some(breakout) =>
+          log.warning(
+            "CreateBreakoutRooms event received while breakout created for meeting {}", liveMeeting.props.meetingProp.intId
+          )
+          state
+        case None =>
+          processRequest(msg, state)
+      }
     }
   }
 

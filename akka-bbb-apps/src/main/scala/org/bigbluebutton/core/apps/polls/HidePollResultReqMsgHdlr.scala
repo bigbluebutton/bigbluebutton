@@ -4,8 +4,10 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.apps.PermissionCheck
 
-trait HidePollResultReqMsgHdlr {
+trait HidePollResultReqMsgHdlr extends SystemConfiguration {
   this: PollApp2x =>
 
   def handle(msg: HidePollResultReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -21,10 +23,16 @@ trait HidePollResultReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    for {
-      hiddenPollId <- Polls.handleHidePollResultReqMsg(msg.header.userId, msg.body.pollId, liveMeeting)
-    } yield {
-      broadcastEvent(msg, hiddenPollId)
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to hide poll result."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+    } else {
+      for {
+        hiddenPollId <- Polls.handleHidePollResultReqMsg(msg.header.userId, msg.body.pollId, liveMeeting)
+      } yield {
+        broadcastEvent(msg, hiddenPollId)
+      }
     }
   }
 }
