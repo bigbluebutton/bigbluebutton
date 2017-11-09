@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.apps.PermissionCheck
 
 trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>
@@ -13,16 +14,22 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
   val outGW: OutMsgRouter
 
   def handleGuestsWaitingApprovedMsg(msg: GuestsWaitingApprovedMsg): Unit = {
-    msg.body.guests foreach { g =>
-      for {
-        // Remove guest from waiting list
-        _ <- GuestsWaiting.remove(liveMeeting.guestsWaiting, g.guest)
-      } yield {
-        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, msg.body.approvedBy)
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to approve or deny guests in meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+    } else {
+      msg.body.guests foreach { g =>
+        for {
+          // Remove guest from waiting list
+          _ <- GuestsWaiting.remove(liveMeeting.guestsWaiting, g.guest)
+        } yield {
+          UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, msg.body.approvedBy)
+        }
       }
-    }
 
-    notifyModeratorsOfGuestsApproval(msg.body.guests, msg.body.approvedBy)
+      notifyModeratorsOfGuestsApproval(msg.body.guests, msg.body.approvedBy)
+    }
   }
 
   def notifyModeratorsOfGuestsApproval(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {

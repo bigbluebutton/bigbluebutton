@@ -18,7 +18,7 @@ trait SetCurrentPagePubMsgHdlr {
 
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to set presentation page."
+      val reason = "No permission to set current presentation page."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
       state
     } else {

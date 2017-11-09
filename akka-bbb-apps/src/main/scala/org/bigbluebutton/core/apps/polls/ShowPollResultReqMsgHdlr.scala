@@ -6,8 +6,10 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.SystemConfiguration
 
-trait ShowPollResultReqMsgHdlr {
+trait ShowPollResultReqMsgHdlr extends SystemConfiguration {
   this: PollApp2x =>
 
   def handle(msg: ShowPollResultReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -34,11 +36,16 @@ trait ShowPollResultReqMsgHdlr {
       bus.outGW.send(annotationMsgEvent)
     }
 
-    for {
-      (result, annotationProp) <- Polls.handleShowPollResultReqMsg(state, msg.header.userId, msg.body.pollId, liveMeeting)
-    } yield {
-
-      broadcastEvent(msg, result, annotationProp)
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to show poll results."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+    } else {
+      for {
+        (result, annotationProp) <- Polls.handleShowPollResultReqMsg(state, msg.header.userId, msg.body.pollId, liveMeeting)
+      } yield {
+        broadcastEvent(msg, result, annotationProp)
+      }
     }
   }
 }

@@ -87,4 +87,14 @@ class CaptionModel {
     }
     rtnTranscript
   }
+
+  def isUserCaptionOwner(userId: String, locale: String): Boolean = {
+    var isOwner: Boolean = false;
+
+    if (transcripts.contains(locale) && transcripts(locale).ownerId == userId) {
+      isOwner = true;
+    }
+
+    isOwner
+  }
 }
