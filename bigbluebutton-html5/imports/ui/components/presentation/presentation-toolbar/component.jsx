@@ -118,14 +118,17 @@ class PresentationToolbar extends Component {
     // Fill drop down menu with all the slides in presentation
     const optionList = [];
     for (let i = 1; i <= numberOfSlides; i += 1) {
-      optionList.push(
+      optionList.push((
         <option
           value={i}
           key={i}
         >
-        Slide {i}
-        </option>,
-      );
+          <FormattedMessage
+            id="app.presentation.presentationToolbar.slide"
+            description="option slide select label"
+            values={{ 0: i }}
+          />
+        </option>));
     }
 
     return optionList;
