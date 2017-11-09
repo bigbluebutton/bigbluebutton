@@ -7,7 +7,6 @@ package org.bigbluebutton.modules.polling.service
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.model.LiveMeeting;
-  import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;

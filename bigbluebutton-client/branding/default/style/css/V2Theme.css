@@ -1336,6 +1336,14 @@ mx|Panel {
 	backgroundColor : #E2E8ED;
 }
 
+.podItemTitle {
+	fontWeight : bold;
+}
+
+.podCurrentPresenter {
+	color : #1070D7;
+}
+
 /*
 //------------------------------
 //  Poll
