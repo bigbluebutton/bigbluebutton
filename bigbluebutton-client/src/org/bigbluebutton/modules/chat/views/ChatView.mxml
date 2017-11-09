@@ -38,6 +38,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT}" method="dispatchSaveChatEvent" />
     <mate:Listener type="{ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT}" method="dispatchCopyChatEvent" />
     <mate:Listener type="{ShortcutEvent.CLOSE_PRIVATE}" method="remoteClosePrivate" />		
+    <mate:Listener type="{FocusOnChatBoxEvent.FOCUS_ON_CHATBOX_EVENT}" method="handleFocusOnChatBoxEvent" />
+    
   </fx:Declarations>
   
   <fx:Script>
@@ -64,6 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+      import org.bigbluebutton.modules.chat.events.FocusOnChatBoxEvent;
       import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
@@ -445,6 +448,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           + chatBox.parentWindowId + " chatId=" + chatBox.chatId);
         globalDispatcher.dispatchEvent(new GroupChatBoxClosedEvent(chatBox.chatId, 
         chatBox.parentWindowId));
+      }
+      
+      private function handleFocusOnChatBoxEvent(e:FocusOnChatBoxEvent):void {
+        trace("######## TODO: handleFocusOnChatBoxEvent CHAT BOX ###### chatId=" 
+          + e.chatId);
       }
       
       private function remoteClosePrivate(e:ShortcutEvent):void {

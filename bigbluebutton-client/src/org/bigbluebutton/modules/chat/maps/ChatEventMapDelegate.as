@@ -158,7 +158,7 @@ package org.bigbluebutton.modules.chat.maps {
         trace("######## FINDING BOX MAPPER FOR " + event.chatId + " ######");
         var gboxMapper: GroupChatBoxMapper = findChatBoxMapper(event.chatId);
         if (gboxMapper != null) {
-          trace("######## BOX MAPPER FOCUS ON " + event.chatId + " ######");
+          trace("######## TODO: BOX MAPPER FOCUS ON " + event.chatId + " ######");
           globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
         } else {
           trace("######## BOX MAPPER OPENING ON " + event.chatId + " ######");
