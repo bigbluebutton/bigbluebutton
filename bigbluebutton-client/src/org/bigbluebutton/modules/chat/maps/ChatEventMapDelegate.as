@@ -27,8 +27,10 @@ package org.bigbluebutton.modules.chat.maps {
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.chat.events.FocusOnChatBoxEvent;
   import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
+  import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
   import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
+  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.model.ChatOptions;
   import org.bigbluebutton.modules.chat.model.GroupChat;
@@ -61,7 +63,7 @@ package org.bigbluebutton.modules.chat.maps {
         _windowMapper[i] = new GroupChatWindowMapper(winId);
       }
     }
-    
+      
     private function findGroupChatWindowMapper(winId: String):GroupChatWindowMapper {
       for (var i:int=0; i<_windowMapper.length; i++) {
         var wMapper: GroupChatWindowMapper = _windowMapper[i];
@@ -177,6 +179,22 @@ package org.bigbluebutton.modules.chat.maps {
         var cid:String = gcIds[i];
         createNewGroupChat(cid);
       }
+    }
+    
+    public function handleNewGroupChatMessageEvent(event: NewGroupChatMessageEvent):void {
+      trace("######## handleNewGroupChatMessageEvent " + event.chatId + " ######");
+      var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
+      if (gc != null && gc.access == GroupChat.PRIVATE) {
+        trace("######## FINDING BOX MAPPER FOR " + event.chatId + " ######");
+        var gboxMapper: GroupChatBoxMapper = findChatBoxMapper(event.chatId);
+        if (gboxMapper == null) {
+          trace("######## BOX MAPPER OPENING ON " + event.chatId + " ######");
+          openChatBoxForPrivateChat(event.chatId, gc);
+        }
+      }
+      
+      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(event.chatId, event.msg);
+      globalDispatcher.dispatchEvent(pcEvent);
     }
     
     public function chatBoxClosed(event: GroupChatBoxClosedEvent):void {

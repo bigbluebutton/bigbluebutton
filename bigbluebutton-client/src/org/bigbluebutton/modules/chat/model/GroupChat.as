@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.chat.model
   
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+  import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
@@ -92,7 +93,7 @@ package org.bigbluebutton.modules.chat.model
     
     public function addMessage(msg:ChatMessageVO):void {
       _messages.addItem(msg);
-      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(_id, msg);
+      var pcEvent:NewGroupChatMessageEvent = new NewGroupChatMessageEvent(_id, msg);
       _dispatcher.dispatchEvent(pcEvent);
     }
     
