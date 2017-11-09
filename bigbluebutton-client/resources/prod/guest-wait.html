@@ -23,7 +23,7 @@
     };
 
     function fetchGuestWait(sessionToken) {
-      const GUEST_WAIT_ENDPOINT = 'http://HOST/bigbluebutton/api/guestWait';
+      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
 
       return $.get(GUEST_WAIT_ENDPOINT, sessionToken.concat('&redirect=false'));
     };
