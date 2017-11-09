@@ -143,9 +143,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{LogoutManager}" method="handleExitApplicationEvent" arguments="{event}"/>
 		</EventHandlers>
 		
+		<EventHandlers type="{LogoutEvent.SIGN_OUT}" >
+			<MethodInvoker generator="{LogoutManager}" method="handleSignOut" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{LogoutEvent.LOGOUT_ON_STOP_RECORDING}" >
+			<MethodInvoker generator="{LogoutManager}" method="handleLogoutOnStopRecording" arguments="{event}"/>
+		</EventHandlers>
+		
 	</fx:Declarations>
 
-  
 	<fx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;

@@ -892,11 +892,12 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function handleGuestPolicyChanged(msg:Object):void {
+      
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
       var policy: String = body.policy as String;
-      
-	  LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
+      LOGGER.debug("*** handleGuestPolicyChanged " + policy + " ****");
+      LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
     }
     
     public function handleGetGuestPolicyReply(msg:Object):void {

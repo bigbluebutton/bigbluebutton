@@ -19,13 +19,12 @@
 package org.bigbluebutton.core {
 
 	import flash.system.Capabilities;
-	
+
 	import mx.core.FlexGlobals;
-	
+
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.VideoProfileManager;
-	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.model.VideoProfile;
 	import org.bigbluebutton.util.SessionTokenUtil;
 
@@ -107,23 +106,6 @@ package org.bigbluebutton.core {
 				//	trace("Unable to match RegExp.");
 				return 0;
 			}
-		}
-
-		public static function getLogoutURL():String {
-			var logoutUrl:String = LiveMeeting.inst().me.logoutURL;
-			if (logoutUrl == null) {
-				logoutUrl = getBaseURL();
-			}
-			return logoutUrl;
-		}
-
-		public static function getSignoutURL():String {
-			var sessionToken:String = BBB.sessionTokenUtil.getSessionToken();
-			var logoutUrl:String = getBaseURL();
-			if (sessionToken != "") {
-				logoutUrl += "/bigbluebutton/api/signOut?sessionToken=" + sessionToken;
-			}
-			return logoutUrl;
 		}
 
 		public static function getBaseURL():String {

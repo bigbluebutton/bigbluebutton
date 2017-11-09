@@ -25,23 +25,26 @@ package org.bigbluebutton.core.managers {
 	import flash.external.ExternalInterface;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
 	import flash.net.navigateToURL;
 
 	import mx.core.FlexGlobals;
 
+	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.ExitApplicationEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.options.LayoutOptions;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.views.LoggedOutWindow;
-	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LogoutManager {
 
@@ -50,10 +53,10 @@ package org.bigbluebutton.core.managers {
 		private var dispatcher:Dispatcher = new Dispatcher();
 
 		public function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
-			showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
+			showlogoutWindow(MeetingNotFoundEvent.MEETING_NOT_FOUND, e.logoutUrl);
 		}
 
-		private function showlogoutWindow(reason:String):void {
+		private function showlogoutWindow(reason:String, logoutUrl:String = ""):void {
 			var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 
 			if (layoutOptions != null && layoutOptions.showLogoutWindow) {
@@ -70,8 +73,11 @@ package org.bigbluebutton.core.managers {
 			} else {
 				dispatcher.dispatchEvent(new ExitApplicationEvent(ExitApplicationEvent.CLOSE_APPLICATION));
 
-				LOGGER.debug("SingOut to [{0}/bigbluebutton/api/signOut]", [BBB.getBaseURL()]);
-				var request:URLRequest = new URLRequest(BBB.getBaseURL() + "/bigbluebutton/api/signOut");
+				if (StringUtils.isEmpty(logoutUrl)) {
+					logoutUrl = BBB.getBaseURL() + "/bigbluebutton/api/signOut";
+				}
+				LOGGER.debug("SingOut to [{0}/bigbluebutton/api/signOut]", [logoutUrl]);
+				var request:URLRequest = new URLRequest(logoutUrl);
 				var urlLoader:URLLoader = new URLLoader();
 				urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);
 				urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
@@ -89,16 +95,64 @@ package org.bigbluebutton.core.managers {
 			redirectToLogoutUrl();
 		}
 
+		public function handleLogoutOnStopRecording(e:LogoutEvent):void {
+			LOGGER.debug("Using 'logoutOnStopRecording' option to logout user after stopping recording");
+			handleExitApplicationEvent();
+		}
+
+		public function handleSignOut(e:LogoutEvent):void {
+			var logoutURL:String = getSignoutURL();
+			var request:URLRequest = new URLRequest(logoutURL);
+			LOGGER.debug("Log out url: " + logoutURL);
+			request.method = URLRequestMethod.GET;
+			var urlLoader:URLLoader = new URLLoader();
+			// If the redirect value is set to false handleComplete will be triggered
+			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleRedirectError);
+			urlLoader.load(request);
+		}
+
+		private function handleComplete(e:Event):void {
+			PopUpUtil.removePopUp(LoggedOutWindow);
+			handleExitApplicationEvent();
+		}
+
+		private function handleRedirectError(e:IOErrorEvent):void {
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["logout"];
+			logData.message = "Log out redirection returned with error.";
+			LOGGER.error(JSON.stringify(logData));
+			PopUpUtil.removePopUp(LoggedOutWindow);
+			handleExitApplicationEvent();
+		}
+
 		public function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
 			if (!UsersUtil.isBreakout()) {
-				navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
+				redirectToLogoutUrl();
 			} else {
 				ExternalInterface.call("window.close");
 			}
 		}
 
+		private function getLogoutURL():String {
+			var logoutUrl:String = LiveMeeting.inst().me.logoutURL;
+			if (StringUtils.isEmpty(logoutUrl)) {
+				logoutUrl = BBB.getBaseURL();
+			}
+			return logoutUrl;
+		}
+
+		private function getSignoutURL():String {
+			var sessionToken:String = BBB.getSessionTokenUtil().getSessionToken();
+			var logoutUrl:String = BBB.getBaseURL();
+			if (sessionToken != "") {
+				logoutUrl += "/bigbluebutton/api/signOut?sessionToken=" + sessionToken;
+			}
+			return logoutUrl;
+		}
+
 		private function redirectToLogoutUrl():void {
-			var logoutURL:String = BBB.getLogoutURL();
+			var logoutURL:String = getLogoutURL();
 			var request:URLRequest = new URLRequest(logoutURL);
 			LOGGER.debug("Logging out to: {0}", [logoutURL]);
 			navigateToURL(request, '_self');
@@ -116,7 +170,7 @@ package org.bigbluebutton.core.managers {
 		}
 
 		public function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
-			showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
+			showlogoutWindow(InvalidAuthTokenEvent.INVALID_AUTH_TOKEN);
 		}
 	}
 }
