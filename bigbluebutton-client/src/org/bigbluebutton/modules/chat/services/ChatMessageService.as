@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.chat.services
 {
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.IEventDispatcher;
   import flash.external.ExternalInterface;
   
@@ -26,6 +28,7 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+  import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
   import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -38,11 +41,10 @@ package org.bigbluebutton.modules.chat.services
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var dispatcher:IEventDispatcher;
+    private var globalDispatcher:Dispatcher = new Dispatcher();
     
     public function sendPublicMessageFromApi(event:SendGroupChatMessageEvent):void
     {
-      
-      
       //sendPublicMessage(event.chatId, msgVO);
     }    
     
@@ -83,7 +85,25 @@ package org.bigbluebutton.modules.chat.services
     }
     
     public function handleCreateGCReqEvent(event:CreateGroupChatReqEvent):void {
-      sender.createGroupChat(event.name, event.access, event.users);
+      trace("######## REQUEST TO CREATE NEW GROUP CHAT ######");
+      // Right now we only support one-to-one private chats)
+      if (event.access == GroupChat.PRIVATE && event.users.length > 0) {
+        var chatWith: String = event.users[0] as String;
+        trace("######## PRIVATE CHAT WITH USER " + chatWith + " ######");
+        var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(chatWith)
+        if (gc != null) {
+          // Already chatting with this user. Open the chat box.
+          trace("######## ALREADY CHATTING WITH USER " + chatWith + " ######");
+          globalDispatcher.dispatchEvent(new OpenChatBoxEvent(gc.id));
+        } else {
+          trace("######## NOT YET CHATTING WITH USER " + chatWith + " ######");
+          // Not chatting yet with this user.
+          sender.createGroupChat(event.name, event.access, event.users);
+        }
+      } else {
+        trace("######## PUBLIC CHAT ######");
+        sender.createGroupChat(event.name, event.access, event.users);
+      }
     }
     
     public function getGroupChats():void {

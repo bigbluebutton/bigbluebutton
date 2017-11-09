@@ -55,7 +55,7 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   }
 
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
-    log.debug("*************** Route envelope name " + envelope.name)
+    //log.debug("*************** Route envelope name " + envelope.name)
     envelope.name match {
       case MeetingCreatedEvtMsg.NAME =>
         route[MeetingCreatedEvtMsg](envelope, jsonNode)
