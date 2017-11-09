@@ -25,7 +25,9 @@ package org.bigbluebutton.modules.chat.maps {
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.modules.chat.events.FocusOnChatBoxEvent;
   import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
+  import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
   import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
   import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -98,6 +100,16 @@ package org.bigbluebutton.modules.chat.maps {
       }
     }
     
+    private function findChatBoxMapper(chatId: String):GroupChatBoxMapper {
+      for (var i:int=0; i<_windowMapper.length; i++) {
+        var wMapper: GroupChatWindowMapper = _windowMapper[i];
+        var gBoxMapper: GroupChatBoxMapper = wMapper.findChatBoxMapper(chatId);
+        if (gBoxMapper != null) return gBoxMapper;
+      }
+      
+      return null;
+    }
+    
     private function openChatBoxForPrivateChat(chatId: String, gc: GroupChat):void {
       // Setup a tracker for the state of this chat.
       var gcBoxMapper:GroupChatBoxMapper = new GroupChatBoxMapper(chatId);
@@ -139,6 +151,18 @@ package org.bigbluebutton.modules.chat.maps {
       }
     }
     
+    public function handleOpenChatBoxEvent(event: OpenChatBoxEvent):void {
+      var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
+      if (gc != null && gc.access == GroupChat.PRIVATE) {
+        var gboxMapper: GroupChatBoxMapper = findChatBoxMapper(event.chatId);
+        if (gboxMapper != null) {
+          globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
+        } else {
+          openChatBoxForPrivateChat(event.chatId, gc);
+        }
+      }
+    }
+    
     private function getChatOptions():void {
       chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
     }
@@ -157,7 +181,7 @@ package org.bigbluebutton.modules.chat.maps {
         var chatBox: GroupChatBoxMapper = winMapper.findChatBoxMapper(event.chatId);
         if (chatBox != null) {
           trace("********** CLOSING CHAT BOX " + event.chatId);
-          chatBox.chatBoxOpen = false;
+          winMapper.removeChatBox(event.chatId);
         }
       }
     }

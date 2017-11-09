@@ -49,6 +49,17 @@ package org.bigbluebutton.modules.chat.model
       return _name;
     }
     
+    public function isChattingWith(userId: String): Boolean {
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:GroupChatUser = _users[i] as GroupChatUser;
+        trace("######## IS CHAT WITH USER? " + userId + " ###### GC USER=" + user.id);
+        if (user.id == userId) {
+          return true;
+        }        
+      }
+      return false;
+    }
+      
     public function getNameAsUsers(exceptUserId:String):String {
       if (users.length == 0) return _name;
       

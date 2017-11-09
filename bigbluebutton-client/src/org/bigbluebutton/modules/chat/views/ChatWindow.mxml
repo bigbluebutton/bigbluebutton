@@ -60,7 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var disp:Dispatcher = new Dispatcher();
       [Bindable] public var chatOptions:ChatOptions;
       
-      private var _windowId: String;
+      [Bindable] private var _windowId: String;
       
       // The chatId that would be displayed when this window opens.
       [Bindable] private var _mainChatId:String;

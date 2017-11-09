@@ -300,8 +300,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
-        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-        myChat.newChatMessage(msg);
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (groupChat != null) {
+          groupChat.addMessage(msg);
+        }
       }
       
       private function displayUserHasJoinedMessage():void {
@@ -315,8 +317,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
-        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-          myChat.newChatMessage(msg);
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (groupChat != null) {
+          groupChat.addMessage(msg);
+        }
       }
       
       public function focusToTextMessageArea():void {
@@ -325,7 +329,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-        if (chatId == event.chatId) {
+        if (chatId == event.chatId && chatMessages != null) {
           chatMessages.newChatMessage(event.msg);
           scrollToEndOfMessage();
         }
@@ -375,8 +379,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
         
-        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-        myChat.newChatMessage(msg);
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (groupChat != null) {
+          groupChat.addMessage(msg);
+        }
       }
       
       public function scrollToEndOfMessage():void {
@@ -422,12 +428,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function copyAllText():void{
-        var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-        System.setClipboard(myChat.getAllMessageAsString());
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (groupChat != null) {
+          System.setClipboard(groupChat.getAllMessageAsString());
+        }
       }
       
       public function getChatId():String {
-        return id;
+        return chatId;
       }
       
       private function addContextMenuItems():void {
@@ -443,8 +451,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function menuItemHandler(e:ContextMenuEvent):void{
         if (e.target.caption == ResourceUtil.getInstance().getString("bbb.chat.contextmenu.copyalltext")){
-          var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-          System.setClipboard(myChat.getAllMessageAsString());
+          var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+          if (groupChat != null) {
+            System.setClipboard(groupChat.getAllMessageAsString());
+          }
         }
       }
       
@@ -612,12 +622,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleClearPublicChatBoxMessages(event:ClearPublicChatEvent):void {
-        //if(publicChat){
-          var myChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(id);
-          myChat.clearPublicChat();
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (groupChat != null) {
+          groupChat.clearPublicChat();
           invalidateDisplayList();
           validateNow();
-       // }
+        }
       }
       
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
