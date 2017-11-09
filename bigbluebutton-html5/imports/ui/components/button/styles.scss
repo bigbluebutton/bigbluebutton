@@ -42,7 +42,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   outline: none;
   overflow: visible;
   display: inline-block;
-  border-radius: 2px;
+  border-radius: $border-size;
   font-weight: $btn-font-weight;
   line-height: 1.5;
   text-align: center;
@@ -73,7 +73,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   &:active {
     &:focus {
       span:first-of-type::before {
-        border-radius: $focus-border-size;
+        border-radius: $border-size;
       }
     }
   }
@@ -170,7 +170,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 
   color: $color;
   background-color: $background;
-  border: 3px solid transparent;
+  border: $border-size-large solid transparent;
 
   &:focus,
   .buttonWrapper:focus & {
@@ -178,8 +178,8 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     color: $color;
     background-color: $background;
     background-clip: padding-box;
-    border: 3px solid transparent;
-    box-shadow: 0 0 0 2px $border;
+    border: $border-size-large solid transparent;
+    box-shadow: 0 0 0 $border-size $border;
   }
 
   &:hover,
@@ -187,7 +187,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     color: $color;
     background-color: $active-background;
     border-color: $active-border;
-    border: 3px solid transparent;
+    border: $border-size-large solid transparent;
   }
 }
 
@@ -195,7 +195,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   color: $color;
   background-image: none;
   background-color: transparent;
-  border: 3px solid transparent;
+  border: $border-size-large solid transparent;
 
   &:focus,
   .buttonWrapper:focus & {
@@ -203,8 +203,8 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     outline: none !important;
     background-color: $variant;
     background-clip: padding-box;
-    border: 3px solid transparent;
-    box-shadow: 0 0 0 2px $color;
+    border: $border-size-large solid transparent;
+    box-shadow: 0 0 0 $border-size $color;
   }
 
   &:hover,
@@ -212,7 +212,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     color: $color;
     background-color: $variant;
     border-color: $variant;
-    border: 3px solid transparent;
+    border: $border-size-large solid transparent;
   }
 }
 
