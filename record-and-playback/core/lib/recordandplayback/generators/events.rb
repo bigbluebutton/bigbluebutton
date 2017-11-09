@@ -293,19 +293,11 @@ module BigBlueButton
       end
     end
 
-    def self.edl_match_recording_marks_audio(edl, events)
+    def self.edl_match_recording_marks_audio(edl, events, start_time, end_time)
       edl_entry_offset = BigBlueButton::Events.edl_entry_offset_audio
       edl_empty_entry = BigBlueButton::Events.edl_empty_entry_audio
       return BigBlueButton::Events.edl_match_recording_marks(edl, events,
-                      edl_entry_offset, edl_empty_entry)
-    end
-
-    def self.edl_trim_segment_audio(edl, start_timestamp, end_timestamp)
-      edl_entry_offset = BigBlueButton::Events.edl_entry_offset_audio
-      edl_empty_entry = BigBlueButton::Events.edl_empty_entry_audio
-      return BigBlueButton::Events.edl_trim_segment(edl,
-                      edl_entry_offset, edl_empty_entry,
-                      start_timestamp, end_timestamp)
+                      edl_entry_offset, edl_empty_entry, start_time, end_time)
     end
 
     def self.edl_entry_offset_video
@@ -330,19 +322,11 @@ module BigBlueButton
       end
     end
 
-    def self.edl_match_recording_marks_video(edl, events)
+    def self.edl_match_recording_marks_video(edl, events, start_time, end_time)
       edl_entry_offset = BigBlueButton::Events.edl_entry_offset_video
       edl_empty_entry = BigBlueButton::Events.edl_empty_entry_video
       return BigBlueButton::Events.edl_match_recording_marks(edl, events,
-                      edl_entry_offset, edl_empty_entry)
-    end
-
-    def self.edl_trim_segment_video(edl, start_timestamp, end_timestamp)
-      edl_entry_offset = BigBlueButton::Events.edl_entry_offset_video
-      edl_empty_entry = BigBlueButton::Events.edl_empty_entry_video
-      return BigBlueButton::Events.edl_trim_segment(edl,
-                      edl_entry_offset, edl_empty_entry,
-                      start_timestamp, end_timestamp)
+                      edl_entry_offset, edl_empty_entry, start_time, end_time)
     end
 
     def self.edl_apply_start_stop_events(edl, edl_entry_offset, edl_empty_entry, start_stop_events)
@@ -414,28 +398,20 @@ module BigBlueButton
       return new_edl
     end
 
-    def self.edl_match_recording_marks(edl, events, edl_entry_offset, edl_empty_entry)
+    def self.edl_match_recording_marks(edl, events,
+                                       edl_entry_offset, edl_empty_entry,
+                                       start_time, end_time)
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
               BigBlueButton::Events.get_start_and_stop_rec_events(events))
+      start_stop_events = BigBlueButton::Events.trim_start_and_stop_rec_events(
+                        start_stop_events, start_time, end_time)
+
+      # Convert to 0-based timestamps to match the edl entries
       start_stop_events.each do |record_event|
         record_event[:start_timestamp] -= initial_timestamp
         record_event[:stop_timestamp] -= initial_timestamp
       end
-
-      return BigBlueButton::Events.edl_apply_start_stop_events(edl, edl_entry_offset, edl_empty_entry, start_stop_events)
-    end
-
-    def self.edl_trim_segment(video_edl, edl_entry_offset, edl_empty_entry, start_timestamp, stop_timestamp)
-      # The logic required here is already implemented in the
-      # match_recording_marks function, so just create a fake recording
-      # start/stop event list and run that.
-      start_stop_events = [
-        {
-          start_timestamp: start_timestamp,
-          stop_timestamp: stop_timestamp
-        }
-      ]
 
       return BigBlueButton::Events.edl_apply_start_stop_events(edl, edl_entry_offset, edl_empty_entry, start_stop_events)
     end

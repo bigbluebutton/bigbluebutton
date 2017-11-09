@@ -45,8 +45,10 @@ module BigBlueButton
       BigBlueButton::EDL::Audio.dump(audio_edl)
 
       BigBlueButton.logger.info("Applying recording start stop events:")
+      start_time = BigBlueButton::Events.first_event_timestamp(events)
+      end_time = BigBlueButton::Events.last_event_timestamp(events)
       audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
-                      audio_edl, events)
+                      audio_edl, events, start_time, end_time)
       BigBlueButton::EDL::Audio.dump(audio_edl)
 
       @audio_file = BigBlueButton::EDL::Audio.render(audio_edl, "#{audio_dir}/recording")
