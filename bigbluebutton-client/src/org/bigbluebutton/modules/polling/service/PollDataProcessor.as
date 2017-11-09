@@ -1,12 +1,15 @@
 package org.bigbluebutton.modules.polling.service
 {
   import com.asfusion.mate.events.Dispatcher;
+  
   import flash.accessibility.Accessibility;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
+  import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
@@ -93,9 +96,10 @@ package org.bigbluebutton.modules.polling.service
         pollResultMessage.toUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.message = accessibleAnswers;
 
-        var pubChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
-        pubChat.newChatMessage(pollResultMessage);
-        
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(ChatModel.MAIN_PUBLIC_CHAT);
+        if (groupChat != null) {
+          groupChat.addMessage(pollResultMessage);
+        }
       }
     }
     
