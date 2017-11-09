@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.present.managers
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
 	
-	import org.bigbluebutton.common.IBbbModuleWindow;
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.Options;
@@ -86,7 +86,7 @@ package org.bigbluebutton.modules.present.managers
 				var defWindow: PresentationWindow = winManager.findWindowByPodId(PresentationPodManager.DEFAULT_POD_ID);
 				defWindow.setOwnerId(ownerId);
 			} else {
-				if (ownerId == "") {
+				if (StringUtils.isEmpty(ownerId)) {
 					podsManager.requestDefaultPresentationPod();
 				}
 				if(winManager.containsPodId(podId)) {

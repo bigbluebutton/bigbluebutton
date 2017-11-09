@@ -227,6 +227,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function updateCopyrightText():void {
+				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
+
 				if (StringUtils.isEmpty(brandingOptions.copyright)) {
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
