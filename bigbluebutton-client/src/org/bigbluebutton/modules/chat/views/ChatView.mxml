@@ -430,13 +430,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onTabClose(e:SuperTabEvent):void{
+        trace("########onTabClose REQUEST TO CLOSE CHAT BOX ###### " + e.type);
+        trace("########onTabClose CLOSE CHAT BOX ######");
+        var chatBox:ChatBox = chatTabs.getChildAt(e.tabIndex) as ChatBox;
+        trace("########onTabClose CLOSE CHAT BOX ###### winId=" 
+          + chatBox.parentWindowId + " chatId=" + chatBox.chatId);
         dispatchEvent(e);
       }
       
       private function onUserClosedTab(e:SuperTabEvent):void{
+        trace("######## CLOSE CHAT BOX ######");
         var chatBox:ChatBox = chatTabs.getChildAt(e.tabIndex) as ChatBox;
+        trace("######## CLOSE CHAT BOX ###### winId=" 
+          + chatBox.parentWindowId + " chatId=" + chatBox.chatId);
         globalDispatcher.dispatchEvent(new GroupChatBoxClosedEvent(chatBox.chatId, 
-          chatBox.parentWindowId));
+        chatBox.parentWindowId));
       }
       
       private function remoteClosePrivate(e:ShortcutEvent):void {

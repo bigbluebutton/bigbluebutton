@@ -9,7 +9,7 @@ package org.bigbluebutton.modules.chat.events
     public var chatId: String;
     public var windowId: String;
     
-    public function GroupChatBoxClosedEvent(chatBoxId:String, windowId:String)
+    public function GroupChatBoxClosedEvent(chatId:String, windowId:String)
     {
       super(CHATBOX_CLOSED_EVENT, false, false);
       this.chatId = chatId;
