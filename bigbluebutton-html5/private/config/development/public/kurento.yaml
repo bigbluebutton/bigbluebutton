@@ -1,2 +1,6 @@
 kurento:
-  wsUrl: 'wss://HOST/html5video'
+  wsUrl: 'HOST'
+  chromeExtensionKey: 'KEY'
+  chromeExtensionLink: 'LINK'
+  enableScreensharing: false
+  enableVideo: false

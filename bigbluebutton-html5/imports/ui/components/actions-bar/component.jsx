@@ -25,10 +25,12 @@ export default class ActionsBar extends Component {
             handleJoinAudio={this.props.handleOpenJoinAudio}
             handleCloseAudio={this.props.handleExitAudio}
           />
-          <JoinVideoOptionsContainer
-            handleJoinVideo={this.props.handleJoinVideo}
-            handleCloseVideo={this.props.handleExitVideo}
-          />
+          {Meteor.settings.public.kurento.enableVideo ?
+            <JoinVideoOptionsContainer
+              handleJoinVideo={this.props.handleJoinVideo}
+              handleCloseVideo={this.props.handleExitVideo}
+            />
+           : null}
           <EmojiContainer />
         </div>
       </div>
