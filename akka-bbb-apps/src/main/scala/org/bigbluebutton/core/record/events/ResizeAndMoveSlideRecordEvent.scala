@@ -24,6 +24,10 @@ class ResizeAndMoveSlideRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("ResizeAndMoveSlideEvent")
 
+  def setPresentationName(name: String) {
+    eventMap.put(PRES_NAME, name)
+  }
+
   def setId(id: String) {
     eventMap.put(ID, id)
   }
@@ -46,6 +50,7 @@ class ResizeAndMoveSlideRecordEvent extends AbstractPresentationRecordEvent {
 }
 
 object ResizeAndMoveSlideRecordEvent {
+  protected final val PRES_NAME = "presentationName"
   protected final val ID = "id"
   protected final val X_OFFSET = "xOffset"
   protected final val Y_OFFSET = "yOffset"

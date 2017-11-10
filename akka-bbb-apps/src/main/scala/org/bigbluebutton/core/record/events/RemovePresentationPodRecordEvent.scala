@@ -19,30 +19,16 @@
 
 package org.bigbluebutton.core.record.events
 
-class GotoSlideRecordEvent extends AbstractPresentationRecordEvent {
-  import GotoSlideRecordEvent._
+class RemovePresentationPodRecordEvent extends AbstractPresentationRecordEvent {
+  import RemovePresentationPodRecordEvent._
 
-  setEvent("GotoSlideEvent")
+  setEvent("RemovePresentationPodEvent")
 
-  def setPresentationName(name: String) {
-    eventMap.put(PRES_NAME, name)
-  }
-
-  def setSlide(slide: Integer) {
-    /*
-     * Subtract 1 from the page number to be zero-based to be
-     * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
-     */
-    eventMap.put(SLIDE, Integer.toString(slide - 1))
-  }
-
-  def setId(id: String) {
-    eventMap.put(ID, id)
+  def setOwnerId(name: String) {
+    eventMap.put(OWNER_ID, name)
   }
 }
 
-object GotoSlideRecordEvent {
-  protected final val PRES_NAME = "presentationName"
-  protected final val SLIDE = "slide"
-  protected final val ID = "id"
+object RemovePresentationPodRecordEvent {
+  protected final val OWNER_ID = "ownerId"
 }
