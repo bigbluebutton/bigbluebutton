@@ -22,30 +22,24 @@
 
 require 'rubygems'
 require 'nokogiri'
+require 'set'
 
 module BigBlueButton
   module Events
   
     # Get the total number of participants
-    def self.get_num_participants(events_xml)
-      BigBlueButton.logger.info("Task: Getting num participants")
-      doc = Nokogiri::XML(File.open(events_xml))
-      participants_ids = []
+    def self.get_num_participants(events)
+      participants_ids = Set.new
 
-      doc.xpath("//event[@eventname='ParticipantJoinEvent']").each do |joinEvent|
-         userId = joinEvent.xpath(".//userId").text
+      events.xpath("/recording/event[@eventname='ParticipantJoinEvent']").each do |joinEvent|
+         userId = joinEvent.at_xpath("userId").text
 
          #removing "_N" at the end of userId
-         userId.gsub!(/_\d*/, "")
+         userId.gsub(/_\d*$/, "")
 
-         if !participants_ids.include? userId
-            BigBlueButton.logger.info("Counting id = #{userId}")
-            participants_ids << userId
-         end
+         participant_ids.add(userId)
       end
-
-      BigBlueButton.logger.info("get_num_participants = #{participants_ids.length}")
-      participants_ids.length
+      return participants_ids.length
     end
 
     # Get the meeting metadata
@@ -71,14 +65,14 @@ module BigBlueButton
     end
     
     # Get the timestamp of the first event.
-    def self.first_event_timestamp(events_xml)
-      first_event = events_xml.at_xpath('/recording/event[position() = 1]')
+    def self.first_event_timestamp(events)
+      first_event = events.at_xpath('/recording/event[position() = 1]')
       first_event['timestamp'].to_i
     end
     
     # Get the timestamp of the last event.
-    def self.last_event_timestamp(events_xml)
-      last_event = events_xml.at_xpath('/recording/event[position() = last()]')
+    def self.last_event_timestamp(events)
+      last_event = events.at_xpath('/recording/event[position() = last()]')
       last_event['timestamp'].to_i
     end  
     
@@ -94,31 +88,19 @@ module BigBlueButton
     end
     
     # Get start video events  
-    def self.get_start_video_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting start video events")
+    def self.get_start_video_events(events)
       start_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='StartWebcamShareEvent']").each do |start_event|
-        start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('stream').text}
+      events.xpath("/recording/event[@eventname='StartWebcamShareEvent']").each do |start_event|
+        start_events << {
+          start_timestamp: start_event['timestamp'].to_i,
+          stream: start_event.at_xpath('stream').text
+        }
       end
       start_events
     end
 
-    # Get stop video events
-    def self.get_stop_video_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting stop video events")
-      stop_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='StopWebcamShareEvent']").each do |stop_event|
-        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text}
-      end
-      stop_events
-    end
-
     # Build a webcam EDL
-    def self.create_webcam_edl(archive_dir)
-      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
-
+    def self.create_webcam_edl(events, archive_dir)
       recording = events.at_xpath('/recording')
       meeting_id = recording['meeting_id']
       event = events.at_xpath('/recording/event[position()=1]')
@@ -186,11 +168,10 @@ module BigBlueButton
       return video_edl
     end
 
-    def self.get_matched_start_and_stop_deskshare_events(events_path)
-      doc = Nokogiri::XML(File.open(events_path))
-      last_timestamp = BigBlueButton::Events.last_event_timestamp(doc)
-      deskshare_start_events = BigBlueButton::Events.get_start_deskshare_events(events_path)
-      deskshare_stop_events = BigBlueButton::Events.get_stop_deskshare_events(events_path)
+    def self.get_matched_start_and_stop_deskshare_events(events)
+      last_timestamp = BigBlueButton::Events.last_event_timestamp(events)
+      deskshare_start_events = BigBlueButton::Events.get_start_deskshare_events(events)
+      deskshare_stop_events = BigBlueButton::Events.get_stop_deskshare_events(events)
       return BigBlueButton::Events.match_start_and_stop_deskshare_events(
         deskshare_start_events,
         deskshare_stop_events,
@@ -213,35 +194,28 @@ module BigBlueButton
       matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
     end
 
-    def self.get_start_deskshare_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting start DESKSHARE events")      
+    def self.get_start_deskshare_events(events)
       start_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='DeskshareStartedEvent']").each do |start_event|
+      events.xpath("/recording/event[@eventname='DeskshareStartedEvent']").each do |start_event|
         s = {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('file').text.sub(/(.+)\//, "")}
         start_events << s
       end
       start_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}
     end
 
-    def self.get_stop_deskshare_events(events_xml)
+    def self.get_stop_deskshare_events(events)
       BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")      
       stop_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='DeskshareStoppedEvent']").each do |stop_event|
+      events.xpath("/recording/event[@eventname='DeskshareStoppedEvent']").each do |stop_event|
         s = {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('file').text.sub(/(.+)\//, "")}
         stop_events << s
       end
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
 
-    def self.create_deskshare_edl(archive_dir)
-      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
-
-      event = events.at_xpath('/recording/event[position()=1]')
-      initial_timestamp = event['timestamp'].to_i
-      event = events.at_xpath('/recording/event[position()=last()]')
-      final_timestamp = event['timestamp'].to_i
+    def self.create_deskshare_edl(events, archive_dir)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
 
       deskshare_edl = []
 
@@ -298,13 +272,13 @@ module BigBlueButton
       return deskshare_edl
     end
 
-    def self.edl_match_recording_marks_audio(edl, archive_dir)
-      edl_entry_offset = Proc.new do |edl_entry, offset|
-        new_entry = { :audio => nil }
+    def self.edl_entry_offset_audio
+      return Proc.new do |edl_entry, offset|
+        new_entry = { audio: nil }
         if edl_entry[:audio]
           new_entry[:audio] = {
-            :filename => edl_entry[:audio][:filename],
-            :timestamp => edl_entry[:audio][:timestamp] + offset
+            filename: edl_entry[:audio][:filename],
+            timestamp: edl_entry[:audio][:timestamp] + offset
           }
         end
         if edl_entry[:original_duration]
@@ -312,50 +286,50 @@ module BigBlueButton
         end
         new_entry
       end
-      edl_empty_entry = Proc.new do
-        { :audio => nil }
+    end
+    def self.edl_empty_entry_audio
+      return Proc.new do
+        { audio: nil }
       end
-      return BigBlueButton::Events.edl_match_recording_marks(edl, archive_dir,
-                      edl_entry_offset, edl_empty_entry)
     end
 
-    def self.edl_match_recording_marks_video(edl, archive_dir)
-      edl_entry_offset = Proc.new do |edl_entry, offset|
-        new_entry = { :areas => {} }
+    def self.edl_match_recording_marks_audio(edl, events, start_time, end_time)
+      edl_entry_offset = BigBlueButton::Events.edl_entry_offset_audio
+      edl_empty_entry = BigBlueButton::Events.edl_empty_entry_audio
+      return BigBlueButton::Events.edl_match_recording_marks(edl, events,
+                      edl_entry_offset, edl_empty_entry, start_time, end_time)
+    end
+
+    def self.edl_entry_offset_video
+      return Proc.new do |edl_entry, offset|
+        new_entry = { areas: {} }
         edl_entry[:areas].each do |area, videos|
           new_entry[:areas][area] = []
           videos.each do |video|
             new_entry[:areas][area] << {
-              :filename => video[:filename],
-              :timestamp => video[:timestamp] + offset,
-              :original_duration => video[:original_duration]
+              filename: video[:filename],
+              timestamp: video[:timestamp] + offset,
+              original_duration: video[:original_duration]
             }
           end
         end
         new_entry
       end
-      edl_empty_entry = Proc.new do
-        { :areas => {} }
+    end
+    def self.edl_empty_entry_video
+      return Proc.new do
+        { areas: {} }
       end
-      return BigBlueButton::Events.edl_match_recording_marks(edl, archive_dir,
-                      edl_entry_offset, edl_empty_entry)
     end
 
-    def self.get_start_stop_events_for_edl(archive_dir)
-      doc = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
-      initial_timestamp = BigBlueButton::Events.first_event_timestamp(doc)
-      start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-              BigBlueButton::Events.get_start_and_stop_rec_events(doc))
-      start_stop_events.each do |record_event|
-        record_event[:start_timestamp] -= initial_timestamp
-        record_event[:stop_timestamp] -= initial_timestamp
-      end
-      return start_stop_events
+    def self.edl_match_recording_marks_video(edl, events, start_time, end_time)
+      edl_entry_offset = BigBlueButton::Events.edl_entry_offset_video
+      edl_empty_entry = BigBlueButton::Events.edl_empty_entry_video
+      return BigBlueButton::Events.edl_match_recording_marks(edl, events,
+                      edl_entry_offset, edl_empty_entry, start_time, end_time)
     end
 
-    def self.edl_match_recording_marks(edl, archive_dir, edl_entry_offset, edl_empty_entry)
-      start_stop_events = BigBlueButton::Events.get_start_stop_events_for_edl(archive_dir)
-
+    def self.edl_apply_start_stop_events(edl, edl_entry_offset, edl_empty_entry, start_stop_events)
       last_stop_timestamp = 0
       offset = 0
 
@@ -424,6 +398,24 @@ module BigBlueButton
       return new_edl
     end
 
+    def self.edl_match_recording_marks(edl, events,
+                                       edl_entry_offset, edl_empty_entry,
+                                       start_time, end_time)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+              BigBlueButton::Events.get_start_and_stop_rec_events(events))
+      start_stop_events = BigBlueButton::Events.trim_start_and_stop_rec_events(
+                        start_stop_events, start_time, end_time)
+
+      # Convert to 0-based timestamps to match the edl entries
+      start_stop_events.each do |record_event|
+        record_event[:start_timestamp] -= initial_timestamp
+        record_event[:stop_timestamp] -= initial_timestamp
+      end
+
+      return BigBlueButton::Events.edl_apply_start_stop_events(edl, edl_entry_offset, edl_empty_entry, start_stop_events)
+    end
+
     def self.linkify( text )
       generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
       starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
@@ -475,12 +467,37 @@ module BigBlueButton
       matched_rec_events
     end
 
+    # Adjust the recoding start and stop events to trim them to a meeting
+    # segment
+    def self.trim_start_and_stop_rec_events(rec_events, start, stop)
+      trimmed_rec_events = []
+      rec_events.each do |event|
+        if event[:start_timestamp] <= start and event[:stop_timestamp] <= start
+          next
+        end
+        if event[:start_timestamp] >= stop and event[:stop_timestamp] >= stop
+          next
+        end
+        new_event = {
+          start_timestamp: event[:start_timestamp],
+          stop_timestamp: event[:stop_timestamp]
+        }
+        if new_event[:start_timestamp] < start
+          new_event[:start_timestamp] = start
+        end
+        if new_event[:stop_timestamp] > stop
+          new_event[:stop_timestamp] = stop
+        end
+        trimmed_rec_events << new_event
+      end
+      return trimmed_rec_events
+    end
+
     # Calculate the length of the final recording from the start/stop events
-    def self.get_recording_length(rec_events)
+    def self.get_recording_length(events)
       duration = 0
-      doc = Nokogiri::XML(File.open(rec_events))
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-              BigBlueButton::Events.get_start_and_stop_rec_events(doc))
+              BigBlueButton::Events.get_start_and_stop_rec_events(events))
       start_stop_events.each do |start_stop|
         duration += start_stop[:stop_timestamp] - start_stop[:start_timestamp]
       end
@@ -582,16 +599,15 @@ module BigBlueButton
     end
 
     # Version of the bbb server where it was recorded
-    def self.bbb_version(events_xml)
-      events = Nokogiri::XML(File.open(events_xml))      
+    def self.bbb_version(events)
       recording = events.at_xpath('/recording')
       recording['bbb_version']      
     end
 
     # Compare version numbers
     # Returns true if version is newer than requested version
-    def self.bbb_version_compare(events_xml, major, minor=nil, micro=nil)
-      bbb_version = self.bbb_version(events_xml)
+    def self.bbb_version_compare(events, major, minor=nil, micro=nil)
+      bbb_version = self.bbb_version(events)
       if bbb_version.nil?
         # BigBlueButton 0.81 or earler
         return false

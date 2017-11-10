@@ -27,22 +27,35 @@ def process_archived_meetings(recording_dir)
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/processed")
-  sanity_done_files.sort{ |a,b| BigBlueButton.done_to_timestamp(a) <=> BigBlueButton.done_to_timestamp(b) }.each do |sanity_done|
-    match = /([^\/]*).done$/.match(sanity_done)
-    meeting_id = match[1]
+  # TODO sort by timestamp(s)
+  sanity_done_files.each do |sanity_done|
+    done_base = File.basename(sanity_done, '.done')
+    meeting_id = nil
+    break_timestamp = nil
+
+    if match = /^([0-9a-f]+-[0-9]+)$/.match(done_base)
+      meeting_id = match[1]
+    elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(done_base)
+      meeting_id = match[1]
+      break_timestamp = match[2]
+    else
+      BigBlueButton.logger.warn("Sanity done file for #{done_base} has invalid format")
+      next
+    end
 
     step_succeeded = true
 
-    # Iterate over the list of recording processing scripts to find available types
-    # For now, we look for the ".rb" extension - TODO other scripting languages?
+    # Iterate over the list of recording processing scripts to find available
+    # types. For now, we look for the ".rb" extension - TODO other scripting
+    # languages?
     Dir.glob("process/*.rb").sort.each do |process_script|
       match2 = /([^\/]*).rb$/.match(process_script)
       process_type = match2[1]
 
-      processed_done = "#{recording_dir}/status/processed/#{meeting_id}-#{process_type}.done"
+      processed_done = "#{recording_dir}/status/processed/#{done_base}-#{process_type}.done"
       next if File.exists?(processed_done)
 
-      processed_fail = "#{recording_dir}/status/processed/#{meeting_id}-#{process_type}.fail"
+      processed_fail = "#{recording_dir}/status/processed/#{done_base}-#{process_type}.fail"
       if File.exists?(processed_fail)
         step_succeeded = false
         next
@@ -51,15 +64,21 @@ def process_archived_meetings(recording_dir)
       BigBlueButton.redis_publisher.put_process_started(process_type, meeting_id)
 
       # If the process directory exists, the script does nothing
-      FileUtils.rm_rf("#{recording_dir}/process/#{process_type}/#{meeting_id}")
+      process_dir = "#{recording_dir}/process/#{process_type}/#{done_base}"
+      FileUtils.rm_rf(process_dir)
 
       step_start_time = BigBlueButton.monotonic_clock
-      ret = BigBlueButton.exec_ret("ruby", process_script, "-m", meeting_id)
+      if !break_timestamp.nil?
+        ret = BigBlueButton.exec_ret('ruby', process_script,
+                                     '-m', meeting_id, '-b', break_timestamp)
+      else
+        ret = BigBlueButton.exec_ret('ruby', process_script, '-m', meeting_id)
+      end
       step_stop_time = BigBlueButton.monotonic_clock
       step_time = step_stop_time - step_start_time
 
-      if BigBlueButton.dir_exists? "#{recording_dir}/process/#{process_type}/#{meeting_id}"
-        IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
+      if File.directory?(process_dir)
+        IO.write("#{process_dir}/processing_time", step_time)
       end
 
       step_succeeded = (ret == 0 and File.exists?(processed_done))
@@ -70,11 +89,10 @@ def process_archived_meetings(recording_dir)
       })
 
       if step_succeeded
-        BigBlueButton.logger.info("Process format #{process_type} succeeded for #{meeting_id}")
+        BigBlueButton.logger.info("Process format #{process_type} succeeded for #{meeting_id} break #{break_timestamp}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
-        IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
       else
-        BigBlueButton.logger.info("Process format #{process_type} failed for #{meeting_id}")
+        BigBlueButton.logger.info("Process format #{process_type} failed for #{meeting_id} break #{break_timestamp}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
         FileUtils.touch(processed_fail)
         step_succeeded = false
