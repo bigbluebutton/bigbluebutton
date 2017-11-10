@@ -1,6 +1,6 @@
 var path = require('path');
 var VisualRegressionCompare = require('wdio-visual-regression-service/compare');
-function getScreenshotName(basePath) {
+function getCommonScreenshotName(basePath) {
   return function(context) {
     var type = context.type;
     var testName = context.test.title;
@@ -10,6 +10,19 @@ function getScreenshotName(basePath) {
     var browserWidth = browserViewport.width;
     var browserHeight = browserViewport.height;
     return path.join(basePath, `${testName}_${type}_${browserWidth}_${browserHeight}.png`);
+  };
+}
+
+function getScreenshotNameWithBrowser(basePath) {
+  return function(context) {
+    var type = context.type;
+    var testName = context.test.title;
+    var browserVersion = parseInt(context.browser.version, 10);
+    var browserName = context.browser.name;
+    var browserViewport = context.meta.viewport;
+    var browserWidth = browserViewport.width;
+    var browserHeight = browserViewport.height;
+    return path.join(basePath, `${testName}_${type}_${browserName}_${browserVersion}_${browserWidth}_${browserHeight}.png`);
   };
 }
 
@@ -41,9 +54,9 @@ exports.config = {
 
     visualRegression: {
       compare: new VisualRegressionCompare.LocalCompare({
-        referenceName: getScreenshotName(path.join(process.cwd(), 'tests/webdriverio/screenshots/reference')),
-        screenshotName: getScreenshotName(path.join(process.cwd(), 'tests/webdriverio/screenshots/screen')),
-        diffName: getScreenshotName(path.join(process.cwd(), 'tests/webdriverio/screenshots/diff')),
+        referenceName: getCommonScreenshotName(path.join(process.cwd(), 'tests/webdriverio/screenshots/reference')),
+        screenshotName: getScreenshotNameWithBrowser(path.join(process.cwd(), 'tests/webdriverio/screenshots/screen')),
+        diffName: getScreenshotNameWithBrowser(path.join(process.cwd(), 'tests/webdriverio/screenshots/diff')),
         misMatchTolerance: 0.01,
       }),
       viewports: [{ width: 1920, height: 1200 }, { width: 960, height: 1200 }],
