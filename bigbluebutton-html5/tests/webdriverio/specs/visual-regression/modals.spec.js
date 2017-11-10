@@ -8,7 +8,7 @@ function expectImageMatch(results, errorMessage) {
 }
 
 describe('Screenshots:', function() {
-  browser.windowHandleSize({width: 1920, height: 1200});
+  // browser.windowHandleSize({width: 1920, height: 1200});
   it('Join Audio modal looks good', function() {
     HomePage.login('testuser', 'Demo Meeting');
     browser.element('[data-test=audioModalHeader]').waitForExist(7000);
