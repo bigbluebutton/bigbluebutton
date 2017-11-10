@@ -35,13 +35,13 @@ def publish_processed_meetings(recording_dir)
     break_timestamp = nil
     publish_type = nil
 
-    if match = /^([0-9a-f]+-[0-9]+)-(.+)$/.match(done_base)
-      meeting_id = match[1]
-      publish_type = match[2]
-    elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)-(.+)$/.match(done_base)
+    if match = /^([0-9a-f]+-[0-9]+)-([0-9]+)-(.+)$/.match(done_base)
       meeting_id = match[1]
       break_timestamp = match[2]
       publish_type = match[3]
+    elsif match = /^([0-9a-f]+-[0-9]+)-(.+)$/.match(done_base)
+      meeting_id = match[1]
+      publish_type = match[2]
     else
       BigBlueButton.logger.warn("Processed done file for #{done_base} has invalid format")
       next
