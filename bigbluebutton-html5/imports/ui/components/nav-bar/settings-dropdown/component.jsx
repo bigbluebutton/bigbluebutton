@@ -164,4 +164,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(SettingsDropdown, 'Control+Alt+f')));
+export default withModalMounter(injectIntl(withShortcut(SettingsDropdown, 'Control+Shift+F')));
