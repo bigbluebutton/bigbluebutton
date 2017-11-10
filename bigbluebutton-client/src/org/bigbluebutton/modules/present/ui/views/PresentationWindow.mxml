@@ -234,8 +234,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.currentPresenterInPod = this.ownerId;
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
 				populatePodDropdown();
+
+				// make me currentPodPresenter
+				if (StringUtils.isEmpty(this.currentPresenterInPod) || StringUtils.isEmpty(this.currentPresenterUsername)) {
+					setPresenterInPodHelper(UsersUtil.getMyUserID());
+				}
 			}
-			
+
 			public function setWindowId(windowId:String):void {
 				this.windowId = windowId;
 			}
