@@ -296,7 +296,11 @@ package org.bigbluebutton.modules.users.services
     
     private function processGuestWaitingForApproval(guest: Object): void {
       var guestWaiting: GuestWaiting = new GuestWaiting(guest.intId, guest.name, guest.role);
-      LiveMeeting.inst().guestsWaiting.add(guestWaiting);
+
+      // do not add self
+      if (UsersUtil.getMyUserID() != guest.intId) {
+        LiveMeeting.inst().guestsWaiting.add(guestWaiting);
+      }
     }
     
     private function handleGuestsWaitingForApprovalEvtMsg(msg: Object): void {
@@ -340,6 +344,10 @@ package org.bigbluebutton.modules.users.services
         processGuestWaitingForApproval(guest);
       }
 
+      // do not display notification for self
+      if (guests.length == 0 || (guests.length == 1 && guests[0].intId == UsersUtil.getMyUserID())) {
+        return;
+      }
       var guestsWaitingEvent:NewGuestWaitingEvent = new NewGuestWaitingEvent();
       dispatcher.dispatchEvent(guestsWaitingEvent);
     }
