@@ -19,30 +19,21 @@
 
 package org.bigbluebutton.core.record.events
 
-class GotoSlideRecordEvent extends AbstractPresentationRecordEvent {
-  import GotoSlideRecordEvent._
+class SetPresenterInPodRecordEvent extends AbstractPresentationRecordEvent {
+  import SetPresenterInPodRecordEvent._
 
-  setEvent("GotoSlideEvent")
+  setEvent("SetPresenterInPodEvent")
 
-  def setPresentationName(name: String) {
-    eventMap.put(PRES_NAME, name)
+  def setPrevPresenterId(userId: String) {
+    eventMap.put(PREV_PRESENTER, userId)
   }
 
-  def setSlide(slide: Integer) {
-    /*
-     * Subtract 1 from the page number to be zero-based to be
-     * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
-     */
-    eventMap.put(SLIDE, Integer.toString(slide - 1))
-  }
-
-  def setId(id: String) {
-    eventMap.put(ID, id)
+  def setNextPresenterId(userId: String) {
+    eventMap.put(NEXT_PRESENTER, userId)
   }
 }
 
-object GotoSlideRecordEvent {
-  protected final val PRES_NAME = "presentationName"
-  protected final val SLIDE = "slide"
-  protected final val ID = "id"
+object SetPresenterInPodRecordEvent {
+  protected final val PREV_PRESENTER = "prevPresenterId"
+  protected final val NEXT_PRESENTER = "nextPresenterId"
 }
