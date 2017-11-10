@@ -59,7 +59,26 @@ package org.bigbluebutton.modules.users.services
         }, JSON.stringify(message)
       );
     }
-    
+
+    public function queryForGuestsWaiting():void {
+      var message:Object = {
+        header: {name: "GetGuestsWaitingApprovalReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+        body: {requesterId: UsersUtil.getMyUserID()}
+      };
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage2x( 
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
+            logData.message = "Error occurred querying guests waiting.";
+            LOGGER.info(JSON.stringify(logData));
+        }, JSON.stringify(message)
+      );
+    }
+
     public function joinMeeting(): void {
       LOGGER.info("Sending JOIN MEETING message");
       
