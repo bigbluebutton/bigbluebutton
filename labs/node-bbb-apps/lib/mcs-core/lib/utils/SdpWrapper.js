@@ -203,9 +203,9 @@ module.exports = class SdpWrapper {
 
   async processSdp () {
     let description = this._plainSdp;
-    if(config.get('kurento.force_low_resolution'))  {
-      description = this.removeFmtp(description);
-    }
+    //if(config.get('kurento.force_low_resolution'))  {
+    //  description = this.removeFmtp(description);
+    //}
 
     description = description.toString().replace(/telephone-event/, "TELEPHONE-EVENT");
 
@@ -215,7 +215,7 @@ module.exports = class SdpWrapper {
     this.sdpSessionDescription = this.getSessionDescription(description);
     this.audioSdp =  this.getAudioDescription(description);
     this.mainVideoSdp = this.getMainDescription(description);
-    this.mainVideoSdp = this.removeHighQualityFmtps(this.mainVideoSdp);
+    //this.mainVideoSdp = this.removeHighQualityFmtps(this.mainVideoSdp);
     this.contentVideoSdp = this.getContentDescription(description);
 
     return;

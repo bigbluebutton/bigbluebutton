@@ -55,6 +55,7 @@ process.on('SIGTERM', process.exit)
 process.on('SIGINT', process.exit)
 process.on('uncaughtException', function (error) {
   console.log(error.stack);
+  process.exit('1');
 });
 
 

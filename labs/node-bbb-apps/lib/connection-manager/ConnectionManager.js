@@ -53,7 +53,7 @@ module.exports = class ConnectionManager {
         case "screenshare":
           self._bbbGW.publish(JSON.stringify(data), C.TO_SCREENSHARE);
           break;
-          
+
         case "video":
           self._bbbGW.publish(JSON.stringify(data), C.TO_VIDEO);
           break;

@@ -6,14 +6,27 @@ const mediaServerClient = require('kurento-client');
 const util = require('util');
 const EventEmitter = require('events').EventEmitter;
 
+let instance = null;
+
 /* Public members */
-exports = class MediaServer extends EventEmitter {
+module.exports = class MediaServer extends EventEmitter {
   constructor(serverUri) {
-    super();
-    this._serverUri = serverUri;
-    this._mediaServer = _getMediaServerClient(this._serverUri);
-    this._mediaPipelines = {};
-    this._mediaElements= {};
+    if(!instance){
+      super();
+      this._serverUri = serverUri;
+      this._mediaPipelines = {};
+      this._mediaElements= {};
+      this._mediaServer;
+      instance = this;
+    }
+
+    return instance;
+  }
+
+  async init () {
+    if (typeof this._mediaServer === 'undefined' || !this._mediaServer) {
+      this._mediaServer = await this._getMediaServerClient(this._serverUri);
+    }
   }
 
   _getMediaServerClient (serverUri) {
@@ -22,6 +35,7 @@ exports = class MediaServer extends EventEmitter {
         if (error) {
           reject(error);
         }
+        console.log("  [media] Retrieved media server client => " + client);
         resolve(client);
       });
     });
@@ -29,17 +43,17 @@ exports = class MediaServer extends EventEmitter {
 
   _getMediaPipeline (conference) {
     return new Promise((resolve, reject) => {
-      if (_mediaPipelines[conference]) {
-        console.log(' [media] Pipeline already exists. ' + JSON.stringify(_mediaPipelines, null, 2));
-        resolve(_mediaPipelines[conference]);
+      if (this._mediaPipelines[conference]) {
+        console.log(' [media] Pipeline already exists. ' + JSON.stringify(this._mediaPipelines, null, 2));
+        resolve(this._mediaPipelines[conference]);
       }
       else {
-        this._mediaServer.create('MediaPipeline', function(err, pipeline) {
+        this._mediaServer.create('MediaPipeline', (error, pipeline) => {
           if (error) {
             console.log(error);
             reject(error);
           }
-          _mediaPipelines[conference] = pipeline;
+          this._mediaPipelines[conference] = pipeline;
           resolve(pipeline);
         });
       }
@@ -47,7 +61,7 @@ exports = class MediaServer extends EventEmitter {
   }
 
   _releasePipeline (pipelineId) {
-    let mediaPipeline = _mediaPipelines[pipelineId];
+    let mediaPipeline = this._mediaPipelines[pipelineId];
 
     if (typeof mediaPipeline !== 'undefined' && typeof mediaPipeline.release === 'function') {
       mediaElement.release();
@@ -58,11 +72,11 @@ exports = class MediaServer extends EventEmitter {
     return new Promise((resolve, reject) => {
       pipeline.create(type, (error, mediaElement) => {
         if (error) {
-          reject(error);
+          return reject(error);
         }
         console.log("  [MediaController] Created [" + type + "] media element: " + mediaElement.id);
-        _mediaElements[mediaElement.id] = mediaElement;
-        resolve(mediaElement);
+        this._mediaElements[mediaElement.id] = mediaElement;
+        return resolve(mediaElement);
       });
     });
   }
@@ -72,16 +86,16 @@ exports = class MediaServer extends EventEmitter {
     try {
       const pipeline = await this._getMediaPipeline(conference);
       const mediaElement = await this._createElement(pipeline, type);
-      Promise.resolve(mediaElement.id);
+      return Promise.resolve(mediaElement.id);
     }
     catch (err) {
-      return Promise.reject(new Error(e));
+      return Promise.reject(new Error(err));
     }
   }
 
-  async connectMediaElements (sourceId, sinkId, type) {
-    let source = _mediaElements[sourceId];
-    let sink = _mediaElements[sinkId];
+  async connect (sourceId, sinkId, type) {
+    let source = this._mediaElements[sourceId];
+    let sink = this._mediaElements[sinkId];
 
     if (source && sink) {
       return new Promise((resolve, reject) => {
@@ -89,9 +103,9 @@ exports = class MediaServer extends EventEmitter {
           case 'ALL': 
             source.connect(sink, (error) => {
               if (error) {
-                reject(error);
+                return reject(error);
               }
-              resolve();
+              return resolve();
             });
             break;
 
@@ -100,22 +114,23 @@ exports = class MediaServer extends EventEmitter {
           case 'VIDEO':
             source.connect(sink, (error) => {
               if (error) {
-                reject(error);
+                return reject(error);
               }
-              resolve();
+              return resolve();
             });
             break;
 
-          default: reject("[mcs] Invalid connect type");
+          default: return reject("[mcs] Invalid connect type");
         }
       });
     }
-
-    return Promise.reject("Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+    else {
+      return Promise.reject("Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+    }
   }
 
   stop (elementId) {
-    let mediaElement = _mediaElements[elementId];
+    let mediaElement = this._mediaElements[elementId];
     // TODO remove event listeners
     if (typeof mediaElement !== 'undefined' && typeof mediaElement.release === 'function') {
       mediaElement.release();
@@ -124,31 +139,42 @@ exports = class MediaServer extends EventEmitter {
 
   
   addIceCandidate (elementId, candidate) {
-    let mediaElement = _mediaElements[elementId];
+    let mediaElement = this._mediaElements[elementId];
+    let kurentoCandidate = mediaServerClient.getComplexType('IceCandidate')(candidate);
 
-    if (typeof mediaElement !== 'undefined' && typeof mediaElement.addIceCandidate === 'function') {
+    if (typeof mediaElement !== 'undefined' && typeof mediaElement.addIceCandidate === 'function' &&
+        typeof candidate !== 'undefined') {
       mediaElement.addIceCandidate(candidate);
+      console.log("  [media] Added ICE candidate for => " + elementId);
+      return Promise.resolve();
+    }
+    else {
+      return Promise.reject(new Error("Candidate could not be parsed or media element does not exist"));
     }
   }
 
   gatherCandidates (elementId) {
-    let mediaElement = _mediaElements[elementId];
+    console.log('  [media] Gathering ICE candidates for ' + elementId);
+    let mediaElement = this._mediaElements[elementId];
 
     return new Promise((resolve, reject) => {
       if (typeof mediaElement !== 'undefined' && typeof mediaElement.gatherCandidates === 'function') {
         mediaElement.gatherCandidates((error) => {
           if (error) {
-            reject(error);
+            return reject(new Error(error));
           }
-          resolve(); 
+          console.log('  [media] Triggered ICE gathering for ' + elementId);
+          return resolve(); 
         });
       }
-      reject("  [MediaController/gatherCandidates] There is no element " + elementId);
+      else {
+        return reject("  [MediaController/gatherCandidates] There is no element " + elementId);
+      }
     });
   }
 
   setInputBandwidth (elementId, min, max) {
-    let mediaElement = _mediaElements[elementId];
+    let mediaElement = this._mediaElements[elementId];
 
     if (typeof mediaElement !== 'undefined') {
       endpoint.setMinVideoRecvBandwidth(min);
@@ -159,7 +185,7 @@ exports = class MediaServer extends EventEmitter {
   }
 
   setOutputBandwidth (endpoint, min, max) {
-    let mediaElement = _mediaElements[elementId];
+    let mediaElement = this._mediaElements[elementId];
 
     if (typeof mediaElement !== 'undefined') {
       endpoint.setMinVideoSendBandwidth(min);
@@ -170,7 +196,7 @@ exports = class MediaServer extends EventEmitter {
   }
 
   setOutputBitrate (endpoint, min, max) {
-    let mediaElement = _mediaElements[elementId];
+    let mediaElement = this._mediaElements[elementId];
 
     if (typeof mediaElement !== 'undefined') {
       endpoint.setMinOutputBitrate(min);
@@ -181,35 +207,43 @@ exports = class MediaServer extends EventEmitter {
   }
 
   processOffer (elementId, sdpOffer) {
-    let mediaElement = _mediaElements[elementId];
+    let mediaElement = this._mediaElements[elementId];
 
     return new Promise((resolve, reject) => {
       if (typeof mediaElement !== 'undefined' && typeof mediaElement.processOffer === 'function') {
         mediaElement.processOffer(sdpOffer, (error, answer) => {
           if (error) {
-            reject(error);
+            return reject(error);
           }
-          resolve(answer);
+          return resolve(answer);
         });
       }
-      reject("  [MediaController/processOffer] There is no element " + elementId);
+      else {
+        return reject("  [MediaController/processOffer] There is no element " + elementId);
+      }
     });
   }
 
   trackMediaState (elementId, type) {
     switch (type) {
       case C.MEDIA_TYPE.URI:
-        this.addMediaEventListener(elementId, C.MEDIA_TYPE.ENDOFSTREAM);
-        this.addMediaEventListener(elementId, C.MEDIA_TYPE.CHANGED);
-        this.addMediaEventListener(elementId, C.MEDIA_TYPE.FLOW_IN);
-        this.addMediaEventListener(elementId, C.MEDIA_TYPE.FLOW_OUT);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.ENDOFSTREAM, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.CHANGED, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_IN, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_OUT, elementId);
         break;
 
       case C.MEDIA_TYPE.WEBRTC:
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.CHANGED, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_IN, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_OUT, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.ICE, elementId);
+        break;
+
       case C.MEDIA_TYPE.RTP:
-        this.addMediaEventListener(elementId, C.MEDIA_TYPE.CHANGED);
-        this.addMediaEventListener(elementId, C.MEDIA_TYPE.FLOW_IN);
-        this.addMediaEventListener(elementId, C.MEDIA_TYPE.FLOW_OUT);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.CHANGED, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_IN, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_OUT, elementId);
         break;
 
       default: return;
@@ -217,12 +251,17 @@ exports = class MediaServer extends EventEmitter {
     return;
   }
 
-  addMediaEventListener (elementId, eventTag) {
-    let mediaElement = _mediaElements[elementId];
+  addMediaEventListener (eventTag, elementId) {
+    let mediaElement = this._mediaElements[elementId];
     // TODO event type validator
     if (typeof mediaElement !== 'undefined' && mediaElement) {
+      console.log('  [media] Adding media state listener [' + eventTag + '] for ' + elementId);
       mediaElement.on(eventTag, (event) => {
-        this.emit(C.MEDIA_STATE.MEDIA_EVENT , {elementId, eventTag, event});
+        if (eventTag === C.EVENT.MEDIA_STATE.ICE) {
+          console.log("  [media] Relaying ICE for MediaState" + elementId);
+          event.candidate = mediaServerClient.getComplexType('IceCandidate')(event.candidate);
+        }
+        this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+elementId , {eventTag, event});
       });
     }
   }

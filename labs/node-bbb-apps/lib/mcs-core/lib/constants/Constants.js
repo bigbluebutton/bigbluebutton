@@ -44,12 +44,14 @@ exports.EVENT.SESSION_ID_EVENT = "SESSION_ID"
 exports.EVENT.AUDIO_SESSION_TERMINATED = "AUDIO_SESSION_TERMINATED"
 
 // Media server state changes 
+exports.EVENT.NEW_SESSION = "NewSession"
 exports.EVENT.MEDIA_STATE = {};
 exports.EVENT.MEDIA_STATE.MEDIA_EVENT = "MediaEvent"
 exports.EVENT.MEDIA_STATE.CHANGED = "MediaStateChanged"
 exports.EVENT.MEDIA_STATE.FLOW_OUT = "MediaFlowOutStateChange"
 exports.EVENT.MEDIA_STATE.FLOW_IN = "MediaFlowInStateChange"
 exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
+exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
 
 
 

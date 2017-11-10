@@ -1,13 +1,13 @@
 'use strict'
 
-var config = require('config');
-var C = require('../constants/Constants');
+const config = require('config');
+const C = require('../constants/Constants');
 
 // Model
-var SfuUser = require('../model/SfuUser');
-var Room = require('../model/Room.js');
-var mediaServer = require('./media-server');
+const SfuUser = require('../model/SfuUser');
+const Room = require('../model/Room.js');
 
+const EventEmitter = require('events').EventEmitter;
 
 /* PRIVATE ELEMENTS */
 /**
@@ -29,11 +29,20 @@ function getVideoPort() {
 
 /* PUBLIC ELEMENTS */
 
+let instance = null;
+
+
 module.exports = class MediaController {
-  constructor() {
-    // Kurento
-    this._rooms = {};
-    this._users = {};
+  constructor(emitter) {
+    if (!instance) {
+      this.emitter = emitter;
+      this._rooms = {};
+      this._users = {};
+      this._mediaSessions = {};
+      instance = this;
+    }
+
+    return instance;
   }
 
   start (_kurentoClient, _kurentoToken, callback) {
@@ -60,18 +69,20 @@ module.exports = class MediaController {
   }
 
   async join (roomId, type, params) {
-    console.log("[mcs] join");
+    console.log("[mcs] Join room => " + roomId + ' as ' + type);
     try {
+      let session;
       const room = await this.createRoomMCS(roomId);
       const user = await this.createUserMCS(roomId, type, params);
       let userId = user.id;
       room.setUser(user);
       if (params.sdp) {
-        const sessionId = user.addSdp(params.sdp);
+        session = user.addSdp(params.sdp);
       }
       if (params.uri) {
-        const sessionId = user.addUri(params.sdp);
+        session = user.addUri(params.sdp);
       }
+
       console.log("[mcs] Resolving user " + userId);
       return Promise.resolve(userId);
     }
@@ -85,13 +96,22 @@ module.exports = class MediaController {
     console.log("[mcs] pns");
     let type = params.type;
     try {
-      const user = await this.getUserMCS(userId);
+      user = this.getUserMCS(userId);
       let userId = user.id;
-      const sessionId = user.addSdp(sdp, type);
-      const answer = await user.startSession(sessionId);
-      await user.connect(sourceId, sessionId);
-      console.log("[mcs] user with sdp session " + sessionId);
-      console.log(user);
+      let session = user.addSdp(sdp, type);
+      let sessionId = session.id;
+
+      if (typeof this._mediaSessions[session.id] == 'undefined' || 
+          !this._mediaSessions[session.id]) {
+        this._mediaSessions[session.id] = {};
+      }
+
+      this._mediaSessions[session.id] = session; 
+
+      const answer = await user.startSession(session.id);
+      await user.connect(sourceId, session.id);
+
+      console.log("[mcs] user with sdp session " + session.id);
       return Promise.resolve({userId, sessionId});
     }
     catch (err) {
@@ -102,68 +122,109 @@ module.exports = class MediaController {
 
   async publish (userId, roomId, type, params) {
     console.log("[mcs] publish");
-    let mediaId;
+    let session;
     // TODO handle mediaType
     let mediaType = params.mediaType;
     let answer;
 
     try {
+      console.log("  [mcs] Fetching user => " + userId);
+
       const user = await this.getUserMCS(userId);
 
+      console.log("  [mcs] Fetched user => " + user);
+
       switch (type) {
-        case "SDP":
-          mediaId = user.addSdp(params.descriptor, type);
-          answer = await user.startSession(mediaId);
+        case "RtpEndpoint":
+        case "WebRtcEndpoint":
+          session = user.addSdp(params.descriptor, type);
+          
+          answer = await user.startSession(session.id);
           break;
         case "URI":
-          mediaId = user.addUri(params.descriptor, type);
-          answer = await user.startSession(mediaId);
+          session = user.addUri(params.descriptor, type);
+
+          answer = await user.startSession(session.id);
           break;
 
         default: return Promise.reject(new Error("[mcs] Invalid media type"));
       }
     }
     catch (err) {
-      return Promise.reject(new Error(err));
+      console.log(err);
+      return Promise.reject(err);
     }
-    console.log(user);
-    return Promise.resolve({answer, mediaId});
+
+    if (typeof this._mediaSessions[session.id] == 'undefined' || 
+        !this._mediaSessions[session.id]) {
+      this._mediaSessions[session.id] = {};
+    }
+
+    this._mediaSessions[session.id] = session; 
+    let sessionId = session.id;
+
+    return Promise.resolve({answer, sessionId});
   }
 
   async subscribe (userId, type, sourceId, params) {
-    let mediaId;
+    console.log("  [mcs] subscribe");
+    let session;
     // TODO handle mediaType
     let mediaType = params.mediaType;
+    let answer;
+    let sourceSession = this._mediaSessions[sourceId];
+
+    if (typeof sourceSession === 'undefined') {
+      return Promise.reject(new Error("  [mcs] Media session " + sourceId + " was not found"));
+    }
 
     try {
-    const user = this.getUserMCS(userId);
+      console.log("  [mcs] Fetching user => " + userId);
+
+      const user = await this.getUserMCS(userId);
+
+      console.log("  [mcs] Fetched user => " + user);
 
       switch (type) {
-        case "SDP":
-          mediaId = user.addSdp(params.descriptor, type);
-          await user.connect(sourceId, mediaId);
-          const answer = await user.startSession(mediaId);
+        case "RtpEndpoint":
+        case "WebRtcEndpoint":
+          session = user.addSdp(params.descriptor, type);
+
+          answer = await user.startSession(session.id);
+          await sourceSession.connect(session._mediaElement);
+
           break;
         case "URI":
-          //TODO
-          //mediaId = user.addUri(params.descriptor);
+          session = user.addUri(params.descriptor, type);
+          answer = await user.startSession(session.id);
+          await sourceSession.connect(session._mediaElement);
+
           break;
 
         default: return Promise.reject(new Error("[mcs] Invalid media type"));
       }
     }
     catch (err) {
-      return Promise.reject(new Error(err));
+      console.log(err);
+      return Promise.reject(err);
     }
 
-    return Promise.resolve({answer, mediaId});
-  }
+    if (typeof this._mediaSessions[session.id] == 'undefined' || 
+        !this._mediaSessions[session.id]) {
+      this._mediaSessions[session.id] = {};
+    }
 
+    this._mediaSessions[session.id] = session; 
+    let sessionId = session.id;
+
+    return Promise.resolve({answer, sessionId});
+  }
 
   async unpublish (userId, mediaId) {
     try {
       const user = this.getUserMCS(userId);
       const answer = await user.unpublish(mediaId);
+      this._mediaSessions[mediaId] = null;
       return Promise.resolve(answer);
     }
     catch (err) {
@@ -176,9 +237,26 @@ module.exports = class MediaController {
       const user = this.getUserMCS(userId);
       const answer = await user.unsubscribe(mediaId);
       return Promise.resolve();
+      this._mediaSessions[mediaId] = null;
     }
     catch (err) {
       return Promise.reject(new Error(err));
+    }
+  }
+
+  async addIceCandidate (mediaId, candidate) {
+    let session = this._mediaSessions[mediaId];
+    if (typeof session === 'undefined') {
+      return Promise.reject(new Error("  [mcs] Media session " + mediaId + " was not found"));
+    }
+    try {
+      console.log("  [mcs] Adding ICE candidate for => " + mediaId);
+      const ack = await session.addIceCandidate(candidate);
+      return Promise.resolve(ack);
+    }
+    catch (err) {
+      console.log(err);
+      return Promise.reject(err);
     }
   }
 
@@ -187,7 +265,7 @@ module.exports = class MediaController {
    * @param {String} roomId
    */
   async createRoomMCS (roomId)  {
-    var self = this;
+    let self = this;
 
     console.log("  [media] Creating new room with ID " + roomId);
 
@@ -209,7 +287,7 @@ module.exports = class MediaController {
 
     switch (type) {
       case C.USERS.SFU:
-        user  = new SfuUser(roomId, type, params.userAgentString, params.sdp);
+        user  = new SfuUser(roomId, type, this.emitter, params.userAgentString, params.sdp);
         break;
       case C.USERS.MCU:
         console.log("  [media] createUserMCS MCU TODO");
@@ -226,6 +304,6 @@ module.exports = class MediaController {
   }
 
   getUserMCS (userId) {
-    Promise.resolve(self._users[user.id]);
+    return this._users[userId];
   }
 }

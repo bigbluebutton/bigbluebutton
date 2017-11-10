@@ -9,7 +9,7 @@
     "cookie-parser": "^1.3.5",
     "express": "~4.12.4",
     "express-session": "~1.10.3",
-    "kurento-client": "6.6.0",
+    "kurento-client": "https://github.com/Kurento/kurento-client-js#master",
     "moment": "*",
     "redis": "^2.6.2",
     "sdp-transform": "*",

@@ -9,7 +9,7 @@
 
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 var Screenshare = require('./screenshare');
-var C = require('../bbb/messages/Constants'); 
+var C = require('../bbb/messages/Constants');
 // Global variables
 
 module.exports = class ScreenshareManager {
@@ -24,7 +24,7 @@ module.exports = class ScreenshareManager {
     this._redisGateway;
   }
 
-  async start() {   
+  async start() {
     let self = this;
 
     try {
@@ -33,7 +33,7 @@ module.exports = class ScreenshareManager {
       this._redisGateway.on(C.REDIS_MESSAGE, this._onMessage.bind(this));
       process.on('message', this._onMessage.bind(this));
       console.log('  [ScreenshareManager] Successfully subscribed to redis channel');
-    } 
+    }
     catch (error) {
       console.log('  [ScreenshareManager] Could not connect to transcoder redis channel, finishing app...');
       console.log(error);
@@ -47,7 +47,6 @@ module.exports = class ScreenshareManager {
     let session;
     let message = _message;
 
-    console.log(message);
     // The sessionId is voiceBridge for screensharing sessions
     let sessionId = message.voiceBridge;
     if(this._screenshareSessions[sessionId]) {
@@ -66,7 +65,6 @@ module.exports = class ScreenshareManager {
           self._screenshareSessions[message.voiceBridge] = session;
         }
 
-        //session.on('message', self._assembleSessionMessage.bind(self));
         if(session) {
           break;
         }

@@ -10,11 +10,14 @@ const SdpWrapper = require('../utils/SdpWrapper');
 const uuidv4 = require('uuid/v4');
 const EventEmitter = require('events').EventEmitter;
 const MediaServer = require('../media/media-server');
+const config = require('config');
+const kurentoUrl = config.get('kurentoUrl');
 
-module.exports = class SdpSession extends EventEmitter {
-  constructor(sdp = null, type = C.MEDIA_TYPE.RTP) {
-    super();
+module.exports = class SdpSession {
+  constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint') {
     this.id = uuidv4();
+    this.room = room;
+    this.emitter = emitter;
     this._status = C.STATUS.STOPPED;
     this._type = type;
     // {SdpWrapper} SdpWrapper
@@ -22,6 +25,8 @@ module.exports = class SdpSession extends EventEmitter {
     if (sdp && type) {
       this.setSdp(sdp, type);
     }
+    this._MediaServer = new MediaServer(kurentoUrl);
+    this._mediaElement;
   }
 
   async setSdp (sdp, type) {
@@ -32,15 +37,30 @@ module.exports = class SdpSession extends EventEmitter {
   async start (sdpId) {
     this._status = C.STATUS.STARTING;
     try {
-      console.log("[mcs] start/cme");
-      const mediaElement = await MediaServer.createMediaElement(this.id, this._type);
-      console.log("[mcs] start/po " + mediaElement);
-      const answer = await MediaServer.processOffer(mediaElement, this._sdp.getMainDescription()); 
-      Promise.resolve(answer);
+      const client = await this._MediaServer.init();
+
+      console.log("[SdpSession] start/cme");
+      this._mediaElement = await this._MediaServer.createMediaElement(this.room, this._type);
+      console.log("[SdpSession] start/po " + this._mediaElement);
+
+      this._MediaServer.trackMediaState(this._mediaElement, this._type);
+      this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
+        console.log("  [SdpSession] Relaying EVENT MediaState" + this.id);
+        event.id = this.id;
+        this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
+      });
+
+      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getMainDescription()); 
+
+      if (this._type === 'WebRtcEndpoint') {
+        this._MediaServer.gatherCandidates(this._mediaElement);
+      }
+
+      return Promise.resolve(answer);
     }
     catch (err) {
       this.handleError(err);
-      Promise.reject(err);
+      return Promise.reject(err);
     }
   }
 
@@ -48,7 +68,7 @@ module.exports = class SdpSession extends EventEmitter {
   async stop () {
     this._status = C.STATUS.STOPPING;
     try {
-      await MediaServer.stop(this.id);
+      await this._MediaServer.stop(this.id);
       this._status = C.STATUS.STOPPED;
       Promise.resolve();
     }
@@ -60,15 +80,32 @@ module.exports = class SdpSession extends EventEmitter {
 
 
   // TODO move to parent Session
+  // TODO handle connection type
   async connect (sinkId) {
     try {
-      await MediaServer.connect(this.id, sinkId);
-      Promise.resolve();
+      console.log("  [SdpSession] Connecting " + this._mediaElement + " => " + sinkId);
+      await this._MediaServer.connect(this._mediaElement, sinkId, 'ALL');
+      return Promise.resolve();
     }
     catch (err) {
       this.handleError(err);
+      return Promise.reject(err);
+    }
+  }
+
+  async addIceCandidate (candidate) {
+    try {
+      console.log("  [SdpSession] Adding ICE candidate for => " + this._mediaElement);
+      await this._MediaServer.addIceCandidate(this._mediaElement, candidate);
+      Promise.resolve();
+    }
+    catch (err) {
       Promise.reject(err);
     }
+  }
+
+  addMediaEventListener (type, mediaId) {
+    this._MediaServer.addMediaEventListener (type, mediaId);
   }
 
   handleError (err) {
