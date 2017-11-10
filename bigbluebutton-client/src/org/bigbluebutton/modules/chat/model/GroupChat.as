@@ -2,15 +2,11 @@ package org.bigbluebutton.modules.chat.model
 {
   import com.adobe.utils.StringUtil;
   import com.asfusion.mate.events.Dispatcher;
-  
   import flash.system.Capabilities;
-  
   import mx.collections.ArrayCollection;
-  
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
   import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
   import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -120,7 +116,8 @@ package org.bigbluebutton.modules.chat.model
       var allText:String = "";
       var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\n");
       for (var i:int = 0; i < messages.length; i++){
-        var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
+        var chatVO: ChatMessageVO = messages.getItemAt(i) as ChatMessageVO
+        var item:ChatMessage = convertChatMessage(chatVO);
         if (StringUtil.trim(item.name) != "") {
           allText += item.name + "\t";
         }
@@ -143,6 +140,28 @@ package org.bigbluebutton.modules.chat.model
       var welcomeEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
       welcomeEvent.chatId = id;
       _dispatcher.dispatchEvent(welcomeEvent);
+    }
+    
+    private function convertChatMessage(msgVO:ChatMessageVO):ChatMessage {
+      var cm:ChatMessage = new ChatMessage();
+      
+      cm.lastSenderId = "";
+      cm.lastTime = "";
+      
+      cm.senderId = msgVO.fromUserId;
+      
+      cm.text = msgVO.message;
+      
+      cm.name = msgVO.fromUsername;
+      cm.senderColor = uint(msgVO.fromColor);
+      
+      // Welcome message will skip time
+      if (msgVO.fromTime != -1) {
+        cm.fromTime = msgVO.fromTime;
+        cm.fromTimezoneOffset = msgVO.fromTimezoneOffset;
+        cm.time = convertTimeNumberToString(msgVO.fromTime);
+      }
+      return cm
     }
   }
 }
