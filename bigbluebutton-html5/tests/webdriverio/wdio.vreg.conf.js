@@ -9,7 +9,7 @@ function getScreenshotName(basePath) {
     var browserViewport = context.meta.viewport;
     var browserWidth = browserViewport.width;
     var browserHeight = browserViewport.height;
-    return path.join(basePath, `${testName}_${type}_${browserName}_v${browserVersion}_${browserWidth}_${browserHeight}.png`);
+    return path.join(basePath, `${testName}_${type}_${browserWidth}_${browserHeight}.png`);
   };
 }
 
@@ -21,7 +21,7 @@ exports.config = {
 
     capabilities: [{
         maxInstances: 5,
-        browserName: 'firefox'
+        browserName: 'chrome'
     }],
 
     sync: true,
