@@ -203,6 +203,9 @@ package org.bigbluebutton.modules.users.services
         case "GuestsWaitingApprovedEvtMsg":
           handleGuestsWaitingApprovedEvtMsg(message);
           break;
+        case "GetGuestsWaitingApprovalRespMsg":
+          handleGetGuestsWaitingApprovalRespMsg(message);
+          break;
         case "UserAddedToPresenterGroupEvtMsg":
           handleUserAddedToPresenterGroupEvtMsg(message);
           break;
@@ -327,9 +330,22 @@ package org.bigbluebutton.modules.users.services
         new GuestWaitingApprovedEvent(body.approvedBy as String);
       dispatcher.dispatchEvent(guestsWaitingEvent);	
     }
-    
+
+    private function handleGetGuestsWaitingApprovalRespMsg(msg: Object): void {
+      var body: Object = msg.body as Object;
+      var guests: Array = body.guests as Array;
+
+      for (var i: int = 0; i < guests.length; i++) {
+        var guest: Object = guests[i] as Object;
+        processGuestWaitingForApproval(guest);
+      }
+
+      var guestsWaitingEvent:NewGuestWaitingEvent = new NewGuestWaitingEvent();
+      dispatcher.dispatchEvent(guestsWaitingEvent);
+    }
+
     private function handleGetUsersMeetingRespMsg(msg: Object):void {
-      var body: Object = msg.body as Object
+      var body: Object = msg.body as Object;
       var users: Array = body.users as Array;
       LOGGER.debug("Num USERs = " + users.length);
       
@@ -340,7 +356,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleUserLeftMeetingEvtMsg(msg:Object):void {     
-      var body: Object = msg.body as Object
+      var body: Object = msg.body as Object;
       var userId: String = body.intId as String;
       
       var webUser:User2x = UsersUtil.getUser(userId);
