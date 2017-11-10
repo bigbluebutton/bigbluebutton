@@ -46,9 +46,8 @@ exports.config = {
         diffName: getScreenshotName(path.join(process.cwd(), 'tests/webdriverio/screenshots/diff')),
         misMatchTolerance: 0.01,
       }),
-      viewports: [{ width: 1920, height: 1200 }, { width: 360, height: 640 }],
+      viewports: [{ width: 1920, height: 1200 }, { width: 960, height: 1200 }],
       viewportChangePause: 300,
-      widths: [1024],
       orientations: ['landscape'],
     },
 
