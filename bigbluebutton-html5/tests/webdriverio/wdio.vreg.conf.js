@@ -18,7 +18,7 @@ function getScreenshotNameWithBrowser(basePath) {
     var type = context.type;
     var testName = context.test.title;
     var browserVersion = parseInt(context.browser.version, 10);
-    var browserName = context.browser.name;
+    var browserName = process.env.BROWSER_NAME=='chrome_mobile' ? process.env.DEVICE_NAME : context.browser.name;
     var browserViewport = context.meta.viewport;
     var browserWidth = browserViewport.width;
     var browserHeight = browserViewport.height;
@@ -32,9 +32,17 @@ exports.config = {
         'tests/webdriverio/specs/visual-regression/**/*.spec.js'
     ],
 
-    capabilities: [{
+    capabilities: [process.env.BROWSER_NAME=='chrome_mobile' ? {
         maxInstances: 5,
-        browserName: 'chrome'
+        browserName: 'chrome',
+        chromeOptions: {
+            mobileEmulation: {
+                deviceName: process.env.DEVICE_NAME
+            }
+        }
+    } : {
+        maxInstances: 5,
+        browserName: process.env.BROWSER_NAME
     }],
 
     sync: true,
@@ -59,7 +67,7 @@ exports.config = {
         diffName: getScreenshotNameWithBrowser(path.join(process.cwd(), 'tests/webdriverio/screenshots/diff')),
         misMatchTolerance: 0.01,
       }),
-      viewports: [{ width: 1920, height: 1200 }, { width: 960, height: 1200 }],
+      viewports: process.env.BROWSER_NAME=='chrome_mobile' ? [] : [{ width: 1920, height: 1200 }, { width: 960, height: 1200 }],
       viewportChangePause: 300,
       orientations: ['landscape'],
     },
