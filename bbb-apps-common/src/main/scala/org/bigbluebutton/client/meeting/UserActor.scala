@@ -94,26 +94,35 @@ class UserActor(val userId: String,
     val (result, error) = Deserializer.toBbbCoreMessageFromClient(msg.json)
     result match {
       case Some(msgFromClient) =>
-        // Override the meetingId and userId on the message from client. This
-        // will prevent spoofing of messages. (ralam oct 30, 2017)
-        val newHeader = BbbClientMsgHeader(msgFromClient.header.name, meetingId, userId)
-        val msgClient = msgFromClient.copy(header = newHeader)
-        
-        val routing = Routing.addMsgFromClientRouting(msgClient.header.meetingId, msgClient.header.userId)
-        val envelope = new BbbCoreEnvelope(msgClient.header.name, routing)
-
-        if (msgClient.header.name == "ClientToServerLatencyTracerMsg") {
-          log.info("-- trace -- " + msg.json)
+        if (!AllowedMessageNames.MESSAGES.contains(msgFromClient.header.name)) {
+          // If the message that the client sends isn't allowed disconnect them.
+          log.error("User (" + userId + ") tried to send a non-whitelisted message with name=[" + msgFromClient.header.name + "] attempting to disconnect them")
+          for {
+            conn <- Connections.findActiveConnection(conns)
+          } yield {
+            msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+          }
+        } else {
+          // Override the meetingId and userId on the message from client. This
+          // will prevent spoofing of messages. (ralam oct 30, 2017)
+          val newHeader = BbbClientMsgHeader(msgFromClient.header.name, meetingId, userId)
+          val msgClient = msgFromClient.copy(header = newHeader)
+          
+          val routing = Routing.addMsgFromClientRouting(msgClient.header.meetingId, msgClient.header.userId)
+          val envelope = new BbbCoreEnvelope(msgClient.header.name, routing)
+  
+          if (msgClient.header.name == "ClientToServerLatencyTracerMsg") {
+            log.info("-- trace -- " + msg.json)
+          }
+  
+          val json = JsonUtil.toJson(msgClient)
+          for {
+            jsonNode <- convertToJsonNode(json)
+          } yield {
+            val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
+            msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+          }
         }
-
-        val json = JsonUtil.toJson(msgClient)
-        for {
-          jsonNode <- convertToJsonNode(json)
-        } yield {
-          val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
-          msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
-        }
-
       case None =>
         log.error("Failed to convert message with error: " + error)
     }
