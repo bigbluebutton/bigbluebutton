@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withShortcut } from '/imports/ui/components/shortcut/component';
 
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
@@ -75,6 +76,7 @@ class SettingsDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.handleShortcut = this.handleShortcut.bind(this);
   }
 
   onActionsShow() {
@@ -87,6 +89,11 @@ class SettingsDropdown extends Component {
     this.setState({
       isSettingOpen: false,
     });
+  }
+
+  handleShortcut() {
+    const { handleToggleFullscreen } = this.props;
+    handleToggleFullscreen();
   }
 
   render() {
@@ -157,4 +164,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(SettingsDropdown));
+export default withModalMounter(injectIntl(withShortcut(SettingsDropdown, 'Control+Alt+f')));

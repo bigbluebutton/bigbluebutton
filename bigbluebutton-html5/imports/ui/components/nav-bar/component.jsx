@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
-import styles from './styles.scss';
-import Button from '../button/component';
-import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdownContainer from './settings-dropdown/container';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -15,6 +11,11 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
+import { withShortcut } from '/imports/ui/components/shortcut/component';
+import styles from './styles.scss';
+import Button from '../button/component';
+import RecordingIndicator from './recording-indicator/component';
+import SettingsDropdownContainer from './settings-dropdown/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -45,7 +46,7 @@ const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
     breakoutName={breakoutName}
   />);
 
-const closeBreakoutJoinConfirmation = (mountModal) =>
+const closeBreakoutJoinConfirmation = mountModal =>
    mountModal(null);
 
 class NavBar extends Component {
@@ -58,10 +59,11 @@ class NavBar extends Component {
     };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
+    this.handleShortcut = this.handleShortcut.bind(this);
   }
 
-  componendDidMount() {
-    document.title = this.props.presentationTitle;
+  handleShortcut() {
+    this.handleToggleUserList();
   }
 
   handleToggleUserList() {
@@ -97,6 +99,10 @@ class NavBar extends Component {
     if (!breakouts.length && this.state.didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
+  }
+
+  componendDidMount() {
+    document.title = this.props.presentationTitle;
   }
 
   inviteUserToBreakout(breakout, breakoutURL) {
@@ -198,4 +204,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-export default withModalMounter(injectIntl(NavBar));
+export default withModalMounter(injectIntl(withShortcut(NavBar, 'Control+Alt+u')));
