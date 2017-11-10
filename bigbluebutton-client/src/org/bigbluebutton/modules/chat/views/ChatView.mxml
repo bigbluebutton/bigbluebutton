@@ -45,17 +45,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
-      
       import flash.events.Event;
       import flash.events.FocusEvent;
       import flash.media.Sound;
-      
       import mx.controls.Button;
       import mx.core.INavigatorContent;
-      
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.events.SuperTabEvent;
-      
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
@@ -153,10 +149,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function dispatchCopyChatEvent(e:Event):void {
-        var chatBox:ChatBox = getPublicChatBox();
         var copyEvent:ChatCopyEvent = new ChatCopyEvent(ChatCopyEvent.COPY_CHAT_EVENT);
         
-        copyEvent.chatId = chatBox.getChatId();
+        copyEvent.chatId = ChatModel.MAIN_PUBLIC_CHAT
         globalDispatcher.dispatchEvent(copyEvent);
       }
       

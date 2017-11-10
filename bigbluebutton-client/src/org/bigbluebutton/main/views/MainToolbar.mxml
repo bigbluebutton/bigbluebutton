@@ -369,8 +369,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						addedBtnsDeskShare.addChild(event.button as UIComponent);
 					}
 					else if (event.module == "Microphone"){
-						addedBtnsMicrophone.addChild(event.button as UIComponent);
+						addedPhoneMicrophone.addChild(event.button as UIComponent);
 					}
+          else if (event.module == "MuteMicrophone"){
+            addedMuteMicrophone.addChild(event.button as UIComponent);
+          }
 					else if (event.module == "Webcam"){
 						addedBtnsWebcam.addChild(event.button as UIComponent);
 					}
@@ -383,8 +386,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
 				if (addedBtnsDeskShare.contains(event.button as UIComponent))
 					addedBtnsDeskShare.removeChild(event.button as UIComponent);
-				if (addedBtnsMicrophone.contains(event.button as UIComponent))
-					addedBtnsMicrophone.removeChild(event.button as UIComponent);
+        if (addedPhoneMicrophone.contains(event.button as UIComponent))
+          addedPhoneMicrophone.removeChild(event.button as UIComponent);
+				if (addedMuteMicrophone.contains(event.button as UIComponent))
+					addedMuteMicrophone.removeChild(event.button as UIComponent);
 				if (addedBtnsWebcam.contains(event.button as UIComponent))
 					addedBtnsWebcam.removeChild(event.button as UIComponent);
 			}
@@ -543,7 +548,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" width="100%" truncateToFit="true"/>
 			</mx:HBox>
 			<mx:HBox id="actionBox" width="30%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
-				<mx:HBox id="addedBtnsMicrophone" />
+				<mx:HBox id="addedMuteMicrophone" />
+        <mx:HBox id="addedPhoneMicrophone" />
 				<mx:HBox id="addedBtnsWebcam" />
 				<mx:HBox id="addedBtnsDeskShare" />
 			</mx:HBox>
