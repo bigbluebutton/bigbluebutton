@@ -26,12 +26,12 @@ class ShortcutWrapper extends Component {
     document.addEventListener('keydown', (event) => {
       if (ctrlFlag && altFlag) {
         if (event.ctrlKey && event.altKey && event.key === keyCombo[keyCombo.length - 1]) {
-          this.el.handleShortcut();
+          this.element.ref.internalClickHandler();
         }
       }
       if (ctrlFlag && shiftFlag) {
         if (event.ctrlKey && event.shiftKey && event.key === keyCombo[keyCombo.length - 1]) {
-          this.el.handleShortcut();
+          this.el.ref.internalClickHandler();
         }
       }
     });
@@ -40,7 +40,7 @@ class ShortcutWrapper extends Component {
   render() {
     return (<ComponentToWrap
       {...this.props}
-      ref={(el) => { this.el = el; }}
+      ref={(ref) => { this.element = ref; }}
     />);
   }
 };

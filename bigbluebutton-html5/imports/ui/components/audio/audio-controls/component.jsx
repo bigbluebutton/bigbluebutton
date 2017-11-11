@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
-import { withShortcut } from '/imports/ui/components/shortcut/component';
+import MuteToggleBtnContainer from '../mute-toggle-btn/container';
 import styles from './styles';
 
 const propTypes = {
@@ -9,7 +9,6 @@ const propTypes = {
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
-  unmute: PropTypes.bool.isRequired,
   mute: PropTypes.bool.isRequired,
   join: PropTypes.bool.isRequired,
 };
@@ -27,29 +26,16 @@ export class AudioControls extends Component {
 
   render() {
     const {
-      handleToggleMuteMicrophone,
       handleJoinAudio,
       handleLeaveAudio,
       mute,
-      unmute,
       disable,
       join,
     } = this.props;
 
     return (
       <span className={styles.container} >
-        {mute ?
-          <Button
-            className={styles.button}
-            ref={(ref) => { this.muteBtn = ref; }}
-            onClick={handleToggleMuteMicrophone}
-            disabled={disable}
-            label={unmute ? 'Unmute' : 'Mute'}
-            color={'primary'}
-            icon={unmute ? 'mute' : 'unmute'}
-            size={'lg'}
-            circle
-          /> : null}
+        {mute ? <MuteToggleBtnContainer /> : null}
         <Button
           className={styles.button}
           onClick={join ? handleLeaveAudio : handleJoinAudio}
@@ -67,4 +53,4 @@ export class AudioControls extends Component {
 
 AudioControls.propTypes = propTypes;
 
-export default withShortcut(AudioControls, 'Control+Alt+m');
+export default AudioControls;
