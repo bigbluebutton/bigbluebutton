@@ -17,11 +17,11 @@ function shouldShowWhiteboard() {
 }
 
 function shouldShowScreenshare() {
-  return isVideoBroadcasting();
+  return isVideoBroadcasting() && Meteor.settings.public.kurento.enableScreensharing;
 }
 
 function shouldShowOverlay() {
-  return true;
+  return Meteor.settings.public.kurento.enableVideo;
 }
 
 export default {
