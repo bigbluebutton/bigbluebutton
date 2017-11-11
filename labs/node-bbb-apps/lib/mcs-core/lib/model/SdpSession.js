@@ -45,9 +45,11 @@ module.exports = class SdpSession {
 
       this._MediaServer.trackMediaState(this._mediaElement, this._type);
       this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
-        console.log("  [SdpSession] Relaying EVENT MediaState" + this.id);
-        event.id = this.id;
-        this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
+        setTimeout(() => {
+          console.log("  [SdpSession] Relaying EVENT MediaState" + this.id);
+          event.id = this.id;
+          this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
+        }, 50);
       });
 
       const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getMainDescription()); 

@@ -50,7 +50,7 @@ module.exports = class SfuUser extends User {
   addSdp (sdp, type) {
     // TODO switch from type to children SdpSessions (WebRTC|SDP)
     let session = new SdpSession(this.emitter, sdp, this.roomId, type);
-    this.emitter.emit(C.EVENT.NEW_SESSION+this.dd, session.id);
+    this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
     if (typeof this._mediaSessions[session.id] == 'undefined' || 
         !this._mediaSessions[session.id]) {

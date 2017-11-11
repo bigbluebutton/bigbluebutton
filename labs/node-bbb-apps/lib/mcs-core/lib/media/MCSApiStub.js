@@ -86,10 +86,14 @@ module.exports = class MCSApiStub extends EventEmitter{
 
   async subscribe (user, sourceId, type, params) {
     try {
-      const answer = await this._mediaController.subscribe(user, sourceId, type, params);
-      this.listener.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+answer.sessionId, (event) => {
-        this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+answer.sessionId, event);
+      this.listener.once(C.EVENT.NEW_SESSION+user, (event) => {
+        let sessionId = event;
+        this.listener.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, (event) => {
+          this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, event);
+        });
       });
+
+      const answer = await this._mediaController.subscribe(user, sourceId, type, params);
 
       return Promise.resolve(answer);
     }
