@@ -1,0 +1,6 @@
+kurento:
+  wsUrl: 'HOST'
+  chromeExtensionKey: 'KEY'
+  chromeExtensionLink: 'LINK'
+  enableScreensharing: false
+  enableVideo: false

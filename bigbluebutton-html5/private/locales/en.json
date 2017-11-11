@@ -165,9 +165,11 @@
     "app.actionsBar.actionsDropdown.presentationLabel": "Upload a presentation",
     "app.actionsBar.actionsDropdown.initPollLabel": "Initiate a poll",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Share your screen",
+    "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Stop sharing your screen",
     "app.actionsBar.actionsDropdown.presentationDesc": "Upload your presentation",
     "app.actionsBar.actionsDropdown.initPollDesc": "Initiate a poll",
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Share your screen with others",
+    "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Stop sharing your screen with",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",
     "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",
@@ -256,4 +258,6 @@
     "app.guest.waiting": "Waiting for approval to join",
     "app.notification.recordingStart": "This session is now being recorded",
     "app.notification.recordingStop": "This session is not being recorded anymore"
+    "app.video.joinVideo": "Cam off",
+    "app.video.leaveVideo": "Cam on"
 }
