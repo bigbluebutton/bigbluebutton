@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Button from '/imports/ui/components/button/component';
 import { injectIntl } from 'react-intl';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
-import styles from './styles';
+import styles from '../audio-controls/styles';
 
 class MuteToggleBtn extends Component {
   render() {

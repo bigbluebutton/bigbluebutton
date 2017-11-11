@@ -11,11 +11,10 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withShortcut } from '/imports/ui/components/shortcut/component';
-import styles from './styles.scss';
-import Button from '../button/component';
+import styles from './styles';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import UserListToggleBtnContainer from './userlist-toggle-btn/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -57,17 +56,6 @@ class NavBar extends Component {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
     };
-
-    this.handleToggleUserList = this.handleToggleUserList.bind(this);
-    this.handleShortcut = this.handleShortcut.bind(this);
-  }
-
-  handleShortcut() {
-    this.handleToggleUserList();
-  }
-
-  handleToggleUserList() {
-    this.props.toggleUserList();
   }
 
   componentDidUpdate(oldProps) {
@@ -165,7 +153,7 @@ class NavBar extends Component {
     );
   }
   render() {
-    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
+    const { hasUnreadMessages, beingRecorded, intl } = this.props;
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -174,17 +162,7 @@ class NavBar extends Component {
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
-          <Button
-            onClick={this.handleToggleUserList}
-            ghost
-            circle
-            hideLabel
-            label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-            icon={'user'}
-            className={cx(toggleBtnClasses)}
-            aria-expanded={isExpanded}
-            aria-describedby="newMessage"
-          />
+          <UserListToggleBtnContainer />
           <div
             id="newMessage"
             aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}
@@ -204,4 +182,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-export default withModalMounter(injectIntl(withShortcut(NavBar, 'Control+Alt+u')));
+export default withModalMounter(injectIntl(NavBar));
