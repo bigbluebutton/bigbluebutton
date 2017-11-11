@@ -31,7 +31,8 @@ if (config.get('acceptSelfSignedCertificate')) {
 }
 
 module.exports = class Screenshare {
-  constructor(id, bbbgw, voiceBridge, caller, vh, vw, meetingId) {
+  constructor(ws, id, bbbgw, voiceBridge, caller, vh, vw, meetingId) {
+    this._ws = ws;
     this._id = id;
     this._BigBlueButtonGW = bbbgw;
     this._presenterEndpoint = null;
@@ -52,17 +53,18 @@ module.exports = class Screenshare {
     let candidate = kurento.getComplexType('IceCandidate')(_candidate);
 
     if (this._presenterEndpoint) {
+      console.log("  [screenshare] Adding ICE candidate to presenter");
       this._presenterEndpoint.addIceCandidate(candidate);
     }
     else {
       this._candidatesQueue.push(candidate);
     }
   };
-
+  
   _onViewerIceCandidate(_candidate, callerName) {
     console.log("onviewericecandidate callerName = " + callerName);
     let candidate = kurento.getComplexType('IceCandidate')(_candidate);
-
+    
     if (this._viewersEndpoint[callerName]) {
       this._viewersEndpoint[callerName].addIceCandidate(candidate);
     }
@@ -74,14 +76,14 @@ module.exports = class Screenshare {
     }
   }
 
-  _startViewer(voiceBridge, sdp, callerName, presenterEndpoint, callback) {
+  _startViewer(ws, voiceBridge, sdp, callerName, presenterEndpoint, callback) {
     let self = this;
     let _callback = function(){};
     console.log("startviewer callerName = " + callerName);
     self._viewersCandidatesQueue[callerName] = [];
-
+    
     console.log("VIEWER VOICEBRIDGE:    "+self._voiceBridge);
-
+ 
     MediaController.createMediaElement(voiceBridge, C.WebRTC, function(error, webRtcEndpoint) {
       if (error) {
         console.log("Media elements error" + error);
@@ -106,11 +108,7 @@ module.exports = class Screenshare {
 
       // ICE NEGOTIATION WITH THE ENDPOINT
       self._viewersEndpoint[callerName].on('OnIceCandidate', function(event) {
-        let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-        self._BigBlueButtonGW.publish(JSON.stringify({
-          id : 'iceCandidate', 
-          candidate : candidate
-        }), C.FROM_SCREENSHARE);
+        let candidate = kurento.getComplexType('IceCandidate')(event.candidate); ws.sendMessage({ id : 'iceCandidate', candidate : candidate });
       });
 
       sdp = h264_sdp.transform(sdp);
@@ -121,11 +119,7 @@ module.exports = class Screenshare {
           //pipeline.release();
           return _callback(error);
         }
-        self._BigBlueButtonGW.publish(JSON.stringify({
-          id: "viewerResponse", 
-          sdpAnswer: webRtcSdpAnswer, 
-          response: "accepted"
-        }), C.FROM_SCREENSHARE);
+        ws.sendMessage({id: "viewerResponse", sdpAnswer: webRtcSdpAnswer, response: "accepted"});
         console.log(" Sent sdp message to client with callerName:" + callerName);
 
         MediaController.gatherCandidates(webRtcEndpoint.id, function(error) {
@@ -134,12 +128,12 @@ module.exports = class Screenshare {
           }
 
           self._viewersEndpoint[callerName].on('MediaFlowInStateChange', function(event) {
-            if (event.state === 'NOT_FLOWING') {                          
-              console.log(" NOT FLOWING ");                              
-            }                                                             
-            else if (event.state === 'FLOWING') {                         
-              console.log(" FLOWING ");      
-            }                                                             
+            if (event.state === 'NOT_FLOWING') {
+              console.log(" NOT FLOWING ");
+            }
+            else if (event.state === 'FLOWING') {
+              console.log(" FLOWING ");
+            }
           });
         });
       });
@@ -147,7 +141,7 @@ module.exports = class Screenshare {
   }
 
 
-  _startPresenter(id, sdpOffer, callback) {
+  _startPresenter(id, ws, sdpOffer, callback) {
     let self = this;
     let _callback = callback;
 
@@ -189,11 +183,7 @@ module.exports = class Screenshare {
 
           self._presenterEndpoint.on('OnIceCandidate', function(event) {
             let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-            self._BigBlueButtonGW.publish(JSON.stringify({
-              id : 'iceCandidate', 
-              cameraId: id, 
-              candidate : candidate 
-            }), C.FROM_SCREENSHARE);
+            ws.sendMessage({ id : 'iceCandidate', cameraId: id, candidate : candidate });
           });
 
           MediaController.processOffer(webRtcEndpoint.id, sdpOffer, function(error, webRtcSdpAnswer) {
@@ -254,7 +244,6 @@ module.exports = class Screenshare {
     } else {
       console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
     }
-
     if (this._ffmpegRtpEndpoint) {
       MediaController.releaseMediaElement(this._ffmpegRtpEndpoint.id);
       this._ffmpegRtpEndpoint = null;
@@ -273,7 +262,7 @@ module.exports = class Screenshare {
     let self = this;
     let strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
 
-    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN);
+    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
     // Interoperability: capturing 1.1 stop_transcoder_reply messages
     self._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY, function(payload) {
@@ -290,6 +279,7 @@ module.exports = class Screenshare {
   }
 
   _onRtpMediaFlowing(meetingId, rtpParams) {
+    console.log("  [screenshare] Media FLOWING for meeting => " + meetingId);
     let self = this;
     let strm = Messaging.generateStartTranscoderRequestMessage(meetingId, meetingId, rtpParams);
 
@@ -308,21 +298,23 @@ module.exports = class Screenshare {
     });
 
 
-    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN);
+    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
   };
 
   _stopRtmpBroadcast (meetingId) {
-    var self = this;
+    console.log("  [screenshare] _stopRtmpBroadcast for meeting => " + meetingId);
+    let self = this;
     if(self._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
       let timestamp = now.format('hhmmss');
       let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(self._voiceBridge,
           self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
-      self._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN);
+      self._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
     }
   }
 
   _startRtmpBroadcast (meetingId, output) {
+    console.log("  [screenshare] _startRtmpBroadcast for meeting => " + meetingId);
     var self = this;
     if(self._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
@@ -331,11 +323,25 @@ module.exports = class Screenshare {
       let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(self._voiceBridge,
           self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
 
-      self._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN);
+      self._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
     }
   }
 
   _onRtpMediaNotFlowing() {
     console.log("  [screenshare] TODO RTP NOT_FLOWING");
+  };
+
+  _stopViewer(id) {
+    let viewer = this._viewersEndpoint[id];
+    console.log(' [stop] Releasing endpoints for ' + id);
+
+    if (viewer) {
+      MediaController.releaseMediaElement(viewer.id);
+      this._viewersEndpoint[viewer.id] = null;
+    } else {
+      console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
+    }
+
+    delete this._viewersCandidatesQueue[id];
   };
 };

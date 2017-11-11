@@ -10,4 +10,3 @@ process.on('disconnect',function() {
 });
 
 c = new ScreenshareManager();
-c.start();

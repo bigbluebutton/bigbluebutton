@@ -7,8 +7,8 @@
 
 const ConnectionManager = require('./lib/connection-manager/ConnectionManager');
 const HttpServer = require('./lib/connection-manager/HttpServer');
-const server = new HttpServer();
-const WebsocketConnectionManager = require('./lib/connection-manager/WebsocketConnectionManager');
+//const server = new HttpServer();
+//const WebsocketConnectionManager = require('./lib/connection-manager/WebsocketConnectionManager');
 const cp = require('child_process');
 
 let screenshareProc = cp.fork('./lib/screenshare/ScreenshareProcess', {
@@ -47,9 +47,9 @@ videoProc.on('message',onMessage);
 videoProc.on('error',onError);
 videoProc.on('disconnect',onDisconnect);
 
-const CM = new ConnectionManager(screenshareProc, videoProc);
+//const CM = new ConnectionManager(screenshareProc, videoProc);
 
-let websocketManager = new WebsocketConnectionManager(server.getServerObject(), '/kurento-screenshare');
+//let websocketManager = new WebsocketConnectionManager(server.getServerObject(), '/kurento-screenshare');
 
 process.on('SIGTERM', process.exit)
 process.on('SIGINT', process.exit)
@@ -59,9 +59,9 @@ process.on('uncaughtException', function (error) {
 });
 
 
-CM.setHttpServer(server);
-CM.addAdapter(websocketManager);
-
-CM.listen(() => {
-  console.log(" [SERVER] Server started");
-});
+//CM.setHttpServer(server);
+//CM.addAdapter(websocketManager);
+//
+//CM.listen(() => {
+//  console.log(" [SERVER] Server started");
+//});
