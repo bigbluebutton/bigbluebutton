@@ -26,12 +26,12 @@ class ShortcutWrapper extends Component {
     document.addEventListener('keydown', (event) => {
       if (ctrlFlag && altFlag) {
         if (event.ctrlKey && event.altKey && event.key === keyCombo[keyCombo.length - 1]) {
-          this.element.ref.internalClickHandler();
+          this.element.ref.props.onClick();
         }
       }
       if (ctrlFlag && shiftFlag) {
         if (event.ctrlKey && event.shiftKey && event.key === keyCombo[keyCombo.length - 1]) {
-          this.el.ref.internalClickHandler();
+          this.element.ref.props.onClick();
         }
       }
     });

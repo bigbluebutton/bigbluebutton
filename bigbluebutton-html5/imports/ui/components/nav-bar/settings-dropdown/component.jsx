@@ -8,6 +8,7 @@ import { withShortcut } from '/imports/ui/components/shortcut/component';
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
+import FullScreenToggleContainer from './full-screen-toggle/container';
 
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -97,17 +98,7 @@ class SettingsDropdown extends Component {
   }
 
   render() {
-    const { intl, mountModal, isFullScreen } = this.props;
-
-    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-    let fullscreenIcon = 'fullscreen';
-
-    if (isFullScreen) {
-      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
-      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
-      fullscreenIcon = 'exit_fullscreen';
-    }
+    const { intl, mountModal } = this.props;
 
     return (
       <Dropdown
@@ -132,12 +123,7 @@ class SettingsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>
-            <DropdownListItem
-              icon={fullscreenIcon}
-              label={fullscreenLabel}
-              description={fullscreenDesc}
-              onClick={this.props.handleToggleFullscreen}
-            />
+            <FullScreenToggleContainer />
             <DropdownListItem
               icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
