@@ -112,7 +112,7 @@ const propTypes = {
   intl: intlShape.isRequired,
   userEmojiStatus: PropTypes.string.isRequired,
   actions: PropTypes.shape({
-    serEmojiHandler: PropTypes.func,
+    setEmojiHandler: PropTypes.func.isRequired,
   }).isRequired,
 };
 
