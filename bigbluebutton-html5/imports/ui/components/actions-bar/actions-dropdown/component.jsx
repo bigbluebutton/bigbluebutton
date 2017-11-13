@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 
+
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -11,6 +12,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import styles from '../styles';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -57,11 +59,12 @@ class ActionsDropdown extends Component {
     if (!isUserPresenter) return null;
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
-        <DropdownTrigger tabIndex={0}>
+      <Dropdown ref={(ref) => { this._dropdown = ref; }} >
+        <DropdownTrigger tabIndex={0} >
           <Button
+            className={styles.button}
             label={intl.formatMessage(intlMessages.actionsLabel)}
-            icon="add"
+            icon="plus"
             color="primary"
             size="lg"
             circle

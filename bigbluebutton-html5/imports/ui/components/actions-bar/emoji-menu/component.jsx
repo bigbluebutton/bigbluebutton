@@ -10,7 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import styles from './styles';
+import styles from '../styles';
 
 const intlMessages = defineMessages({
   statusTriggerLabel: {
@@ -111,13 +111,15 @@ const propTypes = {
   // Emoji status of the current user
   intl: intlShape.isRequired,
   userEmojiStatus: PropTypes.string.isRequired,
-  actions: PropTypes.object.isRequired,
+  actions: PropTypes.shape({
+    serEmojiHandler: PropTypes.func,
+  }).isRequired,
 };
 
 const EmojiMenu = ({
- userEmojiStatus,
- actions,
- intl,
+  userEmojiStatus,
+  actions,
+  intl,
 }) => (
   <Dropdown autoFocus>
     <DropdownTrigger tabIndex={0}>
