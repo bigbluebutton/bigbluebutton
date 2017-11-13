@@ -53,7 +53,6 @@ package org.bigbluebutton.modules.chat.model
     public function isChattingWith(userId: String): Boolean {
       for (var i:int = 0; i < _users.length; i++) {
         var user:GroupChatUser = _users[i] as GroupChatUser;
-        trace("######## IS CHAT WITH USER? " + userId + " ###### GC USER=" + user.id);
         if (user.id == userId) {
           return true;
         }        
@@ -141,8 +140,7 @@ package org.bigbluebutton.modules.chat.model
       messages.removeAll();
       messages.addItem(cm);
       
-      trace("########### CLEARING PUBLIC CHAT MESSAGE FOR " + _id);
-      var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
+      var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(_id);
       _dispatcher.dispatchEvent(clearChatEvent);
     }
     

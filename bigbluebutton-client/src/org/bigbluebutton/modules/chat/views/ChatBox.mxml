@@ -331,7 +331,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
-        trace("RECEIVED CHAT HISTORY for id = " + chatId + " event.chatId = " + event.chatId);
         if (chatId == event.chatId) {
           var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
           if (chat != null) {
@@ -617,7 +616,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleClearPublicChatBoxMessages(event:ClearPublicChatEvent):void {
-        trace("########### CLEARING PUBLIC CHAT MESSAGE FOR " + event.chatId + " chatId=" + chatId);
         if (event.chatId == chatId) {
           chatMessages.clearPublicChat();
           invalidateDisplayList();
