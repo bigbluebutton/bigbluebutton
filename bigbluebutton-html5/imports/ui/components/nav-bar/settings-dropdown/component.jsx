@@ -23,10 +23,6 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.optionsLabel',
     description: 'Options button label',
   },
-  fullscreenLabel: {
-    id: 'app.navBar.settingsDropdown.fullscreenLabel',
-    description: 'Make fullscreen option label',
-  },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
     description: 'Open settings option label',
@@ -43,10 +39,6 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
     description: 'Leave session button label',
   },
-  fullscreenDesc: {
-    id: 'app.navBar.settingsDropdown.fullscreenDesc',
-    description: 'Describes fullscreen option',
-  },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
     description: 'Describes settings option',
@@ -54,14 +46,6 @@ const intlMessages = defineMessages({
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
-  },
-  exitFullscreenDesc: {
-    id: 'app.navBar.settingsDropdown.exitFullscreenDesc',
-    description: 'Describes exit fullscreen option',
-  },
-  exitFullscreenLabel: {
-    id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
-    description: 'Exit fullscreen option label',
   },
 });
 
