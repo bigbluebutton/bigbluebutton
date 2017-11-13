@@ -19,7 +19,7 @@ trait MuteMeetingCmdMsgHdlrCheckPerm extends MuteMeetingCmdMsgHdlrDefault with S
   override def handleMuteMeetingCmdMsg(msg: MuteMeetingCmdMsg): Unit = {
     val isAllowed = PermissionCheck.isAllowed(
       PermissionCheck.MOD_LEVEL,
-      PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
+      PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
     )
 
     if (applyPermissionCheck && !isAllowed) {

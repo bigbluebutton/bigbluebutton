@@ -3,8 +3,10 @@ package org.bigbluebutton.core.apps.whiteboard
 import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.SystemConfiguration
 
-trait ClearWhiteboardPubMsgHdlr {
+trait ClearWhiteboardPubMsgHdlr extends SystemConfiguration {
   this: WhiteboardApp2x =>
 
   def handle(msg: ClearWhiteboardPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -20,10 +22,16 @@ trait ClearWhiteboardPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    for {
-      fullClear <- clearWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting)
-    } yield {
-      broadcastEvent(msg, fullClear)
+    if (!getWhiteboardAccess(liveMeeting) && applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to clear the whiteboard."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+    } else {
+      for {
+        fullClear <- clearWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting)
+      } yield {
+        broadcastEvent(msg, fullClear)
+      }
     }
   }
 }

@@ -3,8 +3,10 @@ package org.bigbluebutton.core.apps.whiteboard
 import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.SystemConfiguration
 
-trait SendWhiteboardAnnotationPubMsgHdlr {
+trait SendWhiteboardAnnotationPubMsgHdlr extends SystemConfiguration {
   this: WhiteboardApp2x =>
 
   def handle(msg: SendWhiteboardAnnotationPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -20,7 +22,13 @@ trait SendWhiteboardAnnotationPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    val annotation = sendWhiteboardAnnotation(msg.body.annotation, liveMeeting)
-    broadcastEvent(msg, annotation)
+    if (!getWhiteboardAccess(liveMeeting) && applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to send a whiteboard annotation."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+    } else {
+      val annotation = sendWhiteboardAnnotation(msg.body.annotation, liveMeeting)
+      broadcastEvent(msg, annotation)
+    }
   }
 }

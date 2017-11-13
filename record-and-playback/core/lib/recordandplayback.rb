@@ -23,11 +23,7 @@
 path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
 $LOAD_PATH << path
 
-require 'recordandplayback/audio_archiver'
 require 'recordandplayback/events_archiver'
-require 'recordandplayback/video_archiver'
-require 'recordandplayback/presentation_archiver'
-require 'recordandplayback/deskshare_archiver'
 require 'recordandplayback/generators/events'
 require 'recordandplayback/generators/audio'
 require 'recordandplayback/generators/video'
@@ -98,10 +94,6 @@ module BigBlueButton
     return @redis_publisher
   end
   
-  def self.dir_exists?(dir)
-    FileTest.directory?(dir)
-  end
-    
   def self.execute(command, fail_on_error=true)
     status = ExecutionStatus.new
     status.detailedStatus = Open4::popen4(command) do | pid, stdin, stdout, stderr|

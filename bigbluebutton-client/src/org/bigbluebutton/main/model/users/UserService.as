@@ -81,6 +81,7 @@ package org.bigbluebutton.main.model.users
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();
+			sender.queryForGuestsWaiting();
 			sender.getLockSettings();
 
 			if (!LiveMeeting.inst().meeting.isBreakout) {

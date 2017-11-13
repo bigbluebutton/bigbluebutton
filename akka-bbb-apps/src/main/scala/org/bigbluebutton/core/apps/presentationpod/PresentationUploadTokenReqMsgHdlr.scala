@@ -5,6 +5,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.apps.PermissionCheck
 
 trait PresentationUploadTokenReqMsgHdlr {
   this: PresentationPodHdlrs =>
@@ -64,12 +65,18 @@ trait PresentationUploadTokenReqMsgHdlr {
     log.info("handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +
       " userId=" + msg.header.userId + " filename=" + msg.body.filename)
 
-    if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
-      val token = PresentationPodsApp.generateToken(msg.body.podId, msg.header.userId)
-      broadcastPresentationUploadTokenPassResp(msg, token)
-      broadcastPresentationUploadTokenSysPubMsg(msg, token)
+    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to request presentation upload token."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
     } else {
-      broadcastPresentationUploadTokenFailResp(msg)
+      if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
+        val token = PresentationPodsApp.generateToken(msg.body.podId, msg.header.userId)
+        broadcastPresentationUploadTokenPassResp(msg, token)
+        broadcastPresentationUploadTokenSysPubMsg(msg, token)
+      } else {
+        broadcastPresentationUploadTokenFailResp(msg)
+      }
     }
 
     state
