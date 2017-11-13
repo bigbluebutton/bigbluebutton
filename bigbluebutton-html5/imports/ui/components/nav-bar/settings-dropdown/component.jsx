@@ -3,13 +3,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import { withShortcut } from '/imports/ui/components/shortcut/component';
 
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-import FullScreenToggleContainer from './full-screen-toggle/container';
-
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -17,6 +14,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import FullScreenToggleContainer from './full-screen-toggle/container';
 
 import styles from '../styles';
 
@@ -77,7 +75,6 @@ class SettingsDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
-    this.handleShortcut = this.handleShortcut.bind(this);
   }
 
   onActionsShow() {
@@ -90,11 +87,6 @@ class SettingsDropdown extends Component {
     this.setState({
       isSettingOpen: false,
     });
-  }
-
-  handleShortcut() {
-    const { handleToggleFullscreen } = this.props;
-    handleToggleFullscreen();
   }
 
   render() {
@@ -150,4 +142,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(SettingsDropdown, 'Control+Shift+F')));
+export default withModalMounter(injectIntl(SettingsDropdown));
