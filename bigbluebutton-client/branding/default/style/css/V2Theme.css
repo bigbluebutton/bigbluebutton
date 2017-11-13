@@ -1564,6 +1564,7 @@ flexlib|SuperTabNavigator {
 	color                   : #DF2721;
 	iconColor               : #DF2721;
 	iconVisible             : true;
+	skin                    : ClassReference("org.bigbluebutton.skins.TabSkin");
 	tabCloseButtonStyleName : "tabCloseButton";
 }
 
