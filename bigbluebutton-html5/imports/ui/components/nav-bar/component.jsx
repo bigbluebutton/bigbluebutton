@@ -13,7 +13,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles';
 import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdownContainer from './settings-dropdown/container';
+import SettingsDropdown from './settings-dropdown/component';
 import UserListToggleBtnContainer from './userlist-toggle-btn/container';
 
 const intlMessages = defineMessages({
@@ -173,7 +173,7 @@ class NavBar extends Component {
           <RecordingIndicator beingRecorded={beingRecorded} />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer />
+          <SettingsDropdown />
         </div>
       </div>
     );
