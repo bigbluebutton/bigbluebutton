@@ -38,7 +38,7 @@ trait SendGroupChatMessageMsgHdlr {
     if (applyPermissionCheck && chatLocked) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to send a message to this group chat."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
       def makeHeader(name: String, meetingId: String, userId: String): BbbClientMsgHeader = {

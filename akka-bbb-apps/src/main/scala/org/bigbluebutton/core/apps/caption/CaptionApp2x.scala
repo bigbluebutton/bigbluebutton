@@ -50,7 +50,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends SystemConfigurati
       && isUserCaptionOwner(liveMeeting, msg.header.userId, msg.body.locale)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to edit caption history in meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       val successfulEdit = editCaptionHistory(liveMeeting, msg.header.userId, msg.body.startIndex,
         msg.body.endIndex, msg.body.locale, msg.body.text)
@@ -90,7 +90,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends SystemConfigurati
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change caption owners."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       updateCaptionOwner(liveMeeting, msg.body.locale, msg.body.localeCode, msg.body.ownerId).foreach(f => {
         broadcastUpdateCaptionOwnerEvent(f._1, f._2.localeCode, f._2.ownerId)

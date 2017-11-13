@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.apps
 
+import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.models.{ Roles, UserState, Users2x }
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 object PermissionCheck {
@@ -40,23 +41,20 @@ object PermissionCheck {
   def isAllowed(permissionLevel: Int, roleLevel: Int, users: Users2x, userId: String): Boolean = {
     Users2x.findWithIntId(users, userId) match {
       case Some(user) =>
-        println("permissionToLevel = " + permissionToLevel(user) + " permissionLevel=" + permissionLevel)
         val permLevelCheck = permissionToLevel(user) >= permissionLevel
-        println("roleToLevel = " + roleToLevel(users, user) + " roleLevel=" + roleLevel)
         val roleLevelCheck = roleToLevel(users, user) >= roleLevel
-
-        println("PERMLEVELCHECK = " + permLevelCheck + " ROLELEVELCHECK=" + roleLevelCheck)
         permLevelCheck && roleLevelCheck
       case None => false
     }
 
   }
 
-  def ejectUserForFailedPermission(meetingId: String, userId: String, reason: String, outGW: OutMsgRouter): Unit = {
+  def ejectUserForFailedPermission(meetingId: String, userId: String, reason: String,
+                                   outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     val ejectedBy = "SYSTEM"
 
-    Sender.sendUserEjectedFromMeetingClientEvtMsg(meetingId, userId, ejectedBy, reason, outGW)
+    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason)
     // send a system message to force disconnection
-    Sender.sendUserEjectedFromMeetingSystemMsg(meetingId, userId, ejectedBy, outGW)
+    Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, outGW)
   }
 }

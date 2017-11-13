@@ -17,7 +17,7 @@ trait GetAllPresentationPodsReqMsgHdlr {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to get all presentation pods from meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
       def buildGetAllPresentationPodsRespMsg(pods: Vector[PresentationPodVO], requesterId: String): BbbCommonEnvCoreMsg = {

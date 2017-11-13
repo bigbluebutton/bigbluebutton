@@ -23,7 +23,7 @@ trait ClearPublicChatHistoryPubMsgHdlr extends LogHelper with SystemConfiguratio
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to clear chat in meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       ChatModel.clearPublicChatHistory(liveMeeting.chatModel)
       broadcastEvent(msg)

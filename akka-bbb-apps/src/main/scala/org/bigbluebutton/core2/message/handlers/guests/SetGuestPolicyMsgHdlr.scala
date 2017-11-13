@@ -17,7 +17,7 @@ trait SetGuestPolicyMsgHdlr {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to set guest policy in meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       val newPolicy = msg.body.policy.toUpperCase()
       if (GuestPolicyType.policyTypes.contains(newPolicy)) {

@@ -16,7 +16,7 @@ trait BroadcastLayoutMsgHdlr extends SystemConfiguration {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to broadcast layout to meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       Layouts.setCurrentLayout(liveMeeting.layouts, msg.body.layout, msg.header.userId)
 

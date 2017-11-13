@@ -23,9 +23,11 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       case Some(u) =>
         userValidated(u, state)
       case None =>
+
         validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
           userId = msg.body.userId, authToken = msg.body.authToken,
           valid = false, waitForApproval = false, state)
+
     }
   }
 
@@ -34,7 +36,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval)
     outGW.send(event)
 
-    // TODO: Should disconnect user here.
+    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, "SYSTEM", "Invalid auth token.")
 
     state
   }

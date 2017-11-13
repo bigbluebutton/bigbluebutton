@@ -26,7 +26,7 @@ trait HidePollResultReqMsgHdlr extends SystemConfiguration {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to hide poll result."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
         hiddenPollId <- Polls.handleHidePollResultReqMsg(msg.header.userId, msg.body.pollId, liveMeeting)

@@ -27,7 +27,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlrCheckPerm
     if (applyPermissionCheck && !isAllowed) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change lock settings"
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.setBy, reason, outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.setBy, reason, outGW, liveMeeting)
     } else {
       super.handleSetLockSettings(msg)
     }

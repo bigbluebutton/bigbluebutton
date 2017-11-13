@@ -4,9 +4,10 @@ import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.InternalEventBus
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 object UsersApp {
   def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String,
@@ -46,6 +47,78 @@ object UsersApp {
 
       outGW.send(event)
 
+    }
+  }
+
+  def automaticallyAssignPresenter(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    for {
+      moderator <- Users2x.findModerator(liveMeeting.users2x)
+      newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
+    } yield {
+      sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
+    }
+  }
+
+  def sendPresenterAssigned(outGW: OutMsgRouter, meetingId: String, intId: String, name: String, assignedBy: String): Unit = {
+    def event = MsgBuilder.buildPresenterAssignedEvtMsg(meetingId, intId, name, assignedBy)
+    outGW.send(event)
+  }
+
+  def sendUserEjectedMessageToClient(outGW: OutMsgRouter, meetingId: String,
+                                     userId: String, ejectedBy: String, reason: String): Unit = {
+    // send a message to client
+    Sender.sendUserEjectedFromMeetingClientEvtMsg(
+      meetingId,
+      userId, ejectedBy, reason, outGW
+    )
+  }
+
+  def sendUserLeftMeetingToAllClients(outGW: OutMsgRouter, meetingId: String,
+                                      userId: String): Unit = {
+    // send a user left event for the clients to update
+    val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(meetingId, userId)
+    outGW.send(userLeftMeetingEvent)
+  }
+
+  def sendEjectUserFromVoiceToFreeswitch(
+    outGW:       OutMsgRouter,
+    meetingId:   String,
+    voiceConf:   String,
+    voiceUserId: String
+  ): Unit = {
+    val ejectFromVoiceEvent = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(
+      meetingId,
+      voiceConf,
+      voiceUserId
+    )
+    outGW.send(ejectFromVoiceEvent)
+  }
+
+  def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
+                           userId: String, ejectedBy: String, reason: String): Unit = {
+
+    val meetingId = liveMeeting.props.meetingProp.intId
+
+    for {
+      user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
+    } yield {
+      RegisteredUsers.remove(userId, liveMeeting.registeredUsers)
+      sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason)
+      sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
+      if (user.presenter) {
+        automaticallyAssignPresenter(outGW, liveMeeting)
+      }
+    }
+
+    for {
+      vu <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userId)
+    } yield {
+      sendEjectUserFromVoiceToFreeswitch(
+        outGW,
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
+      )
     }
   }
 

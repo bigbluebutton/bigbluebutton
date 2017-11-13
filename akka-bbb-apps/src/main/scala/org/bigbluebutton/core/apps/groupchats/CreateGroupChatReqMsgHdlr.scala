@@ -36,7 +36,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
     if (applyPermissionCheck && chatLocked) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to create a new group chat."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
       val newState = for {
