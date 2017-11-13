@@ -247,11 +247,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
         
         getWelcomeMessage();
-   //     var disp:Dispatcher  = new Dispatcher();
-   //     var chatHistEvent: ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.REQUEST_HISTORY);
-   //     chatHistEvent.chatId = chatId;
-   //     trace("QUERY CHAT HISTORY FOR " + chatId);
-   //     disp.dispatchEvent(chatHistEvent);
       }
       
       private function handleUserLeftEvent(event:UserLeftEvent):void {
@@ -622,9 +617,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleClearPublicChatBoxMessages(event:ClearPublicChatEvent):void {
-        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-        if (groupChat != null) {
-          groupChat.clearPublicChat();
+        trace("########### CLEARING PUBLIC CHAT MESSAGE FOR " + event.chatId + " chatId=" + chatId);
+        if (event.chatId == chatId) {
+          chatMessages.clearPublicChat();
           invalidateDisplayList();
           validateNow();
         }

@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.modules.chat.ChatUtil;
+  import org.bigbluebutton.modules.chat.model.ChatModel;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatMsgFromUser;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
@@ -112,9 +113,15 @@ package org.bigbluebutton.modules.chat.services
 
     public function clearPublicChatMessages():void {
       LOGGER.debug("Sending [chat.clearPublicChatMessages] to server.");
+      
+      // Only clear main public vhat for now.
+      var chatId: String = ChatModel.MAIN_PUBLIC_CHAT;
+      
       var message:Object = {
-        header: {name: "ClearPublicChatHistoryPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {}
+        header: {name: "ClearPublicChatHistoryPubMsg", 
+          meetingId: UsersUtil.getInternalMeetingID(), 
+            userId: UsersUtil.getMyUserID()},
+        body: {chatId: chatId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

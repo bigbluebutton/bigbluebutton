@@ -2,10 +2,14 @@ package org.bigbluebutton.modules.chat.model
 {
   import com.adobe.utils.StringUtil;
   import com.asfusion.mate.events.Dispatcher;
+  
   import flash.system.Capabilities;
+  
   import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+  import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
   import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
@@ -137,9 +141,9 @@ package org.bigbluebutton.modules.chat.model
       messages.removeAll();
       messages.addItem(cm);
       
-      var welcomeEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
-      welcomeEvent.chatId = id;
-      _dispatcher.dispatchEvent(welcomeEvent);
+      trace("########### CLEARING PUBLIC CHAT MESSAGE FOR " + _id);
+      var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
+      _dispatcher.dispatchEvent(clearChatEvent);
     }
     
     private function convertChatMessage(msgVO:ChatMessageVO):ChatMessage {

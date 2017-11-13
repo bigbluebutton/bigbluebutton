@@ -32,6 +32,7 @@ case class GroupChat(id: String, name: String, access: String, createdBy: GroupC
   def delete(msgId: String): GroupChat = copy(msgs = msgs.filterNot(m => m.id == msgId))
   def update(msg: GroupChatMessage): GroupChat = add(msg)
   def isUserMemberOf(userId: String): Boolean = users.contains(userId)
+  def clearMessages(): GroupChat = copy(msgs = Vector())
 }
 
 case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, createdOn: Long,

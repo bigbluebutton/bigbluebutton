@@ -181,16 +181,14 @@ package org.bigbluebutton.modules.chat.services
     
     private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
       LOGGER.debug("Handling clear chat history message");
-      
-      var chatId: String = message.body.chatId as String;
+      var header: Object = message.header as Object;
+      var body: Object = message.body as Object;
+      var chatId: String = body.chatId as String;
       
       var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
       if (groupChat != null) {
         groupChat.clearPublicChat();
       }
-      
-      var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
-      dispatcher.dispatchEvent(clearChatEvent);
     }
     
     private function processIncomingChatMessage(rawMessage:Object):ChatMessageVO {

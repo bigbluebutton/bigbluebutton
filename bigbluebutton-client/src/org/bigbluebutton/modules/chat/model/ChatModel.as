@@ -40,10 +40,6 @@ package org.bigbluebutton.modules.chat.model
       dispatcher.dispatchEvent(new ReceivedGroupChatsEvent());
     }
     
-    public function getChatConversation(convId:String):ChatConversation {
-      return null;
-    }
-    
     public function findChatWithUser(userId: String):GroupChat {
       trace("######## NUM CHATS " + groupChats.length + " ######" );
       for (var i: int = 0; i < groupChats.length; i++) {
