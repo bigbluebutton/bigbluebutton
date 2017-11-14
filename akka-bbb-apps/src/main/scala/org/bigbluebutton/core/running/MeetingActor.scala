@@ -330,7 +330,7 @@ class MeetingActor(
       case m: GetChatHistoryReqMsg => chatApp2x.handle(m, liveMeeting, msgBus)
       case m: SendPublicMessagePubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
       case m: SendPrivateMessagePubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
-      case m: ClearPublicChatHistoryPubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: ClearPublicChatHistoryPubMsg => state = chatApp2x.handle(m, state, liveMeeting, msgBus)
 
       // Screenshare
       case m: ScreenshareStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)

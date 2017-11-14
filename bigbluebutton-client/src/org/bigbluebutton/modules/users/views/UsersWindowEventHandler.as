@@ -168,12 +168,10 @@ package org.bigbluebutton.modules.users.views
     public function handleUserJoinedVoiceConfEvent(userId: String):void {
       var webUser: BBBUser2x = findUser(userId);
       if (webUser != null) {
-        trace("****** WEB USER JOINED VOICE CONF " + userId);
         addVoiceUserToWebUser(webUser);
       } else {
         var vu: VoiceUser2x = LiveMeeting.inst().voiceUsers.getUser(userId);
         if (vu != null) {
-          trace("****** VOICE ONLY USER JOINED VOICE CONF " + userId);
           addVoiceOnlyUser(users, vu);
         }
       }
@@ -183,10 +181,8 @@ package org.bigbluebutton.modules.users.views
     public function handleUserLeftVoiceConfEvent(userId: String):void {
       var user: BBBUser2x = findUser(userId);
       if (user != null && !user.voiceOnlyUser) {
-        trace("****** WEB USER LEFT VOICE CONF " + userId);
         removeVoiceFromWebUser(users, user);
       } else {
-        trace("****** VOICE ONLY USER LEFT VOICE CONF " + userId);
         removeUser(userId, users);
       }
       dataGrid.refresh();

@@ -16,7 +16,7 @@ case class SendPrivateMessagePubMsgBody(message: ChatMessageVO)
 
 object ClearPublicChatHistoryPubMsg { val NAME = "ClearPublicChatHistoryPubMsg"}
 case class ClearPublicChatHistoryPubMsg(header: BbbClientMsgHeader, body: ClearPublicChatHistoryPubMsgBody) extends StandardMsg
-case class ClearPublicChatHistoryPubMsgBody()
+case class ClearPublicChatHistoryPubMsgBody(chatId: String)
 
 /* Out Messages */
 object GetChatHistoryRespMsg { val NAME = "GetChatHistoryRespMsg"}
@@ -33,7 +33,7 @@ case class SendPrivateMessageEvtMsgBody(message: ChatMessageVO)
 
 object ClearPublicChatHistoryEvtMsg { val NAME = "ClearPublicChatHistoryEvtMsg"}
 case class ClearPublicChatHistoryEvtMsg(header: BbbClientMsgHeader, body: ClearPublicChatHistoryEvtMsgBody) extends StandardMsg
-case class ClearPublicChatHistoryEvtMsgBody()
+case class ClearPublicChatHistoryEvtMsgBody(chatId: String)
 
 case class ChatMessageVO(fromUserId: String, fromUsername: String, fromColor: String, fromTime: Long, fromTimezoneOffset: Int,
                          toUserId: String, toUsername: String, message: String)

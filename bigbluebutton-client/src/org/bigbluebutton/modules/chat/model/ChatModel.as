@@ -40,17 +40,11 @@ package org.bigbluebutton.modules.chat.model
       dispatcher.dispatchEvent(new ReceivedGroupChatsEvent());
     }
     
-    public function getChatConversation(convId:String):ChatConversation {
-      return null;
-    }
-    
     public function findChatWithUser(userId: String):GroupChat {
-      trace("######## NUM CHATS " + groupChats.length + " ######" );
       for (var i: int = 0; i < groupChats.length; i++) {
         var gc: GroupChat = groupChats[i] as GroupChat;
         
         if (gc != null && gc.isChattingWith(userId)) {
-          trace("######## IS USER " + userId + " ###### IN " + gc.id);
           return gc;
         }
       }
