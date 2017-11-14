@@ -154,16 +154,12 @@ package org.bigbluebutton.modules.chat.maps {
     }
     
     public function handleOpenChatBoxEvent(event: OpenChatBoxEvent):void {
-      trace("######## handleOpenChatBoxEvent " + event.chatId + " ######");
       var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
       if (gc != null && gc.access == GroupChat.PRIVATE) {
-        trace("######## FINDING BOX MAPPER FOR " + event.chatId + " ######");
         var gboxMapper: GroupChatBoxMapper = findChatBoxMapper(event.chatId);
         if (gboxMapper != null) {
-          trace("######## TODO: BOX MAPPER FOCUS ON " + event.chatId + " ######");
           globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
         } else {
-          trace("######## BOX MAPPER OPENING ON " + event.chatId + " ######");
           openChatBoxForPrivateChat(event.chatId, gc);
         }
       }
@@ -182,13 +178,10 @@ package org.bigbluebutton.modules.chat.maps {
     }
     
     public function handleNewGroupChatMessageEvent(event: NewGroupChatMessageEvent):void {
-      trace("######## handleNewGroupChatMessageEvent " + event.chatId + " ######");
       var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
       if (gc != null && gc.access == GroupChat.PRIVATE) {
-        trace("######## FINDING BOX MAPPER FOR " + event.chatId + " ######");
         var gboxMapper: GroupChatBoxMapper = findChatBoxMapper(event.chatId);
         if (gboxMapper == null) {
-          trace("######## BOX MAPPER OPENING ON " + event.chatId + " ######");
           openChatBoxForPrivateChat(event.chatId, gc);
         }
       }
@@ -198,16 +191,12 @@ package org.bigbluebutton.modules.chat.maps {
     }
     
     public function chatBoxClosed(event: GroupChatBoxClosedEvent):void {
-      trace("######## chatBoxClosed " + event.chatId + " ######");
       var winMapper:GroupChatWindowMapper = findGroupChatWindowMapper(event.windowId);
       if (winMapper != null) {
-        trace("######## chatBoxClosed winMapper " + winMapper.gcWinId + " ######");
         var chatBox: GroupChatBoxMapper = winMapper.findChatBoxMapper(event.chatId);
         if (chatBox != null) {
-          trace("********** CLOSING CHAT BOX " + event.chatId);
           winMapper.removeChatBox(event.chatId);
         } else {
-          trace("********** COULD NOT FIND CHAT BOX " + event.chatId);
         }
       }
     }

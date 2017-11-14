@@ -27,7 +27,6 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
@@ -154,9 +153,7 @@ package org.bigbluebutton.modules.chat.services
       var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
       if (groupChat != null) {
         groupChat.addMessageHistory(processedMessages);
-      } else {
-        trace("CANNOT FIND GROUP CHAT ID = " + chatId);
-      }
+      } 
     }
     
     private function handleGroupChatMessageBroadcastEvtMsg(message: Object):void {
@@ -181,16 +178,14 @@ package org.bigbluebutton.modules.chat.services
     
     private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
       LOGGER.debug("Handling clear chat history message");
-      
-      var chatId: String = message.body.chatId as String;
+      var header: Object = message.header as Object;
+      var body: Object = message.body as Object;
+      var chatId: String = body.chatId as String;
       
       var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
       if (groupChat != null) {
         groupChat.clearPublicChat();
       }
-      
-      var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
-      dispatcher.dispatchEvent(clearChatEvent);
     }
     
     private function processIncomingChatMessage(rawMessage:Object):ChatMessageVO {
