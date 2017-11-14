@@ -21,8 +21,7 @@ package org.bigbluebutton.modules.present.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.display.DisplayObject;
-	import flash.geom.Point;
-	
+  import flash.geom.Point;
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
 	
@@ -172,15 +171,7 @@ package org.bigbluebutton.modules.present.managers
 		}
 
 		public function handleOpenDownloadWindow():void {
-			var downloadWindow:FileDownloadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, false) as FileDownloadWindow;
-			if (downloadWindow) {
-				var point1:Point = new Point();
-				point1.x = FlexGlobals.topLevelApplication.width / 2;
-				point1.y = FlexGlobals.topLevelApplication.height / 2;
-
-				downloadWindow.x = point1.x - (downloadWindow.width/2);
-				downloadWindow.y = point1.y - (downloadWindow.height/2);
-			}
+			PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, true) as FileDownloadWindow;
 		}
 
 		public function handleCloseDownloadWindow():void {

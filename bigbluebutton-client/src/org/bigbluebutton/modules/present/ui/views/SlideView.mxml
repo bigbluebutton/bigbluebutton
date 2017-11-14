@@ -57,8 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PageChangedEvent;
 			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.model.Page;
+			import org.bigbluebutton.modules.present.model.PagePositionBroadcaster;
 			import org.bigbluebutton.modules.present.model.Presentation;
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
@@ -84,6 +84,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var currentPresenterInPod: String;
 
       private var pageCache:ArrayCollection = new ArrayCollection();
+			
+			private var pagePositionBroadcaster:PagePositionBroadcaster = new PagePositionBroadcaster();
       
 			private function onCreationComplete():void {
 				//slideLoader.width = this.width;
@@ -168,7 +170,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				prevMouseX = this.mouseX;
 				prevMouseY = this.mouseY;
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				stage.addEventListener(MouseEvent.MOUSE_UP, endDrag);
 				Mouse.cursor = MouseCursor.HAND;
 			}
 			
@@ -191,12 +193,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			/**
-			 * Triggered when the presenter releases the mouse button.
+			 * Triggered when the presenter releases the mouse button or mouses out of the application
 			 */		
-			private function onMouseUp(e:MouseEvent):void{		
+			private function endDrag(e:MouseEvent = null):void {
 				Mouse.cursor = MouseCursor.AUTO;
 				stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				stage.removeEventListener(MouseEvent.MOUSE_UP, endDrag);
 			}
 						
 			public function onParentResized(_podId: String, parentWidth:Number, parentHeight:Number):void {
@@ -287,12 +289,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM, this.podId);
-				presentEvent.xOffset = slideModel.viewedRegionX;
-				presentEvent.yOffset = slideModel.viewedRegionY;
-				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;
-				presentEvent.slideToCanvasHeightRatio = slideModel.viewedRegionH;
-				dispatchEvent(presentEvent);
+				pagePositionBroadcaster.broadcastPosition(slideModel.viewedRegionX, 
+          slideModel.viewedRegionY, 
+          slideModel.viewedRegionW, 
+          slideModel.viewedRegionH,
+        podId);
 			}
 			
 			private function presenterIsZoomingOut(delta:Number):Boolean {
@@ -365,17 +366,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function amITheCurrentPodPresenter(): Boolean {
 				return UsersUtil.getMyUserID() == this.currentPresenterInPod;
-			}
-
-			public function becomeViewer(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
-
-				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				if (whiteboardCanvas != null && currentPresenterInPod != null) {
-					whiteboardCanvas.presenterChange(amIThePresenterInThePod, currentPresenterInPod);
-				}
-			}
-
+                        }
+			
+      public function becomeViewer(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
+        removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+        this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        if (whiteboardCanvas != null && currentPresenterInPod != null) {
+          whiteboardCanvas.presenterChange(amIThePresenterInThePod, currentPresenterInPod);
+        }
+        pagePositionBroadcaster.reset();
+        
+        endDrag();
+      }
+      
 			public function becomePresenter(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
 				// need to calculate slide zoom percentage left by a previous presenter
 				/**

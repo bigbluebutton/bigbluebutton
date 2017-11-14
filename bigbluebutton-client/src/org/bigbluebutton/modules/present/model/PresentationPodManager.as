@@ -9,7 +9,6 @@ package org.bigbluebutton.modules.present.model {
     import org.bigbluebutton.modules.present.model.PresentationModel;
     import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
     import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
-    import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
     import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
     import org.bigbluebutton.modules.present.model.PresentationModel;
 
