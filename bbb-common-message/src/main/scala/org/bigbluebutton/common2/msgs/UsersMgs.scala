@@ -236,7 +236,9 @@ object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterRec
 case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
 case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String)
 
-
+/**
+  * Sent from bbb-apps when user disconnects from Red5.
+  */
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg
 case class UserLeaveReqMsgBody(userId: String, sessionId: String)

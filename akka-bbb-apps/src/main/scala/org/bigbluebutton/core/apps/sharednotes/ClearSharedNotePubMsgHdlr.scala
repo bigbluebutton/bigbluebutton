@@ -25,7 +25,7 @@ trait ClearSharedNotePubMsgHdlr extends SystemConfiguration {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to clear shared notes in meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       liveMeeting.notesModel.clearNote(msg.body.noteId) match {
         case Some(noteReport) => broadcastEvent(msg, noteReport)

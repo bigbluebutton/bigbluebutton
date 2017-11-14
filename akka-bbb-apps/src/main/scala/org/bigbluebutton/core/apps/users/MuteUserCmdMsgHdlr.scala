@@ -30,7 +30,7 @@ trait MuteUserCmdMsgHdlrPermCheck extends MuteUserCmdMsgHdlrDefault with SystemC
     if (msg.header.userId != msg.body.userId && applyPermissionCheck && !isAllowed) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to mute user in meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.mutedBy, reason, outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.mutedBy, reason, outGW, liveMeeting)
     } else {
       super.handleMuteUserCmdMsg(msg)
     }

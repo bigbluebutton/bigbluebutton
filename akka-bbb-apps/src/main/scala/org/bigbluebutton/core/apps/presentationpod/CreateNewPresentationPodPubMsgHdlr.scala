@@ -20,7 +20,7 @@ trait CreateNewPresentationPodPubMsgHdlr extends SystemConfiguration {
     )) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to create new presentation pod."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
       def buildCreateNewPresentationPodEvtMsg(meetingId: String, ownerId: String, podId: String): BbbCommonEnvCoreMsg = {

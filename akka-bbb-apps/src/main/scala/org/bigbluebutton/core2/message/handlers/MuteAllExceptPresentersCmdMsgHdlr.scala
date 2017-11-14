@@ -15,7 +15,7 @@ trait MuteAllExceptPresentersCmdMsgHdlr {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to mute all except presenters."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
         MeetingStatus2x.unmuteMeeting(liveMeeting.status)

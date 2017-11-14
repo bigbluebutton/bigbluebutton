@@ -27,7 +27,7 @@ trait StartCustomPollReqMsgHdlr extends SystemConfiguration {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to start custom poll."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
         pvo <- Polls.handleStartCustomPollReqMsg(state, msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.answers, liveMeeting)

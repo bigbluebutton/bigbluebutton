@@ -70,6 +70,12 @@ case class MeetingDestroyedEvtMsg(header: BbbCoreBaseHeader,
                                 body: MeetingDestroyedEvtMsgBody) extends BbbCoreMsg
 case class MeetingDestroyedEvtMsgBody(meetingId: String)
 
+/**
+  * System server side message to eject user from meeting.
+  */
+object EjectUserFromMeetingSysMsg { val NAME = "EjectUserFromMeetingSysMsg" }
+case class EjectUserFromMeetingSysMsg(header: BbbClientMsgHeader, body: EjectUserFromMeetingSysMsgBody) extends StandardMsg
+case class EjectUserFromMeetingSysMsgBody(userId: String, ejectedBy: String)
 
 object DisconnectAllClientsSysMsg { val NAME = "DisconnectAllClientsSysMsg"}
 case class DisconnectAllClientsSysMsg(header: BbbCoreHeaderWithMeetingId,

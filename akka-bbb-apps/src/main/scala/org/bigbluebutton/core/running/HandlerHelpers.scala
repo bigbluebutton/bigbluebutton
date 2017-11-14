@@ -53,7 +53,7 @@ trait HandlerHelpers extends SystemConfiguration {
         outGW.send(event)
         startRecordingIfAutoStart2x(outGW, liveMeeting)
         if (!Users2x.hasPresenter(liveMeeting.users2x)) {
-          automaticallyAssignPresenter(outGW, liveMeeting)
+          UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
         }
 
         if (newUser.role == Roles.MODERATOR_ROLE) {
@@ -89,21 +89,6 @@ trait HandlerHelpers extends SystemConfiguration {
       outGW.send(event)
 
     }
-  }
-
-  def automaticallyAssignPresenter(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
-    for {
-      moderator <- Users2x.findModerator(liveMeeting.users2x)
-      newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
-    } yield {
-      sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
-    }
-  }
-
-  def sendPresenterAssigned(outGW: OutMsgRouter, meetingId: String, intId: String, name: String, assignedBy: String): Unit = {
-    def event = MsgBuilder.buildPresenterAssignedEvtMsg(meetingId, intId, name, assignedBy)
-    outGW.send(event)
   }
 
   def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String): Unit = {

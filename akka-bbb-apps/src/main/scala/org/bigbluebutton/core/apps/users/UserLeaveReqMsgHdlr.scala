@@ -30,7 +30,7 @@ trait UserLeaveReqMsgHdlr {
       outGW.send(userLeftMeetingEvent)
 
       if (u.presenter) {
-        automaticallyAssignPresenter(outGW, liveMeeting)
+        UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
 
         // request screenshare to end
         screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(

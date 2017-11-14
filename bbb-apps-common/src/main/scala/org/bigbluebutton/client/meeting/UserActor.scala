@@ -29,7 +29,7 @@ class UserActor(val userId: String,
 
     case msg: ConnectMsg => handleConnectMsg(msg)
     case msg: DisconnectMsg => handleDisconnectMsg(msg)
-    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
+    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg, true)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
     case _ => log.debug("***** UserActor cannot handle msg ")
   }
@@ -66,7 +66,7 @@ class UserActor(val userId: String,
     if (Connections.noMoreConnections(conns)) {
       val json = buildUserLeavingMessage(msg.connInfo)
       val msgFromClient = MsgFromClientMsg(msg.connInfo, json)
-      handleMsgFromClientMsg(msgFromClient)
+      handleMsgFromClientMsg(msgFromClient, false)
     }
   }
 
@@ -77,10 +77,20 @@ class UserActor(val userId: String,
     JsonUtil.toJson(event)
   }
 
+  private def buildEjectUserFromMeetingSysMsg(meetingId: String, userId: String): String = {
+    val header = BbbClientMsgHeader(EjectUserFromMeetingSysMsg.NAME, meetingId, userId)
+    val body = EjectUserFromMeetingSysMsgBody(userId, "bbb-apps")
+    val event = EjectUserFromMeetingSysMsg(header, body)
+    JsonUtil.toJson(event)
+  }
 
-  def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
+  private def sendEjectUserFromMeetingToAkkaApps(connInfo: ConnInfo, meetingId: String, userId: String): Unit = {
+    val json = buildEjectUserFromMeetingSysMsg(meetingId, userId)
+    val msgFromClient = MsgFromClientMsg(connInfo, json)
+    handleMsgFromClientMsg(msgFromClient, false)
+  }
 
-
+  def handleMsgFromClientMsg(msg: MsgFromClientMsg, applyWhitelist: Boolean):Unit = {
     def convertToJsonNode(json: String): Option[JsonNode] = {
       JsonUtil.toJsonNode(json) match {
         case Success(jsonNode) => Some(jsonNode)
@@ -94,13 +104,15 @@ class UserActor(val userId: String,
     val (result, error) = Deserializer.toBbbCoreMessageFromClient(msg.json)
     result match {
       case Some(msgFromClient) =>
-        if (!AllowedMessageNames.MESSAGES.contains(msgFromClient.header.name)) {
+        if (applyWhitelist && !AllowedMessageNames.MESSAGES.contains(msgFromClient.header.name)) {
           // If the message that the client sends isn't allowed disconnect them.
           log.error("User (" + userId + ") tried to send a non-whitelisted message with name=[" + msgFromClient.header.name + "] attempting to disconnect them")
           for {
             conn <- Connections.findActiveConnection(conns)
           } yield {
             msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+            // Tell Akka apps to eject user from meeting.
+            sendEjectUserFromMeetingToAkkaApps(msg.connInfo, meetingId, userId)
           }
         } else {
           // Override the meetingId and userId on the message from client. This

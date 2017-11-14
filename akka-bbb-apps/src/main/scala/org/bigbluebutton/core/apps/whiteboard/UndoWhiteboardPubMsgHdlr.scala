@@ -25,7 +25,7 @@ trait UndoWhiteboardPubMsgHdlr extends SystemConfiguration {
     if (!getWhiteboardAccess(liveMeeting) && applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to undo an annotation."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
         lastAnnotation <- undoWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting)

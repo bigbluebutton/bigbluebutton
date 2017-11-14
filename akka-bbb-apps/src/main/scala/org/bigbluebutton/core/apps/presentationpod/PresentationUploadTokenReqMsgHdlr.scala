@@ -68,7 +68,7 @@ trait PresentationUploadTokenReqMsgHdlr {
     if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to request presentation upload token."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
         val token = PresentationPodsApp.generateToken(msg.body.podId, msg.header.userId)
