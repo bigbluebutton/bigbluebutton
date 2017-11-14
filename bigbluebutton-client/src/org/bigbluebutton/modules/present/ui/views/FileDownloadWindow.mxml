@@ -52,10 +52,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeButton.setFocus()
 			}
 
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
-
 			private function initData():void {
 				downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
 			}
