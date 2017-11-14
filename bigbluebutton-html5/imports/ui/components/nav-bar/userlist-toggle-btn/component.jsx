@@ -1,13 +1,28 @@
 import React, { Component } from 'react';
 import Button from '/imports/ui/components/button/component';
-import { injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import PropTypes from 'prop-types';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
 import cx from 'classnames';
 import styles from '../styles';
 
+const propTypes = {
+  intl: intlShape.isRequired,
+  isExpanded: PropTypes.bool.isRequired,
+  handleToggleUserList: PropTypes.func.isRequired,
+  hasUnreadMessages: PropTypes.func.isRequired,
+};
+
+const intlMessages = defineMessages({
+  toggleUserListLabel: {
+    id: 'app.navBar.userListToggleBtnLabel',
+    description: 'Toggle button label',
+  },
+});
+
 class UserListToggleBtn extends Component {
   render() {
-    const { hasUnreadMessages, isExpanded, handleToggleUserList } = this.props;
+    const { hasUnreadMessages, isExpanded, handleToggleUserList, intl } = this.props;
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -19,7 +34,7 @@ class UserListToggleBtn extends Component {
         ghost
         circle
         hideLabel
-        label={'toggle UserList'}
+        label={intl.formatMessage(intlMessages.toggleUserListLabel)}
         icon={'user'}
         className={cx(toggleBtnClasses)}
         aria-expanded={isExpanded}
@@ -30,4 +45,6 @@ class UserListToggleBtn extends Component {
   }
 }
 
-export default injectIntl(withShortcut(UserListToggleBtn, 'Control+Alt+0'));
+export default injectIntl(withShortcut(UserListToggleBtn, 'Control+Alt+1'));
+
+UserListToggleBtn.propTypes = propTypes;

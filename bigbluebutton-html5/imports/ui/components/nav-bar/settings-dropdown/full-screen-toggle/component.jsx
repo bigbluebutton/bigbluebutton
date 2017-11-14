@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import PropTypes from 'prop-types';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
@@ -22,9 +23,15 @@ const intlMessages = defineMessages({
   },
 });
 
+const propTypes = {
+  intl: intlShape.isRequired,
+  isFullScreen: PropTypes.bool.isRequired,
+  handleToggleFullscreen: PropTypes.func.isRequired,
+};
+
 class FullScreenToggle extends Component {
   render() {
-    const { intl, mountModal, isFullScreen } = this.props;
+    const { intl, isFullScreen, handleToggleFullscreen } = this.props;
 
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
@@ -41,12 +48,13 @@ class FullScreenToggle extends Component {
         icon={fullscreenIcon}
         label={fullscreenLabel}
         description={fullscreenDesc}
-        onClick={this.props.handleToggleFullscreen}
+        onClick={handleToggleFullscreen}
         ref={(ref) => { this.ref = ref; }}
       />
     );
   }
 }
 
-export default injectIntl(withShortcut(FullScreenToggle, 'Control+Alt+8'));
+export default injectIntl(withShortcut(FullScreenToggle, 'Control+Alt+0'));
 
+FullScreenToggle.propTypes = propTypes;
