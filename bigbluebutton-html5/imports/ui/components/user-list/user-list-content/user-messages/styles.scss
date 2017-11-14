@@ -6,7 +6,7 @@
 }
 
 .scrollableList {
-  @include elementFocus($item-focus-border);
+  @include elementFocus($list-item-bg-hover);
   @include scrollbox-vertical($user-list-bg);
 }
 
