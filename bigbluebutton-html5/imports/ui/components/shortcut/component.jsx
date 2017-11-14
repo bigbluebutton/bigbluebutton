@@ -2,8 +2,21 @@ import React, { Component } from 'react';
 
 export const withShortcut = (ComponentToWrap, shotcut) =>
 class ShortcutWrapper extends Component {
+  constructor() {
+    super();
+
+    this.handleShortcut = this.handleShortcut.bind(this);
+  }
 
   componentDidMount() {
+    document.addEventListener('keydown', this.handleShortcut, false);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleShortcut, false);
+  }
+
+  handleShortcut(event) {
     let ctrlFlag = false; let altFlag = false; let shiftFlag = false;
     const keys = shotcut.split('+');
 
@@ -26,18 +39,16 @@ class ShortcutWrapper extends Component {
     const CONTROL_ALT = ctrlFlag && altFlag;
     const CONTROL_SHIFT = ctrlFlag && shiftFlag;
 
-    document.addEventListener('keydown', (event) => {
-      if (CONTROL_ALT) {
-        if (event.ctrlKey && event.altKey && event.key === keys[keys.length - 1]) {
-          this.element.ref.props.onClick();
-        }
+    if (CONTROL_ALT) {
+      if (event.ctrlKey && event.altKey && event.key === keys[keys.length - 1]) {
+        this.element.ref.props.onClick();
       }
-      if (CONTROL_SHIFT) {
-        if (event.ctrlKey && event.shiftKey && event.key === keys[keys.length - 1].toUpperCase()) {
-          this.element.ref.props.onClick();
-        }
+    }
+    if (CONTROL_SHIFT) {
+      if (event.ctrlKey && event.shiftKey && event.key === keys[keys.length - 1].toUpperCase()) {
+        this.element.ref.props.onClick();
       }
-    });
+    }
   }
 
   render() {
