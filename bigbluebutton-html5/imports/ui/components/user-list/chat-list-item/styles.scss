@@ -42,6 +42,8 @@
   font-size: 0.9rem;
   font-weight: 400;
   margin-left: $sm-padding-x;
+  position: relative;
+  top: $md-padding-y;
 }
 
 .active {
