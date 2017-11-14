@@ -5,9 +5,9 @@ class ShortcutWrapper extends Component {
 
   componentDidMount() {
     let ctrlFlag = false; let altFlag = false; let shiftFlag = false;
-    const keyCombo = shotcut.split('+');
+    const keys = shotcut.split('+');
 
-    keyCombo.forEach((element) => {
+    keys.forEach((element) => {
       switch (element) {
         case 'Control':
           ctrlFlag = true;
@@ -23,14 +23,17 @@ class ShortcutWrapper extends Component {
       }
     });
 
+    const CONTROL_ALT = ctrlFlag && altFlag;
+    const CONTROL_SHIFT = ctrlFlag && shiftFlag;
+
     document.addEventListener('keydown', (event) => {
-      if (ctrlFlag && altFlag) {
-        if (event.ctrlKey && event.altKey && event.key === keyCombo[keyCombo.length - 1]) {
+      if (CONTROL_ALT) {
+        if (event.ctrlKey && event.altKey && event.key === keys[keys.length - 1]) {
           this.element.ref.props.onClick();
         }
       }
-      if (ctrlFlag && shiftFlag) {
-        if (event.ctrlKey && event.shiftKey && event.key === keyCombo[keyCombo.length - 1]) {
+      if (CONTROL_SHIFT) {
+        if (event.ctrlKey && event.shiftKey && event.key === keys[keys.length - 1].toUpperCase()) {
           this.element.ref.props.onClick();
         }
       }
