@@ -14,6 +14,10 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.nextSlideLabel',
     description: 'Next slide button label',
   },
+  slideOption: {
+    id: 'app.presentation.presentationToolbar.slide',
+    description: 'button for slide select',
+  },
 });
 
 class PresentationToolbar extends Component {
@@ -114,25 +118,7 @@ class PresentationToolbar extends Component {
     );
   }
 
-  static renderSkipSlideOpts(numberOfSlides) {
-    // Fill drop down menu with all the slides in presentation
-    const optionList = [];
-    for (let i = 1; i <= numberOfSlides; i += 1) {
-      optionList.push((
-        <option
-          value={i}
-          key={i}
-        >
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.slide"
-            description="option slide select label"
-            values={{ 0: i }}
-          />
-        </option>));
-    }
 
-    return optionList;
-  }
 
   constructor(props) {
     super(props);
@@ -156,6 +142,24 @@ class PresentationToolbar extends Component {
       fitToScreenValue: 'not_implemented_yet',
     });
   }
+  renderSkipSlideOpts(numberOfSlides) {
+    // Fill drop down menu with all the slides in presentation
+    const { intl } = this.props;
+    const optionList = [];
+    for (let i = 1; i <= numberOfSlides; i += 1) {
+      optionList.push((
+        <option
+          value={i}
+          key={i}
+        >
+          {
+            intl.formatMessage(intlMessages.slideOption, { 0: i })
+          }
+        </option>));
+    }
+
+    return optionList;
+  }
 
   render() {
     const {
@@ -173,9 +177,9 @@ class PresentationToolbar extends Component {
           aria-labelledby="prevSlideLabel"
           aria-describedby="prevSlideDesc"
           disabled={!(currentSlideNum > 1)}
-          color={'default'}
-          icon={'left_arrow'}
-          size={'md'}
+          color="default"
+          icon="left_arrow"
+          size="md"
           onClick={actions.previousSlideHandler}
           label={intl.formatMessage(intlMessages.previousSlideLabel)}
           hideLabel
@@ -192,16 +196,16 @@ class PresentationToolbar extends Component {
           onChange={actions.skipToSlideHandler}
           className={styles.skipSlide}
         >
-          {PresentationToolbar.renderSkipSlideOpts(numberOfSlides)}
+          {this.renderSkipSlideOpts(numberOfSlides)}
         </select>
         <Button
           role="button"
           aria-labelledby="nextSlideLabel"
           aria-describedby="nextSlideDesc"
           disabled={!(currentSlideNum < numberOfSlides)}
-          color={'default'}
-          icon={'right_arrow'}
-          size={'md'}
+          color="default"
+          icon="right_arrow"
+          size="md"
           onClick={actions.nextSlideHandler}
           label={intl.formatMessage(intlMessages.nextSlideLabel)}
           hideLabel
@@ -259,7 +263,6 @@ class PresentationToolbar extends Component {
       </div>
     );
   }
-
 }
 
 PresentationToolbar.propTypes = {
