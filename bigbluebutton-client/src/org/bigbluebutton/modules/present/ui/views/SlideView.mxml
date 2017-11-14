@@ -85,7 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private var pageCache:ArrayCollection = new ArrayCollection();
 			
-			private var pagePositionBroadcaster:PagePositionBroadcaster = new PagePositionBroadcaster();
+			private var pagePositionBroadcaster:PagePositionBroadcaster;
       
 			private function onCreationComplete():void {
 				//slideLoader.width = this.width;
@@ -108,6 +108,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				t.start();
 				*/
 
+        pagePositionBroadcaster = new PagePositionBroadcaster(podId);
+        
 				if (amITheCurrentPodPresenter()) {
 					becomePresenter(amITheCurrentPodPresenter(), this.currentPresenterInPod);
 				} else {
@@ -292,8 +294,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pagePositionBroadcaster.broadcastPosition(slideModel.viewedRegionX, 
           slideModel.viewedRegionY, 
           slideModel.viewedRegionW, 
-          slideModel.viewedRegionH,
-        podId);
+          slideModel.viewedRegionH);
 			}
 			
 			private function presenterIsZoomingOut(delta:Number):Boolean {

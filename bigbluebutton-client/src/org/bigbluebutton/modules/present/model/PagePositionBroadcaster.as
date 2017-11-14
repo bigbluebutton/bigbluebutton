@@ -14,18 +14,20 @@ package org.bigbluebutton.modules.present.model {
 		
 		private var recentPosition:PagePosition;
 		
-		public function PagePositionBroadcaster() {
+    private var podId: String;
+    
+		public function PagePositionBroadcaster(podId: String) {
+      this.podId = podId;
 			updateTimer = new Timer(50, 1);
 			updateTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimer);
 			
-			recentPosition = new PagePosition(PresentationPodManager.DEFAULT_POD_ID);
-			lastSentPosition = new PagePosition(PresentationPodManager.DEFAULT_POD_ID);
+			recentPosition = new PagePosition();
+			lastSentPosition = new PagePosition();
 		}
 		
 		public function broadcastPosition(x:Number, y:Number, 
-                                      width:Number, height:Number,
-    podId: String):void {
-			recentPosition = new PagePosition(podId, x, y, width, height);
+                                      width:Number, height:Number):void {
+			recentPosition = new PagePosition(x, y, width, height);
 			
 			if (!updateTimer.running) {
 				updateTimer.start();
@@ -37,8 +39,8 @@ package org.bigbluebutton.modules.present.model {
 				updateTimer.stop();
 			}
 			
-			recentPosition = new PagePosition(PresentationPodManager.DEFAULT_POD_ID);
-			lastSentPosition = new PagePosition(PresentationPodManager.DEFAULT_POD_ID);
+			recentPosition = new PagePosition();
+			lastSentPosition = new PagePosition();
 		}
 		
 		private function onTimer(e:TimerEvent):void {
@@ -46,7 +48,7 @@ package org.bigbluebutton.modules.present.model {
 				var globalDispatcher:Dispatcher = new Dispatcher();
 				
 				var moveEvent:PresenterCommands = 
-          new PresenterCommands(PresenterCommands.ZOOM, recentPosition.podId);
+          new PresenterCommands(PresenterCommands.ZOOM, podId);
 				moveEvent.xOffset = recentPosition.x;
 				moveEvent.yOffset = recentPosition.y;
 				moveEvent.slideToCanvasWidthRatio = recentPosition.width;
@@ -64,11 +66,9 @@ class PagePosition {
 	public var y:Number;
 	public var width:Number;
 	public var height:Number;
-  public var podId: String;
 	
-	public function PagePosition(podId: String, x:Number = 0, y:Number = 0, 
+	public function PagePosition(x:Number = 0, y:Number = 0, 
                                width:Number = 0, height:Number = 0) {
-		this.podId = podId;
     this.x = x;
 		this.y = y;
 		this.width = width;
