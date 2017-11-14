@@ -42,10 +42,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var lockOnJoin:Boolean = false;
 			[Bindable] public var lockOnJoinConfigurable:Boolean = false;
 			  
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
-			
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
 					onCancelClicked();

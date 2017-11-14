@@ -58,6 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
@@ -77,9 +78,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function hideConfirmationAlert():void {
 				if (_confirmationAlert != null) {
-					if (_confirmationAlert.visible) {
-						PopUpManager.removePopUp(_confirmationAlert);
-					}
+					PopUpManager.removePopUp(_confirmationAlert);
+					PopUpUtil.unlockPosition(_confirmationAlert);
 					_confirmationAlert = null;
 				}
 			}
@@ -92,13 +92,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Confirm logout using built-in alert
 				_confirmationAlert = Alert.show(message, ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.title'), Alert.YES | Alert.NO, this, onCloseConfirmationDialog, null, Alert.YES);
 
-        // Reach out to MainAppShell to set position of alert window.
-				var newX:Number = this.parent.parent.width * 0.7;
-				var newY:Number = this.y + this.height + 5;
-
-				_confirmationAlert.validateNow();
-				_confirmationAlert.move(newX, newY);
-				//Accessibility.updateProperties();
+				PopUpUtil.lockPosition(_confirmationAlert, function():Point {
+					return new Point(parent.parent.width * 0.7, y + height + 5);
+				});
 			}
 
 			private function confirmChangeRecordingStatus():void {
@@ -177,7 +173,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						&& UsersUtil.amIModerator()
 						&& LiveMeeting.inst().meeting.allowStartStopRecording
 						&& this.enabled) {
-					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
+					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn.notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn.notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn.notification.title"), Alert.OK, this);
 					// we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially
 					alert.setStyle("modalTransparencyDuration", 250);
 					alert.titleIcon = getStyle('iconRecordReminder');
