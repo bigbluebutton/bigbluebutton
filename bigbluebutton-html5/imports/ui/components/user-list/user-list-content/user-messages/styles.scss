@@ -19,6 +19,6 @@
 
 .chatsList {
   @extend .lists;
-  overflow-x: hidden;
+  overflow: hidden;
   flex-shrink: 1;
 }
