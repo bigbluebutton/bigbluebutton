@@ -45,13 +45,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import flash.events.Event;
       import flash.events.FocusEvent;
       import flash.media.Sound;
+      
       import mx.controls.Button;
       import mx.core.INavigatorContent;
+      
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.events.SuperTabEvent;
+      
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
@@ -75,7 +79,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
       private var OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
-      private var tabBox:AddChatTabBox;
+      private var tabBox:ChatOptionsTab;
       private var publicBox:ChatBox;
       private var focus:Boolean = true;
       private var focusSwitchTimer:Timer;
@@ -361,8 +365,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return chatBox;
       }
       
-      private function createAddTabBox():AddChatTabBox {
-        tabBox = new AddChatTabBox();
+      private function createAddTabBox():ChatOptionsTab {
+        tabBox = new ChatOptionsTab();
         tabBox.chatView = this;
         tabBox.id = OPTION_TAB_ID;
         tabBox.label = OPTION_TAB_ID;

@@ -50,9 +50,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import flash.events.TextEvent;
+      
       import mx.binding.utils.BindingUtils;
+      
       import flashx.textLayout.formats.Direction;
+      
       import org.as3commons.lang.StringUtils;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
