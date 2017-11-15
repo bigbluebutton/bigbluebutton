@@ -1,7 +1,7 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
  *
- * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ * Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,36 +16,14 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.chat.model {
+package org.bigbluebutton.modules.chat.views.model {
 
-	import org.bigbluebutton.core.Options;
-
-	public class ChatOptions extends Options {
+	public class GroupChatData {
 
 		[Bindable]
-		public var privateEnabled:Boolean = true;
-		
-		[Bindable]
-		public var groupEnabled:Boolean = true;
+		public var chatId:String;
 
 		[Bindable]
-		public var fontSize:String = "14";
-
-		[Bindable]
-		public var baseTabIndex:int = 801;
-
-		[Bindable]
-		public var colorPickerIsVisible:Boolean = false;
-
-		[Bindable]
-		public var maxMessageLength:uint = 1024;
-
-		public var maxNumWindows:uint = 9;
-
-		public var maxNumChatPerWindow:uint = 10;
-
-		public function ChatOptions() {
-			name = "ChatModule";
-		}
+		public var name:String;
 	}
 }

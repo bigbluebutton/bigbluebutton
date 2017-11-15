@@ -581,7 +581,7 @@ views|ClientStatusItemRenderer {
 //------------------------------
 */
 
-chat|AddChatTabBox {
+chat|ChatOptionsTab {
 	verticalGap  : 20;
 	paddingLeft  : 20;
 	paddingRight : 20;

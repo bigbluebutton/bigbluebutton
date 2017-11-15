@@ -30,6 +30,7 @@
 			uri="rtmp://HOST/bigbluebutton"
 			dependsOn="UsersModule"
 			privateEnabled="true"
+			groupEnabled="true"
 			fontSize="14"
 			baseTabIndex="801"
 			colorPickerIsVisible="false"
