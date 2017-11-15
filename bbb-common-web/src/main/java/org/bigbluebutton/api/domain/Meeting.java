@@ -27,6 +27,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public class Meeting {
 
+	public static final String ROLE_MODERATOR = "MODERATOR";
+	public static final String ROLE_ATTENDEE = "VIEWER";
+
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;
@@ -300,7 +303,42 @@ public class Meeting {
 	public String getGuestPolicy() {
     	return guestPolicy;
 	}
-	
+
+
+	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+    	if (GuestPolicy.ALWAYS_ACCEPT.equals(guestPolicy)) {
+    		return GuestPolicy.ALLOW;
+		} else if (GuestPolicy.ALWAYS_DENY.equals(guestPolicy)) {
+    		return GuestPolicy.DENY;
+		}
+
+		if (ROLE_MODERATOR.equals(role.toUpperCase())) {
+    		return GuestPolicy.ALLOW;
+		} else if (guest || ROLE_ATTENDEE.equals(role.toUpperCase())) {
+			String policy = getGuestPolicy();
+			switch (policy){
+				case GuestPolicy.ASK_MODERATOR:
+					return GuestPolicy.WAIT ;
+				case GuestPolicy.ALWAYS_ACCEPT:
+					return GuestPolicy.ALLOW ;
+					//Do not ask to join
+				case GuestPolicy.ALWAYS_ACCEPT_AUTH:
+					if (authned){
+						//If user is authenticated allow.
+						return GuestPolicy.ALLOW ;
+					}else{
+						//Else ask for permission
+						return GuestPolicy.WAIT ;
+					}
+				case GuestPolicy.ALWAYS_DENY:
+					return GuestPolicy.DENY;
+			}
+		}
+
+		return GuestPolicy.DENY ;
+	}
+
+
 	public String getLogoutUrl() {
 		return logoutUrl;
 	}

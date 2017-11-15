@@ -292,7 +292,8 @@ public class MeetingService implements MessageListener {
   private void processRegisterUser(RegisterUser message) {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
-      message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
+      message.externUserID, message.authToken, message.avatarURL, message.guest,
+            message.authed, message.guestStatus);
   }
 
   public Meeting getMeeting(String meetingId) {

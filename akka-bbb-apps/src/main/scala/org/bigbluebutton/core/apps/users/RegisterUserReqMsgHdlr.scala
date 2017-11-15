@@ -23,11 +23,7 @@ trait RegisterUserReqMsgHdlr {
     }
 
     val guestPolicy = liveMeeting.guestsWaiting.getGuestPolicy().policy
-    val guestStatus = GuestStatus.determineGuestStatus(
-      msg.body.guest,
-      guestPolicy,
-      msg.body.authed
-    )
+    val guestStatus = msg.body.guestStatus
 
     println("****** GUEST POLICY = " + guestPolicy + " guestStatus = " + guestStatus)
 
