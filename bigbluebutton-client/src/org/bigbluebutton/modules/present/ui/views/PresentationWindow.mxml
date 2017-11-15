@@ -237,7 +237,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				populatePodDropdown();
 
 				// make me currentPodPresenter
-				if (StringUtils.isEmpty(this.currentPresenterInPod) || StringUtils.isEmpty(this.currentPresenterUsername)) {
+				if ((StringUtils.isEmpty(this.currentPresenterInPod) || StringUtils.isEmpty(this.currentPresenterUsername)) && UsersUtil.amIModerator()) {
 					setPresenterInPodHelper(UsersUtil.getMyUserID());
 				}
 			}
