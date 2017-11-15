@@ -14,7 +14,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdown from './settings-dropdown/component';
-import UserListToggleBtnContainer from './userlist-toggle-btn/container';
+import UserListToggleContainer from './userlist-toggle/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -162,7 +162,7 @@ class NavBar extends Component {
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
-          <UserListToggleBtnContainer />
+          <UserListToggleContainer />
           <div
             id="newMessage"
             aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}

@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserListToggleBtn extends Component {
+class UserListToggle extends Component {
   render() {
     const { hasUnreadMessages, isExpanded, handleToggleUserList, intl } = this.props;
 
@@ -45,6 +45,6 @@ class UserListToggleBtn extends Component {
   }
 }
 
-export default injectIntl(withShortcut(UserListToggleBtn, 'Control+Alt+1'));
+export default injectIntl(withShortcut(UserListToggle, 'Control+Alt+1'));
 
-UserListToggleBtn.propTypes = propTypes;
+UserListToggle.propTypes = propTypes;

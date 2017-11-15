@@ -1,0 +1,43 @@
+import React, { Component } from 'react';
+import { withShortcut } from '/imports/ui/components/shortcut/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import AboutContainer from '/imports/ui/components/about/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import PropTypes from 'prop-types';
+
+const intlMessages = defineMessages({
+  aboutLabel: {
+    id: 'app.navBar.settingsDropdown.aboutLabel',
+    description: 'About option label',
+  },
+  aboutDesc: {
+    id: 'app.navBar.settingsDropdown.aboutDesc',
+    description: 'Describes about option',
+  },
+});
+
+const propTypes = {
+  intl: intlShape.isRequired,
+  mountModal: PropTypes.func.isRequired,
+};
+
+class OpenAboutListItem extends Component {
+  render() {
+    const { mountModal, intl } = this.props;
+
+    return (
+      <DropdownListItem
+        icon={'about'}
+        label={intl.formatMessage(intlMessages.aboutLabel)}
+        description={intl.formatMessage(intlMessages.aboutDesc)}
+        onClick={() => mountModal(<AboutContainer />)}
+        ref={(ref) => { this.ref = ref; }}
+      />
+    );
+  }
+}
+
+export default withModalMounter(injectIntl(withShortcut(OpenAboutListItem, 'Control+Alt+8')));
+
+OpenAboutListItem.propTypes = propTypes;

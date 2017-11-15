@@ -5,8 +5,6 @@ import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
-import AboutContainer from '/imports/ui/components/about/container';
-import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -14,7 +12,9 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import FullScreenToggleContainer from './full-screen-toggle/container';
+import FullScreenListItemContainer from './full-screen-list-item/container';
+import OpenAboutListItemContainer from './about-list-item/container';
+import OpenSettingsListItemContainer from './settings-list-item/container';
 
 import styles from '../styles';
 
@@ -23,25 +23,9 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.optionsLabel',
     description: 'Options button label',
   },
-  settingsLabel: {
-    id: 'app.navBar.settingsDropdown.settingsLabel',
-    description: 'Open settings option label',
-  },
-  aboutLabel: {
-    id: 'app.navBar.settingsDropdown.aboutLabel',
-    description: 'About option label',
-  },
-  aboutDesc: {
-    id: 'app.navBar.settingsDropdown.aboutDesc',
-    description: 'Describes about option',
-  },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
     description: 'Leave session button label',
-  },
-  settingsDesc: {
-    id: 'app.navBar.settingsDropdown.settingsDesc',
-    description: 'Describes settings option',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
@@ -99,19 +83,9 @@ class SettingsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>
-            <FullScreenToggleContainer />
-            <DropdownListItem
-              icon="settings"
-              label={intl.formatMessage(intlMessages.settingsLabel)}
-              description={intl.formatMessage(intlMessages.settingsDesc)}
-              onClick={() => mountModal(<SettingsMenuContainer />)}
-            />
-            <DropdownListItem
-              icon="about"
-              label={intl.formatMessage(intlMessages.aboutLabel)}
-              description={intl.formatMessage(intlMessages.aboutDesc)}
-              onClick={() => mountModal(<AboutContainer />)}
-            />
+            <FullScreenListItemContainer />
+            <OpenSettingsListItemContainer />
+            <OpenAboutListItemContainer />
             <DropdownListSeparator />
             <DropdownListItem
               icon="logout"

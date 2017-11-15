@@ -4,12 +4,12 @@ import { createContainer } from 'meteor/react-meteor-data';
 import userListService from '/imports/ui/components/user-list/service';
 import ChatService from '/imports/ui/components/chat/service';
 import Auth from '/imports/ui/services/auth';
-import UserListToggleBtn from './component';
+import UserListToggle from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-const UserListToggleBtnContainer = props => <UserListToggleBtn {...props} />;
+const UserListToggleContainer = props => <UserListToggle {...props} />;
 
 export default withRouter(createContainer(({ location, router }) => {
   const isExpanded = location.pathname.indexOf('/users') !== -1;
@@ -39,4 +39,4 @@ export default withRouter(createContainer(({ location, router }) => {
       }
     },
   };
-}, UserListToggleBtnContainer));
+}, UserListToggleContainer));

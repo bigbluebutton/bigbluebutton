@@ -29,7 +29,7 @@ const propTypes = {
   handleToggleFullscreen: PropTypes.func.isRequired,
 };
 
-class FullScreenToggle extends Component {
+class FullScreenListItem extends Component {
   render() {
     const { intl, isFullScreen, handleToggleFullscreen } = this.props;
 
@@ -55,6 +55,6 @@ class FullScreenToggle extends Component {
   }
 }
 
-export default injectIntl(withShortcut(FullScreenToggle, 'Control+Alt+0'));
+export default injectIntl(withShortcut(FullScreenListItem, 'Control+Alt+0'));
 
-FullScreenToggle.propTypes = propTypes;
+FullScreenListItem.propTypes = propTypes;

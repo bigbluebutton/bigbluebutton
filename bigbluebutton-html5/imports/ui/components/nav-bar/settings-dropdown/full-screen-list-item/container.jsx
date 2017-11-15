@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import FullScreenToggle from './component';
+import FullScreenListItem from './component';
 import { toggleFullScreen } from '../service';
 
-export default class FullScreenToggleContainer extends Component {
+export default class FullScreenListItemContainer extends Component {
   constructor(props) {
     super(props);
 
@@ -53,7 +53,7 @@ export default class FullScreenToggleContainer extends Component {
     const isFullScreen = this.state.isFullScreen;
 
     return (
-      <FullScreenToggle
+      <FullScreenListItem
         handleToggleFullscreen={handleToggleFullscreen}
         isFullScreen={isFullScreen}
       />
