@@ -308,6 +308,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					becomePresenter();
 				}
 				
+				//send new presenter to the whiteboard canvas
+				if (whiteboardOverlay != null) {
+					whiteboardOverlay.presenterChange(amITheCurrentPodPresenter(), currentPresenterInPod);
+				}
+				
 				populatePodDropdown();
 			}
 
@@ -651,7 +656,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if(whiteboardOverlay != null) {
           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
           slideView.acceptOverlayCanvas(this.podId, whiteboardOverlay);
-		}
+          
+          whiteboardOverlay.presenterChange(amITheCurrentPodPresenter(), currentPresenterInPod);
+        }
       }
 			
 			override protected function resourcesChanged():void{

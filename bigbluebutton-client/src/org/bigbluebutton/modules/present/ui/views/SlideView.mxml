@@ -367,19 +367,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function amITheCurrentPodPresenter(): Boolean {
 				return UsersUtil.getMyUserID() == this.currentPresenterInPod;
-                        }
+			}
 			
-      public function becomeViewer(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
-        removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-        this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        if (whiteboardCanvas != null && currentPresenterInPod != null) {
-          whiteboardCanvas.presenterChange(amIThePresenterInThePod, currentPresenterInPod);
-        }
-        pagePositionBroadcaster.reset();
-        
-        endDrag();
-      }
-      
+			public function becomeViewer(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
+
+				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+				this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				
+				pagePositionBroadcaster.reset();
+				
+				endDrag();
+			}
+			
 			public function becomePresenter(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
 				// need to calculate slide zoom percentage left by a previous presenter
 				/**
@@ -391,9 +390,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
 				this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				notifyOthersOfZoomEvent();
-				if (whiteboardCanvas != null) {
-					whiteboardCanvas.presenterChange(amIThePresenterInThePod, currentPresenterInPod);
-				}
 			}
 
 			private function noSlideContentLoaded():Boolean {
