@@ -22,7 +22,8 @@ public interface IBbbWebApiGWApp {
                      Integer meetingExpireWhenLastUserLeftInMinutes);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed);
+                    String externUserID, String authToken, String avatarURL,
+                    Boolean guest, Boolean authed, String guestStatus);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);

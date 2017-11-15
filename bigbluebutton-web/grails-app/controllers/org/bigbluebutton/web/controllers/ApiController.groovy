@@ -66,8 +66,6 @@ class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
   private static final String RESP_CODE_SUCCESS = 'SUCCESS'
   private static final String RESP_CODE_FAILED = 'FAILED'
-  private static final String ROLE_MODERATOR = "MODERATOR";
-  private static final String ROLE_ATTENDEE = "VIEWER";
   private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
   private static final String API_VERSION = '0.81'
   private static final String REDIRECT_RESPONSE = true
@@ -358,9 +356,9 @@ class ApiController {
     // Now determine if this user is a moderator or a viewer.
     String role = null;
     if (meeting.getModeratorPassword().equals(attPW)) {
-      role = ROLE_MODERATOR;
+      role = Meeting.ROLE_MODERATOR;
     } else if (meeting.getViewerPassword().equals(attPW)) {
-      role = ROLE_ATTENDEE;
+      role = Meeting.ROLE_ATTENDEE;
     }
 
     if (role == null) {
@@ -443,37 +441,7 @@ class ApiController {
       respondWithErrors(errors);
     }
 
-    String guestStatus = GuestPolicy.ALLOW
-
-    if (guest) {
-      String policy = meeting.getGuestPolicy();
-      switch (policy){
-        case GuestPolicy.ASK_MODERATOR:
-          guestStatus = GuestPolicy.WAIT ;
-          break;
-        case GuestPolicy.ALWAYS_ACCEPT:
-          guestStatus = GuestPolicy.ALLOW ;
-          //Do not ask to join
-          break;
-        case GuestPolicy.ALWAYS_ACCEPT_AUTH:
-          if (authenticated){
-            //If user is authenticated allow.
-            guestStatus = GuestPolicy.ALLOW ;
-          }else{
-            //Else ask for permission
-            guestStatus = GuestPolicy.WAIT ;
-          }
-          break;
-        case GuestPolicy.ALWAYS_DENY:
-          guestStatus = GuestPolicy.DENY;
-          //Do nothing.
-          break;
-        default:
-          //Handle No case found
-          guestStatus = GuestPolicy.DENY ;
-          break;
-      }
-    }
+    String guestStatus = meeting.calcGuestStatus(role, guest, authenticated)
 
     UserSession us = new UserSession();
     us.authToken = authToken;
