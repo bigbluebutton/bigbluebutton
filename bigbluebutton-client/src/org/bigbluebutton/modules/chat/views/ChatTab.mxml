@@ -86,7 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      private static const LOGGER:ILogger = getClassLogger(ChatBox);      
+      private static const LOGGER:ILogger = getClassLogger(ChatTab);      
       public var chatWithUserID:String;
       public var chatWithUsername:String
       public var chatId: String = null;

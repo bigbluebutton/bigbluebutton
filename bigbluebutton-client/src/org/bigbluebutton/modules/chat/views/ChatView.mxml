@@ -79,8 +79,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
       private var OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
-      private var tabBox:ChatOptionsTab;
-      private var publicBox:ChatBox;
+      private var chatOptionsTab:ChatOptionsTab;
+      private var publicChatTab:ChatTab;
       private var focus:Boolean = true;
       private var focusSwitchTimer:Timer;
       private var globalDispatcher:Dispatcher = new Dispatcher();
@@ -115,7 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         makePublicChatUncloseable();
         
         if (openTabBox) {
-          createAddTabBox();
+          addChatOptionsTab();
           makeAddPrivateChatUncloseable();
         }
         
@@ -129,17 +129,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
       }       
       
-      private function getVisibleChatBox():ChatBox {
-        var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
+      private function getVisibleChatBox():ChatTab {
+        var chatBox:ChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatTab;
         return chatBox;
       }
       
-      private function getPublicChatBox():ChatBox {
-        return publicBox;
+      private function getPublicChatBox():ChatTab {
+        return publicChatTab;
       }
       
       private function dispatchSaveChatEvent(e:Event):void {
-        var chatBox:ChatBox = getPublicChatBox();
+        var chatBox:ChatTab = getPublicChatBox();
         var saveEvent:ChatSaveEvent = new ChatSaveEvent(ChatSaveEvent.SAVE_CHAT_EVENT);
         
         if (chatBox.chatWithUsername == null || chatBox.chatWithUsername == "") {
@@ -171,14 +171,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         PUBLIC_CHAT_USERNAME = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
         OPTION_TAB_ID = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");				
         
-        if (tabBox != null) {
-          tabBox.id = OPTION_TAB_ID;
-          tabBox.label = OPTION_TAB_ID;
-          tabBox.name = OPTION_TAB_ID;
+        if (chatOptionsTab != null) {
+          chatOptionsTab.id = OPTION_TAB_ID;
+          chatOptionsTab.label = OPTION_TAB_ID;
+          chatOptionsTab.name = OPTION_TAB_ID;
         }
         
-        if (publicBox != null) {
-          publicBox.label = PUBLIC_CHAT_USERNAME;
+        if (publicChatTab != null) {
+          publicChatTab.label = PUBLIC_CHAT_USERNAME;
         }
       }
       
@@ -257,11 +257,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }      
       
       private function calledOnTheNextScreenRefreshToMakeTabUncloseable():void {
-        chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(tabBox), SuperTab.CLOSE_NEVER);
+        chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(chatOptionsTab), SuperTab.CLOSE_NEVER);
       }
       
       private function calledOnTheNextScreenRefreshToMakePublicChatUncloseable():void {
-        var chatBox:ChatBox = getChatBoxForUser(mainChatId);
+        var chatBox:ChatTab = getChatBoxForUser(mainChatId);
         var chatIndex:int = getTabIndexFor(chatBox);
         chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);								
       }
@@ -274,7 +274,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function notifyParticipantOfUnreadMessageFrom(chatId:String):void {
-        var chatBox:ChatBox = getChatBoxForUser(chatId);
+        var chatBox:ChatTab = getChatBoxForUser(chatId);
         var tabIndex:int = getTabIndexFor(chatBox);
         var tab:Button = chatTabs.getTabAt(tabIndex);
         tab.styleName = "highlightedTabStyle";
@@ -283,7 +283,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
       }
       
-      private function getTabIndexFor(chatBox:ChatBox):int {
+      private function getTabIndexFor(chatBox:ChatTab):int {
         return chatTabs.getChildIndex(chatBox);
       }
       
@@ -306,13 +306,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function userHasChatBox(chatId:String):Boolean {
-        var chatBox:ChatBox = chatTabs.getChildByName(chatId) as ChatBox;
+        var chatBox:ChatTab = chatTabs.getChildByName(chatId) as ChatTab;
         if (chatBox != null) return true;
         return false;
       }
       
-      private function getChatBoxForUser(chatId:String):ChatBox {
-        return chatTabs.getChildByName(chatId) as ChatBox;
+      private function getChatBoxForUser(chatId:String):ChatTab {
+        return chatTabs.getChildByName(chatId) as ChatTab;
       }
       
       private function handleStartPrivateChatMessageEvent(event:CoreEvent):void {
@@ -321,7 +321,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         chatTabs.selectedIndex = tabIndex;
       }
       
-      public function openChatBoxFor(groupChatId:String, publicChat:Boolean=false):ChatBox {
+      public function openChatBoxFor(groupChatId:String, publicChat:Boolean=false):ChatTab {
         if (userHasChatBox(groupChatId)) {
           return getChatBoxForUser(groupChatId);
         } else {
@@ -329,8 +329,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       
-      private function createChatBoxFor(groupChatId:String, publicChat:Boolean = false):ChatBox {
-        var chatBox:ChatBox = new ChatBox();
+      private function createChatBoxFor(groupChatId:String, publicChat:Boolean = false):ChatTab {
+        var chatBox:ChatTab = new ChatTab();
         
         chatBox.name = groupChatId;
         chatBox.chatWithUserID = groupChatId;
@@ -341,7 +341,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           chatBox.chatId = groupChatId;
           chatBox.label = PUBLIC_CHAT_USERNAME
           chatBox.publicChat = true;
-          publicBox = chatBox; // keep a reference to the public chat box
+          publicChatTab = chatBox; // keep a reference to the public chat box
         } else {
           var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(groupChatId);
           if (gc != null) {
@@ -360,22 +360,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           chatTabs.addChild(chatBox);
         }
         // set the font size on tab opening
-        if (tabBox)
-          chatBox.setStyle("fontSize", int(tabBox.cmbFontSize.selectedItem));
+        if (chatOptionsTab)
+          chatBox.setStyle("fontSize", int(chatOptionsTab.cmbFontSize.selectedItem));
         return chatBox;
       }
       
-      private function createAddTabBox():ChatOptionsTab {
-        tabBox = new ChatOptionsTab();
-        tabBox.chatView = this;
-        tabBox.id = OPTION_TAB_ID;
-        tabBox.label = OPTION_TAB_ID;
-        tabBox.name = OPTION_TAB_ID;
-        tabBox.chatOptions = chatOptions;
-        tabBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
-        chatTabs.addChild(tabBox);
+      private function addChatOptionsTab():ChatOptionsTab {
+        chatOptionsTab = new ChatOptionsTab();
+        chatOptionsTab.chatView = this;
+        chatOptionsTab.id = OPTION_TAB_ID;
+        chatOptionsTab.label = OPTION_TAB_ID;
+        chatOptionsTab.name = OPTION_TAB_ID;
+        chatOptionsTab.chatOptions = chatOptions;
+        chatOptionsTab.tabIndexer.startIndex = tabIndexer.startIndex + 10;
+        chatTabs.addChild(chatOptionsTab);
         
-        return tabBox;
+        return chatOptionsTab;
       }
       
       
@@ -432,12 +432,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onTabClose(e:SuperTabEvent):void{
-        var chatBox:ChatBox = chatTabs.getChildAt(e.tabIndex) as ChatBox;
+        var chatBox:ChatTab = chatTabs.getChildAt(e.tabIndex) as ChatTab;
         dispatchEvent(e);
       }
       
       private function onUserClosedTab(e:SuperTabEvent):void{
-        var chatBox:ChatBox = chatTabs.getChildAt(e.tabIndex) as ChatBox;
+        var chatBox:ChatTab = chatTabs.getChildAt(e.tabIndex) as ChatTab;
         globalDispatcher.dispatchEvent(new GroupChatBoxClosedEvent(chatBox.chatId, 
         chatBox.parentWindowId));
       }
@@ -458,7 +458,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function remoteClosePrivate(e:ShortcutEvent):void {
         var selectedTab:INavigatorContent = chatTabs.selectedChild;
-        if (selectedTab is ChatBox && !(selectedTab as ChatBox).publicChat) {
+        if (selectedTab is ChatTab && !(selectedTab as ChatTab).publicChat) {
           chatTabs.removeChild(selectedTab as DisplayObject);
         }
       }
