@@ -30,7 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <fx:Declarations>
     <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
     <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
-    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" /> 
+    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
   </fx:Declarations>
   
@@ -63,7 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private static const LOGGER:ILogger = getClassLogger(ChatOptionsTab);      
       
-      [Bindable] public var users:ArrayCollection;
+		[Bindable] public var users:ArrayCollection;
+		[Bindable] public var groupChats:ArrayCollection;
       [Bindable] public var chatView:ChatView;
       [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
       
@@ -102,8 +103,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onCreationComplete():void{
         clrBtnVisible = UsersUtil.amIModerator();
         
-        handler.populateAllUsers()
+		handler.populateAllUsers()
+		handler.populateAllGroupChats()
         users = removeMe(handler.users);
+		groupChats = handler.groupChats;
         chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
         
         if (!chatOptions.privateEnabled) {
@@ -139,30 +142,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         LOGGER.debug("changing chat noise, active=" + chatNoiseCheckBox.selected);
         dispatchEvent(new ChatNoiseEnabledEvent(chatNoiseCheckBox.selected));
       }
-      
-      protected function openPrivateChat(event:Event):void{
-        if (usersList.selectedIndex == -1) return;
-        
-        if (!usersList.visible || !usersList.enabled) return;
-        
-        var chatWithIntId:String = usersList.selectedItem.userId;
-        
-        // Don't want to be chatting with ourself.
-        if (UsersUtil.isMe(chatWithIntId)) return;
-        
-        usersList.selectedIndex = -1;
-        
-          var testChatName:String = "Test Private Chat";
-          var access:String = GroupChat.PRIVATE;
-          var users:Array = new Array();
-          users.push(chatWithIntId);
-          
-          var createEvent:CreateGroupChatReqEvent = 
-            new CreateGroupChatReqEvent(testChatName, access, users);
-          globalDispatcher.dispatchEvent(createEvent);
-        
-      }
-      
+		
+		protected function openPrivateChat(event:Event):void {
+			if (usersList.selectedIndex == -1)
+				return;
+
+			if (!usersList.visible || !usersList.enabled)
+				return;
+
+			var chatWithIntId:String = usersList.selectedItem.userId;
+
+			// Don't want to be chatting with ourself.
+			if (UsersUtil.isMe(chatWithIntId))
+				return;
+
+			usersList.selectedIndex = -1;
+
+			// @fixme : need to use a better chat name
+			var testChatName:String = "Test Private Chat";
+			var access:String = GroupChat.PRIVATE;
+			var users:Array = new Array();
+			users.push(chatWithIntId);
+
+			var createEvent:CreateGroupChatReqEvent = new CreateGroupChatReqEvent(testChatName, access, users);
+			globalDispatcher.dispatchEvent(createEvent);
+		}
+		
+		protected function openGroupChat(event:Event):void {
+			
+		}
+		
+		public function onGroupChatListKeyDown(event:KeyboardEvent):void{
+			if (event.keyCode == 32){
+				// openGroupChat(event);
+			}
+		}
+		
       /**
        * For the Options tab focus the users list instead of the text area.
        **/
@@ -235,7 +250,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
   </fx:Declarations>
   
-	<mx:HBox width="100%" verticalAlign="middle">
+	<mx:HBox width="100%" verticalAlign="middle" visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}">
 		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.newChat.label')}"/>
 		<mx:TextInput id="newChatNameInput" width="100%"/>
 		<mx:Button id="createChatGroupBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.newChat.create')}"
@@ -246,14 +261,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:Label id="lblSelect" styleName="chatOptionsLabel"
             text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
             visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
-  <mx:List id="usersList" height="50%" width="100%" dataProvider="{users}" dragEnabled="false" 
+  <mx:List id="usersList" width="100%" dataProvider="{users}" dragEnabled="false" 
            visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
-           itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
            labelField="name"
            itemClick="openPrivateChat(event)"
            keyDown="onUserListKeyDown(event)"
            toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
            accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
+  <mx:List id="groupChatList" width="100%" dataProvider="{groupChats}" dragEnabled="false" 
+		   visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"
+		   labelField="name"
+		   itemClick="openGroupChat(event)"
+		   keyDown="onGroupChatListKeyDown(event)"
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.toolTip')}"
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.accessibilityName')}"/>
   <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
 
   <mx:HBox width="100%">
