@@ -303,7 +303,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (toolbarOptions.confirmLogout) {
 					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, false) as LogoutWindow;
 
-					// Needs to be improved in case of RTL layout
 					PopUpUtil.lockPosition(logoutWindow, function():Point {
 						return new Point(width - logoutWindow.width - 5, btnLogout.y + btnLogout.height + 5)
 					});
