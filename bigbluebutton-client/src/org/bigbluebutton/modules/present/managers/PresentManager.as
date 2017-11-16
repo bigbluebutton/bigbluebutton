@@ -69,7 +69,8 @@ package org.bigbluebutton.modules.present.managers
 		}
 
 		public function handleOpenUploadWindow(e:UploadEvent):void{
-			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, true) as FileUploadWindow;
+			// Never use "center" true with FileUploadWindow
+			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
 			if (uploadWindow) {
 				uploadWindow.maxFileSize = e.maxFileSize;
 			}
