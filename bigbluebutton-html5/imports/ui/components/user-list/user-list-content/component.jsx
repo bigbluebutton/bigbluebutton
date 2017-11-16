@@ -35,7 +35,6 @@ const defaultProps = {
 };
 
 class UserContent extends Component {
-
   static focusElement(active, element) {
     const modifiedActive = active;
     const modifiedElement = element;
@@ -49,7 +48,7 @@ class UserContent extends Component {
   static removeFocusFromChildren(children, numberOfItems) {
     const modifiedChildren = children;
     for (let i = 0; i < numberOfItems; i += 1) {
-      modifiedChildren.childNodes[i].tabIndex = -1;
+      modifiedChildren.firstChild.childNodes[i].tabIndex = -1;
     }
   }
 
@@ -97,7 +96,7 @@ class UserContent extends Component {
       if (this.focusedItemIndex === numberOfItems) {
         this.focusedItemIndex = 0;
       }
-      UserContent.focusElement(active, changedItems.childNodes[this.focusedItemIndex]);
+      UserContent.focusElement(active, changedItems.firstChild.childNodes[this.focusedItemIndex]);
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
@@ -107,7 +106,7 @@ class UserContent extends Component {
         this.focusedItemIndex = numberOfItems - 1;
       }
 
-      UserContent.focusElement(active, changedItems.childNodes[this.focusedItemIndex]);
+      UserContent.focusElement(active, changedItems.firstChild.childNodes[this.focusedItemIndex]);
     }
   }
 
