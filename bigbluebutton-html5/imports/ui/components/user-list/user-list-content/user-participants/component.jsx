@@ -204,7 +204,7 @@ class UserParticipants extends Component {
             component="div"
             className={cx(styles.participantsList)}
           >
-            <div ref={(ref) => { this.refScrollItems = ref; }}>
+            <div ref={(ref) => { this.refScrollItems = ref; }} className={styles.list}>
               {
                 users.map(user => (
                   <UserListItem

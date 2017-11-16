@@ -128,7 +128,7 @@ class UserMessages extends Component {
             component="div"
             className={cx(styles.chatsList)}
           >
-            <div ref={(ref) => { this._msgItems = ref; }}>
+            <div ref={(ref) => { this._msgItems = ref; }} className={styles.list}>
               {openChats.map(chat => (
                 <ChatListItem
                   isPublicChat={isPublicChat}
