@@ -137,6 +137,10 @@ package org.bigbluebutton.modules.chat.services
           groupChat.addMessage(chatMsg);
         }
       }
+	  
+	  var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_GROUP_CHAT);
+	  pcCoreEvent.message = msg;
+	  dispatcher.dispatchEvent(pcCoreEvent);
     }
     
     private function handleGetChatHistoryRespMsg(message:Object):void {

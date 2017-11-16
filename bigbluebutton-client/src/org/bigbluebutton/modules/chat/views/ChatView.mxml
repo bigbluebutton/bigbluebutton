@@ -155,7 +155,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function dispatchCopyChatEvent(e:Event):void {
         var copyEvent:ChatCopyEvent = new ChatCopyEvent(ChatCopyEvent.COPY_CHAT_EVENT);
         
-        copyEvent.chatId = ChatModel.MAIN_PUBLIC_CHAT
+        copyEvent.chatId = ChatModel.MAIN_PUBLIC_CHAT;
         globalDispatcher.dispatchEvent(copyEvent);
       }
       
@@ -192,7 +192,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePrivateGroupChatCreatedEvent(event:PrivateGroupChatCreatedEvent):void {
-        if (mainChatId != ChatModel.MAIN_PUBLIC_CHAT) {
+        if (!isMainChat()) {
           // We only open private group chats in the main
           // window.
           return;
@@ -472,6 +472,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function handleResizableStatus(value:Boolean):void {
         parentDocument.handleResizableStatus(value);
       }
+		
+	  public function isMainChat() : Boolean {
+		  return mainChatId == ChatModel.MAIN_PUBLIC_CHAT;
+	  }
       
     ]]>
   </fx:Script>
