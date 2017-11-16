@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.presentation
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.models.Users2x
 
 trait ResizeAndMovePagePubMsgHdlr {
   this: PresentationApp2x =>
@@ -24,10 +25,12 @@ trait ResizeAndMovePagePubMsgHdlr {
       //record(event)
     }
 
-    for {
-      page <- resizeAndMovePage(msg.body.presentationId, msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio)
-    } yield {
-      broadcastEvent(msg, page)
+    if (Users2x.isPresenter(msg.header.userId, liveMeeting.users2x)) {
+      for {
+        page <- resizeAndMovePage(msg.body.presentationId, msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio)
+      } yield {
+        broadcastEvent(msg, page)
+      }
     }
   }
 }

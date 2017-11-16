@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
-import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import _ from 'lodash';
-import { withModalMounter } from '../modal/service';
+import PropTypes from 'prop-types';
 
+import { withModalMounter } from '../modal/service';
 import Icon from '../icon/component';
 import styles from './styles';
 
@@ -55,6 +55,15 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
+  intl: intlShape.isRequired,
+  video: PropTypes.object.isRequired,
+  application: PropTypes.object.isRequired,
+  cc: PropTypes.object.isRequired,
+  participants: PropTypes.object.isRequired,
+  updateSettings: PropTypes.func.isRequired,
+  availableLocales: PropTypes.object.isRequired,
+  mountModal: PropTypes.func.isRequired,
+  locales: PropTypes.array.isRequired,
 };
 
 class Settings extends Component {
@@ -110,7 +119,6 @@ class Settings extends Component {
 
   renderModalContent() {
     const {
-      isModerator,
       intl,
     } = this.props;
 
@@ -134,12 +142,12 @@ class Settings extends Component {
             <Icon iconName="user" className={styles.icon} />
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
           </Tab>
-          {/*{ isModerator ?*/}
-            {/*<Tab className={styles.tabSelector} aria-labelledby="usersTab">*/}
-              {/*<Icon iconName="user" className={styles.icon} />*/}
-              {/*<span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span>*/}
-            {/*</Tab>*/}
-            {/*: null }*/}
+          {/* { isModerator ?*/}
+          {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab">*/}
+          {/* <Icon iconName="user" className={styles.icon} />*/}
+          {/* <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span>*/}
+          {/* </Tab>*/}
+          {/* : null }*/}
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
@@ -161,14 +169,14 @@ class Settings extends Component {
             locales={this.props.locales}
           />
         </TabPanel>
-        {/*{ isModerator ?*/}
-          {/*<TabPanel className={styles.tabPanel}>*/}
-            {/*<Participants*/}
-              {/*settings={this.state.current.participants}*/}
-              {/*handleUpdateSettings={this.handleUpdateSettings}*/}
-            {/*/>*/}
-          {/*</TabPanel>*/}
-          {/*: null }*/}
+        {/* { isModerator ?*/}
+        {/* <TabPanel className={styles.tabPanel}>*/}
+        {/* <Participants*/}
+        {/* settings={this.state.current.participants}*/}
+        {/* handleUpdateSettings={this.handleUpdateSettings}*/}
+        {/* />*/}
+        {/* </TabPanel>*/}
+        {/* : null }*/}
       </Tabs>
     );
   }

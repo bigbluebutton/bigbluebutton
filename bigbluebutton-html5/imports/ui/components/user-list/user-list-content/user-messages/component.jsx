@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
@@ -83,14 +83,17 @@ const intlMessages = defineMessages({
 });
 
 class UserMessages extends Component {
-
   componentDidMount() {
     if (!this.props.compact) {
-      this._msgsList.addEventListener('keydown',
-        event => this.props.rovingIndex(event,
+      this._msgsList.addEventListener(
+        'keydown',
+        event => this.props.rovingIndex(
+          event,
           this._msgsList,
           this._msgItems,
-          this.props.openChats.length));
+          this.props.openChats.length,
+        ),
+      );
     }
   }
 
@@ -117,30 +120,30 @@ class UserMessages extends Component {
           className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <CSSTransitionGroup
-            transitionName={listTransition}
-            transitionAppear
-            transitionEnter
-            transitionLeave={false}
-            transitionAppearTimeout={0}
-            transitionEnterTimeout={0}
-            transitionLeaveTimeout={0}
-            component="div"
-            className={cx(styles.chatsList)}
-          >
-            <div ref={(ref) => { this._msgItems = ref; }} className={styles.list}>
+          <div ref={(ref) => { this._msgItems = ref; }}>
+            <TransitionGroup>
               {openChats.map(chat => (
-                <ChatListItem
-                  isPublicChat={isPublicChat}
-                  compact={compact}
+                <CSSTransition
+                  classNames={listTransition}
+                  appear
+                  enter
+                  exit={false}
+                  timeout={0}
+                  component="div"
+                  className={cx(styles.chatsList)}
                   key={chat.id}
-                  openChat={openChat}
-                  chat={chat}
-                  tabIndex={-1}
-                />
+                >
+                  <ChatListItem
+                    isPublicChat={isPublicChat}
+                    compact={compact}
+                    openChat={openChat}
+                    chat={chat}
+                    tabIndex={-1}
+                  />
+                </CSSTransition>
               ))}
-            </div>
-          </CSSTransitionGroup>
+            </TransitionGroup>
+          </div>
         </div>
       </div>
     );
