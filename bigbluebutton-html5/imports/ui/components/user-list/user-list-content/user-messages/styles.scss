@@ -1,12 +1,13 @@
 @import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/mixins/focus";
 
 .smallTitle {
   @extend .smallTitle;
 }
 
 .scrollableList {
+  @include elementFocus($list-item-bg-hover);
   @include scrollbox-vertical($user-list-bg);
-  @extend %customListFocus;
 }
 
 .separator {
@@ -18,6 +19,10 @@
 
 .chatsList {
   @extend .lists;
-  overflow-x: hidden;
+  overflow: hidden;
   flex-shrink: 1;
+}
+
+.list {
+  margin-left: $md-padding-y;
 }

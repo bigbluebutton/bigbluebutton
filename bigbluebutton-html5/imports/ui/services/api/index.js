@@ -13,7 +13,7 @@ import { notify } from '/imports/ui/services/notification';
 export function makeCall(name, ...args) {
   check(name, String);
 
-  const credentials = Auth.credentials;
+  const { credentials } = Auth;
 
   return new Promise((resolve, reject) => {
     Meteor.call(name, credentials, ...args, (error, result) => {
@@ -42,12 +42,12 @@ export function call(name, ...args) {
 }
 
 export function log(type = 'error', message, ...args) {
-  const credentials = Auth.credentials;
+  const { credentials } = Auth;
   const userInfo = window.navigator;
   const clientInfo = {
     language: userInfo.language,
     userAgent: userInfo.userAgent,
-    screenSize: { width: screen.width, height: screen.height },
+    screenSize: { width: window.screen.width, height: window.screen.height },
     windowSize: { width: window.innerWidth, height: window.innerHeight },
     bbbVersion: Meteor.settings.public.app.bbbServerVersion,
     location: window.location.href,
