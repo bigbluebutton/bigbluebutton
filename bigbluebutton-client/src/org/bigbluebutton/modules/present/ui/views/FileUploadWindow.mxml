@@ -109,10 +109,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var fileToUpload:FileReference = new FileReference();
       [Bindable] private var presentOptions:PresentOptions;
 		
-      override public function move(x:Number, y:Number):void{
-        return;
-      }
-
 		protected function onCreationComplete(event:FlexEvent):void
 		{
 			dispatcher = new Dispatcher();

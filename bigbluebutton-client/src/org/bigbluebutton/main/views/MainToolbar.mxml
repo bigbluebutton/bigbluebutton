@@ -301,13 +301,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout) {
-					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true) as LogoutWindow;
+					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, false) as LogoutWindow;
 
-					var newX:Number = this.width - logoutWindow.width - 5;
-					var newY:Number = btnLogout.y + btnLogout.height + 5;
-
-					logoutWindow.x = newX;
-					logoutWindow.y = newY;
+					// Needs to be improved in case of RTL layout
+					PopUpUtil.lockPosition(logoutWindow, function():Point {
+						return new Point(width - logoutWindow.width - 5, btnLogout.y + btnLogout.height + 5)
+					});
 				} else {
 					doLogout();
 				}
@@ -398,7 +397,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
-					setStyle("backgroundColor", brandingOptions.toolbarColor);
+					mainBox.setStyle("backgroundColor", uint("0x" + brandingOptions.toolbarColor.substr(1)));
 				}
 			}
 			
@@ -515,7 +514,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSettingsButtonClick():void {
-				settingsPopup = PopUpUtil.createModalPopUp(this.parent, BBBSettings, true) as BBBSettings;
+				settingsPopup = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BBBSettings, true) as BBBSettings;
 				settingsPopup.pushComponents(settingsComponents);
 				PopUpManager.centerPopUp(settingsPopup);
 			}

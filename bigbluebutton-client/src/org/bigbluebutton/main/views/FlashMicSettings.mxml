@@ -89,10 +89,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var my_nc:NetConnection;      
       private var nsStream:NetStream;
       
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
-			
 			private function selectMicrophone(event:Event):void {
 				testMicrophoneLoopback();
 			}

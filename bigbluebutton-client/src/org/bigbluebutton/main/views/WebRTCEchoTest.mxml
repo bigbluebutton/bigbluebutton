@@ -71,10 +71,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var userClosed:Boolean = false;
 			
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
-			
 			private function onCancelClicked():void {
 				stopTimers();
 				PopUpUtil.removePopUp(this);
