@@ -120,7 +120,7 @@ class UserMessages extends Component {
           className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <div ref={(ref) => { this._msgItems = ref; }}>
+          <div ref={(ref) => { this._msgItems = ref; }} className={styles.list}>
             <TransitionGroup>
               {openChats.map(chat => (
                 <CSSTransition
