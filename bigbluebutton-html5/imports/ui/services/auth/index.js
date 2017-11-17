@@ -95,12 +95,12 @@ class Auth {
   }
 
   clearCredentials(...args) {
-    // this.meetingID = null;
-    // this.userID = null;
-    // this.token = null;
-    // this.loggedIn = false;
-    // this.logoutURL = null;
-    // this.sessionToken = null;
+    this.meetingID = null;
+    this.userID = null;
+    this.token = null;
+    this.loggedIn = false;
+    this.logoutURL = null;
+    this.sessionToken = null;
 
     return Promise.resolve(...args);
   }
