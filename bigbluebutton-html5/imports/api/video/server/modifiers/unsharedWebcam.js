@@ -1,5 +1,6 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import { check } from 'meteor/check';
 
 export default function unsharedWebcam(meetingId, userId) {
   check(meetingId, String);

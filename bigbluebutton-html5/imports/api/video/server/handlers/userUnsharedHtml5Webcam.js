@@ -1,4 +1,5 @@
 import unsharedWebcam from '../modifiers/unsharedWebcam';
+import { check } from 'meteor/check';
 
 export default function handleUserUnsharedHtml5Webcam({ header, payload }) {
   const meetingId = header.meetingId;

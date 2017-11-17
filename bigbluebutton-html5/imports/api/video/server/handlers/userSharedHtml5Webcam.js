@@ -1,4 +1,5 @@
 import sharedWebcam from '../modifiers/sharedWebcam';
+import {check} from 'meteor/check';
 
 export default function handleUserSharedHtml5Webcam({ header, payload }) {
   const meetingId = header.meetingId;

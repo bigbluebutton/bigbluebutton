@@ -85,7 +85,5 @@
     videos.attr('height', best.height);
   }
 
-  console.log(" ---------------------------------- bro!!!");
-
   window.adjustVideos = adjustVideos;
 })();

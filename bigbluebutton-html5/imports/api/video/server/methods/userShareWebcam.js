@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import RedisPubSub from '/imports/startup/server/redis2x';
+import RedisPubSub from '/imports/startup/server/redis';
 
 export default function userShareWebcam(credentials, message) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -28,11 +28,5 @@ export default function userShareWebcam(credentials, message) {
     isHtml5Client: true,
   };
 
-  const header = {
-    meetingId,
-    name: EVENT_NAME,
-    userId: requesterUserId,
-  };
-
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, meetingId, payload, header);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

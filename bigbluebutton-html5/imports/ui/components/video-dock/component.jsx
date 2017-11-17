@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
 import styles from './styles';
+import { log } from '/imports/ui/services/api';
+
 
 window.addEventListener('resize', () => {
   window.adjustVideos('webcamArea', true);
@@ -48,7 +50,6 @@ export default class VideoDock extends Component {
     const { users } = this.props;
     for (let i = 0; i < users.length; i++) {
       if (users[i].has_stream) {
-        console.log("COMPONENT DID MOUNT => " + users[i].userId);
         this.start(users[i].userId, false, this.refs.videoInput);
       }
     }
@@ -59,8 +60,8 @@ export default class VideoDock extends Component {
     ws.addEventListener('message', (msg) => {
       const parsedMessage = JSON.parse(msg.data);
 
-      console.debug('Received message new ws message: ');
-      console.debug(parsedMessage);
+      log('debug', 'Received message new ws message: ');
+      log('debug', parsedMessage);
 
       switch (parsedMessage.id) {
 
@@ -88,11 +89,11 @@ export default class VideoDock extends Component {
           if (webRtcPeer !== null) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
-                return console.error(`Error adding candidate: ${err}`);
+                return log('error', `Error adding candidate: ${err}`);
               }
             });
           } else {
-            console.error(' [ICE] Message arrived before webRtcPeer?');
+            log('error', ' [ICE] Message arrived before webRtcPeer?');
           }
 
           break;
@@ -106,8 +107,8 @@ export default class VideoDock extends Component {
 
     const ws = this.state.ws;
 
-    console.log(`Starting video call for video: ${id}`);
-    console.log('Creating WebRtcPeer and generating local sdp offer ...');
+    log('info', `Starting video call for video: ${id}`);
+    log('info', 'Creating WebRtcPeer and generating local sdp offer ...');
 
     const onIceCandidate = function (candidate) {
       const message = {
@@ -148,8 +149,8 @@ export default class VideoDock extends Component {
 
     this.state.webRtcPeers[id] = new peerObj(options, function (error) {
       if (error) {
-        console.error(' [ERROR] Webrtc error');
-        console.error(error);
+        log('error', ' [ERROR] Webrtc error');
+        log('error', error);
         return;
       }
 
@@ -160,10 +161,10 @@ export default class VideoDock extends Component {
 
       this.generateOffer((error, offerSdp) => {
         if (error) {
-          return console.error(error);
+          return log('error', error);
         }
 
-        console.info(`Invoking SDP offer callback function ${location.host}`);
+        log('info', `Invoking SDP offer callback function ${location.host}`);
         const message = {
           id: 'start',
           sdpOffer: offerSdp,
@@ -183,7 +184,7 @@ export default class VideoDock extends Component {
     const webRtcPeer = this.state.webRtcPeers[id];
 
     if (webRtcPeer) {
-      console.log('Stopping WebRTC peer');
+      log('info', 'Stopping WebRTC peer');
 
       if (id == this.state.myId) {
         this.state.sharedWebcam.dispose();
@@ -193,7 +194,7 @@ export default class VideoDock extends Component {
       webRtcPeer.dispose();
       delete this.state.webRtcPeers[id];
     } else {
-      console.log('NO WEBRTC PEER TO STOP?');
+      log('info', 'NO WEBRTC PEER TO STOP?');
     }
 
     const videoTag = document.getElementById(`video-elem-${id}`);
@@ -214,7 +215,7 @@ export default class VideoDock extends Component {
   }
 
   unshareWebcam() {
-    console.log("Unsharing webcam");
+    log('info', "Unsharing webcam");
     const { users } = this.props;
     const id = users[0].userId;
     this.sendUserUnshareWebcam(id);
@@ -225,18 +226,18 @@ export default class VideoDock extends Component {
     const webRtcPeer = this.state.webRtcPeers[id];
 
     if (message.sdpAnswer == null) {
-      return console.debug('Null sdp answer. Camera unplugged?');
+      return log('debug', 'Null sdp answer. Camera unplugged?');
     }
 
     if (webRtcPeer == null) {
-      return console.debug('Null webrtc peer ????');
+      return log('debug', 'Null webrtc peer ????');
     }
 
-    console.log('SDP answer received from server. Processing ...');
+    log('info', 'SDP answer received from server. Processing ...');
 
     webRtcPeer.processAnswer(message.sdpAnswer, (error) => {
       if (error) {
-        return console.error(error);
+        return log(error);
       }
     });
 
@@ -248,10 +249,10 @@ export default class VideoDock extends Component {
 
     if (ws.readyState == WebSocket.OPEN) {
       const jsonMessage = JSON.stringify(message);
-      console.log(`Sending message: ${jsonMessage}`);
+      log('info', `Sending message: ${jsonMessage}`);
       ws.send(jsonMessage, (error) => {
         if (error) {
-          console.error(`client: Websocket error "${error}" on message "${jsonMessage.id}"`);
+          log('debug', `client: Websocket error "${error}" on message "${jsonMessage.id}"`);
         }
       });
     } else {
@@ -260,19 +261,19 @@ export default class VideoDock extends Component {
   }
 
   handlePlayStop(message) {
-    console.log('Handle play stop <--------------------');
+    log('info', 'Handle play stop <--------------------');
 
     this.stop(message.cameraId);
   }
 
   handlePlayStart(message) {
-    console.log('Handle play start <===================');
+    log('info', 'Handle play start <===================');
 
     window.adjustVideos('webcamArea', true);
   }
 
   handleError(message) {
-    console.log(` Handle error ---------------------> ${message.message}`);
+    log('error', ` Handle error ---------------------> ${message.message}`);
   }
 
   render() {
@@ -296,7 +297,7 @@ export default class VideoDock extends Component {
         if (users && users[i] &&
               nextUsers && nextUsers[i]) {
           if (users[i].has_stream !== nextUsers[i].has_stream) {
-            console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
+            log('info', `User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
             if (nextUsers[i].has_stream) {
               this.start(users[i].userId, false, this.refs.videoInput);

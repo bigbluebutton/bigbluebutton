@@ -189,8 +189,8 @@ Kurento.prototype.setRenderTag = function (tag) {
 
 Kurento.prototype.presenterResponse = function (message) {
   if (message.response != 'accepted') {
-    var errorMsg = message.message ? message.message : 'Unknow error';
-    console.warn('Call not accepted for the following reason: ' + errorMsg);
+    var errorMsg = message.message ? message.message : 'Unknown error';
+    console.warn('Call not accepted for the following reason: ' + JSON.stringify(errorMsg, null, 2));
     kurentoManager.exitScreenShare();
     this.onFail(errorMessage);
   } else {
