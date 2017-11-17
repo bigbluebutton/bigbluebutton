@@ -1,6 +1,8 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
 import VertoBridge from '/imports/api/audio/client/bridge/verto';
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import { notify } from '/imports/ui/services/notification';
 
@@ -86,21 +88,22 @@ class AudioManager {
         inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
       };
 
+      console.log('LISTENONLY', callOptions.inputStream);
       return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
     }
 
     if (this.devicesInitialized) return doCall();
 
     return Promise.all([
-      this.setDefaultInputDevice(),
-      this.setDefaultOutputDevice(),
+      // this.setDefaultInputDevice(),
+      // this.setDefaultOutputDevice(),
     ]).then(doCall)
       .catch(err => {
         clearTimeout(permissionsTimeout);
         this.isWaitingPermissions = false;
         this.error = err;
-        this.notify(err);
-        return Promise.reject();
+        this.notify(err.message);
+        return Promise.reject(err);
       });
   }
 
@@ -186,7 +189,7 @@ class AudioManager {
     }
 
     this.listenOnlyAudioContext = window.AudioContext ?
-                                  new window.AudioContext() :
+                                  new window.AudioContext :
                                   new window.webkitAudioContext();
 
     return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
@@ -206,14 +209,19 @@ class AudioManager {
       return Promise.resolve(inputDevice);
     };
 
-    const handleChangeInputDeviceError = () => Promise.reject(this.messages.error.MEDIA_ERROR);
+    const handleChangeInputDeviceError = () => {
+      return Promise.reject({
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+      });
+    };
 
     if (!deviceId) {
       return this.bridge.setDefaultInputDevice().then(handleChangeInputDeviceSuccess)
                                                 .catch(handleChangeInputDeviceError);
     }
     return this.bridge.changeInputDevice(deviceId).then(handleChangeInputDeviceSuccess)
-                                                  .catch(handleChangeInputDeviceError);;
+                                                  .catch(handleChangeInputDeviceError);
   }
 
   async changeOutputDevice(deviceId) {

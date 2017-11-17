@@ -222,6 +222,8 @@
     "app.audioModal.no": "No",
     "app.audioModal.echoTestTitle": "This is a private echo test. Speak a few words. Did you hear audio?",
     "app.audioModal.settingsTitle": "Change your audio settings",
+    "app.audioModal.helpTitle": "There was an issue with your media devices",
+    "app.audioModal.helpText": "Did you give BigBlueButton permission to access your microphone? Note that a dialog should appear when you try to join audio, asking for your media device permissions, please accept that in order to join the audio conference. If that is not the case, try changing your microphone permissions in your browser's settings.",
     "app.audioModal.connecting": "Connecting",
     "app.audioModal.connectingEchoTest": "Connecting to echo test",
     "app.audioManager.joinedAudio": "You have joined the audio conference",

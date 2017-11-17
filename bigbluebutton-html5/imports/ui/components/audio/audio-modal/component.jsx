@@ -7,6 +7,7 @@ import styles from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
+import Help from '../help/component';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -55,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.settingsTitle',
     description: 'Title for the audio modal',
   },
+  helpTitle: {
+    id: 'app.audioModal.helpTitle',
+    description: 'Title for the audio help',
+  },
   connecting: {
     id: 'app.audioModal.connecting',
     description: 'Message for audio connecting',
@@ -88,8 +93,8 @@ class AudioModal extends Component {
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
     this.handleJoinMicrophone = this.handleJoinMicrophone.bind(this);
+    this.handleJoinListenOnly = this.handleJoinListenOnly.bind(this);
     this.closeModal = closeModal;
-    this.handleJoinListenOnly = joinListenOnly;
     this.joinEchoTest = joinEchoTest;
     this.exitAudio = exitAudio;
     this.leaveEchoTest = leaveEchoTest;
@@ -105,6 +110,10 @@ class AudioModal extends Component {
         title: intl.formatMessage(intlMessages.settingsTitle),
         component: () => this.renderAudioSettings(),
       },
+      help: {
+        title: intl.formatMessage(intlMessages.helpTitle),
+        component: () => this.renderHelp(),
+      }
     };
   }
 
@@ -133,10 +142,36 @@ class AudioModal extends Component {
   }
 
   handleGoToEchoTest() {
-    this.joinEchoTest().then(() => {
+    const {
+      inputDeviceId,
+      outputDeviceId,
+    } = this.props;
+
+    return this.joinEchoTest().then(() => {
+      console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
       });
+    }).catch(err => {
+      if (err.type === 'MEDIA_ERROR') {
+        this.setState({
+          content: 'help',
+        });
+      }
+    });
+  }
+
+  handleJoinListenOnly() {
+    const {
+      joinListenOnly,
+    } = this.props;
+
+    return joinListenOnly().catch(err => {
+      if (err.type === 'MEDIA_ERROR') {
+        this.setState({
+          content: 'help',
+        });
+      }
     });
   }
 
@@ -154,7 +189,7 @@ class AudioModal extends Component {
     } = this.props;
 
     return (
-      <span>
+      <span className={styles.audioOptions}>
         <Button
           className={styles.audioBtn}
           label={intl.formatMessage(intlMessages.microphoneLabel)}
@@ -237,6 +272,14 @@ class AudioModal extends Component {
         isEchoTest={isEchoTest}
         inputDeviceId={inputDeviceId}
         outputDeviceId={outputDeviceId}
+      />
+    );
+  }
+
+  renderHelp() {
+    return (
+      <Help
+        handleBack={this.handleGoToAudioOptions}
       />
     );
   }

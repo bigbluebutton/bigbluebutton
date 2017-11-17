@@ -195,9 +195,9 @@ export default class SIPBridge extends BaseAudioBridge {
       let userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
-        // log: {
-        //   builtinEnabled: false,
-        // },
+        log: {
+          builtinEnabled: false,
+        },
         displayName: callerIdName,
         register: false,
         traceSip: true,
@@ -206,6 +206,8 @@ export default class SIPBridge extends BaseAudioBridge {
         stunServers: stun,
         turnServers: turn,
       });
+
+      console.log('USERAGENT', userAgent);
 
       userAgent.removeAllListeners('connected');
       userAgent.removeAllListeners('disconnected');
@@ -259,6 +261,8 @@ export default class SIPBridge extends BaseAudioBridge {
         },
       },
     };
+
+    console.log('LOLLL', options, `sip:${callExtension}@${hostname}`);
 
     return userAgent.invite(`sip:${callExtension}@${hostname}`, options);
   }
@@ -361,6 +365,8 @@ export default class SIPBridge extends BaseAudioBridge {
   async changeOutputDevice(value) {
     const audioContext = document.querySelector(MEDIA_TAG);
 
+    console.log(audioContext);
+
     if (audioContext.setSinkId) {
       try {
         await audioContext.setSinkId(value);
@@ -371,6 +377,6 @@ export default class SIPBridge extends BaseAudioBridge {
       }
     }
 
-    return this.media.outputDeviceId;
+    return this.media.outputDeviceId || value;
   }
 }

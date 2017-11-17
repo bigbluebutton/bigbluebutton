@@ -6,12 +6,11 @@
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, .85);
+  animation: fade-in .5s ease-in;
 }
 
 .hint {
-  position: absolute;;
-  left: 385px;
-  top: 190px;
+  position: absolute;
   color: #fff;
   font-size: 16px;
   font-weight: 400;
@@ -78,5 +77,14 @@
 	60% {
     -ms-transform: translateY(5px);
     transform: translateY(5px);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+	100% {
+    opacity: 1;
   }
 }

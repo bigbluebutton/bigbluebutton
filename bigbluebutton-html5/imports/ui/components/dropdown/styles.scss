@@ -167,6 +167,7 @@ $dropdown-caret-height: 8px;
 
 %horz-center-caret {
   &:after, &:before {
+    left: 50%;
     margin-left: -($dropdown-caret-width);
   }
 }

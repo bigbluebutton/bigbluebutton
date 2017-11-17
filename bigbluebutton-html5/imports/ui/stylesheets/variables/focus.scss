@@ -41,14 +41,14 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   position: relative;
   display: inline-block;
   border-right: $focus-border-size solid $color-white;
-  border-bottom: 1px solid $color-white; 
+  border-bottom: 1px solid $color-white;
 
   &,
   &:active {
     &:focus {
       outline: none;
       border-right: $focus-border-size solid $color-primary;
-      border-bottom: 1px solid $color-primary;     
+      border-bottom: 1px solid $color-primary;
     }
   }
 }
@@ -74,7 +74,7 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
     &:focus {
       outline: none;
       border: $focus-border-size solid $color-primary;
-      border-radius: $focus-border-size; 
+      border-radius: $focus-border-size;
     }
   }
 }
@@ -84,7 +84,7 @@ $list-item-bg-hover: darken($user-list-bg, 7%);
   position: relative;
   overflow: visible;
   display: inline-block;
-  
+
   &,
   &:active {
     &:focus {
