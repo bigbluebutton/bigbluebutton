@@ -56,7 +56,9 @@ export default class SIPBridge extends BaseAudioBridge {
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
 
-    const causes = window.SIP.C.causes;
+    const {
+      causes,
+    } = window.SIP.C;
 
     this.errorCodes = {
       [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
@@ -76,14 +78,14 @@ export default class SIPBridge extends BaseAudioBridge {
       this.callback = callback;
 
       return this.doCall({ callExtension, isListenOnly, inputStream })
-                 .catch((reason) => {
-                   callback({
-                     status: this.baseCallStates.failed,
-                     error: this.baseErrorCodes.GENERIC_ERROR,
-                     bridgeError: reason,
-                   });
-                   reject(reason);
-                 });
+        .catch((reason) => {
+          callback({
+            status: this.baseCallStates.failed,
+            error: this.baseErrorCodes.GENERIC_ERROR,
+            bridgeError: reason,
+          });
+          reject(reason);
+        });
     });
   }
 
@@ -108,9 +110,9 @@ export default class SIPBridge extends BaseAudioBridge {
     this.callOptions = options;
 
     return fetchStunTurnServers(sessionToken)
-                        .then(this.createUserAgent.bind(this))
-                        .then(this.inviteUserAgent.bind(this))
-                        .then(this.setupEventHandlers.bind(this));
+      .then(this.createUserAgent.bind(this))
+      .then(this.inviteUserAgent.bind(this))
+      .then(this.setupEventHandlers.bind(this));
   }
 
   transferCall(onTransferSuccess) {
@@ -123,7 +125,8 @@ export default class SIPBridge extends BaseAudioBridge {
         this.callback({
           status: this.baseCallStates.failed,
           error: this.baseErrorCodes.REQUEST_TIMEOUT,
-          bridgeError: 'Timeout on call transfer' });
+          bridgeError: 'Timeout on call transfer',
+        });
         reject(this.baseErrorCodes.REQUEST_TIMEOUT);
       }, CALL_TRANSFER_TIMEOUT);
 
@@ -207,8 +210,6 @@ export default class SIPBridge extends BaseAudioBridge {
         turnServers: turn,
       });
 
-      console.log('USERAGENT', userAgent);
-
       userAgent.removeAllListeners('connected');
       userAgent.removeAllListeners('disconnected');
 
@@ -222,7 +223,8 @@ export default class SIPBridge extends BaseAudioBridge {
         this.callback({
           status: this.baseCallStates.failed,
           error: this.baseErrorCodes.CONNECTION_ERROR,
-          bridgeError: 'User Agent Disconnected' });
+          bridgeError: 'User Agent Disconnected',
+        });
         reject(this.baseErrorCodes.CONNECTION_ERROR);
       };
 
@@ -262,8 +264,6 @@ export default class SIPBridge extends BaseAudioBridge {
       },
     };
 
-    console.log('LOLLL', options, `sip:${callExtension}@${hostname}`);
-
     return userAgent.invite(`sip:${callExtension}@${hostname}`, options);
   }
 
@@ -287,8 +287,8 @@ export default class SIPBridge extends BaseAudioBridge {
         }
 
         const mappedCause = cause in this.errorCodes ?
-                            this.errorCodes[cause] :
-                            this.baseErrorCodes.GENERIC_ERROR;
+          this.errorCodes[cause] :
+          this.baseErrorCodes.GENERIC_ERROR;
 
         return this.callback({
           status: this.baseCallStates.failed,
@@ -312,7 +312,7 @@ export default class SIPBridge extends BaseAudioBridge {
         const device = mediaDevices.find(d => d.label === deviceLabel);
         return this.changeInputDevice(device.deviceId);
       });
-    }
+    };
 
     return navigator.mediaDevices.getUserMedia({ audio: true }).then(handleMediaSuccess);
   }
@@ -328,7 +328,7 @@ export default class SIPBridge extends BaseAudioBridge {
         media.inputDevice.scriptProcessor = null;
         media.inputDevice.source = null;
         return this.changeInputDevice(value);
-      }
+      };
 
       return media.inputDevice.audioContext.close().then(handleAudioContextCloseSuccess);
     }
@@ -341,7 +341,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
     media.inputDevice.id = value;
     media.inputDevice.scriptProcessor = media.inputDevice.audioContext
-                                              .createScriptProcessor(2048, 1, 1);
+      .createScriptProcessor(2048, 1, 1);
     media.inputDevice.source = null;
 
     const constraints = {
@@ -352,20 +352,19 @@ export default class SIPBridge extends BaseAudioBridge {
 
     const handleMediaSuccess = (mediaStream) => {
       media.inputDevice.stream = mediaStream;
-      media.inputDevice.source = media.inputDevice.audioContext.createMediaStreamSource(mediaStream);
+      media.inputDevice.source = media.inputDevice.audioContext
+        .createMediaStreamSource(mediaStream);
       media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
       media.inputDevice.scriptProcessor.connect(media.inputDevice.audioContext.destination);
 
       return this.media.inputDevice;
-    }
+    };
 
     return navigator.mediaDevices.getUserMedia(constraints).then(handleMediaSuccess);
   }
 
   async changeOutputDevice(value) {
     const audioContext = document.querySelector(MEDIA_TAG);
-
-    console.log(audioContext);
 
     if (audioContext.setSinkId) {
       try {

@@ -5,6 +5,7 @@ import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users';
 
 const init = (messages) => {
+  if (AudioManager.initialized) return;
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const sessionToken = Auth.sessionToken;
