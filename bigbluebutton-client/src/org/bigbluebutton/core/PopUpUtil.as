@@ -23,7 +23,6 @@ package org.bigbluebutton.core {
 	import flash.ui.Keyboard;
 	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
-	import flash.utils.setTimeout;
 
 	import mx.containers.Panel;
 	import mx.controls.Alert;
@@ -103,7 +102,7 @@ package org.bigbluebutton.core {
 		private static function addPopUpToStage(parent:DisplayObject, className:Class, modal:Boolean = false, center:Boolean = true):IFlexDisplayObject {
 			var popUp:IFlexDisplayObject = PopUpManager.createPopUp(parent, className, modal);
 			if (center) {
-				setTimeout(function () : void {PopUpManager.centerPopUp(popUp)}, 50);
+				PopUpManager.centerPopUp(popUp)
 			}
 			popUpDict[getQualifiedClassName(className)] = popUp;
 
