@@ -196,7 +196,7 @@ class UserParticipants extends Component {
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
-          <div ref={(ref) => { this.refScrollItems = ref; }}>
+          <div ref={(ref) => { this.refScrollItems = ref; }} className={styles.list}>
             <TransitionGroup>
               { users.map(user => (
                 <CSSTransition
