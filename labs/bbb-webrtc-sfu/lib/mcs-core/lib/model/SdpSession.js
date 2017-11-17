@@ -52,7 +52,7 @@ module.exports = class SdpSession {
         }, 50);
       });
 
-      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getMainDescription()); 
+      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp()); 
 
       if (this._type === 'WebRtcEndpoint') {
         this._MediaServer.gatherCandidates(this._mediaElement);
@@ -70,7 +70,7 @@ module.exports = class SdpSession {
   async stop () {
     this._status = C.STATUS.STOPPING;
     try {
-      await this._MediaServer.stop(this.id);
+      await this._MediaServer.stop(this._mediaElement);
       this._status = C.STATUS.STOPPED;
       Promise.resolve();
     }

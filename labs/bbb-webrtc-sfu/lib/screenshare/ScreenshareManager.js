@@ -13,8 +13,6 @@ const express = require('express');
 const session = require('express-session')
 const wsModule = require('../websocket');
 const http = require('http');
-const fs = require('fs');
-const MediaController = require('../media-controller');
 var Screenshare = require('./screenshare');
 var C = require('../bbb/messages/Constants');
 // Global variables
@@ -106,7 +104,7 @@ module.exports = class ScreenshareManager {
       }
       if (webSocket.viewer && typeof webSocket.session !== 'undefined') {
         console.log("  [CM] Stopping viewer " + webSocket.viewerId);
-        webSocket.session._stopViewer(webSocket.viewerId);
+        webSocket.session.stopViewer(webSocket.viewerId);
       }
     });
 
@@ -194,8 +192,7 @@ module.exports = class ScreenshareManager {
 
         case 'onIceCandidate':
           if (session) {
-            console.log(" [CM] What the fluff is happening");
-            session._onIceCandidate(message.candidate);
+            session.onIceCandidate(message.candidate);
           } else {
             console.log(" [iceCandidate] Why is there no session on ICE CANDIDATE?");
           }
@@ -210,9 +207,8 @@ module.exports = class ScreenshareManager {
 
 
         case 'viewerIceCandidate':
-          console.log("[viewerIceCandidate] Session output => " + session);
           if (session) {
-            session._onViewerIceCandidate(message.candidate, message.callerName);
+            session.onViewerIceCandidate(message.candidate, message.callerName);
           } else {
             console.log("[iceCandidate] Why is there no session on ICE CANDIDATE?");
           }

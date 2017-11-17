@@ -68,8 +68,6 @@ module.exports = class SfuUser extends User {
   
     try {
       const answer = await session.start();
-      console.log("WELL");
-      console.log(answer);
       return Promise.resolve(answer);
     }
     catch (err) {
@@ -103,7 +101,7 @@ module.exports = class SfuUser extends User {
     }
   }
 
-  async unsubscribe (sdp, mediaId) {
+  async unsubscribe (mediaId) {
     try {
       await this.stopSession(mediaId);
       Promise.resolve();
@@ -114,7 +112,7 @@ module.exports = class SfuUser extends User {
     }
   }
 
-  async unpublish (sdp, mediaId) {
+  async unpublish (mediaId) {
     try {
       await this.stopSession(mediaId);
       Promise.resolve();
@@ -125,12 +123,13 @@ module.exports = class SfuUser extends User {
     }
   }
 
-  async stopSession (sdpId) {
-    let session = this._mediaSessions[sdpId];
+  async stopSession (sessionId) {
+    console.log("  [SfuUser] Stopping session => " + sessionId);
+    let session = this._mediaSessions[sessionId];
 
     try {
       await session.stop();
-      this._mediaSessions[sdpId] = null;
+      this._mediaSessions[sessionId] = null;
       return Promise.resolve();
     }
     catch (err) {
@@ -154,6 +153,24 @@ module.exports = class SfuUser extends User {
     }
     else {
       return Promise.reject(new Error("  [SfuUser] Source session " + sourceId + " not found"));
+    }
+  }
+
+  async leave () {
+    let sessions = Object.keys(this._mediaSessions);
+    console.log("  [SfuUser] User sessions will be killed");
+    console.log(sessions);
+
+    try {
+      for (var session in sessions) {
+        await this.stopSession(sessions[session]);
+      }
+
+      return Promise.resolve(sessions);
+    }
+    catch (err) {
+      this.handleError(err);
+      Promise.reject(new Error(err));
     }
   }
 

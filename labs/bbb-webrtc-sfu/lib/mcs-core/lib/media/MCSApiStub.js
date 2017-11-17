@@ -22,7 +22,6 @@ module.exports = class MCSApiStub extends EventEmitter{
   }
 
   async join (room, type, params) {
-    let self = this;
     try {
       const answer = await this._mediaController.join(room, type, params);
       return Promise.resolve(answer);
@@ -33,10 +32,9 @@ module.exports = class MCSApiStub extends EventEmitter{
     }
   }
 
-  // Not yet implemented in MediaController, should be simple nonetheless
-  async leave (room, userId) {
+  async leave (roomId, userId) {
     try {
-      const answer = await this._mediaController.leave(room, userId);
+      const answer = await this._mediaController.leave(roomId, userId);
       return Promise.resolve(answer);
     }
     catch (err) {
@@ -75,8 +73,8 @@ module.exports = class MCSApiStub extends EventEmitter{
   
   async unpublish (user, mediaId) {
     try {
-      const answer = await this._mediaController.unpublish(user, mediaId);
-      return Promise.resolve(answer);
+      await this._mediaController.unpublish(mediaId);
+      return Promise.resolve();
     }
     catch (err) {
       console.log(err);
@@ -103,10 +101,10 @@ module.exports = class MCSApiStub extends EventEmitter{
     }
   }
 
-  async unsubscribe (user, sdp, params) {
+  async unsubscribe (user, mediaId) {
     try {
       await this._mediaController.unsubscribe(user, mediaId);
-      return Promise.resolve(answer);
+      return Promise.resolve();
     }
     catch (err) {
       console.log(err);

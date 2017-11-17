@@ -1,41 +1,5 @@
 var config = require('config');
-var kurento = require('kurento-client');
 var Constants = require('./bbb/messages/Constants');
-
-var kurentoClient = null;
-var mediaPipelines = {};
-
-module.exports.getKurentoClient = function(kurentoUrl, callback) {
-  if (kurentoClient !== null) {
-    return callback(null, kurentoClient);
-  }
-
-  kurento(kurentoUrl, function(error, _kurentoClient) {
-    if (error) {
-      console.log("Could not find media server at address " + kurentoUrl);
-      return callback("Could not find media server at address" + kurentoUrl + ". Exiting with error " + error);
-    }
-
-    console.log(" [MediaHandler] Initiating kurento client. Connecting to: " + kurentoUrl);
-
-    kurentoClient = _kurentoClient;
-    callback(null, kurentoClient);
-  });
-}
-
-module.exports.getMediaPipeline = function(id, callback) {
-  console.log(' [MediaHandler] Creating media pipeline for ' + id);
-
-  if (mediaPipelines[id]) {
-    console.log(' [media] Pipeline already exists.');
-    callback(null, mediaPipelines[id]);
-  } else {
-    kurentoClient.create('MediaPipeline', function(err, pipeline) {
-      mediaPipelines[id] = pipeline;
-      return callback(err, pipeline);
-    });
-  }
-}
 
 module.exports.generateSdp = function(remote_ip_address, remote_video_port) {
   return "v=0\r\n"

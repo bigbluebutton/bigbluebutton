@@ -89,11 +89,12 @@ module.exports = class Video {
     let sdpAnswer;
 
     try {
-      this.userId = await this.mcs.join(this.meetingId, 'SFU', {}); 
+      this.userId = await this.mcs.join(this.meetingId, 'SFU', {});
       console.log("  [video] Join returned => " + this.userId);
 
       if (this.shared) {
         const ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
+
         this.mediaId = ret.sessionId;
         sharedWebcams[this.id] = this.mediaId;
         sdpAnswer = ret.answer;
@@ -105,7 +106,7 @@ module.exports = class Video {
         return callback(null, sdpAnswer);
       }
       else {
-        const ret  = await this.mcs.subscribe(this.userId, 'WebRtcEndpoint', sharedWebcams[this.id], {descriptor: sdpOffer});
+        const ret  = await this.mcs.subscribe(this.userId, sharedWebcams[this.id], 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this.mediaId = ret.sessionId;
         sdpAnswer = ret.answer;
@@ -123,7 +124,22 @@ module.exports = class Video {
     }
   };
 
-  stop () {
+  async stop () {
+    console.log(' [stop] Releasing endpoints for ' + this.userId);
+
+    try {
+      await this.mcs.leave(this.meetingId, this.userId);
+      if (this.shared) {
+        sharedWebcams[this.id] = null;
+      }
+      this._candidatesQueue = null;
+      return;
+    }
+    catch (err) {
+      console.log(err);
+      return;
+    }
+    return;
 
     //console.log(' [stop] Releasing webrtc endpoint for ' + id);
 

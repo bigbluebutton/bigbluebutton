@@ -120,20 +120,21 @@ module.exports = class MediaServer extends EventEmitter {
             });
             break;
 
-          default: return reject("[mcs] Invalid connect type");
+          default: return reject("  [media] Invalid connect type");
         }
       });
     }
     else {
-      return Promise.reject("Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+      return Promise.reject("  [media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
     }
   }
 
   stop (elementId) {
     let mediaElement = this._mediaElements[elementId];
-    // TODO remove event listeners
     if (typeof mediaElement !== 'undefined' && typeof mediaElement.release === 'function') {
+      console.log("  [media] Releasing endpoint => " + elementId);
       mediaElement.release();
+      this._mediaElements[elementId] = null;
     }
   }
 

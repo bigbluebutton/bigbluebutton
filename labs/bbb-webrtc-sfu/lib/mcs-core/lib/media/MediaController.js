@@ -65,7 +65,7 @@ module.exports = class MediaController {
   }
 
   getRoom (roomId) {
-    return this._rooms[roomdId];
+    return this._rooms[roomId];
   }
 
   async join (roomId, type, params) {
@@ -73,9 +73,10 @@ module.exports = class MediaController {
     try {
       let session;
       const room = await this.createRoomMCS(roomId);
+      this._rooms[roomId] = room;
       const user = await this.createUserMCS(roomId, type, params);
-      let userId = user.id;
-      room.setUser(user);
+      room.setUser(user.id);
+      this._users[user.id] = user;
       if (params.sdp) {
         session = user.addSdp(params.sdp);
       }
@@ -83,13 +84,37 @@ module.exports = class MediaController {
         session = user.addUri(params.sdp);
       }
 
-      console.log("[mcs] Resolving user " + userId);
-      return Promise.resolve(userId);
+      console.log("[mcs] Resolving user " + user.id);
+      return Promise.resolve(user.id);
     }
     catch (err) {
       console.log("[mcs] JOIN ERROR " + err);
       return Promise.reject(new Error(err));
     }
+  }
+
+  async leave (roomId, userId) {
+    try {
+      console.log("  [mcs] User => " + userId + " wants to leave ");
+      const room = this.getRoom(roomId);
+      const user = this.getUserMCS(userId);
+
+      const killedSessions = await user.leave();
+
+      for (var session in killedSessions) {
+        this._mediaSessions[killedSessions[session]] = null;
+      }
+
+      room.destroyUser(user.id);
+      this._users[user.id] = null;
+
+
+      return Promise.resolve();
+    }
+    catch (err) {
+      return Promise.reject(new Error(err));
+    }
+
   }
 
   async publishnsubscribe (userId, sourceId, sdp, params) {
@@ -166,7 +191,7 @@ module.exports = class MediaController {
     return Promise.resolve({answer, sessionId});
   }
 
-  async subscribe (userId, type, sourceId, params) {
+  async subscribe (userId, sourceId, type, params) {
     console.log("  [mcs] subscribe");
     let session;
     // TODO handle mediaType
@@ -235,9 +260,11 @@ module.exports = class MediaController {
   async unsubscribe (userId, mediaId) {
     try {
       const user = this.getUserMCS(userId);
-      const answer = await user.unsubscribe(mediaId);
+      if (user) {
+        const answer = await user.unsubscribe(mediaId);
+        this._mediaSessions[mediaId] = null;
+      }
       return Promise.resolve();
-      this._mediaSessions[mediaId] = null;
     }
     catch (err) {
       return Promise.reject(new Error(err));
