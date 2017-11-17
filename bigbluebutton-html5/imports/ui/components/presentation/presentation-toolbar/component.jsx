@@ -14,8 +14,8 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.nextSlideLabel',
     description: 'Next slide button label',
   },
-  slideOption: {
-    id: 'app.presentation.presentationToolbar.slide',
+  slideLabel: {
+    id: 'app.presentation.presentationToolbar.slideLabel',
     description: 'button for slide select',
   },
 });
@@ -119,7 +119,6 @@ class PresentationToolbar extends Component {
   }
 
 
-
   constructor(props) {
     super(props);
 
@@ -153,7 +152,7 @@ class PresentationToolbar extends Component {
           key={i}
         >
           {
-            intl.formatMessage(intlMessages.slideOption, { 0: i })
+            intl.formatMessage(intlMessages.slideLabel, { 0: i })
           }
         </option>));
     }
