@@ -9,10 +9,11 @@ $square-side-length: 1.56rem;
 
   cursor: pointer;
 
-  span {
+  span:first-child {
     width: $square-side-length;
     height: $square-side-length;
   }
+
 
   i {
     color: $color-gray-dark !important;
@@ -22,7 +23,7 @@ $square-side-length: 1.56rem;
 
   &:hover,
   &:focus {
-    span {
+    > span:first-child {
       background-color: transparent !important;
     }
   }
