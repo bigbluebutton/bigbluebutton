@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-export const withShortcut = (ComponentToWrap, shotcut) =>
+export const withShortcut = (ComponentToWrap, shortcut) =>
 class ShortcutWrapper extends Component {
   constructor() {
     super();
@@ -18,7 +18,7 @@ class ShortcutWrapper extends Component {
 
   handleShortcut(event) {
     let ctrlFlag = false; let altFlag = false; let shiftFlag = false;
-    const keys = shotcut.split('+');
+    const keys = shortcut.split('+');
 
     keys.forEach((element) => {
       switch (element) {
