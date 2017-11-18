@@ -96,7 +96,7 @@ package org.bigbluebutton.modules.present.model {
 		}
 		
 		public function isEmpty():Boolean {
-			return windows.length > 0;
+			return windows.length == 0;
 		}
 	}
 }

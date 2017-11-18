@@ -46,14 +46,12 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
 	import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
-	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.Presentation;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.modules.present.services.PresentationService;
 	import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
-	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
 	public class PresentProxy {
@@ -64,9 +62,7 @@ package org.bigbluebutton.modules.present.business
 		private var room:String;
 		private var userid:Number;
 		private var uploadService:FileUploadService;
-		private var slides:PresentationSlides;
 		private var sender:MessageSender;
-		private var _messageReceiver:MessageReceiver;
     
 		private var podManager: PresentationPodManager;
 		private var service: PresentationService;
@@ -76,7 +72,6 @@ package org.bigbluebutton.modules.present.business
 
 			podManager = PresentationPodManager.getInstance();
 
-			slides = new PresentationSlides();
 			sender = new MessageSender();
 			service = new PresentationService();
 		}
@@ -222,23 +217,6 @@ package org.bigbluebutton.modules.present.business
 			var req:URLRequest = new URLRequest(downloadUri);
 			navigateToURL(req,"_blank");
 		}
-				
-		/**
-		 * Loads a presentation from the server. creates a new PresentationService class 
-		 * 
-		 */		
-		public function loadPresentation(e:UploadEvent) : void
-		{
-			var presentationName:String = e.presentationName;
-			LOGGER.debug("PresentProxy::loadPresentation: presentationName={0}", [presentationName]);
-			var fullUri : String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName+"/slides";	
-			var slideUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName;
-			
-			LOGGER.debug("PresentationApplication::loadPresentation()... {0}", [fullUri]);
-//			var service:PresentationService = new PresentationService();
-//			service.load(fullUri, slides, slideUri);
-			LOGGER.debug('number of slides={0}', [slides.size()]);
-		}
 
 		/**
 		 * It may take a few seconds for the process to complete on the server, so we allow for some time 
@@ -279,7 +257,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */
 		public function handleRequestNewPresentationPod(e: RequestNewPresentationPodEvent): void {
-			sender.requestNewPresentationPod(e.requesterId);
+			sender.requestNewPresentationPod();
 		}
 
 		/**
@@ -288,11 +266,11 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */
 		public function handleRequestClosePresentationPod(e: RequestClosePresentationPodEvent): void {
-			sender.requestClosePresentationPod(e.requesterId, e.podId);
+			sender.requestClosePresentationPod(e.podId);
 		}
 
 		public function handleSetPresenterInPodReqEvent(e: SetPresenterInPodReqEvent): void {
-			sender.handleSetPresenterInPodReqEvent(e.podId, e.prevPresenterId, e.nextPresenterId);
+			sender.handleSetPresenterInPodReqEvent(e.podId, e.nextPresenterId);
 		}
 
 	}
