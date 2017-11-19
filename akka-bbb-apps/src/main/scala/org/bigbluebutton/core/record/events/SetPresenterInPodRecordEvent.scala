@@ -24,16 +24,11 @@ class SetPresenterInPodRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("SetPresenterInPodEvent")
 
-  def setPrevPresenterId(userId: String) {
-    eventMap.put(PREV_PRESENTER, userId)
-  }
-
   def setNextPresenterId(userId: String) {
     eventMap.put(NEXT_PRESENTER, userId)
   }
 }
 
 object SetPresenterInPodRecordEvent {
-  protected final val PREV_PRESENTER = "prevPresenterId"
   protected final val NEXT_PRESENTER = "nextPresenterId"
 }

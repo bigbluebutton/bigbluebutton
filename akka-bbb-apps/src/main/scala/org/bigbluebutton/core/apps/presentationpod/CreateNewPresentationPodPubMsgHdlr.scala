@@ -23,33 +23,22 @@ trait CreateNewPresentationPodPubMsgHdlr extends SystemConfiguration {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      def buildCreateNewPresentationPodEvtMsg(meetingId: String, ownerId: String, podId: String): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, ownerId)
+      def buildCreateNewPresentationPodEvtMsg(meetingId: String, currentPresenterId: String, podId: String): BbbCommonEnvCoreMsg = {
+        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, msg.header.userId)
         val envelope = BbbCoreEnvelope(CreateNewPresentationPodEvtMsg.NAME, routing)
-        val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, ownerId)
+        val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, msg.header.userId)
 
-        val body = CreateNewPresentationPodEvtMsgBody(ownerId, podId)
+        val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
         val event = CreateNewPresentationPodEvtMsg(header, body)
 
         BbbCommonEnvCoreMsg(envelope, event)
       }
 
-      val ownerId = msg.body.ownerId
-
-      val resultPod: PresentationPod = PresentationPodsApp.getPresentationPod(state, "DEFAULT_PRESENTATION_POD") match {
-        case None => PresentationPodsApp.createDefaultPresentationPod(ownerId)
-        case Some(pod) => {
-          if (pod.ownerId == "") {
-            PresentationPodsApp.changeOwnershipOfDefaultPod(state, ownerId).get
-          } else {
-            PresentationPodsApp.createPresentationPod(ownerId)
-          }
-        }
-      }
+      val resultPod: PresentationPod = PresentationPodsApp.createPresentationPod(msg.header.userId)
 
       val respMsg = buildCreateNewPresentationPodEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        ownerId, resultPod.id
+        resultPod.currentPresenter, resultPod.id
       )
       bus.outGW.send(respMsg)
 

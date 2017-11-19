@@ -20,15 +20,5 @@
 package org.bigbluebutton.core.record.events
 
 class RemovePresentationPodRecordEvent extends AbstractPresentationRecordEvent {
-  import RemovePresentationPodRecordEvent._
-
   setEvent("RemovePresentationPodEvent")
-
-  def setOwnerId(name: String) {
-    eventMap.put(OWNER_ID, name)
-  }
-}
-
-object RemovePresentationPodRecordEvent {
-  protected final val OWNER_ID = "ownerId"
 }
