@@ -54,10 +54,12 @@ trait MuteUserCmdMsgHdlr extends MuteUserCmdMsgHdlrDefault {
     for {
       u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
     } yield {
-      log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
-      val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(meetingId, voiceConf,
-        u.voiceUserId, !u.muted)
-      outGW.send(event)
+      if (u.muted != msg.body.mute) {
+        log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
+        val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(meetingId, voiceConf,
+          u.voiceUserId, msg.body.mute)
+        outGW.send(event)
+      }
     }
   }
 }

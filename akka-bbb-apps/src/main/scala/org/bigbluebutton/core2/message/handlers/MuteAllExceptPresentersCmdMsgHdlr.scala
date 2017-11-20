@@ -17,24 +17,26 @@ trait MuteAllExceptPresentersCmdMsgHdlr {
       val reason = "No permission to mute all except presenters."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
-        MeetingStatus2x.unmuteMeeting(liveMeeting.status)
-      } else {
-        MeetingStatus2x.muteMeeting(liveMeeting.status)
-      }
+      if (msg.body.mute != MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+        if (msg.body.mute) {
+          MeetingStatus2x.muteMeeting(liveMeeting.status)
+        } else {
+          MeetingStatus2x.unmuteMeeting(liveMeeting.status)
+        }
 
-      val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
-      val event = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
+        val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
+        val event = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
 
-      outGW.send(event)
+        outGW.send(event)
 
-      // I think the correct flow would be to find those who are presenters and exclude them
-      // from the list of voice users. The remaining, mute.
-      VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
-        if (!vu.listenOnly) {
-          Users2x.findWithIntId(liveMeeting.users2x, vu.intId) match {
-            case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu, muted)
-            case None    => muteUserInVoiceConf(vu, muted)
+        // I think the correct flow would be to find those who are presenters and exclude them
+        // from the list of voice users. The remaining, mute.
+        VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
+          if (!vu.listenOnly) {
+            Users2x.findWithIntId(liveMeeting.users2x, vu.intId) match {
+              case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu, muted)
+              case None    => muteUserInVoiceConf(vu, muted)
+            }
           }
         }
       }
