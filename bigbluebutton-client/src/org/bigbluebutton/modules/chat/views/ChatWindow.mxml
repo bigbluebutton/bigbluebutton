@@ -46,7 +46,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import flexlib.mdi.events.MDIWindowEvent;
 		
 		import org.bigbluebutton.common.IBbbModuleWindow;
-		import org.bigbluebutton.common.events.CloseWindowEvent;
 		import org.bigbluebutton.common.events.LocaleChangeEvent;
 		import org.bigbluebutton.core.KeyboardUtil;
 		import org.bigbluebutton.main.events.ShortcutEvent;

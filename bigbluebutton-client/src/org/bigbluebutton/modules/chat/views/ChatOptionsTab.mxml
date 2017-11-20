@@ -59,9 +59,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 		import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
 		import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+		import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
 		import org.bigbluebutton.modules.chat.model.ChatOptions;
 		import org.bigbluebutton.modules.chat.model.GroupChat;
 		import org.bigbluebutton.modules.chat.views.model.ChatUser;
+		import org.bigbluebutton.modules.chat.views.model.GroupChatData;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ChatOptionsTab);
@@ -174,13 +176,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			globalDispatcher.dispatchEvent(createEvent);
 		}
 		
-		protected function openGroupChat(event:Event):void {
-			
+		protected function openGroupChat():void {
+			if (groupChatList.selectedItem) {
+				globalDispatcher.dispatchEvent(new OpenChatBoxEvent(GroupChatData(groupChatList.selectedItem).chatId));
+			}
 		}
 		
 		public function onGroupChatListKeyDown(event:KeyboardEvent):void{
 			if (event.keyCode == 32){
-				// openGroupChat(event);
+				openGroupChat();
 			}
 		}
 		
@@ -282,7 +286,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:List id="groupChatList" width="100%" rowCount="4" dataProvider="{groupChats}" dragEnabled="false" 
 		   visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"
 		   labelField="name"
-		   itemClick="openGroupChat(event)"
+		   itemClick="openGroupChat()"
 		   keyDown="onGroupChatListKeyDown(event)"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.toolTip')}"
 		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.accessibilityName')}"/>

@@ -443,17 +443,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleFocusOnChatBoxEvent(e:FocusOnChatBoxEvent):void {
-        // Can't seem to force switching to chat box (ralam nov 9, 2017)
-/*        
-        var chatBox: ChatBox = getChatBoxForUser(e.chatId);
+        var chatBox: ChatTab = getChatBoxForUser(e.chatId);
         if (chatBox != null) {
-          focusSwitchTimer = new Timer(250, 1);
-          focusSwitchTimer.addEventListener(TimerEvent.TIMER, function():void {
-            chatBox.focusToTextMessageArea();
-          });
-          focusSwitchTimer.start();
+			chatBox.setFocus();
         }
-        */
       }
       
       private function remoteClosePrivate(e:ShortcutEvent):void {
