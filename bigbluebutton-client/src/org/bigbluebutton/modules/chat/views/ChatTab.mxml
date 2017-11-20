@@ -254,8 +254,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleUserLeftEvent(event:UserLeftEvent):void {
-        // Handle user leaving so that the user won't be talking to someone not there.
-        if (event.userID == chatWithUserID) {
+        var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
+        if (gc != null && gc.id == chatId) {
           displayUserHasLeftMessage();
           txtMsgArea.enabled = false;
           scrollToEndOfMessage();
@@ -279,8 +279,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleUserJoinedEvent(event:UserJoinedEvent):void {
-        // Handle user joining so that the user can start to talk if the person rejoins
-        if (event.userID == chatWithUserID) {
+        var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
+        if (gc != null && gc.id == chatId) {
+          // Handle user joining so that the user can start to talk if the person rejoins
           displayUserHasJoinedMessage();
           txtMsgArea.enabled = true;
           scrollToEndOfMessage();
