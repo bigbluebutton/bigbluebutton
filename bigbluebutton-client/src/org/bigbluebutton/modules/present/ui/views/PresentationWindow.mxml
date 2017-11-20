@@ -164,7 +164,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var windowId:String;
 			
 			[Bindable] private var podId: String = "";
-			private var ownerId: String = "";
 			[Bindable] private var currentPresenterInPod: String = "";
 			[Bindable] private var currentPresenterUsername: String = "";
 			
@@ -182,6 +181,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function init():void{
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
+				
+				showControls = presentOptions.showWindowControls;
 			}
 
 			private function amITheCurrentPodPresenter(): Boolean {
@@ -229,15 +230,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return item.type == "user" || item.type == "action";
 			}
 
-			public function onPodCreated(_podId: String, _ownerId: String):void {
-				this.podId = _podId;
-				this.ownerId = _ownerId;
-				this.currentPresenterInPod = this.ownerId;
+			public function onPodCreated(podId: String, presenterId: String):void {
+				this.podId = podId;
+				this.currentPresenterInPod = presenterId;
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
 				populatePodDropdown();
 
 				// make me currentPodPresenter
-				if (StringUtils.isEmpty(this.currentPresenterInPod) || StringUtils.isEmpty(this.currentPresenterUsername)) {
+				if ((StringUtils.isEmpty(this.currentPresenterInPod) || StringUtils.isEmpty(this.currentPresenterUsername)) && UsersUtil.amIModerator()) {
 					setPresenterInPodHelper(UsersUtil.getMyUserID());
 				}
 			}
@@ -248,13 +248,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function getPodId(): String { return this.podId; }
 
-			public function getOwnerId(): String { return this.ownerId; }
-			public function setOwnerId(newOwnerId: String): void {
-				this.ownerId = newOwnerId;
-				// trigger update
-				onPodCreated(this.podId, this.ownerId);
-			}
-
 			private function onPresentationPodControlsChange(e:Event):void {
 				if(presentationPodControls.selectedItem != null && presentationPodControls.selectedItem.hasOwnProperty('handler')) {
 					presentationPodControls.selectedItem.handler();
@@ -263,10 +256,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function newPresentationWindowHandler(): void {
-				var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
-
-				event.requesterId = UsersUtil.getMyUserID();
-				localDispatcher.dispatchEvent(event);
+				localDispatcher.dispatchEvent(new RequestNewPresentationPodEvent());
 			}
 
 			private function closePresentationWindowHandler(): void {
@@ -286,26 +276,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function setPresenterInPodHelper(nextPresenterId: String): void {
-				var prevPresenterId: String = this.ownerId;
-				if (!StringUtils.isEmpty(this.currentPresenterInPod)) {
-					prevPresenterId = this.currentPresenterInPod;
-				}
-				localDispatcher.dispatchEvent(new SetPresenterInPodReqEvent(this.podId, prevPresenterId, nextPresenterId));
+				localDispatcher.dispatchEvent(new SetPresenterInPodReqEvent(this.podId, nextPresenterId));
 			}
 
 			private function handleSetPresenterInPodRespEvent(event: SetPresenterInPodRespEvent): void {
 				if (event.podId != this.podId) {
 					return;
 				}
-
-				this.currentPresenterInPod = event.nextPresenterId as String;
+				
+				this.currentPresenterInPod = event.nextPresenterId;
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
-				if (UsersUtil.getMyUserID() == event.prevPresenterId) {
+
+				if (amITheCurrentPodPresenter()) {
+					becomePresenter();
+				} else {
 					becomeViewer();
 				}
-
-				if (UsersUtil.getMyUserID() == event.nextPresenterId) {
-					becomePresenter();
+				
+				//send new presenter to the whiteboard canvas
+				if (whiteboardOverlay != null) {
+					whiteboardOverlay.presenterChange(amITheCurrentPodPresenter(), currentPresenterInPod);
 				}
 				
 				populatePodDropdown();
@@ -651,7 +641,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if(whiteboardOverlay != null) {
           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
           slideView.acceptOverlayCanvas(this.podId, whiteboardOverlay);
-		}
+          
+          whiteboardOverlay.presenterChange(amITheCurrentPodPresenter(), currentPresenterInPod);
+        }
       }
 			
 			override protected function resourcesChanged():void{

@@ -153,7 +153,7 @@ class MeetingActor(
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 
   // Create a default Presentation Pod
-  //  state = PresentationPodsApp.createDefaultPresentationPod(state)
+  state = PresentationPodsApp.createDefaultPresentationPod(state)
   log.debug("NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
 
   /*******************************************************************/

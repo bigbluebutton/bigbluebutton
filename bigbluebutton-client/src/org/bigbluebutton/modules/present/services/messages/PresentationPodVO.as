@@ -4,15 +4,14 @@ import mx.collections.ArrayCollection;
 
     public class PresentationPodVO {
         private var _id:String;
-        private var _ownerId:String;
         private var _currentPresenter:String;
         private var _authorizedPresenters:ArrayCollection;
         private var _presentations:ArrayCollection;
 
-        public function PresentationPodVO(id: String, ownerId: String, currentPresenter: String,
-                                          authorizedPresenters: ArrayCollection, presentations: ArrayCollection) {
+        public function PresentationPodVO(id: String, currentPresenter: String,
+                                          authorizedPresenters: ArrayCollection,
+                                          presentations: ArrayCollection) {
             _id = id;
-            _ownerId = ownerId;
             _currentPresenter = currentPresenter;
             _authorizedPresenters = authorizedPresenters;
             _presentations = presentations;
@@ -22,11 +21,7 @@ import mx.collections.ArrayCollection;
             return _id;
         }
 
-        public function get ownerId():String {
-            return _ownerId;
-        }
-
-        public function currentPresenter():String {
+        public function get currentPresenter():String {
             return _currentPresenter;
         }
 

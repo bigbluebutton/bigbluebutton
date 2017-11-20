@@ -225,8 +225,8 @@ package org.bigbluebutton.modules.present.services.messaging
         presentationVOs.addItem(authPresArray[m] as String);
       }  
 
-      var podVO:PresentationPodVO = new PresentationPodVO(presentationPod.id, presentationPod.ownerId,
-                presentationPod.currentPresenter, authorizedPresenters, presentationVOs);
+      var podVO:PresentationPodVO = new PresentationPodVO(presentationPod.id, presentationPod.currentPresenter,
+                                                          authorizedPresenters, presentationVOs);
       return podVO;
     }
     
@@ -298,15 +298,14 @@ package org.bigbluebutton.modules.present.services.messaging
     }
 
     private function handleCreateNewPresentationPodEvtMsg(msg:Object): void {
-      var ownerId: String = msg.body.ownerId;
+      var currentPresenterId: String = msg.body.currentPresenterId;
       var podId: String = msg.body.podId;
-      dispatcher.dispatchEvent(new NewPresentationPodCreated(podId, ownerId));
+      dispatcher.dispatchEvent(new NewPresentationPodCreated(podId, currentPresenterId));
     }
 
     private function handleRemovePresentationPodEvtMsg(msg:Object): void {
-      var ownerId: String = msg.body.ownerId;
       var podId: String = msg.body.podId;
-      dispatcher.dispatchEvent(new PresentationPodRemoved(podId, ownerId));
+      dispatcher.dispatchEvent(new PresentationPodRemoved(podId));
     }
 
     private function handleGetAllPresentationPodsRespMsg(msg: Object): void {
@@ -325,9 +324,8 @@ package org.bigbluebutton.modules.present.services.messaging
 
     private function handleSetPresenterInPodRespMsg(msg: Object): void {
       var podId: String = msg.body.podId as String;
-      var prevPresenterId: String = msg.body.prevPresenterId as String;
       var nextPresenterId: String = msg.body.nextPresenterId as String;
-      dispatcher.dispatchEvent(new SetPresenterInPodRespEvent(podId, prevPresenterId, nextPresenterId));
+      dispatcher.dispatchEvent(new SetPresenterInPodRespEvent(podId, nextPresenterId));
     }
   }
 }

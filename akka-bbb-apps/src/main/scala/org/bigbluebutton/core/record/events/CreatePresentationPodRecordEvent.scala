@@ -24,11 +24,11 @@ class CreatePresentationPodRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("CreatePresentationPodEvent")
 
-  def setOwnerId(name: String) {
-    eventMap.put(OWNER_ID, name)
+  def setCurrentPresenter(name: String) {
+    eventMap.put(CURRENT_PRESENTER, name)
   }
 }
 
 object CreatePresentationPodRecordEvent {
-  protected final val OWNER_ID = "ownerId"
+  protected final val CURRENT_PRESENTER = "currentPresenter"
 }

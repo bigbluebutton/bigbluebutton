@@ -179,7 +179,7 @@ class RedisRecorderActor(val system: ActorSystem)
     val ev = new CreatePresentationPodRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
-    ev.setOwnerId(msg.body.ownerId)
+    ev.setCurrentPresenter(msg.body.currentPresenterId)
 
     record(msg.header.meetingId, ev.toMap)
   }
@@ -188,7 +188,6 @@ class RedisRecorderActor(val system: ActorSystem)
     val ev = new RemovePresentationPodRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
-    ev.setOwnerId(msg.body.ownerId)
 
     record(msg.header.meetingId, ev.toMap)
   }
@@ -197,7 +196,6 @@ class RedisRecorderActor(val system: ActorSystem)
     val ev = new SetPresenterInPodRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
-    ev.setPrevPresenterId(msg.body.prevPresenterId)
     ev.setNextPresenterId(msg.body.nextPresenterId)
 
     record(msg.header.meetingId, ev.toMap)

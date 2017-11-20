@@ -31,7 +31,7 @@ trait GetPresentationInfoReqMsgHdlr {
         BbbCommonEnvCoreMsg(envelope, event)
       }
 
-      val requesterId = msg.body.userId
+      val requesterId = msg.header.userId
       val podId = msg.body.podId
 
       for {

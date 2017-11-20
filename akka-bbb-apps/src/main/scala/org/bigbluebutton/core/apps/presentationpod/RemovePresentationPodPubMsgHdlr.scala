@@ -18,29 +18,21 @@ trait RemovePresentationPodPubMsgHdlr {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      def buildRemovePresentationPodEvtMsg(meetingId: String, ownerId: String, podId: String): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, ownerId)
+      def buildRemovePresentationPodEvtMsg(meetingId: String, podId: String): BbbCommonEnvCoreMsg = {
+        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, msg.header.userId)
         val envelope = BbbCoreEnvelope(RemovePresentationPodEvtMsg.NAME, routing)
-        val header = BbbClientMsgHeader(RemovePresentationPodEvtMsg.NAME, meetingId, ownerId)
+        val header = BbbClientMsgHeader(RemovePresentationPodEvtMsg.NAME, meetingId, msg.header.userId)
 
-        val body = RemovePresentationPodEvtMsgBody(ownerId, podId)
+        val body = RemovePresentationPodEvtMsgBody(podId)
         val event = RemovePresentationPodEvtMsg(header, body)
 
         BbbCommonEnvCoreMsg(envelope, event)
       }
 
-      val requesterId = msg.body.requesterId // TODO -- use it
-
       val newState = for {
         pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
       } yield {
-
-        val ownerId = pod.ownerId
-
-        val event = buildRemovePresentationPodEvtMsg(
-          liveMeeting.props.meetingProp.intId,
-          ownerId, pod.id
-        )
+        val event = buildRemovePresentationPodEvtMsg(liveMeeting.props.meetingProp.intId, pod.id)
 
         bus.outGW.send(event)
 

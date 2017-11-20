@@ -6,17 +6,15 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
 
-  def create(ownerId: String): PresentationPod = {
-    val currentPresenter = ownerId
-    PresentationPod(genId(), ownerId, currentPresenter, Map.empty)
+  def create(creatorId: String): PresentationPod = {
+    val currentPresenter = creatorId
+    PresentationPod(genId(), currentPresenter, Map.empty)
   }
 
-  def createDefaultPod(ownerId: String): PresentationPod = {
-    val currentPresenter = ownerId
-
+  def createDefaultPod(): PresentationPod = {
     // we hardcode the podId of the default presentation pod for the purposes of having bbb-web know the podId
     // in advance (so we can fully process default.pdf)
-    PresentationPod("DEFAULT_PRESENTATION_POD", ownerId, currentPresenter, Map.empty)
+    PresentationPod("DEFAULT_PRESENTATION_POD", "", Map.empty)
   }
 }
 
@@ -41,7 +39,7 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
 
 }
 
-case class PresentationPod(id: String, ownerId: String, currentPresenter: String,
+case class PresentationPod(id: String, currentPresenter: String,
                            presentations: collection.immutable.Map[String, PresentationInPod]) {
   def addPresentation(presentation: PresentationInPod): PresentationPod = {
     println(s" 1 PresentationPods::addPresentation  ${presentation.id}  presName=${presentation.name}   current=${presentation.current} ")
@@ -104,7 +102,7 @@ case class PresentationPod(id: String, ownerId: String, currentPresenter: String
     val b = s"printPod (${presentations.values.size}):"
     var d = ""
     presentations.values.foreach(p => d += s"\nPRES_ID=${p.id} NAME=${p.name} CURRENT=${p.current}\n")
-    b.concat(s"PODID=$id  OWNERID=$ownerId  CURRENTPRESENTER=$currentPresenter PRESENTATIONS={{{$d}}}\n")
+    b.concat(s"PODID=$id CURRENTPRESENTER=$currentPresenter PRESENTATIONS={{{$d}}}\n")
   }
 
   def resizePage(presentationId: String, pageId: String,
