@@ -347,7 +347,7 @@ package org.bigbluebutton.modules.users.services
       var message:Object = {
         header: {name: "MuteMeetingCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {mutedBy: UsersUtil.getMyUserID()}
+        body: {mutedBy: UsersUtil.getMyUserID(), mute: mute}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -368,7 +368,7 @@ package org.bigbluebutton.modules.users.services
       var message:Object = {
         header: {name: "MuteAllExceptPresentersCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {mutedBy: UsersUtil.getMyUserID()}
+        body: {mutedBy: UsersUtil.getMyUserID(), mute: mute}
       };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -389,7 +389,7 @@ package org.bigbluebutton.modules.users.services
       var message:Object = {
         header: {name: "MuteUserCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {userId: userid, mutedBy: UsersUtil.getMyUserID()}
+        body: {userId: userid, mutedBy: UsersUtil.getMyUserID(), mute: mute}
       };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();

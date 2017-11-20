@@ -58,6 +58,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.collections.ArrayCollection;
 		import mx.core.mx_internal;
 		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
 		import mx.utils.StringUtil;
 		
 		import flashx.textLayout.formats.Direction;
@@ -112,6 +114,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		{
 			dispatcher = new Dispatcher();
 			updateStyles();
+			
+			// For an unknown reason this popup cannot be centred directly using PopUpUtil
+			PopUpManager.centerPopUp(this)
 		}
 
 		public function setPodId(_podId: String): void {
