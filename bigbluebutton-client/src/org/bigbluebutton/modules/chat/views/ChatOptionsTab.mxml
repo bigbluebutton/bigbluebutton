@@ -64,7 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.chat.views.model.ChatUser;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      private static const LOGGER:ILogger = getClassLogger(ChatOptionsTab);      
+      private static const LOGGER:ILogger = getClassLogger(ChatOptionsTab);
       
 		[Bindable] public var users:ArrayCollection;
 		[Bindable] public var groupChats:ArrayCollection;
@@ -256,14 +256,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
   </fx:Declarations>
   
-	<mx:HBox width="100%" verticalAlign="middle" visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}">
+	<mx:HBox id="newGroupChatBox" width="100%" verticalAlign="middle"
+			 visible="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows}"
+			 includeInLayout="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows}">
 		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.newChat.label')}"/>
 		<mx:TextInput id="newChatNameInput" width="100%"/>
 		<mx:Button id="createChatGroupBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.newChat.create')}"
 				   styleName="mainActionButton" height="30"
 				   enabled="{!StringUtils.isEmpty(newChatNameInput.text)}" click="onCreateChatBtnClick()" />
 	</mx:HBox>
-	
+
   <mx:Label id="lblSelectPrivateChat" styleName="chatOptionsLabel"
             text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
             visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
@@ -275,7 +277,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
            accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
   <mx:Label id="lblSelectGroupChat" styleName="chatOptionsLabel"
-			text="{ResourceUtil.getInstance().getString('bbb.chat.groupChatSelect')}" 
+			text="{ResourceUtil.getInstance().getString('bbb.chat.groupChatSelect')}"
 			visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"/>
   <mx:List id="groupChatList" width="100%" rowCount="4" dataProvider="{groupChats}" dragEnabled="false" 
 		   visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"

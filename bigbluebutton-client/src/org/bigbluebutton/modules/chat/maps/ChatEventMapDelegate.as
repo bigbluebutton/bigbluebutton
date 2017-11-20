@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.chat.maps {
         _windowMapper[i] = new GroupChatWindowMapper(winId);
       }
     }
-      
+    
     private function findGroupChatWindowMapper(winId: String):GroupChatWindowMapper {
       for (var i:int=0; i<_windowMapper.length; i++) {
         var wMapper: GroupChatWindowMapper = _windowMapper[i];
@@ -202,7 +202,7 @@ package org.bigbluebutton.modules.chat.maps {
     }
     
     private function openChatWindow(window:ChatWindow):void {
-      // Use the GLobal Dispatcher so that this message will be heard by the
+      // Use the Global Dispatcher so that this message will be heard by the
       // main application.		   	
       var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
       event.window = window; 

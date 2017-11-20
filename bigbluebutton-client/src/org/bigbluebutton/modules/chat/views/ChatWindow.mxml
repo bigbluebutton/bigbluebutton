@@ -27,6 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  showCloseButton="false"
                  implements="org.bigbluebutton.common.IBbbModuleWindow" 
                  creationComplete="onCreationComplete()"
+				 closeMDIWindow="closeMDIWindowHandler(event)"
                  xmlns:components="org.bigbluebutton.modules.chat.view.components.*" 
                  xmlns:mate="http://mate.asfusion.com/" 
                  xmlns:views="org.bigbluebutton.modules.chat.views.*">
@@ -42,11 +43,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
 		
+		import flexlib.mdi.events.MDIWindowEvent;
+		
 		import org.bigbluebutton.common.IBbbModuleWindow;
+		import org.bigbluebutton.common.events.CloseWindowEvent;
 		import org.bigbluebutton.common.events.LocaleChangeEvent;
 		import org.bigbluebutton.core.KeyboardUtil;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
 		import org.bigbluebutton.modules.chat.model.ChatModel;
 		import org.bigbluebutton.modules.chat.model.ChatOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -201,8 +206,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function handleResizableStatus(value:Boolean):void {
         this.resizable = value;
       }
-      
-    ]]>
+		
+		protected function closeMDIWindowHandler(event:MDIWindowEvent):void {
+			this.removeEventListener(MDIWindowEvent.CLOSE, closeMDIWindowHandler);
+			var evt:GroupChatBoxClosedEvent = new GroupChatBoxClosedEvent(_mainChatId, _windowId);
+			disp.dispatchEvent(evt);
+		}
+
+	]]>
   </fx:Script>
   <mx:VBox width="100%" height="100%">
     <views:ChatView id="chatView" chatOptions="{chatOptions}" mainChatId="{_mainChatId}"
