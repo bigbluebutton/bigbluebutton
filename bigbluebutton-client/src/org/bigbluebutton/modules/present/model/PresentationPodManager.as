@@ -56,14 +56,7 @@ package org.bigbluebutton.modules.present.model {
             this.presentationService = service;
         }
         
-        public function requestDefaultPresentationPod(): void {
-            var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
-            event.requesterId = UsersUtil.getMyUserID();
-            globalDispatcher.dispatchEvent(event);
-        }
-        
         public function getPod(podId: String): PresentationModel {
-            var resultingPod: PresentationModel = null;
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 
@@ -71,15 +64,15 @@ package org.bigbluebutton.modules.present.model {
                     return pod;
                 }
             }
-            return resultingPod;
+            return null;
         }
 
         public function getDefaultPresentationPod(): PresentationModel {
             var pod: PresentationModel = getPod(DEFAULT_POD_ID);
-            return pod || null;
+            return pod;
         }
 
-        public function handleAddPresentationPod(podId: String, ownerId: String): void {
+        public function handleAddPresentationPod(podId: String): void {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
                 if (pod.getPodId() == podId) {
@@ -87,11 +80,11 @@ package org.bigbluebutton.modules.present.model {
                 }
             }
 
-            var newPod: PresentationModel = new PresentationModel(podId, ownerId);
+            var newPod: PresentationModel = new PresentationModel(podId);
             _presentationPods.addItem(newPod);
         }
         
-        public function handlePresentationPodRemoved(podId: String, ownerId: String): void {
+        public function handlePresentationPodRemoved(podId: String): void {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 
@@ -115,23 +108,11 @@ package org.bigbluebutton.modules.present.model {
         public function handleGetAllPodsResp(podsAC: ArrayCollection): void {
             for (var j:int = 0; j < podsAC.length; j++) {
                 var podVO: PresentationPodVO = podsAC.getItemAt(j) as PresentationPodVO;
-                var newPod: PresentationModel = new PresentationModel(podVO.id, podVO.ownerId);
 
-                globalDispatcher.dispatchEvent(new NewPresentationPodCreated(newPod.getPodId(), newPod.getOwnerId()));
+                globalDispatcher.dispatchEvent(new NewPresentationPodCreated(podVO.id, podVO.currentPresenter));
 
                 var presentationsToAdd:ArrayCollection = podVO.getPresentations();
                 presentationService.addPresentations(podVO.id, presentationsToAdd);
-            }
-
-            if (podsAC.length == 0) { // If there are no pods, request the creation of a default one
-                requestDefaultPresentationPod();
-            }
-        }
-
-        public function updateOwnershipOfDefaultPod(ownerId: String): void {
-            var pod: PresentationModel = getDefaultPresentationPod();
-            if (pod != null) {
-                pod.setOwnerId(ownerId);
             }
         }
 

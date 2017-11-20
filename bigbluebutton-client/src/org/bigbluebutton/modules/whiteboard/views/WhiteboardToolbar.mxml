@@ -169,7 +169,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			public function presenterChange(amIPresenter:Boolean): void {
 				this.isPresenter = amIPresenter;
-				multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = amIPresenter;
+				
+				if (multiUserBtn != null) {
+					multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = amIPresenter;
+				}
 				checkVisibility();
 
 				if (!amIPresenter) {

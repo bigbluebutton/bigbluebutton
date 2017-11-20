@@ -13,15 +13,9 @@ package org.bigbluebutton.modules.present.model
 
     private var _presentations:ArrayCollection = new ArrayCollection();
     private var _podId: String = "";
-    private var _ownerId: String = "";
 
-    public function PresentationModel(podId: String, ownerId: String) {
-      initialize(podId, ownerId);
-    }
-    
-    private function initialize(podId: String, ownerId: String):void {
-        this._podId = podId;
-        this._ownerId = ownerId;
+    public function PresentationModel(podId: String) {
+		_podId = podId;
     }
     
     private function whichPageIsCurrent(presId: String): String {
@@ -44,14 +38,6 @@ package org.bigbluebutton.modules.present.model
     
     public function getPodId(): String {
         return this._podId;
-    }
-
-    public function getOwnerId(): String {
-        return this._ownerId;
-    }
-    
-    public function setOwnerId(ownerId: String): void {
-        this._ownerId = ownerId;
     }
 
     public function addPresentation(p: Presentation):void {

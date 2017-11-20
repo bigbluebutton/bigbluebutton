@@ -1,11 +1,10 @@
 package org.bigbluebutton.core.apps.presentationpod
 
-import org.bigbluebutton.common2.domain.{ PresentationPodVO, PresentationVO }
+import org.bigbluebutton.common2.domain.PresentationPodVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.PresentationPod
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait GetAllPresentationPodsReqMsgHdlr {
@@ -31,12 +30,10 @@ trait GetAllPresentationPodsReqMsgHdlr {
         BbbCommonEnvCoreMsg(envelope, event)
       }
 
-      val requesterId = msg.body.requesterId
-
       val pods = PresentationPodsApp.getAllPresentationPodsInMeeting(state)
 
       val podsVO = pods.map(pod => PresentationPodsApp.translatePresentationPodToVO(pod))
-      val event = buildGetAllPresentationPodsRespMsg(podsVO, requesterId)
+      val event = buildGetAllPresentationPodsRespMsg(podsVO, msg.header.userId)
 
       bus.outGW.send(event)
 

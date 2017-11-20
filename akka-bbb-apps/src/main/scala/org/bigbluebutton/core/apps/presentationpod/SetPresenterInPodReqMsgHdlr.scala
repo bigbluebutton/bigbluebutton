@@ -21,7 +21,7 @@ trait SetPresenterInPodReqMsgHdlr {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      def broadcastSetPresenterInPodRespMsg(podId: String, prevPresenterId: String, nextPresenterId: String, requesterId: String): Unit = {
+      def broadcastSetPresenterInPodRespMsg(podId: String, nextPresenterId: String, requesterId: String): Unit = {
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           liveMeeting.props.meetingProp.intId, requesterId
@@ -29,7 +29,7 @@ trait SetPresenterInPodReqMsgHdlr {
         val envelope = BbbCoreEnvelope(SetPresenterInPodRespMsg.NAME, routing)
         val header = BbbClientMsgHeader(SetPresenterInPodRespMsg.NAME, liveMeeting.props.meetingProp.intId, requesterId)
 
-        val body = SetPresenterInPodRespMsgBody(podId, prevPresenterId, nextPresenterId)
+        val body = SetPresenterInPodRespMsgBody(podId, nextPresenterId)
         val event = SetPresenterInPodRespMsg(header, body)
         val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
         bus.outGW.send(msgEvent)
@@ -38,16 +38,15 @@ trait SetPresenterInPodReqMsgHdlr {
       val podId: String = msg.body.podId
       val requesterId: String = msg.header.userId
       val nextPresenterId: String = msg.body.nextPresenterId
-      val prevPresenterId: String = msg.body.prevPresenterId
 
       val newState = for {
         pod <- PresentationPodsApp.getPresentationPod(state, podId)
       } yield {
 
-        if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, requesterId) || requesterId.equals(pod.ownerId)) {
+        if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, nextPresenterId)) {
           val updatedPod = pod.setCurrentPresenter(nextPresenterId)
 
-          broadcastSetPresenterInPodRespMsg(pod.id, prevPresenterId, nextPresenterId, requesterId)
+          broadcastSetPresenterInPodRespMsg(pod.id, nextPresenterId, requesterId)
 
           val pods = state.presentationPodManager.addPod(updatedPod)
           state.update(pods)

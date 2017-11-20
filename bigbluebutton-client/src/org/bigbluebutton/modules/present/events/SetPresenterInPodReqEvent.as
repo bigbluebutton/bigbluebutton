@@ -26,14 +26,12 @@ package org.bigbluebutton.modules.present.events
         public static const SET_PRESENTER_IN_POD_REQ:String = "SET_PRESENTER_IN_POD_REQ";
 
         public var podId: String;
-        public var prevPresenterId: String;
         public var nextPresenterId: String;
 
-        public function SetPresenterInPodReqEvent(podId :String, prevPresenterId: String, nextPresenterId: String) {
+        public function SetPresenterInPodReqEvent(podId :String, nextPresenterId: String) {
             super(SET_PRESENTER_IN_POD_REQ, true, false);
             this.podId = podId;
             this.nextPresenterId = nextPresenterId;
-            this.prevPresenterId = prevPresenterId;
         }
 
     }

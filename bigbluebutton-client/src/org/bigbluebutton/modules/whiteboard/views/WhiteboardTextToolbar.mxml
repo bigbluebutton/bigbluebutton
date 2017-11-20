@@ -108,8 +108,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function closeMenus() : void {
-				ctextpik.close();
-				textSizeMenu.close();
+				if (ctextpik) ctextpik.close();
+				if (textSizeMenu) textSizeMenu.close();
 			}
 			
 			public function syncPropsWith(tobj:TextObject):void {
