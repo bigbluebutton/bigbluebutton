@@ -6,9 +6,12 @@ import ChatService from './service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
-
+const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const intlMessages = defineMessages({
+  [CHAT_CLEAR]: {
+    id: 'app.chat.clearedChat',
+  },
   titlePublic: {
     id: 'app.chat.titlePublic',
     description: 'Public chat title',
@@ -47,6 +50,19 @@ export default injectIntl(createContainer(({ params, intl }) => {
   const user = ChatService.getUser(chatID, '{{NAME}}');
 
   let partnerIsLoggedOut = false;
+  messages = messages.map((message) => {
+    if (message.sender) return message;
+
+    return {
+      ...message,
+      content: message.content.map(content => ({
+        ...content,
+        text: content.text in intlMessages ?
+          intl.formatMessage(intlMessages[content.text]) : content.text,
+      })),
+    };
+  });
+
 
   if (user) {
     partnerIsLoggedOut = !user.isOnline;
@@ -56,24 +72,6 @@ export default injectIntl(createContainer(({ params, intl }) => {
 
       title = intl.formatMessage(intlMessages.titlePrivate, { 0: chatUser.name });
       chatName = chatUser.name;
-
-      if (!chatUser.isOnline) {
-        const time = Date.now();
-        const id = `partner-disconnected-${time}`;
-        const messagePartnerLoggedOut = {
-          id,
-          content: [{
-            id,
-            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatUser.name }),
-            time,
-          }],
-          time,
-          sender: null,
-        };
-
-        messages.push(messagePartnerLoggedOut);
-        isChatLocked = true;
-      }
     }
   }
 
