@@ -1172,6 +1172,7 @@ mx|Panel {
 }
 
 .presentationUploadProgressBarLabel {
+	color                     : #8A9AA7;
 	fontWeight                : "bold";
 	indeterminateMoveInterval : 28;
 	leading                   : 0;
