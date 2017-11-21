@@ -151,20 +151,24 @@ package org.bigbluebutton.modules.chat.maps {
           openChatBoxForPrivateChat(chatId, gc);
         }
       }
-    }
-    
-    public function handleOpenChatBoxEvent(event: OpenChatBoxEvent):void {
-      var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
-      if (gc != null) {
-        var gboxMapper: GroupChatBoxMapper = findChatBoxMapper(event.chatId);
-        if (gboxMapper != null) {
-          globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
-        } else if(gc.access == GroupChat.PRIVATE) {
-          openChatBoxForPrivateChat(event.chatId, gc);
-        }
-      }
-    }
-    
+	}
+
+	public function handleOpenChatBoxEvent(event:OpenChatBoxEvent):void {
+		var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
+		if (gc != null) {
+			var gboxMapper:GroupChatBoxMapper = findChatBoxMapper(event.chatId);
+			if (gboxMapper != null) {
+				if (gboxMapper.isChatBoxOpen()) {
+					globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
+				} else if (gc.access == GroupChat.PRIVATE) {
+					openChatBoxForPrivateChat(event.chatId, gc);
+				}
+			} else {
+				createNewGroupChat(event.chatId);
+			}
+		}
+	}
+
     private function getChatOptions():void {
       chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
     }
