@@ -40,7 +40,7 @@ module.exports.generateStreamUrl = function (address, meeting, path) {
   return "rtmp://" + address + "/video-broadcast/" + meeting + "/" + path;
 }
 
-module.exports.generateTranscoderParams = function (localIp, destIp, sendPort, recvPort, input, streamType, transcoderType, codec, callername) {
+module.exports.generateTranscoderParams = function (localIp, destIp, sendPort, recvPort, input, streamType, transcoderType, codec, callername, voiceConf) {
   var rtpParams = {};
   rtpParams[Constants.LOCAL_IP_ADDRESS] = localIp;
   rtpParams[Constants.LOCAL_VIDEO_PORT] = sendPort;
@@ -51,6 +51,7 @@ module.exports.generateTranscoderParams = function (localIp, destIp, sendPort, r
   rtpParams[Constants.TRANSCODER_TYPE] = transcoderType;
   rtpParams[Constants.TRANSCODER_CODEC] = codec;
   rtpParams[Constants.CALLERNAME] = callername;
+  rtpParams[Constants.VOICE_CONF] = voiceConf;
   return rtpParams;
 }
 

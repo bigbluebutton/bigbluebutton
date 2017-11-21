@@ -28,7 +28,7 @@ if (config.get('acceptSelfSignedCertificate')) {
 }
 
 module.exports = class Screenshare {
-  constructor(ws, id, bbbgw, voiceBridge, caller, vh, vw, meetingId) {
+  constructor(ws, id, bbbgw, voiceBridge, caller = 'caller', vh, vw, meetingId) {
     this.mcs = new MCSApi();
     this._ws = ws;
     this._id = id;
@@ -129,7 +129,7 @@ module.exports = class Screenshare {
     let _callback = callback;
 
     // Force H264 on Firefox and Chrome
-    //sdpOffer = h264_sdp.transform(sdpOffer);
+    sdpOffer = h264_sdp.transform(sdpOffer);
     console.log(" [screenshare] Starting presenter " + id + " at voiceBridge " + this._voiceBridge);
 
     try {
@@ -172,7 +172,7 @@ module.exports = class Screenshare {
 
       let recvVideoPort = retRtp.answer.match(/m=video\s(\d*)/)[1];
       this._rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
-          sendVideoPort, recvVideoPort, this._meetingId, "stream_type_video", C.RTP_TO_RTMP, "copy", "caller");
+          sendVideoPort, recvVideoPort, this._meetingId, "stream_type_video", C.RTP_TO_RTMP, "copy", this._caller, this._voiceBridge);
 
       this.mcs.on('MediaEvent' + this._ffmpegEndpoint, this.mediaStateRtp.bind(this));
 
@@ -209,7 +209,7 @@ module.exports = class Screenshare {
     let sdpAnswer, sdpOffer;
     console.log("startviewer callerName = " + callerName);
 
-    //sdpOffer = h264_sdp.transform(sdp);
+    sdpOffer = h264_sdp.transform(sdp);
     sdpOffer = sdp;
 
     this._viewersCandidatesQueue[callerName] = [];
