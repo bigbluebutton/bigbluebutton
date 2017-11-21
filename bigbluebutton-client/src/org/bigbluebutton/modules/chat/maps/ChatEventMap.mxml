@@ -62,8 +62,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
     
     <EventHandlers type="{ReceivedGroupChatsEvent.RECEIVED_GROUPCHATS_EVENT}">
-      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleReceivedGroupChatsEvent" />  
-      <MethodInvoker generator="{ChatMessageService}" method="handleReceivedGroupChatsEvent" />  
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleReceivedGroupChatsEvent"/>
+      <MethodInvoker generator="{ChatMessageService}" method="handleReceivedGroupChatsEvent"/>
     </EventHandlers>
     
     <EventHandlers type="{GroupChatBoxClosedEvent.CHATBOX_CLOSED_EVENT}">

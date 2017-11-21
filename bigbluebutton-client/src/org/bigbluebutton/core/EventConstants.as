@@ -49,6 +49,7 @@ package org.bigbluebutton.core
     public static const NEW_ROLE:String                   = 'NewRoleEvent';
     public static const NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
     public static const NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
+	public static const NEW_GROUP_CHAT:String             = 'NewGroupChatEvent';
     public static const SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';
     public static const USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
     public static const USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';

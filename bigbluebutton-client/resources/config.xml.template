@@ -35,6 +35,7 @@
 			baseTabIndex="801"
 			colorPickerIsVisible="false"
 			maxMessageLength="1024"
+			maxNumWindows="9"
 		/>
 
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION"
@@ -113,7 +114,6 @@
 			baseTabIndex="501"
 			maxFileSize="30"
 			enableDownload="true"
-			maxNumWindows="9"
 		/>
 
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION"
