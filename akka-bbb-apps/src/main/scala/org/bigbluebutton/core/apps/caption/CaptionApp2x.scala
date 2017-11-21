@@ -4,11 +4,10 @@ import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-class CaptionApp2x(implicit val context: ActorContext) extends SystemConfiguration {
+class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementTrait {
   val log = Logging(context.system, getClass)
 
   def getCaptionHistory(liveMeeting: LiveMeeting): Map[String, TranscriptVO] = {
@@ -46,7 +45,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends SystemConfigurati
       bus.outGW.send(msgEvent)
     }
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)
       && isUserCaptionOwner(liveMeeting, msg.header.userId, msg.body.locale)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to edit caption history in meeting."
@@ -87,7 +86,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends SystemConfigurati
       bus.outGW.send(msgEvent)
     }
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change caption owners."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

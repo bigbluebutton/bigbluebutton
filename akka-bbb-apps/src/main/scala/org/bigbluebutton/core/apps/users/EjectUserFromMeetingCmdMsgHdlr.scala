@@ -4,9 +4,9 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait EjectUserFromMeetingCmdMsgHdlr {
+trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
@@ -17,7 +17,7 @@ trait EjectUserFromMeetingCmdMsgHdlr {
     val userId = msg.body.userId
     val ejectedBy = msg.body.ejectedBy
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(
+    if (permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL,
       liveMeeting.users2x,

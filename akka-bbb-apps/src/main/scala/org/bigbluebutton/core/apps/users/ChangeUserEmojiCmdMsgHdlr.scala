@@ -3,10 +3,9 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.apps.PermissionCheck
-import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait ChangeUserEmojiCmdMsgHdlr extends SystemConfiguration {
+trait ChangeUserEmojiCmdMsgHdlr extends RightsManagementTrait {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
@@ -14,7 +13,7 @@ trait ChangeUserEmojiCmdMsgHdlr extends SystemConfiguration {
 
   def handleChangeUserEmojiCmdMsg(msg: ChangeUserEmojiCmdMsg) {
     log.debug("handling " + msg)
-    if (msg.header.userId != msg.body.userId && applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (msg.header.userId != msg.body.userId && permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to clear chat in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

@@ -68,7 +68,6 @@ class MeetingActor(
     with UserDisconnectedFromGlobalAudioMsgHdlr
     with MuteAllExceptPresentersCmdMsgHdlr
     with MuteMeetingCmdMsgHdlr
-    with MuteMeetingCmdMsgHdlrCheckPerm
     with IsMeetingMutedReqMsgHdlr
 
     with EjectUserFromVoiceCmdMsgHdlr

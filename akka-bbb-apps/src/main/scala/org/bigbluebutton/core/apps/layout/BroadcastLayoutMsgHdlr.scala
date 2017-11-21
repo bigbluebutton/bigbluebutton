@@ -4,16 +4,15 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core.apps.PermissionCheck
-import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait BroadcastLayoutMsgHdlr extends SystemConfiguration {
+trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
 
   val outGW: OutMsgRouter
 
   def handleBroadcastLayoutMsg(msg: BroadcastLayoutMsg): Unit = {
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to broadcast layout to meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

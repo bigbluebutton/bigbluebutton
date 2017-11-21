@@ -5,9 +5,9 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait ResizeAndMovePagePubMsgHdlr {
+trait ResizeAndMovePagePubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(msg: ResizeAndMovePagePubMsg, state: MeetingState2x,
@@ -31,7 +31,7 @@ trait ResizeAndMovePagePubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to resize and move page."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

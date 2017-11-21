@@ -131,6 +131,8 @@ class Users2x {
   private var users: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
   private var presenterGroup: Vector[String] = scala.collection.immutable.Vector.empty
 
+  private var oldPresenterGroup: collection.immutable.HashMap[String, OldPresenter] = new collection.immutable.HashMap[String, OldPresenter]
+
   // Collection of users that left the meeting. We keep a cache of the old users state to recover in case
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
   private var usersCache: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
@@ -173,7 +175,36 @@ class Users2x {
     presenterGroup = updatedGroup
   }
 
+  def addOldPresenter(userId: String): OldPresenter = {
+    val op = OldPresenter(userId, System.currentTimeMillis())
+    oldPresenterGroup += op.userId -> op
+    op
+  }
+
+  def removeOldPresenter(userId: String): Option[OldPresenter] = {
+    for {
+      op <- oldPresenterGroup.get(userId)
+    } yield {
+      oldPresenterGroup -= userId
+      op
+    }
+  }
+
+  def findOldPresenter(userId: String): Option[OldPresenter] = {
+    oldPresenterGroup.get(userId)
+  }
+
+  def purgeOldPresenters(): Unit = {
+    val now = System.currentTimeMillis()
+    oldPresenterGroup.values.foreach { op =>
+      if (now - op.notPresenterOn < 5000) {
+        oldPresenterGroup -= op.userId
+      }
+    }
+  }
 }
+
+case class OldPresenter(userId: String, notPresenterOn: Long)
 
 case class UserState(intId: String, extId: String, name: String, role: String,
                      guest: Boolean, authed: Boolean, guestStatus: String, emoji: String, locked: Boolean,

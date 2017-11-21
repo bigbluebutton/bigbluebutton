@@ -5,10 +5,9 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.PermissionCheck
-import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait StopPollReqMsgHdlr extends SystemConfiguration {
+trait StopPollReqMsgHdlr extends RightsManagementTrait {
   this: PollApp2x =>
 
   def broadcastPollStoppedEvtMsg(requesterId: String, stoppedPollId: String, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -23,7 +22,7 @@ trait StopPollReqMsgHdlr extends SystemConfiguration {
   }
 
   def handle(msg: StopPollReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to stop poll."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
