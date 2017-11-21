@@ -11,7 +11,6 @@ package org.bigbluebutton.modules.chat.model
     
     private var groupChats:ArrayCollection = new ArrayCollection();
     
-    
     private var dispatcher:Dispatcher = new Dispatcher();
     
     public function getGroupChat(id: String):GroupChat {

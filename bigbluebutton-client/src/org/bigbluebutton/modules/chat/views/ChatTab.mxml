@@ -686,5 +686,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                       toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                       selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
     </mx:VBox>
-  </mx:HBox>	
+  </mx:HBox>
 </mx:VBox>

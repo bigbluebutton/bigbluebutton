@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.chat.maps {
         _windowMapper[i] = new GroupChatWindowMapper(winId);
       }
     }
-      
+    
     private function findGroupChatWindowMapper(winId: String):GroupChatWindowMapper {
       for (var i:int=0; i<_windowMapper.length; i++) {
         var wMapper: GroupChatWindowMapper = _windowMapper[i];
@@ -151,20 +151,24 @@ package org.bigbluebutton.modules.chat.maps {
           openChatBoxForPrivateChat(chatId, gc);
         }
       }
-    }
-    
-    public function handleOpenChatBoxEvent(event: OpenChatBoxEvent):void {
-      var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
-      if (gc != null && gc.access == GroupChat.PRIVATE) {
-        var gboxMapper: GroupChatBoxMapper = findChatBoxMapper(event.chatId);
-        if (gboxMapper != null) {
-          globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
-        } else {
-          openChatBoxForPrivateChat(event.chatId, gc);
-        }
-      }
-    }
-    
+	}
+
+	public function handleOpenChatBoxEvent(event:OpenChatBoxEvent):void {
+		var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
+		if (gc != null) {
+			var gboxMapper:GroupChatBoxMapper = findChatBoxMapper(event.chatId);
+			if (gboxMapper != null) {
+				if (gboxMapper.isChatBoxOpen()) {
+					globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
+				} else if (gc.access == GroupChat.PRIVATE) {
+					openChatBoxForPrivateChat(event.chatId, gc);
+				}
+			} else {
+				createNewGroupChat(event.chatId);
+			}
+		}
+	}
+
     private function getChatOptions():void {
       chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
     }
@@ -202,7 +206,7 @@ package org.bigbluebutton.modules.chat.maps {
     }
     
     private function openChatWindow(window:ChatWindow):void {
-      // Use the GLobal Dispatcher so that this message will be heard by the
+      // Use the Global Dispatcher so that this message will be heard by the
       // main application.		   	
       var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
       event.window = window; 
