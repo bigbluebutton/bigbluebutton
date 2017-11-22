@@ -21,15 +21,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/" 
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
 				xmlns:common="org.bigbluebutton.common.*"
 				minWidth="340" showCloseButton="false" 
-				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
 	
 	<fx:Script>
 		<![CDATA[
-			import mx.events.CloseEvent;
-			
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
@@ -43,13 +42,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var lockOnJoin:Boolean = false;
 			[Bindable] public var lockOnJoinConfigurable:Boolean = false;
 			  
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
-			
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
-					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+					onCancelClicked();
 				}
 			}
 

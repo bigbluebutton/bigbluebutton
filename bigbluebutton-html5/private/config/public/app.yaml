@@ -14,7 +14,7 @@ app:
 
   # Default global variables
   appName: 'BigBlueButton HTML5 Client'
-  bbbServerVersion: '1.1-beta'
+  bbbServerVersion: '2.0-beta'
   copyright: '©2017 BigBlueButton Inc.'
   html5ClientBuild: 'HTML5_CLIENT_VERSION'
   lockOnJoin: true
@@ -54,3 +54,4 @@ app:
   # The initial client version has limited moderator capabilities
   # The following flag disables moderator-only features
   allowHTML5Moderator: true
+  allowModeratorToUnmuteAudio: true

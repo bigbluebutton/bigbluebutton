@@ -4,9 +4,9 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/2.0/users';
-import Breakouts from '/imports/api/2.0/breakouts';
-import Meetings from '/imports/api/2.0/meetings';
+import Users from '/imports/api/users';
+import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/api/meetings';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
@@ -28,7 +28,6 @@ const propTypes = {
   actionsbar: PropTypes.node,
   media: PropTypes.node,
   location: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
 };
 
 const defaultProps = {
@@ -69,15 +68,14 @@ const AppContainer = (props) => {
       actionsbar={actionsbar}
       media={media}
       {...otherProps}
-    >
-      {props.children}
-    </App>
+    />
   );
 };
 
 export default withRouter(injectIntl(withModalMounter(createContainer((
   { router, intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
+  const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -104,9 +102,8 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
-      if (!meetingIsBreakout) {
-        sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
-      }
+      if (isMeetingBreakout) return;
+      sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
     },
   });
 

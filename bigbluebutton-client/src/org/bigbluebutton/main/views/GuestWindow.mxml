@@ -34,17 +34,16 @@ $Id: $
     
     <fx:Script>
         <![CDATA[
-            import com.asfusion.mate.events.Dispatcher;
-            
-            import mx.managers.PopUpManager;
-            
-            import org.bigbluebutton.core.model.LiveMeeting;
-            import org.bigbluebutton.core.model.users.GuestWaiting;
-            import org.bigbluebutton.main.events.BBBEvent;
-            import org.bigbluebutton.main.events.RemoveGuestEvent;
-            import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
-            import org.bigbluebutton.main.events.ResponseModeratorEvent;
-            import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.core.model.users.GuestWaiting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.RemoveGuestEvent;
+			import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
+			import org.bigbluebutton.main.events.ResponseModeratorEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
             
             private var guestButtons:Object = new Object();
             [Bindable] private var numberOfGuests:Number = 0;
@@ -127,8 +126,8 @@ $Id: $
             
             public function closeWindow():void {
                 this.visible = false;
-                PopUpManager.removePopUp(this);
-                //dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				PopUpUtil.unlockPosition(this);
+				PopUpUtil.removePopUp(this);
             }
             
         ]]>

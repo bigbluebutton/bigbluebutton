@@ -1,4 +1,4 @@
-import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 
 export const indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i += 1) {
@@ -11,9 +11,7 @@ export const indexOf = [].indexOf || function (item) {
 };
 
 // used in 1.1
-export const inReplyToHTML5Client = function (arg) {
-  return arg.routing.userId === 'nodeJSapp';
-};
+export const inReplyToHTML5Client = arg => arg.routing.userId === 'nodeJSapp';
 
 export const getMultiUserStatus = (meetingId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId });

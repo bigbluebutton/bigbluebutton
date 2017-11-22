@@ -166,9 +166,9 @@ $Id: $
       private const LISTEN_TO_BREAKOUT_ROOM:String = "Listen To Breakout Room";
       private const JOIN_BREAKOUT_ROOM:String = "Join Breakout Room";
       
-      private const STATUS_GRID_WIDTH:int = 56;
+      private const STATUS_GRID_WIDTH:int = 50;
       private const NAME_GRID_MIN_WIDTH:int = 80;
-      private const MEDIA_GRID_WIDTH:int = 118;
+      private const MEDIA_GRID_WIDTH:int = 100;
       
       private var muteMeRolled:Boolean = false;
       
@@ -375,7 +375,7 @@ $Id: $
       }
       
       private function openEmojiStatusMenu():void {
-        var moodMenu:MoodMenu = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
+        var moodMenu:MoodMenu = PopUpUtil.createNonModalPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
         moodMenu.btn = emojiStatusBtn;
         moodMenu.show();
       }
@@ -469,7 +469,7 @@ $Id: $
       private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
         // We display only one alert
         removeJoinWindow();
-		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow) as JoinBreakoutRoomWindow;
+		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
 		joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
       }
       

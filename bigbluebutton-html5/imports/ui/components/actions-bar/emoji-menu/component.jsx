@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, intlShape, injectIntl } from 'react-intl';
+import { EMOJI_NORMALIZE } from '/imports/utils/statuses';
 
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -9,8 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-
-import { EMOJI_NORMALIZE } from '/imports/utils/statuses';
+import styles from './styles';
 
 const intlMessages = defineMessages({
   statusTriggerLabel: {
@@ -109,6 +109,7 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   // Emoji status of the current user
+  intl: intlShape.isRequired,
   userEmojiStatus: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
 };
@@ -121,6 +122,7 @@ const EmojiMenu = ({
   <Dropdown autoFocus>
     <DropdownTrigger tabIndex={0}>
       <Button
+        className={styles.button}
         role="button"
         label={intl.formatMessage(intlMessages.statusTriggerLabel)}
         aria-label={intl.formatMessage(intlMessages.changeStatusLabel)}

@@ -1,6 +1,6 @@
-import Users from '/imports/api/2.0/users';
-import Chat from '/imports/api/2.0/chat';
-import Meetings from '/imports/api/2.0/meetings';
+import Users from '/imports/api/users';
+import Chat from '/imports/api/chat';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -8,6 +8,9 @@ import mapUser from '/imports/ui/services/user/mapUser';
 import { EMOJI_STATUSES, EMOJI_NORMALIZE } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+
+const APP_CONFIG = Meteor.settings.public.app;
+const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
@@ -211,8 +214,15 @@ const getOpenChats = (chatID) => {
 const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
   const hasAuthority = currentUser.isModerator || user.isCurrent;
   const allowedToChatPrivately = !user.isCurrent;
-  const allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
-  const allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+  const allowedToMuteAudio = hasAuthority
+                            && user.isVoiceUser
+                            && !user.isMuted
+                            && !user.isListenOnly;
+  const allowedToUnmuteAudio = hasAuthority
+                              && user.isVoiceUser
+                              && !user.isListenOnly
+                              && user.isMuted
+                              && (ALLOW_MODERATOR_TO_UNMUTE_AUDIO || user.isCurrent);
   const allowedToResetStatus = hasAuthority && user.emoji.status !== EMOJI_STATUSES.none;
 
   // if currentUser is a moderator, allow kicking other users

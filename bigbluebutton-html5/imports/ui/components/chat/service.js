@@ -1,6 +1,6 @@
-import Chats from '/imports/api/2.0/chat';
-import Users from '/imports/api/2.0/users';
-import Meetings from '/imports/api/2.0/meetings';
+import Chats from '/imports/api/chat';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -81,8 +81,8 @@ const getPublicMessages = () => {
   const publicMessages = Chats.find({
     type: { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
   }, {
-      sort: ['fromTime'],
-    }).fetch();
+    sort: ['fromTime'],
+  }).fetch();
 
   return publicMessages;
 };
@@ -95,8 +95,8 @@ const getPrivateMessages = (userID) => {
       { fromUserId: userID },
     ],
   }, {
-      sort: ['fromTime'],
-    }).fetch();
+    sort: ['fromTime'],
+  }).fetch();
 
   return reduceAndMapMessages(messages);
 };
@@ -112,7 +112,8 @@ const isChatLocked = (receiverID) => {
     const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
     const isViewer = user.role === 'VIEWER';
 
-    return ((isPublic && isPubChatLocked && isViewer && user.locked) || (!isPublic && isPrivChatLocked && isViewer && user.locked));
+    return (isPublic && isPubChatLocked && isViewer && user.locked)
+      || (!isPublic && isPrivChatLocked && isViewer && user.locked);
   }
 
   return false;

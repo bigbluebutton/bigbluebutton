@@ -1,16 +1,31 @@
 import React from 'react';
-import Breakouts from '/imports/api/2.0/breakouts';
+
+import Breakouts from '/imports/api/breakouts';
 import { ToastContainer as Toastify } from 'react-toastify';
 import { createContainer } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withToast } from '/imports/ui/components/toast/service';
+import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+
+import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings';
+
+
 import Icon from '../icon/component';
 import styles from './styles';
 
 const intlMessages = defineMessages({
+
   toastBreakoutRoomEnded: {
     id: 'app.toast.BreakoutRoomEnded',
     description: 'message when the breakout room is ended',
+  },
+  notificationRecordingStart: {
+    id: 'app.notification.recordingStart',
+    description: 'Notification for when the recording start',
+  },
+  notificationRecordingStop: {
+    id: 'app.notification.recordingStop',
+    description: 'Notification for when the recording stpop',
   },
 });
 
@@ -25,13 +40,24 @@ class ToastContainer extends React.Component {
   }
 }
 
-export default injectIntl(withToast(createContainer(({
-  toastNotify,
-  intl,
-}) => {
+export default injectIntl(injectNotify(createContainer(({ notify, intl }) => {
   Breakouts.find().observeChanges({
     removed() {
-      toastNotify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
+      notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
+    },
+  });
+
+  const meetingId = Auth.meetingID;
+
+  Meetings.find({ meetingId }).observeChanges({
+    changed: (id, fields) => {
+      if (fields.recordProp && fields.recordProp.recording) {
+        notify(intl.formatMessage(intlMessages.notificationRecordingStart), 'success', 'record');
+      }
+
+      if (fields.recordProp && !fields.recordProp.recording) {
+        notify(intl.formatMessage(intlMessages.notificationRecordingStop), 'error', 'record');
+      }
     },
   });
 

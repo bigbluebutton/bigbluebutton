@@ -14,20 +14,25 @@ trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with Breako
   val outGW: OutMsgRouter
 
   def handleUserJoinMeetingAfterReconnectReqMsg(msg: UserJoinMeetingAfterReconnectReqMsg, state: MeetingState2x): MeetingState2x = {
-    val newState = userJoinMeeting(outGW, msg.body.authToken, liveMeeting, state)
 
+    val newState = userJoinMeeting(outGW, msg.body.authToken, liveMeeting, state)
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()
     }
 
-    // recover voice user
-    for {
-      vu <- VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, msg.body.userId)
-    } yield {
-      handleUserJoinedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, vu.intId, vu.voiceUserId, vu.callingWith, vu.callerName, vu.callerNum, vu.muted, vu.talking)
-    }
+    /**
+     * *
+     * // recover voice user
+     * for {
+     * vu <- VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, msg.body.userId)
+     * } yield {
+     * handleUserJoinedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, vu.intId, vu.voiceUserId, vu.callingWith, vu.callerName, vu.callerNum, vu.muted, vu.talking)
+     * }
+     *
+     * newState
+     */
 
-    newState
+    state
   }
 
 }

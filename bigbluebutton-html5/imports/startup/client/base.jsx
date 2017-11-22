@@ -6,10 +6,7 @@ import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
-import { initBBB } from '/imports/api/2.0/bbb';
 import IntlStartup from './intl';
-
-const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
 
 const propTypes = {
   error: PropTypes.object,
@@ -21,7 +18,7 @@ const propTypes = {
 const defaultProps = {
   error: undefined,
   errorCode: undefined,
-  locale: BROWSER_LANGUAGE,
+  locale: undefined,
 };
 
 class Base extends Component {
@@ -35,8 +32,6 @@ class Base extends Component {
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.updateErrorState = this.updateErrorState.bind(this);
-
-    initBBB();
   }
 
   updateLoadingState(loading = false) {
@@ -87,8 +82,8 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
-  'users2x', 'chat2x', 'cursor2x', 'meetings2x', 'polls2x', 'presentations2x', 'annotations',
-  'slides2x', 'captions2x', 'breakouts2x', 'voiceUsers', 'whiteboard-multi-user',
+  'users', 'chat', 'cursor', 'meetings', 'polls', 'presentations', 'annotations',
+  'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user',
 ];
 
 const BaseContainer = createContainer(({ params }) => {
@@ -103,7 +98,6 @@ const BaseContainer = createContainer(({ params }) => {
 
   const credentials = Auth.credentials;
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials));
-
   return {
     locale: Settings.application.locale,
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),

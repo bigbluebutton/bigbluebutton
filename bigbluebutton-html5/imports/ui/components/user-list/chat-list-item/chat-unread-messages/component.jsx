@@ -5,11 +5,11 @@ import styles from './styles';
 
 const intlMessages = defineMessages({
   unreadPlural: {
-    id: 'app.userList.chatlistitem.unreadPlural',
+    id: 'app.userList.chatListItem.unreadPlural',
     description: 'singular aria label for new message',
   },
   unreadSingular: {
-    id: 'app.userList.chatlistitem.unreadSingular',
+    id: 'app.userList.chatListItem.unreadSingular',
     description: 'plural aria label for new messages',
   },
 });

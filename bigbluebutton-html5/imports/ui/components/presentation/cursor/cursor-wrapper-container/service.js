@@ -1,7 +1,7 @@
-import WhiteboardMultiUser from '/imports/api/2.0/whiteboard-multi-user/';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import Auth from '/imports/ui/services/auth';
-import Cursor from '/imports/api/2.0/cursor';
-import Users from '/imports/api/2.0/users';
+import Cursor from '/imports/api/cursor';
+import Users from '/imports/api/users';
 
 const getMultiUserStatus = () => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });

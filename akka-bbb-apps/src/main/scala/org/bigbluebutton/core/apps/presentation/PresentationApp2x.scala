@@ -64,8 +64,8 @@ class PresentationApp2x(
     // Force coordinate that are out-of-bounds inside valid values
     // 0.25D is 400% zoom
     // 100D-checkedWidth is the maximum the page can be moved over
-    val checkedWidth = Math.min(Math.max(widthRatio, 25D), 100D) //if (widthRatio <= 100D) widthRatio else 100D
-    val checkedHeight = Math.min(Math.max(heightRatio, 25D), 100D)
+    val checkedWidth = Math.min(widthRatio, 100D) //if (widthRatio <= 100D) widthRatio else 100D
+    val checkedHeight = Math.min(heightRatio, 100D)
     val checkedXOffset = Math.min(xOffset, 0D)
     val checkedYOffset = Math.min(yOffset, 0D)
 

@@ -113,6 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function joinAudio():void {
+				LiveMeeting.inst().me.breakoutEjectFromAudio = false;
 
 				if (phoneOptions.skipCheck || disableMyMic || defaultListenOnlyMode) {
 					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();

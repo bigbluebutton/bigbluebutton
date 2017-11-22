@@ -1,54 +1,54 @@
 <?xml version="1.0" ?>
 <locales>
-	<locale code="ar" name="Arabic" direction="rtl"/>
-	<locale code="az_AZ" name="Azerbaijani"/>
-	<locale code="eu_EU" name="Basque" />
-	<locale code="bn_BN" name="Bengali" />
-	<locale code="bg_BG" name="Bulgarian" />
-	<locale code="ca_ES" name="Catalan" />
-	<locale code="zh_CN" name="Chinese (Simplified)"/>
-	<locale code="zh_TW" name="Chinese (Traditional)"/>
-	<locale code="hr_HR" name="Croatian" />
-	<locale code="cs_CZ" name="Czech" />
-	<locale code="da_DK" name="Danish" />
-	<locale code="nl_NL" name="Dutch" />
-	<locale code="en_US" name="English"/>
-	<locale code="et_EE" name="Estonian"/>
-	<locale code="fa_IR" name="Farsi" />
-	<locale code="fi_FI" name="Finnish"/>
-	<locale code="fr_FR" name="French"/>
-	<locale code="fr_CA" name="French (Canadian)"/>
-	<locale code="ff_SN" name="Fulah"/>
-	<locale code="de_DE" name="German"/>
-	<locale code="el_GR" name="Greek"/>
-	<locale code="he_IL" name="Hebrew" direction="rtl"/>  
-	<locale code="hu_HU" name="Hungarian"/>
-	<locale code="id_ID" name="Indonesian"/>
-	<locale code="it_IT" name="Italian"/>
-	<locale code="ja_JP" name="Japanese"/>
-	<locale code="ko_KR" name="Korean"/>
-	<locale code="lv_LV" name="Latvian"/>
-	<locale code="lt_LT" name="Lithuania"/>
-	<locale code="mn_MN" name="Mongolian"/>
-	<locale code="ne_NE" name="Nepali"/>
-	<locale code="no_NO" name="Norwegian"/>
-	<locale code="oc" name="Occitan"/>
-	<locale code="pl_PL" name="Polish"/>
-	<locale code="pt_BR" name="Portuguese (Brazilian)"/>
-	<locale code="pt_PT" name="Portuguese"/>
-	<locale code="ro_RO" name="Romanian"/>
-	<locale code="ru_RU" name="Russian"/>
-	<locale code="sr_SR" name="Serbian (Cyrillic)"/>
-	<locale code="sr_RS" name="Serbian (Latin)"/>
-	<locale code="si_LK" name="Sinhala"/>
-	<locale code="sk_SK" name="Slovak"/>
-	<locale code="sl_SL" name="Slovenian"/>
-	<locale code="es_ES" name="Spanish"/>
-	<locale code="es_LA" name="Spanish (Latin American)"/>		
-	<locale code="sv_SE" name="Swedish"/>
-	<locale code="th_TH" name="Thai"/>
-	<locale code="tr_TR" name="Turkish"/>
-	<locale code="uk_UA" name="Ukrainian"/>
-	<locale code="vi_VN" name="Vietnamese"/>
-    <locale code="cy_GB" name="Welsh"/>
+	<locale code="ar" name="Arabic" native="العربيّة" direction="rtl"/>
+	<locale code="az_AZ" name="Azerbaijani" native="Azərbaycan"/>
+	<locale code="eu_EU" name="Basque" native="Euskara"/>
+	<locale code="bn_BN" name="Bengali" native="বাংলা (baɛṅlā)"/>
+	<locale code="bg_BG" name="Bulgarian" native="Български"/>
+	<locale code="ca_ES" name="Catalan" native="Català"/>
+	<locale code="zh_CN" name="Chinese (Simplified)" native="中文（简体）"/>
+	<locale code="zh_TW" name="Chinese (Traditional)" native="中文（繁體）"/>
+	<locale code="hr_HR" name="Croatian" native="Hrvatski"/>
+	<locale code="cs_CZ" name="Czech" native="Čeština"/>
+	<locale code="da_DK" name="Danish" native="Dansk"/>
+	<locale code="nl_NL" name="Dutch" native="Nederlands"/>
+	<locale code="en_US" name="English" native="English"/>
+	<locale code="et_EE" name="Estonian" native="Eesti"/>
+	<locale code="fa_IR" name="Farsi" native="فارسى"/>
+	<locale code="fi_FI" name="Finnish" native="Suomi"/>
+	<locale code="fr_FR" name="French" native="Français"/>
+	<locale code="fr_CA" name="French (Canadian)" native="Français (Canadien)"/>
+	<locale code="ff_SN" name="Fula" native="Fulfulde"/>
+	<locale code="de_DE" name="German" native="Deutsch"/>
+	<locale code="el_GR" name="Greek" native="Ελληνικά"/>
+	<locale code="he_IL" name="Hebrew" native="עִבְרִית" direction="rtl"/>  
+	<locale code="hu_HU" name="Hungarian" native="Magyar"/>
+	<locale code="id_ID" name="Indonesian" native="Indonesia"/>
+	<locale code="it_IT" name="Italian" native="Italiano"/>
+	<locale code="ja_JP" name="Japanese" native="日本語"/>
+	<locale code="ko_KR" name="Korean" native="한국어"/>
+	<locale code="lv_LV" name="Latvian" native="Latviešu"/>
+	<locale code="lt_LT" name="Lithuania" native="Lietuvių"/>
+	<locale code="mn_MN" name="Mongolian" native="Монгол"/>
+	<locale code="ne_NE" name="Nepali" native="नेपाली"/>
+	<locale code="no_NO" name="Norwegian" native="Norsk"/>
+	<locale code="oc" name="Occitan" native="Occitan"/>
+	<locale code="pl_PL" name="Polish" native="Polski"/>
+	<locale code="pt_BR" name="Portuguese (Brazilian)" native="Português (Brasileiro)"/>
+	<locale code="pt_PT" name="Portuguese" native="Português"/>
+	<locale code="ro_RO" name="Romanian" native="Român"/>
+	<locale code="ru_RU" name="Russian" native="Русский"/>
+	<locale code="sr_SR" name="Serbian (Cyrillic)" native="Српски (ћирилица)"/>
+	<locale code="sr_RS" name="Serbian (Latin)" native="Srpski (latinica)"/>
+	<locale code="si_LK" name="Sinhala" native="සිංහල"/>
+	<locale code="sk_SK" name="Slovak" native="Slovenčina"/>
+	<locale code="sl_SL" name="Slovenian" native="Slovenščina"/>
+	<locale code="es_ES" name="Spanish" native="Español"/>
+	<locale code="es_LA" name="Spanish (Latin American)" native="Español (Latinoamericano)"/>		
+	<locale code="sv_SE" name="Swedish" native="Svenska"/>
+	<locale code="th_TH" name="Thai" native="ภาษาไทย"/>
+	<locale code="tr_TR" name="Turkish" native="Türkçe"/>
+	<locale code="uk_UA" name="Ukrainian" native="Українська"/>
+	<locale code="vi_VN" name="Vietnamese" native="Tiếng việt"/>
+    <locale code="cy_GB" name="Welsh" native="Cymraeg"/>
 </locales>

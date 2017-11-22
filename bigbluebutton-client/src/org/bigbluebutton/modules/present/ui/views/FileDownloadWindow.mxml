@@ -24,9 +24,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
+				implements="org.bigbluebutton.common.IKeyboardClose"
 				layout="absolute"
 				width="580"
 				height="410"
+				creationComplete="creationCompleteHandler(event)"
 				close="onCancelClicked()"
 				initialize="initData();" >
 
@@ -37,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
@@ -44,9 +47,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable]
 			private var downloadablePresentations:ArrayCollection;
-
-			override public function move(x:Number, y:Number):void {
-				return;
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				closeButton.setFocus()
 			}
 
 			private function initData():void {
@@ -56,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCancelClicked():void {
 				globalDispatch.dispatchEvent(new DownloadEvent(DownloadEvent.CLOSE_DOWNLOAD_WINDOW));
 			}
+			
 		]]>
 
 	</fx:Script>
