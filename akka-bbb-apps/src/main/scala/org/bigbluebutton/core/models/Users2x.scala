@@ -197,14 +197,14 @@ class Users2x {
   def purgeOldPresenters(): Unit = {
     val now = System.currentTimeMillis()
     oldPresenterGroup.values.foreach { op =>
-      if (now - op.notPresenterOn < 5000) {
+      if (now - op.changedPresenterOn < 5000) {
         oldPresenterGroup -= op.userId
       }
     }
   }
 }
 
-case class OldPresenter(userId: String, notPresenterOn: Long)
+case class OldPresenter(userId: String, changedPresenterOn: Long)
 
 case class UserState(intId: String, extId: String, name: String, role: String,
                      guest: Boolean, authed: Boolean, guestStatus: String, emoji: String, locked: Boolean,

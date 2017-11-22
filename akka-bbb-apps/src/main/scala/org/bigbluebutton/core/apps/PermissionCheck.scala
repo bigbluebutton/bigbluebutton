@@ -24,6 +24,15 @@ trait RightsManagementTrait extends SystemConfiguration {
       false
     }
   }
+
+  def filterPresentationMessage(users: Users2x, userId: String): Boolean = {
+    users.purgeOldPresenters()
+    val now = System.currentTimeMillis()
+    users.findOldPresenter(userId) match {
+      case Some(op) => now - op.changedPresenterOn < 5000
+      case None     => false
+    }
+  }
 }
 
 object PermissionCheck {
@@ -87,12 +96,4 @@ object PermissionCheck {
     users.removeOldPresenter(userId)
   }
 
-  def isDelayedMessage(users: Users2x, userId: String): Boolean = {
-    users.purgeOldPresenters()
-    val now = System.currentTimeMillis()
-    users.findOldPresenter(userId) match {
-      case Some(op) => now - op.notPresenterOn < 5000
-      case None     => false
-    }
-  }
 }

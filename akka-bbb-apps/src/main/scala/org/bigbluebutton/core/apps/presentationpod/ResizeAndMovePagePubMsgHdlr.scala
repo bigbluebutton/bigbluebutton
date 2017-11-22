@@ -31,7 +31,8 @@ trait ResizeAndMovePagePubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
+      permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to resize and move page."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
