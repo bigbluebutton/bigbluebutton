@@ -4,6 +4,7 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
 import cx from 'classnames';
+import _ from 'lodash';
 
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
 import Icon from '/imports/ui/components/icon/component';
@@ -121,7 +122,6 @@ class PresentationUploader extends Component {
   componentWillReceiveProps(nextProps) {
     const nextPresentations = nextProps.presentations;
 
-    // Update only the conversion state when receiving new props
     nextPresentations.forEach((file) => {
       this.updateFileKey(file.filename, 'id', file.id);
       this.deepMergeUpdateFileKey(file.id, 'conversion', file.conversion);
@@ -130,15 +130,17 @@ class PresentationUploader extends Component {
 
   updateFileKey(id, key, value, operation = '$set') {
     this.setState(({ presentations }) => {
-      // Compare id and filename since non-uploaded files dont have a real id
-      const fileIndex = presentations.findIndex(f => f.id === id || f.filename === id);
+      const fileIndex = presentations.findIndex(f => f.id === id);
 
       return fileIndex === -1 ? false : {
         presentations: update(presentations, {
-          [fileIndex]: { $apply: file =>
-            update(file, { [key]: {
-              [operation]: value,
-            } }),
+          [fileIndex]: {
+            $apply: file =>
+              update(file, {
+                [key]: {
+                  [operation]: value,
+                },
+              }),
           },
         }),
       };
@@ -184,32 +186,36 @@ class PresentationUploader extends Component {
   }
 
   handleFiledrop(files) {
-    const presentationsToUpload = files.map(file => ({
-      file,
-      id: file.name,
-      filename: file.name,
-      isCurrent: false,
-      conversion: { done: false, error: false },
-      upload: { done: false, error: false, progress: 0 },
-      onProgress: (event) => {
-        if (!event.lengthComputable) {
-          this.deepMergeUpdateFileKey(file.name, 'upload', {
-            progress: 100,
-            done: true,
+    const presentationsToUpload = files.map((file) => {
+      const id = _.uniqueId(file.name);
+
+      return {
+        file,
+        id,
+        filename: file.name,
+        isCurrent: false,
+        conversion: { done: false, error: false },
+        upload: { done: false, error: false, progress: 0 },
+        onProgress: (event) => {
+          if (!event.lengthComputable) {
+            this.deepMergeUpdateFileKey(id, 'upload', {
+              progress: 100,
+              done: true,
+            });
+
+            return;
+          }
+
+          this.deepMergeUpdateFileKey(id, 'upload', {
+            progress: (event.loaded / event.total) * 100,
+            done: event.loaded === event.total,
           });
-
-          return;
-        }
-
-        this.deepMergeUpdateFileKey(file.name, 'upload', {
-          progress: (event.loaded / event.total) * 100,
-          done: event.loaded === event.total,
-        });
-      },
-      onError: (error) => {
-        this.deepMergeUpdateFileKey(file.name, 'upload', { error });
-      },
-    }));
+        },
+        onError: (error) => {
+          this.deepMergeUpdateFileKey(id, 'upload', { error });
+        },
+      };
+    });
 
     this.setState(({ presentations }) => ({
       presentations: presentations.concat(presentationsToUpload),
@@ -349,7 +355,7 @@ class PresentationUploader extends Component {
         className={cx(itemClassName)}
       >
         <td className={styles.tableItemIcon}>
-          <Icon iconName={'file'} />
+          <Icon iconName="file" />
         </td>
         <th className={styles.tableItemName}>
           <span>{item.filename}</span>
@@ -360,7 +366,7 @@ class PresentationUploader extends Component {
         <td className={styles.tableItemActions}>
           <Checkbox
             disabled={disableActions}
-            ariaLabel={'Set as current presentation'}
+            ariaLabel="Set as current presentation"
             className={styles.itemAction}
             checked={item.isCurrent}
             onChange={() => this.handleCurrentChange(item)}
@@ -369,10 +375,10 @@ class PresentationUploader extends Component {
             <ButtonBase
               disabled={disableActions}
               className={cx(styles.itemAction, styles.itemActionRemove)}
-              label={'Remove presentation'}
+              label="Remove presentation"
               onClick={() => this.handleRemove(item)}
             >
-              <Icon iconName={'delete'} />
+              <Icon iconName="delete" />
             </ButtonBase>
           )}
         </td>
@@ -404,7 +410,7 @@ class PresentationUploader extends Component {
         disablePreview
         onDrop={this.handleFiledrop}
       >
-        <Icon className={styles.dropzoneIcon} iconName={'upload'} />
+        <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
           {intl.formatMessage(intlMessages.dropzoneLabel)}&nbsp;
           <span className={styles.dropzoneLink}>
