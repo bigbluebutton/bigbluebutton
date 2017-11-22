@@ -105,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var lastTime:String = "";
       
       [Bindable]
-      private var chatMessages: ChatConversation;
+      private var _chatMessages: ChatConversation;
       
       private var lastCount:Number = 0;			
       private var scrollTimer:Timer;
@@ -129,9 +129,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var shiftPressed:Boolean = false;
       private var ctrlPressed:Boolean = false;
       
+	  private function get chatMessages():ChatConversation {
+		  if (!_chatMessages) {
+			  _chatMessages = new ChatConversation(chatId);
+		  }
+		  return _chatMessages;
+	  }
+		
       private function onCreationComplete():void {
-        chatMessages = new ChatConversation(chatId);
-        
         chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
         bindToHeightToDetermineHeightOfMessageList();
         
