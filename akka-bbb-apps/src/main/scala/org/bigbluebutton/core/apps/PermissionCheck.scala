@@ -26,6 +26,8 @@ trait RightsManagementTrait extends SystemConfiguration {
   }
 
   def filterPresentationMessage(users: Users2x, userId: String): Boolean = {
+    // Check if the message are delayed presentation messages from the previous presenter
+    // after a switch presenter has been made. ralam nov 22, 2017
     users.purgeOldPresenters()
     val now = System.currentTimeMillis()
     users.findOldPresenter(userId) match {
