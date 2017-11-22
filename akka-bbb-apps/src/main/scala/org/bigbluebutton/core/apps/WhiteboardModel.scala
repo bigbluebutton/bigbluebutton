@@ -12,6 +12,7 @@ class WhiteboardModel {
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
   private var _multiUser = false
+  private var changedModeOn = System.currentTimeMillis()
 
   private def saveWhiteboard(wb: Whiteboard) {
     _whiteboards += wb.id -> wb
@@ -217,11 +218,14 @@ class WhiteboardModel {
 
   def modifyWhiteboardAccess(multiUser: Boolean) {
     _multiUser = multiUser
+    changedModeOn = System.currentTimeMillis()
   }
 
-  def getWhiteboardAccess(): Boolean = {
+  def isMultiUser(): Boolean = {
     _multiUser
   }
+
+  def getChangedModeOn: Long = changedModeOn
 
   def cleansePointsInAnnotation(ann: AnnotationVO): AnnotationVO = {
     var updatedAnnotationInfo = ann.annotationInfo

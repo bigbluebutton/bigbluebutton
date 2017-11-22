@@ -12,10 +12,9 @@ trait ChangeUserEmojiCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleChangeUserEmojiCmdMsg(msg: ChangeUserEmojiCmdMsg) {
-    log.debug("handling " + msg)
     if (msg.header.userId != msg.body.userId && permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to clear chat in meeting."
+      val reason = "No permission to clear change user emoji status."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       for {

@@ -26,12 +26,10 @@ trait GetCurrentPollReqMsgHdlr {
     val pollVO = Polls.handleGetCurrentPollReqMsg(state, msgIn.header.userId, liveMeeting)
 
     pollVO match {
-      case Some(poll) => {
+      case Some(poll) =>
         broadcastEvent(msgIn, true, pollVO)
-      }
-      case None => {
+      case None =>
         broadcastEvent(msgIn, false, None)
-      }
     }
   }
 }

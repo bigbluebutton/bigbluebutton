@@ -19,11 +19,7 @@ trait RightsManagementTrait extends SystemConfiguration {
    */
   def permissionFailed(permissionLevel: Int, roleLevel: Int, users: Users2x, userId: String): Boolean = {
     if (applyPermissionCheck) {
-      if (PermissionCheck.isDelayedMessage(users, userId)) {
-        false
-      } else {
-        !PermissionCheck.isAllowed(permissionLevel, roleLevel, users, userId)
-      }
+      !PermissionCheck.isAllowed(permissionLevel, roleLevel, users, userId)
     } else {
       false
     }

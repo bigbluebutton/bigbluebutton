@@ -14,7 +14,7 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleMuteUserCmdMsg(msg: MuteUserCmdMsg) {
-    if (permissionFailed(
+    if (msg.body.userId != msg.header.userId && permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
     )) {

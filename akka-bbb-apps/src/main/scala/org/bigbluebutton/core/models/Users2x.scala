@@ -30,7 +30,7 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUserState = modify(u)(_.role).setTo(newRole)
+      val newUserState = modify(u)(_.role).setTo(newRole).modify(_.roleChangedOn).setTo(System.currentTimeMillis())
       users.save(newUserState)
       newUserState
     }
@@ -208,7 +208,7 @@ case class OldPresenter(userId: String, notPresenterOn: Long)
 
 case class UserState(intId: String, extId: String, name: String, role: String,
                      guest: Boolean, authed: Boolean, guestStatus: String, emoji: String, locked: Boolean,
-                     presenter: Boolean, avatar: String)
+                     presenter: Boolean, avatar: String, roleChangedOn: Long = System.currentTimeMillis())
 
 case class UserIdAndName(id: String, name: String)
 
