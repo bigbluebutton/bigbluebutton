@@ -13,8 +13,8 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import FullScreenListItemContainer from './full-screen-list-item/container';
-import OpenAboutListItemContainer from './about-list-item/container';
-import OpenSettingsListItemContainer from './settings-list-item/container';
+import OpenAboutListItem from './about-list-item/component';
+import OpenSettingsListItem from './settings-list-item/component';
 
 import styles from '../styles';
 
@@ -84,8 +84,8 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <FullScreenListItemContainer />
-            <OpenSettingsListItemContainer />
-            <OpenAboutListItemContainer />
+            <OpenSettingsListItem />
+            <OpenAboutListItem />
             <DropdownListSeparator />
             <DropdownListItem
               icon="logout"

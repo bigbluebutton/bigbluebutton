@@ -1,60 +1,38 @@
 import React, { Component } from 'react';
 
 export const withShortcut = (ComponentToWrap, shortcut) =>
-class ShortcutWrapper extends Component {
-  constructor() {
-    super();
+  class ShortcutWrapper extends Component {
+    constructor() {
+      super();
 
-    this.handleShortcut = this.handleShortcut.bind(this);
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleShortcut, false);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleShortcut, false);
-  }
-
-  handleShortcut(event) {
-    let ctrlFlag = false; let altFlag = false; let shiftFlag = false;
-    const keys = shortcut.split('+');
-
-    keys.forEach((element) => {
-      switch (element) {
-        case 'Control':
-          ctrlFlag = true;
-          break;
-        case 'Alt':
-          altFlag = true;
-          break;
-        case 'Shift':
-          shiftFlag = true;
-          break;
-        default:
-          break;
-      }
-    });
-
-    const CONTROL_ALT = ctrlFlag && altFlag;
-    const CONTROL_SHIFT = ctrlFlag && shiftFlag;
-
-    if (CONTROL_ALT) {
-      if (event.ctrlKey && event.altKey && event.key === keys[keys.length - 1]) {
-        this.element.ref.props.onClick();
-      }
+      this.handleShortcut = this.handleShortcut.bind(this);
     }
-    if (CONTROL_SHIFT) {
-      if (event.ctrlKey && event.shiftKey && event.key === keys[keys.length - 1].toUpperCase()) {
-        this.element.ref.props.onClick();
-      }
-    }
-  }
 
-  render() {
-    return (<ComponentToWrap
-      {...this.props}
-      ref={(ref) => { this.element = ref; }}
-    />);
-  }
-};
+    componentDidMount() {
+      document.addEventListener('keydown', this.handleShortcut, false);
+    }
+
+    componentWillUnmount() {
+      document.removeEventListener('keydown', this.handleShortcut, false);
+    }
+
+    handleShortcut(event) {
+      const combo = shortcut.toUpperCase();
+      const keys = combo.split('+');
+
+      if (event.key.toUpperCase() !== keys[keys.length - 1]) return;
+      if (!event.ctrlKey && (combo.includes('CONTROL') || combo.includes('CTRL'))) return;
+      if (!event.altKey && (combo.includes('ALT') || combo.includes('OPTION'))) return;
+      if (!event.shiftKey && keys.includes('SHIFT')) return;
+
+      this.element.ref.props.onClick();
+    }
+
+    render() {
+      return (<ComponentToWrap
+        {...this.props}
+        ref={(ref) => { this.element = ref; }}
+      />);
+    }
+  };
+
