@@ -33,6 +33,9 @@ export default class ToolbarMenuItem extends Component {
     this[this.uniqueRef] = ref;
   }
 
+  // we have to use touchStart and on mouseUp in order to be able to use the toolbar
+  // with the text shape on mobile devices
+  // (using the toolbar while typing text shouldn't move focus out of the textarea)
   handleTouchStart(event) {
     event.preventDefault();
     const { objectToReturn, onItemClick } = this.props;

@@ -55,6 +55,13 @@ export default class TextDrawComponent extends Component {
   }
 
   componentDidMount() {
+    // iOS doesn't show the keyboard if the input field was focused by event NOT invoked by a user
+    // by it still technically moves the focus there
+    // that's why we have a separate case for iOS - we don't focus here automatically
+    // but we focus on the next "tap" invoked by a user
+    const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
+    if (iOS) { return; }
+
     if (this.props.isActive && this.props.annotation.status !== DRAW_END) {
       this.handleFocus();
     }

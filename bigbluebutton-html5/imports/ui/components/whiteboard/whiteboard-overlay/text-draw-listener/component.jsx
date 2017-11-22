@@ -41,8 +41,9 @@ export default class TextDrawListener extends Component {
 
     // Mobile Firefox has a bug where e.preventDefault on touchstart doesn't prevent
     // onmousedown from triggering right after. Thus we have to track it manually.
-    // In case if it's fixed one day - check this issue to figure if you can add onTouchStart in
-    // render(), or using a raw DOM api: https://github.com/facebook/react/issues/9809
+    // In case if it's fixed one day - there is another issue, React one.
+    // https://github.com/facebook/react/issues/9809
+    // Check it to figure if you can add onTouchStart in render(), or should use raw DOM api
     this.hasBeenTouchedRecently = false;
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -54,6 +55,7 @@ export default class TextDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
+    this.checkTextAreaFocus = this.checkTextAreaFocus.bind(this);
   }
 
   componentDidMount() {
@@ -107,11 +109,27 @@ export default class TextDrawListener extends Component {
     this.sendLastMessage();
   }
 
+  // checks if the input textarea is focused or not, and if not - moves focus there
+  // returns false if text area wasn't focused
+  // returns true if textarea was focused
+  // currently used only with iOS devices
+  checkTextAreaFocus() {
+    const { getCurrentShapeId } = this.props.actions;
+    const textarea = document.getElementById(getCurrentShapeId());
+
+    if (document.activeElement === textarea) {
+      return true;
+    }
+    textarea.focus();
+    return false;
+  }
+
   handleTouchStart(event) {
     this.hasBeenTouchedRecently = true;
     setTimeout(() => { this.hasBeenTouchedRecently = false; }, 500);
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
     event.preventDefault();
+
 
     // if our current drawing state is not drawing the box and not writing the text
     if (!this.state.isDrawing && !this.state.isWritingText) {
@@ -121,6 +139,10 @@ export default class TextDrawListener extends Component {
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
+
+    // this case is specifically for iOS, since text shape is working in 3 steps there:
+    // touch to draw a box -> tap to focus -> tap to publish
+    } else if (!this.state.isDrawing && this.state.isWritingText && !this.checkTextAreaFocus()) {
 
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
