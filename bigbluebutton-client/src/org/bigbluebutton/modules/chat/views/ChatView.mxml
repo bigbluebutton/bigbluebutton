@@ -181,16 +181,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           publicChatTab.label = PUBLIC_CHAT_USERNAME;
         }
       }
-      
-      private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-        if (event.chatId == mainChatId) {
-          notifyUserOfNewMessage(event.chatId);
-          if (!UsersUtil.isMe(event.msg.fromUserId)) {
-            publicNotification();
-          }	
-        }
-      }
-      
+		
+		private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
+			if (event.chatId == mainChatId || mainChatId == ChatModel.MAIN_PUBLIC_CHAT) {
+				notifyUserOfNewMessage(event.chatId);
+				if (!UsersUtil.isMe(event.msg.fromUserId)) {
+					publicNotification();
+				}	
+			}
+		}
+
       private function handlePrivateGroupChatCreatedEvent(event:PrivateGroupChatCreatedEvent):void {
         if (!isMainChat()) {
           // We only open private group chats in the main
