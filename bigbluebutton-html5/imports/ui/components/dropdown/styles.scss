@@ -208,7 +208,7 @@ $dropdown-caret-height: 8px;
 %vert-bottom-caret {
   top: auto;
   bottom: 0;
-  
+
   &:after, &:before {
     top: auto;
     bottom: $dropdown-caret-width / 2;
