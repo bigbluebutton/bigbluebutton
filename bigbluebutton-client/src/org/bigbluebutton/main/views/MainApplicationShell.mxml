@@ -81,7 +81,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flash.events.Event;
 			import flash.events.TextEvent;
-			import flash.geom.Point;
 			import flash.utils.setTimeout;
 			
 			import mx.binding.utils.ChangeWatcher;
@@ -106,20 +105,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.ClosePendingGuestWindow;
 			import org.bigbluebutton.core.events.FullscreenToggledEvent;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-			import org.bigbluebutton.core.events.ClosePendingGuestWindow;
-			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.main.events.ExitApplicationEvent;
-                        import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -188,8 +185,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   			private var _respTimer:ResponsivenessTimer;
 
-			private var guestWindow:PendingGuestsWindow;
-      
 			public function getLogWindow() : LogWindow
 			{
 				if (logWindow == null){
@@ -345,23 +340,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!UsersUtil.amIModerator() || UsersUtil.amIWaitingForAcceptance() && usersOptions.enableGuestUI) {
 					return;
 				}
-
-				var guestUsers:ArrayCollection = new ArrayCollection(LiveMeeting.inst().guestsWaiting.getGuests());
-
-				LOGGER.debug("OPENING GUEST WINDOW");
-				if (guestWindow == null) {
-					guestWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
-					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;
-					guestWindow.y = 20;
+				
+				if (!usersOptions.guestSoftMode) {
+					LOGGER.debug("OPENING GUEST WINDOW");
+					var guestWindow : PendingGuestsWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
+					PopUpUtil.lockPosition(guestWindow, function():Point {
+						return new Point(parentApplication.screen.width - guestWindow.width - 20, 20); 
+					});	
 				}
-				guestWindow.refreshGuestView();
 			}
 
 			private function handleClosePendingGuestWindow(event: ClosePendingGuestWindow): void {
-				if (guestWindow != null) {
-					PopUpUtil.removePopUp(guestWindow);
-					guestWindow = null;
-				}
+				PopUpUtil.removePopUp(PendingGuestsWindow);
 			}
 
 			public function removeGuestWindow(evt:BBBEvent):void {
