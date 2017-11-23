@@ -1,5 +1,4 @@
 import React from 'react';
-
 import Breakouts from '/imports/api/breakouts';
 import { ToastContainer as Toastify } from 'react-toastify';
 import { createContainer } from 'meteor/react-meteor-data';
@@ -8,7 +7,6 @@ import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
-
 
 import Icon from '../icon/component';
 import styles from './styles';
