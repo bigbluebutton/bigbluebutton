@@ -10,7 +10,8 @@ const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const intlMessages = defineMessages({
   [CHAT_CLEAR]: {
-    id: 'app.chat.clearedChat',
+    id: 'app.chat.clearPublicChatMessage',
+    description: 'message of when clear the public chat',
   },
   titlePublic: {
     id: 'app.chat.titlePublic',
@@ -37,7 +38,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
 
   let messages = [];
-  let isChatLocked = ChatService.isChatLocked(chatID);
+  const isChatLocked = ChatService.isChatLocked(chatID);
   let title = intl.formatMessage(intlMessages.titlePublic);
   let chatName = title;
 
@@ -58,7 +59,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
       content: message.content.map(content => ({
         ...content,
         text: content.text in intlMessages ?
-          intl.formatMessage(intlMessages[content.text]) : content.text,
+          `<b><i>${intl.formatMessage(intlMessages[content.text])}</i></b>` : content.text,
       })),
     };
   });
