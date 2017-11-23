@@ -5,9 +5,9 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait PresentationUploadTokenReqMsgHdlr {
+trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(msg: PresentationUploadTokenReqMsg, state: MeetingState2x,
@@ -65,7 +65,8 @@ trait PresentationUploadTokenReqMsgHdlr {
     log.info("handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +
       " userId=" + msg.header.userId + " filename=" + msg.body.filename)
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
+      permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to request presentation upload token."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

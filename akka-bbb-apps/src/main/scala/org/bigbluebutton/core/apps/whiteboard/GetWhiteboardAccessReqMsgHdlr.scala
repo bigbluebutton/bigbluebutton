@@ -20,6 +20,6 @@ trait GetWhiteboardAccessReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    broadcastEvent(msg, getWhiteboardAccess(liveMeeting))
+    broadcastEvent(msg, liveMeeting.wbModel.isMultiUser())
   }
 }

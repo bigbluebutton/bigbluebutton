@@ -4,15 +4,15 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ UserState, Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait MuteAllExceptPresentersCmdMsgHdlr {
+trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
 
   def handleMuteAllExceptPresentersCmdMsg(msg: MuteAllExceptPresentersCmdMsg) {
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to mute all except presenters."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

@@ -47,7 +47,11 @@ object MeetingStatus2x {
   def initializeAudioSettings(status: MeetingStatus2x) = status.audioSettingsInited = true
   def permissionsEqual(status: MeetingStatus2x, other: Permissions): Boolean = status.permissions == other
   def getPermissions(status: MeetingStatus2x): Permissions = status.permissions
-  def setPermissions(status: MeetingStatus2x, p: Permissions) = status.permissions = p
+  def setPermissions(status: MeetingStatus2x, p: Permissions) = {
+    status.permissions = p
+    status.permissionsChangedOn = System.currentTimeMillis()
+  }
+  def getPermissionsChangedOn(status: MeetingStatus2x): Long = status.permissionsChangedOn
   def meetingHasEnded(status: MeetingStatus2x) = status.meetingEnded = true
   def hasMeetingEnded(status: MeetingStatus2x): Boolean = status.meetingEnded
   def timeNowInMinutes(status: MeetingStatus2x): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
@@ -60,6 +64,7 @@ class MeetingStatus2x {
   private var recordingVoice = false
   private var audioSettingsInited = false
   private var permissionsInited = false
+  private var permissionsChangedOn: Long = System.currentTimeMillis()
   private var permissions = new Permissions()
   private var recording = false
 

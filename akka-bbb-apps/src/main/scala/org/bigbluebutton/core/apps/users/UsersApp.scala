@@ -144,8 +144,7 @@ class UsersApp(
     with RemoveUserFromPresenterGroupCmdMsgHdlr
     with GetPresenterGroupReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr
-    with MuteUserCmdMsgHdlr
-    with MuteUserCmdMsgHdlrPermCheck {
+    with MuteUserCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

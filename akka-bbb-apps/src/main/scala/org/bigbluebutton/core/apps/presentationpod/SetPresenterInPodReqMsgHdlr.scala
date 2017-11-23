@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.models.Users2x
 
-trait SetPresenterInPodReqMsgHdlr {
+trait SetPresenterInPodReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(
@@ -15,7 +15,7 @@ trait SetPresenterInPodReqMsgHdlr {
     liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to set presenter in presentation pod."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
@@ -44,6 +44,11 @@ trait SetPresenterInPodReqMsgHdlr {
       } yield {
 
         if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, nextPresenterId)) {
+
+          if (pod.currentPresenter != "") {
+            liveMeeting.users2x.addOldPresenter(pod.currentPresenter)
+          }
+
           val updatedPod = pod.setCurrentPresenter(nextPresenterId)
 
           broadcastSetPresenterInPodRespMsg(pod.id, nextPresenterId, requesterId)

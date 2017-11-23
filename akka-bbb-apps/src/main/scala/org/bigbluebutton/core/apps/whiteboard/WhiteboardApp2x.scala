@@ -62,7 +62,10 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.modifyWhiteboardAccess(multiUser)
   }
 
-  def getWhiteboardAccess(liveMeeting: LiveMeeting): Boolean = {
-    liveMeeting.wbModel.getWhiteboardAccess()
+  def filterWhiteboardMessage(liveMeeting: LiveMeeting): Boolean = {
+    // Need to check if the wb mode change from multi-user to single-user. Give 5sec allowance to
+    // allow delayed messages to be handled as clients may have been sending messages while the wb
+    // mode was changed. (ralam nov 22, 2017)
+    if (!liveMeeting.wbModel.isMultiUser() && liveMeeting.wbModel.getChangedModeOn > 5000) true else false
   }
 }

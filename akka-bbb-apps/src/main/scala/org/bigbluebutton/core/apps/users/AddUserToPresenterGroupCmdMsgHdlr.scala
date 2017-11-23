@@ -3,9 +3,9 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait AddUserToPresenterGroupCmdMsgHdlr {
+trait AddUserToPresenterGroupCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
@@ -13,7 +13,7 @@ trait AddUserToPresenterGroupCmdMsgHdlr {
 
   def handleAddUserToPresenterGroupCmdMsg(msg: AddUserToPresenterGroupCmdMsg) {
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to add user to presenter group."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

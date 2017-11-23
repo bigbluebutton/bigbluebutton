@@ -4,9 +4,9 @@ import org.bigbluebutton.common2.msgs.EjectUserFromVoiceCmdMsg
 import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait EjectUserFromVoiceCmdMsgHdlr {
+trait EjectUserFromVoiceCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
@@ -14,7 +14,7 @@ trait EjectUserFromVoiceCmdMsgHdlr {
   def handleEjectUserFromVoiceCmdMsg(msg: EjectUserFromVoiceCmdMsg) {
     log.info("Received eject user request. meetingId=" + msg.header.meetingId + " userId=" + msg.body.userId)
 
-    if (applyPermissionCheck && !PermissionCheck.isAllowed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to eject the voice user."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
