@@ -1706,10 +1706,10 @@ users|NameItemRenderer {
 }
 
 .guestBoxStyle {
-	paddingLeft  : 8;
-	paddingRight : 8;
-	paddingTop : 8;
-	paddingBottom : 10;
+	paddingLeft   : 8;
+	paddingRight  : 8;
+	paddingTop    : 6;
+	paddingBottom : 4;
 }
 
 users|EmojiGrid {
