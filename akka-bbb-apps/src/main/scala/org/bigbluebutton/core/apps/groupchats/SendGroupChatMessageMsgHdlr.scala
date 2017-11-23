@@ -35,7 +35,10 @@ trait SendGroupChatMessageMsgHdlr {
       }
     }
 
-    if (applyPermissionCheck && chatLocked) {
+    // Check if this message was sent while the lock settings was being changed.
+    val isDelayedMessage = System.currentTimeMillis() - MeetingStatus2x.getPermissionsChangedOn(liveMeeting.status) < 5000
+
+    if (applyPermissionCheck && chatLocked && !isDelayedMessage) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to send a message to this group chat."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
