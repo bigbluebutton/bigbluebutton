@@ -178,7 +178,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
 			private var whiteboardOverlay:WhiteboardCanvas = null;
-			
+
+			private var podDropdownVisible:Boolean = false;
+
 			private function init():void{
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 				
@@ -234,6 +236,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.podId = podId;
 				this.currentPresenterInPod = presenterId;
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+
+				if (UsersUtil.amIModerator()) {
+					this.podDropdownVisible = true;
+				}
+
 				populatePodDropdown();
 
 				// make me currentPodPresenter
@@ -1100,18 +1107,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								  click="quickPollClicked(event)"
 								  includeInLayout="{quickPollBtn.visible}" />
 
+			<mx:Button id="downloadPres" visible="false"
+					   includeInLayout="{downloadPres.visible}" height="30"
+					   styleName="presentationDownloadButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
+					   click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
+
 			<views:UnselectableItemsComboBox id="presentationPodControls"
+											 visible="{podDropdownVisible}"
 						 					 selectableFunction="podsSelectableFunction"
 						 					 dataProvider = "{listOfPodControls}" height="30"
 											 selectedIndex="-1"
 											 prompt="{ResourceUtil.getInstance().getString('bbb.presentation.multipod.selectPresenter')}"
 						 					 itemRenderer="org.bigbluebutton.modules.present.ui.views.PresentationPodControlItemRenderer"
 						 					 change="onPresentationPodControlsChange(event)" />
-			<mx:Button id="downloadPres" visible="false"
-					   includeInLayout="{downloadPres.visible}" height="30"
-					   styleName="presentationDownloadButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}"
-					   click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
+
 		</mx:HBox>
 
 		<mx:HBox id="navigationControls" width="30%" height="100%" paddingTop="0"
