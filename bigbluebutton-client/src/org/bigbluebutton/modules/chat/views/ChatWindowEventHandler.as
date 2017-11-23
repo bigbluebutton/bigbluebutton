@@ -1,6 +1,6 @@
 package org.bigbluebutton.modules.chat.views {
 	import mx.collections.ArrayCollection;
-
+	
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.model.users.User2x;
@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.chat.views {
 		private function addGroupChat(groupChats:ArrayCollection, groupChat:GroupChat):void {
 			var chatData:GroupChatData = new GroupChatData();
 			chatData.chatId = groupChat.id;
-			chatData.name = groupChat.name;
+			chatData.name = groupChat.getNameAsUsers(UsersUtil.getMyUserID());
 
 			// We want to remove the group chat if it's already in the collection and re-add it.
 			removeGroupChat(groupChat.id, groupChats);

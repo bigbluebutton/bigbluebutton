@@ -159,20 +159,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return;
 
 			var chatWithIntId:String = usersList.selectedItem.userId;
-
+      var chatName:String = usersList.selectedItem.name;
+      
 			// Don't want to be chatting with ourself.
 			if (UsersUtil.isMe(chatWithIntId))
 				return;
 
-			usersList.selectedIndex = -1;
-
-			// @fixme : need to use a better chat name
-			var testChatName:String = "Test Private Chat";
 			var access:String = GroupChat.PRIVATE;
 			var users:Array = new Array();
 			users.push(chatWithIntId);
 
-			var createEvent:CreateGroupChatReqEvent = new CreateGroupChatReqEvent(testChatName, access, users);
+      usersList.selectedIndex = -1;
+      
+			var createEvent:CreateGroupChatReqEvent = new CreateGroupChatReqEvent(chatName, access, users);
 			globalDispatcher.dispatchEvent(createEvent);
 		}
 		
