@@ -1,4 +1,4 @@
-const EMOJI_STATUSES = {
+export const EMOJI_STATUSES = {
   // name: icon
   away: 'time',
   raiseHand: 'hand',
@@ -9,10 +9,7 @@ const EMOJI_STATUSES = {
   applause: 'applause',
   thumbsUp: 'thumbs_up',
   thumbsDown: 'thumbs_down',
-};
-
-const CLEAR_STATUS = {
   none: 'clear_status',
 };
 
-export { EMOJI_STATUSES, CLEAR_STATUS };
+export default { EMOJI_STATUSES };

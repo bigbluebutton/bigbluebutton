@@ -1,11 +1,14 @@
 import React from 'react';
 import styles from './styles.scss';
-import EmojiContainer from './emoji-menu/container';
+import EmojiSelect from './emoji-select/component';
 import ActionsDropdown from './actions-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 
 const ActionsBar = ({
   isUserPresenter,
+  emojiList,
+  emojiSelected,
+  handleEmojiChange,
 }) => (
   <div className={styles.actionsbar}>
     <div className={styles.left}>
@@ -14,7 +17,7 @@ const ActionsBar = ({
     <div className={styles.center}>
       <AudioControlsContainer />
       {/* <JoinVideo /> */}
-      <EmojiContainer />
+      <EmojiSelect options={emojiList} selected={emojiSelected} onChange={handleEmojiChange} />
     </div>
   </div>
 );
