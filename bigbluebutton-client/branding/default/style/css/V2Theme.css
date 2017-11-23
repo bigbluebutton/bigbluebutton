@@ -254,7 +254,7 @@ phonecomponents|MuteMeButton {
 	iconColorDown   : #FFFFFF;
 }
 
-.mainActionButton, .cameraDisplaySettingsWindowStartBtn {
+.mainActionButton, .cameraDisplaySettingsWindowStartBtn, .guestButton {
 	borderThickness   : 0;
 	color             : #FFFFFF;
 	fillColorUp       : #1070D7;
@@ -1648,6 +1648,7 @@ users|UsersWindow {
 	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
 	iconClearStatus : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ClearStatus");
 	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Rooms");
+	horizontalAlign : center;
 }
 
 users|StatusItemRenderer {
@@ -1702,6 +1703,13 @@ users|NameItemRenderer {
 
 .usersGridStyle {
 	borderStyle : none;
+}
+
+.guestBoxStyle {
+	paddingLeft   : 8;
+	paddingRight  : 8;
+	paddingTop    : 6;
+	paddingBottom : 4;
 }
 
 users|EmojiGrid {

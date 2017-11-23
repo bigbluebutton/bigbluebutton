@@ -40,6 +40,9 @@ package org.bigbluebutton.modules.users.model {
 		[Bindable]
 		public var enableGuestUI:Boolean = false;
 
+		[Bindable]
+		public var guestSoftMode:Boolean = false;
+
 		public function UsersOptions() {
 			name = "UsersModule";
 		}

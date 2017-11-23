@@ -27,6 +27,7 @@ $Id: $
                 showCloseButton="false"
                 layout="absolute" width="600" minHeight="400"
                 verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				creationComplete="refreshGuestView()"
                 xmlns:mate="http://mate.asfusion.com/" >
   
   <fx:Declarations>
@@ -38,25 +39,28 @@ $Id: $
   
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      import mx.collections.ArrayCollection;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.core.model.users.GuestWaiting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
-      import org.bigbluebutton.core.events.ClosePendingGuestWindow;
-      import org.bigbluebutton.main.events.RemoveGuestEvent;
-      import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
-      import org.bigbluebutton.main.events.ResponseModeratorEvent;
-      import org.bigbluebutton.main.model.GuestPolicy;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import mx.collections.ArrayCollection;
+		
+		import org.bigbluebutton.core.PopUpUtil;
+		import org.bigbluebutton.core.events.ClosePendingGuestWindow;
+		import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
+		import org.bigbluebutton.core.model.LiveMeeting;
+		import org.bigbluebutton.core.model.users.GuestWaiting;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.RemoveGuestEvent;
+		import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
+		import org.bigbluebutton.main.events.ResponseModeratorEvent;
+		import org.bigbluebutton.main.model.GuestPolicy;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       
       [Bindable]
       private var guestUsers:ArrayCollection = new ArrayCollection();
       
       private var dispatcher:Dispatcher = new Dispatcher();
       
-      public function refreshGuestView():void {
+      private function refreshGuestView():void {
         guestUsers = new ArrayCollection(LiveMeeting.inst().guestsWaiting.getGuests());
       }
       
@@ -114,6 +118,8 @@ $Id: $
       }
       
       public function closeWindow():void {
+	    PopUpUtil.unlockPosition(this);
+
         var event:ClosePendingGuestWindow = new ClosePendingGuestWindow();
         dispatcher.dispatchEvent(event);
       }
