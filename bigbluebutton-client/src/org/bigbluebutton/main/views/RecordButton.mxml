@@ -44,21 +44,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.net.navigateToURL;
-			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
-			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
