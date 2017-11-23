@@ -84,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var idx:int = 0, currentLayoutIndex:int = -1;
 				for each (var lay:Object in layouts) {
 					var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
-					if (StringUtils.isEmpty(translatedName))
+					if (StringUtils.isEmpty(translatedName) || translatedName == "undefined")
 						translatedName = lay.name;
 					var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout};
 					layoutNames.addItem(item);
