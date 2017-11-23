@@ -63,6 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{UserAddedToPresenterGroupEvent.USER_ADDED_TO_PRESENTER_GROUP}" method="handleUserAddedToPresenterGroupEvent" />
 		<mate:Listener type="{UserRemovedFromPresenterGroupEvent.USER_REMOVED_FROM_PRESENTER_GROUP}" method="handleUserRemovedFromPresenterGroupEvent" />
 		<mate:Listener type="{SetPresenterInPodRespEvent.SET_PRESENTER_IN_POD_RESP}" method="handleSetPresenterInPodRespEvent" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -86,12 +87,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -178,7 +181,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
 			private var whiteboardOverlay:WhiteboardCanvas = null;
-			
+
+			[Bindable]
+			private var podDropdownVisible:Boolean = false;
+
 			private function init():void{
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 				
@@ -187,6 +193,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function amITheCurrentPodPresenter(): Boolean {
 				return UsersUtil.getMyUserID() == this.currentPresenterInPod;
+			}
+
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				podDropdownVisible = (e.role == Role.MODERATOR);
 			}
 
 			private function handleUserAddedToPresenterGroupEvent(event: UserAddedToPresenterGroupEvent): void {
@@ -234,6 +244,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.podId = podId;
 				this.currentPresenterInPod = presenterId;
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+
+				if (UsersUtil.amIModerator()) {
+					this.podDropdownVisible = true;
+				}
+
 				populatePodDropdown();
 
 				// make me currentPodPresenter
@@ -1101,12 +1116,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								  includeInLayout="{quickPollBtn.visible}" />
 
 			<views:UnselectableItemsComboBox id="presentationPodControls"
+											 visible="{podDropdownVisible}"
+											 includeInLayout="{podDropdownVisible}"
 						 					 selectableFunction="podsSelectableFunction"
 						 					 dataProvider = "{listOfPodControls}" height="30"
 											 selectedIndex="-1"
 											 prompt="{ResourceUtil.getInstance().getString('bbb.presentation.multipod.selectPresenter')}"
 						 					 itemRenderer="org.bigbluebutton.modules.present.ui.views.PresentationPodControlItemRenderer"
 						 					 change="onPresentationPodControlsChange(event)" />
+
 			<mx:Button id="downloadPres" visible="false"
 					   includeInLayout="{downloadPres.visible}" height="30"
 					   styleName="presentationDownloadButtonStyle"
