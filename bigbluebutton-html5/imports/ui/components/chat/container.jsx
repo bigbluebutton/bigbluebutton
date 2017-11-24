@@ -38,7 +38,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
 
   let messages = [];
-  const isChatLocked = ChatService.isChatLocked(chatID);
+  let isChatLocked = ChatService.isChatLocked(chatID);
   let title = intl.formatMessage(intlMessages.titlePublic);
   let chatName = title;
 
@@ -73,8 +73,27 @@ export default injectIntl(createContainer(({ params, intl }) => {
 
       title = intl.formatMessage(intlMessages.titlePrivate, { 0: chatUser.name });
       chatName = chatUser.name;
+
+      if (!chatUser.isOnline) {
+        const time = Date.now();
+        const id = `partner-disconnected-${time}`;
+        const messagePartnerLoggedOut = {
+          id,
+          content: [{
+            id,
+            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatUser.name }),
+            time,
+          }],
+          time,
+          sender: null,
+        };
+
+        messages.push(messagePartnerLoggedOut);
+        isChatLocked = true;
+      }
     }
   }
+
 
   const scrollPosition = ChatService.getScrollPosition(chatID);
   const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
