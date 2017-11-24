@@ -4,155 +4,126 @@
  *
  */
 
-var cookieParser = require('cookie-parser')
-var express = require('express');
-var session = require('express-session')
-var ws = require('./websocket');
-var http = require('http');
-var fs = require('fs');
+'use strict';
 
-var Video = require('./video');
+const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
+const Video = require('./video');
+const C = require('../bbb/messages/Constants');
 
-// Global variables
-var app = express();
-var sessions = {};
-
-/*
- * Management of sessions
- */
-app.use(cookieParser());
-
-var sessionHandler = session({
-  secret : 'Shawarma', rolling : true, resave : true, saveUninitialized : true
-});
-
-app.use(sessionHandler);
-
-/*
- * Server startup
- */
-var server = http.createServer(app).listen(3002, function() {
-  console.log(' [*] Running bbb-html5 kurento video service.');
-});
-
-var wss = new ws.Server({
-  server : server,
-  path : '/html5video'
-});
+let sessions = {};
 
 var clientId = 0;
 
-wss.on('connection', function(ws) {
-  var sessionId;
-  var request = ws.upgradeReq;
-  var response = {
-    writeHead : {}
-  };
+let bbbGW = new BigBlueButtonGW("MANAGER");
+let redisGateway;
 
-  sessionHandler(request, response, function(err) {
-    sessionId = request.session.id + "_" + clientId++;
+bbbGW.addSubscribeChannel(C.TO_VIDEO).then((gw) => {
+  redisGateway = gw;
+  redisGateway.on(C.REDIS_MESSAGE, _onMessage);
+  console.log('  [VideoManager] Successfully subscribed to redis channel ' + C.TO_VIDEO);
 
-    if (!sessions[sessionId]) {
-      sessions[sessionId] = {};
-    }
-
-    console.log('Connection received with sessionId ' + sessionId);
-  });
-
-  ws.on('error', function(error) {
-    console.log('Connection ' + sessionId + ' error');
-    // stop(sessionId);
-  });
-
-  ws.on('close', function() {
-    console.log('Connection ' + sessionId + ' closed');
-    stopSession(sessionId);
-  });
-
-  ws.on('message', function(_message) {
-    var message = JSON.parse(_message);
-
-    var video;
-    if (message.cameraId && sessions[sessionId][message.cameraId]) {
-      video = sessions[sessionId][message.cameraId];
-    }
-
-    switch (message.id) {
-
-      case 'start':
-
-        console.log('[' + message.id + '] connection ' + sessionId);
-
-        var video = new Video(ws, message.cameraId, message.cameraShared);
-        sessions[sessionId][message.cameraId] = video;
-
-        video.start(message.sdpOffer, function(error, sdpAnswer) {
-          if (error) {
-            return ws.sendMessage({id : 'error', message : error });
-          }
-
-          ws.sendMessage({id : 'startResponse', cameraId: message.cameraId, sdpAnswer : sdpAnswer});
-        });
-
-        break;
-
-        case 'stop':
-
-          console.log('[' + message.id + '] connection ' + sessionId);
-
-          if (video) {
-            video.stop(sessionId);
-          } else {
-            console.log(" [stop] Why is there no video on STOP?");
-          }
-          break;
-
-        case 'onIceCandidate':
-
-          if (video) {
-            video.onIceCandidate(message.candidate);
-          } else {
-            console.log(" [iceCandidate] Why is there no video on ICE CANDIDATE?");
-          }
-          break;
-
-        default:
-          ws.sendMessage({ id : 'error', message : 'Invalid message ' + message });
-          break;
-      }
-
-    });
 });
 
-var stopSession = function(sessionId) {
+var _onMessage = function (_message) {
+  let message = _message;
+  let sessionId = message.connectionId;
+  let video;
 
-  console.log(' [>] Stopping session ' + sessionId);
-
-  var videoIds = Object.keys(sessions[sessionId]);
-
-  for (var i = 0; i < videoIds.length; i++) {
-
-    var video = sessions[sessionId][videoIds[i]];
-    video.stop();
-
-    delete sessions[sessionId][videoIds[i]];
+  if (!sessions[sessionId]) {
+    sessions[sessionId] = {};
   }
 
-  delete sessions[sessionId];
+  if (message.cameraId && sessions[sessionId][message.cameraId]) {
+    video = sessions[sessionId][message.cameraId];
+  }
+
+  switch (message.id) {
+    case 'start':
+
+      console.log('[' + message.id + '] connection ' + sessionId);
+      let role = message.cameraShared? 'share' : 'view';
+
+      video = new Video(bbbGW, message.cameraId, message.cameraShared, message.connectionId);
+      sessions[sessionId][message.cameraId] = video;
+
+      video.start(message.sdpOffer, (error, sdpAnswer) => {
+        if (error) {
+          return bbbGW.publish(JSON.stringify({
+            connectionId: sessionId,
+            type: 'video',
+            role: role,
+            id : 'error',
+            response : 'rejected',
+            message : error
+          }), C.FROM_VIDEO);
+        }
+
+        bbbGW.publish(JSON.stringify({
+          connectionId: sessionId,
+          type: 'video',
+          role: role,
+          id : 'startResponse',
+          cameraId: message.cameraId,
+          sdpAnswer : sdpAnswer
+        }), C.FROM_VIDEO);
+      });
+      break;
+
+    case 'stop':
+
+      console.log('[' + message.id + '] connection ' + sessionId);
+
+      if (video) {
+        stopSession(sessionId);
+      } else {
+        console.log(" [stop] Why is there no video on STOP?");
+      }
+      break;
+
+    case 'onIceCandidate':
+
+      if (video) {
+        video.onIceCandidate(message.candidate);
+      } else {
+        console.log(" [iceCandidate] Why is there no video on ICE CANDIDATE?");
+      }
+      break;
+
+    default:
+      bbbGW.publish(JSON.stringify({
+        connectionId: sessionId,
+        type: 'video',
+        id : 'error',
+        response : 'rejected',
+        message : 'Invalid message ' + message
+      }), C.FROM_VIDEO);
+      break;
+  }
+};
+
+let stopSession = function(sessionId) {
+  console.log('  [VideoManager/x] Stopping session ' + sessionId);
+  let videoIds = Object.keys(sessions[sessionId]);
+
+  for (var i = 0; i < videoIds.length; i++) {
+    var video = sessions[sessionId][videoIds[i]];
+    video.stop();
+    sessions[sessionId][videoIds[i]] = null;
+  }
+
+  sessions[sessionId] = null;
 }
 
-var stopAll = function() {
-
-  console.log('\n [x] Stopping everything! ');
-
-  var sessionIds = Object.keys(sessions);
+let stopAll = function() {
+  console.log('  [Video/x] Stopping everything! ');
+  let sessionIds = Object.keys(sessions);
 
   for (var i = 0; i < sessionIds.length; i++) {
 
     stopSession(sessionIds[i]);
   }
 
-  setTimeout(process.exit, 1000);
+  setTimeout(process.exit, 100);
 }
 
 process.on('SIGTERM', stopAll);

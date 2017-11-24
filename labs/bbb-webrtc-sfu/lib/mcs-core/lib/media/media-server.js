@@ -259,7 +259,6 @@ module.exports = class MediaServer extends EventEmitter {
       console.log('  [media] Adding media state listener [' + eventTag + '] for ' + elementId);
       mediaElement.on(eventTag, (event) => {
         if (eventTag === C.EVENT.MEDIA_STATE.ICE) {
-          console.log("  [media] Relaying ICE for MediaState" + elementId);
           event.candidate = mediaServerClient.getComplexType('IceCandidate')(event.candidate);
         }
         this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+elementId , {eventTag, event});

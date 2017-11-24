@@ -129,7 +129,6 @@ module.exports = class MCSApiStub extends EventEmitter{
 
   async addIceCandidate (mediaId, candidate) {
     try {
-      console.log("  [api] Adding ice candidate for => " + mediaId);
       const ack = await this._mediaController.addIceCandidate(mediaId, candidate);
       return Promise.resolve(ack);
     }

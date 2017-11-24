@@ -87,12 +87,10 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
           break;
 
         default:
-          console.log("  [BigBlueButtonGW] Unknown Redis message with ID =>" + header.name);
           this.emit(C.GATEWAY_MESSAGE, msg);
       }
     }
     else {
-      console.log("  [BigBlueButtonGW] Unknown Redis message =>");
       this.emit(C.GATEWAY_MESSAGE, msg);
     }
   }
@@ -113,8 +111,6 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
   }
 
   _onServerResponse(data) {
-    console.log(data);
-
     // Here this is the 'ws' instance
     this.sendMessage(data);
   }

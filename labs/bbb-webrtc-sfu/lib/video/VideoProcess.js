@@ -6,5 +6,4 @@ process.on('uncaughtException', function (error) {
 
 process.on('disconnect',function() {
   console.log("Parent exited!");
-  process.kill();
 });

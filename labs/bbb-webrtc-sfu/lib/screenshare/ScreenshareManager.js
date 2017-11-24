@@ -8,217 +8,155 @@
 "use strict";
 
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
-const cookieParser = require('cookie-parser')
-const express = require('express');
-const session = require('express-session')
-const wsModule = require('../websocket');
-const http = require('http');
-var Screenshare = require('./screenshare');
-var C = require('../bbb/messages/Constants');
+const Screenshare = require('./screenshare');
+const C = require('../bbb/messages/Constants');
 // Global variables
 
 module.exports = class ScreenshareManager {
-
-  constructor (settings, logger) {
+  constructor (logger) {
     this._logger = logger;
     this._clientId = 0;
-    this._app = express();
 
     this._sessions = {};
     this._screenshareSessions = {};
 
-    this._setupExpressSession();
-    this._setupHttpServer();
+    this._bbbGW = new BigBlueButtonGW("MANAGER");
+    this._redisGateway;
   }
 
-  _setupExpressSession() {
-    this._app.use(cookieParser());
-
-    this._sessionHandler = session({
-      secret : 'Shawarma', rolling : true, resave : true, saveUninitialized : true
-    });
-
-    this._app.use(this._sessionHandler);
+  async start() {
+    try {
+      this._redisGateway = await this._bbbGW.addSubscribeChannel(C.TO_SCREENSHARE);
+      const transcode = await this._bbbGW.addSubscribeChannel(C.FROM_BBB_TRANSCODE_SYSTEM_CHAN);
+      this._redisGateway.on(C.REDIS_MESSAGE, this._onMessage.bind(this));
+      console.log('  [ScreenshareManager] Successfully subscribed to redis channel');
+    }
+    catch (error) {
+      console.log('  [ScreenshareManager] Could not connect to transcoder redis channel, finishing app...');
+      console.log(error);
+      this.stopAll();
+    }
   }
 
-  _setupHttpServer() {
-    let self = this;
-    /*
-     * Server startup
-     */
-    this._httpServer = http.createServer(this._app).listen(3008, function() {
-      console.log(' [*] Running node-apps connection manager.');
-    });
+  _onMessage(_message) {
+    console.log('  [ScreenshareManager] Received message => ');
+    let session;
+    let message = _message;
 
-    /*
-     * Management of sessions
-     */
-    this._wss = new wsModule.Server({
-      server : this._httpServer,
-      path : '/kurento-screenshare'
-    });
+    let sessionId = message.voiceBridge;
+    let connectionId = message.connectionId;
 
+    if(this._screenshareSessions[sessionId]) {
+      session = this._screenshareSessions[sessionId];
+    }
 
-    // TODO isolate this
-    this._bbbGW = new BigBlueButtonGW();
+    switch (message.id) {
 
-    this._bbbGW.addSubscribeChannel(C.FROM_BBB_TRANSCODE_SYSTEM_CHAN, function(error, redisWrapper) {
-      if(error) {
-        console.log(' Could not connect to transcoder redis channel, finishing app...');
-        self._stopAll();
-      }
-      console.log('  [server] Successfully subscribed to redis channel');
-    });
+      case 'presenter':
 
+        // Checking if there's already a Screenshare session started
+        // because we shouldn't overwrite it
 
-    this._wss.on('connection', self._onNewConnection.bind(self));
-  }
+        if (!this._screenshareSessions[message.voiceBridge]) {
+          this._screenshareSessions[message.voiceBridge] = {}
+          this._screenshareSessions[message.voiceBridge] = session;
+        }
 
-  _onNewConnection(webSocket) {
-    let self = this;
-    let connectionId;
-    let request = webSocket.upgradeReq;
-    let sessionId;
-    let callerName;
-    let response = {
-      writeHead : {}
-    };
+        if(session) {
+          break;
+        }
 
-    this._sessionHandler(request, response, function(err) {
-      connectionId = request.session.id + "_" + self._clientId++;
-      console.log('Connection received with connectionId ' + connectionId);
-    });
+        session = new Screenshare(connectionId, this._bbbGW,
+            sessionId, connectionId, message.vh, message.vw,
+            message.internalMeetingId);
 
-    webSocket.on('error', function(error) {
-      console.log('Connection ' + connectionId + ' error');
-      self._stopSession(sessionId);
-    });
+        this._screenshareSessions[sessionId] = {}
+        this._screenshareSessions[sessionId] = session;
 
-    webSocket.on('close', function() {
-      console.log('Connection ' + connectionId + ' closed');
-      console.log(webSocket.presenter);
-
-      if (webSocket.presenter && self._screenshareSessions[sessionId]) { // if presenter  // FIXME  (this conditional was added to prevent screenshare stop when an iOS user quits)
-      console.log("  [CM] Stopping presenter " + sessionId);
-        self._stopSession(sessionId);
-      }
-      if (webSocket.viewer && typeof webSocket.session !== 'undefined') {
-        console.log("  [CM] Stopping viewer " + webSocket.viewerId);
-        webSocket.session.stopViewer(webSocket.viewerId);
-      }
-    });
-
-    webSocket.on('message', function(_message) {
-      let message = JSON.parse(_message);
-      let session;
-      // The sessionId is voiceBridge for screensharing sessions
-      sessionId = message.voiceBridge;
-      if(self._screenshareSessions[sessionId]) {
-        session = self._screenshareSessions[sessionId];
-        webSocket.session = session;
-      }
-
-      switch (message.id) {
-
-        case 'presenter':
-
-          // Checking if there's already a Screenshare session started
-          // because we shouldn't overwrite it
-          webSocket.presenter = true;
-
-          if (!self._screenshareSessions[message.voiceBridge]) {
-            self._screenshareSessions[message.voiceBridge] = {}
-            self._screenshareSessions[message.voiceBridge] = session;
-          }
-
-          //session.on('message', self._assembleSessionMessage.bind(self));
-          if(session) {
-            break;
-          }
-
-          session = new Screenshare(webSocket, connectionId, self._bbbGW,
-              sessionId, message.callerName, message.vh, message.vw,
-              message.internalMeetingId);
-
-          self._screenshareSessions[sessionId] = {}
-          self._screenshareSessions[sessionId] = session;
-
-          // starts presenter by sending sessionID, websocket and sdpoffer
-          session._startPresenter(connectionId, webSocket, message.sdpOffer, function(error, sdpAnswer) {
-            console.log(" Started presenter " + connectionId);
-            if (error) {
-              return webSocket.send(JSON.stringify({
-                id : 'presenterResponse',
-                response : 'rejected',
-                message : error
-              }));
-            }
-
-            webSocket.send(JSON.stringify({
+        // starts presenter by sending sessionID, websocket and sdpoffer
+        session._startPresenter(sessionId, message.sdpOffer, (error, sdpAnswer) => {
+          console.log("  [ScreenshareManager] Started presenter " + sessionId);
+          if (error) {
+            this._bbbGW.publish(JSON.stringify({
+              connectionId: session._id,
               id : 'presenterResponse',
-              response : 'accepted',
-              sdpAnswer : sdpAnswer
-            }));
-            console.log("  [websocket] Sending presenterResponse \n" + sdpAnswer);
-          });
-          break;
-
-        case 'viewer':
-          console.log("[viewer] Session output \n " + session);
-
-          webSocket.viewer = true;
-          webSocket.viewerId = message.callerName;
-
-          if (message.sdpOffer && message.voiceBridge) {
-            if (session) {
-              session._startViewer(webSocket, message.voiceBridge, message.sdpOffer, message.callerName, self._screenshareSessions[message.voiceBridge]._presenterEndpoint);
-            } else {
-              webSocket.sendMessage("voiceBridge not recognized");
-              webSocket.sendMessage(Object.keys(self._screenshareSessions));
-              webSocket.sendMessage(message.voiceBridge);
-            }
+              response : 'rejected',
+              message : error
+            }), C.FROM_SCREENSHARE);
+            return error;
           }
-          break;
 
-        case 'stop':
-          console.log('[' + message.id + '] connection ' + connectionId);
+          this._bbbGW.publish(JSON.stringify({
+            connectionId: session._id,
+            id : 'presenterResponse',
+            response : 'accepted',
+            sdpAnswer : sdpAnswer
+          }), C.FROM_SCREENSHARE);
 
+          console.log("  [ScreenshareManager]  [websocket] Sending presenterResponse \n" + sdpAnswer);
+        });
+        break;
+
+      case 'viewer':
+        console.log("  [ScreenshareManager][viewer] Session output \n " + session);
+        if (message.sdpOffer && message.voiceBridge) {
           if (session) {
-            session._stop(sessionId);
+            session._startViewer(message.connectionId, message.voiceBridge, message.sdpOffer, connectionId,
+                this._screenshareSessions[message.voiceBridge]._presenterEndpoint);
           } else {
-            console.log(" [stop] Why is there no session on STOP?");
+            // TODO ERROR HANDLING
           }
-          break;
+        }
+        break;
 
-        case 'onIceCandidate':
-          if (session) {
-            session.onIceCandidate(message.candidate);
-          } else {
-            console.log(" [iceCandidate] Why is there no session on ICE CANDIDATE?");
-          }
-          break;
+      case 'stop':
+        console.log('[' + message.id + '] connection ' + sessionId);
 
-        case 'ping':
-          webSocket.send(JSON.stringify({
-            id : 'pong',
-            response : 'accepted'
-          }));
-          break;
+        if (session) {
+          session._stop(sessionId);
+        } else {
+          console.log(" [stop] Why is there no session on STOP?");
+        }
+        break;
 
+      case 'onIceCandidate':
+        if (session) {
+          session.onIceCandidate(message.candidate);
+        } else {
+          console.log(" [iceCandidate] Why is there no session on ICE CANDIDATE?");
+        }
+        break;
 
-        case 'viewerIceCandidate':
-          if (session) {
-            session.onViewerIceCandidate(message.candidate, message.callerName);
-          } else {
-            console.log("[iceCandidate] Why is there no session on ICE CANDIDATE?");
-          }
-          break;
+      case 'viewerIceCandidate':
+        console.log("[viewerIceCandidate] Session output => " + session);
+        if (session) {
+          session.onViewerIceCandidate(message.candidate, connectionId);
+        } else {
+          console.log("[iceCandidate] Why is there no session on ICE CANDIDATE?");
+        }
+        break;
 
-        default:
-          webSocket.sendMessage({ id : 'error', message : 'Invalid message ' + message });
-          break;
-      }
-    });
+      case 'close':
+        console.log('  [ScreenshareManager] Connection ' + connectionId + ' closed');
+
+        if (message.role === 'presenter' && this._screenshareSessions[sessionId]) {
+          console.log("  [ScreenshareManager] Stopping presenter " + sessionId);
+          this._stopSession(sessionId);
+        }
+        if (message.role === 'viewer' && typeof session !== 'undefined') {
+          console.log("  [ScreenshareManager] Stopping viewer " + sessionId);
+          session.stopViewer(message.connectionId);
+        }
+        break;
+
+      default:
+        this._bbbGW.publish(JSON.stringify({
+          connectionId: session._id? session._id : 'none',
+          id : 'error',
+          message: 'Invald message ' + message
+        }), C.FROM_SCREENSHARE);
+        break;
+    }
   }
 
   _stopSession(sessionId) {
@@ -231,14 +169,12 @@ module.exports = class ScreenshareManager {
     delete this._screenshareSessions[sessionId];
   }
 
-  _stopAll() {
+  stopAll() {
     console.log('\n [x] Stopping everything! ');
     let sessionIds = Object.keys(this._screenshareSessions);
 
     for (let i = 0; i < sessionIds.length; i++) {
       this._stopSession(sessionIds[i]);
     }
-
-    setTimeout(process.exit, 1000);
   }
 };

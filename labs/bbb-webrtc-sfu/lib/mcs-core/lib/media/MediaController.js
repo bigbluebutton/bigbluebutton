@@ -99,6 +99,10 @@ module.exports = class MediaController {
       const room = this.getRoom(roomId);
       const user = this.getUserMCS(userId);
 
+      if (!user || !room) {
+        return Promise.resolve();
+      }
+
       const killedSessions = await user.leave();
 
       for (var session in killedSessions) {
@@ -114,7 +118,6 @@ module.exports = class MediaController {
     catch (err) {
       return Promise.reject(new Error(err));
     }
-
   }
 
   async publishnsubscribe (userId, sourceId, sdp, params) {
@@ -277,7 +280,6 @@ module.exports = class MediaController {
       return Promise.reject(new Error("  [mcs] Media session " + mediaId + " was not found"));
     }
     try {
-      console.log("  [mcs] Adding ICE candidate for => " + mediaId);
       const ack = await session.addIceCandidate(candidate);
       return Promise.resolve(ack);
     }

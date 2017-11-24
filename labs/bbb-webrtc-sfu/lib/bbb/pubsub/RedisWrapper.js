@@ -89,8 +89,6 @@ module.exports = class RedisWrapper extends EventEmitter {
   publishToChannel (_message, channel) {
     let message = _message;
     if(this.redisPub) {
-      console.log("  [RedisWrapper] Sending message to channel [" + channel + "] : " + message );
-      console.log(message);
       this.redisPub.publish(channel, message);
     }
   }
@@ -99,7 +97,6 @@ module.exports = class RedisWrapper extends EventEmitter {
 
   _onMessage (pattern, channel, _message) {
     let message = (typeof _message !== 'object')?JSON.parse(_message):_message;
-    console.log(" [RedisWrapper] Message received from channel [" + channel +  "] : " + message);
     // use event emitter to throw new message
     this.emit(Constants.REDIS_MESSAGE, message);
   }

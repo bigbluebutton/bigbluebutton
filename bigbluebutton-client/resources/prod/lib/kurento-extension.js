@@ -34,9 +34,8 @@ Kurento = function (
 
   this.caller_id_name = conferenceUsername;
   this.caller_id_number = conferenceUsername;
-  this.pingInterval;
 
-  this.kurentoPort = "kurento-screenshare";
+  this.kurentoPort = "bbb-webrtc-sfu";
   this.hostName = window.location.hostname;
   this.socketUrl = 'wss://' + this.hostName + '/' + this.kurentoPort;
 
@@ -65,10 +64,6 @@ this.KurentoManager= function () {
 KurentoManager.prototype.exitScreenShare = function () {
   console.log("  [exitScreenShare] Exiting screensharing");
   if(typeof this.kurentoScreenshare !== 'undefined' && this.kurentoScreenshare) {
-    if(this.kurentoScreenshare.pingInterval) {
-      clearInterval(this.kurentoScreenshare.pingInterval);
-    }
-
     if(this.kurentoScreenshare.ws !== null) {
       this.kurentoScreenshare.ws.onclose = function(){};
       this.kurentoScreenshare.ws.close();
@@ -90,10 +85,6 @@ KurentoManager.prototype.exitScreenShare = function () {
 KurentoManager.prototype.exitVideo = function () {
   console.log("  [exitScreenShare] Exiting screensharing viewing");
   if(typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
-    if(this.kurentoVideo.pingInterval) {
-      clearInterval(this.kurentoVideo.pingInterval);
-    }
-
     if(this.kurentoVideo.ws !== null) {
       this.kurentoVideo.ws.onclose = function(){};
       this.kurentoVideo.ws.close();
@@ -152,7 +143,6 @@ Kurento.prototype.init = function () {
       self.onFail("Websocket connection error");
     };
     this.ws.onopen = function () {
-      self.pingInterval = setInterval(self.ping.bind(self), 3000);
       self.mediaCallback();
     }.bind(self);
   }
@@ -175,8 +165,6 @@ Kurento.prototype.onWSMessage = function (message) {
       break;
     case 'iceCandidate':
       this.webRtcPeer.addIceCandidate(parsedMessage.candidate);
-      break;
-    case 'pong':
       break;
     default:
       console.error('Unrecognized message', parsedMessage);
@@ -243,6 +231,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   var message = {
     id : 'presenter',
     type: 'screenshare',
+    role: 'presenter',
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
     callerName : self.caller_id_name,
@@ -300,6 +289,7 @@ Kurento.prototype.onIceCandidate = function (candidate) {
 
   var message = {
     id : 'onIceCandidate',
+    role: 'presenter',
     type: 'screenshare',
     voiceBridge: self.voiceBridge,
     candidate : candidate
@@ -313,6 +303,7 @@ Kurento.prototype.onViewerIceCandidate = function (candidate) {
 
   var message = {
     id : 'viewerIceCandidate',
+    role: 'viewer',
     type: 'screenshare',
     voiceBridge: self.voiceBridge,
     candidate : candidate,
@@ -355,7 +346,9 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     return this.onFail();
   }
   var message = {
-    id : 'viewer', type: 'screenshare',
+    id : 'viewer',
+    type: 'screenshare',
+    role: 'viewer',
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
     callerName : self.caller_id_name,
@@ -365,19 +358,6 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   console.log("onOfferViewer sending to screenshare server => " + JSON.stringify(message, null, 2));
   this.sendMessage(message);
 };
-
-Kurento.prototype.ping = function() {
-    let self = this;
-   var message = {
-    id : 'ping',
-    type: 'screenshare',
-    internalMeetingId: self.internalMeetingId,
-    voiceBridge: self.voiceBridge,
-    callerName : self.caller_id_name,
-  };
-
-  this.sendMessage(message);
-}
 
 Kurento.prototype.stop = function() {
   //if (this.webRtcPeer) {
@@ -513,4 +493,4 @@ window.getChromeScreenConstraints = function(callback, extensionId) {
       console.log(response);
       callback(response);
     });
-};
+};;

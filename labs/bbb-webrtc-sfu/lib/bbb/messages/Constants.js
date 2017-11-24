@@ -1,4 +1,6 @@
 "use strict";
+
+const config = require('config');
 /**
  * @classdesc
  * Message constants for the communication with BigBlueButton
@@ -17,12 +19,12 @@
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
         FROM_VOICE_CONF_SYSTEM_CHAN: "from-voice-conf-redis-channel",
         TO_BBB_TRANSCODE_SYSTEM_CHAN: "bigbluebutton:to-bbb-transcode:system",
-        FROM_SCREENSHARE: "from-screenshare-redis-channel",
-        TO_SCREENSHARE: "to-screenshare-redis-channel",
-        FROM_VIDEO: "from-video-redis-channel",
-        TO_VIDEO: "to-video-redis-channel",
-        FROM_AUDIO: "from-audio-redis-channel",
-        TO_AUDIO: "to-audio-redis-channel",
+        FROM_SCREENSHARE: config.get('from-screenshare'),
+        TO_SCREENSHARE: config.get('to-screenshare'),
+        FROM_VIDEO: config.get('from-video'),
+        TO_VIDEO: config.get('to-video'),
+        FROM_AUDIO: config.get('from-audio'),
+        TO_AUDIO: config.get('to-audio'),
 
         // RedisWrapper events
         REDIS_MESSAGE : "redis_message",

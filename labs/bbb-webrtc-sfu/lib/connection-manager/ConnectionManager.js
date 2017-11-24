@@ -48,7 +48,6 @@ module.exports = class ConnectionManager {
     let emitter = new EventEmitter();
 
     emitter.on(C.WEBSOCKET_MESSAGE, (data) => {
-      console.log("  [ConnectionManager] RECEIVED DATA FROM WEBSOCKET");
       switch (data.type) {
         case "screenshare":
           self._bbbGW.publish(JSON.stringify(data), C.TO_SCREENSHARE);
@@ -79,12 +78,10 @@ module.exports = class ConnectionManager {
       const audio = await this._bbbGW.addSubscribeChannel(C.FROM_AUDIO);
 
       screenshare.on(C.REDIS_MESSAGE, (data) => {
-        console.log("  [ConnectionManager] RECEIVED DATA FROM REDIS");
         this._emitter.emit('response', data);
       });
 
       video.on(C.REDIS_MESSAGE, (data) => {
-        console.log("  [ConnectionManager] RECEIVED DATA FROM REDIS");
         this._emitter.emit('response', data);
       });
 

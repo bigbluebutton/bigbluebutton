@@ -1,5 +1,5 @@
 /*
- * Lucas Fialho Zawacki
+* Lucas Fialho Zawacki
  * Paulo Renato Lanzarin
  * (C) Copyright 2017 Bigbluebutton
  *
@@ -28,9 +28,8 @@ if (config.get('acceptSelfSignedCertificate')) {
 }
 
 module.exports = class Screenshare {
-  constructor(ws, id, bbbgw, voiceBridge, caller = 'caller', vh, vw, meetingId) {
+  constructor(id, bbbgw, voiceBridge, caller = 'caller', vh, vw, meetingId) {
     this.mcs = new MCSApi();
-    this._ws = ws;
     this._id = id;
     this._BigBlueButtonGW = bbbgw;
     this._presenterEndpoint = null;
@@ -100,7 +99,7 @@ module.exports = class Screenshare {
     }
   }
 
-  mediaStateWebRtc (event, ws) {
+  mediaStateWebRtc (event, id) {
     let msEvent = event.event;
 
     console.log('  [screenshare] ' + msEvent.type + '[' + msEvent.state + ']' + ' for endpoint ' + this._id);
@@ -108,7 +107,13 @@ module.exports = class Screenshare {
     switch (event.eventTag) {
       case "OnIceCandidate":
         let candidate = msEvent.candidate;
-        ws.sendMessage({ id : 'iceCandidate', cameraId: this.id, candidate : candidate });
+        this._BigBlueButtonGW.publish(JSON.stringify({
+          connectionId: id,
+          id : 'iceCandidate',
+          cameraId: this._id,
+          candidate : candidate
+        }), C.FROM_SCREENSHARE);
+
         break;
 
       case "MediaStateChanged":
@@ -124,7 +129,7 @@ module.exports = class Screenshare {
     }
   }
 
-  async _startPresenter(id, ws, sdpOffer, callback) {
+  async _startPresenter(id, sdpOffer, callback) {
     let presenterSdpAnswer, rtpSdpAnswer;
     let _callback = callback;
 
@@ -150,7 +155,7 @@ module.exports = class Screenshare {
       this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
 
       this.mcs.on('MediaEvent' + this._presenterEndpoint, (event) => {
-        this.mediaStateWebRtc(event, ws);
+        this.mediaStateWebRtc(event, this._id)
       });
 
       console.log("  [video] Publish returned => " + this._presenterEndpoint);
@@ -165,7 +170,7 @@ module.exports = class Screenshare {
       let sendVideoPort = MediaHandler.getVideoPort();
       let rtpSdpOffer = MediaHandler.generateVideoSdp(localIpAddress, sendVideoPort);
 
-      const retRtp = await this.mcs.subscribe(this.userId, sharedScreens[this._id], 'RtpEndpoint', {descriptor: rtpSdpOffer});
+      const retRtp = await this.mcs.subscribe(this.userId, sharedScreens[id], 'RtpEndpoint', {descriptor: rtpSdpOffer});
 
       this._ffmpegEndpoint = retRtp.sessionId;
       rtpEndpoints[id] = this._ffmpegEndpoint;
@@ -204,34 +209,39 @@ module.exports = class Screenshare {
     }
   }
 
-  async _startViewer(ws, voiceBridge, sdp, callerName, presenterEndpoint, callback) {
+  async _startViewer(connectionId, voiceBridge, sdp, callerName, presenterEndpoint, callback) {
     let _callback = function(){};
     let sdpAnswer, sdpOffer;
-    console.log("startviewer callerName = " + callerName);
+    console.log("  [screenshare] Starting viewer " + callerName + " for voiceBridge " + this._voiceBridge);
 
     sdpOffer = h264_sdp.transform(sdp);
     sdpOffer = sdp;
 
     this._viewersCandidatesQueue[callerName] = [];
 
-    console.log("  [screenshare] Starting viewer " + callerName + " for voiceBridge " + this._voiceBridge);
 
     try {
-      const retSource = await this.mcs.subscribe(this.userId, sharedScreens[this._id], 'WebRtcEndpoint', {descriptor: sdpOffer});
+      const retSource = await this.mcs.subscribe(this.userId, sharedScreens[voiceBridge], 'WebRtcEndpoint', {descriptor: sdpOffer});
 
       this._viewersEndpoint[callerName] = retSource.sessionId;
       sdpAnswer = retSource.answer;
       this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
       this.mcs.on('MediaEvent' + this._viewersEndpoint[callerName], (event) => {
-        this.mediaStateWebRtc(event, ws);
+        this.mediaStateWebRtc(event, connectionId);
       });
 
-      ws.sendMessage({id: "viewerResponse", sdpAnswer: sdpAnswer, response: "accepted"});
+      this._BigBlueButtonGW.publish(JSON.stringify({
+        connectionId: connectionId,
+        id: "viewerResponse",
+        sdpAnswer: sdpAnswer,
+        response: "accepted"
+      }), C.FROM_SCREENSHARE);
+
       console.log(" Sent sdp message to client with callerName:" + callerName);
-      console.log("  [video] Subscribe returned => " + this._viewersEndpoint[callerName]);
+      console.log("  [screenshare] Subscribe returned => " + this._viewersEndpoint[callerName]);
     }
     catch (err) {
-      console.log("  [video] MCS publish returned error => " + err);
+      console.log("  [screenshare] MCS publish returned error => " + err);
       return _callback(err);
     }
   }
@@ -259,71 +269,67 @@ module.exports = class Screenshare {
   }
 
   _stopScreensharing() {
-    let self = this;
     let strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
 
-    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+    this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
     // Interoperability: capturing 1.1 stop_transcoder_reply messages
-    self._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY, function(payload) {
+    this._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY, (payload) => {
       let meetingId = payload[C.MEETING_ID];
-      self._stopRtmpBroadcast(meetingId);
+      this._stopRtmpBroadcast(meetingId);
     });
 
     // Capturing stop transcoder responses from the 2x model
-    self._BigBlueButtonGW.once(C.STOP_TRANSCODER_RESP_2x, function(payload) {
+    this._BigBlueButtonGW.once(C.STOP_TRANSCODER_RESP_2x, (payload) => {
       let meetingId = payload[C.MEETING_ID_2x];
-      self._stopRtmpBroadcast(meetingId);
+      this._stopRtmpBroadcast(meetingId);
     });
 
   }
 
   _onRtpMediaFlowing() {
     console.log("  [screenshare] Media FLOWING for meeting => " + this._meetingId);
-    let self = this;
     let strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
 
     // Interoperability: capturing 1.1 start_transcoder_reply messages
-    self._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, function(payload) {
+    this._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, (payload) => {
       let meetingId = payload[C.MEETING_ID];
       let output = payload["params"].output;
-      self._startRtmpBroadcast(meetingId, output);
+      this._startRtmpBroadcast(meetingId, output);
     });
 
     // Capturing stop transcoder responses from the 2x model
-    self._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, function(payload) {
+    this._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, (payload) => {
       let meetingId = payload[C.MEETING_ID_2x];
       let output = payload["params"].output;
-      self._startRtmpBroadcast(meetingId, output);
+      this._startRtmpBroadcast(meetingId, output);
     });
 
 
-    self._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+    this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
   };
 
   _stopRtmpBroadcast (meetingId) {
     console.log("  [screenshare] _stopRtmpBroadcast for meeting => " + meetingId);
-    let self = this;
-    if(self._meetingId === meetingId) {
+    if(this._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
       let timestamp = now.format('hhmmss');
-      let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(self._voiceBridge,
-          self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
-      self._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+      let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(this._voiceBridge,
+          this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
+      this._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
     }
   }
 
   _startRtmpBroadcast (meetingId, output) {
     console.log("  [screenshare] _startRtmpBroadcast for meeting => " + meetingId);
-    var self = this;
-    if(self._meetingId === meetingId) {
+    if(this._meetingId === meetingId) {
       // TODO correctly assemble this timestamp
       let timestamp = now.format('hhmmss');
-      self._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
-      let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(self._voiceBridge,
-          self._voiceBridge, self._streamUrl, self._vw, self._vh, timestamp);
+      this._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
+      let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(this._voiceBridge,
+          this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
 
-      self._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+      this._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
     }
   }
 

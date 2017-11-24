@@ -6,18 +6,21 @@ const kurento = require('kurento-client');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
+const C = require('../bbb/messages/Constants');
 
 if (config.get('acceptSelfSignedCertificate')) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED=0;
 }
 
 module.exports = class Video {
-  constructor(_ws, _id, _shared) {
+  constructor(_bbbGW, _id, _shared, _sessionId) {
     this.mcs = new MCSApi();
-    this.ws = _ws;
+    this.bbbGW = _bbbGW;
     this.id = _id;
+    this.sessionId = _sessionId;
     this.meetingId = _id;
     this.shared = _shared;
+    this.role = this.shared? 'share' : 'view'
     this.webRtcEndpoint = null;
     this.mediaId = null;
 
@@ -59,9 +62,16 @@ module.exports = class Video {
     switch (event.eventTag) {
 
       case "OnIceCandidate":
-        console.log("  [video] Sending ICE candidate to user => " + this.id);
+        //console.log("  [video] Sending ICE candidate to user => " + this.id);
         let candidate = msEvent.candidate;
-        this.ws.sendMessage({ id : 'iceCandidate', cameraId: this.id, candidate : candidate });
+        this.bbbGW.publish(JSON.stringify({
+          connectionId: this.sessionId,
+          type: 'video',
+          role: this.role,
+          id : 'iceCandidate',
+          cameraId: this.id,
+          candidate: candidate
+        }), C.FROM_VIDEO);
         break;
 
       case "MediaStateChanged":
@@ -72,10 +82,22 @@ module.exports = class Video {
         console.log(' [video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for endpoint ' + this.id);
 
         if (msEvent.state === 'NOT_FLOWING') {
-          this.ws.sendMessage({ id : 'playStop', cameraId : this.id });
+          this.bbbGW.publish(JSON.stringify({
+            connectionId: this.sessionId,
+            type: 'video',
+            role: this.role,
+            id : 'playStop',
+            cameraId: this.id,
+          }), C.FROM_VIDEO);
         } 
         else if (msEvent.state === 'FLOWING') {
-          this.ws.sendMessage({ id : 'playStart', cameraId : this.id });
+          this.bbbGW.publish(JSON.stringify({
+            connectionId: this.sessionId,
+            type: 'video',
+            role: this.role,
+            id : 'playStart',
+            cameraId: this.id,
+          }), C.FROM_VIDEO);
         }
 
         break;
@@ -125,7 +147,7 @@ module.exports = class Video {
   };
 
   async stop () {
-    console.log(' [stop] Releasing endpoints for ' + this.userId);
+    console.log(' [stop] Releasing endpoints for user ' + this.userId + ' at room ' + this.meetingId);
 
     try {
       await this.mcs.leave(this.meetingId, this.userId);
@@ -136,33 +158,9 @@ module.exports = class Video {
       return;
     }
     catch (err) {
-      console.log(err);
+      // TODO error handling
       return;
     }
     return;
-
-    //console.log(' [stop] Releasing webrtc endpoint for ' + id);
-
-    //if (webRtcEndpoint) {
-    //  webRtcEndpoint.release();
-    //  webRtcEndpoint = null;
-    //} else {
-    //  console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
-    //}
-
-    //if (shared) {
-    //  console.log(' [stop] Webcam is shared, releasing ' + id);
-
-    //  if (mediaPipelines[id]) {
-    //    mediaPipelines[id].release();
-    //  } else {
-    //    console.log(" [mediaPipeline] PLEASE DONT TRY STOPPING THINGS TWICE");
-    //  }
-
-    //  delete mediaPipelines[id];
-    //  delete sharedWebcams[id];
-    //}
-
-    //delete this.candidatesQueue;
   };
 };
