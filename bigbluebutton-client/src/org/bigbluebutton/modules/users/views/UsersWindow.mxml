@@ -469,7 +469,7 @@ $Id: $
       private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
         // We display only one alert
         removeJoinWindow();
-		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow) as JoinBreakoutRoomWindow;
+		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
 		joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
       }
       

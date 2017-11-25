@@ -1,4 +1,5 @@
-@import "../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
 
 .chat {
   background-color: #fff;
@@ -11,14 +12,15 @@
 }
 
 .header {
-  margin-bottom: $md-padding-x;
   display: flex;
   flex-direction: row;
   align-items: left;
   flex-shrink: 0;
 
   a {
-    @extend %customLinkFocus;
+    @include elementFocus($color-primary);
+    padding-bottom: $sm-padding-y;
+    padding-left: $sm-padding-y;
     text-decoration: none;
     display: block;
   }

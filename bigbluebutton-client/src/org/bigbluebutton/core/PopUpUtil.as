@@ -19,15 +19,21 @@
 package org.bigbluebutton.core {
 	import flash.display.DisplayObject;
 	import flash.events.KeyboardEvent;
+	import flash.geom.Point;
 	import flash.ui.Keyboard;
 	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
 
+	import mx.containers.Panel;
 	import mx.controls.Alert;
+	import mx.core.Application;
 	import mx.core.FlexGlobals;
 	import mx.core.IChildList;
 	import mx.core.IFlexDisplayObject;
 	import mx.core.IUIComponent;
+	import mx.events.FlexEvent;
+	import mx.events.ResizeEvent;
+	import mx.managers.ISystemManager;
 	import mx.managers.PopUpManager;
 	import mx.managers.SystemManager;
 
@@ -42,6 +48,8 @@ package org.bigbluebutton.core {
 
 		private static var popUpDict:Dictionary = new Dictionary(true);
 
+		private static var lockedPositions:Dictionary = new Dictionary(true);
+
 		public static function initAlert():void {
 			Alert.buttonHeight = 30;
 			Alert.buttonWidth = 100;
@@ -49,6 +57,7 @@ package org.bigbluebutton.core {
 			Alert.noLabel = ResourceUtil.getInstance().getString('bbb.alert.no');
 			Alert.okLabel = ResourceUtil.getInstance().getString('bbb.alert.ok');
 			Alert.yesLabel = ResourceUtil.getInstance().getString('bbb.alert.yes');
+			Application(FlexGlobals.topLevelApplication).addEventListener(ResizeEvent.RESIZE, globalResizeListener);
 		}
 
 		public static function createNonModalPopUp(parent:DisplayObject, className:Class, center:Boolean = true):IFlexDisplayObject {
@@ -112,6 +121,40 @@ package org.bigbluebutton.core {
 				event.currentTarget.removeEventListener(KeyboardEvent.KEY_DOWN, escapeKeyDownHandler);
 				removePopUp(event.currentTarget);
 			}
+		}
+
+		private static function globalResizeListener(event:ResizeEvent):void {
+			var systemManager:ISystemManager = Application(FlexGlobals.topLevelApplication).systemManager;
+			for (var i:int = systemManager.numChildren - 1; i > 0; i -= 1) {
+				if (systemManager.getChildAt(i) is Panel && !hasPositionLocked(systemManager.getChildAt(i))) {
+					PopUpManager.centerPopUp(systemManager.getChildAt(i) as IFlexDisplayObject);
+				}
+			}
+		}
+
+		public static function lockPosition(popUp:*, positionFunction:Function = null):void {
+			var resizeHandler:Function = function():void {
+				if (positionFunction != null) {
+					var newPosition:Point = positionFunction.apply();
+					popUp.move(newPosition.x, newPosition.y);
+				}
+			};
+			popUp.addEventListener(FlexEvent.CREATION_COMPLETE, resizeHandler);
+			Application(FlexGlobals.topLevelApplication).addEventListener(ResizeEvent.RESIZE, resizeHandler);
+			lockedPositions[getQualifiedClassName(popUp)] = resizeHandler;
+		}
+
+		public static function unlockPosition(popUp:*):void {
+			var fqcn:String = getQualifiedClassName(popUp);
+			if (lockedPositions[fqcn] != undefined) {
+				popUp.removeEventListener(FlexEvent.CREATION_COMPLETE, lockedPositions[fqcn]);
+				Application(FlexGlobals.topLevelApplication).removeEventListener(ResizeEvent.RESIZE, lockedPositions[fqcn]);
+				delete lockedPositions[fqcn];
+			}
+		}
+
+		public static function hasPositionLocked(popUp:*):Boolean {
+			return lockedPositions[getQualifiedClassName(popUp)] != undefined;
 		}
 	}
 }
