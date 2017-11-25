@@ -399,6 +399,7 @@ package org.bigbluebutton.modules.layout.managers
 
 		private function checkPermissionsOverAllWindows():void {
 			if (UsersUtil.amIModerator()) return;
+			if (_canvas == null || _canvas.windowManager == null) return;
 			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
 				checkPermissionsOverWindow(window);
 			}
