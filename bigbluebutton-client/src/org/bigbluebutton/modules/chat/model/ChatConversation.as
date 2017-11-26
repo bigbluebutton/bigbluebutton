@@ -20,8 +20,11 @@ package org.bigbluebutton.modules.chat.model
 {
   import com.adobe.utils.StringUtil;
   import com.asfusion.mate.events.Dispatcher;
-  import flash.system.Capabilities; 
-  import mx.collections.ArrayCollection;  
+  
+  import flash.system.Capabilities;
+  
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
