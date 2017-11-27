@@ -82,6 +82,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleUserLeftEvent(event: UserLeftEvent): void {
         handler.handleUserLeftEvent(event.userID);  
+		handler.populateAllUsers();
+		users = removeMe(handler.users);
       }
 		
 		private function handleNewGroupChatEvent(event:CoreEvent):void {
@@ -90,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {
         handler.handleUserJoinedEvent(event);
-        handler.populateAllUsers()
+        handler.populateAllUsers();
         users = removeMe(handler.users);
       }
       
@@ -111,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onCreationComplete():void{
         amIModerator = UsersUtil.amIModerator();
         
-		handler.populateAllUsers()
+		handler.populateAllUsers();
 		handler.populateAllGroupChats()
         users = removeMe(handler.users);
 		groupChats = handler.groupChats;
