@@ -331,16 +331,18 @@ package org.bigbluebutton.core
     }
     
     public static function lockSettingsNotInitialized():void {
-      var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
-      var lockSettings:LockSettingsVO = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic,
-        lockOptions.disablePrivateChat, lockOptions.disablePublicChat,
-        lockOptions.lockedLayout, lockOptions.lockOnJoin,
-        lockOptions.lockOnJoinConfigurable);
-      var event:LockControlEvent = new LockControlEvent(LockControlEvent.SAVE_LOCK_SETTINGS);
-      event.payload = lockSettings.toMap();
-      
-      var dispatcher:Dispatcher = new Dispatcher();
-      dispatcher.dispatchEvent(event);
+      if (amIModerator()) {
+        var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
+        var lockSettings:LockSettingsVO = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic,
+          lockOptions.disablePrivateChat, lockOptions.disablePublicChat,
+          lockOptions.lockedLayout, lockOptions.lockOnJoin,
+          lockOptions.lockOnJoinConfigurable);
+        var event:LockControlEvent = new LockControlEvent(LockControlEvent.SAVE_LOCK_SETTINGS);
+        event.payload = lockSettings.toMap();
+        
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(event);
+      }
     }
     
     public static function getBreakoutRoom(id: String): BreakoutRoom {

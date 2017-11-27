@@ -23,12 +23,12 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
     } yield {
-      if (user.role != Roles.MODERATOR_ROLE && user.locked) {
-        val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+      if (user.role != Roles.MODERATOR_ROLE) {
         if (msg.body.access == GroupChatAccess.PRIVATE) {
-          chatLocked = permissions.disablePrivChat
+          val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+          chatLocked = user.locked && permissions.disablePrivChat
         } else {
-          chatLocked = permissions.disablePubChat
+          chatLocked = true
         }
       }
     }

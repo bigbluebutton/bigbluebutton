@@ -74,7 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
       
       [Bindable] public var chatOptions:ChatOptions;		
-      [Bindable] private var clrBtnVisible:Boolean = false;
+      [Bindable] private var amIModerator:Boolean = false;
       
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onCreationComplete():void{
-        clrBtnVisible = UsersUtil.amIModerator();
+        amIModerator = UsersUtil.amIModerator();
         
 		handler.populateAllUsers()
 		handler.populateAllGroupChats()
@@ -205,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function refreshRole(e:ChangeMyRole):void {
-        clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = clrBtnVisible = UsersUtil.amIModerator();
+        amIModerator = UsersUtil.amIModerator();
         refreshListStatus();
       }
       
@@ -260,8 +260,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </fx:Declarations>
   
 	<mx:HBox id="newGroupChatBox" width="100%" verticalAlign="middle"
-			 visible="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows}"
-			 includeInLayout="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows}">
+			 visible="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows &amp;&amp; amIModerator}"
+			 includeInLayout="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows &amp;&amp; amIModerator}">
 		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.newChat.label')}"/>
 		<mx:TextInput id="newChatNameInput" width="100%"/>
 		<mx:Button id="createChatGroupBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.newChat.create')}"
@@ -326,9 +326,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                styleName="chatClearButtonStyle"
                width="22"
                height="22"
-               visible = "{clrBtnVisible}"
-               enabled = "{clrBtnVisible}"
-               includeInLayout = "{clrBtnVisible}"
+               visible = "{amIModerator}"
+               enabled = "{amIModerator}"
+               includeInLayout = "{amIModerator}"
                toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}"
                click="sendClearEvent()"
                accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/>
