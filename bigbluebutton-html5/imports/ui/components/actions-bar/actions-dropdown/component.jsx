@@ -9,8 +9,8 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import UploadPresentation from './upload-presentation/component';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -23,32 +23,15 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
   },
-  presentationLabel: {
-    id: 'app.actionsBar.actionsDropdown.presentationLabel',
-    description: 'Upload a presentation option label',
-  },
-  presentationDesc: {
-    id: 'app.actionsBar.actionsDropdown.presentationDesc',
-    description: 'adds context to upload presentation option',
-  },
 });
 
 class ActionsDropdown extends Component {
-  constructor(props) {
-    super(props);
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
-  }
-
   componentWillUpdate(nextProps) {
     const { isUserPresenter: isPresenter } = nextProps;
     const { isUserPresenter: wasPresenter, mountModal } = this.props;
     if (wasPresenter && !isPresenter) {
       mountModal(null);
     }
-  }
-
-  handlePresentationClick() {
-    this.props.mountModal(<PresentationUploaderContainer />);
   }
 
   render() {
@@ -70,12 +53,7 @@ class ActionsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            <DropdownListItem
-              icon="presentation"
-              label={intl.formatMessage(intlMessages.presentationLabel)}
-              description={intl.formatMessage(intlMessages.presentationDesc)}
-              onClick={this.handlePresentationClick}
-            />
+            <UploadPresentation />
           </DropdownList>
         </DropdownContent>
       </Dropdown>
