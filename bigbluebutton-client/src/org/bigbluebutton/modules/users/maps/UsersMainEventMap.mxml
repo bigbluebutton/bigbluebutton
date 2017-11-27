@@ -36,16 +36,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.UserServicesEvent;
 			import org.bigbluebutton.main.model.GuestManager;
 			import org.bigbluebutton.main.model.users.UserService;
+			import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
+			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			<!--TODO: Move guest events to user events? -->
 
 

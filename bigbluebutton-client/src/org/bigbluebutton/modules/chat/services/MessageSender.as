@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.chat.services
     }
     
     public function getGroupChatMsgHistory(chatId: String):void {
-      trace("SENDING CHAT HISTORY REQUEST FOR CHAT ID = " + chatId);
+	  LOGGER.debug("Sending chat history request fro chat ID = " + chatId);
       var message:Object = {
         header: {name: "GetGroupChatMsgsReqMsg", 
           meetingId: UsersUtil.getInternalMeetingID(), 

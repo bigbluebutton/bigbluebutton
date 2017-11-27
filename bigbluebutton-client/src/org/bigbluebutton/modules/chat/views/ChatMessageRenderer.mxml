@@ -37,10 +37,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(ChatMessageRenderer);      
 
 			private function onLinkClick(e:TextEvent):void{
-        LOGGER.debug("Clicked on link[{0}] from chat", [e.text]);
-        if (ExternalInterface.available) {
-          ExternalInterface.call("chatLinkClicked", e.text);
-        } 
+				LOGGER.debug("Clicked on link[{0}] from chat", [e.text]);
+				if (ExternalInterface.available) {
+					ExternalInterface.call("chatLinkClicked", e.text);
+				} 
 			}
 			
 			//private function dataChangeHandler(e:Event = null):void{
@@ -77,10 +77,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
   <mx:Canvas width="100%" id="hbHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-    <mx:Label id="lblName" text="{data.name}" visible="true" color="gray" textAlign="left" left="0" width="{this.width - lblTime.width - 22}"/>
-    <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
-             visible="true" 
-             color="gray" right="4" />
+    <mx:Label id="lblName" styleName="chatMessageName" text="{data.name}" visible="true" left="0" width="{this.width - lblTime.width - 22}"/>
+    <mx:Text id="lblTime" styleName="chatMessageTime" htmlText="{data.time}"
+             visible="true" right="4" />
   </mx:Canvas>
   <mx:Text id="txtMessage" htmlText="{data.text}" link="onLinkClick(event)" color="{data.senderColor}"
            keyDown="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
