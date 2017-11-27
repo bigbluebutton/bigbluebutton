@@ -18,11 +18,11 @@
  */
 package org.bigbluebutton.core {
 
-    import flash.events.KeyboardEvent;
+	import flash.events.KeyboardEvent;
 
-    public final class KeyboardUtil {
-        public static function buildPressedKeys(e:KeyboardEvent):String {
-            return (e.ctrlKey ? "control+" : "") + (e.shiftKey ? "shift+" : "") + (e.altKey ? "alt+" : "") + e.keyCode;
-        }
-    }
+	public final class KeyboardUtil {
+		public static function buildPressedKeys(e:KeyboardEvent):String {
+			return (e.ctrlKey ? "control+" : "") + (e.shiftKey ? "shift+" : "") + (e.altKey ? "alt+" : "") + e.keyCode;
+		}
+	}
 }

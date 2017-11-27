@@ -142,12 +142,12 @@ $Id: $
                      label="{ResourceUtil.getInstance().getString('bbb.guests.allowAllAuthenticated.label')}"
                      width="100%" 
                      click="sendResponseToAllGuestsCheckBox(true, GuestPolicy.ALWAYS_ACCEPT_AUTH)" 
-                     toolTip="{allowEveryoneBtn.label}"/>
+                     toolTip="{allowAllAuthBtn.label}"/>
           <mx:Button id="allowAllGuestsBtn" styleName="mainActionButton"
                      label="{ResourceUtil.getInstance().getString('bbb.guests.allowAllGuestsBtn.label')}"
                      width="100%" 
                      click="sendResponseToAllGuestsCheckBox(true, GuestPolicy.ALWAYS_ACCEPT)" 
-                     toolTip="{allowEveryoneBtn.label}"/>
+                     toolTip="{allowAllGuestsBtn.label}"/>
         </mx:VBox>
         <mx:VBox width="100%" paddingTop="20" paddingBottom="20">
           <mx:Button id="allowEveryoneBtn" styleName="mainActionButton"
@@ -166,7 +166,7 @@ $Id: $
       <mx:VRule height="100%"/>
       
       <mx:VBox width="100%" height="100%">
-        <mx:Label text="{guestUsers.length > 1 ? ResourceUtil.getInstance().getString('bbb.guests.message.guest.plural', [String(guestUsers.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.guest.singular', [String(guestUsers.length)])}"
+        <mx:Label text="{guestUsers.length > 1 ? ResourceUtil.getInstance().getString('bbb.guests.message.user.plural', [String(guestUsers.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.user.singular', [String(guestUsers.length)])}"
                   width="100%"/>
         <mx:List id="guestList" styleName="guestListStyle" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
                  rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{guestUsers}" />

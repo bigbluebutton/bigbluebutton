@@ -464,6 +464,7 @@ users|JoinBreakoutRoomWindow {
 users|RoomActionsRenderer {
 	paddingLeft     : 5;
 	paddingRight    : 5;
+	verticalAlign   : middle;
 	iconTransfer    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transfer");
 	iconTransferred : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transferred");
 	iconJoin        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join");
@@ -652,6 +653,20 @@ chat|ChatOptionsTab {
 	selectionColor : #CED4DB;
 }
 
+chat|ChatMessageRenderer {
+	color : #4E5A66;
+}
+
+.chatMessageName {
+	color     : #696969;
+	textAlign : left;
+}
+
+.chatMessageTime {
+	color     : #696969;
+	textAlign : right;
+}
+
 /*
 //------------------------------
 //  CheckBox
@@ -805,6 +820,16 @@ mx|DataGrid {
 
 /*
 //------------------------------
+//  FileDownloadWindow
+//------------------------------
+*/
+
+presentation|DownloadPresentationRenderer {
+	verticalAlign : middle;
+}
+
+/*
+//------------------------------
 //  FileExportWindow
 //------------------------------
 */
@@ -829,6 +854,10 @@ presentation|FileExportWindow {
 
 views|GuestSettingsWindow {
 	headerHeight : 0;
+}
+
+views|GuestItemRenderer {
+	verticalAlign : middle;
 }
 
 .guestListStyle {
@@ -872,6 +901,11 @@ views|GuestSettingsWindow {
 //  Layout
 //------------------------------
 */
+
+layout|LayoutsCombo {
+	color         : #5E6C73;
+	disabledColor : #5E6C73;
+}
 
 .gearLayoutButtonStyle {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
@@ -1687,8 +1721,9 @@ users|MediaItemRenderer {
 }
 
 users|NameItemRenderer {
-	fontSize  : 12;
-	textAlign : left;
+	fontSize      : 12;
+	textAlign     : left;
+	verticalAlign : middle;
 }
 
 .nameRenderer {

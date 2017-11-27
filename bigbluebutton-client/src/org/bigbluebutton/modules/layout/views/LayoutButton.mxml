@@ -33,13 +33,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flashx.textLayout.edit.EditingMode;
-			import flashx.textLayout.formats.Direction;
-			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
 			import mx.events.MenuEvent;
+			
+			import flashx.textLayout.formats.Direction;
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.PopUpUtil;

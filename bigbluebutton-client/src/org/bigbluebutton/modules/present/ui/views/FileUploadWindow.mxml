@@ -24,7 +24,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
-				xmlns:s="library://ns.adobe.com/flex/spark"
                 width="580"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
@@ -58,7 +57,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.collections.ArrayCollection;
 		import mx.core.mx_internal;
 		import mx.events.FlexEvent;
-		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
 		import mx.utils.StringUtil;
 		
@@ -88,9 +86,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.UploadProgressEvent;
 		import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
 		import org.bigbluebutton.modules.present.model.PresentOptions;
-		import org.bigbluebutton.modules.present.model.PresentationModel;
-		import org.bigbluebutton.modules.present.model.PresentationPodManager;
 		import org.bigbluebutton.modules.present.model.Presentation;
+		import org.bigbluebutton.modules.present.model.PresentationPodManager;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
@@ -376,9 +373,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </fx:Script>
 	
 	<mx:states>
-		<s:State name="normal" />
-		<s:State name="uploading" />
-		<s:State name="error" />
+		<mx:State name="normal" />
+		<mx:State name="uploading" />
+		<mx:State name="error" />
 	</mx:states>
 	
 
@@ -417,7 +414,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:VBox>
 	
 	<mx:VBox id="errorBox" paddingTop="5" paddingBottom="5" width="100%" horizontalAlign="center" includeIn="error">
-		<s:Label id="progressErrorLbl" styleName="progressErrorLblStyle" width="540"/>
+		<mx:Text id="progressErrorLbl" styleName="progressErrorLblStyle" width="540"/>
 		<mx:Button id="retryButton" styleName="retryUploadButton"
 				  label="{ResourceUtil.getInstance().getString('bbb.fileupload.retry')}" click="retryButtonClikcHandler(event)"/>
 	</mx:VBox>

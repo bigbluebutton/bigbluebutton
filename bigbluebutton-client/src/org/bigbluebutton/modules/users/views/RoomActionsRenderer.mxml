@@ -4,7 +4,6 @@
          xmlns:mate="http://mate.asfusion.com/"
          verticalScrollPolicy="off"
          horizontalScrollPolicy="off"
-         verticalAlign="middle"
          creationComplete="onCreationCompleteHandler(event)">
   <fx:Declarations>
     <mate:Listener type="{BreakoutRoomsReadyEvent.BREAKOUT_ROOMS_READY_EVENT}" method="handleBreakoutRoomsReadyEvent" />	

@@ -168,6 +168,7 @@ package org.bigbluebutton.util.i18n
 		}
 
 		private function reloadLocaleNames():void {
+			// @fixme : should use "default" string instead of [0].code
 			locales[0].name = locales[0].native = ResourceUtil.getInstance().getString("bbb.langSelector." + locales[0].code, null, getDefaultLocale());
 			locales.sort(localesCompareFunction);
 		}

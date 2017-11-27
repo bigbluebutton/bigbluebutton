@@ -31,7 +31,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.layout.model.LayoutModuleOptions;
 			import org.bigbluebutton.modules.layout.views.ToolbarComponent;
 			
-			
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			private var options:LayoutOptions;
 			private var moduleOptions:LayoutModuleOptions;
