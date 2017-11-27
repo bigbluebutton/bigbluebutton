@@ -19,7 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import grails.converters.*
-
+import org.bigbluebutton.api.ParamsProcessorUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
@@ -29,14 +29,15 @@ import org.bigbluebutton.api.Util;
 class PresentationController {
   MeetingService meetingService
   PresentationService presentationService
-  
+  ParamsProcessorUtil paramsProcessorUtil
+
   def index = {
     render(view:'upload-file') 
   }
 
   def checkPresentationBeforeUploading = {
     try {
-      def maxUploadFileSize = 3000000 // 30 MB
+      def maxUploadFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
       def presentationToken = request.getHeader("x-presentation-token")
       def originalUri = request.getHeader("x-original-uri")
       def originalContentLengthString = request.getHeader("x-original-content-length")
