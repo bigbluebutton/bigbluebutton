@@ -29,7 +29,6 @@ const propTypes = {
 };
 
 const defaultProps = {
-  defaultFileName: 'default.pdf',
 };
 
 const intlMessages = defineMessages({
@@ -69,6 +68,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.fileToUpload',
     description: 'message used in the file selected for upload',
   },
+  genericError: {
+    id: 'app.presentationUploder.genericError',
+    description: 'generic error while uploading/converting',
+  },
   uploadProcess: {
     id: 'app.presentationUploder.upload.progress',
     description: 'message that indicates the percentage of the upload',
@@ -85,9 +88,12 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.genericConversionStatus',
     description: 'indicates that file is being converted',
   },
+  TIMEOUT: {
+    id: 'app.presentationUploder.conversion.timeout',
+  },
   GENERATING_THUMBNAIL: {
     id: 'app.presentationUploder.conversion.generatingThumbnail',
-    description: 's that it is generating thumbnails',
+    description: 'indicatess that it is generating thumbnails',
   },
   GENERATING_SVGIMAGES: {
     id: 'app.presentationUploder.conversion.generatingSvg',
@@ -103,8 +109,11 @@ class PresentationUploader extends Component {
   constructor(props) {
     super(props);
 
+    const currentPres = props.presentations.find(p => p.isCurrent);
+
     this.state = {
       presentations: props.presentations,
+      oldCurrentId: currentPres ? currentPres.id : -1,
       preventClosing: false,
       disableActions: false,
     };
@@ -117,15 +126,6 @@ class PresentationUploader extends Component {
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const nextPresentations = nextProps.presentations;
-
-    nextPresentations.forEach((file) => {
-      this.updateFileKey(file.filename, 'id', file.id);
-      this.deepMergeUpdateFileKey(file.id, 'conversion', file.conversion);
-    });
   }
 
   updateFileKey(id, key, value, operation = '$set') {
@@ -153,25 +153,48 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
-    const { presentations } = this.state;
+    const presentationsToSave = this.state.presentations
+      .filter(p => !p.upload.error && !p.conversion.error);
 
     this.setState({
       disableActions: true,
       preventClosing: true,
+      presentations: presentationsToSave,
     });
 
-    return this.props.handleSave(presentations)
+    return this.props.handleSave(presentationsToSave)
       .then(() => {
-        this.setState({
-          disableActions: false,
-          preventClosing: false,
-        });
-      })
-      .catch((error) => {
+        const { presentations, oldCurrentId } = this.state;
+
+        const hasError = presentations.some(p => p.upload.error || p.conversion.error);
+
+        if (!hasError) {
+          this.setState({
+            disableActions: false,
+            preventClosing: false,
+          });
+
+          return;
+        }
+
+        // if theres error we dont want to close the modal
         this.setState({
           disableActions: false,
           preventClosing: true,
-          error,
+        }, () => {
+          // if the selected current has error we revert back to the old one
+          const newCurrent = presentations.find(p => p.isCurrent);
+          if (newCurrent.upload.error || newCurrent.conversion.error) {
+            this.handleCurrentChange(oldCurrentId);
+          }
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+
+        this.setState({
+          disableActions: false,
+          preventClosing: true,
         });
       });
   }
@@ -211,8 +234,14 @@ class PresentationUploader extends Component {
             done: event.loaded === event.total,
           });
         },
-        onError: (error) => {
-          this.deepMergeUpdateFileKey(id, 'upload', { error });
+        onConversion: (conversion) => {
+          this.deepMergeUpdateFileKey(id, 'conversion', conversion);
+        },
+        onUpload: (upload) => {
+          this.deepMergeUpdateFileKey(id, 'upload', upload);
+        },
+        onDone: (newId) => {
+          this.updateFileKey(id, 'id', newId);
         },
       };
     });
@@ -222,20 +251,20 @@ class PresentationUploader extends Component {
     }));
   }
 
-  handleCurrentChange(item) {
+  handleCurrentChange(id) {
     const { presentations, disableActions } = this.state;
     if (disableActions) return;
 
     const currentIndex = presentations.findIndex(p => p.isCurrent);
-    const newCurrentIndex = presentations.indexOf(item);
+    const newCurrentIndex = presentations.findIndex(p => p.id === id);
 
     const commands = {};
 
     // we can end up without a current presentation
     if (currentIndex !== -1) {
       commands[currentIndex] = {
-        $apply: (_) => {
-          const p = _;
+        $apply: (presentation) => {
+          const p = presentation;
           p.isCurrent = false;
           return p;
         },
@@ -243,8 +272,8 @@ class PresentationUploader extends Component {
     }
 
     commands[newCurrentIndex] = {
-      $apply: (_) => {
-        const p = _;
+      $apply: (presentation) => {
+        const p = presentation;
         p.isCurrent = true;
         return p;
       },
@@ -267,8 +296,8 @@ class PresentationUploader extends Component {
 
     if (toRemove.isCurrent) {
       const defaultPresentation =
-        presentations.find(_ => _.filename === this.props.defaultFileName);
-      this.handleCurrentChange(defaultPresentation);
+        presentations.find(presentation => presentation.filename === this.props.defaultFileName);
+      this.handleCurrentChange(defaultPresentation.id);
     }
 
     this.setState({
@@ -309,12 +338,12 @@ class PresentationUploader extends Component {
     }
 
     if (item.upload.done && item.upload.error) {
-      const errorMessage = intlMessages[item.upload.error.code] || intlMessages.genericError;
+      const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
 
     if (!item.conversion.done && item.conversion.error) {
-      const errorMessage = intlMessages[status] || intlMessages.genericError;
+      const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
 
@@ -337,17 +366,18 @@ class PresentationUploader extends Component {
   renderPresentationItem(item) {
     const { disableActions } = this.state;
 
-    const isProcessing = (!item.conversion.done && item.upload.done)
-      || (!item.upload.done && item.upload.progress > 0);
+    const isProcessing = (!item.conversion.done && item.upload.done) ||
+    (!item.upload.done && item.upload.progress > 0);
     const itemClassName = {};
 
     itemClassName[styles.tableItemNew] = item.id === item.filename;
     itemClassName[styles.tableItemUploading] = !item.upload.done;
-    itemClassName[styles.tableItemProcessing] = !item.conversion.done && item.upload.done;
+    itemClassName[styles.tableItemConverting] = !item.conversion.done && item.upload.done;
     itemClassName[styles.tableItemError] = item.conversion.error || item.upload.error;
     itemClassName[styles.tableItemAnimated] = isProcessing;
 
     const hideRemove = isProcessing || item.filename === this.props.defaultFileName;
+    const hideCurrent = item.upload.error || item.conversion.error;
 
     return (
       <tr
@@ -364,13 +394,15 @@ class PresentationUploader extends Component {
           {this.renderPresentationItemStatus(item)}
         </td>
         <td className={styles.tableItemActions}>
-          <Checkbox
-            disabled={disableActions}
-            ariaLabel="Set as current presentation"
-            className={styles.itemAction}
-            checked={item.isCurrent}
-            onChange={() => this.handleCurrentChange(item)}
-          />
+          { hideCurrent ? null : (
+            <Checkbox
+              disabled={disableActions}
+              ariaLabel="Set as current presentation"
+              className={styles.itemAction}
+              checked={item.isCurrent}
+              onChange={() => this.handleCurrentChange(item.id)}
+            />
+          )}
           { hideRemove ? null : (
             <ButtonBase
               disabled={disableActions}

@@ -39,36 +39,41 @@ const getPresentations = () =>
       conversion: presentation.conversion || { done: true, error: false },
     }));
 
-const observePresentationConversion = (meetingId, filename) => new Promise((resolve, reject) => {
-  const conversionTimeout = setTimeout(() => {
-    reject({
-      filename,
-      message: 'Conversion timeout.',
-    });
-  }, CONVERSION_TIMEOUT);
+const observePresentationConversion = (meetingId, filename, onConversion) =>
+  new Promise((resolve) => {
+    const conversionTimeout = setTimeout(() => {
+      onConversion({
+        done: true,
+        error: true,
+        status: 'TIMEOUT',
+      });
+    }, CONVERSION_TIMEOUT);
 
-  const didValidate = (doc) => {
-    clearTimeout(conversionTimeout);
-    resolve(doc);
-  };
+    const didValidate = (doc) => {
+      clearTimeout(conversionTimeout);
+      resolve(doc);
+    };
 
-  Tracker.autorun((c) => {
+    Tracker.autorun((c) => {
     /* FIXME: With two presentations with the same name this will not work as expected */
-    const query = Presentations.find({ meetingId });
+      const query = Presentations.find({ meetingId });
 
-    query.observe({
-      changed: (newDoc) => {
-        if (newDoc.name !== filename) return;
-        if (newDoc.conversion.done) {
-          c.stop();
-          didValidate(newDoc);
-        }
-      },
+      query.observe({
+        changed: (newDoc) => {
+          if (newDoc.name !== filename) return;
+
+          onConversion(newDoc.conversion);
+
+          if (newDoc.conversion.done) {
+            c.stop();
+            didValidate(newDoc);
+          }
+        },
+      });
     });
   });
-});
 
-const uploadAndConvertPresentation = (file, meetingID, endpoint, onError, onProgress) => {
+const uploadAndConvertPresentation = (file, meetingID, endpoint, onUpload, onProgress, onConversion) => {
   const data = new FormData();
   data.append('presentation_name', file.name);
   data.append('Filename', file.name);
@@ -84,19 +89,17 @@ const uploadAndConvertPresentation = (file, meetingID, endpoint, onError, onProg
   };
 
   return futch(endpoint, opts, onProgress)
-    .then(() => observePresentationConversion(meetingID, file.name))
+    .then(() => observePresentationConversion(meetingID, file.name, onConversion))
     // Trap the error so we can have parallel upload
     .catch((error) => {
-      onError(error);
-      return observePresentationConversion(meetingID, file.name);
+      onUpload({ error: true, done: true, status: error.code });
+      return Promise.resolve();
     });
 };
 
 const uploadAndConvertPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
-  Promise.all(
-    presentationsToUpload.map(p =>
-      uploadAndConvertPresentation(p.file, meetingID, uploadEndpoint, p.onError, p.onProgress)),
-  );
+  Promise.all(presentationsToUpload.map(p =>
+    uploadAndConvertPresentation(p.file, meetingID, uploadEndpoint, p.onUpload, p.onProgress, p.onConversion)));
 
 const setPresentation = presentationID => makeCall('setPresentation', presentationID);
 
@@ -106,27 +109,37 @@ const removePresentations = presentationsToRemove =>
   Promise.all(presentationsToRemove.map(p => removePresentation(p.id)));
 
 const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
-  const presentationsToUpload = newState.filter(_ => !oldState.includes(_));
+  const presentationsToUpload = newState.filter(_ => !_.upload.done);
   const presentationsToRemove = oldState.filter(_ => !newState.includes(_));
-  const currentPresentation = newState.find(_ => _.isCurrent);
+  let currentPresentation = newState.find(_ => _.isCurrent);
 
-  return new Promise((resolve, reject) =>
-    uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
-      .then((presentations) => {
-        if (!presentations.length && !currentPresentation) return Promise.resolve();
+  return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
+    .then((presentations) => {
+      if (!presentations.length && !currentPresentation) return Promise.resolve();
 
-        // If its a newly uploaded presentation we need to get its id from promise result
-        const currentPresentationId =
-          currentPresentation.id !== currentPresentation.filename ?
-          currentPresentation.id :
-          presentations[presentationsToUpload.findIndex(_ => _ === currentPresentation)].id;
+      // Update the presentation with their new ids
+      presentations.forEach((p, i) => {
+        if (p === undefined) return;
+        presentationsToUpload[i].onDone(p.id);
+      });
 
-        return setPresentation(currentPresentationId);
-      })
-      .then(removePresentations.bind(null, presentationsToRemove))
-      .then(resolve)
-      .catch(reject),
-  );
+      return Promise.resolve(presentations);
+    })
+    .then((presentations) => {
+      // If its a newly uploaded presentation we need to get it from promise result
+      if (!currentPresentation.conversion.done) {
+        const currentIndex = presentationsToUpload.findIndex(p => p === currentPresentation);
+        currentPresentation = presentations[currentIndex];
+      }
+
+      // skip setting as current if error happened
+      if (currentPresentation === undefined || currentPresentation.conversion.error) {
+        return Promise.resolve();
+      }
+
+      return setPresentation(currentPresentation.id);
+    })
+    .then(removePresentations.bind(null, presentationsToRemove));
 };
 
 export default {
