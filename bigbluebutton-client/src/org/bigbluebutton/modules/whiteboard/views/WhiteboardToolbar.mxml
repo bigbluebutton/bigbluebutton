@@ -30,7 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
     includeInLayout="{showWhiteboardToolbar}"
-    hideEffect="{fadeOut}" showEffect="{fadeIn}" xmlns:s="library://ns.adobe.com/flex/spark">
+    hideEffect="{fadeOut}" showEffect="{fadeIn}">
 
 	<fx:Declarations>
 	  <mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />

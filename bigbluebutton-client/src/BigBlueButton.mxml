@@ -44,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.LogUtil;
 
-			private static const LOGGER:ILogger = getClassLogger(BigBlueButtonMainContainer);
+			private static const LOGGER:ILogger = getClassLogger(BigBlueButton);
 
 			private function init():void {
 				LogUtil.initLogging(true);

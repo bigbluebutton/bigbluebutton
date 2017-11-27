@@ -184,7 +184,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <!-- _________________________________________________________________________________________ -->
     
 	<fx:Declarations>
+		<!-- Sample
 	    <mx:HTTPService id="configService" url="conf/config.xml" resultFormat="e4x" />
-		<mx:HTTPService id="joinService" url="conf/joinResultMock.xml" resultFormat="e4x" />	
+		<mx:HTTPService id="joinService" url="conf/joinResultMock.xml" resultFormat="e4x" />
+		-->
 	</fx:Declarations>
 </EventMap>
