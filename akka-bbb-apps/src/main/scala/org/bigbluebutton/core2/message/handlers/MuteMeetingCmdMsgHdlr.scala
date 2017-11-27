@@ -37,20 +37,22 @@ trait MuteMeetingCmdMsgHdlr {
 
     }
 
-    if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
-      MeetingStatus2x.unmuteMeeting(liveMeeting.status)
-    } else {
-      MeetingStatus2x.muteMeeting(liveMeeting.status)
-    }
+    if (msg.body.mute != MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+      if (msg.body.mute) {
+        MeetingStatus2x.muteMeeting(liveMeeting.status)
+      } else {
+        MeetingStatus2x.unmuteMeeting(liveMeeting.status)
+      }
 
-    val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
-    val meetingMutedEvent = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
+      val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
+      val meetingMutedEvent = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
 
-    outGW.send(meetingMutedEvent)
+      outGW.send(meetingMutedEvent)
 
-    VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
-      if (!vu.listenOnly) {
-        muteUserInVoiceConf(vu, muted)
+      VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
+        if (!vu.listenOnly) {
+          muteUserInVoiceConf(vu, muted)
+        }
       }
     }
   }

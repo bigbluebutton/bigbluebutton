@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { injectIntl, FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import styles from './styles.scss';
-
 import PreviousSlide from './previous-slide/component';
 import NextSlide from './next-slide/component';
+
+const intlMessages = defineMessages({
+  goToSlide: {
+    id: 'app.presentation.presentationToolbar.goToSlide',
+    description: 'button for slide select',
+  },
+});
 
 class PresentationToolbar extends Component {
   static renderAriaLabelsDescs() {
@@ -105,22 +111,6 @@ class PresentationToolbar extends Component {
     );
   }
 
-  static renderSkipSlideOpts(numberOfSlides) {
-    // Fill drop down menu with all the slides in presentation
-    const optionList = [];
-    for (let i = 1; i <= numberOfSlides; i += 1) {
-      optionList.push(
-        <option
-          value={i}
-          key={i}
-        >
-        Slide {i}
-        </option>,
-      );
-    }
-
-    return optionList;
-  }
 
   constructor(props) {
     super(props);
@@ -143,6 +133,24 @@ class PresentationToolbar extends Component {
     this.setState({
       fitToScreenValue: 'not_implemented_yet',
     });
+  }
+  renderSkipSlideOpts(numberOfSlides) {
+    // Fill drop down menu with all the slides in presentation
+    const { intl } = this.props;
+    const optionList = [];
+    for (let i = 1; i <= numberOfSlides; i += 1) {
+      optionList.push((
+        <option
+          value={i}
+          key={i}
+        >
+          {
+            intl.formatMessage(intlMessages.goToSlide, { 0: i })
+          }
+        </option>));
+    }
+
+    return optionList;
   }
 
   render() {
@@ -170,7 +178,7 @@ class PresentationToolbar extends Component {
           onChange={actions.skipToSlideHandler}
           className={styles.skipSlide}
         >
-          {PresentationToolbar.renderSkipSlideOpts(numberOfSlides)}
+          {this.renderSkipSlideOpts(numberOfSlides)}
         </select>
         <NextSlide
           numberOfSlides={numberOfSlides}
