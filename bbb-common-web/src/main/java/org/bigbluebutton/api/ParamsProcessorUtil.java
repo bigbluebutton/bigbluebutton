@@ -82,6 +82,8 @@ public class ParamsProcessorUtil {
 
     private String defaultConfigXML = null;
 
+    private Long maxPresentationFileUpload = 30000000L; // 30MB
+
     private Integer maxInactivityTimeoutMinutes = 120;
 		private Integer warnMinutesBeforeMax = 5;
 		private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
@@ -878,6 +880,14 @@ public class ParamsProcessorUtil {
 
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
 		meetingExpireIfNoUserJoinedInMinutes = value;
+	}
+
+	public void setMaxPresentationFileUpload(Long maxFileSize) {
+		maxPresentationFileUpload = maxFileSize;
+	}
+
+	public Long getMaxPresentationFileUpload() {
+		return maxPresentationFileUpload;
 	}
 
 	public ArrayList<String> decodeIds(String encodeid) {
