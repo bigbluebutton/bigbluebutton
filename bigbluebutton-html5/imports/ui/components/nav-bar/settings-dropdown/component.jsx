@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
-
-import { withModalMounter } from '/imports/ui/components/modal/service';
-
-import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import FullScreenListItemContainer from './full-screen-list-item/container';
 import OpenAboutListItem from './about-list-item/component';
 import OpenSettingsListItem from './settings-list-item/component';
+import LogoutListItem from './logout-list-item/component';
 
 import styles from '../styles';
 
@@ -22,14 +18,6 @@ const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
     description: 'Options button label',
-  },
-  leaveSessionLabel: {
-    id: 'app.navBar.settingsDropdown.leaveSessionLabel',
-    description: 'Leave session button label',
-  },
-  leaveSessionDesc: {
-    id: 'app.navBar.settingsDropdown.leaveSessionDesc',
-    description: 'Describes leave session option',
   },
 });
 
@@ -58,7 +46,7 @@ class SettingsDropdown extends Component {
   }
 
   render() {
-    const { intl, mountModal } = this.props;
+    const { intl } = this.props;
 
     return (
       <Dropdown
@@ -87,12 +75,7 @@ class SettingsDropdown extends Component {
             <OpenSettingsListItem />
             <OpenAboutListItem />
             <DropdownListSeparator />
-            <DropdownListItem
-              icon="logout"
-              label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-              description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-              onClick={() => mountModal(<LogoutConfirmationContainer />)}
-            />
+            <LogoutListItem />
           </DropdownList>
         </DropdownContent>
       </Dropdown>
@@ -100,4 +83,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(SettingsDropdown));
+export default injectIntl(SettingsDropdown);
