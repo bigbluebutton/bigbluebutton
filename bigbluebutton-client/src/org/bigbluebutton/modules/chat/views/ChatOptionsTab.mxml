@@ -82,6 +82,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleUserLeftEvent(event: UserLeftEvent): void {
         handler.handleUserLeftEvent(event.userID);  
+		handler.populateAllUsers();
+		users = removeMe(handler.users);
       }
 		
 		private function handleNewGroupChatEvent(event:CoreEvent):void {
@@ -90,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleUserJoinedEvent(event: UserJoinedEvent):void {
         handler.handleUserJoinedEvent(event);
-        handler.populateAllUsers()
+        handler.populateAllUsers();
         users = removeMe(handler.users);
       }
       
@@ -111,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onCreationComplete():void{
         amIModerator = UsersUtil.amIModerator();
         
-		handler.populateAllUsers()
+		handler.populateAllUsers();
 		handler.populateAllGroupChats()
         users = removeMe(handler.users);
 		groupChats = handler.groupChats;
@@ -269,26 +271,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   enabled="{!StringUtils.isEmpty(newChatNameInput.text)}" click="onCreateChatBtnClick()" />
 	</mx:HBox>
 
-  <mx:Label id="lblSelectPrivateChat" styleName="chatOptionsLabel"
-            text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
-            visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
-  <mx:List id="usersList" width="100%" rowCount="4" dataProvider="{users}" dragEnabled="false" 
-           visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
-           labelField="name"
-           itemClick="openPrivateChat(event)"
-           keyDown="onUserListKeyDown(event)"
-           toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
-           accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
-  <mx:Label id="lblSelectGroupChat" styleName="chatOptionsLabel"
-			text="{ResourceUtil.getInstance().getString('bbb.chat.groupChatSelect')}"
-			visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"/>
-  <mx:List id="groupChatList" width="100%" rowCount="4" dataProvider="{groupChats}" dragEnabled="false" 
-		   visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"
-		   labelField="name"
-		   itemClick="openGroupChat()"
-		   keyDown="onGroupChatListKeyDown(event)"
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.toolTip')}"
-		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.accessibilityName')}"/>
+	<!-- Group chats -->
+	<mx:Label id="lblSelectGroupChat" styleName="chatOptionsLabel"
+			  text="{ResourceUtil.getInstance().getString('bbb.chat.groupChatSelect')}"
+			  visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"/>
+	<mx:List id="groupChatList" width="100%" rowCount="4" dataProvider="{groupChats}" dragEnabled="false" 
+			 visible="{chatOptions.groupEnabled}" includeInLayout="{chatOptions.groupEnabled}"
+			 labelField="name"
+			 itemClick="openGroupChat()"
+			 keyDown="onGroupChatListKeyDown(event)"
+			 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.toolTip')}"
+			 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.accessibilityName')}"/>
+
+	<!-- Private chats -->
+	<mx:Label id="lblSelectPrivateChat" styleName="chatOptionsLabel"
+			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
+			  visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
+	<mx:List id="usersList" width="100%" rowCount="4" dataProvider="{users}" dragEnabled="false" 
+			 visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
+			 labelField="name"
+			 itemClick="openPrivateChat(event)"
+			 keyDown="onUserListKeyDown(event)"
+			 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
+			 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
+
   <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
 
   <mx:HBox width="100%">

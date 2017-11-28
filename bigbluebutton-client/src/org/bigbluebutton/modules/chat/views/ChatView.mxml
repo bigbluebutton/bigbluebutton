@@ -262,8 +262,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function calledOnTheNextScreenRefreshToMakePublicChatUncloseable():void {
         var chatBox:ChatTab = getChatBoxForUser(mainChatId);
-        var chatIndex:int = getTabIndexFor(chatBox);
-        chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);								
+		if (chatBox) {
+			var chatIndex:int = getTabIndexFor(chatBox);
+			chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
+		}
       }
       
       private function isChatBoxCurrentlySelected(id:String):Boolean {
@@ -275,10 +277,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function notifyParticipantOfUnreadMessageFrom(chatId:String):void {
         var chatBox:ChatTab = getChatBoxForUser(chatId);
-        var tabIndex:int = getTabIndexFor(chatBox);
-        var tab:Button = chatTabs.getTabAt(tabIndex);
-        tab.styleName = "highlightedTabStyle";
-        
+		if(chatBox) {
+			var tabIndex:int = getTabIndexFor(chatBox);
+			var tab:Button = chatTabs.getTabAt(tabIndex);
+			tab.styleName = "highlightedTabStyle";
+		}
         // An event to change the accessibilityDescription of the given chat tab to <existing label> + "NEW MESSAGE" should go here.
         // However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
       }
