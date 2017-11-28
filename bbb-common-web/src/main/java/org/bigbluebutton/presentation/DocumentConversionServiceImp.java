@@ -20,7 +20,6 @@
 package org.bigbluebutton.presentation;
 
 import com.google.gson.Gson;
-import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;

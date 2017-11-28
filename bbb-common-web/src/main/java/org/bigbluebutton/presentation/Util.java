@@ -22,7 +22,6 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 
 public final class Util {
-	private Util() {}
 	
 	public static void deleteDirectory(File directory) {
 		/**

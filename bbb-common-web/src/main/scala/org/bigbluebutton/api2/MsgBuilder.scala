@@ -92,7 +92,7 @@ object MsgBuilder {
   }
 
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.Map[String, PageVO] = {
-    var pages = new scala.collection.mutable.HashMap[String, PageVO]
+    val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
       val num = i
