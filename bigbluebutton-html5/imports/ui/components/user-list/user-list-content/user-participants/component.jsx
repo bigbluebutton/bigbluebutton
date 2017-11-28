@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
+import ReactDOM from 'react-dom';
 import cx from 'classnames';
 import styles from '/imports/ui/components/user-list/user-list-content/styles';
 import UserListItem from './user-list-item/component';
@@ -108,7 +109,7 @@ class UserParticipants extends Component {
         event => this.props.rovingIndex(
           event,
           this.refScrollContainer,
-          this.refScrollItems,
+          ReactDOM.findDOMNode(this.refScrollItems),
           this.props.users.length,
         ),
       );
@@ -196,8 +197,8 @@ class UserParticipants extends Component {
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
-          <div ref={(ref) => { this.refScrollItems = ref; }} className={styles.list}>
-            <TransitionGroup>
+          <div className={styles.list}>
+            <TransitionGroup ref={(ref) => { this.refScrollItems = ref; }}>
               { users.map(user => (
                 <CSSTransition
                   classNames={listTransition}

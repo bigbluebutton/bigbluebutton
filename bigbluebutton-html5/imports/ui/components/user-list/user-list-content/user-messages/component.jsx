@@ -3,6 +3,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
+import ReactDOM from 'react-dom';
 import styles from './styles';
 import ChatListItem from './../../chat-list-item/component';
 
@@ -90,7 +91,7 @@ class UserMessages extends Component {
         event => this.props.rovingIndex(
           event,
           this._msgsList,
-          this._msgItems,
+          ReactDOM.findDOMNode(this._msgItems),
           this.props.openChats.length,
         ),
       );
@@ -120,8 +121,8 @@ class UserMessages extends Component {
           className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <div ref={(ref) => { this._msgItems = ref; }} className={styles.list}>
-            <TransitionGroup>
+          <div className={styles.list}>
+            <TransitionGroup ref={(ref) => { this._msgItems = ref; }} >
               {openChats.map(chat => (
                 <CSSTransition
                   classNames={listTransition}

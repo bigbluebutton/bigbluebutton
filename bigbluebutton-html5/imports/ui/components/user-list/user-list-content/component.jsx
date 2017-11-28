@@ -71,7 +71,7 @@ class UserContent extends Component {
 
   rovingIndex(event, list, items, numberOfItems) {
     const active = document.activeElement;
-    const changedItems = items.firstChild;
+    const changedItems = items;
 
     if (event.keyCode === KEY_CODES.TAB) {
       if (this.focusedItemIndex !== -1) {
