@@ -28,11 +28,10 @@ class OpenAboutListItem extends Component {
 
     return (
       <DropdownListItem
-        icon={'settings'}
+        icon="settings"
         label={intl.formatMessage(intlMessages.settingsLabel)}
         description={intl.formatMessage(intlMessages.settingsDesc)}
         onClick={() => mountModal(<SettingsMenuContainer />)}
-        ref={(ref) => { this.ref = ref; }}
       />
     );
   }

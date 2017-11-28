@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
 export const withShortcut = (ComponentToWrap, shortcut) =>
   class ShortcutWrapper extends Component {
@@ -25,7 +26,7 @@ export const withShortcut = (ComponentToWrap, shortcut) =>
       if (!event.altKey && (combo.includes('ALT') || combo.includes('OPTION'))) return;
       if (!event.shiftKey && keys.includes('SHIFT')) return;
 
-      this.element.ref.props.onClick();
+      ReactDOM.findDOMNode(this.element).click();
     }
 
     render() {

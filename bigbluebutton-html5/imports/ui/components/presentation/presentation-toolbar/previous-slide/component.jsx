@@ -39,7 +39,6 @@ class PreviousSlide extends Component {
         label={intl.formatMessage(intlMessages.previousSlideLabel)}
         hideLabel
         className={styles.prevSlide}
-        ref={(ref) => { this.ref = ref; }}
       />
     );
   }

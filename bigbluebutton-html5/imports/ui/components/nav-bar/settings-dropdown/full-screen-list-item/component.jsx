@@ -49,7 +49,6 @@ class FullScreenListItem extends Component {
         label={fullscreenLabel}
         description={fullscreenDesc}
         onClick={handleToggleFullscreen}
-        ref={(ref) => { this.ref = ref; }}
       />
     );
   }

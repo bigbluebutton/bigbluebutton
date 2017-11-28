@@ -32,7 +32,6 @@ class LogoutListItem extends Component {
         label={intl.formatMessage(intlMessages.leaveSessionLabel)}
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
         onClick={() => mountModal(<LogoutConfirmationContainer />)}
-        ref={(ref) => { this.ref = ref; }}
       />
     );
   }

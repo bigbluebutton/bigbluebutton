@@ -42,7 +42,6 @@ class UploadPresentation extends Component {
         label={intl.formatMessage(intlMessages.presentationLabel)}
         description={intl.formatMessage(intlMessages.presentationDesc)}
         onClick={this.handlePresentationClick}
-        ref={(ref) => { this.ref = ref; }}
       />
     );
   }

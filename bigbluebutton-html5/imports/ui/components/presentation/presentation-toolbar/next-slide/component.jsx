@@ -39,7 +39,6 @@ class NextSlide extends Component {
         size="md"
         onClick={nextSlideHandler}
         label={intl.formatMessage(intlMessages.nextSlideLabel)}
-        ref={(ref) => { this.ref = ref; }}
         hideLabel
         className={styles.nextSlide}
       />

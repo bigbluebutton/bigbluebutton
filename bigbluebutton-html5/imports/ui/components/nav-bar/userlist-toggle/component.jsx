@@ -22,7 +22,9 @@ const intlMessages = defineMessages({
 
 class UserListToggle extends Component {
   render() {
-    const { hasUnreadMessages, isExpanded, handleToggleUserList, intl } = this.props;
+    const {
+      hasUnreadMessages, isExpanded, handleToggleUserList, intl,
+    } = this.props;
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -35,11 +37,10 @@ class UserListToggle extends Component {
         circle
         hideLabel
         label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-        icon={'user'}
+        icon="user"
         className={cx(toggleBtnClasses)}
         aria-expanded={isExpanded}
         aria-describedby="newMessage"
-        ref={(ref) => { this.ref = ref; }}
       />
     );
   }
