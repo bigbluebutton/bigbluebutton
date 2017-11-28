@@ -1,7 +1,9 @@
 package org.bigbluebutton.modules.chat.model
 {
   import com.asfusion.mate.events.Dispatcher;
+  
   import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
   import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
 
@@ -25,8 +27,10 @@ package org.bigbluebutton.modules.chat.model
     public function getGroupChatIds():Array {
       var gcIds: Array = new Array();
       for (var i:int = 0; i < groupChats.length; i++) {
-        var gc: GroupChat = groupChats[i] as GroupChat;
-        gcIds.push(gc.id);
+		  if (GroupChat(groupChats[i]).access == GroupChat.PUBLIC ) {
+			  var gc: GroupChat = groupChats[i] as GroupChat;
+			  gcIds.push(gc.id);
+		  }
       }
       return gcIds;
     }
