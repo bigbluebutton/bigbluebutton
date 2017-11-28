@@ -6,6 +6,7 @@ import update from 'immutability-helper';
 import cx from 'classnames';
 import _ from 'lodash';
 
+import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
@@ -191,6 +192,8 @@ class PresentationUploader extends Component {
         });
       })
       .catch((error) => {
+        notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
+
         console.error(error);
 
         this.setState({
