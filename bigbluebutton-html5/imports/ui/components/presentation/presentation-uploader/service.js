@@ -1,6 +1,7 @@
 import Presentations from '/imports/api/presentations';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
+import _ from 'lodash';
 
 const CONVERSION_TIMEOUT = 300000;
 
@@ -29,7 +30,9 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
 
 const getPresentations = () =>
   Presentations
-    .find()
+    .find({
+      'conversion.error': false,
+    })
     .fetch()
     .map(presentation => ({
       id: presentation.id,
@@ -55,7 +58,6 @@ const observePresentationConversion = (meetingId, filename, onConversion) =>
     };
 
     Tracker.autorun((c) => {
-    /* FIXME: With two presentations with the same name this will not work as expected */
       const query = Presentations.find({ meetingId });
 
       query.observe({
@@ -109,9 +111,10 @@ const removePresentations = presentationsToRemove =>
   Promise.all(presentationsToRemove.map(p => removePresentation(p.id)));
 
 const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
-  const presentationsToUpload = newState.filter(_ => !_.upload.done);
-  const presentationsToRemove = oldState.filter(_ => !newState.includes(_));
-  let currentPresentation = newState.find(_ => _.isCurrent);
+  const presentationsToUpload = newState.filter(p => !p.upload.done);
+  const presentationsToRemove = oldState.filter(p => !_.find(newState, ['id', p.id]));
+
+  let currentPresentation = newState.find(p => p.isCurrent);
 
   return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
     .then((presentations) => {

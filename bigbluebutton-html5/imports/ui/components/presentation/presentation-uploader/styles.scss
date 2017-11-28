@@ -63,6 +63,7 @@ $item-height: 1rem;
 
 .tableItemActions {
   min-width: 68px; // size of the 2 icons (check/trash)
+  text-align: right;
 }
 
 .tableItemIcon > i {

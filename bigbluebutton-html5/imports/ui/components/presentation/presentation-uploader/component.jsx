@@ -103,6 +103,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.generatedSlides',
     description: 'warns that were slides generated',
   },
+  PAGE_COUNT_EXCEEDED: {
+    id: 'app.presentationUploder.conversion.pageCountExceeded',
+    description: 'warns the user that the conversion failed because of the page count',
+  },
 });
 
 class PresentationUploader extends Component {
@@ -164,10 +168,7 @@ class PresentationUploader extends Component {
 
     return this.props.handleSave(presentationsToSave)
       .then(() => {
-        const { presentations, oldCurrentId } = this.state;
-
-        const hasError = presentations.some(p => p.upload.error || p.conversion.error);
-
+        const hasError = this.state.presentations.some(p => p.upload.error || p.conversion.error);
         if (!hasError) {
           this.setState({
             disableActions: false,
@@ -183,9 +184,9 @@ class PresentationUploader extends Component {
           preventClosing: true,
         }, () => {
           // if the selected current has error we revert back to the old one
-          const newCurrent = presentations.find(p => p.isCurrent);
+          const newCurrent = this.state.presentations.find(p => p.isCurrent);
           if (newCurrent.upload.error || newCurrent.conversion.error) {
-            this.handleCurrentChange(oldCurrentId);
+            this.handleCurrentChange(this.state.oldCurrentId);
           }
         });
       })
@@ -342,7 +343,7 @@ class PresentationUploader extends Component {
       return intl.formatMessage(errorMessage);
     }
 
-    if (!item.conversion.done && item.conversion.error) {
+    if (item.conversion.done && item.conversion.error) {
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
@@ -366,18 +367,20 @@ class PresentationUploader extends Component {
   renderPresentationItem(item) {
     const { disableActions } = this.state;
 
-    const isProcessing = (!item.conversion.done && item.upload.done) ||
-    (!item.upload.done && item.upload.progress > 0);
-    const itemClassName = {};
+    const isUploading = !item.upload.done && item.upload.progress > 0;
+    const isConverting = !item.conversion.done && item.upload.done;
+    const hasError = item.conversion.error || item.upload.error;
+    const isProcessing = (isUploading || isConverting) && !hasError;
 
-    itemClassName[styles.tableItemNew] = item.id === item.filename;
-    itemClassName[styles.tableItemUploading] = !item.upload.done;
-    itemClassName[styles.tableItemConverting] = !item.conversion.done && item.upload.done;
-    itemClassName[styles.tableItemError] = item.conversion.error || item.upload.error;
-    itemClassName[styles.tableItemAnimated] = isProcessing;
+    const itemClassName = {
+      [styles.tableItemNew]: item.id.indexOf(item.filename) !== -1,
+      [styles.tableItemUploading]: isUploading,
+      [styles.tableItemConverting]: isConverting,
+      [styles.tableItemError]: hasError,
+      [styles.tableItemAnimated]: isProcessing,
+    };
 
-    const hideRemove = isProcessing || item.filename === this.props.defaultFileName;
-    const hideCurrent = item.upload.error || item.conversion.error;
+    const hideRemove = item.filename === this.props.defaultFileName;
 
     return (
       <tr
@@ -390,11 +393,11 @@ class PresentationUploader extends Component {
         <th className={styles.tableItemName}>
           <span>{item.filename}</span>
         </th>
-        <td className={styles.tableItemStatus}>
+        <td className={styles.tableItemStatus} colSpan={hasError ? 2 : 0}>
           {this.renderPresentationItemStatus(item)}
         </td>
-        <td className={styles.tableItemActions}>
-          { hideCurrent ? null : (
+        { hasError ? null : (
+          <td className={styles.tableItemActions}>
             <Checkbox
               disabled={disableActions}
               ariaLabel="Set as current presentation"
@@ -402,18 +405,18 @@ class PresentationUploader extends Component {
               checked={item.isCurrent}
               onChange={() => this.handleCurrentChange(item.id)}
             />
-          )}
-          { hideRemove ? null : (
-            <ButtonBase
-              disabled={disableActions}
-              className={cx(styles.itemAction, styles.itemActionRemove)}
-              label="Remove presentation"
-              onClick={() => this.handleRemove(item)}
-            >
-              <Icon iconName="delete" />
-            </ButtonBase>
-          )}
-        </td>
+            { hideRemove ? null : (
+              <ButtonBase
+                disabled={disableActions}
+                className={cx(styles.itemAction, styles.itemActionRemove)}
+                label="Remove presentation"
+                onClick={() => this.handleRemove(item)}
+              >
+                <Icon iconName="delete" />
+              </ButtonBase>
+            )}
+          </td>
+        )}
       </tr>
     );
   }
