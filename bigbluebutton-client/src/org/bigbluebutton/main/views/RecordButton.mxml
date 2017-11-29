@@ -77,7 +77,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function hideConfirmationAlert():void {
 				if (_confirmationAlert != null) {
-					PopUpManager.removePopUp(_confirmationAlert);
 					PopUpUtil.unlockPosition(_confirmationAlert);
 					_confirmationAlert = null;
 				}
@@ -92,7 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_confirmationAlert = Alert.show(message, ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.title'), Alert.YES | Alert.NO, this, onCloseConfirmationDialog, null, Alert.YES);
 
 				PopUpUtil.lockPosition(_confirmationAlert, function():Point {
-					return new Point(parent.parent.width * 0.7, y + height + 5);
+					return new Point(parentApplication.width - 150 - _confirmationAlert.width, y + height + 5); 
 				});
 			}
 
@@ -106,11 +105,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onCloseConfirmationDialog(e:CloseEvent):void {
-				hideConfirmationAlert();
 				// check to see if the YES button was pressed
 				if (e.detail==Alert.YES) {
 					 doChangeRecordingStatus();
 				}
+				
+				hideConfirmationAlert();
 			}
 
 			private function doChangeRecordingStatus():void {

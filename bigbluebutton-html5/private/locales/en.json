@@ -49,6 +49,7 @@
     "app.presentation.presentationToolbar.fitScreenDesc": "Display the whole slide",
     "app.presentation.presentationToolbar.zoomLabel": "Zoom",
     "app.presentation.presentationToolbar.zoomDesc": "Change the zoom level of the presentation",
+    "app.presentation.presentationToolbar.goToSlide":"Slide {0}",
     "app.presentationUploder.title": "Presentation",
     "app.presentationUploder.message": "As a presenter in BigBlueButton, you have the ability of uploading any office document or PDF file. We recommend for the best results, to please upload a PDF file.",
     "app.presentationUploder.confirmLabel": "Start",

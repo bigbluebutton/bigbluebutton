@@ -60,6 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.core.mx_internal;
 		import mx.events.FlexEvent;
 		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
 		import mx.utils.StringUtil;
 		
 		import flashx.textLayout.formats.Direction;
@@ -113,6 +114,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		{
 			dispatcher = new Dispatcher();
 			updateStyles();
+			
+			// For an unknown reason this popup cannot be centred directly using PopUpUtil
+			PopUpManager.centerPopUp(this)
 		}
 		
 		private function updateStyles() : void {
@@ -185,6 +189,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         progressReportBox.visible = true;
         progressBar.visible = true;
+		progressBarLabel.visible = true;
         
         disableClosing();
         
@@ -315,7 +320,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 		
 	  private function buildProgressLabel(value:String) : void {
-		  progressBar.label = ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl') + " " + value;
+		  progressBarLabel.text = ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl') + " " + value;
 	  }
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
@@ -403,11 +408,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"
 				 paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}"/>
 	  
-    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" verticalAlign="middle"
+    <mx:VBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" verticalAlign="middle"
 			 includeInLayout="true" visible="false" excludeFrom="error">
-      <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
-                      styleName="presentationUploadProgressBar" labelPlacement="top" width="100%" visible="false"/>
-    </mx:HBox>
+	  <mx:Text id="progressBarLabel" styleName="presentationUploadProgressBarLabel"
+			   visible="{progressBar.visible}" width="100%" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" />
+      <mx:ProgressBar id="progressBar" mode="manual"
+                      styleName="presentationUploadProgressBar" width="100%" visible="false"/>
+    </mx:VBox>
 	
 	<mx:VBox id="errorBox" paddingTop="5" paddingBottom="5" width="100%" horizontalAlign="center" includeIn="error">
 		<s:Label id="progressErrorLbl" styleName="progressErrorLblStyle" width="540"/>
