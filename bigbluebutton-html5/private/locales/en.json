@@ -257,7 +257,7 @@
     "app.error.leaveLabel": "Log in again",
     "app.guest.waiting": "Waiting for approval to join",
     "app.notification.recordingStart": "This session is now being recorded",
-    "app.notification.recordingStop": "This session is not being recorded anymore"
+    "app.notification.recordingStop": "This session is not being recorded anymore",
     "app.video.joinVideo": "Cam off",
     "app.video.leaveVideo": "Cam on"
 }
