@@ -504,6 +504,16 @@ class ApiController {
     boolean redirectClient = true;
     String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 
+    // Depending on configuration, prefer the HTML5 client over Flash for moderators
+    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    }
+
+    // Depending on configuration, prefer the HTML5 client over Flash for attendees
+    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    }
+
     if(! StringUtils.isEmpty(params.redirect)) {
       try{
         redirectClient = Boolean.parseBoolean(params.redirect);

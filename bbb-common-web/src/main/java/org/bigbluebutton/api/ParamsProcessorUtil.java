@@ -70,6 +70,9 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultClientUrl;
+    private String html5ClientUrl;
+    private Boolean moderatorsJoinViaHTML5Client;
+    private Boolean attendeesJoinViaHTML5Client;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -489,7 +492,19 @@ public class ParamsProcessorUtil {
 	public String getDefaultClientUrl() {
 		return defaultClientUrl;
 	}
-	
+
+	public String getHTML5ClientUrl() {
+		return html5ClientUrl;
+	}
+
+	public Boolean getAttendeesJoinViaHTML5Client() {
+		return attendeesJoinViaHTML5Client;
+	}
+
+	public Boolean getModeratorsJoinViaHTML5Client() {
+		return moderatorsJoinViaHTML5Client;
+	}
+
 	public String getDefaultConfigXML() {
 		defaultConfigXML = getConfig(defaultConfigURL);
 		
@@ -806,6 +821,18 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultClientUrl(String defaultClientUrl) {
 		this.defaultClientUrl = defaultClientUrl;
+	}
+
+	public void setHtml5ClientUrl(String html5ClientUrl) {
+		this.html5ClientUrl = html5ClientUrl;
+	}
+
+	public void setModeratorsJoinViaHTML5Client(Boolean moderatorsJoinViaHTML5Client) {
+		this.moderatorsJoinViaHTML5Client = moderatorsJoinViaHTML5Client;
+	}
+
+	public void setAttendeesJoinViaHTML5Client(Boolean attendeesJoinViaHTML5Client) {
+		this.attendeesJoinViaHTML5Client = attendeesJoinViaHTML5Client;
 	}
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
