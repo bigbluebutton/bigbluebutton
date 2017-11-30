@@ -39,8 +39,8 @@ object PresentationPodsApp {
     PresentationPodVO(pod.id, pod.currentPresenter, presentationVOs)
   }
 
-  def findPodWhereUserIsPresenter(mgr: PresentationPodManager, userId: String): Option[PresentationPod] = {
-    mgr.presentationPods.values.toVector.find(p => p.currentPresenter == userId)
+  def findPodsWhereUserIsPresenter(mgr: PresentationPodManager, userId: String): Vector[PresentationPod] = {
+    mgr.presentationPods.values.toVector.filter(p => p.currentPresenter == userId)
   }
 
   def updatePresentationPod(state: MeetingState2x, pod: PresentationPod): MeetingState2x = {

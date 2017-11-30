@@ -64,17 +64,17 @@ trait UserLeaveReqMsgHdlr {
         Users2x.removeUserFromPresenterGroup(liveMeeting.users2x, u.intId)
         outGW.send(buildRemoveUserFromPresenterGroup(liveMeeting.props.meetingProp.intId, u.intId, u.intId))
 
-        for {
-          pod <- PresentationPodsApp.findPodWhereUserIsPresenter(state.presentationPodManager, u.intId)
-        } yield {
+        val pods = PresentationPodsApp.findPodsWhereUserIsPresenter(state.presentationPodManager, u.intId)
+
+        pods foreach { pod =>
           val presenters = Users2x.getPresenterGroupUsers(liveMeeting.users2x)
           if (presenters.length > 0) {
             val updatedPod = pod.setCurrentPresenter(presenters.head)
 
             broadcastSetPresenterInPodRespMsg(pod.id, presenters.head, presenters.head)
 
-            val pods = state.presentationPodManager.addPod(updatedPod)
-            newState = state.update(pods)
+            val newpods = state.presentationPodManager.addPod(updatedPod)
+            newState = state.update(newpods)
           }
         }
       }
