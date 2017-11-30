@@ -31,6 +31,7 @@ package org.bigbluebutton.core {
 	import mx.core.IChildList;
 	import mx.core.IFlexDisplayObject;
 	import mx.core.IUIComponent;
+	import mx.events.FlexEvent;
 	import mx.events.ResizeEvent;
 	import mx.managers.ISystemManager;
 	import mx.managers.PopUpManager;
@@ -138,7 +139,7 @@ package org.bigbluebutton.core {
 					popUp.move(newPosition.x, newPosition.y);
 				}
 			};
-			resizeHandler.apply();
+			popUp.addEventListener(FlexEvent.CREATION_COMPLETE, resizeHandler);
 			Application(FlexGlobals.topLevelApplication).addEventListener(ResizeEvent.RESIZE, resizeHandler);
 			lockedPositions[getQualifiedClassName(popUp)] = resizeHandler;
 		}
@@ -146,6 +147,7 @@ package org.bigbluebutton.core {
 		public static function unlockPosition(popUp:*):void {
 			var fqcn:String = getQualifiedClassName(popUp);
 			if (lockedPositions[fqcn] != undefined) {
+				popUp.removeEventListener(FlexEvent.CREATION_COMPLETE, lockedPositions[fqcn]);
 				Application(FlexGlobals.topLevelApplication).removeEventListener(ResizeEvent.RESIZE, lockedPositions[fqcn]);
 				delete lockedPositions[fqcn];
 			}
