@@ -287,7 +287,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function getTabIndexFor(chatBox:ChatTab):int {
-        return chatTabs.getChildIndex(chatBox);
+        if (chatBox)
+          return chatTabs.getChildIndex(chatBox);
+        else
+          return -1;
       }
       
       private function onTabNavChange():void{

@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.screenshare.services {
         }
         
         public function disconnect():void {
-            conn.disconnect();
+            if (conn) conn.disconnect();
         }
         
         public function checkIfPresenterIsSharingScreen():void {
