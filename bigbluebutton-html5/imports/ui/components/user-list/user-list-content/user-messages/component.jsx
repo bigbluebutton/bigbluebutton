@@ -3,7 +3,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import styles from './styles';
+import styles from '/imports/ui/components/user-list/user-list-content/styles';
 import ChatListItem from './../../chat-list-item/component';
 
 const propTypes = {
