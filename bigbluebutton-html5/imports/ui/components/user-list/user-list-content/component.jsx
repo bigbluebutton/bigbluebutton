@@ -57,6 +57,7 @@ class UserContent extends Component {
 
     this.rovingIndex = this.rovingIndex.bind(this);
     this.focusList = this.focusList.bind(this);
+    this.resetIndex = this.resetIndex.bind(this);
     this.focusedItemIndex = -1;
   }
 
@@ -68,6 +69,20 @@ class UserContent extends Component {
     focusList.focus();
   }
 
+  resetIndex(event, list, items) {
+    if (list === null) { return; }
+
+    const selectedChild = list.contains(event.target);
+    const selectedList = list === event.target;
+
+    if (!selectedChild || selectedList) {
+      items.childNodes.forEach((element) => {
+        const domUser = element;
+        domUser.tabIndex = -1;
+      });
+      this.focusedItemIndex = -1;
+    }
+  }
 
   rovingIndex(event, list, items, numberOfItems) {
     const active = document.activeElement;
@@ -80,7 +95,7 @@ class UserContent extends Component {
       }
     }
 
-    if (event.keyCode === KEY_CODES.ESCAPE
+    if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)
       || this.focusedItemIndex < 0
       || this.focusedItemIndex > numberOfItems) {
       this.focusList(list);
@@ -119,6 +134,7 @@ class UserContent extends Component {
           compact={this.props.compact}
           intl={this.props.intl}
           rovingIndex={this.rovingIndex}
+          resetIndex={this.resetIndex}
         />
         <UserParticipants
           users={this.props.users}
@@ -136,6 +152,7 @@ class UserContent extends Component {
           normalizeEmojiName={this.props.normalizeEmojiName}
           rovingIndex={this.rovingIndex}
           isMeetingLocked={this.props.isMeetingLocked}
+          resetIndex={this.resetIndex}
         />
       </div>
     );

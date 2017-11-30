@@ -25,6 +25,7 @@ const propTypes = {
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   rovingIndex: PropTypes.func.isRequired,
+  resetIndex: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -100,24 +101,38 @@ class UserParticipants extends Component {
     super();
 
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
+    this.getScrollItemsRef = this.getScrollItemsRef.bind(this);
   }
 
   componentDidMount() {
     if (!this.props.compact) {
-      this.refScrollContainer.addEventListener(
+      this.getScrollContainerRef().addEventListener(
         'keydown',
         event => this.props.rovingIndex(
           event,
-          this.refScrollContainer,
-          ReactDOM.findDOMNode(this.refScrollItems),
+          this.getScrollContainerRef(),
+          this.getScrollItemsRef(),
           this.props.users.length,
+        ),
+      );
+
+      document.addEventListener(
+        'click',
+        event => this.props.resetIndex(
+          event,
+          this.getScrollContainerRef(),
+          this.getScrollItemsRef(),
         ),
       );
     }
   }
 
   getScrollContainerRef() {
-    return this.refScrollContainer;
+    return ReactDOM.findDOMNode(this.refScrollContainer);
+  }
+
+  getScrollItemsRef() {
+    return ReactDOM.findDOMNode(this.refScrollItems);
   }
 
   render() {

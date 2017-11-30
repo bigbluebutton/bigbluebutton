@@ -15,6 +15,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   rovingIndex: PropTypes.func.isRequired,
+  resetIndex: PropTypes.func.isRequired,
   isPublicChat: PropTypes.func.isRequired,
 };
 
@@ -84,18 +85,42 @@ const intlMessages = defineMessages({
 });
 
 class UserMessages extends Component {
+  constructor() {
+    super();
+
+    this.getMessagesListRef = this.getMessagesListRef.bind(this);
+    this.getMessageItemsRef = this.getMessageItemsRef.bind(this);
+  }
+
   componentDidMount() {
     if (!this.props.compact) {
       this._msgsList.addEventListener(
         'keydown',
         event => this.props.rovingIndex(
           event,
-          this._msgsList,
-          ReactDOM.findDOMNode(this._msgItems),
+          this.getMessagesListRef(),
+          this.getMessageItemsRef(),
           this.props.openChats.length,
         ),
       );
+
+      document.addEventListener(
+        'click',
+        event => this.props.resetIndex(
+          event,
+          this.getMessagesListRef(),
+          this.getMessageItemsRef(),
+        ),
+      );
     }
+  }
+
+  getMessagesListRef() {
+    return ReactDOM.findDOMNode(this._msgsList);
+  }
+
+  getMessageItemsRef() {
+    return ReactDOM.findDOMNode(this._msgItems);
   }
 
   render() {
