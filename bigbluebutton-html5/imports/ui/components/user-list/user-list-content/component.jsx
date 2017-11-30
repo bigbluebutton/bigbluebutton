@@ -75,6 +75,10 @@ class UserContent extends Component {
     const childClicked = list.contains(event.target);
     const ListClicked = list === event.target;
 
+    if (ListClicked) {
+      document.activeElement.blur();
+    }
+
     if (!childClicked || ListClicked) {
       items.childNodes.forEach((element) => {
         const domUser = element;

@@ -10,14 +10,17 @@
 }
 
 .scrollableList {
-  pointer-events: none;
   @include elementFocus($list-item-bg-hover);
   @include scrollbox-vertical($user-list-bg);
+
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+  }
 }
 
 .list {
   margin-left: $md-padding-y;
-  pointer-events: all;
 }
 
 .smallTitle {
