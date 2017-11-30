@@ -38,7 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresenterUsername, currentPresentation])}">
+	title="{windowTitle}">
 	
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatcher" />
@@ -85,9 +85,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.Options;
@@ -184,6 +184,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable]
 			private var podDropdownVisible:Boolean = false;
+			
+			[Bindable('titleChanged')]
+			private function get windowTitle():String {
+				var currentTitle : String = ResourceUtil.getInstance().getString('bbb.presentation.title');
+				if (!StringUtils.isEmpty(currentPresenterUsername) && StringUtils.isEmpty(currentPresentation)) {
+					currentTitle = "["+ currentPresenterUsername +"] " + currentTitle;
+				} else if (StringUtils.isEmpty(currentPresenterUsername) && !StringUtils.isEmpty(currentPresentation)) {
+					currentTitle += ": " + currentPresentation;
+				} else if (!StringUtils.isEmpty(currentPresenterUsername) && !StringUtils.isEmpty(currentPresentation)) {
+					currentTitle = "["+ currentPresenterUsername +"] " + currentTitle + ": " + currentPresentation;
+				}
+				return currentTitle;
+			}
 
 			private function init():void{
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
@@ -209,6 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function populatePodDropdown():void {
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+				dispatchEvent(new Event('titleChanged'));
 
 				listOfPodControls = [];
 
@@ -244,6 +258,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.podId = podId;
 				this.currentPresenterInPod = presenterId;
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+				dispatchEvent(new Event('titleChanged'));
 
 				if (UsersUtil.amIModerator()) {
 					this.podDropdownVisible = true;
@@ -301,6 +316,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				this.currentPresenterInPod = event.nextPresenterId;
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+				dispatchEvent(new Event('titleChanged'));
 
 				if (amITheCurrentPodPresenter()) {
 					becomePresenter();
@@ -531,6 +547,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					onResetZoom();
 					updateDownloadBtn();
+					dispatchEvent(new Event('titleChanged'));
 				}
 			}
 
@@ -625,9 +642,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				navigationControls.visible = false;
 				zoomControls.visible = false;
-
-				// Change the title of the window.
-				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
 			}
 			
 			private function goToPreviousSlide():void {
