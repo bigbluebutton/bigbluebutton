@@ -72,10 +72,10 @@ class UserContent extends Component {
   resetIndex(event, list, items) {
     if (list === null) { return; }
 
-    const selectedChild = list.contains(event.target);
-    const selectedList = list === event.target;
+    const childClicked = list.contains(event.target);
+    const ListClicked = list === event.target;
 
-    if (!selectedChild || selectedList) {
+    if (!childClicked || ListClicked) {
       items.childNodes.forEach((element) => {
         const domUser = element;
         domUser.tabIndex = -1;
