@@ -17,11 +17,11 @@ const intlMessages = defineMessages({
     description: 'Emoji status button label',
   },
   changeStatusLabel: {
-    id: 'app.actionsBar.emojiMenu.changeStatusLabel',
+    id: 'app.actionsBar.changeStatusLabel',
     description: 'Aria-label for emoji status button',
   },
   currentStatusDesc: {
-    id: 'app.actionsBar.emojiMenu.currentStatusDesc',
+    id: 'app.actionsBar.currentStatusDesc',
     description: 'Aria description for status button',
   },
 });
