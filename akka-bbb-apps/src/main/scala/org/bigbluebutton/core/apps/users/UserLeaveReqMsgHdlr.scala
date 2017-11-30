@@ -65,22 +65,16 @@ trait UserLeaveReqMsgHdlr {
         outGW.send(buildRemoveUserFromPresenterGroup(liveMeeting.props.meetingProp.intId, u.intId, u.intId))
 
         val pods = PresentationPodsApp.findPodsWhereUserIsPresenter(state.presentationPodManager, u.intId)
-
-        pods foreach { pod =>
+        if (pods.length > 0) {
           val presenters = Users2x.getPresenterGroupUsers(liveMeeting.users2x)
+          var newPresenter = ""
           if (presenters.length > 0) {
-            val updatedPod = pod.setCurrentPresenter(presenters.head)
+            newPresenter = presenters.head
+          }
 
-            broadcastSetPresenterInPodRespMsg(pod.id, presenters.head, presenters.head)
-
-            val newpods = state.presentationPodManager.addPod(updatedPod)
-            newState = state.update(newpods)
-          } else {
-            val curPresenter = "" // No presenter in presenter group
-            val updatedPod = pod.setCurrentPresenter(curPresenter)
-
-            broadcastSetPresenterInPodRespMsg(pod.id, curPresenter, "system")
-
+          pods foreach { pod =>
+            val updatedPod = pod.setCurrentPresenter(newPresenter)
+            broadcastSetPresenterInPodRespMsg(pod.id, newPresenter, "system")
             val newpods = state.presentationPodManager.addPod(updatedPod)
             newState = state.update(newpods)
           }
