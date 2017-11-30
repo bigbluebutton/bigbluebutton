@@ -75,6 +75,14 @@ trait UserLeaveReqMsgHdlr {
 
             val newpods = state.presentationPodManager.addPod(updatedPod)
             newState = state.update(newpods)
+          } else {
+            val curPresenter = "" // No presenter in presenter group
+            val updatedPod = pod.setCurrentPresenter(curPresenter)
+
+            broadcastSetPresenterInPodRespMsg(pod.id, curPresenter, "system")
+
+            val newpods = state.presentationPodManager.addPod(updatedPod)
+            newState = state.update(newpods)
           }
         }
       }
