@@ -1,6 +1,8 @@
 {
     "app.home.greeting": "Welcome {0}! Your presentation will begin shortly...",
     "app.chat.submitLabel": "Send Message",
+    "app.chat.errorMinMessageLength": "The message is {0} characters(s) too short",
+    "app.chat.errorMaxMessageLength": "The message is {0} characters(s) too long",
     "app.chat.inputLabel": "Message input for chat {0}",
     "app.chat.inputPlaceholder": "Message {0}",
     "app.chat.titlePublic": "Public Chat",
