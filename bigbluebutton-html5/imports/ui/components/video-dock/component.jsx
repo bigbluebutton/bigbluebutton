@@ -28,19 +28,61 @@ export default class VideoDock extends Component {
       ws: new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl),
       webRtcPeers: {},
       wsQueue: [],
+      reconnectWebcam: false,
+      reconnectList: [],
+      sharedCameraTimeout: null,
+      subscribedCamerasTimeouts: []
     };
 
-    this.state.ws.onopen = () => {
+    window.ws = this.state.ws;
+
+    this.state.ws.addEventListener('open', () => {
+      log("debug", "------ Websocket connection opened.");
+
+      // -- Resend queued messages that happened when socket was not connected
       while (this.state.wsQueue.length > 0) {
         this.sendMessage(this.state.wsQueue.pop());
       }
-    };
+
+      this.reconnectVideos();
+    });
+
+    this.state.ws.addEventListener('close', (error) => {
+      log("debug", "------ Websocket connection closed.");
+
+      this.setupReconnectVideos();
+    });
 
     this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
     this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
+  }
+
+  setupReconnectVideos() {
+    for (id in this.state.webRtcPeers) {
+      this.disconnected(id);
+      this.stop(id);
+    }
+  }
+
+  reconnectVideos() {
+    for (id in this.state.reconnectList) {
+      console.log(id);
+
+      if (id != this.state.myId) {
+        log("debug", " [camera] Trying to reconnect camera " + id);
+        this.start(id, false, this.refs.videoInput);
+      }
+    }
+
+    if (this.state.reconnectWebcam) {
+      log("debug", " [camera] Trying to re-share " + id + " after reconnect.");
+      this.start(this.state.myId, true, this.refs.videoInput);
+    }
+
+    this.setState({reconnectWebcam: false, reconnectList: []});
   }
 
   componentDidMount() {
@@ -179,6 +221,22 @@ export default class VideoDock extends Component {
     });
   }
 
+  disconnected(id) {
+
+    if (this.state.sharedWebcam && this.state.myId == id) {
+      log("debug", " [camera]  Disconnected, will try re-share webcam later.");
+      this.setState({reconnectWebcam: true});
+    } else {
+      var reconnectList = this.state.reconnectList;
+
+      reconnectList.push(id);
+
+      log("debug", " [camera] " + id + " disconnected, will try re-subscribe later.");
+
+      this.setState({reconnectList: reconnectList});
+    }
+  }
+
   stop(id) {
     const { users } = this.props;
     if (id == users[0].userId) {
@@ -244,7 +302,7 @@ export default class VideoDock extends Component {
 
     webRtcPeer.processAnswer(message.sdpAnswer, (error) => {
       if (error) {
-        return log(error);
+        return log("error", error);
       }
     });
 
@@ -254,7 +312,7 @@ export default class VideoDock extends Component {
   sendMessage(message) {
     const ws = this.state.ws;
 
-    if (ws.readyState == WebSocket.OPEN) {
+    if (this.connectedToMediaServer()) {
       const jsonMessage = JSON.stringify(message);
       console.log(`Sending message: ${jsonMessage}`);
       ws.send(jsonMessage, (error) => {
@@ -263,8 +321,19 @@ export default class VideoDock extends Component {
         }
       });
     } else {
-      this.state.wsQueue.push(message);
+      // No need to queue video stop messages
+      if (message.id != "stop") {
+        this.state.wsQueue.push(message);
+      }
     }
+  }
+
+  connectedToMediaServer() {
+    return ws.readyState == WebSocket.OPEN;
+  }
+
+  connectionStatus() {
+    return ws.readyState;
   }
 
   handlePlayStop(message) {
@@ -280,7 +349,8 @@ export default class VideoDock extends Component {
   }
 
   handleError(message) {
-    console.error(` Handle error ---------------------> ${message.message}`);
+    console.error(` Handle error --------------------->`);
+    log("debug", message.message);
   }
 
   render() {
@@ -291,6 +361,14 @@ export default class VideoDock extends Component {
         <video id="shareWebcamVideo" className={styles.sharedWebcamVideo} ref="videoInput" />
       </div>
     );
+  }
+
+  componentWillUnmount() {
+
+    // Close websocket connection to prevent multiple reconnects from happening
+    this.state.ws.close();
+
+    this.state.ws.removeEventListener('message', () => {});
   }
 
   shouldComponentUpdate(nextProps, nextState) {

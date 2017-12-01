@@ -204,6 +204,8 @@
     "app.audioModal.closeLabel": "Fechar",
     "app.audio.joinAudio": "Ativar áudio",
     "app.audio.leaveAudio": "Desativar áudio",
+    "app.video.joinVideo": "Compartilhar câmera",
+    "app.video.leaveVideo": "Des-compartilhar câmera",
     "app.audio.enterSessionLabel": "Entrar na reunião",
     "app.audio.playSoundLabel": "Tocar som de teste",
     "app.audio.backLabel": "Voltar",

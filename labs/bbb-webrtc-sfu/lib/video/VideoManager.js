@@ -89,13 +89,20 @@ var _onMessage = function (_message) {
       }
       break;
 
+    case 'close':
+      console.log(" CASE CLOSED");
+
+      stopSession(sessionId);
+
+      break;
+
     default:
       bbbGW.publish(JSON.stringify({
         connectionId: sessionId,
         type: 'video',
         id : 'error',
         response : 'rejected',
-        message : 'Invalid message ' + message
+        message : 'Invalid message ' + JSON.stringify(message)
       }), C.FROM_VIDEO);
       break;
   }
