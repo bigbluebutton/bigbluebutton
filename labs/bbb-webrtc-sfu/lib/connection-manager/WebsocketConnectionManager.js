@@ -88,6 +88,8 @@ module.exports = class WebsocketConnectionManager {
         }
 
         this.emitter.emit(C.WEBSOCKET_MESSAGE, message);
+
+        ws = null;
       });
 
       ws.on('error', (err) => {
@@ -99,12 +101,15 @@ module.exports = class WebsocketConnectionManager {
           voiceBridge: ws.sessionId,
           connectionId: ws.id
         }
+
         this.emitter.emit(C.WEBSOCKET_MESSAGE, message);
+
+        ws = null;
       });
 
       // TODO: should we delete this listener after websocket dies?
       this.emitter.on('response', (data) => {
-        if (ws.id == data.connectionId) {
+        if (ws && ws.id == data.connectionId) {
           ws.sendMessage(data);
         }
       });
