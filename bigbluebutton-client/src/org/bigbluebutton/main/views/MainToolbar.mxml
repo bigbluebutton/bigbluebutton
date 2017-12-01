@@ -301,13 +301,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout) {
-					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true) as LogoutWindow;
+					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, false) as LogoutWindow;
 
-					var newX:Number = this.width - logoutWindow.width - 5;
-					var newY:Number = btnLogout.y + btnLogout.height + 5;
-
-					logoutWindow.x = newX;
-					logoutWindow.y = newY;
+					// Needs to be improved in case of RTL layout
+					PopUpUtil.lockPosition(logoutWindow, function():Point {
+						return new Point(width - logoutWindow.width - 5, btnLogout.y + btnLogout.height + 5)
+					});
 				} else {
 					doLogout();
 				}
@@ -515,7 +514,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSettingsButtonClick():void {
-				settingsPopup = PopUpUtil.createModalPopUp(this.parent, BBBSettings, true) as BBBSettings;
+				settingsPopup = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BBBSettings, true) as BBBSettings;
 				settingsPopup.pushComponents(settingsComponents);
 				PopUpManager.centerPopUp(settingsPopup);
 			}
@@ -548,7 +547,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
 				<mx:VRule id="logoSperatator" styleName="toolbarSeparator" height="10" />
-				<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" width="100%" truncateToFit="true"/>
+				<mx:Label id="meetingNameLbl" minWidth="1" maxWidth="{titleBox.width - logo.width - 20}" styleName="meetingNameLabelStyle" truncateToFit="true"/>
 			</mx:HBox>
 			<mx:HBox id="actionBox" width="30%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:HBox id="addedBtnsMicrophone" />
