@@ -68,6 +68,7 @@ const EmojiSelect = ({
           {
             statuses.map(status => (
               <DropdownListItem
+                key={status}
                 className={status === selected ? styles.emojiSelected : null}
                 icon={options[status]}
                 label={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` })}
@@ -76,15 +77,18 @@ const EmojiSelect = ({
                 tabIndex={-1}
               />
             ))
+            .concat(
+              <DropdownListSeparator key={-1} />,
+              <DropdownListItem
+                key={lastStatus}
+                icon={options[lastStatus]}
+                label={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${lastStatus}Label` })}
+                description={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${lastStatus}Desc` })}
+                onClick={() => onChange(lastStatus)}
+                tabIndex={-1}
+              />,
+            )
           }
-          <DropdownListSeparator />
-          <DropdownListItem
-            icon={options[lastStatus]}
-            label={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${lastStatus}Label` })}
-            description={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${lastStatus}Desc` })}
-            onClick={() => onChange(lastStatus)}
-            tabIndex={-1}
-          />
         </DropdownList>
       </DropdownContent>
     </Dropdown>
