@@ -1,18 +1,10 @@
-var path = require('path');
+var merge = require('deepmerge');
+var wdioBaseConf = require('./wdio.base.conf.js');
 
-function getScreenshotName(basePath) {
-  return function(context) {
-    var testName = context.test.title;
-    var resolution = context.meta.width || context.meta.orientation || 'unknown';
-    var browserVersion = parseInt(/\d+/.exec(context.browser.version)[0]);
-    var browserName = context.browser.name;
+exports.config = merge(wdioBaseConf.config, {
 
-    return path.join(basePath, `${testName}_${resolution}_${browserName}_v${browserVersion}.png`);
-  };
-}
-
-exports.config = {
   specs: ['tests/webdriverio/specs/acceptance/**/*.spec.js'],
+
   capabilities: {
     chromeBrowser: {
       desiredCapabilities: {
@@ -35,15 +27,7 @@ exports.config = {
       }
     }
   },
-  baseUrl: 'http://localhost:8080',
-  framework: 'jasmine',
-  reporters: ['spec', 'junit'],
-  reporterOptions: {
-    junit: {
-      outputDir: './tests/webdriverio/reports',
-    },
-  },
-  screenshotPath: 'screenshots',
+
   suites: {
     login: [
       'tests/webdriverio/specs/acceptance/login.spec.js',
@@ -54,5 +38,5 @@ exports.config = {
     browser.remotes = Object.keys(exports.config.capabilities);
     browser.baseUrl = exports.config.baseUrl;
   },
-};
+});
 

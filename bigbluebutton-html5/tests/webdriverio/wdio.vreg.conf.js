@@ -1,5 +1,7 @@
 var path = require('path');
 var VisualRegressionCompare = require('wdio-visual-regression-service/compare');
+var merge = require('deepmerge');
+var wdioBaseConf = require('./wdio.base.conf.js');
 
 function getScreenshotName(basePath) {
   return function(context) {
@@ -19,7 +21,7 @@ function getScreenshotName(basePath) {
   };
 }
 
-exports.config = {
+exports.config = merge(wdioBaseConf.config, {
   specs: [
     'tests/webdriverio/specs/visual-regression/**/*.spec.js'
   ],
@@ -37,12 +39,15 @@ exports.config = {
     browserName: process.env.BROWSER_NAME
   }],
 
+  baseUrl: 'http://localhost:8080',
+  framework: 'jasmine',
+  reporters: ['spec'],
+
   sync: true,
   logLevel: 'silent',
   bail: 0,
   host: 'localhost',
   port: 4444,
-  baseUrl: 'http://localhost:8080',
   waitforTimeout: 30000,
   connectionRetryTimeout: 90000,
   connectionRetryCount: 3,
@@ -59,10 +64,8 @@ exports.config = {
     orientations: ['landscape'],
   },
 
-  framework: 'jasmine',
   jasmineNodeOpts: {
     defaultTimeoutInterval: 30000
   },
+});
 
-  reporters: ['spec'],
-}
