@@ -18,5 +18,5 @@ export default function kickUser(credentials, userId) {
     ejectedBy: requesterUserId,
   };
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
