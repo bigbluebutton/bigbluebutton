@@ -1,7 +1,7 @@
-var path = require('path');
-var VisualRegressionCompare = require('wdio-visual-regression-service/compare');
-var merge = require('deepmerge');
-var wdioBaseConf = require('./wdio.base.conf.js');
+let path = require('path');
+let VisualRegressionCompare = require('wdio-visual-regression-service/compare');
+let merge = require('deepmerge');
+let wdioBaseConf = require('./wdio.base.conf');
 
 function getScreenshotName(basePath) {
   return function(context) {

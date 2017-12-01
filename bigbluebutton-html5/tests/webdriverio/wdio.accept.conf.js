@@ -1,5 +1,5 @@
-var merge = require('deepmerge');
-var wdioBaseConf = require('./wdio.base.conf.js');
+let merge = require('deepmerge');
+let wdioBaseConf = require('./wdio.base.conf');
 
 exports.config = merge(wdioBaseConf.config, {
 
