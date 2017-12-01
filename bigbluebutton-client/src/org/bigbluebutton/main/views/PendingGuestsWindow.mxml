@@ -137,7 +137,7 @@ $Id: $
     <mx:HBox paddingLeft="20" paddingRight="20" horizontalGap="20" 
              width="100%" height="100%">
       <mx:VBox width="200" height="100%">
-        <mx:VBox width="100%">
+        <!--mx:VBox width="100%">
           <mx:Button id="allowAllAuthBtn" styleName="mainActionButton"
                      label="{ResourceUtil.getInstance().getString('bbb.guests.allowAllAuthenticated.label')}"
                      width="100%" 
@@ -148,7 +148,7 @@ $Id: $
                      width="100%" 
                      click="sendResponseToAllGuestsCheckBox(true, GuestPolicy.ALWAYS_ACCEPT)" 
                      toolTip="{allowAllGuestsBtn.label}"/>
-        </mx:VBox>
+        </mx:VBox-->
         <mx:VBox width="100%" paddingTop="20" paddingBottom="20">
           <mx:Button id="allowEveryoneBtn" styleName="mainActionButton"
                      label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryone.label')}"
