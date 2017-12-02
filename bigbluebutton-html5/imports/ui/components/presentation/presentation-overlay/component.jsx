@@ -18,6 +18,17 @@ export default class PresentationOverlay extends Component {
     // id of the setInterval()
     this.intervalId = 0;
 
+    // Mobile Firefox has a bug where e.preventDefault on touchstart doesn't prevent
+    // onmousedown from triggering right after. Thus we have to track it manually.
+    // In case if it's fixed one day - there is another issue, React one.
+    // https://github.com/facebook/react/issues/9809
+    // Check it to figure if you can add onTouchStart in render(), or should use raw DOM api
+    this.touchStarted = false;
+
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleTouchMove = this.handleTouchMove.bind(this);
+    this.handleTouchEnd = this.handleTouchEnd.bind(this);
+    this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.checkCursor = this.checkCursor.bind(this);
     this.mouseEnterHandler = this.mouseEnterHandler.bind(this);
@@ -67,7 +78,77 @@ export default class PresentationOverlay extends Component {
     return point;
   }
 
+
+  handleTouchStart(event) {
+    // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
+    event.preventDefault();
+
+    window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+    window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+    window.addEventListener('touchcancel', this.handleTouchCancel, true);
+
+    this.touchStarted = true;
+
+    const { clientX, clientY } = event.changedTouches[0];
+    this.currentClientX = clientX;
+    this.currentClientY = clientY;
+
+    const intervalId = setInterval(this.checkCursor, CURSOR_INTERVAL);
+    this.intervalId = intervalId;
+  }
+
+  handleTouchMove(event) {
+    const { clientX, clientY } = event.changedTouches[0];
+
+    this.currentClientX = clientX;
+    this.currentClientY = clientY;
+  }
+
+  handleTouchEnd(event) {
+    event.preventDefault();
+
+    // touch ended, removing the interval
+    clearInterval(this.intervalId);
+    this.intervalId = 0;
+
+    // resetting the touchStarted flag
+    this.touchStarted = false;
+
+    // setting the coords to negative values and send the last message (the cursor will disappear)
+    this.currentClientX = -1;
+    this.currentClientY = -1;
+    this.checkCursor();
+
+    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+  }
+
+  handleTouchCancel(event) {
+    event.preventDefault();
+
+    // touch was cancelled, removing the interval
+    clearInterval(this.intervalId);
+    this.intervalId = 0;
+
+    // resetting the touchStarted flag
+    this.touchStarted = false;
+
+    // setting the coords to negative values and send the last message (the cursor will disappear)
+    this.currentClientX = -1;
+    this.currentClientY = -1;
+    this.checkCursor();
+
+    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+  }
+
   mouseMoveHandler(event) {
+    if (this.touchStarted) {
+      return;
+    }
+
     // for the case where you change settings in one of the lists (which are displayed on the slide)
     // the mouse starts pointing to the slide right away and mouseEnter doesn't fire
     // so we call it manually here
@@ -75,11 +156,15 @@ export default class PresentationOverlay extends Component {
       this.mouseEnterHandler();
     }
 
-    this.currentClientX = event.nativeEvent.clientX;
-    this.currentClientY = event.nativeEvent.clientY;
+    this.currentClientX = event.clientX;
+    this.currentClientY = event.clientY;
   }
 
   mouseEnterHandler() {
+    if (this.touchStarted) {
+      return;
+    }
+
     const intervalId = setInterval(this.checkCursor, CURSOR_INTERVAL);
     this.intervalId = intervalId;
   }
@@ -105,10 +190,11 @@ export default class PresentationOverlay extends Component {
         height={this.props.slideHeight}
       >
         <div
+          onTouchStart={this.handleTouchStart}
           onMouseOut={this.mouseOutHandler}
           onMouseEnter={this.mouseEnterHandler}
           onMouseMove={this.mouseMoveHandler}
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: '100%', height: '100%', touchAction: 'none' }}
         >
           {this.props.children}
         </div>
