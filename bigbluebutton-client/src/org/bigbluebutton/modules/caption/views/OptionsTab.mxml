@@ -105,14 +105,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:VBox height="100%">
 		<mx:HBox>
 			<mx:Label id="fontFamilyLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.fontfamily')}" />
-			<mx:ComboBox id="fontFamilyCombo" 
+			<common:ComboBox2 id="fontFamilyCombo" 
 						 dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" 
 						 change="onFontFamilyComboChange()"
 						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.fontfamily.tooltip')}" />
 		</mx:HBox>
 		<mx:HBox>
 			<mx:Label id="fontSizeLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.fontsize')}" />
-			<mx:ComboBox id="fontSizeCombo" 
+			<common:ComboBox2 id="fontSizeCombo" 
 						 dataProvider="[10, 12, 14, 18, 24, 36]" 
 						 selectedIndex="1" 
 						 change="onFontSizeComboChange()"

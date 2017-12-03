@@ -13,6 +13,7 @@
 @namespace skins "org.bigbluebutton.skins.*";
 @namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
 @namespace tabBarClasses "flexlib.controls.tabBarClasses.*";
+@namespace common "org.bigbluebutton.common.*";
 
 /*
 //------------------------------
@@ -760,6 +761,10 @@ mx|ComboBox {
 	borderThickness     : 1;
 
 	skin                : ClassReference("org.bigbluebutton.skins.ComboBoxSkin");
+}
+
+common|ComboBox2 {
+	closePopUpOnStyleUpdate : false;
 }
 
 /*

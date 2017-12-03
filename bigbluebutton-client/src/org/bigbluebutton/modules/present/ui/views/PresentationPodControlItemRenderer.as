@@ -41,6 +41,8 @@ package org.bigbluebutton.modules.present.ui.views {
 					case "user":
 						label.visible = true;
 						break;
+					default:
+						break;
 				}
 			}
 
