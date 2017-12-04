@@ -256,11 +256,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
     ]]>
   </fx:Script>
-  
+
   <fx:Declarations>
     <common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
   </fx:Declarations>
-  
+
 	<mx:HBox id="newGroupChatBox" width="100%" verticalAlign="middle"
 			 visible="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows &amp;&amp; amIModerator}"
 			 includeInLayout="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows &amp;&amp; amIModerator}">
@@ -299,7 +299,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:HBox width="100%">
     <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" width="100%"/>
-    <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
+    <common:ComboBox2 width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
                  selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
   </mx:HBox>
   <mx:HBox width="100%">
@@ -339,5 +339,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                click="sendClearEvent()"
                accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/>
   </mx:HBox>
-  
+
 </mx:VBox>

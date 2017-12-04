@@ -262,9 +262,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:TabIndexer startIndex="119" tabIndices="{[categories, keyList]}"/>
 	</fx:Declarations>
 
-	<mx:ComboBox id="categories" accessibilityName="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.dropdown.accessibilityName')}" 
-				 editable="false" 
-				 change="changeArray()">
+	<common:ComboBox2 id="categories" accessibilityName="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.dropdown.accessibilityName')}" 
+				 	  editable="false" 
+				 	  change="changeArray()">
 		<mx:ArrayCollection id="categoryAC">
         	<!--
 			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
@@ -273,7 +273,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users")}</mx:String>
 			-->
       	</mx:ArrayCollection>
-	</mx:ComboBox>
+	</common:ComboBox2>
 	<mx:Text id="browserWarningText" visible="false" includeInLayout="false" text="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.browserWarning.text')}" />
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
 		<mx:columns>
