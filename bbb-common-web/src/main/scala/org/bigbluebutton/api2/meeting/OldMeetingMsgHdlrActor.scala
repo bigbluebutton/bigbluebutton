@@ -7,8 +7,6 @@ import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
 
-import collection.JavaConverters._
-
 
 object OldMeetingMsgHdlrActor {
   def props(olgMsgGW: OldMessageReceivedGW): Props =

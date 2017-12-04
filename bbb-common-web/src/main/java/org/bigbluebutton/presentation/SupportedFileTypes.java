@@ -26,8 +26,6 @@ import java.util.List;
 
 @SuppressWarnings("serial")
 public final class SupportedFileTypes {
-	// Set as private to prevent instantiation
-	private SupportedFileTypes() {} 
 	
 	private static final List<String> SUPPORTED_FILE_LIST = new ArrayList<String>(15) {		
 		{				
