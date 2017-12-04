@@ -39,8 +39,6 @@ import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
-import org.bigbluebutton.common.messages.Constants;
-import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.turn.StunServer;
@@ -700,50 +698,6 @@ public class MeetingService implements MessageListener {
     this.presDownloadService = presDownloadService;
   }
 
-  private void processStunTurnInfoRequested(StunTurnInfoRequested message) {
-    Set<StunServer> stuns = stunTurnService.getStunServers();
-    log.info("\nhere are the stuns:");
-    for (StunServer s : stuns) {
-      log.info("a stun: " + s.url);
-    }
-    Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(message.internalUserId);
-
-    log.info("\nhere are the (" + turns.size() + ") turns for internalUserId:" + message.internalUserId);
-    for (TurnEntry t : turns) {
-      log.info("a org.bigbluebutton.web.services.turn: " + t.url + "username/pass=" + t.username + '/'
-        + t.password);
-    }
-
-    ArrayList<String> stunsArrayList = new ArrayList<String>();
-    Iterator<StunServer> stunsIter = stuns.iterator();
-
-    while (stunsIter.hasNext()) {
-      StunServer aStun = (StunServer) stunsIter.next();
-      if (aStun != null) {
-        stunsArrayList.add(aStun.url);
-      }
-    }
-
-    ArrayList<Map<String, Object>> turnsArrayList = new ArrayList<Map<String, Object>>();
-    Iterator<TurnEntry> turnsIter = turns.iterator();
-    while (turnsIter.hasNext()) {
-      TurnEntry te = (TurnEntry) turnsIter.next();
-      if (null != te) {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(Constants.USERNAME, te.username);
-        map.put(Constants.URL, te.url);
-        map.put(Constants.TTL, te.ttl);
-        map.put(Constants.PASSWORD, te.password);
-
-        turnsArrayList.add(map);
-      }
-    }
-
-    SendStunTurnInfoReplyMessage msg = new SendStunTurnInfoReplyMessage(message.meetingId,
-      message.internalUserId,stunsArrayList, turnsArrayList);
-    gw.sendStunTurnInfoReply(msg);
-  }
-
   public void userJoinedVoice(UserJoinedVoice message) {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
@@ -866,8 +820,6 @@ public class MeetingService implements MessageListener {
           processEndMeeting((EndMeeting) message);
         } else if (message instanceof RegisterUser) {
           processRegisterUser((RegisterUser) message);
-        } else if (message instanceof StunTurnInfoRequested) {
-          processStunTurnInfoRequested((StunTurnInfoRequested) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
         } else if (message instanceof PresentationUploadToken) {

@@ -225,3 +225,7 @@ object Roles {
   val GUEST_ROLE = "GUEST"
   val AUTHENTICATED_ROLE = "AUTHENTICATED"
 }
+
+object SystemUser {
+  val ID = "SYSTEM"
+}

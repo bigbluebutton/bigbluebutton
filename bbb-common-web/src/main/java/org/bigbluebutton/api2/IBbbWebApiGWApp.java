@@ -2,7 +2,6 @@ package org.bigbluebutton.api2;
 
 
 import org.bigbluebutton.api.messaging.converters.messages.*;
-import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.messages.IDocConversionMsg;
 
 import java.util.Map;
@@ -31,6 +30,5 @@ public interface IBbbWebApiGWApp {
   void publishRecording(PublishRecordingMessage msg);
   void unpublishRecording(UnpublishRecordingMessage msg);
   void deleteRecording(DeleteRecordingMessage msg);
-  void sendStunTurnInfoReply(SendStunTurnInfoReplyMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
 }

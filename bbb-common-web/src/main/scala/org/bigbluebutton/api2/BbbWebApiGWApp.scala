@@ -7,7 +7,6 @@ import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageSender, RedisPublisher}
 import org.bigbluebutton.api2.meeting.{MeetingsManagerActor, OldMeetingMsgHdlrActor, RegisterUser}
-import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.presentation.messages._
 
@@ -164,10 +163,6 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
   }
 
   def deleteRecording(msg: DeleteRecordingMessage): Unit = {
-
-  }
-
-  def sendStunTurnInfoReply(msg: SendStunTurnInfoReplyMessage): Unit = {
 
   }
 

@@ -9,10 +9,11 @@ import scala.collection.mutable.HashMap
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs.Note
 import org.bigbluebutton.common2.msgs.NoteReport
+import org.bigbluebutton.core.models.SystemUser
 
 class SharedNotesModel extends SystemConfiguration {
   val MAIN_NOTE_ID = "MAIN_NOTE"
-  val SYSTEM_ID = "SYSTEM"
+  val SYSTEM_ID = SystemUser.ID
 
   private val patcher = new diff_match_patch()
 

@@ -54,14 +54,14 @@ trait RegisterUserReqMsgHdlr {
     guestStatus match {
       case GuestStatus.ALLOW =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
-        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, "SYSTEM")
+        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
       case GuestStatus.WAIT =>
         val guest = GuestWaiting(regUser.id, regUser.name, regUser.role)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
         notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
       case GuestStatus.DENY =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
-        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, "SYSTEM")
+        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
     }
 
   }

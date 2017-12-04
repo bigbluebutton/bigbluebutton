@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.common2.msgs.BreakoutUserVO
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
 case class InMessageHeader(name: String)
@@ -13,9 +12,7 @@ trait InMessage
 // System
 /////////////////////////////////////////////////////////////////////////////
 
-case class PubSubPing(system: String, timestamp: Long) extends InMessage
 case class IsMeetingActorAliveMessage(meetingId: String) extends InMessage
-case class KeepAliveMessage(aliveID: String) extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////
 // Internal Messages
@@ -68,25 +65,6 @@ case class BreakoutRoomUsersUpdateInternalMsg(parentId: String, breakoutId: Stri
  * @param breakoutId
  */
 case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String) extends InMessage
-
-//////////////////////////////////////////////////////////////////////////////
-// Meeting
-/////////////////////////////////////////////////////////////////////////////
-case class StartMeeting(meetingID: String) extends InMessage
-case class EndMeeting(meetingId: String) extends InMessage
-case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
-case class UpdateMeetingExpireMonitor(meetingID: String, hasUser: Boolean) extends InMessage
-
-//////////////////////////////////////////////////////////////////////////////////
-// Users
-/////////////////////////////////////////////////////////////////////////////////
-
-case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
-case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
-case class ActivityResponse(meetingID: String) extends InMessage
-
-// No idea what part this is for
-case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
 
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

@@ -8,7 +8,7 @@ import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
 import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
-import org.bigbluebutton.core.domain.{ BbbSystemConst, MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._

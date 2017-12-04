@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.Permissions
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.Permissions
 
 trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
