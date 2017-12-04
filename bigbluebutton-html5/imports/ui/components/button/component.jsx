@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import Tooltip from '/imports/ui/components/tooltip/component';
 import styles from './styles';
 import Icon from '../icon/component';
 import BaseButton from './base/component';
@@ -86,7 +87,6 @@ const defaultProps = {
 };
 
 export default class Button extends BaseButton {
-
   _getClassNames() {
     const {
       size,
@@ -113,8 +113,23 @@ export default class Button extends BaseButton {
   }
 
   render() {
-    const renderFuncName = this.props.circle ?
-      'renderCircle' : 'renderDefault';
+    const {
+      circle,
+      hideLabel,
+      label,
+    } = this.props;
+
+    const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
+
+    if (hideLabel) {
+      return (
+        <Tooltip
+          title={label}
+        >
+          {this[renderFuncName]()}
+        </Tooltip>
+      );
+    }
 
     return this[renderFuncName]();
   }
