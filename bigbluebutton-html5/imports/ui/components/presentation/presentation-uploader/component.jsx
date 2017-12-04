@@ -33,6 +33,9 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
+  current: {
+    id: 'app.presentationUploder.currentBadge',
+  },
   title: {
     id: 'app.presentationUploder.title',
     description: 'title of the modal',
@@ -384,8 +387,9 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItem(item) {
-    const { disableActions } = this.state;
+    const { disableActions, oldCurrentId } = this.state;
 
+    const isActualCurrent = item.id === oldCurrentId;
     const isUploading = !item.upload.done && item.upload.progress > 0;
     const isConverting = !item.conversion.done && item.upload.done;
     const hasError = item.conversion.error || item.upload.error;
@@ -409,7 +413,16 @@ class PresentationUploader extends Component {
         <td className={styles.tableItemIcon}>
           <Icon iconName="file" />
         </td>
-        <th className={styles.tableItemName}>
+        {
+          isActualCurrent ?
+            <th className={styles.tableItemCurrent}>
+              <span className={styles.currentLabel}>
+                {this.props.intl.formatMessage(intlMessages.current)}
+              </span>
+            </th>
+          : null
+        }
+        <th className={styles.tableItemName} colSpan={!isActualCurrent ? 2 : 0}>
           <span>{item.filename}</span>
         </th>
         <td className={styles.tableItemStatus} colSpan={hasError ? 2 : 0}>

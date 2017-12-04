@@ -59,6 +59,7 @@
     "app.presentationUploder.dropzoneLabel": "Drag files here to upload",
     "app.presentationUploder.browseFilesLabel": "or browse for files",
     "app.presentationUploder.fileToUpload": "To be uploaded...",
+    "app.presentationUploder.currentBadge": "Current",
     "app.presentationUploder.genericError": "Ops, something went wrong",
     "app.presentationUploder.upload.progress": "Uploading ({progress}%)",
     "app.presentationUploder.upload.413": "File is too large",
