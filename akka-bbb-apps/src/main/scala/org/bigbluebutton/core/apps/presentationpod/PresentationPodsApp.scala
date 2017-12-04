@@ -39,6 +39,10 @@ object PresentationPodsApp {
     PresentationPodVO(pod.id, pod.currentPresenter, presentationVOs)
   }
 
+  def findPodsWhereUserIsPresenter(mgr: PresentationPodManager, userId: String): Vector[PresentationPod] = {
+    mgr.presentationPods.values.toVector.filter(p => p.currentPresenter == userId)
+  }
+
   def updatePresentationPod(state: MeetingState2x, pod: PresentationPod): MeetingState2x = {
     val podManager = state.presentationPodManager.addPod(pod)
     state.update(podManager)
@@ -58,7 +62,7 @@ object PresentationPodsApp {
   }
 
   def generateToken(podId: String, userId: String): String = {
-    "LALA-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
+    "PresUploadToken-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
   }
 }
 
