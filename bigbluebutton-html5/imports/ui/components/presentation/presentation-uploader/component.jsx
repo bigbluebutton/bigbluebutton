@@ -304,14 +304,6 @@ class PresentationUploader extends Component {
     if (disableActions) return;
 
     const toRemoveIndex = presentations.indexOf(item);
-    const toRemove = presentations[toRemoveIndex];
-
-
-    if (toRemove.isCurrent) {
-      const defaultPresentation =
-        presentations.find();
-      this.handleCurrentChange(defaultPresentation.id);
-    }
 
     this.setState({
       presentations: update(presentations, {
