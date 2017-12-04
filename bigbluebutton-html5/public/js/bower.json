@@ -19,9 +19,9 @@
     "tests"
   ],
   "dependencies": {
-    "adapter.js": "5.0.6",
+    "adapter.js": "6.0.2",
     "bootstrap": "3.3.6",
-    "kurento-utils": "https://github.com/lfzawacki/kurento-utils-js.git#safari11",
+    "kurento-utils": "https://github.com/mconf/kurento-utils-js.git",
     "react": "15.1.0",
     "reconnectingWebsocket": "1.0.0",
     "requirejs": "2.2.0",
