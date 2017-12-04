@@ -157,6 +157,12 @@ class PresentationUploader extends Component {
     this.updateFileKey(id, key, applyValue, '$apply');
   }
 
+  isDefault(presentation) {
+    const { defaultFileName } = this.props;
+    return presentation.filename === defaultFileName
+      && !presentation.id.includes(defaultFileName);
+  }
+
   handleConfirm() {
     const presentationsToSave = this.state.presentations
       .filter(p => !p.upload.error && !p.conversion.error);
@@ -300,7 +306,7 @@ class PresentationUploader extends Component {
 
     if (toRemove.isCurrent) {
       const defaultPresentation =
-        presentations.find(presentation => presentation.filename === this.props.defaultFileName);
+        presentations.find();
       this.handleCurrentChange(defaultPresentation.id);
     }
 
@@ -315,7 +321,17 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
 
     const presentationsSorted = presentations
-      .sort((a, b) => b.filename === this.props.defaultFileName);
+      .sort((a, b) => {
+        // Sort by ID first so files with the same name have the same order
+        if (a.id > b.id) {
+          return 1;
+        }
+        if (a.id < b.id) {
+          return -1;
+        }
+        return 0;
+      })
+      .sort((a, b) => this.isDefault(b));
 
     return (
       <div className={styles.fileList}>
@@ -383,7 +399,7 @@ class PresentationUploader extends Component {
       [styles.tableItemAnimated]: isProcessing,
     };
 
-    const hideRemove = item.filename === this.props.defaultFileName;
+    const hideRemove = this.isDefault(item);
 
     return (
       <tr
