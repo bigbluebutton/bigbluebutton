@@ -20,19 +20,19 @@
   $Id: $
 -->
 
-<mx:Box xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns:fx="http://ns.adobe.com/mxml/2009"
-		height="100%"
-		width="100%"
-		verticalScrollPolicy="off"
-		horizontalScrollPolicy="off">
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   verticalScrollPolicy="off"
+		   horizontalScrollPolicy="off">
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 		]]>
 	</fx:Script>
-	<mx:Label id="nameLabel" width="100%"
+	<mx:Label id="nameLabel"
+			  width="100%"
+			  verticalCenter="0"
 			  text="{data.displayName} {data.me ? '(' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : ''}"
 			  styleName="{data.me ? 'meNameRenderer' : 'nameRenderer'}"
 			  toolTip="{data.name}" />
-</mx:Box>
+</mx:Canvas>
