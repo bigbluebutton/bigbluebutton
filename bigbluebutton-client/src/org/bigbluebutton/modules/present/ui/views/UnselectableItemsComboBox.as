@@ -17,11 +17,11 @@
  *
  */
 package org.bigbluebutton.modules.present.ui.views {
-	import mx.controls.ComboBox;
 	import mx.core.ClassFactory;
 
-	public class UnselectableItemsComboBox extends ComboBox {
+	import org.bigbluebutton.common.ComboBox2;
 
+	public class UnselectableItemsComboBox extends ComboBox2 {
 		/**
 		 *  The function to apply that determines if the item is "selectable" or not.
 		 *  Takes one argument, which is the data item
@@ -33,5 +33,6 @@ package org.bigbluebutton.modules.present.ui.views {
 			super();
 			this.dropdownFactory = new ClassFactory(UnselectableItemsList);
 		}
+
 	}
 }

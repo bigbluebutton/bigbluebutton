@@ -6,7 +6,7 @@ import akka.event.Logging
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageSender, RedisPublisher}
-import org.bigbluebutton.api2.meeting.{MeetingsManagerActor, OldMeetingMsgHdlrActor, RegisterUser}
+import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.presentation.messages._
 

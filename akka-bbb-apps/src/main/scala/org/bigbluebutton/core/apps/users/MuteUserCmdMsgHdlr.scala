@@ -3,8 +3,9 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.models.VoiceUsers
+import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
@@ -27,14 +28,22 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
 
       log.info("Received mute user request. meetingId=" + meetingId + " userId="
         + msg.body.userId)
+
+      val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
       for {
+        requester <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
         u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
       } yield {
-        if (u.muted != msg.body.mute) {
-          log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
-          val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(meetingId, voiceConf,
-            u.voiceUserId, msg.body.mute)
-          outGW.send(event)
+        if (requester.role != Roles.MODERATOR_ROLE && permissions.disableMic &&
+          msg.body.userId == msg.header.userId) {
+          // muting/unmuting self while not moderator and mic disabled. Do not allow.
+        } else {
+          if (u.muted != msg.body.mute) {
+            log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
+            val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(meetingId, voiceConf,
+              u.voiceUserId, msg.body.mute)
+            outGW.send(event)
+          }
         }
       }
     }

@@ -219,7 +219,7 @@ class MeetingActor(
       case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
       case m: ChangeUserRoleCmdMsg => usersApp.handleChangeUserRoleCmdMsg(m)
       case m: AddUserToPresenterGroupCmdMsg => usersApp.handleAddUserToPresenterGroupCmdMsg(m)
-      case m: RemoveUserFromPresenterGroupCmdMsg => usersApp.handleRemoveUserFromPresenterGroupCmdMsg(m)
+      case m: RemoveUserFromPresenterGroupCmdMsg => state = usersApp.handleRemoveUserFromPresenterGroupCmdMsg(m, state)
       case m: GetPresenterGroupReqMsg => usersApp.handleGetPresenterGroupReqMsg(m)
 
       // Whiteboard

@@ -34,17 +34,13 @@ public class ClientConfigService {
   private Map<String, String> configs = new HashMap<String, String>();
   
   public void init() {
-  	configs = getAllConfigs();
+  	configs = helper.getPreBuiltConfigs(configDir);
   }
   
   public String getConfig(String id) {
   	return configs.get(id);
   }
-  
-	private Map<String, String> getAllConfigs(){
-		return helper.getPreBuiltConfigs(configDir);
-	}
-		
+
 	public void setConfigDir(String dir) {
 		configDir = dir;
 	}

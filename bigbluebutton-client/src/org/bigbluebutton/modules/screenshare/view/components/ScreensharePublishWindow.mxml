@@ -606,7 +606,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Spacer width="100%" />
       <mx:HBox id="shareTypeBox" visible="false" verticalAlign="middle">
         <mx:Label styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.shareTypeLabel.text')}" />
-        <mx:ComboBox id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
+        <common:ComboBox2 id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
       </mx:HBox>
     <mx:Spacer width="80%" />
 	<mx:Button id="pauseBtn" visible="false" includeInLayout="false" click="pauseSharing()" toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" />
