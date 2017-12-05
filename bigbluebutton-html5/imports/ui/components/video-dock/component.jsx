@@ -86,11 +86,15 @@ export default class VideoDock extends Component {
           const webRtcPeer = this.state.webRtcPeers[parsedMessage.cameraId];
 
           if (webRtcPeer !== null) {
-            webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
-              if (err) {
-                console.error(`Error adding candidate: ${err}`);
-              }
-            });
+            if (webRtcPeer.didSDPAnswered) {
+              webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
+                if (err) {
+                  return log('error', `Error adding candidate: ${err}`);
+                }
+              });
+            } else {
+              webRtcPeer.iceQueue.push(parsedMessage.candidate);
+            }
           } else {
             log('error', ' [ICE] Message arrived before webRtcPeer?');
           }
@@ -120,13 +124,24 @@ export default class VideoDock extends Component {
       that.sendMessage(message);
     };
 
+    var videoConstraints = {};
+    if (!!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) { // Custom constraints for Safari
+      videoConstraints = {
+        width: {min:320, max:640},
+        height: {min:240, max:480}
+      }
+    } else {
+      videoConstraints = {
+        width: {min: 320, ideal: 320},
+        height: {min: 240, ideal:240},
+        frameRate: {min: 5, ideal: 10}
+      };
+    }
+
     const options = {
-      mediaConstraints: { audio: false,
-        video: {
-          width: {min: 320, ideal: 320},
-          height: {min: 240, ideal:240},
-          frameRate: { min: 5, ideal: 10}
-        }
+      mediaConstraints: {
+        audio: false,
+        video: videoConstraints
       },
       onicecandidate: onIceCandidate,
     };
@@ -144,6 +159,7 @@ export default class VideoDock extends Component {
       options.remoteVideo.height = 90;
       options.remoteVideo.autoplay = true;
       options.remoteVideo.playsinline = true;
+      options.remoteVideo.muted = true;
 
       document.getElementById('webcamArea').appendChild(options.remoteVideo);
     }
@@ -154,6 +170,9 @@ export default class VideoDock extends Component {
         log('error', error);
         return;
       }
+
+      this.didSDPAnswered = false;
+      this.iceQueue = [];
 
       if (shareWebcam) {
         that.state.sharedWebcam = that.state.webRtcPeers[id];
@@ -176,6 +195,15 @@ export default class VideoDock extends Component {
         };
         that.sendMessage(message);
       });
+      while (this.iceQueue.length) {
+        var candidate = this.iceQueue.shift();
+        this.addIceCandidate(candidate, (err) => {
+          if (err) {
+            return console.error(`Error adding candidate: ${err}`);
+	  }
+        });
+      }
+      this.didSDPAnswered = true;
     });
   }
 
