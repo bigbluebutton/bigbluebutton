@@ -74,7 +74,7 @@ var _onMessage = function (_message) {
       console.log('[' + message.id + '] connection ' + sessionId);
 
       if (video) {
-        stopSession(sessionId);
+        video.stop(sessionId);
       } else {
         console.log(" [stop] Why is there no video on STOP?");
       }
