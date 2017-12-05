@@ -3,7 +3,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import ReactDOM from 'react-dom';
+import KEY_CODES from '/imports/utils/keyCodes';
 import styles from '/imports/ui/components/user-list/user-list-content/styles';
 import ChatListItem from './../../chat-list-item/component';
 
@@ -14,8 +14,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  rovingIndex: PropTypes.func.isRequired,
-  resetIndex: PropTypes.func.isRequired,
   isPublicChat: PropTypes.func.isRequired,
 };
 
@@ -88,48 +86,107 @@ class UserMessages extends Component {
   constructor() {
     super();
 
-    this.getMessagesListRef = this.getMessagesListRef.bind(this);
-    this.getMessageItemsRef = this.getMessageItemsRef.bind(this);
+    this.state = {
+      index: -1,
+    };
+
+    this.openChatRefs = [];
+    this.selectedIndex = -1;
+
+    this.focusOpenChatItem = this.focusOpenChatItem.bind(this);
+    this.changeState = this.changeState.bind(this);
   }
 
   componentDidMount() {
     if (!this.props.compact) {
       this._msgsList.addEventListener(
         'keydown',
-        event => this.props.rovingIndex(
+        event => this.props.roving(
           event,
-          this.getMessagesListRef(),
-          this.getMessageItemsRef(),
           this.props.openChats.length,
+          this.changeState,
         ),
       );
 
       document.addEventListener(
         'click',
-        event => this.props.resetIndex(
-          event,
-          this.getMessagesListRef(),
-          this.getMessageItemsRef(),
-        ),
+        event => this.reset(event),
       );
     }
   }
 
-  getMessagesListRef() {
-    return ReactDOM.findDOMNode(this._msgsList);
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.index === -1) {
+      return;
+    }
+
+    if (this.state.index !== prevState.index) {
+      this.focusOpenChatItem(this.state.index);
+    }
   }
 
-  getMessageItemsRef() {
-    return ReactDOM.findDOMNode(this._msgItems);
+  getOpenChats() {
+    const {
+      openChats,
+      openChat,
+      compact,
+      isPublicChat,
+    } = this.props;
+
+    let i = 0;
+
+    return openChats.map(chat => (
+      <CSSTransition
+        classNames={listTransition}
+        appear
+        enter
+        exit={false}
+        timeout={0}
+        component="div"
+        className={cx(styles.chatsList)}
+        key={chat.id}
+      >
+        <div ref={(node) => { this.openChatRefs[i++] = node; }}>
+          <ChatListItem
+            isPublicChat={isPublicChat}
+            compact={compact}
+            openChat={openChat}
+            chat={chat}
+            tabIndex={-1}
+          />
+        </div>
+      </CSSTransition>
+    ));
+  }
+
+  changeState(newIndex) {
+    this.setState({ index: newIndex });
+  }
+
+  reset(event) {
+    if (this._msgsList === null) { return; }
+
+    const selectedChild = this._msgsList.contains(event.target);
+    const selectedList = this._msgsList === event.target;
+
+    if (!selectedChild || selectedList) {
+      this.selectedIndex = -1;
+      this.setState({ index: this.selectedIndex });
+    }
+  }
+
+  focusOpenChatItem(index) {
+    if (!this.openChatRefs[index]) {
+      return;
+    }
+
+    this.openChatRefs[index].firstChild.focus();
   }
 
   render() {
     const {
-      openChats,
-      openChat,
       intl,
       compact,
-      isPublicChat,
     } = this.props;
 
     return (
@@ -148,26 +205,7 @@ class UserMessages extends Component {
         >
           <div className={styles.list}>
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }} >
-              {openChats.map(chat => (
-                <CSSTransition
-                  classNames={listTransition}
-                  appear
-                  enter
-                  exit={false}
-                  timeout={0}
-                  component="div"
-                  className={cx(styles.chatsList)}
-                  key={chat.id}
-                >
-                  <ChatListItem
-                    isPublicChat={isPublicChat}
-                    compact={compact}
-                    openChat={openChat}
-                    chat={chat}
-                    tabIndex={-1}
-                  />
-                </CSSTransition>
-              ))}
+              { this.getOpenChats() }
             </TransitionGroup>
           </div>
         </div>

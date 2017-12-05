@@ -53,7 +53,7 @@ const ChatListItem = (props) => {
     intl,
     tabIndex,
     isPublicChat,
-    } = props;
+  } = props;
 
   const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
   const isCurrentChat = chat.id === openChat;

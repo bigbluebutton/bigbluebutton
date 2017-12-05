@@ -24,6 +24,7 @@ const UserListContainer = (props) => {
     kickUser,
     toggleVoice,
     changeRole,
+    roving,
     } = props;
 
   return (
@@ -44,6 +45,7 @@ const UserListContainer = (props) => {
       normalizeEmojiName={normalizeEmojiName}
       isMeetingLocked={isMeetingLocked}
       isPublicChat={isPublicChat}
+      roving={roving}
     >
       {children}
     </UserList>
@@ -67,4 +69,5 @@ export default createContainer(({ params }) => ({
   kickUser: Service.kickUser,
   toggleVoice: Service.toggleVoice,
   changeRole: Service.changeRole,
+  roving: Service.roving,
 }), UserListContainer);

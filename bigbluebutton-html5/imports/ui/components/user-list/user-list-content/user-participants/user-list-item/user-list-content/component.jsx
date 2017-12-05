@@ -260,6 +260,7 @@ class UserListContent extends Component {
         aria-haspopup="true"
         aria-live="assertive"
         aria-relevant="additions"
+        ttest='yyoo'
       >
         <DropdownTrigger>
           {contents}

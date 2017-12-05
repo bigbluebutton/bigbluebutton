@@ -75,6 +75,7 @@ class UserList extends Component {
           normalizeEmojiName={this.props.normalizeEmojiName}
           isMeetingLocked={this.props.isMeetingLocked}
           isPublicChat={this.props.isPublicChat}
+          roving={this.props.roving}
         />}
       </div>
     );

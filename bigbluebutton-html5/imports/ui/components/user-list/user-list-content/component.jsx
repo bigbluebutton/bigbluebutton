@@ -35,99 +35,6 @@ const defaultProps = {
 };
 
 class UserContent extends Component {
-  static focusElement(active, element) {
-    const modifiedActive = active;
-    const modifiedElement = element;
-    if (!modifiedActive.getAttribute('role') === 'tabpanel') {
-      modifiedActive.tabIndex = -1;
-    }
-    modifiedElement.tabIndex = 0;
-    modifiedElement.focus();
-  }
-
-  static removeFocusFromChildren(children, numberOfItems) {
-    const modifiedChildren = children;
-    for (let i = 0; i < numberOfItems; i += 1) {
-      modifiedChildren.childNodes[i].tabIndex = -1;
-    }
-  }
-
-  constructor(props) {
-    super(props);
-
-    this.rovingIndex = this.rovingIndex.bind(this);
-    this.focusList = this.focusList.bind(this);
-    this.resetIndex = this.resetIndex.bind(this);
-    this.focusedItemIndex = -1;
-  }
-
-  focusList(list) {
-    const focusList = list;
-    document.activeElement.tabIndex = -1;
-    this.focusedItemIndex = -1;
-    focusList.tabIndex = 0;
-    focusList.focus();
-  }
-
-  resetIndex(event, list, items) {
-    if (list === null) { return; }
-
-    const childClicked = list.contains(event.target);
-    const ListClicked = list === event.target;
-
-    if (ListClicked) {
-      document.activeElement.blur();
-    }
-
-    if (!childClicked || ListClicked) {
-      items.childNodes.forEach((element) => {
-        const domUser = element;
-        domUser.tabIndex = -1;
-      });
-      this.focusedItemIndex = -1;
-    }
-  }
-
-  rovingIndex(event, list, items, numberOfItems) {
-    const active = document.activeElement;
-    const changedItems = items;
-
-    if (event.keyCode === KEY_CODES.TAB) {
-      if (this.focusedItemIndex !== -1) {
-        this.focusedItemIndex = 0;
-        UserContent.removeFocusFromChildren(changedItems, numberOfItems);
-      }
-    }
-
-    if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)
-      || this.focusedItemIndex < 0
-      || this.focusedItemIndex > numberOfItems) {
-      this.focusList(list);
-    }
-
-    if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.ARROW_SPACE].includes(event.keyCode)) {
-      active.firstChild.click();
-    }
-
-    if (event.keyCode === KEY_CODES.ARROW_DOWN) {
-      this.focusedItemIndex += 1;
-
-      if (this.focusedItemIndex === numberOfItems) {
-        this.focusedItemIndex = 0;
-      }
-      UserContent.focusElement(active, changedItems.childNodes[this.focusedItemIndex]);
-    }
-
-    if (event.keyCode === KEY_CODES.ARROW_UP) {
-      this.focusedItemIndex -= 1;
-
-      if (this.focusedItemIndex < 0) {
-        this.focusedItemIndex = numberOfItems - 1;
-      }
-
-      UserContent.focusElement(active, changedItems.childNodes[this.focusedItemIndex]);
-    }
-  }
 
   render() {
     return (
@@ -137,8 +44,7 @@ class UserContent extends Component {
           openChats={this.props.openChats}
           compact={this.props.compact}
           intl={this.props.intl}
-          rovingIndex={this.rovingIndex}
-          resetIndex={this.resetIndex}
+          roving={this.props.roving}
         />
         <UserParticipants
           users={this.props.users}
@@ -157,6 +63,7 @@ class UserContent extends Component {
           rovingIndex={this.rovingIndex}
           isMeetingLocked={this.props.isMeetingLocked}
           resetIndex={this.resetIndex}
+          roving={this.props.roving}
         />
       </div>
     );
