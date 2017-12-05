@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.chat
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
 
 trait SendPrivateMessagePubMsgHdlr extends LogHelper {
 

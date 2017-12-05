@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }

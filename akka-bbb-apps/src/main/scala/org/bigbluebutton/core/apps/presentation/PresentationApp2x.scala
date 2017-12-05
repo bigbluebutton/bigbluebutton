@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps.presentation
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.running.LiveMeeting
 

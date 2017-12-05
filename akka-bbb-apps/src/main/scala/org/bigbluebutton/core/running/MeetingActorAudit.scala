@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
-import java.text.SimpleDateFormat
-import java.util.Date
 
 import akka.actor.Actor
 import akka.actor.ActorLogging

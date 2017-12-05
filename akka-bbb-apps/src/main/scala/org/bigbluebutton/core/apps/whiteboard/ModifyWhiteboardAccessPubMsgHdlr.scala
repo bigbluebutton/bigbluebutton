@@ -4,7 +4,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.SystemConfiguration
 
 trait ModifyWhiteboardAccessPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>

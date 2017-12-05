@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.apps.voice
 
-import java.io.File
-
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder

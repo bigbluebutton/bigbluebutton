@@ -29,7 +29,7 @@ class SharedNotesModel extends SystemConfiguration {
     var undoPatches = note.undoPatches
     var redoPatches = note.redoPatches
 
-    var patchToApply = operation match {
+    val patchToApply = operation match {
       case "PATCH" => {
         patch
       }
@@ -101,7 +101,7 @@ class SharedNotesModel extends SystemConfiguration {
   }
 
   def notesReport: HashMap[String, NoteReport] = {
-    var report = new HashMap[String, NoteReport]()
+    val report = new HashMap[String, NoteReport]()
     notes foreach {
       case (id, note) =>
         report += (id -> noteToReport(note))

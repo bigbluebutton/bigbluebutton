@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.whiteboard
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 

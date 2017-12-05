@@ -20,7 +20,6 @@
 package org.bigbluebutton.core.record.events
 
 import java.text.SimpleDateFormat
-import java.util.Date
 
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.TimestampGenerator

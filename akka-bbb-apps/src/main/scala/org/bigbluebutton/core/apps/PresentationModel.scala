@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.domain.PageVO
 
 case class CurrentPresenter(userId: String, name: String, assignedBy: String)
