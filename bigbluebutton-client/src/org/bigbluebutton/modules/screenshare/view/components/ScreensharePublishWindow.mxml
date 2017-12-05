@@ -407,6 +407,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           case "NetStream.Play.Start":
             LOGGER.debug("Netstatus: " + e.info.code);
             globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
+			break;
+		  default:
+			  break;
         }
       }
 

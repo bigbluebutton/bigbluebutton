@@ -22,10 +22,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
 		   xmlns:fx="http://ns.adobe.com/mxml/2009"
-	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()" 
-  xmlns:maps="org.bigbluebutton.modules.present.maps.*">
-	
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule"
+		   xmlns:maps="org.bigbluebutton.modules.present.maps.*">
+
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -41,9 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var _moduleName:String = "Presentation";
 			private var _attributes:Object;
-			
-			private function onCreationComplete():void{
-			}
 			
 			public function get moduleName():String{
 				return _moduleName;
