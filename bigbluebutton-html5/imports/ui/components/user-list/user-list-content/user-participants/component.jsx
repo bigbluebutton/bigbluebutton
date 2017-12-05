@@ -23,6 +23,7 @@ const propTypes = {
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -105,26 +106,21 @@ class UserParticipants extends Component {
     this.selectedIndex = -1;
 
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
+    this.focusUserItem = this.focusUserItem.bind(this);
     this.changeState = this.changeState.bind(this);
     this.getUsers = this.getUsers.bind(this);
-    this.focusUserItem = this.focusUserItem.bind(this);
   }
 
   componentDidMount() {
     if (!this.props.compact) {
       this.refScrollContainer.addEventListener(
         'keydown',
-        event => this.props.roving(event, this.props.users.length, this.changeState),
+        event => this.props.roving(
+          event,
+          this.props.users.length,
+          this.changeState,
+        ),
       );
-
-     // document.addEventListener(
-     //   'click',
-      //  event => this.props.resetIndex(
-      //    event,
-      //    this.getScrollContainerRef(),
-      //    this.getScrollItemsRef(),
-      //  ),
-     // );
     }
   }
 
@@ -204,7 +200,7 @@ class UserParticipants extends Component {
       },
     };
 
-    let i = 0;
+    let index = -1;
 
     return users.map(user => (
       <CSSTransition
@@ -217,7 +213,7 @@ class UserParticipants extends Component {
         className={cx(styles.participantsList)}
         key={user.id}
       >
-        <div ref={(node) => { this.userRefs[i++] = node; }}>
+        <div ref={(node) => { this.userRefs[index += 1] = node; }}>
           <UserListItem
             compact={compact}
             isBreakoutRoom={isBreakoutRoom}

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import KEY_CODES from '/imports/utils/keyCodes';
 import styles from './styles';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
@@ -24,6 +23,7 @@ const propTypes = {
   kickUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -35,7 +35,6 @@ const defaultProps = {
 };
 
 class UserContent extends Component {
-
   render() {
     return (
       <div className={styles.content}>
@@ -60,9 +59,7 @@ class UserContent extends Component {
           changeRole={this.props.changeRole}
           getAvailableActions={this.props.getAvailableActions}
           normalizeEmojiName={this.props.normalizeEmojiName}
-          rovingIndex={this.rovingIndex}
           isMeetingLocked={this.props.isMeetingLocked}
-          resetIndex={this.resetIndex}
           roving={this.props.roving}
         />
       </div>

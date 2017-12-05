@@ -3,7 +3,6 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import KEY_CODES from '/imports/utils/keyCodes';
 import styles from '/imports/ui/components/user-list/user-list-content/styles';
 import ChatListItem from './../../chat-list-item/component';
 
@@ -15,6 +14,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   isPublicChat: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -107,11 +107,6 @@ class UserMessages extends Component {
           this.changeState,
         ),
       );
-
-      document.addEventListener(
-        'click',
-        event => this.reset(event),
-      );
     }
   }
 
@@ -133,7 +128,7 @@ class UserMessages extends Component {
       isPublicChat,
     } = this.props;
 
-    let i = 0;
+    let index = -1;
 
     return openChats.map(chat => (
       <CSSTransition
@@ -146,7 +141,7 @@ class UserMessages extends Component {
         className={cx(styles.chatsList)}
         key={chat.id}
       >
-        <div ref={(node) => { this.openChatRefs[i++] = node; }}>
+        <div ref={(node) => { this.openChatRefs[index += 1] = node; }}>
           <ChatListItem
             isPublicChat={isPublicChat}
             compact={compact}
@@ -161,18 +156,6 @@ class UserMessages extends Component {
 
   changeState(newIndex) {
     this.setState({ index: newIndex });
-  }
-
-  reset(event) {
-    if (this._msgsList === null) { return; }
-
-    const selectedChild = this._msgsList.contains(event.target);
-    const selectedList = this._msgsList === event.target;
-
-    if (!selectedChild || selectedList) {
-      this.selectedIndex = -1;
-      this.setState({ index: this.selectedIndex });
-    }
   }
 
   focusOpenChatItem(index) {
