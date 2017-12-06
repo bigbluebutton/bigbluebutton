@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.presentation
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait SyncGetPresentationInfoRespMsgHdlr {
   this: PresentationApp2x =>

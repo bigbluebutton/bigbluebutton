@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.domain
 
-import org.bigbluebutton.core.util.TimeUtil
-
 case class MeetingInactivityTracker(
     val maxInactivityTimeoutInMs: Long,
     val warningBeforeMaxInMs:     Long,

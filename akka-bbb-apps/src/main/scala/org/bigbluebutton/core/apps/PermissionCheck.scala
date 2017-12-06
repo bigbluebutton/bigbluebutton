@@ -4,7 +4,8 @@ import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.models.{ OldPresenter, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.Sender
+import org.bigbluebutton.core.models.SystemUser
 
 trait RightsManagementTrait extends SystemConfiguration {
   /**
@@ -83,7 +84,7 @@ object PermissionCheck {
 
   def ejectUserForFailedPermission(meetingId: String, userId: String, reason: String,
                                    outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
-    val ejectedBy = "SYSTEM"
+    val ejectedBy = SystemUser.ID
 
     UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason)
     // send a system message to force disconnection

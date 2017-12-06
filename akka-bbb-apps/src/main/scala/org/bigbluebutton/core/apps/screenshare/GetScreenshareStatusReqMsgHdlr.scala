@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.screenshare
 
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.bus.MessageBus

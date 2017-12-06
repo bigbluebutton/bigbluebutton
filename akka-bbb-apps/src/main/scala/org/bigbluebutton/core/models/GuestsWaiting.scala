@@ -29,7 +29,7 @@ object GuestsWaiting {
 class GuestsWaiting {
   private var guests: collection.immutable.HashMap[String, GuestWaiting] = new collection.immutable.HashMap[String, GuestWaiting]
 
-  private var guestPolicy = GuestPolicy(GuestPolicyType.ALWAYS_ACCEPT, "SYSTEM")
+  private var guestPolicy = GuestPolicy(GuestPolicyType.ALWAYS_ACCEPT, SystemUser.ID)
 
   private def toVector: Vector[GuestWaiting] = guests.values.toVector
 

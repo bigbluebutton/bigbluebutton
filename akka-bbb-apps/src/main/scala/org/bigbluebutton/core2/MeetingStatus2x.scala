@@ -2,8 +2,19 @@ package org.bigbluebutton.core2
 
 import java.util.concurrent.TimeUnit
 
-import org.bigbluebutton.core.MeetingExtensionProp
-import org.bigbluebutton.core.api.{ Permissions }
+case class Permissions(
+  disableCam:             Boolean = false,
+  disableMic:             Boolean = false,
+  disablePrivChat:        Boolean = false,
+  disablePubChat:         Boolean = false,
+  lockedLayout:           Boolean = false,
+  lockOnJoin:             Boolean = true,
+  lockOnJoinConfigurable: Boolean = false
+)
+
+case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
+                                sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
+                                sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
 
 object MeetingStatus2x {
   def startRecordingVoice(status: MeetingStatus2x): Boolean = {

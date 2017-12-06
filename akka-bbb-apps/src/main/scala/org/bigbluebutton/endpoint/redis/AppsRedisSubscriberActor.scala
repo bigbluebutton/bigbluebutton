@@ -12,7 +12,6 @@ import redis.api.pubsub.{ Message, PMessage }
 import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.bus.{ IncomingJsonMessage, IncomingJsonMessageBus, ReceivedJsonMessage }
-import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
@@ -21,13 +20,13 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq(toAkkaAppsRedisChannel, fromVoiceConfRedisChannel)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*", "bigbluebutton:from-bbb-transcode:*")
 
-  def props(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], msgReceiver, jsonMsgBus,
+  def props(jsonMsgBus: IncomingJsonMessageBus): Props =
+    Props(classOf[AppsRedisSubscriberActor], jsonMsgBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
+class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
                                redisPort: Int,
                                channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(
@@ -50,7 +49,6 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: In
   write(ClientSetname("BbbAppsAkkaSub").encodedRequest)
 
   def onMessage(message: Message) {
-    //log.error(s"SHOULD NOT BE RECEIVING: $message")
     if (message.channel == toAkkaAppsRedisChannel || message.channel == fromVoiceConfRedisChannel) {
       val receivedJsonMessage = new ReceivedJsonMessage(message.channel, message.data.utf8String)
       //log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
@@ -59,8 +57,7 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: In
   }
 
   def onPMessage(pmessage: PMessage) {
-    //log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
-
-    msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
+    // We don't use PSubscribe anymore, but an implementation of the method is required
+    log.error("Should not be receiving a PMessage. It triggered on a match of pattern: " + pmessage.patternMatched)
   }
 }

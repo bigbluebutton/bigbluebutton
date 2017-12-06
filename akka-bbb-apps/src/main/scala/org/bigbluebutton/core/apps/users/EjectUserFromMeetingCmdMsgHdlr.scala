@@ -1,9 +1,8 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.Sender
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
 trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {

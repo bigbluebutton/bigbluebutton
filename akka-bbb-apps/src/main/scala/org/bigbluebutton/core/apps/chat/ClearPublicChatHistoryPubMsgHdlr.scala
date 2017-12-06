@@ -4,7 +4,6 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ ChatModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
-import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.domain.MeetingState2x
 
 trait ClearPublicChatHistoryPubMsgHdlr extends LogHelper with RightsManagementTrait {

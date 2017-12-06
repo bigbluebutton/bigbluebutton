@@ -3,9 +3,7 @@ package org.bigbluebutton.core.apps.voice
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 
 trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
   this: BaseMeetingActor =>

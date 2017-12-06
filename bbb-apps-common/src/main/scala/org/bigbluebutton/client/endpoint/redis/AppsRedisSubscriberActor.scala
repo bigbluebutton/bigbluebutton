@@ -18,13 +18,13 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq(fromAkkaAppsRedisChannel, fromAkkaAppsWbRedisChannel, fromAkkaAppsChatRedisChannel, fromAkkaAppsPresRedisChannel)
   val patterns = Seq("bigbluebutton:from-bbb-apps:*")
 
-  def props(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], jsonMsgBus, oldMessageEventBus,
+  def props(jsonMsgBus: JsonMsgFromAkkaAppsBus): Props =
+    Props(classOf[AppsRedisSubscriberActor], jsonMsgBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
+class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, redisHost: String,
                                redisPort: Int,
                                channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
@@ -47,7 +47,6 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
   write(ClientSetname("Red5AppsSub").encodedRequest)
 
   def onMessage(message: Message) {
-    //log.error(s"SHOULD NOT BE RECEIVING: $message")
     if (channels.contains(message.channel)) {
       //log.debug(s"RECEIVED:\n ${message.data.utf8String} \n")
       val receivedJsonMessage = new JsonMsgFromAkkaApps(message.channel, message.data.utf8String)
@@ -57,10 +56,7 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
   }
 
   def onPMessage(pmessage: PMessage) {
-    //log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
-    val receivedJsonMessage = new OldReceivedJsonMessage(pmessage.patternMatched,
-      pmessage.channel, pmessage.data.utf8String)
-
-    oldMessageEventBus.publish(OldIncomingJsonMessage(fromAkkaAppsOldJsonChannel, receivedJsonMessage))
+    // We don't use PSubscribe anymore, but an implementation of the method is required
+    log.error("Should not be receiving a PMessage. It triggered on a match of pattern: " + pmessage.patternMatched)
   }
 }

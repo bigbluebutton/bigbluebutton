@@ -189,7 +189,7 @@ object Polls {
     shape += "id" -> result.id
     shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
-    var answers = new ArrayBuffer[SimpleVoteOutVO]
+    val answers = new ArrayBuffer[SimpleVoteOutVO]
     result.answers.foreach(ans => {
       answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
     })
@@ -382,7 +382,6 @@ object PollFactory {
 
     if (numQs > 0 && numQs <= 6) {
       val answers = new Array[Answer](numQs)
-      var i = 0
       for (i <- 0 until numQs) {
         answers(i) = new Answer(i, NumberArray(i), Some(NumberArray(i)))
         val question = new Question(0, PollType.NumberPollType, multiResponse, None, answers)
@@ -595,11 +594,13 @@ class Polls {
     poll
   }
 
+  /*
   private def remove(id: String): Option[Poll] = {
     val poll = polls.get(id)
     poll foreach (p => polls -= id)
     poll
   }
+  */
 
   private def get(id: String): Option[Poll] = {
     polls.get(id)
