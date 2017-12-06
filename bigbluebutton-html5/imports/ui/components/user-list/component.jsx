@@ -5,7 +5,6 @@ import { withRouter } from 'react-router';
 
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import styles from './styles';
-import UserListHeader from './user-list-header/component';
 import UserContent from './user-list-content/component';
 
 const propTypes = {
@@ -27,6 +26,7 @@ const propTypes = {
   kickUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
