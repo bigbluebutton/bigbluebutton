@@ -64,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{UserRemovedFromPresenterGroupEvent.USER_REMOVED_FROM_PRESENTER_GROUP}" method="handleUserRemovedFromPresenterGroupEvent" />
 		<mate:Listener type="{SetPresenterInPodRespEvent.SET_PRESENTER_IN_POD_RESP}" method="handleSetPresenterInPodRespEvent" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+		<mate:Listener type="{EventConstants.PRESENTATION_PODS_COUNT_UPDATE}" method="updatesOnPresentationPods" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -89,6 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
@@ -187,13 +189,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable('titleChanged')]
 			private function get windowTitle():String {
+				if (StringUtils.isEmpty(podId)) {
+					return "";
+				}
+				var podIndex:int = PresentationPodManager.getInstance().getPodSequence(podId);
 				var currentTitle : String = ResourceUtil.getInstance().getString('bbb.presentation.title');
 				if (!StringUtils.isEmpty(currentPresenterUsername) && StringUtils.isEmpty(currentPresentation)) {
-					currentTitle = "["+ currentPresenterUsername +"] " + currentTitle;
+					currentTitle = podIndex + " - ["+ currentPresenterUsername +"] " + currentTitle;
 				} else if (StringUtils.isEmpty(currentPresenterUsername) && !StringUtils.isEmpty(currentPresentation)) {
-					currentTitle += ": " + currentPresentation;
+					currentTitle = podIndex + " - "+ currentTitle + ": " + currentPresentation;
 				} else if (!StringUtils.isEmpty(currentPresenterUsername) && !StringUtils.isEmpty(currentPresentation)) {
-					currentTitle = "["+ currentPresenterUsername +"] " + currentTitle + ": " + currentPresentation;
+					currentTitle = podIndex + " - ["+ currentPresenterUsername +"] " + currentTitle + ": " + currentPresentation;
+				} else {
+					currentTitle = podIndex + " - " + currentTitle;
 				}
 				return currentTitle;
 			}
@@ -1050,6 +1058,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function pollShowResultHandler(e:PollShowResultEvent):void {
 				setControlBarState("presenter");
+			}
+			
+			private function updatesOnPresentationPods(e: Event):void {
+				dispatchEvent(new Event('titleChanged'));
 			}
 
 			private function handleUpdateDownloadableFilesEvent(e:RemovePresentationEvent):void {
