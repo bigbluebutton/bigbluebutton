@@ -291,6 +291,7 @@ const roving = (event, itemCount, changeState) => {
   }
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    document.activeElement.blur();
     this.selectedIndex = -1;
     changeState(this.selectedIndex);
   }
