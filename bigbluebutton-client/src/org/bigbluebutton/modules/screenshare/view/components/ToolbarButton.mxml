@@ -47,11 +47,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      public const OFF_STATE:Number = 0;
-      public const ON_STATE:Number = 1;
+	  private static const OFF_STATE:Number = 0;
+      private static const ON_STATE:Number = 1;
 
-      public const STOP_SHARING:Number = 0;
-      public const START_SHARING:Number = 1;
+	  public static const STOP_SHARING:Number = 0;
+	  public static const START_SHARING:Number = 1;
 
       private var _currentState:Number = OFF_STATE;
       private var dispatcher:Dispatcher = new Dispatcher();

@@ -66,8 +66,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher = new Dispatcher();
 			private var mic:Microphone;
 			
-			public const DEFAULT_STATE:Number = 0;
-			public const ACTIVE_STATE:Number = 1;
+			private static const DEFAULT_STATE:Number = 0;
+			private static const ACTIVE_STATE:Number = 1;
+
 			private var _currentState:Number = DEFAULT_STATE;
 			
 			[Bindable] public var phoneOptions:PhoneOptions;

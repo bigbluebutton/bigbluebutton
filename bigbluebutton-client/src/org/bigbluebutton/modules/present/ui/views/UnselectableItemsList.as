@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.present.ui.views {
 
 		override protected function mouseEventToItemRenderer(event:MouseEvent):IListItemRenderer {
 			var listItem:IListItemRenderer = super.mouseEventToItemRenderer(event);
-			if (listItem && listItem.data && !selectableFunction(listItem.data)) {
+			if (selectableFunction && listItem && listItem.data && !selectableFunction(listItem.data)) {
 				return null;
 			}
 			return listItem;

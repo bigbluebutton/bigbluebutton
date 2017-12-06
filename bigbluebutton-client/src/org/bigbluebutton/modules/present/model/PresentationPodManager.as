@@ -1,16 +1,14 @@
 package org.bigbluebutton.modules.present.model {
+    import com.asfusion.mate.events.Dispatcher;
+    
     import mx.collections.ArrayCollection;
+    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
-    import com.asfusion.mate.events.Dispatcher;
-    import org.bigbluebutton.core.UsersUtil;
-    import org.bigbluebutton.modules.present.services.PresentationService;
-    import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
-    import org.bigbluebutton.modules.present.model.PresentationModel;
-    import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
     import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
     import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
-    import org.bigbluebutton.modules.present.model.PresentationModel;
+    import org.bigbluebutton.modules.present.services.PresentationService;
+    import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
 
     
     public class PresentationPodManager {
@@ -34,11 +32,6 @@ package org.bigbluebutton.modules.present.model {
                 throw new Error("There can only be 1 PresentationPodManager instance");
             }
             globalDispatcher = new Dispatcher();
-
-            initialize();
-        }
-    
-        private function initialize():void {
         }
     
         /**
