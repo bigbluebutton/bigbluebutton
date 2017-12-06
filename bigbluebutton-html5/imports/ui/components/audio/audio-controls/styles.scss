@@ -1,3 +1,5 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
 .container {
   display: flex;
   flex-flow: row;
@@ -22,7 +24,13 @@
 
   &.glow {
     span:first-child{
-      box-shadow: 0 0 0 1px #ffffff, 0 0 0 1px;
+      box-shadow: 0 0 0 1px $color-primary, 0 0 0 1px;
+    }
+  }
+
+  &.unglow {
+    span:first-child{
+      box-shadow: 0 0 0 1px $color-gray-dark, 0 0 0 1px;
     }
   }
 }

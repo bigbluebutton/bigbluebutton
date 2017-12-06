@@ -57,7 +57,7 @@ const AudioControls = ({
   <span className={styles.container}>
     {mute ?
       <Button
-        className={glow ? cx(styles.button, styles.glow) : styles.button}
+        className={glow ? cx(styles.button, styles.glow) : cx(styles.button, styles.unglow)}
         onClick={handleToggleMuteMicrophone}
         disabled={disable}
         label={unmute ? intl.formatMessage(intlMessages.unmuteAudioLabel) :
