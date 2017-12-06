@@ -60,7 +60,7 @@ export default class TextDrawComponent extends Component {
     // that's why we have a separate case for iOS - we don't focus here automatically
     // but we focus on the next "tap" invoked by a user
     const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
-    const Android = ['Android'].indexOf(navigator.platform) >= 0;
+    const Android = navigator.userAgent.toLowerCase().indexOf('android') > -1;
 
     // unsupported Firefox condition (not iOS though) can be removed when FF 59 is released
     // see https://bugzilla.mozilla.org/show_bug.cgi?id=1409113
