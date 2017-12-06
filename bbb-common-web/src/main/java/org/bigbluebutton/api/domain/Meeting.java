@@ -312,7 +312,7 @@ public class Meeting {
     		return GuestPolicy.DENY;
 		}
 
-		if (ROLE_MODERATOR.equals(role.toUpperCase())) {
+		if (!guest) {
     		return GuestPolicy.ALLOW;
 		} else if (guest || ROLE_ATTENDEE.equals(role.toUpperCase())) {
 			String policy = getGuestPolicy();
