@@ -33,14 +33,6 @@
 
   .message {
     color: $color-gray;
-
-
-    // hide the <br> we dont want from the default WelcomeMessage
-    br:first-child,
-    br:last-child,
-    br + br {
-      display: none;
-    }
   }
 }
 

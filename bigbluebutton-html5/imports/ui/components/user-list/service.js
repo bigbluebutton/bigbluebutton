@@ -5,7 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { EMOJI_STATUSES, EMOJI_NORMALIZE } from '/imports/utils/statuses';
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
@@ -254,7 +254,7 @@ const getCurrentUser = () => {
 };
 
 const normalizeEmojiName = emoji => (
-  emoji in EMOJI_NORMALIZE ? EMOJI_NORMALIZE[emoji] : emoji
+  emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
 const isMeetingLocked = (id) => {

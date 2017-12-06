@@ -183,7 +183,7 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
-                { availableLocales && availableLocales.length > 0 ?
+      { availableLocales && availableLocales.length > 0 ?
                   <select
                     defaultValue={this.formatLocale(this.state.settings.locale)}
                     className={styles.select}

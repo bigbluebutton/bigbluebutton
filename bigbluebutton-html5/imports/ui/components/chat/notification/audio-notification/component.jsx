@@ -42,7 +42,6 @@ class ChatAudioNotification extends React.Component {
   render() {
     return null;
   }
-
 }
 ChatAudioNotification.propTypes = propTypes;
 
