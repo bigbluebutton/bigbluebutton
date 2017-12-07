@@ -39,9 +39,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.utils.ByteArray;
 			import flash.utils.setTimeout;
-			
+
 			import mx.events.FlexEvent;
-			
+
 			import org.alivepdf.colors.RGBColor;
 			import org.alivepdf.display.Display;
 			import org.alivepdf.drawing.Caps;
@@ -65,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public var firstPage:int;
@@ -74,8 +75,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var slidesUrl:String;
 
 			public var slideModel:SlideViewModel;
-			
+
 			public var presentationModel:PresentationModel;
+
+			public var whiteboardCanvas:WhiteboardCanvas;
 
 			private var _pdf:PDF;
 
@@ -95,7 +98,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function initConversion():void {
 				fileName = presentationModel.getCurrentPresentation().name;
 				fileName = StringUtils.substringBeforeLast(fileName, ".");
-				
+
 				closeButton.enabled = false;
 				progressBar.visible = true;
 				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.generatingPDF');
@@ -201,6 +204,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							}
 
 							_pdf.end(false);
+						} else if (annotation.type == AnnotationType.POLL) {
+							var child:DisplayObject = whiteboardCanvas.getGraphicByName(StringUtils.substringAfterLast(annotation.id, "/"));
+
+							var pollPointsArray:Array = annotation.annotation.points as Array;
+
+							var pollX:Number = convertToLocal(pollPointsArray[i], slideModel.loaderW);
+							var pollY:Number = convertToLocal(pollPointsArray[i + 1], slideModel.loaderH);
+							var pollWidth:Number = convertToLocal(pollPointsArray[i + 2], slideModel.loaderH);
+							var pollHeigth:Number = convertToLocal(pollPointsArray[i + 3], slideModel.loaderH);
+
+							_pdf.addImage(child, null, pollX * ratio, pollY * ratio, child.width * ratio, child.height * ratio);
 						}
 					}
 

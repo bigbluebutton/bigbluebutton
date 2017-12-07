@@ -174,6 +174,7 @@ package org.bigbluebutton.modules.present.managers
 				exportWindow.slidesUrl = e.slidesUrl;
 				exportWindow.slideModel = e.slideModel;
 				exportWindow.presentationModel = e.presentationModel;
+				exportWindow.whiteboardCanvas = e.whiteboardCanvas;
 				exportWindow.initConversion();
 			}
 		}
