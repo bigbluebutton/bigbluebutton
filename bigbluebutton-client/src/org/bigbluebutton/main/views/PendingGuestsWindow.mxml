@@ -27,7 +27,7 @@ $Id: $
                 showCloseButton="false"
                 layout="absolute" width="600" minHeight="400"
                 verticalScrollPolicy="off" horizontalScrollPolicy="off"
-				creationComplete="refreshGuestView()"
+                creationComplete="refreshGuestView()"
                 xmlns:mate="http://mate.asfusion.com/" >
   
   <fx:Declarations>
@@ -39,31 +39,30 @@ $Id: $
   
   <fx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import mx.collections.ArrayCollection;
-		
-		import org.bigbluebutton.core.PopUpUtil;
-		import org.bigbluebutton.core.events.ClosePendingGuestWindow;
-		import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
-		import org.bigbluebutton.core.model.LiveMeeting;
-		import org.bigbluebutton.core.model.users.GuestWaiting;
-		import org.bigbluebutton.main.events.BBBEvent;
-		import org.bigbluebutton.main.events.RemoveGuestEvent;
-		import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
-		import org.bigbluebutton.main.events.ResponseModeratorEvent;
-		import org.bigbluebutton.main.model.GuestPolicy;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+    import com.asfusion.mate.events.Dispatcher;
+    import mx.collections.ArrayCollection;
+    import org.bigbluebutton.core.PopUpUtil;
+    import org.bigbluebutton.core.events.ClosePendingGuestWindow;
+    import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
+    import org.bigbluebutton.core.model.LiveMeeting;
+    import org.bigbluebutton.core.model.users.GuestWaiting;
+    import org.bigbluebutton.main.events.BBBEvent;
+    import org.bigbluebutton.main.events.RemoveGuestEvent;
+    import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
+    import org.bigbluebutton.main.events.ResponseModeratorEvent;
+    import org.bigbluebutton.main.model.GuestPolicy;
+    import org.bigbluebutton.util.i18n.ResourceUtil;
       
       [Bindable]
       private var guestUsers:ArrayCollection = new ArrayCollection();
       [Bindable]
-	  private var authUsers:ArrayCollection = new ArrayCollection();
+      private var authUsers:ArrayCollection = new ArrayCollection();
       
       private var dispatcher:Dispatcher = new Dispatcher();
       
       private function refreshGuestView():void {
         guestUsers = new ArrayCollection(LiveMeeting.inst().guestsWaiting.getGuests());
+        authUsers = new ArrayCollection(LiveMeeting.inst().guestsWaiting.getAuthenticatedGuests()); 
       }
       
       public function sendResponseToAllGuests(approved:Boolean):void {
@@ -168,14 +167,14 @@ $Id: $
       <mx:VRule height="100%"/>
       
       <mx:VBox width="100%" height="100%">
-		  <mx:Label text="{authUsers.length > 1 ? ResourceUtil.getInstance().getString('bbb.guests.message.auth.plural', [String(authUsers.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.auth.singular', [String(authUsers.length)])}"
-					width="100%"/>
-		  <mx:List id="authUsersList" styleName="guestListStyle" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
-				   rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{authUsers}" />
+      <mx:Label text="{authUsers.length > 1 ? ResourceUtil.getInstance().getString('bbb.guests.message.auth.plural', [String(authUsers.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.auth.singular', [String(authUsers.length)])}"
+                width="100%"/>
+      <mx:List id="authUsersList" styleName="guestListStyle" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
+                rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{authUsers}" />
         <mx:Label text="{guestUsers.length > 1 ? ResourceUtil.getInstance().getString('bbb.guests.message.guest.plural', [String(guestUsers.length)]): ResourceUtil.getInstance().getString('bbb.guests.message.guest.singular', [String(guestUsers.length)])}"
                   width="100%"/>
         <mx:List id="guestList" styleName="guestListStyle" itemRenderer="org.bigbluebutton.main.views.GuestItemRenderer"
-                 rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{guestUsers}" />
+                rowCount="4" width="100%" paddingLeft="0" paddingRight="0" dataProvider="{guestUsers}" />
       </mx:VBox>
     </mx:HBox>
   </mx:VBox>
