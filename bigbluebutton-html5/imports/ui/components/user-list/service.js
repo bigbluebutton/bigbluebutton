@@ -212,26 +212,44 @@ const getOpenChats = (chatID) => {
 };
 
 const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
+  const isDialInUser = user.id.toString().startsWith('v_')
+                      || user.isPhoneUser;
+
   const hasAuthority = currentUser.isModerator || user.isCurrent;
-  const allowedToChatPrivately = !user.isCurrent;
+
+  const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
+
   const allowedToMuteAudio = hasAuthority
                             && user.isVoiceUser
                             && !user.isMuted
                             && !user.isListenOnly;
+
   const allowedToUnmuteAudio = hasAuthority
                               && user.isVoiceUser
                               && !user.isListenOnly
                               && user.isMuted
                               && (ALLOW_MODERATOR_TO_UNMUTE_AUDIO || user.isCurrent);
-  const allowedToResetStatus = hasAuthority && user.emoji.status !== EMOJI_STATUSES.none;
+
+  const allowedToResetStatus = hasAuthority
+      && user.emoji.status !== EMOJI_STATUSES.none
+      && !isDialInUser;
 
   // if currentUser is a moderator, allow kicking other users
   const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
-  const allowedToSetPresenter = currentUser.isModerator && !user.isPresenter;
+  const allowedToSetPresenter = currentUser.isModerator
+      && !user.isPresenter
+      && !isDialInUser;
 
-  const allowedToPromote = currentUser.isModerator && !user.isCurrent && !user.isModerator;
-  const allowedToDemote = currentUser.isModerator && !user.isCurrent && user.isModerator;
+  const allowedToPromote = currentUser.isModerator
+      && !user.isCurrent
+      && !user.isModerator
+      && !isDialInUser;
+
+  const allowedToDemote = currentUser.isModerator
+      && !user.isCurrent
+      && user.isModerator
+      && !isDialInUser;
 
   return {
     allowedToChatPrivately,
