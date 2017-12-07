@@ -488,7 +488,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onSliderZoom():void {
-				slideView.onZoomSlide(zoomSlider.value);
+				if (amITheCurrentPodPresenter()) {
+					slideView.onZoomSlide(zoomSlider.value);
+				}
 			}
 			
 			private function onResetZoom():void {
@@ -525,9 +527,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (page != null) {
 						displaySlideNumber(page.num);
 					}
-					displaySlideNavigationControls(isPresenter, !!page);
-
 					setControlBarState("presenter");
+					
+					displaySlideNavigationControls(isPresenter, !!page);
 				}
 			}
 
@@ -1147,6 +1149,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 					 selectableFunction="podsSelectableFunction"
 						 					 dataProvider = "{listOfPodControls}" height="30"
 											 selectedIndex="-1"
+											 rowCount="10"
 											 prompt="{ResourceUtil.getInstance().getString('bbb.presentation.multipod.selectPresenter')}"
 						 					 itemRenderer="org.bigbluebutton.modules.present.ui.views.PresentationPodControlItemRenderer"
 						 					 change="onPresentationPodControlsChange(event)" />

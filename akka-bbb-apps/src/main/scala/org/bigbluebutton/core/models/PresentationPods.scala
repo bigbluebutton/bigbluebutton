@@ -42,7 +42,6 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
 case class PresentationPod(id: String, currentPresenter: String,
                            presentations: collection.immutable.Map[String, PresentationInPod]) {
   def addPresentation(presentation: PresentationInPod): PresentationPod = {
-    println(s" 1 PresentationPods::addPresentation  ${presentation.id}  presName=${presentation.name}   current=${presentation.current} ")
     copy(presentations = presentations + (presentation.id -> presentation))
   }
 
