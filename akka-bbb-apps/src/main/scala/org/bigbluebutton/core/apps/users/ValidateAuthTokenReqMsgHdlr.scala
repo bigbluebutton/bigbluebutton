@@ -17,13 +17,20 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg, state: MeetingState2x): MeetingState2x = {
     log.debug("RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
 
-    val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers)
+    val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId,
+      liveMeeting.registeredUsers)
 
     regUser match {
       case Some(u) =>
-        userValidated(u, state)
-      case None =>
+        if (u.guestStatus == GuestStatus.ALLOW) {
+          userValidated(u, state)
+        } else {
+          validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
+            userId = msg.body.userId, authToken = msg.body.authToken,
+            valid = false, waitForApproval = false, state)
+        }
 
+      case None =>
         validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
           userId = msg.body.userId, authToken = msg.body.authToken,
           valid = false, waitForApproval = false, state)
