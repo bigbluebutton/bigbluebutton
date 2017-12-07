@@ -519,9 +519,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (page != null) {
 						displaySlideNumber(page.num);
 					}
-					displaySlideNavigationControls(isPresenter, !!page);
-
 					setControlBarState("presenter");
+					
+					displaySlideNavigationControls(isPresenter, !!page);
 				}
 			}
 

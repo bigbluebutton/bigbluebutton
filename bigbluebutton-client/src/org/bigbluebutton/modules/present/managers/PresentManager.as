@@ -92,11 +92,11 @@ package org.bigbluebutton.modules.present.managers
 			if (selectedWinId != null) {
 				newWindow.setWindowId(selectedWinId);
 
+				podsManager.handleAddPresentationPod(podId);
+				
 				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				openEvent.window = newWindow;
 				globalDispatcher.dispatchEvent(openEvent);
-
-				podsManager.handleAddPresentationPod(podId);
 			}
 		}
 
