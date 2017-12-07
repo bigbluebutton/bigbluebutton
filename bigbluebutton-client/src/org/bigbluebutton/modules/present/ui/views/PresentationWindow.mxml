@@ -1137,6 +1137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 					 selectableFunction="podsSelectableFunction"
 						 					 dataProvider = "{listOfPodControls}" height="30"
 											 selectedIndex="-1"
+											 rowCount="10"
 											 prompt="{ResourceUtil.getInstance().getString('bbb.presentation.multipod.selectPresenter')}"
 						 					 itemRenderer="org.bigbluebutton.modules.present.ui.views.PresentationPodControlItemRenderer"
 						 					 change="onPresentationPodControlsChange(event)" />
