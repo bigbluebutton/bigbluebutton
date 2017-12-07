@@ -201,13 +201,15 @@ class UserListContent extends Component {
       ? intl.formatMessage(messages.presenter)
       : '';
 
-    const userAriaLabel = intl.formatMessage(messages.userAriaLabel,
+    const userAriaLabel = intl.formatMessage(
+      messages.userAriaLabel,
       {
         0: user.name,
         1: presenter,
         2: you,
         3: user.emoji.status,
-      });
+      },
+    );
 
     const contents = (
       <div
