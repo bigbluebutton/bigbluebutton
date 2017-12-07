@@ -17,6 +17,7 @@
     "app.chat.dropdown.save": "Save",
     "app.chat.label": "Chat",
     "app.chat.emptyLogLabel": "Chat log empty",
+    "app.chat.clearPublicChatMessage": "The public chat history was cleared by a moderator",
     "app.userList.usersTitle": "Users",
     "app.userList.participantsTitle": "Participants",
     "app.userList.messagesTitle": "Messages",
