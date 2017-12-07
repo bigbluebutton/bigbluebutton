@@ -299,7 +299,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onSliderZoom():void {
-				slideView.onZoomSlide(zoomSlider.value);
+				if (UsersUtil.amIPresenter()) {
+					slideView.onZoomSlide(zoomSlider.value);
+				}
 			}
 			
 			private function onResetZoom():void {
