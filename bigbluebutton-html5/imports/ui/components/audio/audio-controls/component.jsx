@@ -1,18 +1,47 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+
 import Button from '/imports/ui/components/button/component';
-import styles from './styles';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import cx from 'classnames';
+import styles from './styles';
 
 const propTypes = {
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
-  unmute: PropTypes.bool.isRequired,
-  mute: PropTypes.bool.isRequired,
+  unmute: PropTypes.bool,
+  mute: PropTypes.bool,
   join: PropTypes.bool.isRequired,
+  intl: intlShape.isRequired,
+  glow: PropTypes.bool.isRequired,
 };
+
+const defaultProps = {
+  unmute: null,
+  mute: null,
+};
+
+const intlMessages = defineMessages({
+  leaveAudioLabel: {
+    id: 'app.audio.leaveAudio',
+    description: 'Leave audio button label',
+  },
+  joinAudioLabel: {
+    id: 'app.audio.joinAudio',
+    description: 'Join audio button label',
+  },
+  muteAudioLabel: {
+    id: 'app.actionsBar.muteLabel',
+    description: 'Mute audio button label',
+  },
+  unmuteAudioLabel: {
+    id: 'app.actionsBar.unmuteLabel',
+    description: 'Unmute audio button label',
+  },
+});
 
 const AudioControls = ({
   handleToggleMuteMicrophone,
@@ -23,31 +52,35 @@ const AudioControls = ({
   disable,
   glow,
   join,
+  intl,
 }) => (
   <span className={styles.container}>
     {mute ?
       <Button
-        className={glow ? cx(styles.button, styles.glow) : styles.button}
+        className={glow ? cx(styles.button, styles.glow) : cx(styles.button, styles.unglow)}
         onClick={handleToggleMuteMicrophone}
         disabled={disable}
-        label={unmute ? 'Unmute' : 'Mute'}
-        color={'primary'}
+        label={unmute ? intl.formatMessage(intlMessages.unmuteAudioLabel) :
+            intl.formatMessage(intlMessages.muteAudioLabel)}
+        color="primary"
         icon={unmute ? 'mute' : 'unmute'}
-        size={'lg'}
+        size="lg"
         circle
       /> : null}
     <Button
       className={styles.button}
       onClick={join ? handleLeaveAudio : handleJoinAudio}
       disabled={disable}
-      label={join ? 'Leave Audio' : 'Join Audio'}
+      label={join ? intl.formatMessage(intlMessages.leaveAudioLabel) :
+          intl.formatMessage(intlMessages.joinAudioLabel)}
       color={join ? 'danger' : 'primary'}
       icon={join ? 'audio_off' : 'audio_on'}
-      size={'lg'}
+      size="lg"
       circle
     />
   </span>);
 
 AudioControls.propTypes = propTypes;
+AudioControls.defaultProps = defaultProps;
 
-export default AudioControls;
+export default withModalMounter(injectIntl(AudioControls));

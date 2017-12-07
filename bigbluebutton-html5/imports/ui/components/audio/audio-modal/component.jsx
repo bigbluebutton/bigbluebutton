@@ -24,11 +24,13 @@ const propTypes = {
   isConnected: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
+  showPermissionsOvelay: PropTypes.bool,
 };
 
 const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
+  showPermissionsOvelay: null,
 };
 
 const intlMessages = defineMessages({
@@ -81,7 +83,6 @@ class AudioModal extends Component {
     const {
       intl,
       closeModal,
-      joinListenOnly,
       joinEchoTest,
       exitAudio,
       leaveEchoTest,
@@ -113,7 +114,7 @@ class AudioModal extends Component {
       help: {
         title: intl.formatMessage(intlMessages.helpTitle),
         component: () => this.renderHelp(),
-      }
+      },
     };
   }
 
@@ -152,7 +153,7 @@ class AudioModal extends Component {
       this.setState({
         content: 'echoTest',
       });
-    }).catch(err => {
+    }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -166,7 +167,7 @@ class AudioModal extends Component {
       joinListenOnly,
     } = this.props;
 
-    return joinListenOnly().catch(err => {
+    return joinListenOnly().catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -193,17 +194,17 @@ class AudioModal extends Component {
         <Button
           className={styles.audioBtn}
           label={intl.formatMessage(intlMessages.microphoneLabel)}
-          icon={'unmute'}
+          icon="unmute"
           circle
-          size={'jumbo'}
+          size="jumbo"
           onClick={this.handleGoToEchoTest}
         />
         <Button
           className={styles.audioBtn}
           label={intl.formatMessage(intlMessages.listenOnlyLabel)}
-          icon={'listen'}
+          icon="listen"
           circle
-          size={'jumbo'}
+          size="jumbo"
           onClick={this.handleJoinListenOnly}
         />
       </span>
@@ -313,8 +314,8 @@ class AudioModal extends Component {
             <Button
               className={styles.closeBtn}
               label={intl.formatMessage(intlMessages.closeLabel)}
-              icon={'close'}
-              size={'md'}
+              icon="close"
+              size="md"
               hideLabel
               onClick={this.closeModal}
             />
