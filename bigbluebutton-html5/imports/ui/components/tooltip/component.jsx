@@ -5,21 +5,22 @@ import _ from 'lodash';
 import cx from 'classnames';
 
 const propTypes = {
-
+  title: PropTypes.string.isRequired,
+  position: PropTypes.oneOf(['bottom']),
+  children: PropTypes.element.isRequired,
+  dynamicTitle: PropTypes.bool
 };
 
 const defaultProps = {
-  position: 'bottom'
+  position: 'bottom',
+  dynamicTitle: true,
 };
 
 class Tooltip extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      tippySelector: _.uniqueId('tippy-'),
-    };
-
+    this.tippySelectorId = _.uniqueId('tippy-');
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
@@ -27,22 +28,18 @@ class Tooltip extends Component {
 
   componentDidMount() {
     const {
-      tippySelector,
-    } = this.state;
-
-    const {
-      position
+      position,
+      dynamicTitle,
     } = this.props;
 
     const options = {
       position,
+      dynamicTitle,
       onShow: this.onShow,
       onHide: this.onHide,
     };
 
-    this.setState({
-      tooltip: Tippy(`#${tippySelector}`, options),
-    });
+    this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
 
   onShow() {
@@ -54,20 +51,12 @@ class Tooltip extends Component {
   }
 
   handleEscapeHide(e) {
-    const {
-      tooltip,
-    } = this.state;
+    if (e.keyCode !== 27) return;
 
-    const popper = tooltip.tooltips[0];
-
-    return e.keyCode === 27 ? popper.hide() : null;
+    const popper = this.tooltip.tooltips[0].hide();
   }
 
   render() {
-    const {
-      tippySelector,
-    } = this.state;
-
     const {
       children,
       className,
@@ -80,7 +69,7 @@ class Tooltip extends Component {
     const WrappedComponentBound = React.cloneElement(WrappedComponent, {
       ...restProps,
       title,
-      id: tippySelector,
+      id: this.tippySelectorId,
       className: cx(children.props.className, className),
     });
 

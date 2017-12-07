@@ -57,12 +57,10 @@ const Chat = (props) => {
             <Link
               to="/users"
               role="button"
-              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
               tabIndex={-1}
             >
               <Button
                 className={styles.closeBtn}
-                label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 icon="close"
                 size="md"
                 hideLabel

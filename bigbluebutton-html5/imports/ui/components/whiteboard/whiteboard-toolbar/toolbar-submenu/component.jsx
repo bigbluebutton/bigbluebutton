@@ -71,6 +71,8 @@ export default class ToolbarSubmenu extends Component {
   render() {
     const { type, objectsToRender, objectSelected, label, customIcon } = this.props;
 
+    console.log('ToolbarSubmenu.render', objectsToRender);
+
     return (
       <div
         onMouseEnter={this.handleMouseEnter}
@@ -80,7 +82,7 @@ export default class ToolbarSubmenu extends Component {
         {objectsToRender ? objectsToRender.map(obj =>
           (
             <ToolbarSubmenuItem
-              label={label}
+              label={obj.value}
               icon={!customIcon ? obj.icon : null}
               customIcon={customIcon ? ToolbarSubmenu.getCustomIcon(type, obj) : null}
               onItemClick={this.onItemClick}
