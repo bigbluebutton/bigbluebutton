@@ -24,6 +24,7 @@ class UserActor(val userId: String,
   extends Actor with ActorLogging with SystemConfiguration {
 
   private val conns = new Connections
+  private var authorized = false
 
   def receive = {
 
@@ -51,6 +52,7 @@ class UserActor(val userId: String,
         val m = createConnection(msg.connInfo.connId, msg.connInfo.sessionId, true)
         log.debug("**** UserActor create connection " + m.connId)
         Connections.add(conns, m)
+        authorized = false
     }
   }
 
@@ -159,11 +161,24 @@ class UserActor(val userId: String,
   }
 
   private def forwardToUser(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    //log.debug("UserActor forwardToUser. Forwarding to connection. " + msg)
+    //println("UserActor forwardToUser. Forwarding to connection. " + msg)
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {
-      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
+      msg.envelope.name match {
+        case ValidateAuthTokenRespMsg.NAME =>
+          val core = msg.core.asInstanceOf[JsonNode]
+          val body = core.get("body")
+          val valid = body.get("valid")
+          if (valid.asBoolean) {
+             authorized = true
+          }
+        case _ => // let it pass through
+      }
+      if (authorized) {
+        msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
+      }
+
     }
   }
 
@@ -184,6 +199,7 @@ class UserActor(val userId: String,
       msg.envelope.name match {
         case DisconnectClientSysMsg.NAME =>
           msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+        case _ => log.warning("Unhandled system messsage " + msg)
       }
     }
   }
