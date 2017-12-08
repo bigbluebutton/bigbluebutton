@@ -1,7 +1,6 @@
 import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Button from '/imports/ui/components/button/component';
-import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
@@ -50,4 +49,4 @@ class JoinVideoOptions extends React.Component {
   }
 }
 
-export default withRouter(injectIntl(JoinVideoOptions));
+export default injectIntl(JoinVideoOptions);
