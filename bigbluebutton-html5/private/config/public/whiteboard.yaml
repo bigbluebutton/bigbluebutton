@@ -8,18 +8,30 @@ whiteboard:
       end: 'DRAW_END'
   toolbar:
     colors:
-      - value: '#000000'
-      - value: '#ffffff'
-      - value: '#ff0000'
-      - value: '#ff8800'
-      - value: '#ccff00'
-      - value: '#00ff00'
-      - value: '#00ffff'
-      - value: '#0088ff'
-      - value: '#0000ff'
-      - value: '#8800ff'
-      - value: '#ff00ff'
-      - value: '#c0c0c0'
+      - value: '#000000' #black
+        label: 'black'
+      - value: '#ffffff' #white
+        label: 'white'
+      - value: '#ff0000' #red
+        label: 'red'
+      - value: '#ff8800' #orange
+        label: 'orange'
+      - value: '#ccff00' #electric lime
+        label: 'eletricLime'
+      - value: '#00ff00' #lime
+        label: 'lime'
+      - value: '#00ffff' #aqua/cyan
+        label: 'cyan'
+      - value: '#0088ff' #dodger blue
+        label: 'dodgerBlue'
+      - value: '#0000ff' #blue
+        label: 'blue'
+      - value: '#8800ff' #violet/indigo
+        label: 'violet'
+      - value: '#ff00ff' #magenta/fuchsia
+        label: 'magenta'
+      - value: '#c0c0c0' #silver
+        label: 'silver'
     thickness:
       - value: 14
       - value: 12
@@ -28,7 +40,7 @@ whiteboard:
       - value: 6
       - value: 4
       - value: 2
-    font_sizes: 
+    font_sizes:
       - value: 36
       - value: 32
       - value: 28

@@ -19,6 +19,9 @@ export default class ToolbarSubmenuItem extends Component {
   }
 
   render() {
+
+    const { className, customIcon, icon, label } = this.props
+
     return (
       <div className={styles.buttonWrapper}>
         <Button
@@ -26,11 +29,12 @@ export default class ToolbarSubmenuItem extends Component {
           role="button"
           color={'default'}
           size={'md'}
-          label={this.props.label}
-          icon={this.props.icon}
-          customIcon={this.props.customIcon}
+          label={label}
+          aria-label={label}
+          icon={icon}
+          customIcon={customIcon}
           onClick={this.handleItemClick}
-          className={this.props.className}
+          className={className}
         />
       </div>
     );
