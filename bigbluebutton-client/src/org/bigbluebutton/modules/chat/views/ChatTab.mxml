@@ -507,23 +507,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
           sendStartCustomPollEvent(answers);
         } else {
-          var cm:ChatMessageVO = new ChatMessageVO();
-          cm.fromUserId = UsersUtil.getMyUserID();
-          cm.fromUsername = UsersUtil.getMyUsername();
-          // get the color value from ColorPicker
-          cm.fromColor =  cmpColorPicker.selectedColor.toString();
-          // Get the current UTC time and the timezone for this sender.
-          // The receiver will have to convert this to local time.
-          var now:Date = new Date();
-          cm.fromTime = now.valueOf();
-          cm.fromTimezoneOffset = now.getTimezoneOffset();
-          
-          //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
-          cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
-          
-          var publicEvent:SendGroupChatMessageEvent = new SendGroupChatMessageEvent(
-            chatId, cm);
-          globalDispatcher.dispatchEvent(publicEvent);
+          var cm:ChatMessageVO = processChatMessage(message);
+          if (cm != null) {
+             var publicEvent:SendGroupChatMessageEvent = new SendGroupChatMessageEvent(chatId, cm);
+             globalDispatcher.dispatchEvent(publicEvent);
+          }
         }
       }
 
