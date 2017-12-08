@@ -69,18 +69,18 @@ class BigbluebuttonService {
         } catch (ParserConfigurationException e) {
             log.error("Failed to initialise BaseProxy", e)
         }
-
         //Instantiate bbbProxy and initialize it with default url and salt
         bbbProxy = new Proxy(url, salt)
     }
 
     public String getJoinURL(params, welcome, mode){
-        //Set the injected values
-        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
-        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
-
-        String joinURL = null
-
+        // Set the injected values
+        if (!url.equals(bbbProxy.url) && !url.equals("")) {
+            bbbProxy.setUrl(url)
+        }
+        if (!salt.equals(bbbProxy.salt) && !salt.equals("")) {
+            bbbProxy.setSalt(salt)
+        }
         String meetingName = getValidatedMeetingName(params.get(Parameter.RESOURCE_LINK_TITLE))
         String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
         String attendeePW = DigestUtils.shaHex("ap" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
@@ -90,7 +90,6 @@ class BigbluebuttonService {
         String userFullName = getValidatedUserFullName(params, isModerator)
         String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
         String userID = getValidatedUserId(params.get(Parameter.USER_ID))
-
         Integer voiceBridge = 0
         String record = false
         Integer duration = 0
@@ -99,31 +98,28 @@ class BigbluebuttonService {
             record = getValidatedBBBRecord(params.get(Parameter.CUSTOM_RECORD)) || ltiService.allRecordedByDefault()
             duration = getValidatedBBBDuration(params.get(Parameter.CUSTOM_DURATION))
         }
-
         Boolean allModerators = Boolean.valueOf(false)
         if ( params.containsKey(Parameter.CUSTOM_ALL_MODERATORS) ) {
             allModerators = Boolean.parseBoolean(params.get(Parameter.CUSTOM_ALL_MODERATORS))
         }
-
         String[] values = [meetingName, courseTitle]
         String welcomeMsg = MessageFormat.format(welcome, values)
-
         String meta = getMonitoringMetaData(params)
-
-        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta )
-        Map<String, Object> createResponse = doAPICall(createURL)
-        log.debug "createResponse: " + createResponse
-
-        if( createResponse != null){
-            String returnCode = (String) createResponse.get("returncode")
-            String messageKey = (String) createResponse.get("messageKey")
-            if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
-                (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                joinURL = bbbProxy.getJoinURL( userFullName, meetingID, (isModerator || allModerators)? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
-            }
+        String createURL = getCreateURL(meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta)
+        Map<String, Object> responseAPICall = doAPICall(createURL)
+        log.debug "responseAPICall: " + responseAPICall
+        if (responseAPICall == null) {
+            return null
         }
-
-        return joinURL
+        Object response = (Object)responseAPICall.get("response")
+        String returnCode = (String)response.get("returncode")
+        String messageKey = (String)response.get("messagekey")
+        if (!Proxy.APIRESPONSE_SUCCESS.equals(returnCode) &&
+            !Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) &&
+            !Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) {
+            return null
+        }
+        return bbbProxy.getJoinURL( userFullName, meetingID, (isModerator || allModerators)? moderatorPW: attendeePW, (String) response.get("createTime"), userID);
     }
 
     public Object getRecordings(params) {
@@ -155,45 +151,41 @@ class BigbluebuttonService {
     }
 
     public Object doDeleteRecordings(params){
-        //Set the injected values
-        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
-        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
-
-        Map<String, Object> result
-
-        String recordingId = getValidatedBBBRecordingId(params.get(Parameter.BBB_RECORDING_ID))
-
-        if( !recordingId.equals("") ){
-            String deleteRecordingsURL = bbbProxy.getDeleteRecordingsURL( recordingId )
-            result = doAPICall(deleteRecordingsURL)
-        } else {
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidRecordingId")
-            result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+        // Set the injected values
+        if (!url.equals(bbbProxy.url) && !url.equals("")) {
+            bbbProxy.setUrl(url)
         }
-
+        if (!salt.equals(bbbProxy.salt) && !salt.equals("")) {
+            bbbProxy.setSalt(salt)
+        }
+        String recordingId = getValidatedBBBRecordingId(params.get(Parameter.BBB_RECORDING_ID))
+        if (!recordingId.equals("")) {
+            String deleteRecordingsURL = bbbProxy.getDeleteRecordingsURL( recordingId )
+            return doAPICall(deleteRecordingsURL)
+        }
+        def result = new HashMap<String, String>()
+        result.put("resultMessageKey", "InvalidRecordingId")
+        result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
         return result
     }
 
     public Object doPublishRecordings(params){
-        //Set the injected values
-        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
-        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
-
-        Map<String, Object> result
-
+        // Set the injected values
+        if (!url.equals(bbbProxy.url) && !url.equals("")) {
+            bbbProxy.setUrl(url)
+        }
+        if (!salt.equals(bbbProxy.salt) && !salt.equals("")) {
+            bbbProxy.setSalt(salt)
+        }
         String recordingId = getValidatedBBBRecordingId(params.get(Parameter.BBB_RECORDING_ID))
         String publish = getValidatedBBBRecordingPublished(params.get(Parameter.BBB_RECORDING_PUBLISHED))
-
         if( !recordingId.equals("") ){
             String publishRecordingsURL = bbbProxy.getPublishRecordingsURL( recordingId, "true".equals(publish)?"false":"true" )
-            result = doAPICall(publishRecordingsURL)
-        } else {
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidRecordingId")
-            result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+            return doAPICall(publishRecordingsURL)
         }
-
+        def result = new HashMap<String, String>()
+        result.put("resultMessageKey", "InvalidRecordingId")
+        result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
         return result
     }
 
@@ -226,14 +218,14 @@ class BigbluebuttonService {
         String userFirstName = params.get(Parameter.USER_FIRSTNAME)
         String userLastName = params.get(Parameter.USER_LASTNAME)
         if( userFullName == null || userFullName == "" ){
-            if( userFirstName != null && userFirstName != "" ){
+            if (userFirstName != null && userFirstName != "") {
                 userFullName = userFirstName
             }
-            if( userLastName != null && userLastName != "" ){
+            if (userLastName != null && userLastName != "") {
                 userFullName += userFullName.length() > 0? " ": ""
                 userFullName += userLastName
             }
-            if( userFullName == null || userFullName == "" ){
+            if (userFullName == null || userFullName == "") {
                 userFullName = isModerator? "Moderator" : "Attendee"
             }
         }
@@ -270,8 +262,7 @@ class BigbluebuttonService {
 
     private String getMonitoringMetaData(params){
         String meta
-
-        meta = "meta_origin=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_CODE) == null? "": params.get(Parameter.TOOL_CONSUMER_CODE))
+        meta  = "meta_origin=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_CODE) == null? "": params.get(Parameter.TOOL_CONSUMER_CODE))
         meta += "&meta_originVersion=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_VERSION) == null? "": params.get(Parameter.TOOL_CONSUMER_VERSION))
         meta += "&meta_originServerCommonName=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_INSTANCE_DESCRIPTION) == null? "": params.get(Parameter.TOOL_CONSUMER_INSTANCE_DESCRIPTION))
         meta += "&meta_originServerUrl=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_INSTANCE_URL) == null? "": params.get(Parameter.TOOL_CONSUMER_INSTANCE_URL))
@@ -279,25 +270,21 @@ class BigbluebuttonService {
         meta += "&meta_contextId=" + bbbProxy.getStringEncoded(params.get(Parameter.COURSE_ID) == null? "": params.get(Parameter.COURSE_ID))
         meta += "&meta_contextActivity=" + bbbProxy.getStringEncoded(params.get(Parameter.RESOURCE_LINK_TITLE) == null? "": params.get(Parameter.RESOURCE_LINK_TITLE))
         meta += "&meta_contextActivityDescription=" + bbbProxy.getStringEncoded(params.get(Parameter.RESOURCE_LINK_DESCRIPTION) == null? "": params.get(Parameter.RESOURCE_LINK_DESCRIPTION))
-
         return meta
     }
 
     /** Make an API call */
     private Map<String, Object> doAPICall(String query) {
         StringBuilder urlStr = new StringBuilder(query);
-
         try {
             // open connection
             log.debug("doAPICall.call: " + query );
-
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
             httpConnection.connect();
-
             int responseCode = httpConnection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 // read response
@@ -309,27 +296,27 @@ class BigbluebuttonService {
                     reader = new BufferedReader(isr);
                     String line = reader.readLine();
                     while (line != null) {
-                        if( !line.startsWith("<?xml version=\"1.0\"?>"))
+                        if( !line.startsWith("<?xml version=\"1.0\"?>")) {
                             xml.append(line.trim());
+                        }
                         line = reader.readLine();
                     }
                 } finally {
-                    if (reader != null)
+                    if (reader != null) {
                         reader.close();
-                    if (isr != null)
+                    }
+                    if (isr != null) {
                         isr.close();
+                    }
                 }
                 httpConnection.disconnect();
-
-                // parse response
+                // Parse response.
                 //log.debug("doAPICall.responseXml: " + xml);
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
-
                 JSONObject rootJSON = XML.toJSONObject(stringXml);
                 Map<String, Object> response = jsonToMap(rootJSON);
-
                 return response;
             } else {
                 log.debug("doAPICall.HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode);
@@ -347,7 +334,6 @@ class BigbluebuttonService {
 
     protected Map<String, Object> jsonToMap(JSONObject json) throws JSONException {
         Map<String, Object> retMap = new HashMap<String, Object>();
-
         if(json != JSONObject.NULL) {
             retMap = toMap(json);
         }
@@ -356,16 +342,13 @@ class BigbluebuttonService {
 
     protected Map<String, Object> toMap(JSONObject object) throws JSONException {
         Map<String, Object> map = new HashMap<String, Object>();
-
         Iterator<String> keysItr = object.keys();
         while(keysItr.hasNext()) {
             String key = keysItr.next();
             Object value = object.get(key);
-
             if(value instanceof JSONArray) {
                 value = toList((JSONArray) value);
             }
-
             else if(value instanceof JSONObject) {
                 value = toMap((JSONObject) value);
             }
@@ -381,7 +364,6 @@ class BigbluebuttonService {
             if(value instanceof JSONArray) {
                 value = toList((JSONArray) value);
             }
-
             else if(value instanceof JSONObject) {
                 value = toMap((JSONObject) value);
             }
