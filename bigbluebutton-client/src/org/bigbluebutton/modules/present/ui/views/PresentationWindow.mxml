@@ -784,6 +784,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function openDownloadWindow():void {
 				var event:DownloadEvent = new DownloadEvent(DownloadEvent.OPEN_DOWNLOAD_WINDOW);
+				event.podId = podId;
 				dispatchEvent(event);
 			}
 

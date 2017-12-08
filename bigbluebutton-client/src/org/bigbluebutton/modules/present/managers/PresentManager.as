@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
+	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.events.ExportEvent;
 	import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
 	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
@@ -135,14 +136,11 @@ package org.bigbluebutton.modules.present.managers
 //			globalDispatcher.dispatchEvent(event);
 		}
 
-
-
 		public function handleOpenUploadWindow(e:UploadEvent):void {
 			// Never use "center" true with FileUploadWindow
 			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
 			if (uploadWindow) {
 				uploadWindow.maxFileSize = e.maxFileSize;
-				uploadWindow.podId = e.podId;
 				uploadWindow.setPodId(e.podId);
 				
 				var point1:Point = new Point();
@@ -158,8 +156,9 @@ package org.bigbluebutton.modules.present.managers
 			PopUpUtil.removePopUp(FileUploadWindow);
 		}
 
-		public function handleOpenDownloadWindow():void {
-			PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, true) as FileDownloadWindow;
+		public function handleOpenDownloadWindow(e:DownloadEvent):void {
+			var fileDownload : FileDownloadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, true) as FileDownloadWindow;
+			fileDownload.setPodId(e.podId);
 		}
 
 		public function handleCloseDownloadWindow():void {

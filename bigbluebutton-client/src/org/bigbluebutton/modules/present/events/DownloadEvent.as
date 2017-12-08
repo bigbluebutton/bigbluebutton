@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.present.events
 		public static const DOWNLOAD_PRESENTATION:String = "DOWNLOAD_PRESENTATION";
 
 		public var fileNameToDownload:String;
+		public var podId:String;
 
 		public function DownloadEvent(type:String) {
 			super(type, true, false);
