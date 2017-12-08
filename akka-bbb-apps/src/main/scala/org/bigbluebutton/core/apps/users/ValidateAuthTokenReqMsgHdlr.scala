@@ -26,13 +26,13 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
           userValidated(u, state)
         } else {
           validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
-            userId = msg.body.userId, authToken = msg.body.authToken,
+            userId = msg.header.userId, authToken = msg.body.authToken,
             valid = false, waitForApproval = false, state)
         }
 
       case None =>
         validateTokenFailed(outGW, meetingId = liveMeeting.props.meetingProp.intId,
-          userId = msg.body.userId, authToken = msg.body.authToken,
+          userId = msg.header.userId, authToken = msg.body.authToken,
           valid = false, waitForApproval = false, state)
 
     }
