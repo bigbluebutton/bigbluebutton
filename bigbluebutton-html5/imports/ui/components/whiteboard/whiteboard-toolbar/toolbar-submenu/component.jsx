@@ -71,8 +71,6 @@ export default class ToolbarSubmenu extends Component {
   render() {
     const { type, objectsToRender, objectSelected, label, customIcon } = this.props;
 
-    console.log('ToolbarSubmenu.render', objectsToRender);
-
     return (
       <div
         onMouseEnter={this.handleMouseEnter}

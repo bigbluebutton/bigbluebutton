@@ -24,6 +24,7 @@ class Tooltip extends Component {
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
+    this.delay = [250, 100];
   }
 
   componentDidMount() {
@@ -35,6 +36,7 @@ class Tooltip extends Component {
     const options = {
       position,
       dynamicTitle,
+      delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,
     };
