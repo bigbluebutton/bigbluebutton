@@ -237,7 +237,6 @@ class MeetingActor(
       case m: StartCustomPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: StopPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: ShowPollResultReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: HidePollResultReqMsg => pollApp.handle(m, liveMeeting, msgBus)
       case m: GetCurrentPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
       case m: RespondToPollReqMsg => pollApp.handle(m, liveMeeting, msgBus)
 

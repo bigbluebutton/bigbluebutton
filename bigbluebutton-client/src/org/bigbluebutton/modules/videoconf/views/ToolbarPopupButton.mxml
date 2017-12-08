@@ -149,7 +149,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function remoteClick(e:ShortcutEvent):void{
 				openPublishWindow();
-				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
 			}
 			
 			public function publishingStatus(status:Number, camID:Number = -1):void {
@@ -186,6 +185,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function openPublishWindow():void{
+				if (LiveMeeting.inst().me.disableMyCam) {
+					return;
+				}
 				if (browserForcesHTTPS()) {
 					return;
 				}

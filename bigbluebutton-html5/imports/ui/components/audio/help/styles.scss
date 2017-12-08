@@ -1,0 +1,27 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.help {
+  display: flex;
+  flex-flow: column;
+}
+
+.text {
+  text-align: center;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.backBtn {
+  margin-right: 0.5rem;
+  border: none;
+
+  @include mq($small-only) {
+    margin-right: auto;
+  }
+}
+
+.enterAudio {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}

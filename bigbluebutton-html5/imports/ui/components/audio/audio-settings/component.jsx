@@ -10,7 +10,6 @@ import styles from './styles';
 
 const propTypes = {
   intl: intlShape.isRequired,
-  exitAudio: PropTypes.func.isRequired,
   changeInputDevice: PropTypes.func.isRequired,
   changeOutputDevice: PropTypes.func.isRequired,
   handleBack: PropTypes.func.isRequired,

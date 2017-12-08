@@ -527,6 +527,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
 
+      private function processChatMessage(message:String):ChatMessageVO {
+        var sanitizedMessage:String = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
+        if (sanitizedMessage == null || sanitizedMessage.length < 1) {
+          return null;
+        }
+        
+        var cm:ChatMessageVO = new ChatMessageVO();
+        cm.fromUserId = UsersUtil.getMyUserID();
+        cm.fromUsername = UsersUtil.getMyUsername();
+        // get the color value from ColorPicker
+        cm.fromColor = cmpColorPicker.selectedColor.toString();
+        
+        // Get the current UTC time and the timezone for this sender.
+        // The receiver will have to convert this to local time.
+        var now:Date = new Date();
+        cm.fromTime = now.valueOf();
+        cm.fromTimezoneOffset = now.getTimezoneOffset();
+        
+        //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        cm.message = sanitizedMessage;
+        
+        return cm;
+      }
+      
       private function handleTextInput(e:TextEvent):void {
         if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/ && messageCanBeSent) {
           sendMessages();

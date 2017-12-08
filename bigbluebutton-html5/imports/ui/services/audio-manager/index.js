@@ -1,6 +1,8 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
 import VertoBridge from '/imports/api/audio/client/bridge/verto';
+import Auth from '/imports/ui/services/auth';
+import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import { notify } from '/imports/ui/services/notification';
 
@@ -27,8 +29,18 @@ class AudioManager {
       isHangingUp: false,
       isListenOnly: false,
       isEchoTest: false,
+      isWaitingPermissions: false,
       error: null,
       outputDeviceId: null,
+    });
+
+    const query = VoiceUsers.find({ intId: Auth.userID });
+
+    query.observeChanges({
+      changed: (id, fields) => {
+        if (fields.muted === this.isMuted) return;
+        this.isMuted = fields.muted;
+      },
     });
   }
 
@@ -36,6 +48,7 @@ class AudioManager {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
     this.messages = messages;
+    this.initialized = true;
   }
 
   defineProperties(obj) {
@@ -65,28 +78,46 @@ class AudioManager {
       isEchoTest,
     } = options;
 
-    if (!this.devicesInitialized) {
-      this.setDefaultInputDevice();
-      this.changeOutputDevice('default');
+    const permissionsTimeout = setTimeout(() => {
+      this.isWaitingPermissions = true;
+    }, 100);
+
+    const doCall = () => {
+      clearTimeout(permissionsTimeout);
+      this.isWaitingPermissions = false;
       this.devicesInitialized = true;
-    }
+      this.isConnecting = true;
+      this.isMuted = false;
+      this.error = null;
+      this.isListenOnly = isListenOnly || false;
+      this.isEchoTest = isEchoTest || false;
 
-    this.isConnecting = true;
-    this.isMuted = false;
-    this.error = null;
-    this.isListenOnly = isListenOnly || false;
-    this.isEchoTest = isEchoTest || false;
-
-    const callOptions = {
-      isListenOnly: this.isListenOnly,
-      extension: isEchoTest ? ECHO_TEST_NUMBER : null,
-      inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
+      const callOptions = {
+        isListenOnly: this.isListenOnly,
+        extension: isEchoTest ? ECHO_TEST_NUMBER : null,
+        inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
+      };
+      return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
     };
 
-    return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
+    if (this.devicesInitialized) return doCall();
+
+    return Promise.all([
+      this.setDefaultInputDevice(),
+      this.setDefaultOutputDevice(),
+    ]).then(doCall)
+      .catch((err) => {
+        clearTimeout(permissionsTimeout);
+        this.isWaitingPermissions = false;
+        this.error = err;
+        this.notify(err.message);
+        return Promise.reject(err);
+      });
   }
 
   exitAudio() {
+    if (!this.isConnected) return Promise.resolve();
+
     this.isHangingUp = true;
     return this.bridge.exitAudio();
   }
@@ -97,9 +128,7 @@ class AudioManager {
   }
 
   toggleMuteMicrophone() {
-    makeCall('toggleSelfVoice').then(() => {
-      this.onToggleMicrophoneMute();
-    });
+    makeCall('toggleSelfVoice');
   }
 
   onAudioJoin() {
@@ -126,10 +155,6 @@ class AudioManager {
       this.notify(this.messages.info.LEFT_AUDIO);
     }
     this.isEchoTest = false;
-  }
-
-  onToggleMicrophoneMute() {
-    this.isMuted = !this.isMuted;
   }
 
   callStateCallback(response) {
@@ -166,27 +191,40 @@ class AudioManager {
     }
 
     this.listenOnlyAudioContext = window.AudioContext ?
-                                  new window.AudioContext() :
-                                  new window.webkitAudioContext();
+      new window.AudioContext() :
+      new window.webkitAudioContext();
 
     return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
   }
 
   setDefaultInputDevice() {
-    this.changeInputDevice();
+    return this.changeInputDevice();
   }
 
-  async changeInputDevice(deviceId) {
-    try {
-      if (!deviceId) {
-        this.inputDevice = await await this.bridge.setDefaultInputDevice();
-        return;
-      }
-      this.inputDevice = await this.bridge.changeInputDevice(deviceId);
-    } catch(err) {
-      this.error = err;
-      this.notify('There was a problem getting the media devices');
+  setDefaultOutputDevice() {
+    return this.changeOutputDevice('default');
+  }
+
+  changeInputDevice(deviceId) {
+    const handleChangeInputDeviceSuccess = (inputDevice) => {
+      this.inputDevice = inputDevice;
+      return Promise.resolve(inputDevice);
+    };
+
+    const handleChangeInputDeviceError = () =>
+      Promise.reject({
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+      });
+
+    if (!deviceId) {
+      return this.bridge.setDefaultInputDevice()
+        .then(handleChangeInputDeviceSuccess)
+        .catch(handleChangeInputDeviceError);
     }
+    return this.bridge.changeInputDevice(deviceId)
+      .then(handleChangeInputDeviceSuccess)
+      .catch(handleChangeInputDeviceError);
   }
 
   async changeOutputDevice(deviceId) {
@@ -216,9 +254,11 @@ class AudioManager {
   }
 
   notify(message) {
-    notify(message,
-           this.error ? 'error' : 'info',
-           this.isListenOnly ? 'audio_on' : 'unmute');
+    notify(
+      message,
+      this.error ? 'error' : 'info',
+      this.isListenOnly ? 'audio_on' : 'unmute',
+    );
   }
 }
 
