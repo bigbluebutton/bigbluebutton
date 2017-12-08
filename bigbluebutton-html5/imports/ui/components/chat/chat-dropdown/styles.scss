@@ -7,21 +7,25 @@ $square-side-length: 1.56rem;
   flex: 0 0;
   margin-top: auto;
 
-  span {
+  cursor: pointer;
+
+  span:first-child {
     width: $square-side-length;
     height: $square-side-length;
   }
+
 
   i {
     color: $color-gray-dark !important;
     top: $icon-offset;
     left: $icon-offset;
-  }   
+  }
 
   &:hover,
   &:focus {
-    span {
+    > span:first-child {
       background-color: transparent !important;
     }
   }
+
 }

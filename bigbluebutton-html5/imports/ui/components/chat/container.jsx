@@ -6,9 +6,13 @@ import ChatService from './service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
-
+const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const intlMessages = defineMessages({
+  [CHAT_CLEAR]: {
+    id: 'app.chat.clearPublicChatMessage',
+    description: 'message of when clear the public chat',
+  },
   titlePublic: {
     id: 'app.chat.titlePublic',
     description: 'Public chat title',
@@ -37,45 +41,51 @@ export default injectIntl(createContainer(({ params, intl }) => {
   let isChatLocked = ChatService.isChatLocked(chatID);
   let title = intl.formatMessage(intlMessages.titlePublic);
   let chatName = title;
+  let partnerIsLoggedOut = false;
+  let systemMessageIntl = {};
 
   if (chatID === PUBLIC_CHAT_KEY) {
     messages = ChatService.reduceAndMapMessages((ChatService.getPublicMessages()));
   } else {
     messages = ChatService.getPrivateMessages(chatID);
-  }
-
-  const user = ChatService.getUser(chatID, '{{NAME}}');
-
-  let partnerIsLoggedOut = false;
-
-  if (user) {
+    const user = ChatService.getUser(chatID);
+    chatName = user.name;
+    systemMessageIntl = { 0: user.name };
+    title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
     partnerIsLoggedOut = !user.isOnline;
 
-    if (messages && chatID !== PUBLIC_CHAT_KEY) {
-      const chatUser = ChatService.getUser(chatID, '{{NAME}}');
-
-      title = intl.formatMessage(intlMessages.titlePrivate, { 0: chatUser.name });
-      chatName = chatUser.name;
-
-      if (!chatUser.isOnline) {
-        const time = Date.now();
-        const id = `partner-disconnected-${time}`;
-        const messagePartnerLoggedOut = {
+    if (partnerIsLoggedOut) {
+      const time = Date.now();
+      const id = `partner-disconnected-${time}`;
+      const messagePartnerLoggedOut = {
+        id,
+        content: [{
           id,
-          content: [{
-            id,
-            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatUser.name }),
-            time,
-          }],
+          text: 'partnerDisconnected',
           time,
-          sender: null,
-        };
+        }],
+        time,
+        sender: null,
+      };
 
-        messages.push(messagePartnerLoggedOut);
-        isChatLocked = true;
-      }
+      messages.push(messagePartnerLoggedOut);
+      isChatLocked = true;
     }
   }
+
+  messages = messages.map((message) => {
+    if (message.sender) return message;
+
+    return {
+      ...message,
+      content: message.content.map(content => ({
+        ...content,
+        text: content.text in intlMessages ?
+          `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
+      })),
+    };
+  });
+
 
   const scrollPosition = ChatService.getScrollPosition(chatID);
   const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);

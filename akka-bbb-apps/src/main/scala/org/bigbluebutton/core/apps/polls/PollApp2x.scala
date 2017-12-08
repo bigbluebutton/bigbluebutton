@@ -5,7 +5,6 @@ import akka.event.Logging
 
 class PollApp2x(implicit val context: ActorContext)
     extends GetCurrentPollReqMsgHdlr
-    with HidePollResultReqMsgHdlr
     with RespondToPollReqMsgHdlr
     with ShowPollResultReqMsgHdlr
     with StartCustomPollReqMsgHdlr
