@@ -29,8 +29,6 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import mx.containers.Canvas;
 	import mx.managers.CursorManager;
 	
-	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
@@ -267,6 +265,10 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		public function addGraphic(child:DisplayObject):void {
 			this.graphicObjectHolder.rawChildren.addChild(child);
+		}
+		
+		public function getGraphicByName(childName:String):DisplayObject {
+			return this.graphicObjectHolder.rawChildren.getChildByName(childName);
 		}
 		
 		private function doesContainCursor(cursor:DisplayObject):Boolean {
