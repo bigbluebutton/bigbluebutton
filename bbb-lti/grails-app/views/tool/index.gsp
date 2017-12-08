@@ -32,13 +32,13 @@
             </thead>
             <tbody>
             <g:each in="${recordingList}" var="r">
-                <g:if test="${ismoderator || r.published == 'true'}">  
+                <g:if test="${ismoderator || r.published == 'true'}">
                 <tr class="r0 lastrow">
                     <td class="cell c0" style="text-align:center;">
-                    <g:if test="${r.published == 'true'}">
-                    <g:each in="${r.playback}" var="p">
-                        <a title="<g:message code="tool.view.recording.format.${p.type}" />" target="_new" href="${p.url}"><g:message code="tool.view.recording.format.${p.type}" /></a>&#32;
-                    </g:each>
+                    <g:if test="${r.published}">
+                        <g:each in="${r.playback}" var="format">
+                            <a title="<g:message code="tool.view.recording.format.${format.getValue().type}" />" target="_new" href="${format.getValue().url}"><g:message code="tool.view.recording.format.${format.getValue().type}" /></a>&#32;
+                        </g:each>
                     </g:if>
                     </td>
                     <td class="cell c1" style="text-align:center;">${r.name}</td>
@@ -73,5 +73,5 @@
     </body>
     <g:javascript>
         var locale = '${params.launch_presentation_locale}';
-    </g:javascript>  
+    </g:javascript>
 </html>

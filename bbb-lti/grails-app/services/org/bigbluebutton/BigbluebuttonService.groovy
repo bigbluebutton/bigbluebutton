@@ -34,6 +34,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -63,7 +67,7 @@ class BigbluebuttonService {
         try {
             docBuilder = docBuilderFactory.newDocumentBuilder()
         } catch (ParserConfigurationException e) {
-            logger.error("Failed to initialise BaseProxy", e)
+            log.error("Failed to initialise BaseProxy", e)
         }
 
         //Instantiate bbbProxy and initialize it with default url and salt
@@ -107,7 +111,6 @@ class BigbluebuttonService {
         String meta = getMonitoringMetaData(params)
 
         String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta )
-        log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
         log.debug "createResponse: " + createResponse
 
@@ -123,26 +126,32 @@ class BigbluebuttonService {
         return joinURL
     }
 
-    public Object getRecordings(params){
-        //Set the injected values
-        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
-        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
-
-        String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
-
-        String recordingsURL = bbbProxy.getGetRecordingsURL( meetingID )
-        log.debug "recordingsURL: " + recordingsURL
-        Map<String, Object> recordings = doAPICall(recordingsURL)
-
-        if( recordings != null){
-            String returnCode = (String) recordings.get("returncode")
-            String messageKey = (String) recordings.get("messageKey")
-            if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) && messageKey == null ){
-                return recordings.get("recordings")
-            }
+    public Object getRecordings(params) {
+        // Set the injected values
+        if (!url.equals(bbbProxy.url) && !url.equals("")) {
+            bbbProxy.setUrl(url)
+        }
+        if (!salt.equals(bbbProxy.salt) && !salt.equals("")) {
+            bbbProxy.setSalt(salt)
         }
 
-        return null
+        String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
+        String recordingsURL = bbbProxy.getGetRecordingsURL(meetingID)
+
+        Map<String, Object> responseAPICall = doAPICall(recordingsURL)
+        if (responseAPICall == null) {
+            return null
+        }
+
+        Object response = (Object)responseAPICall.get("response")
+        String returnCode = (String)response.get("returncode")
+        String messageKey = (String)response.get("messagekey")
+        if (!Proxy.APIRESPONSE_SUCCESS.equals(returnCode) || messageKey != null) {
+            log.info "BBB responded with no recordings"
+            return null
+        }
+        Object recordings = (Object)response.get("recordings")
+        return recordings
     }
 
     public Object doDeleteRecordings(params){
@@ -156,7 +165,6 @@ class BigbluebuttonService {
 
         if( !recordingId.equals("") ){
             String deleteRecordingsURL = bbbProxy.getDeleteRecordingsURL( recordingId )
-            log.debug "deleteRecordingsURL: " + deleteRecordingsURL
             result = doAPICall(deleteRecordingsURL)
         } else {
             result = new HashMap<String, String>()
@@ -179,7 +187,6 @@ class BigbluebuttonService {
 
         if( !recordingId.equals("") ){
             String publishRecordingsURL = bbbProxy.getPublishRecordingsURL( recordingId, "true".equals(publish)?"false":"true" )
-            log.debug "publishRecordingsURL: " + publishRecordingsURL
             result = doAPICall(publishRecordingsURL)
         } else {
             result = new HashMap<String, String>()
@@ -282,7 +289,7 @@ class BigbluebuttonService {
 
         try {
             // open connection
-            //log.debug("doAPICall.call: " + query );
+            log.debug("doAPICall.call: " + query );
 
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -320,16 +327,8 @@ class BigbluebuttonService {
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
 
-                Document dom = null;
-                dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
-
-                Map<String, Object> response = getNodesAsMap(dom, "response");
-                //log.debug("doAPICall.responseMap: " + response);
-
-                String returnCode = (String) response.get("returncode");
-                if (Proxy.APIRESPONSE_FAILED.equals(returnCode)) {
-                    log.debug("doAPICall." + (String) response.get("messageKey") + ": Message=" + (String) response.get("message"));
-                }
+                JSONObject rootJSON = XML.toJSONObject(stringXml);
+                Map<String, Object> response = jsonToMap(rootJSON);
 
                 return response;
             } else {
@@ -346,43 +345,48 @@ class BigbluebuttonService {
         }
     }
 
-    /** Get all nodes under the specified element tag name as a Java map */
-    protected Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
-        Node firstNode = dom.getElementsByTagName(elementTagName).item(0);
-        return processNode(firstNode);
+    protected Map<String, Object> jsonToMap(JSONObject json) throws JSONException {
+        Map<String, Object> retMap = new HashMap<String, Object>();
+
+        if(json != JSONObject.NULL) {
+            retMap = toMap(json);
+        }
+        return retMap;
     }
 
-    protected Map<String, Object> processNode(Node _node) {
+    protected Map<String, Object> toMap(JSONObject object) throws JSONException {
         Map<String, Object> map = new HashMap<String, Object>();
-        NodeList responseNodes = _node.getChildNodes();
-        for (int i = 0; i < responseNodes.getLength(); i++) {
-            Node node = responseNodes.item(i);
-            String nodeName = node.getNodeName().trim();
-            if (node.getChildNodes().getLength() == 1
-                    && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
-                String nodeValue = node.getTextContent();
-                map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
 
-            } else if (node.getChildNodes().getLength() == 0
-                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE
-                    && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
-                map.put(nodeName, "");
+        Iterator<String> keysItr = object.keys();
+        while(keysItr.hasNext()) {
+            String key = keysItr.next();
+            Object value = object.get(key);
 
-            } else if ( node.getChildNodes().getLength() >= 1
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
-
-                List<Object> list = new ArrayList<Object>();
-                for (int c = 0; c < node.getChildNodes().getLength(); c++) {
-                    Node n = node.getChildNodes().item(c);
-                    list.add(processNode(n));
-                }
-                map.put(nodeName, list);
-
-            } else {
-                map.put(nodeName, processNode(node));
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
             }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            map.put(key, value);
         }
         return map;
+    }
+
+    protected List<Object> toList(JSONArray array) throws JSONException {
+        List<Object> list = new ArrayList<Object>();
+        for(int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            list.add(value);
+        }
+        return list;
     }
 }

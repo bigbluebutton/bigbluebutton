@@ -343,24 +343,31 @@ class ToolController {
      * @return the key:val pairs needed for Basic LTI
      */
     private List<Object> getSanitizedRecordings(Map<String, String> params) {
-        List<Object> recordings = bigbluebuttonService.getRecordings(params)
-        for(Map<String, Object> recording: recordings){
-            /// Calculate duration
+        List<Object> list = new ArrayList<Object>()
+        Object recordings = bigbluebuttonService.getRecordings(params)
+        Iterator it = recordings.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry)it.next()
+            Map<String, Object> recording = entry.getValue()
+            // Calculate duration.
             long endTime = Long.parseLong((String)recording.get("endTime"))
             endTime -= (endTime % 1000)
             long startTime = Long.parseLong((String)recording.get("startTime"))
             startTime -= (startTime % 1000)
             int duration = (endTime - startTime) / 60000
-            /// Add duration
+            // Add duration.
             recording.put("duration", duration )
-            /// Calculate reportDate
+            // Calculate reportDate.
             DateFormat df = new SimpleDateFormat(message(code: "tool.view.dateFormat"))
             String reportDate = df.format(new Date(startTime))
-            /// Add reportDate
+            // Add reportDate.
             recording.put("reportDate", reportDate)
             recording.put("unixDate", startTime / 1000)
+            list.add(recording)
+            // Avoids a ConcurrentModificationException.
+            it.remove();
         }
-        return recordings
+        return list
     }
 
     private String getCartridgeXML(){
