@@ -258,6 +258,6 @@
     "app.guest.waiting": "Waiting for approval to join",
     "app.notification.recordingStart": "This session is now being recorded",
     "app.notification.recordingStop": "This session is not being recorded anymore",
-    "app.video.joinVideo": "Cam off",
-    "app.video.leaveVideo": "Cam on"
+    "app.video.joinVideo": "Share webcam",
+    "app.video.leaveVideo": "Unshare webcam"
 }
