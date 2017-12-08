@@ -211,9 +211,10 @@ const getOpenChats = (chatID) => {
     .sort(sortChats);
 };
 
+const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
+
 const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
-  const isDialInUser = user.id.toString().startsWith('v_')
-                      || user.isPhoneUser;
+  const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
 
   const hasAuthority = currentUser.isModerator || user.isCurrent;
 
@@ -296,7 +297,13 @@ const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none');
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const kickUser = (userId) => { makeCall('kickUser', userId); };
+const kickUser = (userId) => {
+  if (isVoiceOnlyUser(userId)) {
+    makeCall('ejectUserFromVoice', userId);
+  } else {
+    makeCall('kickUser', userId);
+  }
+};
 
 const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
 
