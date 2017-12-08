@@ -7,7 +7,6 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
-import Screenshare from '/imports/api/screenshare';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
