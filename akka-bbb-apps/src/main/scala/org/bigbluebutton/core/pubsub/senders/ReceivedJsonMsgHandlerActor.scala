@@ -98,8 +98,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[StopPollReqMsg](envelope, jsonNode)
       case ShowPollResultReqMsg.NAME =>
         routeGenericMsg[ShowPollResultReqMsg](envelope, jsonNode)
-      case HidePollResultReqMsg.NAME =>
-        routeGenericMsg[HidePollResultReqMsg](envelope, jsonNode)
       case GetCurrentPollReqMsg.NAME =>
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>

@@ -1,5 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+.echoTest {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .button {
   &:focus {
     outline: none !important;

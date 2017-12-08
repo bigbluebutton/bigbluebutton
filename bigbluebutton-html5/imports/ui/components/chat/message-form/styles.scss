@@ -44,7 +44,7 @@
 
 .input {
   @include inputFocus($color-blue-light);
-  
+
   flex: 1;
   background: #fff;
   background-clip: padding-box;
@@ -72,8 +72,8 @@
 
 .sendButton {
   margin-left: $sm-padding-x;
-  align-self: flex-end;
-
+  align-self: center;
+  font-size: 0.9rem;
   i {
     font-size: 115% !important;
   }

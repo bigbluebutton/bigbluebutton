@@ -96,7 +96,7 @@ package org.bigbluebutton.modules.polling.service
     
     public function handleShowPollResultEvent(event:ShowPollResultEvent):void {
       var curPoll:SimplePoll = model.getCurrentPoll();
-      dataService.showPollResult(curPoll.id, event.show);
+      dataService.showPollResult(curPoll.id);
     }
     
 

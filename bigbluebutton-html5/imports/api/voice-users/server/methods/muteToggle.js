@@ -18,12 +18,7 @@ export default function muteToggle(credentials, userId) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  const payload = {
-    userId,
-    mutedBy: requesterUserId,
-  };
-
-  const user = Users.findOne({
+  const requester = Users.findOne({
     meetingId,
     userId: requesterUserId,
   });
@@ -32,20 +27,25 @@ export default function muteToggle(credentials, userId) {
     intId: userId,
   });
 
-  if (!user || !voiceUser) return;
+  if (!requester || !voiceUser) return;
 
-  const isListenOnly = voiceUser.listenOnly;
+  const { listenOnly, muted } = voiceUser;
+  if (listenOnly) return;
 
-  if (isListenOnly) return;
-
-  const isModerator = user.roles.includes(ROLE_MODERATOR.toLowerCase());
-  const isMuted = voiceUser.muted;
+  const isModerator = requester.roles.includes(ROLE_MODERATOR.toLowerCase());
   const isNotHimself = requesterUserId !== userId;
 
+  // the ability for a moderator to unmute other users is configurable (on/off)
   if (!ALLOW_MODERATOR_TO_UNMUTE_AUDIO &&
     isModerator &&
-    isMuted &&
+    muted &&
     isNotHimself) return;
 
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
+  const payload = {
+    userId,
+    mutedBy: requesterUserId,
+    mute: !muted,
+  };
+
+  RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

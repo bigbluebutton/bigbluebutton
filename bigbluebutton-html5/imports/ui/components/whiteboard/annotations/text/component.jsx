@@ -55,6 +55,19 @@ export default class TextDrawComponent extends Component {
   }
 
   componentDidMount() {
+    // iOS doesn't show the keyboard if the input field was focused by event NOT invoked by a user
+    // by it still technically moves the focus there
+    // that's why we have a separate case for iOS - we don't focus here automatically
+    // but we focus on the next "tap" invoked by a user
+    const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
+
+    // unsupported Firefox condition (not iOS though) can be removed when FF 59 is released
+    // see https://bugzilla.mozilla.org/show_bug.cgi?id=1409113
+    const unsupportedFirefox = navigator.userAgent.indexOf('Firefox/57') !== -1
+                            || navigator.userAgent.indexOf('Firefox/58') !== -1;
+
+    if (iOS || unsupportedFirefox) { return; }
+
     if (this.props.isActive && this.props.annotation.status !== DRAW_END) {
       this.handleFocus();
     }
