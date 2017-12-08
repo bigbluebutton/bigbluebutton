@@ -152,7 +152,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// Init to the size of the window.
 			private var currentSlideWidth:Number = DEFAULT_WINDOW_WIDTH;
 			private var currentSlideHeight:Number = DEFAULT_WINDOW_HEIGHT;
-									
+			
 			private var mouseDown:Boolean = false;
 
 			private static const PRESENTATION_NAME_MAX_LENGTH:Number = 20;
@@ -409,9 +409,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleKeyDown(e:KeyboardEvent) :void {
 				var modifier:String = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
-				  
+				
 				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
-				                          
+				
 				if (keyCombos[keyPress]) {
 				    //globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				    localDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
@@ -430,7 +430,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				else{
 					this.restore();
-				}				
+				}
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void{
@@ -486,7 +486,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getName():String {
 				return windowId;
 			}
-						
+			
 			private function onSliderZoom():void {
 				if (amITheCurrentPodPresenter()) {
 					slideView.onZoomSlide(zoomSlider.value);
@@ -517,7 +517,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (slideView.thumbnailView.visible)
 					showThumbnails();
 			}
-						
+			
 			private function setupPresenter(isPresenter:Boolean):void {
 				uploadPres.visible = isPresenter;
 
@@ -528,7 +528,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						displaySlideNumber(page.num);
 					}
 					setControlBarState("presenter");
-					
+			
 					displaySlideNavigationControls(isPresenter, !!page);
 				}
 			}
@@ -584,7 +584,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var previousButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip'));
 				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { goToPreviousSlide(); });
 				contextMenuItems.push(previousButton);
-								
+				
 				this.customContextMenuItems = contextMenuItems;
 			}
 			
@@ -784,6 +784,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function openDownloadWindow():void {
 				var event:DownloadEvent = new DownloadEvent(DownloadEvent.OPEN_DOWNLOAD_WINDOW);
+				event.podId = podId;
 				dispatchEvent(event);
 			}
 
@@ -795,6 +796,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				event.slidesUrl = StringUtils.substringBeforeLast(presentationModel.getCurrentPage().swfUri, "/") + "/";
 				event.slideModel = slideView.slideModel;
 				event.presentationModel = presentationModel;
+				event.whiteboardCanvas = whiteboardOverlay;
 				dispatchEvent(event);
 			}
 

@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.present.events {
 
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 
 	public class ExportEvent extends Event {
 		public static const OPEN_EXPORT_WINDOW:String = "OPEN_EXPORT_WINDOW";
@@ -40,6 +41,8 @@ package org.bigbluebutton.modules.present.events {
 		public var slideModel:SlideViewModel;
 
 		public var presentationModel:PresentationModel;
+
+		public var whiteboardCanvas:WhiteboardCanvas
 
 		public function ExportEvent(type:String) {
 			super(type, true, false);

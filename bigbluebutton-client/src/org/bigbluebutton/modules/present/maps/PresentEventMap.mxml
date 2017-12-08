@@ -71,7 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 	
 		<EventHandlers type="{DownloadEvent.OPEN_DOWNLOAD_WINDOW}" >
-			<MethodInvoker generator="{PresentManager}" method="handleOpenDownloadWindow" />
+			<MethodInvoker generator="{PresentManager}" method="handleOpenDownloadWindow" arguments="{event}"/>
 		</EventHandlers>
 	
 		<EventHandlers type="{DownloadEvent.CLOSE_DOWNLOAD_WINDOW}" >

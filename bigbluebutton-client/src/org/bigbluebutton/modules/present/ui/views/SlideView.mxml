@@ -83,7 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var podId:String;
 			public var currentPresenterInPod: String;
 
-      private var pageCache:ArrayCollection = new ArrayCollection();
+      		private var pageCache:ArrayCollection = new ArrayCollection();
 			
 			private var pagePositionBroadcaster:PagePositionBroadcaster;
       
@@ -108,7 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				t.start();
 				*/
 
-        pagePositionBroadcaster = new PagePositionBroadcaster(podId);
+        		pagePositionBroadcaster = new PagePositionBroadcaster(podId);
         
 				if (amITheCurrentPodPresenter()) {
 					becomePresenter(amITheCurrentPodPresenter(), this.currentPresenterInPod);
