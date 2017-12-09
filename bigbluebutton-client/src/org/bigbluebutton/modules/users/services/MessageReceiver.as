@@ -295,7 +295,11 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function processGuestWaitingForApproval(guest: Object): void {
-      var guestWaiting: GuestWaiting = new GuestWaiting(guest.intId, guest.name, guest.role);
+      var guestWaiting: GuestWaiting = new GuestWaiting(guest.intId, 
+                                                        guest.name, 
+                                                        guest.role,
+                                                        guest.guest as Boolean,
+                                                        guest.authenticated as Boolean);
 
       // do not add self
       if (UsersUtil.getMyUserID() != guest.intId) {

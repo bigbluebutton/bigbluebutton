@@ -51,7 +51,7 @@ class GuestsWaiting {
   def setGuestPolicy(policy: GuestPolicy) = guestPolicy = policy
 }
 
-case class GuestWaiting(intId: String, name: String, role: String)
+case class GuestWaiting(intId: String, name: String, role: String, guest: Boolean, authenticated: Boolean)
 case class GuestPolicy(policy: String, setBy: String)
 
 object GuestPolicyType {

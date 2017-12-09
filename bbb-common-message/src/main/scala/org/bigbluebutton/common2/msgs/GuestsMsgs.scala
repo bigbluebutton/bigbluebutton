@@ -16,7 +16,7 @@ object GetGuestsWaitingApprovalRespMsg { val NAME = "GetGuestsWaitingApprovalRes
 case class GetGuestsWaitingApprovalRespMsg(header: BbbClientMsgHeader,
                                            body: GetGuestsWaitingApprovalRespMsgBody) extends BbbCoreMsg
 case class GetGuestsWaitingApprovalRespMsgBody(guests: Vector[GuestWaitingVO])
-case class GuestWaitingVO(intId: String, name: String, role: String)
+case class GuestWaitingVO(intId: String, name: String, role: String, guest: Boolean, authenticated: Boolean)
 
 /**
   * Message sent to client for list of guest waiting for approval. This is sent when
