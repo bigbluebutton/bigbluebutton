@@ -26,6 +26,6 @@ package org.bigbluebutton.main.model {
 
 		public static const ASK_MODERATOR:String = "ASK_MODERATOR";
 
-		public static const ALWAYS_ACCEPT_AUTH:String = "ALWAYS_ACCEPT_AUTH";
+		public static const ALWAYS_ACCEPT_EVERYONE:String = "ALWAYS_ACCEPT_EVERYONE";
 	}
 }

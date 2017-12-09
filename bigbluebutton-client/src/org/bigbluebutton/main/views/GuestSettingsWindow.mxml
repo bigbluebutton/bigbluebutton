@@ -76,8 +76,8 @@
 			<mx:RadioButton groupName="guestManagement"
 							id="alwaysAcceptAuth"
 							width="100%"
-							label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysAcceptAuth')}"
-							value="{GuestPolicy.ALWAYS_ACCEPT_AUTH}"
+							label="{ResourceUtil.getInstance().getString('bbb.guests.alwayAcceptEveryone')}"
+							value="{GuestPolicy.ALWAYS_ACCEPT_EVERYONE}"
 							/>
 		</mx:VBox>
 	</mx:HBox>
