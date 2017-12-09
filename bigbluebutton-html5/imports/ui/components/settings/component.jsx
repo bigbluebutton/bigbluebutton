@@ -142,12 +142,12 @@ class Settings extends Component {
             <Icon iconName="user" className={styles.icon} />
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
           </Tab>
-          {/* { isModerator ?*/}
-          {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab">*/}
-          {/* <Icon iconName="user" className={styles.icon} />*/}
-          {/* <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span>*/}
-          {/* </Tab>*/}
-          {/* : null }*/}
+          {/* { isModerator ? */}
+          {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab"> */}
+          {/* <Icon iconName="user" className={styles.icon} /> */}
+          {/* <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span> */}
+          {/* </Tab> */}
+          {/* : null } */}
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
@@ -169,14 +169,14 @@ class Settings extends Component {
             locales={this.props.locales}
           />
         </TabPanel>
-        {/* { isModerator ?*/}
-        {/* <TabPanel className={styles.tabPanel}>*/}
-        {/* <Participants*/}
-        {/* settings={this.state.current.participants}*/}
-        {/* handleUpdateSettings={this.handleUpdateSettings}*/}
-        {/* />*/}
-        {/* </TabPanel>*/}
-        {/* : null }*/}
+        {/* { isModerator ? */}
+        {/* <TabPanel className={styles.tabPanel}> */}
+        {/* <Participants */}
+        {/* settings={this.state.current.participants} */}
+        {/* handleUpdateSettings={this.handleUpdateSettings} */}
+        {/* /> */}
+        {/* </TabPanel> */}
+        {/* : null } */}
       </Tabs>
     );
   }
@@ -206,7 +206,6 @@ class Settings extends Component {
       </Modal>
     );
   }
-
 }
 
 Settings.propTypes = propTypes;

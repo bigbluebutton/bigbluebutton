@@ -263,6 +263,11 @@ class ApiController {
       authenticated = Boolean.parseBoolean(params.auth)
     }
 
+    Boolean joinViaHtml5 = false;
+    if (!StringUtils.isEmpty(params.joinViaHtml5)) {
+      joinViaHtml5 = Boolean.parseBoolean(params.joinViaHtml5)
+    }
+
     // Do we have a name for the user joining? If none, complain.
     if(!StringUtils.isEmpty(params.fullName)) {
       params.fullName = StringUtils.strip(params.fullName);
@@ -504,6 +509,27 @@ class ApiController {
     boolean redirectClient = true;
     String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 
+    // server-wide configuration:
+    // Depending on configuration, prefer the HTML5 client over Flash for moderators
+    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    }
+
+    // Depending on configuration, prefer the HTML5 client over Flash for attendees
+    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    }
+
+    // single client join configuration:
+    // Depending on configuration, prefer the HTML5 client over Flash client
+    if (joinViaHtml5) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    } else {
+      if(!StringUtils.isEmpty(params.clientURL)){
+        clientURL = params.clientURL;
+      }
+    }
+
     if(! StringUtils.isEmpty(params.redirect)) {
       try{
         redirectClient = Boolean.parseBoolean(params.redirect);
@@ -512,9 +538,6 @@ class ApiController {
       }
     }
 
-    if(!StringUtils.isEmpty(params.clientURL)){
-      clientURL = params.clientURL;
-    }
 
     if (redirectClient){
       String destUrl = clientURL + "?sessionToken=" + sessionToken

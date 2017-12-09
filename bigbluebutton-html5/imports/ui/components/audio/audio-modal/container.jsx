@@ -37,4 +37,5 @@ export default withModalMounter(createContainer(({ mountModal }) =>
      isEchoTest: Service.isEchoTest(),
      inputDeviceId: Service.inputDeviceId(),
      outputDeviceId: Service.outputDeviceId(),
+     showPermissionsOvelay: Service.isWaitingPermissions(),
    }), AudioModalContainer));

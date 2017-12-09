@@ -48,10 +48,10 @@
     border-radius: 50%;
     width: 12px;
     height: 12px;
-    bottom: 2px;
+    bottom: $border-size;
     right: 3px;
     background-color: $color-danger;
-    border: 2px solid;
+    border: $border-size solid $color-gray-dark;
   }
 }
 

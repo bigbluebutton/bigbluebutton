@@ -11,6 +11,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import UploadPresentation from './upload-presentation/component';
+import styles from '../styles';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -40,11 +41,12 @@ class ActionsDropdown extends Component {
     if (!isUserPresenter) return null;
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
-        <DropdownTrigger tabIndex={0}>
+      <Dropdown ref={(ref) => { this._dropdown = ref; }} >
+        <DropdownTrigger tabIndex={0} >
           <Button
+            className={styles.button}
             label={intl.formatMessage(intlMessages.actionsLabel)}
-            icon="add"
+            icon="plus"
             color="primary"
             size="lg"
             circle
