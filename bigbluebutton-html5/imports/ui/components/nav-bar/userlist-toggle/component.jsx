@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
-import { withShortcut } from '/imports/ui/components/shortcut/component';
+import Shortcut from '/imports/ui/components/shortcut/component';
 import cx from 'classnames';
 import styles from '../styles';
 
@@ -31,21 +31,23 @@ class UserListToggle extends Component {
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
 
     return (
-      <Button
-        onClick={handleToggleUserList}
-        ghost
-        circle
-        hideLabel
-        label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-        icon="user"
-        className={cx(toggleBtnClasses)}
-        aria-expanded={isExpanded}
-        aria-describedby="newMessage"
-      />
+      <Shortcut shortcut="Control+Alt+1">
+        <Button
+          onClick={handleToggleUserList}
+          ghost
+          circle
+          hideLabel
+          label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+          icon="user"
+          className={cx(toggleBtnClasses)}
+          aria-expanded={isExpanded}
+          aria-describedby="newMessage"
+        />
+      </Shortcut>
     );
   }
 }
 
-export default injectIntl(withShortcut(UserListToggle, 'Control+Alt+1'));
+export default injectIntl(UserListToggle);
 
 UserListToggle.propTypes = propTypes;
