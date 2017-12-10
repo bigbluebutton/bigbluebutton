@@ -45,7 +45,7 @@
                     <td class="cell c1" style="text-align:left;">${r.name}</td>
                     <td class="cell c2" style="text-align:left;">${r.metadata.contextactivitydescription}</td>
                     <td class="cell c3" style="text-align:left;">${r.metadata.contextactivitydescription}</td>
-                    <td class="cell c4" style="text-align:left;">${r.unixDate}</td>
+                    <td class="cell c4" style="text-align:left;">${r.reportDate}</td>
                     <td class="cell c5" style="text-align:right;">${r.duration}</td>
                     <g:if test="${ismoderator}">
                     <td class="cell c6 lastcol" style="text-align:center;">

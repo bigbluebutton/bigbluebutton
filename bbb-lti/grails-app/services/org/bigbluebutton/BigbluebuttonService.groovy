@@ -107,19 +107,18 @@ class BigbluebuttonService {
         String meta = getMonitoringMetaData(params)
         String createURL = getCreateURL(meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta)
         Map<String, Object> responseAPICall = doAPICall(createURL)
-        log.debug "responseAPICall: " + responseAPICall
         if (responseAPICall == null) {
             return null
         }
         Object response = (Object)responseAPICall.get("response")
         String returnCode = (String)response.get("returncode")
-        String messageKey = (String)response.get("messagekey")
-        if (!Proxy.APIRESPONSE_SUCCESS.equals(returnCode) &&
+        String messageKey = (String)response.get("messageKey")
+        if (!Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
             !Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) &&
             !Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) {
             return null
         }
-        return bbbProxy.getJoinURL( userFullName, meetingID, (isModerator || allModerators)? moderatorPW: attendeePW, (String) response.get("createTime"), userID);
+        return bbbProxy.getJoinURL(userFullName, meetingID, (isModerator || allModerators)? moderatorPW: attendeePW, (String) response.get("createTime"), userID)
     }
 
     public Object getRecordings(params) {
@@ -130,20 +129,16 @@ class BigbluebuttonService {
         if (!salt.equals(bbbProxy.salt) && !salt.equals("")) {
             bbbProxy.setSalt(salt)
         }
-
         String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
         String recordingsURL = bbbProxy.getGetRecordingsURL(meetingID)
-
         Map<String, Object> responseAPICall = doAPICall(recordingsURL)
         if (responseAPICall == null) {
             return null
         }
-
         Object response = (Object)responseAPICall.get("response")
         String returnCode = (String)response.get("returncode")
-        String messageKey = (String)response.get("messagekey")
+        String messageKey = (String)response.get("messageKey")
         if (!Proxy.APIRESPONSE_SUCCESS.equals(returnCode) || messageKey != null) {
-            log.info "BBB responded with no recordings"
             return null
         }
         Object recordings = (Object)response.get("recordings")
@@ -164,8 +159,8 @@ class BigbluebuttonService {
             return doAPICall(deleteRecordingsURL)
         }
         def result = new HashMap<String, String>()
-        result.put("resultMessageKey", "InvalidRecordingId")
-        result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+        result.put("messageKey", "InvalidRecordingId")
+        result.put("message", "RecordingId is invalid. The recording can not be deleted.")
         return result
     }
 
@@ -184,8 +179,8 @@ class BigbluebuttonService {
             return doAPICall(publishRecordingsURL)
         }
         def result = new HashMap<String, String>()
-        result.put("resultMessageKey", "InvalidRecordingId")
-        result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+        result.put("messageKey", "InvalidRecordingId")
+        result.put("message", "RecordingId is invalid. The recording can not be deleted.")
         return result
     }
 

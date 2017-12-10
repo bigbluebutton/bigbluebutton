@@ -93,13 +93,14 @@ class ToolController {
         def mode = params.containsKey(Parameter.CUSTOM_MODE)? params.get(Parameter.CUSTOM_MODE): ltiService.mode
         if (!"extended".equals(mode)) {
             log.debug  "LTI service running in simple mode."
-            result = doJoinMeeting(params)
-        } else {
-            log.debug  "LTI service running in extended mode."
-            if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) && !ltiService.allRecordedByDefault() ) {
-                log.debug  "Parameter custom_record was not sent; immediately redirecting to BBB session!"
-                result = doJoinMeeting(params)
-            }
+            def result = doJoinMeeting(params)
+            return
+        }
+        log.debug  "LTI service running in extended mode."
+        if (!Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) && !ltiService.allRecordedByDefault()) {
+            log.debug  "Parameter custom_record was not sent; immediately redirecting to BBB session!"
+            def result = doJoinMeeting(params)
+            return
         }
         session["params"] = params
         render(view: "index", model: ['params': params, 'recordingList': getSanitizedRecordings(params), 'ismoderator': bigbluebuttonService.isModerator(params)])
@@ -108,7 +109,7 @@ class ToolController {
     def join = {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#join"
-        Map<String, String> result
+        def result
         def sessionParams = session["params"]
         if( sessionParams != null ) {
             log.debug "params: " + params
@@ -116,12 +117,12 @@ class ToolController {
             result = doJoinMeeting(sessionParams)
         } else {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
+            result.put("messageKey", "InvalidSession")
+            result.put("message", "Invalid session. User can not execute this action.")
         }
-        if( result.containsKey("resultMessageKey")) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        if (result != null && result.containsKey("messageKey")) {
+            log.debug "Error [messageKey:'" + result.get("messageKey") + "', message:'" + result.get("message") + "']"
+            render(view: "error", model: ['messageKey': result.get("messageKey"), 'message': result.get("message")])
         }
     }
 
@@ -131,19 +132,19 @@ class ToolController {
         def sessionParams = session["params"]
         if( sessionParams == null ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
+            result.put("messageKey", "InvalidSession")
+            result.put("message", "Invalid session. User can not execute this action.")
         } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "NotAllowed")
-            result.put("resultMessage", "User not allowed to execute this action.")
+            result.put("messageKey", "NotAllowed")
+            result.put("message", "User not allowed to execute this action.")
         } else {
             // Execute the publish command
             result = bigbluebuttonService.doPublishRecordings(params)
         }
-        if( result.containsKey("resultMessageKey")) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        if( result.containsKey("messageKey")) {
+            log.debug "Error [messageKey:'" + result.get("messageKey") + "', message:'" + result.get("message") + "']"
+            render(view: "error", model: ['messageKey': result.get("messageKey"), 'message': result.get("message")])
         } else {
             render(view: "index", model: ['params': sessionParams, 'recordingList': getSanitizedRecordings(sessionParams), 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
@@ -155,19 +156,19 @@ class ToolController {
         def sessionParams = session["params"]
         if( sessionParams == null ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
+            result.put("messageKey", "InvalidSession")
+            result.put("message", "Invalid session. User can not execute this action.")
         } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "NotAllowed")
-            result.put("resultMessage", "User not allowed to execute this action.")
+            result.put("messageKey", "NotAllowed")
+            result.put("message", "User not allowed to execute this action.")
         } else {
             // Execute the delete command.
             result = bigbluebuttonService.doDeleteRecordings(params)
         }
-        if( result.containsKey("resultMessageKey")) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        if( result.containsKey("messageKey")) {
+            log.debug "Error [messageKey:'" + result.get("messageKey") + "', message:'" + result.get("message") + "']"
+            render(view: "error", model: ['messageKey': result.get("messageKey"), 'message': result.get("message")])
         } else {
             render(view: "index", model: ['params': sessionParams, 'recordingList': getSanitizedRecordings(sessionParams), 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
@@ -204,11 +205,11 @@ class ToolController {
         String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
         if (destinationURL == null) {
             Map<String, String> result = new HashMap<String, String>()
-            result.put("resultMessageKey", "BigBlueButtonServerError")
-            result.put("resultMessage", "The join could not be completed")
+            result.put("messageKey", "BigBlueButtonServerError")
+            result.put("message", "The join could not be completed")
             return result
         }
-        log.debug "redirecting to " + destinationURL
+        log.debug "It is redirecting to " + destinationURL
         redirect(url:destinationURL)
     }
 
@@ -295,12 +296,22 @@ class ToolController {
      * @return the key:val pairs needed for Basic LTI
      */
     private List<Object> getSanitizedRecordings(Map<String, String> params) {
-        List<Object> list = new ArrayList<Object>()
-        Object recordings = bigbluebuttonService.getRecordings(params)
-        Iterator it = recordings.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next()
-            Map<String, Object> recording = entry.getValue()
+        def recordings = new ArrayList<Object>()
+        def getRecordingsResponse = bigbluebuttonService.getRecordings(params)
+        if (getRecordingsResponse == null) {
+            return recordings
+        }
+        Object response = (Object)getRecordingsResponse.get("recording")
+        if (response instanceof Map<?,?>) {
+            recordings.add(response)
+        }
+        if (response instanceof Collection<?>) {
+            recordings = response
+        }
+        // Sanitize recordings
+        Iterator i = recordings.iterator();
+        while (i.hasNext()) {
+            def recording = i.next()
             // Calculate duration.
             long endTime = Long.parseLong((String)recording.get("endTime"))
             endTime -= (endTime % 1000)
@@ -315,11 +326,8 @@ class ToolController {
             // Add reportDate.
             recording.put("reportDate", reportDate)
             recording.put("unixDate", startTime / 1000)
-            list.add(recording)
-            // Avoids a ConcurrentModificationException.
-            it.remove();
         }
-        return list
+        return recordings
     }
 
     private String getCartridgeXML(){
