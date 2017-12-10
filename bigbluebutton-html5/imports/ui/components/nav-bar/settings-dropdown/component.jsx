@@ -7,10 +7,11 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import FullScreenListItemContainer from './full-screen-list-item/container';
-import OpenAboutListItem from './about-list-item/component';
-import OpenSettingsListItem from './settings-list-item/component';
-import LogoutListItem from './logout-list-item/component';
+import FullScreenListItemContainer from './full-screen/container';
+import OpenAboutListItem from './about/component';
+import OpenSettingsListItem from './settings/component';
+import LogoutListItem from './logout/component';
+import ShortcutHelpListItem from './shortcuts-help/component';
 
 import styles from '../styles';
 
@@ -74,6 +75,7 @@ class SettingsDropdown extends Component {
             <FullScreenListItemContainer />
             <OpenSettingsListItem />
             <OpenAboutListItem />
+            <ShortcutHelpListItem />
             <DropdownListSeparator />
             <LogoutListItem />
           </DropdownList>
