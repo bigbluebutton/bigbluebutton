@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.models.Users2x.findWithIntId
 
 trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -18,14 +19,20 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       for {
-        uvo <- Users2x.changeRole(liveMeeting.users2x, msg.body.userId, msg.body.role)
+        uvo <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       } yield {
-        val userRole = if (uvo.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
-
-        val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
-          msg.body.changedBy, userRole)
-
-        outGW.send(event)
+        if (msg.body.role == Roles.MODERATOR_ROLE && uvo.authed) {
+          // Promote only authenticated users.
+          Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
+          val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
+            msg.body.changedBy, "MODERATOR")
+          outGW.send(event)
+        } else if (msg.body.role == Roles.VIEWER_ROLE) {
+          Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
+          val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
+            msg.body.changedBy, "VIEWER")
+          outGW.send(event)
+        }
       }
     }
   }

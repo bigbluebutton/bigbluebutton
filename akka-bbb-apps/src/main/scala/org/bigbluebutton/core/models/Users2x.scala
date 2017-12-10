@@ -26,14 +26,10 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
-  def changeRole(users: Users2x, intId: String, newRole: String): Option[UserState] = {
-    for {
-      u <- findWithIntId(users, intId)
-    } yield {
-      val newUserState = modify(u)(_.role).setTo(newRole).modify(_.roleChangedOn).setTo(System.currentTimeMillis())
-      users.save(newUserState)
-      newUserState
-    }
+  def changeRole(users: Users2x, u: UserState, newRole: String): UserState = {
+    val newUserState = modify(u)(_.role).setTo(newRole).modify(_.roleChangedOn).setTo(System.currentTimeMillis())
+    users.save(newUserState)
+    newUserState
   }
 
   def ejectFromMeeting(users: Users2x, intId: String): Option[UserState] = {

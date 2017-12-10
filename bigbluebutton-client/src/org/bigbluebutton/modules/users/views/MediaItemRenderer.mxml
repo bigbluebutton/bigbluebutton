@@ -318,7 +318,7 @@
 									icon: getStyle('iconDemote'),
 									callback: demoteUser
 								});
-							} else {
+							} else if (data.authed) {
 								myMenuData.push({
 									label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
 									icon: getStyle('iconPromote'),
