@@ -48,125 +48,103 @@ class ToolController {
 
     def index = {
         log.debug CONTROLLER_NAME + "#index"
-        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
-
+        if (ltiService.consumerMap == null) {
+            ltiService.initConsumerMap()
+        }
         setLocalization(params)
-
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         ltiService.logParameters(params)
-
-        if( request.post ){
-            def scheme = request.isSecure()? "https": "http"
-            def endPoint = scheme + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
-            log.info "endPoint: " + endPoint
-            Map<String, String> result = new HashMap<String, String>()
-            ArrayList<String> missingParams = new ArrayList<String>()
-
-            if (hasAllRequiredParams(params, missingParams)) {
-                def sanitizedParams = sanitizePrametersForBaseString(params)
-                def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
-                if ( !ltiService.hasRestrictedAccess() || consumer != null) {
-                    if (ltiService.hasRestrictedAccess() ) {
-                        log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                    }
-
-                    if (!ltiService.hasRestrictedAccess() || checkValidSignature(params.get(REQUEST_METHOD), endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
-                        if (!ltiService.hasRestrictedAccess() ) {
-                            log.debug  "Access not restricted, valid signature is not required."
-                        } else {
-                            log.debug  "The message has a valid signature."
-                        }
-
-                        def mode = params.containsKey(Parameter.CUSTOM_MODE)? params.get(Parameter.CUSTOM_MODE): ltiService.mode
-                        if( !"extended".equals(mode) ) {
-                            log.debug  "LTI service running in simple mode."
-                            result = doJoinMeeting(params)
-                        } else {
-                            log.debug  "LTI service running in extended mode."
-                            if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) && !ltiService.allRecordedByDefault() ) {
-                                log.debug  "Parameter custom_record was not sent; immediately redirecting to BBB session!"
-                                result = doJoinMeeting(params)
-                            }
-                        }
-
-                    } else {
-                        log.debug  "The message has NOT a valid signature."
-                        result.put("resultMessageKey", "InvalidSignature")
-                        result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
-                    }
-
-                } else {
-                    result.put("resultMessageKey", "ConsumerNotFound")
-                    result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
-                }
-
-            } else {
-                String missingStr = ""
-                for(String str:missingParams) {
-                    missingStr += str + ", ";
-                }
-                result.put("resultMessageKey", "MissingRequiredParameter")
-                result.put("resultMessage", "Missing parameters [$missingStr]")
-            }
-
-            if( result.containsKey("resultMessageKey") ) {
-                log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-                render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
-
-            } else {
-                session["params"] = params
-                render(view: "index", model: ['params': params, 'recordingList': getSanitizedRecordings(params), 'ismoderator': bigbluebuttonService.isModerator(params)])
-            }
-        } else {
+        // On get requests render the common cartridge.
+        if (request.get) {
             render(text: getCartridgeXML(), contentType: "text/xml", encoding: "UTF-8")
+            return
         }
+        // On post request proceed with the launch.
+        def endPoint = ltiService.getScheme(request) + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null ? "." + params.get("format") : "")
+        log.info "endPoint: " + endPoint
+        ArrayList<String> missingParams = new ArrayList<String>()
+
+        if (!hasAllRequiredParams(params, missingParams)) {
+            String missingStr = ""
+            for (String str:missingParams) {
+                missingStr += str + ", ";
+            }
+            return renderError("MissingRequiredParameter", "Missing parameters [$missingStr]")
+        }
+
+        def sanitizedParams = sanitizePrametersForBaseString(params)
+        def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
+        if (ltiService.hasRestrictedAccess()) {
+            if (consumer == null) {
+                return renderError("ConsumerNotFound", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
+            }
+            log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
+        }
+        def validSignature = checkValidSignature(params.get(REQUEST_METHOD), endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))
+        if (ltiService.hasRestrictedAccess()) {
+            if (!validSignature) {
+                log.debug  "The message has NOT a valid signature."
+                return renderError("InvalidSignature", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
+            }
+            log.debug  "The message has a valid signature."
+        } else {
+            log.debug  "Access not restricted, valid signature is not required."
+        }
+        def mode = params.containsKey(Parameter.CUSTOM_MODE)? params.get(Parameter.CUSTOM_MODE): ltiService.mode
+        if (!"extended".equals(mode)) {
+            log.debug  "LTI service running in simple mode."
+            def result = doJoinMeeting(params)
+            return
+        }
+        log.debug  "LTI service running in extended mode."
+        if (!Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) && !ltiService.allRecordedByDefault()) {
+            log.debug  "Parameter custom_record was not sent; immediately redirecting to BBB session!"
+            def result = doJoinMeeting(params)
+            return
+        }
+        session["params"] = params
+        render(view: "index", model: ['params': params, 'recordingList': getSanitizedRecordings(params), 'ismoderator': bigbluebuttonService.isModerator(params)])
     }
 
     def join = {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#join"
-        Map<String, String> result
-
+        def result
         def sessionParams = session["params"]
-
         if( sessionParams != null ) {
             log.debug "params: " + params
             log.debug "sessionParams: " + sessionParams
             result = doJoinMeeting(sessionParams)
         } else {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
+            result.put("messageKey", "InvalidSession")
+            result.put("message", "Invalid session. User can not execute this action.")
         }
-
-        if( result.containsKey("resultMessageKey")) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        if (result != null && result.containsKey("messageKey")) {
+            log.debug "Error [messageKey:'" + result.get("messageKey") + "', message:'" + result.get("message") + "']"
+            render(view: "error", model: ['messageKey': result.get("messageKey"), 'message': result.get("message")])
         }
     }
 
     def publish = {
         log.debug CONTROLLER_NAME + "#publish"
         Map<String, String> result
-
         def sessionParams = session["params"]
-
         if( sessionParams == null ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
+            result.put("messageKey", "InvalidSession")
+            result.put("message", "Invalid session. User can not execute this action.")
         } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "NotAllowed")
-            result.put("resultMessage", "User not allowed to execute this action.")
+            result.put("messageKey", "NotAllowed")
+            result.put("message", "User not allowed to execute this action.")
         } else {
-            //Execute the publish command
+            // Execute the publish command
             result = bigbluebuttonService.doPublishRecordings(params)
         }
-
-        if( result.containsKey("resultMessageKey")) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        if( result.containsKey("messageKey")) {
+            log.debug "Error [messageKey:'" + result.get("messageKey") + "', message:'" + result.get("message") + "']"
+            render(view: "error", model: ['messageKey': result.get("messageKey"), 'message': result.get("message")])
         } else {
             render(view: "index", model: ['params': sessionParams, 'recordingList': getSanitizedRecordings(sessionParams), 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
@@ -175,25 +153,22 @@ class ToolController {
     def delete = {
         log.debug CONTROLLER_NAME + "#delete"
         Map<String, String> result
-
         def sessionParams = session["params"]
-
         if( sessionParams == null ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
+            result.put("messageKey", "InvalidSession")
+            result.put("message", "Invalid session. User can not execute this action.")
         } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
             result = new HashMap<String, String>()
-            result.put("resultMessageKey", "NotAllowed")
-            result.put("resultMessage", "User not allowed to execute this action.")
+            result.put("messageKey", "NotAllowed")
+            result.put("message", "User not allowed to execute this action.")
         } else {
-            //Execute the delete command
+            // Execute the delete command.
             result = bigbluebuttonService.doDeleteRecordings(params)
         }
-
-        if( result.containsKey("resultMessageKey")) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        if( result.containsKey("messageKey")) {
+            log.debug "Error [messageKey:'" + result.get("messageKey") + "', message:'" + result.get("message") + "']"
+            render(view: "error", model: ['messageKey': result.get("messageKey"), 'message': result.get("message")])
         } else {
             render(view: "index", model: ['params': sessionParams, 'recordingList': getSanitizedRecordings(sessionParams), 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
@@ -203,48 +178,39 @@ class ToolController {
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
         String[] localeCodes = locale.split("_")
-        //Localize the default welcome message
-        if( localeCodes.length > 1 )
+        // Localize the default welcome message
+        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
+        if (localeCodes.length > 1) {
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
-        else
-            session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
+        }
     }
 
     private Object doJoinMeeting(Map<String, String> params) {
-        Map<String, String> result = new HashMap<String, String>()
-
         setLocalization(params)
         String welcome = message(code: "bigbluebutton.welcome.header", args: ["\"{0}\"", "\"{1}\""]) + "<br>"
-
         // Check for [custom_]welcome parameter being passed from the LTI
-        if ( params.containsKey(Parameter.CUSTOM_WELCOME) && params.get(Parameter.CUSTOM_WELCOME) != null ) {
+        if (params.containsKey(Parameter.CUSTOM_WELCOME) && params.get(Parameter.CUSTOM_WELCOME) != null) {
             welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
             log.debug "Overriding default welcome message with: [" + welcome + "]"
         }
-
-        if ( params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) || ltiService.allRecordedByDefault() ) {
+        if (params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) || ltiService.allRecordedByDefault()) {
             welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
             log.debug "Adding record warning to welcome message, welcome is now: [" + welcome + "]"
         }
-
-        if ( params.containsKey(Parameter.CUSTOM_DURATION) && Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0 ) {
+        if (params.containsKey(Parameter.CUSTOM_DURATION) && Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0) {
             welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [params.get(Parameter.CUSTOM_DURATION)]) + "</b><br>"
             log.debug "Adding duration warning to welcome message, welcome is now: [" + welcome + "]"
         }
-
         welcome += "<br>" + message(code: "bigbluebutton.welcome.footer") + "<br>"
-
         String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
-        log.debug "redirecting to " + destinationURL
-
-        if( destinationURL != null ) {
-            redirect(url:destinationURL)
-        } else {
-            result.put("resultMessageKey", "BigBlueButtonServerError")
-            result.put("resultMessage", "The join could not be completed")
+        if (destinationURL == null) {
+            Map<String, String> result = new HashMap<String, String>()
+            result.put("messageKey", "BigBlueButtonServerError")
+            result.put("message", "The join could not be completed")
+            return result
         }
-
-        return result
+        log.debug "It is redirecting to " + destinationURL
+        redirect(url:destinationURL)
     }
 
     /**
@@ -258,14 +224,15 @@ class ToolController {
             if (key == "action" || key == "controller" || key == "format") {
                 // Ignore as these are the grails controller and action tied to this request.
                 continue
-            } else if (key == "oauth_signature") {
-                // We don't need this as part of the base string
-                continue
-            } else if (key == "request_method") {
-                // As this is was added by the controller, we don't want it as part of the base string
+            }
+            if (key == "oauth_signature") {
+                // We don't need this as part of the base string.
                 continue
             }
-
+            if (key == "request_method") {
+                // As this is was added by the controller, we don't want it as part of the base string.
+                continue
+            }
             reqProp.setProperty(key, params.get(key));
         }
         return reqProp
@@ -279,24 +246,19 @@ class ToolController {
      */
     private boolean hasAllRequiredParams(Map<String, String> params, ArrayList<String> missingParams) {
         log.debug "Checking for required parameters"
-
-        boolean hasAllParams = true
-        if ( ltiService.hasRestrictedAccess() && !params.containsKey(Parameter.CONSUMER_ID) ) {
+        if (ltiService.hasRestrictedAccess() && !params.containsKey(Parameter.CONSUMER_ID)) {
             missingParams.add(Parameter.CONSUMER_ID);
-            hasAllParams = false;
+            return false
         }
-
-        if ( ltiService.hasRestrictedAccess() && !params.containsKey(Parameter.OAUTH_SIGNATURE)) {
+        if (ltiService.hasRestrictedAccess() && !params.containsKey(Parameter.OAUTH_SIGNATURE)) {
             missingParams.add(Parameter.OAUTH_SIGNATURE);
-            hasAllParams = false;
+            return false
         }
-
-        if ( !params.containsKey(Parameter.RESOURCE_LINK_ID) ) {
+        if (!params.containsKey(Parameter.RESOURCE_LINK_ID)) {
             missingParams.add(Parameter.RESOURCE_LINK_ID);
-            hasAllParams = false;
+            return false
         }
-
-        return hasAllParams
+        return true
     }
 
     /**
@@ -309,32 +271,23 @@ class ToolController {
      * @return - TRUE if the signatures matches the calculated signature
      */
     private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
-        def validSignature = false
-
-        if ( ltiService.hasRestrictedAccess() ) {
-            try {
-                OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
-                //log.debug "OAuthMessage oam = " + oam.toString()
-
-                HMAC_SHA1 hmac = new HMAC_SHA1()
-                //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
-
-                hmac.setConsumerSecret(conSecret)
-
-                log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
-                String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
-                log.debug "Calculated: " + calculatedSignature + " Received: " + signature
-
-                validSignature = calculatedSignature.equals(signature)
-            } catch( Exception e ) {
-                log.debug "Exception error: " + e.message
-            }
-
-        } else {
-            validSignature = true
+        if (!ltiService.hasRestrictedAccess()) {
+            return true;
         }
-
-        return validSignature
+        try {
+            OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
+            //log.debug "OAuthMessage oam = " + oam.toString()
+            HMAC_SHA1 hmac = new HMAC_SHA1()
+            //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
+            hmac.setConsumerSecret(conSecret)
+            log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
+            String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
+            log.debug "Calculated: " + calculatedSignature + " Received: " + signature
+            return calculatedSignature.equals(signature)
+        } catch( Exception e ) {
+            log.debug "Exception error: " + e.message
+            return false
+        }
     }
 
     /**
@@ -343,20 +296,34 @@ class ToolController {
      * @return the key:val pairs needed for Basic LTI
      */
     private List<Object> getSanitizedRecordings(Map<String, String> params) {
-        List<Object> recordings = bigbluebuttonService.getRecordings(params)
-        for(Map<String, Object> recording: recordings){
-            /// Calculate duration
+        def recordings = new ArrayList<Object>()
+        def getRecordingsResponse = bigbluebuttonService.getRecordings(params)
+        if (getRecordingsResponse == null) {
+            return recordings
+        }
+        Object response = (Object)getRecordingsResponse.get("recording")
+        if (response instanceof Map<?,?>) {
+            recordings.add(response)
+        }
+        if (response instanceof Collection<?>) {
+            recordings = response
+        }
+        // Sanitize recordings
+        Iterator i = recordings.iterator();
+        while (i.hasNext()) {
+            def recording = i.next()
+            // Calculate duration.
             long endTime = Long.parseLong((String)recording.get("endTime"))
             endTime -= (endTime % 1000)
             long startTime = Long.parseLong((String)recording.get("startTime"))
             startTime -= (startTime % 1000)
             int duration = (endTime - startTime) / 60000
-            /// Add duration
+            // Add duration.
             recording.put("duration", duration )
-            /// Calculate reportDate
+            // Calculate reportDate.
             DateFormat df = new SimpleDateFormat(message(code: "tool.view.dateFormat"))
             String reportDate = df.format(new Date(startTime))
-            /// Add reportDate
+            // Add reportDate.
             recording.put("reportDate", reportDate)
             recording.put("unixDate", startTime / 1000)
         }
@@ -398,5 +365,10 @@ class ToolController {
                 '</cartridge_basiclti_link>'
 
         return cartridge
+    }
+
+    private void renderError(key, message) {
+        log.debug "Error [resultMessageKey:'" + key + "', resultMessage:'" + message + "']"
+        render(view: "error", model: ['resultMessageKey': key, 'resultMessage': message])
     }
 }
