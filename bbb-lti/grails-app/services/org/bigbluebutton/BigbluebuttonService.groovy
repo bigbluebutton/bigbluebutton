@@ -107,6 +107,7 @@ class BigbluebuttonService {
         String meta = getMonitoringMetaData(params)
         String createURL = getCreateURL(meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta)
         Map<String, Object> responseAPICall = doAPICall(createURL)
+        log.info "responseAPICall: " + responseAPICall
         if (responseAPICall == null) {
             return null
         }
@@ -115,10 +116,13 @@ class BigbluebuttonService {
         String messageKey = (String)response.get("messageKey")
         if (!Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
             !Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) &&
-            !Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) {
+            !Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey) &&
+            !"".equals(messageKey)) {
             return null
         }
-        return bbbProxy.getJoinURL(userFullName, meetingID, (isModerator || allModerators)? moderatorPW: attendeePW, (String) response.get("createTime"), userID)
+        def joinURL = bbbProxy.getJoinURL(userFullName, meetingID, (isModerator || allModerators)? moderatorPW: attendeePW, (String) response.get("createTime"), userID)
+        log.info "joinURL: " + joinURL
+        return joinURL
     }
 
     public Object getRecordings(params) {
