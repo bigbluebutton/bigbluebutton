@@ -66,15 +66,15 @@ class ShortcutHelpComponent extends Component {
     const { intl } = this.props;
 
     const shortcuts = [
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc001),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc002),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc003),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc004),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc005),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc006),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc007),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc008),},
-      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc009),},
+      { keys: 'Control+Alt+0', function: intl.formatMessage(intlMessages.shortcutFunc001) },
+      { keys: 'Control+Alt+1', function: intl.formatMessage(intlMessages.shortcutFunc002) },
+      { keys: 'Control+Alt+M', function: intl.formatMessage(intlMessages.shortcutFunc003) },
+      { keys: 'Control+Alt+L', function: intl.formatMessage(intlMessages.shortcutFunc004) },
+      { keys: 'Control+Alt+8', function: intl.formatMessage(intlMessages.shortcutFunc005) },
+      { keys: 'Control+Alt+9', function: intl.formatMessage(intlMessages.shortcutFunc006) },
+      { keys: 'Control+Shift+A', function: intl.formatMessage(intlMessages.shortcutFunc007) },
+      { keys: 'Control+Shift+E', function: intl.formatMessage(intlMessages.shortcutFunc008) },
+      { keys: 'Control+Shift+Y', function: intl.formatMessage(intlMessages.shortcutFunc009) },
     ];
 
     return (
@@ -101,5 +101,5 @@ class ShortcutHelpComponent extends Component {
     );
   }
 }
-  
+
 export default injectIntl(ShortcutHelpComponent);
