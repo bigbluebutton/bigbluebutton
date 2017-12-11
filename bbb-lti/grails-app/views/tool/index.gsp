@@ -4,6 +4,7 @@
         <link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">
         <asset:stylesheet src="bootstrap.css"/>
         <asset:stylesheet src="dataTables.bootstrap.min.css"/>
+        <asset:stylesheet src="tool.css"/>
         <asset:javascript src="jquery.js"/>
         <asset:javascript src="jquery.dataTables.min.js"/>
         <asset:javascript src="dataTables.bootstrap.min.js"/>
@@ -44,7 +45,15 @@
                     </td>
                     <td class="cell c1" style="text-align:left;">${r.name}</td>
                     <td class="cell c2" style="text-align:left;">${r.metadata.contextactivitydescription}</td>
-                    <td class="cell c3" style="text-align:left;">${r.metadata.contextactivitydescription}</td>
+                    <td class="cell c3" style="text-align:left;">
+                    <g:if test="${r.published}">
+                        <div>
+                        <g:each in="${r.thumbnails}" var="thumbnail">
+                            <img src="${thumbnail.content}" class="thumbnail"></img>
+                        </g:each>
+                        </div>
+                  </g:if>
+                    </td>
                     <td class="cell c4" style="text-align:left;">${r.unixDate}</td>
                     <td class="cell c5" style="text-align:right;">${r.duration}</td>
                     <g:if test="${ismoderator}">

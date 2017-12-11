@@ -22,17 +22,17 @@ $(document).ready(function() {
 			$('#recordings').dataTable({
 				columnDefs: [ {
 					targets: 4,
-					render: $.fn.dataTable.render.moment('X', 'LLL', locale)
+					render: $.fn.dataTable.render.moment('X', 'lll', locale)
 				} ],
 				sPaginationType : "full_numbers",
 				"columns": [
 					null,
 					null,
 					null,
+					{ "width": "90px" },
 					null,
-					null,
-					null,
-					{ "width": "160px" }
+					{ "width": "40px" },
+					{ "width": "120px" }
 				],
 				"order": [[ 4, "desc" ]]
 			});

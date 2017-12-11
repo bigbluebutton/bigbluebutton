@@ -309,9 +309,7 @@ class ToolController {
             recordings = response
         }
         // Sanitize recordings
-        Iterator i = recordings.iterator();
-        while (i.hasNext()) {
-            def recording = i.next()
+        for (recording in recordings) {
             // Calculate duration.
             long endTime = Long.parseLong((String)recording.get("endTime"))
             endTime -= (endTime % 1000)
@@ -326,8 +324,20 @@ class ToolController {
             // Add reportDate.
             recording.put("reportDate", reportDate)
             recording.put("unixDate", startTime / 1000)
+            // Add sanitized thumbnails
+            recording.put("thumbnails", sanitizeThumbnails(recording.playback.format))
         }
         return recordings
+    }
+
+    private List<Object> sanitizeThumbnails(Object format) {
+        if (format.preview == null || format.preview.images == null || format.preview.images.image == null) {
+            return new ArrayList()
+        }
+        if (format.preview.images.image instanceof Map<?,?>) {
+            return new ArrayList(format.preview.images.image)
+        }
+        return format.preview.images.image
     }
 
     private String getCartridgeXML(){
