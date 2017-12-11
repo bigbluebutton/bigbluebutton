@@ -678,8 +678,15 @@ public class ParamsProcessorUtil {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;
 		}
-        
-		String cs = DigestUtils.shaHex(meetingID + configXML + securitySalt);
+
+		log.info("CONFIGXML CHECKSUM=" + checksum + " length=" + checksum.length());
+
+		String data = meetingID + configXML + securitySalt;
+		String cs = DigestUtils.sha1Hex(data);
+		if (checksum.length() == 64) {
+			cs = DigestUtils.sha256Hex(data);
+			log.info("CONFIGXML SHA256 " + cs);
+		}
 
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
@@ -704,8 +711,14 @@ public class ParamsProcessorUtil {
 		    queryString = queryString.replace("checksum=" + checksum, "");
 		}
 
-		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
+		log.info("CHECKSUM=" + checksum + " length=" + checksum.length());
 
+		String data = apiCall + queryString + securitySalt;
+		String cs = DigestUtils.sha1Hex(data);
+		if (checksum.length() == 64) {
+			cs = DigestUtils.sha256Hex(data);
+			log.info("SHA256 " + cs);
+		}
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);

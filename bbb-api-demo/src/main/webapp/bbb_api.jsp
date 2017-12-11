@@ -735,7 +735,7 @@ public String getMetaData( Map<String, String> metadata ) {
 public static String checksum(String s) {
 	String checksum = "";
 	try {
-		checksum = org.apache.commons.codec.digest.DigestUtils.shaHex(s);
+		checksum = org.apache.commons.codec.digest.DigestUtils.sha256Hex(s);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
