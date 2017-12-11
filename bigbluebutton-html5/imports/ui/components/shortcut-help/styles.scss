@@ -1,0 +1,24 @@
+@import "../../stylesheets/variables/_all";
+
+.shortcutTable, .keyCell, .funcCell, .tableTitle {
+  border: $border-size solid $color-gray-lighter;
+}
+
+.keyCell {
+  text-align: center;
+}
+
+.funcCell {
+  padding-right: $jumbo-padding-x !important;
+}
+
+.keyCell, .funcCell {
+  //text-align: center;
+  padding: $sm-padding-x;
+  margin: auto;
+}
+
+.shortcutTable {
+  border-collapse: collapse;
+  margin: auto;
+}
