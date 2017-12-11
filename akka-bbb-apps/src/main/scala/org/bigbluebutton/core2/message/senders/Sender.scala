@@ -6,9 +6,9 @@ object Sender {
 
   def sendUserEjectedFromMeetingClientEvtMsg(meetingId: String, userId: String,
                                              ejectedBy: String, reason: String,
-                                             outGW: OutMsgRouter): Unit = {
+                                             reasonCode: String, outGW: OutMsgRouter): Unit = {
     val ejectFromMeetingClientEvent = MsgBuilder.buildUserEjectedFromMeetingEvtMsg(
-      meetingId, userId, ejectedBy, reason
+      meetingId, userId, ejectedBy, reason, reasonCode
     )
     outGW.send(ejectFromMeetingClientEvent)
   }

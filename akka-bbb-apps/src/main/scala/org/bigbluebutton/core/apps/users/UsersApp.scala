@@ -65,11 +65,12 @@ object UsersApp {
   }
 
   def sendUserEjectedMessageToClient(outGW: OutMsgRouter, meetingId: String,
-                                     userId: String, ejectedBy: String, reason: String): Unit = {
+                                     userId: String, ejectedBy: String,
+                                     reason: String, reasonCode: String): Unit = {
     // send a message to client
     Sender.sendUserEjectedFromMeetingClientEvtMsg(
       meetingId,
-      userId, ejectedBy, reason, outGW
+      userId, ejectedBy, reason, reasonCode, outGW
     )
   }
 
@@ -95,7 +96,7 @@ object UsersApp {
   }
 
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
-                           userId: String, ejectedBy: String, reason: String): Unit = {
+                           userId: String, ejectedBy: String, reason: String, reasonCode: String): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
 
@@ -103,7 +104,7 @@ object UsersApp {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
     } yield {
       RegisteredUsers.remove(userId, liveMeeting.registeredUsers)
-      sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason)
+      sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
       if (user.presenter) {
         automaticallyAssignPresenter(outGW, liveMeeting)

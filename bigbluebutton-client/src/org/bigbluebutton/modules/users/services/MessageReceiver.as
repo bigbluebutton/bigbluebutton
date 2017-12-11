@@ -544,8 +544,9 @@ package org.bigbluebutton.modules.users.services
     private function handleUserEjectedFromMeeting(msg: Object):void {
       var body: Object = msg.body as Object;
       var userId:String = body.userId as String;
+      var reasonCode: String = body.reasonCode as String;
       
-      UsersUtil.setUserEjected();
+      UsersUtil.setUserEjected(reasonCode);
       
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["users"];

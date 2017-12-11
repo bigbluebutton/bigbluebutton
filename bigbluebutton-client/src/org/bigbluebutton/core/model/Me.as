@@ -39,8 +39,9 @@ package org.bigbluebutton.core.model
     public var lockedLayout:Boolean = false;
     
     public var iAskedToLogout:Boolean;
-    public var ejectedFromMeeting:Boolean = false;
-    
+    private var _ejectedFromMeeting:Boolean = false;
+    private var _reasonCode: String = "";
+
     public var locked: Boolean = false;
     public var inVoiceConf: Boolean = false;
     public var muted: Boolean = false;
@@ -62,6 +63,18 @@ package org.bigbluebutton.core.model
       _role = value;
     }
     
+    public function ejectedFromMeeting(reasonCode: String): void {
+      _ejectedFromMeeting = true;
+      _reasonCode = reasonCode;
+    }
+   
+    public function hasBeenEjected(): Boolean {
+      return _ejectedFromMeeting;
+    }
+
+    public function getEjectReasonCode(): String {
+      return _reasonCode;
+    }
 
     private var _myCamSettings:ArrayCollection = new ArrayCollection(); 
     public function addCameraSettings(camSettings: CameraSettingsVO): void {
