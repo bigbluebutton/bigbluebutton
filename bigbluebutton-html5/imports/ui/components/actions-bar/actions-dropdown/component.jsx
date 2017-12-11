@@ -60,6 +60,8 @@ class ActionsDropdown extends Component {
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0}>
           <Button
+            hideLabel
+            aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="add"
             color="primary"

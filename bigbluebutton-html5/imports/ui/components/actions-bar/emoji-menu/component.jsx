@@ -124,6 +124,7 @@ const EmojiMenu = ({
       <Button
         className={styles.button}
         role="button"
+        hideLabel
         label={intl.formatMessage(intlMessages.statusTriggerLabel)}
         aria-label={intl.formatMessage(intlMessages.changeStatusLabel)}
         aria-describedby="currentStatus"
@@ -131,7 +132,6 @@ const EmojiMenu = ({
           EMOJI_NORMALIZE[userEmojiStatus] : 'hand'}
         ghost={false}
         circle
-        hideLabel={false}
         color="primary"
         size="lg"
 
