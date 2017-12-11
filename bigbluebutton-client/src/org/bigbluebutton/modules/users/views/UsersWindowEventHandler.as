@@ -117,6 +117,7 @@ package org.bigbluebutton.modules.users.views
       buser.name = user.name;
       buser.role = user.role;
       buser.guest = user.guest;
+      buser.authed = user.authed;
       buser.locked = user.locked;
       buser.emojiStatus = user.emoji;
       buser.presenter = user.presenter;
