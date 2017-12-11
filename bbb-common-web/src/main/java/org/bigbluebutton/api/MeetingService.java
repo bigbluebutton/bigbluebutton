@@ -288,6 +288,30 @@ public class MeetingService implements MessageListener {
   }
 
   private void processRegisterUser(RegisterUser message) {
+    Meeting m = getMeeting(message.meetingID);
+    if (m != null) {
+      User prevUser = m.getUserWithExternalId(message.externUserID);
+      if (prevUser != null) {
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingId", m.getInternalId());
+        logData.put("externalMeetingId", m.getExternalId());
+        logData.put("name", m.getName());
+        logData.put("extUserId", prevUser.getExternalUserId());
+        logData.put("intUserId", prevUser.getInternalUserId());
+        logData.put("username", prevUser.getFullname());
+        logData.put("event", "duplicate_user_with_external_userid");
+        logData.put("description", "Duplicate user with external userid.");
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+        log.info("Duplicate user with same externalUserId: data={}", logStr);
+
+        gw.ejectDuplicateUser(message.meetingID,
+                prevUser.getInternalUserId(), prevUser.getFullname(),
+                prevUser.getExternalUserId());
+      }
+
+    }
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,

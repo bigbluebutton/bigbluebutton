@@ -142,6 +142,7 @@ class UsersApp(
     with AddUserToPresenterGroupCmdMsgHdlr
     with RemoveUserFromPresenterGroupCmdMsgHdlr
     with GetPresenterGroupReqMsgHdlr
+    with EjectDuplicateUserReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr
     with MuteUserCmdMsgHdlr {
 

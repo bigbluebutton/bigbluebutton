@@ -35,6 +35,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildEjectDuplicateUserRequestToAkkaApps(meetingId: String, intUserId: String, name: String, extUserId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(EjectDuplicateUserReqMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(EjectDuplicateUserReqMsg.NAME, meetingId)
+    val body = EjectDuplicateUserReqMsgBody(meetingId = meetingId, intUserId = intUserId,
+      name = name, extUserId = extUserId)
+    val req = EjectDuplicateUserReqMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildRegisterUserRequestToAkkaApps(msg: RegisterUser): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)

@@ -126,15 +126,20 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
                     guest: java.lang.Boolean, authed: java.lang.Boolean,
                     guestStatus: String): Unit = {
 
-//    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
-//      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
-//     guest = guest, authed = authed)
+    //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
+    //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
+    //     guest = guest, authed = authed)
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
-          role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
-         guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus)
+      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
+      guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
+  def ejectDuplicateUser (meetingId: String, intUserId: String, name: String, extUserId: String): Unit = {
+    val event = MsgBuilder.buildEjectDuplicateUserRequestToAkkaApps(meetingId, intUserId, name, extUserId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
