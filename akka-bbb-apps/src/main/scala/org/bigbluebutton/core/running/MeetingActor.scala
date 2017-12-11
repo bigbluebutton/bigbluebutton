@@ -218,7 +218,6 @@ class MeetingActor(
       case m: StartCustomPollReqMsg          => handleStartCustomPollReqMsg(m)
       case m: StopPollReqMsg                 => handleStopPollReqMsg(m)
       case m: ShowPollResultReqMsg           => handleShowPollResultReqMsg(m)
-      case m: HidePollResultReqMsg           => handleHidePollResultReqMsg(m)
       case m: GetCurrentPollReqMsg           => handleGetCurrentPollReqMsg(m)
       case m: RespondToPollReqMsg            => handleRespondToPollReqMsg(m)
 

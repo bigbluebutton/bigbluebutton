@@ -17,3 +17,5 @@ chat:
   storage_key: 'UNREAD_CHATS'
   # Chat paths
   path_route: 'users/chat/'
+  system_messages_keys:
+    chat_clear: 'PUBLIC_CHAT_CLEAR'

@@ -98,11 +98,8 @@ package org.bigbluebutton.modules.polling.service
       );
     }
     
-    public function showPollResult(pollId:String, show:Boolean):void {
+    public function showPollResult(pollId:String):void {
       var messageName:String = "ShowPollResultReqMsg";
-      if (!show) {
-        messageName = "HidePollResultReqMsg";
-      }
 
       var message:Object = {
         header: {name: messageName, meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
