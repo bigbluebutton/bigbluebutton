@@ -54,10 +54,6 @@ class UserList extends Component {
   render() {
     return (
       <div className={styles.userList}>
-        {/* <UserListHeader
-          intl={this.props.intl}
-          compact={this.state.compact}
-        /> */}
         {<UserContent
           intl={this.props.intl}
           openChats={this.props.openChats}
