@@ -63,7 +63,7 @@ class ActionsDropdown extends Component {
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             label={intl.formatMessage(intlMessages.actionsLabel)}
-            icon="add"
+            icon="plus"
             color="primary"
             size="lg"
             circle
