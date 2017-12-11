@@ -67,7 +67,7 @@ export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }
 
   Breakouts.find().observeChanges({
     removed() {
-      openAudioModal();
+      setTimeout(() => openAudioModal(), 0);
     },
   });
 
