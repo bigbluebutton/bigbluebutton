@@ -45,15 +45,15 @@
                     <td class="cell c1" style="text-align:left;">${r.name}</td>
                     <td class="cell c2" style="text-align:left;">${r.metadata.contextactivitydescription}</td>
                     <td class="cell c3" style="text-align:left;">${r.metadata.contextactivitydescription}</td>
-                    <td class="cell c4" style="text-align:left;">${r.reportDate}</td>
+                    <td class="cell c4" style="text-align:left;">${r.unixDate}</td>
                     <td class="cell c5" style="text-align:right;">${r.duration}</td>
                     <g:if test="${ismoderator}">
                     <td class="cell c6 lastcol" style="text-align:center;">
-                      <g:if test="${r.published == 'true'}">
-                      <a title="<g:message code="tool.view.recording.unpublish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-close" name="unpublish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
+                      <g:if test="${r.published}">
+                      <a title="<g:message code="tool.view.recording.unpublish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-open" name="unpublish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
                       </g:if>
                       <g:else>
-                      <a title="<g:message code="tool.view.recording.publish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-open" name="publish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
+                      <a title="<g:message code="tool.view.recording.publish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-close" name="publish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
                       </g:else>
                       <a title="<g:message code="tool.view.recording.delete" />" class="btn btn-danger btn-sm glyphicon glyphicon-trash" name="delete_recording" value="${r.recordID}"
                         data-toggle="confirmation"
