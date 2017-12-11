@@ -3,17 +3,18 @@ import PropTypes from 'prop-types';
 import Tippy from 'tippy.js';
 import _ from 'lodash';
 import cx from 'classnames';
+import { ESCAPE } from '/imports/utils/keyCodes';
 
 const propTypes = {
   title: PropTypes.string.isRequired,
   position: PropTypes.oneOf(['bottom']),
   children: PropTypes.element.isRequired,
-  dynamicTitle: PropTypes.bool
+  className: PropTypes.string,
 };
 
 const defaultProps = {
   position: 'bottom',
-  dynamicTitle: true,
+  className: null,
 };
 
 class Tooltip extends Component {
@@ -25,17 +26,17 @@ class Tooltip extends Component {
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
     this.delay = [250, 100];
+    this.dynamicTitle = true;
   }
 
   componentDidMount() {
     const {
       position,
-      dynamicTitle,
     } = this.props;
 
     const options = {
       position,
-      dynamicTitle,
+      dynamicTitle: this.dynamicTitle,
       delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,
@@ -53,9 +54,9 @@ class Tooltip extends Component {
   }
 
   handleEscapeHide(e) {
-    if (e.keyCode !== 27) return;
+    if (e.keyCode !== ESCAPE) return;
 
-    const popper = this.tooltip.tooltips[0].hide();
+    this.tooltip.tooltips[0].hide();
   }
 
   render() {
