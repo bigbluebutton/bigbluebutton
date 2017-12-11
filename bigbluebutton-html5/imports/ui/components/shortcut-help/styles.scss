@@ -13,7 +13,6 @@
 }
 
 .keyCell, .funcCell {
-  //text-align: center;
   padding: $sm-padding-x;
   margin: auto;
 }
@@ -21,4 +20,8 @@
 .shortcutTable {
   border-collapse: collapse;
   margin: auto;
+}
+
+.tableTitle {
+  padding: $sm-padding-x;
 }
