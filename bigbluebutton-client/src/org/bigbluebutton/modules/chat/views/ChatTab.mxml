@@ -49,14 +49,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;      
       import flash.events.TextEvent;
-      
       import mx.binding.utils.BindingUtils;
-      
       import flashx.textLayout.formats.Direction;
-      
       import org.as3commons.lang.StringUtils;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
@@ -307,7 +303,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
         if (groupChat != null) {
-          groupChat.addMessage(msg);
+           chatMessages.newChatMessage(msg);
         }
       }
       
@@ -324,7 +320,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
         if (groupChat != null) {
-          groupChat.addMessage(msg);
+           chatMessages.newChatMessage(msg);
         }
       }
       
@@ -385,7 +381,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
         if (groupChat != null) {
-          groupChat.addMessage(msg);
+          chatMessages.newChatMessage(msg);
         }
       }
       
@@ -612,11 +608,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function applyLockSettings():void {
-        //if (publicChat) {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
-        //} else {
-        //  txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat;
-        //}
       }
       
       private function refreshRole(e:ChangeMyRole):void {
@@ -654,12 +646,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         const paddingHeight:int = 5;
         const paddingWidth:int = 5;
         
-//        chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 20;
-//        chatToolbar.y = 10;
-        
-//        if (!publicChat) {
-//          chatToolbar.publicChat = false;
-//        }
       }
     ]]>
     
@@ -672,7 +658,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
       <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
-                         itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
+                         itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" 
+                         verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
                          dataProvider="{chatMessages.messages}"
                          styleName="chatMessageListStyle"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
