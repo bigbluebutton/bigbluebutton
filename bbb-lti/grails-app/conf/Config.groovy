@@ -1,4 +1,4 @@
-/* 
+/*
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
     Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*/    
+*/
 
 // locations to search for config files that get merged into the main config;
 // config files can be ConfigSlurper scripts, Java properties files, or classes
@@ -102,6 +102,9 @@ grails.hibernate.cache.queries = false
 grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
+
+// Enable hot reloading for production environments
+grails.gsp.enable.reload=true
 
 environments {
     development {
