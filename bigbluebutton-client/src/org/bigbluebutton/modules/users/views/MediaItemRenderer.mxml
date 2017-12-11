@@ -192,7 +192,7 @@
 					var allowModeratorToSeeOwnSettings: Boolean = !data.me || (data.me && UsersUtil.amIModerator());
 					settingsBtn.visible = rolledOver && allowModeratorToSeeOwnSettings && !UsersUtil.isBreakout();
 
-					if ( !data.inVoiceConf || ( options.moderatorUnmute == false && UsersUtil.amIModerator() && !UsersUtil.isMe(data.userId) ) ) {
+					if (!data.inVoiceConf) {
 						muteImg.visible = false;
 						muteImg.includeInLayout = false;
 						muteBtn.visible = false;
@@ -210,13 +210,15 @@
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = false;
 						} else {
-							muteImg.visible = !rolledOver;
-							muteImg.includeInLayout = !rolledOver;
-							muteBtn.visible = rolledOver;
-							muteBtn.includeInLayout = rolledOver;
+							// can no longer unmute others
+							var showMuteBtn:Boolean = rolledOver && (!data.muted || data.me);
+							muteImg.visible = !showMuteBtn;
+							muteImg.includeInLayout = !showMuteBtn;
+							muteBtn.visible = showMuteBtn;
+							muteBtn.includeInLayout = showMuteBtn;
 							muteBtn.enabled = true;
 
-							if (data.talking && !rolledOver) {
+							if (data.talking && !showMuteBtn) {
 								muteImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 							} else {
 								muteImg.filters = [];
@@ -262,7 +264,7 @@
 						webcamBtn.includeInLayout = false;
 					}
 
-					if (!rolledOver) {
+					if (muteImg.visible) {
 						if (data.inVoiceConf) {
 							if (data.listenOnly) {
 								muteImg.source = getStyle("iconSound");
@@ -272,19 +274,20 @@
 								muteImg.source = getStyle("iconAudio");
 							}
 						}
-
-
+					} else {
+						if (data.muted == rolledOverMute)
+							muteBtn.setStyle("icon", getStyle("iconAudio"));
+						else
+							muteBtn.setStyle("icon", getStyle("iconAudioMuted"));
+					}
+					
+					if (lockImg.visible) {
 						if (data.locked && !data.presenter && ls.isAnythingLocked()) {
 							lockImg.source = getStyle("iconLock");
 						} else {
 							lockImg.source = null;
 						}
 					} else {
-						if (data.muted == rolledOverMute)
-							muteBtn.setStyle("icon", getStyle("iconAudio"));
-						else
-							muteBtn.setStyle("icon", getStyle("iconAudioMuted"));
-
 						if (data.locked == rolledOverLock)
 							lockBtn.setStyle("icon", getStyle("iconUnlock"));
 						else

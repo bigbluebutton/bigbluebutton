@@ -5,6 +5,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers with SystemConfiguration {
   this: BaseMeetingActor =>
@@ -50,6 +52,12 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers with SystemConfi
 
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()
+    }
+
+    // if the meeting is muted tell freeswitch to mute the new person
+    if (!isListenOnly && MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+      val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, voiceConf, voiceUserId, true)
+      outGW.send(event)
     }
   }
 }

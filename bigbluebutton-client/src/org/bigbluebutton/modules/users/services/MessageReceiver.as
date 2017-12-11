@@ -123,7 +123,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "MeetingMutedEvtMsg":
           handleMeetingMuted(message);
-          break;   
+          break;
+        case "IsMeetingMutedRespMsg":
+          handleIsMeetingMutedResp(message);
         case "meetingState":
           handleMeetingState(message);
           break;  
@@ -621,6 +623,14 @@ package org.bigbluebutton.modules.users.services
     
     
     private function handleMeetingMuted(msg:Object):void {
+      var body:Object = msg.body as Object;
+      if (body.hasOwnProperty("muted")) {
+        LiveMeeting.inst().meetingStatus.isMeetingMuted = body.muted as Boolean;
+        dispatcher.dispatchEvent(new MeetingMutedEvent());
+      }
+    }
+    
+    private function handleIsMeetingMutedResp(msg:Object):void {
       var body:Object = msg.body as Object;
       if (body.hasOwnProperty("muted")) {
         LiveMeeting.inst().meetingStatus.isMeetingMuted = body.muted as Boolean;
