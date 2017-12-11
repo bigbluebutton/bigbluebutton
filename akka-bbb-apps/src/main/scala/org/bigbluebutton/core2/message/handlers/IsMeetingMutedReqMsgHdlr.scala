@@ -22,7 +22,7 @@ trait IsMeetingMutedReqMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val event = build(liveMeeting.props.meetingProp.intId, msg.body.requesterId, MeetingStatus2x.isMeetingMuted(liveMeeting.status))
+    val event = build(liveMeeting.props.meetingProp.intId, msg.header.userId, MeetingStatus2x.isMeetingMuted(liveMeeting.status))
     outGW.send(event)
   }
 }

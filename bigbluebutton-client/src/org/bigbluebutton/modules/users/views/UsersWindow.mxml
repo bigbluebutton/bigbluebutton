@@ -419,15 +419,13 @@ $Id: $
         paramsMenuData = [];
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: getStyle('iconClearStatus'), handler: resetEmojiStatuses});
         
-		if (partOptions.moderatorUnmute == true) {
-	      if (!roomMuted) {
-	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
-	        var presenter:User2x = UsersUtil.getPresenter();
-	        if (presenter != null)
-	          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
-	      } else
-	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
-		}
+        if (!roomMuted) {
+          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
+          var presenter:User2x = UsersUtil.getPresenter();
+          if (presenter != null)
+            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
+        } else
+          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
         
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: getStyle('iconLock'), handler: lockSettings});
         if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {

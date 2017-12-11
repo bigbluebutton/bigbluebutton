@@ -493,7 +493,7 @@ package org.bigbluebutton.modules.users.services
       var message:Object = {
         header: {name: "IsMeetingMutedReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID()}
+        body: {}
       };
          
       var _nc:ConnectionManager = BBB.initConnectionManager();

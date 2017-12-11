@@ -54,9 +54,12 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         outGW.send(meetingMutedEvent)
 
-        VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
-          if (!vu.listenOnly) {
-            muteUserInVoiceConf(vu, muted)
+        // We no longer want to unmute users when meeting mute is turned off
+        if (muted) {
+          VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
+            if (!vu.listenOnly) {
+              muteUserInVoiceConf(vu, muted)
+            }
           }
         }
       }

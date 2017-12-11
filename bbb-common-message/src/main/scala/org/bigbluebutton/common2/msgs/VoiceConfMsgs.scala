@@ -115,12 +115,12 @@ case class MuteAllExceptPresentersCmdMsg(header: BbbClientMsgHeader,
 case class MuteAllExceptPresentersCmdMsgBody(mutedBy: String, mute: Boolean)
 
 /**
-  * Sent by client to mute all users except presenters in the voice conference.
+  * Sent by client to determine current meeting mute state.
   */
 object IsMeetingMutedReqMsg { val NAME = "IsMeetingMutedReqMsg"}
 case class IsMeetingMutedReqMsg(header: BbbClientMsgHeader,
                                          body: IsMeetingMutedReqMsgBody) extends StandardMsg
-case class IsMeetingMutedReqMsgBody(requesterId: String)
+case class IsMeetingMutedReqMsgBody()
 
 object IsMeetingMutedRespMsg { val NAME = "IsMeetingMutedRespMsg"}
 case class IsMeetingMutedRespMsg(header: BbbClientMsgHeader,

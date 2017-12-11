@@ -83,6 +83,7 @@ package org.bigbluebutton.main.model.users
 			sender.queryForGuestPolicy();
 			sender.queryForGuestsWaiting();
 			sender.getLockSettings();
+			sender.getRoomMuteState();
 
 			if (!LiveMeeting.inst().meeting.isBreakout) {
 				sender.queryForBreakoutRooms(LiveMeeting.inst().meeting.internalId);

@@ -45,7 +45,6 @@
 			enableSettingsButton="true"
 			enableGuestUI="false"
 			guestSoftMode="false"
-			moderatorUnmute="true"
 			baseTabIndex="301"
 		/>
 
