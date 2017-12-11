@@ -60,6 +60,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.shortcutFunc009',
     description: 'Upload presentation shortcut description',
   },
+  shortcutFunc010: {
+    id: 'app.shortcut-help.shortcutFunc010',
+    description: 'Open shortcut help modal description',
+  },
 });
 
 class ShortcutHelpComponent extends Component {
@@ -73,9 +77,10 @@ class ShortcutHelpComponent extends Component {
       { keys: 'Control + Alt + L', function: intl.formatMessage(intlMessages.shortcutFunc004) },
       { keys: 'Control + Alt + 8', function: intl.formatMessage(intlMessages.shortcutFunc005) },
       { keys: 'Control + Alt + 9', function: intl.formatMessage(intlMessages.shortcutFunc006) },
-      { keys: 'Control + Shift + A', function: intl.formatMessage(intlMessages.shortcutFunc007) },
-      { keys: 'Control + Shift + E', function: intl.formatMessage(intlMessages.shortcutFunc008) },
-      { keys: 'Control + Shift + Y', function: intl.formatMessage(intlMessages.shortcutFunc009) },
+      { keys: 'Control + Alt + A', function: intl.formatMessage(intlMessages.shortcutFunc007) },
+      { keys: 'Control + Alt + E', function: intl.formatMessage(intlMessages.shortcutFunc008) },
+      { keys: 'Control + Alt + Y', function: intl.formatMessage(intlMessages.shortcutFunc009) },
+      { keys: 'Control + Alt + H', function: intl.formatMessage(intlMessages.shortcutFunc010) },
     ];
 
     return (

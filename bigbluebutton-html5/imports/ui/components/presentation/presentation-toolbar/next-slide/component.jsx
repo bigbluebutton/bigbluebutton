@@ -46,6 +46,6 @@ class NextSlide extends Component {
   }
 }
 
-export default injectIntl(withShortcut(NextSlide, 'Control+Shift+E'));
+export default injectIntl(withShortcut(NextSlide, 'Control+Alt+E'));
 
 NextSlide.propTypes = propTypes;

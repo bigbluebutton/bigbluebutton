@@ -44,6 +44,6 @@ class PreviousSlide extends Component {
   }
 }
 
-export default injectIntl(withShortcut(PreviousSlide, 'Control+Shift+A'));
+export default injectIntl(withShortcut(PreviousSlide, 'Control+Alt+A'));
 
 PreviousSlide.propTypes = propTypes;

@@ -47,6 +47,6 @@ class UploadPresentation extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(UploadPresentation, 'Control+Shift+Y')));
+export default withModalMounter(injectIntl(withShortcut(UploadPresentation, 'Control+Alt+Y')));
 
 UploadPresentation.propTypes = propTypes;

@@ -37,6 +37,6 @@ class ShortcutHelpListItem extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(ShortcutHelpListItem, 'Control+Alt+8')));
+export default withModalMounter(injectIntl(withShortcut(ShortcutHelpListItem, 'Control+Alt+H')));
 
 ShortcutHelpListItem.propTypes = propTypes;
