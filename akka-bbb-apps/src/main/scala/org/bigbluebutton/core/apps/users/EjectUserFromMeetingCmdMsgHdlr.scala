@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.Sender
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.models.EjectReasonCode
 
 trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -27,7 +28,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       val reason = "user ejected by another user"
-      UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason)
+      UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.EJECT_USER)
       // send a system message to force disconnection
       Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, outGW)
     }

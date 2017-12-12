@@ -87,7 +87,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						message = ResourceUtil.getInstance().getString('bbb.logout.unknown');
 						break;
 					case ConnectionFailedEvent.USER_EJECTED_FROM_MEETING:
-						message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
+						var reasonCode: String = UsersUtil.getEjectReason();
+						if (reasonCode == "duplicate_user_in_meeting_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.duplicateUserEjectReason');
+						} else if (reasonCode == "not_enough_permission_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.permissionEjectReason');
+						} else if (reasonCode == "user_requested_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
+						} else if (reasonCode == "validate_token_failed_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.validateTokenFailedEjectReason');
+						}
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');

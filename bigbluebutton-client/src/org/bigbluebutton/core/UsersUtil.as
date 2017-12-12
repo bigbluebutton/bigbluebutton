@@ -71,12 +71,16 @@ package org.bigbluebutton.core
       return false;
     }
     
-	public static function setUserEjected():void {
-    LiveMeeting.inst().me.ejectedFromMeeting = true;
+	public static function setUserEjected(reasonCode: String):void {
+    LiveMeeting.inst().me.ejectedFromMeeting(reasonCode);
 	}
 	
 	public static function isUserEjected():Boolean {
-    return LiveMeeting.inst().me.ejectedFromMeeting;
+    return LiveMeeting.inst().me.hasBeenEjected();
+	}
+	
+	public static function getEjectReason():String {
+		return LiveMeeting.inst().me.getEjectReasonCode();
 	}
 	
   public static function isRecorded():Boolean {

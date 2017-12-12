@@ -43,7 +43,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     val event = MsgBuilder.buildValidateAuthTokenRespMsg(meetingId, userId, authToken, valid, waitForApproval)
     outGW.send(event)
 
-    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, SystemUser.ID, "Invalid auth token.")
+    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, SystemUser.ID, "Invalid auth token.", EjectReasonCode.VALIDATE_TOKEN)
 
     state
   }
