@@ -41,18 +41,21 @@ const sortUsersByName = (a, b) => {
 };
 
 const sortUsersByEmoji = (a, b) => {
-  const emojiA = a in EMOJI_STATUSES ? EMOJI_STATUSES[a] : a;
-  const emojiB = b in EMOJI_STATUSES ? EMOJI_STATUSES[b] : b;
+  const { status: statusA } = a.emoji;
+  const { status: statusB } = b.emoji;
 
-  if (emojiA && emojiB) {
+  const emojiA = statusA in EMOJI_STATUSES ? EMOJI_STATUSES[statusA] : statusA;
+  const emojiB = statusB in EMOJI_STATUSES ? EMOJI_STATUSES[statusB] : statusB;
+
+  if (emojiA && emojiB && (emojiA !== 'none' && emojiB !== 'none')) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
     } else if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-  } else if (emojiA) {
+  } else if (emojiA && emojiA !== 'none') {
     return -1;
-  } else if (emojiB) {
+  } else if (emojiB && emojiB !== 'none') {
     return 1;
   }
   return 0;
@@ -72,7 +75,7 @@ const sortUsersByModerator = (a, b) => {
 
 const sortUsersByPhoneUser = (a, b) => {
   if (!a.isPhoneUser && !b.isPhoneUser) {
-    return sortUsersByName(a, b);
+    return 0;
   } else if (!a.isPhoneUser) {
     return -1;
   } else if (!b.isPhoneUser) {
