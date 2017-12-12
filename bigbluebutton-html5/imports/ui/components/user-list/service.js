@@ -47,15 +47,15 @@ const sortUsersByEmoji = (a, b) => {
   const emojiA = statusA in EMOJI_STATUSES ? EMOJI_STATUSES[statusA] : statusA;
   const emojiB = statusB in EMOJI_STATUSES ? EMOJI_STATUSES[statusB] : statusB;
 
-  if (emojiA && emojiB && (emojiA !== 'none' && emojiB !== 'none')) {
+  if (emojiA && emojiB && (emojiA !== EMOJI_STATUSES.none && emojiB !== EMOJI_STATUSES.none)) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
     } else if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-  } else if (emojiA && emojiA !== 'none') {
+  } else if (emojiA && emojiA !== EMOJI_STATUSES.none) {
     return -1;
-  } else if (emojiB && emojiB !== 'none') {
+  } else if (emojiB && emojiB !== EMOJI_STATUSES.none) {
     return 1;
   }
   return 0;
