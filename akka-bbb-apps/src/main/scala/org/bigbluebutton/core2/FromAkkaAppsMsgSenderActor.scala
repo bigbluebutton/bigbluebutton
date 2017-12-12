@@ -94,7 +94,15 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       //==================================================================
 
-      case _ => msgSender.send(fromAkkaAppsRedisChannel, json)
+      //==================================================================
+      // Some events are only intended for recording and shouldn't be 
+      // sent past akka-apps
+      // Poll Record Event
+      case UserRespondedToPollRecordMsg.NAME =>
+      //==================================================================
+
+      case _ =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
     }
   }
 }

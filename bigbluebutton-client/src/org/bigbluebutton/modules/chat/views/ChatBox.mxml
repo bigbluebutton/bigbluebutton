@@ -463,27 +463,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           sendStartCustomPollEvent(answers);
         } else {
           var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-          var cm:ChatMessageVO = new ChatMessageVO();
-          cm.fromUserId = UsersUtil.getMyUserID();
-          cm.fromUsername = UsersUtil.getMyUsername();
-          // get the color value from ColorPicker
-          cm.fromColor =  cmpColorPicker.selectedColor.toString();
-          // Get the current UTC time and the timezone for this sender.
-          // The receiver will have to convert this to local time.
-          var now:Date = new Date();
-          cm.fromTime = now.valueOf();
-          cm.fromTimezoneOffset = now.getTimezoneOffset();
+          var cm:ChatMessageVO = processChatMessage(message);
           
-          //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
-          cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
-          
-          publicEvent.chatMessage = cm;
-          globalDispatcher.dispatchEvent(publicEvent);			
+          if (cm != null) {
+            publicEvent.chatMessage = cm;
+            globalDispatcher.dispatchEvent(publicEvent);
+          }
         }
       }
       
       private function sendPrivateChatMessage(message:String):void {
         var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
+        var cm:ChatMessageVO = processChatMessage(message);
+        
+        if (cm != null) {
+          cm.toUserId = chatWithUserID;
+          cm.toUsername = chatWithUsername;
+          
+          privateEvent.chatMessage = cm;
+          globalDispatcher.dispatchEvent(privateEvent);
+		}
+      }
+      
+      private function processChatMessage(message:String):ChatMessageVO {
+        var sanitizedMessage:String = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
+        if (sanitizedMessage == null || sanitizedMessage.length < 1) {
+          return null;
+        }
+        
         var cm:ChatMessageVO = new ChatMessageVO();
         cm.fromUserId = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
@@ -497,12 +504,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromTimezoneOffset = now.getTimezoneOffset();
         
         //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
-        cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
-        cm.toUserId = chatWithUserID;
-        cm.toUsername = chatWithUsername;
+        cm.message = sanitizedMessage;
         
-        privateEvent.chatMessage = cm;
-        globalDispatcher.dispatchEvent(privateEvent);
+        return cm;
       }
       
       private function handleTextInput(e:TextEvent):void {

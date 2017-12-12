@@ -146,7 +146,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={this.state.settings.chatAudioNotifications}
                   onChange={() => this.handleToggle('chatAudioNotifications')}
-                  ariaLabelledBy={'audioNotify'}
+                  ariaLabelledBy="audioNotify"
                   ariaLabel={intl.formatMessage(intlMessages.audioNotifyLabel)}
                 />
               </div>
@@ -167,7 +167,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={this.state.settings.chatPushNotifications}
                   onChange={() => this.handleToggle('chatPushNotifications')}
-                  ariaLabelledBy={'pushNotify'}
+                  ariaLabelledBy="pushNotify"
                   ariaLabel={intl.formatMessage(intlMessages.pushNotifyLabel)}
                 />
               </div>
@@ -183,23 +183,22 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
-                <select
-                  defaultValue={this.formatLocale(this.state.settings.locale)}
-                  className={styles.select}
-                  onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                >
-                  <option disabled>
-                    { availableLocales &&
-                        availableLocales.length ?
-                        intl.formatMessage(intlMessages.languageOptionLabel) :
-                        intl.formatMessage(intlMessages.noLocaleOptionLabel) }
-                  </option>
-                  {availableLocales ? availableLocales.map((locale, index) =>
-                    (<option key={index} value={locale.locale}>
-                      {locale.name}
-                    </option>),
-                  ) : null }
-                </select>
+      { availableLocales && availableLocales.length > 0 ?
+                  <select
+                    defaultValue={this.formatLocale(this.state.settings.locale)}
+                    className={styles.select}
+                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
+                  >
+                    <option disabled>
+                      { intl.formatMessage(intlMessages.languageOptionLabel) }
+                    </option>
+                    { availableLocales.map((locale, index) =>
+                      (<option key={index} value={locale.locale}>
+                        {locale.name}
+                      </option>),
+                    ) }
+                  </select>
+                : null }
               </label>
               <div
                 id="changeLangLabel"
@@ -229,8 +228,8 @@ class ApplicationMenu extends BaseMenu {
                   <div className={styles.col}>
                     <Button
                       onClick={() => this.handleIncreaseFontSize()}
-                      color={'primary'}
-                      icon={'add'}
+                      color="primary"
+                      icon="add"
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
@@ -239,8 +238,8 @@ class ApplicationMenu extends BaseMenu {
                   <div className={styles.col}>
                     <Button
                       onClick={() => this.handleDecreaseFontSize()}
-                      color={'primary'}
-                      icon={'substract'}
+                      color="primary"
+                      icon="substract"
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}

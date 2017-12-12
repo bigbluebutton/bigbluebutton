@@ -25,6 +25,7 @@ const intlMessages = defineMessages({
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
+const CLOSED_CHAT_PATH = 'users/';
 
 const propTypes = {
   chat: PropTypes.shape({
@@ -53,11 +54,12 @@ const ChatListItem = (props) => {
     intl,
     tabIndex,
     isPublicChat,
-    } = props;
+    location,
+  } = props;
 
-  const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
+  let linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
+  linkPath = location.pathname.includes(linkPath) ? CLOSED_CHAT_PATH : linkPath;
   const isCurrentChat = chat.id === openChat;
-
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
