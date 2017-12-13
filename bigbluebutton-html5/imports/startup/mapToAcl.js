@@ -19,7 +19,10 @@ const injectAclSubscribeCheck = (name, handler) => (
   (...args) => {
     const credentials = args[args.length - 1];
     if (!Acl.can(name, ...credentials)) {
-      throw new Meteor.Error(`acl-not-allowed, the user can't perform the subscription "${name}".`);
+      throw new Meteor.Error(
+        'acl-not-allowed',
+        `The user can't perform the subscription "${name}".`,
+      );
     }
 
     return handler(...credentials);
