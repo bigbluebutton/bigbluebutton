@@ -11,6 +11,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private var _wbCanvas:WhiteboardCanvas;
 		private var _shapeFactory:ShapeFactory;
 		
+		private var _amIPresenter:Boolean;
+		private var _multiUser:Boolean;
+		
 		private var _timer:Timer;
 		private var _lastXPosition:Number;
 		private var _lastYPosition:Number;
@@ -28,15 +31,17 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		public function presenterChange(amIPresenter:Boolean):void {
-			verifyTimerState(amIPresenter);
-		}
-		
-		public function multiUserChange(multiUser:Boolean):void {
+			_amIPresenter = amIPresenter;
 			verifyTimerState();
 		}
 		
-		private function verifyTimerState(amIPresenter:Boolean=false):void {
-			if (amIPresenter || _wbCanvas.getMultiUserState()) {
+		public function multiUserChange(multiUser:Boolean):void {
+			_multiUser = multiUser;
+			verifyTimerState();
+		}
+		
+		private function verifyTimerState():void {
+			if (_amIPresenter || _multiUser) {
 				startTimer();
 			} else {
 				stopTimer();
