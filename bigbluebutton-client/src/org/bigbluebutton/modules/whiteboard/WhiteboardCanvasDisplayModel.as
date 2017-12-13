@@ -124,10 +124,14 @@ package org.bigbluebutton.modules.whiteboard
           }
         }
       } else {
-        for each (gobj in _annotationsMap){
-          removeGraphic(gobj.id);
-        }
+        _annotationsMap = new Object();
+        wbCanvas.removeAllGraphics();
       }
+    }
+    
+    public function clearCursors():void {
+      _cursors = new Object();
+      wbCanvas.removeAllCursors();
     }
     
     public function undoAnnotation(annotation:Annotation):void {
@@ -146,6 +150,7 @@ package org.bigbluebutton.modules.whiteboard
       
       //LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
       clearBoard();
+      clearCursors();
       
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
       //LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");

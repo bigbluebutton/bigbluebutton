@@ -266,6 +266,17 @@ package org.bigbluebutton.modules.whiteboard.views {
 			else trace("Does not contain");
 		}
 		
+		public function removeAllGraphics():void {
+			var newGraphicHolder:Canvas = new Canvas;
+			newGraphicHolder.height = graphicObjectHolder.height;
+			newGraphicHolder.width = graphicObjectHolder.width;
+			newGraphicHolder.tabFocusEnabled = false;
+			
+			addChildAt(newGraphicHolder, getChildIndex(graphicObjectHolder));
+			removeChild(graphicObjectHolder);
+			graphicObjectHolder = newGraphicHolder;
+		}
+		
 		public function addGraphic(child:DisplayObject):void {
 			this.graphicObjectHolder.rawChildren.addChild(child);
 		}
@@ -284,6 +295,17 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		public function removeCursorChild(cursor:DisplayObject):void {
 			if (doesContainCursor(cursor)) this.cursorObjectHolder.rawChildren.removeChild(cursor);
+		}
+		
+		public function removeAllCursors():void {
+			var newCursorHolder:Canvas = new Canvas;
+			newCursorHolder.height = cursorObjectHolder.height;
+			newCursorHolder.width = cursorObjectHolder.width;
+			newCursorHolder.tabFocusEnabled = false;
+			
+			addChildAt(newCursorHolder, getChildIndex(cursorObjectHolder));
+			removeChild(cursorObjectHolder);
+			cursorObjectHolder = newCursorHolder;
 		}
 		
 		public function textToolbarSyncProxy(tobj:TextObject):void {
