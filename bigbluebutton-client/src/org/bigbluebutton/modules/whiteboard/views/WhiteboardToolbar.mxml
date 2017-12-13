@@ -79,7 +79,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var isPresenter: Boolean = false;
 
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
-                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
+                '0xCCFF00', '0x00FF00', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
@@ -159,11 +159,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function changeMultiUser():void {
 				if (!isPresenter) return;
 				
-				var dispatcher:GlobalDispatcher = new GlobalDispatcher();
-				
 				var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS);
 				event.multiUser = !multiUser;
-				dispatcher.dispatchEvent(event);
+				dispatchEvent(event);
 			}
 
 		

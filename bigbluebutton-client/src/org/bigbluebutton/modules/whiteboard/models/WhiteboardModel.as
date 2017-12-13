@@ -36,10 +36,8 @@ package org.bigbluebutton.modules.whiteboard.models
 	public class WhiteboardModel extends EventDispatcher
 	{
 		private static const LOGGER:ILogger = getClassLogger(WhiteboardModel);      
-		private var _whiteboards:ArrayCollection = new ArrayCollection();
+		private var _whiteboards:Object = new Object();
 		
-		private var _multiUser:Boolean = false;
-
     private var _dispatcher:Dispatcher = new Dispatcher();
     
     private var _lastTraceSentOn: Date = new Date();
@@ -77,13 +75,12 @@ package org.bigbluebutton.modules.whiteboard.models
     private function getWhiteboard(id:String, requestHistory:Boolean=true):Whiteboard {
       var wb:Whiteboard;
       
-      for (var i:int = 0; i < _whiteboards.length; i++) {
-        wb = _whiteboards.getItemAt(i) as Whiteboard;
-        if (wb.id == id) return wb;
-      }
+      if (_whiteboards.propertyIsEnumerable(id)) {
+		  return _whiteboards[id];
+	  }
       
       wb = new Whiteboard(id);
-      _whiteboards.addItem(wb);
+	  _whiteboards[id] = wb;
       
       if (requestHistory) {
         _dispatcher.dispatchEvent(new GetWhiteboardShapesCommand(id));
@@ -170,23 +167,26 @@ package org.bigbluebutton.modules.whiteboard.models
     }
     
     public function clearAll():void {
-      _whiteboards.removeAll();
+      _whiteboards = new Object();
       
       var event:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.CLEAR_ANNOTATIONS);
       event.wbId = "all";
       dispatchEvent(event);
     }
 
-    public function accessModified(multiUser:Boolean):void {
-      _multiUser = multiUser;
+    public function accessModified(wbId:String, multiUser:Boolean):void {
+      var wb:Whiteboard = getWhiteboard(wbId);
+      wb.multiUser = multiUser;
       
       var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFIED_WHITEBOARD_ACCESS);
+      event.whiteboardId = wbId
       event.multiUser = multiUser;
       dispatchEvent(event);
     }
     
-    public function get multiUser():Boolean {
-      return _multiUser;
+    public function getMultiUser(wbId:String):Boolean {
+      var wb:Whiteboard = getWhiteboard(wbId);
+      return wb.multiUser;
     }
 	
     public function updateCursorPosition(whiteboardId: String, userId:String, xPercent:Number, yPercent:Number):void {

@@ -124,10 +124,14 @@ package org.bigbluebutton.modules.whiteboard
           }
         }
       } else {
-        for each (gobj in _annotationsMap){
-          removeGraphic(gobj.id);
-        }
+        _annotationsMap = new Object();
+        wbCanvas.removeAllGraphics();
       }
+    }
+    
+    public function clearCursors():void {
+      _cursors = new Object();
+      wbCanvas.removeAllCursors();
     }
     
     public function undoAnnotation(annotation:Annotation):void {
@@ -146,6 +150,7 @@ package org.bigbluebutton.modules.whiteboard
       
       //LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
       clearBoard();
+      clearCursors();
       
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
       //LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
@@ -155,8 +160,8 @@ package org.bigbluebutton.modules.whiteboard
     }
     
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
-      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
-      
+			var showName: Boolean = wbCanvas.getMultiUserState();
+			
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
 				if (userName) {
@@ -175,8 +180,7 @@ package org.bigbluebutton.modules.whiteboard
 		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			this.presenterId = presenterId;
 			
-      
-      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
+			var showName: Boolean = wbCanvas.getMultiUserState()
 			for(var j:String in _cursors) {
 				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId, showName);
 			}
