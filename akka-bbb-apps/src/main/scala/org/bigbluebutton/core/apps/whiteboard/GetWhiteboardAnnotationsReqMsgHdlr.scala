@@ -9,18 +9,21 @@ trait GetWhiteboardAnnotationsReqMsgHdlr {
 
   def handle(msg: GetWhiteboardAnnotationsReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: GetWhiteboardAnnotationsReqMsg, history: Array[AnnotationVO]): Unit = {
+    def broadcastEvent(msg: GetWhiteboardAnnotationsReqMsg, history: Array[AnnotationVO], multiUser: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(GetWhiteboardAnnotationsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetWhiteboardAnnotationsRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = GetWhiteboardAnnotationsRespMsgBody(msg.body.whiteboardId, history)
+      val body = GetWhiteboardAnnotationsRespMsgBody(msg.body.whiteboardId, history, multiUser)
       val event = GetWhiteboardAnnotationsRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
 
-    val history = getWhiteboardAnnotations(msg.body.whiteboardId, liveMeeting)
-    broadcastEvent(msg, history)
+    val whiteboardId = msg.body.whiteboardId
+
+    val history = getWhiteboardAnnotations(whiteboardId, liveMeeting)
+    val multiUser = getWhiteboardAccess(whiteboardId, liveMeeting)
+    broadcastEvent(msg, history, multiUser)
   }
 }

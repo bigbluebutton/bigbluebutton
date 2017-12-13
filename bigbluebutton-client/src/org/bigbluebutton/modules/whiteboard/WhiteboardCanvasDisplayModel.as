@@ -155,8 +155,8 @@ package org.bigbluebutton.modules.whiteboard
     }
     
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
-      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
-      
+			var showName: Boolean = wbCanvas.getMultiUserState();
+			
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
 				if (userName) {
@@ -175,8 +175,7 @@ package org.bigbluebutton.modules.whiteboard
 		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			this.presenterId = presenterId;
 			
-      
-      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
+			var showName: Boolean = wbCanvas.getMultiUserState()
 			for(var j:String in _cursors) {
 				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId, showName);
 			}

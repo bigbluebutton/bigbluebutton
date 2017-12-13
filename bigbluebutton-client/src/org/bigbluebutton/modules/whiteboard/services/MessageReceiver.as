@@ -45,9 +45,6 @@ package org.bigbluebutton.modules.whiteboard.services
         case "GetWhiteboardAnnotationsRespMsg":
           handleGetWhiteboardAnnotationsRespMsg(message);
           break;
-        case "GetWhiteboardAccessRespMsg":
-          handleGetWhiteboardAccessRespMsg(message);
-          break;
         case "ModifyWhiteboardAccessEvtMsg":
           handleModifyWhiteboardAccessEvtMsg(message);
           break;
@@ -88,11 +85,7 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleModifyWhiteboardAccessEvtMsg(message:Object):void {
-      LiveMeeting.inst().whiteboardModel.accessModified(message.body.multiUser);
-    }
-    
-    private function handleGetWhiteboardAccessRespMsg(message:Object):void {
-      LiveMeeting.inst().whiteboardModel.accessModified(message.body.multiUser);
+      LiveMeeting.inst().whiteboardModel.accessModified(message.body.whiteboardId, message.body.multiUser);
     }
     
     private function handleSendWhiteboardAnnotationEvtMsg(message:Object):void {
@@ -106,6 +99,7 @@ package org.bigbluebutton.modules.whiteboard.services
 
     private function handleGetWhiteboardAnnotationsRespMsg(message:Object):void {
       var whiteboardId:String = message.body.whiteboardId;
+      var multiUser:Boolean = message.body.multiUser as Boolean;
       var annotations:Array = message.body.annotations as Array;
       var tempAnnotations:Array = new Array();
       
@@ -118,6 +112,7 @@ package org.bigbluebutton.modules.whiteboard.services
       }
       
       LiveMeeting.inst().whiteboardModel.addAnnotationFromHistory(whiteboardId, tempAnnotations);
+      LiveMeeting.inst().whiteboardModel.accessModified(whiteboardId, multiUser);
     }
     
     private function handleSendCursorPositionEvtMsg(message:Object):void {

@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function verifyTimerState(amIPresenter:Boolean=false):void {
-			if (amIPresenter || LiveMeeting.inst().whiteboardModel.multiUser) {
+			if (amIPresenter || _wbCanvas.getMultiUserState()) {
 				startTimer();
 			} else {
 				stopTimer();

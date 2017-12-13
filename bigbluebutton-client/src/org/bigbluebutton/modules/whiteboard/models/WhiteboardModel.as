@@ -38,8 +38,6 @@ package org.bigbluebutton.modules.whiteboard.models
 		private static const LOGGER:ILogger = getClassLogger(WhiteboardModel);      
 		private var _whiteboards:ArrayCollection = new ArrayCollection();
 		
-		private var _multiUser:Boolean = false;
-
     private var _dispatcher:Dispatcher = new Dispatcher();
     
     private var _lastTraceSentOn: Date = new Date();
@@ -177,16 +175,19 @@ package org.bigbluebutton.modules.whiteboard.models
       dispatchEvent(event);
     }
 
-    public function accessModified(multiUser:Boolean):void {
-      _multiUser = multiUser;
+    public function accessModified(wbId:String, multiUser:Boolean):void {
+      var wb:Whiteboard = getWhiteboard(wbId);
+      wb.multiUser = multiUser;
       
       var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFIED_WHITEBOARD_ACCESS);
+      event.whiteboardId = wbId
       event.multiUser = multiUser;
       dispatchEvent(event);
     }
     
-    public function get multiUser():Boolean {
-      return _multiUser;
+    public function getMultiUser(wbId:String):Boolean {
+      var wb:Whiteboard = getWhiteboard(wbId);
+      return wb.multiUser;
     }
 	
     public function updateCursorPosition(whiteboardId: String, userId:String, xPercent:Number, yPercent:Number):void {

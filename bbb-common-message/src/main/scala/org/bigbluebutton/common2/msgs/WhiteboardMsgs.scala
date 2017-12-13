@@ -31,22 +31,6 @@ case class DoLatencyTracerMsgBody(timestampUTC: Long)
 
   case class ClearWhiteboardPubMsgBody(whiteboardId: String)
 
-  object GetWhiteboardAccessReqMsg {
-    val NAME = "GetWhiteboardAccessReqMsg"
-  }
-
-  case class GetWhiteboardAccessReqMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessReqMsgBody) extends StandardMsg
-
-  case class GetWhiteboardAccessReqMsgBody(requesterId: String)
-
-  object GetWhiteboardAccessRespMsg {
-    val NAME = "GetWhiteboardAccessRespMsg"
-  }
-
-  case class GetWhiteboardAccessRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAccessRespMsgBody) extends BbbCoreMsg
-
-  case class GetWhiteboardAccessRespMsgBody(multiUser: Boolean)
-
   object GetWhiteboardAnnotationsReqMsg {
     val NAME = "GetWhiteboardAnnotationsReqMsg"
   }
@@ -61,23 +45,15 @@ case class DoLatencyTracerMsgBody(timestampUTC: Long)
 
   case class GetWhiteboardAnnotationsRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsRespMsgBody) extends BbbCoreMsg
 
-  case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations: Array[AnnotationVO])
+  case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], multiUser: Boolean)
 
-  object ModifyWhiteboardAccessEvtMsg {
-    val NAME = "ModifyWhiteboardAccessEvtMsg"
-  }
+object ModifyWhiteboardAccessEvtMsg { val NAME = "ModifyWhiteboardAccessEvtMsg" }
+case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessEvtMsgBody) extends BbbCoreMsg
+case class ModifyWhiteboardAccessEvtMsgBody(whiteboardId: String, multiUser: Boolean)
 
-  case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessEvtMsgBody) extends BbbCoreMsg
-
-  case class ModifyWhiteboardAccessEvtMsgBody(multiUser: Boolean)
-
-  object ModifyWhiteboardAccessPubMsg {
-    val NAME = "ModifyWhiteboardAccessPubMsg"
-  }
-
-  case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessPubMsgBody) extends StandardMsg
-
-  case class ModifyWhiteboardAccessPubMsgBody(multiUser: Boolean)
+object ModifyWhiteboardAccessPubMsg { val NAME = "ModifyWhiteboardAccessPubMsg" }
+case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessPubMsgBody) extends StandardMsg
+case class ModifyWhiteboardAccessPubMsgBody(whiteboardId: String, multiUser: Boolean)
 
   object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
   case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
@@ -118,7 +94,3 @@ case class DoLatencyTracerMsgBody(timestampUTC: Long)
   case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
 
   case class UndoWhiteboardPubMsgBody(whiteboardId: String)
-
-  object SyncGetWhiteboardAccessRespMsg { val NAME = "SyncGetWhiteboardAccessRespMsg" }
-  case class SyncGetWhiteboardAccessRespMsg(header: BbbClientMsgHeader, body: SyncGetWhiteboardAccessRespMsgBody) extends BbbCoreMsg
-  case class SyncGetWhiteboardAccessRespMsgBody(multiUser: Boolean)

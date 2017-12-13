@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import com.asfusion.mate.events.Listener;
 	
 	import flash.display.DisplayObject;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	
@@ -43,6 +44,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	
 	public class WhiteboardCanvas extends Canvas {
+		private var whiteboardModel:WhiteboardModel;
 		private var canvasModel:WhiteboardCanvasModel;
 		private var canvasDisplayModel:WhiteboardCanvasDisplayModel;
 		private var whiteboardToolbar:WhiteboardToolbar;
@@ -58,6 +60,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private var dispatcher:Dispatcher = new Dispatcher();
 		
 		public function WhiteboardCanvas(wbModel:WhiteboardModel):void {
+			whiteboardModel = wbModel;
+			
 			canvasModel = new WhiteboardCanvasModel();
 			canvasDisplayModel = new WhiteboardCanvasDisplayModel();
 			
@@ -70,8 +74,6 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			textToolbar = new WhiteboardTextToolbar();
 			textToolbar.canvas = this;
-			
-			whiteboardToolbar.whiteboardAccessModified(wbModel.multiUser);
 			
 			this.clipContent = true;
 			this.mouseEnabled = false;
@@ -97,6 +99,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.ENABLE_WHITEBOARD, onEnableWhiteboardEvent);
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
+			whiteboardToolbar.addEventListener(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS, onMultiUserBtn);
 
 			var ull:Listener = new Listener();
 			ull.type = UserLeftEvent.LEFT;
@@ -310,6 +313,14 @@ package org.bigbluebutton.modules.whiteboard.views {
 			currentWhiteboardId = wbId;
 			canvasDisplayModel.changeWhiteboard(wbId);
 			whiteboardToolbar.whiteboardIdSet();
+			
+			var multiUser:Boolean = whiteboardModel.getMultiUser(wbId);
+			whiteboardToolbar.whiteboardAccessModified(multiUser);
+			canvasModel.multiUserChange(multiUser);
+		}
+		
+		public function getMultiUserState():Boolean {
+			return whiteboardModel.getMultiUser(currentWhiteboardId);
 		}
 		
 		private function onNewAnnotationEvent(e:WhiteboardUpdateReceived):void {
@@ -337,10 +348,10 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function onModifiedAccess(e:WhiteboardAccessEvent):void {
-			//if (e.whiteboardId == currentWhiteboardId) {
-			whiteboardToolbar.whiteboardAccessModified(e.multiUser);
-			canvasModel.multiUserChange(e.multiUser);
-			//}
+			if (e.whiteboardId == currentWhiteboardId) {
+				whiteboardToolbar.whiteboardAccessModified(e.multiUser);
+				canvasModel.multiUserChange(e.multiUser);
+			}
 		}
 		
 		private function onReceivedCursorPosition(e:WhiteboardCursorEvent):void {
@@ -365,6 +376,13 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			this.whiteboardEnabled = false;
 			setWhiteboardInteractable();
+		}
+		
+		private function onMultiUserBtn(e:WhiteboardAccessEvent):void {
+			var newEvent:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS);
+			newEvent.multiUser = e.multiUser;
+			newEvent.whiteboardId = currentWhiteboardId;
+			dispatcher.dispatchEvent(newEvent);
 		}
 
 		private function onUserLeftEvent(e:UserLeftEvent):void {

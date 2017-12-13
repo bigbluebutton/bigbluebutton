@@ -159,11 +159,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function changeMultiUser():void {
 				if (!isPresenter) return;
 				
-				var dispatcher:GlobalDispatcher = new GlobalDispatcher();
-				
 				var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS);
 				event.multiUser = !multiUser;
-				dispatcher.dispatchEvent(event);
+				dispatchEvent(event);
 			}
 
 		

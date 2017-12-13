@@ -226,7 +226,6 @@ class MeetingActor(
       case m: ClearWhiteboardPubMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: UndoWhiteboardPubMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: ModifyWhiteboardAccessPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: GetWhiteboardAccessReqMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
 
@@ -345,9 +344,6 @@ class MeetingActor(
 
     // sync all presentations
     presentationApp2x.handle(liveMeeting, msgBus)
-
-    // sync access of whiteboard (multi user)
-    wbApp.handle(liveMeeting, msgBus)
 
     // TODO send all chat
     // TODO send all lock settings
