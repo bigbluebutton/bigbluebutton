@@ -16,7 +16,7 @@ const MeetingEnded = ({ router }) => (
           className={styles.button}
           label="Okay"
           size="sm"
-          onClick={() => router.push('/logout/')}
+          onClick={() => router.push('/logout')}
         />
       </div>
     </div>

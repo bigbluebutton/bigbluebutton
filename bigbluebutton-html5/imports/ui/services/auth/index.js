@@ -111,23 +111,7 @@ class Auth {
     }
 
     return new Promise((resolve) => {
-      const credentialsSnapshot = {
-        meetingId: this.meetingID,
-        requesterUserId: this.userID,
-        requesterToken: this.token,
-      };
-
-      // make sure users who did not connect are not added to the meeting
-      // do **not** use the custom call - it relies on expired data
-      Meteor.call('userLogout', credentialsSnapshot, (error) => {
-        if (error) {
-          log('error', error, { credentials: credentialsSnapshot });
-        } else {
-          this.fetchLogoutUrl()
-            .then(this.clearCredentials)
-            .then(resolve);
-        }
-      });
+      resolve(this._logoutURL);
     });
   }
 
@@ -210,10 +194,6 @@ class Auth {
 
       makeCall('validateAuthToken');
     });
-  }
-
-  fetchLogoutUrl() {
-    return Promise.resolve(this._logoutURL);
   }
 }
 
