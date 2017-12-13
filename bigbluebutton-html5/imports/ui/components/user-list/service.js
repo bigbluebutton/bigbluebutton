@@ -8,6 +8,7 @@ import mapUser from '/imports/ui/services/user/mapUser';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
@@ -287,6 +288,42 @@ const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
+const roving = (event, itemCount, changeState) => {
+  if (this.selectedIndex === undefined) {
+    this.selectedIndex = -1;
+  }
+
+  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    document.activeElement.blur();
+    this.selectedIndex = -1;
+    changeState(this.selectedIndex);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+    this.selectedIndex += 1;
+
+    if (this.selectedIndex === itemCount) {
+      this.selectedIndex = 0;
+    }
+
+    changeState(this.selectedIndex);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_UP) {
+    this.selectedIndex -= 1;
+
+    if (this.selectedIndex < 0) {
+      this.selectedIndex = itemCount - 1;
+    }
+
+    changeState(this.selectedIndex);
+  }
+
+  if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE].includes(event.keyCode)) {
+    document.activeElement.firstChild.click();
+  }
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
@@ -300,4 +337,5 @@ export default {
   normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,
+  roving,
 };
