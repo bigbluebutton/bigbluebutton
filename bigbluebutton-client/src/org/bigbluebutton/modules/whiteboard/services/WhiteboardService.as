@@ -40,10 +40,6 @@ package org.bigbluebutton.modules.whiteboard.services
     public function modifyAccess(e:WhiteboardAccessEvent):void {
       sender.modifyAccess(e);
     }
-    
-    public function getWhiteboardAccess():void {
-      sender.getWhiteboardAccess();
-    }
 
     public function undoGraphic(e:WhiteboardDrawEvent):void {
       if (e.wbId != null) {

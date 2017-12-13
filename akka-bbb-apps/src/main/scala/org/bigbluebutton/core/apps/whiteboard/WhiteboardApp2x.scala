@@ -6,16 +6,14 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
-case class Whiteboard(id: String, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
+case class Whiteboard(id: String, multiUser: Boolean, changedModeOn: Long, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
 
 class WhiteboardApp2x(implicit val context: ActorContext)
     extends SendCursorPositionPubMsgHdlr
     with ClearWhiteboardPubMsgHdlr
     with UndoWhiteboardPubMsgHdlr
     with ModifyWhiteboardAccessPubMsgHdlr
-    with GetWhiteboardAccessReqMsgHdlr
     with SendWhiteboardAnnotationPubMsgHdlr
-    with SyncWhiteboardAccessRespMsgHdlr
     with GetWhiteboardAnnotationsReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
@@ -58,14 +56,18 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
-  def modifyWhiteboardAccess(multiUser: Boolean, liveMeeting: LiveMeeting) {
-    liveMeeting.wbModel.modifyWhiteboardAccess(multiUser)
+  def getWhiteboardAccess(whiteboardId: String, liveMeeting: LiveMeeting): Boolean = {
+    liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }
 
-  def filterWhiteboardMessage(liveMeeting: LiveMeeting): Boolean = {
+  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Boolean, liveMeeting: LiveMeeting) {
+    liveMeeting.wbModel.modifyWhiteboardAccess(whiteboardId, multiUser)
+  }
+
+  def filterWhiteboardMessage(whiteboardId: String, liveMeeting: LiveMeeting): Boolean = {
     // Need to check if the wb mode change from multi-user to single-user. Give 5sec allowance to
     // allow delayed messages to be handled as clients may have been sending messages while the wb
     // mode was changed. (ralam nov 22, 2017)
-    if (!liveMeeting.wbModel.isMultiUser() && liveMeeting.wbModel.getChangedModeOn > 5000) true else false
+    if (!liveMeeting.wbModel.getWhiteboardAccess(whiteboardId) && liveMeeting.wbModel.getChangedModeOn(whiteboardId) > 5000) true else false
   }
 }

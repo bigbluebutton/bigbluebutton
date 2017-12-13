@@ -25,7 +25,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case SyncGetPresentationInfoRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
       case SyncGetMeetingInfoRespMsg.NAME      => msgSender.send(toHTML5RedisChannel, json)
       case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetWhiteboardAccessRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
 
       // Sent to FreeSWITCH
       case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
