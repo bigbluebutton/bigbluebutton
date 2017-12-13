@@ -35,8 +35,8 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
   def processRequest(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
-    val presId = getPresentationId
-    val presSlide = getPresentationSlide
+    val presId = getPresentationId(state)
+    val presSlide = getPresentationSlide(state)
     val parentId = liveMeeting.props.meetingProp.intId
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
 
@@ -80,13 +80,31 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def getPresentationId: String = {
+  def getPresentationId(state: MeetingState2x): String = {
     // in very rare cases the presentation conversion generates an error, what should we do?
     // those cases where default.pdf is deleted from the whiteboard
-    if (!liveMeeting.presModel.getCurrentPresentation().isEmpty) liveMeeting.presModel.getCurrentPresentation().get.id else "blank"
+    var currentPresentation = "blank"
+    for {
+      defaultPod <- state.presentationPodManager.getDefaultPod()
+      curPres <- defaultPod.getCurrentPresentation()
+    } yield {
+      currentPresentation = curPres.id
+    }
+
+    currentPresentation
   }
 
-  def getPresentationSlide: Int = {
+  def getPresentationSlide(state: MeetingState2x): Int = {
     if (!liveMeeting.presModel.getCurrentPage().isEmpty) liveMeeting.presModel.getCurrentPage().get.num else 0
+    var currentSlide = 0
+    for {
+      defaultPod <- state.presentationPodManager.getDefaultPod()
+      curPres <- defaultPod.getCurrentPresentation()
+      curPage <- curPres.getCurrentPage(curPres)
+    } yield {
+      currentSlide = curPage.num
+    }
+
+    currentSlide
   }
 }

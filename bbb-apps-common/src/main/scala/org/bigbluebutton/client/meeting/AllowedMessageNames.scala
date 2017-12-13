@@ -25,5 +25,7 @@ object AllowedMessageNames {
       // Shared Notes Messages
       "GetSharedNotesPubMsg","CreateSharedNoteReqMsg","DestroySharedNoteReqMsg","UpdateSharedNoteReqMsg","SyncSharedNotePubMsg","ClearSharedNotePubMsg",
       // Layout Messages
-      "GetCurrentLayoutReqMsg","BroadcastLayoutMsg")
+      "GetCurrentLayoutReqMsg","BroadcastLayoutMsg",
+    // Breakout
+      "RequestBreakoutJoinURLReqMsg")
 }
