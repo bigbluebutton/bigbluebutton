@@ -566,7 +566,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var showButtons:Boolean = (UsersUtil.getMyUserID() == this.currentPresenterInPod) && activePresentation;
 				// var showButtons:Boolean = (isPresenter || UsersUtil.getMyUserID() == this.currentPresenterInPod) && activePresentation;
 				
-				pollStartBtn.visible = showButtons;
+				if (this.podId == PresentationPodManager.DEFAULT_POD_ID) { // only allow polling from the default pod
+					pollStartBtn.visible = showButtons;
+				}
+				
 				quickPollBtn.visible = showButtons;
 				navigationControls.visible = showButtons;
 				zoomControls.visible = showButtons;
