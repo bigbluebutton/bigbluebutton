@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles';
-import cx from 'classnames';
 
 const propTypes = {
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
@@ -12,6 +12,11 @@ const propTypes = {
   unmute: PropTypes.bool.isRequired,
   mute: PropTypes.bool.isRequired,
   join: PropTypes.bool.isRequired,
+  glow: PropTypes.bool,
+};
+
+const defaultProps = {
+  glow: undefined,
 };
 
 const AudioControls = ({
@@ -31,9 +36,9 @@ const AudioControls = ({
         onClick={handleToggleMuteMicrophone}
         disabled={disable}
         label={unmute ? 'Unmute' : 'Mute'}
-        color={'primary'}
+        color="primary"
         icon={unmute ? 'mute' : 'unmute'}
-        size={'lg'}
+        size="lg"
         circle
       /> : null}
     <Button
@@ -43,11 +48,12 @@ const AudioControls = ({
       label={join ? 'Leave Audio' : 'Join Audio'}
       color={join ? 'danger' : 'primary'}
       icon={join ? 'audio_off' : 'audio_on'}
-      size={'lg'}
+      size="lg"
       circle
     />
   </span>);
 
 AudioControls.propTypes = propTypes;
+AudioControls.defaultProps = defaultProps;
 
 export default AudioControls;
