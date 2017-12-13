@@ -16,7 +16,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  glow: undefined,
+  glow: false,
 };
 
 const AudioControls = ({
