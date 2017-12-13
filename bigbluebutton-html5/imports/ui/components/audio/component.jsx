@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 
 const propTypes = {
@@ -17,11 +17,7 @@ export default class Audio extends Component {
   }
 
   render() {
-    return (
-      <audio id="remote-media" autoPlay="autoplay">
-        <track kind="captions" /> {/* These captions are brought to you by eslint */}
-      </audio>
-    );
+    return null;
   }
 }
 
