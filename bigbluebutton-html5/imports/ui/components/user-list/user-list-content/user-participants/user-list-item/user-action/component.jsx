@@ -9,6 +9,22 @@ const propTypes = {
   options: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
+export default class UserActions extends React.PureComponent {
+  render() {
+    const { key, icon, label, handler, options } = this.props;
+
+    return (
+    <DropdownListItem
+      key={key}
+      icon={icon}
+      label={label}
+      defaultMessage={label}
+      onClick={() => handler.call(this, ...options)}
+    />  
+    );
+  }
+}
+/*
 const UserActions = (props) => {
   const { key, icon, label, handler, options } = props;
 
@@ -23,7 +39,7 @@ const UserActions = (props) => {
   );
 
   return userAction;
-};
+};*/
 
 UserActions.propTypes = propTypes;
-export default UserActions;
+//export default UserActions;
