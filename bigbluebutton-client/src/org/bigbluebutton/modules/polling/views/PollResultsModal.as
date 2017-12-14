@@ -176,7 +176,7 @@ package org.bigbluebutton.modules.polling.views
 		
 		private function handlePublishClick(e:MouseEvent):void {
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new ShowPollResultEvent(true));
+			dispatcher.dispatchEvent(new ShowPollResultEvent());
 			close();
 		}
 		

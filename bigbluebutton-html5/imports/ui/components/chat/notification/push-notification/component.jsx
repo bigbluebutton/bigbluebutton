@@ -41,12 +41,12 @@ class ChatPushNotification extends React.Component {
       onOpen,
     } = this.props;
 
-    const message = intl.formatMessage(
-      count > 1 ?
+    const message = intl.formatMessage(count > 1 ?
       intlMessages.appToastChatPlural :
       intlMessages.appToastChatSigular, {
-        0: count,
-        1: name });
+      0: count,
+      1: name,
+    });
 
     return notify(message, 'info', 'chat', { onOpen });
   }

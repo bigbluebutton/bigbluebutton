@@ -5,9 +5,10 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { EMOJI_STATUSES, EMOJI_NORMALIZE } from '/imports/utils/statuses';
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
@@ -41,18 +42,21 @@ const sortUsersByName = (a, b) => {
 };
 
 const sortUsersByEmoji = (a, b) => {
-  const emojiA = a in EMOJI_STATUSES ? EMOJI_STATUSES[a] : a;
-  const emojiB = b in EMOJI_STATUSES ? EMOJI_STATUSES[b] : b;
+  const { status: statusA } = a.emoji;
+  const { status: statusB } = b.emoji;
 
-  if (emojiA && emojiB) {
+  const emojiA = statusA in EMOJI_STATUSES ? EMOJI_STATUSES[statusA] : statusA;
+  const emojiB = statusB in EMOJI_STATUSES ? EMOJI_STATUSES[statusB] : statusB;
+
+  if (emojiA && emojiB && (emojiA !== EMOJI_STATUSES.none && emojiB !== EMOJI_STATUSES.none)) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
     } else if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-  } else if (emojiA) {
+  } else if (emojiA && emojiA !== EMOJI_STATUSES.none) {
     return -1;
-  } else if (emojiB) {
+  } else if (emojiB && emojiB !== EMOJI_STATUSES.none) {
     return 1;
   }
   return 0;
@@ -72,7 +76,7 @@ const sortUsersByModerator = (a, b) => {
 
 const sortUsersByPhoneUser = (a, b) => {
   if (!a.isPhoneUser && !b.isPhoneUser) {
-    return sortUsersByName(a, b);
+    return 0;
   } else if (!a.isPhoneUser) {
     return -1;
   } else if (!b.isPhoneUser) {
@@ -253,7 +257,7 @@ const getCurrentUser = () => {
 };
 
 const normalizeEmojiName = emoji => (
-  emoji in EMOJI_NORMALIZE ? EMOJI_NORMALIZE[emoji] : emoji
+  emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
 const isMeetingLocked = (id) => {
@@ -284,6 +288,42 @@ const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
+const roving = (event, itemCount, changeState) => {
+  if (this.selectedIndex === undefined) {
+    this.selectedIndex = -1;
+  }
+
+  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    document.activeElement.blur();
+    this.selectedIndex = -1;
+    changeState(this.selectedIndex);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+    this.selectedIndex += 1;
+
+    if (this.selectedIndex === itemCount) {
+      this.selectedIndex = 0;
+    }
+
+    changeState(this.selectedIndex);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_UP) {
+    this.selectedIndex -= 1;
+
+    if (this.selectedIndex < 0) {
+      this.selectedIndex = itemCount - 1;
+    }
+
+    changeState(this.selectedIndex);
+  }
+
+  if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE].includes(event.keyCode)) {
+    document.activeElement.firstChild.click();
+  }
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
@@ -297,4 +337,5 @@ export default {
   normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,
+  roving,
 };

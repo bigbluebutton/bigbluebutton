@@ -10,19 +10,20 @@ export default function publicHistoryClear({ header }, meetingId) {
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
   if (meetingId) {
-    Chat.remove({ meetingId, toUserId: PUBLIC_CHAT_USERID },
-      Logger.info(`Cleared Chats (${meetingId})`));
+    Chat.remove(
+      { meetingId, toUserId: PUBLIC_CHAT_USERID },
+      Logger.info(`Cleared Chats (${meetingId})`),
+    );
 
     addChat(meetingId, {
-      message: '<b><i>The public chat history was cleared by a moderator</i></b>',
+      message: CHAT_CONFIG.system_messages_keys.chat_clear,
       fromTime: new Date().getTime(),
       toUserId: PUBLIC_CHAT_USERID,
       toUsername: PUBLIC_CHAT_USERNAME,
       fromUserId: SYSTEM_CHAT_TYPE,
       fromUsername: '',
       fromColor: '',
-    },
-    );
+    });
   }
 
   return null;

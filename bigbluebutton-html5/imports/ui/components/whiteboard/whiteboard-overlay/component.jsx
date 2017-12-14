@@ -6,7 +6,6 @@ import PencilDrawListener from './pencil-draw-listener/component';
 import PanZoomDrawListener from './pan-zoom-draw-listener/component';
 
 export default class WhiteboardOverlay extends Component {
-
   // a function to transform a screen point to svg point
   // accepts and returns a point of type SvgPoint and an svg object
   static coordinateTransform(screenPoint, someSvgObject) {
@@ -48,11 +47,11 @@ export default class WhiteboardOverlay extends Component {
 
   // this function receives an event from the mouse event attached to the window
   // it transforms the coordinate to the main svg coordinate system
-  getTransformedSvgPoint(event) {
+  getTransformedSvgPoint(clientX, clientY) {
     const svgObject = this.props.getSvgRef();
     const svgPoint = svgObject.createSVGPoint();
-    svgPoint.x = event.clientX;
-    svgPoint.y = event.clientY;
+    svgPoint.x = clientX;
+    svgPoint.y = clientY;
     const transformedSvgPoint = WhiteboardOverlay.coordinateTransform(svgPoint, svgObject);
 
     return transformedSvgPoint;
@@ -84,10 +83,11 @@ export default class WhiteboardOverlay extends Component {
 
   // this function receives a transformed svg coordinate and checks if it's not out of bounds
   checkIfOutOfBounds(point) {
-    const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = this.props;
+    const {
+      viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight,
+    } = this.props;
 
-    let x = point.x;
-    let y = point.y;
+    let { x, y } = point;
 
     // set this flag to true if either x or y are out of bounds
     let shouldUnselect = false;
@@ -120,7 +120,8 @@ export default class WhiteboardOverlay extends Component {
   }
 
   render() {
-    const { drawSettings,
+    const {
+      drawSettings,
       userId,
       whiteboardId,
       sendAnnotation,

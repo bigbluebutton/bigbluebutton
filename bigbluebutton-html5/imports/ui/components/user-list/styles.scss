@@ -41,9 +41,6 @@ $item-focus-border: $color-blue-lighter;
 %list-item {
   display: flex;
   flex-flow: row;
-  padding-top: $sm-padding-y;
-  padding-bottom: $sm-padding-y;
-  padding-left: $sm-padding-y;
   transition: all 0.3s;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -62,7 +59,7 @@ $item-focus-border: $color-blue-lighter;
   &:hover {
     background-color: $list-item-bg-hover;
   }
-  
+
 }
 
 /* Styling
@@ -116,7 +113,7 @@ $item-focus-border: $color-blue-lighter;
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 $sm-padding-x;
-  margin: ($md-padding-x / 2) 0 0 0;
+  margin: 0 0 ($lg-padding-x / 2) 0;
   color: $color-gray-light;
 }
 

@@ -9,6 +9,7 @@
 }
 
 .content {
+  flex-grow: 1;
   display: flex;
   justify-content: center;
   padding: 0;
@@ -23,6 +24,11 @@
       margin-right: 1rem;
     }
   }
+}
+
+.audioOptions {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .overlay {
@@ -102,6 +108,8 @@
 }
 
 .connecting {
+  margin-top: auto;
+  margin-bottom: auto;
   font-size: 2rem;
 }
 
