@@ -17,9 +17,6 @@ const intlMessages = defineMessages({
   401: {
     id: 'app.error.401',
   },
-  403: {
-    id: 'app.error.403',
-  },
   leave: {
     id: 'app.error.leaveLabel',
     description: 'aria-label for leaving',

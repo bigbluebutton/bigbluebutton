@@ -93,7 +93,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer(({ router,
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
       if (fields.ejected) {
-        sendToError(403, intl.formatMessage(intlMessages.kickedMessage));
+        router.push(`/ended/${403}`);
       }
     },
   });
@@ -102,7 +102,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer(({ router,
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
       if (isMeetingBreakout) return;
-      router.push('/ended/');
+      router.push(`/ended/${410}`);
     },
   });
 

@@ -35,7 +35,7 @@ const renderRoutes = () => (
       />
       <Redirect from="users/chat" to="/users/chat/public" />
     </Route>
-    <Route name="meeting-ended" path="/ended/" component={MeetingEnded} />
+    <Route name="meeting-ended" path="/ended/:endedCode" component={Base} />
     <Route name="error" path="/error/:errorCode" component={Base} />
     <Redirect from="*" to="/error/404" />
   </Router>
