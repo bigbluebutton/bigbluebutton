@@ -27,111 +27,14 @@ require "nokogiri"
 require "redis"
 require "fileutils"
 
-def check_events_xml(raw_dir,meeting_id)
-	filepath = "#{raw_dir}/#{meeting_id}/events.xml"
-	raise Exception,  "Events file doesn't exists." if not File.exists?(filepath)
-	bad_doc = Nokogiri::XML(File.open(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
-end
-
-def check_audio_files(raw_dir,meeting_id)
-	#check every file that is in events.xml, it's in audio dir
-    doc = Nokogiri::XML(File.open("#{raw_dir}/#{meeting_id}/events.xml"))
-
-    doc.xpath("//event[@eventname='StartRecordingEvent']/filename/text()").each { |fs_audio_file| 
-    	audioname = fs_audio_file.content.split("/").last
-    	raw_audio_file = "#{raw_dir}/#{meeting_id}/audio/#{audioname}"
-    	#checking that the audio file exists in raw directory
-    	raise Exception,  "Audio file #{raw_audio_file} doesn't exist in raw directory." if not File.exists?(raw_audio_file)
-
-    	#checking length
-        info = BigBlueButton::EDL::Audio.audio_info(raw_audio_file)
-        if info[:duration].nil? or info[:duration] == 0
-          raise Exception, "Audio file #{raw_audio_file} length is zero."
-        end
-    }
-
-end
-
-def check_webcam_files(raw_dir, meeting_id)
-    meeting_dir = "#{raw_dir}/#{meeting_id}"
-
-    BigBlueButton.logger.info("Repairing red5 serialized streams")
-    cp="/usr/share/red5/red5-server.jar:/usr/share/red5/lib/*"
-    if File.directory?("#{meeting_dir}/video/#{meeting_id}")
-      FileUtils.cd("#{meeting_dir}/video/#{meeting_id}") do
-        Dir.glob("*.flv.ser").each do |ser|
-          BigBlueButton.logger.info("Repairing #{ser}")
-          ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
-          if ret != 0
-            BigBlueButton.logger.warn("Failed to repair #{ser}")
-          end
-        end
-      end
-    end
-
-    events_file = "#{meeting_dir}/events.xml"
-    events_xml = Nokogiri::XML(File.open(events_file))
-	
-    BigBlueButton.logger.info "Checking all webcam recorded streams from events were archived."
-    webcams = BigBlueButton::Events.get_start_video_events(events_xml)
-    webcams.each do |webcam|
-        raw_webcam_file = "#{raw_dir}/#{meeting_id}/video/#{meeting_id}/#{webcam[:stream]}.flv"
-        raise Exception, "Webcam file #{webcam[:stream]}.flv was not archived" if not File.exists? raw_webcam_file
-    end
-
-    BigBlueButton.logger.info "Checking the length of webcam streams is not zero."
-    original_num_events = events_xml.xpath("//event").size
-
-    Dir.glob("#{meeting_dir}/video/#{meeting_id}/*").each do |video|
-        info = BigBlueButton::EDL::Video.video_info(video)
-        if info[:duration].nil? or info[:duration] == 0
-            video_name =  File.basename(video,File.extname(video))
-            removed_elements = events_xml.xpath("//event[contains(., '#{video_name}')]").remove
-            BigBlueButton.logger.info "Removed #{removed_elements.size} events for webcam stream '#{video_name}' ."
-            FileUtils.rm video
-            BigBlueButton.logger.info "Removing webcam file #{video} from raw dir due to length zero."
-        end
-    end
-
-    if original_num_events > events_xml.xpath("//event").size
-        BigBlueButton.logger.info "Making backup of original events file #{events_file}."
-        FileUtils.cp(events_file, "#{meeting_dir}/events.xml.original")
-
-        BigBlueButton.logger.info "Saving changes in #{events_file}."
-        File.open("#{raw_dir}/#{meeting_id}/events.xml",'w') {|f| f.write(events_xml) }
-    else
-	BigBlueButton.logger.info "Webcam streams with length zero were not found."
-    end
-
-end
-
-def check_deskshare_files(raw_dir, meeting_id)
-    meeting_dir = "#{raw_dir}/#{meeting_id}"
-
-    BigBlueButton.logger.info("Repairing red5 serialized streams")
-    cp="/usr/share/red5/red5-server.jar:/usr/share/red5/lib/*"
-    if File.directory?("#{meeting_dir}/deskshare")
-      FileUtils.cd("#{meeting_dir}/deskshare") do
-        Dir.glob("*.flv.ser").each do |ser|
-          BigBlueButton.logger.info("Repairing #{ser}")
-          ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
-          if ret != 0
-            BigBlueButton.logger.warn("Failed to repair #{ser}")
-          end
-        end
-      end
-    end
-
-    events_file = "#{meeting_dir}/events.xml"
-    events_xml = Nokogiri::XML(File.open(events_file))
-
-    desktops = BigBlueButton::Events.get_start_deskshare_events(events_xml)
-    desktops.each do |desktop|
-        raw_desktop_file = "#{raw_dir}/#{meeting_id}/deskshare/#{desktop[:stream]}"
-        raise Exception, "Deskshare file #{desktop[:stream]} was not archived" if not File.exists? raw_desktop_file
-    end
-end
-
+# This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
+props = YAML::load(File.open('bigbluebutton.yml'))
+log_dir = props['log_dir']
+audio_dir = props['raw_audio_src']
+recording_dir = props['recording_dir']
+raw_archive_dir = "#{recording_dir}/raw"
+redis_host = props['redis_host']
+redis_port = props['redis_port']
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", type: :string
@@ -142,14 +45,39 @@ Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 meeting_id = opts[:meeting_id]
 break_timestamp = opts[:break_timestamp]
 
-# This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
-props = YAML::load(File.open('bigbluebutton.yml'))
-log_dir = props['log_dir']
-audio_dir = props['raw_audio_src']
-recording_dir = props['recording_dir']
-raw_archive_dir = "#{recording_dir}/raw"
-redis_host = props['redis_host']
-redis_port = props['redis_port']
+
+BigBlueButton.logger = Logger.new("#{log_dir}/sanity.log", 'daily' )
+logger = BigBlueButton.logger
+
+def check_events_xml(raw_dir,meeting_id)
+  filepath = "#{raw_dir}/#{meeting_id}/events.xml"
+  raise Exception,  "Events file doesn't exists." if not File.exists?(filepath)
+  bad_doc = Nokogiri::XML(File.open(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
+end
+
+def repair_red5_ser(directory)
+  cp="/usr/share/red5/red5-server.jar:/usr/share/red5/lib/*"
+  if File.directory?(directory)
+    FileUtils.cd(directory) do
+
+      BigBlueButton.logger.info("Repairing red5 serialized streams")
+      Dir.glob("*.flv.ser").each do |ser|
+        BigBlueButton.logger.info("Repairing #{ser}")
+        ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
+        if ret != 0
+          BigBlueButton.logger.warn("Failed to repair #{ser}")
+        end
+      end
+
+      BigBlueButton.logger.info("Cleaning up red5 .flv.ser and .flv.info files")
+      Dir.glob("*.flv.{ser,info}").each do |f|
+        BigBlueButton.logger.info("Removing #{f}")
+        FileUtils.rm(f)
+      end
+    end
+  end
+end
+
 
 # Determine the filenames for the done and fail files
 if !break_timestamp.nil?
@@ -160,41 +88,38 @@ end
 sanity_done_file = "#{recording_dir}/status/sanity/#{done_base}.done"
 sanity_fail_file = "#{recording_dir}/status/sanity/#{done_base}.fail"
 
-BigBlueButton.logger = Logger.new("#{log_dir}/sanity.log", 'daily' )
 
 begin
-  BigBlueButton.logger.info("Starting sanity check for recording #{meeting_id}")
+  logger.info("Starting sanity check for recording #{meeting_id}")
   if !break_timestamp.nil?
-    BigBlueButton.logger.info("Break timestamp is #{break_timestamp}")
+    logger.info("Break timestamp is #{break_timestamp}")
   end
 
-  BigBlueButton.logger.info("Checking events.xml")
+  logger.info("Checking events.xml")
   check_events_xml(raw_archive_dir,meeting_id)
 
-  BigBlueButton.logger.info("Checking audio")
-  check_audio_files(raw_archive_dir,meeting_id)
+  logger.info("Repairing webcam videos")
+  repair_red5_ser("#{raw_archive_dir}/#{meeting_id}/video/#{meeting_id}")
 
-  BigBlueButton.logger.info("Checking webcam videos")
-  check_webcam_files(raw_archive_dir,meeting_id)
-
-  BigBlueButton.logger.info("Checking deskshare videos")
-  check_deskshare_files(raw_archive_dir,meeting_id)
+  logger.info("Repairing deskshare videos")
+  repair_red5_ser("#{raw_archive_dir}/#{meeting_id}/deskshare")
 
   if break_timestamp.nil?
     # Either this recording isn't segmented, or we are working on the last
     # segment, so go ahead and clean up all the redis data.
-    BigBlueButton.logger.info("Deleting keys")
+    logger.info("Deleting keys")
     redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
     events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
     events_archiver.delete_events(meeting_id)
   end
 
-  BigBlueButton.logger.info("creating sanity done files")
+  logger.info("creating sanity done files")
   File.open(sanity_done_file, "w") do |sanity_done|
     sanity_done.write("sanity check #{meeting_id}")
   end
 rescue Exception => e
   BigBlueButton.logger.error("error in sanity check: " + e.message)
+  BigBlueButton.logger.error(e.backtrace.join("\n"))
   File.open(sanity_fail_file, "w") do |sanity_fail|
     sanity_fail.write("error: " + e.message)
   end
