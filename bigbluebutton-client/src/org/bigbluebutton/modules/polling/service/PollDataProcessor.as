@@ -99,7 +99,7 @@ package org.bigbluebutton.modules.polling.service
       }
     }
     
-    public function handlePollUserVotedMessage(msg:Object):void {
+    public function handlePollUpdatedMessage(msg:Object):void {
       var pollId:String = msg.body.pollId;
       var poll:Object = msg.body.poll;
       var answers:Array = poll.answers as Array;
