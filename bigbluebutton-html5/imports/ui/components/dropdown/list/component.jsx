@@ -8,7 +8,6 @@ import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';
 
-
 const propTypes = {
  /*  We should recheck this proptype, sometimes we need to create an container and send to dropdown,
    but with this */
@@ -123,9 +122,6 @@ export default class DropdownList extends Component {
   }
 
   render() {
-    //console.log('DropdownList render');
-    //console.log(this.props.children);
-
     const { children, style, className } = this.props;
 
     const boundChildren = Children.map(children,
