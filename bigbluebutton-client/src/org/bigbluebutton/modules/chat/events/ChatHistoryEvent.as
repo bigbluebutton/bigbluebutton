@@ -27,9 +27,9 @@ package org.bigbluebutton.modules.chat.events
 		
 		public var chatId:String;
 		
-		public function ChatHistoryEvent(type:String)
+		public function ChatHistoryEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
-			super(type, true, false);
+			super(type, bubbles, cancelable);
 		}
 		
 	}
