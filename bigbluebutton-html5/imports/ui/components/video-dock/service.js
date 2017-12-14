@@ -1,4 +1,6 @@
 import { makeCall } from '/imports/ui/services/api';
+import Users from '/imports/api/users';
+import { createContainer } from 'meteor/react-meteor-data';
 
 const joinVideo = () => {
   var joinVideoEvent = new Event('joinVideo');
@@ -18,6 +20,10 @@ const sendUserUnshareWebcam = (stream) => {
   makeCall('userUnshareWebcam', stream);
 };
 
+const getAllUsers = () => {
+  return Users.find().fetch();
+}
+
 export default {
-  sendUserShareWebcam, sendUserUnshareWebcam, joinVideo, exitVideo,
+  sendUserShareWebcam, sendUserUnshareWebcam, joinVideo, exitVideo, getAllUsers,
 };

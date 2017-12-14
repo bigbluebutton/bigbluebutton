@@ -7,8 +7,6 @@ import JoinVideoOptionsContainer from '../video-dock/video-menu/container';
 
 const ActionsBar = ({
   isUserPresenter,
-  handleExitAudio,
-  handleOpenJoinAudio,
   handleExitVideo,
   handleJoinVideo,
   handleShareScreen,
