@@ -108,8 +108,13 @@ var _onMessage = function (_message) {
   }
 };
 
-let stopSession = function(sessionId) {
+let stopSession = function(sessionId, videoId) {
   console.log('  [VideoManager/x] Stopping session ' + sessionId);
+
+  if (sessions == null || sessionId == null || sessions[sessionId] == null) {
+    return;
+  }
+
   let videoIds = Object.keys(sessions[sessionId]);
 
   for (var i = 0; i < videoIds.length; i++) {
@@ -119,10 +124,17 @@ let stopSession = function(sessionId) {
   }
 
   sessions[sessionId] = null;
+
+  delete sessions[sessionId];
 }
 
 let stopAll = function() {
   console.log('  [Video/x] Stopping everything! ');
+
+  if (sessions == null) {
+    return;
+  }
+
   let sessionIds = Object.keys(sessions);
 
   for (var i = 0; i < sessionIds.length; i++) {

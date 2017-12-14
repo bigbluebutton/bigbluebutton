@@ -19,10 +19,6 @@ export default class VideoDock extends Component {
     super(props);
 
     this.state = {
-      videos: {},
-    };
-
-    this.state = {
       // Set a valid kurento application server socket in the settings
       ws: new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl),
       webRtcPeers: {},
@@ -31,6 +27,7 @@ export default class VideoDock extends Component {
       reconnectList: [],
       sharedCameraTimeout: null,
       subscribedCamerasTimeouts: [],
+      videos: {},
     };
 
     window.ws = this.state.ws;
@@ -70,9 +67,12 @@ export default class VideoDock extends Component {
     for (i in this.state.reconnectList) {
       const id = this.state.reconnectList[i];
 
+      // TODO: base this on BBB API users instead of using memory
       if (id != this.state.myId) {
-        log('debug', ` [camera] Trying to reconnect camera ${id}`);
-        this.start(id, false, this.refs.videoInput);
+        setTimeout(() => {
+          log('debug', ` [camera] Trying to reconnect camera ${id}`);
+          this.start(id, false, this.refs.videoInput);
+        }, 5000);
       }
     }
 
@@ -133,6 +133,12 @@ export default class VideoDock extends Component {
                 }
               });
             } else {
+
+              // If we are ever in a position where iceQueue is not defined by this point
+              if (typeof webRtcPeer.iceQueue === 'undefined') {
+                webRtcPeer.iceQueue = [];
+              }
+
               webRtcPeer.iceQueue.push(parsedMessage.candidate);
             }
           } else {
@@ -248,8 +254,8 @@ export default class VideoDock extends Component {
   }
 
   disconnected(id) {
-    if (this.state.sharedWebcam && this.state.myId == id) {
-      log('debug', ' [camera]  Disconnected, will try re-share webcam later.');
+    if (this.state.sharedWebcam) {
+      log('debug', ' [camera] Webcam disconnected, will try re-share webcam later.');
       this.setState({ reconnectWebcam: true });
     } else {
       const reconnectList = this.state.reconnectList;
@@ -314,10 +320,9 @@ export default class VideoDock extends Component {
       log('info', 'No WebRTC peer to stop (not an error)');
     }
 
-    if (id == this.state.myId && this.state.sharedWebcam) {
+    if (this.state.sharedWebcam) {
       this.state.sharedWebcam.dispose();
       this.state.sharedWebcam = null;
-      this.state.myId = null;
     } else {
       log('info', 'No shared camera WebRTC peer to stop (not an error)');
     }
@@ -327,7 +332,12 @@ export default class VideoDock extends Component {
     const { users } = this.props;
     const id = users[0].userId;
 
-    this.start(id, true, this.refs.videoInput);
+    if (this.connectedToMediaServer()) {
+      this.start(id, true, this.refs.videoInput);
+    } else {
+      log("error", "Not connected to media server BRA");
+    }
+
   }
 
   unshareWebcam() {
@@ -389,6 +399,7 @@ export default class VideoDock extends Component {
 
   handlePlayStop(message) {
     log('info', 'Handle play stop <--------------------');
+    log('error', message);
 
     this.stop(message.cameraId);
   }
@@ -438,6 +449,11 @@ export default class VideoDock extends Component {
               this.start(users[i].userId, false, this.refs.videoInput);
             } else {
               this.stop(users[i].userId);
+            }
+
+            if (!nextUsers[i].has_stream) {
+              console.log(" DESTROYING ----------------------- " + users[i].userId);
+              this.destroyVideoTag(users[i].userId);
             }
 
             suc = suc || true;

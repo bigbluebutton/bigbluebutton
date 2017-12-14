@@ -61,6 +61,19 @@ module.exports = class RedisWrapper extends EventEmitter {
 
     console.log("  [RedisWrapper] Trying to subscribe to redis channel");
 
+    this.redisCli.on("connect", () => {
+      // console.log(" [RedisWrapper] Connected to Redis Server.");
+      // DO SOMETHING
+    });
+
+    this.redisCli.on("error", (e) => {
+      console.error(" [RedisWrapper] " + e);
+    });
+
+    this.redisCli.on("reconnecting", (e) => {
+      // DO SOMETHING
+    });
+
     this.redisCli.on("psubscribe", (channel, count) => {
       console.log(" [RedisWrapper] Successfully subscribed to pattern [" + channel + "]");
     });
@@ -102,9 +115,9 @@ module.exports = class RedisWrapper extends EventEmitter {
   }
 
   static _redisRetry (options) {
-    if (options.error && options.error.code === 'ECONNREFUSED') {
-      return new Error('The server refused the connection');
-    }
+    // if (options.error && options.error.code === 'ECONNREFUSED') {
+    //   return new Error('The server refused the connection');
+    // }
     if (options.total_retry_time > RedisWrapper._retryThreshold) {
       return new Error('Retry time exhausted');
     }
