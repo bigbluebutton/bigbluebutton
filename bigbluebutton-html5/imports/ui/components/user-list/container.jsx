@@ -8,7 +8,6 @@ import UserList from './component';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
-  openChat: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
   meeting: PropTypes.shape({}).isRequired,
@@ -23,12 +22,6 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
-  userActions: PropTypes.func.isRequired,
-  children: PropTypes.Object,
-};
-
-const defaultProps = {
-  children: {},
 };
 
 const UserListContainer = (props) => {
@@ -36,10 +29,7 @@ const UserListContainer = (props) => {
     users,
     currentUser,
     openChats,
-    openChat,
-    userActions,
     isBreakoutRoom,
-    children,
     meeting,
     getAvailableActions,
     normalizeEmojiName,
@@ -59,35 +49,28 @@ const UserListContainer = (props) => {
       meeting={meeting}
       currentUser={currentUser}
       openChats={openChats}
-      openChat={openChat}
       isBreakoutRoom={isBreakoutRoom}
       setEmojiStatus={setEmojiStatus}
       assignPresenter={assignPresenter}
       kickUser={kickUser}
       toggleVoice={toggleVoice}
       changeRole={changeRole}
-      userActions={userActions}
       getAvailableActions={getAvailableActions}
       normalizeEmojiName={normalizeEmojiName}
       isMeetingLocked={isMeetingLocked}
       isPublicChat={isPublicChat}
       roving={roving}
-    >
-      {children}
-    </UserList>
+    />
   );
 };
 
 UserListContainer.propTypes = propTypes;
-UserListContainer.defaultProps = defaultProps;
 
 export default createContainer(({ params }) => ({
   users: Service.getUsers(),
   meeting: Meetings.findOne({}),
   currentUser: Service.getCurrentUser(),
   openChats: Service.getOpenChats(params.chatID),
-  openChat: params.chatID,
-  userActions: Service.userActions,
   isBreakoutRoom: meetingIsBreakout(),
   getAvailableActions: Service.getAvailableActions,
   normalizeEmojiName: Service.normalizeEmojiName,
