@@ -127,6 +127,7 @@ public class VideoStreamListener implements IStreamListener {
       packetCount++;
 
       if (!firstPacketReceived) {
+        log.info("******* Receiving first video packet");
         firstPacketReceived = true;
         publishing = true;
         firstPacketTime = lastVideoTime;
@@ -142,7 +143,7 @@ public class VideoStreamListener implements IStreamListener {
           event.put("meetingId", meetingId);
           event.put("stream", streamId);
           event.put("eventName", "StartWebcamShareEvent");
-
+          log.info("******* StartWebcamShareEvent " + streamId);
           recordingService.record(meetingId, event);
         }
       }
@@ -181,6 +182,8 @@ public class VideoStreamListener implements IStreamListener {
       event.put("stream", streamId);
       event.put("duration", new Long(publishDuration).toString());
       event.put("eventName", "StopWebcamShareEvent");
+
+      log.info("******* StopWebcamShareEvent " + streamId);
       recordingService.record(meetingId, event);
     }
   }

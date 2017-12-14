@@ -44,6 +44,7 @@ public class VideoStream {
 
     public synchronized void stopRecording() {
         if (cstream.isRecording()) {
+            log.info("***** Stopping recording");
             cstream.stopRecording();
             videoStreamListener.stopRecording();
             videoStreamListener.reset();
