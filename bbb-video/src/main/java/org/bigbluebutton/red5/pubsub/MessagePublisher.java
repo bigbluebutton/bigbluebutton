@@ -1,8 +1,8 @@
 package org.bigbluebutton.red5.pubsub;
 
-import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
-import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
+
+//import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
+//import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
 import java.util.HashMap;
 import java.util.Map;
 import com.google.gson.Gson;
@@ -49,7 +49,8 @@ public class MessagePublisher {
 		sender.send("to-akka-apps-redis-channel", json);
 	}
 
-	// Polling 
+	// Polling
+	/*
 	public void userSharedWebcamMessage(String meetingId, String userId, String streamId) {
 		UserSharedWebcamMessage msg = new UserSharedWebcamMessage(meetingId, userId, streamId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
@@ -59,6 +60,7 @@ public class MessagePublisher {
 		UserUnshareWebcamRequestMessage msg = new UserUnshareWebcamRequestMessage(meetingId, userId, streamId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
+	*/
 	
 	public void startRotateLeftTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress) {
 		Map<String, String> params = new HashMap<String, String>();
