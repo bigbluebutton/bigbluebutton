@@ -114,7 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		{
 			dispatcher = new Dispatcher();
 			updateStyles();
-			
+			resourcesChanged();
 			// For an unknown reason this popup cannot be centred directly using PopUpUtil
 			PopUpManager.centerPopUp(this)
 		}
