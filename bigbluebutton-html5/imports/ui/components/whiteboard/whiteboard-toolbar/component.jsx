@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
-import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import styles from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
@@ -51,7 +51,6 @@ const intlMessages = defineMessages({
 });
 
 class WhiteboardToolbar extends Component {
-
   constructor() {
     super();
 

@@ -50,21 +50,25 @@ export default class ToolbarSubmenuItem extends Component {
   }
 
   render() {
-
-    const { className, customIcon, icon, label } = this.props
+    const {
+      className,
+      customIcon,
+      icon,
+      label,
+    } = this.props;
 
     return (
       <div className={styles.buttonWrapper}>
         <Button
           hideLabel
           role="button"
-          color={'default'}
-          size={'md'}
+          color="default"
+          size="md"
           label={label}
           aria-label={label}
           icon={icon}
           customIcon={customIcon}
-          onClick={this.handleItemClick}
+          onMouseUp={this.handleOnMouseUp}
           className={className}
           setRef={this.setRef}
         />

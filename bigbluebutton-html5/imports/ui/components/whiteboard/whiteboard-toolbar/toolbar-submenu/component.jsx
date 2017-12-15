@@ -1,87 +1,87 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
+import _ from 'lodash';
 import styles from '../styles';
 import ToolbarSubmenuItem from '../toolbar-submenu-item/component';
-import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
-import _ from 'lodash';
 
 const intlMessages = defineMessages({
   toolHand: {
     id: 'app.whiteboard.toolbar.tools.hand',
-    description: 'Tool submenu hand item'
+    description: 'Tool submenu hand item',
   },
   toolPencil: {
     id: 'app.whiteboard.toolbar.tools.pencil',
-    description: 'Tool submenu pencil annotation'
+    description: 'Tool submenu pencil annotation',
   },
   toolRectangle: {
     id: 'app.whiteboard.toolbar.tools.rectangle',
-    description: 'Tool submenu rectangle annotation'
+    description: 'Tool submenu rectangle annotation',
   },
   toolTriangle: {
     id: 'app.whiteboard.toolbar.tools.triangle',
-    description: 'Tool submenu triangle annotation'
+    description: 'Tool submenu triangle annotation',
   },
   toolEllipse: {
     id: 'app.whiteboard.toolbar.tools.ellipse',
-    description: 'Tool submenu ellipse annotation'
+    description: 'Tool submenu ellipse annotation',
   },
   toolLine: {
     id: 'app.whiteboard.toolbar.tools.line',
-    description: 'Tool submenu line annotation'
+    description: 'Tool submenu line annotation',
   },
   toolText: {
     id: 'app.whiteboard.toolbar.tools.text',
-    description: 'Tool submenu text annotation'
+    description: 'Tool submenu text annotation',
   },
   colorBlack: {
     id: 'app.whiteboard.toolbar.color.black',
-    description: 'Color submenu black color'
+    description: 'Color submenu black color',
   },
   colorWhite: {
     id: 'app.whiteboard.toolbar.color.white',
-    description: 'Color submenu white color'
+    description: 'Color submenu white color',
   },
   colorRed: {
     id: 'app.whiteboard.toolbar.color.red',
-    description: 'Color submenu red color'
+    description: 'Color submenu red color',
   },
   colorOrange: {
     id: 'app.whiteboard.toolbar.color.orange',
-    description: 'Color submenu orange color'
+    description: 'Color submenu orange color',
   },
   colorEletricLime: {
     id: 'app.whiteboard.toolbar.color.eletricLime',
-    description: 'Color submenu eletric lime color'
+    description: 'Color submenu eletric lime color',
   },
   colorLime: {
     id: 'app.whiteboard.toolbar.color.lime',
-    description: 'Color submenu lime color'
+    description: 'Color submenu lime color',
   },
   colorCyan: {
     id: 'app.whiteboard.toolbar.color.cyan',
-    description: 'Color submenu cyan color'
+    description: 'Color submenu cyan color',
   },
   colorDodgerBlue: {
     id: 'app.whiteboard.toolbar.color.dodgerBlue',
-    description: 'Color submenu dodger blue color'
+    description: 'Color submenu dodger blue color',
   },
   colorBlue: {
     id: 'app.whiteboard.toolbar.color.blue',
-    description: 'Color submenu blue color'
+    description: 'Color submenu blue color',
   },
   colorViolet: {
     id: 'app.whiteboard.toolbar.color.violet',
-    description: 'Color submenu violet color'
+    description: 'Color submenu violet color',
   },
   colorMagenta: {
     id: 'app.whiteboard.toolbar.color.magenta',
-    description: 'Color submenu magenta color'
+    description: 'Color submenu magenta color',
   },
   colorSilver: {
     id: 'app.whiteboard.toolbar.color.silver',
-    description: 'Color submenu silver color'
+    description: 'Color submenu silver color',
   },
 });
 
@@ -150,15 +150,15 @@ class ToolbarSubmenu extends Component {
   }
 
   formatSubmenuLabel(type, obj) {
-    const { intl } = this.props
+    const { intl } = this.props;
 
     if (type === 'annotations') {
-      let intlLabel = 'tool' + _.upperFirst(obj.value);
+      const intlLabel = `tool${_.upperFirst(obj.value)}`;
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 
     if (type === 'color') {
-      let intlLabel = 'color' + _.upperFirst(obj.label);
+      const intlLabel = `color${_.upperFirst(obj.label)}`;
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 
@@ -166,7 +166,12 @@ class ToolbarSubmenu extends Component {
   }
 
   render() {
-    const { type, objectsToRender, objectSelected, label, customIcon } = this.props;
+    const {
+      type,
+      objectsToRender,
+      objectSelected,
+      customIcon,
+    } = this.props;
 
     return (
       <div
@@ -228,6 +233,11 @@ ToolbarSubmenu.propTypes = {
   ]).isRequired,
   label: PropTypes.string.isRequired,
   customIcon: PropTypes.bool.isRequired,
+
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+
 };
 
 export default injectIntl(ToolbarSubmenu);
