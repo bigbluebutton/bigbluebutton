@@ -129,6 +129,10 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
       return Promise.resolve(presentations);
     })
     .then((presentations) => {
+      if (currentPresentation === undefined) {
+        return Promise.resolve();
+      }
+
       // If its a newly uploaded presentation we need to get it from promise result
       if (!currentPresentation.conversion.done) {
         const currentIndex = presentationsToUpload.findIndex(p => p === currentPresentation);
@@ -136,7 +140,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
       }
 
       // skip setting as current if error happened
-      if (currentPresentation === undefined || currentPresentation.conversion.error) {
+      if (currentPresentation.conversion.error) {
         return Promise.resolve();
       }
 
