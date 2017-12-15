@@ -41,6 +41,9 @@
 				dispatchEvent(rEvent);
 			}
 
+			/*
+			 * Disabled until later updates
+			 */
 			protected function switchDownloadableBtn_clickHandler(event:MouseEvent):void {
 				var dEvent:SetPresentationDownloadableEvent = new SetPresentationDownloadableEvent(SetPresentationDownloadableEvent.SET_DOWNLOADABLE);
 				dEvent.presentationName = data.presId as String;
@@ -55,10 +58,11 @@
 			  truncateToFit="true"
 			  styleName="presentationNameLabel"
 			  text="{data.presName as String}" />
-	<mx:Button id="switchDownloadableBtn"
+	<!-- @todo : update button ui style and labels when SetPresentationDownloadble is implemented -->
+	<!--mx:Button id="switchDownloadableBtn"
 			   height="32"
 			   label="{data.downloadable as Boolean ? 'Off' : 'On'}"
-			   click="switchDownloadableBtn_clickHandler(event)" />
+			   click="switchDownloadableBtn_clickHandler(event)" /-->
 	<mx:Button id="showBtn"
 			   height="32"
 			   label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}"

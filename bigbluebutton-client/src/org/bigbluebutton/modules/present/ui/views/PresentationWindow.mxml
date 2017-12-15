@@ -839,20 +839,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPollOption.label")});
 			}
-			
+
 			private function setDownloadMenuData():void {
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				var resourceUtil:ResourceUtil = ResourceUtil.getInstance();
 				downloadMenuData = [];
+				downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.slideWithAnnotations"), data: "slide_annotation"});
 				if (presentationModel.getCurrentPresentation().downloadable) {
-					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.slideWithAnnotations"), data:"slide_annotation"});
-					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentationWithAnnotations"), data:"presentation_annotation"});		
+					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentationWithAnnotations"), data: "presentation_annotation"});
 				}
-				if (presentationModel.getDownloadablePresentations().length > 0){
-					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentations"), data:"presentations"});
+				if (presentationModel.getDownloadablePresentations().length > 0) {
+					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentations"), data: "presentations"});
 				}
 			}
-
 
 			private function updateStyles():void {
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
@@ -1093,12 +1092,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null) {
 					var downloadablePresentations:ArrayCollection = presentationModel.getDownloadablePresentations();
-					if ( presentOptions.enableDownload && (downloadablePresentations.length > 0 || (presentationModel.getCurrentPresentation() && presentationModel.getCurrentPresentation().downloadable) ) ) {
+					if (presentOptions.enableDownload && (downloadablePresentations.length > 0 || presentationModel.getCurrentPresentation())) {
 						LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
 						downloadPres.visible = true;
 					} else {
 						LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-						downloadPres.visible = false; 
+						downloadPres.visible = false;
 					}
 				}
 			}
