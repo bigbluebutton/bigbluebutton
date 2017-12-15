@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import _ from 'lodash';
 
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -72,12 +73,17 @@ class ActionsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            <DropdownListItem
-              icon="presentation"
-              label={intl.formatMessage(intlMessages.presentationLabel)}
-              description={intl.formatMessage(intlMessages.presentationDesc)}
-              onClick={this.handlePresentationClick}
-            />
+            {
+              [
+                (<DropdownListItem
+                  key={_.uniqueId('actions-list-item-')}
+                  icon="presentation"
+                  label={intl.formatMessage(intlMessages.presentationLabel)}
+                  description={intl.formatMessage(intlMessages.presentationDesc)}
+                  onClick={this.handlePresentationClick}
+                />)
+              ]
+            }
           </DropdownList>
         </DropdownContent>
       </Dropdown>

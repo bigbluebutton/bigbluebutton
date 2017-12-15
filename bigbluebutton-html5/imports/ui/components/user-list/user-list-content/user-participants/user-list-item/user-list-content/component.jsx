@@ -283,11 +283,12 @@ class UserListContent extends Component {
           >
             {
               [
-                (<DropdownListTitle
-                  description={intl.formatMessage(messages.menuTitleContext)}
-                  key={_.uniqueId('dropdown-list-title')}
-                >
-                  {user.name}
+                (
+                  <DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}
+                    key={_.uniqueId('dropdown-list-title')}
+                  >
+                    {user.name}
                 </DropdownListTitle>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
