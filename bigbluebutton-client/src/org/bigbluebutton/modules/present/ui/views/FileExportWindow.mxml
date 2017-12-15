@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public var firstPage:int;
@@ -78,7 +78,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public var presentationModel:PresentationModel;
 
-			public var whiteboardCanvas:WhiteboardCanvas;
+			public var whiteboardCanvas:IWhiteboardOverlay;
 
 			private var _pdf:PDF;
 

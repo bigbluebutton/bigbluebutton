@@ -29,6 +29,8 @@ package org.bigbluebutton.main.model.users
 	import flash.net.Responder;
 	import flash.utils.Timer;
 	
+	import mx.utils.ObjectUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -112,7 +114,7 @@ package org.bigbluebutton.main.model.users
                 _messageListeners[notify].onMessage(messageName, message);
               }
             } catch(error:Error) {
-              LOGGER.error("Exception dispatched by a MessageListener, error: " + error.message);
+              LOGGER.error("Exception dispatched by a MessageListener, error: " + error.message + ", while trying to process " + ObjectUtil.toString(message));
             }
           } else {
             LOGGER.debug("Message name is undefined");

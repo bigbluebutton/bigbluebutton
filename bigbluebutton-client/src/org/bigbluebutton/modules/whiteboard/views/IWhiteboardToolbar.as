@@ -18,8 +18,9 @@
  */
 
 package org.bigbluebutton.modules.whiteboard.views {
-	public interface IWhiteboardReceiver {
-		function receiveToolbars(wt:IWhiteboardToolbar, wtt:IWhiteboardToolbar):void;
-		function receiveCanvas(wc:IWhiteboardOverlay):void;
+	import flexlib.mdi.containers.MDIWindow;
+
+	public interface IWhiteboardToolbar {
+		function positionToolbar(container:MDIWindow):void;
 	}
 }

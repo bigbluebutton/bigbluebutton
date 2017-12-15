@@ -63,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(SlideView);      
@@ -72,7 +72,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 			
-			private var whiteboardCanvas:WhiteboardCanvas;
+			private var whiteboardOverlay:IWhiteboardOverlay;
 										
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
@@ -353,8 +353,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					slideLoader.source = page.swfData;
 					LOGGER.debug("Displaying page [{0}]", [e.pageId]);
 					//positionPage(page);
-					if (whiteboardCanvas != null) {
-						whiteboardCanvas.displayWhiteboardById(page.id);
+					if (whiteboardOverlay != null) {
+						whiteboardOverlay.displayWhiteboardById(page.id);
 					}
 
 					//slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
@@ -417,26 +417,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(dispEvent);
 			}
 			
-			public function acceptOverlayCanvas(_podId: String, overlay:WhiteboardCanvas):void{
+			public function acceptOverlayCanvas(_podId: String, overlay:IWhiteboardOverlay):void{
 				if (_podId != this.podId || PresentationPodManager.getInstance().getPod(_podId) == null) {
 					return;
 				}
 
-				whiteboardCanvas = overlay;
+				whiteboardOverlay = overlay;
 
 				var currPage:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
 				if (currPage != null) {
-					whiteboardCanvas.displayWhiteboardById(currPage.id);
+					whiteboardOverlay.displayWhiteboardById(currPage.id);
 				}
 
-				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
+				this.addChildAt((whiteboardOverlay as DisplayObject), this.getChildIndex(thumbnailView));
 				fitSlideToLoader();
-				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+				(whiteboardOverlay as IEventDispatcher).addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
 			}
 			
 			public function removeOverlayCanvas():void {
-				whiteboardCanvas = null;
+				whiteboardOverlay = null;
 			}
 			
 			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
@@ -444,16 +444,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void{
-				if (whiteboardCanvas != null) {
-					whiteboardCanvas.moveCanvas(x * SlideCalcUtil.MYSTERY_NUM, y * SlideCalcUtil.MYSTERY_NUM);
+				if (whiteboardOverlay != null) {
+					whiteboardOverlay.moveCanvas(x * SlideCalcUtil.MYSTERY_NUM, y * SlideCalcUtil.MYSTERY_NUM);
 				}
 			}
 			
 			public function zoomCanvas(width:Number, height:Number):void{
 				moveCanvas(slideLoader.x, slideLoader.y);
-				if (whiteboardCanvas != null) {
+				if (whiteboardOverlay != null) {
 					//LogUtil.debug("Zooming Canvas " + width + " " + height);
-					whiteboardCanvas.zoomCanvas(width, height);
+					whiteboardOverlay.zoomCanvas(width, height);
 				}
 			}
 			

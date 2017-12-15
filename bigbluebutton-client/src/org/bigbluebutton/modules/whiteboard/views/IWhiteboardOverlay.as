@@ -18,8 +18,13 @@
  */
 
 package org.bigbluebutton.modules.whiteboard.views {
-	public interface IWhiteboardReceiver {
-		function receiveToolbars(wt:IWhiteboardToolbar, wtt:IWhiteboardToolbar):void;
-		function receiveCanvas(wc:IWhiteboardOverlay):void;
+	import flash.display.DisplayObject;
+
+	public interface IWhiteboardOverlay {
+		function presenterChange(amIPresenter:Boolean, presenterId:String):void;
+		function displayWhiteboardById(wbId:String):void;
+		function moveCanvas(x:Number, y:Number):void;
+		function zoomCanvas(width:Number, height:Number):void;
+		function getGraphicByName(childName:String):DisplayObject;
 	}
 }
