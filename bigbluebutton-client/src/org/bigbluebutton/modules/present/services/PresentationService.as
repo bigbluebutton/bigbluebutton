@@ -13,7 +13,6 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.Presentation;
-  import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.model.PresentationPodManager;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
@@ -142,9 +141,18 @@ package org.bigbluebutton.modules.present.services
           dispatcher.dispatchEvent(changePageCommand);
         }
       } else {
-        LOGGER.debug("Could not find presentation to make current. id="+presentationId);
+        LOGGER.warn("Could not find presentation to make current. id="+presentationId);
       }
     }
+	
+	public function setPresentationDownloadable(podId: String, presentationId:String, downloadable:Boolean):void {
+		var presentation:Presentation = podManager.getPod(podId).getPresentation(presentationId);
+		if (presentation) {
+			presentation.downloadable = downloadable;
+		} else {
+			LOGGER.warn("Could not find presentation to set downloadable. id="+presentationId);
+		}
+	}
     
     public function removeAllPresentations(podId: String):void {
       podManager.getPod(podId).removeAllPresentations();

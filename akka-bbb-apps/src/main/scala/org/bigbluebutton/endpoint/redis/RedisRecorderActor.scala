@@ -56,6 +56,7 @@ class RedisRecorderActor(val system: ActorSystem)
       case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
       case m: ResizeAndMovePageEvtMsg               => handleResizeAndMovePageEvtMsg(m)
       case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
+      case m: SetPresentationDownloadableEvtMsg     => handleSetPresentationDownloadableEvtMsg(m)
       case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
       case m: CreateNewPresentationPodEvtMsg        => handleCreateNewPresentationPodEvtMsg(m)
       case m: RemovePresentationPodEvtMsg           => handleRemovePresentationPodEvtMsg(m)
@@ -173,6 +174,16 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleSetPresentationDownloadableEvtMsg(msg: SetPresentationDownloadableEvtMsg) {
+    val ev = new SetPresentationDownloadable()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+    ev.setPresentationName(msg.body.presentationId)
+    ev.setDownloadable(msg.body.downloadable)
 
     record(msg.header.meetingId, ev.toMap)
   }

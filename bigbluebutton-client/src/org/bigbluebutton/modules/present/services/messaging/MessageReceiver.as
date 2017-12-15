@@ -77,6 +77,9 @@ package org.bigbluebutton.modules.present.services.messaging
         case "RemovePresentationEvtMsg":
           handleRemovePresentationEvtMsg(message);
           break;
+		case "SetPresentationDownloadable":
+		  handleSetPresentationDownloadable(message);
+		  break;
         case "PresentationConversionCompletedEvtMsg":
           handlePresentationConversionCompletedEvtMsg(message);
           break;
@@ -179,6 +182,13 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleSetCurrentPresentationEvtMsg(msg:Object):void {
       service.changeCurrentPresentation(msg.body.podId, msg.body.presentationId);
     }
+	
+	private function handleSetPresentationDownloadable(msg:Object):void {
+		var podId: String = msg.body.podId as String;
+		var presentationId: String = msg.body.presentationId as String;
+		var downloadable: Boolean = msg.body.downloadable as Boolean;
+		service.setPresentationDownloadable(podId, presentationId, downloadable);
+}
     
     private function handleRemovePresentationEvtMsg(msg:Object):void {
       var podId: String = msg.body.podId as String;

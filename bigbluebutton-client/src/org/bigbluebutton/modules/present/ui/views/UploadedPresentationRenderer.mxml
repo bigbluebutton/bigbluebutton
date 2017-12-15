@@ -18,6 +18,7 @@
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.SetPresentationDownloadableEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -39,6 +40,14 @@
 				rEvent.presentationName = data.presId as String;
 				dispatchEvent(rEvent);
 			}
+
+			protected function switchDownloadableBtn_clickHandler(event:MouseEvent):void {
+				var dEvent:SetPresentationDownloadableEvent = new SetPresentationDownloadableEvent(SetPresentationDownloadableEvent.SET_DOWNLOADABLE);
+				dEvent.presentationName = data.presId as String;
+				dEvent.podId = data.podId as String;
+				dEvent.downloadable = !data.downloadable as Boolean;
+				dispatchEvent(dEvent)
+			}
 		]]>
 	</fx:Script>
 	<mx:Label id="presentationNameLabel"
@@ -46,6 +55,10 @@
 			  truncateToFit="true"
 			  styleName="presentationNameLabel"
 			  text="{data.presName as String}" />
+	<mx:Button id="switchDownloadableBtn"
+			   height="32"
+			   label="{data.downloadable as Boolean ? 'Off' : 'On'}"
+			   click="switchDownloadableBtn_clickHandler(event)" />
 	<mx:Button id="showBtn"
 			   height="32"
 			   label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}"

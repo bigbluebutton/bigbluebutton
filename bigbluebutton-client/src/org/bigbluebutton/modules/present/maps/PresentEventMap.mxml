@@ -22,35 +22,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<fx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.modules.present.business.PresentProxy;
-      import org.bigbluebutton.modules.present.commands.ChangePageCommand;
-      import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
-      import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
-      import org.bigbluebutton.modules.present.commands.GoToPageCommand;
-      import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
-      import org.bigbluebutton.modules.present.commands.UploadFileCommand;
-      import org.bigbluebutton.modules.present.events.DownloadEvent;
-      import org.bigbluebutton.modules.present.events.ExportEvent;
-      import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
-      import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
-      import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
-      import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-      import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
-      import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
-      import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
-      import org.bigbluebutton.modules.present.events.PresenterCommands;
-      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
-      import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
-      import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
-      import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
-      import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.modules.present.managers.PresentManager;
-      import org.bigbluebutton.modules.present.services.PageLoaderService;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.modules.present.business.PresentProxy;
+			import org.bigbluebutton.modules.present.commands.ChangePageCommand;
+			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
+			import org.bigbluebutton.modules.present.commands.UploadFileCommand;
+			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.events.ExportEvent;
+			import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
+			import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
+			import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+			import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
+			import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+			import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
+			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
+			import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
+			import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+			import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+			import org.bigbluebutton.modules.present.events.SetPresentationDownloadableEvent;
+			import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.modules.present.managers.PresentManager;
+			import org.bigbluebutton.modules.present.services.PageLoaderService;
 		]]>
 	</fx:Script>
 	
@@ -141,6 +142,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
 			<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{SetPresentationDownloadableEvent.SET_DOWNLOADABLE}">
+			<MethodInvoker generator="{PresentProxy}" method="setPresentationDownloadable" arguments="{event}" />
 		</EventHandlers>
 		
 	  <EventHandlers type="{ChangePresentationCommand.CHANGE_PRESENTATION}">

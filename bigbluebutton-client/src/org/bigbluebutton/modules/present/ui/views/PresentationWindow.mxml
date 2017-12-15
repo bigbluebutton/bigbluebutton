@@ -842,7 +842,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				var resourceUtil:ResourceUtil = ResourceUtil.getInstance();
 				downloadMenuData = [];
-				if (presentationModel.getCurrentPresentation()) {
+				if (presentationModel.getCurrentPresentation().downloadable) {
 					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.slideWithAnnotations"), data:"slide_annotation"});
 					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentationWithAnnotations"), data:"presentation_annotation"});		
 				}
@@ -1091,7 +1091,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
 				if (presentationModel != null) {
 					var downloadablePresentations:ArrayCollection = presentationModel.getDownloadablePresentations();
-					if ( presentOptions.enableDownload && (downloadablePresentations.length > 0 || presentationModel.getCurrentPresentation()) ) {
+					if ( presentOptions.enableDownload && (downloadablePresentations.length > 0 || (presentationModel.getCurrentPresentation() && presentationModel.getCurrentPresentation().downloadable) ) ) {
 						LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
 						downloadPres.visible = true;
 					} else {
