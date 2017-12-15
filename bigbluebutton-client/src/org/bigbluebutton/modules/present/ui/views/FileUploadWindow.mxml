@@ -90,6 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentOptions;
 			import org.bigbluebutton.modules.present.model.Presentation;
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
+			import org.bigbluebutton.modules.present.ui.views.models.UploadedPresentation;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
@@ -133,13 +134,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			for (var i:int =0; i<presNames.length; i++) {
 				var pres: Presentation = presNames.getItemAt(i) as Presentation;
-				presentationNamesAC.addItem({ presName: pres.name, presCurrent: pres.current,
-					presId: pres.id, podId: _podId});
+				var uploadedPresentation: UploadedPresentation = new UploadedPresentation();
+				uploadedPresentation.podId = _podId;
+				uploadedPresentation.presId = pres.id;
+				uploadedPresentation.presName = pres.name;
+				uploadedPresentation.downloadable = pres.downloadable;
+				uploadedPresentation.presCurrent = pres.current;
+				presentationNamesAC.addItem(uploadedPresentation);
 			}
 		}
 			
 		private function handlePresentationDownloadableChangedEvent(event: PresentationDownloadableChangedEvent): void {
-			trace("********* CHANGE PRESENTATION DOWNLOAD EVENT");
 			if (_podId == event.podId) {
 				refreshPresentationsList();
 				resourcesChanged();

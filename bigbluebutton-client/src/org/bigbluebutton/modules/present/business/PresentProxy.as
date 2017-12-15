@@ -234,7 +234,10 @@ package org.bigbluebutton.modules.present.business
 		}
 		
 		public function setPresentationDownloadable(e:SetPresentationDownloadableEvent):void {
-			sender.setPresentationDownloadable(e.podId, e.presentationName, e.downloadable);
+			var presentation:Presentation = podManager.getPod(e.podId).getPresentation(e.presentationName);
+			if (presentation) {
+				sender.setPresentationDownloadable(e.podId, e.presentationName, !presentation.downloadable);
+			} 
 		}
 		
 		/**
