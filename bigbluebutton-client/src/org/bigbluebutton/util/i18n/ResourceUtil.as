@@ -36,6 +36,7 @@ package org.bigbluebutton.util.i18n
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
@@ -88,13 +89,9 @@ package org.bigbluebutton.util.i18n
 			parse(new XML(e.target.data));		
 									
 			preferredLocale = getDefaultLocale();
-			if (preferredLocale != MASTER_LOCALE) {
-				LOGGER.debug("Preferred locale=" + preferredLocale + " is not the same as master locale=" + MASTER_LOCALE);
-				// Improve language detection
-				setPreferredLocale(preferredLocale);
-			} else {
-				localeChangeComplete();
-			}
+			LOGGER.debug("Setting preferred locale=" + preferredLocale);
+			// Improve language detection
+			setPreferredLocale(preferredLocale);
 		}
 		
 		private function parse(xml:XML):void{		 	
@@ -146,11 +143,13 @@ package org.bigbluebutton.util.i18n
 			var localeInfo:Object = findPreferredLocale(localeCode)
 			if (localeInfo != null) {
 				preferredLocale = localeCode;
+				preferredDirection = localeInfo.direction;
 			}else{
+				LOGGER.debug("Preferred locale wasn't in the list of locales falling back to ["+MASTER_LOCALE+"]");
 				preferredLocale = MASTER_LOCALE;
+				preferredDirection = "ltr";
 			}
 
-			preferredDirection = localeInfo.direction;
 			changeLocale(preferredLocale);
 		}
 		
@@ -190,6 +189,14 @@ package org.bigbluebutton.util.i18n
         }
         
 		private function changeLocaleHelper(locale:String):void {
+			// we bundle the master locale into the application now so it will already 
+			// be there and the loading COMPLETE won't fire
+			if (locale == MASTER_LOCALE) {
+				LOGGER.debug("Requested master locale, skipping right to localeChangeComplete")
+				localeChangeComplete();
+				return;
+			}
+			
       		var eventDispatcher:IEventDispatcher = loadResource(locale);
 			eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
 			eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
