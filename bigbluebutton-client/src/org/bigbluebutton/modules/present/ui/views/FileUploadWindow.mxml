@@ -49,46 +49,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
 		<mate:Listener type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" method="handlePageCountExceeded"/>
 		<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />	
+		<mate:Listener type="{PresentationDownloadableChangedEvent.PRESENTATION_DOWNLOADABLE_CHANGED_EVENT}" method="handlePresentationDownloadableChangedEvent" />
 	</fx:Declarations>
   <fx:Script>
     <![CDATA[
-		import flash.utils.setTimeout;
-		
-		import mx.collections.ArrayCollection;
-		import mx.core.mx_internal;
-		import mx.events.FlexEvent;
-		import mx.managers.PopUpManager;
-		import mx.utils.StringUtil;
-		
-		import flashx.textLayout.formats.Direction;
-		
-		import org.as3commons.lang.StringUtils;
-		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.core.Options;
-		import org.bigbluebutton.core.UsersUtil;
-		import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
-		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
-		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
-		import org.bigbluebutton.modules.present.events.ConversionPageCountError;
-		import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
-		import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
-		import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
-		import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
-		import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
-		import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
-		import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
-		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-		import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
-		import org.bigbluebutton.modules.present.events.UploadEvent;
-		import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
-		import org.bigbluebutton.modules.present.events.UploadProgressEvent;
-		import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
-		import org.bigbluebutton.modules.present.model.PresentOptions;
-		import org.bigbluebutton.modules.present.model.Presentation;
-		import org.bigbluebutton.modules.present.model.PresentationPodManager;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flash.utils.setTimeout;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.mx_internal;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.utils.StringUtil;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+			import org.bigbluebutton.modules.present.commands.UploadFileCommand;
+			import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
+			import org.bigbluebutton.modules.present.events.ConversionPageCountError;
+			import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
+			import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
+			import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
+			import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
+			import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+			import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+			import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
+			import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
+			import org.bigbluebutton.modules.present.events.PresentationDownloadableChangedEvent;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
+			import org.bigbluebutton.modules.present.events.UploadProgressEvent;
+			import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
+			import org.bigbluebutton.modules.present.model.PresentOptions;
+			import org.bigbluebutton.modules.present.model.Presentation;
+			import org.bigbluebutton.modules.present.model.PresentationPodManager;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
       
@@ -118,20 +120,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		public function setPodId(podId: String): void {
 			_podId = podId ;
-			presentationNamesAC = new ArrayCollection();
-			var presNames: ArrayCollection = PresentationPodManager.getInstance().getPod(_podId).getPresentations();
 
-			for (var i:int =0; i<presNames.length; i++) {
-				var pres: Presentation = presNames.getItemAt(i) as Presentation;
-				presentationNamesAC.addItem({ presName: pres.name, presCurrent: pres.current,
-					presId: pres.id, podId: _podId});
-			}
-
+			refreshPresentationsList();
 			if (presentationNamesAC.length <= 0) {
 				selectFile();
 			}
 		}
 
+		private function refreshPresentationsList():void {
+			presentationNamesAC = new ArrayCollection();
+			var presNames: ArrayCollection = PresentationPodManager.getInstance().getPod(_podId).getPresentations();
+			
+			for (var i:int =0; i<presNames.length; i++) {
+				var pres: Presentation = presNames.getItemAt(i) as Presentation;
+				presentationNamesAC.addItem({ presName: pres.name, presCurrent: pres.current,
+					presId: pres.id, podId: _podId});
+			}
+		}
+			
+		private function handlePresentationDownloadableChangedEvent(event: PresentationDownloadableChangedEvent): void {
+			trace("********* CHANGE PRESENTATION DOWNLOAD EVENT");
+			if (_podId == event.podId) {
+				refreshPresentationsList();
+				resourcesChanged();
+			}
+			
+		}
+			
 		private function updateStyles() : void {
 			var styleNameExt : String = "";
 			if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {

@@ -38,6 +38,7 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
+  import org.bigbluebutton.modules.present.events.PresentationDownloadableChangedEvent;
   import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
   import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
@@ -184,10 +185,13 @@ package org.bigbluebutton.modules.present.services.messaging
     }
 	
 	private function handleSetPresentationDownloadable(msg:Object):void {
+		trace("**** RECEIVED SetPresentationDownloadable");
 		var podId: String = msg.body.podId as String;
 		var presentationId: String = msg.body.presentationId as String;
 		var downloadable: Boolean = msg.body.downloadable as Boolean;
 		service.setPresentationDownloadable(podId, presentationId, downloadable);
+		var downloadEvent:PresentationDownloadableChangedEvent = new PresentationDownloadableChangedEvent(podId, presentationId, downloadable);
+		dispatcher.dispatchEvent(downloadEvent);
 }
     
     private function handleRemovePresentationEvtMsg(msg:Object):void {

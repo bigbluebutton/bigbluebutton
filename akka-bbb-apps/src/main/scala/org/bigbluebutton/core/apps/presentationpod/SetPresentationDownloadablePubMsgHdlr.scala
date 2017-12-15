@@ -13,7 +13,7 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
     msg: SetPresentationDownloadablePubMsg, state: MeetingState2x,
     liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
-    
+
     if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
       permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
