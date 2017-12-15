@@ -194,6 +194,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
       case RemovePresentationPubMsg.NAME =>
         routeGenericMsg[RemovePresentationPubMsg](envelope, jsonNode)
+      case SetPresentationDownloadablePubMsg.NAME =>
+        routeGenericMsg[SetPresentationDownloadablePubMsg](envelope, jsonNode)
       case PresentationUploadTokenReqMsg.NAME =>
         routeGenericMsg[PresentationUploadTokenReqMsg](envelope, jsonNode)
       case GetAllPresentationPodsReqMsg.NAME =>

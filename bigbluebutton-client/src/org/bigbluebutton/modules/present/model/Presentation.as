@@ -86,5 +86,9 @@ package org.bigbluebutton.modules.present.model
     public function get downloadable():Boolean {
       return _downloadable;
     }
+	
+	public function set downloadable(value:Boolean):void {
+		_downloadable = value;
+	}
   }
 }

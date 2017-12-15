@@ -73,6 +73,25 @@ case class PresentationPod(id: String, currentPresenter: String,
     Some(tempPod)
   }
 
+  def setPresentationDownloadable(presentationId: String, downloadable: Boolean): Option[PresentationPod] = {
+    var tempPod: PresentationPod = this
+    presentations.values foreach (curPres => { // unset previous current presentation
+      if (curPres.id != presentationId) {
+        val newPres = curPres.copy(downloadable = downloadable)
+        tempPod = tempPod.addPresentation(newPres)
+      }
+    })
+
+    presentations.get(presentationId) match { // set new current presentation
+      case Some(pres) =>
+        val cp = pres.copy(downloadable = downloadable)
+        tempPod = tempPod.addPresentation(cp)
+      case None => None
+    }
+
+    Some(tempPod)
+  }
+
   def setCurrentPage(presentationId: String, pageId: String): Option[PresentationPod] = {
     for {
       pres <- presentations.get(presentationId)
@@ -163,6 +182,21 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
       pod <- getPod(podId)
     } yield {
       updatePresentationPod(pod.removePresentation(presentationId))
+    }
+
+    updatedManager match {
+      case Some(ns) => ns
+      case None     => this
+    }
+  }
+
+  def setPresentationDownloadableInPod(podId: String, presentationId: String, downloadable: Boolean): PresentationPodManager = {
+    val updatedManager = for {
+      pod <- getPod(podId)
+      podWithAdjustedDownloadablePresentation <- pod.setPresentationDownloadable(presentationId, downloadable)
+
+    } yield {
+      updatePresentationPod(podWithAdjustedDownloadablePresentation)
     }
 
     updatedManager match {

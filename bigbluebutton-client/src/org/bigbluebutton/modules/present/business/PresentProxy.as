@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+	import org.bigbluebutton.modules.present.events.SetPresentationDownloadableEvent;
 	import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.model.Page;
@@ -230,6 +231,13 @@ package org.bigbluebutton.modules.present.business
 
 		public function removePresentation(e:RemovePresentationEvent):void {
 			sender.removePresentation(e.podId, e.presentationName);
+		}
+		
+		public function setPresentationDownloadable(e:SetPresentationDownloadableEvent):void {
+			var presentation:Presentation = podManager.getPod(e.podId).getPresentation(e.presentationName);
+			if (presentation) {
+				sender.setPresentationDownloadable(e.podId, e.presentationName, !presentation.downloadable);
+			} 
 		}
 		
 		/**

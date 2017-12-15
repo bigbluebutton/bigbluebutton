@@ -13,7 +13,7 @@ object AllowedMessageNames {
       // Chat Messages
       "GetGroupChatsReqMsg","GetGroupChatMsgsReqMsg","SendGroupChatMessageMsg","ClearPublicChatHistoryPubMsg","CreateGroupChatReqMsg",
       // Presentation Messages
-      "ResizeAndMovePagePubMsg","SetCurrentPresentationPubMsg","SetCurrentPagePubMsg","GetPresentationInfoReqMsg","GetAllPresentationPodsReqMsg","RemovePresentationPubMsg","PresentationUploadTokenReqMsg","CreateNewPresentationPodPubMsg","RemovePresentationPodPubMsg","SetPresenterInPodReqMsg",
+      "ResizeAndMovePagePubMsg","SetCurrentPresentationPubMsg","SetCurrentPagePubMsg","GetPresentationInfoReqMsg","GetAllPresentationPodsReqMsg","RemovePresentationPubMsg","SetPresentationDownloadablePubMsg","PresentationUploadTokenReqMsg","CreateNewPresentationPodPubMsg","RemovePresentationPodPubMsg","SetPresenterInPodReqMsg",
       // Whiteboard Messages
       "ModifyWhiteboardAccessPubMsg","GetWhiteboardAccessReqMsg","UndoWhiteboardPubMsg","ClearWhiteboardPubMsg","GetWhiteboardAnnotationsReqMsg","SendWhiteboardAnnotationPubMsg","SendCursorPositionPubMsg","ClientToServerLatencyTracerMsg",
       // Polling Messages
