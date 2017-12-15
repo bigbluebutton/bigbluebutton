@@ -102,6 +102,10 @@ class SettingsDropdown extends Component {
       fullscreenIcon = 'exit_fullscreen';
     }
 
+    const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
+
+    console.log(iOS);
+
     return (
       <Dropdown
         autoFocus
@@ -125,12 +129,14 @@ class SettingsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>
+            {iOS ? null :
             <DropdownListItem
               icon={fullscreenIcon}
               label={fullscreenLabel}
               description={fullscreenDesc}
               onClick={this.props.handleToggleFullscreen}
             />
+            }
             <DropdownListItem
               icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
