@@ -66,6 +66,7 @@ const Chat = (props) => {
                 hideLabel
                 onClick={() => actions.handleClosePrivateChat(chatID)}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+                label=""
               />
             </Link> :
             <ChatDropdown />
