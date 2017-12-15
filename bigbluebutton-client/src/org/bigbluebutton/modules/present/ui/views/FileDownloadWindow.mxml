@@ -33,14 +33,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatch" />
+		<mate:Listener type="{PresentationDownloadableChangedEvent.PRESENTATION_DOWNLOADABLE_CHANGED_EVENT}" method="handlePresentationDownloadableChangedEvent" />
 	</fx:Declarations>
 
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
-
+			
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.events.PresentationDownloadableChangedEvent;
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -58,6 +60,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				globalDispatch.dispatchEvent(new DownloadEvent(DownloadEvent.CLOSE_DOWNLOAD_WINDOW));
 			}
 
+			private function handlePresentationDownloadableChangedEvent(event: PresentationDownloadableChangedEvent): void {
+				if (_podId == event.podId) {
+					downloadablePresentations = PresentationPodManager.getInstance().getPod(_podId).getDownloadablePresentations();
+					resourcesChanged();
+				}
+				
+			}
+			
 			public function setPodId(podId:String):void {
 				_podId = podId;
 				downloadablePresentations = PresentationPodManager.getInstance().getPod(podId).getDownloadablePresentations();
