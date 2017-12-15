@@ -48,18 +48,6 @@ const intlMessages = defineMessages({
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
-  messagesTitle: {
-    id: 'app.userList.messagesTitle',
-    description: 'Title for the messages list',
-  },
-  participantsTitle: {
-    id: 'app.userList.participantsTitle',
-    description: 'Title for the Users list',
-  },
-  toggleCompactView: {
-    id: 'app.userList.toggleCompactView.label',
-    description: 'Toggle user list view mode',
-  },
   ChatLabel: {
     id: 'app.userList.menu.chat.label',
     description: 'Save the changes and close the settings menu',
