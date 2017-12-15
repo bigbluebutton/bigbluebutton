@@ -57,7 +57,6 @@ const propTypes = {
 
 
 class UserListContent extends Component {
-
   /**
    * Return true if the content fit on the screen, false otherwise.
    *
@@ -140,8 +139,10 @@ class UserListContent extends Component {
       };
 
       const isDropdownVisible =
-        UserListContent.checkIfDropdownIsVisible(dropdownContent.offsetTop,
-          dropdownContent.offsetHeight);
+        UserListContent.checkIfDropdownIsVisible(
+          dropdownContent.offsetTop,
+          dropdownContent.offsetHeight,
+        );
 
       if (!isDropdownVisible) {
         const offsetPageTop =
@@ -201,13 +202,15 @@ class UserListContent extends Component {
       ? intl.formatMessage(messages.presenter)
       : '';
 
-    const userAriaLabel = intl.formatMessage(messages.userAriaLabel,
+    const userAriaLabel = intl.formatMessage(
+      messages.userAriaLabel,
       {
         0: user.name,
         1: presenter,
         2: you,
         3: user.emoji.status,
-      });
+      },
+    );
 
     const contents = (
       <div
