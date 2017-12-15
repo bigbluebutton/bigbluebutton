@@ -1,7 +1,7 @@
 $(function () {
 	setTimeout(function(){
 		   $('#BigBlueButton').focus();
-	},1000);
+	},2000);
 });
 
 function startFlashFocus() {
