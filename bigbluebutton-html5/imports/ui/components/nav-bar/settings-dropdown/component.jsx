@@ -104,8 +104,6 @@ class SettingsDropdown extends Component {
 
     const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
 
-    console.log(iOS);
-
     return (
       <Dropdown
         autoFocus
