@@ -326,6 +326,7 @@ class WhiteboardToolbar extends Component {
   renderThicknessItem() {
     return (
       <ToolbarMenuItem
+        disabled={this.state.annotationSelected.value === 'hand'}
         label={'Thickness List'}
         onItemClick={this.displaySubMenu}
         objectToReturn={'thicknessList'}
@@ -389,6 +390,7 @@ class WhiteboardToolbar extends Component {
   renderColorItem() {
     return (
       <ToolbarMenuItem
+        disabled={this.state.annotationSelected.value === 'hand'}
         label={'Color List'}
         onItemClick={this.displaySubMenu}
         objectToReturn={'colorList'}
