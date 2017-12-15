@@ -113,7 +113,7 @@ package org.bigbluebutton.modules.present.business
       dispatcher.dispatchEvent(new GetListOfPresentationsReply(idAndName));
     }
 
-		private function handleRequestPresentationInfoPodEvent(e: RequestPresentationInfoPodEvent): void {
+		public function handleRequestPresentationInfoPodEvent(e: RequestPresentationInfoPodEvent): void {
 			sender.getPresentationInfo(e.podId);
 		}
     
