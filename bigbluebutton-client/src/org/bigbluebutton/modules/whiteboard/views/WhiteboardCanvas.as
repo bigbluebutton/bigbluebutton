@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	
-	public class WhiteboardCanvas extends Canvas {
+	public class WhiteboardCanvas extends Canvas implements IWhiteboardOverlay {
 		private var whiteboardModel:WhiteboardModel;
 		private var canvasModel:WhiteboardCanvasModel;
 		private var canvasDisplayModel:WhiteboardCanvasDisplayModel;
