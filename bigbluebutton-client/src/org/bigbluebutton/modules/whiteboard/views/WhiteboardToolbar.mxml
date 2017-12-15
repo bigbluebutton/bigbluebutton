@@ -27,6 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
 	xmlns:common="org.bigbluebutton.common.*"
     xmlns:mate="http://mate.asfusion.com/"
+    implements="org.bigbluebutton.modules.whiteboard.views.IWhiteboardToolbar"
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
     includeInLayout="{showWhiteboardToolbar}"

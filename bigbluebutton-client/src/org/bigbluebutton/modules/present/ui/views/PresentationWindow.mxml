@@ -71,17 +71,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
+			import flashx.textLayout.formats.Direction;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
 			import mx.utils.StringUtil;
-			
-			import flashx.textLayout.formats.Direction;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -127,7 +128,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardToolbar;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -182,7 +184,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSoundClass:Class;
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
-			private var whiteboardOverlay:WhiteboardCanvas = null;
+			private var whiteboardOverlay:IWhiteboardOverlay = null;
 
 			[Bindable]
 			private var podDropdownVisible:Boolean = false;
@@ -1101,19 +1103,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			public function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void {
+			public function receiveToolbars(wt:IWhiteboardToolbar, wtt:IWhiteboardToolbar):void {
 				var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
-				addUIEvent.component = wt;
+				addUIEvent.component = wt as UIComponent;
 				globalDispatcher.dispatchEvent(addUIEvent);
 				wt.positionToolbar(this);
 				
 				var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
-				addTextToolbarEvent.component = wtt;
+				addTextToolbarEvent.component = wtt as UIComponent;
 				globalDispatcher.dispatchEvent(addTextToolbarEvent);
 				wtt.positionToolbar(this);
 			}
 
-			public function receiveCanvas(wc:WhiteboardCanvas):void {
+			public function receiveCanvas(wc:IWhiteboardOverlay):void {
 				whiteboardOverlay = wc;
 
 				addWhiteboardCanvasToSlideView();

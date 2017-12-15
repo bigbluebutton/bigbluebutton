@@ -20,9 +20,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:HBox xmlns="flexlib.containers.*" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mate="http://mate.asfusion.com/" visible="false"
-	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*">
+<mx:HBox xmlns="flexlib.containers.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mate="http://mate.asfusion.com/"
+		 xmlns:views="org.bigbluebutton.modules.whiteboard.views.*"
+		 implements="org.bigbluebutton.modules.whiteboard.views.IWhiteboardToolbar"
+		 visible="false">
 	
 	<fx:Declarations>
 		<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableTextToolbar" />
