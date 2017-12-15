@@ -41,9 +41,6 @@
 				dispatchEvent(rEvent);
 			}
 
-			/*
-			 * Disabled until later updates
-			 */
 			protected function switchDownloadableBtn_clickHandler(event:MouseEvent):void {
 				var dEvent:SetPresentationDownloadableEvent = new SetPresentationDownloadableEvent(SetPresentationDownloadableEvent.SET_DOWNLOADABLE);
 				dEvent.presentationName = data.presId as String;
@@ -54,15 +51,15 @@
 		]]>
 	</fx:Script>
 	<mx:Label id="presentationNameLabel"
-			  width="{this.width-showBtn.width-deleteBtn.width-50}"
+			  width="{this.width-showBtn.width-deleteBtn.width-switchDownloadableBtn.width-50}"
 			  truncateToFit="true"
 			  styleName="presentationNameLabel"
 			  text="{data.presName as String}" />
-	<!-- @todo : update button ui style and labels when SetPresentationDownloadble is implemented -->
-	<!--mx:Button id="switchDownloadableBtn"
+	<mx:Button id="switchDownloadableBtn"
 			   height="32"
-			   label="{data.downloadable as Boolean ? 'Off' : 'On'}"
-			   click="switchDownloadableBtn_clickHandler(event)" /-->
+			   label="{data.downloadable as Boolean ? ResourceUtil.getInstance().getString('bbb.fileupload.doNotAllowDownload') : ResourceUtil.getInstance().getString('bbb.fileupload.allowDownload')}"
+			   toolTip="{data.downloadable as Boolean ? ResourceUtil.getInstance().getString('bbb.fileupload.doNotAllowDownload.tooltip') : ResourceUtil.getInstance().getString('bbb.fileupload.allowDownload.tooltip')}"
+			   click="switchDownloadableBtn_clickHandler(event)" />
 	<mx:Button id="showBtn"
 			   height="32"
 			   label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}"
