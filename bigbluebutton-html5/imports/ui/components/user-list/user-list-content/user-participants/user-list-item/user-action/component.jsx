@@ -14,32 +14,15 @@ export default class UserActions extends React.PureComponent {
     const { key, icon, label, handler, options } = this.props;
 
     return (
-    <DropdownListItem
-      key={key}
-      icon={icon}
-      label={label}
-      defaultMessage={label}
-      onClick={() => handler.call(this, ...options)}
-    />  
+      <DropdownListItem
+        key={key}
+        icon={icon}
+        label={label}
+        defaultMessage={label}
+        onClick={() => handler.call(this, ...options)}
+      />
     );
   }
 }
-/*
-const UserActions = (props) => {
-  const { key, icon, label, handler, options } = props;
-
-  const userAction = (
-    <DropdownListItem
-      key={key}
-      icon={icon}
-      label={label}
-      defaultMessage={label}
-      onClick={() => handler.call(this, ...options)}
-    />
-  );
-
-  return userAction;
-};*/
 
 UserActions.propTypes = propTypes;
-//export default UserActions;

@@ -7,7 +7,6 @@ import styles from './styles';
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';
-
 import UserActions from '../../user-list/user-list-content/user-participants/user-list-item/user-action/component';
 
 const propTypes = {
