@@ -126,6 +126,7 @@ package org.bigbluebutton.modules.users.services
           break;
         case "IsMeetingMutedRespMsg":
           handleIsMeetingMutedResp(message);
+          break;
         case "MeetingInactivityWarningEvtMsg":
           handleInactivityWarning(message);
           break;
