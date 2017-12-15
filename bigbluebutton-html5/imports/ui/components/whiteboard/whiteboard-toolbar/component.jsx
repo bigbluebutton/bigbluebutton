@@ -25,8 +25,8 @@ class WhiteboardToolbar extends Component {
 
       // variables to keep current selected draw settings
       annotationSelected: {
-        icon: 'hand',
-        value: 'hand',
+        icon: 'pen_tool',
+        value: 'pencil',
       },
       thicknessSelected: { value: 4 },
       colorSelected: { value: '#000000' },
