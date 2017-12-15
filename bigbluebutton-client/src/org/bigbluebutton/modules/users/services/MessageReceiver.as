@@ -126,9 +126,6 @@ package org.bigbluebutton.modules.users.services
           break;
         case "IsMeetingMutedRespMsg":
           handleIsMeetingMutedResp(message);
-        case "meetingState":
-          handleMeetingState(message);
-          break;  
         case "MeetingInactivityWarningEvtMsg":
           handleInactivityWarning(message);
           break;
@@ -143,9 +140,6 @@ package org.bigbluebutton.modules.users.services
           break;
         case "RecordingStatusChangedEvtMsg":
           handleRecordingStatusChanged(message);
-          break;
-        case "user_listening_only":
-          handleUserListeningOnly(message);
           break;
         case "LockSettingsInMeetingChangedEvtMsg":
           handlePermissionsSettingsChanged(message);
@@ -195,9 +189,6 @@ package org.bigbluebutton.modules.users.services
           break;
         case "GuestPolicyChangedEvtMsg":
           handleGuestPolicyChanged(message);
-          break;
-        case "guest_access_denied":
-          handleGuestAccessDenied(message);
           break;
         case "UserRoleChangedEvtMsg":
           handleUserRoleChangedEvtMsg(message);
@@ -639,19 +630,6 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
-    private function handleMeetingState(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);  
-      var perm:Object = map.permissions;
-      
-      var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
-        perm.disablePrivateChat, perm.disablePublicChat, 
-        perm.lockedLayout, perm.lockOnJoin, perm.lockOnJoinConfigurable);
-      UsersUtil.setLockSettings(lockSettings);
-      LiveMeeting.inst().meetingStatus.isMeetingMuted = map.meetingMuted;
-      
-      UsersUtil.applyLockSettings();
-    }
-    
     private function handleInactivityWarning(msg:Object):void {
       var body:Object = msg.body as Object;
       
@@ -676,14 +654,6 @@ package org.bigbluebutton.modules.users.services
       var body:Object = msg.body as Object;
       var recording: Boolean = body.recording as Boolean;
       sendRecordingStatusUpdate(recording);
-    }
-    
-    private function handleUserListeningOnly(msg: Object):void {  
-      var map:Object = JSON.parse(msg.msg);  
-      var userId:String = map.userId;
-      var listenOnly:Boolean = map.listenOnly;
-      
-      LiveMeeting.inst().voiceUsers.setListenOnlyForUser(userId, listenOnly);
     }
 
     /**
@@ -945,15 +915,6 @@ package org.bigbluebutton.modules.users.services
       var policy: String = body.policy as String;
       
       LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
-    }
-    
-    public function handleGuestAccessDenied(msg:Object):void {
-      LOGGER.debug("*** handleGuestAccessDenied " + msg.msg + " ****");
-      var map:Object = JSON.parse(msg.msg);
-      
-      if (UsersUtil.getMyUserID() == map.userId) {
-        dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
-      }
     }
 
     public function handleUserRoleChangedEvtMsg(msg:Object):void {
