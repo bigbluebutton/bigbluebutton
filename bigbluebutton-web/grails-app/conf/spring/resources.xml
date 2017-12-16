@@ -139,6 +139,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
+        <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

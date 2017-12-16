@@ -88,6 +88,7 @@ public class ParamsProcessorUtil {
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
     private Integer maxInactivityTimeoutMinutes = 120;
+    private Integer clientLogoutTimerInMinutes = 0;
 		private Integer warnMinutesBeforeMax = 5;
 		private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 		private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -353,7 +354,7 @@ public class ParamsProcessorUtil {
         boolean record = processRecordMeeting(params.get("record"));
         int maxUsers = processMaxUser(params.get("maxParticipants"));
         int meetingDuration = processMeetingDuration(params.get("duration"));
-        int logoutTimer = processMeetingDuration(params.get("logoutTimer"));
+        int logoutTimer = processLogoutTimer(params.get("logoutTimer"));
         
         // Banner parameters
         String bannerText = params.get("bannerText");
@@ -656,8 +657,20 @@ public class ParamsProcessorUtil {
     }   
     
     return mDuration;
-  } 
-  	
+  }
+
+	public int processLogoutTimer(String logoutTimer) {
+		int mDuration = clientLogoutTimerInMinutes;
+
+		try {
+			mDuration = Integer.parseInt(logoutTimer);
+		} catch(Exception ex) {
+			mDuration = clientLogoutTimerInMinutes;
+		}
+
+		return mDuration;
+	}
+
 	public boolean isTestMeeting(String telVoice) {	
 		return ((! StringUtils.isEmpty(telVoice)) && 
 				(! StringUtils.isEmpty(testVoiceBridge)) && 
@@ -894,6 +907,10 @@ public class ParamsProcessorUtil {
 
 	public void setMaxInactivityTimeoutMinutes(Integer value) {
 		maxInactivityTimeoutMinutes = value;
+	}
+
+	public void setClientLogoutTimerInMinutes(Integer value) {
+		clientLogoutTimerInMinutes = value;
 	}
 
 	public void setWarnMinutesBeforeMax(Integer value) {
