@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import _ from 'lodash';
-
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import styles from '../styles';
@@ -77,7 +75,9 @@ class ActionsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            {
+            {// DropdownList is expecting an array of children, because we currently
+             // only have 1 DropdownListItem this syntax is used to supress the
+             // console warning.
               [
                 (<DropdownListItem
                   key={this.uniqueId}
@@ -85,7 +85,7 @@ class ActionsDropdown extends Component {
                   label={intl.formatMessage(intlMessages.presentationLabel)}
                   description={intl.formatMessage(intlMessages.presentationDesc)}
                   onClick={this.handlePresentationClick}
-                />),
+                />)
               ]
             }
           </DropdownList>
