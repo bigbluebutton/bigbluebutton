@@ -84,6 +84,11 @@ class UserListContent extends Component {
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
   }
 
+  componentWillMount() {
+    this.title = _.uniqueId('dropdown-title-');
+    this.seperator = _.uniqueId('action-separator-');
+  }
+
   componentDidUpdate() {
     this.checkDropdownDirection();
   }
@@ -286,11 +291,11 @@ class UserListContent extends Component {
                 (
                   <DropdownListTitle
                     description={intl.formatMessage(messages.menuTitleContext)}
-                    key={_.uniqueId('dropdown-list-title')}
+                    key={this.title}
                   >
                     {user.name}
-                </DropdownListTitle>),
-                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
+                  </DropdownListTitle>),
+                (<DropdownListSeparator key={this.seperator} />),
               ].concat(actions)
             }
           </DropdownList>

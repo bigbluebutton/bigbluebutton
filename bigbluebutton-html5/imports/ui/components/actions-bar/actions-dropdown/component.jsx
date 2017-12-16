@@ -41,6 +41,10 @@ class ActionsDropdown extends Component {
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
   }
 
+  componentDidMount() {
+    this.uniqueId = _.uniqueId('actions-list-item-');
+  }
+
   componentWillUpdate(nextProps) {
     const { isUserPresenter: isPresenter } = nextProps;
     const { isUserPresenter: wasPresenter, mountModal } = this.props;
@@ -76,12 +80,12 @@ class ActionsDropdown extends Component {
             {
               [
                 (<DropdownListItem
-                  key={_.uniqueId('actions-list-item-')}
+                  key={this.uniqueId}
                   icon="presentation"
                   label={intl.formatMessage(intlMessages.presentationLabel)}
                   description={intl.formatMessage(intlMessages.presentationDesc)}
                   onClick={this.handlePresentationClick}
-                />)
+                />),
               ]
             }
           </DropdownList>
