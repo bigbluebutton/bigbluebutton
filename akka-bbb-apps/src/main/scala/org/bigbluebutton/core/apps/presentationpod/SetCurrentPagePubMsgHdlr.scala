@@ -42,7 +42,7 @@ trait SetCurrentPagePubMsgHdlr extends RightsManagementTrait {
       val pageId = msg.body.pageId
 
       val newState = for {
-        pod <- PresentationPodsApp.getPresentationPod(state, podId)
+        pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, userId)
         updatedPod <- pod.setCurrentPage(presentationId, pageId)
       } yield {
 
