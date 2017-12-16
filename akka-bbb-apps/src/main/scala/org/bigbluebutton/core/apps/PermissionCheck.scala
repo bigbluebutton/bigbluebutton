@@ -87,7 +87,7 @@ object PermissionCheck {
 
     UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.PERMISSION_FAILED)
     // send a system message to force disconnection
-    Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, outGW)
+    Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, reason, outGW)
   }
 
   def addOldPresenter(users: Users2x, userId: String): OldPresenter = {
