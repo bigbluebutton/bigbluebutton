@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
 import styles from './styles.scss';
@@ -66,21 +66,21 @@ const intlMessages = defineMessages({
   },
 });
 
-class ShortcutHelpComponent extends Component {
+class ShortcutHelpComponent extends React.PureComponent {
   render() {
     const { intl } = this.props;
 
     const shortcuts = [
-      { keys: 'Control + Alt + 0', function: intl.formatMessage(intlMessages.shortcutFunc001) },
-      { keys: 'Control + Alt + 1', function: intl.formatMessage(intlMessages.shortcutFunc002) },
-      { keys: 'Control + Alt + M', function: intl.formatMessage(intlMessages.shortcutFunc003) },
-      { keys: 'Control + Alt + L', function: intl.formatMessage(intlMessages.shortcutFunc004) },
-      { keys: 'Control + Alt + 8', function: intl.formatMessage(intlMessages.shortcutFunc005) },
-      { keys: 'Control + Alt + 9', function: intl.formatMessage(intlMessages.shortcutFunc006) },
-      { keys: 'Control + Alt + A', function: intl.formatMessage(intlMessages.shortcutFunc007) },
-      { keys: 'Control + Alt + E', function: intl.formatMessage(intlMessages.shortcutFunc008) },
-      { keys: 'Control + Alt + Y', function: intl.formatMessage(intlMessages.shortcutFunc009) },
-      { keys: 'Control + Alt + H', function: intl.formatMessage(intlMessages.shortcutFunc010) },
+      { keys: 'Control + Alt + 0', description: intl.formatMessage(intlMessages.shortcutFunc001) },
+      { keys: 'Control + Alt + 1', description: intl.formatMessage(intlMessages.shortcutFunc002) },
+      { keys: 'Control + Alt + M', description: intl.formatMessage(intlMessages.shortcutFunc003) },
+      { keys: 'Control + Alt + L', description: intl.formatMessage(intlMessages.shortcutFunc004) },
+      { keys: 'Control + Alt + 8', description: intl.formatMessage(intlMessages.shortcutFunc005) },
+      { keys: 'Control + Alt + 9', description: intl.formatMessage(intlMessages.shortcutFunc006) },
+      { keys: 'Control + Alt + A', description: intl.formatMessage(intlMessages.shortcutFunc007) },
+      { keys: 'Control + Alt + E', description: intl.formatMessage(intlMessages.shortcutFunc008) },
+      { keys: 'Control + Alt + Y', description: intl.formatMessage(intlMessages.shortcutFunc009) },
+      { keys: 'Control + Alt + H', description: intl.formatMessage(intlMessages.shortcutFunc010) },
     ];
 
     return (
@@ -99,7 +99,7 @@ class ShortcutHelpComponent extends Component {
           {shortcuts.map(shortcut => (
             <tr>
               <td className={styles.keyCell}>{shortcut.keys}</td>
-              <td className={styles.funcCell}>{shortcut.function}</td>
+              <td className={styles.funcCell}>{shortcut.description}</td>
             </tr>
           ))}
         </table>
