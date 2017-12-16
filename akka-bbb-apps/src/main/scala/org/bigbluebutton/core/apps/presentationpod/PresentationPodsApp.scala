@@ -25,6 +25,15 @@ object PresentationPodsApp {
     state.presentationPodManager.getPod(podId)
   }
 
+  def getPresentationPodIfPresenter(state: MeetingState2x, podId: String, userId: String): Option[PresentationPod] = {
+    for {
+      pod <- getPresentationPod(state, podId)
+      if pod.currentPresenter == userId
+    } yield {
+      pod
+    }
+  }
+
   def getAllPresentationPodsInMeeting(state: MeetingState2x): Vector[PresentationPod] = {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
   }

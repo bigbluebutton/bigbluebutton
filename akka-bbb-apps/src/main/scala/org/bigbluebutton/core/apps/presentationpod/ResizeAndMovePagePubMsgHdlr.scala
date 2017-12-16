@@ -47,9 +47,8 @@ trait ResizeAndMovePagePubMsgHdlr extends RightsManagementTrait {
       val heightRatio: Double = msg.body.heightRatio
 
       val newState = for {
-        pod <- PresentationPodsApp.getPresentationPod(state, podId)
-        (updatedPod, page) <- pod.resizePage(presentationId, pageId,
-          xOffset, yOffset, widthRatio, heightRatio)
+        pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, msg.header.userId)
+        (updatedPod, page) <- pod.resizePage(presentationId, pageId, xOffset, yOffset, widthRatio, heightRatio)
       } yield {
         broadcastEvent(msg, podId, page)
 
