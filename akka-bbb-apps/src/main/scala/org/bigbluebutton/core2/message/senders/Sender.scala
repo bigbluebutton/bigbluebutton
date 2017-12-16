@@ -14,9 +14,9 @@ object Sender {
   }
 
   def sendDisconnectClientSysMsg(meetingId: String, userId: String,
-                                 ejectedBy: String, outGW: OutMsgRouter): Unit = {
+                                 ejectedBy: String, reason: String, outGW: OutMsgRouter): Unit = {
     val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(
-      meetingId, userId, ejectedBy
+      meetingId, userId, ejectedBy, reason
     )
     outGW.send(ejectFromMeetingSystemEvent)
   }

@@ -188,11 +188,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildDisconnectClientSysMsg(meetingId: String, userId: String, reason: String): BbbCommonEnvCoreMsg = {
+  def buildDisconnectClientSysMsg(meetingId: String, userId: String, ejectedBy: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
     val envelope = BbbCoreEnvelope(DisconnectClientSysMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(DisconnectClientSysMsg.NAME, meetingId)
-    val body = DisconnectClientSysMsgBody(meetingId, userId, reason)
+    val body = DisconnectClientSysMsgBody(meetingId, userId, ejectedBy, reason)
     val event = DisconnectClientSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)

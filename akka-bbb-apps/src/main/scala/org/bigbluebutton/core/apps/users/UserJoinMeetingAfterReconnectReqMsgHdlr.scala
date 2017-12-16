@@ -14,7 +14,7 @@ trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with Breako
 
   def handleUserJoinMeetingAfterReconnectReqMsg(msg: UserJoinMeetingAfterReconnectReqMsg, state: MeetingState2x): MeetingState2x = {
 
-    //val newState = userJoinMeeting(outGW, msg.body.authToken, liveMeeting, state)
+    val newState = userJoinMeeting(outGW, msg.body.authToken, liveMeeting, state)
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()
     }
@@ -31,7 +31,7 @@ trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with Breako
      * newState
      */
 
-    state
+    newState
   }
 
 }
