@@ -73,6 +73,7 @@ package org.bigbluebutton.modules.chat.model
     
     public function processChatHistory(messageVOs:Array):void {
       if (messageVOs.length > 0) {
+        messages = new ArrayCollection();
         var previousCM:ChatMessage = convertChatMessage(messageVOs[0] as ChatMessageVO);;
         var newCM:ChatMessage;
         messages.addItemAt(previousCM, 0);

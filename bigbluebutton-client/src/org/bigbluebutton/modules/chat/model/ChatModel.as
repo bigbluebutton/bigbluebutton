@@ -1,9 +1,7 @@
 package org.bigbluebutton.modules.chat.model
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
-  import mx.collections.ArrayCollection;
-  
+  import com.asfusion.mate.events.Dispatcher;  
+  import mx.collections.ArrayCollection;  
   import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
   import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
 
@@ -36,6 +34,7 @@ package org.bigbluebutton.modules.chat.model
     }
     
     public function addGroupChatsList(gcs: Array):void {
+			groupChats = new ArrayCollection();
       for (var i: int = 0; i < gcs.length; i++) {
         var gc: GroupChat = gcs[i] as GroupChat;
         groupChats.addItem(gc);

@@ -153,20 +153,24 @@ package org.bigbluebutton.modules.chat.maps {
       }
 	}
 
-	public function handleOpenChatBoxEvent(event:OpenChatBoxEvent):void {
-		var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(event.chatId);
+	private function openOrCreateGroupChat(chatId: String):void {
+		var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
 		if (gc != null) {
-			var gboxMapper:GroupChatBoxMapper = findChatBoxMapper(event.chatId);
+			var gboxMapper:GroupChatBoxMapper = findChatBoxMapper(chatId);
 			if (gboxMapper != null) {
 				if (gboxMapper.isChatBoxOpen()) {
-					globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(event.chatId));
+					globalDispatcher.dispatchEvent(new FocusOnChatBoxEvent(chatId));
 				} else if (gc.access == GroupChat.PRIVATE) {
-					openChatBoxForPrivateChat(event.chatId, gc);
+					openChatBoxForPrivateChat(chatId, gc);
 				}
 			} else {
-				createNewGroupChat(event.chatId);
+				createNewGroupChat(chatId);
 			}
 		}
+	}
+	
+	public function handleOpenChatBoxEvent(event:OpenChatBoxEvent):void {
+		openOrCreateGroupChat(event.chatId);
 	}
 
     private function getChatOptions():void {
@@ -177,7 +181,7 @@ package org.bigbluebutton.modules.chat.maps {
       var gcIds:Array = LiveMeeting.inst().chats.getGroupChatIds();
       for (var i:int = 0; i < gcIds.length; i++) {
         var cid:String = gcIds[i];
-        createNewGroupChat(cid);
+        openOrCreateGroupChat(cid);
       }
     }
     
