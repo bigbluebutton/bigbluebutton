@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserListToggle extends Component {
+class UserListToggle extends React.PureComponent {
   render() {
     const {
       hasUnreadMessages, isExpanded, handleToggleUserList, intl,
@@ -31,7 +31,7 @@ class UserListToggle extends Component {
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
 
     return (
-      <Shortcut shortcut="Control+Alt+1">
+      <Shortcut keyCombo="Control+Alt+1">
         <Button
           onClick={handleToggleUserList}
           ghost

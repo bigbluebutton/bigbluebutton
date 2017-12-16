@@ -28,7 +28,7 @@ const AudioControls = ({
 }) => (
   <span className={styles.container}>
     {mute ?
-      <Shortcut shortcut="Control+Alt+M">
+      <Shortcut keyCombo="Control+Alt+M">
         <Button
           className={glow ? cx(styles.button, styles.glow) : styles.button}
           onClick={handleToggleMuteMicrophone}

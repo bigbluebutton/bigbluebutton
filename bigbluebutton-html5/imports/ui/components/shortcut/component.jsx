@@ -17,9 +17,9 @@ export default class Shortcut extends Component {
   }
 
   handleShortcut(event) {
-    const { shortcut } = this.props;
+    const { keyCombo } = this.props;
 
-    const combo = shortcut.toUpperCase();
+    const combo = keyCombo.toUpperCase();
     const keys = combo.split('+');
 
     if (event.key.toUpperCase() !== keys[keys.length - 1]) return;
