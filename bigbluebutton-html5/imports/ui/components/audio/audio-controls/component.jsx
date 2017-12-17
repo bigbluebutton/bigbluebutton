@@ -63,6 +63,10 @@ const AudioControls = ({
             ? intl.formatMessage(intlMessages.unmuteAudio)
             : intl.formatMessage(intlMessages.muteAudio)
           }
+          aria-label={unmute
+            ? intl.formatMessage(intlMessages.unmuteAudio)
+            : intl.formatMessage(intlMessages.muteAudio)
+          }
           color="primary"
           icon={unmute ? 'mute' : 'unmute'}
           size="lg"
