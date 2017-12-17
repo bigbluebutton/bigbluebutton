@@ -3,11 +3,20 @@ import updateVotes from '../modifiers/updateVotes';
 
 export default function userVoted({ body }, meetingId) {
   const { poll } = body;
-  const { presenterId } = body;
 
   check(meetingId, String);
-  check(poll, Object);
-  check(presenterId, String);
+  check(poll, {
+    id: String,
+    answers: [
+      {
+        id: Number,
+        key: String,
+        numVotes: Number,
+      },
+    ],
+    numRespondents: Number,
+    numResponders: Number,
+  });
 
-  return updateVotes(poll, meetingId, presenterId);
+  return updateVotes(poll, meetingId);
 }

@@ -25,7 +25,7 @@ const propTypes = {
   }).isRequired,
   userActions: PropTypes.shape({}).isRequired,
   router: PropTypes.shape({}).isRequired,
-  isBreakoutRoom: PropTypes.bool.isRequired,
+  isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
@@ -34,12 +34,10 @@ const propTypes = {
 };
 
 const defaultProps = {
-  shouldShowActions: false,
   isBreakoutRoom: false,
 };
 
 class UserListItem extends Component {
-
   static createAction(action, ...options) {
     return (
       <UserAction

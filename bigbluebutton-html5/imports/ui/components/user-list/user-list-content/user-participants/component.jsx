@@ -23,7 +23,7 @@ const propTypes = {
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
-  rovingIndex: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -47,18 +47,6 @@ const intlMessages = defineMessages({
   usersTitle: {
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
-  },
-  messagesTitle: {
-    id: 'app.userList.messagesTitle',
-    description: 'Title for the messages list',
-  },
-  participantsTitle: {
-    id: 'app.userList.participantsTitle',
-    description: 'Title for the Users list',
-  },
-  toggleCompactView: {
-    id: 'app.userList.toggleCompactView.label',
-    description: 'Toggle user list view mode',
   },
   ChatLabel: {
     id: 'app.userList.menu.chat.label',
@@ -98,20 +86,39 @@ class UserParticipants extends Component {
   constructor() {
     super();
 
+    this.state = {
+      index: -1,
+    };
+
+    this.userRefs = [];
+    this.selectedIndex = -1;
+
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
+    this.focusUserItem = this.focusUserItem.bind(this);
+    this.changeState = this.changeState.bind(this);
+    this.getUsers = this.getUsers.bind(this);
   }
 
   componentDidMount() {
     if (!this.props.compact) {
       this.refScrollContainer.addEventListener(
         'keydown',
-        event => this.props.rovingIndex(
+        event => this.props.roving(
           event,
-          this.refScrollContainer,
-          this.refScrollItems,
           this.props.users.length,
+          this.changeState,
         ),
       );
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.index === -1) {
+      return;
+    }
+
+    if (this.state.index !== prevState.index) {
+      this.focusUserItem(this.state.index);
     }
   }
 
@@ -119,67 +126,117 @@ class UserParticipants extends Component {
     return this.refScrollContainer;
   }
 
-  render() {
+  getUsers() {
     const {
-      users,
-      currentUser,
+      compact,
       isBreakoutRoom,
-      intl,
+      currentUser,
       meeting,
       getAvailableActions,
       normalizeEmojiName,
       isMeetingLocked,
-      compact,
-      setEmojiStatus,
+      users,
+      intl,
+      changeRole,
       assignPresenter,
+      setEmojiStatus,
       kickUser,
       toggleVoice,
-      changeRole,
     } = this.props;
 
     const userActions =
-      {
-        openChat: {
-          label: () => intl.formatMessage(intlMessages.ChatLabel),
-          handler: (router, user) => router.push(`/users/chat/${user.id}`),
-          icon: 'chat',
-        },
-        clearStatus: {
-          label: () => intl.formatMessage(intlMessages.ClearStatusLabel),
-          handler: user => setEmojiStatus(user.id, 'none'),
-          icon: 'clear_status',
-        },
-        setPresenter: {
-          label: () => intl.formatMessage(intlMessages.MakePresenterLabel),
-          handler: user => assignPresenter(user.id),
-          icon: 'presentation',
-        },
-        kick: {
-          label: user => intl.formatMessage(intlMessages.KickUserLabel, { 0: user.name }),
-          handler: user => kickUser(user.id),
-          icon: 'circle_close',
-        },
-        mute: {
-          label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
-          handler: user => toggleVoice(user.id),
-          icon: 'audio_off',
-        },
-        unmute: {
-          label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-          handler: user => toggleVoice(user.id),
-          icon: 'audio_on',
-        },
-        promote: {
-          label: user => intl.formatMessage(intlMessages.PromoteUserLabel, { 0: user.name }),
-          handler: user => changeRole(user.id, 'MODERATOR'),
-          icon: 'promote',
-        },
-        demote: {
-          label: user => intl.formatMessage(intlMessages.DemoteUserLabel, { 0: user.name }),
-          handler: user => changeRole(user.id, 'VIEWER'),
-          icon: 'user',
-        },
-      };
+    {
+      openChat: {
+        label: () => intl.formatMessage(intlMessages.ChatLabel),
+        handler: (router, user) => router.push(`/users/chat/${user.id}`),
+        icon: 'chat',
+      },
+      clearStatus: {
+        label: () => intl.formatMessage(intlMessages.ClearStatusLabel),
+        handler: user => setEmojiStatus(user.id, 'none'),
+        icon: 'clear_status',
+      },
+      setPresenter: {
+        label: () => intl.formatMessage(intlMessages.MakePresenterLabel),
+        handler: user => assignPresenter(user.id),
+        icon: 'presentation',
+      },
+      kick: {
+        label: user => intl.formatMessage(intlMessages.KickUserLabel, { 0: user.name }),
+        handler: user => kickUser(user.id),
+        icon: 'circle_close',
+      },
+      mute: {
+        label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
+        handler: user => toggleVoice(user.id),
+        icon: 'audio_off',
+      },
+      unmute: {
+        label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
+        handler: user => toggleVoice(user.id),
+        icon: 'audio_on',
+      },
+      promote: {
+        label: user => intl.formatMessage(intlMessages.PromoteUserLabel, { 0: user.name }),
+        handler: user => changeRole(user.id, 'MODERATOR'),
+        icon: 'promote',
+      },
+      demote: {
+        label: user => intl.formatMessage(intlMessages.DemoteUserLabel, { 0: user.name }),
+        handler: user => changeRole(user.id, 'VIEWER'),
+        icon: 'user',
+      },
+    };
+
+    let index = -1;
+
+    return users.map(user => (
+      <CSSTransition
+        classNames={listTransition}
+        appear
+        enter
+        exit
+        timeout={0}
+        component="div"
+        className={cx(styles.participantsList)}
+        key={user.id}
+      >
+        <div ref={(node) => { this.userRefs[index += 1] = node; }}>
+          <UserListItem
+            compact={compact}
+            isBreakoutRoom={isBreakoutRoom}
+            user={user}
+            currentUser={currentUser}
+            userActions={userActions}
+            meeting={meeting}
+            getAvailableActions={getAvailableActions}
+            normalizeEmojiName={normalizeEmojiName}
+            isMeetingLocked={isMeetingLocked}
+            getScrollContainerRef={this.getScrollContainerRef}
+          />
+        </div>
+      </CSSTransition>
+    ));
+  }
+
+  focusUserItem(index) {
+    if (!this.userRefs[index]) {
+      return;
+    }
+
+    this.userRefs[index].firstChild.focus();
+  }
+
+  changeState(newIndex) {
+    this.setState({ index: newIndex });
+  }
+
+  render() {
+    const {
+      users,
+      intl,
+      compact,
+    } = this.props;
 
     return (
       <div className={styles.participants}>
@@ -196,33 +253,9 @@ class UserParticipants extends Component {
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
-          <div ref={(ref) => { this.refScrollItems = ref; }} className={styles.list}>
-            <TransitionGroup>
-              { users.map(user => (
-                <CSSTransition
-                  classNames={listTransition}
-                  appear
-                  enter
-                  exit
-                  timeout={0}
-                  component="div"
-                  className={cx(styles.participantsList)}
-                  key={user.id}
-                >
-                  <UserListItem
-                    compact={compact}
-                    isBreakoutRoom={isBreakoutRoom}
-                    user={user}
-                    currentUser={currentUser}
-                    userActions={userActions}
-                    meeting={meeting}
-                    getAvailableActions={getAvailableActions}
-                    normalizeEmojiName={normalizeEmojiName}
-                    isMeetingLocked={isMeetingLocked}
-                    getScrollContainerRef={this.getScrollContainerRef}
-                  />
-                </CSSTransition>
-              ))}
+          <div className={styles.list}>
+            <TransitionGroup ref={(ref) => { this.refScrollItems = ref; }}>
+              { this.getUsers() }
             </TransitionGroup>
           </div>
         </div>
