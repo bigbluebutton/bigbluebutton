@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -18,7 +18,10 @@ const intlMessages = defineMessages({
   },
 });
 
-class PreviousSlide extends Component {
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.previous_slide.keys;
+
+class PreviousSlide extends React.PureComponent {
   render() {
     const {
       currentSlideNum,
@@ -44,6 +47,6 @@ class PreviousSlide extends Component {
   }
 }
 
-export default injectIntl(withShortcut(PreviousSlide, 'Control+Alt+A'));
+export default injectIntl(withShortcut(PreviousSlide, SHORTCUT_COMBO));
 
 PreviousSlide.propTypes = propTypes;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
@@ -22,7 +22,10 @@ const propTypes = {
   mountModal: PropTypes.func.isRequired,
 };
 
-class ShortcutHelpListItem extends Component {
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.open_shortcut.keys;
+
+class ShortcutHelpListItem extends React.PureComponent {
   render() {
     const { mountModal, intl } = this.props;
 
@@ -37,6 +40,6 @@ class ShortcutHelpListItem extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(ShortcutHelpListItem, 'Control+Alt+H')));
+export default withModalMounter(injectIntl(withShortcut(ShortcutHelpListItem, SHORTCUT_COMBO)));
 
 ShortcutHelpListItem.propTypes = propTypes;

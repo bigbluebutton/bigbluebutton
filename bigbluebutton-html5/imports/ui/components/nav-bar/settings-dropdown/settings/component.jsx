@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
@@ -22,7 +22,10 @@ const propTypes = {
   mountModal: PropTypes.func.isRequired,
 };
 
-class OpenAboutListItem extends Component {
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.open_settings.keys;
+
+class OpenAboutListItem extends React.PureComponent {
   render() {
     const { mountModal, intl } = this.props;
 
@@ -37,6 +40,6 @@ class OpenAboutListItem extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(OpenAboutListItem, 'Control+Alt+9')));
+export default withModalMounter(injectIntl(withShortcut(OpenAboutListItem, SHORTCUT_COMBO)));
 
 OpenAboutListItem.propTypes = propTypes;

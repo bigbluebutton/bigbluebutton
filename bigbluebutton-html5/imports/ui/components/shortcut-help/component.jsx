@@ -89,7 +89,7 @@ class ShortcutHelpComponent extends React.PureComponent {
           {shortcuts.map(shortcut => (
             <tr>
               <td className={styles.keyCell}>{shortcut.keys}</td>
-              <td className={styles.descCell}>{intl.formatMessage(intlMessages[shortcut.msgId])}</td>
+              <td className={styles.descCell}>{intl.formatMessage(intlMessages[shortcut.descId])}</td>
             </tr>
           ))}
         </table>

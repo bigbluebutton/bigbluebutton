@@ -2,32 +2,32 @@
 shortcuts:
   # 
   toggle_fullsreen:
-    keys: 'Control + Alt + 0'
-    msgId: 'shortcut001'
+    keys: 'Control+Alt+0'
+    descId: 'shortcut001'
   toggle_userlist:
-    keys: 'Control + Alt + 1'
-    msgId: 'shortcut002'
+    keys: 'Control+Alt+1'
+    descId: 'shortcut002'
   mute_unmute:
-    keys: 'Control + Alt + M'
-    msgId: 'shortcut003'
+    keys: 'Control+Alt+M'
+    descId: 'shortcut003'
   logout:
-    keys: 'Control + Alt + L'
-    msgId: 'shortcut004'
+    keys: 'Control+Alt+L'
+    descId: 'shortcut004'
   open_about: 
-    keys: 'Control + Alt + 8'
-    msgId: 'shortcut005'
+    keys: 'Control+Alt+8'
+    descId: 'shortcut005'
   open_settings: 
-    keys: 'Control + Alt + 9'
-    msgId: 'shortcut006'
+    keys: 'Control+Alt+9'
+    descId: 'shortcut006'
   previous_slide: 
-    keys: 'Control + Alt + A'
-    msgId: 'shortcut007'
+    keys: 'Control+Alt+A'
+    descId: 'shortcut007'
   next_slide: 
-    keys: 'Control + Alt + E'
-    msgId: 'shortcut008'
+    keys: 'Control+Alt+E'
+    descId: 'shortcut008'
   upload_presentation: 
-    keys: 'Control + Alt + Y'
-    msgId: 'shortcut009'
+    keys: 'Control+Alt+Y'
+    descId: 'shortcut009'
   open_shortcut: 
-    keys: 'Control + Alt + H'
-    msgId: 'shortcut010'
+    keys: 'Control+Alt+H'
+    descId: 'shortcut010'

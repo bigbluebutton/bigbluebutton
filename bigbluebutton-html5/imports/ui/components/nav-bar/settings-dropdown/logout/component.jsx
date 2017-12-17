@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -22,7 +22,10 @@ const propTypes = {
   mountModal: PropTypes.func.isRequired,
 };
 
-class LogoutListItem extends Component {
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.logout.keys;
+
+class LogoutListItem extends React.PureComponent {
   render() {
     const { mountModal, intl } = this.props;
 
@@ -37,6 +40,6 @@ class LogoutListItem extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(LogoutListItem, 'Control+Alt+l')));
+export default withModalMounter(injectIntl(withShortcut(LogoutListItem, SHORTCUT_COMBO)));
 
 LogoutListItem.propTypes = propTypes;

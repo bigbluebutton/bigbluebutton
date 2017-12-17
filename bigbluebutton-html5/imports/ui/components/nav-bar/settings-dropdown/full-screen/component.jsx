@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
@@ -29,7 +29,10 @@ const propTypes = {
   handleToggleFullscreen: PropTypes.func.isRequired,
 };
 
-class FullScreenListItem extends Component {
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.toggle_fullsreen.keys;
+
+class FullScreenListItem extends React.PureComponent {
   render() {
     const { intl, isFullScreen, handleToggleFullscreen } = this.props;
 
@@ -54,6 +57,6 @@ class FullScreenListItem extends Component {
   }
 }
 
-export default injectIntl(withShortcut(FullScreenListItem, 'Control+Alt+0'));
+export default injectIntl(withShortcut(FullScreenListItem, SHORTCUT_COMBO));
 
 FullScreenListItem.propTypes = propTypes;

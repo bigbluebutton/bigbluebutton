@@ -23,9 +23,14 @@ const intlMessages = defineMessages({
   },
 });
 
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.mute_unmute.keys;
+
 class MuteToggleBtn extends Component {
   render() {
-    const { handleToggleMuteMicrophone, disable, unmute, intl } = this.props;
+    const {
+      handleToggleMuteMicrophone, disable, unmute, intl,
+    } = this.props;
 
     return (
       <Button
@@ -37,15 +42,15 @@ class MuteToggleBtn extends Component {
           ? intl.formatMessage(intlMessages.unmuteLabel)
           : intl.formatMessage(intlMessages.muteLabel)
         }
-        color={'primary'}
+        color="primary"
         icon={unmute ? 'mute' : 'unmute'}
-        size={'lg'}
+        size="lg"
         circle
       />
     );
   }
 }
 
-export default injectIntl(withShortcut(MuteToggleBtn, 'Control+Alt+m'));
+export default injectIntl(withShortcut(MuteToggleBtn, SHORTCUT_COMBO));
 
 MuteToggleBtn.propTypes = propTypes;

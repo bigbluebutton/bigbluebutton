@@ -22,6 +22,9 @@ const propTypes = {
   mountModal: PropTypes.func.isRequired,
 };
 
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.upload_presentation.keys;
+
 class UploadPresentation extends Component {
   constructor() {
     super();
@@ -47,6 +50,6 @@ class UploadPresentation extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(UploadPresentation, 'Control+Alt+Y')));
+export default withModalMounter(injectIntl(withShortcut(UploadPresentation, SHORTCUT_COMBO)));
 
 UploadPresentation.propTypes = propTypes;
