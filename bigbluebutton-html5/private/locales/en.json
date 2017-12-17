@@ -166,6 +166,7 @@
     "app.settings.main.save.label": "Save",
     "app.settings.main.save.label.description": "Saves the changes and closes the settings menu",
     "app.shortcut-help.shortcutTitle": "Shortcut Help",
+    "app.shortcut-help.titleDesc": "Listing of application shortcut keys",
     "app.shortcut-help.cancelLabel": "Close",
     "app.shortcut-help.cancelDesc": "dismiss the shortcut modal",
     "app.shortcut-help.firstColTitle": "Shortcut",

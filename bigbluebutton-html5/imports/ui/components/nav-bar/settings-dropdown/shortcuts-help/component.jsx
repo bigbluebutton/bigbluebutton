@@ -7,13 +7,13 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
 
 const intlMessages = defineMessages({
-  aboutLabel: {
-    id: 'app.navBar.settingsDropdown.aboutLabel',
-    description: 'About option label',
+  shortcutHelpLabel: {
+    id: 'app.shortcut-help.shortcutTitle',
+    description: 'label for shortcut help list item',
   },
-  aboutDesc: {
-    id: 'app.navBar.settingsDropdown.aboutDesc',
-    description: 'Describes about option',
+  shortcutHelpDesc: {
+    id: 'app.shortcut-help.titleDesc',
+    description: 'help list item description',
   },
 });
 
@@ -32,8 +32,8 @@ class ShortcutHelpListItem extends React.PureComponent {
     return (
       <DropdownListItem
         icon="about"
-        label="Shortcut Help"
-        description="Listing of shortcut keys"
+        label={intl.formatMessage(intlMessages.shortcutHelpLabel)}
+        description={intl.formatMessage(intlMessages.shortcutHelpDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />
     );
