@@ -1,0 +1,33 @@
+#   Shortcut Configurations
+shortcuts:
+  # 
+  toggle_fullsreen:
+    keys: 'Control + Alt + 0'
+    msgId: 'shortcut001'
+  toggle_userlist:
+    keys: 'Control + Alt + 1'
+    msgId: 'shortcut002'
+  mute_unmute:
+    keys: 'Control + Alt + M'
+    msgId: 'shortcut003'
+  logout:
+    keys: 'Control + Alt + L'
+    msgId: 'shortcut004'
+  open_about: 
+    keys: 'Control + Alt + 8'
+    msgId: 'shortcut005'
+  open_settings: 
+    keys: 'Control + Alt + 9'
+    msgId: 'shortcut006'
+  previous_slide: 
+    keys: 'Control + Alt + A'
+    msgId: 'shortcut007'
+  next_slide: 
+    keys: 'Control + Alt + E'
+    msgId: 'shortcut008'
+  upload_presentation: 
+    keys: 'Control + Alt + Y'
+    msgId: 'shortcut009'
+  open_shortcut: 
+    keys: 'Control + Alt + H'
+    msgId: 'shortcut010'

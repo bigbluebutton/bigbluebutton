@@ -24,44 +24,44 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.secondColTitle',
     description: 'heading for shortcut function column',
   },
-  shortcutFunc001: {
-    id: 'app.shortcut-help.shortcutFunc001',
+  shortcut001: {
+    id: 'app.shortcut-help.shortcut001',
     description: 'Toggle fullscreen shortcut description',
   },
-  shortcutFunc002: {
-    id: 'app.shortcut-help.shortcutFunc002',
+  shortcut002: {
+    id: 'app.shortcut-help.shortcut002',
     description: 'Toggle userlist shortcut description',
   },
-  shortcutFunc003: {
-    id: 'app.shortcut-help.shortcutFunc003',
+  shortcut003: {
+    id: 'app.shortcut-help.shortcut003',
     description: 'Mute/Unmute shortcut description',
   },
-  shortcutFunc004: {
-    id: 'app.shortcut-help.shortcutFunc004',
+  shortcut004: {
+    id: 'app.shortcut-help.shortcut004',
     description: 'Logout shortcut description',
   },
-  shortcutFunc005: {
-    id: 'app.shortcut-help.shortcutFunc005',
+  shortcut005: {
+    id: 'app.shortcut-help.shortcut005',
     description: 'Open about shortcut description',
   },
-  shortcutFunc006: {
-    id: 'app.shortcut-help.shortcutFunc006',
+  shortcut006: {
+    id: 'app.shortcut-help.shortcut006',
     description: 'Open settings modal shortcut description',
   },
-  shortcutFunc007: {
-    id: 'app.shortcut-help.shortcutFunc007',
+  shortcut007: {
+    id: 'app.shortcut-help.shortcut007',
     description: 'Previous slide shortcut description',
   },
-  shortcutFunc008: {
-    id: 'app.shortcut-help.shortcutFunc008',
+  shortcut008: {
+    id: 'app.shortcut-help.shortcut008',
     description: 'Next slide shortcut description',
   },
-  shortcutFunc009: {
-    id: 'app.shortcut-help.shortcutFunc009',
+  shortcut009: {
+    id: 'app.shortcut-help.shortcut009',
     description: 'Upload presentation shortcut description',
   },
-  shortcutFunc010: {
-    id: 'app.shortcut-help.shortcutFunc010',
+  shortcut010: {
+    id: 'app.shortcut-help.shortcut010',
     description: 'Open shortcut help modal description',
   },
 });
@@ -70,18 +70,8 @@ class ShortcutHelpComponent extends React.PureComponent {
   render() {
     const { intl } = this.props;
 
-    const shortcuts = [
-      { keys: 'Control + Alt + 0', description: intl.formatMessage(intlMessages.shortcutFunc001) },
-      { keys: 'Control + Alt + 1', description: intl.formatMessage(intlMessages.shortcutFunc002) },
-      { keys: 'Control + Alt + M', description: intl.formatMessage(intlMessages.shortcutFunc003) },
-      { keys: 'Control + Alt + L', description: intl.formatMessage(intlMessages.shortcutFunc004) },
-      { keys: 'Control + Alt + 8', description: intl.formatMessage(intlMessages.shortcutFunc005) },
-      { keys: 'Control + Alt + 9', description: intl.formatMessage(intlMessages.shortcutFunc006) },
-      { keys: 'Control + Alt + A', description: intl.formatMessage(intlMessages.shortcutFunc007) },
-      { keys: 'Control + Alt + E', description: intl.formatMessage(intlMessages.shortcutFunc008) },
-      { keys: 'Control + Alt + Y', description: intl.formatMessage(intlMessages.shortcutFunc009) },
-      { keys: 'Control + Alt + H', description: intl.formatMessage(intlMessages.shortcutFunc010) },
-    ];
+    const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+    const shortcuts = Object.values(SHORTCUTS_CONFIG);
 
     return (
       <Modal
@@ -99,7 +89,7 @@ class ShortcutHelpComponent extends React.PureComponent {
           {shortcuts.map(shortcut => (
             <tr>
               <td className={styles.keyCell}>{shortcut.keys}</td>
-              <td className={styles.funcCell}>{shortcut.description}</td>
+              <td className={styles.descCell}>{intl.formatMessage(intlMessages[shortcut.msgId])}</td>
             </tr>
           ))}
         </table>
