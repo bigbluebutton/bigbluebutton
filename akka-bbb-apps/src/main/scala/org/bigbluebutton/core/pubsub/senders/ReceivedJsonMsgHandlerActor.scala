@@ -186,8 +186,6 @@ class ReceivedJsonMsgHandlerActor(
       // Presentation
       case SetCurrentPresentationPubMsg.NAME =>
         routeGenericMsg[SetCurrentPresentationPubMsg](envelope, jsonNode)
-      case GetPresentationInfoReqMsg.NAME =>
-        routeGenericMsg[GetPresentationInfoReqMsg](envelope, jsonNode)
       case SetCurrentPagePubMsg.NAME =>
         routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
       case ResizeAndMovePagePubMsg.NAME =>

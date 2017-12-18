@@ -37,7 +37,6 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
-	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.model.PresentOptions;
 	import org.bigbluebutton.modules.present.model.PresentationPodManager;
@@ -68,12 +67,6 @@ package org.bigbluebutton.modules.present.managers
 			presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 
 			winManager.initCollection(presentOptions.maxNumWindows);
-			
-			var requestAllPodsEvent:RequestAllPodsEvent = new RequestAllPodsEvent(RequestAllPodsEvent.REQUEST_ALL_PODS);
-			globalDispatcher.dispatchEvent(requestAllPodsEvent);
-
-			var requestPresenterGroupEvent:RequestPresenterGroupEvent = new RequestPresenterGroupEvent(RequestPresenterGroupEvent.REQUEST_PRESENTER_GROUP);
-			globalDispatcher.dispatchEvent(requestPresenterGroupEvent);
 		}
 
 		public function handleAddPresentationPod(e: NewPresentationPodCreated): void {

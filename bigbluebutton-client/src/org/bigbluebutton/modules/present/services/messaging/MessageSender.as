@@ -73,20 +73,6 @@ package org.bigbluebutton.modules.present.services.messaging
         JSON.stringify(message)
       );
     }
-    
-    public function getPresentationInfo(podId: String):void {
-      var message:Object = {
-        header: {name: "GetPresentationInfoReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {podId: podId}
-      };
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage2x(
-        function(result:String):void { },
-        function(status:String):void { LOGGER.error(status); },
-        JSON.stringify(message)
-      );
-    }
 
     public function requestAllPodsEvent():void {
       var message:Object = {
