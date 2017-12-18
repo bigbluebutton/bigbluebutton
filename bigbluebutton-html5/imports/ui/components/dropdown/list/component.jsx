@@ -45,14 +45,18 @@ export default class DropdownList extends Component {
 
   componentDidUpdate() {
     const { focusedIndex } = this.state;
-
     const children = [].slice.call(this._menu.children);
-    this.menuRefs = children.filter(child => child.getAttribute('role') === 'menuitem');
+
+    this.menuRefs =
+      children.filter(child =>
+        (child.getAttribute('role') === 'menuitem' || child.tagName.toLowerCase() === 'span'));
 
     const activeRef = this.menuRefs[focusedIndex];
 
     if (activeRef) {
-      activeRef.focus();
+      return activeRef.tagName.toLowerCase() === 'span'
+        ? activeRef.firstChild.focus()
+        : activeRef.focus();
     }
   }
 
