@@ -1,9 +1,35 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
 import UserList from './component';
+
+const propTypes = {
+  openChats: PropTypes.arrayOf(String).isRequired,
+  openChat: PropTypes.string.isRequired,
+  users: PropTypes.arrayOf(Object).isRequired,
+  currentUser: PropTypes.shape({}).isRequired,
+  meeting: PropTypes.shape({}).isRequired,
+  isBreakoutRoom: PropTypes.bool.isRequired,
+  getAvailableActions: PropTypes.func.isRequired,
+  normalizeEmojiName: PropTypes.func.isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
+  isPublicChat: PropTypes.func.isRequired,
+  setEmojiStatus: PropTypes.func.isRequired,
+  assignPresenter: PropTypes.func.isRequired,
+  kickUser: PropTypes.func.isRequired,
+  toggleVoice: PropTypes.func.isRequired,
+  changeRole: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
+  userActions: PropTypes.func.isRequired,
+  children: PropTypes.Object,
+};
+
+const defaultProps = {
+  children: {},
+};
 
 const UserListContainer = (props) => {
   const {
@@ -24,7 +50,8 @@ const UserListContainer = (props) => {
     kickUser,
     toggleVoice,
     changeRole,
-    } = props;
+    roving,
+  } = props;
 
   return (
     <UserList
@@ -44,11 +71,15 @@ const UserListContainer = (props) => {
       normalizeEmojiName={normalizeEmojiName}
       isMeetingLocked={isMeetingLocked}
       isPublicChat={isPublicChat}
+      roving={roving}
     >
       {children}
     </UserList>
   );
 };
+
+UserListContainer.propTypes = propTypes;
+UserListContainer.defaultProps = defaultProps;
 
 export default createContainer(({ params }) => ({
   users: Service.getUsers(),
@@ -67,4 +98,5 @@ export default createContainer(({ params }) => ({
   kickUser: Service.kickUser,
   toggleVoice: Service.toggleVoice,
   changeRole: Service.changeRole,
+  roving: Service.roving,
 }), UserListContainer);
