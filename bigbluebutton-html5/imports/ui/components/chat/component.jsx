@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Storage from '/imports/ui/services/storage/session';
 import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
@@ -21,74 +22,6 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
-
-const Chat = (props) => {
-  const {
-    chatID,
-    chatName,
-    title,
-    messages,
-    scrollPosition,
-    hasUnreadMessages,
-    lastReadMessageTime,
-    partnerIsLoggedOut,
-    isChatLocked,
-    minMessageLength,
-    maxMessageLength,
-    actions,
-    intl,
-  } = props;
-
-  return (
-    <div className={styles.chat}>
-      <header className={styles.header}>
-        <div className={styles.title}>
-          <Link
-            to="/users"
-            role="button"
-            aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-          >
-            <Icon iconName="left_arrow" /> {title}
-          </Link>
-        </div>
-        {
-          chatID !== 'public' ?
-            <Link
-              to="/users"
-              role="button"
-              className={styles.closeIcon}
-              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-            >
-              <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
-            </Link> :
-            <ChatDropdown />
-        }
-      </header>
-      <MessageList
-        chatId={chatID}
-        messages={messages}
-        id={ELEMENT_ID}
-        scrollPosition={scrollPosition}
-        hasUnreadMessages={hasUnreadMessages}
-        handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
-        lastReadMessageTime={lastReadMessageTime}
-        partnerIsLoggedOut={partnerIsLoggedOut}
-      />
-      <MessageForm
-        disabled={isChatLocked}
-        chatAreaId={ELEMENT_ID}
-        chatTitle={title}
-        chatName={chatName}
-        minMessageLength={minMessageLength}
-        maxMessageLength={maxMessageLength}
-        handleSendMessage={actions.handleSendMessage}
-      />
-    </div>
-  );
-};
-
-export default injectWbResizeEvent(injectIntl(Chat));
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
@@ -122,4 +55,75 @@ const propTypes = {
   }).isRequired,
 };
 
+class Chat extends Component {
+  render() {
+    const {
+      chatID,
+      chatName,
+      title,
+      messages,
+      scrollPosition,
+      hasUnreadMessages,
+      lastReadMessageTime,
+      partnerIsLoggedOut,
+      isChatLocked,
+      minMessageLength,
+      maxMessageLength,
+      actions,
+      intl,
+    } = this.props;
+
+    return (
+      <div className={styles.chat}>
+        <header className={styles.header}>
+          <div className={styles.title}>
+            <Link
+              to="/users"
+              role="button"
+              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
+            >
+              <Icon iconName="left_arrow" /> {title}
+            </Link>
+          </div>
+          {
+            chatID !== 'public' ?
+              <Link
+                to="/users"
+                role="button"
+                className={styles.closeIcon}
+                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+              >
+                <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
+              </Link> :
+              <ChatDropdown />
+          }
+        </header>
+        <MessageList
+          chatId={chatID}
+          messages={messages}
+          id={ELEMENT_ID}
+          scrollPosition={scrollPosition}
+          hasUnreadMessages={hasUnreadMessages}
+          handleScrollUpdate={actions.handleScrollUpdate}
+          handleReadMessage={actions.handleReadMessage}
+          lastReadMessageTime={lastReadMessageTime}
+          partnerIsLoggedOut={partnerIsLoggedOut}
+        />
+        <MessageForm
+          disabled={isChatLocked}
+          chatAreaId={ELEMENT_ID}
+          chatTitle={title}
+          chatName={chatName}
+          minMessageLength={minMessageLength}
+          maxMessageLength={maxMessageLength}
+          handleSendMessage={actions.handleSendMessage}
+        />
+      </div>
+    );
+  }
+}
+
 Chat.propTypes = propTypes;
+
+export default injectWbResizeEvent(injectIntl(Chat));
+
