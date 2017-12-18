@@ -117,7 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>    
 
     <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-      <EventAnnouncer generator="{ChatHistoryEvent}" type="{ChatHistoryEvent.REQUEST_HISTORY}"/>
+      <MethodInvoker generator="{ChatMessageService}" method="getGroupChats" />
     </EventHandlers>
     
     <EventHandlers type="{ChatSaveEvent.SAVE_CHAT_EVENT}">

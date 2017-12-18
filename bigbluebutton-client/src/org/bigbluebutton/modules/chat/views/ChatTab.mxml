@@ -34,7 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
     <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
     <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-    <!--mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleRecievedChatHistoryEvent" /-->
+    <mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleReceivedChatHistoryEvent" />
     <mate:Listener type="{ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT}" method="handleClearPublicChatBoxMessages"/>
     <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
@@ -336,11 +336,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       
-      private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
+      private function handleReceivedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (chatId == event.chatId) {
           var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
           if (chat != null) {
             chatMessages.processChatHistory(chat.messages.source);
+						getWelcomeMessage();
             scrollToEndOfMessage();
           }
         }

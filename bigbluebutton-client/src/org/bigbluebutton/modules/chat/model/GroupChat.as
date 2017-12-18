@@ -97,7 +97,8 @@ package org.bigbluebutton.modules.chat.model
     }
     
     public function addMessageHistory(messageVOs:Array):void {
-      if (messageVOs.length > 0) {        
+      if (messageVOs.length > 0) { 
+        _messages = new ArrayCollection();
         for (var i:int = 0; i < messageVOs.length; i++) {
           var newCM: ChatMessageVO = messageVOs[i] as ChatMessageVO
           _messages.addItemAt(newCM, i);
