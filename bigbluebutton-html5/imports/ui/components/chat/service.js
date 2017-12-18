@@ -198,10 +198,10 @@ const closePrivateChat = (chatID) => {
 // if this private chat has been added to the list of closed ones, remove it
 const removeFromClosedChatsSession = (chatID) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-  if(_.indexOf(currentClosedChats, chatID) > -1) {
+  if (_.indexOf(currentClosedChats, chatID) > -1) {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chatID));
   }
-}
+};
 
 // We decode to prevent HTML5 escaped characters.
 const htmlDecode = (input) => {
