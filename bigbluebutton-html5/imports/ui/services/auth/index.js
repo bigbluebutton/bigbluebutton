@@ -169,14 +169,6 @@ class Auth {
           resolve();
         }
 
-        if (User.validated === false) {
-          clearTimeout(validationTimeout);
-          reject({
-            error: 401,
-            description: 'Authentication failed.',
-          });
-        }
-
         c.stop();
       });
 
