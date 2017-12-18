@@ -16,7 +16,7 @@
   border-radius: $border-radius;
   max-width: 95vw;
   width: 600px;
-  
+
 }
 
 .text {
@@ -40,6 +40,6 @@
 
 .button {
   @include mq($small-only) {
-    font-size: 1rem;
+    font-size: $font-size-base;
   }
 }

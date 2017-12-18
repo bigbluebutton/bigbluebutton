@@ -18,7 +18,7 @@ const intlMessage = defineMessages({
     description: 'message saying to go back to home screen',
   },
   buttonOkay: {
-    id: 'app.button.okay',
+    id: 'app.meeting.endNotification.ok.label',
     description: 'label okay for button',
   },
 });
