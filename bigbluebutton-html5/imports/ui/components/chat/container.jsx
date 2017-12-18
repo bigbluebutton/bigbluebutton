@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { createContainer } from 'meteor/react-meteor-data';
 import Chat from './component';
@@ -27,12 +27,15 @@ const intlMessages = defineMessages({
   },
 });
 
-const ChatContainer = props =>
-  (
-    <Chat {...props}>
-      {props.children}
-    </Chat>
-  );
+class ChatContainer extends Component {
+  render() {
+    return (
+      <Chat {...this.props}>
+        {this.props.children}
+      </Chat>
+    );
+  }
+}
 
 export default injectIntl(createContainer(({ params, intl }) => {
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
