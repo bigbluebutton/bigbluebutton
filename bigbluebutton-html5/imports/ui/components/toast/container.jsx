@@ -14,7 +14,7 @@ import styles from './styles';
 const intlMessages = defineMessages({
 
   toastBreakoutRoomEnded: {
-    id: 'app.toast.BreakoutRoomEnded',
+    id: 'app.toast.breakoutRoomEnded',
     description: 'message when the breakout room is ended',
   },
   notificationRecordingStart: {
