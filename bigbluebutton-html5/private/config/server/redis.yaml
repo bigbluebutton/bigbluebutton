@@ -12,3 +12,4 @@ redis:
     - 'from-akka-apps-wb-redis-channel'
   ignored:
     - 'CheckAlivePongSysMsg'
+    - 'DoLatencyTracerMsg'

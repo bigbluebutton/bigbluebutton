@@ -3,18 +3,16 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 
-export default function updateVotes(poll, meetingId, requesterId) {
+export default function updateVotes(poll, meetingId) {
   check(meetingId, String);
-  check(requesterId, String);
   check(poll, Object);
 
   const {
     id,
     answers,
+    numResponders,
+    numRespondents,
   } = poll;
-
-  const { numResponders } = poll;
-  const { numRespondents } = poll;
 
   check(id, String);
   check(answers, Array);
@@ -24,15 +22,11 @@ export default function updateVotes(poll, meetingId, requesterId) {
 
   const selector = {
     meetingId,
-    requester: requesterId,
     id,
   };
 
   const modifier = {
-    $set: Object.assign(
-      { requester: requesterId },
-      flat(poll, { safe: true }),
-    ),
+    $set: flat(poll, { safe: true }),
   };
 
   const cb = (err) => {
