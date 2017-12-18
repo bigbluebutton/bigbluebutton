@@ -115,6 +115,15 @@ package org.bigbluebutton.modules.present.managers
 
 		public function handleGetAllPodsRespEvent(e: GetAllPodsRespEvent): void {
 			var podsAC:ArrayCollection = e.pods as ArrayCollection;
+			
+			// For now the best option for cleaning up old pods is to just delete everything we
+			// know about. In the future we'll want to update existing pods to a new state
+			// rather than recreating.
+			var activePodIds:Array = podsManager.getAllPodIds();
+			for (var i:int=0; i<activePodIds.length; i++) {
+				handlePresentationPodRemovedHelper(activePodIds[i]);
+			}
+			
 			podsManager.handleGetAllPodsResp(podsAC);
 		}
 
