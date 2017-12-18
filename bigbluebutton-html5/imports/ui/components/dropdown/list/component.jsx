@@ -8,17 +8,15 @@ import ListSeparator from './separator/component';
 import ListTitle from './title/component';
 
 const propTypes = {
- /*  We should recheck this proptype, sometimes we need to create an container and send to dropdown,
+  /*  We should recheck this proptype, sometimes we need to create an container and send to dropdown,
    but with this */
   // proptype, is not possible.
   children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
     if (propValue[key].type !== ListItem &&
       propValue[key].type !== ListSeparator &&
       propValue[key].type !== ListTitle) {
-      return new Error(
-        `Invalid prop \`${propFullName}\` supplied to` +
-        ` \`${componentName}\`. Validation failed.`,
-      );
+      return new Error(`Invalid prop \`${propFullName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`);
     }
     return true;
   }).isRequired,
@@ -49,14 +47,12 @@ export default class DropdownList extends Component {
 
     this.menuRefs =
       children.filter(child =>
-        (child.getAttribute('role') === 'menuitem' || child.tagName.toLowerCase() === 'span'));
+        (child.getAttribute('role') === 'menuitem'));
 
     const activeRef = this.menuRefs[focusedIndex];
 
     if (activeRef) {
-      return activeRef.tagName.toLowerCase() === 'span'
-        ? activeRef.firstChild.focus()
-        : activeRef.focus();
+      return activeRef.focus();
     }
   }
 
@@ -128,7 +124,8 @@ export default class DropdownList extends Component {
   render() {
     const { children, style, className } = this.props;
 
-    const boundChildren = Children.map(children,
+    const boundChildren = Children.map(
+      children,
       (item) => {
         if (item.type === ListSeparator) {
           return item;
@@ -153,7 +150,8 @@ export default class DropdownList extends Component {
             this.handleItemKeyDown(event, onKeyDown);
           },
         });
-      });
+      },
+    );
 
     return (
       <ul

@@ -30,11 +30,9 @@ export default class Shortcut extends Component {
   }
 
   render() {
-    return (
-      <span ref={(node) => { this.element = node; }}>
-        {this.props.children}
-      </span>
-    );
+    return React.cloneElement(this.props.children, {
+      ref: ((node) => { this.element = node; }),
+    });
   }
 }
 

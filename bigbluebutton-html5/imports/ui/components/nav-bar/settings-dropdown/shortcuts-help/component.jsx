@@ -1,7 +1,7 @@
 import React from 'react';
 import { withShortcut } from '/imports/ui/components/shortcut/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
+import ShortcutHelpContainer from '/imports/ui/components/shortcut-help/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -34,7 +34,7 @@ class ShortcutHelpListItem extends React.PureComponent {
         icon="about"
         label={intl.formatMessage(intlMessages.shortcutHelpLabel)}
         description={intl.formatMessage(intlMessages.shortcutHelpDesc)}
-        onClick={() => mountModal(<ShortcutHelpComponent />)}
+        onClick={() => mountModal(<ShortcutHelpContainer />)}
       />
     );
   }
