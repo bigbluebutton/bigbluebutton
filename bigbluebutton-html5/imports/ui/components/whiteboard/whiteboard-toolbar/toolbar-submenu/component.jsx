@@ -162,7 +162,7 @@ class ToolbarSubmenu extends Component {
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 
-    return (obj.label || obj.value);
+    return (obj.label || obj.value).toString();
   }
 
   render() {
