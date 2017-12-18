@@ -8,6 +8,7 @@ import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import ChatDropdown from './chat-dropdown/component';
+import Service from './service';
 import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -56,6 +57,11 @@ const propTypes = {
 };
 
 class Chat extends Component {
+  componentDidMount() {
+    // in case of reopening a chat, need to make sure it's removed from closed list
+    Service.removeFromClosedChatsSession(this.props.chatID);
+  }
+
   render() {
     const {
       chatID,
