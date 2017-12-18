@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -8,7 +8,6 @@ import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import ChatDropdown from './chat-dropdown/component';
-import Service from './service';
 import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -23,6 +22,80 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
+
+const Chat = (props) => {
+  const {
+    chatID,
+    chatName,
+    title,
+    messages,
+    scrollPosition,
+    hasUnreadMessages,
+    lastReadMessageTime,
+    partnerIsLoggedOut,
+    isChatLocked,
+    minMessageLength,
+    maxMessageLength,
+    actions,
+    intl,
+  } = props;
+
+  return (
+    <div className={styles.chat}>
+      <header className={styles.header}>
+        <div className={styles.title}>
+          <Link
+            to="/users"
+            role="button"
+            aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
+          >
+            <Icon iconName="left_arrow" /> {title}
+          </Link>
+        </div>
+        {
+          chatID !== 'public' ?
+            <Link
+              to="/users"
+              role="button"
+              tabIndex={-1}
+            >
+              <Button
+                className={styles.closeBtn}
+                icon="close"
+                size="md"
+                hideLabel
+                onClick={() => actions.handleClosePrivateChat(chatID)}
+                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+              />
+            </Link> :
+            <ChatDropdown />
+        }
+      </header>
+      <MessageList
+        chatId={chatID}
+        messages={messages}
+        id={ELEMENT_ID}
+        scrollPosition={scrollPosition}
+        hasUnreadMessages={hasUnreadMessages}
+        handleScrollUpdate={actions.handleScrollUpdate}
+        handleReadMessage={actions.handleReadMessage}
+        lastReadMessageTime={lastReadMessageTime}
+        partnerIsLoggedOut={partnerIsLoggedOut}
+      />
+      <MessageForm
+        disabled={isChatLocked}
+        chatAreaId={ELEMENT_ID}
+        chatTitle={title}
+        chatName={chatName}
+        minMessageLength={minMessageLength}
+        maxMessageLength={maxMessageLength}
+        handleSendMessage={actions.handleSendMessage}
+      />
+    </div>
+  );
+};
+
+export default injectWbResizeEvent(injectIntl(Chat));
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,
@@ -56,86 +129,4 @@ const propTypes = {
   }).isRequired,
 };
 
-class Chat extends Component {
-  componentDidMount() {
-    // in case of reopening a chat, need to make sure it's removed from closed list
-    Service.removeFromClosedChatsSession(this.props.chatID);
-  }
-
-  render() {
-    const {
-      chatID,
-      chatName,
-      title,
-      messages,
-      scrollPosition,
-      hasUnreadMessages,
-      lastReadMessageTime,
-      partnerIsLoggedOut,
-      isChatLocked,
-      minMessageLength,
-      maxMessageLength,
-      actions,
-      intl,
-    } = this.props;
-
-    return (
-      <div className={styles.chat}>
-        <header className={styles.header}>
-          <div className={styles.title}>
-            <Link
-              to="/users"
-              role="button"
-              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            >
-              <Icon iconName="left_arrow" /> {title}
-            </Link>
-          </div>
-          {
-            chatID !== 'public' ?
-            <Link
-              to="/users"
-              role="button"
-              tabIndex={-1}
-            >
-              <Button
-                className={styles.closeBtn}
-                icon="close"
-                size="md"
-                hideLabel
-                onClick={() => actions.handleClosePrivateChat(chatID)}
-                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-              />
-            </Link> :
-            <ChatDropdown />
-          }
-        </header>
-        <MessageList
-          chatId={chatID}
-          messages={messages}
-          id={ELEMENT_ID}
-          scrollPosition={scrollPosition}
-          hasUnreadMessages={hasUnreadMessages}
-          handleScrollUpdate={actions.handleScrollUpdate}
-          handleReadMessage={actions.handleReadMessage}
-          lastReadMessageTime={lastReadMessageTime}
-          partnerIsLoggedOut={partnerIsLoggedOut}
-        />
-        <MessageForm
-          disabled={isChatLocked}
-          chatAreaId={ELEMENT_ID}
-          chatTitle={title}
-          chatName={chatName}
-          minMessageLength={minMessageLength}
-          maxMessageLength={maxMessageLength}
-          handleSendMessage={actions.handleSendMessage}
-        />
-      </div>
-    );
-  }
-}
-
 Chat.propTypes = propTypes;
-
-export default injectWbResizeEvent(injectIntl(Chat));
-
