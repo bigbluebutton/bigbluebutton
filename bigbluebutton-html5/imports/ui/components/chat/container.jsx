@@ -28,6 +28,9 @@ const intlMessages = defineMessages({
 });
 
 class ChatContainer extends Component {
+  componentDidMount() {
+    ChatService.removeFromClosedChatsSession(this.props.chatID);
+  }
   render() {
     return (
       <Chat {...this.props}>
