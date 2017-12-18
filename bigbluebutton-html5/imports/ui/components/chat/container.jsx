@@ -29,6 +29,7 @@ const intlMessages = defineMessages({
 
 class ChatContainer extends Component {
   componentDidMount() {
+    // in case of reopening a chat, need to make sure it's removed from closed list
     ChatService.removeFromClosedChatsSession(this.props.chatID);
   }
   render() {
