@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Button from '/imports/ui/components/button/component';
 import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
@@ -92,15 +93,21 @@ class Chat extends Component {
           </div>
           {
             chatID !== 'public' ?
-              <Link
-                to="/users"
-                role="button"
-                className={styles.closeIcon}
+            <Link
+              to="/users"
+              role="button"
+              tabIndex={-1}
+            >
+              <Button
+                className={styles.closeBtn}
+                icon="close"
+                size="md"
+                hideLabel
+                onClick={() => actions.handleClosePrivateChat(chatID)}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-              >
-                <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)} />
-              </Link> :
-              <ChatDropdown />
+              />
+            </Link> :
+            <ChatDropdown />
           }
         </header>
         <MessageList
