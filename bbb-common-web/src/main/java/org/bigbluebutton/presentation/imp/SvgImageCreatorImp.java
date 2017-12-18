@@ -4,12 +4,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class SvgImageCreatorImp implements SvgImageCreator {
   private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
@@ -43,16 +44,16 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     String COMMAND = "";
     boolean done = true;
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-      dest = imagePresentationDir.getAbsolutePath() + File.separator
+      dest = imagePresentationDir.getAbsolutePath() + File.separatorChar
           + "slide1.pdf";
-      COMMAND = IMAGEMAGICK_DIR + File.separator + "convert " + source + " "
+      COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert " + source + " "
           + dest;
 
       done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 
-      source = imagePresentationDir.getAbsolutePath() + File.separator
+      source = imagePresentationDir.getAbsolutePath() + File.separatorChar
           + "slide1.pdf";
-      dest = imagePresentationDir.getAbsolutePath() + File.separator
+      dest = imagePresentationDir.getAbsolutePath() + File.separatorChar
           + "slide1.svg";
       COMMAND = "pdftocairo -rx 300 -ry 300 -svg -q -f 1 -l 1 " + source + " "
           + dest;
@@ -86,7 +87,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
-    log.warn("-- analytics -- " + logStr);
+    log.warn("-- analytics -- {}", logStr);
 
     return false;
   }
@@ -97,8 +98,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
   private void cleanDirectory(File directory) {
     File[] files = directory.listFiles();
-    for (int i = 0; i < files.length; i++) {
-      files[i].delete();
+    for (File file : files) {
+      file.delete();
     }
   }
 

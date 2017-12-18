@@ -29,21 +29,49 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import org.bigbluebutton.api.domain.*;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.domain.RegisteredUser;
+import org.bigbluebutton.api.domain.User;
+import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.RedisStorageService;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.api.messaging.messages.*;
+import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
+import org.bigbluebutton.api.messaging.messages.CreateMeeting;
+import org.bigbluebutton.api.messaging.messages.EndBreakoutRoom;
+import org.bigbluebutton.api.messaging.messages.EndMeeting;
+import org.bigbluebutton.api.messaging.messages.GuestPolicyChanged;
+import org.bigbluebutton.api.messaging.messages.GuestStatusChangedEventMsg;
+import org.bigbluebutton.api.messaging.messages.GuestsStatus;
+import org.bigbluebutton.api.messaging.messages.IMessage;
+import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
+import org.bigbluebutton.api.messaging.messages.MeetingEnded;
+import org.bigbluebutton.api.messaging.messages.MeetingStarted;
+import org.bigbluebutton.api.messaging.messages.PresentationUploadToken;
+import org.bigbluebutton.api.messaging.messages.RecordChapterBreak;
+import org.bigbluebutton.api.messaging.messages.RegisterUser;
+import org.bigbluebutton.api.messaging.messages.UserJoined;
+import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
+import org.bigbluebutton.api.messaging.messages.UserLeft;
+import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
+import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
+import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
+import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
+import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
-import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.StunTurnService;
-import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,8 +145,7 @@ public class MeetingService implements MessageListener {
   public UserSession removeUserSessionWithAuthToken(String token) {
     UserSession user = sessions.remove(token);
     if (user != null) {
-      log.debug("Found user [" + user.fullname + "] token=[" + token
-        + "] to meeting [" + user.meetingID + "]");
+      log.debug("Found user {} token={} to meeting {}", user.fullname, token, user.meetingID);
     }
     return user;
   }
@@ -365,7 +392,7 @@ public class MeetingService implements MessageListener {
                                    String start) {
     int duration;
     try {
-      if (!playbackDuration.equals("")) {
+      if (!"".equals(playbackDuration)) {
         duration = (int) Math
           .ceil((Long.parseLong(playbackDuration)) / 60000.0);
       } else {
@@ -802,13 +829,13 @@ public class MeetingService implements MessageListener {
       User user = m.getUserById(message.userId);
       if (user != null) {
         user.setRole(message.role);
-        log.debug("Setting new role in meeting " + message.meetingId + " for participant:" + user.getFullname());
+        log.debug("Setting new role in meeting {} for participant: {}", message.meetingId, user.getFullname());
         return;
       }
-      log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+      log.warn("The participant {} doesn't exist in the meeting {}", message.userId, message.meetingId);
       return;
     }
-    log.warn("The meeting " + message.meetingId + " doesn't exist");
+    log.warn("The meeting {} doesn't exist", message.meetingId);
   }
 
   private void processMessage(final IMessage message) {

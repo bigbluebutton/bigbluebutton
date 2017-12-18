@@ -22,7 +22,6 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
-import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.bigbluebutton.presentation.messages.OfficeDocConversionProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,6 @@ public class SupportedDocumentFilter {
   }
 
   private void notifyProgressListener(boolean supported, UploadedPresentation pres) {
-    MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
-
     String msgKey = ConversionMessageConstants.SUPPORTED_DOCUMENT_KEY;
 
     if (supported) {

@@ -51,36 +51,36 @@ public class RecordingService {
     private String recordStatusDir;
 
     public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {
-        String done = recordStatusDir + "/" + meetingId + "-" + timestamp + ".done";
+        String done = recordStatusDir + File.separatorChar + meetingId + "-" + timestamp + ".done";
 
         File doneFile = new File(done);
         if (!doneFile.exists()) {
             try {
                 doneFile.createNewFile();
                 if (!doneFile.exists())
-                    log.error("Failed to create " + done + " file.");
+                    log.error("Failed to create file.", done);
             } catch (IOException e) {
-                log.error("Failed to create " + done + " file.");
+                log.error("Failed to create {} file", done);
             }
         } else {
-            log.error(done + " file already exists.");
+            log.error("{} file already exists.", done);
         }
     }
 
     public void startIngestAndProcessing(String meetingId) {
-        String done = recordStatusDir + "/" + meetingId + ".done";
+        String done = recordStatusDir + File.separatorChar + meetingId + ".done";
 
         File doneFile = new File(done);
         if (!doneFile.exists()) {
             try {
                 doneFile.createNewFile();
                 if (!doneFile.exists())
-                    log.error("Failed to create " + done + " file.");
+                    log.error("Failed to create {} file.", done);
             } catch (IOException e) {
-                log.error("Failed to create " + done + " file.");
+                log.error("Failed to create {} file.", done);
             }
         } else {
-            log.error(done + " file already exists.");
+            log.error("{} file already exists.", done);
         }
     }
 
@@ -97,9 +97,8 @@ public class RecordingService {
         for (String recordID : recordIDs) {
             for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
                 List<File> _recs = getRecordingsForPath(recordID, entry.getValue());
-                Iterator<File> iterator = _recs.iterator();
-                while (iterator.hasNext()) {
-                    RecordingMetadata r = getRecordingMetadata(iterator.next());
+                for (File _rec : _recs) {
+                    RecordingMetadata r = getRecordingMetadata(_rec);
                     if (r != null) {
                         recs.add(r);
                     }
@@ -183,11 +182,12 @@ public class RecordingService {
     private List<String> getAllRecordingIds(String path, String[] format) {
         List<String> ids = new ArrayList<String>();
 
-        for (int i = 0; i < format.length; i++) {
-            List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
-            for (int f = 0; f < recordings.size(); f++) {
-                if (!ids.contains(recordings.get(f).getName()))
-                    ids.add(recordings.get(f).getName());
+        for (String aFormat : format) {
+            List<File> recordings = getDirectories(path + File.separatorChar + aFormat);
+            for (File recording : recordings) {
+                if (!ids.contains(recording.getName())) {
+                    ids.add(recording.getName());
+                }
             }
         }
 
@@ -220,12 +220,12 @@ public class RecordingService {
 
     private static void deleteRecording(String id, String path) {
         String[] format = getPlaybackFormats(path);
-        for (int i = 0; i < format.length; i++) {
-            List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
-            for (int f = 0; f < recordings.size(); f++) {
-                if (recordings.get(f).getName().equals(id)) {
-                    deleteDirectory(recordings.get(f));
-                    createDirectory(recordings.get(f));
+        for (String aFormat : format) {
+            List<File> recordings = getDirectories(path + File.separatorChar + aFormat);
+            for (File recording : recordings) {
+                if (recording.getName().equals(id)) {
+                    deleteDirectory(recording);
+                    createDirectory(recording);
                 }
             }
         }
@@ -242,11 +242,11 @@ public class RecordingService {
          * delete files inside a directory before a directory can be deleted.
          **/
         File[] files = directory.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-                deleteDirectory(files[i]);
+        for (File file : files) {
+            if (file.isDirectory()) {
+                deleteDirectory(file);
             } else {
-                files[i].delete();
+                file.delete();
             }
         }
         // Now that the directory is empty. Delete it.
@@ -340,20 +340,20 @@ public class RecordingService {
 
     private void changeState(String path, String recordingId, String state) {
         String[] format = getPlaybackFormats(path);
-        for (int i = 0; i < format.length; i++) {
-            List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
-            for (int f = 0; f < recordings.size(); f++) {
-                if (recordings.get(f).getName().equalsIgnoreCase(recordingId)) {
+         for (String aFormat : format) {
+            List<File> recordings = getDirectories(path + File.separatorChar + aFormat);
+            for (File recording : recordings) {
+                if (recording.getName().equalsIgnoreCase(recordingId)) {
                     File dest;
                     if (state.equals(Recording.STATE_PUBLISHED)) {
-                       dest = new File(publishedDir + File.separatorChar + format[i]);
-                       publishRecording(dest, recordingId, recordings.get(f), format[i]);
+                       dest = new File(publishedDir + File.separatorChar + aFormat);
+                       publishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
-                       dest = new File(unpublishedDir + File.separatorChar + format[i]);
-                       unpublishRecording(dest, recordingId, recordings.get(f), format[i]);
+                       dest = new File(unpublishedDir + File.separatorChar + aFormat);
+                       unpublishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_DELETED)) {
-                       dest = new File(deletedDir + File.separatorChar + format[i]);
-                       deleteRecording(dest, recordingId, recordings.get(f), format[i]);
+                       dest = new File(deletedDir + File.separatorChar + aFormat);
+                       deleteRecording(dest, recordingId, recording, aFormat);
                     } else {
                        log.debug(String.format("State: %s, is not supported", state));
                        return;
@@ -440,8 +440,8 @@ public class RecordingService {
 
         if ( dir != null ) {
             String[] formats = getPlaybackFormats(dir);
-            for (int i = 0; i < formats.length; ++i) {
-                allDirectories.addAll(getDirectories(dir + File.separatorChar + formats[i]));
+            for (String format : formats) {
+                allDirectories.addAll(getDirectories(dir + File.separatorChar + format));
             }
         }
 

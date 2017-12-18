@@ -26,13 +26,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class ThumbnailCreatorImp implements ThumbnailCreator {
   private static Logger log = LoggerFactory
@@ -41,11 +42,13 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   private static final Pattern PAGE_NUMBER_PATTERN = Pattern
       .compile("(.+-thumb)-([0-9]+)(.png)");
 
-  private String IMAGEMAGICK_DIR;
-  private String BLANK_THUMBNAIL;
-
   private static String TEMP_THUMB_NAME = "temp-thumb";
 
+  private String IMAGEMAGICK_DIR;
+
+  private String BLANK_THUMBNAIL;
+
+  @Override
   public boolean createThumbnails(UploadedPresentation pres) {
     boolean success = false;
     File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
@@ -75,9 +78,9 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     String source = pres.getUploadedFile().getAbsolutePath();
     String dest;
     String COMMAND = "";
-    dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME;
+    dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME;
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-      COMMAND = IMAGEMAGICK_DIR + File.separator + "convert -thumbnail 150x150 "
+      COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "
           + source + " " + dest + ".png";
     } else {
       COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + dest;
@@ -96,7 +99,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- " + logStr);
+      log.warn("-- analytics -- {}", logStr);
     }
 
     return false;
@@ -115,8 +118,8 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     if (dir.list().length > 1) {
       File[] files = dir.listFiles();
       Matcher matcher;
-      for (int i = 0; i < files.length; i++) {
-        matcher = PAGE_NUMBER_PATTERN.matcher(files[i].getAbsolutePath());
+      for (File file : files) {
+        matcher = PAGE_NUMBER_PATTERN.matcher(file.getAbsolutePath());
         if (matcher.matches()) {
           // Path should be something like
           // 'c:/temp/bigluebutton/presname/thumbnails/temp-thumb-1.png'
@@ -129,16 +132,16 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
           int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
           String newFilename = "thumb-" + (pageNum) + ".png";
           File renamedFile = new File(
-              dir.getAbsolutePath() + File.separator + newFilename);
-          files[i].renameTo(renamedFile);
+              dir.getAbsolutePath() + File.separatorChar + newFilename);
+          file.renameTo(renamedFile);
         }
       }
     } else if (dir.list().length == 1) {
       File oldFilename = new File(
-          dir.getAbsolutePath() + File.separator + dir.list()[0]);
+          dir.getAbsolutePath() + File.separatorChar + dir.list()[0]);
       String newFilename = "thumb-1.png";
       File renamedFile = new File(
-          oldFilename.getParent() + File.separator + newFilename);
+          oldFilename.getParent() + File.separatorChar + newFilename);
       oldFilename.renameTo(renamedFile);
     }
   }
@@ -148,10 +151,10 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
     if (thumbs.length != pageCount) {
       for (int i = 0; i < pageCount; i++) {
-        File thumb = new File(thumbsDir.getAbsolutePath() + File.separator
+        File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar
             + TEMP_THUMB_NAME + "-" + i + ".png");
         if (!thumb.exists()) {
-          log.info("Copying blank thumbnail for slide " + i);
+          log.info("Copying blank thumbnail for slide {}", i);
           copyBlankThumbnail(thumb);
         }
       }
@@ -168,8 +171,8 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
   private void cleanDirectory(File directory) {
     File[] files = directory.listFiles();
-    for (int i = 0; i < files.length; i++) {
-      files[i].delete();
+    for (File file : files) {
+      file.delete();
     }
   }
 

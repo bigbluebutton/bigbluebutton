@@ -4,6 +4,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.bigbluebutton.api.IReceivedOldMessageHandler;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class ReceivedMessageHandler implements IReceivedOldMessageHandler {
       };
       msgProcessorExec.execute(messageProcessor);
     } catch (Exception e) {
-      log.error("Error subscribing to channels: " + e.getMessage());
+      log.error("Error subscribing to channels: {}", e.getMessage());
     }
   }
 

@@ -109,7 +109,7 @@ public class PdfToSwfSlidesGenerationService {
       logData.put("message", "Failed to determine number of pages.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- " + logStr);
+      log.warn("-- analytics -- {}", logStr);
 
       DocPageCountFailed progress = new DocPageCountFailed(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
@@ -133,7 +133,7 @@ public class PdfToSwfSlidesGenerationService {
       logData.put("message", "Number of pages exceeeded.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- " + logStr);
+      log.warn("-- analytics -- {}", logStr);
 
       DocPageCountExceeded  progress = new DocPageCountExceeded(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
@@ -206,7 +206,7 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("message", "ExecutionException while converting page.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
 
         log.error(e.getMessage());
       } catch (InterruptedException e) {
@@ -219,7 +219,7 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("message", "InterruptedException while converting page");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
 
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
@@ -232,7 +232,7 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("message", "TimeoutException while converting page");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
 
         f.cancel(true);
       }
@@ -248,7 +248,7 @@ public class PdfToSwfSlidesGenerationService {
       logData.put("message", "Page conversion duration(sec)");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.info("-- analytics -- " + logStr);
+      log.info("-- analytics -- {}", logStr);
 
     }
 
@@ -266,7 +266,7 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("message", "Creating blank slide");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
 
         notifier.sendConversionUpdateMessage(slidesCompleted++, pres);
       }
@@ -282,7 +282,7 @@ public class PdfToSwfSlidesGenerationService {
     logData.put("message", "Presentation conversion duration (sec)");
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
-    log.info("-- analytics -- " + logStr);
+    log.info("-- analytics -- {}", logStr);
 
   }
 

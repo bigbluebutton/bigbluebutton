@@ -19,11 +19,16 @@
 
 package org.bigbluebutton.api.domain;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.commons.lang3.RandomStringUtils;
 
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class Meeting {
 
@@ -372,8 +377,7 @@ public class Meeting {
 	}
 
 	public User userLeft(String userid){
-		User u = (User) users.remove(userid);	
-		return u;
+		return (User) users.remove(userid);	
 	}
 
 	public User getUserById(String id){
@@ -476,7 +480,19 @@ public class Meeting {
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
 
-	/***
+	public void userRegistered(RegisteredUser user) {
+        this.registeredUsers.put(user.userId, user);
+    }
+
+    public RegisteredUser userUnregistered(String userid) {
+		return (RegisteredUser) this.registeredUsers.remove(userid);
+    }
+
+    public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
+        return registeredUsers;
+    }
+
+    /***
 	 * Meeting Builder
 	 *
 	 */
@@ -626,18 +642,5 @@ public class Meeting {
     	public Meeting build() {
     		return new Meeting(this);
     	}
-    }
-
-    public void userRegistered(RegisteredUser user) {
-        this.registeredUsers.put(user.userId, user);
-    }
-
-    public RegisteredUser userUnregistered(String userid) {
-		RegisteredUser r = (RegisteredUser) this.registeredUsers.remove(userid);
-        return r;
-    }
-
-    public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
-        return registeredUsers;
     }
 }

@@ -28,8 +28,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.bigbluebutton.presentation.PageConverter;
+
 import org.bigbluebutton.presentation.ImageToSwfSlide;
+import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
@@ -118,14 +119,14 @@ public class ImageToSwfSlidesGenerationService {
 				future = completionService.take();
 				slide = future.get(timeLeft, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
-				log.error("InterruptedException while creating slide " + pres.getName());
+				log.error("InterruptedException while creating slide {}", pres.getName());
 			} catch (ExecutionException e) {
-				log.error("ExecutionException while creating slide " + pres.getName());
+				log.error("ExecutionException while creating slide {}", pres.getName());
 			} catch (TimeoutException e) {
-				log.error("TimeoutException while converting " + pres.getName());				
+				log.error("TimeoutException while converting {}", pres.getName());				
 			} finally {
 				if ((slide != null) && (! slide.isDone())){
-					log.warn("Creating blank slide for " + slide.getPageNumber());
+					log.warn("Creating blank slide for {}", slide.getPageNumber());
 					future.cancel(true);
 					slide.generateBlankSlide();
 				}

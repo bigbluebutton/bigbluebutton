@@ -106,7 +106,7 @@ public class User {
 	}
 
 	public boolean isModerator() {
-		return this.role.equalsIgnoreCase("MODERATOR");
+		return "MODERATOR".equalsIgnoreCase(this.role);
 	}
 	
 	public void setStatus(String key, String value){
@@ -122,7 +122,7 @@ public class User {
 	public boolean isPresenter() {
 		String isPresenter = this.status.get("presenter");
 		if (isPresenter != null) {
-			return isPresenter.equalsIgnoreCase("true");
+			return "true".equalsIgnoreCase(isPresenter);
 		}
 		return false;
 	}

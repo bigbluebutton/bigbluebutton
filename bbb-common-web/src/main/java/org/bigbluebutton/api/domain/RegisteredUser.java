@@ -7,8 +7,6 @@ public class RegisteredUser {
 
     private String guestStatus;
 
-
-
     public RegisteredUser(String authToken, String userId, String guestStatus) {
         this.authToken = authToken;
         this.userId = userId;

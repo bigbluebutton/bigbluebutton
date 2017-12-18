@@ -1,12 +1,13 @@
 package org.bigbluebutton.api.util;
 
+import java.io.File;
+import java.util.ArrayList;
 
 import org.bigbluebutton.api.domain.RecordingMetadata;
-import java.io.*;
-import java.util.ArrayList;
 import org.bigbluebutton.api2.RecordingServiceGW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import scala.Option;
 
 public class RecordingMetadataReaderHelper {

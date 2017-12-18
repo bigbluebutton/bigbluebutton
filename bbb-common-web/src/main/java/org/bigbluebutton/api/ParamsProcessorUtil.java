@@ -26,7 +26,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedSet;
@@ -53,9 +52,14 @@ import org.slf4j.LoggerFactory;
 public class ParamsProcessorUtil {
     private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
 
-    private final String URLDECODER_SEPARATOR=",";
-    private final String FILTERDECODER_SEPARATOR_ELEMENTS=":";
-    private final String FILTERDECODER_SEPARATOR_OPERATORS="\\|";
+    private static final String URLDECODER_SEPARATOR=",";
+    private static final String FILTERDECODER_SEPARATOR_ELEMENTS=":";
+    private static final String FILTERDECODER_SEPARATOR_OPERATORS="\\|";
+    
+    private static final String SERVER_URL = "%%SERVERURL%%";
+    private static final String DIAL_NUM = "%%DIALNUM%%";
+    private static final String CONF_NUM = "%%CONFNUM%%";
+    private static final String CONF_NAME = "%%CONFNAME%%";
 
     private String apiVersion;
     private boolean serviceEnabled = false;
@@ -96,16 +100,11 @@ public class ParamsProcessorUtil {
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
-        String SERVER_URL = "%%SERVERURL%%";
-        String DIAL_NUM = "%%DIALNUM%%";
-        String CONF_NUM = "%%CONFNUM%%";
-        String CONF_NAME = "%%CONFNAME%%";
         ArrayList<String> keywordList = new ArrayList<String>();
         keywordList.add(DIAL_NUM);keywordList.add(CONF_NUM);keywordList.add(CONF_NAME);keywordList.add(SERVER_URL);
 
-        Iterator<String> itr = keywordList.iterator();
-        while(itr.hasNext()) {
-            String keyword = (String) itr.next();
+        for (String aKeywordList : keywordList) {
+            String keyword = (String) aKeywordList;
             if (keyword.equals(DIAL_NUM)) {
                 welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
             } else if (keyword.equals(CONF_NUM)) {
@@ -363,7 +362,7 @@ public class ParamsProcessorUtil {
         // set is breakout room property
         boolean isBreakout = false;
         if (!StringUtils.isEmpty(params.get("isBreakout"))) {
-            isBreakout = new Boolean(params.get("isBreakout"));
+            isBreakout = Boolean.valueOf(params.get("isBreakout"));
         }
 
         String welcomeMessageTemplate = processWelcomeMessage(
@@ -428,24 +427,21 @@ public class ParamsProcessorUtil {
         // the 3rd-party
         // app can reuse the external meeting id.
         long createTime = System.currentTimeMillis();
-        internalMeetingId = internalMeetingId.concat("-").concat(
-                new Long(createTime).toString());
+        internalMeetingId = internalMeetingId + "-" + Long.toString(createTime);
 
         // If this create meeting request is for a breakout room, we just used
         // we need to generate a unique internal and external id and keep
         // tracks of the parent meeting id
-        String parentMeetingId = new String();
+        String parentMeetingId = "";
         if (isBreakout) {
             internalMeetingId = params.get("meetingID");
             parentMeetingId = params.get("parentMeetingID");
             // We rebuild the the external meeting using the has of the parent
             // meeting, the shared timestamp and the sequence number
-            String timeStamp = StringUtils.substringAfter(internalMeetingId,
-                    "-");
-            String externalHash = DigestUtils.shaHex(parentMeetingId
-                    .concat("-").concat(timeStamp.toString()).concat("-")
-                    .concat(params.get("sequence")));
-            externalMeetingId = externalHash.concat("-").concat(timeStamp);
+            String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");
+            String externalHash = DigestUtils
+                    .sha1Hex((parentMeetingId + "-" + timeStamp + "-" + params.get("sequence")));
+            externalMeetingId = externalHash + "-" + timeStamp;
         }
 
         // Create the meeting with all passed in parameters.
@@ -567,7 +563,7 @@ public class ParamsProcessorUtil {
 	}
 	
 	public String getDefaultLogoutUrl() {
-		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || defaultLogoutUrl.equalsIgnoreCase("default")) {          
+		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
      		return defaultServerUrl;
      	} else {
      		return defaultLogoutUrl;
@@ -585,7 +581,7 @@ public class ParamsProcessorUtil {
     }
 
 	public String convertToInternalMeetingId(String extMeetingId) {
-		return DigestUtils.shaHex(extMeetingId);
+		return DigestUtils.sha1Hex(extMeetingId);
 	}
 	
 	public String processPassword(String pass) {
@@ -606,7 +602,7 @@ public class ParamsProcessorUtil {
 	
 	public String processLogoutUrl(String logoutUrl) {
 		if (StringUtils.isEmpty(logoutUrl)) {
-	        if ((StringUtils.isEmpty(defaultLogoutUrl)) || defaultLogoutUrl.equalsIgnoreCase("default")) {          
+	        if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
         		return defaultServerUrl;
         	} else {
         		return defaultLogoutUrl;
@@ -692,16 +688,16 @@ public class ParamsProcessorUtil {
 			return true;
 		}
 
-		log.info("CONFIGXML CHECKSUM=" + checksum + " length=" + checksum.length());
+		log.info("CONFIGXML CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = meetingID + configXML + securitySalt;
 		String cs = DigestUtils.sha1Hex(data);
 		if (checksum.length() == 64) {
 			cs = DigestUtils.sha256Hex(data);
-			log.info("CONFIGXML SHA256 " + cs);
+			log.info("CONFIGXML SHA256 {}", cs);
 		}
 
-		if (cs == null || cs.equals(checksum) == false) {
+		if (cs == null || !cs.equals(checksum)) {
 			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
 			return false;
 		}
@@ -724,13 +720,13 @@ public class ParamsProcessorUtil {
 		    queryString = queryString.replace("checksum=" + checksum, "");
 		}
 
-		log.info("CHECKSUM=" + checksum + " length=" + checksum.length());
+		log.info("CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = apiCall + queryString + securitySalt;
 		String cs = DigestUtils.sha1Hex(data);
 		if (checksum.length() == 64) {
 			cs = DigestUtils.sha256Hex(data);
-			log.info("SHA256 " + cs);
+			log.info("SHA256 {}", cs);
 		}
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("query string after checksum removed: [{}]", queryString);
@@ -747,7 +743,7 @@ public class ParamsProcessorUtil {
 			return true;
 		}
 
-		StringBuffer csbuf = new StringBuffer();
+		StringBuilder csbuf = new StringBuilder();
 		csbuf.append(apiCall);
  
 		SortedSet<String> keys = new TreeSet<String>(params.keySet());
@@ -755,7 +751,7 @@ public class ParamsProcessorUtil {
 		boolean first = true;
 		String checksum = null;
 		for (String key: keys) {
-			if (key.equals("checksum")) {
+			if ("checksum".equals(key)) {
 				// Don't include the "checksum" parameter in the checksum
 				checksum = params.get(key)[0];
 				continue;
@@ -790,10 +786,10 @@ public class ParamsProcessorUtil {
 		csbuf.append(securitySalt);
 
 		String baseString = csbuf.toString();				
-		String cs = DigestUtils.shaHex(baseString);
+		String cs = DigestUtils.sha1Hex(baseString);
 		
 		if (cs == null || cs.equals(checksum) == false) {
-			log.info("POST basestring = [" + baseString + "]");
+			log.info("POST basestring = {}", baseString);
 			log.info("checksumError: failed checksum. our checksum: [{}], client: [{}]", cs, checksum);
 			return false;
 		}

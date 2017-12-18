@@ -102,7 +102,7 @@ class PresentationController {
          
          def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
          def podId = params.pod_id
-         log.debug "@AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..." + podId
+         log.debug "@Default presentation pod" + podId
 
          if(isDownloadable) {
            log.debug "@Creating download directory..."
