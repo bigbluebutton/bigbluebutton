@@ -164,7 +164,7 @@ phonecomponents|MuteMeButton {
 }
 
 .topBoxStyle {
-	paddingTop    : 6;
+	paddingTop    : 0;
 	paddingBottom : 0;
 	paddingLeft   : 8;
 	paddingRight  : 8;
