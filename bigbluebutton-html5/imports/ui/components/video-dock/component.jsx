@@ -35,28 +35,15 @@ export default class VideoDock extends Component {
       videos: {},
     };
 
-    this.ws.addEventListener('open', () => {
-      log('debug', '------ Websocket connection opened.');
-
-      // -- Resend queued messages that happened when socket was not connected
-      while (this.wsQueue.length > 0) {
-        this.sendMessage(this.wsQueue.pop());
-      }
-
-      this.reconnectVideos();
-    });
-
-    this.ws.addEventListener('close', (error) => {
-      log('debug', '------ Websocket connection closed.');
-
-      this.setupReconnectVideos();
-    });
-
     this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
     this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
+
+    this.onWsOpen = this.onWsOpen.bind(this);
+    this.onWsClose = this.onWsClose.bind(this);
+    this.onWsMessage = this.onWsMessage.bind(this);
   }
 
   setupReconnectVideos() {
@@ -91,6 +78,7 @@ export default class VideoDock extends Component {
   componentDidMount() {
     const ws = this.ws;
     const { users } = this.props;
+
     for (let i = 0; i < users.length; i++) {
       if (users[i].has_stream) {
         this.start(users[i].userId, false);
@@ -102,28 +90,45 @@ export default class VideoDock extends Component {
 
     window.addEventListener('resize', this.adjustVideos);
 
-    ws.addEventListener('message', this.onWsMessage.bind(this));
+    ws.addEventListener('message', this.onWsMessage);
   }
 
   componentWillMount () {
-    this.ws.onopen = () => {
-      while (this.wsQueue.length > 0) {
-        this.sendMessage(this.wsQueue.pop());
-      }
-    };
+    this.ws.addEventListener('open', this.onWsOpen);
+    this.ws.addEventListener('close', this.onWsClose);
   }
 
   componentWillUnmount () {
     document.removeEventListener('joinVideo', this.shareWebcam);
     document.removeEventListener('exitVideo', this.shareWebcam);
     window.removeEventListener('resize', this.adjustVideos);
+
     this.ws.removeEventListener('message', this.onWsMessage);
+    this.ws.removeEventListener('open', this.onWsOpen);
+    this.ws.removeEventListener('close', this.onWsClose);
     // Close websocket connection to prevent multiple reconnects from happening
     this.ws.close();
   }
 
   adjustVideos () {
     window.adjustVideos('webcamArea', true);
+  }
+
+  onWsOpen () {
+    log('debug', '------ Websocket connection opened.');
+
+    // -- Resend queued messages that happened when socket was not connected
+    while (this.wsQueue.length > 0) {
+      this.sendMessage(this.wsQueue.pop());
+    }
+
+    this.reconnectVideos();
+  }
+
+  onWsClose (error) {
+    log('debug', '------ Websocket connection closed.');
+
+    this.setupReconnectVideos();
   }
 
   onWsMessage (msg) {
