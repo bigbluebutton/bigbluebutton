@@ -120,51 +120,5 @@ package org.bigbluebutton.modules.chat.services
     public function clearPublicChatMessages():void {
       sender.clearPublicChatMessages();
     }
-    
-    private static const SPACE:String = " ";
-    
-    public function sendWelcomeMessage(chatId:String):void {
-      LOGGER.debug("sendWelcomeMessage");
-      var welcome:String = LiveMeeting.inst().me.welcome;
-      if (welcome != "") {
-        var welcomeMsg:ChatMessageVO = new ChatMessageVO();
-        welcomeMsg.fromUserId = SPACE;
-        welcomeMsg.fromUsername = SPACE;
-        welcomeMsg.fromColor = "86187";
-        welcomeMsg.fromTime = new Date().getTime();
-        welcomeMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        welcomeMsg.toUserId = SPACE;
-        welcomeMsg.toUsername = SPACE;
-        welcomeMsg.message = welcome;
-        
-        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-        if (groupChat != null) {
-          groupChat.addMessage(welcomeMsg);
-        }
-        
-        //Say that client is ready when sending the welcome message
-        ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
-      }	
-      
-      if (UsersUtil.amIModerator()) {
-        if (LiveMeeting.inst().meeting.modOnlyMessage != null) {
-          var moderatorOnlyMsg:ChatMessageVO = new ChatMessageVO();
-          moderatorOnlyMsg.fromUserId = SPACE;
-          moderatorOnlyMsg.fromUsername = SPACE;
-          moderatorOnlyMsg.fromColor = "86187";
-          moderatorOnlyMsg.fromTime = new Date().getTime();
-          moderatorOnlyMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-          moderatorOnlyMsg.toUserId = SPACE;
-          moderatorOnlyMsg.toUsername = SPACE;
-          moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
-          
-          var groupChat2: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-          if (groupChat2 != null) {
-            groupChat2.addMessage(moderatorOnlyMsg);
-          }
-          
-        }
-      }
-    }
   }
 }

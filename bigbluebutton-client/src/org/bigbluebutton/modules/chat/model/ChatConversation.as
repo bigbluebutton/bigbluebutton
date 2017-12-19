@@ -31,7 +31,6 @@ package org.bigbluebutton.modules.chat.model
   
   public class ChatConversation
   { 
-    
     private var _dispatcher:Dispatcher = new Dispatcher();
     
     [Bindable]
@@ -39,6 +38,10 @@ package org.bigbluebutton.modules.chat.model
     
     private var id: String;
     
+		private var welcomeMsgAdded:Boolean = false;
+		private var modOnlyMsgAdded:Boolean = false;
+		private var howToCloseMsgAdded:Boolean = false;
+		
     public function ChatConversation(id: String) {
       this.id = id;
     }
@@ -52,6 +55,32 @@ package org.bigbluebutton.modules.chat.model
     }
     
     public function newChatMessage(msg:ChatMessageVO):void {
+			// Let's filter messages that we don't want duplicated especially
+			// on auto-reconnects (ralam dec 19, 2017)
+			if (msg.fromUserId == ChatModel.WELCOME_MSG) {
+				if (welcomeMsgAdded) {
+					return;
+				} else {
+					welcomeMsgAdded = true;
+				}
+			}
+			
+			if (msg.fromUserId == ChatModel.MOD_ONLY_MSG) {
+				if (modOnlyMsgAdded) {
+					return;
+				} else {
+					modOnlyMsgAdded = true;
+				}
+			}
+			
+			if (msg.fromUserId == ChatModel.HOW_TO_CLOSE_MSG) {
+				if (howToCloseMsgAdded) {
+					return;
+				} else {
+					howToCloseMsgAdded = true;
+				}
+			}
+			
       var newCM:ChatMessage = convertChatMessage(msg);
       if (messages.length > 0) {
         var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
@@ -71,9 +100,18 @@ package org.bigbluebutton.modules.chat.model
       messages.addItem(newCM);
     }
     
+		public function resetFlags():void {
+			welcomeMsgAdded = false;
+			modOnlyMsgAdded = false;
+			howToCloseMsgAdded = false;
+		}
+		
     public function processChatHistory(messageVOs:Array):void {
       if (messageVOs.length > 0) {
+				// Need to re-initialize our message collection as client might have
+				// auto-reconnected (ralam dec 19, 2017)
         messages = new ArrayCollection();
+				resetFlags();
         var previousCM:ChatMessage = convertChatMessage(messageVOs[0] as ChatMessageVO);;
         var newCM:ChatMessage;
         messages.addItemAt(previousCM, 0);
