@@ -8,6 +8,14 @@ class VideoElement extends Component {
   constructor(props) {
     super(props);
   }
+
+  render() {
+    return <video id={`video-elem-${this.props.videoId}`} width={320} height={240} autoPlay={true} playsInline={true} />;
+  }
+
+  componentDidMount() {
+    this.props.onMount(this.props.videoId, false);
+  }
 }
 
 export default class VideoDock extends Component {
@@ -66,14 +74,14 @@ export default class VideoDock extends Component {
       if (id != this.myId) {
         setTimeout(() => {
           log('debug', ` [camera] Trying to reconnect camera ${id}`);
-          this.start(id, false, this.refs.videoInput);
+          this.start(id, false);
         }, 5000);
       }
     }
 
     if (this.reconnectWebcam) {
       log('debug', ` [camera] Trying to re-share ${this.myId} after reconnect.`);
-      this.start(this.myId, true, this.refs.videoInput);
+      this.start(this.myId, true);
     }
 
     this.reconnectWebcam = false;
@@ -85,7 +93,7 @@ export default class VideoDock extends Component {
     const { users } = this.props;
     for (let i = 0; i < users.length; i++) {
       if (users[i].has_stream) {
-        this.start(users[i].userId, false, this.refs.videoInput);
+        this.start(users[i].userId, false);
       }
     }
 
@@ -110,6 +118,8 @@ export default class VideoDock extends Component {
     document.removeEventListener('exitVideo', this.shareWebcam);
     window.removeEventListener('resize', this.adjustVideos);
     this.ws.removeEventListener('message', this.onWsMessage);
+    // Close websocket connection to prevent multiple reconnects from happening
+    this.ws.close();
   }
 
   adjustVideos () {
@@ -162,13 +172,21 @@ export default class VideoDock extends Component {
     }
   };
 
-  start(id, shareWebcam, videoInput) {
+  start(id, shareWebcam) {
     const that = this;
 
-    const ws = this.ws;
+    console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
 
-    console.log(`Starting video call for video: ${id}`);
-    log('info', 'Creating WebRtcPeer and generating local sdp offer ...');
+    if (shareWebcam) {
+      this.initWebRTC(id, true);
+    } else {
+      // initWebRTC with shareWebcam false will be called after react mounts the element
+      this.createVideoTag(id);
+    }
+  }
+
+  initWebRTC(id, shareWebcam) {
+    let that = this;
 
     const onIceCandidate = function (candidate) {
       const message = {
@@ -181,7 +199,7 @@ export default class VideoDock extends Component {
       that.sendMessage(message);
     };
 
-    var videoConstraints = {};
+    let videoConstraints = {};
     if (!!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) { // Custom constraints for Safari
       videoConstraints = {
         width: {min:320, max:640},
@@ -195,7 +213,7 @@ export default class VideoDock extends Component {
       };
     }
 
-    const options = {
+    let options = {
       mediaConstraints: {
         audio: false,
         video: videoConstraints
@@ -205,16 +223,14 @@ export default class VideoDock extends Component {
 
     let peerObj;
     if (shareWebcam) {
-      options.localVideo = videoInput;
+      options.localVideo = this.refs.videoInput;
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
     } else {
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-
-      options.remoteVideo = this.createVideoTag(id);
-      document.getElementById('webcamArea').appendChild(options.remoteVideo);
+      options.remoteVideo = document.getElementById(`video-elem-${id}`);
     }
 
-    var webRtcPeer = new peerObj(options, function (error) {
+    let webRtcPeer = new peerObj(options, function (error) {
       if (error) {
         log('error', ' WebRTC peerObj create error');
 
@@ -255,7 +271,7 @@ export default class VideoDock extends Component {
         that.sendMessage(message);
       });
       while (this.iceQueue.length) {
-        var candidate = this.iceQueue.shift();
+        let candidate = this.iceQueue.shift();
         this.addIceCandidate(candidate, (err) => {
           if (err) {
             return console.error(`Error adding candidate: ${err}`);
@@ -292,29 +308,20 @@ export default class VideoDock extends Component {
       id: 'stop',
       cameraId: id,
     });
-
-    window.adjustVideos('webcamArea', true);
   }
 
   createVideoTag(id) {
-    let remoteVideo = {};
-    remoteVideo = document.createElement('video');
-    remoteVideo.id = `video-elem-${id}`;
-    remoteVideo.width = 320;
-    remoteVideo.height = 240;
-    remoteVideo.autoplay = true;
-    remoteVideo.playsinline = true;
+    let videos = this.state.videos;
 
-    document.getElementById('webcamArea').appendChild(remoteVideo);
-
-    return remoteVideo;
+    videos[id] = true;
+    this.setState({videos: videos})
   }
 
   destroyVideoTag(id) {
-    const videoTag = document.getElementById(`video-elem-${id}`);
-    if (videoTag) {
-      document.getElementById('webcamArea').removeChild(videoTag);
-    }
+    let videos = this.state.videos;
+
+    delete videos[id];
+    this.setState({videos: videos});
   }
 
   destroyWebRTCPeer(id) {
@@ -347,7 +354,7 @@ export default class VideoDock extends Component {
     const id = users[0].userId;
 
     if (this.connectedToMediaServer()) {
-      this.start(id, true, this.refs.videoInput);
+      this.start(id, true);
     } else {
       log("error", "Not connected to media server BRA");
     }
@@ -420,8 +427,6 @@ export default class VideoDock extends Component {
 
   handlePlayStart(message) {
     log('info', 'Handle play start <===================');
-
-    window.adjustVideos('webcamArea', true);
   }
 
   handleError(message) {
@@ -429,21 +434,22 @@ export default class VideoDock extends Component {
     log('debug', message.message);
   }
 
+  componentDidUpdate() {
+    this.adjustVideos();
+  }
+
   render() {
     return (
 
       <div className={styles.videoDock}>
-        <div id="webcamArea" />
+        <div id="webcamArea">
+          {Object.keys(this.state.videos).map((id) => {
+            return (<VideoElement videoId={id} key={id} onMount={this.initWebRTC.bind(this)} />);
+          })}
+        </div>
         <video id="shareWebcamVideo" className={styles.sharedWebcamVideo} ref="videoInput" />
       </div>
     );
-  }
-
-  componentWillUnmount() {
-    // Close websocket connection to prevent multiple reconnects from happening
-    this.ws.close();
-
-    this.ws.removeEventListener('message', () => {});
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -460,13 +466,12 @@ export default class VideoDock extends Component {
             console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
             if (nextUsers[i].has_stream) {
-              this.start(users[i].userId, false, this.refs.videoInput);
+              this.start(users[i].userId, false);
             } else {
               this.stop(users[i].userId);
             }
 
             if (!nextUsers[i].has_stream) {
-              console.log(" DESTROYING ----------------------- " + users[i].userId);
               this.destroyVideoTag(users[i].userId);
             }
 
