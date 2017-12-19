@@ -138,6 +138,9 @@ class SettingsDropdown extends Component {
 
   getListItems() {
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
+    // thrown if the DropdownList receives a null value.
     return (iOS) ? this.menuItems.slice(1) : this.menuItems;
   }
 
