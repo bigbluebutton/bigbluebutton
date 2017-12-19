@@ -236,6 +236,8 @@
     "app.audioManager.mediaError": "Error: There was an error getting your media devices",
     "app.audio.joinAudio": "Join Audio",
     "app.audio.leaveAudio": "Leave Audio",
+    "app.video.joinVideo": "Share Webcam",
+    "app.video.leaveVideo": "Un-share Webcam",
     "app.audio.enterSessionLabel": "Enter Session",
     "app.audio.playSoundLabel": "Play Sound",
     "app.audio.backLabel": "Back",

@@ -45,6 +45,8 @@ module.exports = class WebsocketConnectionManager {
 
       ws.id = connectionIDCounter++;
 
+      console.log(" [WebsocketConnectionManager] New connection with id [ " + ws.id + " ]");
+
       ws.on('message', (data) => {
         let message = {};
 
@@ -78,7 +80,7 @@ module.exports = class WebsocketConnectionManager {
       ws.setErrorCallback(this._onError.bind(this));
 
       ws.on('close', (ev) => {
-        console.log('  [WebsocketConnectionManager] Closed connection [' + ws.id + ']');
+        console.log('  [WebsocketConnectionManager] Closed connection on [' + ws.id + ']');
         let message = {
           id: 'close',
           type: ws.route,

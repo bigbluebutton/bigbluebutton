@@ -196,6 +196,7 @@ module.exports = class MediaController {
 
   async subscribe (userId, sourceId, type, params) {
     console.log("  [mcs] subscribe");
+
     let session;
     // TODO handle mediaType
     let mediaType = params.mediaType;

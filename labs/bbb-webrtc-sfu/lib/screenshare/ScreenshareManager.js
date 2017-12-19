@@ -161,6 +161,11 @@ module.exports = class ScreenshareManager {
 
   _stopSession(sessionId) {
     console.log(' [>] Stopping session ' + sessionId);
+
+    if (typeof this._screenshareSessions === 'undefined' || typeof sessionId === 'undefined') {
+      return;
+    }
+
     let session = this._screenshareSessions[sessionId];
     if(typeof session !== 'undefined' && typeof session._stop === 'function') {
       session._stop();
@@ -171,6 +176,11 @@ module.exports = class ScreenshareManager {
 
   stopAll() {
     console.log('\n [x] Stopping everything! ');
+
+    if (typeof this._screenshareSessions === 'undefined') {
+      return;
+    }
+
     let sessionIds = Object.keys(this._screenshareSessions);
 
     for (let i = 0; i < sessionIds.length; i++) {
