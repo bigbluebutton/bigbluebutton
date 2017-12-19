@@ -6,10 +6,12 @@
   align-self: flex-start;
   padding: ($line-height-computed / 2) $line-height-computed;
   outline: none;
+  @include mq($small-only) {
+    width: 100%
+  }
 }
 
 .content {
-  overflow: auto;
   color: $color-text;
   font-weight: normal;
   padding: $line-height-computed 0;
@@ -19,7 +21,6 @@
   display: flex;
   padding: $line-height-computed 0;
   border-bottom: $border-size solid $color-gray-lighter;
-  flex-shrink: 0;
 }
 
 .actions {

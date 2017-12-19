@@ -4,55 +4,83 @@
   display: flex;
   flex-flow: row;
   justify-content: flex-start;
+  @include mq($small-only) {
+    width: 100%;
+    flex-flow: column;
+  }
 }
 
 .tabList {
   display: flex;
   flex-flow: column;
-  flex-grow: 0;
-  border: none !important;
-  flex-shrink: 0;
-  border-right: 0.2rem solid #d4d9df;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: calc(100% / 3 * 1);
+
+  @include mq($small-only) {
+    width: 100%;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 .icon {
-  margin-right: 0.7rem;
-  color: $color-gray-light;
+  margin-right: .5rem;
+  font-size: $font-size-large;
 }
 
 .tabSelector {
   font-size: 0.9rem;
-  padding: 0.1rem 0 !important;
-  padding-right: 1.2rem !important;
-  display: flex !important;
+  display: flex;
   flex-flow: row;
+  flex: 0 0 auto;
   justify-content: flex-start;
   border: none !important;
-  border-radius: 0 !important;
-  bottom: 0 !important;
-  margin: 0.5rem 0;
-  margin-right: 0.5rem;
-  transition: 0.3s color;
+  padding: $md-padding-y $md-padding-x;
   color: $color-gray-dark;
-
-  &:first-child {
-    margin-top: 0;
+  border-radius: .2rem;
+  cursor: pointer;
+  margin-bottom: $sm-padding-y;
+  align-items: center;
+  flex-grow: 0;
+  min-width: 0;
+  & > span {
+    @extend %text-elipsis;
   }
 
-  &[aria-selected="true"] {
-    border-right: 0.2rem solid $color-primary !important;
-    padding-right: 1rem !important;
-    color: $color-link !important;
-
-    &>.icon {
-      color: $color-link !important;
+  @include mq($small-only) {
+    max-width: 100%;
+    margin-right: $sm-padding-x;
+    & > .icon {
+      display: none;
     }
   }
 }
 
+.selected {
+  color: $color-white;
+  background-color: $color-primary;
+  font-weight: bold;
+
+  & > .icon {
+    color: $color-white;
+  }
+}
+
 .tabPanel {
-  flex-grow: 1;
-  padding: 1rem;
-  padding-top: 0;
-  padding-right: 0;
+  display: none;
+  margin-left: 1rem;
+  width: calc(100% / 3 * 2);
+
+  @include mq($small-only) {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+}
+
+.selectedTab {
+  display: block;
 }
