@@ -12,10 +12,6 @@ object RemovePresentationPodPubMsg { val NAME = "RemovePresentationPodPubMsg"}
 case class RemovePresentationPodPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPodPubMsgBody) extends StandardMsg
 case class RemovePresentationPodPubMsgBody(podId: String)
 
-object GetPresentationInfoReqMsg { val NAME = "GetPresentationInfoReqMsg"}
-case class GetPresentationInfoReqMsg(header: BbbClientMsgHeader, body: GetPresentationInfoReqMsgBody) extends StandardMsg
-case class GetPresentationInfoReqMsgBody(podId: String)
-
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg"}
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
 case class PresentationUploadTokenReqMsgBody(podId: String, filename: String)
@@ -90,10 +86,6 @@ case class CreateNewPresentationPodEvtMsgBody(currentPresenterId: String, podId:
 object RemovePresentationPodEvtMsg { val NAME = "RemovePresentationPodEvtMsg"}
 case class RemovePresentationPodEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationPodEvtMsgBody) extends StandardMsg
 case class RemovePresentationPodEvtMsgBody(podId: String)
-
-object GetPresentationInfoRespMsg { val NAME = "GetPresentationInfoRespMsg"}
-case class GetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: GetPresentationInfoRespMsgBody) extends BbbCoreMsg
-case class GetPresentationInfoRespMsgBody(podId: String, presentations: Vector[PresentationVO])
 
 object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg"}
 case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg

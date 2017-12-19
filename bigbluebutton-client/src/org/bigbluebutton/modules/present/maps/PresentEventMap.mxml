@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
 			import org.bigbluebutton.modules.present.business.PresentProxy;
 			import org.bigbluebutton.modules.present.commands.ChangePageCommand;
 			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
@@ -43,10 +44,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-			import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 			import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
 			import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
-			import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
 			import org.bigbluebutton.modules.present.events.SetPresentationDownloadableEvent;
 			import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -63,7 +62,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 			<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
-			<MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+			<MethodInvoker generator="{PresentProxy}" method="getPresentationPodsInfo" />
+			<EventAnnouncer generator="{RequestPresenterGroupEvent}" type="{RequestPresenterGroupEvent.REQUEST_PRESENTER_GROUP}" />
 			<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
 		</EventHandlers>
 		
@@ -84,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 		
 		<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-			<MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+			<MethodInvoker generator="{PresentProxy}" method="getPresentationPodsInfo" />
 		</EventHandlers>
 		
 		<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
@@ -178,14 +178,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		<EventHandlers type="{PresentationPodRemoved.PRESENTATION_POD_REMOVED}" >
 			<MethodInvoker generator="{PresentManager}" method="handlePresentationPodRemoved" arguments="{event}" />
-		</EventHandlers>
-
-		<EventHandlers type="{RequestPresentationInfoPodEvent.REQUEST_PRES_INFO}" >
-			<MethodInvoker generator="{PresentProxy}" method="handleRequestPresentationInfoPodEvent" arguments="{event}" />
-		</EventHandlers>
-
-		<EventHandlers type="{RequestAllPodsEvent.REQUEST_ALL_PODS}" >
-			<MethodInvoker generator="{PresentProxy}" method="handleRequestAllPodsEvent" arguments="{event}" />
 		</EventHandlers>
 
 		<EventHandlers type="{GetAllPodsRespEvent.GET_ALL_PODS_RESP}" >

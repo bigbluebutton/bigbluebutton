@@ -25,8 +25,8 @@ package org.bigbluebutton.main.model.users.events
     public class RequestPresenterGroupEvent extends Event {
         public static const REQUEST_PRESENTER_GROUP:String = "REQUEST_PRESENTER_GROUP";
     
-        public function RequestPresenterGroupEvent(type:String) {
-            super(type, true, false);
+        public function RequestPresenterGroupEvent(type:String, bubbles:Boolean, cancelable:Boolean) {
+            super(type, bubbles, cancelable);
         }
     }
 }
