@@ -146,7 +146,10 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
+      let computation = null;
+
       const validationTimeout = setTimeout(() => {
+        computation.stop();
         reject({
           error: 401,
           description: 'Authentication timeout.',
@@ -154,7 +157,9 @@ class Auth {
       }, CONNECTION_TIMEOUT);
 
       Tracker.autorun((c) => {
+        computation = c;
         const subscription = Meteor.subscribe('current-user', this.credentials);
+
         if (!subscription.ready()) return;
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
@@ -164,12 +169,11 @@ class Auth {
         if (!User || !('intId' in User)) return;
 
         if (User.validated === true) {
+          computation.stop();
           clearTimeout(validationTimeout);
           this.loggedIn = true;
           resolve();
         }
-
-        c.stop();
       });
 
       makeCall('validateAuthToken');
