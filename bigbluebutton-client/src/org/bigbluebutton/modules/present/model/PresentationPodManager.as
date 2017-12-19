@@ -9,7 +9,6 @@ package org.bigbluebutton.modules.present.model {
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.core.EventConstants;
     import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
-    import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
     import org.bigbluebutton.modules.present.services.PresentationService;
     import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
 
@@ -81,6 +80,15 @@ package org.bigbluebutton.modules.present.model {
             var pod: PresentationModel = getPod(DEFAULT_POD_ID);
             return pod;
         }
+        
+        public function getAllPodIds():Array {
+            var podIds:Array = [];
+            for (var i:int = 0; i < _presentationPods.length; i++) {
+                var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
+                podIds.push(pod.getPodId())
+            }
+            return podIds;
+        }
 
         public function handleAddPresentationPod(podId: String): void {
             for (var i:int = 0; i < _presentationPods.length; i++) {
@@ -104,16 +112,6 @@ package org.bigbluebutton.modules.present.model {
 					globalDispatcher.dispatchEvent(new Event(EventConstants.PRESENTATION_PODS_COUNT_UPDATE));
                     return;
                 }
-            }
-        }
-        
-        public function requestAllPodsPresentationInfo(): void {
-            for (var i:int = 0; i < _presentationPods.length; i++) {
-                var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
-
-                var event:RequestPresentationInfoPodEvent = new RequestPresentationInfoPodEvent(RequestPresentationInfoPodEvent.REQUEST_PRES_INFO);
-                event.podId = pod.getPodId();
-                globalDispatcher.dispatchEvent(event);
             }
         }
 

@@ -195,8 +195,7 @@ class ApplicationMenu extends BaseMenu {
                     { availableLocales.map((locale, index) =>
                       (<option key={index} value={locale.locale}>
                         {locale.name}
-                      </option>),
-                    ) }
+                      </option>)) }
                   </select>
                 : null }
               </label>

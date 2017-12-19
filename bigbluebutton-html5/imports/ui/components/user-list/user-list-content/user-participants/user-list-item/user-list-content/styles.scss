@@ -72,10 +72,6 @@
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;
-
-  padding-top: $lg-padding-y;
-  padding-bottom: $lg-padding-y;
-  padding-left: $lg-padding-y;
 }
 
 .userAvatar {
@@ -86,6 +82,10 @@
   flex-grow: 0;
   display: flex;
   flex-flow: row;
+
+  padding-top: $lg-padding-y;
+  padding-bottom: $lg-padding-y;
+  padding-left: $lg-padding-y;
 }
 
 .dropdown {

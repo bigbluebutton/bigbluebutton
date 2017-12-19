@@ -40,10 +40,8 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-	import org.bigbluebutton.modules.present.events.RequestAllPodsEvent;
 	import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
 	import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
-	import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
 	import org.bigbluebutton.modules.present.events.SetPresentationDownloadableEvent;
 	import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -61,7 +59,6 @@ package org.bigbluebutton.modules.present.business
 		private var host:String;
 		private var conference:String;
 		private var room:String;
-		private var userid:Number;
 		private var uploadService:FileUploadService;
 		private var sender:MessageSender;
     
@@ -77,25 +74,18 @@ package org.bigbluebutton.modules.present.business
 			service = new PresentationService();
 		}
 
-		public function getCurrentPresentationInfo():void {
-			podManager.requestAllPodsPresentationInfo();
-		}
-
-		public function handleRequestAllPodsEvent(e: RequestAllPodsEvent):void {
+		public function getPresentationPodsInfo():void {
 			sender.requestAllPodsEvent();
 		}
 
 		public function connect(e:PresentModuleEvent):void {
 			extractAttributes(e.data);
-
-			podManager.requestAllPodsPresentationInfo();
 		}
 
 		private function extractAttributes(a:Object):void{
 			host = a.host as String;
 			conference = a.conference as String;
 			room = a.room as String;
-			userid = a.userid as Number;
 		}
     
     public function handleGetListOfPresentationsRequest(event: GetListOfPresentationsRequest):void {
@@ -113,10 +103,6 @@ package org.bigbluebutton.modules.present.business
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new GetListOfPresentationsReply(idAndName));
     }
-
-		public function handleRequestPresentationInfoPodEvent(e: RequestPresentationInfoPodEvent): void {
-			sender.getPresentationInfo(e.podId);
-		}
     
     public function handleChangePresentationCommand(cmd:ChangePresentationCommand):void {
 		var presModel: PresentationModel = podManager.getPod(cmd.podId);

@@ -27,7 +27,11 @@ $padding: $md-padding-x;
   margin-right: -$padding;
   padding-right: $padding;
   padding-top: 0;
-  padding-bottom: $padding;
+  &:after {
+    content: "";
+    display: block;
+    height: $padding;
+  }
 }
 
 .unreadButton {
