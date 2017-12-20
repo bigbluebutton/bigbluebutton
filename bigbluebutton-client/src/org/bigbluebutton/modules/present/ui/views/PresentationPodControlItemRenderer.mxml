@@ -25,6 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mx="library://ns.adobe.com/flex/mx">
 
 	<mx:Label text="{data.label}"
-			  styleName="{data.type == 'current'? 'podCurrentPresenter' : ''}" />
+			  styleName="{data.styleName}" />
 
 </mx:Canvas>
