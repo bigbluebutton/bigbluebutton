@@ -1,6 +1,6 @@
 kurento:
-  wsUrl: 'HOST'
-  chromeExtensionKey: 'KEY'
-  chromeExtensionLink: 'LINK'
-  enableScreensharing: false
-  enableVideo: false
+  wsUrl: 'wss://kurento-desktopsharing.mconf.com/bbb-webrtc-sfu'
+  chromeExtensionKey: 'mbfngdphjegmlbfobcblikeefpidfncbINK'
+  chromeExtensionLink: 'https://chrome.google.com/webstore/detail/kurento-screenshare-test/mbfngdphjegmlbfobcblikeefpidfncbINK'
+  enableScreensharing: true
+  enableVideo: true

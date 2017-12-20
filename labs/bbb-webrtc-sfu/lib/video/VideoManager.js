@@ -138,10 +138,7 @@ let stopSession = async function(sessionId, role, cameraId) {
     if (role === 'share') {
       var sharedVideo = sessions[sessionId][cameraId+'shared'];
       await sharedVideo.stop();
-      var viewerVideo = sessions[sessionId][cameraId];
-      await viewerVideo.stop();
       delete sessions[sessionId][cameraId+'shared'];
-      delete sessions[sessionId][cameraId];
       console.log('  [VideoManager] Stopping sharer [', sessionId, '][', cameraId,'] with IDs' , videoIds);
     }
     else if (role === 'viewer') {

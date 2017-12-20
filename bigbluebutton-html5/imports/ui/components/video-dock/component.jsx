@@ -20,6 +20,9 @@ export default class VideoDock extends Component {
     this.ws = new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl);
     this.wsQueue = [];
     this.webRtcPeers = {};
+    this.state = {
+      sharedWebcam : false,
+    }
 
     this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
     this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
@@ -31,8 +34,9 @@ export default class VideoDock extends Component {
   componentDidMount() {
     const ws = this.ws;
     const { users } = this.props;
+    const id = users[0].userId;
     for (let i = 0; i < users.length; i++) {
-      if (users[i].has_stream) {
+      if (users[i].has_stream && users[i].userId !== id) {
         this.start(users[i].userId, false, this.refs.videoInput);
       }
     }
@@ -260,6 +264,7 @@ export default class VideoDock extends Component {
     const { users } = this.props;
     const id = users[0].userId;
 
+    this.setState({sharedWebcam: true});
     this.start(id, true, this.refs.videoInput);
   }
 
@@ -267,6 +272,7 @@ export default class VideoDock extends Component {
     log('info', "Unsharing webcam");
     const { users } = this.props;
     const id = users[0].userId;
+    this.setState({sharedWebcam: false});
     this.sendUserUnshareWebcam(id);
   }
 
@@ -326,11 +332,20 @@ export default class VideoDock extends Component {
   }
 
   render() {
+    let cssClass;
+    if (this.state.sharedWebcam) {
+      cssClass = styles.sharedWebcamVideoLocal;
+    }
+    else {
+      cssClass = styles.sharedWebcamVideo;
+    }
+
     return (
 
       <div className={styles.videoDock}>
-        <div id="webcamArea" />
-        <video id="shareWebcamVideo" className={styles.sharedWebcamVideo} ref="videoInput" />
+        <div id="webcamArea">
+        <video autoPlay={true} playsInline={true} muted={true} id="shareWebcamVideo" className={cssClass} ref="videoInput" />
+          </div>
       </div>
     );
   }
@@ -338,6 +353,7 @@ export default class VideoDock extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { users } = this.props;
     const nextUsers = nextProps.users;
+    const id = users[0].userId;
 
     if (users) {
       let suc = false;
@@ -349,7 +365,9 @@ export default class VideoDock extends Component {
             console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
             if (nextUsers[i].has_stream) {
-              this.start(users[i].userId, false, this.refs.videoInput);
+              if (id !== users[i].userId) {
+                this.start(users[i].userId, false, this.refs.videoInput);
+              }
             } else {
               this.stop(users[i].userId);
             }
