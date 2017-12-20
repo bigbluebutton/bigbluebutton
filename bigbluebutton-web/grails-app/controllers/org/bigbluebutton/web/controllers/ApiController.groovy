@@ -162,10 +162,6 @@ class ApiController {
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);
 
-    if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
-      newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
-    }
-
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
       uploadDocuments(newMeeting);
