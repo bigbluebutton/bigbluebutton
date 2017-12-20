@@ -16,6 +16,8 @@
     "config": "^1.26.1",
     "js-yaml": "^3.8.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "readable-id": "^1.0.0"
+  },
   "optionalDependencies": {}
 }

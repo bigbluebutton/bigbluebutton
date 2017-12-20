@@ -7,7 +7,7 @@
 
 const C = require('../constants/Constants');
 const SdpWrapper = require('../utils/SdpWrapper');
-const uuidv4 = require('uuid/v4');
+const rid = require('readable-id');
 const EventEmitter = require('events').EventEmitter;
 const MediaServer = require('../media/media-server');
 const config = require('config');
@@ -16,7 +16,7 @@ const kurentoUrl = config.get('kurentoUrl');
 module.exports = class SdpSession extends EventEmitter {
   constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint') {
     super();
-    this.id = uuidv4();
+    this.id = rid();
     this.room = room;
     this.emitter = emitter;
     this._status = C.STATUS.STOPPED;

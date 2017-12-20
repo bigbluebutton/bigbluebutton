@@ -6,14 +6,14 @@
 'use strict'
 
 const C = require('../constants/Constants');
-const uuidv4 = require('uuid/v4');
+const rid = require('readable-id');
 const EventEmitter = require('events').EventEmitter;
 const MediaServer = require('../media/media-server');
 
 module.exports = class UriSession extends EventEmitter {
   constructor(uri = null) {
     super();
-    this.id = uuidv4();
+    this.id = rid();
     this._status = C.STATUS.STOPPED;
     this._uri;
     if (uri) {
