@@ -71,10 +71,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
-			import flashx.textLayout.formats.Direction;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			import mx.controls.Menu;
@@ -84,6 +80,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.managers.PopUpManager;
 			import mx.utils.StringUtil;
 			
+			import flashx.textLayout.formats.Direction;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.as3commons.lang.ArrayUtils;
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -96,6 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
@@ -129,9 +131,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
 			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardReceiver;
 			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardToolbar;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
@@ -242,19 +243,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'), type: "action", handler: closePresentationWindowHandler});
 				}
 
-				var presGroup:ArrayCollection = UsersUtil.getPresenterGroup();
+				var presGroup:Array = ArrayUtils.getUniqueValues(UsersUtil.getPresenterGroup().source);
 				if (presGroup.length > 0 || !StringUtils.isEmpty(currentPresenterUsername)) {
 					listOfPodControls.push({type: "separator", label: StringUtil.repeat("─", Math.floor(ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen').length / 2) + 2)});
-					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.itemrenderer.presenter'), type: "title"});
-
-					if (!StringUtils.isEmpty(currentPresenterUsername)){
-						listOfPodControls.push({label: currentPresenterUsername, type: "current"});
-					}
+					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.itemrenderer.presenter'), type: "title", styleName: "podItemTitle"});
 
 					for (var j:int = 0; j < presGroup.length; j++) {
-						var nextPresenterId:String = presGroup.getItemAt(j) as String;
-						if (nextPresenterId != this.currentPresenterInPod && !StringUtils.isEmpty(UsersUtil.getUserName(nextPresenterId))) { // avoid duplication
-							listOfPodControls.push({label: UsersUtil.getUserName(nextPresenterId), type: "user", handler: requestPodPresenterChange, data: nextPresenterId});
+						var nextPresenterId:String = presGroup[j] as String;
+						var userName:String = UsersUtil.getUserName(nextPresenterId);
+						var myUser:Boolean = LiveMeeting.inst().me.id == nextPresenterId;
+						if (nextPresenterId == this.currentPresenterInPod) {
+							userName = "✓  " + userName;
+						}
+						if (myUser) {
+							userName += ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')'
+						}
+						if (!StringUtils.isEmpty(UsersUtil.getUserName(nextPresenterId))) { // avoid duplication
+							listOfPodControls.push({label: userName, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: myUser ? "podCurrentUser" : ""});
 						}
 					}
 				}
@@ -1156,7 +1161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 					 dataProvider = "{listOfPodControls}" height="30"
 											 selectedIndex="-1"
 											 rowCount="10"
-											 prompt="{ResourceUtil.getInstance().getString('bbb.presentation.multipod.selectPresenter')}"
+											 prompt="{StringUtils.isEmpty(this.currentPresenterUsername) ? ResourceUtil.getInstance().getString('bbb.presentation.multipod.selectPresenter') : this.currentPresenterUsername}"
 						 					 itemRenderer="org.bigbluebutton.modules.present.ui.views.PresentationPodControlItemRenderer"
 						 					 change="onPresentationPodControlsChange(event)" />
 

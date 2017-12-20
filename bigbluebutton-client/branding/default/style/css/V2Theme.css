@@ -1384,7 +1384,11 @@ mx|Panel {
 	backgroundColor : #E2E8ED;
 }
 
-.podCurrentPresenter {
+.podItemTitle {
+	fontWeight : bold;
+}
+
+.podCurrentUser {
 	color : #1070D7;
 }
 
@@ -1607,6 +1611,10 @@ flexlib|SuperTabNavigator {
 .highlightedTabStyle {
 	color                   : #DF2721;
 	iconColor               : #DF2721;
+	fillColorUp             : #E8EFF3;
+	fillColorOver           : #CDD4DB;
+	fillColorDown           : #ACB2B7;
+	fillColorDisabled       : #F0F2F6;
 	iconVisible             : true;
 	skin                    : ClassReference("org.bigbluebutton.skins.TabSkin");
 	tabCloseButtonStyleName : "tabCloseButton";
