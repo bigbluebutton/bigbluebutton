@@ -158,9 +158,10 @@ package org.bigbluebutton.main.model.users
 
         apiResponse.welcome = result.response.welcome;
         apiResponse.logoutUrl = processLogoutUrl(result.response);
-		apiResponse.logoutTimer = result.response.logoutTimer;
+        apiResponse.logoutTimer = result.response.logoutTimer;
         apiResponse.defaultLayout = result.response.defaultLayout;
-        apiResponse.avatarURL = result.response.avatarURL
+        apiResponse.avatarURL = result.response.avatarURL;
+        
         apiResponse.customdata = new Object();
         
         if (result.response.customdata) {
@@ -178,6 +179,8 @@ package org.bigbluebutton.main.model.users
         if (result.response.hasOwnProperty("modOnlyMessage")) {
           apiResponse.modOnlyMessage = result.response.modOnlyMessage;
         }
+				
+				apiResponse.customLogo = result.response.customLogoURL;
         
         if (_resultListener != null) _resultListener(true, apiResponse);
       }

@@ -63,6 +63,7 @@ public class Meeting {
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<String>();
+	private String customLogoURL = "";
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
@@ -292,7 +293,15 @@ public class Meeting {
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
-	
+
+	public String getCustomLogoURL() {
+		return customLogoURL;
+	}
+
+	public void setCustomLogoURL(String url) {
+		customLogoURL = url;
+	}
+
 	public void userJoined(User user) {
 	    userHasJoined = true;
 	    this.users.put(user.getInternalUserId(), user);

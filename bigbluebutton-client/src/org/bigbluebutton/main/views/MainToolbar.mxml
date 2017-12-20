@@ -211,6 +211,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 
+				var customLogo: String = LiveMeeting.inst().meeting.customLogo;
+				
+				if (customLogo != "") {
+					logo.source = LiveMeeting.inst().meeting.customLogo;
+				}
+				
 				if (UsersUtil.isBreakout()) {
 					breakoutRibbon.visible = breakoutRibbon.includeInLayout = true;
 					var sequence:String = StringUtils.substringAfterLast(UsersUtil.getMeetingName(), " ");
