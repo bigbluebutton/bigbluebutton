@@ -483,6 +483,10 @@ public class ParamsProcessorUtil {
             meeting.setParentMeetingId(parentMeetingId);
         }
 
+		if (!StringUtils.isEmpty(params.get("logo"))) {
+			meeting.setCustomLogoURL(params.get("logo"));
+		}
+
         return meeting;
     }
 	
