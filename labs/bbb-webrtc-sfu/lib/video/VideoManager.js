@@ -28,23 +28,41 @@ var _onMessage = function (_message) {
   let message = _message;
   let sessionId = message.connectionId;
   let video;
+  let role = null;
+
+  if (message.role == 'shared') {
+    role = 'share';
+  } else {
+    role = 'view';
+  }
 
   if (!sessions[sessionId]) {
     sessions[sessionId] = {};
   }
 
+  console.log(role);
+  console.log(message.cameraId);
+
   if (message.cameraId && sessions[sessionId][message.cameraId]) {
-    video = sessions[sessionId][message.cameraId];
+    if (role == 'view') {
+      video = sessions[sessionId][message.cameraId];
+    } else {
+      video = sessions[sessionId].shared;
+    }
   }
 
   switch (message.id) {
     case 'start':
 
       console.log('[' + message.id + '] connection ' + sessionId);
-      let role = message.cameraShared? 'share' : 'view';
 
       video = new Video(bbbGW, message.cameraId, message.cameraShared, message.connectionId);
-      sessions[sessionId][message.cameraId] = video;
+
+      if (role == 'share') {
+        sessions[sessionId].shared = video;
+      } else {
+        sessions[sessionId][message.cameraId] = video;
+      }
 
       video.start(message.sdpOffer, (error, sdpAnswer) => {
         if (error) {
@@ -73,7 +91,10 @@ var _onMessage = function (_message) {
 
       console.log('[' + message.id + '] connection ' + sessionId);
 
-      if (video) {
+      if (video && message.cameraId == video.id) {
+        console.log(message.cameraId);
+        console.log(video.id);
+
         video.stop(sessionId);
       } else {
         console.log(" [stop] Why is there no video on STOP?");
