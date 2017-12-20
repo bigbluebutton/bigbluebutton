@@ -214,9 +214,22 @@ export default class VideoDock extends Component {
 
   stop(id) {
     const { users } = this.props;
+    let message;
     if (id == users[0].userId) {
-      this.unshareWebcam();
+      message = {
+        type: 'video',
+        role: 'share',
+        id: 'stop',
+        cameraId: id };
     }
+    else {
+      message = {
+        type: 'video',
+        role: 'viewer',
+        id: 'stop',
+        cameraId: id };
+    }
+
     const webRtcPeer = this.webRtcPeers[id];
 
     if (webRtcPeer) {
@@ -238,11 +251,7 @@ export default class VideoDock extends Component {
       document.getElementById('webcamArea').removeChild(videoTag);
     }
 
-    this.sendMessage({
-      type: 'video',
-      role: 'any',
-      id: 'stop',
-      cameraId: id });
+    this.sendMessage(message);
 
     window.adjustVideos('webcamArea', true);
   }
