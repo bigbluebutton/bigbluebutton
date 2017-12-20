@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
 			 height="{LayoutButton.BUTTON_SIZE}" creationComplete="init()"
 			 change="onSelectedItemChanged(event)"
-			 rowCount="10" width="240" >
+			 rowCount="15" width="240" >
 	
 	<fx:Declarations>
 		<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />

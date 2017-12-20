@@ -525,7 +525,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
 
-	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="top">
+	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="top" verticalGap="0">
 		<!-- Breakout room  Ribbon-->
 		<mx:HBox id="banner" visible="false" includeInLayout="false" styleName="bannerStyle" width="100%" height="30">
 			<mx:Label id="bannerLabel" width="100%" textAlign="center"/>

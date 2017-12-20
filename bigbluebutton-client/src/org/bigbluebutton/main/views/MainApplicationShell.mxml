@@ -170,7 +170,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
-			[Bindable] private var footerHeight:Number = 60;
+			[Bindable] private var footerHeight:Number = 50;
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
