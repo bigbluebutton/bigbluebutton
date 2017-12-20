@@ -166,7 +166,20 @@ module.exports = class MediaController {
         case "RtpEndpoint":
         case "WebRtcEndpoint":
           session = user.addSdp(params.descriptor, type);
-          
+          session.on('SESSION_STOPPED', (pubId) => {
+            console.log("  [mcs] SESSION ", session.id, " STOPPED ");
+            if(pubId === session.id) {
+              for (var sub in session.subscribedSessions) {
+                console.log("  [mcs] Unsubscribing session ", sub);
+                let subSession = this._mediaSessions[sub];
+                if (subSession) {
+                  subSession.stop();
+                  this._mediaSessions[sub] = null;
+                }
+              }
+            }
+          });
+
           answer = await user.startSession(session.id);
           break;
         case "URI":
@@ -183,12 +196,12 @@ module.exports = class MediaController {
       return Promise.reject(err);
     }
 
-    if (typeof this._mediaSessions[session.id] == 'undefined' || 
+    if (typeof this._mediaSessions[session.id] == 'undefined' ||
         !this._mediaSessions[session.id]) {
       this._mediaSessions[session.id] = {};
     }
 
-    this._mediaSessions[session.id] = session; 
+    this._mediaSessions[session.id] = session;
     let sessionId = session.id;
 
     return Promise.resolve({answer, sessionId});
@@ -220,7 +233,8 @@ module.exports = class MediaController {
 
           answer = await user.startSession(session.id);
           await sourceSession.connect(session._mediaElement);
-
+          sourceSession.subscribedSessions.push(session.id);
+          console.log("  [mcs] ", sourceSession.id,  " subscribers list ", sourceSession.subscribedSessions);
           break;
         case "URI":
           session = user.addUri(params.descriptor, type);
@@ -237,12 +251,12 @@ module.exports = class MediaController {
       return Promise.reject(err);
     }
 
-    if (typeof this._mediaSessions[session.id] == 'undefined' || 
+    if (typeof this._mediaSessions[session.id] == 'undefined' ||
         !this._mediaSessions[session.id]) {
       this._mediaSessions[session.id] = {};
     }
 
-    this._mediaSessions[session.id] = session; 
+    this._mediaSessions[session.id] = session;
     let sessionId = session.id;
 
     return Promise.resolve({answer, sessionId});
@@ -250,7 +264,14 @@ module.exports = class MediaController {
 
   async unpublish (userId, mediaId) {
     try {
+      const session = this._mediaSessions[mediaId];
       const user = this.getUserMCS(userId);
+
+      if(typeof session === 'undefined' || !session) {
+        return Promise.resolve();
+      }
+
+
       const answer = await user.unpublish(mediaId);
       this._mediaSessions[mediaId] = null;
       return Promise.resolve(answer);
