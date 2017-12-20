@@ -181,7 +181,8 @@ package org.bigbluebutton.main.model.users
         }
 				
 				apiResponse.customLogo = result.response.customLogoURL;
-        
+        apiResponse.customCopyright = result.response.customCopyright;
+				
         if (_resultListener != null) _resultListener(true, apiResponse);
       }
       

@@ -1379,6 +1379,7 @@ class ApiController {
                 modOnlyMessage = meeting.moderatorOnlyMessage
 
               customLogoURL = meeting.getCustomLogoURL()
+              customCopyright = meeting.getCustomCopyright()
               logoutUrl = us.logoutUrl
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL
