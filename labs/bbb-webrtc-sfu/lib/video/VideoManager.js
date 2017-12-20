@@ -28,12 +28,12 @@ var _onMessage = function (_message) {
   let message = _message;
   let sessionId = message.connectionId;
   let video;
-  let role = 'view';
+  let role = message.role? message.role : 'any';
+  let cameraId = message.cameraId;
   let shared = false;
   let iceQueue = {};
 
-  if (message.role == 'shared') {
-    role = 'share';
+  if (message.role == 'share') {
     shared = true;
   }
 
@@ -41,18 +41,32 @@ var _onMessage = function (_message) {
     sessions[sessionId] = {};
   }
 
-  if (message.cameraId && sessions[sessionId][message.cameraId]) {
-    if (shared) {
-      video = sessions[sessionId].shared;
-    } else {
-      video = sessions[sessionId][message.cameraId];
-    }
+  logAvailableSessions();
+
+  switch (role) {
+    case 'share':
+      if (message.cameraId && typeof sessions[sessionId][message.cameraId+'shared'] !== 'undefined' &&  sessions[sessionId][message.cameraId+'shared']) {
+        video = sessions[sessionId][message.cameraId+'shared'];
+      }
+      break;
+    case 'viewer':
+      if (message.cameraId && sessions[sessionId][message.cameraId]) {
+        video = sessions[sessionId][message.cameraId];
+      }
+    case 'any':
+      if (message.cameraId && typeof sessions[sessionId][message.cameraId+'shared'] !== 'undefined' &&  sessions[sessionId][message.cameraId+'shared']) {
+        video = sessions[sessionId][message.cameraId+'shared'];
+      }
+      else if (message.cameraId && sessions[sessionId][message.cameraId]) {
+        video = sessions[sessionId][message.cameraId];
+      }
+
+      break;
   }
 
   switch (message.id) {
     case 'start':
-
-      console.log('[' + message.id + '] connection ' + sessionId);
+      console.log('[' + message.id + '] connection ' + sessionId + " message => " + JSON.stringify(message, null, 2));
 
       video = new Video(bbbGW, message.cameraId, shared, message.connectionId);
 
@@ -64,10 +78,14 @@ var _onMessage = function (_message) {
         }
       }
 
-      if (shared) {
-        sessions[sessionId].shared = video;
-      } else {
-        sessions[sessionId][message.cameraId] = video;
+      switch (role) {
+        case 'share':
+          sessions[sessionId][message.cameraId+'shared']= video;
+          break;
+        case 'viewer':
+          sessions[sessionId][message.cameraId] = video;
+          break;
+        default: console.log(" [VideoManager] Unknown role? ", role);
       }
 
       video.start(message.sdpOffer, (error, sdpAnswer) => {
@@ -95,10 +113,10 @@ var _onMessage = function (_message) {
 
     case 'stop':
 
-      console.log('[' + message.id + '] connection ' + sessionId);
+      console.log('[' + message.id + '] connection ' + sessionId + " with message => " + JSON.stringify(message, null, 2));
 
-      if (video && message.cameraId == video.id) {
-        video.stop(sessionId);
+      if (video) {
+        stopSession(sessionId, role, cameraId);
       } else {
         console.log(" [stop] Why is there no video on STOP?");
       }
@@ -109,7 +127,6 @@ var _onMessage = function (_message) {
       if (video) {
         video.onIceCandidate(message.candidate);
       } else {
-
         console.log(" [iceCandidate] Queueing ice candidate for later in video " + message.cameraId);
 
         if (!iceQueue[message.cameraId]) {
@@ -138,24 +155,33 @@ var _onMessage = function (_message) {
   }
 };
 
-let stopSession = function(sessionId, videoId) {
-  console.log('  [VideoManager/x] Stopping session ' + sessionId);
-
-  if (sessions == null || sessionId == null || sessions[sessionId] == null) {
-    return;
-  }
+let stopSession = async function(sessionId, role, cameraId) {
+  console.log('  [VideoManager/x] Stopping session ' + sessionId + " with role " + role + " for camera " + cameraId);
 
   let videoIds = Object.keys(sessions[sessionId]);
 
-  for (var i = 0; i < videoIds.length; i++) {
-    var video = sessions[sessionId][videoIds[i]];
-    video.stop();
-    sessions[sessionId][videoIds[i]] = null;
+  try {
+    if (role === 'share') {
+      var sharedVideo = sessions[sessionId][cameraId+'shared'];
+      await sharedVideo.stop();
+      var viewerVideo = sessions[sessionId][cameraId];
+      await viewerVideo.stop();
+      delete sessions[sessionId][cameraId+'shared'];
+      delete sessions[sessionId][cameraId];
+      console.log('  [VideoManager] Stopping sharer [', sessionId, '][', cameraId,'] with IDs' , videoIds);
+    }
+    else if (role === 'viewer') {
+      var video = sessions[sessionId][cameraId];
+      await video.stop();
+      delete sessions[sessionId][cameraId];
+      console.log('  [VideoManager] Stopping viewer [', sessionId, '][', cameraId,'] with IDs ', sessions[sessionId][cameraId]);
+    }
+
+    logAvailableSessions();
   }
-
-  sessions[sessionId] = null;
-
-  delete sessions[sessionId];
+  catch (err) {
+    console.log("  [VideoManager] Stop error => ", err);
+  }
 }
 
 let stopAll = function() {
@@ -173,6 +199,18 @@ let stopAll = function() {
   }
 
   setTimeout(process.exit, 100);
+}
+
+let logAvailableSessions = function() {
+  if(typeof sessions !== 'undefined' && sessions) {
+    console.log("  [VideoManager] Available sessions are =>");
+    let sessionMainKeys = Object.keys(sessions);
+    for (var k in sessions) {
+      if(typeof sessions[k] !== 'undefined' && sessions[k]) {
+        console.log('  [VideoManager] Session[', k,'] => ', Object.keys(sessions[k]));
+      }
+    }
+  }
 }
 
 process.on('SIGTERM', stopAll);

@@ -196,7 +196,7 @@ export default class VideoDock extends Component {
     const onIceCandidate = function (candidate) {
       const message = {
         type: 'video',
-        role: shareWebcam ? 'shared' : 'viewer',
+        role: shareWebcam ? 'share' : 'viewer',
         id: 'onIceCandidate',
         candidate,
         cameraId: id,
@@ -267,7 +267,7 @@ export default class VideoDock extends Component {
         console.log(`Invoking SDP offer callback function ${location.host}`);
         const message = {
           type: 'video',
-          role: shareWebcam ? 'shared' : 'viewer',
+          role: shareWebcam ? 'share' : 'viewer',
           id: 'start',
           sdpOffer: offerSdp,
           cameraId: id,
@@ -301,7 +301,7 @@ export default class VideoDock extends Component {
     const { users } = this.props;
     this.sendMessage({
       type: 'video',
-      role: id == users[0].userId ? 'shared' : 'viewer',
+      role: id == users[0].userId ? 'share' : 'viewer',
       id: 'stop',
       cameraId: id,
     });

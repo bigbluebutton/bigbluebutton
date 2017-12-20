@@ -135,7 +135,7 @@ module.exports = class Video {
         this.flushCandidatesQueue();
         this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
 
-        console.log("  [video] Subscribe returned => " + this.mediaId);
+        console.log("  [video] Subscribe for user ", this.userId, " returned => " + this.mediaId);
 
         return callback(null, sdpAnswer);
       }
@@ -155,11 +155,11 @@ module.exports = class Video {
         sharedWebcams[this.id] = null;
       }
       this._candidatesQueue = null;
-      return;
+      Promise.resolve();
     }
     catch (err) {
       // TODO error handling
-      return;
+      Promise.reject();
     }
     return;
   };
