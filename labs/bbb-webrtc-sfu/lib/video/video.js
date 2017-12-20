@@ -82,14 +82,14 @@ module.exports = class Video {
         console.log(' [video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for endpoint ' + this.id);
 
         if (msEvent.state === 'NOT_FLOWING') {
-          // this.bbbGW.publish(JSON.stringify({
-          //   connectionId: this.sessionId,
-          //   type: 'video',
-          //   role: this.role,
-          //   id : 'playStop',
-          //   cameraId: this.id,
-          // }), C.FROM_VIDEO);
-        } 
+          this.bbbGW.publish(JSON.stringify({
+            connectionId: this.sessionId,
+            type: 'video',
+            role: this.role,
+            id : 'playStop',
+            cameraId: this.id,
+          }), C.FROM_VIDEO);
+        }
         else if (msEvent.state === 'FLOWING') {
           this.bbbGW.publish(JSON.stringify({
             connectionId: this.sessionId,

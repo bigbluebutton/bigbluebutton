@@ -28,26 +28,24 @@ var _onMessage = function (_message) {
   let message = _message;
   let sessionId = message.connectionId;
   let video;
-  let role = null;
+  let role = 'view';
+  let shared = false;
+  let iceQueue = {};
 
   if (message.role == 'shared') {
     role = 'share';
-  } else {
-    role = 'view';
+    shared = true;
   }
 
   if (!sessions[sessionId]) {
     sessions[sessionId] = {};
   }
 
-  console.log(role);
-  console.log(message.cameraId);
-
   if (message.cameraId && sessions[sessionId][message.cameraId]) {
-    if (role == 'view') {
-      video = sessions[sessionId][message.cameraId];
-    } else {
+    if (shared) {
       video = sessions[sessionId].shared;
+    } else {
+      video = sessions[sessionId][message.cameraId];
     }
   }
 
@@ -56,9 +54,17 @@ var _onMessage = function (_message) {
 
       console.log('[' + message.id + '] connection ' + sessionId);
 
-      video = new Video(bbbGW, message.cameraId, message.cameraShared, message.connectionId);
+      video = new Video(bbbGW, message.cameraId, shared, message.connectionId);
 
-      if (role == 'share') {
+      // Empty ice queue after starting video
+      if (iceQueue[message.cameraId]) {
+        let candidate;
+        while(candidate = iceQueue[message.cameraId].pop()) {
+          video.onIceCandidate(cand);
+        }
+      }
+
+      if (shared) {
         sessions[sessionId].shared = video;
       } else {
         sessions[sessionId][message.cameraId] = video;
@@ -92,9 +98,6 @@ var _onMessage = function (_message) {
       console.log('[' + message.id + '] connection ' + sessionId);
 
       if (video && message.cameraId == video.id) {
-        console.log(message.cameraId);
-        console.log(video.id);
-
         video.stop(sessionId);
       } else {
         console.log(" [stop] Why is there no video on STOP?");
@@ -106,12 +109,18 @@ var _onMessage = function (_message) {
       if (video) {
         video.onIceCandidate(message.candidate);
       } else {
-        console.log(" [iceCandidate] Why is there no video on ICE CANDIDATE?");
+
+        console.log(" [iceCandidate] Queueing ice candidate for later in video " + message.cameraId);
+
+        if (!iceQueue[message.cameraId]) {
+          iceQueue[message.cameraId] = [];
+        }
+        iceQueue[message.cameraId].push(message.candidate);
       }
       break;
 
     case 'close':
-      console.log(" CASE CLOSED");
+      console.log(" [vide] Closing session for sessionId: " + sessionId);
 
       stopSession(sessionId);
 
