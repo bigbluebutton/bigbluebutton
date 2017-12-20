@@ -1,16 +1,11 @@
 import { Meteor } from 'meteor/meteor';
+import Langmap from 'langmap';
 import Logger from './logger';
 import Redis from './redis';
-import locales from '../../utils/locales';
-
-let DEFAULT_LANGUAGE = null;
-const availableLocales = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   Logger.info(`SERVER STARTED. ENV=${Meteor.settings.runtime.env}`, APP_CONFIG);
-
-  DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale
 });
 
 WebApp.connectHandlers.use('/check', (req, res) => {
@@ -24,7 +19,7 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
-  const localeRegion = req.query.locale.split(/[-_]/g);;
+  const localeRegion = req.query.locale.split(/[-_]/g);
   const localeList = [defaultLocale, localeRegion[0]];
 
   let normalizedLocale = localeRegion[0];
@@ -39,7 +34,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
-      normalizedLocale = locale
+      normalizedLocale = locale;
     } catch (e) {
       // Getting here means the locale is not available on the files.
     }
@@ -50,15 +45,24 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  if (!availableLocales.length) {
-    locales.forEach((l) => {
-      try {
-        Assets.absoluteFilePath(`locales/${l.locale}.json`);
-        availableLocales.push(l);
-      } catch (e) {
-        // Getting here means the locale is not available on the files.
-      }
-    });
+  const fs = Npm.require('fs');
+  const path = Npm.require('path');
+  const basePath = path.resolve('.').split('.meteor')[0];
+
+  let availableLocales = [];
+
+  try {
+    const getAvailableLocales = fs.readdirSync(basePath.concat('private/locales'));
+
+    availableLocales = getAvailableLocales
+      .map(file => file.replace('.json', ''))
+      .map(file => file.replace('_', '-'))
+      .map(locale => ({
+        locale,
+        name: Langmap[locale].nativeName,
+      }));
+  } catch (e) {
+    // Getting here means the locale is not available on the files.
   }
 
   res.setHeader('Content-Type', 'application/json');
