@@ -34,7 +34,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
       import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
-      import org.bigbluebutton.modules.chat.events.GetWelcomeMessageEvent;
       import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
       import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
       import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
@@ -107,11 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <MethodInvoker generator="{ChatMessageService}" method="getGroupChatHistoryMessages" 
                      arguments="{event.chatId}"/>
     </EventHandlers>    
-    
-    <EventHandlers type="{GetWelcomeMessageEvent.GET_WELCOME_MESSAGE}" >
-      <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage" arguments="{event.chatId}"/>
-    </EventHandlers>
-    
+        
     <EventHandlers type="{CreateGroupChatReqEvent.CREATE_GROUP_CHAT_REQ_EVENT}" >
       <MethodInvoker generator="{ChatMessageService}" method="handleCreateGCReqEvent" arguments="{event}"/>
     </EventHandlers>    
