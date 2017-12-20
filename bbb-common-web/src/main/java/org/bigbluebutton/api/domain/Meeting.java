@@ -64,6 +64,7 @@ public class Meeting {
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<String>();
 	private String customLogoURL = "";
+	private String customCopyright = "";
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
@@ -300,6 +301,14 @@ public class Meeting {
 
 	public void setCustomLogoURL(String url) {
 		customLogoURL = url;
+	}
+
+	public void setCustomCopyright(String copyright) {
+    	customCopyright = copyright;
+	}
+
+	public String getCustomCopyright() {
+    	return customCopyright;
 	}
 
 	public void userJoined(User user) {

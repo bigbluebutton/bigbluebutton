@@ -487,6 +487,10 @@ public class ParamsProcessorUtil {
 			meeting.setCustomLogoURL(params.get("logo"));
 		}
 
+		if (!StringUtils.isEmpty(params.get("copyright"))) {
+			meeting.setCustomCopyright(params.get("copyright"));
+		}
+
         return meeting;
     }
 	

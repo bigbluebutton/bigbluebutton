@@ -131,7 +131,7 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.metadata = result.metadata;
         LiveMeeting.inst().meeting.muteOnStart = meetingOptions.muteOnStart;
         LiveMeeting.inst().meeting.customLogo = result.customLogo;
-				
+				LiveMeeting.inst().meeting.customCopyright = result.customCopyright;
 				
 				// assign the meeting name to the document title
 				ExternalInterface.call("setTitle", result.meetingName);

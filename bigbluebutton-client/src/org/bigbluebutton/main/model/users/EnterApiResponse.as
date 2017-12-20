@@ -18,6 +18,7 @@ package org.bigbluebutton.main.model.users
     public var voiceConf: String;
     public var welcome: String;
     public var customLogo:String;
+    public var customCopyright:String;
     public var meetingName: String;
     public var extMeetingId: String;
     public var intMeetingId: String;
