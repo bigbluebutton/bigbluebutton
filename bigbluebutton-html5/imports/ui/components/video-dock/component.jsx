@@ -299,16 +299,12 @@ export default class VideoDock extends Component {
 
   stop(id) {
     const { users } = this.props;
-    if (id == users[0].userId) {
-      // this.unshareWebcam();
-
-      this.sendMessage({
-        type: 'video',
-        role: 'shared',
-        id: 'stop',
-        cameraId: id,
-      });
-    }
+    this.sendMessage({
+      type: 'video',
+      role: id == users[0].userId ? 'shared' : 'viewer',
+      id: 'stop',
+      cameraId: id,
+    });
 
     this.destroyWebRTCPeer(id);
     this.destroyVideoTag(id);
@@ -426,7 +422,13 @@ export default class VideoDock extends Component {
     log('info', 'Handle play stop <--------------------');
     log('error', message);
 
-    this.stop(message.cameraId);
+    const { users } = this.props;
+
+    if (message.cameraId == users[0].userId) {
+      this.unshareWebcam();
+    } else {
+      this.stop(message.cameraId);
+    }
   }
 
   handlePlayStart(message) {
