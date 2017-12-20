@@ -722,6 +722,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.customContextMenuItems = new Array();
 				}
 				
+				populatePodDropdown();
+				
 				setPollMenuData();
 				
 				updateStyles();
