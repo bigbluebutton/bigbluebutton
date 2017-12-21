@@ -3,7 +3,7 @@ package org.bigbluebutton.common2.msgs
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader,
                                          body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg
-case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
+case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String, isHtml5Client: Boolean = false)
 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
 case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartMsgBody) extends StandardMsg
