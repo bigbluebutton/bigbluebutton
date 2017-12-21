@@ -65,6 +65,7 @@ public class Meeting {
 	private final List<String> breakoutRooms = new ArrayList<String>();
 	private String customLogoURL = "";
 	private String customCopyright = "";
+	private Boolean muteOnStart = false;
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
@@ -309,6 +310,14 @@ public class Meeting {
 
 	public String getCustomCopyright() {
     	return customCopyright;
+	}
+
+	public void setMuteOnStart(Boolean mute) {
+    	muteOnStart = mute;
+	}
+
+	public Boolean getMuteOnStart() {
+    	return muteOnStart;
 	}
 
 	public void userJoined(User user) {

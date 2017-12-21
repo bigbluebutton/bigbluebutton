@@ -16,7 +16,6 @@
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true"
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="false"
             showRecordingNotification="true" logoutOnStopRecording="false"/>
-    <meeting muteOnStart="false" />
     <breakoutRooms enabled="true" record="false" />
     <logging enabled="true" logTarget="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST/log" logPattern=".*"/>
     <lock disableCam="false" disableMic="false" disablePrivateChat="false"

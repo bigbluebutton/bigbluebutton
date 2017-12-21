@@ -266,7 +266,8 @@ public class MeetingService implements MessageListener {
       m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
       m.getWelcomeMessage(), m.getModeratorOnlyMessage(), m.getDialNumber(), m.getMaxUsers(),
       m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
-      m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes());
+      m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
+            m.getMuteOnStart());
 
   }
 

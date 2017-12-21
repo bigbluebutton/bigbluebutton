@@ -29,5 +29,6 @@ package org.bigbluebutton.main.model.users
     public var webcamsOnlyForModerator: Boolean;
     public var metadata: Object = new Object();
     public var modOnlyMessage: String;
+		public var muteOnStart:Boolean = false;
   }
 }
