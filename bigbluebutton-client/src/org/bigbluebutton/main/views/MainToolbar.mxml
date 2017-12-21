@@ -200,7 +200,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
 					timeRemaining.visible = true;
 				}
-				TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec);
+				TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec, true);
 			}
 
 			private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
