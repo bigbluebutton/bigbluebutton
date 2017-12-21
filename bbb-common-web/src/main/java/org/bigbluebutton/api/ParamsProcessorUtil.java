@@ -81,6 +81,7 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
+    private boolean defaultMuteOnStart = false;
 
     private String defaultConfigXML = null;
 
@@ -490,6 +491,11 @@ public class ParamsProcessorUtil {
 		if (!StringUtils.isEmpty(params.get("copyright"))) {
 			meeting.setCustomCopyright(params.get("copyright"));
 		}
+		Boolean muteOnStart = defaultMuteOnStart;
+		if (!StringUtils.isEmpty(params.get("muteOnStart"))) {
+        	muteOnStart = Boolean.parseBoolean(params.get("muteOnStart"));
+			meeting.setMuteOnStart(muteOnStart);
+        }
 
         return meeting;
     }
@@ -904,6 +910,15 @@ public class ParamsProcessorUtil {
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
 		meetingExpireIfNoUserJoinedInMinutes = value;
 	}
+
+	public void setMuteOnStart(Boolean mute) {
+		defaultMuteOnStart = mute;
+	}
+
+	public Boolean getMuteOnStart() {
+		return defaultMuteOnStart;
+	}
+
 
 	public ArrayList<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<String>();
