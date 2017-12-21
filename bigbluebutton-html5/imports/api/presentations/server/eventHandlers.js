@@ -7,6 +7,7 @@ import handlePresentationConversionUpdate from './handlers/presentationConversio
 
 RedisPubSub.on('SyncGetPresentationInfoRespMsg', handlePresentationInfoReply);
 RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUpdate);
+RedisPubSub.on('PresentationPageCountErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionUpdateEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionCompletedEvtMsg', handlePresentationAdded);
 RedisPubSub.on('RemovePresentationEvtMsg', handlePresentationRemove);

@@ -1,3 +1,4 @@
+@import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
 .title {
@@ -53,10 +54,11 @@
 }
 
 .select {
-  @extend %customSelectFocus;
-  background-color: #fff;
-  border: $focus-border-size solid #fff;
-  border-radius: $focus-border-size;
+  @include elementFocus($color-primary);
+
+  background-color: $color-white;
+  border: $border-size solid $color-white;
+  border-radius: $border-size;
   border-bottom: 0.1rem solid $color-gray-lighter;
   color: $color-gray-label;
   width: 100%;
@@ -91,12 +93,13 @@
 }
 
 .swatch {
-  @extend %customSelectFocus;
+  @include elementFocus($color-primary);
+
   position: absolute;
   float: right;
-  background: #fff;
-  border-radius: 5px;
-  border: 2px solid $color-gray-light;
+  background: $color-white;
+  border-radius: $border-size;
+  border: $border-size solid $color-gray-light;
   display: inline-block;
   cursor: pointer;
 }
@@ -104,7 +107,7 @@
 .swatchInner {
   width: 3rem;
   height: 1.1rem;
-  border-radius: $focus-border-size;
+  border-radius: $border-size;
 }
 
 .colorPickerOverlay {

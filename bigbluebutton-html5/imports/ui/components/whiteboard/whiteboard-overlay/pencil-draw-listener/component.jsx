@@ -22,8 +22,13 @@ export default class PencilDrawListener extends Component {
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.mouseUpHandler = this.mouseUpHandler.bind(this);
+    this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
     this.sendCoordinates = this.sendCoordinates.bind(this);
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleTouchMove = this.handleTouchMove.bind(this);
+    this.handleTouchEnd = this.handleTouchEnd.bind(this);
+    this.handleTouchCancel = this.handleTouchCancel.bind(this);
   }
 
   componentDidMount() {
@@ -38,41 +43,31 @@ export default class PencilDrawListener extends Component {
     this.sendLastMessage();
   }
 
-  // main mouse down handler
-  mouseDownHandler(event) {
-    if (!this.isDrawing) {
-      window.addEventListener('mouseup', this.mouseUpHandler);
-      window.addEventListener('mousemove', this.mouseMoveHandler, true);
-      this.isDrawing = true;
+  commonDrawStartHandler(clientX, clientY) {
+    // changing isDrawing to true
+    this.isDrawing = true;
 
-      const {
-        getTransformedSvgPoint,
-        generateNewShapeId,
-        svgCoordinateToPercentages,
-      } = this.props.actions;
+    const {
+      getTransformedSvgPoint,
+      generateNewShapeId,
+      svgCoordinateToPercentages,
+    } = this.props.actions;
 
-      // sending the first message
-      let transformedSvgPoint = getTransformedSvgPoint(event);
+    // sending the first message
+    let transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
 
-      // transforming svg coordinate to percentages relative to the slide width/height
-      transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
+    // transforming svg coordinate to percentages relative to the slide width/height
+    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
-      // sending the first message
-      const _points = [transformedSvgPoint.x, transformedSvgPoint.y];
-      this.handleDrawPencil(_points, DRAW_START, generateNewShapeId());
+    // sending the first message
+    const _points = [transformedSvgPoint.x, transformedSvgPoint.y];
+    this.handleDrawPencil(_points, DRAW_START, generateNewShapeId());
 
-      // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
-      this.intervalId = setInterval(this.sendCoordinates, MESSAGE_FREQUENCY);
-
-    // if you switch to a different window using Alt+Tab while mouse is down and release it
-    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-    } else {
-      this.sendLastMessage();
-    }
+    // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
+    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_FREQUENCY);
   }
 
-  // main mouse move handler
-  mouseMoveHandler(event) {
+  commonDrawMoveHandler(clientX, clientY) {
     if (this.isDrawing) {
       const {
         checkIfOutOfBounds,
@@ -81,7 +76,7 @@ export default class PencilDrawListener extends Component {
       } = this.props.actions;
 
       // get the transformed svg coordinate
-      let transformedSvgPoint = getTransformedSvgPoint(event);
+      let transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
 
       // check if it's out of bounds
       transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
@@ -93,6 +88,58 @@ export default class PencilDrawListener extends Component {
       this.points.push(transformedSvgPoint.x);
       this.points.push(transformedSvgPoint.y);
     }
+  }
+
+  handleTouchStart(event) {
+    event.preventDefault();
+    if (!this.isDrawing) {
+      window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+      window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      window.addEventListener('touchcancel', this.handleTouchCancel, true);
+
+      const { clientX, clientY } = event.changedTouches[0];
+      this.commonDrawStartHandler(clientX, clientY);
+
+    // if you switch to a different window using Alt+Tab while mouse is down and release it
+    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+    } else {
+      this.sendLastMessage();
+    }
+  }
+
+  handleTouchMove(event) {
+    const { clientX, clientY } = event.changedTouches[0];
+    this.commonDrawMoveHandler(clientX, clientY);
+  }
+
+  handleTouchEnd() {
+    this.sendLastMessage();
+  }
+
+  handleTouchCancel() {
+    this.sendLastMessage();
+  }
+
+  // main mouse down handler
+  mouseDownHandler(event) {
+    if (!this.isDrawing) {
+      window.addEventListener('mouseup', this.mouseUpHandler);
+      window.addEventListener('mousemove', this.mouseMoveHandler, true);
+
+      const { clientX, clientY } = event;
+      this.commonDrawStartHandler(clientX, clientY);
+
+    // if you switch to a different window using Alt+Tab while mouse is down and release it
+    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+    } else {
+      this.sendLastMessage();
+    }
+  }
+
+  // main mouse move handler
+  mouseMoveHandler(event) {
+    const { clientX, clientY } = event;
+    this.commonDrawMoveHandler(clientX, clientY);
   }
 
   // main mouse up handler
@@ -153,21 +200,30 @@ export default class PencilDrawListener extends Component {
         getCurrentShapeId(),
         [Math.round(physicalSlideWidth), Math.round(physicalSlideHeight)],
       );
-
-      // resetting the current info
-      this.points = [];
-      this.isDrawing = false;
-      window.removeEventListener('mouseup', this.mouseUpHandler);
-      window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+      this.resetState();
     }
+  }
+
+  resetState() {
+    // resetting the current info
+    this.points = [];
+    this.isDrawing = false;
+    // mouseup and mousemove are removed on desktop
+    window.removeEventListener('mouseup', this.mouseUpHandler);
+    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+    // touchend, touchmove and touchcancel are removed on devices
+    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
   render() {
     return (
       <div
+        onTouchStart={this.handleTouchStart}
         role="presentation"
         className={styles.pencil}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', touchAction: 'none' }}
         onMouseDown={this.mouseDownHandler}
       />
     );
@@ -175,7 +231,7 @@ export default class PencilDrawListener extends Component {
 }
 
 PencilDrawListener.propTypes = {
-    // Defines a whiteboard id, which needed to publish an annotation message
+  // Defines a whiteboard id, which needed to publish an annotation message
   whiteboardId: PropTypes.string.isRequired,
   // Defines a user id, which needed to publish an annotation message
   userId: PropTypes.string.isRequired,

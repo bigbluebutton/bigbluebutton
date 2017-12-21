@@ -9,6 +9,7 @@
 }
 
 .content {
+  flex-grow: 1;
   display: flex;
   justify-content: center;
   padding: 0;
@@ -25,6 +26,11 @@
   }
 }
 
+.audioOptions {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .overlay {
   @extend .overlay;
 }
@@ -36,12 +42,8 @@
 }
 
 .closeBtn {
-  right: 0;
-  top: 0;
-  position: absolute;
+  position: relative;
   background-color: $color-white;
-  border: none;
-  padding: .75rem;
 
   i {
     color: $color-gray-light;
@@ -49,9 +51,9 @@
 
   &:focus,
   &:hover{
-    background-color: $color-white;
+    background-color: $color-gray-lighter;
     i{
-      color: $color-primary;
+      color: $color-gray;
     }
   }
 }
@@ -106,6 +108,8 @@
 }
 
 .connecting {
+  margin-top: auto;
+  margin-bottom: auto;
   font-size: 2rem;
 }
 

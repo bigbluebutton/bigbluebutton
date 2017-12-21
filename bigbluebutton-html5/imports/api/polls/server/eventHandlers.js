@@ -7,4 +7,4 @@ import handleUserVoted from './handlers/userVoted';
 RedisPubSub.on('PollShowResultEvtMsg', handlePollPublished);
 RedisPubSub.on('PollStartedEvtMsg', handlePollStarted);
 RedisPubSub.on('PollStoppedEvtMsg', handlePollStopped);
-RedisPubSub.on('UserRespondedToPollEvtMsg', handleUserVoted);
+RedisPubSub.on('PollUpdatedEvtMsg', handleUserVoted);

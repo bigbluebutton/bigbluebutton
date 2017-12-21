@@ -22,6 +22,7 @@ package org.bigbluebutton.main.model.users
 	
 	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -129,7 +130,8 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.webcamsOnlyForModerator = result.webcamsOnlyForModerator;
         LiveMeeting.inst().meeting.metadata = result.metadata;
         LiveMeeting.inst().meeting.muteOnStart = meetingOptions.muteOnStart;
-        
+        LiveMeeting.inst().meeting.customLogo = result.customLogo;
+				LiveMeeting.inst().meeting.customCopyright = result.customCopyright;
 				
 				// assign the meeting name to the document title
 				ExternalInterface.call("setTitle", result.meetingName);

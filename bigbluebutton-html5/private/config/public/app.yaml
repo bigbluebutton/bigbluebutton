@@ -54,3 +54,4 @@ app:
   # The initial client version has limited moderator capabilities
   # The following flag disables moderator-only features
   allowHTML5Moderator: true
+  allowModeratorToUnmuteAudio: true

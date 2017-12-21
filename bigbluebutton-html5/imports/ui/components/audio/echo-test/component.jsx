@@ -35,7 +35,7 @@ class EchoTest extends Component {
     } = this.props;
 
     return (
-      <span>
+      <span className={styles.echoTest}>
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.yes)}

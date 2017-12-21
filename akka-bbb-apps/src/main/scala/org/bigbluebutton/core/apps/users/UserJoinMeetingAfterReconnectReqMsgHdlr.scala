@@ -4,7 +4,6 @@ import org.bigbluebutton.common2.msgs.UserJoinMeetingAfterReconnectReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.apps.voice.UserJoinedVoiceConfEvtMsgHdlr
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 
 trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with BreakoutHdlrHelpers with UserJoinedVoiceConfEvtMsgHdlr {

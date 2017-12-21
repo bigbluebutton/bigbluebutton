@@ -4,6 +4,7 @@
         <link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">
         <asset:stylesheet src="bootstrap.css"/>
         <asset:stylesheet src="dataTables.bootstrap.min.css"/>
+        <asset:stylesheet src="tool.css"/>
         <asset:javascript src="jquery.js"/>
         <asset:javascript src="jquery.dataTables.min.js"/>
         <asset:javascript src="dataTables.bootstrap.min.js"/>
@@ -23,35 +24,45 @@
                     <th class="header c0" style="text-align:center;" scope="col"><g:message code="tool.view.recording" /></th>
                     <th class="header c1" style="text-align:center;" scope="col"><g:message code="tool.view.activity" /></th>
                     <th class="header c2" style="text-align:center;" scope="col"><g:message code="tool.view.description" /></th>
-                    <th class="header c3" style="text-align:center;" scope="col"><g:message code="tool.view.date" /></th>
-                    <th class="header c4" style="text-align:center;" scope="col"><g:message code="tool.view.duration" /></th>
+                    <th class="header c3" style="text-align:center;" scope="col"><g:message code="tool.view.preview" /></th>
+                    <th class="header c4" style="text-align:center;" scope="col"><g:message code="tool.view.date" /></th>
+                    <th class="header c5" style="text-align:center;" scope="col"><g:message code="tool.view.duration" /></th>
                     <g:if test="${ismoderator}">
-                    <th class="header c5 lastcol" style="text-align:center;" scope="col"><g:message code="tool.view.actions" /></th>
+                    <th class="header c6 lastcol" style="text-align:center;" scope="col"><g:message code="tool.view.actions" /></th>
                     </g:if>
                 </tr>
             </thead>
             <tbody>
             <g:each in="${recordingList}" var="r">
-                <g:if test="${ismoderator || r.published == 'true'}">  
+                <g:if test="${ismoderator || r.published == 'true'}">
                 <tr class="r0 lastrow">
                     <td class="cell c0" style="text-align:center;">
-                    <g:if test="${r.published == 'true'}">
-                    <g:each in="${r.playback}" var="p">
-                        <a title="<g:message code="tool.view.recording.format.${p.type}" />" target="_new" href="${p.url}"><g:message code="tool.view.recording.format.${p.type}" /></a>&#32;
-                    </g:each>
+                    <g:if test="${r.published}">
+                        <g:each in="${r.playback}" var="format">
+                            <a title="<g:message code="tool.view.recording.format.${format.getValue().type}" />" target="_new" href="${format.getValue().url}"><g:message code="tool.view.recording.format.${format.getValue().type}" /></a>&#32;
+                        </g:each>
                     </g:if>
                     </td>
-                    <td class="cell c1" style="text-align:center;">${r.name}</td>
-                    <td class="cell c2" style="text-align:center;">${r.metadata.contextactivitydescription}</td>
-                    <td class="cell c3" style="text-align:center;">${r.unixDate}</td>
-                    <td class="cell c4" style="text-align:center;">${r.duration}</td>
+                    <td class="cell c1" style="text-align:left;">${r.name}</td>
+                    <td class="cell c2" style="text-align:left;">${r.metadata.contextactivitydescription}</td>
+                    <td class="cell c3" style="text-align:left;">
+                    <g:if test="${r.published}">
+                        <div>
+                        <g:each in="${r.thumbnails}" var="thumbnail">
+                            <img src="${thumbnail.content}" class="thumbnail"></img>
+                        </g:each>
+                        </div>
+                  </g:if>
+                    </td>
+                    <td class="cell c4" style="text-align:left;">${r.unixDate}</td>
+                    <td class="cell c5" style="text-align:right;">${r.duration}</td>
                     <g:if test="${ismoderator}">
-                    <td class="cell c5 lastcol" style="text-align:center;">
-                      <g:if test="${r.published == 'true'}">
-                      <a title="<g:message code="tool.view.recording.unpublish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-close" name="unpublish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
+                    <td class="cell c6 lastcol" style="text-align:center;">
+                      <g:if test="${r.published}">
+                      <a title="<g:message code="tool.view.recording.unpublish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-open" name="unpublish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
                       </g:if>
                       <g:else>
-                      <a title="<g:message code="tool.view.recording.publish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-open" name="publish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
+                      <a title="<g:message code="tool.view.recording.publish" />" class="btn btn-default btn-sm glyphicon glyphicon-eye-close" name="publish_recording" type="submit" value="${r.recordID}" href="${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"></a>
                       </g:else>
                       <a title="<g:message code="tool.view.recording.delete" />" class="btn btn-danger btn-sm glyphicon glyphicon-trash" name="delete_recording" value="${r.recordID}"
                         data-toggle="confirmation"
@@ -73,5 +84,5 @@
     </body>
     <g:javascript>
         var locale = '${params.launch_presentation_locale}';
-    </g:javascript>  
+    </g:javascript>
 </html>
