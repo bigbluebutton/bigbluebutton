@@ -21,24 +21,35 @@ package org.bigbluebutton.core {
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-
+	
+	import mx.controls.Alert;
 	import mx.controls.Label;
-
+	import mx.managers.PopUpManager;
+	
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {
 		public static var timers:Dictionary = new Dictionary(true);
 
-		public static function setCountDownTimer(label:Label, seconds:int):void {
+		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean=false):void {
 			var timer:Timer = getTimer(label.id, seconds);
+			var minuteWarningShown:Boolean = false;
+			var minuteAlert:Alert = null;
 			if (!timer.hasEventListener(TimerEvent.TIMER)) {
 				timer.addEventListener(TimerEvent.TIMER, function():void {
 					var remainingSeconds:int = timer.repeatCount - timer.currentCount;
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
 					label.text = formattedTime;
+					if (remainingSeconds < 60 && showMinuteWarning && !minuteWarningShown) {
+						minuteAlert = Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.closewarning.text'));
+						minuteWarningShown = true;
+					}
 				});
 				timer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.closing');
+					if (minuteAlert != null) {
+						PopUpManager.removePopUp(minuteAlert);
+					}
 				});
 			} else {
 				timer.stop();
