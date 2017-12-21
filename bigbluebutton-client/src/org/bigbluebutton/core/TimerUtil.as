@@ -32,7 +32,6 @@ package org.bigbluebutton.core {
 		public static var timers:Dictionary = new Dictionary(true);
 
 		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean=false):void {
-			trace("new timer created");
 			var timer:Timer = getTimer(label.id, seconds);
 			var minuteWarningShown:Boolean = false;
 			var minuteAlert:Alert = null;
