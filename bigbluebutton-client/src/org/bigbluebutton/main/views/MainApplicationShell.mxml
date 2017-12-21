@@ -696,7 +696,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 if (e is ConnectionFailedEvent) {
                     showlogoutWindow((e as ConnectionFailedEvent).type);
                 } else
-                    showlogoutWindow("You have logged out of the conference");
+                    showlogoutWindow(ConnectionFailedEvent.USER_EJECTED_FROM_MEETING);
             }
 
             private function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
