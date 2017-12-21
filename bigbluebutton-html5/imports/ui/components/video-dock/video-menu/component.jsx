@@ -28,6 +28,8 @@ class JoinVideoOptions extends React.Component {
           <Button
             onClick={handleCloseVideo}
             label={intl.formatMessage(intlMessages.leaveVideo)}
+            hideLabel
+            aria-label={intl.formatMessage(intlMessages.leaveVideo)}
             color={'danger'}
             icon={'video'}
             size={'lg'}
@@ -40,6 +42,8 @@ class JoinVideoOptions extends React.Component {
       <Button
         onClick={handleJoinVideo}
         label={intl.formatMessage(intlMessages.joinVideo)}
+        hideLabel
+        aria-label={intl.formatMessage(intlMessages.joinVideo)}
         color={'primary'}
         icon={'video_off'}
         size={'lg'}

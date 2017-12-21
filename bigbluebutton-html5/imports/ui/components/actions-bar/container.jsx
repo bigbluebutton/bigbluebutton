@@ -12,10 +12,10 @@ export default createContainer(() => ({
   emojiList: Service.getEmojiList(),
   emojiSelected: Service.getEmoji(),
   handleEmojiChange: Service.setEmoji,
-  handleExitVideo: VideoService.exitVideo();
-  handleJoinVideo: VideoService.joinVideo();
-  handleShareScreen: ScreenshareService.shareScreen();
-  handleUnshareScreen: ScreenshareService.unshareScreen();
-  isVideoBroadcasting: ScreenshareService.isVideoBroadcasting();
+  handleExitVideo: () => VideoService.exitVideo(),
+  handleJoinVideo: () => VideoService.joinVideo(),
+  handleShareScreen: () =>  ScreenshareService.shareScreen(),
+  handleUnshareScreen: () => ScreenshareService.unshareScreen(),
+  isVideoBroadcasting: () => ScreenshareService.isVideoBroadcasting(),
 
 }), ActionsBarContainer);
