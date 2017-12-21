@@ -154,6 +154,13 @@ class MeetingActor(
   state = PresentationPodsApp.createDefaultPresentationPod(state)
   log.debug("NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
 
+  // Initialize if the meeting is muted on start
+  if (props.voiceProp.muteOnStart) {
+    MeetingStatus2x.muteMeeting(liveMeeting.status)
+  } else {
+    MeetingStatus2x.unmuteMeeting(liveMeeting.status)
+  }
+
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
@@ -411,9 +418,7 @@ class MeetingActor(
       val meetingId = liveMeeting.props.meetingProp.intId
       val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, now)
       VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
-
     }
-
   }
 
   def sendRttTraceTest(): Unit = {

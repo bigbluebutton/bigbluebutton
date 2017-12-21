@@ -18,7 +18,8 @@ public interface IBbbWebApiGWApp {
                      String dialNumber, Integer maxUsers,
                      Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
-                     Integer meetingExpireWhenLastUserLeftInMinutes);
+                     Integer meetingExpireWhenLastUserLeftInMinutes,
+                     Boolean muteOnStart);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

@@ -82,6 +82,7 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
+    private boolean defaultMuteOnStart = false;
 
     private String defaultConfigXML = null;
 
@@ -472,7 +473,9 @@ public class ParamsProcessorUtil {
         meeting.storeConfig(true, configXML);
 
         if (!StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
-            String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
+            String moderatorOnlyMessageTemplate = params.get("moderatorOnlyMessage");
+			String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
+					dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
@@ -485,6 +488,19 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get("sequence")));
             meeting.setParentMeetingId(parentMeetingId);
+        }
+
+		if (!StringUtils.isEmpty(params.get("logo"))) {
+			meeting.setCustomLogoURL(params.get("logo"));
+		}
+
+		if (!StringUtils.isEmpty(params.get("copyright"))) {
+			meeting.setCustomCopyright(params.get("copyright"));
+		}
+		Boolean muteOnStart = defaultMuteOnStart;
+		if (!StringUtils.isEmpty(params.get("muteOnStart"))) {
+        	muteOnStart = Boolean.parseBoolean(params.get("muteOnStart"));
+			meeting.setMuteOnStart(muteOnStart);
         }
 
         return meeting;
@@ -945,6 +961,15 @@ public class ParamsProcessorUtil {
 	public Long getMaxPresentationFileUpload() {
 		return maxPresentationFileUpload;
 	}
+
+	public void setMuteOnStart(Boolean mute) {
+		defaultMuteOnStart = mute;
+	}
+
+	public Boolean getMuteOnStart() {
+		return defaultMuteOnStart;
+	}
+
 
 	public ArrayList<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<String>();

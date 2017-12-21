@@ -22,6 +22,7 @@ package org.bigbluebutton.main.model.users
 	
 	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -40,7 +41,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.options.ApplicationOptions;
-	import org.bigbluebutton.main.model.options.MeetingOptions;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
@@ -52,7 +52,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
 	import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
 	import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
-
+	import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
 	import org.bigbluebutton.modules.users.services.MessageSender;
 
@@ -102,8 +102,7 @@ package org.bigbluebutton.main.model.users
 		
 		private function joinListener(success:Boolean, result: EnterApiResponse):void {
 			if (success) {        
-				var meetingOptions : MeetingOptions = Options.getOptions(MeetingOptions) as MeetingOptions;
-        
+
         LiveMeeting.inst().me.id = result.intUserId
         LiveMeeting.inst().me.name = result.username;
         LiveMeeting.inst().me.externalId = result.extUserId;
@@ -133,19 +132,25 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.allowStartStopRecording = result.allowStartStopRecording;
         LiveMeeting.inst().meeting.webcamsOnlyForModerator = result.webcamsOnlyForModerator;
         LiveMeeting.inst().meeting.metadata = result.metadata;
-        LiveMeeting.inst().meeting.muteOnStart = meetingOptions.muteOnStart;
         
 		LiveMeeting.inst().meeting.logoutTimer = result.logoutTimer;
 		
 		LiveMeeting.inst().meeting.bannerColor = result.bannerColor;
 		LiveMeeting.inst().meeting.bannerText = result.bannerText;
 
+        LiveMeeting.inst().meeting.muteOnStart = result.muteOnStart;
+				LiveMeeting.inst().meetingStatus.isMeetingMuted = result.muteOnStart;
+        LiveMeeting.inst().meeting.customLogo = result.customLogo;
+				LiveMeeting.inst().meeting.customCopyright = result.customCopyright;
+				
 				// assign the meeting name to the document title
 				ExternalInterface.call("setTitle", result.meetingName);
 				
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
 				dispatcher.dispatchEvent(e);
 				
+				// Send event to trigger meeting muted initialization of meeting (ralam dec 21, 2017)
+				dispatcher.dispatchEvent(new MeetingMutedEvent());
 				connect();
 			}
 		}
