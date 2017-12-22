@@ -11,13 +11,10 @@
     "moment": "^2.19.2",
     "redis": "^2.8.0",
     "sdp-transform": "^2.3.0",
-    "uuid": "^3.1.0",
+    "readable-id": "^1.0.0",
     "ws": "^3.3.2",
     "config": "^1.26.1",
     "js-yaml": "^3.8.3"
-  },
-  "devDependencies": {
-    "readable-id": "^1.0.0"
   },
   "optionalDependencies": {}
 }
