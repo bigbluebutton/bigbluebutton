@@ -347,13 +347,6 @@ export default class VideoDock extends Component {
     } else {
       log('info', 'No WebRTC peer to stop (not an error)');
     }
-
-    if (this.sharedWebcam) {
-      this.sharedWebcam.dispose();
-      this.sharedWebcam = null;
-    } else {
-      log('info', 'No shared camera WebRTC peer to stop (not an error)');
-    }
   }
 
   shareWebcam() {
