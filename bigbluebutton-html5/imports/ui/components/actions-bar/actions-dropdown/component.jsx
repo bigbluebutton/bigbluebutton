@@ -32,6 +32,22 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
   },
+  desktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
+    description: 'Desktop Share option label',
+  },
+  stopDesktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
+    description: 'Stop Desktop Share option label',
+  },
+  desktopShareDesc: {
+    id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
+    description: 'adds context to desktop share option',
+  },
+  stopDesktopShareDesc: {
+    id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
+    description: 'adds context to stop desktop share option',
+  },
 });
 
 class ActionsDropdown extends Component {
@@ -53,7 +69,13 @@ class ActionsDropdown extends Component {
   }
 
   render() {
-    const { intl, isUserPresenter } = this.props;
+    const {
+      intl,
+      isUserPresenter,
+      handleShareScreen,
+      handleUnshareScreen,
+      isVideoBroadcasting,
+    } = this.props;
 
     if (!isUserPresenter) return null;
 
@@ -79,6 +101,18 @@ class ActionsDropdown extends Component {
               label={intl.formatMessage(intlMessages.presentationLabel)}
               description={intl.formatMessage(intlMessages.presentationDesc)}
               onClick={this.handlePresentationClick}
+            />
+           <DropdownListItem
+              icon="desktop"
+              label={intl.formatMessage(intlMessages.desktopShareLabel)}
+              description={intl.formatMessage(intlMessages.desktopShareDesc)}
+              onClick={handleShareScreen}
+            />
+            <DropdownListItem
+              icon="desktop"
+              label={intl.formatMessage(intlMessages.stopDesktopShareLabel)}
+              description={intl.formatMessage(intlMessages.stopDesktopShareDesc)}
+              onClick={handleUnshareScreen}
             />
           </DropdownList>
         </DropdownContent>
