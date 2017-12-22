@@ -434,7 +434,11 @@ package org.bigbluebutton.modules.users.services
         var userId: String = media.userId as String;
         var attributes: Object = media.attributes as Object;
         var viewers: Array = media.viewers as Array;
-        
+
+        var pattern = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
+        if (!pattern.test(streamId)) {
+          return;
+        }
         var webcamStream: MediaStream = new MediaStream(streamId, userId);
         webcamStream.streamId = streamId;
         webcamStream.userId = userId;
@@ -487,7 +491,7 @@ package org.bigbluebutton.modules.users.services
       logData.tags = ["users"];
       logData.status = "user_ejected";
       logData.message = "User ejected from meeting.";
-      LOGGER.info(JSON.stringify(logData));
+      LOGGER.debug(JSON.stringify(logData));
     }
     
     private function handleUserLocked(msg:Object):void {
@@ -698,21 +702,24 @@ package org.bigbluebutton.modules.users.services
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
       var userId: String = msg.body.userId as String; 
       var streamId: String = msg.body.stream as String;
+      var isHtml5Client: Boolean = msg.body.isHtml5Client as Boolean;
       
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["webcam"];
       logData.message = "UserBroadcastCamStartedEvtMsg server message";
       logData.user.webcamStream = streamId;
+      logData.user.isHtml5Client = isHtml5Client;
       LOGGER.info(JSON.stringify(logData));
-      
-      var mediaStream: MediaStream = new MediaStream(streamId, userId)
-      LiveMeeting.inst().webcams.add(mediaStream);
-      
-      var webUser: User2x = UsersUtil.getUser(userId);
-      if (webUser != null) {
-        sendStreamStartedEvent(userId, webUser.name, streamId);
+
+      if (!isHtml5Client) {
+        var mediaStream: MediaStream = new MediaStream(streamId, userId)
+          LiveMeeting.inst().webcams.add(mediaStream);
+
+        var webUser: User2x = UsersUtil.getUser(userId);
+        if (webUser != null) {
+          sendStreamStartedEvent(userId, webUser.name, streamId);
+        }
       }
-      
     }
     
     private function sendStreamStartedEvent(userId: String, name: String, stream: String):void{
