@@ -7,15 +7,16 @@
 
 const C = require('../constants/Constants');
 const SdpWrapper = require('../utils/SdpWrapper');
-const uuidv4 = require('uuid/v4');
+const rid = require('readable-id');
 const EventEmitter = require('events').EventEmitter;
 const MediaServer = require('../media/media-server');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 
-module.exports = class SdpSession {
+module.exports = class SdpSession extends EventEmitter {
   constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint') {
-    this.id = uuidv4();
+    super();
+    this.id = rid();
     this.room = room;
     this.emitter = emitter;
     this._status = C.STATUS.STOPPED;
@@ -27,6 +28,7 @@ module.exports = class SdpSession {
     }
     this._MediaServer = new MediaServer(kurentoUrl);
     this._mediaElement;
+    this.subscribedSessions = [];
   }
 
   async setSdp (sdp, type) {
@@ -71,6 +73,8 @@ module.exports = class SdpSession {
     try {
       await this._MediaServer.stop(this._mediaElement);
       this._status = C.STATUS.STOPPED;
+      console.log("  [SdpSession] Session ", this.id, " is going to stop...");
+      this.emit('SESSION_STOPPED', this.id);
       Promise.resolve();
     }
     catch (err) {

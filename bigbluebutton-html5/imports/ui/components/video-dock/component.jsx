@@ -33,6 +33,7 @@ export default class VideoDock extends Component {
 
     this.state = {
       videos: {},
+      sharedWebcam : false,
     };
 
     this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
@@ -78,9 +79,10 @@ export default class VideoDock extends Component {
   componentDidMount() {
     const ws = this.ws;
     const { users } = this.props;
+    const id = users[0].userId;
 
     for (let i = 0; i < users.length; i++) {
-      if (users[i].has_stream) {
+      if (users[i].has_stream && users[i].userId !== id) {
         this.start(users[i].userId, false);
       }
     }
@@ -183,6 +185,7 @@ export default class VideoDock extends Component {
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
 
     if (shareWebcam) {
+      this.setState({sharedWebcam: true});
       this.initWebRTC(id, true);
     } else {
       // initWebRTC with shareWebcam false will be called after react mounts the element
@@ -271,7 +274,6 @@ export default class VideoDock extends Component {
           id: 'start',
           sdpOffer: offerSdp,
           cameraId: id,
-          cameraShared: shareWebcam,
         };
         that.sendMessage(message);
       });
@@ -300,19 +302,15 @@ export default class VideoDock extends Component {
 
   stop(id) {
     const { users } = this.props;
-    if (id == users[0].userId) {
-      this.unshareWebcam();
-    }
-
-    this.destroyWebRTCPeer(id);
-    this.destroyVideoTag(id);
-
     this.sendMessage({
       type: 'video',
-      role: 'any',
+      role: id == users[0].userId ? 'share' : 'viewer',
       id: 'stop',
       cameraId: id,
     });
+
+    this.destroyWebRTCPeer(id);
+    this.destroyVideoTag(id);
   }
 
   createVideoTag(id) {
@@ -327,6 +325,10 @@ export default class VideoDock extends Component {
 
     delete videos[id];
     this.setState({videos: videos});
+
+    if (id == this.myId) {
+      this.setState({sharedWebcam: false});
+    }
   }
 
   destroyWebRTCPeer(id) {
@@ -345,13 +347,6 @@ export default class VideoDock extends Component {
     } else {
       log('info', 'No WebRTC peer to stop (not an error)');
     }
-
-    if (this.sharedWebcam) {
-      this.sharedWebcam.dispose();
-      this.sharedWebcam = null;
-    } else {
-      log('info', 'No shared camera WebRTC peer to stop (not an error)');
-    }
   }
 
   shareWebcam() {
@@ -363,7 +358,6 @@ export default class VideoDock extends Component {
     } else {
       log("error", "Not connected to media server BRA");
     }
-
   }
 
   unshareWebcam() {
@@ -427,7 +421,13 @@ export default class VideoDock extends Component {
     log('info', 'Handle play stop <--------------------');
     log('error', message);
 
-    this.stop(message.cameraId);
+    const { users } = this.props;
+
+    if (message.cameraId == users[0].userId) {
+      this.unshareWebcam();
+    } else {
+      this.stop(message.cameraId);
+    }
   }
 
   handlePlayStart(message) {
@@ -444,6 +444,14 @@ export default class VideoDock extends Component {
   }
 
   render() {
+    let cssClass;
+    if (this.state.sharedWebcam) {
+      cssClass = styles.sharedWebcamVideoLocal;
+    }
+    else {
+      cssClass = styles.sharedWebcamVideo;
+    }
+
     return (
 
       <div className={styles.videoDock}>
@@ -451,8 +459,8 @@ export default class VideoDock extends Component {
           {Object.keys(this.state.videos).map((id) => {
             return (<VideoElement videoId={id} key={id} onMount={this.initWebRTC.bind(this)} />);
           })}
+          <video autoPlay={true} playsInline={true} muted={true} id="shareWebcamVideo" className={cssClass} ref="videoInput" />
         </div>
-        <video id="shareWebcamVideo" className={styles.sharedWebcamVideo} ref="videoInput" />
       </div>
     );
   }
@@ -460,6 +468,7 @@ export default class VideoDock extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { users } = this.props;
     const nextUsers = nextProps.users;
+    const id = users[0].userId;
 
     if (users) {
       let suc = false;
@@ -471,7 +480,9 @@ export default class VideoDock extends Component {
             console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
             if (nextUsers[i].has_stream) {
-              this.start(users[i].userId, false);
+              if (id !== users[i].userId) {
+                this.start(users[i].userId, false);
+              }
             } else {
               this.stop(users[i].userId);
             }

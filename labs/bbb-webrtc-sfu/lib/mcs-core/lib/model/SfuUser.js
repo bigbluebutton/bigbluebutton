@@ -51,6 +51,12 @@ module.exports = class SfuUser extends User {
     // TODO switch from type to children SdpSessions (WebRTC|SDP)
     let session = new SdpSession(this.emitter, sdp, this.roomId, type);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
+    session.on("SESSION_STOPPED", (sessId) => {
+      console.log("  [SfuUser] Session ", sessId, "stopped, cleaning it...");
+      if (sessId === session.id) {
+        this._mediaSessions[sessId] = null;
+      }
+    });
 
     if (typeof this._mediaSessions[session.id] == 'undefined' || 
         !this._mediaSessions[session.id]) {
@@ -76,12 +82,12 @@ module.exports = class SfuUser extends User {
     }
   }
 
-  async subscribe (sdp, mediaId) {
-    let session = await this.addSdp(sdp);
+  async subscribe (sdp, type,  mediaId) {
     try {
+      const session = await this.addSdp(sdp, type);
       await this.startSession(session.id);
       await this.connect(session.id, mediaId);
-      Promise.resolve();
+      Promise.resolve(session);
     } 
     catch (err) {
       this.handleError(err);

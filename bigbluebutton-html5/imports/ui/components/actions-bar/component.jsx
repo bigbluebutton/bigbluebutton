@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './styles.scss';
-import EmojiContainer from './emoji-menu/container';
+import EmojiSelect from './emoji-select/component';
 import ActionsDropdown from './actions-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-dock/video-menu/container';
@@ -12,6 +12,9 @@ const ActionsBar = ({
   handleShareScreen,
   handleUnshareScreen,
   isVideoBroadcasting,
+  emojiList,
+  emojiSelected,
+  handleEmojiChange,
 }) => (
   <div className={styles.actionsbar}>
     <div className={styles.left}>
@@ -25,7 +28,7 @@ const ActionsBar = ({
           handleCloseVideo={handleExitVideo}
         />
       : null}
-      <EmojiContainer />
+      <EmojiSelect options={emojiList} selected={emojiSelected} onChange={handleEmojiChange} />
     </div>
   </div>
 );
