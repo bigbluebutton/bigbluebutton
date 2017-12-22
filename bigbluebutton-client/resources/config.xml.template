@@ -48,6 +48,7 @@
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			enablePause="true"
+			tryKurentoWebRTC="false"
 			tryWebRTCFirst="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
