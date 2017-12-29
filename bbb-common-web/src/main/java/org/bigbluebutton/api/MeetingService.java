@@ -174,7 +174,7 @@ public class MeetingService implements MessageListener {
 
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", m.getInternalId());
       logData.put("externalMeetingId", m.getExternalId());
       logData.put("name", m.getName());
@@ -191,8 +191,7 @@ public class MeetingService implements MessageListener {
   }
 
   public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
-    Boolean valid = uploadAuthzTokens.containsKey(authzToken);
-    return valid;
+    return uploadAuthzTokens.containsKey(authzToken);
   }
 
   public Boolean authzTokenIsValidAndExpired(String authzToken) {  // Note we DO expire the token
@@ -256,7 +255,7 @@ public class MeetingService implements MessageListener {
     }
 
     if (m.isRecord()) {
-      Map<String, String> metadata = new TreeMap<String, String>();
+      Map<String, String> metadata = new TreeMap<>();
       metadata.putAll(m.getMetadata());
       // TODO: Need a better way to store these values for recordings
       metadata.put("meetingId", m.getExternalId());
@@ -266,7 +265,7 @@ public class MeetingService implements MessageListener {
       storeService.recordMeetingInfo(m.getInternalId(), metadata);
 
       if (m.isBreakout()) {
-        Map<String, String> breakoutMetadata = new TreeMap<String, String>();
+        Map<String, String> breakoutMetadata = new TreeMap<>();
         breakoutMetadata.put("meetingId", m.getExternalId());
         breakoutMetadata.put("sequence", m.getSequence().toString());
         breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
@@ -274,7 +273,7 @@ public class MeetingService implements MessageListener {
       }
     }
 
-    Map<String, Object> logData = new HashMap<String, Object>();
+    Map<String, Object> logData = new HashMap<>();
     logData.put("meetingId", m.getInternalId());
     logData.put("externalMeetingId", m.getExternalId());
     if (m.isBreakout()) {
@@ -319,7 +318,7 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       User prevUser = m.getUserWithExternalId(message.externUserID);
       if (prevUser != null) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", m.getInternalId());
         logData.put("externalMeetingId", m.getExternalId());
         logData.put("name", m.getName());
@@ -350,7 +349,7 @@ public class MeetingService implements MessageListener {
       return null;
     for (String key : meetings.keySet()) {
       if (key.startsWith(meetingId))
-        return (Meeting) meetings.get(key);
+        return meetings.get(key);
     }
 
     return null;
@@ -360,7 +359,7 @@ public class MeetingService implements MessageListener {
     if (meetingId == null)
       return Collections.<Meeting>emptySet();
 
-    Collection<Meeting> m = new HashSet<Meeting>();
+    Collection<Meeting> m = new HashSet<>();
 
     for (String key : meetings.keySet()) {
       if (key.startsWith(meetingId))
@@ -375,7 +374,7 @@ public class MeetingService implements MessageListener {
       return null;
     for (String key : meetings.keySet()) {
       if (key.startsWith(meetingId)) {
-        Meeting m = (Meeting) meetings.get(key);
+        Meeting m = meetings.get(key);
         if (!m.isForciblyEnded())
           return m;
       }
@@ -454,7 +453,7 @@ public class MeetingService implements MessageListener {
     Meeting parentMeeting = getMeeting(message.parentMeetingId);
     if (parentMeeting != null) {
 
-      Map<String, String> params = new HashMap<String, String>();
+      Map<String, String> params = new HashMap<>();
       params.put("name", message.name);
       params.put("meetingID", message.meetingId);
       params.put("parentMeetingID", message.parentMeetingId);
@@ -548,7 +547,7 @@ public class MeetingService implements MessageListener {
         long now = System.currentTimeMillis();
         m.setStartTime(now);
 
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", m.getInternalId());
         logData.put("externalMeetingId", m.getExternalId());
         if (m.isBreakout()) {
@@ -566,7 +565,7 @@ public class MeetingService implements MessageListener {
 
         log.info("Meeting started: data={}", logStr);
       } else {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", m.getInternalId());
         logData.put("externalMeetingId", m.getExternalId());
         if (m.isBreakout()) {
@@ -594,7 +593,7 @@ public class MeetingService implements MessageListener {
       long now = System.currentTimeMillis();
       m.setEndTime(now);
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", m.getInternalId());
       logData.put("externalMeetingId", m.getExternalId());
       logData.put("name", m.getName());
@@ -618,7 +617,7 @@ public class MeetingService implements MessageListener {
       long now = System.currentTimeMillis();
       m.setEndTime(now);
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", m.getInternalId());
       logData.put("externalMeetingId", m.getExternalId());
       logData.put("name", m.getName());
@@ -657,7 +656,7 @@ public class MeetingService implements MessageListener {
         userSession.guestStatus = message.guestStatus;
       }
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", m.getInternalId());
       logData.put("externalMeetingId", m.getExternalId());
       logData.put("name", m.getName());
@@ -685,7 +684,7 @@ public class MeetingService implements MessageListener {
       User user = m.userLeft(message.userId);
       if (user != null) {
 
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", m.getInternalId());
         logData.put("externalMeetingId", m.getExternalId());
         logData.put("name", m.getName());

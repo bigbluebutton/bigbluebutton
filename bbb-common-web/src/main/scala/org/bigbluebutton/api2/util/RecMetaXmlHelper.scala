@@ -2,6 +2,7 @@ package org.bigbluebutton.api2.util
 
 import java.io.{File, FileOutputStream, IOException}
 import java.nio.channels.Channels
+import java.nio.charset.StandardCharsets
 import java.util
 
 import org.bigbluebutton.api.domain.RecordingMetadata
@@ -16,7 +17,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
   def loadMetadataXml(path: String): Option[Elem] = {
     try {
       //val xml = XML.loadFile(path)
-      val xml = XML.load(new java.io.InputStreamReader(new java.io.FileInputStream(path), "UTF-8"))
+      val xml = XML.load(new java.io.InputStreamReader(new java.io.FileInputStream(path), StandardCharsets.UTF_8.name()))
       Some(xml)
     } catch {
       case ioe: IOException =>
@@ -31,7 +32,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   def saveRecordingMetadata(xml: File, metadata: RecordingMetadata): Unit = {
     try {
-      val Encoding = "UTF-8"
+      val Encoding = StandardCharsets.UTF_8.name()
       val pp = new PrettyPrinter(80, 2)
       val fos = new FileOutputStream(xml.getAbsolutePath)
       val writer = Channels.newWriter(fos.getChannel(), Encoding)

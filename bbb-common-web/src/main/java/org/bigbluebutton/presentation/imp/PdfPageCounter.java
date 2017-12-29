@@ -34,7 +34,7 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 public class PdfPageCounter implements PageCounter {
   private static Logger log = LoggerFactory.getLogger(PdfPageCounter.class);
 
-  private int WAIT_FOR_SEC = 5;
+  private static int waitForSec = 5;
 
   public int countNumberOfPages(File presentationFile) {
     int numPages = 0; // total numbers of this pdf
@@ -47,7 +47,7 @@ public class PdfPageCounter implements PageCounter {
 
     NuProcess process = pdfInfo.start();
     try {
-      process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+      process.waitFor(waitForSec, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       log.error(e.getMessage());
     }

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @JacksonXmlRootElement(localName = "meta")
 public class Metadata {
-  private Map<String,String> map = new TreeMap<String,String>();
+  private Map<String,String> map = new TreeMap<>();
 
   @JsonAnyGetter
   public Map<String, String> get() {

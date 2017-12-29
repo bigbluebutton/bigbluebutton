@@ -36,7 +36,7 @@ public class Office2PdfPageConverter {
   public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
                          final OfficeDocumentConverter converter){
     try {
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -49,7 +49,7 @@ public class Office2PdfPageConverter {
       if (output.exists()) {
         return true;
       } else {
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -61,7 +61,7 @@ public class Office2PdfPageConverter {
         return false;
       }
     } catch (Exception e) {
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());

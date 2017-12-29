@@ -64,7 +64,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
     NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList("timeout",
         convTimeout, "/bin/sh", "-c",
         SWFTOOLS_DIR + File.separatorChar + "pdf2swf" + " -vv " + AVM2SWF + " -F "
-            + fontsDir + " -p " + String.valueOf(page) + " " + source + " -o "
+            + fontsDir + " -p " + Integer.toString(page) + " " + source + " -o "
             + dest
             + " | egrep  'shape id|Updating font|Drawing' | sed 's/  / /g' | cut -d' ' -f 1-3  | sort | uniq -cw 15"));
 
@@ -105,7 +105,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
         destFile.delete();
       }
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -127,7 +127,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
         tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
       } catch (IOException ioException) {
         // We should never fall into this if the server is correctly configured
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -187,7 +187,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       long convertEnd = System.currentTimeMillis();
 
-      logData = new HashMap<String, Object>();
+      logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -200,7 +200,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       if (doneSwf && destFile.exists()) {
         return true;
       } else {
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());

@@ -101,7 +101,7 @@ public class PdfToSwfSlidesGenerationService {
     if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION) {
       builder.messageKey(ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("podId", pres.getPodId());
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
@@ -174,7 +174,6 @@ public class PdfToSwfSlidesGenerationService {
   private void generateSlides(UploadedPresentation pres,
       List<PdfToSwfSlide> slides,
       CompletionService<PdfToSwfSlide> completionService) {
-    long MAXWAIT = MAX_CONVERSION_TIME * 60 /* seconds */ * 1000 /* millis */;
     int slidesCompleted = 0;
 
     long presConvStart = System.currentTimeMillis();
@@ -197,7 +196,7 @@ public class PdfToSwfSlidesGenerationService {
         slidesCompleted++;
         notifier.sendConversionUpdateMessage(slidesCompleted, pres);
       } catch (ExecutionException e) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
@@ -210,7 +209,7 @@ public class PdfToSwfSlidesGenerationService {
 
         log.error(e.getMessage());
       } catch (InterruptedException e) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
@@ -223,7 +222,7 @@ public class PdfToSwfSlidesGenerationService {
 
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
@@ -238,7 +237,7 @@ public class PdfToSwfSlidesGenerationService {
       }
 
       long pageConvEnd = System.currentTimeMillis();
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("podId", pres.getPodId());
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
@@ -257,7 +256,7 @@ public class PdfToSwfSlidesGenerationService {
 
         slide.generateBlankSlide();
 
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
@@ -273,7 +272,7 @@ public class PdfToSwfSlidesGenerationService {
     }
 
     long presConvEnd = System.currentTimeMillis();
-    Map<String, Object> logData = new HashMap<String, Object>();
+    Map<String, Object> logData = new HashMap<>();
     logData.put("podId", pres.getPodId());
     logData.put("meetingId", pres.getMeetingId());
     logData.put("presId", pres.getId());
@@ -288,7 +287,7 @@ public class PdfToSwfSlidesGenerationService {
 
   private List<PdfToSwfSlide> setupSlides(UploadedPresentation pres,
       int numPages) {
-    List<PdfToSwfSlide> slides = new ArrayList<PdfToSwfSlide>(numPages);
+    List<PdfToSwfSlide> slides = new ArrayList<>(numPages);
 
     for (int page = 1; page <= numPages; page++) {
       PdfToSwfSlide slide = new PdfToSwfSlide(pres, page);

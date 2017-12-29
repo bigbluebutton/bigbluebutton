@@ -22,28 +22,30 @@ package org.bigbluebutton.presentation.imp;
 @SuppressWarnings("serial")
 public class CountingPageException extends Exception {
 
-	private final int maxNumberOfPages;
-	private final ExceptionType exceptionType;
-	private final int pageCount;
-	
-	public CountingPageException(CountingPageException.ExceptionType type, int pageCount, int maxNumberOfPages) {
-		super("Exception while trying to determine number of pages.");
-		this.pageCount = pageCount;
-		this.maxNumberOfPages = maxNumberOfPages;
-		exceptionType = type;
-	}
+    private final int maxNumberOfPages;
+    private final ExceptionType exceptionType;
+    private final int pageCount;
+
+    public CountingPageException(CountingPageException.ExceptionType type, int pageCount, int maxNumberOfPages) {
+        super("Exception while trying to determine number of pages.");
+        this.pageCount = pageCount;
+        this.maxNumberOfPages = maxNumberOfPages;
+        exceptionType = type;
+    }
 
     public int getMaxNumberOfPages() {
-		return maxNumberOfPages;
-	}
+        return maxNumberOfPages;
+    }
 
     public CountingPageException.ExceptionType getExceptionType() {
-		return exceptionType;
-	}
+        return exceptionType;
+    }
 
     public int getPageCount() {
-		return pageCount;
-	}
+        return pageCount;
+    }
 
-    public enum ExceptionType {PAGE_COUNT_EXCEPTION, PAGE_EXCEEDED_EXCEPTION}	
+    public enum ExceptionType {
+        PAGE_COUNT_EXCEPTION, PAGE_EXCEEDED_EXCEPTION
+    }
 }

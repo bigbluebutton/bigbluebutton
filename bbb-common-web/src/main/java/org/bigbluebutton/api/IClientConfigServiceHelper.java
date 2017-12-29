@@ -22,5 +22,5 @@ package org.bigbluebutton.api;
 import java.util.Map;
 
 public interface IClientConfigServiceHelper {
-	public Map<String, String> getPreBuiltConfigs(String dir);
+    public Map<String, String> getPreBuiltConfigs(String dir);
 }

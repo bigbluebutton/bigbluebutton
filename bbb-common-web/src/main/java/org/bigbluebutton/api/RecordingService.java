@@ -85,7 +85,7 @@ public class RecordingService {
     }
 
     public List<RecordingMetadata> getRecordingsMetadata(List<String> recordIDs, List<String> states) {
-        List<RecordingMetadata> recs = new ArrayList<RecordingMetadata>();
+        List<RecordingMetadata> recs = new ArrayList<>();
 
         Map<String, List<File>> allDirectories = getAllDirectories(states);
         if (recordIDs.isEmpty()) {
@@ -153,7 +153,7 @@ public class RecordingService {
 
 
     public ArrayList<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recordings, Map<String, String> metadataFilters) {
-        ArrayList<RecordingMetadata> resultRecordings = new ArrayList<RecordingMetadata>();
+        ArrayList<RecordingMetadata> resultRecordings = new ArrayList<>();
         for (RecordingMetadata entry : recordings) {
             if (recordingMatchesMetadata(entry, metadataFilters))
                 resultRecordings.add(entry);
@@ -180,7 +180,7 @@ public class RecordingService {
     }
 
     private List<String> getAllRecordingIds(String path, String[] format) {
-        List<String> ids = new ArrayList<String>();
+        List<String> ids = new ArrayList<>();
 
         for (String aFormat : format) {
             List<File> recordings = getDirectories(path + File.separatorChar + aFormat);
@@ -195,7 +195,7 @@ public class RecordingService {
     }
 
     private Set<String> getAllRecordingIds(List<File> recs) {
-        Set<String> ids = new HashSet<String>();
+        Set<String> ids = new HashSet<>();
 
         Iterator<File> iterator = recs.iterator();
         while (iterator.hasNext()) {
@@ -206,7 +206,7 @@ public class RecordingService {
     }
 
     private List<File> getRecordingsForPath(String id, List<File> recordings) {
-        List<File> recs = new ArrayList<File>();
+        List<File> recs = new ArrayList<>();
 
         Iterator<File> iterator = recordings.iterator();
         while (iterator.hasNext()) {
@@ -254,7 +254,7 @@ public class RecordingService {
     }
 
     private static List<File> getDirectories(String path) {
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
         try {
             DirectoryStream<Path> stream = Files.newDirectoryStream(FileSystems.getDefault().getPath(path));
             Iterator<Path> iter = stream.iterator();
@@ -434,7 +434,7 @@ public class RecordingService {
 
 
     private List<File> getAllDirectories(String state) {
-        List<File> allDirectories = new ArrayList<File>();
+        List<File> allDirectories = new ArrayList<>();
 
         String dir = getDestinationBaseDirectoryName(state);
 
@@ -449,31 +449,31 @@ public class RecordingService {
     }
 
     private Map<String, List<File>> getAllDirectories(List<String> states) {
-        Map<String, List<File>> allDirectories = new HashMap<String, List<File>>();
+        Map<String, List<File>> allDirectories = new HashMap<>();
 
         if ( shouldIncludeState(states, Recording.STATE_PUBLISHED) ) {
-            List<File> _allDirectories = getAllDirectories(Recording.STATE_PUBLISHED);
-            allDirectories.put(Recording.STATE_PUBLISHED, _allDirectories);
+            List<File> listedDirectories = getAllDirectories(Recording.STATE_PUBLISHED);
+            allDirectories.put(Recording.STATE_PUBLISHED, listedDirectories);
         }
 
         if ( shouldIncludeState(states, Recording.STATE_UNPUBLISHED) ) {
-            List<File> _allDirectories = getAllDirectories(Recording.STATE_UNPUBLISHED);
-            allDirectories.put(Recording.STATE_UNPUBLISHED, _allDirectories);
+            List<File> listedDirectories = getAllDirectories(Recording.STATE_UNPUBLISHED);
+            allDirectories.put(Recording.STATE_UNPUBLISHED, listedDirectories);
         }
 
         if ( shouldIncludeState(states, Recording.STATE_DELETED) ) {
-            List<File> _allDirectories = getAllDirectories(Recording.STATE_DELETED);
-            allDirectories.put(Recording.STATE_DELETED, _allDirectories);
+            List<File> listedDirectories = getAllDirectories(Recording.STATE_DELETED);
+            allDirectories.put(Recording.STATE_DELETED, listedDirectories);
         }
 
         if ( shouldIncludeState(states, Recording.STATE_PROCESSING) ) {
-            List<File> _allDirectories = getAllDirectories(Recording.STATE_PROCESSING);
-            allDirectories.put(Recording.STATE_PROCESSING, _allDirectories);
+            List<File> listedDirectories = getAllDirectories(Recording.STATE_PROCESSING);
+            allDirectories.put(Recording.STATE_PROCESSING, listedDirectories);
         }
 
         if ( shouldIncludeState(states, Recording.STATE_PROCESSED) ) {
-            List<File> _allDirectories = getAllDirectories(Recording.STATE_PROCESSED);
-            allDirectories.put(Recording.STATE_PROCESSED, _allDirectories);
+            List<File> listedDirectories = getAllDirectories(Recording.STATE_PROCESSED);
+            allDirectories.put(Recording.STATE_PROCESSED, listedDirectories);
         }
 
         return allDirectories;
@@ -481,7 +481,7 @@ public class RecordingService {
 
     public void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams) {
         // Define the directories used to lookup the recording
-        List<String> states = new ArrayList<String>();
+        List<String> states = new ArrayList<>();
         states.add(Recording.STATE_PUBLISHED);
         states.add(Recording.STATE_UNPUBLISHED);
         states.add(Recording.STATE_DELETED);
@@ -533,7 +533,7 @@ public class RecordingService {
 
 
     private Map<String,File> indexRecordings(List<File> recs) {
-        Map<String,File> indexedRecs = new HashMap<String,File>();
+        Map<String,File> indexedRecs = new HashMap<>();
 
         Iterator<File> iterator = recs.iterator();
         while (iterator.hasNext()) {

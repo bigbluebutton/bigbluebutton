@@ -72,7 +72,7 @@ public class Meeting {
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
-	private final List<String> breakoutRooms = new ArrayList<String>();
+	private final List<String> breakoutRooms = new ArrayList<>();
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
@@ -106,12 +106,12 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
 
-        userCustomData = new HashMap<String, Object>();
+        userCustomData = new HashMap<>();
 
-        users = new ConcurrentHashMap<String, User>();
-        registeredUsers = new ConcurrentHashMap<String, RegisteredUser>();
+        users = new ConcurrentHashMap<>();
+        registeredUsers = new ConcurrentHashMap<>();
 
-        configs = new ConcurrentHashMap<String, Config>();
+        configs = new ConcurrentHashMap<>();
     }
 
 	public void addBreakoutRoom(String meetingId) {
@@ -209,8 +209,8 @@ public class Meeting {
 		return createdTime;
 	}
 
-	public Integer setSequence(Integer s) {
-        return sequence = s;
+	public void setSequence(Integer s) {
+        sequence = s;
     }
 
 	public Integer getSequence() {
@@ -265,8 +265,8 @@ public class Meeting {
 		return intMeetingId;
 	}
 
-	public String setParentMeetingId(String p) {
-        return parentMeetingId = p;
+	public void setParentMeetingId(String p) {
+        parentMeetingId = p;
     }
 
 	public String getParentMeetingId() {
@@ -386,7 +386,7 @@ public class Meeting {
 
 	public User getUserWithExternalId(String externalUserId) {
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u = users.get(key);
 			if (u.getExternalUserId().equals(externalUserId)) {
 				return u;
 			}
@@ -401,7 +401,7 @@ public class Meeting {
 	public int getNumModerators(){
 		int sum = 0;
 		for (String key : users.keySet()) {
-		    User u =  (User) users.get(key);
+		    User u =  users.get(key);
 		    if (u.isModerator()) sum++;
 		}
 		return sum;
@@ -414,7 +414,7 @@ public class Meeting {
 	public int getNumListenOnly() {
 		int sum = 0;
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u =  users.get(key);
 			if (u.isListeningOnly()) sum++;
 		}
 		return sum;
@@ -423,7 +423,7 @@ public class Meeting {
 	public int getNumVoiceJoined() {
 		int sum = 0;
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u =  users.get(key);
 			if (u.isVoiceJoined()) sum++;
 		}
 		return sum;
@@ -432,7 +432,7 @@ public class Meeting {
 	public int getNumVideos() {
 		int sum = 0;
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u =  users.get(key);
 			sum += u.getStreams().size();
 		}
 		return sum;
@@ -485,7 +485,7 @@ public class Meeting {
     }
 
     public RegisteredUser userUnregistered(String userid) {
-		return (RegisteredUser) this.registeredUsers.remove(userid);
+		return this.registeredUsers.remove(userid);
     }
 
     public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {

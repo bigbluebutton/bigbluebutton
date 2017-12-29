@@ -31,7 +31,7 @@ public class ClientConfigService {
     private String configDir = "/var/bigbluebutton/configs";
     private IClientConfigServiceHelper helper;
 
-    private Map<String, String> configs = new HashMap<String, String>();
+    private Map<String, String> configs = new HashMap<>();
 
     public void init() {
         configs = helper.getPreBuiltConfigs(configDir);

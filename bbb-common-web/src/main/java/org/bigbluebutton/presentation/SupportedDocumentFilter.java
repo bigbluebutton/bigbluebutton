@@ -54,10 +54,8 @@ public class SupportedDocumentFilter {
   private void notifyProgressListener(boolean supported, UploadedPresentation pres) {
     String msgKey = ConversionMessageConstants.SUPPORTED_DOCUMENT_KEY;
 
-    if (supported) {
-      msgKey = ConversionMessageConstants.SUPPORTED_DOCUMENT_KEY;
-    } else {
-      msgKey = ConversionMessageConstants.UNSUPPORTED_DOCUMENT_KEY;
+    if (!supported) {
+        msgKey = ConversionMessageConstants.UNSUPPORTED_DOCUMENT_KEY;
     }
 
     if (gw != null) {

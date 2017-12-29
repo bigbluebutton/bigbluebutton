@@ -59,7 +59,7 @@ public class OfficeToPdfConversionService {
     if (SupportedFileTypes.isOfficeFile(pres.getFileType())) {
       boolean valid = officeDocumentValidator.isValid(pres);
       if (!valid) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -73,7 +73,7 @@ public class OfficeToPdfConversionService {
       }
       File pdfOutput = setupOutputPdfFile(pres);
       if (convertOfficeDocToPdf(pres, pdfOutput)) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -84,7 +84,7 @@ public class OfficeToPdfConversionService {
 
         makePdfTheUploadedFileAndSetStepAsSuccess(pres, pdfOutput);
       } else {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -104,7 +104,7 @@ public class OfficeToPdfConversionService {
   private File setupOutputPdfFile(UploadedPresentation pres) {
     File presentationFile = pres.getUploadedFile();
     String filenameWithoutExt = presentationFile.getAbsolutePath().substring(0,
-        presentationFile.getAbsolutePath().lastIndexOf("."));
+        presentationFile.getAbsolutePath().lastIndexOf('.'));
     return new File(filenameWithoutExt + ".pdf");
   }
 

@@ -49,7 +49,7 @@ public class User {
 		this.avatarURL = avatarURL;
 		this.guest = guest;
 		this.guestStatus = guestStatus;
-		this.status = new ConcurrentHashMap<String, String>();
+		this.status = new ConcurrentHashMap<>();
 		this.streams = Collections.synchronizedList(new ArrayList<String>());
 	}
 
@@ -139,9 +139,9 @@ public class User {
 		return streams;
 	}
 
-        public Boolean hasVideo() {
-                return this.getStreams().size() > 0;
-        }
+    public Boolean hasVideo() {
+        return !this.getStreams().isEmpty();
+    }
 
 	public Boolean isListeningOnly() {
 		return listeningOnly;

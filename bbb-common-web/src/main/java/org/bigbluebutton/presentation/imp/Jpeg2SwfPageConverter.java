@@ -44,7 +44,7 @@ public class Jpeg2SwfPageConverter implements PageConverter {
 		if (done && output.exists()) {
 			return true;		
 		} else {
-			Map<String, Object> logData = new HashMap<String, Object>();
+			Map<String, Object> logData = new HashMap<>();
 			logData.put("meetingId", pres.getMeetingId());
 			logData.put("presId", pres.getId());
 			logData.put("filename", pres.getName());

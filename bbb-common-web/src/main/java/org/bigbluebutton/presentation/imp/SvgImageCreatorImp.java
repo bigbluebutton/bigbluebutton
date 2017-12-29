@@ -79,7 +79,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
       return true;
     }
 
-    Map<String, Object> logData = new HashMap<String, Object>();
+    Map<String, Object> logData = new HashMap<>();
     logData.put("meetingId", pres.getMeetingId());
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());

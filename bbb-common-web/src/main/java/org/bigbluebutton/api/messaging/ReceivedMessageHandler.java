@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class ReceivedMessageHandler implements IReceivedOldMessageHandler {
   private static Logger log = LoggerFactory.getLogger(ReceivedMessageHandler.class);
 
-  private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
+  private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<>();
 
   private volatile boolean processMessage = false;
 

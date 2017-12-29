@@ -35,7 +35,7 @@ public class OfficeDocumentValidator {
         // Close the resource once we finished reading it
         xmlSlideShow.close();
       } catch (IOException e) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -62,7 +62,7 @@ public class OfficeDocumentValidator {
         .select(xmlSlideShow.getPictureData(), emfPredicate);
     if (!embeddedEmfFiles.isEmpty()) {
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -88,7 +88,7 @@ public class OfficeDocumentValidator {
         .select(xmlSlideShow.getPictureData(), tinyTileCondition);
     if (!tileImage.isEmpty()) {
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());

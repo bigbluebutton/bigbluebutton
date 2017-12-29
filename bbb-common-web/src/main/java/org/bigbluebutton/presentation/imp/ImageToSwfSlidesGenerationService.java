@@ -29,6 +29,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.bigbluebutton.presentation.FileTypeConstants;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.SvgImageCreator;
@@ -75,7 +76,7 @@ public class ImageToSwfSlidesGenerationService {
 	
 	private PageConverter determinePageConverter(UploadedPresentation pres) {
 		String fileType = pres.getFileType().toUpperCase();
-		if (("JPEG".equals(fileType)) || ("JPG".equals(fileType))) {
+		if ((FileTypeConstants.JPEG.equalsIgnoreCase(fileType)) || (FileTypeConstants.JPG.equalsIgnoreCase(fileType))) {
 			return jpgToSwfConverter;
 		}
 		
