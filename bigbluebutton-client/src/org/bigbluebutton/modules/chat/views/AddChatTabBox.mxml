@@ -88,8 +88,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 users = handler.users;
                 chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 
-                if (!chatOptions.privateEnabled) {
+                if (!chatOptions.privateEnabled || UsersUtil.isBreakout()) {
                     usersList.includeInLayout = usersList.visible = false;
+					lblSelect.includeInLayout = lblSelect.visible = false;
                 }
                 
                 if (fontSizes.indexOf(chatOptions.fontSize) != -1) {
@@ -200,10 +201,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
     
     <common:AdvancedLabel id="lblSelect" styleName="chatOptionsLabel" width="100%"
-			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
-			  visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
+			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
     <mx:List id="usersList" height="50%" width="100%" dataProvider="{users}" dragEnabled="false" 
-             visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
              itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
              labelField="name"
              itemClick="openPrivateChat(event)"
