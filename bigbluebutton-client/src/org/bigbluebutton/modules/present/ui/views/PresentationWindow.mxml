@@ -176,7 +176,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var currentPresenterUsername: String = "";
 			
 			[Bindable]
-			private var listOfPodControls:Array = [];
+			private var listOfPodControls:ArrayCollection = new ArrayCollection();
 
 			private var downloadMenuData:Array;
 			private var downloadMenu:Menu;
@@ -224,53 +224,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function handleUserAddedToPresenterGroupEvent(event: UserAddedToPresenterGroupEvent): void {
+				var nextPresenterId:String = event.userId;
+				var userName:String = UsersUtil.getUserName(nextPresenterId);
+				var myUser:Boolean = LiveMeeting.inst().me.id == nextPresenterId;
+				if (nextPresenterId == this.currentPresenterInPod) {
+					userName = "✓  " + userName;
+				}
+				if (myUser) {
+					userName += ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')'
+				}
+				if (!StringUtils.isEmpty(UsersUtil.getUserName(nextPresenterId))) { // avoid duplication
+					listOfPodControls.addItem({label: userName, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: myUser ? "podCurrentUser" : ""});
+				}
 				populatePodDropdown();
+				
 			}
 
 			private function handleUserRemovedFromPresenterGroupEvent(event: UserRemovedFromPresenterGroupEvent): void {
+				for (var i:int = 0; i < listOfPodControls.length; i++) {
+					var presenter:Object = listOfPodControls.getItemAt(i);
+					if (presenter.type == "user" && presenter.data == event.userId) {
+						listOfPodControls.removeItemAt(i);
+					}
+				}
 				populatePodDropdown();
 			}
 
 			private function populatePodDropdown():void {
 				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
 				dispatchEvent(new Event('titleChanged'));
-
-				listOfPodControls = [];
-
-				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'), type: "action", handler: newPresentationWindowHandler});
-
-				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
-					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'), type: "action", handler: closePresentationWindowHandler});
-				}
-
-				var presGroup:Array = ArrayUtils.getUniqueValues(UsersUtil.getPresenterGroup().source);
-				if (presGroup.length > 0 || !StringUtils.isEmpty(currentPresenterUsername)) {
-					listOfPodControls.push({type: "separator", label: StringUtil.repeat("─", Math.floor(ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen').length / 2) + 2)});
-					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.itemrenderer.presenter'), type: "title", styleName: "podItemTitle"});
-
-					for (var j:int = 0; j < presGroup.length; j++) {
-						var nextPresenterId:String = presGroup[j] as String;
-						var userName:String = UsersUtil.getUserName(nextPresenterId);
-						var myUser:Boolean = LiveMeeting.inst().me.id == nextPresenterId;
-						if (nextPresenterId == this.currentPresenterInPod) {
-							userName = "✓  " + userName;
-						}
-						if (myUser) {
-							userName += ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')'
-						}
-						if (!StringUtils.isEmpty(UsersUtil.getUserName(nextPresenterId))) { // avoid duplication
-							listOfPodControls.push({label: userName, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: myUser ? "podCurrentUser" : ""});
-						}
-					}
-					
-					
-					// Add Fake presenters to test limits of dropdown
-					for (var jk:int = 0; jk < 100; jk++) {
-						var tempUsername: String = "FOO " + jk;
-						var tempPresId: String = "foo_" + jk;
-							listOfPodControls.push({label: tempUsername, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: false ? "podCurrentUser" : ""});
-					}
-				}
 			}
 
 			private function podsSelectableFunction(item:*):Boolean {
@@ -382,7 +364,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					becomeViewer();
 				}
 				setPollMenuData();
+				
+				populatePresenterGroupDropDown();
       		}
+			
+			private function populatePresenterGroupDropDown():void {
+				listOfPodControls.addItem({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'), type: "action", handler: newPresentationWindowHandler});
+				
+				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
+					listOfPodControls.addItem({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'), type: "action", handler: closePresentationWindowHandler});
+				}
+				
+				listOfPodControls.addItem({type: "separator", label: StringUtil.repeat("─", Math.floor(ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen').length / 2) + 2)});
+				listOfPodControls.addItem({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.itemrenderer.presenter'), type: "title", styleName: "podItemTitle"});
+				
+				var presGroup:Array = ArrayUtils.getUniqueValues(UsersUtil.getPresenterGroup().source);
+					for (var j:int = 0; j < presGroup.length; j++) {
+						var nextPresenterId:String = presGroup[j] as String;
+						var userName:String = UsersUtil.getUserName(nextPresenterId);
+						var myUser:Boolean = LiveMeeting.inst().me.id == nextPresenterId;
+						if (nextPresenterId == this.currentPresenterInPod) {
+							userName = "✓  " + userName;
+						}
+						if (myUser) {
+							userName += ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')'
+						}
+						if (!StringUtils.isEmpty(UsersUtil.getUserName(nextPresenterId))) { // avoid duplication
+							listOfPodControls.addItem({label: userName, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: myUser ? "podCurrentUser" : ""});
+						}
+					}
+					
+					
+					// Add Fake presenters to test limits of dropdown
+					for (var jk:int = 0; jk < 100; jk++) {
+						var tempUsername: String = "FOO " + jk;
+						var tempPresId: String = "foo_" + jk;
+						listOfPodControls.addItem({label: tempUsername, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: false ? "podCurrentUser" : ""});
+					}
+			}
 			
 			private function requestWhiteboardCanvas(event:TimerEvent):void {
 				LOGGER.debug("Sending event to add whiteboard canvas.");
