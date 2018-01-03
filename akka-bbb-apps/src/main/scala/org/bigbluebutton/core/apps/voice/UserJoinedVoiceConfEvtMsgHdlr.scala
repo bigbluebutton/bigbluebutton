@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
   this: BaseMeetingActor =>
@@ -46,6 +47,12 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     val voiceUserState = VoiceUserState(intId, voiceUserId, callingWith, callerIdName, callerIdNum, muted, talking, listenOnly = isListenOnly)
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 
+    if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+      val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf,
+        voiceUserId, true)
+      outGW.send(event)
+    }
+
     broadcastEvent(voiceUserState)
 
     if (liveMeeting.props.meetingProp.isBreakout) {
@@ -80,4 +87,5 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     val event = StartRecordingVoiceConfSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
 }

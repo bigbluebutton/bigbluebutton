@@ -16,7 +16,7 @@ case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartSt
 
 case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
 
-case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String)
+case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
 case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String)
 

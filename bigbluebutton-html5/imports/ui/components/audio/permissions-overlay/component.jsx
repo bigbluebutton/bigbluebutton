@@ -30,6 +30,10 @@ class PermissionsOverlay extends Component {
         top: '210px',
         left: '605px',
       },
+      Safari: {
+        top: '100px',
+        left: '100px',
+      },
     };
 
     const browser = window.bowser.name;
