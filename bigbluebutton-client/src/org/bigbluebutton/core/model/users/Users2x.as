@@ -1,12 +1,8 @@
 package org.bigbluebutton.core.model.users
 {
-  import mx.collections.ArrayCollection;
-  
+  import mx.collections.ArrayCollection; 
   import org.as3commons.lang.ArrayUtils;
   import org.as3commons.lang.StringUtils;
-  import org.bigbluebutton.core.model.BreakoutUser;
-  import org.bigbluebutton.main.model.users.BBBUser;
-  import org.bigbluebutton.main.model.users.BreakoutRoom;
   
   public class Users2x
   {

@@ -262,6 +262,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							listOfPodControls.push({label: userName, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: myUser ? "podCurrentUser" : ""});
 						}
 					}
+					
+					
+					// Add Fake presenters to test limits of dropdown
+					for (var jk:int = 0; jk < 100; jk++) {
+						var tempUsername: String = "FOO " + jk;
+						var tempPresId: String = "foo_" + jk;
+							listOfPodControls.push({label: tempUsername, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: false ? "podCurrentUser" : ""});
+					}
 				}
 			}
 
