@@ -40,7 +40,7 @@ whiteboard:
       - icon: 'text_tool'
         value: 'text'
       #line
-      - icon: 'linte_tool'
+      - icon: 'line_tool'
         value: 'line'
       #ellipse
       - icon: 'circle_tool'
