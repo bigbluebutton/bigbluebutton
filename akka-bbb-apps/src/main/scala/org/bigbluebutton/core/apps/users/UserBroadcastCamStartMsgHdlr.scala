@@ -16,7 +16,7 @@ trait UserBroadcastCamStartMsgHdlr {
       val envelope = BbbCoreEnvelope(UserBroadcastCamStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserBroadcastCamStartedEvtMsg.NAME, props.meetingProp.intId, msg.header.userId)
 
-      val body = UserBroadcastCamStartedEvtMsgBody(msg.header.userId, msg.body.stream)
+      val body = UserBroadcastCamStartedEvtMsgBody(msg.header.userId, msg.body.stream, msg.body.isHtml5Client)
       val event = UserBroadcastCamStartedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)

@@ -131,6 +131,13 @@ class MeetingActor(
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
+  // Initialize if the meeting is muted on start
+  if (props.voiceProp.muteOnStart) {
+    MeetingStatus2x.muteMeeting(liveMeeting.status)
+  } else {
+    MeetingStatus2x.unmuteMeeting(liveMeeting.status)
+  }
+
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)

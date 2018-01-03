@@ -68,6 +68,7 @@ export default class ToolbarMenuItem extends Component {
           onBlur={this.props.onBlur}
           className={this.props.className}
           setRef={this.setRef}
+          disabled={this.props.disabled}
         />
         {this.props.children}
       </div>

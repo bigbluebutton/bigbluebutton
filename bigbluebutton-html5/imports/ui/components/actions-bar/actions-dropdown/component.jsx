@@ -31,6 +31,22 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
   },
+  desktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
+    description: 'Desktop Share option label',
+  },
+  stopDesktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
+    description: 'Stop Desktop Share option label',
+  },
+  desktopShareDesc: {
+    id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
+    description: 'adds context to desktop share option',
+  },
+  stopDesktopShareDesc: {
+    id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
+    description: 'adds context to stop desktop share option',
+  },
 });
 
 class ActionsDropdown extends Component {
@@ -56,7 +72,13 @@ class ActionsDropdown extends Component {
   }
 
   render() {
-    const { intl, isUserPresenter } = this.props;
+    const {
+      intl,
+      isUserPresenter,
+      handleShareScreen,
+      handleUnshareScreen,
+      isVideoBroadcasting,
+    } = this.props;
 
     if (!isUserPresenter) return null;
 
@@ -64,6 +86,8 @@ class ActionsDropdown extends Component {
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >
         <DropdownTrigger tabIndex={0} >
           <Button
+            hideLabel
+            aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             className={styles.button}
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
@@ -75,19 +99,24 @@ class ActionsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            {// DropdownList is expecting an array of children, because we currently
-             // only have 1 DropdownListItem this syntax is used to supress the
-             // console warning.
-              [
-                (<DropdownListItem
-                  key={this.uniqueId}
-                  icon="presentation"
-                  label={intl.formatMessage(intlMessages.presentationLabel)}
-                  description={intl.formatMessage(intlMessages.presentationDesc)}
-                  onClick={this.handlePresentationClick}
-                />)
-              ]
-            }
+            <DropdownListItem
+              icon="presentation"
+              label={intl.formatMessage(intlMessages.presentationLabel)}
+              description={intl.formatMessage(intlMessages.presentationDesc)}
+              onClick={this.handlePresentationClick}
+            />
+            <DropdownListItem
+              icon="desktop"
+              label={intl.formatMessage(intlMessages.desktopShareLabel)}
+              description={intl.formatMessage(intlMessages.desktopShareDesc)}
+              onClick={handleShareScreen}
+            />
+            <DropdownListItem
+              icon="desktop"
+              label={intl.formatMessage(intlMessages.stopDesktopShareLabel)}
+              description={intl.formatMessage(intlMessages.stopDesktopShareDesc)}
+              onClick={handleUnshareScreen}
+            />
           </DropdownList>
         </DropdownContent>
       </Dropdown>

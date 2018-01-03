@@ -42,17 +42,21 @@ const EmojiSelect = ({
   const statuses = Object.keys(options);
   const lastStatus = statuses.pop();
 
+  const statusLabel = statuses.indexOf(selected) === -1 ?
+    intl.formatMessage(intlMessages.statusTriggerLabel)
+    : intl.formatMessage({ id: `app.actionsBar.emojiMenu.${selected}Label` });
+
   return (
     <Dropdown autoFocus>
       <DropdownTrigger tabIndex={0}>
         <Button
           className={styles.button}
-          label={intl.formatMessage(intlMessages.statusTriggerLabel)}
-          aria-label={intl.formatMessage(intlMessages.changeStatusLabel)}
+          label={statusLabel}
+          aria-label={statusLabel}
           aria-describedby="currentStatus"
           icon={options[selected !== lastStatus ? selected : statuses[1]]}
           ghost={false}
-          hideLabel={false}
+          hideLabel
           circle
           size="lg"
           color="primary"

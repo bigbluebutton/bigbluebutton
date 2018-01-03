@@ -87,7 +87,8 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
                    dialNumber: String, maxUsers: java.lang.Integer, maxInactivityTimeoutMinutes: java.lang.Integer,
                     warnMinutesBeforeMax: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes: java.lang.Integer,
-                    meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer): Unit = {
+                    meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
+                    muteOnStart: java.lang.Boolean): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
@@ -104,7 +105,7 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW,
     val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence.intValue(), breakoutRooms = Vector())
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
-    val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber)
+    val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       guestPolicy = guestPolicy)
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
