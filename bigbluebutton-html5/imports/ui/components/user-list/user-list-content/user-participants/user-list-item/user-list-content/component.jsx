@@ -89,9 +89,13 @@ class UserListContent extends Component {
   }
 
   onActionsShow() {
-    const dropdown = findDOMNode(this.dropdown);
+    const dropdown = this.getDropdownMenuParent();
     const scrollContainer = this.props.getScrollContainerRef();
     const dropdownTrigger = dropdown.children[0];
+
+    const list = findDOMNode(this.list);
+    const children = [].slice.call(list.children);
+    children.find(child => child.getAttribute('role') === 'menuitem').focus();
 
     this.setState({
       isActionsOpen: true,
@@ -128,7 +132,7 @@ class UserListContent extends Component {
    */
   checkDropdownDirection() {
     if (this.isDropdownActivedByUser()) {
-      const dropdown = findDOMNode(this.dropdown);
+      const dropdown = this.getDropdownMenuParent();
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
@@ -163,12 +167,6 @@ class UserListContent extends Component {
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
-    const list = findDOMNode(this.list);
-
-    if (isActionsOpen && dropdownVisible) {
-      const children = [].slice.call(list.children);
-      children.find(child => child.getAttribute('role') === 'menuitem').focus();
-    }
 
     return isActionsOpen && !dropdownVisible;
   }
