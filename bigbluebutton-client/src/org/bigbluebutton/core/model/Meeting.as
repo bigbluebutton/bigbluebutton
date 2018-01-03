@@ -20,5 +20,7 @@ package org.bigbluebutton.core.model
 	public var logoutTimer:int=0;
 	public var bannerColor:String = "";
 	public var bannerText:String = "";
+    public var customLogo:String = "";
+    public var customCopyright:String = "";
   }
 }

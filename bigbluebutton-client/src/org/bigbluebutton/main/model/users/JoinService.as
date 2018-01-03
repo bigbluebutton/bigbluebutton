@@ -118,7 +118,7 @@ package org.bigbluebutton.main.model.users
     
     private function handleComplete(e:Event):void {			
       var result:Object = JSON.parse(e.target.data);
-      
+
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["initialization"];
       
@@ -160,9 +160,10 @@ package org.bigbluebutton.main.model.users
 
         apiResponse.welcome = result.response.welcome;
         apiResponse.logoutUrl = processLogoutUrl(result.response);
-		apiResponse.logoutTimer = result.response.logoutTimer;
+        apiResponse.logoutTimer = result.response.logoutTimer;
         apiResponse.defaultLayout = result.response.defaultLayout;
-        apiResponse.avatarURL = result.response.avatarURL
+        apiResponse.avatarURL = result.response.avatarURL;
+        
         apiResponse.customdata = new Object();
         
         if (result.response.customdata) {
@@ -180,7 +181,11 @@ package org.bigbluebutton.main.model.users
         if (result.response.hasOwnProperty("modOnlyMessage")) {
           apiResponse.modOnlyMessage = result.response.modOnlyMessage;
         }
-        
+				
+				apiResponse.customLogo = result.response.customLogoURL;
+        apiResponse.customCopyright = result.response.customCopyright;
+				apiResponse.muteOnStart = result.response.muteOnStart as Boolean;
+				
         if (_resultListener != null) _resultListener(true, apiResponse);
       }
       

@@ -161,10 +161,6 @@ class ApiController {
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);
 
-    if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
-      newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
-    }
-
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
       uploadDocuments(newMeeting);  //
@@ -1541,6 +1537,9 @@ class ApiController {
               	bannerText = meeting.getBannerText()
               	bannerColor = meeting.getBannerColor()
               }
+              customLogoURL = meeting.getCustomLogoURL()
+              customCopyright = meeting.getCustomCopyright()
+              muteOnStart = meeting.getMuteOnStart()
               logoutUrl = us.logoutUrl
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL

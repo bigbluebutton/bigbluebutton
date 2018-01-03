@@ -60,4 +60,5 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers with SystemConfi
       outGW.send(event)
     }
   }
+
 }

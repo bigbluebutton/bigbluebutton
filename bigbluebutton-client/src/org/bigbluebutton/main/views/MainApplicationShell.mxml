@@ -74,6 +74,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
     	<mate:Listener type="{RoundTripLatencyReceivedEvent.ROUND_TRIP_LATENCY_RECEIVED}" method="handleRoundTripLatencyReceivedEvent"/>
 		<mate:Listener type="{ClosePendingGuestWindow.CLOSE_PENDING_GUEST_WINDOW}" method="handleClosePendingGuestWindow" />
+		<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="handleConferenceCreatedEvent" />
+    
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
@@ -111,6 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -127,6 +130,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
 			import org.bigbluebutton.main.model.options.LanguageOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
@@ -222,6 +227,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_respTimer.start();
 			}
 			
+			private function handleConferenceCreatedEvent(event:ConferenceCreatedEvent):void {
+				updateCopyrightText();
+			}
+			
 			private function updateCopyrightText():void {
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 
@@ -229,6 +238,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
 					copyrightText = String(brandingOptions.copyright).replace("{0}", appVersion);
+				}
+				
+				if (!StringUtils.isEmpty(LiveMeeting.inst().meeting.customCopyright)) {
+					copyrightText = LiveMeeting.inst().meeting.customCopyright;
 				}
 			}
 			
@@ -570,7 +583,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 this.removeChild(toolbar);
                 this.removeChild(controlBar);
             }
-
+			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
 					var newComponentTabIndex:int = tabIndexer.startIndex + addedBtns.numChildren + 10;

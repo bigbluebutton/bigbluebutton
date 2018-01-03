@@ -68,6 +68,9 @@ public class Meeting {
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<String>();
+	private String customLogoURL = "";
+	private String customCopyright = "";
+	private Boolean muteOnStart = false;
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
@@ -365,7 +368,31 @@ public class Meeting {
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
-	
+
+	public String getCustomLogoURL() {
+		return customLogoURL;
+	}
+
+	public void setCustomLogoURL(String url) {
+		customLogoURL = url;
+	}
+
+	public void setCustomCopyright(String copyright) {
+    	customCopyright = copyright;
+	}
+
+	public String getCustomCopyright() {
+    	return customCopyright;
+	}
+
+	public void setMuteOnStart(Boolean mute) {
+    	muteOnStart = mute;
+	}
+
+	public Boolean getMuteOnStart() {
+    	return muteOnStart;
+	}
+
 	public void userJoined(User user) {
 	    userHasJoined = true;
 	    this.users.put(user.getInternalUserId(), user);
