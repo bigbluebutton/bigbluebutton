@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -53,10 +52,6 @@ class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
-  }
-
-  componentDidMount() {
-    this.uniqueId = _.uniqueId('actions-list-item-');
   }
 
   componentWillUpdate(nextProps) {
