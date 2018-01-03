@@ -424,6 +424,7 @@ package org.bigbluebutton.modules.users.services
     private function handleGetWebcamStreamsMeetingRespMsg(msg:Object):void {
       var body: Object = msg.body as Object
       var streams: Array = body.streams as Array;
+      var pattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
       LOGGER.debug("Num streams = " + streams.length);
       
       for (var i:int = 0; i < streams.length; i++) {
@@ -435,18 +436,17 @@ package org.bigbluebutton.modules.users.services
         var attributes: Object = media.attributes as Object;
         var viewers: Array = media.viewers as Array;
 
-        var pattern = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
-        if (!pattern.test(streamId)) {
-          return;
+
+        if (pattern.test(streamId)) {
+          var webcamStream: MediaStream = new MediaStream(streamId, userId);
+          webcamStream.streamId = streamId;
+          webcamStream.userId = userId;
+          webcamStream.attributes = attributes;
+          webcamStream.viewers = viewers;
+
+          LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
+          LiveMeeting.inst().webcams.add(webcamStream);
         }
-        var webcamStream: MediaStream = new MediaStream(streamId, userId);
-        webcamStream.streamId = streamId;
-        webcamStream.userId = userId;
-        webcamStream.attributes = attributes;
-        webcamStream.viewers = viewers;
-        
-        LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
-        LiveMeeting.inst().webcams.add(webcamStream);
       }
     }
     
@@ -702,16 +702,16 @@ package org.bigbluebutton.modules.users.services
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
       var userId: String = msg.body.userId as String; 
       var streamId: String = msg.body.stream as String;
-      var isHtml5Client: Boolean = msg.body.isHtml5Client as Boolean;
-      
+      var pattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["webcam"];
       logData.message = "UserBroadcastCamStartedEvtMsg server message";
       logData.user.webcamStream = streamId;
-      logData.user.isHtml5Client = isHtml5Client;
-      LOGGER.info(JSON.stringify(logData));
 
-      if (!isHtml5Client) {
+      if (pattern.test(streamId)) {
+
+        LOGGER.info(JSON.stringify(logData));
+
         var mediaStream: MediaStream = new MediaStream(streamId, userId)
           LiveMeeting.inst().webcams.add(mediaStream);
 

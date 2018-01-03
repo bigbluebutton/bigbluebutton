@@ -25,7 +25,6 @@ export default function userShareWebcam(credentials, message) {
 
   const payload = {
     stream: message,
-    isHtml5Client: true,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
