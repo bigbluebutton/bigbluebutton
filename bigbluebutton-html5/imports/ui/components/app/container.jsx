@@ -27,7 +27,7 @@ const propTypes = {
   navbar: PropTypes.node,
   actionsbar: PropTypes.node,
   media: PropTypes.node,
-  location: PropTypes.object.isRequired,
+  location: PropTypes.shape({}).isRequired,
 };
 
 const defaultProps = {
@@ -39,7 +39,7 @@ const defaultProps = {
 const intlMessages = defineMessages({
   kickedMessage: {
     id: 'app.error.kicked',
-    description: 'Message when the user is kicked out of the meeting',
+    description: 'Message when the user is removed from the conference',
   },
   waitingApprovalMessage: {
     id: 'app.guest.waiting',
@@ -72,8 +72,7 @@ const AppContainer = (props) => {
   );
 };
 
-export default withRouter(injectIntl(withModalMounter(createContainer((
-  { router, intl, baseControls }) => {
+export default withRouter(injectIntl(withModalMounter(createContainer(({ router, intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
   const isMeetingBreakout = meetingIsBreakout();
 
@@ -84,10 +83,10 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // Displayed error messages according to the mode (kicked, end meeting)
   const sendToError = (code, message) => {
     Auth.clearCredentials()
-        .then(() => {
-          router.push(`/error/${code}`);
-          baseControls.updateErrorState(message);
-        });
+      .then(() => {
+        router.push(`/error/${code}`);
+        baseControls.updateErrorState(message);
+      });
   };
 
   // Check if user is kicked out of the session
