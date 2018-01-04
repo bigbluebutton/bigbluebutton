@@ -261,7 +261,7 @@
     "app.audio.listenOnly.closeLabel": "Close",
     "app.audio.permissionsOverlay.title": "Allow BigBlueButton to use your Media Devices",
     "app.audio.permissionsOverlay.hint": "We need you to allow us to use your Media Devices in order to join you to the voice conference :)",
-    "app.error.kicked": "You have been kicked out of the meeting",
+    "app.error.kicked": "You have been removed from the conference",
     "app.error.meeting.ended": "You have logged out of the conference",
     "app.dropdown.close": "Close",
     "app.error.500": "Ops, something went wrong",
