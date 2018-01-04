@@ -63,6 +63,8 @@ package org.bigbluebutton.modules.users.services
     
     public var onAllowedToJoin:Function = null;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
+
+    private static var flashWebcamPattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
     
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
@@ -424,7 +426,6 @@ package org.bigbluebutton.modules.users.services
     private function handleGetWebcamStreamsMeetingRespMsg(msg:Object):void {
       var body: Object = msg.body as Object
       var streams: Array = body.streams as Array;
-      var pattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
       LOGGER.debug("Num streams = " + streams.length);
       
       for (var i:int = 0; i < streams.length; i++) {
@@ -437,7 +438,7 @@ package org.bigbluebutton.modules.users.services
         var viewers: Array = media.viewers as Array;
 
 
-        if (pattern.test(streamId)) {
+        if (isValidFlashWebcamStream(streamId)) {
           var webcamStream: MediaStream = new MediaStream(streamId, userId);
           webcamStream.streamId = streamId;
           webcamStream.userId = userId;
@@ -702,13 +703,12 @@ package org.bigbluebutton.modules.users.services
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
       var userId: String = msg.body.userId as String; 
       var streamId: String = msg.body.stream as String;
-      var pattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["webcam"];
       logData.message = "UserBroadcastCamStartedEvtMsg server message";
       logData.user.webcamStream = streamId;
 
-      if (pattern.test(streamId)) {
+      if (isValidFlashWebcamStream(streamId)) {
 
         LOGGER.info(JSON.stringify(logData));
 
@@ -846,6 +846,10 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
+    private function isValidFlashWebcamStream(streamId: String):Boolean{
+      return flashWebcamPattern.test(streamId);
+    }
+
     public function handleGuestPolicyChanged(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
