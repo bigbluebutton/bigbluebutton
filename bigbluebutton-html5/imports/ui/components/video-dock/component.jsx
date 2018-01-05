@@ -123,6 +123,9 @@ class VideoDock extends Component {
   componentWillMount () {
     this.ws.addEventListener('open', this.onWsOpen);
     this.ws.addEventListener('close', this.onWsClose);
+
+    window.addEventListener('online', this.ws.open.bind(this.ws));
+    window.addEventListener('offline', this.ws.close.bind(this.ws));
   }
 
   componentWillUnmount () {
@@ -135,6 +138,10 @@ class VideoDock extends Component {
     this.ws.removeEventListener('open', this.onWsOpen);
     this.ws.removeEventListener('close', this.onWsClose);
     // Close websocket connection to prevent multiple reconnects from happening
+
+    window.removeEventListener('online', this.ws.open);
+    window.removeEventListener('offline', this.ws.close);
+
     this.ws.close();
   }
 
@@ -392,7 +399,7 @@ class VideoDock extends Component {
     if (this.connectedToMediaServer()) {
       this.start(id, true);
     } else {
-      log("error", "Not connected to media server BRA");
+      log("error", "Not connected to media server");
     }
   }
 
