@@ -1,8 +1,32 @@
 import React, { Component } from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
 import styles from './styles';
+import { defineMessages, injectIntl } from 'react-intl';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
+
+const intlMessages = defineMessages({
+  iceCandidateError: {
+    id: 'app.video.iceCandidateError',
+    description: 'Error message for ice candidate fail',
+  },
+  permissionError: {
+    id: 'app.video.permissionError',
+    description: 'Error message for webcam permission',
+  },
+  sharingError: {
+    id: 'app.video.sharingError',
+    description: 'Error on sharing webcam',
+  },
+  chromeExtensionError: {
+    id: 'app.video.chromeExtensionError',
+    description: 'Error message for Chrome Extension not installed',
+  },
+  chromeExtensionErrorLink: {
+    id: 'app.video.chromeExtensionErrorLink',
+    description: 'Error message for Chrome Extension not installed',
+  },
+});
 
 class VideoElement extends Component {
   constructor(props) {
@@ -18,7 +42,7 @@ class VideoElement extends Component {
   }
 }
 
-export default class VideoDock extends Component {
+class VideoDock extends Component {
   constructor(props) {
     super(props);
 
@@ -136,6 +160,7 @@ export default class VideoDock extends Component {
   }
 
   onWsMessage (msg) {
+    const { intl } = this.props;
     const parsedMessage = JSON.parse(msg.data);
 
     console.log('Received message new ws message: ');
@@ -168,7 +193,7 @@ export default class VideoDock extends Component {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
-                this.notifyError('Error adding ice candidate');
+                this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
                 return log('error', `Error adding candidate: ${err}`);
               }
             });
@@ -198,6 +223,7 @@ export default class VideoDock extends Component {
 
   initWebRTC(id, shareWebcam) {
     let that = this;
+    const { intl } = this.props;
 
     const onIceCandidate = function (candidate) {
       const message = {
@@ -245,7 +271,7 @@ export default class VideoDock extends Component {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
-        this.notifyError('Error on sharing webcam. Please check permissions.');
+        this.notifyError(intl.formatMessage(intlMessages.permissionError));
         /* This notification error is displayed considering kurento-utils 
          * returned the error 'The request is not allowed by the user agent 
          * or the platform in the current context.', but there are other
@@ -290,7 +316,7 @@ export default class VideoDock extends Component {
         let candidate = this.iceQueue.shift();
         this.addIceCandidate(candidate, (err) => {
           if (err) {
-            this.notifyError('Error adding ice candidate');
+            this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
             return console.error(`Error adding candidate: ${err}`);
           }
         });
@@ -445,7 +471,8 @@ export default class VideoDock extends Component {
   }
 
   handleError(message) {
-    this.notifyError("Error on sharing webcam");
+    const { intl } = this.props;
+    this.notifyError(intl.formatMessage(intlMessages.sharingError));
 
     console.error(' Handle error --------------------->');
     log('debug', message.message);
@@ -456,9 +483,10 @@ export default class VideoDock extends Component {
   }
 
   installChromeExtension() {
+    const { intl } = this.props;
     const CHROME_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
 
-    this.notifyError(<div>You must install <a href={CHROME_EXTENSION_LINK} target="_blank">this Chrome extension</a></div>, 'error', 'video');
+    this.notifyError(<div>{intl.formatMessage(intlMessages.chromeExtensionError)} <a href={CHROME_EXTENSION_LINK} target="_blank">{intl.formatMessage(intlMessages.chromeExtensionErrorLink)}</a></div>);
   }
 
   componentDidUpdate() {
@@ -525,3 +553,5 @@ export default class VideoDock extends Component {
   }
 
 }
+
+export default injectIntl(VideoDock);
