@@ -60,8 +60,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
 		<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
 		<mate:Listener type="{GoToPageLocalCommand.GO_TO_PAGE_LOCAL}" method="handleGoToPageLocalCommand" />
-		<mate:Listener type="{UserAddedToPresenterGroupEvent.USER_ADDED_TO_PRESENTER_GROUP}" method="handleUserAddedToPresenterGroupEvent" />
-		<mate:Listener type="{UserRemovedFromPresenterGroupEvent.USER_REMOVED_FROM_PRESENTER_GROUP}" method="handleUserRemovedFromPresenterGroupEvent" />
+		<mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserAddedToPresenterGroupEvent" />
+		<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserRemovedFromPresenterGroupEvent" />
 		<mate:Listener type="{SetPresenterInPodRespEvent.SET_PRESENTER_IN_POD_RESP}" method="handleSetPresenterInPodRespEvent" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
 		<mate:Listener type="{EventConstants.PRESENTATION_PODS_COUNT_UPDATE}" method="updatesOnPresentationPods" />
@@ -99,9 +99,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-			import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
-			import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
@@ -131,7 +131,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
 			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
-			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardReceiver;
 			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -223,8 +222,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				podDropdownVisible = (e.role == Role.MODERATOR);
 			}
 
-			private function handleUserAddedToPresenterGroupEvent(event: UserAddedToPresenterGroupEvent): void {
-				var nextPresenterId:String = event.userId;
+			private function handleUserAddedToPresenterGroupEvent(event: UserJoinedEvent): void {
+				var nextPresenterId:String = event.userID;
 				var userName:String = UsersUtil.getUserName(nextPresenterId);
 				var myUser:Boolean = LiveMeeting.inst().me.id == nextPresenterId;
 				if (nextPresenterId == this.currentPresenterInPod) {
@@ -240,10 +239,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 			}
 
-			private function handleUserRemovedFromPresenterGroupEvent(event: UserRemovedFromPresenterGroupEvent): void {
+			private function handleUserRemovedFromPresenterGroupEvent(event: UserLeftEvent): void {
 				for (var i:int = 0; i < listOfPodControls.length; i++) {
 					var presenter:Object = listOfPodControls.getItemAt(i);
-					if (presenter.type == "user" && presenter.data == event.userId) {
+					if (presenter.type == "user" && presenter.data == event.userID) {
 						listOfPodControls.removeItemAt(i);
 					}
 				}
@@ -396,11 +395,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 					
 					// Add Fake presenters to test limits of dropdown
+					/**
 					for (var jk:int = 0; jk < 100; jk++) {
 						var tempUsername: String = "FOO " + jk;
 						var tempPresId: String = "foo_" + jk;
 						listOfPodControls.addItem({label: tempUsername, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: false ? "podCurrentUser" : ""});
 					}
+					 * **/
 			}
 			
 			private function requestWhiteboardCanvas(event:TimerEvent):void {

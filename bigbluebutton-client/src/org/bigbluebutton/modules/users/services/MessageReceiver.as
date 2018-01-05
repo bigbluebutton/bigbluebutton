@@ -42,7 +42,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.BreakoutRoomEvent;
-  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
@@ -52,8 +51,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
-  import org.bigbluebutton.main.model.users.events.UserAddedToPresenterGroupEvent;
-  import org.bigbluebutton.main.model.users.events.UserRemovedFromPresenterGroupEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -199,15 +196,6 @@ package org.bigbluebutton.modules.users.services
           break;
         case "GetGuestsWaitingApprovalRespMsg":
           handleGetGuestsWaitingApprovalRespMsg(message);
-          break;
-        case "UserAddedToPresenterGroupEvtMsg":
-          handleUserAddedToPresenterGroupEvtMsg(message);
-          break;
-        case "UserRemovedFromPresenterGroupEvtMsg":
-          handleUserRemovedFromPresenterGroupEvtMsg(message);
-          break;
-        case "GetPresenterGroupRespMsg":
-          handleGetPresenterGroupRespMsg(message);
           break;
       }
     }
@@ -880,24 +868,6 @@ package org.bigbluebutton.modules.users.services
         e.breakoutMeetingId = breakoutId;
         e.listen = false;
         dispatcher.dispatchEvent(e);
-      }
-    }
-
-    private function handleUserAddedToPresenterGroupEvtMsg(msg: Object): void {
-      var userId: String = msg.body.userId;
-      dispatcher.dispatchEvent(new UserAddedToPresenterGroupEvent(userId));
-    }
-
-    private function handleUserRemovedFromPresenterGroupEvtMsg(msg: Object): void {
-      var userId: String = msg.body.userId;
-      dispatcher.dispatchEvent(new UserRemovedFromPresenterGroupEvent(userId));
-    }
-    
-    private function handleGetPresenterGroupRespMsg(msg: Object): void {
-      var presenterGroup: Array = msg.body.presenterGroup as Array;
-      for (var i: int = 0; i < presenterGroup.length; i++) {
-        var member: String = presenterGroup[i] as String;
-        dispatcher.dispatchEvent(new UserAddedToPresenterGroupEvent(member));
       }
     }
 

@@ -21,15 +21,6 @@ object UsersApp {
     outGW.send(msgEvent)
   }
 
-  def addUserToPresenterGroup(liveMeeting: LiveMeeting, outGW: OutMsgRouter,
-                              userId: String, requesterId: String): Unit = {
-    Users2x.addUserToPresenterGroup(liveMeeting.users2x, userId)
-    UsersApp.broadcastAddUserToPresenterGroup(
-      liveMeeting.props.meetingProp.intId,
-      userId, requesterId, outGW
-    )
-  }
-
   def approveOrRejectGuest(liveMeeting: LiveMeeting, outGW: OutMsgRouter,
                            guest: GuestApprovedVO, approvedBy: String): Unit = {
     for {
@@ -140,9 +131,6 @@ class UsersApp(
     with SetRecordingStatusCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
     with AssignPresenterReqMsgHdlr
-    with AddUserToPresenterGroupCmdMsgHdlr
-    with RemoveUserFromPresenterGroupCmdMsgHdlr
-    with GetPresenterGroupReqMsgHdlr
     with EjectDuplicateUserReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr
     with MuteUserCmdMsgHdlr {

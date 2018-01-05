@@ -35,6 +35,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core2.testdata.FakeTestData
 
 object MeetingActor {
   def props(
@@ -162,6 +163,7 @@ class MeetingActor(
   }
 
   /*******************************************************************/
+  // Helper to create fake users for testing (ralam jan 5, 2018)
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
   /*******************************************************************/
@@ -226,9 +228,6 @@ class MeetingActor(
       case m: EjectUserFromMeetingCmdMsg => usersApp.handleEjectUserFromMeetingCmdMsg(m)
       case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
       case m: ChangeUserRoleCmdMsg => usersApp.handleChangeUserRoleCmdMsg(m)
-      case m: AddUserToPresenterGroupCmdMsg => usersApp.handleAddUserToPresenterGroupCmdMsg(m)
-      case m: RemoveUserFromPresenterGroupCmdMsg => state = usersApp.handleRemoveUserFromPresenterGroupCmdMsg(m, state)
-      case m: GetPresenterGroupReqMsg => usersApp.handleGetPresenterGroupReqMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg => wbApp.handle(m, liveMeeting, msgBus)

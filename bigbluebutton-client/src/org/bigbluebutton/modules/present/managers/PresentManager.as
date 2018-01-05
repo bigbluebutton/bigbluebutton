@@ -19,18 +19,14 @@
 package org.bigbluebutton.modules.present.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
-	
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
-	
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
-	import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
 	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.events.ExportEvent;
 	import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;

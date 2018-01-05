@@ -51,8 +51,6 @@
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
-			import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
@@ -152,14 +150,6 @@
 				} else {
 					dispatchEvent(new KickUserEvent(data.userId));
 				}
-			}
-
-			private function addToPresenterGroup(): void {
-				dispatchEvent(new AddUserToPresenterGroupEvent(data.userId));
-			}
-
-			private function removeFromPresenterGroup(): void {
-				dispatchEvent(new RemoveUserFromPresenterGroupEvent(data.userId));
 			}
 
 			private function toggleMuteState():void {
@@ -337,20 +327,6 @@
 								callback: kickUser
 							});
 						}
-					}
-
-					if (UsersUtil.isUserInPresentationGroup(data.userId)) {
-						myMenuData.push({
-							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.removeUserFromPresenterGroup',[data.name]),
-							icon: getStyle('iconEject'),
-							callback: removeFromPresenterGroup
-						});
-					} else {
-						myMenuData.push({
-							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.addUserToPresenterGroup',[data.name]),
-							icon: getStyle('iconEject'),
-							callback: addToPresenterGroup
-						});
 					}
 
 					// make sure the previous menu is closed before opening a new one

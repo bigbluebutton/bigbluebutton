@@ -40,24 +40,16 @@ trait SetPresenterInPodReqMsgHdlr extends RightsManagementTrait {
       val nextPresenterId: String = msg.body.nextPresenterId
 
       val newState = for {
+        user <- Users2x.findWithIntId(liveMeeting.users2x, nextPresenterId)
         pod <- PresentationPodsApp.getPresentationPod(state, podId)
       } yield {
-
-        if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, nextPresenterId)) {
-
-          if (pod.currentPresenter != "") {
-            liveMeeting.users2x.addOldPresenter(pod.currentPresenter)
-          }
-
-          val updatedPod = pod.setCurrentPresenter(nextPresenterId)
-
-          broadcastSetPresenterInPodRespMsg(pod.id, nextPresenterId, requesterId)
-
-          val pods = state.presentationPodManager.addPod(updatedPod)
-          state.update(pods)
-        } else {
-          state
+        if (pod.currentPresenter != "") {
+          liveMeeting.users2x.addOldPresenter(pod.currentPresenter)
         }
+        val updatedPod = pod.setCurrentPresenter(nextPresenterId)
+        broadcastSetPresenterInPodRespMsg(pod.id, nextPresenterId, requesterId)
+        val pods = state.presentationPodManager.addPod(updatedPod)
+        state.update(pods)
       }
 
       newState match {
