@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
 import styles from './styles';
 import { log } from '/imports/ui/services/api';
-
+import { notify } from '/imports/ui/services/notification';
 
 class VideoElement extends Component {
   constructor(props) {
@@ -89,6 +89,7 @@ export default class VideoDock extends Component {
 
     document.addEventListener('joinVideo', this.shareWebcam.bind(this));// TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam.bind(this));
+    document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
 
     window.addEventListener('resize', this.adjustVideos);
 
@@ -102,7 +103,8 @@ export default class VideoDock extends Component {
 
   componentWillUnmount () {
     document.removeEventListener('joinVideo', this.shareWebcam);
-    document.removeEventListener('exitVideo', this.shareWebcam);
+    document.removeEventListener('exitVideo', this.unshareWebcam);
+    document.removeEventListener('installChromeExtension', this.installChromeExtension);
     window.removeEventListener('resize', this.adjustVideos);
 
     this.ws.removeEventListener('message', this.onWsMessage);
@@ -166,6 +168,7 @@ export default class VideoDock extends Component {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
+                this.notifyError('Error adding ice candidate');
                 return log('error', `Error adding candidate: ${err}`);
               }
             });
@@ -241,6 +244,12 @@ export default class VideoDock extends Component {
     let webRtcPeer = new peerObj(options, function (error) {
       if (error) {
         log('error', ' WebRTC peerObj create error');
+        log('error', error);
+        this.notifyError('Error on sharing webcam. Please check permissions.');
+        /* This notification error is displayed considering kurento-utils 
+         * returned the error 'The request is not allowed by the user agent 
+         * or the platform in the current context.', but there are other
+         * errors that could be returned. */
 
         that.destroyWebRTCPeer(id);
         that.destroyVideoTag(id);
@@ -281,6 +290,7 @@ export default class VideoDock extends Component {
         let candidate = this.iceQueue.shift();
         this.addIceCandidate(candidate, (err) => {
           if (err) {
+            this.notifyError('Error adding ice candidate');
             return console.error(`Error adding candidate: ${err}`);
           }
         });
@@ -435,8 +445,20 @@ export default class VideoDock extends Component {
   }
 
   handleError(message) {
+    this.notifyError("Error on sharing webcam");
+
     console.error(' Handle error --------------------->');
     log('debug', message.message);
+  }
+
+  notifyError(message) {
+    notify(message, 'error', 'video');
+  }
+
+  installChromeExtension() {
+    const CHROME_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+
+    this.notifyError(<div>You must install <a href={CHROME_EXTENSION_LINK} target="_blank">this Chrome extension</a></div>, 'error', 'video');
   }
 
   componentDidUpdate() {
@@ -501,4 +523,5 @@ export default class VideoDock extends Component {
 
     return false;
   }
+
 }

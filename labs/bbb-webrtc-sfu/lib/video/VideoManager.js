@@ -96,6 +96,7 @@ var _onMessage = function (_message) {
             role: role,
             id : 'error',
             response : 'rejected',
+            cameraId : message.cameraId,
             message : error
           }), C.FROM_VIDEO);
         }
