@@ -76,6 +76,7 @@ package org.bigbluebutton.main.model.users
 		}
 
 		private function onAllowedToJoin():void {
+			sender.queryForWebcamsOnlyForModerator();
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();

@@ -136,6 +136,9 @@ package org.bigbluebutton.modules.users.services
         case "GetRecordingStatusRespMsg":
           handleGetRecordingStatusReply(message);
           break;
+		case "GetWebcamsOnlyForModeratorRespMsg":
+		  handleGetWebcamsOnlyForModeratorRespMsg(message);
+		  break;
         case "RecordingStatusChangedEvtMsg":
           handleRecordingStatusChanged(message);
           break;
@@ -609,6 +612,13 @@ package org.bigbluebutton.modules.users.services
       
       sendRecordingStatusUpdate(recording);      
     }
+	
+	private function handleGetWebcamsOnlyForModeratorRespMsg(msg:Object):void {
+		var body:Object = msg.body as Object;
+		var webcamsOnlyForModerator: Boolean = body.webcamsOnlyForModerator as Boolean;
+		
+		LiveMeeting.inst().meeting.webcamsOnlyForModerator = webcamsOnlyForModerator;
+	}
     
     private function handleRecordingStatusChanged(msg: Object):void {    
       var body:Object = msg.body as Object;

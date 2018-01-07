@@ -21,6 +21,7 @@ class UsersApp(
     with SetRecordingStatusCmdMsgHdlr
     with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
+    with GetWebcamsOnlyForModeratorReqMsgHdlr
     with AssignPresenterReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr {
 

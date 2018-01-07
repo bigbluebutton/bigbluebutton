@@ -57,8 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				event.payload = lockSettings.toMap();
 				dispatchEvent(event);
 
-				var meetingWebcamsOnlyForModerator : Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
-				if (meetingWebcamsOnlyForModerator != chkwebcamsOnlyForModerator.selected) {
+				if (LiveMeeting.inst().meeting.webcamsOnlyForModerator != chkwebcamsOnlyForModerator.selected) {
 					var wEvent:SetWebcamsOnlyForModeratorEvent = new SetWebcamsOnlyForModeratorEvent(SetWebcamsOnlyForModeratorEvent.UPDATE_WEBCAMS_ONLY_FOR_MODERATOR);
 					wEvent.webcamsOnlyForModerator = chkwebcamsOnlyForModerator.selected;
 					dispatchEvent(wEvent);

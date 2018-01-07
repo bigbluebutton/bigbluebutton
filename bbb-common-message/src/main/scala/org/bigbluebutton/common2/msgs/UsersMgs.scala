@@ -78,14 +78,12 @@ object GetRecordingStatusReqMsg { val NAME = "GetRecordingStatusReqMsg" }
 case class GetRecordingStatusReqMsg(header: BbbClientMsgHeader, body: GetRecordingStatusReqMsgBody) extends StandardMsg
 case class GetRecordingStatusReqMsgBody(requestedBy: String)
 
-
 /**
-  * Sent by user as response to get recording mark.
+  * Sent to user as response to get recording mark.
   */
 object GetRecordingStatusRespMsg { val NAME = "GetRecordingStatusRespMsg" }
 case class GetRecordingStatusRespMsg(header: BbbClientMsgHeader, body: GetRecordingStatusRespMsgBody) extends BbbCoreMsg
 case class GetRecordingStatusRespMsgBody(recording: Boolean, requestedBy: String)
-
 
 /**
   * Sent by user to start recording mark.
@@ -107,6 +105,20 @@ case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
 object UpdateWebcamsOnlyForModeratorCmdMsg { val NAME = "UpdateWebcamsOnlyForModeratorCmdMsg" }
 case class UpdateWebcamsOnlyForModeratorCmdMsg(header: BbbClientMsgHeader, body: UpdateWebcamsOnlyForModeratorCmdMsgBody) extends StandardMsg
 case class UpdateWebcamsOnlyForModeratorCmdMsgBody(webcamsOnlyForModerator: Boolean, setBy: String)
+
+/**
+  * Sent by user to get the value of webcamsOnlyForModerator mark.
+  */
+object GetWebcamsOnlyForModeratorReqMsg { val NAME = "GetWebcamsOnlyForModeratorReqMsg" }
+case class GetWebcamsOnlyForModeratorReqMsg(header: BbbClientMsgHeader, body: GetWebcamsOnlyForModeratorReqMsgBody) extends StandardMsg
+case class GetWebcamsOnlyForModeratorReqMsgBody(requestedBy: String)
+
+/**
+  * Sent to user as response to get webcamsOnlyForModerator mark.
+  */
+object GetWebcamsOnlyForModeratorRespMsg { val NAME = "GetWebcamsOnlyForModeratorRespMsg" }
+case class GetWebcamsOnlyForModeratorRespMsg(header: BbbClientMsgHeader, body: GetWebcamsOnlyForModeratorRespMsgBody) extends BbbCoreMsg
+case class GetWebcamsOnlyForModeratorRespMsgBody(webcamsOnlyForModerator: Boolean, requestedBy: String)
 
 /**
   * Sent to all users about webcam only for moderator value.
