@@ -102,6 +102,20 @@ case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: Record
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
 
 /**
+  * Sent by user to update webcamsOnlyForModerator meeting property.
+  */
+object UpdateWebcamsOnlyForModeratorCmdMsg { val NAME = "UpdateWebcamsOnlyForModeratorCmdMsg" }
+case class UpdateWebcamsOnlyForModeratorCmdMsg(header: BbbClientMsgHeader, body: UpdateWebcamsOnlyForModeratorCmdMsgBody) extends StandardMsg
+case class UpdateWebcamsOnlyForModeratorCmdMsgBody(webcamsOnlyForModerator: Boolean, setBy: String)
+
+/**
+  * Sent to all users about webcam only for moderator value.
+  */
+object WebcamsOnlyForModeratorChangedEvtMsg { val NAME = "WebcamsOnlyForModeratorChangedEvtMsg" }
+case class WebcamsOnlyForModeratorChangedEvtMsg(header: BbbClientMsgHeader, body: WebcamsOnlyForModeratorChangedEvtMsgBody) extends BbbCoreMsg
+case class WebcamsOnlyForModeratorChangedEvtMsgBody(webcamsOnlyForModerator: Boolean, setBy: String)
+
+/**
   * Sent by user to get status of screenshare (meant for late joiners).
   */
 object GetScreenshareStatusReqMsg { val NAME = "GetScreenshareStatusReqMsg" }

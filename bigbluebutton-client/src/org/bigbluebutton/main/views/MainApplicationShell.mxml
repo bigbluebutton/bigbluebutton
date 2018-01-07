@@ -127,6 +127,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.core.model.Meeting;
+			import org.bigbluebutton.core.model.MeetingBuilder;
+			import org.bigbluebutton.core.model.MeetingBuilder2x;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -824,6 +827,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     var ls:LockSettings = LockSettings(popUp);
                     ls.disableCam = lsv.getDisableCam();
                     ls.disableMic = lsv.getDisableMic();
+					ls.webcamsOnlyForModerator = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
                     ls.disablePrivChat = lsv.getDisablePrivateChat();
                     ls.disablePubChat = lsv.getDisablePublicChat();
                     ls.lockedLayout = lsv.getLockedLayout();
