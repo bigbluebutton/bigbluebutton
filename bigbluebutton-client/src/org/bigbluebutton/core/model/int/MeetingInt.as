@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.model.int
 {
-	class MeetingInt
+	internal class MeetingInt
 	{
 		var name:String;
 		var internalId:String;
