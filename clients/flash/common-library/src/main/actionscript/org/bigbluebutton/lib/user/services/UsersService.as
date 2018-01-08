@@ -1,9 +1,10 @@
 package org.bigbluebutton.lib.user.services {
 	
-	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.user.models.EmojiStatus;
 	import org.bigbluebutton.lib.user.models.User;
 	
 	public class UsersService implements IUsersService {
@@ -15,7 +16,7 @@ package org.bigbluebutton.lib.user.services {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var authenticationSignal:AuthenticationSignal;
+		public var meetingData:IMeetingData;
 		
 		[Inject]
 		public var disconnectUserSignal:DisconnectUserSignal;
@@ -31,9 +32,11 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function setupMessageSenderReceiver():void {
 			usersMessageReceiver.userSession = userSession;
-			usersMessageReceiver.authenticationSignal = authenticationSignal;
+			usersMessageReceiver.meetingData = meetingData;
+			usersMessageReceiver.conferenceParameters = conferenceParameters;
 			usersMessageReceiver.disconnectUserSignal = disconnectUserSignal;
 			usersMessageSender.userSession = userSession;
+			usersMessageSender.conferenceParameters = conferenceParameters;
 			userSession.mainConnection.addMessageListener(usersMessageReceiver);
 			userSession.logoutSignal.add(logout);
 		}
@@ -81,28 +84,28 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.emojiStatus(userSession.userList.me.userId, status);
 		}
 		
-		public function clearUserStatus(userID:String):void {
-			usersMessageSender.emojiStatus(userID, User.NO_STATUS);
+		public function clearUserStatus(userId:String):void {
+			usersMessageSender.emojiStatus(userId, EmojiStatus.NO_STATUS);
 		}
 		
-		public function kickUser(userID:String):void {
-			usersMessageSender.kickUser(userID);
+		public function kickUser(userId:String):void {
+			usersMessageSender.kickUser(userId);
 		}
 		
 		public function queryForParticipants():void {
 			usersMessageSender.queryForParticipants();
 		}
 		
-		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
-			usersMessageSender.assignPresenter(userid, name, assignedBy);
+		public function assignPresenter(userId:String, name:String):void {
+			usersMessageSender.assignPresenter(userId, name, meetingData.users.me.intId);
 		}
 		
 		public function queryForRecordingStatus():void {
 			usersMessageSender.queryForRecordingStatus();
 		}
 		
-		public function changeRecordingStatus(userID:String, recording:Boolean):void {
-			usersMessageSender.changeRecordingStatus(userID, recording);
+		public function changeRecordingStatus(userId:String, recording:Boolean):void {
+			usersMessageSender.changeRecordingStatus(userId, recording);
 		}
 		
 		public function muteAllUsers(mute:Boolean):void {
@@ -113,12 +116,12 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.muteAllUsersExceptPresenter(mute);
 		}
 		
-		public function muteUnmuteUser(userid:String, mute:Boolean):void {
-			usersMessageSender.muteUnmuteUser(userid, mute);
+		public function muteUnmuteUser(userId:String, mute:Boolean):void {
+			usersMessageSender.muteUnmuteUser(userId, mute);
 		}
 		
-		public function ejectUser(userid:String):void {
-			usersMessageSender.ejectUser(userid);
+		public function ejectUser(userId:String):void {
+			usersMessageSender.ejectUser(userId);
 		}
 		
 		public function getRoomMuteState():void {
@@ -133,8 +136,8 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.setAllUsersLock(lock, except);
 		}
 		
-		public function setUserLock(internalUserID:String, lock:Boolean):void {
-			usersMessageSender.setUserLock(internalUserID, lock);
+		public function setUserLock(internalUserId:String, lock:Boolean):void {
+			usersMessageSender.setUserLock(internalUserId, lock);
 		}
 		
 		public function getLockSettings():void {
@@ -148,6 +151,9 @@ package org.bigbluebutton.lib.user.services {
 		public function validateToken():void {
 			usersMessageSender.validateToken(conferenceParameters.internalUserID, conferenceParameters.authToken);
 		}
-	
+		
+		public function joinMeeting():void {
+			usersMessageSender.joinMeeting();
+		}
 	}
 }

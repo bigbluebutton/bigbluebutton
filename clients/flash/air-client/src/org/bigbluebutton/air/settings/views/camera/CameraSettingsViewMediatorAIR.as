@@ -101,9 +101,9 @@ package org.bigbluebutton.air.settings.views.camera {
 		}
 		
 		override protected function displayPreviewCamera():void {
-			var profile:VideoProfile = userSession.videoConnection.selectedCameraQuality
+			var profile:VideoProfile = userSession.videoConnection.selectedCameraQuality;
 			var camera:Camera = getCamera(userSession.videoConnection.cameraPosition);
-			if (camera) {
+			if (camera && profile) {
 				var myCam:Video = new Video();
 				var screenAspectRatio:Number = (view.cameraHolder.width / profile.width) / (view.cameraHolder.height / profile.height);
 				if (screenAspectRatio > 1) { //landscape

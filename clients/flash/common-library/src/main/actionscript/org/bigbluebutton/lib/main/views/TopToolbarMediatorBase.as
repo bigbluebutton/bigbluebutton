@@ -2,7 +2,7 @@ package org.bigbluebutton.lib.main.views {
 	import flash.events.MouseEvent;
 	
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
-	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -12,7 +12,7 @@ package org.bigbluebutton.lib.main.views {
 		public var view:TopToolbarBase;
 		
 		[Inject]
-		public var userSession:IUserSession;
+		public var meetingData:IMeetingData;
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;

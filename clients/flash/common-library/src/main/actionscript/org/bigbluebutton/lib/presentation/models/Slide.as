@@ -9,7 +9,11 @@ package org.bigbluebutton.lib.presentation.models {
 	import org.osflash.signals.Signal;
 	
 	public class Slide {
+		public var loadRequested:Boolean = false;
+		
 		private var _loaded:Boolean = false;
+		
+		private var _id:String;
 		
 		private var _slideURI:String;
 		
@@ -39,7 +43,8 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _slideLoadedSignal:ISignal = new Signal;
 		
-		public function Slide(slideNum:Number, slideURI:String, thumbURI:String, txtURI:String, current:Boolean, x:Number, y:Number, widthPercent:Number, heightPercent:Number) {
+		public function Slide(id:String, slideNum:Number, slideURI:String, thumbURI:String, txtURI:String, current:Boolean, x:Number, y:Number, widthPercent:Number, heightPercent:Number) {
+			_id = id;
 			_slideNum = slideNum;
 			_slideURI = slideURI;
 			_thumbURI = thumbURI;
@@ -50,6 +55,10 @@ package org.bigbluebutton.lib.presentation.models {
 			_widthPercent = widthPercent;
 			_heightPercent = heightPercent;
 			_sizeSynced = true;
+		}
+		
+		public function get id():String {
+			return _id;
 		}
 		
 		public function get thumb():String {

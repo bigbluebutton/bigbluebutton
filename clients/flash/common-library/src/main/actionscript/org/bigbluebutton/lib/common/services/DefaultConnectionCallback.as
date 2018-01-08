@@ -28,6 +28,20 @@ package org.bigbluebutton.lib.common.services {
 			notifyListeners(messageName, result);
 		}
 		
+		public function onMessageFromServer2x(messageName:String, msg:String):void {
+			if (messageName != "SendCursorPositionEvtMsg" && messageName != "UpdateBreakoutUsersEvtMsg" && messageName != "BreakoutRoomsTimeRemainingUpdateEvtMsg" && messageName != "UserTalkingVoiceEvtMsg" && messageName != "MeetingTimeRemainingUpdateEvtMsg") {
+				trace("onMessageFromServer2x - " + msg);
+			}
+			
+			var map:Object = JSON.parse(msg);
+			var header:Object = map.header as Object;
+			var body:Object = map.body as Object;
+			
+			var msgName:String = header.name
+			
+			notifyListeners(messageName, map);
+		}
+		
 		public function addMessageListener(listener:IMessageListener):void {
 			_messageListeners.push(listener);
 		}

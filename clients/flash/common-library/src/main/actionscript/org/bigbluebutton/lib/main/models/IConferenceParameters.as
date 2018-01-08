@@ -33,8 +33,6 @@ package org.bigbluebutton.lib.main.models {
 		function set logoutUrl(logoutUrl:String):void;
 		function get connection():NetConnection;
 		function set connection(connection:NetConnection):void;
-		function get userid():String;
-		function set userid(userid:String):void;
 		function get record():Boolean;
 		function set record(record:Boolean):void;
 		function get authToken():String;

@@ -9,11 +9,14 @@ package org.bigbluebutton.lib.main.commands {
 		public var presentationService:IPresentationService;
 		
 		[Inject]
-		public var slide:String;
+		public var presentationId:String;
+		
+		[Inject]
+		public var pageId:String;
 		
 		override public function execute():void {
 			trace("GoToSlideCommand.execute()");
-			presentationService.gotoSlide(slide);
+			presentationService.setCurrentPage(presentationId, pageId);
 		}
 	}
 }

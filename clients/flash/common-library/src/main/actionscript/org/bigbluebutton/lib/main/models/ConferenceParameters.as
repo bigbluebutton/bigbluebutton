@@ -72,11 +72,6 @@ package org.bigbluebutton.lib.main.models {
 		 */
 		private var _connection:NetConnection;
 		
-		/**
-		 * The unique userid internal to bbb-client.
-		 */
-		private var _userid:String;
-		
 		private var _record:Boolean;
 		
 		private var _authToken:String;
@@ -221,15 +216,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set connection(connection:NetConnection):void {
 			_connection = connection;
-			_changedSignal.dispatch();
-		}
-		
-		public function get userid():String {
-			return _userid;
-		}
-		
-		public function set userid(userid:String):void {
-			_userid = userid;
 			_changedSignal.dispatch();
 		}
 		

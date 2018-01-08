@@ -4,6 +4,7 @@
 @namespace main "org.bigbluebutton.air.main.views.*";
 @namespace participants "org.bigbluebutton.lib.participants.views.*";
 @namespace users "org.bigbluebutton.lib.user.views.*";
+@namespace usersAIR "org.bigbluebutton.air.users.views.*";
 @namespace settings "org.bigbluebutton.lib.settings.views.*";
 @namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
 @namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
@@ -95,6 +96,12 @@ participants|ParticipantsViewBase s|List{
 	contentBackgroundColor : PropertyReference("white");
 }
 
+usersAIR|UserDetailsView {
+	color            : PropertyReference("grey700");
+	headerBackground : PropertyReference("blue500");
+	separatorColor   : PropertyReference("grey200");
+}
+
 libChat|ChatViewBase {
 	inputBackgroundColor : PropertyReference("grey100");
 	inputBorderColor     : PropertyReference("grey300");
@@ -103,6 +110,7 @@ libChat|ChatViewBase {
 s|ToggleSwitch {
 	accentColor : PropertyReference("green500");
 	color       : PropertyReference("white");
+	fontFamily  : SourceSansProMX;
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileToggleSwitchSkin");
 }
 
@@ -112,6 +120,7 @@ s|HSlider {
 
 s|CheckBox {
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileCheckBoxSkin");
+	fontFamily  : SourceSansProMX;
 	chromeColor : PropertyReference("white");
 }
 

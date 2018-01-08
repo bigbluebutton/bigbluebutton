@@ -29,10 +29,10 @@
 				var m:ChatMessage = obj as ChatMessage;
 				if (m) {
 					time.text = m.time
-					if (!isHTMLString(m.senderText)) {
-						message.text = m.senderText;
+					if (!isHTMLString(m.message)) {
+						message.text = m.message;
 					} else {
-						message.textFlow = TextConverter.importToFlow(m.senderText, TextConverter.TEXT_FIELD_HTML_FORMAT);
+						message.textFlow = TextConverter.importToFlow(m.message, TextConverter.TEXT_FIELD_HTML_FORMAT);
 					}
 					var sameUser:Boolean = (m.lastSenderId == m.senderId);
 					var sameTime:Boolean = (m.lastTime == m.time);

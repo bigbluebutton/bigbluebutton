@@ -25,8 +25,6 @@ package org.bigbluebutton.lib.main.services {
 		
 		private var _tried_tunneling:Boolean = false;
 		
-		private var _userId:String;
-		
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
@@ -39,19 +37,7 @@ package org.bigbluebutton.lib.main.services {
 		}
 		
 		private function onConnectionSuccess():void {
-			getMyUserId();
-		}
-		
-		private function getMyUserId():void {
-			baseConnection.connection.call("participants.getMyUserId", new Responder(function(result:String):void {
-				trace("Success connected: My user ID is [" + result + "]");
-				_userId = result;
-				connectionSuccessSignal.dispatch();
-			}, function(status:Object):void {
-				trace("Error occurred");
-				trace(ObjectUtil.toString(status));
-				connectionFailureSignal.dispatch("Failed to get the userId");
-			}));
+			connectionSuccessSignal.dispatch();
 		}
 		
 		public function get connectionFailureSignal():ISignal {
@@ -87,8 +73,20 @@ package org.bigbluebutton.lib.main.services {
 			_conferenceParameters = params;
 			_tried_tunneling = tunnel;
 			var uri:String = _applicationURI + "/" + _conferenceParameters.room;
-			var lockSettings:Object = {disableCam: false, disableMic: false, disablePrivateChat: false, disablePublicChat: false, lockedLayout: false, lockOnJoin: false, lockOnJoinConfigurable: false};
-			var connectParams:Array = [_conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.room, _conferenceParameters.voicebridge, _conferenceParameters.record, _conferenceParameters.externUserID, _conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, lockSettings];
+			
+			var username:String = _conferenceParameters.username;
+			var role:String = _conferenceParameters.role;
+			var intMeetingId:String = _conferenceParameters.room;
+			var voiceConf:String = _conferenceParameters.voicebridge;
+			var recorded:Boolean = _conferenceParameters.record;
+			var extUserId:String = _conferenceParameters.externUserID;
+			var intUserId:String = _conferenceParameters.internalUserID;
+			var muteOnStart:Boolean = _conferenceParameters.muteOnStart;
+			var guest:Boolean = false; // false for now because no guest support
+			var authToken:String = _conferenceParameters.authToken;
+			
+			var connectParams:Array = [username, role, intMeetingId, voiceConf, recorded, extUserId, intUserId, muteOnStart, guest, authToken];
+			
 			trace("BBB Apps connect: " + connectParams);
 			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));
 		}
@@ -97,12 +95,13 @@ package org.bigbluebutton.lib.main.services {
 			baseConnection.disconnect(onUserCommand);
 		}
 		
-		public function get userId():String {
-			return _userId;
+		/**** NEED TO REMOVE THIS BEFORE CONVERSION IS FINISHED ******/
+		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object = null):void {
+			//baseConnection.sendMessage(service, onSuccess, onFailure, message);
 		}
 		
-		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object = null):void {
-			baseConnection.sendMessage(service, onSuccess, onFailure, message);
+		public function sendMessage2x(onSuccess:Function, onFailure:Function, message:Object):void {
+			baseConnection.sendMessage2x(onSuccess, onFailure, message);
 		}
 	}
 }

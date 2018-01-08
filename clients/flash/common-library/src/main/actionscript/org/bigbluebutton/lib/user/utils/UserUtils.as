@@ -6,8 +6,12 @@ package org.bigbluebutton.lib.user.utils {
 		 * words number is used
 		 */
 		public static function getInitials(name:String):String {
-			var matches:Array = name.match(/\b\w/g) || [];
-			return ((matches.shift() || '') + (matches.pop() || '')).toUpperCase();
+			if (name) {
+				var matches:Array = name.match(/\b\w/g) || [];
+				return ((matches.shift() || '') + (matches.pop() || '')).toUpperCase();
+			} else {
+				return "";
+			}
 		}
 	}
 }

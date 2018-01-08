@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.chat.views {
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.chat.views.ChatViewMediatorBase;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class ChatViewMediatorAIR extends ChatViewMediatorBase {
 		
@@ -18,11 +18,11 @@ package org.bigbluebutton.air.chat.views {
 				_publicChat = true;
 				openChat(chatMessagesSession.publicConversation);
 			} else {
-				var user:User = userSession.userList.getUserByUserId(data.userId);
+				var user:User2x = meetingData.users.getUser(data.intId);
 				_publicChat = false;
 				if (user != null) {
 					_user = user;
-					openChat(chatMessagesSession.getPrivateMessages(user.userId, user.name));
+					openChat(chatMessagesSession.getPrivateMessages(user.intId, user.name));
 				}
 			}
 		}

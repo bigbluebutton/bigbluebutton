@@ -2,37 +2,32 @@ package org.bigbluebutton.lib.user.services {
 	import mx.utils.ObjectUtil;
 	
 	import org.bigbluebutton.lib.common.models.IMessageListener;
-	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class UsersMessageReceiver implements IMessageListener {
 		private const LOG:String = "UsersMessageReceiver::";
 		
 		public var userSession:IUserSession;
 		
-		public var authenticationSignal:AuthenticationSignal;
+		public var meetingData:IMeetingData;
+		
+		public var conferenceParameters:IConferenceParameters;
 		
 		public var disconnectUserSignal:DisconnectUserSignal;
-		
-		private var lastSipEvent:Object = null;
 		
 		public function UsersMessageReceiver() {
 		}
 		
 		public function onMessage(messageName:String, message:Object):void {
-			trace(LOG + "RECEIVED MESSAGE: [" + messageName + "]");
 			switch (messageName) {
 				case "voiceUserTalking":
 					handleVoiceUserTalking(message);
-					break;
-				case "participantJoined":
-					handleParticipantJoined(message);
-					break;
-				case "participantLeft":
-					handleParticipantLeft(message);
 					break;
 				case "userJoinedVoice":
 					handleUserJoinedVoice(message);
@@ -50,9 +45,6 @@ package org.bigbluebutton.lib.user.services {
 				case "userListeningOnly":
 					handleUserListeningOnly(message);
 					break;
-				case "assignPresenterCallback":
-					handleAssignPresenterCallback(message);
-					break;
 				case "voiceUserMuted":
 					handleVoiceUserMuted(message);
 					break;
@@ -62,9 +54,6 @@ package org.bigbluebutton.lib.user.services {
 				case "joinMeetingReply":
 					handleJoinedMeeting(message);
 					break
-				case "getUsersReply":
-					handleGetUsersReply(message);
-					break;
 				case "getRecordingStatusReply":
 					handleGetRecordingStatusReply(message);
 					break;
@@ -75,37 +64,49 @@ package org.bigbluebutton.lib.user.services {
 				case "userEmojiStatus":
 					handleEmojiStatus(message);
 					break;
-				case "validateAuthTokenTimedOut":
-					handleValidateAuthTokenTimedOut(message);
-					break;
-				case "validateAuthTokenReply":
-					handleValidateAuthTokenReply(message);
-					break;
 				case "meetingState":
 					handleMeetingState(message);
-					break;
-				case "permissionsSettingsChanged":
-					handlePermissionsSettingsChanged(message);
 					break;
 				case "meetingMuted":
 					handleMeetingMuted(message);
 					break;
-				case "userLocked":
-					handleUserLocked(message);
+				
+				
+				
+				
+				
+				case "GetUsersMeetingRespMsg":
+					handleGetUsersMeetingRespMsg(message);
+					break;
+				case "UserJoinedMeetingEvtMsg":
+					handleUserJoinedMeetingEvtMsg(message);
+					break;
+				case "UserLeftMeetingEvtMsg":
+					handleUserLeftMeetingEvtMsg(message);
+					break;
+				case "UserLockedInMeetingEvtMsg":
+					handleUserLockedInMeetingEvtMsg(message);
+					break;
+				case "PresenterAssignedEvtMsg":
+					handlePresenterAssignedEvtMsg(message);
+					break;
+				case "PresenterUnassignedEvtMsg":
+					handlePresenterUnassignedEvtMsg(message);
+					break;
+				case "LockSettingsInMeetingChangedEvtMsg":
+					handleLockSettingsInMeetingChangedEvtMsg(message);
+					break;
+				case "GetLockSettingsRespMsg":
+					handleGetLockSettingsRespMsg(message);
+					break;
+				case "LockSettingsNotInitializedRespMsg":
+					handleLockSettingsNotInitializedRespMsg(message);
+					break;
+				case "ValidateAuthTokenRespMsg":
+					handleValidateAuthTokenRespMsg(message);
 					break;
 				default:
 					break;
-			}
-		}
-		
-		private function handleUserLocked(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("handleUserLocked: " + ObjectUtil.toString(msg));
-			trace("your id: " + userSession.userList.me.userId);
-			var user:User = userSession.userList.getUserByUserId(msg.user);
-			user.locked = msg.lock;
-			if (userSession.userList.me.userId == msg.user) {
-				userSession.dispatchLockSettings();
 			}
 		}
 		
@@ -121,24 +122,6 @@ package org.bigbluebutton.lib.user.services {
 			updateLockSettings(msg.permissions);
 		}
 		
-		private function handlePermissionsSettingsChanged(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("permissionsSettingsChanged: " + ObjectUtil.toString(msg));
-			updateLockSettings(msg);
-		}
-		
-		private function updateLockSettings(msg:Object):void {
-			userSession.lockSettings.disableCam = msg.disableCam;
-			userSession.lockSettings.disableMic = msg.disableMic;
-			// bbb 1.0 compatibility: different variable names
-			userSession.lockSettings.disablePrivateChat = msg.hasOwnProperty("disablePrivChat") ? msg.disablePrivChat : msg.disablePrivateChat;
-			userSession.lockSettings.disablePublicChat = msg.hasOwnProperty("disablePubChat") ? msg.disablePubChat : msg.disablePublicChat;
-			userSession.lockSettings.lockedLayout = msg.lockedLayout;
-			userSession.lockSettings.lockOnJoin = msg.lockOnJoin;
-			userSession.lockSettings.lockOnJoinConfigurable = msg.lockOnJoinConfigurable;
-			userSession.dispatchLockSettings();
-		}
-		
 		private function handleEmojiStatus(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("UsersMessageReceiver::handleEmojiStatusHand() -- user [" + msg.userId + "," + msg.emojiStatus + "] ");
@@ -149,52 +132,6 @@ package org.bigbluebutton.lib.user.services {
 			var msg:Object = JSON.parse(m.msg);
 			//trace(LOG + "handleVoiceUserTalking() -- user [" + +msg.voiceUserId + "," + msg.talking + "] ");
 			userSession.userList.userTalkingChange(msg.voiceUserId, msg.talking);
-		}
-		
-		private function handleGetUsersReply(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			for (var i:int; i < msg.users.length; i++) {
-				var newUser:Object = msg.users[i];
-				addParticipant(newUser);
-			}
-			userSession.userList.allUsersAddedSignal.dispatch();
-		}
-		
-		private function handleParticipantJoined(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			var newUser:Object = msg.user;
-			addParticipant(newUser);
-		}
-		
-		private function addParticipant(newUser:Object):void {
-			var user:User = new User;
-			user.hasStream = newUser.hasStream;
-			user.streamName = newUser.webcamStream;
-			user.locked = newUser.locked;
-			user.name = newUser.name;
-			user.phoneUser = newUser.phoneUser;
-			user.presenter = newUser.presenter;
-			user.role = newUser.role;
-			user.userId = newUser.userId;
-			user.voiceJoined = newUser.voiceUser.joined;
-			user.voiceUserId = newUser.voiceUser.userId;
-			user.isLeavingFlag = false;
-			user.listenOnly = newUser.listenOnly;
-			user.muted = newUser.voiceUser.muted;
-			user.status = newUser.status;
-			userSession.userList.addUser(user);
-		}
-		
-		private function handleParticipantLeft(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleParticipantLeft() -- user [" + msg.user.userId + "] has left the meeting");
-			userSession.userList.removeUser(msg.user.userId);
-		}
-		
-		private function handleAssignPresenterCallback(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleAssignPresenterCallback() -- user [" + msg.newPresenterID + "] is now the presenter");
-			userSession.userList.assignPresenter(msg.newPresenterID);
 		}
 		
 		private function handleUserJoinedVoice(m:Object):void {
@@ -259,27 +196,105 @@ package org.bigbluebutton.lib.user.services {
 			userSession.recordingStatusChanged(msg.recording);
 		}
 		
-		private function handleValidateAuthTokenTimedOut(msg:Object):void {
-			trace(LOG + "handleValidateAuthTokenTimedOut() " + msg.msg);
-			authenticationSignal.dispatch("timedOut");
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		private function handleGetUsersMeetingRespMsg(msg:Object):void {
+			var users:Array = msg.body.users as Array;
+			
+			for (var i:int; i < users.length; i++) {
+				var newUser:Object = users[i];
+				addUser(newUser);
+			}
 		}
 		
-		private function handleValidateAuthTokenReply(msg:Object):void {
-			trace(LOG + "*** handleValidateAuthTokenReply " + msg.msg);
-			var map:Object = JSON.parse(msg.msg);
-			var tokenValid:Boolean = map.valid as Boolean;
-			var userId:String = map.userId as String;
-			trace(LOG + "handleValidateAuthTokenReply() valid=" + tokenValid);
-			if (!tokenValid) {
-				authenticationSignal.dispatch("invalid");
-			} else {
-				// why 2 different signals for authentication??  
-				//userUISession.loading = false; in authentication command can break order of functions
-				trace(LOG + "got here!");
-				if (userSession == null)
-					trace(LOG + "User Session is NULL!!!!");
-				userSession.authTokenSignal.dispatch(true);
+		private function handleUserJoinedMeetingEvtMsg(msg:Object):void {
+			addUser(msg.body);
+		}
+		
+		private function addUser(newUser:Object):void {
+			var user:User2x = new User2x();
+			user.intId = newUser.intId;
+			user.extId = newUser.extId;
+			user.name = newUser.name;
+			user.role = newUser.role;
+			user.guest = newUser.guest;
+			user.authed = newUser.authed;
+			user.waitingForAcceptance = newUser.waitingForAcceptance;
+			user.emoji = newUser.emoji;
+			user.locked = newUser.locked;
+			user.presenter = newUser.presenter;
+			user.avatar = newUser.avatar;
+			
+			if (user.intId == conferenceParameters.internalUserID) {
+				meetingData.users.me = user;
 			}
+			meetingData.users.add(user);
+		}
+		
+		private function handleUserLeftMeetingEvtMsg(msg:Object):void {
+			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + msg.body.intId + "] has left the meeting");
+			meetingData.users.remove(msg.intId);
+		}		
+		
+		private function handleUserLockedInMeetingEvtMsg(msg:Object):void {
+			trace(LOG + "handleUserLockedInMeetingEvtMsg: " + ObjectUtil.toString(msg));
+			meetingData.users.changeUserLocked(msg.body.userId, msg.body.locked);
+		}
+		
+		private function handlePresenterAssignedEvtMsg(msg:Object):void {
+			trace(LOG + "handlePresenterAssignedEvtMsg() -- user [" + msg.body.presenterId + "] is now the presenter");
+			meetingData.users.changePresenter(msg.body.presenterId, true);
+		}
+		
+		private function handlePresenterUnassignedEvtMsg(msg:Object):void {
+			trace(LOG + "handlePresenterUnassignedEvtMsg() -- user [" + msg.body.intId + "] is no longer the presenter");
+			meetingData.users.changePresenter(msg.body.intId, false);
+		}
+		
+		private function handleLockSettingsInMeetingChangedEvtMsg(msg:Object):void {
+			trace(LOG + "handleLockSettingsInMeetingChangedEvtMsg: " + ObjectUtil.toString(msg));
+			updateLockSettings(msg.body);
+		}
+		
+		private function handleGetLockSettingsRespMsg(msg:Object):void {
+			trace(LOG + "handleGetLockSettingsRespMsg: " + ObjectUtil.toString(msg));
+			updateLockSettings(msg.body);
+		}
+		
+		private function updateLockSettings(body:Object):void {
+			var newLockSettings:LockSettings2x = new LockSettings2x();
+			newLockSettings.disableCam = body.disableCam;
+			newLockSettings.disableMic = body.disableMic;
+			newLockSettings.disablePrivChat = body.disablePrivChat;
+			newLockSettings.disablePubChat = body.disablePubChat;
+			newLockSettings.lockedLayout = body.lockedLayout;
+			newLockSettings.lockOnJoin = body.lockOnJoin;
+			newLockSettings.lockOnJoinConfigurable = body.lockOnJoinConfigurable;
+			meetingData.meetingStatus.changeLockSettings(newLockSettings);
+		}
+		
+		private function handleLockSettingsNotInitializedRespMsg(msg:Object):void {
+			trace(LOG + "handleLockSettingsNotInitializedRespMsg: " + ObjectUtil.toString(msg));
+			trace("***** NEED TO ACTUALLY HANDLE THE LOCK INITIALIZATION *****");
+		}
+		
+		private function handleValidateAuthTokenRespMsg(msg:Object):void {
+			var tokenValid:Boolean = msg.body.valid as Boolean;
+			trace(LOG + "handleValidateAuthTokenReply() valid=" + tokenValid);
+			userSession.userId = msg.body.userId;
+			userSession.authTokenSignal.dispatch(tokenValid);
 		}
 	}
 }

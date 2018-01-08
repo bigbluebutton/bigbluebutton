@@ -26,8 +26,6 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _viewedRegionChangeSignal:ISignal = new Signal();
 		
-		private var _cursorUpdateSignal:ISignal = new Signal();
-		
 		private var _annotationHistorySignal:ISignal = new Signal();
 		
 		private var _annotationUpdatedSignal:ISignal = new Signal();
@@ -36,14 +34,10 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _annotationClearSignal:ISignal = new Signal();
 		
-		private var _cursorXPercent:Number = -1;
-		
-		private var _cursorYPercent:Number = -1;
-		
 		public function PresentationList() {
 		}
 		
-		public function addPresentation(presentationName:String, id:String, numberOfSlides:int, current:Boolean):Presentation {
+		public function addPresentation(presentationName:String, id:String, numberOfSlides:int, current:Boolean, downloadable:Boolean):Presentation {
 			trace("Adding presentation " + presentationName);
 			for (var i:int = 0; i < _presentations.length; i++) {
 				var p:Presentation = _presentations[i];
@@ -51,7 +45,7 @@ package org.bigbluebutton.lib.presentation.models {
 					return p;
 				}
 			}
-			var presentation:Presentation = new Presentation(presentationName, id, changeCurrentPresentation, numberOfSlides, current);
+			var presentation:Presentation = new Presentation(presentationName, id, changeCurrentPresentation, numberOfSlides, current, downloadable);
 			presentation.slideChangeSignal.add(slideChangeSignal.dispatch);
 			_presentations.addItem(presentation);
 			return presentation;
@@ -89,16 +83,8 @@ package org.bigbluebutton.lib.presentation.models {
 			return null;
 		}
 		
-		public function cursorUpdate(xPercent:Number, yPercent:Number):void {
-			_cursorXPercent = xPercent;
-			_cursorYPercent = yPercent;
-			if (_currentPresentation != null && _currentPresentation.currentSlideNum >= 0) {
-				_cursorUpdateSignal.dispatch(xPercent, yPercent);
-			}
-		}
-		
 		public function addAnnotationHistory(whiteboardID:String, annotationArray:Array):void {
-			var whiteboardIDParts:Array = whiteboardID.split("/");
+/*			var whiteboardIDParts:Array = whiteboardID.split("/");
 			var presentationID:String = whiteboardIDParts[0];
 			var pageNumber:int = parseInt(whiteboardIDParts[1]) - 1;
 			var presentation:Presentation = getPresentationByID(presentationID);
@@ -108,36 +94,36 @@ package org.bigbluebutton.lib.presentation.models {
 						_annotationHistorySignal.dispatch();
 					}
 				}
-			}
+			}*/
 		}
 		
 		public function addAnnotation(annotation:IAnnotation):void {
-			var newAnnotation:IAnnotation = _currentPresentation.addAnnotation(_currentPresentation.currentSlideNum, annotation);
+/*			var newAnnotation:IAnnotation = _currentPresentation.addAnnotation(_currentPresentation.currentSlideNum, annotation);
 			if (newAnnotation != null) {
 				_annotationUpdatedSignal.dispatch(newAnnotation);
-			}
+			}*/
 		}
 		
 		public function clearAnnotations():void {
-			if (_currentPresentation != null && _currentPresentation.currentSlideNum >= 0) {
+/*			if (_currentPresentation != null && _currentPresentation.currentSlideNum >= 0) {
 				if (_currentPresentation.clearAnnotations(_currentPresentation.currentSlideNum)) {
 					_annotationClearSignal.dispatch();
 				}
-			}
+			}*/
 		}
 		
 		public function undoAnnotation():void {
-			if (_currentPresentation != null && _currentPresentation.currentSlideNum >= 0) {
+/*			if (_currentPresentation != null && _currentPresentation.currentSlideNum >= 0) {
 				var removedAnnotation:IAnnotation = _currentPresentation.undoAnnotation(_currentPresentation.currentSlideNum);
 				if (removedAnnotation != null) {
 					_annotationUndoSignal.dispatch(removedAnnotation);
 				}
-			}
+			}*/
 		}
 		
-		public function setViewedRegion(x:Number, y:Number, widthPercent:Number, heightPercent:Number):void {
-			if (_currentPresentation != null && _currentPresentation.currentSlideNum >= 0) {
-				if (_currentPresentation.setViewedRegion(_currentPresentation.currentSlideNum, x, y, widthPercent, heightPercent)) {
+		public function setViewedRegion(presentationId:String, pageId:String, x:Number, y:Number, widthPercent:Number, heightPercent:Number):void {
+			if (_currentPresentation != null) {
+				if (_currentPresentation.setViewedRegion(pageId, x, y, widthPercent, heightPercent)) {
 					_viewedRegionChangeSignal.dispatch(x, y, widthPercent, heightPercent);
 				}
 			}
@@ -172,10 +158,6 @@ package org.bigbluebutton.lib.presentation.models {
 			return _viewedRegionChangeSignal;
 		}
 		
-		public function get cursorUpdateSignal():ISignal {
-			return _cursorUpdateSignal;
-		}
-		
 		public function get annotationHistorySignal():ISignal {
 			return _annotationHistorySignal;
 		}
@@ -190,14 +172,6 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public function get annotationClearSignal():ISignal {
 			return _annotationClearSignal;
-		}
-		
-		public function get cursorXPercent():Number {
-			return _cursorXPercent;
-		}
-		
-		public function get cursorYPercent():Number {
-			return _cursorYPercent;
 		}
 	}
 }

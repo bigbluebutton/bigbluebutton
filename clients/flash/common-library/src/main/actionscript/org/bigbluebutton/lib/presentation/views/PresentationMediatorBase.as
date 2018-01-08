@@ -25,19 +25,14 @@ package org.bigbluebutton.lib.presentation.views {
 		
 		protected var _currentPresentation:Presentation;
 		
-		protected var _currentSlideNum:int = -1;
-		
 		protected var _currentSlide:Slide;
 		
 		protected var _slideModel:SlideModel = new SlideModel();
-		
-		protected var _cursor:CursorIndicator = new CursorIndicator();
 		
 		override public function initialize():void {
 			view.addEventListener(ResizeEvent.RESIZE, viewResizeHandler);
 			userSession.presentationList.presentationChangeSignal.add(presentationChangeHandler);
 			userSession.presentationList.viewedRegionChangeSignal.add(viewedRegionChangeHandler);
-			userSession.presentationList.cursorUpdateSignal.add(cursorUpdateHandler);
 			view.swfLoader.addEventListener(Event.COMPLETE, handleLoadingComplete);
 			_slideModel.parentChange(view.width, view.height);
 			setPresentation(userSession.presentationList.currentPresentation);
@@ -47,8 +42,8 @@ package org.bigbluebutton.lib.presentation.views {
 			if (_currentSlide != null) {
 				_currentSlide.slideLoadedSignal.remove(slideLoadedHandler);
 			}
-			if (_currentPresentation != null && _currentSlideNum >= 0) {
-				_currentSlide = _currentPresentation.getSlideAt(_currentSlideNum);
+			if (_currentPresentation != null) {
+				_currentSlide = _currentPresentation.currentSlide;
 				if (_currentSlide != null) {
 					// @fixme: needs to be improved as the view is sometimes null
 					if (_currentSlide.loaded && view != null) {
@@ -76,10 +71,9 @@ package org.bigbluebutton.lib.presentation.views {
 			if (_slideModel && view && view.swfLoader) {
 				_slideModel.resetForNewSlide(view.swfLoader.contentWidth, view.swfLoader.contentHeight);
 				if (userSession.presentationList.currentPresentation) {
-					var currentSlide:Slide = userSession.presentationList.currentPresentation.getSlideAt(_currentSlideNum);
+					var currentSlide:Slide = userSession.presentationList.currentPresentation.currentSlide;
 					if (currentSlide) {
 						resetSize(currentSlide.x, currentSlide.y, currentSlide.widthPercent, currentSlide.heightPercent);
-						_cursor.draw(view.viewport, userSession.presentationList.cursorXPercent, userSession.presentationList.cursorYPercent);
 							//resetSize(_currentSlide.x, _currentSlide.y, _currentSlide.widthPercent, _currentSlide.heightPercent);
 					}
 				}
@@ -126,30 +120,27 @@ package org.bigbluebutton.lib.presentation.views {
 			view.wbCanvas.y = view.swfLoader.y;
 		}
 		
-		protected function cursorUpdateHandler(xPercent:Number, yPercent:Number):void {
-			_cursor.draw(view.viewport, xPercent, yPercent);
-		}
-		
 		protected function presentationChangeHandler():void {
 			setPresentation(userSession.presentationList.currentPresentation);
 		}
 		
 		protected function slideChangeHandler():void {
-			setCurrentSlideNum(userSession.presentationList.currentPresentation.currentSlideNum);
-			_cursor.remove(view.viewport);
+			setCurrentSlide();
 		}
 		
 		protected function setPresentation(p:Presentation):void {
-			_currentPresentation = p;
 			if (_currentPresentation != null) {
 				_currentPresentation.slideChangeSignal.remove(slideChangeHandler);
+			}
+			
+			_currentPresentation = p;
+			if (_currentPresentation != null) {
 				_currentPresentation.slideChangeSignal.add(slideChangeHandler);
-				setCurrentSlideNum(p.currentSlideNum);
+				setCurrentSlide();
 			}
 		}
 		
-		protected function setCurrentSlideNum(n:int):void {
-			_currentSlideNum = n;
+		protected function setCurrentSlide():void {
 			displaySlide();
 		}
 		
@@ -161,9 +152,11 @@ package org.bigbluebutton.lib.presentation.views {
 			view.swfLoader.removeEventListener(Event.COMPLETE, handleLoadingComplete);
 			userSession.presentationList.presentationChangeSignal.remove(presentationChangeHandler);
 			userSession.presentationList.viewedRegionChangeSignal.remove(viewedRegionChangeHandler);
-			userSession.presentationList.cursorUpdateSignal.remove(cursorUpdateHandler);
 			if (_currentPresentation != null) {
 				_currentPresentation.slideChangeSignal.remove(slideChangeHandler);
+			}
+			if (_currentSlide != null) {
+				_currentSlide.slideLoadedSignal.remove(slideLoadedHandler);
 			}
 			super.destroy();
 			view = null;

@@ -1,7 +1,6 @@
 package org.bigbluebutton.lib.main.commands {
 	
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -9,20 +8,14 @@ package org.bigbluebutton.lib.main.commands {
 	public class PresenterCommand extends Command {
 		
 		[Inject]
-		public var userSession:IUserSession;
-		
-		[Inject]
 		public var userService:IUsersService;
 		
 		[Inject]
-		public var user:User;
-		
-		[Inject]
-		public var userMeID:String;
+		public var user:User2x;
 		
 		override public function execute():void {
 			trace("PresenterCommand.execute() -assign presenter");
-			userService.assignPresenter(user.userId, user.name, userMeID);
+			userService.assignPresenter(user.intId, user.name);
 		}
 	}
 }

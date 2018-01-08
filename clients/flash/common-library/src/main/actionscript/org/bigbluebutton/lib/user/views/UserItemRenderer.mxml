@@ -19,8 +19,8 @@
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
-			import org.bigbluebutton.lib.user.models.User;
 			import org.bigbluebutton.lib.user.utils.UserUtils;
+			import org.bigbluebutton.lib.user.views.models.UserVM;
 			
 			private function onClick():void {
 				sendSelectedEvent();
@@ -32,7 +32,7 @@
 			
 			private function sendSelectedEvent():void {
 				if (currentState == "selected") {
-					dispatchEvent(new UserItemSelectedEvent(data as User, localToGlobal(new Point()), width, height));
+					dispatchEvent(new UserItemSelectedEvent(data as UserVM, localToGlobal(new Point()), width, height));
 				}
 			}
 			
@@ -60,7 +60,7 @@
 				if (obj) {
 					cameraIcon.visible = obj.hasStream;
 					
-					if (obj.voiceJoined) {
+					if (obj.inVoiceConf) {
 						if (obj.muted) {
 							audioIcon.styleName = "icon icon-audio-off";
 						} else if (obj.talking) {
@@ -74,7 +74,7 @@
 						audioIcon.styleName = "";
 					}
 					
-					lockIcon.visible = obj.locked;
+					lockIcon.visible = obj.locked && obj.roomLocked;
 					
 					if (obj.me) {
 						labelDisplay.text = obj.name + " " + "(you)"; //resourceManager.getString('resources', 'userDetail.you');

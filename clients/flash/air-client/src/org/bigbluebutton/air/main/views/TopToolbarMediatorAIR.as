@@ -4,7 +4,7 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.views.TopToolbarMediatorBase;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class TopToolbarMediatorAIR extends TopToolbarMediatorBase {
 		
@@ -13,20 +13,22 @@ package org.bigbluebutton.air.main.views {
 		
 		override protected function setTitle():void {
 			if (uiSession.currentPage == PageEnum.CHAT) {
-				var data:Object = uiSession.currentPageDetails;
+				var chatData:Object = uiSession.currentPageDetails;
 				
-				if (data != null) {
-					if (data.publicChat) {
+				if (chatData != null) {
+					if (chatData.publicChat) {
 						view.titleLabel.text = "Public Chat";
 					} else {
-						var user:User = userSession.userList.getUserByUserId(data.userId);
-						view.titleLabel.text = user.name;
+						var userC:User2x = meetingData.users.getUser(chatData.intId);
+						view.titleLabel.text = userC.name;
 					}
 				}
 			} else if (uiSession.currentPage == PageEnum.PARTICIPANTS) {
 				view.titleLabel.text = "Participants";
 			} else if (uiSession && uiSession.currentPage.indexOf("Settings") > 0) {
 				view.titleLabel.text = uiSession.currentPage.replace(/([A-Z])/g, ' $1');
+			} else if (uiSession.currentPage == PageEnum.USER_DETAILS) {
+				view.titleLabel.text = "User Details";
 			} else {
 				view.titleLabel.text = conferenceParameters.meetingName;
 			}

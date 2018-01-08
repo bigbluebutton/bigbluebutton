@@ -1,11 +1,17 @@
 package org.bigbluebutton.lib.main.commands {
 	
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
+	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
@@ -21,6 +27,9 @@ package org.bigbluebutton.lib.main.commands {
 		
 		[Inject]
 		public var userSession:IUserSession;
+		
+		[Inject]
+		public var meetingData:IMeetingData;
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
@@ -67,6 +76,8 @@ package org.bigbluebutton.lib.main.commands {
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;
 		
+		private var authTokenTimeout:Timer;
+		
 		override public function execute():void {
 			loadConfigOptions();
 			connection.uri = uri;
@@ -81,14 +92,11 @@ package org.bigbluebutton.lib.main.commands {
 			userSession.skipCamSettingsCheck = (userSession.config.getConfigFor("VideoconfModule").@skipCamSettingsCheck.toString().toUpperCase() == "TRUE") ? true : false;
 		}
 		
-		
-		
 		private function connectionSuccess():void {
 			trace(LOG + "successConnected()");
 			userSession.mainConnection = connection;
 			chatService.setupMessageSenderReceiver();
 			whiteboardService.setupMessageSenderReceiver();
-			userSession.userId = connection.userId;
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
@@ -97,15 +105,28 @@ package org.bigbluebutton.lib.main.commands {
 			usersService.validateToken();
 			connection.connectionSuccessSignal.remove(connectionSuccess);
 			connection.connectionFailureSignal.remove(connectionFailure);
+			
+			authTokenTimeout = new Timer(10000, 1);
+			authTokenTimeout.addEventListener(TimerEvent.TIMER, onAuthTokenTimeout);
+			authTokenTimeout.start();
 		}
 		
 		private function onAuthTokenReply(tokenValid:Boolean):void {
 			userSession.authTokenSignal.remove(onAuthTokenReply);
+			authTokenTimeout.stop();
+			
 			if (tokenValid) {
 				joiningMeetingSuccess();
 			} else {
-				// TODO disconnect
+				joiningMeetingFailure(DisconnectEnum.AUTH_TOKEN_INVALID);
 			}
+		}
+		
+		private function onAuthTokenTimeout(e:TimerEvent):void {
+			trace(LOG + "onAuthTokenTimeout - timeout hit");
+			userSession.authTokenSignal.remove(onAuthTokenReply);
+			
+			joiningMeetingFailure(DisconnectEnum.AUTH_TOKEN_TIMEOUT);
 		}
 		
 		private function joiningMeetingSuccess():void {
@@ -142,22 +163,26 @@ package org.bigbluebutton.lib.main.commands {
 			chatService.sendWelcomeMessage();
 			chatService.getPublicChatMessages();
 			presentationService.getPresentationInfo();
-			userSession.userList.allUsersAddedSignal.add(successUsersAdded);
+			meetingData.users.userChangeSignal.add(successUsersAdded);
+			usersService.joinMeeting();
 			usersService.queryForParticipants();
 			usersService.queryForRecordingStatus();
 			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
-			//usersService.getRoomLockState();
+			usersService.getRoomLockState();
 		}
 		
-		private function joiningMeetingFailure():void {
+		// reason is one of the DisconnectEnum types
+		private function joiningMeetingFailure(reason:int):void {
 			trace(LOG + "joiningMeetingFailure() -- Failed to join the meeting!!!");
 			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
+			
+			disconnectUserSignal.dispatch(reason);
 		}
 		
-		protected function successUsersAdded():void {
-			userSession.userList.allUsersAddedSignal.remove(successUsersAdded);
+		protected function successUsersAdded(user:User2x, property:int):void {
+			meetingData.users.userChangeSignal.remove(successUsersAdded);
 			connectingFinishedSignal.dispatch();
 		}
 		

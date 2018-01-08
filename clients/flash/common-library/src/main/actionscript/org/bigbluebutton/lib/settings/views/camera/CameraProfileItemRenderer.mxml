@@ -15,11 +15,20 @@
 				labelField.setStyle('paddingLeft', getStyle('padding'));
 				labelField.setStyle('fontSize', getStyle('fontSize'));
 			}
+			
+			override public function set data(value:Object):void {
+				super.data = value;
+				
+				if (value != null) {
+					labelField.text = value.name;
+				} else {
+					labelField.text = "";
+				}
+			}
 		]]>
 	</fx:Script>
 
 	<s:Label id="labelField"
-			 text="{data.name}"
 			 width="100%" />
 
 </s:ItemRenderer>
