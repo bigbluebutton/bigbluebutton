@@ -1,0 +1,20 @@
+{
+  "name": "bbb-webrtc-sfu",
+  "version": "0.0.2",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "joi": "^13.0.2",
+    "kurento-client": "git+https://github.com/Kurento/kurento-client-js.git#master",
+    "moment": "^2.19.2",
+    "redis": "^2.8.0",
+    "sdp-transform": "^2.3.0",
+    "readable-id": "^1.0.0",
+    "ws": "^3.3.2",
+    "config": "^1.26.1",
+    "js-yaml": "^3.8.3"
+  },
+  "optionalDependencies": {}
+}

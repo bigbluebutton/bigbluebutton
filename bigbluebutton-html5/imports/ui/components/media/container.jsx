@@ -8,7 +8,7 @@ import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
-  overlay: null, // <VideoDockContainer/>,
+  overlay: <VideoDockContainer />,
   content: <PresentationAreaContainer />,
   defaultContent: <DefaultContent />,
 };

@@ -70,6 +70,9 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultClientUrl;
+    private String html5ClientUrl;
+    private Boolean moderatorsJoinViaHTML5Client;
+    private Boolean attendeesJoinViaHTML5Client;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -78,6 +81,7 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
+    private boolean defaultMuteOnStart = false;
 
     private String defaultConfigXML = null;
 
@@ -349,6 +353,9 @@ public class ParamsProcessorUtil {
         int meetingDuration = processMeetingDuration(params.get("duration"));
         int logoutTimer = processMeetingDuration(params.get("logoutTimer"));
 
+        // Hardcode to zero as we don't use this feature in 2.0.x (ralam dec 18, 2017)
+		logoutTimer = 0;
+
         // set is breakout room property
         boolean isBreakout = false;
         if (!StringUtils.isEmpty(params.get("isBreakout"))) {
@@ -460,7 +467,9 @@ public class ParamsProcessorUtil {
         meeting.storeConfig(true, configXML);
 
         if (!StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
-            String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
+            String moderatorOnlyMessageTemplate = params.get("moderatorOnlyMessage");
+			String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
+					dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
@@ -473,6 +482,19 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get("sequence")));
             meeting.setParentMeetingId(parentMeetingId);
+        }
+
+		if (!StringUtils.isEmpty(params.get("logo"))) {
+			meeting.setCustomLogoURL(params.get("logo"));
+		}
+
+		if (!StringUtils.isEmpty(params.get("copyright"))) {
+			meeting.setCustomCopyright(params.get("copyright"));
+		}
+		Boolean muteOnStart = defaultMuteOnStart;
+		if (!StringUtils.isEmpty(params.get("muteOnStart"))) {
+        	muteOnStart = Boolean.parseBoolean(params.get("muteOnStart"));
+			meeting.setMuteOnStart(muteOnStart);
         }
 
         return meeting;
@@ -489,7 +511,19 @@ public class ParamsProcessorUtil {
 	public String getDefaultClientUrl() {
 		return defaultClientUrl;
 	}
-	
+
+	public String getHTML5ClientUrl() {
+		return html5ClientUrl;
+	}
+
+	public Boolean getAttendeesJoinViaHTML5Client() {
+		return attendeesJoinViaHTML5Client;
+	}
+
+	public Boolean getModeratorsJoinViaHTML5Client() {
+		return moderatorsJoinViaHTML5Client;
+	}
+
 	public String getDefaultConfigXML() {
 		defaultConfigXML = getConfig(defaultConfigURL);
 		
@@ -808,6 +842,18 @@ public class ParamsProcessorUtil {
 		this.defaultClientUrl = defaultClientUrl;
 	}
 
+	public void setHtml5ClientUrl(String html5ClientUrl) {
+		this.html5ClientUrl = html5ClientUrl;
+	}
+
+	public void setModeratorsJoinViaHTML5Client(Boolean moderatorsJoinViaHTML5Client) {
+		this.moderatorsJoinViaHTML5Client = moderatorsJoinViaHTML5Client;
+	}
+
+	public void setAttendeesJoinViaHTML5Client(Boolean attendeesJoinViaHTML5Client) {
+		this.attendeesJoinViaHTML5Client = attendeesJoinViaHTML5Client;
+	}
+
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
 		this.defaultMeetingDuration = defaultMeetingDuration;
 	}
@@ -864,6 +910,15 @@ public class ParamsProcessorUtil {
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
 		meetingExpireIfNoUserJoinedInMinutes = value;
 	}
+
+	public void setMuteOnStart(Boolean mute) {
+		defaultMuteOnStart = mute;
+	}
+
+	public Boolean getMuteOnStart() {
+		return defaultMuteOnStart;
+	}
+
 
 	public ArrayList<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<String>();

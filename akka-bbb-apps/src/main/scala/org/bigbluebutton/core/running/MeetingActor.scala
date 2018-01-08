@@ -131,6 +131,13 @@ class MeetingActor(
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
+  // Initialize if the meeting is muted on start
+  if (props.voiceProp.muteOnStart) {
+    MeetingStatus2x.muteMeeting(liveMeeting.status)
+  } else {
+    MeetingStatus2x.unmuteMeeting(liveMeeting.status)
+  }
+
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
@@ -218,7 +225,6 @@ class MeetingActor(
       case m: StartCustomPollReqMsg          => handleStartCustomPollReqMsg(m)
       case m: StopPollReqMsg                 => handleStopPollReqMsg(m)
       case m: ShowPollResultReqMsg           => handleShowPollResultReqMsg(m)
-      case m: HidePollResultReqMsg           => handleHidePollResultReqMsg(m)
       case m: GetCurrentPollReqMsg           => handleGetCurrentPollReqMsg(m)
       case m: RespondToPollReqMsg            => handleRespondToPollReqMsg(m)
 

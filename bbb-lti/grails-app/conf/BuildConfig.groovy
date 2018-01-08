@@ -1,4 +1,4 @@
-/* 
+/*
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
     Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*/    
+*/
 
 grails.servlet.version = "3.0" // Change depending on target container compliance (2.5 or 3.0)
 grails.project.class.dir = "target/classes"
@@ -65,6 +65,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
+        compile 'org.json:json:20171018'
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         // runtime 'mysql:mysql-connector-java:5.1.29'
         // runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'

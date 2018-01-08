@@ -33,10 +33,10 @@ class ChatNotification extends Component {
 
     const notifiedToClear = {};
     openChats
-     .filter(c => c.unreadCounter === 0)
-     .forEach((c) => {
-       notifiedToClear[c.id] = 0;
-     });
+      .filter(c => c.unreadCounter === 0)
+      .forEach((c) => {
+        notifiedToClear[c.id] = 0;
+      });
 
     this.setState(({ notified }) => ({
       notified: {
@@ -82,8 +82,7 @@ class ChatNotification extends Component {
                   },
                 }));
               }}
-            />),
-          )
+            />))
         }
       </span>
     );

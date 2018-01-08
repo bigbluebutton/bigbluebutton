@@ -43,7 +43,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   display: inline-block;
   border-radius: $border-size;
   font-weight: $btn-font-weight;
-  line-height: 1.5;
+  line-height: 1;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
@@ -133,6 +133,9 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   & + .button  {
     margin-left: $btn-spacing;
   }
+  &:hover {
+    opacity: .5;
+  }
 }
 
 .hideLabel {
@@ -156,6 +159,9 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 
   & + .label {
     margin-left: $btn-spacing;
+  }
+  .buttonWrapper:hover & {
+    opacity: .75;
   }
 }
 
