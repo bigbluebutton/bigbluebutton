@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import Chat from './component';
@@ -27,12 +27,19 @@ const intlMessages = defineMessages({
   },
 });
 
-const ChatContainer = props =>
-  (
-    <Chat {...props}>
-      {props.children}
-    </Chat>
-  );
+class ChatContainer extends Component {
+  componentDidMount() {
+    // in case of reopening a chat, need to make sure it's removed from closed list
+    ChatService.removeFromClosedChatsSession(this.props.chatID);
+  }
+  render() {
+    return (
+      <Chat {...this.props}>
+        {this.props.children}
+      </Chat>
+    );
+  }
+}
 
 export default injectIntl(withTracker(({ params, intl }) => {
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
