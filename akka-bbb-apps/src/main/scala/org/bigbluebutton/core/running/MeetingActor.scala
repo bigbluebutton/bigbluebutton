@@ -280,7 +280,7 @@ class MeetingActor(
 
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: AssignPresenterReqMsg => handlePresenterChange(m)
+      case m: AssignPresenterReqMsg => state = handlePresenterChange(m, state)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -357,12 +357,12 @@ class MeetingActor(
     // TODO send all screen sharing info
   }
 
-  def handlePresenterChange(msg: AssignPresenterReqMsg): Unit = {
+  def handlePresenterChange(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
     // Stop poll if one is running as presenter left
     pollApp.stopPoll(state, msg.header.userId, liveMeeting, msgBus)
 
     // switch user presenter status for old and new presenter
-    usersApp.handleAssignPresenterReqMsg(msg)
+    val newState = usersApp.handleAssignPresenterReqMsg(msg, state)
 
     // request screenshare to end
     screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
@@ -370,6 +370,8 @@ class MeetingActor(
       liveMeeting.props.screenshareProps.screenshareConf,
       liveMeeting, msgBus
     )
+
+    newState
 
   }
 
