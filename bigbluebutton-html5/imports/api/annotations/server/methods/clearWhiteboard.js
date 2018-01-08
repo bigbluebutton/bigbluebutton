@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 export default function clearWhiteboard(credentials, whiteboardId) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ClearWhiteboardPubMsg';
 
@@ -18,9 +18,7 @@ export default function clearWhiteboard(credentials, whiteboardId) {
 
   const allowed = Acl.can('methods.clearWhiteboard', credentials) || getMultiUserStatus(meetingId);
   if (!allowed) {
-    throw new Meteor.Error(
-      'not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`,
-    );
+    throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`);
   }
 
   const payload = {

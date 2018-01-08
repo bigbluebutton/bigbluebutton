@@ -22,7 +22,7 @@ function isLastMessage(annotation, userId) {
 }
 
 export default function sendAnnotation(credentials, annotation) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendWhiteboardAnnotationPubMsg';
 
@@ -45,9 +45,7 @@ export default function sendAnnotation(credentials, annotation) {
     isLastMessage(annotation, requesterUserId);
 
   if (!allowed) {
-    throw new Meteor.Error(
-      'not-allowed', `User ${requesterUserId} is not allowed to send an annotation`,
-    );
+    throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to send an annotation`);
   }
 
   const payload = {
