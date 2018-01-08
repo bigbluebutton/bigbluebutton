@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Media;
+  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -118,7 +119,11 @@ package org.bigbluebutton.modules.videoconf.maps
       LOGGER.debug("VideoEventMapDelegate:: [{0}] viewCamera. ready = [{1}]", [me, _ready]);
 
       if (!_ready) return;
-      if (! UsersUtil.isMe(userID)) {
+	  var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
+	  var user : User2x = LiveMeeting.inst().users.getUser(userID);
+      if (! UsersUtil.isMe(userID) && 
+		  (!webcamsOnlyForModerator || (webcamsOnlyForModerator && (UsersUtil.amIModerator() || (user != null && user.role == Role.MODERATOR))))
+	  ) {
         openViewWindowFor(userID);
       }
     }
