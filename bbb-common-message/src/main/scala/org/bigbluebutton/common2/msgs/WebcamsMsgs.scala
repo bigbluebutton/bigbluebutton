@@ -3,15 +3,15 @@ package org.bigbluebutton.common2.msgs
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader,
                                          body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg
-case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String, isHtml5Client: Boolean = false)
+case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
 case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartMsgBody) extends StandardMsg
-case class UserBroadcastCamStartMsgBody(stream: String, isHtml5Client: Boolean = false)
+case class UserBroadcastCamStartMsgBody(stream: String)
 
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg" }
 case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends StandardMsg
-case class UserBroadcastCamStopMsgBody(stream: String, isHtml5Client: Boolean = false)
+case class UserBroadcastCamStopMsgBody(stream: String)
 
 object UserBroadcastCamStoppedEvtMsg { val NAME = "UserBroadcastCamStoppedEvtMsg" }
 case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
