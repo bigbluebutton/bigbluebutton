@@ -67,7 +67,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
   const DRAW_UPDATE = ANOTATION_STATUSES.update;
   const DRAW_END = ANOTATION_STATUSES.end;
 
-  const SERVER_CONFIG = Meteor.settings.app;
+  const SERVER_CONFIG = Meteor.settings.private.app;
   const PENCIL_CHUNK_SIZE = SERVER_CONFIG.pencilChunkLength || 100;
 
   const { id, status, annotationType, annotationInfo, wbId, position } = annotation;

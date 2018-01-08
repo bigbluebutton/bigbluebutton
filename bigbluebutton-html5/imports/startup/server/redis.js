@@ -136,7 +136,7 @@ class RedisPubSub {
     if (this.didSendRequestEvent) return;
 
     // populate collections with pre-existing data
-    const REDIS_CONFIG = Meteor.settings.redis;
+    const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
     const EVENT_NAME = 'GetAllMeetingsReqMsg';
 
@@ -229,7 +229,7 @@ class RedisPubSub {
 const RedisPubSubSingleton = new RedisPubSub();
 
 Meteor.startup(() => {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
 
   RedisPubSubSingleton.updateConfig(REDIS_CONFIG);
   RedisPubSubSingleton.init();

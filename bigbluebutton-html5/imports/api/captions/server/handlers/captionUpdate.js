@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import addCaption from '../modifiers/addCaption';
 
 export default function handleCaptionUpdate({ body }, meetingId) {
-  const SERVER_CONFIG = Meteor.settings.app;
+  const SERVER_CONFIG = Meteor.settings.private.app;
   const CAPTION_CHUNK_LENGTH = SERVER_CONFIG.captionsChunkLength || 1000;
 
   const { locale } = body;

@@ -23,7 +23,7 @@ Logger.add(Winston.transports.Console, {
 });
 
 Meteor.startup(() => {
-  const LOG_CONFIG = Meteor.settings.log || {};
+  const LOG_CONFIG = Meteor.settings.private.log || {};
   let filename = LOG_CONFIG.filename;
 
   // Set Logger message level priority for the console
@@ -31,7 +31,7 @@ Meteor.startup(() => {
 
   // Determine file to write logs to
   if (filename) {
-    if (Meteor.settings.runtime.env === 'development') {
+    if (Meteor.isDevelopment) {
       const path = Npm.require('path');
       filename = path.join(process.env.PWD, filename);
     }

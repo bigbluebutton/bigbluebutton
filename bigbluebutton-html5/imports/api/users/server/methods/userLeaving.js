@@ -7,7 +7,7 @@ import Users from '/imports/api/users';
 const OFFLINE_CONNECTION_STATUS = 'offline';
 
 export default function userLeaving(credentials, userId) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UserLeaveReqMsg';
 

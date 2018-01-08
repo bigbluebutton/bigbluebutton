@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 export default function undoAnnotation(credentials, whiteboardId) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UndoWhiteboardPubMsg';
 

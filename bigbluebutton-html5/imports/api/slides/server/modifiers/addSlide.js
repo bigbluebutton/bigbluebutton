@@ -9,7 +9,7 @@ import { SVG, PNG } from '/imports/utils/mimeTypes';
 import calculateSlideData from '/imports/api/slides/server/helpers';
 
 const requestWhiteboardHistory = (meetingId, slideId) => {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'GetWhiteboardAnnotationsReqMsg';
   const USER_ID = 'nodeJSapp';
