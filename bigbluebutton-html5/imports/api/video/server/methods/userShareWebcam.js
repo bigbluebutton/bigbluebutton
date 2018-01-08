@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import RedisPubSub from '/imports/startup/server/redis';
 
 export default function userShareWebcam(credentials, message) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UserBroadcastCamStartMsg';
 
