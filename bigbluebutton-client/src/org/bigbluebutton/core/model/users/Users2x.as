@@ -135,9 +135,7 @@ package org.bigbluebutton.core.model.users
 			var temp: Array = new Array();
 			for (var i:int = 0; i < _users.length; i++) {
 				var user:User2x = _users.getItemAt(i) as User2x;
-				if (user.presenter) {
 					temp.push(user.intId);
-				}
 			}
 			
 			return new ArrayCollection(temp);
