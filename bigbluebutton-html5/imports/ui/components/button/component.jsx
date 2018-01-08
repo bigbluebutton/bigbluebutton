@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Tooltip from '/imports/ui/components/tooltip/component';
-import styles from './styles';
+import { styles } from './styles';
 import Icon from '../icon/component';
 import BaseButton from './base/component';
 

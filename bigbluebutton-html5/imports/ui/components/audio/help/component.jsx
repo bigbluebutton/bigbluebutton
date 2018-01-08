@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Button from '/imports/ui/components/button/component';
 import { injectIntl, defineMessages } from 'react-intl';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   descriptionHelp: {

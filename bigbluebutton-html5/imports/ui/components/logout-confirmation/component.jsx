@@ -4,7 +4,7 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
   handleEndMeeting: PropTypes.func.isRequired,

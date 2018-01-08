@@ -11,7 +11,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
-import styles from './styles';
+import { styles } from './styles';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
 

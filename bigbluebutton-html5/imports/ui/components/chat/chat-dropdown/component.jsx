@@ -13,7 +13,7 @@ import Acl from '/imports/startup/acl';
 import Button from '/imports/ui/components/button/component';
 
 import ChatService from './../service';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   clear: {

@@ -7,7 +7,7 @@ import _ from 'lodash';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Message from './message/component';
 
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
   user: PropTypes.object,

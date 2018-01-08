@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
@@ -81,7 +81,7 @@ const UserListContainer = (props) => {
 UserListContainer.propTypes = propTypes;
 UserListContainer.defaultProps = defaultProps;
 
-export default createContainer(({ params }) => ({
+export default withTracker(({ params }) => ({
   users: Service.getUsers(),
   meeting: Meetings.findOne({}),
   currentUser: Service.getCurrentUser(),
@@ -99,4 +99,4 @@ export default createContainer(({ params }) => ({
   toggleVoice: Service.toggleVoice,
   changeRole: Service.changeRole,
   roving: Service.roving,
-}), UserListContainer);
+}))(UserListContainer);

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Media from './component';
 import MediaService from './service';
 import PresentationAreaContainer from '../presentation/container';
@@ -52,7 +52,7 @@ class MediaContainer extends Component {
 
 MediaContainer.defaultProps = defaultProps;
 
-export default createContainer(() => {
+export default withTracker(() => {
   const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
 
@@ -71,4 +71,4 @@ export default createContainer(() => {
   }
 
   return data;
-}, MediaContainer);
+})(MediaContainer);

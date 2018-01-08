@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { injectIntl, intlShape, defineMessages } from 'react-intl';
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
   intl: intlShape.isRequired,
