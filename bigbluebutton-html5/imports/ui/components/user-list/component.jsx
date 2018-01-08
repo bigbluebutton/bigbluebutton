@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import styles from './styles';
+import { styles } from './styles';
 import UserContent from './user-list-content/component';
 
 const propTypes = {

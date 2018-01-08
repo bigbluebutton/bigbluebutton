@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 class ClosedCaptions extends Component {
   constructor(props) {

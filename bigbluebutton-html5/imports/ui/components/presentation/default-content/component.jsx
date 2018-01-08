@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { FormattedMessage, FormattedDate } from 'react-intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 import Button from '../../button/component';
 
 export default class DefaultContent extends Component {

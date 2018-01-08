@@ -9,7 +9,7 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
 import Icon from '../icon/component';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
 
