@@ -7,7 +7,9 @@ const config = require("./config_local.js");
 if (config.bbb == null) { config.bbb = {}; }
 if (!config.bbb.sharedSecret) { config.bbb.sharedSecret = "sharedSecret"; }
 if (!config.bbb.apiPath) { config.bbb.apiPath = "/bigbluebutton/api"; }
-if (config.bbb.auth2_0 == null) { config.bbb.auth2_0 = true; }
+// Whether to use Auth2.0 or not, Auth2.0 sends the sharedSecret whithin an Authorization header as a bearer
+// and data as JSON
+if (config.bbb.auth2_0 == null) { config.bbb.auth2_0 = false; }
 
 // Web server configs
 if (!config.server) { config.server = {}; }
@@ -22,11 +24,16 @@ if (!config.hooks.channels) {
     chatChannel: 'from-akka-apps-chat-redis-channel'
   }
  }
-// IP where aggr will be hosted
+// IP where permanent hook will post data (more than 1 URL means more than 1 permanent hook)
 if (!config.hooks.permanentURLs) { config.hooks.permanentURLs = []; }
+// How many messages will be enqueued to be processed at the same time
 if (config.hooks.queueSize  == null) { config.hooks.queueSize = 10000; }
-if (config.hooks.getRaw  == null) { config.hooks.getRaw = false; }
-if (config.hooks.multiEvent  == null) { config.hooks.multiEvent = 10; }
+// Allow permanent hooks to receive raw message, which is the message straight from BBB
+if (config.hooks.getRaw  == null) { config.hooks.getRaw = true; }
+// If set to higher than 1, will send events on the format:
+// "event=[{event1},{event2}],timestamp=000" or "[{event1},{event2}]" (based on using auth2_0 or not)
+// when there are more than 1 event on the queue at the moment of processing the queue.
+if (config.hooks.multiEvent  == null) { config.hooks.multiEvent = 1; }
 
 // Retry intervals for failed attempts for perform callback calls.
 // In ms. Totals to around 5min.

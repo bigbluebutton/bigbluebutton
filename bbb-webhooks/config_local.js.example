@@ -6,7 +6,7 @@ const config = {};
 config.bbb = {};
 config.bbb.sharedSecret = "mysharedsecret";
 // Whether to use Auth2.0 or not, Auth2.0 sends the sharedSecret whithin an Authorization header as a bearer
-config.bbb.auth2_0 = true
+config.bbb.auth2_0 = false
 
 // The port in which the API server will run.
 config.server = {};
