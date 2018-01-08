@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -87,7 +87,7 @@ const SUBSCRIPTIONS_NAME = [
   'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
 ];
 
-const BaseContainer = withRouter(createContainer(({ params, router }) => {
+const BaseContainer = withRouter(withTracker(({ params, router }) => {
   if (params.errorCode) return params;
 
   if (!Auth.loggedIn) {
@@ -110,6 +110,6 @@ const BaseContainer = withRouter(createContainer(({ params, router }) => {
     locale: Settings.application.locale,
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
   };
-}, Base));
+})(Base));
 
 export default BaseContainer;

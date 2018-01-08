@@ -1,7 +1,7 @@
 import React from 'react';
 import Breakouts from '/imports/api/breakouts';
 import { ToastContainer as Toastify } from 'react-toastify';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 
@@ -38,7 +38,7 @@ class ToastContainer extends React.Component {
   }
 }
 
-export default injectIntl(injectNotify(createContainer(({ notify, intl }) => {
+export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
   Breakouts.find().observeChanges({
     removed() {
       notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
@@ -71,4 +71,4 @@ export default injectIntl(injectNotify(createContainer(({ notify, intl }) => {
     closeOnClick: true,
     pauseOnHover: true,
   };
-}, ToastContainer)));
+})(ToastContainer)));

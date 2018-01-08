@@ -1,5 +1,5 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -56,7 +56,7 @@ const AudioContainer = props => <Audio {...props} />;
 
 let didMountAutoJoin = false;
 
-export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }) => {
+export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
   const { autoJoinAudio } = APP_CONFIG;
@@ -95,7 +95,7 @@ export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }
       didMountAutoJoin = true;
     },
   };
-}, AudioContainer)));
+})(AudioContainer)));
 
 AudioContainer.propTypes = propTypes;
 AudioContainer.defaultProps = defaultProps;
