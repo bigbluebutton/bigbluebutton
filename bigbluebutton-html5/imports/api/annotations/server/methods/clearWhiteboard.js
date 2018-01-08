@@ -18,9 +18,7 @@ export default function clearWhiteboard(credentials, whiteboardId) {
 
   const allowed = Acl.can('methods.clearWhiteboard', credentials) || getMultiUserStatus(meetingId);
   if (!allowed) {
-    throw new Meteor.Error(
-      'not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`,
-    );
+    throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`);
   }
 
   const payload = {

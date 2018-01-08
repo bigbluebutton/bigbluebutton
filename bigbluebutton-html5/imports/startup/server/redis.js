@@ -47,8 +47,8 @@ class MettingMessageQueue {
     const { envelope } = data.parsedMessage;
     const { header } = data.parsedMessage.core;
     const { body } = data.parsedMessage.core;
+    const { meetingId } = header;
     const eventName = header.name;
-    const meetingId = header.meetingId;
     const isAsync = this.asyncMessages.includes(channel)
       || this.asyncMessages.includes(eventName);
 
@@ -91,7 +91,6 @@ class MettingMessageQueue {
 }
 
 class RedisPubSub {
-
   static handlePublishError(err) {
     if (err) {
       Logger.error(err);

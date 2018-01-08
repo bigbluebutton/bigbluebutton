@@ -45,9 +45,7 @@ export default function sendAnnotation(credentials, annotation) {
     isLastMessage(annotation, requesterUserId);
 
   if (!allowed) {
-    throw new Meteor.Error(
-      'not-allowed', `User ${requesterUserId} is not allowed to send an annotation`,
-    );
+    throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to send an annotation`);
   }
 
   const payload = {

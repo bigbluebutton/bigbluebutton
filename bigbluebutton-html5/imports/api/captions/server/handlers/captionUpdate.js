@@ -34,7 +34,7 @@ export default function handleCaptionUpdate({ body }, meetingId) {
       length += current.captionHistory.captions.length;
 
       // if length is bigger than start index - we found our start index
-      if (length >= body.startIndex && startIndex == undefined) {
+      if (length >= body.startIndex && startIndex === undefined) {
         // check if it's a new character somewhere in the middle of captions text
         if (length - 1 >= body.startIndex) {
           startIndex = body.startIndex - (length - current.captionHistory.captions.length);
@@ -59,8 +59,8 @@ export default function handleCaptionUpdate({ body }, meetingId) {
 
           // separate case for appending new characters to the very end of the string
         } else if (current.captionHistory.next == null &&
-          length == body.startIndex &&
-          length == body.startIndex) {
+          length === body.startIndex &&
+          length === body.startIndex) {
           startIndex = 1;
           endIndex = 1;
           current.captionHistory.captions += body.text;
@@ -72,7 +72,7 @@ export default function handleCaptionUpdate({ body }, meetingId) {
     }
 
     // looking for end index here if it wasn't in the same object as start index
-    if (startIndex != undefined && endIndex == undefined) {
+    if (startIndex !== undefined && endIndex === undefined) {
       current = captionsObjects[current.captionHistory.next];
       while (current != null) {
         length += current.captionHistory.captions.length;
@@ -98,7 +98,7 @@ export default function handleCaptionUpdate({ body }, meetingId) {
 
     // looking for the strings which exceed the limit and split them into multiple objects
     let maxIndex = captionsObjects.length - 1;
-    for (let i = 0; i < objectsToUpdate.length; i++) {
+    for (let i = 0; i < objectsToUpdate.length; i += 1) {
       if (objectsToUpdate[i].captionHistory.captions.length > CAPTION_CHUNK_LENGTH) {
         // string is too large. Check if the next object exists and if it can
         // accomodate the part of the string that exceeds the limits
@@ -114,11 +114,12 @@ export default function handleCaptionUpdate({ body }, meetingId) {
 
           // check to see if the next object was added to objectsToUpdate array
           if (objectsToUpdate[i + 1] != null &&
-            objectsToUpdate[i].captionHistory.next == objectsToUpdate[i + 1].captionHistory.index) {
+            objectsToUpdate[i].captionHistory.next === objectsToUpdate[i + 1].captionHistory.index) {
             objectsToUpdate[i + 1].captionHistory.captions = extraString +
               objectsToUpdate[i + 1].captionHistory.captions;
 
-            // next object wasn't added to objectsToUpdate array, adding it from captionsObjects array.
+            // next object wasn't added to objectsToUpdate array
+            // adding it from captionsObjects array.
           } else {
             const nextObj = captionsObjects[objectsToUpdate[i].captionHistory.next];
             nextObj.captionHistory.captions = extraString + nextObj.captionHistory.captions;
@@ -139,7 +140,7 @@ export default function handleCaptionUpdate({ body }, meetingId) {
           const tempIndex = tempObj[0].captionHistory.next;
           tempObj[0].captionHistory.next = maxIndex;
 
-          while (extraString.length != 0) {
+          while (extraString.length !== 0) {
             const entry = {
               meetingId,
               locale,
@@ -170,7 +171,9 @@ export default function handleCaptionUpdate({ body }, meetingId) {
 
   const captionsAdded = [];
   objectsToUpdate.forEach((entry) => {
-    const { _id, meetingId, locale, captionHistory } = entry;
+    const {
+      _id, captionHistory,
+    } = entry;
     captionsAdded.push(addCaption(meetingId, locale, captionHistory, _id));
   });
 

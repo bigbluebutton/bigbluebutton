@@ -22,9 +22,7 @@ export default function publishCursorUpdate(credentials, payload) {
 
   const allowed = Acl.can('methods.moveCursor', credentials) || getMultiUserStatus(meetingId);
   if (!allowed) {
-    throw new Meteor.Error(
-      'not-allowed', `User ${requesterUserId} is not allowed to move the cursor`,
-    );
+    throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to move the cursor`);
   }
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

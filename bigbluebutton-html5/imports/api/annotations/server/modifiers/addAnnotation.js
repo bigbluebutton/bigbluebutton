@@ -7,7 +7,9 @@ const ANNOTATION_TYPE_PENCIL = 'pencil';
 
 // line, triangle, ellipse, rectangle
 function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
-  const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
+  const {
+    id, status, annotationType, annotationInfo, wbId, position,
+  } = annotation;
 
   const selector = {
     meetingId,
@@ -33,7 +35,9 @@ function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
 }
 
 function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
-  const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
+  const {
+    id, status, annotationType, annotationInfo, wbId, position,
+  } = annotation;
 
   const selector = {
     meetingId,
@@ -70,7 +74,9 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
   const SERVER_CONFIG = Meteor.settings.private.app;
   const PENCIL_CHUNK_SIZE = SERVER_CONFIG.pencilChunkLength || 100;
 
-  const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
+  const {
+    id, status, annotationType, annotationInfo, wbId, position,
+  } = annotation;
 
   const baseSelector = {
     meetingId,

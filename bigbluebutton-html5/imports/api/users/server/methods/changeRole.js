@@ -22,8 +22,7 @@ export default function changeRole(credentials, userId, role) {
   });
 
   if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to set '${role}'`);
+    throw new Meteor.Error('user-not-found', `You need a valid user to be able to set '${role}'`);
   }
 
   const payload = {

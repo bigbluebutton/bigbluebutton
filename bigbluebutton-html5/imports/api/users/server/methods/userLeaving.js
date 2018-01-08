@@ -24,8 +24,7 @@ export default function userLeaving(credentials, userId) {
 
   const User = Users.findOne(selector);
   if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
+    throw new Meteor.Error('user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
   }
 
   if (User.connectionStatus === OFFLINE_CONNECTION_STATUS) {

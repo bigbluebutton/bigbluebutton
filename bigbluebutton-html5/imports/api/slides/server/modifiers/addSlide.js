@@ -27,9 +27,7 @@ const fetchImageSizes = imageUri =>
   probe(imageUri)
     .then((result) => {
       if (!SUPPORTED_TYPES.includes(result.mime)) {
-        throw new Meteor.Error(
-          'invalid-image-type', `received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`,
-        );
+        throw new Meteor.Error('invalid-image-type', `received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`);
       }
 
       return {

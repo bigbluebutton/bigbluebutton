@@ -30,8 +30,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   const Meeting = Meetings.findOne({ meetingId });
 
   if (!VoiceUser) {
-    throw new Meteor.Error(
-      'user-not-found', 'You need a valid user to be able to toggle audio');
+    throw new Meteor.Error('user-not-found', 'You need a valid user to be able to toggle audio');
   }
 
   // check(User.user.name, String);

@@ -25,8 +25,7 @@ export default function switchSlide(credentials, slideNumber) {
   const Presentation = Presentations.findOne(selector);
 
   if (!Presentation) {
-    throw new Meteor.Error(
-      'presentation-not-found', 'You need a presentation to be able to switch slides');
+    throw new Meteor.Error('presentation-not-found', 'You need a presentation to be able to switch slides');
   }
 
   const Slide = Slides.findOne({
@@ -36,8 +35,7 @@ export default function switchSlide(credentials, slideNumber) {
   });
 
   if (!Slide) {
-    throw new Meteor.Error(
-      'slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
+    throw new Meteor.Error('slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
   }
 
   const payload = {
