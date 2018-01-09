@@ -138,9 +138,15 @@ package org.bigbluebutton.modules.users.services
         case "GetRecordingStatusRespMsg":
           handleGetRecordingStatusReply(message);
           break;
+		case "GetWebcamsOnlyForModeratorRespMsg":
+		  handleGetWebcamsOnlyForModeratorRespMsg(message);
+		  break;
         case "RecordingStatusChangedEvtMsg":
           handleRecordingStatusChanged(message);
           break;
+		case "WebcamsOnlyForModeratorChangedEvtMsg":
+			handleWebcamsOnlyForModeratorChanged(message);
+			break;
         case "user_listening_only":
           handleUserListeningOnly(message);
           break;
@@ -517,7 +523,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
-      LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [msg.body]);
+      LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [JSON.stringify(msg.body)]);
       var body:Object = msg.body as Object;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(
@@ -561,7 +567,15 @@ package org.bigbluebutton.modules.users.services
       
       dispatcher.dispatchEvent(e);
     }
-    
+	
+    private function sendWebcamsOnlyForModeratorChanged(webcamsOnlyForModerator:Boolean):void {
+		LiveMeeting.inst().meeting.webcamsOnlyForModerator = webcamsOnlyForModerator;
+		
+		var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR);
+		e.payload.webcamsOnlyForModerator = webcamsOnlyForModerator;
+		
+		dispatcher.dispatchEvent(e);
+	}
     
     private function handleMeetingMuted(msg:Object):void {
       var body:Object = msg.body as Object;
@@ -603,12 +617,26 @@ package org.bigbluebutton.modules.users.services
       
       sendRecordingStatusUpdate(recording);      
     }
+	
+	private function handleGetWebcamsOnlyForModeratorRespMsg(msg:Object):void {
+		var body:Object = msg.body as Object;
+		var webcamsOnlyForModerator: Boolean = body.webcamsOnlyForModerator as Boolean;
+		
+		LiveMeeting.inst().meeting.webcamsOnlyForModerator = webcamsOnlyForModerator;
+	}
     
     private function handleRecordingStatusChanged(msg: Object):void {    
       var body:Object = msg.body as Object;
       var recording: Boolean = body.recording as Boolean;
       sendRecordingStatusUpdate(recording);
     }
+	
+	private function handleWebcamsOnlyForModeratorChanged(msg: Object):void {
+		LOGGER.debug("handleWebcamsOnlyForModeratorChanged {0} \n", [JSON.stringify(msg.body)]);
+		var body:Object = msg.body as Object;
+		var webcamsOnlyForModerator: Boolean = body.webcamsOnlyForModerator as Boolean;
+		sendWebcamsOnlyForModeratorChanged(webcamsOnlyForModerator);
+	}
     
     private function handleUserListeningOnly(msg: Object):void {  
       var map:Object = JSON.parse(msg.msg);  
