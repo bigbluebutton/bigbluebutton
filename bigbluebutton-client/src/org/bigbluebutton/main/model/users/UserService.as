@@ -128,7 +128,6 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.welcomeMessage = result.welcome;
         LiveMeeting.inst().meeting.modOnlyMessage = result.modOnlyMessage;
         LiveMeeting.inst().meeting.allowStartStopRecording = result.allowStartStopRecording;
-        LiveMeeting.inst().meeting.webcamsOnlyForModerator = result.webcamsOnlyForModerator;
         LiveMeeting.inst().meeting.metadata = result.metadata;
         LiveMeeting.inst().meeting.muteOnStart = result.muteOnStart;
 				LiveMeeting.inst().meetingStatus.isMeetingMuted = result.muteOnStart;
