@@ -66,7 +66,6 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
 //    }
 
     screenShareManager ! new MeetingEnded(meetingId)
-
   }
 
   def meetingCreated(meetingId: String, record: java.lang.Boolean) {

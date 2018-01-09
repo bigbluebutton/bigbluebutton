@@ -114,10 +114,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <constructor-arg index="1" value="${redis.port}"/>
   </bean>
 
-    <bean id="redisPubSubMessageHandler"
-          class="org.bigbluebutton.app.screenshare.messaging.redis.RedisPubSubMessageHandler">
-        <property name="appHandler" ref="red5AppHandler"/>
-    </bean>
 
   <import resource="bbb-redis-pool.xml"/>
   <import resource="bbb-red5-redis-pubsub.xml"/>
