@@ -52,7 +52,6 @@ object AllowedMessageNames {
       ResizeAndMovePagePubMsg.NAME,
       SetCurrentPresentationPubMsg.NAME,
       SetCurrentPagePubMsg.NAME,
-      //GetPresentationInfoReqMsg.NAME,
       GetAllPresentationPodsReqMsg.NAME,
       RemovePresentationPubMsg.NAME,
       SetPresentationDownloadablePubMsg.NAME,
