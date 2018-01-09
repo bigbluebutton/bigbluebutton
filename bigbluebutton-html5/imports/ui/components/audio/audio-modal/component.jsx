@@ -314,6 +314,7 @@ class AudioModal extends Component {
                 intl.formatMessage(intlMessages.audioChoiceLabel)}
             </h3>
             <Button
+              data-test="modalBaseCloseButton"
               className={styles.closeBtn}
               label={intl.formatMessage(intlMessages.closeLabel)}
               icon={'close'}

@@ -65,6 +65,7 @@ const ChatListItem = (props) => {
 
   return (
     <Link
+      data-test="publicChatLink"
       to={linkPath}
       className={cx(styles.chatListItem, linkClasses)}
       role="button"

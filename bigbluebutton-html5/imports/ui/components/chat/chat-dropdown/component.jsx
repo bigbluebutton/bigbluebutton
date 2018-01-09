@@ -121,6 +121,7 @@ class ChatDropdown extends Component {
       >
         <DropdownTrigger tabIndex={0}>
           <Button
+            data-test="chatDropdownTrigger"
             className={styles.btn}
             icon="more"
             ghost

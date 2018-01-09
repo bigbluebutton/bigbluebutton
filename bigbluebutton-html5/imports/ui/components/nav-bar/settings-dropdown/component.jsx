@@ -131,18 +131,21 @@ class SettingsDropdown extends Component {
               label={fullscreenLabel}
               description={fullscreenDesc}
               onClick={this.props.handleToggleFullscreen}
+              data-test="settingsDropdownFullscreenButton"
             />
             <DropdownListItem
               icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={() => mountModal(<SettingsMenuContainer />)}
+              data-test="settingsDropdownSettingsButton"
             />
             <DropdownListItem
               icon="about"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
               onClick={() => mountModal(<AboutContainer />)}
+              data-test="settingsDropdownAboutButton"
             />
             <DropdownListSeparator />
             <DropdownListItem
