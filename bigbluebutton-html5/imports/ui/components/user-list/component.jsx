@@ -23,7 +23,7 @@ const propTypes = {
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
-  kickUser: PropTypes.func.isRequired,
+  removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
@@ -63,7 +63,7 @@ class UserList extends Component {
           isBreakoutRoom={this.props.isBreakoutRoom}
           setEmojiStatus={this.props.setEmojiStatus}
           assignPresenter={this.props.assignPresenter}
-          kickUser={this.props.kickUser}
+          removeUser={this.props.removeUser}
           toggleVoice={this.props.toggleVoice}
           changeRole={this.props.changeRole}
           meeting={this.props.meeting}

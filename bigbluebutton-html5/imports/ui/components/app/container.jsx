@@ -37,8 +37,8 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  kickedMessage: {
-    id: 'app.error.kicked',
+  removedMessage: {
+    id: 'app.error.removed',
     description: 'Message when the user is removed from the conference',
   },
   waitingApprovalMessage: {
@@ -80,7 +80,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
-  // Displayed error messages according to the mode (kicked, end meeting)
+  // Displayed error messages according to the mode (removed, end meeting)
   const sendToError = (code, message) => {
     Auth.clearCredentials()
       .then(() => {
@@ -89,11 +89,11 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
       });
   };
 
-  // Check if user is kicked out of the session
+  // Check if user is removed out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
       if (fields.ejected) {
-        sendToError(403, intl.formatMessage(intlMessages.kickedMessage));
+        sendToError(403, intl.formatMessage(intlMessages.removedMessage));
       }
     },
   });
