@@ -14,15 +14,26 @@
 
   > * {
     margin: 0 $sm-padding-x;
+
+    @include mq($small-only) {
+      margin: 0 5px;
+    }
   }
 }
 
 .left{
   position: absolute;
+  @include mq($small-only) {
+    bottom: $sm-padding-x;
+    left: $sm-padding-x;
+  }
 }
 
 .center {
   align-items: center;
+  @include mq($xsmall-only) {
+    justify-content: right;
+  }
 }
 
 .button {
