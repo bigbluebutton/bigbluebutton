@@ -66,6 +66,7 @@ const Chat = (props) => {
                 hideLabel
                 onClick={() => actions.handleClosePrivateChat(chatID)}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+                label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
               />
             </Link> :
             <ChatDropdown />
@@ -101,17 +102,13 @@ const propTypes = {
   chatID: PropTypes.string.isRequired,
   chatName: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  messages: PropTypes.arrayOf(
-    PropTypes.objectOf(
-      PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.string,
-        PropTypes.number,
-        PropTypes.object,
-      ]),
-    ).isRequired,
-  ).isRequired,
-  scrollPosition: PropTypes.number.isRequired,
+  messages: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.object,
+  ])).isRequired).isRequired,
+  scrollPosition: PropTypes.number,
   hasUnreadMessages: PropTypes.bool.isRequired,
   lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
@@ -129,4 +126,9 @@ const propTypes = {
   }).isRequired,
 };
 
+const defaultProps = {
+  scrollPosition: 0,
+};
+
 Chat.propTypes = propTypes;
+Chat.defaultProps = defaultProps;
