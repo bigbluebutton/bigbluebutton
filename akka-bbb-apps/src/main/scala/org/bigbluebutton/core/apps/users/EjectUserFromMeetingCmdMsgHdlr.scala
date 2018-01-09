@@ -33,5 +33,22 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
       Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
     }
   }
+}
 
+trait EjectUserFromMeetingSysMsgHdlr {
+  this: UsersApp =>
+
+  val liveMeeting: LiveMeeting
+  val outGW: OutMsgRouter
+
+  def handleEjectUserFromMeetingSysMsg(msg: EjectUserFromMeetingSysMsg) {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val userId = msg.body.userId
+    val ejectedBy = msg.body.ejectedBy
+
+    val reason = "user ejected by a component on system"
+    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.SYSTEM_EJECT_USER)
+    // send a system message to force disconnection
+    Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.SYSTEM_EJECT_USER, outGW)
+  }
 }

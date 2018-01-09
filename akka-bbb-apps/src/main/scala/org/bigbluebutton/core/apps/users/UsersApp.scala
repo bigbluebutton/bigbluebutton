@@ -93,8 +93,8 @@ object UsersApp {
 
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
+      reguser <- RegisteredUsers.remove(userId, liveMeeting.registeredUsers)
     } yield {
-      RegisteredUsers.remove(userId, liveMeeting.registeredUsers)
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
       if (user.presenter) {
@@ -133,6 +133,7 @@ class UsersApp(
     with AssignPresenterReqMsgHdlr
     with EjectDuplicateUserReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr
+    with EjectUserFromMeetingSysMsgHdlr
     with MuteUserCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)

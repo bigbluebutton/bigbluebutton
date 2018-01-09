@@ -225,7 +225,10 @@ class MeetingActor(
       case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
       case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
+      // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg => usersApp.handleEjectUserFromMeetingCmdMsg(m)
+      // Another part of system (e.g. bbb-apps) requested to eject user.
+      case m: EjectUserFromMeetingSysMsg => usersApp.handleEjectUserFromMeetingSysMsg(m)
       case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
       case m: ChangeUserRoleCmdMsg => usersApp.handleChangeUserRoleCmdMsg(m)
 
