@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import PresentationOverlayService from './service';
 import PresentationOverlay from './component';
 
@@ -10,9 +10,9 @@ const PresentationOverlayContainer = ({ children, ...rest }) => (
   </PresentationOverlay>
 );
 
-export default createContainer(() => ({
+export default withTracker(() => ({
   updateCursor: PresentationOverlayService.updateCursor,
-}), PresentationOverlayContainer);
+}))(PresentationOverlayContainer);
 
 PresentationOverlayContainer.propTypes = {
   children: PropTypes.node,

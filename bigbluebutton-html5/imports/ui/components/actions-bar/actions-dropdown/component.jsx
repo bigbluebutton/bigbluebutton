@@ -11,7 +11,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import UploadPresentation from './upload-presentation/component';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,

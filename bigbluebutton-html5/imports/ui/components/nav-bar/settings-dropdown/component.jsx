@@ -13,7 +13,7 @@ import OpenSettingsListItem from './settings/component';
 import LogoutListItem from './logout/component';
 import ShortcutHelpListItem from './shortcuts-help/component';
 
-import styles from '../styles';
+import { styles } from '../styles';
 
 const intlMessages = defineMessages({
   optionsLabel: {

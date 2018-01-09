@@ -4,7 +4,7 @@ import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import Shortcut from '/imports/ui/components/shortcut/component';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   joinAudio: {

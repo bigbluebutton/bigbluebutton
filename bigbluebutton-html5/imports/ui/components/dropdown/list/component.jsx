@@ -2,7 +2,7 @@ import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import KEY_CODES from '/imports/utils/keyCodes';
-import styles from './styles';
+import { styles } from './styles';
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';

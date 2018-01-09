@@ -1,5 +1,5 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
@@ -13,7 +13,7 @@ const NavBarContainer = ({ children, ...props }) => (
   </NavBar>
 );
 
-export default withRouter(createContainer(() => {
+export default withRouter(withTracker(({ location, router }) => {
   let meetingTitle;
   let meetingRecorded;
 
@@ -39,4 +39,4 @@ export default withRouter(createContainer(() => {
     isBreakoutRoom: meetingIsBreakout(),
     beingRecorded: meetingRecorded,
   };
-}, NavBarContainer));
+})(NavBarContainer));

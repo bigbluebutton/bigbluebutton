@@ -11,8 +11,8 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
-import styles from './styles';
 import RecordingIndicator from './recording-indicator/component';
+import { styles } from './styles';
 import SettingsDropdown from './settings-dropdown/component';
 import UserListToggleContainer from './userlist-toggle/container';
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const propTypes = {
   description: PropTypes.string,

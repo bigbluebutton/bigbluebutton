@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles';
+import { styles } from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import ChatDropdown from './chat-dropdown/component';

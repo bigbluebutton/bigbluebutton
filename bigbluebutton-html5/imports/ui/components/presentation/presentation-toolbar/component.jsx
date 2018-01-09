@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import styles from './styles.scss';
 import PreviousSlide from './previous-slide/component';
-import NextSlide from './next-slide/component';
+import NextSlide from './next-slide/component'
+import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
   goToSlide: {
