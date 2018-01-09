@@ -51,15 +51,18 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
     }
 
     def userIsAllowedToUploadInPod(podId: String, userId: String): Boolean = {
-      if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, userId)) {
-        for {
-          pod <- PresentationPodsApp.getPresentationPod(state, podId)
-        } yield {
-          return pod.currentPresenter == userId
+      var allowed = false
+
+      for {
+        user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
+        pod <- PresentationPodsApp.getPresentationPod(state, podId)
+      } yield {
+        if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, userId)) {
+          allowed = pod.currentPresenter == userId
         }
       }
 
-      false
+      allowed
     }
 
     log.info("handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +

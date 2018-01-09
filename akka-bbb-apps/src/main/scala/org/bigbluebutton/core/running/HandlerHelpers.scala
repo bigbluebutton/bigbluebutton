@@ -56,10 +56,6 @@ trait HandlerHelpers extends SystemConfiguration {
           UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
         }
 
-        if (newUser.role == Roles.MODERATOR_ROLE) {
-          UsersApp.addUserToPresenterGroup(liveMeeting, outGW, newUser.intId, newUser.intId)
-        }
-
         state.update(state.expiryTracker.setUserHasJoined())
       case None =>
         state
