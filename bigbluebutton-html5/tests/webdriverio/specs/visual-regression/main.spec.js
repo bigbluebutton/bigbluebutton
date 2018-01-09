@@ -38,6 +38,7 @@ describe('Screenshots:', function() {
   });
 
   it('Viewport looks good with both userlist and public chat open', function() {
+    browser.moveToObject(HomePage.chatTitleSelector); // avoid hover effect on the Public Chat tab
     utils.expectImageMatch(browser.checkViewport(), 'Home page viewport isn\'t the same after we open both userlist and public chat');
   });
 
