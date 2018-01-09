@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
-import styles from '../styles';
+import { styles } from '../styles';
 
 export default class ToolbarSubmenuItem extends Component {
   constructor() {

@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import styles from './styles';
-import UserListHeader from './user-list-header/component';
+import { styles } from './styles';
 import UserContent from './user-list-content/component';
 
 const propTypes = {
@@ -27,6 +26,7 @@ const propTypes = {
   kickUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -54,10 +54,6 @@ class UserList extends Component {
   render() {
     return (
       <div className={styles.userList}>
-        {/* <UserListHeader
-          intl={this.props.intl}
-          compact={this.state.compact}
-        /> */}
         {<UserContent
           intl={this.props.intl}
           openChats={this.props.openChats}
@@ -75,6 +71,7 @@ class UserList extends Component {
           normalizeEmojiName={this.props.normalizeEmojiName}
           isMeetingLocked={this.props.isMeetingLocked}
           isPublicChat={this.props.isPublicChat}
+          roving={this.props.roving}
         />}
       </div>
     );

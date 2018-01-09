@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
-import styles from './styles';
+import { styles } from './styles';
 import Button from '../../button/component';
 
 const propTypes = {

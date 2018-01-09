@@ -84,6 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
 		<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
     	<mate:Listener type="{RoundTripLatencyReceivedEvent.ROUND_TRIP_LATENCY_RECEIVED}" method="handleRoundTripLatencyReceivedEvent"/>
+		<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="handleConferenceCreatedEvent" />
     
 	</fx:Declarations>
 	<fx:Script>
@@ -125,6 +126,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -143,6 +145,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
 			import org.bigbluebutton.main.model.options.LanguageOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
@@ -188,7 +191,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
 			[Bindable] private var _showToolbar:Boolean = true;
-			private const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
+			public static const DEFAULT_TOOLBAR_HEIGHT:Number = 50;
 			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var _showFooter:Boolean = true;
@@ -245,11 +248,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_respTimer.start();
 			}
 			
+			private function handleConferenceCreatedEvent(event:ConferenceCreatedEvent):void {
+				updateCopyrightText();
+			}
+			
 			private function updateCopyrightText():void {
 				if (StringUtils.isEmpty(brandingOptions.copyright)) {
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
 					copyrightText = String(brandingOptions.copyright).replace("{0}", appVersion);
+				}
+				
+				if (!StringUtils.isEmpty(LiveMeeting.inst().meeting.customCopyright)) {
+					copyrightText = LiveMeeting.inst().meeting.customCopyright;
 				}
 			}
 			
@@ -685,7 +696,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 if (e is ConnectionFailedEvent) {
                     showlogoutWindow((e as ConnectionFailedEvent).type);
                 } else
-                    showlogoutWindow("You have logged out of the conference");
+                    showlogoutWindow(ConnectionFailedEvent.USER_EJECTED_FROM_MEETING);
             }
 
             private function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
@@ -762,7 +773,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateToolbarHeight():void {
 				if (toolbarHeight != 0) {
-					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + toolbar.quickLinks.includeInLayout ? toolbar.quickLinks.height : 0);
+					toolbarHeight = DEFAULT_TOOLBAR_HEIGHT;
+					if (toolbar.quickLinks.includeInLayout) {
+						toolbarHeight += toolbar.quickLinks.height;
+					}
 					if (UsersUtil.isBreakout()) {
 						toolbarHeight += toolbar.breakoutRibbon.height;
 					}

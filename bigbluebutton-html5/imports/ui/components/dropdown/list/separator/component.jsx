@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const DropdownListSeparator = ({ style, className }) =>
   (

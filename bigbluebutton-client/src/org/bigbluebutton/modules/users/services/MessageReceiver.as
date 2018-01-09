@@ -63,6 +63,8 @@ package org.bigbluebutton.modules.users.services
     
     public var onAllowedToJoin:Function = null;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
+
+    private static var flashWebcamPattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
     
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
@@ -434,15 +436,18 @@ package org.bigbluebutton.modules.users.services
         var userId: String = media.userId as String;
         var attributes: Object = media.attributes as Object;
         var viewers: Array = media.viewers as Array;
-        
-        var webcamStream: MediaStream = new MediaStream(streamId, userId);
-        webcamStream.streamId = streamId;
-        webcamStream.userId = userId;
-        webcamStream.attributes = attributes;
-        webcamStream.viewers = viewers;
-        
-        LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
-        LiveMeeting.inst().webcams.add(webcamStream);
+
+
+        if (isValidFlashWebcamStream(streamId)) {
+          var webcamStream: MediaStream = new MediaStream(streamId, userId);
+          webcamStream.streamId = streamId;
+          webcamStream.userId = userId;
+          webcamStream.attributes = attributes;
+          webcamStream.viewers = viewers;
+
+          LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
+          LiveMeeting.inst().webcams.add(webcamStream);
+        }
       }
     }
     
@@ -487,7 +492,7 @@ package org.bigbluebutton.modules.users.services
       logData.tags = ["users"];
       logData.status = "user_ejected";
       logData.message = "User ejected from meeting.";
-      LOGGER.info(JSON.stringify(logData));
+      LOGGER.debug(JSON.stringify(logData));
     }
     
     private function handleUserLocked(msg:Object):void {
@@ -698,21 +703,23 @@ package org.bigbluebutton.modules.users.services
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
       var userId: String = msg.body.userId as String; 
       var streamId: String = msg.body.stream as String;
-      
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["webcam"];
       logData.message = "UserBroadcastCamStartedEvtMsg server message";
       logData.user.webcamStream = streamId;
-      LOGGER.info(JSON.stringify(logData));
-      
-      var mediaStream: MediaStream = new MediaStream(streamId, userId)
-      LiveMeeting.inst().webcams.add(mediaStream);
-      
-      var webUser: User2x = UsersUtil.getUser(userId);
-      if (webUser != null) {
-        sendStreamStartedEvent(userId, webUser.name, streamId);
+
+      if (isValidFlashWebcamStream(streamId)) {
+
+        LOGGER.info(JSON.stringify(logData));
+
+        var mediaStream: MediaStream = new MediaStream(streamId, userId)
+          LiveMeeting.inst().webcams.add(mediaStream);
+
+        var webUser: User2x = UsersUtil.getUser(userId);
+        if (webUser != null) {
+          sendStreamStartedEvent(userId, webUser.name, streamId);
+        }
       }
-      
     }
     
     private function sendStreamStartedEvent(userId: String, name: String, stream: String):void{
@@ -839,6 +846,10 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
+    private function isValidFlashWebcamStream(streamId: String):Boolean{
+      return flashWebcamPattern.test(streamId);
+    }
+
     public function handleGuestPolicyChanged(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;

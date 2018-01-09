@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from '../styles.scss';
+import { styles } from '../styles.scss';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const MESSAGE_FREQUENCY = ANNOTATION_CONFIG.message_frequency;

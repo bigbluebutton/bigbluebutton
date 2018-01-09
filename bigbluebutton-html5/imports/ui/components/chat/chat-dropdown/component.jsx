@@ -13,7 +13,7 @@ import Acl from '/imports/startup/acl';
 import Button from '/imports/ui/components/button/component';
 
 import ChatService from './../service';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   clear: {
@@ -127,7 +127,9 @@ class ChatDropdown extends Component {
             circle
             hideLabel
             color="primary"
+            label={intl.formatMessage(intlMessages.options)}
             aria-label={intl.formatMessage(intlMessages.options)}
+            onClick={() => null}
           />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
