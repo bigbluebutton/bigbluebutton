@@ -1,9 +1,11 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
 .container {
   display: flex;
   flex-flow: row;
 
   > * {
-    margin: 0 1rem;
+    margin: 0 $sm-padding-x;
 
     span:first-child {
       box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
