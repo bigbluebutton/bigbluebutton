@@ -2,20 +2,19 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
-
-import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
-import AboutContainer from '/imports/ui/components/about/container';
-import SettingsMenuContainer from '/imports/ui/components/settings/container';
-
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import { styles } from '../styles';
+import ShortcutHelpListItem from './shortcuts-help/component';
+import OpenSettingsListItem from './settings/component';
+import LogoutListItem from './logout/component';
+import FullScreenListItemContainer from './full-screen/container';
+import OpenAboutListItem from './about/component';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -38,48 +37,13 @@ class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    const { intl, isFullScreen, mountModal } = this.props;
-
-    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-    let fullscreenIcon = 'fullscreen';
-
-    if (isFullScreen) {
-      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
-      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
-      fullscreenIcon = 'exit_fullscreen';
-    }
-
     this.menuItems = [
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon={fullscreenIcon}
-        label={fullscreenLabel}
-        description={fullscreenDesc}
-        onClick={this.props.handleToggleFullscreen}
-      />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="settings"
-        label={intl.formatMessage(intlMessages.settingsLabel)}
-        description={intl.formatMessage(intlMessages.settingsDesc)}
-        onClick={() => mountModal(<SettingsMenuContainer />)}
-      />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="about"
-        label={intl.formatMessage(intlMessages.aboutLabel)}
-        description={intl.formatMessage(intlMessages.aboutDesc)}
-        onClick={() => mountModal(<AboutContainer />)}
-      />),
+      (<FullScreenListItemContainer />),
+      (<OpenSettingsListItem />),
+      (<OpenAboutListItem />),
+      (<ShortcutHelpListItem />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="logout"
-        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => mountModal(<LogoutConfirmationContainer />)}
-      />),
+      (<LogoutListItem />),
     ];
   }
 
@@ -139,4 +103,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default injectIntl(SettingsDropdown);
+export default withModalMounter(injectIntl(SettingsDropdown));

@@ -7,9 +7,9 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+
 import { withModalMounter } from '/imports/ui/components/modal/service';
-//import UploadPresentation from './upload-presentation/component';
+import UploadPresentation from './upload-presentation/component';
 import { styles } from '../styles';
 
 const propTypes = {
@@ -86,7 +86,7 @@ class ActionsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            <PresentationUploaderContainer />
+            <UploadPresentation />
             <DropdownListItem
               icon="desktop"
               label={intl.formatMessage(intlMessages.desktopShareLabel)}

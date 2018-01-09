@@ -25,7 +25,7 @@ const propTypes = {
 const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
 const SHORTCUT_COMBO = SHORTCUTS_CONFIG.open_settings.keys;
 
-class OpenAboutListItem extends React.PureComponent {
+class OpenSettingsListItem extends React.PureComponent {
   render() {
     const { mountModal, intl } = this.props;
 
@@ -40,6 +40,6 @@ class OpenAboutListItem extends React.PureComponent {
   }
 }
 
-export default withModalMounter(injectIntl(withShortcut(OpenAboutListItem, SHORTCUT_COMBO)));
+export default withModalMounter(injectIntl(withShortcut(OpenSettingsListItem, SHORTCUT_COMBO)));
 
-OpenAboutListItem.propTypes = propTypes;
+OpenSettingsListItem.propTypes = propTypes;
