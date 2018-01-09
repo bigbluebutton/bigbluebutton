@@ -230,5 +230,6 @@ object EjectReasonCode {
   val DUPLICATE_USER = "duplicate_user_in_meeting_eject_reason"
   val PERMISSION_FAILED = "not_enough_permission_eject_reason"
   val EJECT_USER = "user_requested_eject_reason"
+  val SYSTEM_EJECT_USER = "system_requested_eject_reason"
   val VALIDATE_TOKEN = "validate_token_failed_eject_reason"
 }
