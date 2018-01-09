@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
 import Icon from '/imports/ui/components/icon/component';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const propTypes = {
   icon: PropTypes.string,

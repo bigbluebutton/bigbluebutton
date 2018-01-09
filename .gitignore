@@ -32,3 +32,4 @@ clients/flash/**/build
 clients/flash/**/.gradle
 **/.idea/*
 *.iml
+*~

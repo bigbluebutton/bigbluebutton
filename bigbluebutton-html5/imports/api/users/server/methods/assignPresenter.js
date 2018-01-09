@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
 export default function assignPresenter(credentials, userId) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'AssignPresenterReqMsg';
 

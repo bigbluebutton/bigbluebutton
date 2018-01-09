@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 export default function undoAnnotation(credentials, whiteboardId) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UndoWhiteboardPubMsg';
 
@@ -18,9 +18,7 @@ export default function undoAnnotation(credentials, whiteboardId) {
 
   const allowed = Acl.can('methods.undoAnnotation', credentials) || getMultiUserStatus(meetingId);
   if (!allowed) {
-    throw new Meteor.Error(
-      'not-allowed', `User ${requesterUserId} is not allowed to undo the annotation`,
-    );
+    throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to undo the annotation`);
   }
 
   const payload = {

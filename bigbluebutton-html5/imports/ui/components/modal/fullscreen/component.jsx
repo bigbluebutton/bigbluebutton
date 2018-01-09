@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import ModalBase, { withModalState } from '../base/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 const propTypes = {
   title: PropTypes.string.isRequired,

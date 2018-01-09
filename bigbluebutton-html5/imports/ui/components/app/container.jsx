@@ -1,5 +1,5 @@
 import React, { cloneElement } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -72,7 +72,7 @@ const AppContainer = (props) => {
   );
 };
 
-export default withRouter(injectIntl(withModalMounter(createContainer(({ router, intl, baseControls }) => {
+export default withRouter(injectIntl(withModalMounter(withTracker(({ router, intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
   const isMeetingBreakout = meetingIsBreakout();
 
@@ -117,7 +117,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer(({ router,
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
   };
-}, AppContainer))));
+})(AppContainer))));
 
 AppContainer.defaultProps = defaultProps;
 AppContainer.propTypes = propTypes;

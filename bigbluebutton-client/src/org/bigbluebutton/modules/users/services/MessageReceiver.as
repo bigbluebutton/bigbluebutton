@@ -63,6 +63,8 @@ package org.bigbluebutton.modules.users.services
     
     public var onAllowedToJoin:Function = null;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
+
+    private static var flashWebcamPattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
     
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
@@ -434,15 +436,18 @@ package org.bigbluebutton.modules.users.services
         var userId: String = media.userId as String;
         var attributes: Object = media.attributes as Object;
         var viewers: Array = media.viewers as Array;
-        
-        var webcamStream: MediaStream = new MediaStream(streamId, userId);
-        webcamStream.streamId = streamId;
-        webcamStream.userId = userId;
-        webcamStream.attributes = attributes;
-        webcamStream.viewers = viewers;
-        
-        LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
-        LiveMeeting.inst().webcams.add(webcamStream);
+
+
+        if (isValidFlashWebcamStream(streamId)) {
+          var webcamStream: MediaStream = new MediaStream(streamId, userId);
+          webcamStream.streamId = streamId;
+          webcamStream.userId = userId;
+          webcamStream.attributes = attributes;
+          webcamStream.viewers = viewers;
+
+          LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
+          LiveMeeting.inst().webcams.add(webcamStream);
+        }
       }
     }
     
@@ -698,16 +703,15 @@ package org.bigbluebutton.modules.users.services
     private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
       var userId: String = msg.body.userId as String; 
       var streamId: String = msg.body.stream as String;
-      var isHtml5Client: Boolean = msg.body.isHtml5Client as Boolean;
-      
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["webcam"];
       logData.message = "UserBroadcastCamStartedEvtMsg server message";
       logData.user.webcamStream = streamId;
-      logData.user.isHtml5Client = isHtml5Client;
-      LOGGER.info(JSON.stringify(logData));
 
-      if (!isHtml5Client) {
+      if (isValidFlashWebcamStream(streamId)) {
+
+        LOGGER.info(JSON.stringify(logData));
+
         var mediaStream: MediaStream = new MediaStream(streamId, userId)
           LiveMeeting.inst().webcams.add(mediaStream);
 
@@ -842,6 +846,10 @@ package org.bigbluebutton.modules.users.services
       }
     }
     
+    private function isValidFlashWebcamStream(streamId: String):Boolean{
+      return flashWebcamPattern.test(streamId);
+    }
+
     public function handleGuestPolicyChanged(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;

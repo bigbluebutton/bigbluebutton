@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
   500: {

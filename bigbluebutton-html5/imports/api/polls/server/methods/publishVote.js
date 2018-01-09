@@ -4,7 +4,7 @@ import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
 export default function publishVote(credentials, id, pollAnswerId) { // TODO discuss location
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RespondToPollReqMsg';
 

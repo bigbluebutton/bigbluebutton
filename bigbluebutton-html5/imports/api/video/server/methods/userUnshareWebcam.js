@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import RedisPubSub from '/imports/startup/server/redis';
 
 export default function userUnshareWebcam(credentials, message) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UserBroadcastCamStopMsg';
 
@@ -25,7 +25,6 @@ export default function userUnshareWebcam(credentials, message) {
 
   const payload = {
     stream: message,
-    isHtml5Client: true,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -102,7 +100,7 @@ class ActionsDropdown extends Component {
               description={intl.formatMessage(intlMessages.presentationDesc)}
               onClick={this.handlePresentationClick}
             />
-           <DropdownListItem
+            <DropdownListItem
               icon="desktop"
               label={intl.formatMessage(intlMessages.desktopShareLabel)}
               description={intl.formatMessage(intlMessages.desktopShareDesc)}

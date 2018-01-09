@@ -11,7 +11,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
-import styles from './styles';
+import { styles } from './styles';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
 
@@ -82,6 +82,11 @@ class UserListContent extends Component {
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
+  }
+
+  componentWillMount() {
+    this.title = _.uniqueId('dropdown-title-');
+    this.seperator = _.uniqueId('action-separator-');
   }
 
   componentDidUpdate() {
@@ -281,13 +286,14 @@ class UserListContent extends Component {
           >
             {
               [
-                (<DropdownListTitle
-                  description={intl.formatMessage(messages.menuTitleContext)}
-                  key={_.uniqueId('dropdown-list-title')}
-                >
-                  {user.name}
-                </DropdownListTitle>),
-                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
+                (
+                  <DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}
+                    key={this.title}
+                  >
+                    {user.name}
+                  </DropdownListTitle>),
+                (<DropdownListSeparator key={this.seperator} />),
               ].concat(actions)
             }
           </DropdownList>

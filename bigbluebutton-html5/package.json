@@ -3,11 +3,11 @@
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
     "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:prod; else npm run start:dev; fi",
-    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
-    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
-    "test": "wdio ./tests/webdriverio/wdio.accept.conf.js",
     "test-visual-regression": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome_mobile; DEVICE_NAME='iPhone 6 Plus'; export DEVICE_NAME; wdio ./tests/webdriverio/wdio.vreg.conf.js; DEVICE_NAME='Nexus 5X'; export DEVICE_NAME; wdio ./tests/webdriverio/wdio.vreg.conf.js",
     "test-visual-regression-desktop": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js",
+    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production --settings private/config/settings-production.json",
+    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor --settings private/config/settings-development.json",
+    "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js",
     "precommit": "lint-staged"
   },
@@ -22,6 +22,12 @@
   },
   "dependencies": {
     "babel-runtime": "~6.26.0",
+    "//": [
+      "core-js is included with babel-runtime",
+      "but Meteor 1.6.0.1 doesn't see it there for some reason",
+      "need to investigate"
+    ],
+    "core-js": "~2.5.3",
     "classnames": "~2.2.5",
     "clipboard": "~1.7.1",
     "eventemitter2": "~4.1.2",
@@ -48,7 +54,7 @@
     "react-transition-group": "~2.2.1",
     "redis": "~2.8.0",
     "string-hash": "~1.1.3",
-    "tippy.js": "^2.0.2",
+    "tippy.js": "~2.0.2",
     "winston": "~2.4.0",
     "xml2js": "~0.4.19"
   },

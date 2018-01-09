@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
-import styles from './styles';
+import { styles } from './styles';
 import { log } from '/imports/ui/services/api';
 
 
