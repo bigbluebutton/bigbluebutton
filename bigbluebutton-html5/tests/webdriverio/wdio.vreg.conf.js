@@ -1,6 +1,6 @@
 let path = require('path');
 let VisualRegressionCompare = require('wdio-visual-regression-service/compare');
-let merge = require('deepmerge');
+let _ = require('lodash');
 let wdioBaseConf = require('./wdio.base.conf');
 
 function getScreenshotName(basePath) {
@@ -21,7 +21,7 @@ function getScreenshotName(basePath) {
   };
 }
 
-exports.config = merge(wdioBaseConf.config, {
+exports.config = _.merge(wdioBaseConf.config, {
   specs: [
     'tests/webdriverio/specs/visual-regression/**/*.spec.js'
   ],
