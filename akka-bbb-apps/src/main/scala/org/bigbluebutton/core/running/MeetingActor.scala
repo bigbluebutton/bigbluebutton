@@ -32,7 +32,6 @@ import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
 import scala.concurrent.duration._
-import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
@@ -137,6 +136,9 @@ class MeetingActor(
   } else {
     MeetingStatus2x.unmuteMeeting(liveMeeting.status)
   }
+
+    // Set webcamsOnlyForModerator property in case we didn't after meeting creation
+    MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
