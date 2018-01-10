@@ -221,6 +221,7 @@ class VideoDock extends Component {
 
     if (shareWebcam) {
       this.setState({sharedWebcam: true});
+      this.myId = id;
       this.initWebRTC(id, true);
     } else {
       // initWebRTC with shareWebcam false will be called after react mounts the element
@@ -278,7 +279,7 @@ class VideoDock extends Component {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
-        this.notifyError(intl.formatMessage(intlMessages.permissionError));
+        that.notifyError(intl.formatMessage(intlMessages.permissionError));
         /* This notification error is displayed considering kurento-utils 
          * returned the error 'The request is not allowed by the user agent 
          * or the platform in the current context.', but there are other
@@ -296,7 +297,6 @@ class VideoDock extends Component {
       that.webRtcPeers[id] = webRtcPeer;
       if (shareWebcam) {
         that.sharedWebcam = webRtcPeer;
-        that.myId = id;
       }
 
       this.generateOffer((error, offerSdp) => {
