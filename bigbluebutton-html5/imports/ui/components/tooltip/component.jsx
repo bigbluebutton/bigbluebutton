@@ -36,6 +36,7 @@ class Tooltip extends Component {
       dynamicTitle: this.dynamicTitle,
       delay: this.delay,
       onShow: this.onShow,
+      touchHold: true,
     };
 
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
@@ -44,7 +45,7 @@ class Tooltip extends Component {
   onShow() {
     window.setTimeout(() => {
       this.tooltip.tooltips[0].hide();
-    }, 1500);
+    }, 5000);
   }
 
   render() {
