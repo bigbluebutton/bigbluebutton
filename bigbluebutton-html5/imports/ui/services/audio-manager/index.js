@@ -33,6 +33,15 @@ class AudioManager {
       error: null,
       outputDeviceId: null,
     });
+
+    const query = VoiceUsers.find({ intId: Auth.userID });
+
+    query.observeChanges({ // keep track of mute/unmute in case of Flash changing it
+      changed: (id, fields) => {
+        if (fields.muted === this.isMuted) return;
+        this.isMuted = fields.muted;
+      },
+    });
   }
 
   init(userData, messages) {
