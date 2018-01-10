@@ -146,7 +146,9 @@ class VideoDock extends Component {
   }
 
   adjustVideos () {
-    window.adjustVideos('webcamArea', true);
+    setTimeout(() => {
+      window.adjustVideos('webcamArea', true);
+    }, 0);
   }
 
   onWsOpen () {
