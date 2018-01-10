@@ -7,9 +7,8 @@
   > * {
     margin: 0 $sm-padding-x;
 
-    @include mq($xsmall-only) {
-      margin: 0 5px;
-      justify-content: right;
+    @include mq($small-only) {
+      margin: 0 $sm-padding-y;
     }
 
     span:first-child {

@@ -10,13 +10,13 @@
 .left,
 .center {
   flex: 1;
-  justify-content: center;
+  justify-content:center;
 
   > * {
     margin: 0 $sm-padding-x;
 
     @include mq($small-only) {
-      margin: 0 5px;
+      margin: 0 $sm-padding-y;
     }
   }
 }
@@ -29,11 +29,16 @@
   }
 }
 
-.center {
-  align-items: center;
+.centerWithActions {
   @include mq($xsmall-only) {
-    justify-content: right;
+    position: absolute;
+    bottom: $sm-padding-x;
+    right: $sm-padding-x;
   }
+}
+
+.center {
+  align-items: left;
 }
 
 .button {
