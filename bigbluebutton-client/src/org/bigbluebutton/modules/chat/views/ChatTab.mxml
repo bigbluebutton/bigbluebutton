@@ -298,9 +298,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromUsername = ChatModel.SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
-        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserId = ChatModel.SPACE;
-        msg.toUsername = ChatModel.SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
         var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
@@ -315,9 +312,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromUsername = ChatModel.SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
-        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserId = ChatModel.SPACE;
-        msg.toUsername = ChatModel.SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
         var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
@@ -358,9 +352,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					welcomeMsg.fromUsername = ChatModel.SPACE;
 					welcomeMsg.fromColor = "86187";
 					welcomeMsg.fromTime = new Date().getTime();
-					welcomeMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-					welcomeMsg.toUserId = ChatModel.SPACE;
-					welcomeMsg.toUsername = ChatModel.SPACE;
 					welcomeMsg.message = welcome;
 					
 					var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
@@ -379,9 +370,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						moderatorOnlyMsg.fromUsername = ChatModel.SPACE;
 						moderatorOnlyMsg.fromColor = "86187";
 						moderatorOnlyMsg.fromTime = new Date().getTime();
-						moderatorOnlyMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-						moderatorOnlyMsg.toUserId = ChatModel.SPACE;
-						moderatorOnlyMsg.toUsername = ChatModel.SPACE;
 						moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
 						
 						var groupChat2: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
@@ -421,9 +409,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromUsername = ChatModel.SPACE;
         msg.fromColor = "0";
         msg.fromTime = new Date().getTime();
-        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserId = ChatModel.SPACE;
-        msg.toUsername = ChatModel.SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
         
         var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
@@ -574,7 +559,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // The receiver will have to convert this to local time.
         var now:Date = new Date();
         cm.fromTime = now.valueOf();
-        cm.fromTimezoneOffset = now.getTimezoneOffset();
         
         //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
         cm.message = sanitizedMessage;

@@ -48,7 +48,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
         val msgs = msg.body.msg.map(m => GroupChatApp.toGroupChatMessage(createdBy, m))
         val users = {
           if (msg.body.access == GroupChatAccess.PRIVATE) {
-            val cu = msg.body.users.toSet + msg.body.requesterId
+            val cu = msg.body.users.toSet + msg.header.userId
             cu.flatMap(u => GroupChatApp.findGroupChatUser(u, liveMeeting.users2x)).toVector
           } else {
             Vector.empty
@@ -105,7 +105,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
 
     } else {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val userId = msg.body.requesterId
+      val userId = msg.header.userId
       val envelope = makeEnvelope(MessageTypes.BROADCAST_TO_MEETING, GroupChatCreatedEvtMsg.NAME,
         meetingId, userId)
       val header = makeHeader(GroupChatCreatedEvtMsg.NAME, meetingId, userId)

@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.chat.services
         header: {name: "GetGroupChatsReqMsg", 
           meetingId: UsersUtil.getInternalMeetingID(), 
             userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID()}
+        body: {}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.chat.services
         header: {name: "GetGroupChatMsgsReqMsg", 
           meetingId: UsersUtil.getInternalMeetingID(), 
             userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID(), chatId: chatId}
+        body: {chatId: chatId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -82,11 +82,9 @@ package org.bigbluebutton.modules.chat.services
       var sender: GroupChatUser = new GroupChatUser(UsersUtil.getMyUserID(), 
         UsersUtil.getMyUsername());
       var corrId: String = ChatUtil.genCorrelationId();
-      var font: String = "arial"; 
-      var fontSize: Number = 10;
       
       var msgFromUser: GroupChatMsgFromUser = new GroupChatMsgFromUser(corrId,
-        sender, font, fontSize, cm.fromColor, cm.message);
+        sender, cm.fromColor, cm.message);
       
       var message:Object = {
         header: {name: "SendGroupChatMessageMsg", meetingId: UsersUtil.getInternalMeetingID(), 
@@ -103,12 +101,6 @@ package org.bigbluebutton.modules.chat.services
         },
         JSON.stringify(message)
       );
-    }
-    
-    public function sendPrivateMessage(cm:ChatMessageVO):void {
-      LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");
-      LOGGER.debug("Sending fromUserID [{0}] to toUserID [{1}]", [cm.fromUserId, cm.toUserId]);
- //     sendPublicMessage(cm);
     }
 
     public function clearPublicChatMessages():void {
@@ -150,8 +142,7 @@ package org.bigbluebutton.modules.chat.services
       var message:Object = {
         header: {name: "CreateGroupChatReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: myUserId},
-        body: {correlationId: corrId, requesterId: myUserId,
-          name: name, access: access, users: users, msg: msg}
+        body: {correlationId: corrId, name: name, access: access, users: users, msg: msg}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();

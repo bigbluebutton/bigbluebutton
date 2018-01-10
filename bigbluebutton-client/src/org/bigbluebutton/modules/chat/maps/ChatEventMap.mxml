@@ -40,7 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
       import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
       import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
       import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
       import org.bigbluebutton.modules.chat.services.ChatCopy;
@@ -90,16 +89,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessageFromApi" arguments="{event.message}"/>		
     </EventHandlers>
     
-    <EventHandlers type="{EventConstants.SEND_PRIVATE_CHAT_REQ}">        
-      <MethodInvoker generator="{ChatMessageService}" method="sendPrivateMessageFromApi" arguments="{event.message}"/>		
-    </EventHandlers>
-    
     <EventHandlers type="{SendGroupChatMessageEvent.SEND_GROUP_CHAT_MESSAGE_EVENT}">        
       <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessage" arguments="{event}"/>		
-    </EventHandlers>
-    
-    <EventHandlers type="{SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT}">        
-      <MethodInvoker generator="{ChatMessageService}" method="sendPrivateMessage" arguments="{event.chatMessage}"/>		
     </EventHandlers>
     
     <EventHandlers type="{ChatHistoryEvent.REQUEST_HISTORY}" >

@@ -192,28 +192,12 @@ package org.bigbluebutton.modules.chat.services
       }
     }
     
-    private function processIncomingChatMessage(rawMessage:Object):ChatMessageVO {
-      var msg:ChatMessageVO = new ChatMessageVO();
-      msg.fromUserId = rawMessage.fromUserId;
-      msg.fromUsername = rawMessage.fromUsername;
-      msg.fromColor = rawMessage.fromColor;
-      msg.fromTime = rawMessage.fromTime;
-      msg.fromTimezoneOffset = rawMessage.fromTimezoneOffset;
-      msg.toUserId = rawMessage.toUserId;
-      msg.toUsername = rawMessage.toUsername;
-      msg.message = rawMessage.message;
-      return msg;
-    }
-    
     private function processNewChatMessage(message:Object):ChatMessageVO {
       var msg:ChatMessageVO = new ChatMessageVO();
       msg.fromUserId = message.sender.id as String;
       msg.fromUsername = message.sender.name as String;
       msg.fromColor = message.color as String;
       msg.fromTime = message.timestamp as Number;
-      msg.fromTimezoneOffset = message.timestamp as Number;
-      msg.toUserId = message.id as String;
-      msg.toUsername = message.id as String;
       msg.message = message.message as String;
       return msg;
     }
