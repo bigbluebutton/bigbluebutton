@@ -157,10 +157,17 @@ public class Red5AppService {
   public void screenShareClientPongMessage(Map<String, Object> msg) {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String streamId = (String) msg.get("streamId");
-    Double timestamp = (Double) msg.get("timestamp");
+    Double timestamp;
+    if (msg.get("timestamp") instanceof Integer) {
+      Integer tempTimestamp = (Integer) msg.get("timestamp");
+      timestamp = tempTimestamp.doubleValue();
+    } else {
+      timestamp = (Double) msg.get("timestamp");
+    }
+
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    //log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
+    log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
 
     handler.screenShareClientPongMessage(meetingId, userId, streamId, timestamp.longValue());
   }

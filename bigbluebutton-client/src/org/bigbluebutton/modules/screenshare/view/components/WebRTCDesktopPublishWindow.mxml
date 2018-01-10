@@ -245,7 +245,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				connection = new NetConnection();
 				connection.proxyType = "best";
-				connection.objectEncoding = ObjectEncoding.AMF0;
+				connection.objectEncoding = ObjectEncoding.AMF3;
 				connection.client = this;
 
 				connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);

@@ -96,7 +96,7 @@ package org.bigbluebutton.main.model
 		/**
 		* Set default encoding to AMF0 so FMS also understands.
 		*/		
-		NetConnection.defaultObjectEncoding = ObjectEncoding.AMF0;
+		NetConnection.defaultObjectEncoding = ObjectEncoding.AMF3;
 		
 		/**
 		 * Create new port test and connect to the RTMP server.
@@ -138,7 +138,7 @@ package org.bigbluebutton.main.model
 			nc = new NetConnection();
 			nc.client = this;
       nc.proxyType = "best";
-
+			nc.objectEncoding = ObjectEncoding.AMF3;
 			nc.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
 			// connect to server
 			try {

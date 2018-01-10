@@ -131,7 +131,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function connect(rtmpUrl: String):void {
 				nc = new NetConnection();
 				nc.proxyType = "best";
-				nc.objectEncoding = ObjectEncoding.AMF0;
+				nc.objectEncoding = ObjectEncoding.AMF3;
 				nc.client = this;
 
 				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);

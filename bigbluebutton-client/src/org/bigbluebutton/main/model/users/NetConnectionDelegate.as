@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model.users
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
+	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
 	
@@ -80,6 +81,7 @@ package org.bigbluebutton.main.model.users
         public function NetConnectionDelegate():void {
             dispatcher = new Dispatcher();
             _netConnection = new NetConnection();
+						_netConnection.objectEncoding = ObjectEncoding.AMF3;
             _netConnection.proxyType = "best";
             _netConnection.client = this;
             _netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
@@ -420,7 +422,7 @@ package org.bigbluebutton.main.model.users
                 if (BBB.initConnectionManager().isTunnelling) {
                     bbbAppsUrl = "rtmpt://" + result.server + "/" + result.app + "/" + intMeetingId;
                 } else {
-                    bbbAppsUrl = "rtmp://" + result.server + ":1935/" + result.app + "/" + intMeetingId;
+                    bbbAppsUrl = result.protocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
                 }
 
                 var logData:Object = UsersUtil.initLogData();
