@@ -1,5 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import Langmap from 'langmap';
+import fs from 'fs';
+import path from 'path';
 import Logger from './logger';
 import Redis from './redis';
 
@@ -29,7 +31,6 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
     normalizedLocale = `${localeRegion[0]}_${localeRegion[1].toUpperCase()}`;
     localeList.push(normalizedLocale);
   }
-
   localeList.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
@@ -45,15 +46,10 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  const fs = Npm.require('fs');
-  const path = Npm.require('path');
   const basePath = path.resolve('.').split('.meteor')[0];
-
   let availableLocales = [];
-
   try {
     const getAvailableLocales = fs.readdirSync(basePath.concat('private/locales'));
-
     availableLocales = getAvailableLocales
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
