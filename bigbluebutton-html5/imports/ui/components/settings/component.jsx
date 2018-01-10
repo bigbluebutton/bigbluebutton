@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 import { withModalMounter } from '../modal/service';
 import Icon from '../icon/component';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   appTabLabel: {

@@ -9,7 +9,7 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 
 export default class PresentationArea extends Component {

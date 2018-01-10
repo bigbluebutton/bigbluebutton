@@ -1,7 +1,7 @@
 /*
   The purpose of this wrapper is to fetch an array of active cursor iDs only
   and map them to the CursorContainer.
-  The reason for this is that Meteor tracks only the properties defined inside createContainer
+  The reason for this is that Meteor tracks only the properties defined inside withTracker
   and if we fetch the whole array of Cursors right away (let's say in the multi-user mode),
   then the whole array would be re-rendered every time one of the Cursors is changed.
 
@@ -13,7 +13,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import CursorWrapperService from './service';
 import CursorContainer from '../container';
 
@@ -35,12 +35,11 @@ const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest
         cursorId={cursorId._id}
         presenter={false}
         {...rest}
-      />),
-    )}
+      />))}
   </g>
 );
 
-export default createContainer(() => {
+export default withTracker(() => {
   const { presenterCursorId, multiUserCursorIds } = CursorWrapperService.getCurrentCursorIds();
   const isMultiUser = CursorWrapperService.getMultiUserStatus();
 
@@ -49,7 +48,7 @@ export default createContainer(() => {
     multiUserCursorIds,
     isMultiUser,
   };
-}, CursorWrapperContainer);
+})(CursorWrapperContainer);
 
 
 CursorWrapperContainer.propTypes = {

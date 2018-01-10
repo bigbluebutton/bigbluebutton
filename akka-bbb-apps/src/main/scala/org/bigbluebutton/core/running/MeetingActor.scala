@@ -32,7 +32,6 @@ import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
 import scala.concurrent.duration._
-import org.bigbluebutton.core2.testdata.FakeTestData
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
@@ -131,6 +130,16 @@ class MeetingActor(
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
+  // Initialize if the meeting is muted on start
+  if (props.voiceProp.muteOnStart) {
+    MeetingStatus2x.muteMeeting(liveMeeting.status)
+  } else {
+    MeetingStatus2x.unmuteMeeting(liveMeeting.status)
+  }
+
+    // Set webcamsOnlyForModerator property in case we didn't after meeting creation
+    MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
+
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
@@ -195,31 +204,33 @@ class MeetingActor(
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-      case m: LogoutAndEndMeetingCmdMsg      => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
-      case m: SetRecordingStatusCmdMsg       => usersApp.handleSetRecordingStatusCmdMsg(m)
-      case m: GetRecordingStatusReqMsg       => usersApp.handleGetRecordingStatusReqMsg(m)
-      case m: ChangeUserEmojiCmdMsg          => handleChangeUserEmojiCmdMsg(m)
-      case m: EjectUserFromMeetingCmdMsg     => usersApp.handleEjectUserFromMeetingCmdMsg(m)
-      case m: GetUsersMeetingReqMsg          => usersApp.handleGetUsersMeetingReqMsg(m)
-      case m: ChangeUserRoleCmdMsg           => usersApp.handleChangeUserRoleCmdMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: SetRecordingStatusCmdMsg            => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: GetWebcamsOnlyForModeratorReqMsg    => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
+      case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
+      case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
+      case m: EjectUserFromMeetingCmdMsg          => usersApp.handleEjectUserFromMeetingCmdMsg(m)
+      case m: GetUsersMeetingReqMsg               => usersApp.handleGetUsersMeetingReqMsg(m)
+      case m: ChangeUserRoleCmdMsg                => usersApp.handleChangeUserRoleCmdMsg(m)
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg       => handleSendCursorPositionPubMsg(m)
-      case m: ClearWhiteboardPubMsg          => handleClearWhiteboardPubMsg(m)
-      case m: UndoWhiteboardPubMsg           => handleUndoWhiteboardPubMsg(m)
-      case m: ModifyWhiteboardAccessPubMsg   => handleModifyWhiteboardAccessPubMsg(m)
-      case m: GetWhiteboardAccessReqMsg      => handleGetWhiteboardAccessReqMsg(m)
-      case m: SendWhiteboardAnnotationPubMsg => handleSendWhiteboardAnnotationPubMsg(m)
-      case m: GetWhiteboardAnnotationsReqMsg => handleGetWhiteboardAnnotationsReqMsg(m)
-      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
+      case m: SendCursorPositionPubMsg            => handleSendCursorPositionPubMsg(m)
+      case m: ClearWhiteboardPubMsg               => handleClearWhiteboardPubMsg(m)
+      case m: UndoWhiteboardPubMsg                => handleUndoWhiteboardPubMsg(m)
+      case m: ModifyWhiteboardAccessPubMsg        => handleModifyWhiteboardAccessPubMsg(m)
+      case m: GetWhiteboardAccessReqMsg           => handleGetWhiteboardAccessReqMsg(m)
+      case m: SendWhiteboardAnnotationPubMsg      => handleSendWhiteboardAnnotationPubMsg(m)
+      case m: GetWhiteboardAnnotationsReqMsg      => handleGetWhiteboardAnnotationsReqMsg(m)
+      case m: ClientToServerLatencyTracerMsg      => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
-      case m: StartPollReqMsg                => handleStartPollReqMsg(m)
-      case m: StartCustomPollReqMsg          => handleStartCustomPollReqMsg(m)
-      case m: StopPollReqMsg                 => handleStopPollReqMsg(m)
-      case m: ShowPollResultReqMsg           => handleShowPollResultReqMsg(m)
-      case m: GetCurrentPollReqMsg           => handleGetCurrentPollReqMsg(m)
-      case m: RespondToPollReqMsg            => handleRespondToPollReqMsg(m)
+      case m: StartPollReqMsg                     => handleStartPollReqMsg(m)
+      case m: StartCustomPollReqMsg               => handleStartCustomPollReqMsg(m)
+      case m: StopPollReqMsg                      => handleStopPollReqMsg(m)
+      case m: ShowPollResultReqMsg                => handleShowPollResultReqMsg(m)
+      case m: GetCurrentPollReqMsg                => handleGetCurrentPollReqMsg(m)
+      case m: RespondToPollReqMsg                 => handleRespondToPollReqMsg(m)
 
       // Breakout
       case m: BreakoutRoomsListMsg =>

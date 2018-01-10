@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import CursorService from './service';
 import Cursor from './component';
 
@@ -40,30 +40,29 @@ class CursorContainer extends Component {
     }
     return null;
   }
-
 }
 
 
-export default createContainer((params) => {
+export default withTracker((params) => {
   const { cursorId } = params;
 
   const cursor = CursorService.getCurrentCursor(cursorId);
-  let cursorX = -1;
-  let cursorY = -1;
-  let userName = '';
 
   if (cursor) {
-    cursorX = cursor.x;
-    cursorY = cursor.y;
-    userName = cursor.userName;
+    const { x: cursorX, y: cursorY, userName } = cursor;
+    return {
+      cursorX,
+      cursorY,
+      userName,
+    };
   }
 
   return {
-    cursorX,
-    cursorY,
-    userName,
+    cursorX: -1,
+    cursorY: -1,
+    userName: '',
   };
-}, CursorContainer);
+})(CursorContainer);
 
 
 CursorContainer.propTypes = {
