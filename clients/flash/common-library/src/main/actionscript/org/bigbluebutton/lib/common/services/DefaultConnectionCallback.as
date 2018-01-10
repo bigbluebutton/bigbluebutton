@@ -24,8 +24,8 @@ package org.bigbluebutton.lib.common.services {
 		}
 		
 		public function onMessageFromServer(messageName:String, result:Object):void {
-			trace(LOG + "RECEIVED MESSAGE: [" + messageName + "]");
-			notifyListeners(messageName, result);
+			trace(LOG + "RECEIVED OLD MESSAGE TYPE: [" + messageName + "]");
+			//notifyListeners(messageName, result);
 		}
 		
 		public function onMessageFromServer2x(messageName:String, msg:String):void {
@@ -34,10 +34,6 @@ package org.bigbluebutton.lib.common.services {
 			}
 			
 			var map:Object = JSON.parse(msg);
-			var header:Object = map.header as Object;
-			var body:Object = map.body as Object;
-			
-			var msgName:String = header.name
 			
 			notifyListeners(messageName, map);
 		}

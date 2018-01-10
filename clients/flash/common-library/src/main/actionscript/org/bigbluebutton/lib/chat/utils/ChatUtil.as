@@ -57,5 +57,10 @@ package org.bigbluebutton.lib.chat.utils {
 			}
 			return parsedString;
 		}
+		
+		public static function genCorrelationId(userId:String):String {
+			var now: Date = new Date();
+			return userId + "-" + now.time;
+		}
 	}
 }

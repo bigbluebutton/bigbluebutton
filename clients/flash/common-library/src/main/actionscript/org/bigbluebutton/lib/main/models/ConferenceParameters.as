@@ -82,6 +82,8 @@ package org.bigbluebutton.lib.main.models {
 		
 		private var _avatarUrl:String;
 		
+		private var _guest:Boolean;
+		
 		public function ConferenceParameters(signal:Signal = null) {
 			if (signal) {
 				_changedSignal = signal;
@@ -261,6 +263,7 @@ package org.bigbluebutton.lib.main.models {
 			_record = !(obj.record == "false");
 			_avatarUrl = obj.avatarURL;
 			_authToken = obj.authToken;
+			_guest = obj.guest;
 			_changedSignal.dispatch();
 			_metadata = new Object();
 			for (var n:String in obj.metadata) {
@@ -293,6 +296,14 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set avatarUrl(value:String):void {
 			_avatarUrl = value;
+		}
+		
+		public function get guest():Boolean {
+			return _guest;
+		}
+		
+		public function set guest(value:Boolean):void {
+			_guest = value;
 		}
 	}
 }

@@ -106,15 +106,14 @@ package org.bigbluebutton.lib.chat.views {
 				m.fromUsername = meetingData.users.me.name;
 				m.fromColor = "0";
 				m.fromTime = currentDate.time;
-				m.fromTimezoneOffset = currentDate.timezoneOffset;
 				m.message = message;
-				m.toUserId = _publicChat ? "public_chat_userid" : _user.intId;
-				m.toUsername = _publicChat ? "public_chat_username" : _user.name;
-				if (_publicChat) {
+				
+				trace ("*** sendButtonClickHandler: CANT PROCESS WITHOUT CHAT ID");
+				/*if (_publicChat) {
 					chatMessageService.sendPublicMessage(m);
 				} else {
 					chatMessageService.sendPrivateMessage(m);
-				}
+				}*/
 			}
 		}
 		

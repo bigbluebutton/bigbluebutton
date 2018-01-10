@@ -7,9 +7,8 @@ package org.bigbluebutton.lib.chat.services {
 		function get sendMessageOnSuccessSignal():ISignal;
 		function get sendMessageOnFailureSignal():ISignal;
 		function setupMessageSenderReceiver():void;
-		function getPublicChatMessages():void;
-		function sendPublicMessage(message:ChatMessageVO):void;
-		function sendPrivateMessage(message:ChatMessageVO):void;
+		function getGroupChats():void;
+		function sendChatMessage(message:ChatMessageVO):void;
 		function sendWelcomeMessage():void;
 	}
 }

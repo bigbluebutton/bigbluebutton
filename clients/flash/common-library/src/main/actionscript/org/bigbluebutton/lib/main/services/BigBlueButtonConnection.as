@@ -82,7 +82,7 @@ package org.bigbluebutton.lib.main.services {
 			var extUserId:String = _conferenceParameters.externUserID;
 			var intUserId:String = _conferenceParameters.internalUserID;
 			var muteOnStart:Boolean = _conferenceParameters.muteOnStart;
-			var guest:Boolean = false; // false for now because no guest support
+			var guest:Boolean = _conferenceParameters.guest;
 			var authToken:String = _conferenceParameters.authToken;
 			
 			var connectParams:Array = [username, role, intMeetingId, voiceConf, recorded, extUserId, intUserId, muteOnStart, guest, authToken];

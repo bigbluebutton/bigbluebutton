@@ -152,25 +152,20 @@ package org.bigbluebutton.lib.common.services {
 		}
 		
 		public function sendMessage2x(onSuccess:Function, onFailure:Function, message:Object):void {
+			if (message && message.header && message.body && message.header.name) {
+				var responder:Responder = new Responder(
+					function(result:Object):void { // On successful result
+						onSuccess("Successfully sent [" + message.header.name + "]."); 
+					},
+					function(status:Object):void { // status - On error occurred
+						var errorReason:String = "Failed to send [" + message.header.name + "]:\n"; 
+						for (var x:Object in status) { 
+							errorReason += "\t" + x + " : " + status[x]; 
+						} 
+					}
+				);
 			
-			var service: String = "onMessageFromClient";
-			
-			var responder:Responder = new Responder(
-				function(result:Object):void { // On successful result
-					onSuccess("Successfully sent [" + service + "]."); 
-				},
-				function(status:Object):void { // status - On error occurred
-					var errorReason:String = "Failed to send [" + service + "]:\n"; 
-					for (var x:Object in status) { 
-						errorReason += "\t" + x + " : " + status[x]; 
-					} 
-				}
-			);
-			
-			if (message == null) {
-				_netConnection.call(service, responder);
-			} else {
-				_netConnection.call(service, responder, JSON.stringify(message));
+				_netConnection.call("onMessageFromClient", responder, JSON.stringify(message));
 			}
 		}
 	}

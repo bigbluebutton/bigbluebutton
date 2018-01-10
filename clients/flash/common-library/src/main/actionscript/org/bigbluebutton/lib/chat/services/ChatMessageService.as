@@ -43,16 +43,13 @@ package org.bigbluebutton.lib.chat.services {
 			userSession.mainConnection.addMessageListener(chatMessageReceiver);
 		}
 		
-		public function getPublicChatMessages():void {
-			chatMessageSender.getPublicChatMessages();
+		public function getGroupChats():void {
+			chatMessageSender.getGroupChats();
 		}
 		
-		public function sendPublicMessage(message:ChatMessageVO):void {
-			chatMessageSender.sendPublicMessage(message);
-		}
-		
-		public function sendPrivateMessage(message:ChatMessageVO):void {
-			chatMessageSender.sendPrivateMessage(message);
+		public function sendChatMessage(message:ChatMessageVO):void {
+			trace("CANT SEND CHAT MESSAGE BECAUSE MISSING CHAT ID");
+			//chatMessageSender.sendChatMessage(message);
 		}
 		
 		/**
@@ -68,9 +65,6 @@ package org.bigbluebutton.lib.chat.services {
 				msg.fromUsername = " ";
 				msg.fromColor = "86187";
 				msg.fromTime = new Date().time;
-				msg.fromTimezoneOffset = new Date().timezoneOffset;
-				msg.toUserId = " ";
-				msg.toUsername = " ";
 				msg.message = welcome;
 				// imitate new public message being sent
 				chatMessagesSession.newPublicMessage(msg);
