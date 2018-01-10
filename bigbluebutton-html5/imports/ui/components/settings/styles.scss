@@ -16,7 +16,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  width: calc(100% / 3 * 1);
+  width: calc(100% / 3);
 
   @include mq($small-only) {
     width: 100%;
