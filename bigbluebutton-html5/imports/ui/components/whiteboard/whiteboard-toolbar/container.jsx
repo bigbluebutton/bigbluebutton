@@ -1,13 +1,13 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import WhiteboardToolbarService from './service';
 import WhiteboardToolbar from './component';
 
 const WhiteboardToolbarContainer = props => (
   <WhiteboardToolbar {...props} />
-  );
+);
 
-export default createContainer(() => ({
+export default withTracker(() => ({
   actions: {
     undoAnnotation: WhiteboardToolbarService.undoAnnotation,
     clearWhiteboard: WhiteboardToolbarService.clearWhiteboard,
@@ -23,4 +23,4 @@ export default createContainer(() => ({
   textShapeActiveId: WhiteboardToolbarService.getTextShapeActiveId(),
   multiUser: WhiteboardToolbarService.getMultiUserStatus(),
   isPresenter: WhiteboardToolbarService.isPresenter(),
-}), WhiteboardToolbarContainer);
+}))(WhiteboardToolbarContainer);

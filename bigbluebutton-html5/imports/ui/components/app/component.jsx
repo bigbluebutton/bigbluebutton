@@ -9,7 +9,7 @@ import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   userListLabel: {

@@ -248,6 +248,7 @@ public class MeetingService implements MessageListener {
     logData.put("name", m.getName());
     logData.put("duration", m.getDuration());
     logData.put("isBreakout", m.isBreakout());
+    logData.put("webcamsOnlyForModerator", m.getWebcamsOnlyForModerator());
     logData.put("record", m.isRecord());
     logData.put("event", "create_meeting");
     logData.put("description", "Create meeting.");
@@ -266,7 +267,8 @@ public class MeetingService implements MessageListener {
       m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
       m.getWelcomeMessage(), m.getModeratorOnlyMessage(), m.getDialNumber(), m.getMaxUsers(),
       m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
-      m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes());
+      m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
+            m.getMuteOnStart());
 
   }
 

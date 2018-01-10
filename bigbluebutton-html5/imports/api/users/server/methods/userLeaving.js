@@ -7,7 +7,7 @@ import Users from '/imports/api/users';
 const OFFLINE_CONNECTION_STATUS = 'offline';
 
 export default function userLeaving(credentials, userId) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UserLeaveReqMsg';
 
@@ -24,8 +24,7 @@ export default function userLeaving(credentials, userId) {
 
   const User = Users.findOne(selector);
   if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
+    throw new Meteor.Error('user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
   }
 
   if (User.connectionStatus === OFFLINE_CONNECTION_STATUS) {

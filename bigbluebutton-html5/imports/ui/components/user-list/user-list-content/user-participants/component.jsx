@@ -3,7 +3,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import styles from '/imports/ui/components/user-list/user-list-content/styles';
+import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import UserListItem from './user-list-item/component';
 
 const propTypes = {
@@ -47,18 +47,6 @@ const intlMessages = defineMessages({
   usersTitle: {
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
-  },
-  messagesTitle: {
-    id: 'app.userList.messagesTitle',
-    description: 'Title for the messages list',
-  },
-  participantsTitle: {
-    id: 'app.userList.participantsTitle',
-    description: 'Title for the Users list',
-  },
-  toggleCompactView: {
-    id: 'app.userList.toggleCompactView.label',
-    description: 'Toggle user list view mode',
   },
   ChatLabel: {
     id: 'app.userList.menu.chat.label',

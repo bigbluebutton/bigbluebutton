@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import _ from 'lodash';
-import styles from '../styles';
+import { styles } from '../styles';
 import ToolbarSubmenuItem from '../toolbar-submenu-item/component';
 
 const intlMessages = defineMessages({
@@ -162,7 +162,15 @@ class ToolbarSubmenu extends Component {
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 
-    return (obj.label || obj.value).toString();
+    if (type === 'thickness') {
+      return obj.value.toString();
+    }
+
+    if (type === 'font-size') {
+      return obj.label.toString();
+    }
+
+    return '';
   }
 
   render() {
@@ -234,9 +242,7 @@ ToolbarSubmenu.propTypes = {
   label: PropTypes.string.isRequired,
   customIcon: PropTypes.bool.isRequired,
 
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
+  intl: intlShape.isRequired,
 
 };
 

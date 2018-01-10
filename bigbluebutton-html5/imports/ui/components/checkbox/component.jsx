@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Icon from '../icon/component';
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
   disabled: PropTypes.bool,

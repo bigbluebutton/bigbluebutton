@@ -57,12 +57,14 @@ $item-height: 1rem;
 
 .tableItemIcon,
 .tableItemActions,
-.tableItemStatus {
+.tableItemStatus,
+.tableItemCurrent {
   width: 1%;
 }
 
 .tableItemActions {
   min-width: 68px; // size of the 2 icons (check/trash)
+  text-align: right;
 }
 
 .tableItemIcon > i {
@@ -75,7 +77,7 @@ $item-height: 1rem;
   position: relative;
 
   &:before {
-    content: '&nbsp;';
+    content: "\00a0";
     visibility: hidden;
   }
 
@@ -84,8 +86,11 @@ $item-height: 1rem;
     position: absolute;
     left: 0;
     right: 0;
-    padding: 0 $sm-padding-x;
   }
+}
+
+.tableItemCurrent {
+  padding-left: 0;
 }
 
 .tableItemStatus {
@@ -100,7 +105,7 @@ $item-height: 1rem;
   background-color: transparentize($color-primary, .75);
 }
 
-.tableItemProcessing {
+.tableItemConverting {
   background-color: transparentize($color-success, .75);
 }
 
@@ -182,4 +187,19 @@ $item-height: 1rem;
   text-decoration: underline;
   font-size: 80%;
   display: block;
+}
+
+.currentLabel {
+  display: inline;
+  padding: .25em .5em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: $color-white;
+  background: $color-primary;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+  text-transform: uppercase;
 }
