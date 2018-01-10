@@ -33,15 +33,6 @@ class AudioManager {
       error: null,
       outputDeviceId: null,
     });
-
-    const query = VoiceUsers.find({ intId: Auth.userID });
-
-    query.observeChanges({
-      changed: (id, fields) => {
-        if (fields.muted === this.isMuted) return;
-        this.isMuted = fields.muted;
-      },
-    });
   }
 
   init(userData, messages) {
@@ -128,7 +119,9 @@ class AudioManager {
   }
 
   toggleMuteMicrophone() {
-    makeCall('toggleSelfVoice');
+    makeCall('toggleSelfVoice').then(() => {
+      this.onToggleMicrophoneMute();
+    });
   }
 
   onAudioJoin() {
@@ -143,6 +136,10 @@ class AudioManager {
   onTransferStart() {
     this.isEchoTest = false;
     this.isConnecting = true;
+  }
+
+  onToggleMicrophoneMute() {
+    this.isMuted = !this.isMuted;
   }
 
   onAudioExit() {
