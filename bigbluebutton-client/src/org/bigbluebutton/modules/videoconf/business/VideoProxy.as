@@ -29,6 +29,8 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.net.ObjectEncoding;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -68,6 +70,7 @@ package org.bigbluebutton.modules.videoconf.business
       		_url = url;
 			parseOptions();			
 			nc = new NetConnection();
+			nc.objectEncoding = ObjectEncoding.AMF3;
 			nc.proxyType = "best";
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);

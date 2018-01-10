@@ -60,7 +60,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
               uri = uri.replace(/rtmp:/gi, "rtmpt:");
             }
 
-            NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;
+            NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF3;
             netConnection = new NetConnection();
             netConnection.proxyType = "best";
             netConnection.client = this;

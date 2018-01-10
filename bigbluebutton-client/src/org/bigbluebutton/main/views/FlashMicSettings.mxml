@@ -95,6 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function reInitialize():void {
         my_nc = new NetConnection();
+				my_nc.objectEncoding = ObjectEncoding.AMF3;
 	      my_nc.proxyType = "best";
         my_nc.connect(null);
         nsStream = new NetStream(my_nc);
