@@ -91,9 +91,9 @@ public class Red5AppService {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    //if (log.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       log.debug("Received check if publishing for meetingId=" + meetingId + " from user=" + userId);
-    //}
+    }
 
     handler.isScreenSharing(meetingId, userId);
   }
@@ -110,9 +110,9 @@ public class Red5AppService {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    //if (log.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       log.debug("Received restartShareRequest for meetingId=" + meetingId + " from user=" + userId);
-    //}
+    }
 
     handler.restartShareRequest(meetingId, userId);
   }
@@ -122,9 +122,9 @@ public class Red5AppService {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    //if (log.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       log.debug("Received startShareRequest for meetingId=" + meetingId + " from user=" + userId);
-    //}
+    }
 
     handler.startShareRequest(meetingId, userId, session);
   }
@@ -135,9 +135,9 @@ public class Red5AppService {
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
     Boolean tunnel = (Boolean) msg.get("tunnel");
 
-    //if (log.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       log.debug("Received startShareRequest for meetingId=" + meetingId + " from user=" + userId);
-    //}
+    }
 
     handler.requestShareToken(meetingId, userId, record, tunnel);
   }
@@ -147,9 +147,9 @@ public class Red5AppService {
     String streamId = (String) msg.get("streamId");
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    //if (log.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       log.debug("Received stopShareRequest for meetingId=" + meetingId + " from user=" + userId);
-    //}
+    }
 
     handler.stopShareRequest(meetingId, streamId);
   }
