@@ -31,9 +31,6 @@ package org.bigbluebutton.lib.chat.services {
 				case "SendPublicMessageEvtMsg":
 					handleSendPublicMessageEvtMsg(message);
 					break;
-				case "SendPrivateMessageEvtMsg":
-					handleSendPrivateMessageEvtMsg(message);
-					break;
 				case "ClearPublicChatHistoryEvtMsg":
 					handleClearPublicChatHistoryEvtMsg(message);
 					break;
@@ -63,15 +60,6 @@ package org.bigbluebutton.lib.chat.services {
 			chatMessagesSession.newPublicMessage(cm);
 		}
 		
-		private function handleSendPrivateMessageEvtMsg(msg:Object):void {
-			trace(LOG + "Received [SendPrivateMessageEvtMsg] from server.");
-			var cm:ChatMessageVO = processIncomingChatMessage(msg.body.message);
-			
-			var userId:String = (cm.fromUserId == userSession.userId ? cm.toUserId : cm.fromUserId);
-			var userName:String = (cm.fromUserId == userSession.userId ? cm.toUsername : cm.fromUsername);
-			chatMessagesSession.newPrivateMessage(userId, userName, cm);
-		}
-		
 		private function handleClearPublicChatHistoryEvtMsg(message:Object):void {
 			trace(LOG + "Received [ClearPublicChatHistoryEvtMsg] from server.");
 			trace("ClearPublicChatHistoryEvtMsg isn't being handled yet");
@@ -83,9 +71,6 @@ package org.bigbluebutton.lib.chat.services {
 			msg.fromUsername = rawMessage.fromUsername;
 			msg.fromColor = rawMessage.fromColor;
 			msg.fromTime = rawMessage.fromTime;
-			msg.fromTimezoneOffset = rawMessage.fromTimezoneOffset;
-			msg.toUserId = rawMessage.toUserId;
-			msg.toUsername = rawMessage.toUsername;
 			msg.message = rawMessage.message;
 			return msg;
 		}

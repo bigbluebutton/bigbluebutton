@@ -22,12 +22,12 @@ trait GetGroupChatMsgsReqMsgHdlr {
     }
 
     state.groupChats.find(msg.body.chatId) foreach { gc =>
-      if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.body.requesterId)) {
+      if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.header.userId)) {
         val msgs = gc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
-          m.sender, m.font, m.size, m.color, m.message))
+          m.sender, m.color, m.message))
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,
-          msg.body.requesterId, msgs, gc.id
+          msg.header.userId, msgs, gc.id
         )
         bus.outGW.send(respMsg)
       }

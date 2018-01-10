@@ -46,25 +46,6 @@ package org.bigbluebutton.modules.chat.services
     public function sendPublicMessageFromApi(event:SendGroupChatMessageEvent):void
     {
       //sendPublicMessage(event.chatId, msgVO);
-    }    
-    
-    public function sendPrivateMessageFromApi(message:Object):void
-    {
-      LOGGER.debug("sendPrivateMessageFromApi");
-      var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.fromUserId = message.fromUserID;
-      msgVO.fromUsername = message.fromUsername;
-      msgVO.fromColor = message.fromColor;
-      msgVO.fromTime = message.fromTime;
-      msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
-      
-      msgVO.toUserId = message.toUserID;
-      msgVO.toUsername = message.toUsername;
-      
-      msgVO.message = message.message;
-      
-      sendPrivateMessage(msgVO);
-      
     }
     
     public function sendPublicMessage(event:SendGroupChatMessageEvent):void {
@@ -73,15 +54,9 @@ package org.bigbluebutton.modules.chat.services
       msgVO.fromUserId = event.chatMessage.fromUserId;
       msgVO.fromUsername = event.chatMessage.fromUsername;
       msgVO.fromColor = event.chatMessage.fromColor;
-      msgVO.fromTime = event.chatMessage.fromTime;
-      msgVO.fromTimezoneOffset = event.chatMessage.fromTimezoneOffset;
       
       msgVO.message = event.chatMessage.message;
       sender.sendPublicMessage(event.chatId, msgVO);
-    }
-    
-    public function sendPrivateMessage(message:ChatMessageVO):void {
-      sender.sendPrivateMessage(message);
     }
     
     public function handleCreateGCReqEvent(event:CreateGroupChatReqEvent):void {

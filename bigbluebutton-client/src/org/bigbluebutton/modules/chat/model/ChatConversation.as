@@ -148,7 +148,6 @@ package org.bigbluebutton.modules.chat.model
       // Welcome message will skip time
       if (msgVO.fromTime != -1) {
         cm.fromTime = msgVO.fromTime;
-        cm.fromTimezoneOffset = msgVO.fromTimezoneOffset;
         cm.time = convertTimeNumberToString(msgVO.fromTime);
       }
       return cm

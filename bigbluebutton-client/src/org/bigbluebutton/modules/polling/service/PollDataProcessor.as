@@ -90,9 +90,6 @@ package org.bigbluebutton.modules.polling.service
         pollResultMessage.fromUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.fromColor = "86187";
         pollResultMessage.fromTime = new Date().getTime();
-        pollResultMessage.fromTimezoneOffset = new Date().getTimezoneOffset();
-        pollResultMessage.toUserId = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
-        pollResultMessage.toUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.message = accessibleAnswers;
 
         var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(ChatModel.MAIN_PUBLIC_CHAT);

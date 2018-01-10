@@ -19,7 +19,7 @@ trait GetGroupChatsReqMsgHdlr {
       val envelope = BbbCoreEnvelope(GetGroupChatsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetGroupChatsRespMsg.NAME, meetingId, userId)
 
-      val body = GetGroupChatsRespMsgBody(userId, allChats)
+      val body = GetGroupChatsRespMsgBody(allChats)
       val event = GetGroupChatsRespMsg(header, body)
 
       BbbCommonEnvCoreMsg(envelope, event)

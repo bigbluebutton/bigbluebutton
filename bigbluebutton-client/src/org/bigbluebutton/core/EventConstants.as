@@ -32,8 +32,6 @@ package org.bigbluebutton.core
     public static const LOCK_LAYOUT_REQ:String            = 'LockLayoutRequest';
     public static const UNLOCK_LAYOUT_REQ:String          = 'UnlockLayoutRequest';
     public static const SEND_PUBLIC_CHAT_REQ:String       = 'SendPublicChatRequest';
-    public static const SEND_PRIVATE_CHAT_REQ:String      = 'SendPrivateChatRequest';
-    
     
     /** Events to External JS **/
     public static const GET_MY_ROLE_RESP:String           = 'GetMyRoleResponse';

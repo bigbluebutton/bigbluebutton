@@ -161,7 +161,7 @@ package org.bigbluebutton.lib.main.commands {
 			//userSession.deskshareConnection = deskshareConnection;
 			// Query the server for chat, users, and presentation info
 			chatService.sendWelcomeMessage();
-			chatService.getPublicChatMessages();
+			chatService.getGroupChats();
 			presentationService.getPresentationInfo();
 			meetingData.users.userChangeSignal.add(successUsersAdded);
 			usersService.joinMeeting();

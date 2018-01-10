@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.chat.services {
 	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
+	import org.bigbluebutton.lib.chat.utils.ChatUtil;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.osflash.signals.ISignal;
@@ -23,31 +24,27 @@ package org.bigbluebutton.lib.chat.services {
 			this.failureSendingMessageSignal = failureSendingMessageSignal;
 		}
 		
-		public function getPublicChatMessages():void {
-			trace(LOG + "Sending [GetChatHistoryReqMsg] to server.");
+		public function getGroupChats():void {
+			trace(LOG + "Sending [GetGroupChatsReqMsg] to server.");
 			var message:Object = {
-				header: {name: "GetChatHistoryReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
-				body: {}
+				header: {name: "GetGroupChatsReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {requesterId: conferenceParameters.internalUserID}
 			};
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function sendPublicMessage(cm:ChatMessageVO):void {
-			trace(LOG + "Sending [SendPublicMessagePubMsg] to server. [" + cm + "]");
+		public function sendChatMessage(chatId: String, cm:ChatMessageVO):void {
+			trace("Sending [SendGroupChatMessageMsg] to server. [{0}]", [cm.message]);
+			var sender:Object = {id: cm.fromUserId, name: cm.fromUsername};
+			var corrId: String = ChatUtil.genCorrelationId(conferenceParameters.internalUserID);
+			
+			var msgFromUser:Object = {correlationId: corrId, sender: sender, color: cm.fromColor, message: cm.message};
+			
 			var message:Object = {
-				header: {name: "SendPublicMessagePubMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
-				body: {message: cm}
+				header: {name: "SendGroupChatMessageMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {chatId: chatId, msg: msgFromUser}
 			};
-			userSession.mainConnection.sendMessage2x(sendChatSuccessResponse, sendChatFailureResponse, message);
-		}
-		
-		public function sendPrivateMessage(cm:ChatMessageVO):void {
-			trace(LOG + "Sending [SendPrivateMessagePubMsg] to server.");
-			trace(LOG + "Sending fromUserID [" + cm.fromUserId + "] to toUserID [" + cm.toUserId + "]");
-			var message:Object = {
-				header: {name: "SendPrivateMessagePubMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
-				body: {message: cm}
-			};
+			
 			userSession.mainConnection.sendMessage2x(sendChatSuccessResponse, sendChatFailureResponse, message);
 		}
 		

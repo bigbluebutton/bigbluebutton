@@ -44,5 +44,7 @@ package org.bigbluebutton.lib.main.models {
 		function set muteOnStart(mute:Boolean):void;
 		function get avatarUrl():String;
 		function set avatarUrl(value:String):void;
+		function get guest():Boolean;
+		function set guest(v:Boolean):void;
 	}
 }

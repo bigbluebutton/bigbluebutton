@@ -35,7 +35,6 @@ package org.bigbluebutton.lib.chat.models {
 			cm.senderColor = uint(msg.fromColor);
 			cm.message = msg.message;
 			cm.fromTime = msg.fromTime;
-			cm.fromTimezoneOffset = msg.fromTimezoneOffset;
 			var sentTime:Date = new Date();
 			sentTime.setTime(cm.fromTime);
 			cm.time = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);

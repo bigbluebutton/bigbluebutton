@@ -20,9 +20,6 @@ package org.bigbluebutton.lib.chat.models {
 		// Stores the time (millis) when the sender sent the message.
 		public var fromTime:Number;
 		
-		// Stores the timezone offset (minutes) of the sender.
-		public var fromTimezoneOffset:Number;
-		
 		/*
 		   // Stores what we display to the user. The converted fromTime and fromTimezoneOffset to local time.
 		   [Bindable] public var senderTime:String;
