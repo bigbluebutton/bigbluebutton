@@ -69,9 +69,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
         addWelcomeChatMessage(meetingId, userId);
       }
 
-      return Logger.info(`Validated auth token as ${valid
-       }${+' user='}${userId} meeting=${meetingId}`,
-      );
+      return Logger.info(`Validated auth token as ${valid} user=${userId} meeting=${meetingId}`);
     }
 
     return Logger.info('No auth to validate');
