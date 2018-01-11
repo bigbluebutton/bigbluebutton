@@ -2,19 +2,9 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
-import PropTypes from 'prop-types';
 import Breakouts from '/imports/api/breakouts';
 import Service from './service';
-import Audio from './component';
 import AudioModalContainer from './audio-modal/container';
-
-const propTypes = {
-  children: PropTypes.element,
-};
-
-const defaultProps = {
-  children: null,
-};
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -52,7 +42,21 @@ const intlMessages = defineMessages({
 });
 
 
-const AudioContainer = props => <Audio {...props} />;
+class AudioContainer extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.init = props.init.bind(this);
+  }
+
+  componentDidMount() {
+    this.init();
+  }
+
+  render() {
+    return null;
+  }
+}
 
 let didMountAutoJoin = false;
 
@@ -96,6 +100,3 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
     },
   };
 })(AudioContainer)));
-
-AudioContainer.propTypes = propTypes;
-AudioContainer.defaultProps = defaultProps;
