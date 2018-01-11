@@ -28,7 +28,7 @@ package org.bigbluebutton.lib.chat.services {
 			trace(LOG + "Sending [GetGroupChatsReqMsg] to server.");
 			var message:Object = {
 				header: {name: "GetGroupChatsReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
-				body: {requesterId: conferenceParameters.internalUserID}
+				body: {}
 			};
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
