@@ -51,7 +51,7 @@ class VideoDock extends Component {
     this.wsQueue = [];
     this.webRtcPeers = {};
     this.reconnectWebcam = false;
-    this.reconnectList = false;
+    this.reconnectList = [];
     this.sharedCameraTimeout = null;
     this.subscribedCamerasTimeouts = [];
 
