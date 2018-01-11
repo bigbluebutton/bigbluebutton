@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import ScreenshareContainer from '/imports/ui/components/screenshare/container';
 import styles from './styles';
+import VideoService from './service';
 import { log } from '/imports/ui/services/api';
+import { notify } from '/imports/ui/services/notification';
 
+import { toast } from 'react-toastify';
+import Toast from '/imports/ui/components/toast/component';
 
 class VideoElement extends Component {
   constructor(props) {
@@ -102,7 +106,7 @@ export default class VideoDock extends Component {
 
   componentWillUnmount () {
     document.removeEventListener('joinVideo', this.shareWebcam);
-    document.removeEventListener('exitVideo', this.shareWebcam);
+    document.removeEventListener('exitVideo', this.unshareWebcam);
     window.removeEventListener('resize', this.adjustVideos);
 
     this.ws.removeEventListener('message', this.onWsMessage);
@@ -185,6 +189,7 @@ export default class VideoDock extends Component {
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
 
     if (shareWebcam) {
+      VideoService.joiningVideo();
       this.setState({sharedWebcam: true});
       this.initWebRTC(id, true);
     } else {
@@ -244,7 +249,7 @@ export default class VideoDock extends Component {
 
         that.destroyWebRTCPeer(id);
         that.destroyVideoTag(id);
-
+        VideoService.resetState();
         return log('error', error);
       }
 
@@ -286,6 +291,7 @@ export default class VideoDock extends Component {
         });
       }
       this.didSDPAnswered = true;
+      VideoService.joinedVideo();
     });
   }
 
@@ -361,10 +367,12 @@ export default class VideoDock extends Component {
   }
 
   unshareWebcam() {
+    VideoService.exitingVideo();
     log('info', 'Unsharing webcam');
     const { users } = this.props;
     const id = users[0].userId;
     this.sendUserUnshareWebcam(id);
+    VideoService.exitedVideo();
   }
 
   startResponse(message) {
@@ -501,4 +509,5 @@ export default class VideoDock extends Component {
 
     return false;
   }
+
 }

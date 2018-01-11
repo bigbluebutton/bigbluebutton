@@ -18,6 +18,8 @@ class JoinVideoOptions extends React.Component {
   render() {
     const {
       intl,
+      isWaitingResponse,
+      isConnected,
       isSharingVideo,
       handleJoinVideo,
       handleCloseVideo,
@@ -34,6 +36,7 @@ class JoinVideoOptions extends React.Component {
             icon={'video'}
             size={'lg'}
             circle
+            disabled={isWaitingResponse}
           />
         );
     }
@@ -48,6 +51,7 @@ class JoinVideoOptions extends React.Component {
         icon={'video_off'}
         size={'lg'}
         circle
+        disabled={isWaitingResponse || (!isSharingVideo && isConnected)}
       />
     );
   }
