@@ -11,6 +11,8 @@
     }
 
     body {
+      position: absolute;
+      height: 100%;
       font-family: 'Source Sans Pro', Arial, sans-serif;
       font-size: 1rem; /* 16px */
       background-color: #06172A;
@@ -21,7 +23,7 @@
     }
 
     #app {
-      height: 100vh;
+      height: 100%;
       width: 100vw;
       overflow: hidden;
     }
@@ -51,4 +53,9 @@
   <script src="/client/lib/jquery.json-2.4.min.js"></script>
   <script src="/client/lib/verto-min.js"></script>
   <script src="/client/lib/verto_extension.js"></script>
+  <script src="/client/lib/reconnecting-websocket.min.js"></script>
+  <script src="/client/lib/kurento-utils.js"></script>
+  <script src="/client/lib/kurento-extension.js"></script>
+  <script src="/html5client/js/adapter.js"></script>
+  <script src="/html5client/js/adjust-videos.js"></script>
 </body>

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   yes: {
@@ -35,7 +35,7 @@ class EchoTest extends Component {
     } = this.props;
 
     return (
-      <span>
+      <span className={styles.echoTest}>
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.yes)}

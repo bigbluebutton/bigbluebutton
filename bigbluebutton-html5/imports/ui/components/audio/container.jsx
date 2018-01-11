@@ -1,8 +1,9 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
+import Breakouts from '/imports/api/breakouts';
 import Service from './service';
 import Audio from './component';
 import AudioModalContainer from './audio-modal/container';
@@ -55,10 +56,20 @@ const AudioContainer = props => <Audio {...props} />;
 
 let didMountAutoJoin = false;
 
-export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }) => {
+export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
   const { autoJoinAudio } = APP_CONFIG;
+  const openAudioModal = mountModal.bind(
+    null,
+    <AudioModalContainer />,
+  );
+
+  Breakouts.find().observeChanges({
+    removed() {
+      setTimeout(() => openAudioModal(), 0);
+    },
+  });
 
   const messages = {
     info: {
@@ -71,6 +82,7 @@ export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }
       CONNECTION_ERROR: intl.formatMessage(intlMessages.connectionError),
       REQUEST_TIMEOUT: intl.formatMessage(intlMessages.requestTimeout),
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
+      MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
     },
   };
 
@@ -79,11 +91,11 @@ export default withModalMounter(injectIntl(createContainer(({ mountModal, intl }
       Service.init(messages);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       if (!autoJoinAudio || didMountAutoJoin) return;
-      mountModal(<AudioModalContainer />);
+      openAudioModal();
       didMountAutoJoin = true;
     },
   };
-}, AudioContainer)));
+})(AudioContainer)));
 
 AudioContainer.propTypes = propTypes;
 AudioContainer.defaultProps = defaultProps;

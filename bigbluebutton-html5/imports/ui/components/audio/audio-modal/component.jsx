@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import styles from './styles';
+import { styles } from './styles';
+import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
+import Help from '../help/component';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -54,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.settingsTitle',
     description: 'Title for the audio modal',
   },
+  helpTitle: {
+    id: 'app.audioModal.helpTitle',
+    description: 'Title for the audio help',
+  },
   connecting: {
     id: 'app.audioModal.connecting',
     description: 'Message for audio connecting',
@@ -87,8 +93,8 @@ class AudioModal extends Component {
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
     this.handleJoinMicrophone = this.handleJoinMicrophone.bind(this);
+    this.handleJoinListenOnly = this.handleJoinListenOnly.bind(this);
     this.closeModal = closeModal;
-    this.handleJoinListenOnly = joinListenOnly;
     this.joinEchoTest = joinEchoTest;
     this.exitAudio = exitAudio;
     this.leaveEchoTest = leaveEchoTest;
@@ -104,6 +110,10 @@ class AudioModal extends Component {
         title: intl.formatMessage(intlMessages.settingsTitle),
         component: () => this.renderAudioSettings(),
       },
+      help: {
+        title: intl.formatMessage(intlMessages.helpTitle),
+        component: () => this.renderHelp(),
+      }
     };
   }
 
@@ -132,10 +142,36 @@ class AudioModal extends Component {
   }
 
   handleGoToEchoTest() {
-    this.joinEchoTest().then(() => {
+    const {
+      inputDeviceId,
+      outputDeviceId,
+    } = this.props;
+
+    return this.joinEchoTest().then(() => {
+      console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
       });
+    }).catch(err => {
+      if (err.type === 'MEDIA_ERROR') {
+        this.setState({
+          content: 'help',
+        });
+      }
+    });
+  }
+
+  handleJoinListenOnly() {
+    const {
+      joinListenOnly,
+    } = this.props;
+
+    return joinListenOnly().catch(err => {
+      if (err.type === 'MEDIA_ERROR') {
+        this.setState({
+          content: 'help',
+        });
+      }
     });
   }
 
@@ -153,7 +189,7 @@ class AudioModal extends Component {
     } = this.props;
 
     return (
-      <span>
+      <span className={styles.audioOptions}>
         <Button
           className={styles.audioBtn}
           label={intl.formatMessage(intlMessages.microphoneLabel)}
@@ -240,10 +276,19 @@ class AudioModal extends Component {
     );
   }
 
+  renderHelp() {
+    return (
+      <Help
+        handleBack={this.handleGoToAudioOptions}
+      />
+    );
+  }
+
   render() {
     const {
       intl,
       isConnecting,
+      showPermissionsOvelay,
     } = this.props;
 
     const {
@@ -251,32 +296,35 @@ class AudioModal extends Component {
     } = this.state;
 
     return (
-      <ModalBase
-        overlayClassName={styles.overlay}
-        className={styles.modal}
-        onRequestClose={this.closeModal}
-      >
-        { isConnecting ? null :
-        <header className={styles.header}>
-          <h3 className={styles.title}>
-            { content ?
-              this.contents[content].title :
-              intl.formatMessage(intlMessages.audioChoiceLabel)}
-          </h3>
-          <Button
-            className={styles.closeBtn}
-            label={intl.formatMessage(intlMessages.closeLabel)}
-            icon={'close'}
-            size={'md'}
-            hideLabel
-            onClick={this.closeModal}
-          />
-        </header>
-        }
-        <div className={styles.content}>
-          { this.renderContent() }
-        </div>
-      </ModalBase>
+      <span>
+        { showPermissionsOvelay ? <PermissionsOverlay /> : null}
+        <ModalBase
+          overlayClassName={styles.overlay}
+          className={styles.modal}
+          onRequestClose={this.closeModal}
+        >
+          { isConnecting ? null :
+          <header className={styles.header}>
+            <h3 className={styles.title}>
+              { content ?
+                this.contents[content].title :
+                intl.formatMessage(intlMessages.audioChoiceLabel)}
+            </h3>
+            <Button
+              className={styles.closeBtn}
+              label={intl.formatMessage(intlMessages.closeLabel)}
+              icon={'close'}
+              size={'md'}
+              hideLabel
+              onClick={this.closeModal}
+            />
+          </header>
+          }
+          <div className={styles.content}>
+            { this.renderContent() }
+          </div>
+        </ModalBase>
+      </span>
     );
   }
 }

@@ -31,10 +31,9 @@ $item-border-focus: $color-blue-lighter;
   display: flex;
   flex: 1 1 100%;
   height: 1px;
+  min-height: 1px;
   background-color: $color-gray-lighter;
   padding: 0;
-  margin-left: -($line-height-computed / 2);
-  margin-right: -($line-height-computed / 2);
   margin-top: $line-height-computed * .5;
   margin-bottom: $line-height-computed * .5;
 }

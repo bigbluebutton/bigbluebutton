@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
@@ -89,25 +90,34 @@ Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
   'users', 'chat', 'cursor', 'meetings', 'polls', 'presentations', 'annotations',
-  'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user',
+  'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
 ];
 
-const BaseContainer = createContainer(({ params }) => {
+const BaseContainer = withRouter(withTracker(({ params, router }) => {
   if (params.errorCode) return params;
 
   if (!Auth.loggedIn) {
-    return {
-      errorCode: 401,
-      error: 'You are unauthorized to access this meeting',
-    };
+    return router.push('/logout');
   }
 
   const { credentials } = Auth;
-  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials));
+
+
+  const subscriptionErrorHandler = {
+    onError: (error) => {
+      console.error(error);
+      return router.push('/logout');
+    },
+  };
+
+  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
+    Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+
+
   return {
     locale: Settings.application.locale,
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
   };
-}, Base);
+})(Base));
 
 export default BaseContainer;

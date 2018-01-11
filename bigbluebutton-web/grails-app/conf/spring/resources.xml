@@ -122,6 +122,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
         <property name="defaultClientUrl" value="${defaultClientUrl}"/>
+        <property name="html5ClientUrl" value="${html5ClientUrl}"/>
+        <property name="moderatorsJoinViaHTML5Client" value="${moderatorsJoinViaHTML5Client}"/>
+        <property name="attendeesJoinViaHTML5Client" value="${attendeesJoinViaHTML5Client}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
@@ -134,6 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
+        <property name="muteOnStart" value="${muteOnStart}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

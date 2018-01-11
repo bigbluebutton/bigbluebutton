@@ -56,7 +56,9 @@ export default class SIPBridge extends BaseAudioBridge {
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
 
-    const causes = window.SIP.C.causes;
+    const {
+      causes,
+    } = window.SIP.C;
 
     this.errorCodes = {
       [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
@@ -76,14 +78,14 @@ export default class SIPBridge extends BaseAudioBridge {
       this.callback = callback;
 
       return this.doCall({ callExtension, isListenOnly, inputStream })
-                 .catch((reason) => {
-                   callback({
-                     status: this.baseCallStates.failed,
-                     error: this.baseErrorCodes.GENERIC_ERROR,
-                     bridgeError: reason,
-                   });
-                   reject(reason);
-                 });
+        .catch((reason) => {
+          callback({
+            status: this.baseCallStates.failed,
+            error: this.baseErrorCodes.GENERIC_ERROR,
+            bridgeError: reason,
+          });
+          reject(reason);
+        });
     });
   }
 
@@ -108,9 +110,9 @@ export default class SIPBridge extends BaseAudioBridge {
     this.callOptions = options;
 
     return fetchStunTurnServers(sessionToken)
-                        .then(this.createUserAgent.bind(this))
-                        .then(this.inviteUserAgent.bind(this))
-                        .then(this.setupEventHandlers.bind(this));
+      .then(this.createUserAgent.bind(this))
+      .then(this.inviteUserAgent.bind(this))
+      .then(this.setupEventHandlers.bind(this));
   }
 
   transferCall(onTransferSuccess) {
@@ -123,7 +125,8 @@ export default class SIPBridge extends BaseAudioBridge {
         this.callback({
           status: this.baseCallStates.failed,
           error: this.baseErrorCodes.REQUEST_TIMEOUT,
-          bridgeError: 'Timeout on call transfer' });
+          bridgeError: 'Timeout on call transfer',
+        });
         reject(this.baseErrorCodes.REQUEST_TIMEOUT);
       }, CALL_TRANSFER_TIMEOUT);
 
@@ -195,9 +198,9 @@ export default class SIPBridge extends BaseAudioBridge {
       let userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
-        // log: {
-        //   builtinEnabled: false,
-        // },
+        log: {
+          builtinEnabled: false,
+        },
         displayName: callerIdName,
         register: false,
         traceSip: true,
@@ -220,7 +223,8 @@ export default class SIPBridge extends BaseAudioBridge {
         this.callback({
           status: this.baseCallStates.failed,
           error: this.baseErrorCodes.CONNECTION_ERROR,
-          bridgeError: 'User Agent Disconnected' });
+          bridgeError: 'User Agent Disconnected',
+        });
         reject(this.baseErrorCodes.CONNECTION_ERROR);
       };
 
@@ -283,8 +287,8 @@ export default class SIPBridge extends BaseAudioBridge {
         }
 
         const mappedCause = cause in this.errorCodes ?
-                            this.errorCodes[cause] :
-                            this.baseErrorCodes.GENERIC_ERROR;
+          this.errorCodes[cause] :
+          this.baseErrorCodes.GENERIC_ERROR;
 
         return this.callback({
           status: this.baseCallStates.failed,
@@ -301,43 +305,43 @@ export default class SIPBridge extends BaseAudioBridge {
     });
   }
 
-  getMediaStream(constraints) {
-    return navigator.mediaDevices.getUserMedia(constraints).catch((err) => {
-      console.error(err);
-      throw new Error(this.baseErrorCodes.MEDIA_ERROR);
-    });
+  setDefaultInputDevice() {
+    const handleMediaSuccess = (mediaStream) => {
+      const deviceLabel = mediaStream.getAudioTracks()[0].label;
+      return navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
+        const device = mediaDevices.find(d => d.label === deviceLabel);
+        return this.changeInputDevice(device.deviceId);
+      });
+    };
+
+    return navigator.mediaDevices.getUserMedia({ audio: true }).then(handleMediaSuccess);
   }
 
-  async setDefaultInputDevice() {
-    const mediaStream = await this.getMediaStream({ audio: true });
-    const deviceLabel = mediaStream.getAudioTracks()[0].label;
-    const mediaDevices = await navigator.mediaDevices.enumerateDevices();
-    const device = mediaDevices.find(d => d.label === deviceLabel);
-    return this.changeInputDevice(device.deviceId);
-  }
-
-  async changeInputDevice(value) {
+  changeInputDevice(value) {
     const {
       media,
     } = this;
 
     if (media.inputDevice.audioContext) {
-      media.inputDevice.audioContext.close().then(() => {
+      const handleAudioContextCloseSuccess = () => {
         media.inputDevice.audioContext = null;
         media.inputDevice.scriptProcessor = null;
         media.inputDevice.source = null;
         return this.changeInputDevice(value);
-      });
+      };
+
+      return media.inputDevice.audioContext.close().then(handleAudioContextCloseSuccess);
     }
 
-    media.inputDevice.id = value;
     if ('AudioContext' in window) {
       media.inputDevice.audioContext = new window.AudioContext();
     } else {
       media.inputDevice.audioContext = new window.webkitAudioContext();
     }
+
+    media.inputDevice.id = value;
     media.inputDevice.scriptProcessor = media.inputDevice.audioContext
-                                              .createScriptProcessor(2048, 1, 1);
+      .createScriptProcessor(2048, 1, 1);
     media.inputDevice.source = null;
 
     const constraints = {
@@ -346,13 +350,17 @@ export default class SIPBridge extends BaseAudioBridge {
       },
     };
 
-    const mediaStream = await this.getMediaStream(constraints);
-    media.inputDevice.stream = mediaStream;
-    media.inputDevice.source = media.inputDevice.audioContext.createMediaStreamSource(mediaStream);
-    media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
-    media.inputDevice.scriptProcessor.connect(media.inputDevice.audioContext.destination);
+    const handleMediaSuccess = (mediaStream) => {
+      media.inputDevice.stream = mediaStream;
+      media.inputDevice.source = media.inputDevice.audioContext
+        .createMediaStreamSource(mediaStream);
+      media.inputDevice.source.connect(media.inputDevice.scriptProcessor);
+      media.inputDevice.scriptProcessor.connect(media.inputDevice.audioContext.destination);
 
-    return this.media.inputDevice;
+      return this.media.inputDevice;
+    };
+
+    return navigator.mediaDevices.getUserMedia(constraints).then(handleMediaSuccess);
   }
 
   async changeOutputDevice(value) {
@@ -368,6 +376,6 @@ export default class SIPBridge extends BaseAudioBridge {
       }
     }
 
-    return this.media.outputDeviceId;
+    return this.media.outputDeviceId || value;
   }
 }

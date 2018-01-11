@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles';
+import { styles } from './styles';
 import MessageListItem from './message-list-item/component';
 
 const propTypes = {
-  messages: PropTypes.array.isRequired,
+  messages: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -144,7 +144,7 @@ class MessageList extends Component {
       return (
         <Button
           className={styles.unreadButton}
-          size={'sm'}
+          size="sm"
           label={intl.formatMessage(intlMessages.moreMessages)}
           onClick={() => this.scrollTo()}
         />
@@ -156,9 +156,7 @@ class MessageList extends Component {
 
   render() {
     const { messages, intl } = this.props;
-
-    const isEmpty = messages.length == 0;
-
+    const isEmpty = messages.length === 0;
     return (
       <div className={styles.messageListWrapper}>
         <div

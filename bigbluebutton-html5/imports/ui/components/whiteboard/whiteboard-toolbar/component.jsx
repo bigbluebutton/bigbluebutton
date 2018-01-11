@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
 import ToolbarSubmenu from './toolbar-submenu/component';
 
@@ -25,8 +25,8 @@ class WhiteboardToolbar extends Component {
 
       // variables to keep current selected draw settings
       annotationSelected: {
-        icon: 'hand',
-        value: 'hand',
+        icon: 'pen_tool',
+        value: 'pencil',
       },
       thicknessSelected: { value: 4 },
       colorSelected: { value: '#000000' },
@@ -326,6 +326,7 @@ class WhiteboardToolbar extends Component {
   renderThicknessItem() {
     return (
       <ToolbarMenuItem
+        disabled={this.state.annotationSelected.value === 'hand'}
         label={'Thickness List'}
         onItemClick={this.displaySubMenu}
         objectToReturn={'thicknessList'}
@@ -389,6 +390,7 @@ class WhiteboardToolbar extends Component {
   renderColorItem() {
     return (
       <ToolbarMenuItem
+        disabled={this.state.annotationSelected.value === 'hand'}
         label={'Color List'}
         onItemClick={this.displaySubMenu}
         objectToReturn={'colorList'}

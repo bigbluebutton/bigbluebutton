@@ -1,0 +1,15 @@
+kurentoUrl: "ws://HOST/kurento"
+kurentoIp: ""
+localIpAddress: ""
+acceptSelfSignedCertificate: false
+redisHost : "127.0.0.1"
+redisPort : "6379"
+clientPort : "3008"
+minVideoPort: 30000
+maxVideoPort: 33000
+from-screenshare: "from-screenshare-sfu"
+to-screenshare: "to-screenshare-sfu"
+from-video: "from-video-sfu"
+to-video: "to-video-sfu"
+from-audio: "from-audio-sfu"
+to-audio: "to-audio-sfu"

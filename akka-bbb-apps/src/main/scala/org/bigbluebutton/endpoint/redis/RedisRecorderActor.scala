@@ -90,7 +90,14 @@ class RedisRecorderActor(val system: ActorSystem)
 
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
+      case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
+
+      // Poll
+      case m: PollStartedEvtMsg                     => handlePollStartedEvtMsg(m)
+      case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
+      case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
+      case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
 
       case _                                        => // message not to be recorded.
     }
@@ -400,11 +407,52 @@ class RedisRecorderActor(val system: ActorSystem)
 
     record(msg.header.meetingId, ev.toMap)
   }
+  
+  private def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg) {
+    val ev = new WebcamsOnlyForModeratorRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setUserId(msg.body.setBy)
+    ev.setWebacmsOnlyForModerator(msg.body.webcamsOnlyForModerator)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
 
   private def handleEndAndKickAllSysMsg(msg: EndAndKickAllSysMsg): Unit = {
     val ev = new EndAndKickAllRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
 
     record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handlePollStartedEvtMsg(msg: PollStartedEvtMsg): Unit = {
+    val ev = new PollStartedRecordEvent()
+    ev.setPollId(msg.body.pollId)
+    ev.setAnswers(msg.body.poll.answers)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
+    val ev = new UserRespondedToPollRecordEvent()
+    ev.setPollId(msg.body.pollId)
+    ev.setUserId(msg.header.userId)
+    ev.setAnswerId(msg.body.answerId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handlePollStoppedEvtMsg(msg: PollStoppedEvtMsg): Unit = {
+    pollStoppedRecordHelper(msg.header.meetingId, msg.body.pollId)
+  }
+
+  private def handlePollShowResultEvtMsg(msg: PollShowResultEvtMsg): Unit = {
+    pollStoppedRecordHelper(msg.header.meetingId, msg.body.pollId)
+  }
+
+  private def pollStoppedRecordHelper(meetingId: String, pollId: String): Unit = {
+    val ev = new PollStoppedRecordEvent()
+    ev.setPollId(pollId)
+
+    record(meetingId, ev.toMap)
   }
 }
