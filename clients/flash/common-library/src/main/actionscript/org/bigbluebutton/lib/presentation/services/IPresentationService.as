@@ -2,10 +2,10 @@ package org.bigbluebutton.lib.presentation.services {
 	
 	public interface IPresentationService {
 		function setupMessageSenderReceiver():void;
-		function getPresentationInfo():void;
-		function setCurrentPage(presentationId: String, pageId: String):void;
-		function move(presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void;
-		function removePresentation(presentationId:String):void;
-		function setCurrentPresentation(presentationId:String):void;
+		function getPresentationPods():void;
+		function setCurrentPage(podId:String, presentationId: String, pageId: String):void;
+		function move(podId:String, presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void;
+		function removePresentation(podId:String, presentationId:String):void;
+		function setCurrentPresentation(podId:String, presentationId:String):void;
 	}
 }

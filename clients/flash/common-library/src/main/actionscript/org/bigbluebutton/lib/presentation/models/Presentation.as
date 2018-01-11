@@ -14,8 +14,6 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _slides:ArrayCollection;
 		
-		private var _changePresentation:Function;
-		
 		private var _currentSlide:Slide;
 		
 		private var _current:Boolean = false;
@@ -26,11 +24,10 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _loaded:Boolean = false;
 		
-		public function Presentation(fileName:String, id:String, changePresentation:Function, numOfSlides:int, isCurrent:Boolean, downloadable:Boolean):void {
+		public function Presentation(fileName:String, id:String, numOfSlides:int, isCurrent:Boolean, downloadable:Boolean):void {
 			_fileName = fileName;
 			_id = id;
 			_slides = new ArrayCollection();
-			_changePresentation = changePresentation;
 			_current = isCurrent;
 			_downloadable = downloadable;
 		}
@@ -67,15 +64,6 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public function size():uint {
 			return _slides.length;
-		}
-		
-		public function show():void {
-			_changePresentation(this);
-		}
-		
-		public function finishedLoading(currentSlideNum:int):void {
-			_loaded = true;
-			_changePresentation(this, currentSlideNum);
 		}
 		
 		public function get loaded():Boolean {

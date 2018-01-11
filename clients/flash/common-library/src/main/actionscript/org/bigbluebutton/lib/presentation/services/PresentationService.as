@@ -27,24 +27,24 @@ package org.bigbluebutton.lib.presentation.services {
 			userSession.mainConnection.addMessageListener(presentMessageReceiver);
 		}
 		
-		public function getPresentationInfo():void {
-			presentMessageSender.getPresentationInfo();
+		public function getPresentationPods():void {
+			presentMessageSender.getPresentationPods();
 		}
 		
-		public function setCurrentPage(presentationId: String, pageId: String):void {
-			presentMessageSender.setCurrentPage(presentationId, pageId);
+		public function setCurrentPage(podId: String, presentationId: String, pageId: String):void {
+			presentMessageSender.setCurrentPage(podId, presentationId, pageId);
 		}
 		
-		public function move(presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-			presentMessageSender.move(presentationId, pageId, xOffset, yOffset, widthRatio, heightRatio);
+		public function move(podId: String, presentationId:String, pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
+			presentMessageSender.move(podId, presentationId, pageId, xOffset, yOffset, widthRatio, heightRatio);
 		}
 		
-		public function removePresentation(presentationId:String):void {
-			presentMessageSender.removePresentation(presentationId);
+		public function removePresentation(podId: String, presentationId:String):void {
+			presentMessageSender.removePresentation(podId, presentationId);
 		}
 		
-		public function setCurrentPresentation(presentationId:String):void {
-			presentMessageSender.setCurrentPresentation(presentationId);
+		public function setCurrentPresentation(podId: String, presentationId:String):void {
+			presentMessageSender.setCurrentPresentation(podId, presentationId);
 		}
 	}
 }
