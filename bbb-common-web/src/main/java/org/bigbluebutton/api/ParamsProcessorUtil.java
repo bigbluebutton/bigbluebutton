@@ -81,6 +81,7 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
+    private boolean defaultMuteOnStart = false;
 
     private String defaultConfigXML = null;
 
@@ -352,6 +353,9 @@ public class ParamsProcessorUtil {
         int meetingDuration = processMeetingDuration(params.get("duration"));
         int logoutTimer = processMeetingDuration(params.get("logoutTimer"));
 
+        // Hardcode to zero as we don't use this feature in 2.0.x (ralam dec 18, 2017)
+		logoutTimer = 0;
+
         // set is breakout room property
         boolean isBreakout = false;
         if (!StringUtils.isEmpty(params.get("isBreakout"))) {
@@ -463,7 +467,9 @@ public class ParamsProcessorUtil {
         meeting.storeConfig(true, configXML);
 
         if (!StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
-            String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
+            String moderatorOnlyMessageTemplate = params.get("moderatorOnlyMessage");
+			String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
+					dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
@@ -478,6 +484,19 @@ public class ParamsProcessorUtil {
             meeting.setParentMeetingId(parentMeetingId);
         }
 
+		if (!StringUtils.isEmpty(params.get("logo"))) {
+			meeting.setCustomLogoURL(params.get("logo"));
+		}
+
+		if (!StringUtils.isEmpty(params.get("copyright"))) {
+			meeting.setCustomCopyright(params.get("copyright"));
+		}
+		Boolean muteOnStart = defaultMuteOnStart;
+		if (!StringUtils.isEmpty(params.get("muteOnStart"))) {
+        	muteOnStart = Boolean.parseBoolean(params.get("muteOnStart"));
+        }
+
+		meeting.setMuteOnStart(muteOnStart);
         return meeting;
     }
 	
@@ -891,6 +910,15 @@ public class ParamsProcessorUtil {
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
 		meetingExpireIfNoUserJoinedInMinutes = value;
 	}
+
+	public void setMuteOnStart(Boolean mute) {
+		defaultMuteOnStart = mute;
+	}
+
+	public Boolean getMuteOnStart() {
+		return defaultMuteOnStart;
+	}
+
 
 	public ArrayList<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<String>();

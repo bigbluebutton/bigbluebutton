@@ -1,6 +1,6 @@
 import React from 'react';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import LogoutConfirmation from './component';
 import {
   isModerator,
@@ -11,10 +11,7 @@ const LogoutConfirmationContainer = props => (
   <LogoutConfirmation {...props} />
 );
 
-export default createContainer(() => {
-  return {
-    showEndMeeting: !meetingIsBreakout() &&
-                    isModerator(),
-    handleEndMeeting: endMeeting,
-  }
-}, LogoutConfirmationContainer);
+export default withTracker(() => ({
+  showEndMeeting: !meetingIsBreakout() && isModerator(),
+  handleEndMeeting: endMeeting,
+}))(LogoutConfirmationContainer);

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
-import styles from '../styles';
+import { styles } from '../styles';
 
 export default class ToolbarMenuItem extends Component {
   constructor() {
@@ -68,6 +68,7 @@ export default class ToolbarMenuItem extends Component {
           onBlur={this.props.onBlur}
           className={this.props.className}
           setRef={this.setRef}
+          disabled={this.props.disabled}
         />
         {this.props.children}
       </div>

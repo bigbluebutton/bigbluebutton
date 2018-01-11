@@ -1,6 +1,7 @@
 var isFirefox = typeof window.InstallTrigger !== 'undefined';
 var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isChrome = !!window.chrome && !isOpera;
+var isSafari = navigator.userAgent.indexOf("Safari") >= 0 && !isChrome;
 var kurentoHandler = null;
 
 Kurento = function (
@@ -20,7 +21,7 @@ Kurento = function (
   this.screenConstraints = {};
   this.mediaCallback = null;
 
-  this.voiceBridge = voiceBridge;
+  this.voiceBridge = voiceBridge + '-SCREENSHARE';
   this.internalMeetingId = internalMeetingId;
 
   this.vid_width = window.screen.width;
@@ -33,9 +34,8 @@ Kurento = function (
 
   this.caller_id_name = conferenceUsername;
   this.caller_id_number = conferenceUsername;
-  this.pingInterval;
 
-  this.kurentoPort = "kurento-screenshare";
+  this.kurentoPort = "bbb-webrtc-sfu";
   this.hostName = window.location.hostname;
   this.socketUrl = 'wss://' + this.hostName + '/' + this.kurentoPort;
 
@@ -43,6 +43,7 @@ Kurento = function (
 
   if (chromeExtension != null) {
     this.chromeExtension = chromeExtension;
+    window.chromeExtension = chromeExtension;
   }
 
   if (onFail != null) {
@@ -57,21 +58,44 @@ Kurento = function (
 
 this.KurentoManager= function () {
   this.kurentoVideo = null;
-  this.kurentoScreenShare = null;
+  this.kurentoScreenshare = null;
 };
 
 KurentoManager.prototype.exitScreenShare = function () {
-  if (this.kurentoScreenShare != null) {
-    if(kurentoHandler.pingInterval) {
-      clearInterval(kurentoHandler.pingInterval);
+  console.log("  [exitScreenShare] Exiting screensharing");
+  if(typeof this.kurentoScreenshare !== 'undefined' && this.kurentoScreenshare) {
+    if(this.kurentoScreenshare.ws !== null) {
+      this.kurentoScreenshare.ws.onclose = function(){};
+      this.kurentoScreenshare.ws.close();
     }
-    if(kurentoHandler.ws !== null) {
-      kurentoHandler.ws.onclose = function(){};
-      kurentoHandler.ws.close();
+
+    this.kurentoScreenshare.disposeScreenShare();
+    this.kurentoScreenshare = null;
+  }
+
+  if (this.kurentoScreenshare) {
+    this.kurentoScreenshare = null;
+  }
+
+  if(typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
+    this.exitVideo();
+  }
+};
+
+KurentoManager.prototype.exitVideo = function () {
+  console.log("  [exitScreenShare] Exiting screensharing viewing");
+  if(typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
+    if(this.kurentoVideo.ws !== null) {
+      this.kurentoVideo.ws.onclose = function(){};
+      this.kurentoVideo.ws.close();
     }
-    kurentoHandler.disposeScreenShare();
-    this.kurentoScreenShare = null;
-    kurentoHandler = null;
+
+    this.kurentoVideo.disposeScreenShare();
+    this.kurentoVideo = null;
+  }
+
+  if (this.kurentoVideo) {
+    this.kurentoVideo = null;
   }
 };
 
@@ -79,24 +103,21 @@ KurentoManager.prototype.shareScreen = function (tag) {
   this.exitScreenShare();
   var obj = Object.create(Kurento.prototype);
   Kurento.apply(obj, arguments);
-  this.kurentoScreenShare = obj;
-  kurentoHandler = obj;
-  this.kurentoScreenShare.setScreenShare(tag);
+  this.kurentoScreenshare = obj;
+  this.kurentoScreenshare.setScreenShare(tag);
 };
 
-// Still unused, part of the HTML5 implementation
 KurentoManager.prototype.joinWatchVideo = function (tag) {
   this.exitVideo();
   var obj = Object.create(Kurento.prototype);
   Kurento.apply(obj, arguments);
   this.kurentoVideo = obj;
-  kurentoHandler = obj;
   this.kurentoVideo.setWatchVideo(tag);
 };
 
 
 Kurento.prototype.setScreenShare = function (tag) {
-  this.mediaCallback = this.makeShare;
+  this.mediaCallback = this.makeShare.bind(this);
   this.create(tag);
 };
 
@@ -112,19 +133,18 @@ Kurento.prototype.init = function () {
     console.log("this browser supports websockets");
     this.ws = new WebSocket(this.socketUrl);
 
-    this.ws.onmessage = this.onWSMessage;
-    this.ws.onclose = function (close) {
+    this.ws.onmessage = this.onWSMessage.bind(this);
+    this.ws.onclose = (close) => {
       kurentoManager.exitScreenShare();
       self.onFail("Websocket connection closed");
     };
-    this.ws.onerror = function (error) {
+    this.ws.onerror = (error) => {
       kurentoManager.exitScreenShare();
       self.onFail("Websocket connection error");
     };
-    this.ws.onopen = function() {
-      self.pingInterval = setInterval(self.ping, 3000);
+    this.ws.onopen = function () {
       self.mediaCallback();
-    };
+    }.bind(self);
   }
   else
     console.log("this browser does not support websockets");
@@ -135,15 +155,16 @@ Kurento.prototype.onWSMessage = function (message) {
   switch (parsedMessage.id) {
 
     case 'presenterResponse':
-      kurentoHandler.presenterResponse(parsedMessage);
+      this.presenterResponse(parsedMessage);
+      break;
+    case 'viewerResponse':
+      this.viewerResponse(parsedMessage);
       break;
     case 'stopSharing':
       kurentoManager.exitScreenShare();
       break;
     case 'iceCandidate':
-      kurentoHandler.webRtcPeer.addIceCandidate(parsedMessage.candidate);
-      break;
-    case 'pong':
+      this.webRtcPeer.addIceCandidate(parsedMessage.candidate);
       break;
     default:
       console.error('Unrecognized message', parsedMessage);
@@ -156,12 +177,24 @@ Kurento.prototype.setRenderTag = function (tag) {
 
 Kurento.prototype.presenterResponse = function (message) {
   if (message.response != 'accepted') {
-    var errorMsg = message.message ? message.message : 'Unknow error';
-    console.warn('Call not accepted for the following reason: ' + errorMsg);
+    var errorMsg = message.message ? message.message : 'Unknown error';
+    console.warn('Call not accepted for the following reason: ' + JSON.stringify(errorMsg, null, 2));
     kurentoManager.exitScreenShare();
-    kurentoHandler.onFail(errorMessage);
+    this.onFail(errorMessage);
   } else {
     console.log("Presenter call was accepted with SDP => " + message.sdpAnswer);
+    this.webRtcPeer.processAnswer(message.sdpAnswer);
+  }
+}
+
+Kurento.prototype.viewerResponse = function (message) {
+  if (message.response != 'accepted') {
+    var errorMsg = message.message ? message.message : 'Unknown error';
+    console.warn('Call not accepted for the following reason: ' + errorMsg);
+    kurentoManager.exitScreenShare();
+    this.onFail(errorMessage);
+  } else {
+    console.log("Viewer call was accepted with SDP => " + message.sdpAnswer);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
 }
@@ -170,7 +203,7 @@ Kurento.prototype.serverResponse = function (message) {
   if (message.response != 'accepted') {
     var errorMsg = message.message ? message.message : 'Unknow error';
     console.warn('Call not accepted for the following reason: ' + errorMsg);
-    kurentoHandler.dispose();
+    kurentoManager.exitScreenShare();
   } else {
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
@@ -178,89 +211,105 @@ Kurento.prototype.serverResponse = function (message) {
 
 Kurento.prototype.makeShare = function() {
   var self = this;
-  console.log("Kurento.prototype.makeShare " + JSON.stringify(this.webRtcPeer, null, 2));
   if (!this.webRtcPeer) {
-
     var options = {
-      onicecandidate : this.onIceCandidate
+      onicecandidate : self.onIceCandidate.bind(self)
     }
 
-    console.log("Peer options " + JSON.stringify(options, null, 2));
-
-    kurentoHandler.startScreenStreamFrom();
-
+    this.startScreenStreamFrom();
   }
 }
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
+  let self = this;
   if(error)  {
     console.log("Kurento.prototype.onOfferPresenter Error " + error);
-    kurentoHandler.onFail(error);
+    this.onFail(error);
     return;
   }
 
   var message = {
     id : 'presenter',
     type: 'screenshare',
-    internalMeetingId: kurentoHandler.internalMeetingId,
-    voiceBridge: kurentoHandler.voiceBridge,
-    callerName : kurentoHandler.caller_id_name,
+    role: 'presenter',
+    internalMeetingId: self.internalMeetingId,
+    voiceBridge: self.voiceBridge,
+    callerName : self.caller_id_name,
     sdpOffer : offerSdp,
-    vh: kurentoHandler.vid_height,
-    vw: kurentoHandler.vid_width
+    vh: self.vid_height,
+    vw: self.vid_width
   };
   console.log("onOfferPresenter sending to screenshare server => " + JSON.stringify(message, null, 2));
-  kurentoHandler.sendMessage(message);
+  this.sendMessage(message);
 }
 
 Kurento.prototype.startScreenStreamFrom = function () {
-  var screenInfo = null;
-  var _this = this;
+  var self = this;
   if (!!window.chrome) {
-    if (!_this.chromeExtension) {
-      _this.logError({
+    if (!self.chromeExtension) {
+      self.logError({
         status:  'failed',
         message: 'Missing Chrome Extension key',
       });
-      _this.onFail();
+      self.onFail();
       return;
     }
   }
   // TODO it would be nice to check those constraints
-  _this.screenConstraints.video = {};
+  if (typeof screenConstraints !== undefined) {
+    self.screenConstraints = {};
+  }
+  self.screenConstraints.video = {};
 
+  console.log(self);
   var options = {
-    //localVideo: this.renderTag,
-    onicecandidate : _this.onIceCandidate,
-    mediaConstraints : _this.screenConstraints,
+    localVideo: document.getElementById(this.renderTag),
+    onicecandidate : self.onIceCandidate.bind(self),
+    mediaConstraints : self.screenConstraints,
     sendSource : 'desktop'
   };
 
   console.log(" Peer options => " + JSON.stringify(options, null, 2));
 
-  _this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, function(error) {
+  self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, function(error) {
     if(error)  {
       console.log("WebRtcPeerSendonly constructor error " + JSON.stringify(error, null, 2));
-      kurentoHandler.onFail(error);
+      self.onFail(error);
       return kurentoManager.exitScreenShare();
     }
 
-    _this.webRtcPeer.generateOffer(_this.onOfferPresenter);
+    self.webRtcPeer.generateOffer(self.onOfferPresenter.bind(self));
     console.log("Generated peer offer w/ options "  + JSON.stringify(options));
   });
 }
 
-Kurento.prototype.onIceCandidate = function(candidate) {
+Kurento.prototype.onIceCandidate = function (candidate) {
+  let self = this;
   console.log('Local candidate' + JSON.stringify(candidate));
 
   var message = {
     id : 'onIceCandidate',
+    role: 'presenter',
     type: 'screenshare',
-    voiceBridge: kurentoHandler.voiceBridge,
+    voiceBridge: self.voiceBridge,
     candidate : candidate
   }
-  console.log("this object " + JSON.stringify(this, null, 2));
-  kurentoHandler.sendMessage(message);
+  this.sendMessage(message);
+}
+
+Kurento.prototype.onViewerIceCandidate = function (candidate) {
+  let self = this;
+  console.log('Viewer local candidate' + JSON.stringify(candidate));
+
+  var message = {
+    id : 'viewerIceCandidate',
+    role: 'viewer',
+    type: 'screenshare',
+    voiceBridge: self.voiceBridge,
+    candidate : candidate,
+    callerName: self.caller_id_name
+  }
+  this.sendMessage(message);
 }
 
 Kurento.prototype.setWatchVideo = function (tag) {
@@ -276,60 +325,50 @@ Kurento.prototype.viewer = function () {
   if (!this.webRtcPeer) {
 
     var options = {
-      remoteVideo: this.renderTag,
-      onicecandidate : onIceCandidate
+      remoteVideo: document.getElementById(this.renderTag),
+      onicecandidate : this.onViewerIceCandidate.bind(this)
     }
 
-    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
+    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
       if(error) {
-        return kurentoHandler.onFail(error);
+        return self.onFail(error);
       }
 
-      this.generateOffer(onOfferViewer);
+      this.generateOffer(self.onOfferViewer.bind(self));
     });
   }
 };
 
 Kurento.prototype.onOfferViewer = function (error, offerSdp) {
+  let self = this;
   if(error)  {
     console.log("Kurento.prototype.onOfferViewer Error " + error);
-    return kurentoHandler.onFail();
+    return this.onFail();
   }
   var message = {
     id : 'viewer',
     type: 'screenshare',
-    internalMeetingId: kurentoHandler.internalMeetingId,
-    voiceBridge: kurentoHandler.voiceBridge,
-    callerName : kurentoHandler.caller_id_name,
+    role: 'viewer',
+    internalMeetingId: self.internalMeetingId,
+    voiceBridge: self.voiceBridge,
+    callerName : self.caller_id_name,
     sdpOffer : offerSdp
   };
 
   console.log("onOfferViewer sending to screenshare server => " + JSON.stringify(message, null, 2));
-  kurentoHandler.sendMessage(message);
+  this.sendMessage(message);
 };
 
-Kurento.prototype.ping = function() {
-   var message = {
-    id : 'ping',
-    type: 'screenshare',
-    internalMeetingId: kurentoHandler.internalMeetingId,
-    voiceBridge: kurentoHandler.voiceBridge,
-    callerName : kurentoHandler.caller_id_name,
-  };
-
-  kurentoHandler.sendMessage(message);
-}
-
 Kurento.prototype.stop = function() {
-  if (this.webRtcPeer) {
-    var message = {
-      id : 'stop',
-      type : 'screenshare',
-      voiceBridge: kurentoHandler.voiceBridge
-    }
-    kurentoHandler.sendMessage(message);
-    kurentoHandler.disposeScreenShare();
-  }
+  //if (this.webRtcPeer) {
+  //  var message = {
+  //    id : 'stop',
+  //    type : 'screenshare',
+  //    voiceBridge: kurentoHandler.voiceBridge
+  //  }
+  //  kurentoHandler.sendMessage(message);
+  //  kurentoHandler.disposeScreenShare();
+  //}
 }
 
 Kurento.prototype.dispose = function() {
@@ -360,19 +399,6 @@ Kurento.prototype.logError = function (obj) {
   console.error(obj);
 };
 
-Kurento.prototype.getChromeScreenConstraints = function(callback, extensionId) {
-  chrome.runtime.sendMessage(extensionId, {
-    getStream: true,
-    sources: [
-      "window",
-      "screen",
-      "tab"
-    ]},
-    function(response) {
-      console.log(response);
-      callback(response);
-    });
-};
 
 Kurento.normalizeCallback = function (callback) {
   if (typeof callback == 'function') {
@@ -389,30 +415,42 @@ Kurento.normalizeCallback = function (callback) {
 
 // this function explains how to use above methods/objects
 window.getScreenConstraints = function(sendSource, callback) {
-  var _this = this;
-  var chromeMediaSourceId = sendSource;
-  if(isChrome) {
-    kurentoHandler.getChromeScreenConstraints (function (constraints) {
+  let chromeMediaSourceId = sendSource;
+  let screenConstraints = {video: {}};
 
-      var sourceId = constraints.streamId;
+  if(isChrome) {
+    getChromeScreenConstraints ((constraints) => {
+      let sourceId = constraints.streamId;
 
       // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
-      kurentoHandler.screenConstraints.video.chromeMediaSource = { exact: [sendSource]};
-      kurentoHandler.screenConstraints.video.chromeMediaSourceId= sourceId;
-      console.log("getScreenConstraints for Chrome returns => " +JSON.stringify(kurentoHandler.screenConstraints, null, 2));
+      screenConstraints.video.chromeMediaSource = { exact: [sendSource]};
+      screenConstraints.video.chromeMediaSourceId = sourceId;
+      console.log("getScreenConstraints for Chrome returns => ");
+      console.log(screenConstraints);
       // now invoking native getUserMedia API
-      callback(null, kurentoHandler.screenConstraints);
+      callback(null, screenConstraints);
 
-    }, kurentoHandler.chromeExtension);
+    }, chromeExtension);
   }
   else if (isFirefox) {
-    kurentoHandler.screenConstraints.video.mediaSource= "screen";
-    kurentoHandler.screenConstraints.video.width= {max: kurentoHandler.vid_width};
-    kurentoHandler.screenConstraints.video.height = {max:  kurentoHandler.vid_height};
+    screenConstraints.video.mediaSource= "window";
+    screenConstraints.video.width= {max: "1280"};
+    screenConstraints.video.height = {max:  "720"};
 
-    console.log("getScreenConstraints for Firefox returns => " +JSON.stringify(kurentoHandler.screenConstraints, null, 2));
+    console.log("getScreenConstraints for Firefox returns => ");
+    console.log(screenConstraints);
     // now invoking native getUserMedia API
-    callback(null, kurentoHandler.screenConstraints);
+    callback(null, screenConstraints);
+  }
+  else if(isSafari) {
+    screenConstraints.video.mediaSource= "screen";
+    screenConstraints.video.width= {max: window.screen.width};
+    screenConstraints.video.height = {max:  window.screen.vid_height};
+
+    console.log("getScreenConstraints for Safari returns => ");
+    console.log(screenConstraints);
+    // now invoking native getUserMedia API
+    callback(null, screenConstraints);
   }
 }
 
@@ -437,3 +475,22 @@ window.kurentoWatchVideo = function () {
   window.kurentoInitialize();
   window.kurentoManager.joinWatchVideo.apply(window.kurentoManager, arguments);
 };
+
+window.kurentoExitVideo = function () {
+  window.kurentoInitialize();
+  window.kurentoManager.exitVideo();
+}
+
+window.getChromeScreenConstraints = function(callback, extensionId) {
+  chrome.runtime.sendMessage(extensionId, {
+    getStream: true,
+    sources: [
+      "window",
+      "screen",
+      "tab"
+    ]},
+    function(response) {
+      console.log(response);
+      callback(response);
+    });
+};;

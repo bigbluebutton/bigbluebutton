@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles';
+import { styles } from './styles';
 import MessageListItem from './message-list-item/component';
 
 const propTypes = {

@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.chat.views
 {
   import mx.collections.ArrayCollection;
+  import mx.collections.Sort;
   
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
@@ -11,11 +12,15 @@ package org.bigbluebutton.modules.chat.views
   public class ChatWindowEventHandler
   {
     [Bindable] public var users:ArrayCollection = new ArrayCollection();
-    
-    
+
+	private var sort:Sort;
+
     public function ChatWindowEventHandler()
     {
-      users.refresh();
+		sort = new Sort();
+		sort.compareFunction = sortFunction;
+		users.sort = sort;
+        users.refresh();
     }
     
     public function populateAllUsers():void {
@@ -67,6 +72,23 @@ package org.bigbluebutton.modules.chat.views
     public function handleUserLeftEvent(userId: String):void {
       removeUser(userId, users);
     }
-    
+
+	private function sortFunction(a:Object, b:Object, array:Array = null):int {
+		/*
+		* Check name (case-insensitive) in the event of a tie up above. If the name
+		* is the same then use userID which should be unique making the order the same
+		* across all clients.
+		*/
+		if (a.name.toLowerCase() < b.name.toLowerCase())
+			return -1;
+		else if (a.name.toLowerCase() > b.name.toLowerCase())
+			return 1;
+		else if (a.userId.toLowerCase() > b.userId.toLowerCase())
+			return -1;
+		else if (a.userId.toLowerCase() < b.userId.toLowerCase())
+			return 1;
+		return 0;
+	}
+
   }
 }
