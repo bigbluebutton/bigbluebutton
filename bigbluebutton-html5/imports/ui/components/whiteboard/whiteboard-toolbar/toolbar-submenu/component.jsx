@@ -162,12 +162,8 @@ class ToolbarSubmenu extends Component {
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 
-    if (type === 'thickness') {
+    if (type === 'thickness' || type === 'font-size') {
       return obj.value.toString();
-    }
-
-    if (type === 'font-size') {
-      return obj.label.toString();
     }
 
     return '';
