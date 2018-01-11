@@ -48,10 +48,6 @@ class Tooltip extends Component {
 
   onShow() {
     document.addEventListener('keyup', this.handleEscapeHide);
-    window.setTimeout(() => {
-      this.tooltip.tooltips[0].hide();
-      document.removeEventListener('keyup', this.handleEscapeHide);
-    }, 5000);
   }
 
   onHide() {
