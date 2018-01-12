@@ -420,6 +420,11 @@ window.getScreenConstraints = function(sendSource, callback) {
 
   if(isChrome) {
     getChromeScreenConstraints ((constraints) => {
+      if(!constraints){
+        document.dispatchEvent(new Event("installChromeExtension"));
+        return;
+      }
+      extensionInstalled = true;
       let sourceId = constraints.streamId;
 
       // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
