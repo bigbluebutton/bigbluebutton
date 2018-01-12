@@ -45,49 +45,38 @@ package org.bigbluebutton.lib.presentation.models {
 					return p;
 				}
 			}
-			var presentation:Presentation = new Presentation(presentationName, id, changeCurrentPresentation, numberOfSlides, current, downloadable);
+			var presentation:Presentation = new Presentation(presentationName, id, numberOfSlides, current, downloadable);
 			presentation.slideChangeSignal.add(slideChangeSignal.dispatch);
 			_presentations.addItem(presentation);
 			return presentation;
 		}
 		
-		public function removePresentation(presentationName:String):void {
+		public function removePresentation(presentationId:String):void {
 			for (var i:int = 0; i < _presentations.length; i++) {
 				var p:Presentation = _presentations[i];
-				if (p.fileName == presentationName) {
-					trace("Removing presentation " + presentationName);
+				if (p.id == presentationId) {
+					trace("Removing presentation " + presentationId);
 					_presentations.removeItemAt(i);
 				}
 			}
 		}
 		
-		public function getPresentation(presentationName:String):Presentation {
-			trace("PresentProxy::getPresentation: presentationName=" + presentationName);
+		public function getPresentationById(presentationId:String):Presentation {
+			trace("PresentProxy::getPresentation: presentationId=" + presentationId);
 			for (var i:int = 0; i < _presentations.length; i++) {
 				var p:Presentation = _presentations[i];
-				if (p.fileName == presentationName) {
+				if (p.id == presentationId) {
 					return p;
 				}
 			}
 			return null;
 		}
 		
-		public function getPresentationByID(presentationID:String):Presentation {
-			trace("PresentProxy::getPresentation: presentationID=" + presentationID);
-			for (var i:int = 0; i < _presentations.length; i++) {
-				var p:Presentation = _presentations[i];
-				if (p.id == presentationID) {
-					return p;
-				}
-			}
-			return null;
-		}
-		
-		public function addAnnotationHistory(whiteboardID:String, annotationArray:Array):void {
-/*			var whiteboardIDParts:Array = whiteboardID.split("/");
-			var presentationID:String = whiteboardIDParts[0];
-			var pageNumber:int = parseInt(whiteboardIDParts[1]) - 1;
-			var presentation:Presentation = getPresentationByID(presentationID);
+		public function addAnnotationHistory(whiteboardId:String, annotationArray:Array):void {
+/*			var whiteboardIdParts:Array = whiteboardId.split("/");
+			var presentationId:String = whiteboardIdParts[0];
+			var pageNumber:int = parseInt(whiteboardIdParts[1]) - 1;
+			var presentation:Presentation = getPresentationById(presentationId);
 			if (presentation != null) {
 				if (presentation.addAnnotationHistory(pageNumber, annotationArray)) {
 					if (presentation == _currentPresentation && pageNumber == _currentPresentation.currentSlideNum) {
@@ -129,21 +118,33 @@ package org.bigbluebutton.lib.presentation.models {
 			}
 		}
 		
-		private function changeCurrentPresentation(p:Presentation):void {
-			currentPresentation = p;
+		public function setCurrentPresentation(presentationId:String):void {
+			if (currentPresentation && currentPresentation.id != presentationId) {
+				return;
+			}
+			
+			var nextPres:Presentation = getPresentationById(presentationId);
+			
+			if (nextPres != null) {
+				if (_currentPresentation != null) {
+					_currentPresentation.current = false;
+				}
+				_currentPresentation = nextPres;
+				_currentPresentation.current = true;
+				_presentationChangeSignal.dispatch();
+			}
+		}
+		
+		public function setCurrentSlide(presentationId:String, slideId:String):void {
+			var pres:Presentation = getPresentationById(presentationId);
+			
+			if (pres != null) {
+				pres.setCurrentSlide(slideId);
+			}
 		}
 		
 		public function get currentPresentation():Presentation {
 			return _currentPresentation;
-		}
-		
-		public function set currentPresentation(p:Presentation):void {
-			if (_currentPresentation != null) {
-				_currentPresentation.current = false;
-			}
-			_currentPresentation = p;
-			_currentPresentation.current = true;
-			_presentationChangeSignal.dispatch();
 		}
 		
 		public function get presentationChangeSignal():ISignal {

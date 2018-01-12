@@ -26,6 +26,8 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		private static const CONVERSION_COMPLETED_KEY:String = "CONVERSION_COMPLETED";
 		
+		private static const DEFAULT_POD_ID:String = "DEFAULT_PRESENTATION_POD";
+		
 		public var userSession:IUserSession;
 		
 		public function PresentMessageReceiver() {
@@ -33,27 +35,8 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		public function onMessage(messageName:String, message:Object):void {
 			switch (messageName) {
-
-				case "conversionUpdateMessageCallback":
-					handleConversionUpdateMessageCallback(message);
-					break;
-				case "generatedSlideUpdateMessageCallback":
-					handleGeneratedSlideUpdateMessageCallback(message);
-					break;
-				case "pageCountExceededUpdateMessageCallback":
-					handlePageCountExceededUpdateMessageCallback(message);
-					break;
-				case "removePresentationCallback":
-					handleRemovePresentationCallback(message);
-					break;
-				case "sharePresentationCallback":
-					handleSharePresentationCallback(message);
-					
-					
-					
-					
-				case "GetPresentationInfoRespMsg":
-					handleGetPresentationInfoRespMsg(message)
+				case "GetAllPresentationPodsRespMsg":
+					handleGetAllPresentationPodsRespMsg(message)
 					break;
 				case "PresentationConversionCompletedEvtMsg":
 					handlePresentationConversionCompletedEvtMsg(message);
@@ -61,20 +44,30 @@ package org.bigbluebutton.lib.presentation.services {
 				case "SetCurrentPageEvtMsg":
 					handleSetCurrentPageEvtMsg(message);
 					break;
+				case "SetCurrentPresentationEvtMsg":
+					handleSetCurrentPresentationEvtMsg(message);
+					break;
 				case "ResizeAndMovePageEvtMsg":
 					handleResizeAndMovePageEvtMsg(message);
+					break;
+				case "RemovePresentationEvtMsg":
+					handleRemovePresentationEvtMsg(message);
 					break;
 				default:
 					break;
 			}
 		}
 		
-		private function handleGetPresentationInfoRespMsg(msg:Object):void {
-			trace("PresentMessageReceiver::handleGetPresentationInfoRespMsg()");
-			var presentations:Array = msg.body.presentations as Array;
-			if (msg.body.presentations) {
-				for (var i:int = 0; i < presentations.length; i++) {
-					addPresentation(presentations[i]);
+		private function handleGetAllPresentationPodsRespMsg(msg:Object):void {
+			trace("PresentMessageReceiver::handleGetAllPresentationPodsRespMsg()");
+			var podsArr:Array = msg.body.pods as Array;
+			for (var j:int = 0; j < podsArr.length; j++) {
+				var podObj:Object = podsArr[j] as Object;
+				if (podObj.id == DEFAULT_POD_ID) {
+					var presentations:Array = podObj.presentations as Array;
+					for (var k:int = 0; k < presentations.length; k++) {
+						addPresentation(presentations[k] as Object);
+					}
 				}
 			}
 		}
@@ -88,46 +81,48 @@ package org.bigbluebutton.lib.presentation.services {
 				presentation.add(new Slide(s.id, s.num, s.swfUri, s.thumbUri, s.txtUri, s.current, s.xOffset, s.yOffset, s.widthRatio, s.heightRatio));
 			}
 			if (presentation.current) {
-				presentation.show();
+				userSession.presentationList.setCurrentPresentation(presentationObject.id);
 			}
 		}
 		
 		public function handlePresentationConversionCompletedEvtMsg(msg:Object):void {
 			trace("PresentMessageReceiver::handlePresentationConversionCompletedEvtMsg() -- new presentation [" + msg.body.presentation.name + "] uploaded");
-			addPresentation(msg.body.presentation);
+			if (msg.body.podId == DEFAULT_POD_ID) {
+				addPresentation(msg.body.presentation);
+			}
+		}
+		
+		public function handleSetCurrentPresentationEvtMsg(msg:Object):void {
+			trace("PresentMessageReceiver::handleSetCurrentPresentationEvtMsg() -- change current presentation [" + msg.body.presentationId + "]");
+			if (msg.body.podId == DEFAULT_POD_ID) {
+				userSession.presentationList.setCurrentPresentation(msg.body.presentationId);
+			}
 		}
 		
 		private function handleSetCurrentPageEvtMsg(msg:Object):void {
 			trace("PresentMessageReceiver::handleSetCurrentPageEvtMsg() -- going to slide number [" + msg.body.pageId + "]");
-			userSession.presentationList.currentPresentation.setCurrentSlide(msg.body.pageId);
+			if (msg.body.podId == DEFAULT_POD_ID) {
+				userSession.presentationList.setCurrentSlide(msg.body.presentationId, msg.body.pageId);
+			}
 		}
 		
 		private function handleResizeAndMovePageEvtMsg(msg:Object):void {
 			trace("PresentMessageReceiver::handleResizeAndMovePageEvtMsg()");
-			userSession.presentationList.setViewedRegion(msg.body.presentationId, msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio);
-		}
-		
-		
-		
-		
-		
-		
-
-		
-		private function handleRemovePresentationCallback(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handleRemovePresentationCallback() -- removing presentation  [" + msg.name + "]");
-			userSession.presentationList.removePresentation(msg.name);
-		}
-		
-		private function handleSharePresentationCallback(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handleSharePresentationCallback() -- now showing presentation [" + msg.presentation.name + "]");
-			var presentation:Presentation = userSession.presentationList.getPresentation(msg.presentation.name);
-			if (presentation != null) {
-				presentation.show();
+			if (msg.body.podId == DEFAULT_POD_ID) {
+				userSession.presentationList.setViewedRegion(msg.body.presentationId, msg.body.pageId, msg.body.xOffset, msg.body.yOffset, msg.body.widthRatio, msg.body.heightRatio);
 			}
 		}
+		
+		private function handleRemovePresentationEvtMsg(msg:Object):void {
+			trace("PresentMessageReceiver::handleRemovePresentationEvtMsg() -- removing presentation  [" + msg.body.presentationId + "]");
+			if (msg.body.podId == DEFAULT_POD_ID) {
+				userSession.presentationList.removePresentation(msg.body.presentationId);
+			}
+		}
+		
+		
+		
+		
 		
 		public function handlePageCountExceededUpdateMessageCallback(m:Object):void {
 			trace("PresentMessageReceiver::handlePageCountExceededUpdateMessageCallback()");

@@ -16,7 +16,7 @@ package org.bigbluebutton.lib.main.commands {
 		
 		override public function execute():void {
 			trace("GoToSlideCommand.execute()");
-			presentationService.setCurrentPage(presentationId, pageId);
+			presentationService.setCurrentPage("DEFAULT_PRESENTATION_POD", presentationId, pageId);
 		}
 	}
 }
