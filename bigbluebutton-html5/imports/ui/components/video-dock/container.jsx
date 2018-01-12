@@ -10,8 +10,6 @@ const VideoDockContainer = ({ children, ...props }) => (
 );
 
 export default withTracker(() => ({
-  sendUserShareWebcam: VideoService.sendUserShareWebcam,
-  sendUserUnshareWebcam: VideoService.sendUserUnshareWebcam,
   users: VideoService.getAllUsers(),
-  userId: VideoService.userId,
+  userId: VideoService.userId(),
 }))(VideoDockContainer);

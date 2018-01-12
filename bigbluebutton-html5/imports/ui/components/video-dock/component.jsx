@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import { styles } from './styles';
 import { defineMessages, injectIntl } from 'react-intl';
+import VideoService from './service';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
+import { toast } from 'react-toastify';
+import Toast from '/imports/ui/components/toast/component';
 
 const intlMessages = defineMessages({
   iceCandidateError: {
@@ -58,9 +61,6 @@ class VideoDock extends Component {
       videos: {},
       sharedWebcam : false,
     };
-
-    this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
-    this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
@@ -220,6 +220,7 @@ class VideoDock extends Component {
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
 
     if (shareWebcam) {
+      VideoService.joiningVideo();
       this.setState({sharedWebcam: true});
       this.myId = id;
       this.initWebRTC(id, true);
@@ -287,7 +288,7 @@ class VideoDock extends Component {
 
         that.destroyWebRTCPeer(id);
         that.destroyVideoTag(id);
-
+        VideoService.resetState();
         return log('error', error);
       }
 
@@ -403,9 +404,11 @@ class VideoDock extends Component {
   }
 
   unshareWebcam() {
+    VideoService.exitingVideo();
     log('info', 'Unsharing webcam');
-    const { users, userId } = this.props;
-    this.sendUserUnshareWebcam(userId);
+    const { userId } = this.props;
+    VideoService.sendUserUnshareWebcam(userId);
+    VideoService.exitedVideo();
   }
 
   startResponse(message) {
@@ -428,7 +431,10 @@ class VideoDock extends Component {
       }
     });
 
-    this.sendUserShareWebcam(id);
+    if (message.cameraId == this.props.userId) {
+      log('info', "camera id sendusershare ", id);
+      VideoService.sendUserShareWebcam(id);
+    }
   }
 
   sendMessage(message) {
@@ -473,6 +479,11 @@ class VideoDock extends Component {
 
   handlePlayStart(message) {
     log('info', 'Handle play start <===================');
+
+    if (message.cameraId == this.props.userId) {
+      log('info', "Dae ze caralhow ");
+      VideoService.joinedVideo();
+    }
   }
 
   handleError(message) {

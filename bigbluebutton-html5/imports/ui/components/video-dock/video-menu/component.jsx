@@ -14,48 +14,47 @@ const intlMessages = defineMessages({
   },
 });
 
-const JoinVideoOptions = (props) => {
-  const {
-    intl,
-    isSharingVideo,
-    handleJoinVideo,
-    handleCloseVideo,
-  } = props;
+class JoinVideoOptions extends React.Component {
+  render() {
+    const {
+      intl,
+      isWaitingResponse,
+      isConnected,
+      isSharingVideo,
+      handleJoinVideo,
+      handleCloseVideo,
+    } = this.props;
 
-  if (isSharingVideo) {
+    if (isSharingVideo) {
+        return (
+          <Button
+            onClick={handleCloseVideo}
+            label={intl.formatMessage(intlMessages.leaveVideo)}
+            hideLabel
+            aria-label={intl.formatMessage(intlMessages.leaveVideo)}
+            color={'danger'}
+            icon={'video'}
+            size={'lg'}
+            circle
+            disabled={isWaitingResponse}
+          />
+        );
+    }
+
     return (
       <Button
-        onClick={handleCloseVideo}
-        label={intl.formatMessage(intlMessages.leaveVideo)}
+        onClick={handleJoinVideo}
+        label={intl.formatMessage(intlMessages.joinVideo)}
         hideLabel
-        aria-label={intl.formatMessage(intlMessages.leaveVideo)}
-        color="danger"
-        icon="video"
-        size="lg"
+        aria-label={intl.formatMessage(intlMessages.joinVideo)}
+        color={'primary'}
+        icon={'video_off'}
+        size={'lg'}
         circle
+        disabled={isWaitingResponse || (!isSharingVideo && isConnected)}
       />
     );
   }
-
-  return (
-    <Button
-      onClick={handleJoinVideo}
-      label={intl.formatMessage(intlMessages.joinVideo)}
-      hideLabel
-      aria-label={intl.formatMessage(intlMessages.joinVideo)}
-      color="primary"
-      icon="video_off"
-      size="lg"
-      circle
-    />
-  );
-};
-
-JoinVideoOptions.propTypes = {
-  intl: intlShape.isRequired,
-  isSharingVideo: PropTypes.bool.isRequired,
-  handleJoinVideo: PropTypes.func.isRequired,
-  handleCloseVideo: PropTypes.func.isRequired,
 };
 
 export default injectIntl(JoinVideoOptions);
