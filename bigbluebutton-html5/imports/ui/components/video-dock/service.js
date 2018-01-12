@@ -1,5 +1,6 @@
 import { makeCall } from '/imports/ui/services/api';
 import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
 
 const joinVideo = () => {
   const joinVideoEvent = new Event('joinVideo');
@@ -21,6 +22,9 @@ const sendUserUnshareWebcam = (stream) => {
 
 const getAllUsers = () => Users.find().fetch();
 
+const userId = Auth.userID;
+
 export default {
   sendUserShareWebcam, sendUserUnshareWebcam, joinVideo, exitVideo, getAllUsers,
+  userId,
 };

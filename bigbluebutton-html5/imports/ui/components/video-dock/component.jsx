@@ -78,11 +78,10 @@ export default class VideoDock extends Component {
 
   componentDidMount() {
     const ws = this.ws;
-    const { users } = this.props;
-    const id = users[0].userId;
+    const { users, userId } = this.props;
 
     for (let i = 0; i < users.length; i++) {
-      if (users[i].has_stream && users[i].userId !== id) {
+      if (users[i].has_stream && users[i].userId !== userId) {
         this.start(users[i].userId, false);
       }
     }
@@ -304,7 +303,7 @@ export default class VideoDock extends Component {
     const { users } = this.props;
     this.sendMessage({
       type: 'video',
-      role: id == users[0].userId ? 'share' : 'viewer',
+      role: id == this.props ? 'share' : 'viewer',
       id: 'stop',
       cameraId: id,
     });
@@ -350,11 +349,10 @@ export default class VideoDock extends Component {
   }
 
   shareWebcam() {
-    const { users } = this.props;
-    const id = users[0].userId;
+    const { users, userId } = this.props;
 
     if (this.connectedToMediaServer()) {
-      this.start(id, true);
+      this.start(userId, true);
     } else {
       log("error", "Not connected to media server BRA");
     }
@@ -362,9 +360,8 @@ export default class VideoDock extends Component {
 
   unshareWebcam() {
     log('info', 'Unsharing webcam');
-    const { users } = this.props;
-    const id = users[0].userId;
-    this.sendUserUnshareWebcam(id);
+    const { users, userId } = this.props;
+    this.sendUserUnshareWebcam(userId);
   }
 
   startResponse(message) {
@@ -423,7 +420,7 @@ export default class VideoDock extends Component {
 
     const { users } = this.props;
 
-    if (message.cameraId == users[0].userId) {
+    if (message.cameraId == this.props) {
       this.unshareWebcam();
     } else {
       this.stop(message.cameraId);
@@ -466,9 +463,8 @@ export default class VideoDock extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { users } = this.props;
+    const { users, userId } = this.props;
     const nextUsers = nextProps.users;
-    const id = users[0].userId;
 
     if (users) {
       let suc = false;
@@ -480,7 +476,7 @@ export default class VideoDock extends Component {
             console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
             if (nextUsers[i].has_stream) {
-              if (id !== users[i].userId) {
+              if (userId !== users[i].userId) {
                 this.start(users[i].userId, false);
               }
             } else {
