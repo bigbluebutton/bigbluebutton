@@ -40,6 +40,8 @@
     "app.userList.menu.promoteUser.label": "Promote {0} to moderator",
     "app.userList.menu.demoteUser.label": "Demote {0} to viewer",
     "app.media.label": "Media",
+    "app.meeting.ended":"This session has ended",
+    "app.meeting.endedMessage":"You will be forwarded back to the home screen",
     "app.presentation.presentationToolbar.prevSlideLabel": "Previous slide",
     "app.presentation.presentationToolbar.prevSlideDesc": "Change the presentation to the previous slide",
     "app.presentation.presentationToolbar.nextSlideLabel": "Next slide",
@@ -279,5 +281,6 @@
     "app.video.permissionError": "Error on sharing webcam. Please check permissions",
     "app.video.sharingError": "Error on sharing webcam",
     "app.video.chromeExtensionError": "You must install",
-    "app.video.chromeExtensionErrorLink": "this Chrome Extension"
+    "app.video.chromeExtensionErrorLink": "this Chrome Extension",
+    "app.meeting.endNotification.ok.label": "OK"
 }
