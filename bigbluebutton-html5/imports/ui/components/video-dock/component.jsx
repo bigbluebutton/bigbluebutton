@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ScreenshareContainer from '/imports/ui/components/screenshare/container';
 import { styles } from './styles';
 import { log } from '/imports/ui/services/api';
 
@@ -300,10 +299,10 @@ export default class VideoDock extends Component {
   }
 
   stop(id) {
-    const { users } = this.props;
+    const { userId } = this.props;
     this.sendMessage({
       type: 'video',
-      role: id == this.props ? 'share' : 'viewer',
+      role: id == userId ? 'share' : 'viewer',
       id: 'stop',
       cameraId: id,
     });
