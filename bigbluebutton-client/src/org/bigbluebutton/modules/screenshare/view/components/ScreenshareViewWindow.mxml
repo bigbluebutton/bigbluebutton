@@ -29,6 +29,8 @@
            initialize="init()"
 		   layout="absolute"
            creationComplete="onCreationComplete()"
+		   verticalScrollPolicy="off"
+		   horizontalScrollPolicy="off"
            implements="org.bigbluebutton.common.IBbbModuleWindow"
            xmlns:mate="http://mate.asfusion.com/"
            title="{    ResourceUtil.getInstance().getString('bbb.screenshareView.title')    }"
@@ -256,8 +258,8 @@
 				videoHolder.width = video.width;
 				videoHolder.height = video.height;
 
-				this.verticalScrollPolicy = videoCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
-				this.horizontalScrollPolicy = videoCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
+				videoCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
+				videoCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
 			}
 
 			private function fitWindowToVideo():void {
@@ -284,8 +286,8 @@
 					videoHolder.height = videoHeight;
 				}
 				
-				this.verticalScrollPolicy = videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
-				this.horizontalScrollPolicy = videoCanvas.horizontalScrollPolicy = ScrollPolicy.AUTO;
+				videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
+				videoCanvas.horizontalScrollPolicy = ScrollPolicy.AUTO;
 			}
 
 			private function determineHowToDisplayVideo():void {
