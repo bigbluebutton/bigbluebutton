@@ -291,7 +291,6 @@ export default class VideoDock extends Component {
         });
       }
       this.didSDPAnswered = true;
-      VideoService.joinedVideo();
     });
   }
 
@@ -395,7 +394,9 @@ export default class VideoDock extends Component {
       }
     });
 
-    this.sendUserShareWebcam(id);
+    if (message.cameraId == users[0].userId) {
+      this.sendUserShareWebcam(id);
+    }
   }
 
   sendMessage(message) {
@@ -440,6 +441,10 @@ export default class VideoDock extends Component {
 
   handlePlayStart(message) {
     log('info', 'Handle play start <===================');
+
+    if (message.cameraId == this.props.users[0].userId) {
+      VideoService.joinedVideo();
+    }
   }
 
   handleError(message) {
