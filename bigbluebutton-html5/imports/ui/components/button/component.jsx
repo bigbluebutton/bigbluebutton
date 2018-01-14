@@ -117,21 +117,25 @@ export default class Button extends BaseButton {
       circle,
       hideLabel,
       label,
-      'aria-label' : ariaLabel
+      'aria-label': ariaLabel,
     } = this.props;
 
     const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
 
     if (hideLabel) {
-      const tooltipLabel = label ? label : ariaLabel;
+      const tooltipLabel = label || ariaLabel;
 
-      return (
+      const isMobile
+      = /Android|iPhone|iPad|Windows Phone|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
+
+      return isMobile
+        ? this[renderFuncName]()
+        :
         <Tooltip
           title={tooltipLabel}
         >
           {this[renderFuncName]()}
-        </Tooltip>
-      );
+        </Tooltip>;
     }
 
     return this[renderFuncName]();
