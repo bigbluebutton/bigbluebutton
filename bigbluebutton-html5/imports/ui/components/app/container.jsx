@@ -37,17 +37,9 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  removedMessage: {
-    id: 'app.error.removed',
-    description: 'Message when the user is removed from the conference',
-  },
   waitingApprovalMessage: {
     id: 'app.guest.waiting',
     description: 'Message while a guest is waiting to be approved',
-  },
-  endMeetingMessage: {
-    id: 'app.error.meeting.ended',
-    description: 'You have logged out of the conference',
   },
 });
 
