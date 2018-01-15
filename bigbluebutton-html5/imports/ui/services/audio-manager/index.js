@@ -129,7 +129,7 @@ class AudioManager {
     // listen to the VoiceUsers changes and update the flag
     if(!this.muteHandle) {
       const query = VoiceUsers.find({ intId: Auth.userID });
-      this.muteHandle = query.observeChanges({ // keep track of mute/unmute in case of Flash changing it
+      this.muteHandle = query.observeChanges({
         changed: (id, fields) => {
           if (fields.muted === this.isMuted) return;
           this.isMuted = fields.muted;
