@@ -78,12 +78,12 @@ module.exports = class WebServer {
           Logger.info("[WebServer] duplicated permanent hook", error);
         } else if (hook != null) {
           Logger.info("[WebServer] permanent hook created successfully");
-          typeof callback === 'function' ? callback(null,"p") : undefined;
         } else {
           Logger.info("[WebServer] error creating permanent hook");
         }
       });
     }
+    typeof callback === 'function' ? callback(null,"p") : undefined;
   }
 
   _destroy(req, res, next) {
