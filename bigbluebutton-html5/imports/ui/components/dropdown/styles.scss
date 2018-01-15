@@ -82,6 +82,7 @@ $dropdown-caret-height: 8px;
 
   @include mq($small-only) {
     display: block;
+    bottom: 0.8rem;
   }
 }
 
