@@ -5,11 +5,11 @@
  */
 $user-avatar-border: $color-gray-light;
 $user-avatar-text: $color-white;
-$user-indicators-offset: -.15rem;
+$user-indicators-offset: -5px;
 $user-indicator-presenter-bg: $color-primary;
 $user-indicator-voice-bg: $color-success;
 $user-indicator-muted-bg: $color-danger;
-$user-list-bg: #F3F6F9;
+$user-list-bg: $color-off-white;
 
 .avatar {
   position: relative;
@@ -20,7 +20,7 @@ $user-list-bg: #F3F6F9;
   text-align: center;
   text-transform: capitalize;
   transition: .3s ease-in-out;
-  font-size: 1rem;
+  font-size: .85rem;
 
   &:after, &:before {
     content: "";
@@ -31,9 +31,9 @@ $user-list-bg: #F3F6F9;
     color: inherit;
     top: auto;
     left: auto;
-    bottom: $user-indicators-offset / 2;
+    bottom: $user-indicators-offset;
     right: $user-indicators-offset;
-    border: 1.25px solid $user-list-bg;
+    border: 1.5px solid $user-list-bg;
     border-radius: 50%;
     background-color: $user-indicator-voice-bg;
     color: $user-avatar-text;
@@ -60,7 +60,7 @@ $user-list-bg: #F3F6F9;
   &:before {
     content: "\00a0\e90b\00a0";
     opacity: 1;
-    top: $user-indicators-offset / 2;
+    top: $user-indicators-offset;
     left: $user-indicators-offset;
     bottom: auto;
     right: auto;

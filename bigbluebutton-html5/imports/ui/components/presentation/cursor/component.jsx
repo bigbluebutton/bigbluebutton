@@ -3,20 +3,18 @@ import PropTypes from 'prop-types';
 
 export default class Cursor extends Component {
 
-  static scale(attribute, propsObj) {
-    const { widthRatio, physicalWidthRatio } = propsObj;
+  static scale(attribute, widthRatio, physicalWidthRatio) {
     return ((attribute * widthRatio) / 100) / physicalWidthRatio;
   }
 
-  static invertScale(attribute, propsObj) {
-    const { widthRatio, physicalWidthRatio } = propsObj;
+  static invertScale(attribute, widthRatio, physicalWidthRatio) {
     return ((attribute * physicalWidthRatio) * 100) / widthRatio;
   }
 
-  static getCursorCoordinates(props) {
+  static getCursorCoordinates(cursorX, cursorY, slideWidth, slideHeight) {
     // main cursor x and y coordinates
-    const x = (props.cursorX / 100) * props.slideWidth;
-    const y = (props.cursorY / 100) * props.slideHeight;
+    const x = (cursorX / 100) * slideWidth;
+    const y = (cursorY / 100) * slideHeight;
 
     return {
       x,
@@ -24,9 +22,7 @@ export default class Cursor extends Component {
     };
   }
 
-  static getFillAndLabel(props) {
-    const { presenter, isMultiUser } = props;
-
+  static getFillAndLabel(presenter, isMultiUser) {
     const obj = {
       fill: 'green',
       displayLabel: false,
@@ -69,15 +65,20 @@ export default class Cursor extends Component {
   }
 
   componentWillMount() {
-    const cursorCoordinate = Cursor.getCursorCoordinates(this.props);
-    const { fill, displayLabel } = Cursor.getFillAndLabel(this.props);
-    const _scaledSizes = Cursor.getScaledSizes(this.props);
+    const { cursorX, cursorY, slideWidth, slideHeight, presenter, isMultiUser } = this.props;
 
     // setting the initial cursor info
-    this.cursorCoordinate = cursorCoordinate;
+    this.scaledSizes = Cursor.getScaledSizes(this.props);
+    this.cursorCoordinate = Cursor.getCursorCoordinates(
+      cursorX,
+      cursorY,
+      slideWidth,
+      slideHeight,
+    );
+
+    const { fill, displayLabel } = Cursor.getFillAndLabel(presenter, isMultiUser);
     this.fill = fill;
     this.displayLabel = displayLabel;
-    this.scaledSizes = _scaledSizes;
   }
 
   componentDidMount() {
@@ -98,7 +99,10 @@ export default class Cursor extends Component {
     } = this.props;
 
     if (presenter !== nextProps.presenter || isMultiUser !== nextProps.isMultiUser) {
-      const { fill, displayLabel } = Cursor.getFillAndLabel(nextProps);
+      const { fill, displayLabel } = Cursor.getFillAndLabel(
+        nextProps.presenter,
+        nextProps.isMultiUser,
+      );
       this.displayLabel = displayLabel;
       this.fill = fill;
     }
@@ -108,12 +112,16 @@ export default class Cursor extends Component {
       ||
         (labelBoxWidth !== nextProps.labelBoxWidth ||
           labelBoxHeight !== nextProps.labelBoxHeight)) {
-      const _scaledSizes = Cursor.getScaledSizes(nextProps);
-      this.scaledSizes = _scaledSizes;
+      this.scaledSizes = Cursor.getScaledSizes(nextProps);
     }
 
     if (cursorX !== nextProps.cursorX || cursorY !== nextProps.cursorY) {
-      const cursorCoordinate = Cursor.getCursorCoordinates(nextProps);
+      const cursorCoordinate = Cursor.getCursorCoordinates(
+        nextProps.cursorX,
+        nextProps.cursorY,
+        nextProps.slideWidth,
+        nextProps.slideHeight,
+      );
       this.cursorCoordinate = cursorCoordinate;
     }
   }
@@ -125,9 +133,10 @@ export default class Cursor extends Component {
 
     if (this.cursorLabelRef) {
       const { width, height } = this.cursorLabelRef.getBBox();
+      const { widthRatio, physicalWidthRatio } = this.props;
 
-      labelBoxWidth = Cursor.invertScale(width, this.props);
-      labelBoxHeight = Cursor.invertScale(height, this.props);
+      labelBoxWidth = Cursor.invertScale(width, widthRatio, physicalWidthRatio);
+      labelBoxHeight = Cursor.invertScale(height, widthRatio, physicalWidthRatio);
 
       // if the width of the text node is bigger than the maxSize - set the width to maxWidth
       if (labelBoxWidth > this.props.cursorLabelBox.maxWidth) {
@@ -235,6 +244,11 @@ Cursor.propTypes = {
   // Slide physical size to original size ratio
   physicalWidthRatio: PropTypes.number.isRequired,
 
+  // Slide width (svg)
+  slideWidth: PropTypes.number.isRequired,
+  // Slide height (svg)
+  slideHeight: PropTypes.number.isRequired,
+
   /**
    * Defines the cursor radius (not scaled)
    * @defaultValue 5
@@ -267,7 +281,6 @@ Cursor.propTypes = {
 
 Cursor.defaultProps = {
   radius: 5,
-
   cursorLabelText: {
     // text Y shift (10 points down)
     textDY: 10,

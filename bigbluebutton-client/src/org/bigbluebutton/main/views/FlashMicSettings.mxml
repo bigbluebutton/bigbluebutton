@@ -25,8 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				width="600" height="390"
 				verticalScrollPolicy="off"
 				creationComplete="onCreationComplete()" 
-				showCloseButton="false" 
-				close="onCancelClicked()" 
+				showCloseButton="false"
 				keyDown="handleKeyDown(event)">
 
 	<fx:Declarations>
@@ -44,7 +43,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.ui.Keyboard;
 			
 			import mx.controls.sliderClasses.Slider;
-			import mx.events.CloseEvent;
 			import mx.events.SliderEvent;
 			
 			import org.as3commons.logging.api.ILogger;
@@ -91,10 +89,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var my_nc:NetConnection;      
       private var nsStream:NetStream;
       
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
-			
 			private function selectMicrophone(event:Event):void {
 				testMicrophoneLoopback();
 			}
@@ -184,7 +178,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// Added by Chad to enable closing the window without clicking the X
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
-					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+					onCancelClicked();
 				}
 			}
 								
@@ -290,13 +284,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var currentSlider:Slider=Slider(event.currentTarget);
 				mic.gain = currentSlider.value
 			}
-			
-			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";			
       
 			private function onHelpButtonClicked():void {
 				var helpOptions : HelpOptions = Options.getOptions(HelpOptions) as HelpOptions;
-				DEFAULT_HELP_URL =  helpOptions.url;
-				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
+				navigateToURL(new URLRequest(helpOptions.url));
 			}
      
       private function yesButtonClicked():void {
@@ -388,6 +379,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 									  styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
 				<mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}" 
 						   click="yesButtonClicked()"
+						   styleName="mainActionButton"
 						   toolTip=""/>
 				<mx:Button id="noButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioNo')}" 
 						   click="noButtonClicked()" 
@@ -438,6 +430,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
           <mx:Button id="echoTestButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.nextButton')}" 
                  click="echoTestButtonClickHandler()"
+				 styleName="mainActionButton"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.nextButton.toolTip')}"/>
           <mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
                  click="playButtonClickHandler()" toggle="true"

@@ -1,18 +1,25 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { withTracker } from 'meteor/react-meteor-data';
 import PollingService from './service';
-import { createContainer } from 'meteor/react-meteor-data';
 import PollingComponent from './component';
 
-class PollingContainer extends React.Component {
-  render() {
-    if (this.props.pollExists) {
-      return <PollingComponent poll={this.props.poll} handleVote={this.props.handleVote} />;
-    }
-    return null;
-  }
-}
+const propTypes = {
+  pollExists: PropTypes.bool.isRequired,
+};
 
-export default createContainer(() => {
+const PollingContainer = ({ pollExists, ...props }) => {
+  if (pollExists) {
+    return (
+      <PollingComponent {...props} />
+    );
+  }
+  return null;
+};
+
+PollingContainer.propTypes = propTypes;
+
+export default withTracker(() => {
   const data = PollingService.mapPolls();
   return data;
-}, PollingContainer);
+})(PollingContainer);

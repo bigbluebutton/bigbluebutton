@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import styles from './styles.scss';
+import { styles } from './styles';
 
 const propTypes = {
   children: PropTypes.node.isRequired,
@@ -24,6 +24,7 @@ const defaultProps = {
   listenOnly: false,
   voice: false,
   color: '#000',
+  className: null,
 };
 
 const UserAvatar = ({
@@ -43,7 +44,7 @@ const UserAvatar = ({
       [styles.presenter]: presenter,
       [styles.muted]: muted,
       [styles.listenOnly]: listenOnly,
-      [styles.talking]: talking,
+      [styles.talking]: (talking && !muted),
       [styles.voice]: voice,
     }, className)}
     style={{

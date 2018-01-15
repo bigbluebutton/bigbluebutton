@@ -21,15 +21,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:common="org.bigbluebutton.common.*"
 				width="350" layout="vertical"
-				close="onCloseClicked()"
-				show="{focusManager.setFocus(choiceFirst)}" xmlns:common="org.bigbluebutton.common.*">
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="focusManager.setFocus(choiceFirst)">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.as3commons.lang.ArrayUtils;
 			import org.as3commons.lang.StringUtils;
+			import org.bigbluebutton.common.IKeyboardClose;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
@@ -89,6 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:HBox width="100%" horizontalGap="10" horizontalAlign="right">
 		<mx:Button id="publishButton" click="publishButton_clickHandler(event)"
+				   styleName="mainActionButton"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.startButton.label')}"/>
 		<mx:Button id="closeButton" click="onCloseClicked()"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.closeButton.label')}"/>

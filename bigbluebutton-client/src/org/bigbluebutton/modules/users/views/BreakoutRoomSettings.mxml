@@ -20,13 +20,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                xmlns:s="library://ns.adobe.com/flex/spark" 
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:mate="http://mate.asfusion.com/"
                 xmlns:common="org.bigbluebutton.common.*"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
                 width="630"
-                close="onCloseClicked()"
                 visible="false"
                 showCloseButton="false">
     
@@ -111,7 +112,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                             usersInvited ||= true;
                             var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
                             event.userId = user.intId;
-                            event.breakoutMeetingId = LiveMeeting.inst().breakoutRooms.getBreakoutRoomBySequence(i + 1).externalMeetingId;
+                            event.breakoutMeetingId = LiveMeeting.inst().breakoutRooms.getBreakoutRoomBySequence(i + 1).meetingId;
                             dispatcher.dispatchEvent(event);
                         }
                     }
@@ -268,7 +269,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 } else {
                     startButton.label = ResourceUtil.getInstance().getString('bbb.users.breakout.invite');
                     roomsBox.visible = durationBox.visible = recordBox.visible =
-                        roomsBox.includeInLayout = durationBox.includeInLayout = recordBox.includeInLayout = false;
+                    roomsBox.includeInLayout = durationBox.includeInLayout = recordBox.includeInLayout = false;
                     textArea.text = ResourceUtil.getInstance().getString('bbb.users.breakout.updateBreakoutRooms');
                     assignUsersForInvitation();
                     visible = true;
@@ -293,8 +294,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <mx:ComboBox id="roomsCombo" width="80%" change="{assignUsersForCreation()}" dataProvider="{roomsProvider}" 
                              accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.roomsCombo.accessibilityName')}" />
             </mx:HBox>
-            <!-- <mx:Button paddingLeft="20" width="50%" id="randomAssignBtn"
-            label="{ResourceUtil.getInstance().getString('bbb.users.breakout.randomAssign')}" click="assignUsers()"/> -->
         </mx:HBox>
         
         <mx:HBox id="durationBox" width="100%" paddingTop="12">
@@ -314,6 +313,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         <mx:HBox width="100%" horizontalAlign="right" verticalGap="15">
             <mx:Button id="startButton"
+					   styleName="mainActionButton"
                        click="this.mode == 'create' ? createBreakoutRooms() : inviteUsersToBreakoutRooms()"/>
             <mx:Button label="{ResourceUtil.getInstance().getString('bbb.users.breakout.close')}" click="onCloseClicked()"/>
         </mx:HBox>

@@ -12,6 +12,6 @@ package org.bigbluebutton.modules.polling.service
     
     function votePoll(pollId:String, answerId:Number):void;
     
-    function showPollResult(pollId:String, show:Boolean):void;
+    function showPollResult(pollId:String):void;
   }
 }

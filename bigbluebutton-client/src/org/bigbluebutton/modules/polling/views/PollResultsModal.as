@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.polling.views
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import mx.containers.Box;
 	import mx.containers.HBox;
 	import mx.containers.TitleWindow;
 	import mx.controls.Button;
@@ -50,6 +51,17 @@ package org.bigbluebutton.modules.polling.views
 			modalTitle.maxWidth = 300;
 			addChild(modalTitle);
 			
+			var hintBox : Box = new Box();
+			hintBox.percentWidth = 100;
+			hintBox.styleName = "pollHintBoxStyle";
+			addChild(hintBox);
+			
+			var hintText : AdvancedLabel = new AdvancedLabel();
+			hintText.percentWidth = 100;
+			hintText.styleName = "pollHintTextStyle";
+			hintText.text = ResourceUtil.getInstance().getString('bbb.polling.pollModal.hint');
+			hintBox.addChild(hintText);
+
 			var hrule:HRule = new HRule();
 			hrule.percentWidth = 100;
 			addChild(hrule);
@@ -89,6 +101,7 @@ package org.bigbluebutton.modules.polling.views
 			
 			_publishBtn = new Button();
 			_publishBtn.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.label');
+			_publishBtn.styleName = "mainActionButton";
 			_publishBtn.addEventListener(MouseEvent.CLICK, handlePublishClick);
 			botBox.addChild(_publishBtn);
 			_closeBtn = new Button();
@@ -163,7 +176,7 @@ package org.bigbluebutton.modules.polling.views
 		
 		private function handlePublishClick(e:MouseEvent):void {
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new ShowPollResultEvent(true));
+			dispatcher.dispatchEvent(new ShowPollResultEvent());
 			close();
 		}
 		

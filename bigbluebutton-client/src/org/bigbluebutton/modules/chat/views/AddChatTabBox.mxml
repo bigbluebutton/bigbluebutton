@@ -36,28 +36,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
     <fx:Script>
         <![CDATA[
-          import com.asfusion.mate.events.Dispatcher;
-          
-          import mx.collections.ArrayCollection;
-          import mx.controls.Alert;
-          import mx.events.CloseEvent;
-          
-          import org.as3commons.logging.api.ILogger;
-          import org.as3commons.logging.api.getClassLogger;
-          import org.bigbluebutton.core.EventConstants;
-          import org.bigbluebutton.core.Options;
-          import org.bigbluebutton.core.UsersUtil;
-          import org.bigbluebutton.core.events.CoreEvent;
-          import org.bigbluebutton.core.events.LockControlEvent;
-          import org.bigbluebutton.core.model.LiveMeeting;
-          import org.bigbluebutton.main.events.UserJoinedEvent;
-          import org.bigbluebutton.main.events.UserLeftEvent;
-          import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-          import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
-          import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-          import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-          import org.bigbluebutton.modules.chat.model.ChatOptions;
-          import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
             
 			private static const LOGGER:ILogger = getClassLogger(AddChatTabBox);      
 			
@@ -65,7 +66,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             [Bindable] public var chatView:ChatView;
             [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
             
-            [Bindable] public var chatOptions:ChatOptions;		
+			[Bindable] public var chatOptions:ChatOptions;		
+			[Bindable] public var breakoutOptions:BreakoutRoomsOptions;		
           [Bindable] private var clrBtnVisible:Boolean = false;
           
           private var globalDispatcher:Dispatcher = new Dispatcher();
@@ -87,11 +89,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               handler.populateAllUsers()
                 users = handler.users;
                 chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
+				breakoutOptions = Options.getOptions(BreakoutRoomsOptions) as BreakoutRoomsOptions;
 
-                if (!chatOptions.privateEnabled) {
+                if ((!UsersUtil.isBreakout() && !chatOptions.privateEnabled) ||
+					(UsersUtil.isBreakout() && !breakoutOptions.privateChateEnabled )
+				) {
                     usersList.includeInLayout = usersList.visible = false;
+					lblSelect.includeInLayout = lblSelect.visible = false;
                 }
-                
+
                 if (fontSizes.indexOf(chatOptions.fontSize) != -1) {
                     cmbFontSize.selectedItem = chatOptions.fontSize;
                     changeFontSize(); // have to manually call it because the change event doesn't fire
@@ -199,18 +205,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
 	</fx:Declarations>
     
-    <mx:Label id="lblSelect" styleName="chatOptionsLabel"
-			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
-			  visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
+    <common:AdvancedLabel id="lblSelect" styleName="chatOptionsLabel" width="100%"
+			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
     <mx:List id="usersList" height="50%" width="100%" dataProvider="{users}" dragEnabled="false" 
-             visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
              itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
              labelField="name"
              itemClick="openPrivateChat(event)"
              keyDown="onUserListKeyDown(event)"
              toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
              accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
-    <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
+    <mx:Label styleName="chatOptionsLabel" width="100%" fontWeight="bold" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
     <mx:HBox width="100%">
         <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" width="100%"/>
         <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 

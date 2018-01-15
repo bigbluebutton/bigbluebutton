@@ -1,143 +1,28 @@
 import React from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import styles from '../audio-modal/styles.scss';
-
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
-import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
-import EnterAudioContainer from '/imports/ui/components/audio/enter-audio/container';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import cx from 'classnames';
+import { styles } from './styles';
 
-class AudioSettings extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.chooseAudio = this.chooseAudio.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleOutputChange = this.handleOutputChange.bind(this);
-    this.handleClose = this.handleClose.bind(this);
-
-    this.state = {
-      inputDeviceId: undefined,
-    };
-  }
-
-  chooseAudio() {
-    this.props.changeMenu(this.props.JOIN_AUDIO);
-  }
-
-  handleInputChange(deviceId) {
-    console.log(`INPUT DEVICE CHANGED: ${deviceId}`);
-    this.setState({
-      inputDeviceId: deviceId,
-    });
-  }
-
-  handleOutputChange(deviceId) {
-    console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
-  }
-
-  handleClose() {
-    this.setState({ isOpen: false });
-    this.props.mountModal(null);
-  }
-
-  render() {
-    const {
-      intl,
-    } = this.props;
-
-    return (
-      <div>
-        <div className={styles.topRow}>
-          <Button
-            className={styles.backBtn}
-            label={intl.formatMessage(intlMessages.backLabel)}
-            icon={'left_arrow'}
-            size={'md'}
-            color={'primary'}
-            ghost
-            onClick={this.chooseAudio}
-          />
-          <div className={cx(styles.title, styles.chooseAudio)}>
-            {intl.formatMessage(intlMessages.titleLabel)}
-          </div>
-        </div>
-
-        <div className={styles.form}>
-
-          <div className={styles.row}>
-            <div className={styles.audioNote}>
-              {intl.formatMessage(intlMessages.descriptionLabel)}
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.micSourceLabel)}
-                  <DeviceSelector
-                    value={this.state.inputDeviceId}
-                    className={styles.select}
-                    kind="audioinput"
-                    onChange={this.handleInputChange}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.speakerSourceLabel)}
-                  <DeviceSelector
-                    value={this.state.outputDeviceId}
-                    className={styles.select}
-                    kind="audiooutput"
-                    onChange={this.handleOutputChange}
-                  />
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={cx(styles.label, styles.labelSmall)}>
-                  {intl.formatMessage(intlMessages.streamVolumeLabel)}
-                  <AudioStreamVolume
-                    deviceId={this.state.inputDeviceId}
-                    className={styles.audioMeter}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <label className={styles.label}> </label>
-              <AudioTestContainer />
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.enterAudio}>
-          <EnterAudioContainer isFullAudio />
-        </div>
-      </div>
-    );
-  }
-}
+const propTypes = {
+  intl: intlShape.isRequired,
+  changeInputDevice: PropTypes.func.isRequired,
+  changeOutputDevice: PropTypes.func.isRequired,
+  handleBack: PropTypes.func.isRequired,
+  handleRetry: PropTypes.func.isRequired,
+  isConnecting: PropTypes.bool.isRequired,
+  inputDeviceId: PropTypes.string.isRequired,
+  outputDeviceId: PropTypes.string.isRequired,
+};
 
 const intlMessages = defineMessages({
   backLabel: {
     id: 'app.audio.backLabel',
     description: 'audio settings back button label',
-  },
-  titleLabel: {
-    id: 'app.audio.audioSettings.titleLabel',
-    description: 'audio setting title label',
   },
   descriptionLabel: {
     id: 'app.audio.audioSettings.descriptionLabel',
@@ -155,6 +40,143 @@ const intlMessages = defineMessages({
     id: 'app.audio.audioSettings.microphoneStreamLabel',
     description: 'Label for stream volume',
   },
+  retryLabel: {
+    id: 'app.audio.audioSettings.retryLabel',
+    description: 'Retry button label',
+  },
 });
+
+class AudioSettings extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const {
+      inputDeviceId,
+      outputDeviceId,
+    } = props;
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleOutputChange = this.handleOutputChange.bind(this);
+
+    this.state = {
+      inputDeviceId,
+      outputDeviceId,
+    };
+  }
+
+  handleInputChange(deviceId) {
+    const {
+      changeInputDevice,
+    } = this.props;
+
+    changeInputDevice(deviceId);
+    this.setState({
+      inputDeviceId: deviceId,
+    });
+  }
+
+  handleOutputChange(deviceId) {
+    const {
+      changeOutputDevice,
+    } = this.props;
+
+    changeOutputDevice(deviceId);
+    this.setState({
+      outputDeviceId: deviceId,
+    });
+  }
+
+  render() {
+    const {
+      isConnecting,
+      intl,
+      handleBack,
+      handleRetry,
+    } = this.props;
+
+    return (
+      <div>
+        <div className={styles.form}>
+          <div className={styles.row}>
+            <div className={styles.audioNote}>
+              {intl.formatMessage(intlMessages.descriptionLabel)}
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label
+                  htmlFor="inputDeviceSelector"
+                  className={cx(styles.label, styles.labelSmall)}
+                >
+                  {intl.formatMessage(intlMessages.micSourceLabel)}
+                  <DeviceSelector
+                    id="inputDeviceSelector"
+                    value={this.state.inputDeviceId}
+                    className={styles.select}
+                    kind="audioinput"
+                    onChange={this.handleInputChange}
+                  />
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label
+                  htmlFor="outputDeviceSelector"
+                  className={cx(styles.label, styles.labelSmall)}
+                >
+                  {intl.formatMessage(intlMessages.speakerSourceLabel)}
+                  <DeviceSelector
+                    id="outputDeviceSelector"
+                    value={this.state.outputDeviceId}
+                    className={styles.select}
+                    kind="audiooutput"
+                    onChange={this.handleOutputChange}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={cx(styles.col, styles.spacedLeft)}>
+              <label
+                htmlFor="audioTest"
+                className={styles.labelSmall}
+              >
+                Test your speaker volume
+                <AudioTestContainer id="audioTest" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+
+        <div className={styles.enterAudio}>
+          <Button
+            className={styles.backBtn}
+            label={intl.formatMessage(intlMessages.backLabel)}
+            size={'md'}
+            color={'primary'}
+            onClick={handleBack}
+            disabled={isConnecting}
+            ghost
+          />
+          <Button
+            size={'md'}
+            color={'primary'}
+            label={intl.formatMessage(intlMessages.retryLabel)}
+            onClick={handleRetry}
+          />
+        </div>
+      </div>
+    );
+  }
+
+}
+
+AudioSettings.propTypes = propTypes;
 
 export default withModalMounter(injectIntl(AudioSettings));

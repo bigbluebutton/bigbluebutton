@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
-import _ from 'lodash';
+import cx from 'classnames';
 
+import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
-
 import NotificationsBarContainer from '../notifications-bar/container';
-import AudioNotificationContainer from '../audio/audio-notification/container';
 import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
-
-import styles from './styles';
-import cx from 'classnames';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -39,23 +36,36 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
+  closedCaption: PropTypes.element,
+  userList: PropTypes.element,
+  chat: PropTypes.element,
+  locale: PropTypes.string,
+  intl: intlShape.isRequired,
 };
 
 const defaultProps = {
   fontSize: '16px',
+  navbar: null,
+  sidebar: null,
+  media: null,
+  actionsbar: null,
+  closedCaption: null,
+  userList: null,
+  chat: null,
+  locale: 'en',
 };
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
 
     this.state = {
-      compactUserList: false, //TODO: Change this on userlist resize (?)
+      compactUserList: false, // TODO: Change this on userlist resize (?)
     };
   }
 
   componentDidMount() {
-    const locale = this.props.locale;
+    const { locale } = this.props;
 
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
@@ -99,10 +109,11 @@ class App extends Component {
   }
 
   renderUserList() {
-    let { userList, intl } = this.props;
+    const { intl } = this.props;
+    let { userList } = this.props;
     const { compactUserList } = this.state;
 
-    if (!userList) return;
+    if (!userList) return null;
 
     const userListStyle = {};
     userListStyle[styles.compact] = compactUserList;
@@ -128,7 +139,6 @@ class App extends Component {
     return (
       <section
         className={styles.chat}
-        role="region"
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
       >
         {chat}
@@ -144,7 +154,6 @@ class App extends Component {
     return (
       <section
         className={styles.media}
-        role="region"
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
       >
         {media}
@@ -161,7 +170,6 @@ class App extends Component {
     return (
       <section
         className={styles.actionsbar}
-        role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
       >
         {actionsbar}
@@ -170,11 +178,10 @@ class App extends Component {
   }
 
   render() {
-    const { modal, params } = this.props;
+    const { params } = this.props;
 
     return (
       <main className={styles.main}>
-        <AudioNotificationContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           {this.renderUserList()}
@@ -188,6 +195,7 @@ class App extends Component {
         </section>
         <ModalContainer />
         <AudioContainer />
+        <ToastContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );

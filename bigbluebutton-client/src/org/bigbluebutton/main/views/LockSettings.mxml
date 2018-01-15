@@ -21,21 +21,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/" 
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
 				xmlns:common="org.bigbluebutton.common.*"
 				minWidth="340" showCloseButton="false" 
-				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
 	
 	<fx:Script>
 		<![CDATA[
-			import mx.events.CloseEvent;
-			
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.SetWebcamsOnlyForModeratorEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			[Bindable] public var disableCam:Boolean = false;
+			[Bindable] public var webcamsOnlyForModerator:Boolean = false;
 			[Bindable] public var disableMic:Boolean = false;
 			[Bindable] public var disablePubChat:Boolean = false;
 			[Bindable] public var disablePrivChat:Boolean = false;
@@ -43,13 +45,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var lockOnJoin:Boolean = false;
 			[Bindable] public var lockOnJoinConfigurable:Boolean = false;
 			  
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
-			
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
-					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+					onCancelClicked();
 				}
 			}
 
@@ -58,7 +56,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var lockSettings:LockSettingsVO = new LockSettingsVO(chkDisableWebcam.selected, chkDisableMicrophone.selected, chkDisablePrivateChat.selected, chkDisablePublicChat.selected, chkDisableLayout.selected, chkLockOnJoin.selected, lockOnJoinConfigurable);
 				event.payload = lockSettings.toMap();
 				dispatchEvent(event);
-				
+
+				if (LiveMeeting.inst().meeting.webcamsOnlyForModerator != chkwebcamsOnlyForModerator.selected) {
+					var wEvent:SetWebcamsOnlyForModeratorEvent = new SetWebcamsOnlyForModeratorEvent(SetWebcamsOnlyForModeratorEvent.UPDATE_WEBCAMS_ONLY_FOR_MODERATOR);
+					wEvent.webcamsOnlyForModerator = chkwebcamsOnlyForModerator.selected;
+					dispatchEvent(wEvent);
+				}
+
 				PopUpUtil.removePopUp(this);
 			}	
 			
@@ -77,10 +81,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							  styleName="titleWindowStyle"
 							  id="titleText"
 							  maxWidth="250" />
+
 		<mx:HBox verticalAlign="top" width="100%" paddingTop="20">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.feature')}" fontWeight="bold" />
 			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.locked')}" fontWeight="bold" />
 		</mx:HBox>
+
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
@@ -90,6 +96,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
+
+		<mx:HBox verticalAlign="top" width="100%">
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcamsOnlyForModerator')}" />
+			<mx:HBox width="30%">
+				<mx:Spacer width="50%" />
+				<mx:CheckBox id="chkwebcamsOnlyForModerator" selected="{webcamsOnlyForModerator}" />
+				<mx:Spacer width="50%" />
+			</mx:HBox>
+		</mx:HBox>
+
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.microphone')}" />
@@ -99,6 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
+
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat')}" />
@@ -108,6 +126,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
+
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
@@ -117,7 +136,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
-		
+
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
 					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.layout')}" />
@@ -127,9 +146,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
-		
+
 		<mx:HRule width="100%" visible="{lockOnJoinConfigurable}" includeInLayout="{lockOnJoinConfigurable}"/>
-		
+
 		<mx:HBox verticalAlign="top" width="100%" visible="{lockOnJoinConfigurable}" includeInLayout="{lockOnJoinConfigurable}">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
 					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.lockOnJoin')}" />
@@ -139,12 +158,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
-		
+
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="20">
-			<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.save')}" 
+			<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.save')}"
+					   styleName="mainActionButton"
 					   click="onSaveClicked()"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.lockSettings.save.tooltip')}"/>
-			
+
 			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.cancel')}" 
 					   click="onCancelClicked()"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.lockSettings.cancel.toolTip')}"/>

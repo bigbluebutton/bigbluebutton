@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from '../styles.scss';
+import { styles } from '../styles.scss';
 
-const MESSAGE_INTERVAL = 50;
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const MESSAGE_FREQUENCY = ANNOTATION_CONFIG.message_frequency;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
+const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class ShapeDrawListener extends Component {
   constructor(props) {
     super(props);
 
+    // there is no valid defaults for the coordinates, and we wouldn't want them anyway
     this.initialCoordinate = {
       x: undefined,
       y: undefined,
@@ -29,12 +34,16 @@ export default class ShapeDrawListener extends Component {
     // id of the setInterval()
     this.intervalId = 0;
 
-    this.mouseDownHandler = this.mouseDownHandler.bind(this);
-    this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
-    this.mouseUpHandler = this.mouseUpHandler.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleMouseUp = this.handleMouseUp.bind(this);
     this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
     this.sendCoordinates = this.sendCoordinates.bind(this);
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleTouchMove = this.handleTouchMove.bind(this);
+    this.handleTouchEnd = this.handleTouchEnd.bind(this);
+    this.handleTouchCancel = this.handleTouchCancel.bind(this);
   }
 
   componentDidMount() {
@@ -49,16 +58,7 @@ export default class ShapeDrawListener extends Component {
     this.sendLastMessage();
   }
 
-  // main mouse down handler
-  mouseDownHandler(event) {
-    // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
-    // but the browser didn't catch it. So check it here.
-    if (this.isDrawing) {
-      return this.sendLastMessage();
-    }
-
-    window.addEventListener('mouseup', this.mouseUpHandler);
-    window.addEventListener('mousemove', this.mouseMoveHandler, true);
+  commonDrawStartHandler(clientX, clientY) {
     this.isDrawing = true;
 
     const {
@@ -68,7 +68,7 @@ export default class ShapeDrawListener extends Component {
     } = this.props.actions;
 
     // sending the first message
-    let transformedSvgPoint = getTransformedSvgPoint(event);
+    let transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
 
     // transforming svg coordinate to percentages relative to the slide width/height
     transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
@@ -77,7 +77,7 @@ export default class ShapeDrawListener extends Component {
     generateNewShapeId();
 
     // setting the initial current status
-    this.currentStatus = 'DRAW_START';
+    this.currentStatus = DRAW_START;
 
     // saving the coordinates for future references
     this.initialCoordinate = {
@@ -91,65 +91,120 @@ export default class ShapeDrawListener extends Component {
     };
 
     // All the messages will be send on timer by sendCoordinates func
-    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_INTERVAL);
-
-    return true;
+    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_FREQUENCY);
   }
 
-  // main mouse move handler
-  // calls a mouseMove<AnnotationName> handler based on the tool selected
-  mouseMoveHandler(event) {
-    if (this.isDrawing) {
-      const {
-        checkIfOutOfBounds,
-        getTransformedSvgPoint,
-        svgCoordinateToPercentages,
-      } = this.props.actions;
+  commonDrawMoveHandler(clientX, clientY) {
+    if (!this.isDrawing) {
+      return;
+    }
 
-      // get the transformed svg coordinate
-      let transformedSvgPoint = getTransformedSvgPoint(event);
+    const {
+      checkIfOutOfBounds,
+      getTransformedSvgPoint,
+      svgCoordinateToPercentages,
+    } = this.props.actions;
 
-      // check if it's out of bounds
-      transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
+    // get the transformed svg coordinate
+    let transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
 
-      // transforming svg coordinate to percentages relative to the slide width/height
-      transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
+    // check if it's out of bounds
+    transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
 
-      // saving the last sent coordinate
-      this.currentCoordinate = transformedSvgPoint;
+    // transforming svg coordinate to percentages relative to the slide width/height
+    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
+
+    // saving the last sent coordinate
+    this.currentCoordinate = transformedSvgPoint;
+  }
+
+  handleTouchStart(event) {
+    event.preventDefault();
+
+    if (!this.isDrawing) {
+      window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+      window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      window.addEventListener('touchcancel', this.handleTouchCancel, true);
+
+      const { clientX, clientY } = event.changedTouches[0];
+      this.commonDrawStartHandler(clientX, clientY);
+
+    // if you switch to a different window using Alt+Tab while mouse is down and release it
+    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+    } else {
+      this.sendLastMessage();
     }
   }
 
+  handleTouchMove(event) {
+    const { clientX, clientY } = event.changedTouches[0];
+    this.commonDrawMoveHandler(clientX, clientY);
+  }
+
+  handleTouchEnd() {
+    this.sendLastMessage();
+  }
+
+  handleTouchCancel() {
+    this.sendLastMessage();
+  }
+
+  // main mouse down handler
+  handleMouseDown(event) {
+    // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
+    // but the browser didn't catch it. So check it here.
+    if (this.isDrawing) {
+      return this.sendLastMessage();
+    }
+
+    window.addEventListener('mouseup', this.handleMouseUp);
+    window.addEventListener('mousemove', this.handleMouseMove, true);
+
+    const { clientX, clientY } = event;
+    return this.commonDrawStartHandler(clientX, clientY);
+  }
+
+  // main mouse move handler
+  handleMouseMove(event) {
+    const { clientX, clientY } = event;
+    this.commonDrawMoveHandler(clientX, clientY);
+  }
+
   // main mouse up handler
-  mouseUpHandler() {
+  handleMouseUp() {
     this.sendLastMessage();
   }
 
   sendCoordinates() {
     // check the current drawing status
-    if (this.isDrawing) {
-      // check if a current coordinate is not the same as an initial one
-      // it prevents us from drawing dots on random clicks
-      if (this.currentCoordinate.x !== this.initialCoordinate.x ||
-        this.currentCoordinate.y !== this.initialCoordinate.y) {
-        // check if previously sent coordinate is not equal to a current one
-        if (this.currentCoordinate.x !== this.lastSentCoordinate.x ||
-            this.currentCoordinate.y !== this.lastSentCoordinate.y) {
-          const { getCurrentShapeId } = this.props.actions;
-          this.handleDrawCommonAnnotation(
-            this.initialCoordinate,
-            this.currentCoordinate,
-            this.currentStatus,
-            getCurrentShapeId(),
-            this.props.drawSettings.tool,
-          );
-          this.lastSentCoordinate = this.currentCoordinate;
+    if (!this.isDrawing) {
+      return;
+    }
+    // check if a current coordinate is not the same as an initial one
+    // it prevents us from drawing dots on random clicks
+    if (this.currentCoordinate.x === this.initialCoordinate.x &&
+        this.currentCoordinate.y === this.initialCoordinate.y) {
+      return;
+    }
 
-          if (this.currentStatus === 'DRAW_START') {
-            this.currentStatus = 'DRAW_UPDATE';
-          }
-        }
-      }
+    // check if previously sent coordinate is not equal to a current one
+    if (this.currentCoordinate.x === this.lastSentCoordinate.x &&
+        this.currentCoordinate.y === this.lastSentCoordinate.y) {
+      return;
+    }
+
+    const { getCurrentShapeId } = this.props.actions;
+    this.handleDrawCommonAnnotation(
+      this.initialCoordinate,
+      this.currentCoordinate,
+      this.currentStatus,
+      getCurrentShapeId(),
+      this.props.drawSettings.tool,
+    );
+    this.lastSentCoordinate = this.currentCoordinate;
+
+    if (this.currentStatus === DRAW_START) {
+      this.currentStatus = DRAW_UPDATE;
     }
   }
 
@@ -160,19 +215,29 @@ export default class ShapeDrawListener extends Component {
 
     if (this.isDrawing) {
       // make sure we are drawing and we have some coordinates sent for this shape before
-      // to prevent sending 'DRAW_END on a random mouse click
+      // to prevent sending DRAW_END on a random mouse click
       if (this.lastSentCoordinate.x && this.lastSentCoordinate.y) {
         const { getCurrentShapeId } = this.props.actions;
-        this.handleDrawCommonAnnotation(this.initialCoordinate, this.currentCoordinate, 'DRAW_END', getCurrentShapeId(), this.props.drawSettings.tool);
+        this.handleDrawCommonAnnotation(
+          this.initialCoordinate,
+          this.currentCoordinate,
+          DRAW_END,
+          getCurrentShapeId(),
+          this.props.drawSettings.tool,
+        );
       }
       this.resetState();
     }
   }
 
   resetState() {
-    // resetting the current state
-    window.removeEventListener('mouseup', this.mouseUpHandler);
-    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+    // resetting the current drawing state
+    window.removeEventListener('mouseup', this.handleMouseUp);
+    window.removeEventListener('mousemove', this.handleMouseMove, true);
+    // touchend, touchmove and touchcancel are removed on devices
+    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
     this.isDrawing = false;
     this.currentStatus = undefined;
     this.initialCoordinate = {
@@ -221,13 +286,14 @@ export default class ShapeDrawListener extends Component {
   }
 
   render() {
-    const tool = this.props.drawSettings.tool;
+    const { tool } = this.props.drawSettings;
     return (
       <div
+        onTouchStart={this.handleTouchStart}
         role="presentation"
         className={styles[tool]}
-        style={{ width: '100%', height: '100%' }}
-        onMouseDown={this.mouseDownHandler}
+        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        onMouseDown={this.handleMouseDown}
       />
     );
   }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { logClient } from '/imports/ui/services/api';
+import { log } from '/imports/ui/services/api';
 
 const propTypes = {
   low: PropTypes.number,
@@ -99,12 +99,12 @@ class AudioStreamVolume extends Component {
 
     this.setState(prevState => ({
       instant,
-      slow: 0.75 * prevState.slow + 0.25 * instant,
+      slow: (0.75 * prevState.slow) + (0.25 * instant),
     }));
   }
 
   handleError(error) {
-    logClient('error', { error, method: 'handleError' });
+    log('error', error);
   }
 
   render() {

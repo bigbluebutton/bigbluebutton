@@ -383,6 +383,7 @@ module BigBlueButton
 
         # Find the last EDL event from before or at the recording start
         loop do
+          break if input_i + 1 >= edl.length
           break if edl[input_i+1][:timestamp] > start_stop_event[:start_timestamp]
           input_i += 1
         end
@@ -402,6 +403,7 @@ module BigBlueButton
         # Add the intervening events up to the stop
         loop do
           input_i += 1
+          break if input_i >= edl.length
           break if edl[input_i][:timestamp] >= start_stop_event[:stop_timestamp]
 
           new_edl[output_i] = edl_entry_offset.call(edl[input_i], 0)

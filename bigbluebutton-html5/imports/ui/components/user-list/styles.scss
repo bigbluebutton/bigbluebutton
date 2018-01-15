@@ -6,11 +6,8 @@
  */
 
 $unread-messages-bg: $color-danger;
-
-$user-list-bg: #F3F6F9;
 $user-list-text: $color-gray;
-
-$list-item-bg-hover: darken($user-list-bg, 7%);
+$user-list-bg: $color-off-white;
 
 $user-thumbnail-border: $color-gray-light;
 $user-thumbnail-text: $user-thumbnail-border;
@@ -26,6 +23,8 @@ $sub-name-color: $color-gray-light;
 $user-icons-color: $color-gray-light;
 $user-icons-color-hover: $color-gray;
 
+$list-item-bg-hover: darken($color-off-white, 7%);
+$item-focus-border: $color-blue-lighter;
 
 /* classes for extending
  * ==========
@@ -42,26 +41,25 @@ $user-icons-color-hover: $color-gray;
 %list-item {
   display: flex;
   flex-flow: row;
-  padding-left: $sm-padding-x / 2;
-  margin-left: $sm-padding-x / 2;
-  padding-right: $sm-padding-x;
-  padding-top: $sm-padding-y;
-  padding-bottom: $sm-padding-y;
-  margin-top: $sm-padding-y * 2;
   transition: all 0.3s;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   cursor: pointer;
 
-  &:hover,
-  &:focus {
-    background-color: $list-item-bg-hover;
-    outline: none;
-  }
-
   &:first-child {
     margin-top: 0;
   }
+
+  &:focus {
+    background-color: $list-item-bg-hover;
+    box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+    outline: none;
+  }
+
+  &:hover {
+    background-color: $list-item-bg-hover;
+  }
+
 }
 
 /* Styling
@@ -74,49 +72,7 @@ $user-icons-color-hover: $color-gray;
   background-color: $user-list-bg;
   color: $user-list-text;
   height: 100vh;
-}
-
-.header {
-  @extend %flex-column;
-  justify-content: left;
-  flex-grow: 0;
-  display: flex;
-  flex-direction: row;
-  padding: 0 $md-padding-x;
-  margin: $md-padding-x 0;
-}
-
-.headerTitle {
-  flex: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: $color-heading;
-}
-
-.btnToggle {
-  flex: 0;
-  padding: 0;
-  margin: 0;
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  text-align: right;
-
-  & > i {
-    color: $color-heading;
-    text-align: right;
-  }
-
-  &:hover, &:focus, &:active {
-    background-color: transparent;
-  }
-}
-
-.content {
-  @extend %flex-column;
-  flex-grow: 9;
-  overflow: hidden;
+  padding-top: $md-padding-x;
 }
 
 .lists {
@@ -133,19 +89,6 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
 }
 
-.smallTitle {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 $sm-padding-x;
-  margin: 0 0 ($lg-padding-x / 2) 0;
-  color: $color-gray-light;
-}
-
-.scrollableList {
-  @include scrollbox-vertical($user-list-bg);
-}
-
 .participants, .messages {
   flex-grow: 0;
   display: flex;
@@ -154,7 +97,7 @@ $user-icons-color-hover: $color-gray;
 }
 
 .messages {
-  margin-bottom: $lg-padding-x;
+  max-height: 30vh;
 }
 
 .participants {
@@ -165,11 +108,13 @@ $user-icons-color-hover: $color-gray;
   overflow-y: auto;
 }
 
-.separator {
-  margin: 1rem auto;
-  width: 2.2rem;
-  border: 0;
-  border-top: 1px solid $color-gray-lighter;
+.smallTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 $sm-padding-x;
+  margin: 0 0 ($lg-padding-x / 2) 0;
+  color: $color-gray-light;
 }
 
 .enter, .appear {

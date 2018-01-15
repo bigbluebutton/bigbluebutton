@@ -1,23 +1,47 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import PropTypes from 'prop-types';
+import { withTracker } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/api/2.0/meetings';
+import Meetings from '/imports/api/meetings';
 import Service from './service';
 import UserList from './component';
+
+const propTypes = {
+  openChats: PropTypes.arrayOf(String).isRequired,
+  users: PropTypes.arrayOf(Object).isRequired,
+  currentUser: PropTypes.shape({}).isRequired,
+  meeting: PropTypes.shape({}).isRequired,
+  isBreakoutRoom: PropTypes.bool.isRequired,
+  getAvailableActions: PropTypes.func.isRequired,
+  normalizeEmojiName: PropTypes.func.isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
+  isPublicChat: PropTypes.func.isRequired,
+  setEmojiStatus: PropTypes.func.isRequired,
+  assignPresenter: PropTypes.func.isRequired,
+  kickUser: PropTypes.func.isRequired,
+  toggleVoice: PropTypes.func.isRequired,
+  changeRole: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
+};
 
 const UserListContainer = (props) => {
   const {
     users,
     currentUser,
     openChats,
-    openChat,
-    userActions,
     isBreakoutRoom,
-    children,
     meeting,
+    getAvailableActions,
+    normalizeEmojiName,
     isMeetingLocked,
-    } = props;
+    isPublicChat,
+    setEmojiStatus,
+    assignPresenter,
+    kickUser,
+    toggleVoice,
+    changeRole,
+    roving,
+  } = props;
 
   return (
     <UserList
@@ -25,24 +49,37 @@ const UserListContainer = (props) => {
       meeting={meeting}
       currentUser={currentUser}
       openChats={openChats}
-      openChat={openChat}
       isBreakoutRoom={isBreakoutRoom}
-      makeCall={makeCall}
-      userActions={userActions}
+      setEmojiStatus={setEmojiStatus}
+      assignPresenter={assignPresenter}
+      kickUser={kickUser}
+      toggleVoice={toggleVoice}
+      changeRole={changeRole}
+      getAvailableActions={getAvailableActions}
+      normalizeEmojiName={normalizeEmojiName}
       isMeetingLocked={isMeetingLocked}
-    >
-      {children}
-    </UserList>
+      isPublicChat={isPublicChat}
+      roving={roving}
+    />
   );
 };
 
-export default createContainer(({ params }) => ({
+UserListContainer.propTypes = propTypes;
+
+export default withTracker(({ params }) => ({
   users: Service.getUsers(),
   meeting: Meetings.findOne({}),
   currentUser: Service.getCurrentUser(),
   openChats: Service.getOpenChats(params.chatID),
-  openChat: params.chatID,
-  userActions: Service.userActions,
   isBreakoutRoom: meetingIsBreakout(),
+  getAvailableActions: Service.getAvailableActions,
+  normalizeEmojiName: Service.normalizeEmojiName,
   isMeetingLocked: Service.isMeetingLocked,
-}), UserListContainer);
+  isPublicChat: Service.isPublicChat,
+  setEmojiStatus: Service.setEmojiStatus,
+  assignPresenter: Service.assignPresenter,
+  kickUser: Service.kickUser,
+  toggleVoice: Service.toggleVoice,
+  changeRole: Service.changeRole,
+  roving: Service.roving,
+}))(UserListContainer);

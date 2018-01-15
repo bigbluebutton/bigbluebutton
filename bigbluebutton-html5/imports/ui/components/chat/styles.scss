@@ -1,4 +1,7 @@
-@import "../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+
+$icon-offset: -.4em;
 
 .chat {
   background-color: #fff;
@@ -11,13 +14,15 @@
 }
 
 .header {
-  margin-bottom: $md-padding-x;
   display: flex;
   flex-direction: row;
   align-items: left;
   flex-shrink: 0;
 
   a {
+    @include elementFocus($color-primary);
+    padding-bottom: $sm-padding-y;
+    padding-left: $sm-padding-y;
     text-decoration: none;
     display: block;
   }
@@ -33,7 +38,22 @@
   flex: 1;
 }
 
-.closeIcon {
+.closeBtn {
+  background-color: $color-white;
   flex: 0 0;
-  margin-left: $sm-padding-x / 2;
+  padding: 0 0.25rem !important;
+
+  i {
+    font-size: 0.85em;
+    color: $color-gray-dark !important;
+    top: $icon-offset;
+  }
+
+  &:focus,
+  &:hover{
+    background-color: $color-white !important;
+    i{
+      color: $color-gray;
+    }
+  }
 }

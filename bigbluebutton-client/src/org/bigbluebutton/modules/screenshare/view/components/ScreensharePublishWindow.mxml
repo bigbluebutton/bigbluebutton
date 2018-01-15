@@ -128,8 +128,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           os = "";
         }
 
-        browser = ExternalInterface.call("determineBrowser")[0];
-
         windowControls.maximizeRestoreBtn.enabled = false;
 
         titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
@@ -343,23 +341,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         captureWidth = capWidth;
         captureHeight = capHeight;
 
-        var vidW:Number = captureWidth;
-        var vidH:Number = captureHeight;
+		video = new Video(captureWidth, captureHeight);
+		
+		// for some reason videoHolder's height is always '0' even when set to 100% so we have to do it manually
+		video.width=this.width - publishView.getStyle('paddingLeft') - publishView.getStyle('paddingRight') - 10;
+		video.scaleY=video.scaleX;
+		if(video.height>this.height - controlBar.height - this.titleBar.height - publishView.getStyle('paddingTop') - publishView.getStyle('paddingBottom') - 10){
+			video.height=this.height - controlBar.height - this.titleBar.height - publishView.getStyle('paddingTop') - publishView.getStyle('paddingBottom') - 10;
+			video.scaleX=video.scaleY;
+		}
+		videoWrapper.width = video.width;
+		videoWrapper.height = video.height;
 
-        // for some reason videoHolder's height is always '0' even when set to 100% so we have to do it manually
-        videoWrapper.height = this.height - controlBar.height - this.titleBar.height - pauseBtn.height - publishView.getStyle('paddingTop') - publishView.getStyle('paddingBottom') - 10;
-        videoWrapper.width = this.width - publishView.getStyle('paddingLeft') - publishView.getStyle('paddingRight') - 10;
-
-        vidW = videoWrapper.width;
-        vidH = videoWrapper.width * captureHeight / captureWidth;
-
-        if (vidH > videoWrapper.height) {
-          vidH = videoWrapper.height;
-          vidW = videoWrapper.height * captureWidth / captureHeight;
-        }
-
-        LOGGER.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
-        video = new Video(vidW, vidH);
+        LOGGER.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + video.width + "," + video.height + "]");
 
         videoWrapper.addChild(video);
         video.x = videoWrapper.width/2 - video.width/2;
@@ -377,8 +371,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         pauseBox.visible = pauseBox.includeInLayout = false;
         videoWrapper.visible = videoWrapper.includeInLayout = true;
-        pauseBox.width = vidW;
-        pauseBox.height = vidH;
+
+        pauseBox.width = videoWrapper.width;
+        pauseBox.height = videoWrapper.height;
       }
 
       public function onMetaData(info:Object):void{
@@ -586,20 +581,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:VBox>
     <mx:VBox id="previewBox" width="100%" height="100%" visible="false" horizontalAlign="center" >
       <mx:Box id="videoHolder" width="100%" height="90%" horizontalAlign="center">
-        <mx:UIComponent id="videoWrapper" width="100%" height="100%" />
+        <mx:UIComponent id="videoWrapper" width="100%" height="100%" verticalCenter="0" horizontalCenter="0"/>
         <mx:VBox id="pauseBox" visible="false" includeInLayout="false" styleName="desksharePublishPauseBox" >
           <mx:Text width="100%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pauseMessage.label')}" />
         </mx:VBox>
 	  </mx:Box>
-      <mx:Button id="pauseBtn"
-                 click="pauseSharing()"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}"
-                 label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" />
-      <mx:Button id="restartBtn"
-                 visible="false" includeInLayout="false"
-                 click="pauseSharing()"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip')}"
-                 label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label')}" />
     </mx:VBox>
     <mx:VBox id="errorBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">
       <mx:Text id="startFailedLbl" width="70%" visible="false" includeInLayout="false" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startFailed.label')}"/>
@@ -619,8 +605,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:ComboBox id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
       </mx:HBox>
     <mx:Spacer width="80%" />
-    <mx:Button id="startBtn" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
+	<mx:Button id="pauseBtn" visible="false" includeInLayout="false" click="pauseSharing()" toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" />
+	<mx:Button id="restartBtn" visible="false" includeInLayout="false" click="pauseSharing()" toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label')}" />
+    <mx:Button id="startBtn" styleName="mainActionButton" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
     <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
-    <mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
+    <mx:Button id="stopBtn" styleName="mainActionButton" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
   </mx:ControlBar>
 </common:CustomMdiWindow>

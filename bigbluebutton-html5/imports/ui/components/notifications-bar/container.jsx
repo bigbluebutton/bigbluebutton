@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
-import { humanizeSeconds } from '/imports/utils/humanizeSeconds';
+import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import NavBarService from '../nav-bar/service';
 
 import NotificationsBar from './component';
@@ -108,7 +108,7 @@ const startCounter = (sec, set, get, interval) => {
   }, 1000);
 };
 
-export default injectIntl(createContainer(({ intl }) => {
+export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
 
@@ -150,10 +150,12 @@ export default injectIntl(createContainer(({ intl }) => {
       const roomRemainingTime = currentBreakout.timeRemaining;
 
       if (!timeRemainingInterval && roomRemainingTime) {
-        timeRemainingInterval = startCounter(roomRemainingTime,
-                                             setTimeRemaining,
-                                             getTimeRemaining,
-                                             timeRemainingInterval);
+        timeRemainingInterval = startCounter(
+          roomRemainingTime,
+          setTimeRemaining,
+          getTimeRemaining,
+          timeRemainingInterval,
+        );
       }
     } else if (timeRemainingInterval) {
       clearInterval(timeRemainingInterval);
@@ -178,4 +180,4 @@ export default injectIntl(createContainer(({ intl }) => {
 
   data.color = 'primary';
   return data;
-}, NotificationsBarContainer));
+})(NotificationsBarContainer));

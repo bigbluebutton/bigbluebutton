@@ -1,6 +1,6 @@
 import React from 'react';
 // import PropTypes from 'prop-types';
-// import styles from '../styles.scss';
+// import { styles } from '../styles.scss';
 
 export default class PanZoomDrawListener extends React.Component {
   constructor(props) {

@@ -25,6 +25,18 @@
   align-items: center;
 }
 
-.circleGlow > :first-child{
-    box-shadow: 0 0 .15rem #FFF !important;
+.button {
+  &:focus {
+    outline: none !important;
+  }
+
+  span:first-child {
+    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+  }
+}
+
+.emojiSelected {
+  span, i::before{
+    color: $color-primary;
+  }
 }

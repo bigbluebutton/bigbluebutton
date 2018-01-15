@@ -1,19 +1,20 @@
 import '/imports/startup/server';
 
 // 2x
-import '/imports/api/2.0/meetings/server';
-import '/imports/api/2.0/users/server';
-import '/imports/api/2.0/annotations/server';
-import '/imports/api/2.0/cursor/server';
-import '/imports/api/2.0/polls/server';
-import '/imports/api/2.0/captions/server';
-import '/imports/api/2.0/presentations/server';
-import '/imports/api/2.0/slides/server';
-import '/imports/api/2.0/breakouts/server';
-import '/imports/api/2.0/chat/server';
-import '/imports/api/2.0/screenshare/server';
-import '/imports/api/2.0/voice-users/server';
-import '/imports/api/2.0/whiteboard-multi-user/server';
+import '/imports/api/meetings/server';
+import '/imports/api/users/server';
+import '/imports/api/annotations/server';
+import '/imports/api/cursor/server';
+import '/imports/api/polls/server';
+import '/imports/api/captions/server';
+import '/imports/api/presentations/server';
+import '/imports/api/slides/server';
+import '/imports/api/breakouts/server';
+import '/imports/api/chat/server';
+import '/imports/api/screenshare/server';
+import '/imports/api/voice-users/server';
+import '/imports/api/whiteboard-multi-user/server';
+import '/imports/api/video/server';
 
 // Commons
 import '/imports/api/log-client/server';

@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
-  baseControls: PropTypes.object.isRequired,
-  children: PropTypes.object.isRequired,
+  baseControls: PropTypes.shape({
+    updateErrorState: PropTypes.func.isRequired,
+    updateLoadingState: PropTypes.func.isRequired,
+  }).isRequired,
+  children: PropTypes.element.isRequired,
 };
 
-const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
+const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale;
 
 const defaultProps = {
-  locale: BROWSER_LANGUAGE,
+  locale: DEFAULT_LANGUAGE,
 };
 
 class IntlStartup extends Component {
@@ -20,17 +24,17 @@ class IntlStartup extends Component {
 
     this.state = {
       messages: {},
-      appLocale: this.props.locale,
+      locale: DEFAULT_LANGUAGE,
     };
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
   componentWillMount() {
-    this.fetchLocalizedMessages(this.state.appLocale);
+    this.fetchLocalizedMessages(this.props.locale);
   }
 
   componentWillUpdate(nextProps) {
-    if (this.props.locale !== nextProps.locale) {
+    if (nextProps.locale && this.props.locale !== nextProps.locale) {
       this.fetchLocalizedMessages(nextProps.locale);
     }
   }
@@ -39,34 +43,36 @@ class IntlStartup extends Component {
     const url = `/html5client/locale?locale=${locale}`;
 
     const { baseControls } = this.props;
-    this.setState({ appLocale: locale });
 
     baseControls.updateLoadingState(true);
     fetch(url)
       .then((response) => {
-        if (response.ok) {
-          return response.json();
+        if (!response.ok) {
+          return Promise.reject();
         }
-        this.setState({ appLocale: 'en' });
+
         return response.json();
       })
-      .then((messages) => {
-        if (messages.statusCode === 506) {
-          this.setState({ appLocale: 'en' });
-        }
-        this.setState({ messages: messages.messages }, () => {
+      .then(({ messages, normalizedLocale }) => {
+        const dasherizedLocale = normalizedLocale.replace('_', '-')
+        this.setState({ messages, locale: dasherizedLocale }, () => {
+          Settings.application.locale = dasherizedLocale;
+          Settings.save();
           baseControls.updateLoadingState(false);
         });
       })
-      .catch((reason) => {
-        baseControls.updateErrorState(reason);
-        baseControls.updateLoadingState(false);
+      .catch((messages) => {
+        this.setState({ locale: DEFAULT_LANGUAGE }, () => {
+          Settings.application.locale = DEFAULT_LANGUAGE;
+          Settings.save();
+          baseControls.updateLoadingState(false);
+        });
       });
   }
 
   render() {
     return (
-      <IntlProvider locale={this.state.appLocale} messages={this.state.messages}>
+      <IntlProvider locale={this.state.locale} messages={this.state.messages}>
         {this.props.children}
       </IntlProvider>
     );

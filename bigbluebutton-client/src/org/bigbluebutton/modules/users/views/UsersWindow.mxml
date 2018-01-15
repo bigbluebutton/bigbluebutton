@@ -44,6 +44,7 @@ $Id: $
     <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
     <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />    
     <mate:Listener type="{BreakoutRoomsListUpdatedEvent.BREAKOUT_ROOMS_LIST_UPDATED_EVENT}" method="handleBreakoutRoomsListUpdatedEvent" />
+	<mate:Listener type="{BreakoutRoomsUsersListUpdatedEvent.BREAKOUT_ROOMS_LIST_UPDATED_EVENT}" method="handleBreakoutRoomsUsersListUpdatedEvent" />
     <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="handleUserStatusChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleUserJoinedVoiceConfEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserLeftVoiceConfEvent" />
@@ -59,67 +60,67 @@ $Id: $
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleMadeViewerEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleMadePresenterEvent" />
 
-    
   </fx:Declarations>
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.binding.utils.BindingUtils;
-      import mx.collections.ArrayCollection;
-      import mx.controls.Menu;
-      import mx.controls.dataGridClasses.DataGridColumn;
-      import mx.controls.listClasses.IListItemRenderer;
-      import mx.core.FlexGlobals;
-      import mx.core.mx_internal;
-      import mx.events.CollectionEvent;
-      import mx.events.ListEvent;
-      import mx.events.MenuEvent;
-      import mx.managers.PopUpManager;
-      
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.IBbbModuleWindow;
-      import org.bigbluebutton.common.Role;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.core.KeyboardUtil;
-      import org.bigbluebutton.core.PopUpUtil;
-      import org.bigbluebutton.core.TimerUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
-      import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.events.UserEmojiChangedEvent;
-      import org.bigbluebutton.core.events.UserStatusChangedEvent;
-      import org.bigbluebutton.core.events.VoiceConfEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.core.model.users.User2x;
-      import org.bigbluebutton.core.vo.LockSettingsVO;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.BreakoutRoomEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.StartedViewingWebcamEvent;
-      import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
-      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.main.model.users.BreakoutRoom;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
-      import org.bigbluebutton.main.model.users.events.KickUserEvent;
-      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-      import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-      import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.main.views.WellPositionedMenu;
-      import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-      import org.bigbluebutton.modules.users.events.UsersRollEvent;
-      import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
-      import org.bigbluebutton.modules.users.model.UsersOptions;
-      import org.bigbluebutton.modules.users.views.model.BBBUser2x;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import mx.binding.utils.BindingUtils;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Menu;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.controls.listClasses.IListItemRenderer;
+		import mx.core.FlexGlobals;
+		import mx.core.mx_internal;
+		import mx.events.CollectionEvent;
+		import mx.events.ListEvent;
+		import mx.events.MenuEvent;
+		import mx.managers.PopUpManager;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.IBbbModuleWindow;
+		import org.bigbluebutton.common.Role;
+		import org.bigbluebutton.common.events.LocaleChangeEvent;
+		import org.bigbluebutton.core.EventConstants;
+		import org.bigbluebutton.core.KeyboardUtil;
+		import org.bigbluebutton.core.PopUpUtil;
+		import org.bigbluebutton.core.TimerUtil;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
+		import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
+		import org.bigbluebutton.core.events.CoreEvent;
+		import org.bigbluebutton.core.events.LockControlEvent;
+		import org.bigbluebutton.core.events.UserEmojiChangedEvent;
+		import org.bigbluebutton.core.events.UserStatusChangedEvent;
+		import org.bigbluebutton.core.events.VoiceConfEvent;
+		import org.bigbluebutton.core.model.LiveMeeting;
+		import org.bigbluebutton.core.model.users.User2x;
+		import org.bigbluebutton.core.vo.LockSettingsVO;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.BreakoutRoomEvent;
+		import org.bigbluebutton.main.events.MadePresenterEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.events.StartedViewingWebcamEvent;
+		import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+		import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+		import org.bigbluebutton.main.events.UserJoinedEvent;
+		import org.bigbluebutton.main.events.UserLeftEvent;
+		import org.bigbluebutton.main.model.users.BreakoutRoom;
+		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+		import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+		import org.bigbluebutton.main.model.users.events.KickUserEvent;
+		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+		import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+		import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.main.views.WellPositionedMenu;
+		import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+		import org.bigbluebutton.modules.users.events.UsersRollEvent;
+		import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
+		import org.bigbluebutton.modules.users.model.UsersOptions;
+		import org.bigbluebutton.modules.users.views.model.BBBUser2x;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(UsersWindow);
       
@@ -165,9 +166,9 @@ $Id: $
       private const LISTEN_TO_BREAKOUT_ROOM:String = "Listen To Breakout Room";
       private const JOIN_BREAKOUT_ROOM:String = "Join Breakout Room";
       
-      private const STATUS_GRID_WIDTH:int = 56;
+      private const STATUS_GRID_WIDTH:int = 50;
       private const NAME_GRID_MIN_WIDTH:int = 80;
-      private const MEDIA_GRID_WIDTH:int = 118;
+      private const MEDIA_GRID_WIDTH:int = 100;
       
       private var muteMeRolled:Boolean = false;
       
@@ -374,7 +375,7 @@ $Id: $
       }
       
       private function openEmojiStatusMenu():void {
-        var moodMenu:MoodMenu = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
+        var moodMenu:MoodMenu = PopUpUtil.createNonModalPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
         moodMenu.btn = emojiStatusBtn;
         moodMenu.show();
       }
@@ -383,13 +384,15 @@ $Id: $
         paramsMenuData = [];
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: getStyle('iconClearStatus'), handler: resetEmojiStatuses});
         
-        if (!roomMuted) {
-          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
-          var presenter:User2x = UsersUtil.getPresenter();
-          if (presenter != null)
-            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
-        } else
-          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
+		if (partOptions.moderatorUnmute == true) {
+	      if (!roomMuted) {
+	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
+	        var presenter:User2x = UsersUtil.getPresenter();
+	        if (presenter != null)
+	          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
+	      } else
+	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
+		}
         
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: getStyle('iconLock'), handler: lockSettings});
         if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {
@@ -457,13 +460,16 @@ $Id: $
       private function handleBreakoutRoomsListUpdatedEvent(event: BreakoutRoomsListUpdatedEvent):void {
         breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
         breakoutRoomsList.refresh();
-        
       }
+		
+	  private function handleBreakoutRoomsUsersListUpdatedEvent(event:BreakoutRoomsUsersListUpdatedEvent) : void {
+		  handler.handleBreakoutRoomsUsersListUpdatedEvent();
+	  }
       
       private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
         // We display only one alert
         removeJoinWindow();
-		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow) as JoinBreakoutRoomWindow;
+		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
 		joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
       }
       

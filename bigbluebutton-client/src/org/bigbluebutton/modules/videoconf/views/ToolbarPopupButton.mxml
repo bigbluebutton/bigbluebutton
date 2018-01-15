@@ -42,25 +42,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
+			import mx.controls.Menu;
+			import mx.events.MenuEvent;
+			import mx.styles.IStyleManager2;
+			import mx.styles.StyleManager;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Media;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
+			import org.bigbluebutton.util.browser.BrowserCheck;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			
       
-      import mx.controls.Menu;
-      import mx.events.MenuEvent;
-      import mx.styles.IStyleManager2;
-      import mx.styles.StyleManager;
       
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.Media;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.main.views.MainToolbar;
-      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-      import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(ToolbarPopupButton);      
 
@@ -147,7 +153,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function remoteClick(e:ShortcutEvent):void{
 				openPublishWindow();
-				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
 			}
 			
 			public function publishingStatus(status:Number, camID:Number = -1):void {
@@ -175,8 +180,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dataMenu.dataProvider = dp;
 			}
 
+			private function browserForcesHTTPS() : Boolean {
+				var result : Boolean = !BrowserCheck.isHttps() && ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion >= "60") || (BrowserCheck.isOpera() && BrowserCheck.browserMajorVersion >= "47"));
+				if (result) {
+					Alert.show(ResourceUtil.getInstance().getString("bbb.video.message.browserhttp", [BrowserCheck.browserName]));
+				}
+				return result;
+			}
 
 			private function openPublishWindow():void{
+				if (LiveMeeting.inst().me.disableMyCam) {
+					return;
+				}
+				if (browserForcesHTTPS()) {
+					return;
+				}
 				this.enabled = false;
 				if(_currentState == ON_STATE) {
 					LOGGER.debug("[ToolbarPopupButton:openPublishWindow] Close window");
@@ -246,6 +264,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(stopShareCameraRequestEvent);
 				}
 				else {
+					if (browserForcesHTTPS()) {
+						return;
+					}
 					this.enabled = false;
 					if(numberOfCamerasOff > 0)
 						numberOfCamerasOff--;

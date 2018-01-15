@@ -1,30 +1,11 @@
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/2.0/users';
+import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
-import VoiceUsers from '/imports/api/2.0/voice-users';
-
-const isUserPresenter = () => Users.findOne({
-  userId: Auth.userID,
-}).presenter;
-
-const toggleSelfVoice = () => makeCall('toggleSelfVoice');
-
-const getVoiceUserData = () => {
-  const userId = Auth.userID;
-  const voiceUser = VoiceUsers.findOne({ intId: userId });
-
-  const { muted, joined, talking, listenOnly } = voiceUser;
-
-  return ({
-    isInAudio: joined,
-    isMuted: muted,
-    isTalking: talking,
-    listenOnly,
-  });
-};
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
 
 export default {
-  isUserPresenter,
-  toggleSelfVoice,
-  getVoiceUserData,
+  isUserPresenter: () => Users.findOne({ userId: Auth.userID }).presenter,
+  getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
+  setEmoji: status => makeCall('setEmojiStatus', Auth.userID, status),
+  getEmojiList: () => EMOJI_STATUSES,
 };

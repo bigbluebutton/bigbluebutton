@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
-import styles from './styles';
-
-import MessageFormActions from './message-form-actions/component';
 import TextareaAutosize from 'react-autosize-textarea';
+import { styles } from './styles';
 import Button from '../../button/component';
 
 const propTypes = {
@@ -142,7 +138,7 @@ class MessageForm extends Component {
           <TextareaAutosize
             className={styles.input}
             id="message-input"
-            innerRef={ref => this.textarea = ref}
+            innerRef={ref => (this.textarea = ref)}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
             aria-controls={this.props.chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}

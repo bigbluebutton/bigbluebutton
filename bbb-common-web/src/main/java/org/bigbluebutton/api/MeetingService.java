@@ -248,6 +248,7 @@ public class MeetingService implements MessageListener {
     logData.put("name", m.getName());
     logData.put("duration", m.getDuration());
     logData.put("isBreakout", m.isBreakout());
+    logData.put("webcamsOnlyForModerator", m.getWebcamsOnlyForModerator());
     logData.put("record", m.isRecord());
     logData.put("event", "create_meeting");
     logData.put("description", "Create meeting.");
@@ -266,7 +267,8 @@ public class MeetingService implements MessageListener {
       m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
       m.getWelcomeMessage(), m.getModeratorOnlyMessage(), m.getDialNumber(), m.getMaxUsers(),
       m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
-      m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes());
+      m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
+            m.getMuteOnStart());
 
   }
 
@@ -707,6 +709,14 @@ public class MeetingService implements MessageListener {
       if (user != null) {
         user.setVoiceJoined(true);
         return;
+      } else {
+        if (message.userId.startsWith("v_")) {
+          // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
+          User vuser = new User(message.userId, message.userId,
+                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false);
+          vuser.setVoiceJoined(true);
+          m.userJoined(vuser);
+        }
       }
       return;
     }
@@ -717,7 +727,13 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       User user = m.getUserById(message.userId);
       if (user != null) {
-        user.setVoiceJoined(false);
+        if (message.userId.startsWith("v_")) {
+          // A dial-in user left the meeting. Dial-in users by convention has userId that starts with "v_".
+          User vuser = m.userLeft(message.userId);
+        } else {
+          user.setVoiceJoined(false);
+        }
+
         return;
       }
       return;

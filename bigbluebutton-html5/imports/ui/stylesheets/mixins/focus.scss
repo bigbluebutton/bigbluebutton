@@ -1,0 +1,18 @@
+@import "/imports/ui/stylesheets/variables/palette";
+@import "/imports/ui/stylesheets/variables/general";
+
+@mixin elementFocus($color: $color-primary){
+  &:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 $border-size-large $color;
+    border-radius: $border-size;
+  }
+}
+
+@mixin inputFocus($shadow, $color: $color-primary) {
+  &:focus {
+    outline: none;
+    border-radius: $border-size;
+    box-shadow: 0 0 0 $border-size $shadow, inset 0 0 0 1px $color;
+  }
+} 

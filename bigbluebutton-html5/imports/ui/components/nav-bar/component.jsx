@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
@@ -45,6 +45,9 @@ const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
     breakoutName={breakoutName}
   />);
 
+const closeBreakoutJoinConfirmation = (mountModal) =>
+   mountModal(null);
+
 class NavBar extends Component {
   constructor(props) {
     super(props);
@@ -65,6 +68,37 @@ class NavBar extends Component {
     this.props.toggleUserList();
   }
 
+  componentDidUpdate(oldProps) {
+    const {
+      breakouts,
+      getBreakoutJoinURL,
+      isBreakoutRoom,
+    } = this.props;
+
+    const hadBreakouts = oldProps.breakouts.length;
+    const hasBreakouts = breakouts.length;
+
+    if (!hasBreakouts && hadBreakouts) {
+      closeBreakoutJoinConfirmation(this.props.mountModal);
+    }
+
+    breakouts.forEach((breakout) => {
+      if (!breakout.users) {
+        return;
+      }
+
+      const breakoutURL = getBreakoutJoinURL(breakout);
+
+      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
+        this.inviteUserToBreakout(breakout, breakoutURL);
+      }
+    });
+
+    if (!breakouts.length && this.state.didSendBreakoutInvite) {
+      this.setState({ didSendBreakoutInvite: false });
+    }
+  }
+
   inviteUserToBreakout(breakout, breakoutURL) {
     const {
       mountModal,
@@ -75,6 +109,55 @@ class NavBar extends Component {
     });
   }
 
+  renderPresentationTitle() {
+    const {
+      breakouts,
+      isBreakoutRoom,
+      presentationTitle,
+    } = this.props;
+
+    if (isBreakoutRoom || !breakouts.length) {
+      return (
+        <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+      );
+    }
+
+    return (
+      <Dropdown isOpen={this.state.isActionsOpen}>
+        <DropdownTrigger>
+          <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
+            {presentationTitle} <Icon iconName="down-arrow" />
+          </h1>
+        </DropdownTrigger>
+        <DropdownContent
+          placement="bottom"
+        >
+          <DropdownList>
+            {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
+    );
+  }
+
+  renderBreakoutItem(breakout) {
+    const {
+      getBreakoutJoinURL,
+      mountModal,
+    } = this.props;
+
+    const breakoutName = breakout.name;
+    const breakoutURL = getBreakoutJoinURL(breakout);
+
+    return (
+      <DropdownListItem
+        className={styles.actionsHeader}
+        key={_.uniqueId('action-header')}
+        label={breakoutName}
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName, mountModal)}
+      />
+    );
+  }
   render() {
     const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
@@ -109,80 +192,6 @@ class NavBar extends Component {
           <SettingsDropdownContainer />
         </div>
       </div>
-    );
-  }
-
-  renderPresentationTitle() {
-    const {
-      breakouts,
-      isBreakoutRoom,
-      presentationTitle,
-    } = this.props;
-
-    if (isBreakoutRoom || !breakouts.length) {
-      return (
-        <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-      );
-    }
-
-    return (
-      <Dropdown isOpen={this.state.isActionsOpen}>
-        <DropdownTrigger>
-          <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName="down-arrow" />
-          </h1>
-        </DropdownTrigger>
-        <DropdownContent
-          placement="bottom"
-        >
-          <DropdownList>
-            {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
-    );
-  }
-
-  componentDidUpdate() {
-    const {
-      breakouts,
-      getBreakoutJoinURL,
-      isBreakoutRoom,
-    } = this.props;
-
-    breakouts.forEach((breakout) => {
-      if (!breakout.users) {
-        return;
-      }
-
-      const breakoutURL = getBreakoutJoinURL(breakout);
-
-      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
-        this.inviteUserToBreakout(breakout, breakoutURL);
-      }
-    });
-
-    if (!breakouts.length && this.state.didSendBreakoutInvite) {
-      this.setState({ didSendBreakoutInvite: false });
-    }
-  }
-
-  renderBreakoutItem(breakout) {
-    const {
-      getBreakoutJoinURL,
-      mountModal,
-    } = this.props;
-
-    const breakoutName = breakout.name;
-    const breakoutURL = getBreakoutJoinURL(breakout);
-
-    return (
-      <DropdownListItem
-        className={styles.actionsHeader}
-        key={_.uniqueId('action-header')}
-        label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName, mountModal)}
-      />
     );
   }
 }

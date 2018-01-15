@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 
-const ReactiveAnnotationContainer = ({ ...props }) => {
+const ReactiveAnnotationContainer = (props) => {
   if (props.annotation) {
     return (
       <ReactiveAnnotation
@@ -19,14 +19,14 @@ const ReactiveAnnotationContainer = ({ ...props }) => {
   return null;
 };
 
-export default createContainer((params) => {
+export default withTracker((params) => {
   const { shapeId } = params;
   const annotation = ReactiveAnnotationService.getAnnotationById(shapeId);
 
   return {
     annotation,
   };
-}, ReactiveAnnotationContainer);
+})(ReactiveAnnotationContainer);
 
 ReactiveAnnotationContainer.propTypes = {
   annotation: PropTypes.objectOf(PropTypes.oneOfType([

@@ -8,22 +8,21 @@
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" rtlEnabled="false"/>
-    <skinning enabled="true" url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
+    <skinning url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
     <branding logo="logo.swf" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" showQuote="true"/>
     <shortcutKeys showButton="true" />
-    <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
+    <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION"/>
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true"
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="false"
             showRecordingNotification="true" logoutOnStopRecording="false"/>
-    <meeting muteOnStart="false" />
-    <breakoutRooms enabled="true" record="false" />
+    <breakoutRooms enabled="true" record="false" privateChateEnabled="true"/>
     <logging enabled="true" logTarget="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST/log" logPattern=".*"/>
     <lock disableCam="false" disableMic="false" disablePrivateChat="false"
           disablePublicChat="false" lockedLayout="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
-            
+
 		<modules>
-		 
+
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"	
@@ -40,6 +39,7 @@
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
 			enableGuestUI="false"
+			moderatorUnmute="true"
 			baseTabIndex="301"
 		/>
 
@@ -48,13 +48,14 @@
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			enablePause="true"
+			tryKurentoWebRTC="false"
 			tryWebRTCFirst="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
 			baseTabIndex="201"
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
-    
+
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION"
 			uri="rtmp://HOST/sip" 
 			dependsOn="UsersModule"
@@ -85,19 +86,19 @@
 			displayAvatar="false"
 			priorityRatio="0.67"
 		/>
-		
+
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 			baseTabIndex="601"
 			keepToolbarVisible="false"
 		/>
-		
+
 		<module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 		/>
-		
+
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
@@ -109,7 +110,7 @@
 			maxFileSize="30"
 			enableDownload="true"
 		/>
-		
+
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
@@ -151,6 +152,6 @@
       dependsOn="UsersModule"
     />
 -->
-    		
+
 	</modules>
 </config>

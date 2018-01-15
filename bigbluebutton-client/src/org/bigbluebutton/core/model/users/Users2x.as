@@ -2,6 +2,9 @@ package org.bigbluebutton.core.model.users
 {
   import mx.collections.ArrayCollection;
   
+  import org.as3commons.lang.ArrayUtils;
+  import org.as3commons.lang.StringUtils;
+  
   public class Users2x
   {
     
@@ -145,7 +148,37 @@ package org.bigbluebutton.core.model.users
           user.role = role;
         }
       } 
-    }
+	}
+	
+	public function updateBreakoutRooms(roomSequence:int, users:Array):void {
+		var user : User2x;
+		var updateUsers:Array = [];
+		// Step 1 - Update users breakout rooms
+		for (var i : int = 0; i < users.length; i++) {
+			var userId:String = StringUtils.substringBeforeLast(users[i].id, "-");
+			user = getUser(userId);
+			if (user != null && !ArrayUtils.contains(user.breakoutRooms, roomSequence)) {
+				user.breakoutRooms.push(roomSequence);
+			}
+			updateUsers.push(userId);
+		}
+		// Step 2 - Remove users breakout rooms if the users left the breakout rooms
+		for (var j:int = 0; j < _users.length; j++) {
+			user = _users.getItemAt(j) as User2x;
+			if (updateUsers.indexOf(user.intId) == -1 && ArrayUtils.contains(user.breakoutRooms, roomSequence)) {
+				user.breakoutRooms.splice(user.breakoutRooms.indexOf(roomSequence), 1);
+			}
+		}
+	}
+	
+	public function removeBreakoutRoomFromUsers(roomSequence: int):void {			
+		// Remove breakout room number display from users
+		for (var i:int; i < _users.length; i++) {
+			if (ArrayUtils.contains(User2x(_users[i]).breakoutRooms, roomSequence)) {
+				User2x(_users[i]).breakoutRooms.splice(User2x(_users[i]).breakoutRooms.indexOf(roomSequence), 1);
+			}
+		}
+	}
   }
 }
 

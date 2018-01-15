@@ -1,6 +1,6 @@
-import Chats from '/imports/api/2.0/chat';
-import Users from '/imports/api/2.0/users';
-import Meetings from '/imports/api/2.0/meetings';
+import Chats from '/imports/api/chat';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -112,7 +112,8 @@ const isChatLocked = (receiverID) => {
     const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
     const isViewer = user.role === 'VIEWER';
 
-    return ((isPublic && isPubChatLocked && isViewer && user.locked) || (!isPublic && isPrivChatLocked && isViewer && user.locked));
+    return (isPublic && isPubChatLocked && isViewer && user.locked)
+      || (!isPublic && isPrivChatLocked && isViewer && user.locked);
   }
 
   return false;
@@ -194,6 +195,14 @@ const closePrivateChat = (chatID) => {
   }
 };
 
+// if this private chat has been added to the list of closed ones, remove it
+const removeFromClosedChatsSession = (chatID) => {
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+  if (_.indexOf(currentClosedChats, chatID) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chatID));
+  }
+};
+
 // We decode to prevent HTML5 escaped characters.
 const htmlDecode = (input) => {
   const e = document.createElement('div');
@@ -228,6 +237,7 @@ export default {
   updateUnreadMessage,
   sendMessage,
   closePrivateChat,
+  removeFromClosedChatsSession,
   exportChat,
   clearPublicChatHistory,
 };

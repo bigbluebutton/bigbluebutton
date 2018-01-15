@@ -1,10 +1,12 @@
 @import "../styles.scss";
+@import "/imports/ui/stylesheets/variables/_all";
 
 .chatListItem {
   @extend %list-item;
   cursor: pointer;
   padding: 0;
   text-decoration: none;
+  color: $color-gray-dark;
 }
 
 .chatListItemLink {
@@ -21,31 +23,6 @@
     padding-top: $sm-padding-y * 1.85;
     padding-bottom: $sm-padding-y * 1.85;
   }
-}
-
-.unreadMessages {
-  @extend %flex-column;
-  justify-content: center;
-}
-
-.unreadMessagesText {
-  @extend %flex-column;
-  @extend %no-margin;
-  justify-content: center;
-  color: $color-white;
-  line-height: calc(1rem + 1px);
-  padding: 0 0.5rem;
-  text-align: center;
-  border-radius: 0.5rem/50%;
-  font-size: 0.8rem;
-  background-color: $unread-messages-bg;
-}
-
-.chatThumbnail {
-  @extend %flex-column;
-  color: $color-gray-light;
-  justify-content: center;
-  font-size: 175%;
 }
 
 .chatIcon {
@@ -65,8 +42,12 @@
   font-size: 0.9rem;
   font-weight: 400;
   margin-left: $sm-padding-x;
+  position: relative;
+  top: $md-padding-y;
 }
 
 .active {
   background-color: $list-item-bg-hover;
+  box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+  outline: none;
 }

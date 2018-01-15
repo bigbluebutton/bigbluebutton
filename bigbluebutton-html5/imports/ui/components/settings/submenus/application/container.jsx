@@ -1,20 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import Application from './component';
 
-// import Service from './service';
 
-class ApplicationContainer extends Component {
-  render() {
-    return (
-      <Application {...this.props}>
-        {this.props.children}
-      </Application>
-    );
-  }
-}
-export default createContainer(() => ({
+const ApplicationContainer = ({ children, ...props }) => (
+  <Application {...props}>
+    {children}
+  </Application>
+);
+
+export default withTracker(() => ({
   fontSizes: [
     '12px',
     '14px',
@@ -22,4 +17,4 @@ export default createContainer(() => ({
     '18px',
     '20px',
   ],
-}), ApplicationContainer);
+}))(ApplicationContainer);

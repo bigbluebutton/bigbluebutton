@@ -1,18 +1,19 @@
 import React, { cloneElement } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
-
+import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/2.0/users';
-import Breakouts from '/imports/api/2.0/breakouts';
-import Meetings from '/imports/api/2.0/meetings';
+import Users from '/imports/api/users';
+import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/api/meetings';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
 import {
   getFontSize,
   getCaptionsStatus,
+  meetingIsBreakout,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -21,6 +22,13 @@ import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
+
+const propTypes = {
+  navbar: PropTypes.node,
+  actionsbar: PropTypes.node,
+  media: PropTypes.node,
+  location: PropTypes.shape({}).isRequired,
+};
 
 const defaultProps = {
   navbar: <NavBarContainer />,
@@ -31,7 +39,7 @@ const defaultProps = {
 const intlMessages = defineMessages({
   kickedMessage: {
     id: 'app.error.kicked',
-    description: 'Message when the user is kicked out of the meeting',
+    description: 'Message when the user is removed from the conference',
   },
   waitingApprovalMessage: {
     id: 'app.guest.waiting',
@@ -45,18 +53,29 @@ const intlMessages = defineMessages({
 
 const AppContainer = (props) => {
   // inject location on the navbar container
-  const navbarWithLocation = cloneElement(props.navbar, { location: props.location });
+  const {
+    navbar,
+    actionsbar,
+    media,
+    ...otherProps
+  } = props;
+
+  const navbarWithLocation = cloneElement(navbar, { location: props.location });
 
   return (
-    <App {...props} navbar={navbarWithLocation}>
-      {props.children}
-    </App>
+    <App
+      navbar={navbarWithLocation}
+      actionsbar={actionsbar}
+      media={media}
+      {...otherProps}
+    />
   );
 };
 
-export default withRouter(injectIntl(withModalMounter(createContainer((
-  { router, intl, baseControls }) => {
+
+export default withRouter(injectIntl(withModalMounter(withTracker(({ router, intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
+  const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -65,17 +84,17 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // Displayed error messages according to the mode (kicked, end meeting)
   const sendToError = (code, message) => {
     Auth.clearCredentials()
-        .then(() => {
-          router.push(`/error/${code}`);
-          baseControls.updateErrorState(message);
-        });
+      .then(() => {
+        router.push(`/error/${code}`);
+        baseControls.updateErrorState(message);
+      });
   };
 
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
-      if (fields.user && fields.user.kicked) {
-        sendToError(403, intl.formatMessage(intlMessages.kickedMessage));
+      if (fields.ejected) {
+        router.push(`/ended/${403}`);
       }
     },
   });
@@ -83,7 +102,8 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
   // forcelly logged out when the meeting is ended
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
-      sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
+      if (isMeetingBreakout) return;
+      router.push(`/ended/${410}`);
     },
   });
 
@@ -98,6 +118,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
   };
-}, AppContainer))));
+})(AppContainer))));
 
 AppContainer.defaultProps = defaultProps;
+AppContainer.propTypes = propTypes;

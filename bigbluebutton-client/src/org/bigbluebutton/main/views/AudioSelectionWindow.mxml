@@ -23,9 +23,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
 				initialize="init()"
 				layout="absolute"
-				close="onCancelClicked()"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
 				showCloseButton="false">
@@ -33,6 +34,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -44,17 +47,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
 			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
 			private var phoneOptions:PhoneOptions;
-			private var browserInfo:Array;
 
 			private function init():void {
 				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
-
-				browserInfo = JSAPI.getInstance().getBrowserInfo();
 
 				if (!phoneOptions.listenOnlyMode)
 					btnListenOnly.enabled = false;
@@ -75,23 +76,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				// If Puffin browser is deteted and version is less than 4.6
-				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
+				if (BrowserCheck.isPuffinBelow46()) {
 					vboxListen.percentWidth = 100;
 				}
 			}
 			
+			private function browserForcesHTTPS() : Boolean {
+				var result : Boolean = !BrowserCheck.isHttps() && ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion >= "60") || (BrowserCheck.isOpera() && BrowserCheck.browserMajorVersion >= "47"));
+				return result;
+			}
+
 			private function onMicClick():void {
 				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
-				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) >= "4.6") {
-					dispatcher.dispatchEvent(new UseFlashModeCommand());	
-				}
-				else {
+				if (browserForcesHTTPS()) {
+					Alert.show(ResourceUtil.getInstance().getString("bbb.micPermissions.message.browserhttp", [BrowserCheck.browserName]));
+				} else if (BrowserCheck.isPuffin46AndAbove()) {
+					dispatcher.dispatchEvent(new UseFlashModeCommand());
+				} else {
 					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 					command.mic = true;
 					dispatcher.dispatchEvent(command);
 				}
-				
+
 				PopUpUtil.removePopUp(this);
 			}
 			
@@ -106,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCancelClicked():void {
-				LOGGER.debug("AudioSelectionWindow - Cancel clicked");
+				LOGGER.debug("AudioSelectionWindow - Close clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
 				

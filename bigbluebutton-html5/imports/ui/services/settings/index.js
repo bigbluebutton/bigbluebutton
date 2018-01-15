@@ -30,6 +30,12 @@ class Settings {
         },
       });
     });
+
+    // Sets default locale to browser locale
+    defaultValues.application.locale = navigator.languages ? navigator.languages[0] : false ||
+                                       navigator.language ||
+                                       defaultValues.application.locale;
+
     this.setDefault(defaultValues);
   }
 

@@ -1,32 +1,32 @@
 @font-face {
-    font-family: 'bbb-icons';
-    src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
-    src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
-         url('/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
-         url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
-         url('/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'bbb-icons';
+  src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
+  src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
+       url('/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
+       url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
+       url('/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
 
 [class^="icon-bbb-"], [class*=" icon-bbb-"] {
-    /* use !important to prevent issues with browser extensions that change fonts */
-    font-family: 'bbb-icons' !important;
-    speak: none;
-    position: relative;
-    /*top: 1px;*/
-    display: inline-block;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    width: 1.28571429em;
-    text-align: center;
-    vertical-align: middle;
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'bbb-icons' !important;
+  speak: none;
+  position: relative;
+  /*top: 1px;*/
+  display: inline-block;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  width: 1.28571429em;
+  text-align: center;
+  vertical-align: middle;
 
-    /* Better Font Rendering =========== */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .icon-bbb-mute:before {
@@ -35,17 +35,17 @@
 .icon-bbb-unmute:before {
   content: "\e931";
 }
-.icon-bbb_file:before {
+.icon-bbb-file:before {
   content: "\e92e";
 }
-.icon-bbb_upload:before {
+.icon-bbb-upload:before {
   content: "\e92f";
 }
 .icon-bbb-fullscreen:before {
   content: "\e92a";
 }
 .icon-bbb-exit_fullscreen:before {
-    content: "\e935";
+  content: "\e935";
 }
 .icon-bbb-settings:before {
   content: "\e92b";
@@ -53,7 +53,7 @@
 .icon-bbb-fit_to_screen:before {
   content: "\e929";
 }
-.icon-bbb-linte_tool:before {
+.icon-bbb-line_tool:before {
   content: "\e91c";
 }
 .icon-bbb-circle_tool:before {
@@ -95,8 +95,13 @@
 .icon-bbb-video:before {
   content: "\e930";
 }
+.icon-bbb-elipsis:before {
+  content: "\e902";
+}
 .icon-bbb-more:before {
   content: "\e902";
+  display: inline-block;
+  transform: rotate(90deg);
 }
 .icon-bbb-promote:before {
   content: "\e903";

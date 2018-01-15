@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles.scss';
-import { findDOMNode } from 'react-dom';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { styles } from './styles.scss';
 
-export default class ClosedCaptions extends React.Component {
+class ClosedCaptions extends Component {
   constructor(props) {
     super(props);
 
     this.shouldScrollBottom = false;
+  }
+
+  componentWillUpdate() {
+    const node = this.refCCScrollArea;
+
+    // number 4 is for the border
+    // offset height includes the border, but scrollheight doesn't
+    this.shouldScrollBottom = (node.scrollTop + node.offsetHeight) - 4 === node.scrollHeight;
+  }
+
+  componentDidUpdate() {
+    if (this.shouldScrollBottom) {
+      this.refCCScrollArea.scrollTop = this.refCCScrollArea.scrollHeight;
+    }
   }
 
   renderCaptions(caption) {
@@ -29,31 +43,6 @@ export default class ClosedCaptions extends React.Component {
     );
   }
 
-  componentDidMount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  componentWillUpdate() {
-    const node = findDOMNode(this.ccScrollArea);
-
-    // number 4 is for the border
-    // offset height includes the border, but scrollheight doesn't
-    this.shouldScrollBottom = node.scrollTop + node.offsetHeight - 4 === node.scrollHeight;
-  }
-
-  componentDidUpdate() {
-    if (this.shouldScrollBottom) {
-      const node = findDOMNode(this.ccScrollArea);
-      node.scrollTop = node.scrollHeight;
-    }
-  }
-
   render() {
     const {
       locale,
@@ -64,10 +53,10 @@ export default class ClosedCaptions extends React.Component {
     return (
       <div disabled className={styles.ccbox}>
         <div className={styles.title}>
-          <p> {locale || 'Locale is not selected'} </p>
+          <p> {locale} </p>
         </div>
         <div
-          ref={(ref) => { this.ccScrollArea = ref; }}
+          ref={(ref) => { this.refCCScrollArea = ref; }}
           className={styles.frame}
           style={{ background: backgroundColor }}
         >
@@ -79,3 +68,27 @@ export default class ClosedCaptions extends React.Component {
     );
   }
 }
+
+export default injectWbResizeEvent(ClosedCaptions);
+
+ClosedCaptions.propTypes = {
+  backgroundColor: PropTypes.string.isRequired,
+  captions: PropTypes.arrayOf(
+    PropTypes.shape({
+      ownerId: PropTypes.string.isRequired,
+      captions: PropTypes.arrayOf(
+        PropTypes.shape({
+          captions: PropTypes.string.isRequired,
+        }).isRequired,
+      ).isRequired,
+    }).isRequired,
+  ).isRequired,
+  locale: PropTypes.string.isRequired,
+  fontColor: PropTypes.string.isRequired,
+  fontSize: PropTypes.string.isRequired,
+  fontFamily: PropTypes.string.isRequired,
+};
+
+ClosedCaptions.defaultProps = {
+  locale: 'Locale is not selected',
+};

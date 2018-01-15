@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 layout="absolute"
                 verticalScrollPolicy="off" horizontalScrollPolicy="off"
                 width="630" height="450" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
-                showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
+                showCloseButton="false" keyDown="handleKeyDown(event)">
   <fx:Script>
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
@@ -34,7 +34,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		import mx.collections.ArrayCollection;
 		import mx.collections.ArrayList;
-		import mx.events.CloseEvent;
 		
 		import org.bigbluebutton.common.Media;
 		import org.bigbluebutton.core.BBB;
@@ -61,11 +60,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var selectedCam:int;
 		private var aspectRatio:Number = 1;
 		
-	    override public function move(x:Number, y:Number):void
-	    {
-	       return;
-	    }
-
 		private function onCreationComplete():void {
             tabIndex = 51;
 		}
@@ -188,8 +182,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		private function handleKeyDown(event:KeyboardEvent):void {
 			if (event.charCode == Keyboard.ESCAPE) {
-				disableCamera();
-				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				onCancelClicked();
 			}
 		}
 		

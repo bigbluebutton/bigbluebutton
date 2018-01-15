@@ -1,18 +1,15 @@
 import React from 'react';
-import Modal from 'react-modal';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
-import BaseMenu from '../base/component';
-import ReactDOM from 'react-dom';
-import cx from 'classnames';
-import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
+import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
+import _ from 'lodash';
+import BaseMenu from '../base/component';
+import { styles } from '../styles';
 
 const intlMessages = defineMessages({
   participantsTitle: {
-    id: 'app.userlist.participantsTitle',
+    id: 'app.userList.participantsTitle',
     description: 'heading label for participants submenu',
   },
   muteAllLabel: {
@@ -159,9 +156,9 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
-                <label className={styles.label}>
+                <div className={styles.label}>
                   {intl.formatMessage(intlMessages.muteAllLabel)}
-                </label>
+                </div>
               </div>
             </div>
             <div className={styles.col}>
@@ -181,9 +178,9 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
-                <label className={styles.label}>
+                <div className={styles.label}>
                   {intl.formatMessage(intlMessages.lockAllLabel)}
-                </label>
+                </div>
               </div>
             </div>
             <div className={styles.col}>
@@ -205,11 +202,12 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderLockItem({ label, key, ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy }, i) {
+    const formControlId = _.uniqueId('from-key-');
     return (
       <div key={i} className={cx(styles.row, styles.spacedLeft)}>
         <div className={styles.col}>
           <div className={styles.formElement}>
-            <label className={styles.label}>
+            <label htmlFor={formControlId} className={styles.label}>
               {label}
             </label>
           </div>
@@ -225,6 +223,7 @@ class ApplicationMenu extends BaseMenu {
               ariaLabelledBy={ariaLabelledBy}
               ariaDesc={ariaDesc}
               ariaDescribedBy={ariaDescribedBy}
+              id={formControlId}
             />
           </div>
         </div>

@@ -16,13 +16,23 @@
 }
 
 .systemMessage {
-  .item + &,
-  & + .item {
-    margin-bottom: $line-height-computed * 1.5;
+  padding: $line-height-computed 0;
+  border-bottom: 1px solid $color-gray-lighter;
+
+  .item:not(&) + & {
+    border-top: 1px solid $color-gray-lighter;
+  }
+
+  & + & {
+    margin-top: -$line-height-computed;
+  }
+
+  &:last-child {
+    border-bottom: none;
   }
 
   .message {
-    color: $color-heading;
+    color: $color-gray;
   }
 }
 
@@ -70,7 +80,6 @@
   display: flex;
   min-width: 0;
   font-weight: 600;
-  color: $color-gray-light;
   text-transform: capitalize;
   font-style: italic;
 

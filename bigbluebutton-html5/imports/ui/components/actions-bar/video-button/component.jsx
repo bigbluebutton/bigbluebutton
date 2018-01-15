@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import styles from '../styles.scss';
+// import { styles } from '../styles.scss';
 
 export default class JoinVideo extends React.Component {
 

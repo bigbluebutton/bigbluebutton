@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
 import { defineMessages, injectIntl } from 'react-intl';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -10,20 +12,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class PollingComponent extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidMount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
+class PollingComponent extends Component {
 
   getStyles() {
     const number = this.props.poll.answers.length + 1;
@@ -49,9 +38,9 @@ class PollingComponent extends React.Component {
             {intl.formatMessage(intlMessages.pollingTitleLabel)}
           </p>
         </div>
-        {poll.answers.map((pollAnswer, index) =>
+        {poll.answers.map(pollAnswer =>
           (<div
-            key={index}
+            key={pollAnswer.id}
             style={calculatedStyles}
             className={styles.pollButtonWrapper}
           >
@@ -83,4 +72,20 @@ class PollingComponent extends React.Component {
   }
 }
 
-export default injectIntl(PollingComponent);
+export default injectWbResizeEvent(injectIntl(PollingComponent));
+
+PollingComponent.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  handleVote: PropTypes.func.isRequired,
+  poll: PropTypes.shape({
+    pollId: PropTypes.string.isRequired,
+    answers: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        key: PropTypes.string.isRequired,
+      }).isRequired,
+    ).isRequired,
+  }).isRequired,
+};

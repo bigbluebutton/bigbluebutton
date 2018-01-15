@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import PollingContainer from '/imports/ui/components/polling/container';
@@ -9,10 +9,10 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 
-export default class PresentationArea extends React.Component {
+export default class PresentationArea extends Component {
   constructor() {
     super();
 
@@ -53,15 +53,13 @@ export default class PresentationArea extends React.Component {
     if (refPresentationArea && refWhiteboardArea) {
       // By default presentation sizes are equal to the sizes of the refPresentationArea
       // direct parent of the svg wrapper
-      let clientHeight = refPresentationArea.clientHeight;
-      let clientWidth = refPresentationArea.clientWidth;
+      let { clientWidth, clientHeight } = refPresentationArea;
 
       // if a user is a presenter - this means there is a whiteboard toolbar on the right
       // and we have to get the width/height of the refWhiteboardArea
       // (inner hidden div with absolute position)
-      if (this.props.userIsPresenter) {
-        clientHeight = refWhiteboardArea.clientHeight;
-        clientWidth = refWhiteboardArea.clientWidth;
+      if (this.props.userIsPresenter || this.props.multiUser) {
+        ({ clientWidth, clientHeight } = refWhiteboardArea);
       }
 
       presentationSizes.presentationHeight = clientHeight;
@@ -77,13 +75,11 @@ export default class PresentationArea extends React.Component {
     if (Object.keys(presentationSizes).length > 0) {
       // setting the state of the available space for the svg
       // and set the showSlide to true to start rendering the slide
-      this.setState(
-        {
-          presentationHeight: presentationSizes.presentationHeight,
-          presentationWidth: presentationSizes.presentationWidth,
-          showSlide: true,
-        },
-      );
+      this.setState({
+        presentationHeight: presentationSizes.presentationHeight,
+        presentationWidth: presentationSizes.presentationWidth,
+        showSlide: true,
+      });
     }
   }
 
@@ -132,50 +128,50 @@ export default class PresentationArea extends React.Component {
   // renders the whole presentation area
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
-    if (this.props.currentSlide &&
-        this.props.currentSlide.calculatedData &&
-        this.props.currentSlide.calculatedData.width &&
-        this.props.currentSlide.calculatedData.height) {
-      // to control the size of the svg wrapper manually
-      // and adjust cursor's thickness, so that svg didn't scale it automatically
-      const adjustedSizes = this.calculateSize();
+    if (!this.props.currentSlide ||
+        !this.props.currentSlide.calculatedData) {
+      return null;
+    }
+    // to control the size of the svg wrapper manually
+    // and adjust cursor's thickness, so that svg didn't scale it automatically
+    const adjustedSizes = this.calculateSize();
 
-      // a reference to the slide object
-      const slideObj = this.props.currentSlide;
+    // a reference to the slide object
+    const slideObj = this.props.currentSlide;
 
-      // retrieving the pre-calculated data from the slide object
-      const {
-        x,
-        y,
-        width,
-        height,
-        viewBoxWidth,
-        viewBoxHeight,
-        imageUri,
-      } = slideObj.calculatedData;
+    // retrieving the pre-calculated data from the slide object
+    const {
+      x,
+      y,
+      width,
+      height,
+      viewBoxWidth,
+      viewBoxHeight,
+      imageUri,
+    } = slideObj.calculatedData;
 
-      return (
-        <div
-          style={{
-            width: adjustedSizes.width,
-            height: adjustedSizes.height,
-            WebkitTransition: 'width 0.2s', /* Safari */
-            transition: 'width 0.2s',
-          }}
-        >
-          <CSSTransitionGroup
-            transitionName={{
+    return (
+      <div
+        style={{
+          width: adjustedSizes.width,
+          height: adjustedSizes.height,
+          WebkitTransition: 'width 0.2s', /* Safari */
+          transition: 'width 0.2s',
+        }}
+      >
+        <TransitionGroup>
+          <CSSTransition
+            key={slideObj.id}
+            classNames={{
               enter: styles.enter,
               enterActive: styles.enterActive,
               appear: styles.appear,
               appearActive: styles.appearActive,
             }}
-            transitionAppear
-            transitionEnter
-            transitionLeave={false}
-            transitionAppearTimeout={400}
-            transitionEnterTimeout={400}
-            transitionLeaveTimeout={400}
+            appear
+            enter
+            exit={false}
+            timeout={{ enter: 400 }}
           >
             <svg
               width={width}
@@ -185,7 +181,6 @@ export default class PresentationArea extends React.Component {
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
               className={styles.svgStyles}
-              key={slideObj.id}
             >
               <defs>
                 <clipPath id="viewBox">
@@ -213,11 +208,10 @@ export default class PresentationArea extends React.Component {
               </g>
               {this.renderOverlays(slideObj, adjustedSizes)}
             </svg>
-          </CSSTransitionGroup>
-        </div>
-      );
-    }
-    return null;
+          </CSSTransition>
+        </TransitionGroup>
+      </div>
+    );
   }
 
   renderOverlays(slideObj, adjustedSizes) {
@@ -271,17 +265,18 @@ export default class PresentationArea extends React.Component {
   }
 
   renderWhiteboardToolbar() {
-    if (this.props.currentSlide) {
-      const adjustedSizes = this.calculateSize();
-
-      return (
-        <WhiteboardToolbarContainer
-          whiteboardId={this.props.currentSlide.id}
-          height={adjustedSizes.height}
-        />
-      );
+    if (!this.props.currentSlide ||
+        !this.props.currentSlide.calculatedData) {
+      return null;
     }
-    return null;
+
+    const adjustedSizes = this.calculateSize();
+    return (
+      <WhiteboardToolbarContainer
+        whiteboardId={this.props.currentSlide.id}
+        height={adjustedSizes.height}
+      />
+    );
   }
 
   render() {
@@ -329,7 +324,7 @@ PresentationArea.propTypes = {
       viewBoxWidth: PropTypes.number.isRequired,
       viewBoxHeight: PropTypes.number.isRequired,
       imageUri: PropTypes.string.isRequired,
-    }).isRequired,
+    }),
   }),
   // current multi-user status
   multiUser: PropTypes.bool.isRequired,

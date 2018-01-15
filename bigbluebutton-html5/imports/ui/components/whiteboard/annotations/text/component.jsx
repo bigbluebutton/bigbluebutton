@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AnnotationHelpers from '../helpers';
 
+const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
+
 export default class TextDrawComponent extends Component {
   static getViewerStyles(results) {
     const styles = {
@@ -53,7 +55,21 @@ export default class TextDrawComponent extends Component {
   }
 
   componentDidMount() {
-    if (this.props.isActive && this.props.annotation.status !== 'DRAW_END') {
+    // iOS doesn't show the keyboard if the input field was focused by event NOT invoked by a user
+    // by it still technically moves the focus there
+    // that's why we have a separate case for iOS - we don't focus here automatically
+    // but we focus on the next "tap" invoked by a user
+    const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
+    const Android = navigator.userAgent.toLowerCase().indexOf('android') > -1;
+
+    // unsupported Firefox condition (not iOS though) can be removed when FF 59 is released
+    // see https://bugzilla.mozilla.org/show_bug.cgi?id=1409113
+    const unsupportedFirefox = navigator.userAgent.indexOf('Firefox/57') !== -1
+                            || navigator.userAgent.indexOf('Firefox/58') !== -1;
+
+    if (iOS || (Android && unsupportedFirefox)) { return; }
+
+    if (this.props.isActive && this.props.annotation.status !== DRAW_END) {
       this.handleFocus();
     }
   }
@@ -168,6 +184,7 @@ export default class TextDrawComponent extends Component {
             onChange={this.onChangeHandler}
             onBlur={this.handleOnBlur}
             style={styles}
+            spellCheck="false"
           />
         </foreignObject>
       </g>
@@ -177,7 +194,7 @@ export default class TextDrawComponent extends Component {
   render() {
     const results = this.getCoordinates();
 
-    if (this.props.isActive && this.props.annotation.status !== 'DRAW_END') {
+    if (this.props.isActive && this.props.annotation.status !== DRAW_END) {
       return this.renderPresenterTextShape(results);
     }
     return this.renderViewerTextShape(results);

@@ -1,33 +1,36 @@
-import React, { Component } from 'react';
-import styles from './styles.scss';
-import EmojiContainer from './emoji-menu/container';
+import React from 'react';
+import { styles } from './styles.scss';
+import EmojiSelect from './emoji-select/component';
 import ActionsDropdown from './actions-dropdown/component';
-import JoinAudioOptionsContainer from '../audio/audio-menu/container';
-import MuteAudioContainer from './mute-button/container';
+import AudioControlsContainer from '../audio/audio-controls/container';
+import JoinVideoOptionsContainer from '../video-dock/video-menu/container';
 
-export default class ActionsBar extends Component {
-  constructor(props) {
-    super(props);
-  }
+const ActionsBar = ({
+  isUserPresenter,
+  handleExitVideo,
+  handleJoinVideo,
+  handleShareScreen,
+  handleUnshareScreen,
+  isVideoBroadcasting,
+  emojiList,
+  emojiSelected,
+  handleEmojiChange,
+}) => (
+  <div className={styles.actionsbar}>
+    <div className={styles.left}>
+      <ActionsDropdown {...{ isUserPresenter, handleShareScreen, handleUnshareScreen, isVideoBroadcasting}} />
+    </div>
+    <div className={styles.center}>
+      <AudioControlsContainer />
+      {Meteor.settings.public.kurento.enableVideo ?
+        <JoinVideoOptionsContainer
+          handleJoinVideo={handleJoinVideo}
+          handleCloseVideo={handleExitVideo}
+        />
+      : null}
+      <EmojiSelect options={emojiList} selected={emojiSelected} onChange={handleEmojiChange} />
+    </div>
+  </div>
+);
 
-  render() {
-    const { isUserPresenter } = this.props;
-
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.left}>
-          <ActionsDropdown {...{ isUserPresenter }} />
-        </div>
-        <div className={styles.center}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            handleJoinAudio={this.props.handleOpenJoinAudio}
-            handleCloseAudio={this.props.handleExitAudio}
-          />
-          {/* <JoinVideo />*/}
-          <EmojiContainer />
-        </div>
-      </div>
-    );
-  }
-}
+export default ActionsBar;

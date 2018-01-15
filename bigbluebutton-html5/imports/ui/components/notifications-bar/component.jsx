@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styles from './styles.scss';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { styles } from './styles.scss';
 
 const COLORS = [
   'default', 'primary', 'danger', 'success',
 ];
 
 const propTypes = {
+  children: PropTypes.string.isRequired,
   color: PropTypes.oneOf(COLORS),
 };
 
@@ -15,31 +17,20 @@ const defaultProps = {
   color: 'default',
 };
 
-export default class NotificationsBar extends Component {
+const NotificationsBar = (props) => {
+  const { color } = props;
 
-  componentDidMount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  render() {
-    const { color } = this.props;
-
-    return (
-      <div
-        role="alert"
-        className={cx(styles.notificationsBar, styles[color])}
-      >
-        {this.props.children}
-      </div>
-    );
-  }
-}
+  return (
+    <div
+      role="alert"
+      className={cx(styles.notificationsBar, styles[color])}
+    >
+      {props.children}
+    </div>
+  );
+};
 
 NotificationsBar.propTypes = propTypes;
 NotificationsBar.defaultProps = defaultProps;
+
+export default injectWbResizeEvent(NotificationsBar);

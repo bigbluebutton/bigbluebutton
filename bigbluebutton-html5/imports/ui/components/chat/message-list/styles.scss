@@ -11,9 +11,11 @@ $padding: $md-padding-x;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+  padding-left: $padding;
+  margin-left: -$padding;
   padding-right: $padding;
-  padding-bottom: $padding;
   margin-right: -$padding;
+  padding-bottom: $padding;
   margin-bottom: -$padding;
 }
 
@@ -25,14 +27,19 @@ $padding: $md-padding-x;
   margin-right: -$padding;
   padding-right: $padding;
   padding-top: 0;
-  padding-bottom: $padding;
+  &:after {
+    content: "";
+    display: block;
+    height: $padding;
+  }
 }
 
 .unreadButton {
-  flex-grow: 0;
   flex-shrink: 0;
-  border-radius: 0;
+  width: 100%;
   text-transform: uppercase;
-  margin-bottom: .5rem;
+  // margin-top: .25rem;
+  margin-bottom: .25rem;
+  background-color: darken($color-white, 5%);
   @extend %text-elipsis;
 }

@@ -12,6 +12,7 @@
 @namespace chat "org.bigbluebutton.modules.chat.views.*";
 @namespace skins "org.bigbluebutton.skins.*";
 @namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
+@namespace tabBarClasses "flexlib.controls.tabBarClasses.*";
 
 /*
 //------------------------------
@@ -125,7 +126,6 @@ mx|Application {
 */
 
 mx|ApplicationControlBar {
-	borderSkin      : ClassReference(null);
 	cornerRadius    : 0;
 	fillAlphas      : 1, 1;
 	fillColors      : #FFFFFF, #FFFFFF;
@@ -143,8 +143,10 @@ phonecomponents|MuteMeButton {
 
 .toolbarMainBox {
 	backgroundColor : #FFFFFF;
-	paddingTop      : 6;
+	paddingTop      : 0;
 	paddingBottom   : 6;
+	verticalAlign   : middle;
+	verticalGap     : 0;
 }
 
 .breakoutRoomRibbon {
@@ -176,7 +178,8 @@ phonecomponents|MuteMeButton {
 }
 
 .defaultControlBarStyle {
-	color : #2A2D33;
+	backgroundColor : #F1F3F7;
+	color           : #2A2D33;
 }
 
 .darkControlBarStyle {
@@ -248,6 +251,16 @@ phonecomponents|MuteMeButton {
 	iconColor       : #FFFFFF;
 	iconColorOver   : #FFFFFF;
 	iconColorDown   : #FFFFFF;
+}
+
+.mainActionButton, .cameraDisplaySettingsWindowStartBtn {
+	borderThickness   : 0;
+	color             : #FFFFFF;
+	fillColorUp       : #1070D7;
+	fillColorOver     : #0A5EAC;
+	fillColorDown     : #1070D7;
+	textRollOverColor : #FFFFFF;
+	textSelectedColor : #FFFFFF;
 }
 
 .voiceConfDefaultButtonStyle {
@@ -418,7 +431,7 @@ mx|Button {
 	borderAlphaUp               : 1;
 	borderAlphaOver             : 1;
 	borderAlphaDown             : 1;
-	borderAlphaDisabled         : 1;
+	borderAlphaDisabled         : 0.25;
 
 	borderThickness             : 1;
 
@@ -535,6 +548,10 @@ views|BrowserPermissionHelper {
 //------------------------------
 */
 
+views|ClientStatusWindow {
+	horizontalAlign : right;
+}
+
 views|ClientStatusItemRenderer {
 	iconSuccess : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Success");
 	iconWarning : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Warning");
@@ -632,6 +649,15 @@ chat|AddChatTabBox {
 	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
 	selectionColor : #CED4DB;
+}
+
+.chatMessageHeader {
+	color : #808080;
+}
+
+.chatMessageHeaderModerator {
+	color      : #808080;
+	fontWeight : bold;
 }
 
 /*
@@ -751,10 +777,6 @@ mx|DataGrid {
 //  Desktop Sharing
 //------------------------------
 */
-
-.deskshareControlButtonStyle {
-	cornerRadius : 18;
-}
 
 .deskshareWarningLabelStyle {
 	fontWeight : bold;
@@ -900,6 +922,7 @@ views|LockSettings {
 */
 
 views|MainApplicationShell {
+	borderStyle   : none;
 	paddingBottom : 0;
 	verticalGap   : 0;
 }
@@ -949,6 +972,7 @@ flexlib|MDIWindow {
 	maximizeBtnStyleName : "mdiMaximizeButtonStyle";
 	restoreBtnStyleName  : "mdiMaximizeButtonStyle";
 	minimizeBtnStyleName : "mdiMinimizeButtonStyle";
+	closeBtnStyleName    : "mdiCloseButtonStyle";
 
 	windowControlsClass  : ClassReference("org.bigbluebutton.skins.WindowControlsContainer");
 
@@ -977,6 +1001,13 @@ flexlib|MDIWindow {
 	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Over");
 	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Down");
 	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Minimize_Disabled");
+}
+
+.mdiCloseButtonStyle {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="MDI_Button_Close_Disabled");
 }
 
 .mdiWindowTitle {
@@ -1042,6 +1073,35 @@ flexlib|MDIWindow {
 
 views|NetworkStatsWindow {
 	iconRefresh : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Refresh");
+}
+
+/*
+//------------------------------
+//  NumericStepper
+//------------------------------
+*/
+
+mx|NumericStepper {
+	/* Normal state */
+	fillColorUp         : #FFFFFF;
+	fillColorOver       : #CDD4DB;
+	fillColorDown       : #ACB2B7;
+	fillColorDisabled   : #F0F2F6;
+	borderColorUp       : #CDD4DB;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #0A5EAC;
+	borderColorDisabled : #CDD4DB;
+
+	/* Icon states */
+	iconColor           : #4E5A66;
+	iconColorOver       : #1070D7;
+	iconColorDown       : #4E5A66;
+
+	borderThickness     : 1;
+
+	/* Skins */
+	downArrowSkin       : ClassReference("org.bigbluebutton.skins.NumericStepperDownSkin");
+	upArrowSkin         : ClassReference("org.bigbluebutton.skins.NumericStepperUpSkin");
 }
 
 /*
@@ -1120,6 +1180,15 @@ mx|Panel {
 	textSelectedColor : #3F3F41;
 	borderColor       : #B9BABC;
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Trash");
+}
+
+.presentationUploadProgressBarLabel {
+	color                     : #8A9AA7;
+	fontWeight                : "bold";
+	indeterminateMoveInterval : 28;
+	leading                   : 0;
+	paddingTop                : 0;
+	paddingBottom             : 0;
 }
 
 .presentationUploadProgressBar {
@@ -1227,6 +1296,12 @@ mx|Panel {
 	color : #2A2D33;
 }
 
+.pollVoteLabel {
+	textAlign  : center;
+	fontSize   : 16;
+	fontWeight : bold;
+}
+
 .presentationFilesList {
 	paddingBottom : 5;
 	paddingLeft   : 5;
@@ -1287,6 +1362,19 @@ poll|PollResultsModal {
 .pollResondersLabelStyle {
 	color    : #5E6C72;
 	fontSize : 14;
+}
+
+.pollHintBoxStyle {
+	horizontalAlign : center;
+	verticalAlign   : middle;
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 10;
+	paddingRight    : 10;
+}
+
+.pollHintTextStyle {
+	textAlign  : center;
+	fontWeight : bold;
 }
 
 /*
@@ -1372,6 +1460,25 @@ mx|ScrollBar {
 
 /*
 //------------------------------
+//  ScreenshareViewWindow
+//------------------------------
+*/
+
+.screenShareActualizeButton {
+	borderThickness       : 0;
+	color                 : #FFFFFF;
+	fillColorUp           : #1070D7;
+	fillColorOver         : #0A5EAC;
+	fillColorDown         : #1070D7;
+	textRollOverColor     : #FFFFFF;
+	textSelectedColor     : #FFFFFF;
+	fillColorSelectedUp   : #1070D7;
+	fillColorSelectedOver : #0A5EAC;
+	fillColorSelectedDown : #1070D7;
+}
+
+/*
+//------------------------------
 //  SharedNotes
 //------------------------------
 */
@@ -1430,28 +1537,38 @@ mx|Slider {
 */
 
 flexlib|SuperTabNavigator {
-	borderColor : #CDD4DB;
+	borderColor  : #CDD4DB;
+	tabStyleName : "defaultTabStyle";
 }
 
-mx|Tab, .defaultTabStyle {
-	borderColor       : #CDD4DB;
-	color             : #2A2D33;
-	cornerRadius      : 0;
-	fillColorUp       : #E8EFF3;
-	fillColorOver     : #CDD4DB;
-	fillColorDown     : #ACB2B7;
-	fillColorDisabled : #F0F2F6;
-	iconVisible       : false;
-	paddingBottom     : 0;
-	paddingTop        : 0;
-	textIndent        : 4;
-	skin              : ClassReference("org.bigbluebutton.skins.TabSkin");
+.defaultTabStyle {
+	borderColor             : #CDD4DB;
+	color                   : #2A2D33;
+	cornerRadius            : 0;
+	fillColorUp             : #E8EFF3;
+	fillColorOver           : #CDD4DB;
+	fillColorDown           : #ACB2B7;
+	fillColorDisabled       : #F0F2F6;
+	iconVisible             : false;
+	paddingBottom           : 0;
+	paddingTop              : 0;
+	textIndent              : 4;
+	skin                    : ClassReference("org.bigbluebutton.skins.TabSkin");
+	tabCloseButtonStyleName : "tabCloseButton";
 }
 
 .highlightedTabStyle {
-	color       : #DF2721;
-	iconColor   : #DF2721;
-	iconVisible : true;
+	color                   : #DF2721;
+	iconColor               : #DF2721;
+	iconVisible             : true;
+	tabCloseButtonStyleName : "tabCloseButton";
+}
+
+.tabCloseButton {
+	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Up");
+	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Over");
+	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Down");
+	disabledSkin : Embed(source="assets/swf/v2_skin.swf", symbol="Tab_Button_Close_Disabled");
 }
 
 /*
@@ -1533,6 +1650,9 @@ users|StatusItemRenderer {
 	iconMoodThumbsUp   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsUp");
 	iconMoodThumbsDown : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_ThumbsDown");
 	iconMoodApplause   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Applause");
+	verticalAlign      : middle;
+	horizontalAlign    : center;
+	horizontalGap      : 2;
 }
 
 users|MediaItemRenderer {
@@ -1548,7 +1668,7 @@ users|MediaItemRenderer {
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
 	glowFilterColor : #1070D7;
 	verticalAlign   : middle;
-	horizontalGap   : 8;
+	horizontalGap   : 2;
 	horizontalAlign : center;
 }
 
@@ -1678,7 +1798,7 @@ videoconf|UserGraphicHolder {
 }
 
 .cameraDisplaySettingsWindowStartBtn {
-	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam");
+	icon         : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_On");
 	disabledIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Webcam_Disabled");
 }
 

@@ -1,5 +1,5 @@
-import Users from '/imports/api/2.0/users';
-import Captions from '/imports/api/2.0/captions';
+import Users from '/imports/api/users';
+import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
 import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
@@ -23,13 +23,11 @@ const getUserRoles = () => {
 };
 
 const updateSettings = (obj) => {
-  Object.keys(obj).forEach(k => Settings[k] = obj[k]);
+  Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save();
 };
 
-const getAvailableLocales = function () {
-  return fetch('/html5client/locales').then(locales => locales.json());
-};
+const getAvailableLocales = () => fetch('/html5client/locales').then(locales => locales.json());
 
 export {
   getClosedCaptionLocales,

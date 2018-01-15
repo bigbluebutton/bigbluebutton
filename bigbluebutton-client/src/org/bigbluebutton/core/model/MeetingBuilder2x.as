@@ -14,7 +14,6 @@ package org.bigbluebutton.core.model
 		internal var welcomeMessage:String;
 		internal var modOnlyMessage:String;
 		internal var allowStartStopRecording: Boolean;
-		internal var webcamsOnlyForModerator: Boolean;
 		internal var metadata: Object;
 		
 		public function MeetingBuilder2x(id: String, name: String)
@@ -55,11 +54,6 @@ package org.bigbluebutton.core.model
 		
 		public function withAllowStartStopRecording(value: Boolean):MeetingBuilder2x {
 			allowStartStopRecording = value;
-			return this;
-		}
-		
-		public function withWebcamsOnlyForModerator(value: Boolean):MeetingBuilder2x {
-			webcamsOnlyForModerator = value;
 			return this;
 		}
 		

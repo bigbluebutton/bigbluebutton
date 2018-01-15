@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import _ from 'lodash';
 import Logger from './logger';
 import Redis from './redis';
 import locales from '../../utils/locales';
@@ -8,10 +7,10 @@ const availableLocales = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-  Logger.info(`SERVER STARTED. ENV=${Meteor.settings.runtime.env}`, APP_CONFIG);
+  Logger.info(`SERVER STARTED. DEV_ENV=${Meteor.isDevelopment} PROD_ENV=${Meteor.isProduction}`, APP_CONFIG);
 });
 
-WebApp.connectHandlers.use('/check', (req, res, next) => {
+WebApp.connectHandlers.use('/check', (req, res) => {
   const payload = { html5clientStatus: 'running' };
 
   res.setHeader('Content-Type', 'application/json');
@@ -21,29 +20,30 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const defaultLocale = APP_CONFIG.defaultLocale;
-  const localeRegion = req.query.locale.split('-');
+  const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
+  const localeRegion = req.query.locale.split(/[-_]/g);
+  const localeList = [defaultLocale, localeRegion[0]];
+
+  let normalizedLocale = localeRegion[0];
   let messages = {};
-  const locales = [defaultLocale, localeRegion[0]];
-  let statusCode = 200;
+
   if (localeRegion.length > 1) {
-    locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
+    normalizedLocale = `${localeRegion[0]}_${localeRegion[1].toUpperCase()}`;
+    localeList.push(normalizedLocale);
   }
 
-  locales.forEach((locale) => {
+  localeList.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
+      normalizedLocale = locale;
     } catch (e) {
-      // Variant Also Negotiates Status-Code, to alert the client that we
-      // do not support the following lang.
-      // https://en.wikipedia.org/wiki/Content_negotiation
-      statusCode = 506;
+      // Getting here means the locale is not available on the files.
     }
   });
 
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ statusCode, messages }));
+  res.end(JSON.stringify({ normalizedLocale, messages }));
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
