@@ -33,15 +33,6 @@ class AudioManager {
       error: null,
       outputDeviceId: null,
     });
-
-    const query = VoiceUsers.find({ intId: Auth.userID });
-
-    query.observeChanges({ // keep track of mute/unmute in case of Flash changing it
-      changed: (id, fields) => {
-        if (fields.muted === this.isMuted) return;
-        this.isMuted = fields.muted;
-      },
-    });
   }
 
   init(userData, messages) {
@@ -128,14 +119,23 @@ class AudioManager {
   }
 
   toggleMuteMicrophone() {
-    makeCall('toggleSelfVoice').then(() => {
-      this.onToggleMicrophoneMute();
-    });
+    makeCall('toggleSelfVoice');
   }
 
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
+
+    // listen to the VoiceUsers changes and update the flag
+    if(!this.muteHandle) {
+      const query = VoiceUsers.find({ intId: Auth.userID });
+      this.muteHandle = query.observeChanges({ // keep track of mute/unmute in case of Flash changing it
+        changed: (id, fields) => {
+          if (fields.muted === this.isMuted) return;
+          this.isMuted = fields.muted;
+        },
+      });
+    }
 
     if (!this.isEchoTest) {
       this.notify(this.messages.info.JOINED_AUDIO);
@@ -145,10 +145,6 @@ class AudioManager {
   onTransferStart() {
     this.isEchoTest = false;
     this.isConnecting = true;
-  }
-
-  onToggleMicrophoneMute() {
-    this.isMuted = !this.isMuted;
   }
 
   onAudioExit() {
