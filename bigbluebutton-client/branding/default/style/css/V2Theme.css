@@ -651,6 +651,15 @@ chat|AddChatTabBox {
 	selectionColor : #CED4DB;
 }
 
+.chatMessageHeader {
+	color : #808080;
+}
+
+.chatMessageHeaderModerator {
+	color      : #808080;
+	fontWeight : bold;
+}
+
 /*
 //------------------------------
 //  CheckBox

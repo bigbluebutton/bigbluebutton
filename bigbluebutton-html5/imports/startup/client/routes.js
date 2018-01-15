@@ -5,7 +5,7 @@ import { createHistory } from 'history';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
-
+import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import { joinRouteHandler, logoutRouteHandler, authenticatedRouteHandler } from './auth';
 import Base from './base';
 
@@ -35,6 +35,7 @@ const renderRoutes = () => (
       />
       <Redirect from="users/chat" to="/users/chat/public" />
     </Route>
+    <Route name="meeting-ended" path="/ended/:endedCode" component={Base} />
     <Route name="error" path="/error/:errorCode" component={Base} />
     <Redirect from="*" to="/error/404" />
   </Router>

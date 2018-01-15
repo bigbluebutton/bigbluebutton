@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-
-import { styles } from './styles.scss';
+import { withRouter } from 'react-router';
+import styles from './styles.scss';
 
 const intlMessages = defineMessages({
   500: {
@@ -16,9 +16,6 @@ const intlMessages = defineMessages({
   },
   401: {
     id: 'app.error.401',
-  },
-  403: {
-    id: 'app.error.403',
   },
   leave: {
     id: 'app.error.leaveLabel',
@@ -38,15 +35,12 @@ const defaultProps = {
 };
 
 class ErrorScreen extends Component {
-
-  onClick() {
-    window.location = window.location.origin;
-  }
-
   render() {
-    const { intl, code, children } = this.props;
+    const {
+      intl, code, children, router,
+    } = this.props;
 
-    let formatedMessage = intl.formatMessage(intlMessages[500]);
+    let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
 
     if (code in intlMessages) {
       formatedMessage = intl.formatMessage(intlMessages[code]);
@@ -65,8 +59,8 @@ class ErrorScreen extends Component {
         </div>
         <div className={styles.content}>
           <Button
-            size={'sm'}
-            onClick={this.onClick}
+            size="sm"
+            onClick={() => router.push('/logout/')}
             label={intl.formatMessage(intlMessages.leave)}
           />
         </div>
@@ -75,7 +69,7 @@ class ErrorScreen extends Component {
   }
 }
 
-export default injectIntl(ErrorScreen);
+export default withRouter(injectIntl(ErrorScreen));
 
 ErrorScreen.propTypes = propTypes;
 ErrorScreen.defaultProps = defaultProps;
