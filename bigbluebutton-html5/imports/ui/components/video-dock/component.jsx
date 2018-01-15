@@ -196,7 +196,7 @@ class VideoDock extends Component {
 
         const webRtcPeer = this.webRtcPeers[parsedMessage.cameraId];
 
-        if (webRtcPeer !== null) {
+        if (typeof webRtcPeer !== 'undefined' && webRtcPeer !== null) {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
@@ -208,7 +208,7 @@ class VideoDock extends Component {
             webRtcPeer.iceQueue.push(parsedMessage.candidate);
           }
         } else {
-          log('error', ' [ICE] Message arrived before webRtcPeer?');
+          log('error', ' [ICE] Message arrived after the peer was already thrown out, discarding it...');
         }
         break;
     }
@@ -353,6 +353,10 @@ class VideoDock extends Component {
       cameraId: id,
     });
 
+    if (id === userId) {
+      VideoService.exitedVideo();
+    }
+
     this.destroyWebRTCPeer(id);
     this.destroyVideoTag(id);
   }
@@ -408,7 +412,6 @@ class VideoDock extends Component {
     log('info', 'Unsharing webcam');
     const { userId } = this.props;
     VideoService.sendUserUnshareWebcam(userId);
-    VideoService.exitedVideo();
   }
 
   startResponse(message) {
@@ -468,9 +471,7 @@ class VideoDock extends Component {
     log('info', 'Handle play stop <--------------------');
     log('error', message);
 
-    const { users } = this.props;
-
-    if (message.cameraId == this.props) {
+    if (message.cameraId == this.props.userId) {
       this.unshareWebcam();
     } else {
       this.stop(message.cameraId);
@@ -481,7 +482,6 @@ class VideoDock extends Component {
     log('info', 'Handle play start <===================');
 
     if (message.cameraId == this.props.userId) {
-      log('info', "Dae ze caralhow ");
       VideoService.joinedVideo();
     }
   }
@@ -489,6 +489,12 @@ class VideoDock extends Component {
   handleError(message) {
     const { intl } = this.props;
     this.notifyError(intl.formatMessage(intlMessages.sharingError));
+
+    if (message.cameraId == this.props.userId) {
+      this.unshareWebcam();
+    } else {
+      this.stop(message.cameraId);
+    }
 
     console.error(' Handle error --------------------->');
     log('debug', message.message);
@@ -560,7 +566,6 @@ class VideoDock extends Component {
           }
         }
       }
-
       return true;
     }
 
