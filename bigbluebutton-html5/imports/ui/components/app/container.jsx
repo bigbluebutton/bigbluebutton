@@ -72,6 +72,7 @@ const AppContainer = (props) => {
   );
 };
 
+
 export default withRouter(injectIntl(withModalMounter(withTracker(({ router, intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
   const isMeetingBreakout = meetingIsBreakout();
@@ -93,7 +94,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
       if (fields.ejected) {
-        sendToError(403, intl.formatMessage(intlMessages.removedMessage));
+        router.push(`/ended/${403}`);
       }
     },
   });
@@ -102,7 +103,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
       if (isMeetingBreakout) return;
-      sendToError(410, intl.formatMessage(intlMessages.endMeetingMessage));
+      router.push(`/ended/${410}`);
     },
   });
 

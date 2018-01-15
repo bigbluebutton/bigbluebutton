@@ -40,6 +40,8 @@
     "app.userList.menu.promoteUser.label": "Promote {0} to moderator",
     "app.userList.menu.demoteUser.label": "Demote {0} to viewer",
     "app.media.label": "Media",
+    "app.meeting.ended":"This session has ended",
+    "app.meeting.endedMessage":"You will be forwarded back to the home screen",
     "app.presentation.presentationToolbar.prevSlideLabel": "Previous slide",
     "app.presentation.presentationToolbar.prevSlideDesc": "Change the presentation to the previous slide",
     "app.presentation.presentationToolbar.nextSlideLabel": "Next slide",
@@ -246,8 +248,6 @@
     "app.audioManager.mediaError": "Error: There was an issue getting your media devices",
     "app.audio.joinAudio": "Join Audio",
     "app.audio.leaveAudio": "Leave Audio",
-    "app.video.joinVideo": "Share Webcam",
-    "app.video.leaveVideo": "Un-share Webcam",
     "app.audio.enterSessionLabel": "Enter Session",
     "app.audio.playSoundLabel": "Play Sound",
     "app.audio.backLabel": "Back",
@@ -275,6 +275,12 @@
     "app.toast.chat.plural":"you have {0} new messages in {1}",
     "app.notification.recordingStart": "This session is now being recorded",
     "app.notification.recordingStop": "This session is not being recorded anymore",
-    "app.video.joinVideo": "Share webcam",
-    "app.video.leaveVideo": "Unshare webcam"
+    "app.video.joinVideo": "Share Webcam",
+    "app.video.leaveVideo": "Unshare Webcam",
+    "app.video.iceCandidateError": "Error on adding ice candidate",
+    "app.video.permissionError": "Error on sharing webcam. Please check permissions",
+    "app.video.sharingError": "Error on sharing webcam",
+    "app.video.chromeExtensionError": "You must install",
+    "app.video.chromeExtensionErrorLink": "this Chrome Extension",
+    "app.meeting.endNotification.ok.label": "OK"
 }
