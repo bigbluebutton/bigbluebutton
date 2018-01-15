@@ -73,10 +73,12 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
-    const video = props.video;
-    const application = props.application;
-    const cc = props.cc;
-    const participants = props.participants;
+    const {
+      video,
+      participants,
+      cc,
+      application,
+    } = props;
 
     this.state = {
       current: {
@@ -128,9 +130,16 @@ class Settings extends Component {
         onSelect={this.handleSelectTab}
         selectedIndex={this.state.selectedTab}
         role="presentation"
+        selectedTabPanelClassName={styles.selectedTab}
       >
-        <TabList className={styles.tabList}>
-          <Tab className={styles.tabSelector} aria-labelledby="appTab">
+        <TabList
+          className={styles.tabList}
+        >
+          <Tab
+            className={styles.tabSelector}
+            aria-labelledby="appTab"
+            selectedClassName={styles.selected}
+          >
             <Icon iconName="application" className={styles.icon} />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
@@ -138,7 +147,11 @@ class Settings extends Component {
           {/* <Icon iconName='video' className={styles.icon}/> */}
           {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span> */}
           {/* </Tab> */}
-          <Tab className={styles.tabSelector} aria-labelledby="ccTab">
+          <Tab
+            className={styles.tabSelector}
+            aria-labelledby="ccTab"
+            selectedClassName={styles.selected}
+          >
             <Icon iconName="user" className={styles.icon} />
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
           </Tab>
@@ -181,7 +194,7 @@ class Settings extends Component {
     );
   }
   render() {
-    const intl = this.props.intl;
+    const { intl } = this.props;
 
     return (
       <Modal
