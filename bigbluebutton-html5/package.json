@@ -33,6 +33,7 @@
     "hiredis": "~0.5.0",
     "history": "~3.3.0",
     "immutability-helper": "~2.4.0",
+    "langmap": "0.0.16",
     "lodash": "~4.17.4",
     "meteor-node-stubs": "~0.3.2",
     "node-sass": "~4.5.3",
