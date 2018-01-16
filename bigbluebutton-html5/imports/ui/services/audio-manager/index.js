@@ -32,6 +32,7 @@ class AudioManager {
       isWaitingPermissions: false,
       error: null,
       outputDeviceId: null,
+      muteHandle: null,
     });
   }
 
