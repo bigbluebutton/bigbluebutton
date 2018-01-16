@@ -15,7 +15,8 @@
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true"
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="false"
-            showRecordingNotification="true" logoutOnStopRecording="false"/>
+            showRecordingNotification="true" logoutOnStopRecording="false"
+            askForFeedbackOnLogout="false"/>
     <breakoutRooms enabled="true" record="false" privateChateEnabled="true"/>
     <logging enabled="true" logTarget="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST/log" logPattern=".*"/>
     <lock disableCam="false" disableMic="false" disablePrivateChat="false"
