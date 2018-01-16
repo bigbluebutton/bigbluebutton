@@ -1,4 +1,4 @@
-
+/* eslint prefer-promise-reject-errors: 0 */
 import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
@@ -134,78 +134,46 @@ class Auth {
   authenticate(force) {
     if (this.loggedIn && !force) return Promise.resolve();
 
-    return this._subscribeToCurrentUser()
-      .then(this._addObserverToValidatedField.bind(this));
-  }
-
-  _subscribeToCurrentUser() {
-    const credentials = this.credentials;
-
-    return new Promise((resolve, reject) => {
-      Tracker.autorun((c) => {
-        if (!(credentials.meetingId && credentials.requesterToken && credentials.requesterUserId)) {
-          reject({
-            error: 500,
-            description: 'Authentication subscription failed due to missing credentials.',
-          });
-        }
-
-        setTimeout(() => {
-          c.stop();
-          reject({
-            error: 500,
-            description: 'Authentication subscription timeout.',
-          });
-        }, 5000);
-
-        const subscription = Meteor.subscribe('current-user', credentials);
-        if (!subscription.ready()) return;
-
-        resolve(c);
+    if (!(this.meetingID && this.userID && this.token)) {
+      return Promise.reject({
+        error: 401,
+        description: 'Authentication failed due to missing credentials.',
       });
-    });
+    }
+
+    return this.validateAuthToken();
   }
 
-  _addObserverToValidatedField(prevComp) {
+  validateAuthToken() {
     return new Promise((resolve, reject) => {
+      let computation = null;
+
       const validationTimeout = setTimeout(() => {
-        clearTimeout(validationTimeout);
-        prevComp.stop();
-        this.clearCredentials();
+        computation.stop();
         reject({
-          error: 500,
+          error: 401,
           description: 'Authentication timeout.',
         });
       }, CONNECTION_TIMEOUT);
 
-      const didValidate = () => {
-        this.loggedIn = true;
-        clearTimeout(validationTimeout);
-        prevComp.stop();
-        resolve();
-      };
-
       Tracker.autorun((c) => {
+        computation = c;
+        const subscription = Meteor.subscribe('current-user', this.credentials);
+
+        if (!subscription.ready()) return;
+
         const selector = { meetingId: this.meetingID, userId: this.userID };
-        const query = Users.find(selector);
+        const User = Users.findOne(selector);
 
-        query.observeChanges({
-          changed: (id, fields) => {
-            if (fields.validated === true) {
-              c.stop();
-              didValidate();
-            }
+        // Skip in case the user is not in the collection yet or is a dummy user
+        if (!User || !('intId' in User)) return;
 
-            if (fields.validated === false) {
-              c.stop();
-              this.clearCredentials();
-              reject({
-                error: 401,
-                description: 'Authentication failed.',
-              });
-            }
-          },
-        });
+        if (User.validated === true) {
+          computation.stop();
+          clearTimeout(validationTimeout);
+          this.loggedIn = true;
+          resolve();
+        }
       });
 
       makeCall('validateAuthToken');
