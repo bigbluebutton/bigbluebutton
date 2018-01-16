@@ -885,6 +885,7 @@ layout|LoadButton {
 
 views|LogoutWindow, views|LoggedOutWindow {
 	headerHeight              : 32;
+	horizontalAlign           : center;
 	paddingBottom             : 8;
 	paddingLeft               : 8;
 	paddingRight              : 8;
@@ -899,6 +900,58 @@ views|LogoutWindow, views|LoggedOutWindow {
 	fontSize      : 16;
 	textAlign     : center;
 	paddingBottom : 8;
+}
+
+.logoutRatingBox {
+	paddingTop      : 12;
+	paddingBottom   : 12;
+	horizontalAlign : center;
+	verticalGap     : 8;
+}
+
+.logoutTitle {
+	fontSize : 24;
+}
+
+.logoutSubTitle {
+	fontSize : 16;
+	color    : #4E5A66;
+}
+
+.loggedOutContainer {
+	horizontalAlign : center;
+	verticalGap     : 4;
+}
+
+.logoutFeedbackHintBoxStyle {
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	verticalGap     : 0;
+}
+
+views|StarRating {
+	paddingTop    : 4;
+	paddingBottom : 4;
+	verticalGap   : 8;
+	horizontalGap : 0;
+	emptyStar     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Star_Empty");
+	filledStar    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Star_Filled");
+}
+
+.starBoxStyle {
+	horizontalAlign : center;
+	verticalGap     : 4;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingTop      : 4;
+	paddingBottom   : 4;
+
+}
+
+.logoutRule {
+	strokeWidth : 1;
+	color       : #BBBDBF;
 }
 
 /*
@@ -1329,7 +1382,7 @@ mx|Panel {
 	paddingRight    : 10;
 }
 
-.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .logoutFeedbackHint {
 	fontWeight : bold;
 }
 
@@ -1739,7 +1792,6 @@ videoconf|UserGraphicHolder {
 
 .userGraphicBackground {
 	backgroundColor : #FFFFFF;
-	borderStyle     : solid;
 	borderColor     : #000000;
 	borderThickness : 0;
 }
