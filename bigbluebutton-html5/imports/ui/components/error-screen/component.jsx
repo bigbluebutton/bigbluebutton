@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { withRouter } from 'react-router';
-import styles from './styles.scss';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   500: {
@@ -34,7 +34,7 @@ const defaultProps = {
   code: 500,
 };
 
-class ErrorScreen extends Component {
+class ErrorScreen extends React.PureComponent {
   render() {
     const {
       intl, code, children, router,
