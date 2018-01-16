@@ -77,6 +77,28 @@ class ActionsDropdown extends Component {
 
     if (!isUserPresenter) return null;
 
+    function ScreenshareButton(props) {
+      if (Meteor.settings.public.kurento.enableScreensharing) {
+        if (!isVideoBroadcasting()) {
+          return <DropdownListItem
+                   icon="desktop"
+                   label={intl.formatMessage(intlMessages.desktopShareLabel)}
+                   description={intl.formatMessage(intlMessages.desktopShareDesc)}
+                   onClick={handleShareScreen}
+                 />;
+        } else {
+          return <DropdownListItem
+                   icon="desktop"
+                   label={intl.formatMessage(intlMessages.stopDesktopShareLabel)}
+                   description={intl.formatMessage(intlMessages.stopDesktopShareDesc)}
+                   onClick={handleUnshareScreen}
+                 />;
+        }
+      } else {
+        return null;
+      }
+    }
+
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >
         <DropdownTrigger tabIndex={0} >
@@ -100,18 +122,7 @@ class ActionsDropdown extends Component {
               description={intl.formatMessage(intlMessages.presentationDesc)}
               onClick={this.handlePresentationClick}
             />
-            <DropdownListItem
-              icon="desktop"
-              label={intl.formatMessage(intlMessages.desktopShareLabel)}
-              description={intl.formatMessage(intlMessages.desktopShareDesc)}
-              onClick={handleShareScreen}
-            />
-            <DropdownListItem
-              icon="desktop"
-              label={intl.formatMessage(intlMessages.stopDesktopShareLabel)}
-              description={intl.formatMessage(intlMessages.stopDesktopShareDesc)}
-              onClick={handleUnshareScreen}
-            />
+            <ScreenshareButton />
           </DropdownList>
         </DropdownContent>
       </Dropdown>
