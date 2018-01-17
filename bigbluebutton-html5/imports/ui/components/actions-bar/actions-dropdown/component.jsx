@@ -54,6 +54,11 @@ class ActionsDropdown extends Component {
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
   }
 
+  componentWillMount() {
+    this.presentationItemId = _.uniqueId('action-item-');
+    this.videoItemId = _.uniqueId('action-item-');
+  }
+
   componentWillUpdate(nextProps) {
     const { isUserPresenter: isPresenter } = nextProps;
     const { isUserPresenter: wasPresenter, mountModal } = this.props;
@@ -79,7 +84,7 @@ class ActionsDropdown extends Component {
         icon="presentation"
         label={intl.formatMessage(intlMessages.presentationLabel)}
         description={intl.formatMessage(intlMessages.presentationDesc)}
-        key={_.uniqueId('action-item-')}
+        key={this.presentationItemId}
         onClick={this.handlePresentationClick}
       />),
       (Meteor.settings.public.kurento.enableScreensharing ?
@@ -87,7 +92,7 @@ class ActionsDropdown extends Component {
           icon="desktop"
           label={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
           description={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
-          key={_.uniqueId('action-item-')}
+          key={this.videoItemId}
           onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
         />
       : null),
