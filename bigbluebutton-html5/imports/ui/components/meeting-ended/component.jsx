@@ -2,7 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
+import { styles } from './styles';
 
 const intlMessage = defineMessages({
   410: {
