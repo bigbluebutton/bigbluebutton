@@ -18,9 +18,10 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" 
-	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
-	<mx:Script>
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   layout="absolute" width="400" height="300"
+		   xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -69,11 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.userrole as String;
 			}
 			
-			public function get presenterShareOnly():Boolean{
-				if (_attributes.presenterShareOnly == "true") return true;
-				else return false;
-			}
-			
 			public function start(attributes:Object):void {
 				LOGGER.debug("Starting Video Module");
 				_attributes = attributes;
@@ -88,7 +84,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				globalDispatcher.dispatchEvent(new VideoModuleStopEvent(VideoModuleStopEvent.STOP));
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<maps:VideoEventMap id="eventMap"/>
+	<fx:Declarations>
+		<maps:VideoEventMap id="eventMap"/>
+	</fx:Declarations>
 </mx:Module>

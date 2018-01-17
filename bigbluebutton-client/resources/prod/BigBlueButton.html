@@ -4,7 +4,7 @@
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <style type="text/css" media="screen">
-      html, body, #content    { height:100%; }
+      html, body, #content    { height:100%; width: 100%; }
       body                                    { margin:0; padding:0; overflow:hidden; }
       #altContent                             { /* style alt content */ }
       .visually-hidden {
@@ -25,6 +25,28 @@
 
     <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
+
+    <script type="text/javascript">
+      // Workaround Flash hang in Firefox 55 / 56
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1360666
+
+      // if it's Windows
+      if (navigator.userAgent.indexOf("Windows") != -1
+        // if it's Firefox 55 or 56
+        && (navigator.userAgent.indexOf("Firefox/55") != -1 || navigator.userAgent.indexOf("Firefox/56") != -1)
+        // if there is no 64-bit signature
+        && (navigator.userAgent.indexOf("Win64; x64") == -1)) {
+
+          // resizing the content block on visibility change, to make Flash responsive again
+          document.addEventListener('visibilitychange', function() {
+            if(document.visibilityState == 'visible') {
+              document.getElementById("content").style.height = "99%";
+              setTimeout(function(){ document.getElementById("content").style.height = "100%"; }, 500);
+            }
+          });
+      }
+    </script>
+
     <script type="text/javascript">
       // Check for Firefox 41.0.1/2 to workaround Flash hang
       // See https://bugzilla.mozilla.org/show_bug.cgi?id=1210665
@@ -43,7 +65,7 @@
       var flashvars = {};
       var params = {};
       params.quality = "high";
-      params.bgcolor = "#869ca7";
+      params.bgcolor = "#FFFFFF";
       params.allowfullscreen = "true";
       params.allowfullscreeninteractive = "true";
 
@@ -68,13 +90,15 @@
       // In Chrome 56 Google started blocking Flash by default so we force the SWF to 
       // be loaded in the DOM rather than relying on the SWFObject code to detect 
       // Flash because it can't.
+      // Edge 15 also hides the fact that Flash is available so adding a hack for that too.
       var browserInfo = determineBrowser();
-      if (browserInfo && browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) {
+      if (browserInfo && ((browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) ||
+                          (browserInfo[0] === "Edge" && browserInfo[1] >= 15))) {
         // Added a sort of callback idea because when this script runs "content" doesn't exist yet
         var fillContent = function(){
           var content = document.getElementById("content");
           if (content) {
-            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#869ca7"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="allowfullscreeninteractive" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
           }
         };
       } else {
@@ -115,13 +139,18 @@
     <script src="lib/jquery.cookie.js" language="javascript"></script>
     <!--<script src="lib/jquery.dataTables.min.js" language="javascript"></script>-->
 
-    <script src="lib/jquery.FSRTC.js" language="javascript"></script>
-    <script src="lib/jquery.jsonrpcclient.js" language="javascript"></script>
-    <script src="lib/jquery.verto.js" language="javascript"></script>
+    <script src="lib/verto-min.js" language="javascript"></script>
     <script src="lib/verto_extension.js" language="javascript"></script>
+
+    <script src="lib/kurento-extension.js" language="javascript"></script>
+    <script src="lib/kurento-utils.js" language="javascript"></script>
 
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
     <script src="lib/sip.js?v=VERSION" language="javascript"></script>
+
+    <script src="lib/adapter.js?v=VERSION" language="javascript"></script>
+    <script src="lib/webrtc_stats_bridge.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bowser.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script>
     <script src="lib/weburl_regex.js?v=VERSION" language="javascript"></script>
     <script src="lib/jsnlog.min.js?v=VERSION" language="javascript"></script>
@@ -135,7 +164,7 @@
     </script>
     <script type="text/javascript">
       window.onload = function() {
-        var checkRequest = $.ajax({
+        let checkRequest = $.ajax({
            dataType: 'json',
            url: '/html5client/check'
         });
@@ -149,35 +178,8 @@
       };
 
       function html5() {
-        // no Flash detected on the client
-        var originalPath, enterRequest, authToken, meetingId, userId;
-        originalPath = document.location.pathname;
-
-        // use the enter api to detect the meetingid, userid and authToken
-        // and reuse them to join via the HTML5 client
-        enterRequest = $.ajax({
-           dataType: 'json',
-           url: '/bigbluebutton/api/enter' + document.location.search
-        });
-
-        enterRequest.done(function(enterData) {
-          meetingId = enterData.response.meetingID;
-          userId = enterData.response.externUserID;
-          authToken = enterData.response.authToken;
-
-          if ((meetingId != null) && (userId != null) && (authToken != null)) {
-            // redirect to the html5 client with the received info
-            // format <IP>/html5client/<meetingId>/<userId>/<authToken>
-            document.location.pathname = "/html5client/join/"+meetingId+"/"+userId+"/"+authToken;
-          } else {
-            // go back to the redirection page
-            document.location.pathname = originalPath;
-          }
-        });
-
-        enterRequest.fail(function(enterData, textStatus, errorThrown){
-          BBBLog.debug("Enter request failed");
-        });
+        // Navigate to HTML5 login
+        document.location.pathname = "/html5client/join";
       }
     </script>
   </head>
@@ -192,15 +194,15 @@
     <div id="accessibile-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="visually-hidden">0 %</div>
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
-      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
-        <h3>You need Adobe Flash installed and enabled in order to use this client.</h3>
+      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; font-family: sans-serif; text-align: center;">
+        <p style="font-weight: bold;">You need Adobe Flash installed and enabled in order to use this client.</p>
         <br/>
-        <div style="width:50%; margin-left: auto; margin-right: auto; ">
+        <div style="width:50%; margin-left: auto; margin-right: auto;">
           <a href="http://www.adobe.com/go/getflashplayer">
             <img src="get_flash_player.gif" alt="Get Adobe Flash player" />
           </a>
           <div id="html5Section" style="display:none">
-            <p style="margin-left:50px;" >OR</p>
+            <p>OR</p>
             <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
           </div>
         </div>

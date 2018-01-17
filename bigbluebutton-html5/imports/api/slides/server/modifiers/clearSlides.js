@@ -7,4 +7,4 @@ export default function clearSlides(meetingId) {
   }
 
   return Slides.remove({}, Logger.info('Cleared Slides (all)'));
-};
+}

@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
+ *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -21,17 +21,18 @@ package org.bigbluebutton.modules.sharednotes.services
   import flash.events.IEventDispatcher;
   import flash.events.TimerEvent;
   import flash.utils.Timer;
-
+  
   import mx.collections.ArrayCollection;
-
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
-  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
   import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 
   public class MessageReceiver implements IMessageListener {
     private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
@@ -42,38 +43,36 @@ package org.bigbluebutton.modules.sharednotes.services
     private var bufferReader:Timer = new Timer(1000, 1);
     public var dispatcher:IEventDispatcher;
 
-    public function MessageReceiver()
-    {
+    public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
       bufferingTimeout.addEventListener(TimerEvent.TIMER, endBuffering);
       bufferReader.addEventListener(TimerEvent.TIMER, consumeBuffer);
     }
 
-    public function onMessage(messageName:String, message:Object):void
-    {
+    public function onMessage(messageName:String, message:Object):void {
       switch (messageName) {
-        case "PatchDocumentCommand":
+        case "UpdateSharedNoteRespMsg":
           if (buffering || patchDocumentBuffer.length != 0) {
             patchDocumentBuffer.addItem(message);
             if (!bufferReader.running) {
               bufferReader.start();
             }
           } else {
-            handlePatchDocumentCommand(message);
+            handleUpdateSharedNoteRespMsg(message);
           }
           break;
-        case "GetCurrentDocumentCommand":
-          handleGetCurrentDocumentCommand(message);
+        case "GetSharedNotesEvtMsg":
+          handleGetSharedNotesEvtMsg(message);
           bufferingTimeout.start();
           break;
-        case "CreateAdditionalNotesCommand":
-          handleCreateAdditionalNotesCommand(message);
+        case "CreateSharedNoteRespMsg":
+          handleCreateSharedNoteRespMsg(message);
           break;
-        case "DestroyAdditionalNotesCommand":
-          handleDestroyAdditionalNotesCommand(message);
+        case "DestroySharedNoteRespMsg":
+          handleDestroySharedNoteRespMsg(message);
           break;
-        case "SharedNotesSyncNoteCommand":
-          handleSharedNotesSyncNoteCommand(message);
+        case "SyncSharedNoteEvtMsg":
+          handleSyncSharedNoteEvtMsg(message);
           break;
         default:
            break;
@@ -86,63 +85,55 @@ package org.bigbluebutton.modules.sharednotes.services
 
     private function consumeBuffer(e:TimerEvent):void {
       while (patchDocumentBuffer.length > 0) {
-        handlePatchDocumentCommand(patchDocumentBuffer.removeItemAt(0));
+        handleUpdateSharedNoteRespMsg(patchDocumentBuffer.removeItemAt(0));
       }
     }
 
-    private function handlePatchDocumentCommand(msg: Object):void {
-      LOGGER.debug("Handling patch document message [" + msg.msg + "]");
-      var map:Object = JSON.parse(msg.msg);
-
+    private function handleUpdateSharedNoteRespMsg(msg: Object):void {
+      var userId:String = msg.header.userId as String;
       var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
-      if (map.userID != UsersUtil.getMyUserID()) {
-        receivePatchEvent.patch = map.patch;
+      if (userId != UsersUtil.getMyUserID()) {
+        receivePatchEvent.patch = msg.body.patch as String;
       } else {
         receivePatchEvent.patch = "";
       }
-      receivePatchEvent.noteId = map.noteID;
-      receivePatchEvent.patchId = map.patchID;
-      receivePatchEvent.undo = map.undo;
-      receivePatchEvent.redo = map.redo;
-
+      receivePatchEvent.userId = userId;
+      receivePatchEvent.noteId = msg.body.noteId as String;
+      receivePatchEvent.patchId = msg.body.patchId as int;
+      receivePatchEvent.undo = msg.body.undo as Boolean;
+      receivePatchEvent.redo = msg.body.redo as Boolean;
       dispatcher.dispatchEvent(receivePatchEvent);
     }
 
-    private function handleGetCurrentDocumentCommand(msg: Object):void {
-      LOGGER.debug("Handling get current document message [" + msg.msg + "]");
-      var map:Object = JSON.parse(msg.msg);
-
+    private function handleGetSharedNotesEvtMsg(msg: Object):void {
       var currentDocumentEvent:CurrentDocumentEvent = new CurrentDocumentEvent();
-      currentDocumentEvent.document = map.notes;
+      currentDocumentEvent.document = msg.body.notesReport as Object;
+      currentDocumentEvent.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(currentDocumentEvent);
+      LiveMeeting.inst().sharedNotes.updateNotesIds(msg.body.notesReport as Object);
     }
 
-    private function handleCreateAdditionalNotesCommand(msg: Object):void {
-      LOGGER.debug("Handling create additional notes message [" + msg.msg + "]");
-      var map:Object = JSON.parse(msg.msg);
-
+    private function handleCreateSharedNoteRespMsg(msg: Object):void {
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
-      e.payload.notesId = map.noteID;
-      e.payload.noteName = map.noteName;
+      e.payload.notesId = msg.body.noteId as String;
+      e.payload.noteName = msg.body.noteName as String;
+      e.payload.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(e);
+      LiveMeeting.inst().sharedNotes.addNewSharedNote(Number(msg.body.noteId as String));
     }
 
-    private function handleDestroyAdditionalNotesCommand(msg: Object):void {
-      LOGGER.debug("Handling destroy additional notes message [" + msg.msg + "]");
-      var map:Object = JSON.parse(msg.msg);
-
+    private function handleDestroySharedNoteRespMsg(msg: Object):void {
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
-      e.payload.notesId = map.noteID;
+      e.payload.notesId = msg.body.noteId as String;
+      e.payload.isNotesLimit = msg.body.isNotesLimit as Boolean;
       dispatcher.dispatchEvent(e);
+      LiveMeeting.inst().sharedNotes.removeSharedNote(Number(msg.body.noteId as String));
     }
 
-    private function handleSharedNotesSyncNoteCommand(msg: Object):void {
-      LOGGER.debug("Handling sharednotes sync note message [" + msg.msg + "]");
-      var map:Object = JSON.parse(msg.msg);
-
+    private function handleSyncSharedNoteEvtMsg(msg: Object):void {
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.SYNC_NOTE_REPLY_EVENT);
-      e.payload.noteId = map.noteID;
-      e.payload.note = map.note;
+      e.payload.noteId = msg.body.noteId as String;
+      e.payload.note = msg.body.noteReport as Object;
       dispatcher.dispatchEvent(e);
     }
   }

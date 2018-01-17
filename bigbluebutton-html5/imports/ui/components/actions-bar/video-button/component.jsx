@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import styles from '../styles.scss';
+// import { styles } from '../styles.scss';
 
 export default class JoinVideo extends React.Component {
 
@@ -15,8 +15,8 @@ export default class JoinVideo extends React.Component {
         color={'primary'}
         icon={'video_off'}
         size={'lg'}
-        circle={true}
-        style={{visibility: 'hidden'}}
+        circle
+        style={{ visibility: 'hidden' }}
       />
     );
   }

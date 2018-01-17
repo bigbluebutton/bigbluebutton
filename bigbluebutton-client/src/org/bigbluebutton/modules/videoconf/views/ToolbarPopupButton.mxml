@@ -20,27 +20,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" styleName="webcamDefaultButtonStyle"
+<mx:PopUpButton xmlns:mx="library://ns.adobe.com/flex/mx" styleName="webcamDefaultButtonStyle"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()"
 		   initialize="init()"
-           height="24"
+           height="30"
 		   toolTip="{_currentState == ON_STATE ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="false"
 		   enabled="true"
 		   selected="false"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
-	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
-	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
-	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
-	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	<fx:Declarations>
+		<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
+		<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
+		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.styles.IStyleManager2;
@@ -50,16 +54,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Media;
 			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			
+      
+      
 
 			private static const LOGGER:ILogger = getClassLogger(ToolbarPopupButton);      
 
@@ -87,12 +94,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function updateButton():void {
-				var userManager:UserManager = UserManager.getInstance();
-				var conference:Conference = userManager.getConference();
-				var me:BBBUser = conference.getMyUser();
-
-				this.visible = !me.disableMyCam;
-				this.includeInLayout = !me.disableMyCam;
+				this.visible = ! LiveMeeting.inst().me.disableMyCam;
+				this.includeInLayout = ! LiveMeeting.inst().me.disableMyCam;
 			}
 
 			private function init():void{
@@ -150,7 +153,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function remoteClick(e:ShortcutEvent):void{
 				openPublishWindow();
-				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
 			}
 			
 			public function publishingStatus(status:Number, camID:Number = -1):void {
@@ -178,8 +180,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dataMenu.dataProvider = dp;
 			}
 
+			private function browserForcesHTTPS() : Boolean {
+				var result : Boolean = !BrowserCheck.isHttps() && ((BrowserCheck.isChrome() && BrowserCheck.browserMajorVersion >= "60") || (BrowserCheck.isOpera() && BrowserCheck.browserMajorVersion >= "47"));
+				if (result) {
+					Alert.show(ResourceUtil.getInstance().getString("bbb.video.message.browserhttp", [BrowserCheck.browserName]));
+				}
+				return result;
+			}
 
 			private function openPublishWindow():void{
+				if (LiveMeeting.inst().me.disableMyCam) {
+					return;
+				}
+				if (browserForcesHTTPS()) {
+					return;
+				}
 				this.enabled = false;
 				if(_currentState == ON_STATE) {
 					LOGGER.debug("[ToolbarPopupButton:openPublishWindow] Close window");
@@ -221,7 +236,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(_currentState == ON_STATE)
 					this.styleName = "webcamOffButtonStyle";
 				else
-					this.styleName = "webcamOnButtonStyle";
+					this.styleName = "webcamOverButtonStyle";
 				this.selected = false;
 			}
 
@@ -249,6 +264,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(stopShareCameraRequestEvent);
 				}
 				else {
+					if (browserForcesHTTPS()) {
+						return;
+					}
 					this.enabled = false;
 					if(numberOfCamerasOff > 0)
 						numberOfCamerasOff--;
@@ -281,5 +299,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:PopUpButton>

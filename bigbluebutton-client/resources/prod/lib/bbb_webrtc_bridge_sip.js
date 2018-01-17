@@ -12,12 +12,15 @@ function webRTCCallback(message) {
 			if (message.errorcode !== 1004) {
 				message.cause = null;
 			}
+			monitorTracksStop();
 			BBB.webRTCCallFailed(inEchoTest, message.errorcode, message.cause);
 			break;
 		case 'ended':
+			monitorTracksStop();
 			BBB.webRTCCallEnded(inEchoTest);
 			break;
 		case 'started':
+			monitorTracksStart();
 			BBB.webRTCCallStarted(inEchoTest);
 			break;
 		case 'connecting':
@@ -126,6 +129,7 @@ function stopWebRTCAudioTestJoinConference(){
 	transferTimeout = setTimeout( function() {
 		console.log("Call transfer failed. No response after 3 seconds");
 		webRTCCallback({'status': 'failed', 'errorcode': 1008});
+		releaseUserMedia();
 		currentSession = null;
 		if (userAgent != null) {
 			var userAgentTemp = userAgent;
@@ -180,9 +184,9 @@ function createUA(username, server, callback, makeCallFunc) {
   				'password': data['password']
   			};
   		}) : [] );
-		stunsConfig['remoteIceCandidates'] = ( data['remoteIceCandidates'] ? data['remoteIceCandidates'].map(function(data) {
-			return data['ip'];
-		}) : [] );
+		//stunsConfig['remoteIceCandidates'] = ( data['remoteIceCandidates'] ? data['remoteIceCandidates'].map(function(data) {
+		//	return data['ip'];
+		//}) : [] );
   		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
   	}).fail(function(data, textStatus, errorThrown) {
   		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
@@ -208,7 +212,7 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 		userAgentString: "BigBlueButton",
 		stunServers: stunsConfig['stunServers'],
 		turnServers: stunsConfig['turnServers'],
-		artificialRemoteIceCandidates: stunsConfig['remoteIceCandidates']
+		//artificialRemoteIceCandidates: stunsConfig['remoteIceCandidates']
 	};
 	
 	uaConnected = false;
@@ -284,7 +288,7 @@ function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 	}
 	// if the user requests to proceed as listen only (does not require media) or media is already acquired,
 	// proceed with making the call
-	if (isListenOnly || userMicMedia !== undefined) {
+	if (isListenOnly || userMicMedia != null) {
 		makeCallFunc();
 	} else {
 		callback({'status':'mediarequest'});
@@ -384,6 +388,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 	callTimeout = setTimeout(function() {
 		console.log('Ten seconds without updates sending timeout code');
 		callback({'status':'failed', 'errorcode': 1006}); // Failure on call
+		releaseUserMedia();
 		currentSession = null;
 		if (userAgent != null) {
 			var userAgentTemp = userAgent;
@@ -411,6 +416,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 	iceGatheringTimeout = setTimeout(function() {
 		console.log('Thirty seconds without ICE gathering finishing');
 		callback({'status':'failed', 'errorcode': 1011}); // ICE Gathering Failed
+		releaseUserMedia();
 		currentSession = null;
 		if (userAgent != null) {
 			var userAgentTemp = userAgent;
@@ -436,6 +442,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 		console.log('call failed with cause: '+ cause);
 		
 		if (currentSession) {
+			releaseUserMedia();
 			if (callActive === false) {
 				callback({'status':'failed', 'errorcode': 1004, 'cause': cause}); // Failure on call
 				currentSession = null;
@@ -460,7 +467,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 		
 		if (currentSession) {
 			console.log('call ended ' + currentSession.endTime);
-			
+			releaseUserMedia();
 			if (callPurposefullyEnded === true) {
 				callback({'status':'ended'});
 			} else {
@@ -477,6 +484,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 
 		if (currentSession) {
 			console.log('call canceled');
+			releaseUserMedia();
 			clearTimeout(callTimeout);
 			currentSession = null;
 		} else {
@@ -495,6 +503,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			iceConnectedTimeout = setTimeout(function() {
 				console.log('5 seconds without ICE finishing');
 				callback({'status':'failed', 'errorcode': 1010}); // ICE negotiation timeout
+				releaseUserMedia();
 				currentSession = null;
 				if (userAgent != null) {
 					var userAgentTemp = userAgent;
@@ -508,6 +517,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 	currentSession.mediaHandler.on('iceConnectionFailed', function() {
 		console.log('received ice negotiation failed');
 		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
+		releaseUserMedia();
 		currentSession = null;
 		clearTimeout(iceConnectedTimeout);
 		if (userAgent != null) {
@@ -561,8 +571,28 @@ function webrtc_hangup(callback) {
 	}
 }
 
+function releaseUserMedia() {
+	if (!!userMicMedia) {
+		console.log("Releasing media tracks");
+	
+		userMicMedia.getAudioTracks().forEach(function(track) {
+			track.stop();
+		});
+
+		userMicMedia.getVideoTracks().forEach(function(track) {
+			track.stop();
+		});
+		
+		userMicMedia = null;
+	}
+}
+
 function isWebRTCAvailable() {
-	return SIP.WebRTC.isSupported();
+	if (bowser.msedge) {
+		return false;
+	} else {
+		return SIP.WebRTC.isSupported();
+	}
 }
 
 function getCallStatus() {

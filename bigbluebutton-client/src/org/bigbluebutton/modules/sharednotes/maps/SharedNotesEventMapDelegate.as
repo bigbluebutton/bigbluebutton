@@ -20,21 +20,21 @@
 package org.bigbluebutton.modules.sharednotes.maps
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import mx.binding.utils.BindingUtils;
 	import mx.utils.ObjectUtil;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.events.BBBEvent;
-	import org.bigbluebutton.modules.sharednotes.views.SharedNotesWindow;
-	import org.bigbluebutton.modules.sharednotes.views.AdditionalSharedNotesWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.model.LiveMeeting;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
 	import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
+	import org.bigbluebutton.modules.sharednotes.views.AdditionalSharedNotesWindow;
+	import org.bigbluebutton.modules.sharednotes.views.SharedNotesWindow;
 
 	public class SharedNotesEventMapDelegate {
 		private static const LOGGER:ILogger = getClassLogger(SharedNotesEventMapDelegate);
@@ -52,22 +52,25 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 
 		public function addRemoteDocuments(e:CurrentDocumentEvent):void {
-			window.addRemoteDocument(e.document);
+			window.addRemoteDocument(e.document, e.isNotesLimit);
 			for(var id:String in e.document){
 				LOGGER.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);
 				if (id != window.noteId && !windows.hasOwnProperty(id)) {
 					createAdditionalNotes(id, "");
-					windows[id].addRemoteDocument(e.document);
+					windows[id].addRemoteDocument(e.document, e.isNotesLimit);
 				}
 			}
 
-			BindingUtils.bindSetter(openAdditionalNotesSet, UserManager.getInstance().getConference(), "numAdditionalSharedNotes");
+			BindingUtils.bindSetter(openAdditionalNotesSet, LiveMeeting.inst().sharedNotes, "numAdditionalSharedNotes");
 		}
 
 		private function openAdditionalNotesSet(numAdditionalSharedNotes:Number):void {
-			var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT);
-			e.payload.numAdditionalSharedNotes = numAdditionalSharedNotes;
-			globalDispatcher.dispatchEvent(e);
+			var extraNotes : Number = numAdditionalSharedNotes - numExistentsAdditionalNotes();
+			if (extraNotes > 0) {
+				var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT);
+				e.payload.numAdditionalSharedNotes = extraNotes;
+				globalDispatcher.dispatchEvent(e);
+			}
 		}
 
 		public function addMainWindow():void {
@@ -125,6 +128,12 @@ package org.bigbluebutton.modules.sharednotes.maps
 			var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			closeEvent.window = window;
 			globalDispatcher.dispatchEvent(closeEvent);
+		}
+
+		private function numExistentsAdditionalNotes():Number {
+			var notesCounter:Number = 0;
+			for (var noteId:String in windows) notesCounter++;
+			return notesCounter;
 		}
 	}
 }

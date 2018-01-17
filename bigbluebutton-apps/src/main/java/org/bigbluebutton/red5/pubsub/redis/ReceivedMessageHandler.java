@@ -4,13 +4,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.bigbluebutton.red5.client.IReceivedOldMessageHandler;
 
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
+public class ReceivedMessageHandler implements  IReceivedOldMessageHandler{
 
-public class ReceivedMessageHandler {
-	private static Logger log = Red5LoggerFactory.getLogger(ReceivedMessageHandler.class, "bigbluebutton");
-	
 	private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
 	
 	private volatile boolean processMessage = false;
@@ -25,7 +22,7 @@ public class ReceivedMessageHandler {
 	}
 	
 	public void start() {	
-		log.info("Ready to handle messages from Redis pubsub!");
+		//log.info("Ready to handle messages from Redis pubsub!");
 
 		try {
 			processMessage = true;
@@ -37,14 +34,14 @@ public class ReceivedMessageHandler {
 							ReceivedMessage msg = receivedMessages.take();
 							processMessage(msg);
 						} catch (InterruptedException e) {
-							log.warn("Error while taking received message from queue.");
+							//log.warn("Error while taking received message from queue.");
 						}   			    		
 			    	}
 			    }
 			};
 			msgProcessorExec.execute(messageProcessor);
 		} catch (Exception e) {
-			log.error("Error subscribing to channels: " + e.getMessage());
+			//log.error("Error subscribing to channels: " + e.getMessage());
 		}			
 	}
 	
@@ -54,7 +51,7 @@ public class ReceivedMessageHandler {
 				if (handler != null) {
 					handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
 				} else {
-					log.info("No listeners interested in messages from Redis!");
+					//log.info("No listeners interested in messages from Redis!");
 				}				
 			}
 		};

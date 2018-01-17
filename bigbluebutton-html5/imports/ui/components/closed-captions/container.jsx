@@ -1,23 +1,10 @@
-import React, { Component, PropTypes } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
-import ClosedCaptionsService from './service.js';
+import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import ClosedCaptionsService from './service';
 import ClosedCaptions from './component';
 
-class ClosedCaptionsContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
+const ClosedCaptionsContainer = props => (
+  <ClosedCaptions {...props} />
+);
 
-  render() {
-    return (
-      <ClosedCaptions {...this.props}>
-        {this.props.children}
-      </ClosedCaptions>
-    );
-  }
-}
-
-export default createContainer(() => {
-  const data = ClosedCaptionsService.getCCData();
-  return data;
-}, ClosedCaptionsContainer);
+export default withTracker(() => ClosedCaptionsService.getCCData())(ClosedCaptionsContainer);

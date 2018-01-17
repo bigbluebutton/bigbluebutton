@@ -16,11 +16,10 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-
 package org.bigbluebutton.modules.screenshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;

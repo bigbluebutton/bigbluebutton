@@ -1,28 +1,40 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import { injectIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import styles from './styles.scss';
-import { FormattedMessage } from 'react-intl';
-import cx from 'classnames';
 
-import UserListItem from './user-list-item/component.jsx';
-import ChatListItem from './chat-list-item/component.jsx';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { styles } from './styles';
+import UserContent from './user-list-content/component';
 
 const propTypes = {
-  openChats: PropTypes.array.isRequired,
-  users: PropTypes.array.isRequired,
+  openChats: PropTypes.arrayOf(String).isRequired,
+  users: PropTypes.arrayOf(Object).isRequired,
+  compact: PropTypes.bool,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  currentUser: PropTypes.shape({}).isRequired,
+  meeting: PropTypes.shape({}),
+  isBreakoutRoom: PropTypes.bool,
+  getAvailableActions: PropTypes.func.isRequired,
+  normalizeEmojiName: PropTypes.func.isRequired,
+  isMeetingLocked: PropTypes.func.isRequired,
+  isPublicChat: PropTypes.func.isRequired,
+  setEmojiStatus: PropTypes.func.isRequired,
+  assignPresenter: PropTypes.func.isRequired,
+  removeUser: PropTypes.func.isRequired,
+  toggleVoice: PropTypes.func.isRequired,
+  changeRole: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
-};
-
-const listTransition = {
-  enter: styles.enter,
-  enterActive: styles.enterActive,
-  appear: styles.appear,
-  appearActive: styles.appearActive,
-  leave: styles.leave,
-  leaveActive: styles.leaveActive,
+  compact: false,
+  isBreakoutRoom: false,
+  // This one is kinda tricky, meteor takes sometime to fetch the data and passing down
+  // So the first time its create, the meeting comes as null, sending an error to the client.
+  meeting: {},
 };
 
 class UserList extends Component {
@@ -31,133 +43,42 @@ class UserList extends Component {
     this.state = {
       compact: this.props.compact,
     };
+
+    this.handleToggleCompactView = this.handleToggleCompactView.bind(this);
+  }
+
+  handleToggleCompactView() {
+    this.setState({ compact: !this.state.compact });
   }
 
   render() {
     return (
       <div className={styles.userList}>
-        {this.renderHeader()}
-        {this.renderContent()}
-      </div>
-    );
-  }
-
-  renderHeader() {
-    return (
-      <div className={styles.header}>
-        {
-          !this.state.compact ?
-          <h2 className={styles.headerTitle}>
-            <FormattedMessage
-              id="app.userlist.participantsTitle"
-              description="Title for the Header"
-              defaultMessage="Participants"
-            />
-          </h2> : null
-        }
-      </div>
-    );
-  }
-
-  renderContent() {
-    return (
-      <div className={styles.content}>
-        {this.renderMessages()}
-        {this.renderParticipants()}
-      </div>
-    );
-  }
-
-  renderMessages() {
-    const {
-      openChats,
-      openChat,
-    } = this.props;
-
-    return (
-      <div className={styles.messages}>
-        {
-          !this.state.compact ?
-          <h3 className={styles.smallTitle}>
-            <FormattedMessage
-              id="app.userlist.messagesTitle"
-              description="Title for the messages list"
-              defaultMessage="Messages"
-            />
-          </h3> : <hr className={styles.separator}></hr>
-        }
-        <div className={styles.scrollableList}>
-          <ReactCSSTransitionGroup
-            transitionName={listTransition}
-            transitionAppear={true}
-            transitionEnter={true}
-            transitionLeave={false}
-            transitionAppearTimeout={0}
-            transitionEnterTimeout={0}
-            transitionLeaveTimeout={0}
-            component="ul"
-            className={cx(styles.chatsList, styles.scrollableList)}>
-              {openChats.map(chat => (
-                <ChatListItem
-                  compact={this.state.compact}
-                  key={chat.id}
-                  openChat={openChat}
-                  chat={chat} />
-              ))}
-          </ReactCSSTransitionGroup>
-        </div>
-      </div>
-    );
-  }
-
-  renderParticipants() {
-    const {
-      users,
-      currentUser,
-      userActions,
-      compact,
-      isBreakoutRoom,
-    } = this.props;
-
-    return (
-      <div className={styles.participants}>
-        {
-          !this.state.compact ?
-          <h3 className={styles.smallTitle}>
-            <FormattedMessage
-              id="app.userlist.usersTitle"
-              description="Title for the Users list"
-              defaultMessage="Users"
-            />
-            &nbsp;({users.length})
-          </h3> : <hr className={styles.separator}></hr>
-        }
-        <ReactCSSTransitionGroup
-          transitionName={listTransition}
-          transitionAppear={true}
-          transitionEnter={true}
-          transitionLeave={true}
-          transitionAppearTimeout={0}
-          transitionEnterTimeout={0}
-          transitionLeaveTimeout={0}
-          component="ul"
-          className={cx(styles.participantsList, styles.scrollableList)}>
-          {
-            users.map(user => (
-            <UserListItem
-              compact={this.state.compact}
-              key={user.id}
-              isBreakoutRoom={isBreakoutRoom}
-              user={user}
-              currentUser={currentUser}
-              userActions={userActions}
-            />
-          ))}
-        </ReactCSSTransitionGroup>
+        {<UserContent
+          intl={this.props.intl}
+          openChats={this.props.openChats}
+          users={this.props.users}
+          compact={this.props.compact}
+          currentUser={this.props.currentUser}
+          isBreakoutRoom={this.props.isBreakoutRoom}
+          setEmojiStatus={this.props.setEmojiStatus}
+          assignPresenter={this.props.assignPresenter}
+          removeUser={this.props.removeUser}
+          toggleVoice={this.props.toggleVoice}
+          changeRole={this.props.changeRole}
+          meeting={this.props.meeting}
+          getAvailableActions={this.props.getAvailableActions}
+          normalizeEmojiName={this.props.normalizeEmojiName}
+          isMeetingLocked={this.props.isMeetingLocked}
+          isPublicChat={this.props.isPublicChat}
+          roving={this.props.roving}
+        />}
       </div>
     );
   }
 }
 
 UserList.propTypes = propTypes;
-export default withRouter(UserList);
+UserList.defaultProps = defaultProps;
+
+export default withRouter(injectWbResizeEvent(injectIntl(UserList)));

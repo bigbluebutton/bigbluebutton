@@ -46,11 +46,12 @@
     content: '';
     position: absolute;
     border-radius: 50%;
-    width: 10px;
-    height: 10px;
-    bottom: 0;
-    right: 0;
+    width: 12px;
+    height: 12px;
+    bottom: $border-size;
+    right: 3px;
     background-color: $color-danger;
+    border: $border-size solid $color-gray-dark;
   }
 }
 
@@ -73,7 +74,6 @@
 }
 
 .btnSettings {
-  transform: rotate(90deg);
 }
 
 .dropdownBreakout {

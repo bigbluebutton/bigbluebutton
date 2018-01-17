@@ -59,10 +59,7 @@ package org.bigbluebutton.modules.polling.service
         var date:Date = new Date();
 
         var pollId:String;
-        if(PresentationModel.getInstance().getCurrentPresentation().sharingDesktop)
-           pollId = "deskshare/1/" + date.time;
-        else
-           pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
 
         return pollId;
       }
@@ -94,7 +91,7 @@ package org.bigbluebutton.modules.polling.service
     
     public function handleShowPollResultEvent(event:ShowPollResultEvent):void {
       var curPoll:SimplePoll = model.getCurrentPoll();
-      dataService.showPollResult(curPoll.id, event.show);
+      dataService.showPollResult(curPoll.id);
     }
     
 

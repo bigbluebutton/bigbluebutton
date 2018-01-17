@@ -2,14 +2,11 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 
-export default function handleEmojiStatus({ payload }) {
-  const meetingId = payload.meeting_id;
-  const userId = payload.userid;
-  const status = payload.emoji_status;
+export default function handleEmojiStatus({ body }, meetingId) {
+  const { userId, emoji } = body;
 
-  check(meetingId, String);
   check(userId, String);
-  check(status, String);
+  check(emoji, String);
 
   const selector = {
     meetingId,
@@ -18,20 +15,23 @@ export default function handleEmojiStatus({ payload }) {
 
   const modifier = {
     $set: {
-      'user.set_emoji_time': (new Date()).getTime(),
-      'user.emoji_status': status,
+      emojiTime: (new Date()).getTime(),
+      emoji,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Assigning user emoji status: ${err}`);
+      Logger.error(`Assigning user emoji status: ${err}`);
+      return;
     }
 
     if (numChanged) {
-      return Logger.info(`Assigned user emoji status '${status}' id=${userId} meeting=${meetingId}`);
+      Logger.info(`Assigned user emoji status${
+        emoji} id=${userId} meeting=${meetingId}`,
+      );
     }
   };
 
   return Users.update(selector, modifier, cb);
-};
+}

@@ -1,16 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
-import React, { Component, PropTypes } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import NavBarService from '../nav-bar/service';
 import Auth from '/imports/ui/services/auth';
-import { humanizeSeconds } from '/imports/utils/humanizeSeconds';
+import humanizeSeconds from '/imports/utils/humanizeSeconds';
+import NavBarService from '../nav-bar/service';
 
 import NotificationsBar from './component';
-
-// the connection is up and running
-const STATUS_CONNECTED = 'connected';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -21,66 +18,51 @@ const STATUS_FAILED = 'failed';
 // failed to connect and waiting to try to reconnect
 const STATUS_WAITING = 'waiting';
 
-// user has disconnected the connection
-const STATUS_OFFLINE = 'offline';
-
 const intlMessages = defineMessages({
   failedMessage: {
     id: 'app.failedMessage',
-    defaultMessage: 'Apologies, trouble connecting to the server.',
-    description: 'Message when the client is trying to connect to the server',
+    description: 'Notification for connecting to server problems',
   },
   connectingMessage: {
     id: 'app.connectingMessage',
-    defaultMessage: 'Connecting...',
-    description: 'Message when the client is trying to connect to the server',
+    description: 'Notification message for when client is connecting to server',
   },
   waitingMessage: {
     id: 'app.waitingMessage',
-    defaultMessage: 'Disconnected. Trying to reconnect in {seconds} seconds...',
-    description: 'Message when the client is trying to reconnect to the server',
+    description: 'Notification message for disconnection with reconnection counter',
   },
   breakoutTimeRemaining: {
     id: 'app.breakoutTimeRemainingMessage',
-    defaultMessage: 'Breakout Room time remaining: {time}',
     description: 'Message that tells how much time is remaining for the breakout room',
   },
   breakoutWillClose: {
     id: 'app.breakoutWillCloseMessage',
-    defaultMessage: 'Time ended. Breakout Room will close soon',
     description: 'Message that tells time has ended and breakout will close',
   },
   calculatingBreakoutTimeRemaining: {
     id: 'app.calculatingBreakoutTimeRemaining',
-    defaultMessage: 'Calculating remaining time...',
     description: 'Message that tells that the remaining time is being calculated',
   },
 });
 
-class NotificationsBarContainer extends Component {
-  constructor(props) {
-    super(props);
+const NotificationsBarContainer = (props) => {
+  if (_.isEmpty(props.message)) {
+    return null;
   }
 
-  render() {
-    if (_.isEmpty(this.props.message)) {
-      return null;
-    }
+  const { message, color } = props;
 
-    const { message, color } = this.props;
-
-    return (
-      <NotificationsBar color={color}>
-        {message}
-      </NotificationsBar>
-    );
-  }
-}
+  return (
+    <NotificationsBar color={color}>
+      {message}
+    </NotificationsBar>
+  );
+};
 
 let retrySeconds = 0;
 let timeRemaining = 0;
-const retrySecondsDep = new Tracker.Dependency;
-const timeRemainingDep = new Tracker.Dependency;
+const retrySecondsDep = new Tracker.Dependency();
+const timeRemainingDep = new Tracker.Dependency();
 let retryInterval = null;
 let timeRemainingInterval = null;
 
@@ -101,6 +83,15 @@ const setRetrySeconds = (sec = 0) => {
   }
 };
 
+const changeDocumentTitle = (sec) => {
+  if (sec >= 0) {
+    const affix = `(${humanizeSeconds(sec)}`;
+    const splitTitle = document.title.split(') ');
+    const title = splitTitle[1] || splitTitle[0];
+    document.title = [affix, title].join(') ');
+  }
+};
+
 const setTimeRemaining = (sec = 0) => {
   if (sec !== timeRemaining) {
     timeRemaining = sec;
@@ -117,37 +108,32 @@ const startCounter = (sec, set, get, interval) => {
   }, 1000);
 };
 
-const changeDocumentTitle = (sec) => {
-  if (sec >= 0) {
-    const affix = `(${humanizeSeconds(sec)}`;
-    const splitTitle = document.title.split(') ');
-    const title = splitTitle[1] || splitTitle[0];
-    document.title = [affix, title].join(') ');
-  }
-};
-
-export default injectIntl(createContainer(({ intl }) => {
-  const { status, connected, retryCount, retryTime } = Meteor.status();
-  let data = {};
+export default injectIntl(withTracker(({ intl }) => {
+  const { status, connected, retryTime } = Meteor.status();
+  const data = {};
 
   if (!connected) {
     data.color = 'primary';
     switch (status) {
-      case STATUS_OFFLINE:
-      case STATUS_FAILED:
+      case STATUS_FAILED: {
         data.color = 'danger';
         data.message = intl.formatMessage(intlMessages.failedMessage);
         break;
-      case STATUS_CONNECTING:
+      }
+      case STATUS_CONNECTING: {
         data.message = intl.formatMessage(intlMessages.connectingMessage);
         break;
-      case STATUS_WAITING:
+      }
+      case STATUS_WAITING: {
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = intl.formatMessage(
           intlMessages.waitingMessage,
-          { seconds: getRetrySeconds() }
+          { 0: getRetrySeconds() },
         );
+        break;
+      }
+      default:
         break;
     }
 
@@ -157,26 +143,31 @@ export default injectIntl(createContainer(({ intl }) => {
   const meetingId = Auth.meetingID;
   const breakouts = NavBarService.getBreakouts();
 
-  if (breakouts) {
-    const currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
+  if (breakouts.length > 0) {
+    const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
+
     if (currentBreakout) {
-      roomRemainingTime = currentBreakout.timeRemaining;
+      const roomRemainingTime = currentBreakout.timeRemaining;
+
       if (!timeRemainingInterval && roomRemainingTime) {
-        timeRemainingInterval = startCounter(roomRemainingTime,
-                                             setTimeRemaining,
-                                             getTimeRemaining,
-                                             timeRemainingInterval);
+        timeRemainingInterval = startCounter(
+          roomRemainingTime,
+          setTimeRemaining,
+          getTimeRemaining,
+          timeRemainingInterval,
+        );
       }
     } else if (timeRemainingInterval) {
       clearInterval(timeRemainingInterval);
     }
 
-    const timeRemaining = getTimeRemaining();
+    timeRemaining = getTimeRemaining();
+
     if (timeRemaining) {
       if (timeRemaining > 0) {
         data.message = intl.formatMessage(
           intlMessages.breakoutTimeRemaining,
-          { time: humanizeSeconds(timeRemaining) }
+          { 0: humanizeSeconds(timeRemaining) },
         );
       } else {
         clearInterval(timeRemainingInterval);
@@ -189,4 +180,4 @@ export default injectIntl(createContainer(({ intl }) => {
 
   data.color = 'primary';
   return data;
-}, NotificationsBarContainer));
+})(NotificationsBarContainer));

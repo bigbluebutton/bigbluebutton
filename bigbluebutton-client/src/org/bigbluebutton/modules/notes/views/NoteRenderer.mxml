@@ -20,11 +20,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" styleName="noteRendererStyle"
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 verticalAlign="top" styleName="noteRendererStyle"
 		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
 		 creationComplete="onCreationComplete()">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
       import mx.binding.utils.ChangeWatcher;
       
@@ -59,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 						
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
   <mx:HBox width="100%" height="15" styleName="noteRendererTimestampStyle">
     <mx:Text id="timestamp" htmlText="{note.timestamp}" textAlign="right" color="gray" width="100%"/>      

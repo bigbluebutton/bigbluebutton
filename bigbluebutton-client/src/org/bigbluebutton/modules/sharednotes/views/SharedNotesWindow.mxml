@@ -19,64 +19,87 @@
 	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
 -->
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*"
-		xmlns:mx="http://www.adobe.com/2006/mxml"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:mate="http://mate.asfusion.com/"
 		implements="org.bigbluebutton.common.IBbbModuleWindow"
 		creationComplete="onCreationComplete()"
 		xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
 		showCloseButton="false"
-		minHeight="161" minWidth="191">
+		horizontalScrollPolicy="off">
 
-	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
-	<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
-	<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+	<fx:Declarations>
+		<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch"/>
+		<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
+		<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
+		<mate:Listener type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteCreated"/>
+		<mate:Listener type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteDestroyed"/>
+		<mate:Listener type="{ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import flash.events.KeyboardEvent;
+			import flash.globalization.DateTimeFormatter;
 			import flash.ui.Keyboard;
-
-			import flexlib.mdi.events.MDIWindowEvent;
-
+			
 			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayList;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
-			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
-
-			import org.bigbluebutton.core.UsersUtil;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.main.views.WellPositionedMenu;
-			import org.bigbluebutton.modules.sharednotes.views.components.SharedNotesRichTextEditor;
-			import org.bigbluebutton.modules.sharednotes.views.SharedNotesNameWindow;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
-			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
-			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			
+			
+			
+			
 
 			private static const LOGGER:ILogger = getClassLogger(SharedNotesWindow);
 
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 			private var _lastPatch:Number = 0;
-			protected var _noteId:String="MAIN_WINDOW";
+			protected var _noteId:String = "MAIN_NOTE";
 			protected var _noteName:String = "";
+			private var lastAuthors:Object = new Object();
 
-			[Bindable] private var options:SharedNotesOptions = new SharedNotesOptions();
+			[Bindable] protected var options:SharedNotesOptions;
+			[Bindable] private var usersTyping:String = "";
 
 			private var sendUpdateTimer:Timer;
 			private var getDocumentTimer:Timer = new Timer(5000);
+			private var typistsTimer:Timer = new Timer(2000);
 
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
@@ -104,15 +127,63 @@
 
 				updateTitle();
 
-				if (noteId == "MAIN_WINDOW") {
+				if (noteId == "MAIN_NOTE") {
 					this.enabled = false;
 					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
 					getDocumentTimer.start();
+					this.addEventListener(FlexEvent.SHOW, onShow);
+					this.addEventListener(FlexEvent.HIDE, onHide);
+				} else if (options.hideAdditionalNotes) {
+					this.visible = LiveMeeting.inst().sharedNotes.mainNoteVisible;
+					BindingUtils.bindSetter(updateAdditionalNoteVisibility, LiveMeeting.inst().sharedNotes, "mainNoteVisible");
+				}
+
+				typistsTimer.addEventListener(TimerEvent.TIMER, updateTypists);
+				typistsTimer.start();
+			}
+
+			private function updateTypists(e:Event):void {
+				var typists:ArrayList = new ArrayList();
+				var date:Date = new Date();
+				var time:Number = date.getTime();
+
+				for (var author:String in lastAuthors) {
+					if (time - lastAuthors[author] < 2000) {
+						var name:String = UsersUtil.getUserName(author);
+						if (name != null) typists.addItem(name.split(" ")[0]);
+					}
+				}
+
+				switch (typists.length) {
+					case 0:
+						usersTyping = "";
+						break;
+					case 1:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.single', [typists.getItemAt(0)]);
+						break;
+					case 2:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.double', [typists.getItemAt(0), typists.getItemAt(1)]);
+						break;
+					default:
+						usersTyping = ResourceUtil.getInstance().getString('bbb.sharedNotes.typing.multiple');
+						break;
 				}
 			}
 
+			private function onShow(e:FlexEvent):void {
+				LiveMeeting.inst().sharedNotes.mainNoteVisible = true;
+			}
+
+			private function onHide(e:FlexEvent):void {
+				LiveMeeting.inst().sharedNotes.mainNoteVisible = false;
+			}
+
+			private function updateAdditionalNoteVisibility(mainNoteVisible:Boolean):void {
+				this.visible = mainNoteVisible;
+			}
+
 			private function gotCurrentDocument():void {
-				if(noteId == "MAIN_WINDOW"){
+				if(noteId == "MAIN_NOTE"){
 					getDocumentTimer.stop();
 				}
 			}
@@ -126,6 +197,7 @@
 			}
 
 			private function initSharedNotesRichTextEditor():void {
+				options = Options.getOptions(SharedNotesOptions) as SharedNotesOptions;
 				richTextEditor.textArea.setStyle("fontSize", options.fontSize);
 
 				richTextEditor.linkTextInput.visible = false;
@@ -136,26 +208,28 @@
 				richTextEditor.bulletButton.visible = false;
 				richTextEditor.bulletButton.height = 0;
 				richTextEditor.bulletButton.width = 0;
+
+				richTextEditor.textArea.maxChars = options.maxNoteLength;
 			}
 
 			private function updateRoleDependentProperties(role:String):void {
-				if(noteId == "MAIN_WINDOW"){
-					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
-				} else {
-					showCloseButton = role == Role.MODERATOR;
+				if (noteId != "MAIN_NOTE") {
+					showCloseButton = options.enableDeleteNotes && role == Role.MODERATOR;
 				}
+				btnSettings.visible = btnSettings.includeInLayout = role == Role.MODERATOR;
 			}
 
 			public function get noteId():String{
 				return _noteId;
 			}
 
-			public function addRemoteDocument(notes:Object):void{
+			public function addRemoteDocument(notes:Object, isMaxNumOfNotes:Boolean):void{
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
 				_lastPatch = note["patchCounter"];
 				richTextEditor.htmlText = _document;
+				LiveMeeting.inst().sharedNotes.isMaxNumOfNotes = isMaxNumOfNotes;
 				if (!this.enabled) this.enabled = true;
 				updateTitle();
 				updateUndoRedoButtons(note["undo"], note["redo"]);
@@ -163,15 +237,19 @@
 
 			private function sendPatch():void {
 				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
-//				LOGGER.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
 					richTextEditor.textArea.editable = false;
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					sendPatchEvent.operation = "PATCH";
-					_dispatcher.dispatchEvent(sendPatchEvent);
-					_document = clientText;
+					if (sendPatchEvent.patch.length < options.maxMessageLength) {
+						_dispatcher.dispatchEvent(sendPatchEvent);
+						_document = clientText;
+					} else {
+						richTextEditor.htmlText = _document;
+						throwMessageLenghtWarning(sendPatchEvent.patch.length - options.maxMessageLength);
+					}
 					richTextEditor.textArea.editable = true;
 				}
 			}
@@ -186,21 +264,19 @@
 			}
 
 			private function receivePatch(e:ReceivePatchEvent):void {
-//				LOGGER.debug("SharedNotesWindow: patch received");
-//				LOGGER.debug("=====\n" + e.patch + "\n=====");
 				if (e.noteId == noteId) {
 					if (_lastPatch == (e.patchId - 1)) {
 						if (e.patch != "") {
 							var result:String = DiffPatch.patch(e.patch, _document);
-//							LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
-//							LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
 							_document = result;
-//							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
+							var date:Date = new Date();
+							lastAuthors[e.userId] = date.getTime();
+							/* This code is forcing resync and causing more problems then resolving
 							if (possiblePatchError()) {
 								syncNote();
 								return;
-							}
+							}*/
 						}
 						_lastPatch = e.patchId;
 						updateUndoRedoButtons(e.undo, e.redo);
@@ -233,18 +309,29 @@
 				}
 			}
 
+			private function handleNoteCreated(e:SharedNotesEvent):void {
+				LiveMeeting.inst().sharedNotes.isMaxNumOfNotes = e.payload.isNotesLimit;
+			}
+
+			private function handleNoteDestroyed(e:SharedNotesEvent):void {
+				LiveMeeting.inst().sharedNotes.isMaxNumOfNotes = e.payload.isNotesLimit;
+			}
+
 			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
-				btnUndo.styleName = undo ? "sharedNotesEnabledUndoButtonStyle" : "sharedNotesDisabledUndoButtonStyle";
-				btnRedo.styleName = redo ? "sharedNotesEnabledRedoButtonStyle" : "sharedNotesDisabledRedoButtonStyle";
 				btnUndo.enabled = undo;
 				btnRedo.enabled = redo;
 			}
 
 			protected function saveNotes(title:String, text:String, extension:String):void {
-				var filename:String = title.replace(/\s+/g, '-').toLowerCase() + "." + extension;
+				var dtf:DateTimeFormatter = new DateTimeFormatter("en-US");
+				dtf.setDateTimePattern("yyyy_MM_dd");
+				var filename:String = title.replace(/\s+/g, '_').toLowerCase() + "_" + LiveMeeting.inst().meeting.name.replace(/\s+/g, '_').toLowerCase() + "_" + dtf.format(new Date()) + "." + extension;
 				var fileRef:FileReference = new FileReference();
 				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
+				});
+				fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), "", Alert.OK);
 				});
 
 				var cr:String = String.fromCharCode(13);
@@ -341,6 +428,30 @@
 				saveNotes(title, richTextEditor.text, "txt");
 			}
 
+			protected function btnSettings_clickHandler(event:MouseEvent):void {
+				var menuData:Array = [];
+				menuData.push({
+						label: LiveMeeting.inst().sharedNotes.isMaxNumOfNotes ?
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.limit.label') :
+								ResourceUtil.getInstance().getString('bbb.sharedNotes.new.label'),
+						enabled: !LiveMeeting.inst().sharedNotes.isMaxNumOfNotes,
+						handler: function():void {
+								newNoteHandler();
+							}
+						});
+				menuData.push({
+						label: ResourceUtil.getInstance().getString('bbb.sharedNotes.clear.label'),
+						handler: function():void {
+								clearNoteHandler();
+							}
+						});
+
+				var menu:Menu = WellPositionedMenu.createMenu(null, menuData, btnSettings, true);
+
+				registerListenersOnMenu(menu);
+				menu.show();
+			}
+
 			protected function btnSave_clickHandler(event:MouseEvent):void {
 				var menuData:Array = [];
 				menuData.push( {label: ResourceUtil.getInstance().getString('bbb.sharedNotes.save.htmlLabel'), handler: function():void { saveNotesWithFormat(title); }} );
@@ -348,34 +459,34 @@
 
 				var menu:Menu = WellPositionedMenu.createMenu(null, menuData, btnSave, true);
 
-				registerListenersOnSaveMenu(menu);
+				registerListenersOnMenu(menu);
 				menu.show();
 			}
 
-			private function registerListenersOnSaveMenu(menu:Menu):void {
-				menu.addEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
-				menu.addEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
+			private function registerListenersOnMenu(menu:Menu):void {
+				menu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				menu.addEventListener(MenuEvent.MENU_HIDE, menuHideHandler);
 			}
 
-			private function unregisterListenersOnSaveMenu(menu:Menu):void {
-				menu.removeEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
-				menu.removeEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
+			private function unregisterListenersOnMenu(menu:Menu):void {
+				menu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				menu.removeEventListener(MenuEvent.MENU_HIDE, menuHideHandler);
 			}
 
-			private function saveMenuClickHandler(e:MenuEvent):void {
+			private function menuClickHandler(e:MenuEvent):void {
 				e.item.handler();
 			}
 
-			private function saveMenuHideHandler(e:MenuEvent):void {
+			private function menuHideHandler(e:MenuEvent):void {
 				var menu:Menu = e.currentTarget as Menu;
-				unregisterListenersOnSaveMenu(menu);
+				unregisterListenersOnMenu(menu);
 
 				btnSave.emphasized = false;
+				btnSettings.emphasized = false;
 			}
 
-			protected function btnNew_clickHandler(event:MouseEvent):void {
-				var noteNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
-				PopUpManager.centerPopUp(noteNameWindow);
+			protected function newNoteHandler():void {
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
 			}
 
 			protected function btnUndo_clickHandler(event:MouseEvent = null):void {
@@ -392,6 +503,21 @@
 				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
+			protected function clearNoteHandler():void {
+				var alert:Alert = Alert.show(
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.message'),
+						ResourceUtil.getInstance().getString('bbb.sharedNotes.clearWarning.title'),
+						Alert.YES | Alert.NO, parent as Sprite, alertClear, null, Alert.YES);
+			}
+
+			private function alertClear(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					var clearNoteEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CLEAR_NOTE_REQUEST_EVENT);
+					clearNoteEvent.payload["noteId"] = noteId;
+					_dispatcher.dispatchEvent(clearNoteEvent);
+				}
+			}
+
 			public function handleCtrlCmd(event:KeyboardEvent):Boolean {
 				switch (event.keyCode) {
 					case Keyboard.Z:
@@ -406,12 +532,16 @@
 				return true;
 			}
 
+			public function throwMessageLenghtWarning(messageLength:int):void {
+				Alert.show(ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.text", [messageLength]), ResourceUtil.getInstance().getString("bbb.sharedNotes.messageLengthWarning.title"), Alert.OK);
+			}
+
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
-				richTextEditor.showControlBar = !richTextEditor.showControlBar;
+				btnFormat.selected = richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
 
 			public function getPrefferedPosition():String {
-				return options.position;
+				return MainCanvas.POPUP;
 			}
 
 			override protected function resourcesChanged():void {
@@ -431,9 +561,25 @@
 			public function handleResizableStatus(value:Boolean):void {
 				this.resizable = value;
 			}
+			
+			private function focusWindow(e:ShortcutEvent):void {
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
+			}
+			
+			private function onLocaleChanged(event:LocaleChangeEvent):void {
+				var styleNameExt : String = "";
+				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+					styleNameExt = "RTL";
+				}
+				
+				btnRedo.styleName = "sharedNotesRedoButtonStyle" + styleNameExt;
+				btnUndo.styleName = "sharedNotesUndoButtonStyle" + styleNameExt;
+			}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 
 	<mx:VBox width="100%" height="100%">
 		<components:SharedNotesRichTextEditor id="richTextEditor"
@@ -446,49 +592,57 @@
 				borderThicknessRight="0"
 				borderThicknessTop="0"
 				borderThicknessBottom="0"
-				minWidth="120"
+				minWidth="100"
 				minHeight="100"
 				initialize="initSharedNotesRichTextEditor()"/>
 
-		<mx:HBox width="100%" paddingTop="0">
-			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
-				<mx:Button id="btnUndo"
-						styleName="sharedNotesDisabledUndoButtonStyle"
-						width="26"
-						height="26"
-						click="btnUndo_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}"
-						enabled="false"
-						visible="true"/>
-				<mx:Button id="btnRedo"
-						styleName="sharedNotesDisabledRedoButtonStyle"
-						width="26"
-						height="26"
-						click="btnRedo_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}"
-						enabled="false" visible="true"/>
-			</mx:HBox>
-			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
-				<mx:Button id="btnNew"
-						styleName="sharedNotesNewButtonStyle"
-						width="26"
-						height="26"
-						click="btnNew_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
-				<mx:Button id="btnFormat"
-						styleName="sharedNotesFormatButtonStyle"
-						width="26" height="26"
-						click="btnToolbar_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}"
-						visible="{options.showToolbarButton}"
-						includeInLayout="{options.showToolbarButton}"/>
-				<mx:Button id="btnSave"
-						styleName="sharedNotesSaveButtonStyle"
-						width="26"
-						height="26"
-						click="btnSave_clickHandler(event)"
-						toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
-			</mx:HBox>
+		<mx:HBox width="100%" paddingTop="0" minWidth="100" horizontalScrollPolicy="off">
+			<mx:Button id="btnUndo"
+					styleName="sharedNotesUndoButtonStyle"
+					width="26"
+					height="26"
+					click="btnUndo_clickHandler(event)"
+					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}"
+					enabled="false"
+					visible="true"/>
+			<mx:Button id="btnRedo"
+					styleName="sharedNotesRedoButtonStyle"
+					width="26"
+					height="26"
+					click="btnRedo_clickHandler(event)"
+					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}"
+					enabled="false" visible="true"/>
+			<mx:Label id="usersTypingLabel"
+					includeInLayout="true"
+					visible="true"
+					width="100%"
+					truncateToFit="true"
+					text="{usersTyping}"/>
+			<mx:Label id="charRemain"
+					includeInLayout="{charRemain.visible}"
+					visible="{(options.maxNoteLength - richTextEditor.text.length) &lt; (options.maxNoteLength / 8)}"
+					text="{options.maxNoteLength - richTextEditor.text.length}"
+					toolTip="{options.maxNoteLength - richTextEditor.text.length > 0 ?
+							ResourceUtil.getInstance().getString('bbb.sharedNotes.remaining.tooltip') :
+							ResourceUtil.getInstance().getString('bbb.sharedNotes.full.tooltip')}"/>
+			<mx:Button id="btnFormat"
+					styleName="sharedNotesFormatButtonStyle"
+					width="26" height="26"
+					click="btnToolbar_clickHandler(event)"
+					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}"
+					visible="{options.showToolbarButton}"
+					includeInLayout="{options.showToolbarButton}"/>
+			<mx:Button id="btnSave"
+					styleName="sharedNotesSaveButtonStyle"
+					width="26"
+					height="26"
+					click="btnSave_clickHandler(event)"
+					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			<mx:Button id="btnSettings"
+					   styleName="sharedNotesSettings"
+					   width="26" height="26"
+					   click="btnSettings_clickHandler(event)"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.settings.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
 </CustomMdiWindow>

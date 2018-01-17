@@ -93,27 +93,40 @@ if (request.getParameterMap().isEmpty()) {
 	//
 
 	String username = request.getParameter("username");
-	String meetingname = request.getParameter("meetingname");
-	boolean isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
 
-	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null, isModerator);
-	Document doc = null;
-	doc = parseXml(getURL(joinURL));
+	// set defaults and overwrite them if custom values exist
+	String meetingname = "Demo Meeting";
+	if (request.getParameter("meetingname") != null) {
+		meetingname =  request.getParameter("meetingname");
+	}
 
-	//Extract data from the xml
-	String meetingId = doc.getElementsByTagName("meeting_id").item(0).getTextContent();
-	String userId = doc.getElementsByTagName("user_id").item(0).getTextContent();
-	String authToken = doc.getElementsByTagName("auth_token").item(0).getTextContent();
+	String defaultModeratorPassword = "mp";
+	String defaultAttendeePassword = "ap";
+	String defaultPassword = defaultAttendeePassword;
+
+	boolean isModerator = false;
+	if (request.getParameter("isModerator") != null) {
+		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
+		defaultPassword = defaultModeratorPassword;
+	}
+
 	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
+	String html5url = ip + "/html5client/join";
 
-	// redirect towards the html5 client which is waiting for the following parameters
-	String html5url = ip + "/html5client/join/" + meetingId + "/" + userId + "/" + authToken;
+	String meetingId = createMeeting( meetingname, null, defaultModeratorPassword, "Welcome moderator! (moderator only message)", defaultAttendeePassword, null, null );
+
+	// Check if we have an existing meeting
+	if( meetingId.startsWith("Error ")) {
+		meetingId = meetingname;
+	}
+
+	String joinURL = getJoinMeetingURL(username, meetingId, defaultPassword, html5url);
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
 
 <script language="javascript" type="text/javascript">
-	window.location.href="<%=html5url%>";
+	window.location.href="<%=joinURL%>";
 </script>
 
 <%

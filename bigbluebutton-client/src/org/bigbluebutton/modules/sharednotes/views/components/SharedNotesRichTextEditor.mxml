@@ -194,8 +194,8 @@
  @playerversion AIR 1.1
  @productversion Flex 3
  -->
- <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
-    <mx:Metadata>
+ <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
+    <fx:Metadata>
         <![CDATA[
         /**
         * Dispatched when the user changes the contents or format of the text in the
@@ -245,59 +245,61 @@
         [Exclude(name="toolBar2", kind="property")]
         [Exclude(name="underlineButton", kind="property")]
         ]]>
-    </mx:Metadata>
-    <mx:Array id="fontFamilyArray">
-        <mx:String>_sans</mx:String>
-        <mx:String>_serif</mx:String>
-        <mx:String>_typewriter</mx:String>
-        <mx:String>Arial</mx:String>
-        <mx:String>Courier</mx:String>
-        <mx:String>Courier New</mx:String>
-        <mx:String>Geneva</mx:String>
-        <mx:String>Georgia</mx:String>
-        <mx:String>Helvetica</mx:String>
-        <mx:String>Times New Roman</mx:String>
-        <mx:String>Times</mx:String>
-        <mx:String>Verdana</mx:String>
-    </mx:Array>
-    <mx:Array id="fontSizeArray">
-        <mx:String>8</mx:String>
-        <mx:String>9</mx:String>
-        <mx:String>10</mx:String>
-        <mx:String>11</mx:String>
-        <mx:String>12</mx:String>
-        <mx:String>14</mx:String>
-        <mx:String>16</mx:String>
-        <mx:String>18</mx:String>
-        <mx:String>20</mx:String>
-        <mx:String>22</mx:String>
-        <mx:String>24</mx:String>
-        <mx:String>26</mx:String>
-        <mx:String>28</mx:String>
-        <mx:String>36</mx:String>
-        <mx:String>48</mx:String>
-        <mx:String>72</mx:String>
-    </mx:Array>
-    <mx:Script>
+    </fx:Metadata>
+	 <fx:Declarations>
+    <fx:Array id="fontFamilyArray">
+        <fx:String>_sans</fx:String>
+        <fx:String>_serif</fx:String>
+        <fx:String>_typewriter</fx:String>
+        <fx:String>Arial</fx:String>
+        <fx:String>Courier</fx:String>
+        <fx:String>Courier New</fx:String>
+        <fx:String>Geneva</fx:String>
+        <fx:String>Georgia</fx:String>
+        <fx:String>Helvetica</fx:String>
+        <fx:String>Times New Roman</fx:String>
+        <fx:String>Times</fx:String>
+        <fx:String>Verdana</fx:String>
+    </fx:Array>
+    <fx:Array id="fontSizeArray">
+        <fx:String>8</fx:String>
+        <fx:String>9</fx:String>
+        <fx:String>10</fx:String>
+        <fx:String>11</fx:String>
+        <fx:String>12</fx:String>
+        <fx:String>14</fx:String>
+        <fx:String>16</fx:String>
+        <fx:String>18</fx:String>
+        <fx:String>20</fx:String>
+        <fx:String>22</fx:String>
+        <fx:String>24</fx:String>
+        <fx:String>26</fx:String>
+        <fx:String>28</fx:String>
+        <fx:String>36</fx:String>
+        <fx:String>48</fx:String>
+        <fx:String>72</fx:String>
+    </fx:Array>
+	 </fx:Declarations>
+
+    <fx:Script>
     <![CDATA[
 
-    import org.as3commons.logging.api.ILogger;
-    import org.as3commons.logging.api.getClassLogger;
-
     import flash.events.Event;
+    import flash.events.FocusEvent;
+    import flash.events.KeyboardEvent;
+    import flash.events.MouseEvent;
     import flash.events.TextEvent;
-    import flash.events.ContextMenuEvent;
-    import flash.ui.ContextMenuItem;
-    import flash.net.FileReference;
-    import flash.text.*;
-
-    import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
-
+    import flash.text.TextFormat;
+    
     import mx.collections.ArrayCollection;
     import mx.controls.textClasses.TextRange;
-    import mx.core.mx_internal;
     import mx.core.IUITextField;
     import mx.core.UITextFormat;
+    import mx.core.mx_internal;
+    
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
     use namespace mx_internal;
 
     private static const LOGGER:ILogger = getClassLogger(SharedNotesRichTextEditor);
@@ -990,6 +992,8 @@
     private var ctrlPressed:Boolean = false;
     private var preventTextInput:Boolean = false;
 
+    [Bindable] public var colorPickerColours:Array = ['0x000000', '0x202020', '0x404040', '0x606060', '0x808080'];
+
     public function restoreVerticalScroll(oldVerticalScroll:Number):void
     {
         textArea.getTextField().scrollV = oldVerticalScroll;
@@ -1261,7 +1265,7 @@
         }
     }
     ]]>
-    </mx:Script>
+    </fx:Script>
     <!--- @private -->
     <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
     <mx:TextArea id="textArea"
@@ -1300,40 +1304,42 @@
                 <mx:Button id="boldButton"
                         width="20"
                         toggle="true"
-                        icon="@Embed('assets/icon_style_bold.png')"
+                        icon="{getStyle('iconBold')}"
                         click="setTextStyles('bold', event.currentTarget.selected);"/>
                 <mx:Button id="italicButton"
                         width="20"
                         toggle="true"
-                        icon="@Embed('assets/icon_style_italic.png')"
+                        icon="{getStyle('iconItalic')}"
                         click="setTextStyles('italic', event.currentTarget.selected);"/>
                 <mx:Button id="underlineButton"
                         width="20"
                         toggle="true"
-                        icon="@Embed('assets/icon_style_underline.png')"
+                        icon="{getStyle('iconUnderline')}"
                         click="setTextStyles('underline', event.currentTarget.selected);"/>
             </mx:HBox>
             <mx:ColorPicker id="colorPicker"
-                    width="22"
-                    height="22"
-                    close="setTextStyles('color');"/>
+                    dataProvider="{colorPickerColours}"
+                    swatchPanelStyleName="sharedNotesColorPickerStyle"
+                    close="setTextStyles('color');"
+                    visible="false"
+                    includeInLayout="false"/>
             <mx:VRule height="{alignButtons.height}"/>
             <mx:ToggleButtonBar id="alignButtons"
                     buttonWidth="20"
                     itemClick="setTextStyles('align', ToggleButtonBar(event.currentTarget).dataProvider.getItemAt(ToggleButtonBar(event.currentTarget).selectedIndex).action);">
                 <mx:dataProvider>
-                    <mx:Array>
-                        <mx:Object icon="@Embed('assets/icon_align_left.png')" action="left"/>
-                        <mx:Object icon="@Embed('assets/icon_align_center.png')" action="center"/>
-                        <mx:Object icon="@Embed('assets/icon_align_right.png')" action="right"/>
-                        <mx:Object icon="@Embed('assets/icon_align_justify.png')" action="justify"/>
-                    </mx:Array>
+                    <fx:Array>
+                        <fx:Object icon="{getStyle('iconAlignLeft')}" action="left"/>
+                        <fx:Object icon="{getStyle('iconAlignCenter')}" action="center"/>
+                        <fx:Object icon="{getStyle('iconAlignRight')}" action="right"/>
+                        <!--fx:Object icon="{getStyle('iconAlignJustify')}" action="justify"/-->
+                    </fx:Array>
                 </mx:dataProvider>
             </mx:ToggleButtonBar>
             <mx:Button id="bulletButton"
                     width="20"
                     toggle="true"
-                    icon="@Embed('assets/icon_bullet.png')"
+                    icon="{getStyle('iconBullet')}"
                     click="setTextStyles('bullet', event.currentTarget.selected);" />
             <mx:VRule height="{linkTextInput.height}"/>
             <mx:TextInput id="linkTextInput"

@@ -1,62 +1,36 @@
-import React, { Component, PropTypes } from 'react';
-import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
-import EmojiContainer from './emoji-menu/container';
+import React from 'react';
+import { styles } from './styles.scss';
+import EmojiSelect from './emoji-select/component';
 import ActionsDropdown from './actions-dropdown/component';
-import JoinAudioOptionsContainer from './audio-menu/container';
-import MuteAudioContainer from './mute-button/container';
-import JoinVideo from './video-button/component';
+import AudioControlsContainer from '../audio/audio-controls/container';
+import JoinVideoOptionsContainer from '../video-dock/video-menu/container';
 
-export default class ActionsBar extends Component {
-  constructor(props) {
-    super(props);
-  }
+const ActionsBar = ({
+  isUserPresenter,
+  handleExitVideo,
+  handleJoinVideo,
+  handleShareScreen,
+  handleUnshareScreen,
+  isVideoBroadcasting,
+  emojiList,
+  emojiSelected,
+  handleEmojiChange,
+}) => (
+  <div className={styles.actionsbar}>
+    <div className={styles.left}>
+      <ActionsDropdown {...{ isUserPresenter, handleShareScreen, handleUnshareScreen, isVideoBroadcasting}} />
+    </div>
+    <div className={styles.center}>
+      <AudioControlsContainer />
+      {Meteor.settings.public.kurento.enableVideo ?
+        <JoinVideoOptionsContainer
+          handleJoinVideo={handleJoinVideo}
+          handleCloseVideo={handleExitVideo}
+        />
+      : null}
+      <EmojiSelect options={emojiList} selected={emojiSelected} onChange={handleEmojiChange} />
+    </div>
+  </div>
+);
 
-  renderForPresenter() {
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.left}>
-          <ActionsDropdown />
-        </div>
-        <div className={styles.center}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            handleJoinAudio={this.props.handleOpenJoinAudio}
-            handleCloseAudio={this.props.handleExitAudio}
-
-          />
-          {/*<JoinVideo />*/}
-          <EmojiContainer />
-        </div>
-        <div className={styles.hidden}>
-          <ActionsDropdown />
-        </div>
-      </div>
-    );
-  }
-
-  renderForUser() {
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.center}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            handleJoinAudio={this.props.handleOpenJoinAudio}
-            handleCloseAudio={this.props.handleExitAudio}
-
-          />
-          {/*<JoinVideo />*/}
-          <EmojiContainer />
-        </div>
-      </div>
-    );
-  }
-
-  render() {
-    const { isUserPresenter } = this.props;
-
-    return isUserPresenter ?
-      this.renderForPresenter() :
-      this.renderForUser();
-  }
-}
+export default ActionsBar;

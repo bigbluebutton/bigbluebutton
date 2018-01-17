@@ -1,11 +1,11 @@
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import Presentations from '/imports/api/presentations';
 import Slides from '/imports/api/slides';
-import Cursor from '/imports/api/cursor';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
 const getCurrentPresentation = () => Presentations.findOne({
-  'presentation.current': true,
+  current: true,
 });
 
 const getCurrentSlide = () => {
@@ -15,27 +15,36 @@ const getCurrentSlide = () => {
     return null;
   }
 
-  return Slides.findOne({
-    presentationId: currentPresentation.presentation.id,
-    'slide.current': true,
-  });
+  return Slides.findOne(
+    {
+      presentationId: currentPresentation.id,
+      current: true,
+    },
+    {
+      fields: {
+        meetingId: 0,
+        thumbUri: 0,
+        swfUri: 0,
+        txtUri: 0,
+        svgUri: 0,
+      },
+    },
+  );
 };
 
-const getCurrentCursor = () => Cursor.findOne({});
-
 const isPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID, });
+  const currentUser = Users.findOne({ userId: Auth.userID });
+  return currentUser ? currentUser.presenter : false;
+};
 
-  if (currentUser && currentUser.user) {
-    return currentUser.user.presenter;
-  }
-
-  return false;
+const getMultiUserStatus = () => {
+  const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
+  return data ? data.multiUser : false;
 };
 
 export default {
   getCurrentPresentation,
   getCurrentSlide,
-  getCurrentCursor,
   isPresenter,
+  getMultiUserStatus,
 };

@@ -20,13 +20,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()" 
   xmlns:maps="org.bigbluebutton.modules.present.maps.*"
   xmlns:viewMaps="org.bigbluebutton.modules.present.ui.views.maps.*">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -98,8 +99,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.uri;
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<maps:PresentEventMap id="eventMap" />
-  <viewMaps:PresentationViewMap id="viewMap"/>
+	<fx:Declarations>
+		<viewMaps:PresentationViewMap id="viewMap"/>
+		<maps:PresentEventMap id="eventMap" />
+	</fx:Declarations>
 </mx:Module>

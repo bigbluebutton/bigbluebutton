@@ -97,11 +97,9 @@ function determineBrowser()
 	var nameOffset,verOffset,ix;
 
 	// In Opera, the true version is after "Opera" or after "Version"
-	if ((verOffset=nAgt.indexOf("Opera"))!=-1) {
+	if ((verOffset=nAgt.indexOf("OPR/"))!=-1) {
 		browserName = "Opera";
-		fullVersion = nAgt.substring(verOffset+6);
-		if ((verOffset=nAgt.indexOf("Version"))!=-1) 
-			fullVersion = nAgt.substring(verOffset+8);
+		fullVersion = nAgt.substring(verOffset+4);
 	}
 	// In MSIE, the true version is after "MSIE" in userAgent
 	else if ((verOffset=nAgt.indexOf("MSIE"))!=-1) {
@@ -161,4 +159,67 @@ function determineBrowser()
 	}
 	
 	return [browserName, majorVersion, fullVersion];
+}
+
+function toggleFullscreen() {
+
+	function isFullscreen() {
+		return !!(document.fullscreenElement ||
+			document.webkitFullscreenElement ||
+			document.mozFullScreenElement ||
+			document.msFullscreenElement);
+	}
+
+	function exitFullscreen() {
+		if (document.exitFullscreen) {
+			document.exitFullscreen();
+		} else if (document.webkitExitFullscreen) {
+			document.webkitExitFullscreen();
+		} else if (document.mozCancelFullScreen) {
+			document.mozCancelFullScreen();
+		} else if (document.msExitFullscreen) {
+			document.msExitFullscreen();
+		}
+	}
+
+	function setFullscreen() {
+		var htmlElement = document.getElementById("content");
+
+		if (htmlElement.requestFullscreen) {
+			htmlElement.requestFullscreen();
+		} else if (htmlElement.webkitRequestFullscreen) {
+			htmlElement.webkitRequestFullscreen();
+		} else if (htmlElement.mozRequestFullScreen) {
+			htmlElement.mozRequestFullScreen();
+		} else if (htmlElement.msRequestFullscreen) {
+			htmlElement.msRequestFullscreen();
+		}
+	}
+
+	function FShandler() {
+		var isNowFullscreen = isFullscreen();
+		var swfObj = swfobject.getObjectById("BigBlueButton");
+		if (swfObj) {
+			swfObj.fullscreenToggled(isNowFullscreen);
+		}
+	}
+
+	// remove old listeners
+	document.removeEventListener("fullscreenchange", FShandler);
+	document.removeEventListener("webkitfullscreenchange", FShandler);
+	document.removeEventListener("mozfullscreenchange", FShandler);
+	document.removeEventListener("MSFullscreenChange", FShandler);
+
+	// add listeners
+	document.addEventListener("fullscreenchange", FShandler);
+	document.addEventListener("webkitfullscreenchange", FShandler);
+	document.addEventListener("mozfullscreenchange", FShandler);
+	document.addEventListener("MSFullscreenChange", FShandler);
+
+	// are we currently in full-screen mode?
+	if (isFullscreen()) {
+		exitFullscreen();
+	} else {
+		setFullscreen()
+	}
 }

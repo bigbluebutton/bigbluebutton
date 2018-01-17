@@ -11,17 +11,17 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
     selector: {
       meetingId,
       presentationId,
-      'slide.current': true,
+      current: true,
     },
     modifier: {
-      $set: { 'slide.current': false },
+      $set: { current: false },
     },
     callback: (err) => {
       if (err) {
         return Logger.error(`Unsetting the current slide: ${err}`);
       }
 
-      return Logger.info(`Unsetted the current slide`);
+      return Logger.info('Unsetted the current slide');
     },
   };
 
@@ -29,10 +29,10 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
     selector: {
       meetingId,
       presentationId,
-      'slide.id': slideId,
+      id: slideId,
     },
     modifier: {
-      $set: { 'slide.current': true },
+      $set: { current: true },
     },
     callback: (err) => {
       if (err) {
@@ -46,6 +46,11 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
   const oldSlide = Slides.findOne(oldCurrent.selector);
   const newSlide = Slides.findOne(newCurrent.selector);
 
+  // if the oldCurrent and newCurrent have the same ids
+  if (oldSlide && newSlide && (oldSlide._id === newSlide._id)) {
+    return;
+  }
+
   if (newSlide) {
     Slides.update(newSlide._id, newCurrent.modifier, newCurrent.callback);
   }
@@ -53,4 +58,4 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
   if (oldSlide) {
     Slides.update(oldSlide._id, oldCurrent.modifier, oldCurrent.callback);
   }
-};
+}

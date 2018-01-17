@@ -3,10 +3,8 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import addCaption from '../modifiers/addCaption';
 
-export default function handleCaptionOwnerUpdate({ payload }) {
-  const meetingId = payload.meeting_id;
-  const locale = payload.locale;
-  const ownerId = payload.owner_id;
+export default function handleCaptionOwnerUpdate({ body }, meetingId) {
+  const { ownerId, locale } = body;
 
   check(meetingId, String);
   check(locale, String);
@@ -17,7 +15,7 @@ export default function handleCaptionOwnerUpdate({ payload }) {
     locale,
   };
 
-  let modifier = {
+  const modifier = {
     $set: {
       'captionHistory.ownerId': ownerId,
     },
@@ -36,15 +34,13 @@ export default function handleCaptionOwnerUpdate({ payload }) {
     return addCaption(meetingId, locale, captionHistory);
   }
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Updating captions owner: ${err}`);
     }
 
-    if (numChanged) {
-      return Logger.verbose(`Update caption owner locale=${locale} meeting=${meetingId}`);
-    }
+    return Logger.verbose(`Update caption owner locale=${locale} meeting=${meetingId}`);
   };
 
   return Captions.update(selector, modifier, { multi: true }, cb);
-};
+}

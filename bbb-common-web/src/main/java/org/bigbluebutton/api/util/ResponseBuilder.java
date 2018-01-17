@@ -1,17 +1,25 @@
 package org.bigbluebutton.api.util;
 
-import org.bigbluebutton.api.domain.Meeting;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import freemarker.template.*;
+import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 
 public class ResponseBuilder {
   private static Logger log = LoggerFactory.getLogger(ResponseBuilder.class);
@@ -46,7 +54,7 @@ public class ResponseBuilder {
 
     StringWriter xmlText = new StringWriter();
 
-    Map root = new HashMap();
+    Map<String, Object> root = new HashMap<String, Object>();
     root.put("returnCode", returnCode);
     root.put("createdOn", createdOn);
     root.put("meeting", meeting);
@@ -81,7 +89,7 @@ public class ResponseBuilder {
 
     StringWriter xmlText = new StringWriter();
 
-    Map root = new HashMap();
+    Map<String, Serializable> root = new HashMap<String, Serializable>();
     root.put("returnCode", returnCode);
     root.put("meetingDetailsList", meetingResponseDetails);
 
@@ -107,7 +115,7 @@ public class ResponseBuilder {
 
     StringWriter xmlText = new StringWriter();
 
-    Map root = new HashMap();
+    Map<String, Object> root = new HashMap<String, Object>();
     root.put("returnCode", returnCode);
     root.put("recordings", recordings);
 

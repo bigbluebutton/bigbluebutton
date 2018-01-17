@@ -10,19 +10,20 @@ export default function removePresentation(meetingId, presentationId) {
 
   const selector = {
     meetingId,
-    'presentation.id': presentationId,
+    id: presentationId,
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Removing presentation from collection: ${err}`);
+      Logger.error(`Removing presentation from collection: ${err}`);
+      return;
     }
 
     if (numChanged) {
       clearSlidesPresentation(meetingId, presentationId);
-      return Logger.info(`Removed presentation id=${presentationId} meeting=${meetingId}`);
+      Logger.info(`Removed presentation id=${presentationId} meeting=${meetingId}`);
     }
   };
 
   return Presentations.remove(selector, cb);
-};
+}

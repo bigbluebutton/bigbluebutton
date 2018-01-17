@@ -18,9 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.DisplayObject;
 	import flash.display.Shape;
-	import flash.display.Sprite;
 	
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
@@ -34,36 +32,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject extends Sprite implements GraphicObject {
-		public static const PENCIL:String = "pencil";
-		public static const HIGHLIGHTER:String = "highlighter";
-		public static const ERASER:String = "eraser";
-		public static const RECTANGLE:String = "rectangle";
-		public static const ELLIPSE:String = "ellipse";
-        public static const TEXT:String = "text";      
-		public static const TRIANGLE:String = "triangle";
-		public static const LINE:String = "line";	
-		public static const POLL:String = "poll_result";
-				
-		/**
-		 * Status = [START, UPDATE, END]
-		 */ 
-		public static const DRAW_UPDATE:String = "DRAW_UPDATE";
-		public static const DRAW_END:String = "DRAW_END";
-		public static const DRAW_START:String = "DRAW_START";
-				
+	public class DrawObject extends Shape implements GraphicObject {
         private var _id:String;
         private var _type:String;
         private var _status:String;
         private var _userId:String;
 		
 		protected var _ao:Object;
-		
-		/**
-		 * ID we can use to match the shape in the client's view
-		 * so we can use modify it; a unique identifier of each GraphicObject
-		 */
-		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
+		protected var _parentWidth:Number;
+		protected var _parentHeight:Number;
 		
 		/**
 		 * The default constructor for the DrawObject 
@@ -80,7 +57,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             return _id;
         }
         
-        public function get type():String {
+        public function get toolType():String {
             return _type;
         }
         
@@ -103,16 +80,30 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function normalize(val:Number, side:Number):Number {
 			return (val*100.0)/side;
 		}
-        
-        protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {}
 		
-        public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            _ao = a.annotation;
-            makeGraphic(parentWidth, parentHeight, zoom);
-        }
-        
-        public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            makeGraphic(parentWidth, parentHeight, zoom);
-        }
+		protected function makeGraphic():void {}
+		
+        public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+			_ao = a.annotation;
+			_parentWidth = parentWidth;
+			_parentHeight = parentHeight;
+			
+			makeGraphic();
+		}
+		
+		public function redraw(parentWidth:Number, parentHeight:Number):void {
+			// in some cases (like moving the window around) a redraw is called with identical information as previous values
+			if (_parentWidth != parentWidth || _parentHeight != parentHeight) {
+				_parentWidth = parentWidth;
+				_parentHeight = parentHeight;
+				makeGraphic();
+			}
+		}
+		
+		public function updateAnnotation(a:Annotation):void {
+			_ao = a.annotation;
+			
+			makeGraphic();
+		}
 	}
 }

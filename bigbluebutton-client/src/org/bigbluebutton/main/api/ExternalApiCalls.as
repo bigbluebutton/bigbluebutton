@@ -19,12 +19,14 @@
 package org.bigbluebutton.main.api
 {
   import flash.external.ExternalInterface;
+  
   import mx.collections.ArrayCollection;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
@@ -32,14 +34,14 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-  import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.core.model.users.User2x;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
-  import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
@@ -79,7 +81,7 @@ package org.bigbluebutton.main.api
       var payload:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamNames:Array = UsersUtil.getWebcamStream(event.userID);
+      var streamNames:Array = UsersUtil.getWebcamStreamsFor(event.userID);
       if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
@@ -88,7 +90,7 @@ package org.bigbluebutton.main.api
       payload.userID = event.userID;
       payload.isUserPublishing = isUserPublishing;
       
-      var vidConf:VideoConfOptions = new VideoConfOptions();
+      var vidConf:VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
       payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       payload.avatarURL = UsersUtil.getAvatarURL();
       payload.streamNames = streamNames;
@@ -120,7 +122,7 @@ package org.bigbluebutton.main.api
     }    
     
     public function handleStreamStartedEvent(event:StreamStartedEvent):void {
-      var vidConf:VideoConfOptions = new VideoConfOptions();
+      var vidConf:VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
       
       var payload:Object = new Object();
       payload.eventName = EventConstants.CAM_STREAM_SHARED;
@@ -159,7 +161,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
-      var camSettingsArray:ArrayCollection = UsersUtil.amIPublishing();
+      var camSettingsArray:ArrayCollection = UsersUtil.myCamSettings();
       var payload:Object = new Object();
       var camArray: ArrayCollection = new ArrayCollection();
       for (var i:int = 0; i < camSettingsArray.length; i++) {
@@ -218,7 +220,7 @@ package org.bigbluebutton.main.api
     public function handleGetMyRoleResponse(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_ROLE_RESP;
-      payload.myRole = UserManager.getInstance().getConference().whatsMyRole();
+      payload.myRole = UsersUtil.getMyRole();
       broadcastEvent(payload);        
     }
 
@@ -292,7 +294,7 @@ package org.bigbluebutton.main.api
         
     public function handleUserJoinedEvent(event:UserJoinedEvent):void {
       var payload:Object = new Object();
-      var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
+      var user:User2x = LiveMeeting.inst().users.getUser(event.userID);
       
       if (user == null) {
         LOGGER.warn("[ExternalApiCall:handleParticipantJoinEvent] Cannot find user with ID [{0}]", [event.userID]);
@@ -300,7 +302,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_JOINED;
-      payload.userID = user.userID;
+      payload.userID = user.intId;
       payload.userName = user.name;        
       
       broadcastEvent(payload);        
@@ -308,7 +310,7 @@ package org.bigbluebutton.main.api
 
     public function handleUserLeftEvent(event:UserLeftEvent):void {
       var payload:Object = new Object();
-      var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
+      var user:User2x = LiveMeeting.inst().users.getUser(event.userID);
       
       if (user == null) {
         LOGGER.warn("[ExternalApiCall:handleParticipantJoinEvent] Cannot find user with ID [{0}]", [event.userID]);
@@ -316,7 +318,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_LEFT;
-      payload.userID = user.userID;
+      payload.userID = user.intId;
       
       broadcastEvent(payload);        
     }

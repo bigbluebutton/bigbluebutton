@@ -22,19 +22,21 @@ export default function setConnectionStatus(meetingId, userId, status = 'online'
 
   const modifier = {
     $set: {
-      'user.connection_status': status,
+      connectionStatus: status,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Updating connection status user=${userId}: ${err}`);
+      Logger.error(`Updating connection status user=${userId}: ${err}`);
+      return;
     }
 
     if (numChanged) {
-      return Logger.info(`Updated connection status user=${userId} status=${status} meeting=${meetingId}`);
+      Logger.info(`Updated connection status user=${userId} status=${
+        status} meeting=${meetingId}`);
     }
   };
 
   return Users.update(selector, modifier, cb);
-};
+}

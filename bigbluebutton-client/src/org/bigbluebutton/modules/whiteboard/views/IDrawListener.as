@@ -22,9 +22,9 @@ package org.bigbluebutton.modules.whiteboard.views
 
     public interface IDrawListener
     {
-        function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void;
+        function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool, wbId:String):void;
         function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void;
         function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void;
-        function ctrlKeyDown(down:Boolean):void;
+        function stopDrawing(mouseX:Number, mouseY:Number):void;
     }
 }

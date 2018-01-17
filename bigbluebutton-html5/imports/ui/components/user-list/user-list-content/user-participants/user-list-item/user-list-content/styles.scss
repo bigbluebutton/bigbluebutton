@@ -1,0 +1,101 @@
+@import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/variables/_all";
+
+/* Animations
+ * ==========
+ */
+
+// Actions
+.enter, .appear {
+  opacity: 0;
+  max-height: 0;
+}
+
+.enterActive, .appearActive {
+  opacity: 1;
+  transition: all 300ms;
+  max-height: 10rem;
+}
+
+.leave {
+  opacity: 1;
+  max-height: 10rem;
+}
+
+.leaveActive {
+  opacity: 0;
+  transition: all 500ms;
+  max-height: 0rem;
+}
+
+// Text under username
+.subUserNameEnter, .subUserNameAppear {
+  opacity: 0.01;
+  transform: translateY(-100%);
+}
+
+.subUserNameEnterActive, .subUserNameAppearActive {
+  transform: translateY(0%);
+  opacity: 1;
+  transition: all 500ms;
+  max-height: 10rem;
+}
+
+.subUserNameLeave {
+  opacity: 1;
+  transform: translateY(0%);
+}
+
+.subUserNameLeaveActive {
+  opacity: 0;
+  transition: all 300ms;
+  transform: translateY(-100%);
+}
+
+.actionsHeader {
+  color: $color-gray;
+
+  &:hover {
+    color: $color-gray !important;
+    cursor: default;
+  }
+}
+
+.active {
+  background-color: $list-item-bg-hover;
+  box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+  outline: none;
+}
+
+.userListItem {
+
+  @extend %list-item;
+  flex-flow: column;
+  flex-shrink: 0;
+}
+
+.userAvatar {
+  flex: 0 0 2.2rem;
+}
+
+.userItemContents {
+  flex-grow: 0;
+  display: flex;
+  flex-flow: row;
+
+  padding-top: $lg-padding-y;
+  padding-bottom: $lg-padding-y;
+  padding-left: $lg-padding-y;
+}
+
+.dropdown {
+  position: static;
+}
+
+.dropdownContent {
+  @extend %text-elipsis;
+  cursor: default;
+  min-width: 10vw;
+  max-width: 100%;
+  overflow: visible;
+}

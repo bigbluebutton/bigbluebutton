@@ -1,36 +1,29 @@
 import { check } from 'meteor/check';
-import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
+import Logger from '/imports/startup/server/logger';
 
-export default function handleRecordingStatusChange({ payload }) {
-  const meetingId = payload.meeting_id;
-  const intendedForRecording = payload.recorded;
-  const currentlyBeingRecorded = payload.recording;
-
-  check(meetingId, String);
-  check(intendedForRecording, Boolean);
-  check(currentlyBeingRecorded, Boolean);
+export default function handleRecordingStatusChange({ body }, meetingId) {
+  const { recording } = body;
+  check(recording, Boolean);
 
   const selector = {
     meetingId,
-    intendedForRecording,
   };
 
   const modifier = {
-    $set: {
-      currentlyBeingRecorded,
-    },
+    $set: { 'recordProp.recording': recording },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Updating meeting recording status: ${err}`);
+      Logger.error(`Changing record status: ${err}`);
+      return;
     }
 
     if (numChanged) {
-      return Logger.info(`Updated meeting recording status id=${meetingId}`);
+      Logger.info(`Changed meeting record status id=${meetingId} recording=${recording}`);
     }
   };
 
-  return Meetings.update(selector, modifier, cb);
-};
+  return Meetings.upsert(selector, modifier, cb);
+}

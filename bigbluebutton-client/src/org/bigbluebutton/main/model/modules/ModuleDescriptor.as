@@ -31,14 +31,14 @@ package org.bigbluebutton.main.model.modules
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.model.ConferenceParameters;
-	
+	import org.bigbluebutton.core.model.LiveMeeting;
+
 	public class ModuleDescriptor
 	{
 		private static const LOGGER:ILogger = getClassLogger(ModuleDescriptor);      
 
 		private var _attributes:Object;
-		private var _loader:BigBlueButtonModuleLoader;
+		private var _loader:ModuleLoader;
 		private var _module:IBigBlueButtonModule;
 		private var _loaded:Boolean = false;
 		private var _connected:Boolean = false;
@@ -53,7 +53,7 @@ package org.bigbluebutton.main.model.modules
 		{
 			unresolvedDependancies = new ArrayCollection();
 			_attributes = new Object();
-			_loader = new BigBlueButtonModuleLoader();
+			_loader = new ModuleLoader();
 			
 			parseAttributes(attributes);			
 		}
@@ -168,18 +168,26 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 		
-		public function loadConfigAttributes(conferenceParameters:ConferenceParameters, protocol:String):void{
-			addAttribute("conference", conferenceParameters.conference);
-			addAttribute("username", conferenceParameters.username);
-			addAttribute("userrole", conferenceParameters.role);
-			addAttribute("room", conferenceParameters.room);
-			addAttribute("userid", conferenceParameters.userid);
-			addAttribute("voicebridge", conferenceParameters.voicebridge);
-			addAttribute("webvoiceconf", conferenceParameters.webvoiceconf);
-			addAttribute("welcome", conferenceParameters.welcome);
-			addAttribute("externUserID", conferenceParameters.externUserID);
-			addAttribute("internalUserID", conferenceParameters.internalUserID);
-			addAttribute("meetingID", conferenceParameters.meetingID);
+		public function loadConfigAttributes(protocol:String):void{
+      var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
+      var userName: String = LiveMeeting.inst().me.name;
+      var role: String = LiveMeeting.inst().me.role;
+      var intUserId: String = LiveMeeting.inst().me.id;
+      var voiceConf: String = LiveMeeting.inst().meeting.voiceConf;
+      var welcome: String = LiveMeeting.inst().me.welcome;
+      var extUserId: String = LiveMeeting.inst().me.externalId;
+ 
+			addAttribute("conference", intMeetingId);
+			addAttribute("username", userName);
+			addAttribute("userrole", role);
+			addAttribute("room", intMeetingId);
+			addAttribute("userid", intUserId);
+			addAttribute("voicebridge", voiceConf);
+			addAttribute("webvoiceconf", voiceConf);
+			addAttribute("welcome", welcome);
+			addAttribute("externUserID", extUserId);
+			addAttribute("internalUserID", intUserId);
+			addAttribute("meetingID", intMeetingId);
 			addAttribute("protocol", protocol);
 			useProtocol(protocol);
 		}

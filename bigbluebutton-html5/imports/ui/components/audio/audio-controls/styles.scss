@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-flow: row;
+
+  > * {
+    margin: 0 1rem;
+
+    span:first-child {
+      box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+    }
+  }
+
+  > :last-child {
+    margin-right: 0;
+  }
+}
+
+.button {
+  &:focus {
+    outline: none !important;
+  }
+
+  &.glow {
+    span:first-child{
+      box-shadow: 0 0 0 1px #ffffff, 0 0 0 1px;
+    }
+  }
+}

@@ -199,7 +199,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
   }
 
 
-  private def trimUserId(userId: String):Option[String] = {
+  private def trimUserId2(userId: String):Option[String] = {
     // A userId has the format "abc123_1" where "_1" refers to the number
     // of times the user rejoins due to disconnect. We strip off that number
     // to get the real userId so we can map the screen sharing session to the
@@ -217,19 +217,17 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private def handleUserDisconnected(msg: UserDisconnected) {
     if (log.isDebugEnabled) {
       log.debug("Received UserDisconnected for meetingId=[" + msg.meetingId +
-        "] userId=[" + trimUserId(msg.userId) + "], sss=" + screenShareSession + ",curPres=" + currentPresenterId)
+        "] userId=[" + msg.userId + "], sss=" + screenShareSession + ",curPres=" + currentPresenterId)
     }
 
     for {
       sss <- screenShareSession
-      presenterId <- currentPresenterId
-      curPresenterId <- trimUserId(presenterId)
-      userId <- trimUserId(msg.userId)
+      curPresenterId = currentPresenterId.get
     } yield {
       if (log.isDebugEnabled) {
-        log.debug("Received UserDisconnected for curPresenterId=[" + curPresenterId + "] userId=[" + userId + "]")
+        log.debug("Received UserDisconnected for curPresenterId=[" + curPresenterId + "] userId=[" + msg.userId + "]")
       }
-      if (userId == curPresenterId) {
+      if (msg.userId == curPresenterId) {
         log.info("STOPPING UserDisconnected for curPresenterId=[" + curPresenterId + "] session=[" + sss + "]")
         stopScreenSharing(sss, PRESENTER_DISCONNECTED_REASON)
       }
@@ -243,11 +241,9 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
     for {
       sss <- screenShareSession
-      presenterId <- currentPresenterId
-      curPresenterId <- trimUserId(presenterId)
-      userId <- trimUserId(msg.userId)
+      curPresenterId = currentPresenterId.get
     } yield {
-      if (userId == curPresenterId) {
+      if (msg.userId == curPresenterId) {
         log.info("STOPPING. User auto-reconnected for curPresenterId=[" + curPresenterId + "], session=[" + sss + "]")
         stopScreenSharing(sss, PRESENTER_AUTO_RECONNECTED_REASON)
       }
@@ -448,7 +444,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
         val streamId = generateStreamId(sessionToken)
         val token = streamId
 
-        val userId = trimUserId(msg.userId).getOrElse(msg.userId)
+        val userId = msg.userId
         val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId, tunnel)
         activeSession = Some(session)
         sessionStartedTimestamp = TimeUtil.currentMonoTimeInSeconds()
@@ -475,7 +471,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     val streamId = generateStreamId(sessionToken)
     val token = streamId
 
-    val userId = trimUserId(msg.userId).getOrElse(msg.userId)
+    val userId = msg.userId
 
     tunnel = msg.tunnel
     val session = ActiveSession(this, bus, meetingId, streamId, token, msg.record, userId, tunnel)

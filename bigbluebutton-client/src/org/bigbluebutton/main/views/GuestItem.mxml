@@ -20,24 +20,16 @@
   $Id: $
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-    verticalAlign="middle" width="100%" >
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 verticalAlign="middle" width="100%" >
 
-    <mx:Script>
+    <fx:Script>
         <![CDATA[
-            import mx.core.FlexGlobals;
-            import mx.managers.PopUpManager;
             import com.asfusion.mate.events.Dispatcher;
-            import org.bigbluebutton.common.Images;
-            import org.bigbluebutton.core.BBB;
-            import org.bigbluebutton.core.managers.UserManager;
+            
             import org.bigbluebutton.main.events.ResponseModeratorEvent;
-            import org.bigbluebutton.main.events.ModuleLoadEvent;
             import org.bigbluebutton.util.i18n.ResourceUtil;
-            import mx.containers.HBox;
-            import mx.controls.Button;
-            import mx.controls.Spacer;
-            import org.bigbluebutton.main.events.BBBEvent;
 
             private var dispatcher:Dispatcher = new Dispatcher();
 
@@ -53,7 +45,7 @@
                 sendResponseToServer(false);
             }
 
-            private function onAcceptUserBtnClick():void {
+            private function onAllowUserBtnClick():void {
                 sendResponseToServer(true);
             }
 
@@ -65,11 +57,11 @@
             }
 
         ]]>
-    </mx:Script>
+    </fx:Script>
 
     <mx:Label text="{username}" maxWidth="150" />
     <mx:Spacer width="100%" />
     <mx:Button styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" click="onRejectUserBtnClick()" />
-    <mx:Button styleName="acceptButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" click="onAcceptUserBtnClick()" />
+    <mx:Button styleName="allowButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" click="onAllowUserBtnClick()" />
 
 </mx:HBox>

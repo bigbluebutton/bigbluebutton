@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
+import { defineMessages, injectIntl } from 'react-intl';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { styles } from './styles.scss';
 
-export default class PollingComponent extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+const intlMessages = defineMessages({
+  pollingTitleLabel: {
+    id: 'app.polling.pollingTitle',
+    description: 'Title label for polling options',
+  },
+});
+
+class PollingComponent extends Component {
 
   getStyles() {
     const number = this.props.poll.answers.length + 1;
@@ -22,17 +29,18 @@ export default class PollingComponent extends React.Component {
   render() {
     const poll = this.props.poll;
     const calculatedStyles = this.getStyles();
+    const { intl } = this.props;
 
     return (
       <div className={styles.pollingContainer}>
         <div className={styles.pollingTitle}>
           <p>
-          Polling Options
+            {intl.formatMessage(intlMessages.pollingTitleLabel)}
           </p>
         </div>
-        {poll.answers.map((pollAnswer, index) =>
-          <div
-            key={index}
+        {poll.answers.map(pollAnswer =>
+          (<div
+            key={pollAnswer.id}
             style={calculatedStyles}
             className={styles.pollButtonWrapper}
           >
@@ -57,9 +65,27 @@ export default class PollingComponent extends React.Component {
             >
               {`Select this option to vote for ${pollAnswer.key}`}
             </div>
-          </div>
+          </div>),
         )}
       </div>
     );
   }
+}
+
+export default injectWbResizeEvent(injectIntl(PollingComponent));
+
+PollingComponent.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  handleVote: PropTypes.func.isRequired,
+  poll: PropTypes.shape({
+    pollId: PropTypes.string.isRequired,
+    answers: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        key: PropTypes.string.isRequired,
+      }).isRequired,
+    ).isRequired,
+  }).isRequired,
 };

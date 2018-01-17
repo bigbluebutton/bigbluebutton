@@ -2,14 +2,15 @@ package org.bigbluebutton.modules.sharednotes.views
 {
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
-
+	
 	import mx.controls.Alert;
 	import mx.events.CloseEvent;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.views.MainCanvas;
+	import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -26,11 +27,11 @@ package org.bigbluebutton.modules.sharednotes.views
 			_noteId = n;
 			_windowName = "AdditionalSharedNotesWindow_" + noteId;
 
-			showCloseButton = UsersUtil.amIModerator();
+			options = Options.getOptions(SharedNotesOptions) as SharedNotesOptions;
+
+			showCloseButton = UsersUtil.amIModerator() && options.enableDeleteNotes;
 			width = 240;
 			height = 240;
-
-			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
 		}
 
 		public function get windowName():String {
@@ -46,7 +47,7 @@ package org.bigbluebutton.modules.sharednotes.views
 
 			LOGGER.debug("AdditionalSharedNotesWindow: [2] in-constructor additional notes " + noteId);
 
-			btnNew.visible = btnNew.includeInLayout = false;
+			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
 		}
 
 		private function onCloseBtnClick(e:MouseEvent):void {
@@ -66,10 +67,6 @@ package org.bigbluebutton.modules.sharednotes.views
 				destroyNotesEvent.payload.notesId = noteId;
 				_dispatcher.dispatchEvent(destroyNotesEvent);
 			}
-		}
-
-		override public function getPrefferedPosition():String {
-			return MainCanvas.POPUP;
 		}
 
 		override protected function updateTitle():void {

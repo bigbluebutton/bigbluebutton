@@ -1,23 +1,15 @@
-import React, { Component, PropTypes } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
-
+import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import VideoDock from './component';
+import VideoService from './service';
 
-class VideoDockContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
+const VideoDockContainer = ({ children, ...props }) => (
+  <VideoDock {...props}>
+    {children}
+  </VideoDock>
+);
 
-  render() {
-    return (
-      <VideoDock>
-        {this.props.children}
-      </VideoDock>
-    );
-  }
-}
-
-export default createContainer(() => {
-  let data = {};
-  return data;
-}, VideoDockContainer);
+export default withTracker(() => ({
+  users: VideoService.getAllUsers(),
+  userId: VideoService.userId(),
+}))(VideoDockContainer);

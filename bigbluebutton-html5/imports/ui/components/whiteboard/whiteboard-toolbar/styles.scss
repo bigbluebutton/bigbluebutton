@@ -1,0 +1,140 @@
+@import "../../../stylesheets/variables/_all";
+
+$toolbar-left-margin: 6px;
+$toolbar-button-width: 3.5rem;
+$toolbar-button-height: 3.5rem;
+$toolbar-container-width: calc(#{$toolbar-button-width} + 1rem);
+$toolbar-button-margin-top: 1px;
+$toolbar-button-margin-bottom: 1px;
+
+/**********************************************************************************/
+/* if you want to add/remove a new button to the annotation/color/thickness lists */
+/* just change the number below and the corresponding list will change its size   */
+/* to fit another button                                                          */
+/**********************************************************************************/
+$number-of-annotation-list-buttons: 7;
+$number-of-thickness-list-buttons: 7;
+$number-of-fontsize-list-buttons: 6;
+$number-of-color-list-buttons: 12;
+$number-of-vertical-main-toolbar-buttons: 5;
+
+.toolbarContainer {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  width: $toolbar-container-width;
+  margin-left: $toolbar-left-margin;
+}
+
+.toolbarWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonWrapper {
+  width: $toolbar-button-width;
+  min-width: $toolbar-button-width;
+  height: $toolbar-button-height;
+  min-height: $toolbar-button-height;
+  margin-top: $toolbar-button-margin-top;
+  margin-bottom: $toolbar-button-margin-bottom;
+}
+
+.toolbarButton {
+  padding: 0;
+  border: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 2.2rem;
+  border-radius: 0.1rem;
+  position: relative;
+  i {
+    color: $color-gray;
+  }
+}
+
+.toolbarList {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: $toolbar-button-height;
+  bottom: $toolbar-button-height;
+  background-color: black;
+  opacity: 0.9;
+}
+
+.toolbarListButton {
+  width: $toolbar-button-width;
+  height: $toolbar-button-height;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  background-color: $color-gray-dark;
+  border: 0px;
+  border-radius: 0px;
+  // border-radius: 0.1rem;
+  &:hover {
+    background-color: $color-gray-light;
+  }
+  i {
+    color: $color-white;
+  }
+  padding: initial;
+}
+
+.selectedListButton {
+  background-color: $color-gray-light;
+}
+
+.customSvgIcon {
+  position: absolute;
+  width: $toolbar-button-width;
+  height: $toolbar-button-height;
+}
+
+.textThickness {
+  font-family: Arial, sans-serif;
+  font-weight: normal;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  margin: auto;
+  color: $color-white;
+}
+
+.annotationList {
+  width: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width});
+  right: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+}
+
+.thicknessList {
+  width: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width});
+  right: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+}
+
+.fontSizeList {
+  width: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width});
+  right: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+}
+
+.colorList {
+  width: calc(#{$number-of-color-list-buttons} * #{$toolbar-button-width});
+  right: calc(#{$number-of-color-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
+}
+
+//Undo and Clear All buttons shouldn't be active
+.notActive {
+  &:focus {
+    background-color: $color-white;
+  }
+}

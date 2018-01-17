@@ -17,7 +17,7 @@
   <recording>${meeting.isRecord()?c}</recording>
   <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>
   <startTime>${meeting.getStartTime()?c}</startTime>
-  <endTime>${meeting.getEndTime()}</endTime>
+  <endTime>${meeting.getEndTime()?c}</endTime>
   <participantCount>${meeting.getNumUsers()}</participantCount>
   <listenerCount>${meeting.getNumListenOnly()}</listenerCount>
   <voiceParticipantCount>${meeting.getNumVoiceJoined()}</voiceParticipantCount>
@@ -27,7 +27,7 @@
   <attendees>
   <#list meeting.getUsers() as att>
     <attendee>
-        <userID>${att.getInternalUserId()}</userID>
+        <userID>${att.getExternalUserId()}</userID>
         <fullName>${att.getFullname()?html}</fullName>
         <role>${att.getRole()}</role>
         <isPresenter>${att.isPresenter()?c}</isPresenter>

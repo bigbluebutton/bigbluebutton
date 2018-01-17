@@ -15,8 +15,6 @@ package org.bigbluebutton.modules.present.model
     private var _current:Boolean = false;
     private var _downloadable:Boolean = false;
 
-    private var _sharingDesktop:Boolean = false;
-    
     public function Presentation(id: String, name: String, current: Boolean, pages: ArrayCollection, downloadable: Boolean) {
       _id = id;
       _name = name;
@@ -64,6 +62,17 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
+    public function getPageByNum(pageNum:int):Page {
+      for (var i: int = 0; i < _pages.length; i++) {
+        var p: Page = _pages.getItemAt(i) as Page;
+        if (p.num == pageNum) {
+          return p;
+        }
+      }
+      
+      return null;
+    }
+    
     public function getPages():ArrayCollection {
       var pages:ArrayCollection = new ArrayCollection();
       
@@ -76,15 +85,6 @@ package org.bigbluebutton.modules.present.model
 
     public function get downloadable():Boolean {
       return _downloadable;
-    }
-
-
-    public function get sharingDesktop():Boolean {
-      return _sharingDesktop;
-    }
-
-    public function set sharingDesktop(val:Boolean):void {
-      _sharingDesktop = val;
     }
   }
 }

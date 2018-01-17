@@ -32,7 +32,8 @@ public class UserSession {
   public String role = null;
   public String conference = null;
   public String room = null;
-  public String guest = "false";
+  public Boolean guest = false;
+  public Boolean authed = false;
   public String voicebridge = null;
   public String webvoiceconf = null;
   public String mode = null;

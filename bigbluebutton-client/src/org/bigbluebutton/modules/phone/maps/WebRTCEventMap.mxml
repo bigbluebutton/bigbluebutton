@@ -22,12 +22,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 <EventMap xmlns="http://mate.asfusion.com/"
-	xmlns:mx="http://www.adobe.com/2006/mxml">
-	<mx:Script>
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009">
+	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.main.events.MadePresenterEvent;
+
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
@@ -40,83 +40,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCUserChangedMicEvent;
 			import org.bigbluebutton.modules.phone.managers.WebRTCCallManager;
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<!--
-	This is the main event map for the chat module, think of it as the application controller.
-	-->
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+	<fx:Declarations>
 		<!--
-		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		This is the main event map for the chat module, think of it as the application controller.
 		-->
-		<ObjectBuilder generator="{WebRTCCallManager}" />
-	</EventHandlers>
+		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+			<!--
+			The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+			-->
+			<ObjectBuilder generator="{WebRTCCallManager}" />
+		</EventHandlers>
+		
+	  <EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="initialize"/>
+	  </EventHandlers>
 	
-  <EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="initialize"/>
-  </EventHandlers>
-
-  <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
-    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{ConnectionFailedEvent.USER_LOGGED_OUT}">       
-    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestStartedEvent"/>
-  </EventHandlers>
+	  <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
+	    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{ConnectionFailedEvent.USER_LOGGED_OUT}">       
+	    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
+	    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestStartedEvent"/>
+	  </EventHandlers>
+		
+	  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}">
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event}"/>
+	  </EventHandlers>
 	
-  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestHasAudioEvent"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{WebRTCMediaEvent.WEBRTC_MEDIA_FAIL}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCMediaFailedEvent"/>
-  </EventHandlers>
+	  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestHasAudioEvent"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{WebRTCMediaEvent.WEBRTC_MEDIA_FAIL}">
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCMediaFailedEvent"/>
+	  </EventHandlers>
+		
+	  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestNoAudioEvent"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleUseFlashModeCommand"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{WebRTCUserChangedMicEvent.WEBRTC_USER_CHANGED_MIC}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCUserChangedMicEvent"/>
+	  </EventHandlers>
 	
-  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestNoAudioEvent"/>
-  </EventHandlers> 
-  
-  <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleUseFlashModeCommand"/>
-  </EventHandlers>   
-  
-  <EventHandlers type="{WebRTCUserChangedMicEvent.WEBRTC_USER_CHANGED_MIC}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCUserChangedMicEvent"/>
-  </EventHandlers> 
-
-  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallStartedEvent"/>
-  </EventHandlers> 
-
-  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallEndedEvent"/>
-  </EventHandlers>
-
-  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
-  </EventHandlers> 
-  
-  <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleLeaveVoiceConferenceCommand"/>
-  </EventHandlers> 
-  
-  <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleBecomeViewer"/>
-  </EventHandlers>
+	  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallStartedEvent"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallEndedEvent"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}">
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
+	    <MethodInvoker generator="{WebRTCCallManager}" method="handleLeaveVoiceConferenceCommand"/>
+	  </EventHandlers>
+	</fx:Declarations>
 </EventMap>

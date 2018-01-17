@@ -18,27 +18,30 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.external.ExternalInterface;
-	import flash.net.NetConnection;	
-	import mx.collections.ArrayCollection;
+	import flash.net.NetConnection;
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
+	import org.bigbluebutton.core.events.SetWebcamsOnlyForModeratorEvent;
+	import org.bigbluebutton.core.events.TokenValidEvent;
+	import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.core.managers.UserConfigManager;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.ResponseModeratorEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
-	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.options.ApplicationOptions;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
@@ -47,14 +50,14 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
 	import org.bigbluebutton.modules.users.services.MessageSender;
 
 	public class UserService {
-		private static const LOGGER:ILogger = getClassLogger(UserService);      
+		private static const LOGGER:ILogger = getClassLogger(UserService);
     
 		private var joinService:JoinService;
-		private var _conferenceParameters:ConferenceParameters;		
 		private var applicationURI:String;
 		private var hostURI:String;		
 		private var connection:NetConnection;
@@ -73,120 +76,94 @@ package org.bigbluebutton.main.model.users
 		}
 
 		private function onAllowedToJoin():void {
+			sender.queryForWebcamsOnlyForModerator();
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();
+			sender.getLockSettings();
 
-			if (!_conferenceParameters.isBreakout) {
-				sender.queryForBreakoutRooms(_conferenceParameters.meetingID);
+			if (!LiveMeeting.inst().meeting.isBreakout) {
+				sender.queryForBreakoutRooms(LiveMeeting.inst().meeting.internalId);
 			}
 
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
-			loadCommand.conferenceParameters = _conferenceParameters;
 			dispatcher.dispatchEvent(loadCommand);
 		}
 		
-		public function startService(e:UserServicesEvent):void {      
+		public function startService(e:UserServicesEvent):void {
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
-			joinService.load(BBB.getConfigManager().config.application.host);
+			var applicationOptions : ApplicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
+			joinService.load(applicationOptions.host);
 		}
 		
-		private function joinListener(success:Boolean, result:Object):void {
+		private function joinListener(success:Boolean, result: EnterApiResponse):void {
 			if (success) {
-				var config:Config = BBB.getConfigManager().config;
-				
-				UserManager.getInstance().getConference().setMyName(result.username);
-				UserManager.getInstance().getConference().setMyRole(result.role);
-				UserManager.getInstance().getConference().setMyRoom(result.room);
-				UserManager.getInstance().getConference().setGuest(result.guest == "true");
-				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
-				UserManager.getInstance().getConference().setMyCustomData(result.customdata);
-				UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
-				
-				UserManager.getInstance().getConference().setMyUserid(result.internalUserId);
-				
-				UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
-				UserManager.getInstance().getConference().isBreakout = result.isBreakout;
-				UserManager.getInstance().getConference().meetingName = result.conferenceName;
-				UserManager.getInstance().getConference().internalMeetingID = result.room;
-				UserManager.getInstance().getConference().externalUserID = result.externUserID;
-				UserManager.getInstance().getConference().avatarURL = result.avatarURL;
-				UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
-				UserManager.getInstance().getConference().dialNumber = result.dialnumber;
-				UserManager.getInstance().getConference().record = (result.record.toUpperCase() == "TRUE");
-				
+
+        LiveMeeting.inst().me.id = result.intUserId
+        LiveMeeting.inst().me.name = result.username;
+        LiveMeeting.inst().me.externalId = result.extUserId;
+        LiveMeeting.inst().me.authToken = result.authToken;
+        LiveMeeting.inst().me.layout = result.defaultLayout;
+		LiveMeeting.inst().me.logoutURL = result.logoutUrl;
+		LiveMeeting.inst().me.logoutTimer = result.logoutTimer;
+        LiveMeeting.inst().me.role = result.role;
+        LiveMeeting.inst().me.welcome = result.welcome;
+        LiveMeeting.inst().me.avatarURL = result.avatarURL;
+        LiveMeeting.inst().me.dialNumber = result.dialnumber;
         
+        LiveMeeting.inst().me.guest = result.guest;
+        LiveMeeting.inst().me.authed = result.authed;
+        LiveMeeting.inst().me.customData = result.customdata;
         
-				_conferenceParameters = new ConferenceParameters();
-				_conferenceParameters.meetingName = result.conferenceName;
-				_conferenceParameters.externMeetingID = result.externMeetingID;
-				_conferenceParameters.isBreakout = result.isBreakout;
-				_conferenceParameters.conference = result.conference;
-				_conferenceParameters.username = result.username;
-				_conferenceParameters.guest = (result.guest.toUpperCase() == "TRUE");
-				_conferenceParameters.role = result.role;
-				_conferenceParameters.room = result.room;
-        _conferenceParameters.authToken = result.authToken;
-				_conferenceParameters.webvoiceconf = result.webvoiceconf;
-				_conferenceParameters.voicebridge = result.voicebridge;
-				_conferenceParameters.welcome = result.welcome;
-				_conferenceParameters.meetingID = result.meetingID;
-				_conferenceParameters.externUserID = result.externUserID;
-				_conferenceParameters.internalUserID = result.internalUserId;
-				_conferenceParameters.logoutUrl = processLogoutUrl(result);
-				_conferenceParameters.record = (result.record != "false");
-				
-				var muteOnStart:Boolean;
-				try {
-					muteOnStart = (config.meeting.@muteOnStart.toUpperCase() == "TRUE");
-				} catch(e:Error) {
-					muteOnStart = false;
-				}
-				
-				_conferenceParameters.muteOnStart = muteOnStart;
-				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
+        LiveMeeting.inst().meeting.name = result.meetingName;
+        LiveMeeting.inst().meeting.internalId = result.intMeetingId;
+        LiveMeeting.inst().meeting.externalId =  result.extMeetingId;
+        LiveMeeting.inst().meeting.isBreakout = result.isBreakout;
+        LiveMeeting.inst().meeting.defaultAvatarUrl = result.avatarURL;
+        LiveMeeting.inst().meeting.voiceConf = result.voiceConf;
+        LiveMeeting.inst().meeting.dialNumber = result.dialnumber;
+        LiveMeeting.inst().meeting.recorded = result.record;
+        LiveMeeting.inst().meeting.defaultLayout = result.defaultLayout;
+        LiveMeeting.inst().meeting.welcomeMessage = result.welcome;
+        LiveMeeting.inst().meeting.modOnlyMessage = result.modOnlyMessage;
+        LiveMeeting.inst().meeting.allowStartStopRecording = result.allowStartStopRecording;
+        LiveMeeting.inst().meeting.metadata = result.metadata;
+        LiveMeeting.inst().meeting.muteOnStart = result.muteOnStart;
+				LiveMeeting.inst().meetingStatus.isMeetingMuted = result.muteOnStart;
+        LiveMeeting.inst().meeting.customLogo = result.customLogo;
+				LiveMeeting.inst().meeting.customCopyright = result.customCopyright;
 				
 				// assign the meeting name to the document title
-				ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
+				ExternalInterface.call("setTitle", result.meetingName);
 				
-				/**
-				 * Temporarily store the parameters in global BBB so we get easy access to it.
-				 */
-				var ucm:UserConfigManager = BBB.initUserConfigManager();
-				ucm.setConferenceParameters(_conferenceParameters);
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
-				e.conference = UserManager.getInstance().getConference();
 				dispatcher.dispatchEvent(e);
 				
+				// Send event to trigger meeting muted initialization of meeting (ralam dec 21, 2017)
+				dispatcher.dispatchEvent(new MeetingMutedEvent());
 				connect();
 			}
 		}
 
-		private function processLogoutUrl(confInfo:Object):String {
-			var logoutUrl:String = confInfo.logoutUrl;
-			var rules:Object = {
-				"%%FULLNAME%%": confInfo.username,
-				"%%CONFNAME%%": confInfo.conferenceName,
-				"%%DIALNUM%%": confInfo.dialnumber,
-				"%%CONFNUM%%": confInfo.voicebridge
-			}
 
-			for (var attr:String in rules) {
-				logoutUrl = logoutUrl.replace(new RegExp(attr, "g"), rules[attr]);
-			}
-
-			return logoutUrl;
-		}
 		
     private function connect():void{
       _connectionManager = BBB.initConnectionManager();
       _connectionManager.connect();
     }
 	
+    public function tokenValidEventHandler(event: TokenValidEvent): void {
+      sender.joinMeeting();
+    }
+
+    public function tokenValidReconnectEventHandler(event: TokenValidReconnectEvent): void {
+      sender.joinMeetingAfterReconnect();
+    }
+
 	public function logoutEndMeeting():void{
 		if (this.isModerator()) {
-			var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
+			var myUserId: String = UsersUtil.getMyUserID();
 			sender.logoutEndMeeting(myUserId);
 		}
 	}
@@ -196,8 +173,10 @@ package org.bigbluebutton.main.model.users
     }
     
     public function disconnect(onUserAction:Boolean):void {
-      _connectionManager.disconnect(onUserAction);
+		if (_connectionManager) {
+	      _connectionManager.disconnect(onUserAction);
 		}
+	}
 
 		public function activityResponse():void {
 			sender.activityResponse();
@@ -209,26 +188,20 @@ package org.bigbluebutton.main.model.users
 
 		public function changeRecordingStatus(e:BBBEvent):void {
 			if (this.isModerator() && !e.payload.remote) {
-				var myUserId:String = UserManager.getInstance().getConference().getMyUserId();
-				sender.changeRecordingStatus(myUserId, e.payload.recording);
+				sender.changeRecordingStatus(UsersUtil.getMyUserID(), e.payload.recording);
 			}
 		}
 
 		public function userLoggedIn(e:UsersConnectionEvent):void {
-			UserManager.getInstance().getConference().setMyUserid(e.userid);
-			_conferenceParameters.userid = e.userid;
-
-			var waitingForAcceptance:Boolean = true;
-			if (UserManager.getInstance().getConference().hasUser(e.userid)) {
-				LOGGER.debug("userLoggedIn - conference has this user");
-				waitingForAcceptance = UserManager.getInstance().getConference().getUser(e.userid).waitingForAcceptance;
-			}
-
-			if (reconnecting && !waitingForAcceptance) {
+      LOGGER.debug("In userLoggedIn - reconnecting and allowed to join");
+			if (reconnecting && ! LiveMeeting.inst().me.waitingForApproval) {
 				LOGGER.debug("userLoggedIn - reconnecting and allowed to join");
 				onAllowedToJoin();
 				reconnecting = false;
-			}
+			} else {
+        onAllowedToJoin();
+
+      }
 		}
 
 		public function denyGuest():void {
@@ -244,28 +217,24 @@ package org.bigbluebutton.main.model.users
 		}
 
 		public function isModerator():Boolean {
-			return UserManager.getInstance().getConference().amIModerator();
-		}
-		
-		public function get participants():ArrayCollection {
-			return UserManager.getInstance().getConference().users;
+			return UsersUtil.amIModerator();
 		}
 				
 		public function addStream(e:BroadcastStartedEvent):void {
       sender.addStream(e.userid, e.stream);
 		}
 		
-		public function removeStream(e:BroadcastStoppedEvent):void {			
+		public function removeStream(e:BroadcastStoppedEvent):void {
       sender.removeStream(e.userid, e.stream);
 		}
 		
 		public function emojiStatus(e:EmojiStatusEvent):void {
 			// If the userId is not set in the event then the event has been dispatched for the current user
-			sender.emojiStatus(e.userId != "" ? e.userId : UserManager.getInstance().getConference().getMyUserId(), e.status);
+			sender.emojiStatus(e.userId != "" ? e.userId : UsersUtil.getMyUserID(), e.status);
 		}
 		
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
-			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes, e.record);
+			sender.createBreakoutRooms(LiveMeeting.inst().meeting.internalId, e.rooms, e.durationInMinutes, e.record);
 		}
 
 		public function responseToGuest(e:ResponseModeratorEvent):void {
@@ -273,20 +242,21 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
-			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutMeetingId, e.userId);
+			sender.requestBreakoutJoinUrl(LiveMeeting.inst().meeting.internalId, e.breakoutMeetingId, e.userId);
 		}
 		
 		public function listenInOnBreakout(e:BreakoutRoomEvent):void {
 			if (e.listen) {
-				sender.listenInOnBreakout(_conferenceParameters.meetingID, e.breakoutMeetingId, _conferenceParameters.userid);
+				sender.listenInOnBreakout(LiveMeeting.inst().meeting.internalId, 
+          e.breakoutMeetingId, LiveMeeting.inst().me.id);
 			} else {
-				sender.listenInOnBreakout(e.breakoutMeetingId, _conferenceParameters.meetingID, _conferenceParameters.userid);
+				sender.listenInOnBreakout(e.breakoutMeetingId, LiveMeeting.inst().meeting.internalId, LiveMeeting.inst().me.id);
 			}
-			UserManager.getInstance().getConference().setBreakoutRoomInListen(e.listen, e.breakoutMeetingId);
+			LiveMeeting.inst().breakoutRooms.setBreakoutRoomInListen(e.listen, e.breakoutMeetingId);
 		}
 
 		public function endAllBreakoutRooms(e:BreakoutRoomEvent):void {
-			sender.endAllBreakoutRooms(_conferenceParameters.meetingID);
+			sender.endAllBreakoutRooms(LiveMeeting.inst().meeting.internalId);
 		}
 
 		public function kickUser(e:KickUserEvent):void{
@@ -312,15 +282,15 @@ package org.bigbluebutton.main.model.users
 		public function assignPresenter(e:RoleChangeEvent):void{
 			var assignTo:String = e.userid;
 			var name:String = e.username;
-      sender.assignPresenter(assignTo, name, 1);
+			sender.assignPresenter(assignTo, name, UsersUtil.getMyUserID());
 		}
 
     public function muteUnmuteUser(command:VoiceConfEvent):void {
-      sender.muteUnmuteUser(command.userid, command.mute);		
+      sender.muteUnmuteUser(command.userid, command.mute);
     }
     
-    public function muteAllUsers(command:VoiceConfEvent):void {	
-      sender.muteAllUsers(true);			
+    public function muteAllUsers(command:VoiceConfEvent):void {
+      sender.muteAllUsers(true);
     }
     
     public function unmuteAllUsers(command:VoiceConfEvent):void{
@@ -332,33 +302,37 @@ package org.bigbluebutton.main.model.users
     }
         
     public function ejectUser(command:VoiceConfEvent):void {
-      sender.ejectUser(command.userid);			
-    }	
+      if (this.isModerator()) sender.ejectUserFromVoice(command.userid);
+    }
     
     //Lock events
     public function lockAllUsers(command:LockControlEvent):void {
-      sender.setAllUsersLock(true);			
+      sender.setAllUsersLock(true);
     }
     
-    public function unlockAllUsers(command:LockControlEvent):void {	
-      sender.setAllUsersLock(false);			
+    public function unlockAllUsers(command:LockControlEvent):void {
+      sender.setAllUsersLock(false);
     }
     
-    public function lockAlmostAllUsers(command:LockControlEvent):void {	
-      var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
-      sender.setAllUsersLock(true, [pres.userID]);
+    public function lockAlmostAllUsers(command:LockControlEvent):void {
+      var pres:Array = LiveMeeting.inst().users.getPresenters();
+      sender.setAllUsersLock(true, pres);
     }
     
-    public function lockUser(command:LockControlEvent):void {	
-      sender.setUserLock(command.internalUserID, true);			
+    public function lockUser(command:LockControlEvent):void {
+      sender.setUserLock(command.internalUserID, true);
     }
     
-    public function unlockUser(command:LockControlEvent):void {	
-      sender.setUserLock(command.internalUserID, false);			
+    public function unlockUser(command:LockControlEvent):void {
+      sender.setUserLock(command.internalUserID, false);
     }
     
     public function saveLockSettings(command:LockControlEvent):void {	
-      sender.saveLockSettings(command.payload);			
+      sender.saveLockSettings(command.payload);
     }
+		
+	public function updateWebcamsOnlyForModerator(command:SetWebcamsOnlyForModeratorEvent):void {
+		sender.updateWebcamsOnlyForModerator(command.webcamsOnlyForModerator, UsersUtil.getMyUserID());
+	}
 	}
 }

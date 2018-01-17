@@ -24,10 +24,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.bigbluebutton.freeswitch.voice.events.DeskShareStartedEvent;
+import org.bigbluebutton.freeswitch.voice.events.ScreenshareStartedEvent;
 import org.bigbluebutton.freeswitch.voice.events.DeskShareEndedEvent;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
-import org.bigbluebutton.freeswitch.voice.events.DeskShareRTMPBroadcastEvent;
+import org.bigbluebutton.freeswitch.voice.events.ScreenshareRTMPBroadcastEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceStartRecordingEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserJoinedEvent;
@@ -61,43 +61,34 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		Runnable task = new Runnable() {
 			public void run() {
 				if (event instanceof VoiceUserJoinedEvent) {
-				System.out.println("************** FreeswitchConferenceEventListener received voiceUserJoined ");
 				VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
 				vcs.userJoinedVoiceConf(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(), 
 						evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getAvatarURL());
 				} else if (event instanceof VoiceUserLeftEvent) {
-					System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
 					VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
 					vcs.userLeftVoiceConf(evt.getRoom(), evt.getUserId());
 				} else if (event instanceof VoiceUserMutedEvent) {
-					System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent ");
 					VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
 					vcs.userMutedInVoiceConf(evt.getRoom(), evt.getUserId(), evt.isMuted());
 				} else if (event instanceof VoiceUserTalkingEvent) {
-					System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
 					VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
 					vcs.userTalkingInVoiceConf(evt.getRoom(), evt.getUserId(), evt.isTalking());
 				} else if (event instanceof VoiceStartRecordingEvent) {
 					VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
-					System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
 					vcs.voiceConfRecordingStarted(evt.getRoom(), evt.getRecordingFilename(), evt.startRecord(), evt.getTimestamp());
-				} else if (event instanceof DeskShareStartedEvent) {
-					DeskShareStartedEvent evt = (DeskShareStartedEvent) event;
-					System.out.println("************** FreeswitchConferenceEventListener DeskShareStartedEvent");
+				} else if (event instanceof ScreenshareStartedEvent) {
+					ScreenshareStartedEvent evt = (ScreenshareStartedEvent) event;
 					vcs.deskShareStarted(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
 				} else if (event instanceof DeskShareEndedEvent) {
 					DeskShareEndedEvent evt = (DeskShareEndedEvent) event;
-					System.out.println("************** FreeswitchConferenceEventListener DeskShareEndedEvent");
 					vcs.deskShareEnded(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
-				} else if (event instanceof DeskShareRTMPBroadcastEvent) {
-					if (((DeskShareRTMPBroadcastEvent) event).getBroadcast()) {
-						DeskShareRTMPBroadcastEvent evt = (DeskShareRTMPBroadcastEvent) event;
-						System.out.println("************** FreeswitchConferenceEventListener DeskShareRTMPBroadcastStartedEvent");
+				} else if (event instanceof ScreenshareRTMPBroadcastEvent) {
+					if (((ScreenshareRTMPBroadcastEvent) event).getBroadcast()) {
+						ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
 						vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getBroadcastingStreamUrl(),
 								evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
 					} else {
-						DeskShareRTMPBroadcastEvent evt = (DeskShareRTMPBroadcastEvent) event;
-						System.out.println("************** FreeswitchConferenceEventListener DeskShareRTMPBroadcastStoppedEvent");
+                                                ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
 						vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
 								evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
 					}

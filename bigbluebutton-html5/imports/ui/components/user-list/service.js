@@ -1,47 +1,30 @@
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
-
-import { callServer } from '/imports/ui/services/api';
+import mapUser from '/imports/ui/services/user/mapUser';
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
+import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+import KEY_CODES from '/imports/utils/keyCodes';
+
+const APP_CONFIG = Meteor.settings.public.app;
+const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const USER_CONFIG = Meteor.settings.public.user;
-const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
-/* TODO: Same map is done in the chat/service we should share this someway */
-
-const mapUser = user => ({
-  id: user.userid,
-  name: user.name,
-  emoji: {
-    status: user.emoji_status,
-    changedAt: user.set_emoji_time,
-  },
-  isPresenter: user.presenter,
-  isModerator: user.role === ROLE_MODERATOR,
-  isCurrent: user.userid === Auth.userID,
-  isVoiceUser: user.voiceUser.joined,
-  isMuted: user.voiceUser.muted,
-  isTalking: user.voiceUser.talking,
-  isListenOnly: user.listenOnly,
-  isSharingWebcam: user.webcam_stream.length,
-  isPhoneUser: user.phone_user,
-  isLoggedOut: !user ? true : false,
-});
-
-const mapOpenChats = chat => {
-  let currentUserId = Auth.userID;
-  return chat.message.from_userid !== Auth.userID
-                                    ? chat.message.from_userid
-                                    : chat.message.to_userid;
+const mapOpenChats = (chat) => {
+  const currentUserId = Auth.userID;
+  return chat.fromUserId !== currentUserId
+    ? chat.fromUserId
+    : chat.toUserId;
 };
 
 const sortUsersByName = (a, b) => {
@@ -59,21 +42,23 @@ const sortUsersByName = (a, b) => {
 };
 
 const sortUsersByEmoji = (a, b) => {
-  if ((EMOJI_STATUSES.indexOf(a.emoji.status) > -1)
-    && (EMOJI_STATUSES.indexOf(b.emoji.status) > -1)) {
+  const { status: statusA } = a.emoji;
+  const { status: statusB } = b.emoji;
+
+  const emojiA = statusA in EMOJI_STATUSES ? EMOJI_STATUSES[statusA] : statusA;
+  const emojiB = statusB in EMOJI_STATUSES ? EMOJI_STATUSES[statusB] : statusB;
+
+  if (emojiA && emojiB && (emojiA !== EMOJI_STATUSES.none && emojiB !== EMOJI_STATUSES.none)) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
     } else if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-
-    return sortUsersByName(a, b);
-  } else if (EMOJI_STATUSES.indexOf(a.emoji.status) > -1) {
+  } else if (emojiA && emojiA !== EMOJI_STATUSES.none) {
     return -1;
-  } else if (EMOJI_STATUSES.indexOf(b.emoji.status) > -1) {
+  } else if (emojiB && emojiB !== EMOJI_STATUSES.none) {
     return 1;
   }
-
   return 0;
 };
 
@@ -91,7 +76,7 @@ const sortUsersByModerator = (a, b) => {
 
 const sortUsersByPhoneUser = (a, b) => {
   if (!a.isPhoneUser && !b.isPhoneUser) {
-    return sortUsersByName(a, b);
+    return 0;
   } else if (!a.isPhoneUser) {
     return -1;
   } else if (!b.isPhoneUser) {
@@ -145,6 +130,10 @@ const sortChatsByIcon = (a, b) => {
   return 0;
 };
 
+const isPublicChat = chat => (
+  chat.id === 'public'
+);
+
 const sortChats = (a, b) => {
   let sort = sortChatsByIcon(a, b);
 
@@ -156,32 +145,28 @@ const sortChats = (a, b) => {
 };
 
 const userFindSorting = {
-  'user.set_emoji_time': 1,
-  'user.role': 1,
-  'user.phone_user': 1,
-  'user._sort_name': 1,
-  'user.userid': 1,
+  emojiTime: 1,
+  role: 1,
+  phoneUser: 1,
+  sortName: 1,
+  userId: 1,
 };
 
 const getUsers = () => {
-  let users = Users
-  .find({}, userFindSorting)
-  .fetch();
+  const users = Users
+    .find({ connectionStatus: 'online' }, userFindSorting)
+    .fetch();
 
   return users
-  .map(u => u.user)
-  .map(mapUser)
-  .sort(sortUsers);
+    .map(mapUser)
+    .sort(sortUsers);
 };
 
-const getOpenChats = chatID => {
-
+const getOpenChats = (chatID) => {
   let openChats = Chat
-  .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
-  .fetch()
-  .map(mapOpenChats);
-
-  let currentUserId = Auth.userID;
+    .find({ type: PRIVATE_CHAT_TYPE })
+    .fetch()
+    .map(mapOpenChats);
 
   if (chatID) {
     openChats.push(chatID);
@@ -190,19 +175,18 @@ const getOpenChats = chatID => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-  .find({ 'user.userid': { $in: openChats } })
-  .map(u => u.user)
-  .map(mapUser)
-  .map(op => {
-    op.unreadCounter = UnreadMessages.count(op.id);
-    return op;
-  });
+    .find({ userId: { $in: openChats } })
+    .map(mapUser)
+    .map((op) => {
+      const openChat = op;
+      openChat.unreadCounter = UnreadMessages.count(op.id);
+      return openChat;
+    });
 
-  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  let filteredChatList = [];
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  const filteredChatList = [];
 
   openChats.forEach((op) => {
-
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
       if (_.indexOf(currentClosedChats, op.id) > -1) {
@@ -224,56 +208,159 @@ const getOpenChats = chatID => {
     id: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
-    unreadCounter: UnreadMessages.count('public_chat_userid'),
+    unreadCounter: UnreadMessages.count(PUBLIC_CHAT_USERID),
   });
 
   return openChats
-  .sort(sortChats);
+    .sort(sortChats);
 };
 
-getCurrentUser = () => {
-  let currentUserId = Auth.userID;
-  let currentUser = Users.findOne({ 'user.userid': currentUserId });
+const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 
-  return (currentUser) ? mapUser(currentUser.user) : null;
+const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
+  const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
+
+  const hasAuthority = currentUser.isModerator || user.isCurrent;
+
+  const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
+
+  const allowedToMuteAudio = hasAuthority
+                            && user.isVoiceUser
+                            && !user.isMuted
+                            && !user.isListenOnly;
+
+  const allowedToUnmuteAudio = hasAuthority
+                              && user.isVoiceUser
+                              && !user.isListenOnly
+                              && user.isMuted
+                              && (ALLOW_MODERATOR_TO_UNMUTE_AUDIO || user.isCurrent);
+
+  const allowedToResetStatus = hasAuthority
+      && user.emoji.status !== EMOJI_STATUSES.none
+      && !isDialInUser;
+
+  // if currentUser is a moderator, allow removing other users
+  const allowedToRemove = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+
+  const allowedToSetPresenter = currentUser.isModerator
+      && !user.isPresenter
+      && !isDialInUser;
+
+  const allowedToPromote = currentUser.isModerator
+      && !user.isCurrent
+      && !user.isModerator
+      && !isDialInUser;
+
+  const allowedToDemote = currentUser.isModerator
+      && !user.isCurrent
+      && user.isModerator
+      && !isDialInUser;
+
+  return {
+    allowedToChatPrivately,
+    allowedToMuteAudio,
+    allowedToUnmuteAudio,
+    allowedToResetStatus,
+    allowedToRemove,
+    allowedToSetPresenter,
+    allowedToPromote,
+    allowedToDemote,
+  };
 };
 
-const userActions = {
-  openChat: {
-    label: 'Chat',
-    handler: (router, user) => router.push(`/users/chat/${user.id}`),
-    icon: 'chat',
-  },
-  clearStatus: {
-    label: 'Clear Status',
-    handler: user => callServer('setEmojiStatus', user.id, 'none'),
-    icon: 'clear_status',
-  },
-  setPresenter: {
-    label: 'Make Presenter',
-    handler: user => callServer('assignPresenter', user.id),
-    icon: 'presentation',
-  },
-  kick: {
-    label: 'Kick User',
-    handler: user => callServer('kickUser', user.id),
-    icon: 'circle_close',
-  },
-  mute: {
-    label: 'Mute Audio',
-    handler: user=> callServer('muteUser', user.id),
-    icon: 'audio_off',
-  },
-  unmute: {
-    label: 'Unmute Audio',
-    handler: user=> callServer('unmuteUser', user.id),
-    icon: 'audio_on',
-  },
+const getCurrentUser = () => {
+  const currentUserId = Auth.userID;
+  const currentUser = Users.findOne({ userId: currentUserId });
+
+  return (currentUser) ? mapUser(currentUser) : null;
+};
+
+const normalizeEmojiName = emoji => (
+  emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
+);
+
+const isMeetingLocked = (id) => {
+  const meeting = Meetings.findOne({ meetingId: id });
+  let isLocked = false;
+
+  if (meeting.lockSettingsProp !== undefined) {
+    const lockSettings = meeting.lockSettingsProp;
+
+    if (lockSettings.disableCam
+      || lockSettings.disableMic
+      || lockSettings.disablePrivChat
+      || lockSettings.disablePubChat) {
+      isLocked = true;
+    }
+  }
+
+  return isLocked;
+};
+
+const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none'); };
+
+const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
+
+const removeUser = (userId) => {
+  if (isVoiceOnlyUser(userId)) {
+    makeCall('ejectUserFromVoice', userId);
+  } else {
+    makeCall('removeUser', userId);
+  }
+};
+
+const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
+
+const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
+
+const roving = (event, itemCount, changeState) => {
+  if (this.selectedIndex === undefined) {
+    this.selectedIndex = -1;
+  }
+
+  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    document.activeElement.blur();
+    this.selectedIndex = -1;
+    changeState(this.selectedIndex);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+    this.selectedIndex += 1;
+
+    if (this.selectedIndex === itemCount) {
+      this.selectedIndex = 0;
+    }
+
+    changeState(this.selectedIndex);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_UP) {
+    this.selectedIndex -= 1;
+
+    if (this.selectedIndex < 0) {
+      this.selectedIndex = itemCount - 1;
+    }
+
+    changeState(this.selectedIndex);
+  }
+
+  if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE].includes(event.keyCode)) {
+    document.activeElement.firstChild.click();
+  }
 };
 
 export default {
+  setEmojiStatus,
+  assignPresenter,
+  removeUser,
+  toggleVoice,
+  changeRole,
   getUsers,
   getOpenChats,
   getCurrentUser,
-  userActions,
+  getAvailableActions,
+  normalizeEmojiName,
+  isMeetingLocked,
+  isPublicChat,
+  roving,
 };

@@ -162,10 +162,6 @@ class ApiController {
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);
 
-    if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
-      newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
-    }
-
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
       uploadDocuments(newMeeting);
@@ -253,11 +249,19 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
-    String guest;
-    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true")) {
-        guest = "true";
-    } else {
-        guest = "false";
+    Boolean guest = false;
+    if (!StringUtils.isEmpty(params.guest)) {
+      guest = Boolean.parseBoolean(params.guest)
+    }
+
+    Boolean authenticated = false;
+    if (!StringUtils.isEmpty(params.auth)) {
+      authenticated = Boolean.parseBoolean(params.auth)
+    }
+
+    Boolean joinViaHtml5 = false;
+    if (!StringUtils.isEmpty(params.joinViaHtml5)) {
+      joinViaHtml5 = Boolean.parseBoolean(params.joinViaHtml5)
     }
 
     // Do we have a name for the user joining? If none, complain.
@@ -373,9 +377,12 @@ class ApiController {
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
 
-    String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
+    // For users joining using the phone, we will prepend "v_" so it will be easier
+    // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
+    String internalUserID = "w_" + RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
-    String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    String authToken =  RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
     String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
 
@@ -451,6 +458,7 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
     us.guest = guest
+    us.authed = authenticated
     us.logoutUrl = meeting.getLogoutUrl();
     us.configXML = configxml;
 
@@ -468,7 +476,8 @@ class ApiController {
     meetingService.addUserSession(sessionToken, us);
 
     // Register user into the meeting.
-    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.avatarURL, us.guest)
+    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
+            us.authToken, us.avatarURL, us.guest, us.authed)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored
@@ -496,6 +505,27 @@ class ApiController {
     boolean redirectClient = true;
     String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 
+    // server-wide configuration:
+    // Depending on configuration, prefer the HTML5 client over Flash for moderators
+    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    }
+
+    // Depending on configuration, prefer the HTML5 client over Flash for attendees
+    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    }
+
+    // single client join configuration:
+    // Depending on configuration, prefer the HTML5 client over Flash client
+    if (joinViaHtml5) {
+      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+    } else {
+      if(!StringUtils.isEmpty(params.clientURL)){
+        clientURL = params.clientURL;
+      }
+    }
+
     if(! StringUtils.isEmpty(params.redirect)) {
       try{
         redirectClient = Boolean.parseBoolean(params.redirect);
@@ -504,9 +534,6 @@ class ApiController {
       }
     }
 
-    if(!StringUtils.isEmpty(params.clientURL)){
-      clientURL = params.clientURL;
-    }
 
     if (redirectClient){
       String destUrl = clientURL + "?sessionToken=" + sessionToken
@@ -525,6 +552,7 @@ class ApiController {
               meeting_id() { mkp.yield(us.meetingID) }
               user_id(us.internalUserId)
               auth_token(us.authToken)
+              session_token(session[sessionToken])
             }
           }
         }
@@ -1264,17 +1292,13 @@ class ApiController {
     UserSession us = null;
     Meeting meeting = null;
 
-    if (!session[sessionToken]) {
+    if (meetingService.getUserSession(sessionToken) == null)
       reject = true;
-    } else {
-      if (meetingService.getUserSession(sessionToken) == null)
-        reject = true;
-      else {
-        us = meetingService.getUserSession(sessionToken);
-        meeting = meetingService.getMeeting(us.meetingID);
-        if (meeting == null || meeting.isForciblyEnded()) {
-          reject = true
-        }
+    else {
+      us = meetingService.getUserSession(sessionToken);
+      meeting = meetingService.getMeeting(us.meetingID);
+      if (meeting == null || meeting.isForciblyEnded()) {
+        reject = true
       }
     }
 
@@ -1308,7 +1332,7 @@ class ApiController {
       // removing the user when the user reconnects after being disconnected. (ralam jan 22, 2015)
       // We use underscore (_) to associate userid with the user. We are also able to track
       // how many times a user reconnects or refresh the browser.
-      String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
+      String newInternalUserID = us.internalUserId //+ "_" + us.incrementConnectionNum()
 
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", us.meetingID);
@@ -1347,11 +1371,15 @@ class ApiController {
               mode = us.mode
               record = us.record
               isBreakout = meeting.isBreakout()
+              logoutTimer = meeting.getLogoutTimer()
               allowStartStopRecording = meeting.getAllowStartStopRecording()
-              webcamsOnlyForModerator = meeting.getWebcamsOnlyForModerator()
               welcome = us.welcome
               if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
                 modOnlyMessage = meeting.moderatorOnlyMessage
+
+              customLogoURL = meeting.getCustomLogoURL()
+              customCopyright = meeting.getCustomCopyright()
+              muteOnStart = meeting.getMuteOnStart()
               logoutUrl = us.logoutUrl
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL
@@ -1388,17 +1416,13 @@ class ApiController {
       println("Session token = [" + sessionToken + "]")
     }
 
-    if (!session[sessionToken]) {
+    if (meetingService.getUserSession(sessionToken) == null)
       reject = true;
-    } else {
-      if (meetingService.getUserSession(session[sessionToken]) == null)
-        reject = true;
-      else {
-        us = meetingService.getUserSession(session[sessionToken]);
-        meeting = meetingService.getMeeting(us.meetingID);
-        if (meeting == null || meeting.isForciblyEnded()) {
-          reject = true
-        }
+    else {
+      us = meetingService.getUserSession(sessionToken);
+      meeting = meetingService.getMeeting(us.meetingID);
+      if (meeting == null || meeting.isForciblyEnded()) {
+        reject = true
       }
     }
 
@@ -1527,12 +1551,12 @@ class ApiController {
       externalMeetingIds=paramsProcessorUtil.decodeIds(params.meetingID);
     }
 
-    List<String> internalRecordIds = new ArrayList<String>()
+    ArrayList<String> internalRecordIds = new ArrayList<String>()
     if (!StringUtils.isEmpty(params.recordID)) {
       internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
     }
 
-    List<String> states = new ArrayList<String>()
+    ArrayList<String> states = new ArrayList<String>()
     if (!StringUtils.isEmpty(params.state)) {
       states = paramsProcessorUtil.decodeIds(params.state)
     }
@@ -1548,33 +1572,13 @@ class ApiController {
       log.debug intRecId
     }
 
-    List<RecordingMetadata> recsList = meetingService.getRecordingsMetadata(internalRecordIds, states);
-    List<RecordingMetadata> recs = meetingService.filterRecordingsByMetadata(recsList, ParamsProcessorUtil.processMetaParam(params));
+    Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params);
 
-    if (recs.isEmpty()) {
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              recordings(null)
-              messageKey("noRecordings")
-              message("There are not recordings for the meetings")
-            }
-          }
-        }
-      }
-      return;
-    }
+    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters)
 
-    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
-    ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
-
-    def xmlText = responseBuilder.buildGetRecordingsResponse(recs, RESP_CODE_SUCCESS)
     withFormat {
       xml {
-        render(text: xmlText, contentType: "text/xml")
+        render(text: getRecordingsResult, contentType: "text/xml")
       }
     }
   }
@@ -1638,7 +1642,7 @@ class ApiController {
       return
     }
 
-    List<String> recordIdList = new ArrayList<String>();
+    ArrayList<String> recordIdList = new ArrayList<String>();
     if (!StringUtils.isEmpty(recordId)) {
       recordIdList=paramsProcessorUtil.decodeIds(recordId);
     }
@@ -1824,7 +1828,8 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId());
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
+              true /* default presentation */ );
     } else {
       log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
@@ -1835,11 +1840,12 @@ class ApiController {
           // need to iterate over presentation files and process them
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId());
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), true /* default presentation */);
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
-              processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf.getInternalId());
+              processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+                      conf.getInternalId(), true /* default presentation */);
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
@@ -1849,7 +1855,7 @@ class ApiController {
     }
   }
 
-  def processDocumentFromRawBytes(bytes, presFilename, meetingId) {
+  def processDocumentFromRawBytes(bytes, presFilename, meetingId, current) {
     def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
     def presId = Util.generatePresentationId(presFilename)
@@ -1863,12 +1869,12 @@ class ApiController {
       fos.flush()
       fos.close()
 
-      processUploadedFile(meetingId, presId, presFilename, pres);
+      processUploadedFile(meetingId, presId, presFilename, pres, current);
     }
 
   }
 
-  def downloadAndProcessDocument(address, meetingId) {
+  def downloadAndProcessDocument(address, meetingId, current) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
     String presFilename = address.tokenize("/")[-1];
     def filenameExt = FilenameUtils.getExtension(presFilename);
@@ -1882,7 +1888,7 @@ class ApiController {
 
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
         def pres = new File(newFilePath)
-        processUploadedFile(meetingId, presId, presFilename, pres);
+        processUploadedFile(meetingId, presId, presFilename, pres, current);
       } else {
         log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
       }
@@ -1890,9 +1896,9 @@ class ApiController {
   }
 
 
-  def processUploadedFile(meetingId, presId, filename, presFile) {
+  def processUploadedFile(meetingId, presId, filename, presFile, current) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
-    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseUrl);
+    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseUrl, current);
     uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }

@@ -3,13 +3,12 @@ import Slides from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 export default function switchSlide(credentials, slideNumber) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
 
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.presentation;
-  const EVENT_NAME = 'go_to_slide';
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'SetCurrentPagePubMsg';
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -18,35 +17,31 @@ export default function switchSlide(credentials, slideNumber) {
   check(requesterToken, String);
   check(slideNumber, Number);
 
-  if (!isAllowedTo('switchSlide', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to switchSlide`);
-  }
-
-  const Presentation = Presentations.findOne({
+  const selector = {
     meetingId,
-    'presentation.current': true,
-  });
+    current: true,
+  };
+
+  const Presentation = Presentations.findOne(selector);
 
   if (!Presentation) {
-    throw new Meteor.Error(
-      'presentation-not-found', `You need a presentation to be able to switch slides`);
+    throw new Meteor.Error('presentation-not-found', 'You need a presentation to be able to switch slides');
   }
 
   const Slide = Slides.findOne({
     meetingId,
-    presentationId: Presentation.presentation.id,
-    'slide.num': parseInt(slideNumber),
+    presentationId: Presentation.id,
+    num: slideNumber,
   });
 
   if (!Slide) {
-    throw new Meteor.Error(
-      'slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
+    throw new Meteor.Error('slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
   }
 
-  let payload = {
-    page: Slide.slide.id,
-    meeting_id: meetingId,
+  const payload = {
+    pageId: Slide.id,
+    presentationId: Presentation.id,
   };
 
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+}

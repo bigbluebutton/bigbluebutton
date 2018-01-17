@@ -1,12 +1,18 @@
-@import "../../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
 
 .form {
   flex-grow: 0;
   flex-shrink: 0;
   align-self: flex-end;
+  width: 100%;
+  position: relative;
+  margin-bottom: -$sm-padding-x;
+}
+
+.wrapper {
   display: flex;
   flex-direction: row;
-  width: 100%;
 }
 
 .actions {
@@ -37,22 +43,24 @@
 }
 
 .input {
+  @include inputFocus($color-blue-light);
+
   flex: 1;
   background: #fff;
-  border: $border-size solid $color-gray-lighter;
   background-clip: padding-box;
   margin: 0;
-  color: $color-gray;
+  color: $color-text;
   -webkit-appearance: none;
-  box-shadow: none;
   outline: 0;
-  padding: $sm-padding-y*2 $sm-padding-x;
+  padding: $sm-padding-y * 2.5 $sm-padding-x * 1.25;
   resize: none;
   transition: none;
   border-radius: $border-radius;
   font-size: $font-size-base * .90;
   min-height: 2.5rem;
   max-height: 10rem;
+  border: 1px solid $color-gray-lighter;
+  box-shadow: 0 0 0 2px $color-gray-lighter;
 
   &:disabled,
   &[disabled] {
@@ -63,12 +71,21 @@
 }
 
 .sendButton {
-  @extend .input;
-  border-left: 0px;
-  min-width: 1rem;
-  max-width: 2.5rem;
+  margin-left: $sm-padding-x;
+  align-self: center;
+  font-size: 0.9rem;
+  i {
+    font-size: 115% !important;
+  }
+}
 
-  > [class*=" icon-bbb-"] {
-    color: $color-gray-light;
+.info {
+  font-size: $font-size-base * .75;
+  color: $color-gray-light;
+  text-align: right;
+  padding: $border-size 0;
+
+  &:before {
+    content: "\00a0"; // non-breaking space
   }
 }

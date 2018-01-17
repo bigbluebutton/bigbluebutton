@@ -1,5 +1,4 @@
-import React, { PropTypes } from 'react';
-import styles from './styles';
+import React from 'react';
 
 import Icon from '../../../icon/component';
 import BaseButton from '../../../button/base/component';
@@ -12,19 +11,13 @@ const defaultProps = {
   ...BaseButton.defaultProps,
 };
 
-export default class MessageFormActions extends BaseButton {
-  constructor(props) {
-    super(props);
-  }
+const MessageFormActions = () => (
+  <BaseButton {...this.props}>
+    <Icon iconName={'add'} />
+  </BaseButton>
+);
 
-  render() {
-    return (
-      <BaseButton {...this.props}>
-        <Icon iconName={'add'} />
-      </BaseButton>
-    );
-  }
-};
+export default
 
-MessageFormActions.propTypes = propTypes;
+  MessageFormActions.propTypes = propTypes;
 MessageFormActions.defaultProps = defaultProps;

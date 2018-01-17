@@ -1,25 +1,25 @@
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import RedisPubSub from '/imports/startup/server/redis';
 import { check } from 'meteor/check';
 import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
-export default function publishVote(credentials, pollId, pollAnswerId) { //TODO discuss location
-  const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.polling;
-  const EVENT_NAME = 'vote_poll_user_request_message';
+export default function publishVote(credentials, id, pollAnswerId) { // TODO discuss location
+  const REDIS_CONFIG = Meteor.settings.private.redis;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'RespondToPollReqMsg';
 
-  if (!isAllowedTo('subscribePoll', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to publishVote`);
-  }
+  const { meetingId, requesterUserId } = credentials;
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-
+  /*
+   We keep an array of people who were in the meeting at the time the poll
+   was started. The poll is published to them only.
+   Once they vote - their ID is removed and they cannot see the poll anymore
+   */
   const currentPoll = Polls.findOne({
     users: requesterUserId,
-    meetingId: meetingId,
-    'poll.answers.id': pollAnswerId,
-    'poll.id': pollId,
+    meetingId,
+    'answers.id': pollAnswerId,
+    id,
   });
 
   check(meetingId, String);
@@ -27,18 +27,17 @@ export default function publishVote(credentials, pollId, pollAnswerId) { //TODO 
   check(pollAnswerId, Number);
   check(currentPoll.meetingId, String);
 
-  let payload = {
-    meeting_id: currentPoll.meetingId,
-    user_id: requesterUserId,
-    poll_id: currentPoll.poll.id,
-    question_id: 0,
-    answer_id: pollAnswerId,
+  const payload = {
+    requesterId: requesterUserId,
+    pollId: currentPoll.id,
+    questionId: 0,
+    answerId: pollAnswerId,
   };
 
   const selector = {
     users: requesterUserId,
-    meetingId: meetingId,
-    'poll.answers.id': pollAnswerId,
+    meetingId,
+    'answers.id': pollAnswerId,
   };
 
   const modifier = {
@@ -47,15 +46,16 @@ export default function publishVote(credentials, pollId, pollAnswerId) { //TODO 
     },
   };
 
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Updating Polls collection: ${err}`);
     }
 
-    Logger.info(`Updating Polls collection (meetingId: ${meetingId},
-                                            pollId: ${currentPoll.poll.id}!)`);
+    return Logger.info(`Updating Polls collection (meetingId: ${meetingId},
+                                            pollId: ${currentPoll.id}!)`);
   };
 
   Polls.update(selector, modifier, cb);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

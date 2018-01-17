@@ -1,6 +1,7 @@
 package org.bigbluebutton.common.messages;
 
 import java.util.Map;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -27,31 +28,12 @@ public class MessageFromJsonConverter {
 					  return processKeepAlive(payload);
 				  case ActivityResponseMessage.ACTIVITY_RESPONSE:
 					  return processActivityResponseMessage(payload);
-				  case RegisterUserMessage.REGISTER_USER:
-					  return RegisterUserMessage.fromJson(message);
-				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
-					  return processValidateAuthTokenMessage(header, payload);
-					  // return ValidateAuthTokenMessage.fromJson(message);
-				  case UserConnectedToGlobalAudio.USER_CONNECTED_TO_GLOBAL_AUDIO:
-					return UserConnectedToGlobalAudio.fromJson(message);
-				  case UserDisconnectedFromGlobalAudio.USER_DISCONNECTED_FROM_GLOBAL_AUDIO:
-					return UserDisconnectedFromGlobalAudio.fromJson(message);
 				  case GetAllMeetingsRequest.GET_ALL_MEETINGS_REQUEST_EVENT:
 					return new GetAllMeetingsRequest("the_string_is_not_used_anywhere");
 				}
 			}
 		}
 		return null;
-	}
-		
-	private static IBigBlueButtonMessage processValidateAuthTokenMessage(JsonObject header, JsonObject payload) {
-		String id = payload.get(Constants.MEETING_ID).getAsString();
-		String userid = payload.get(Constants.USER_ID).getAsString();
-		String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
-		String replyTo = header.get(Constants.REPLY_TO).getAsString();
-		String sessionId = "tobeimplemented";
-		return new ValidateAuthTokenMessage(id, userid, authToken, replyTo,
-		    sessionId);
 	}
 	
 	private static IBigBlueButtonMessage processCreateMeeting(JsonObject payload) {

@@ -18,15 +18,14 @@
 */
 
 package org.bigbluebutton.modules.sharednotes.managers {
-	import com.asfusion.mate.events.Dispatcher;
 
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.modules.sharednotes.services.MessageReceiver;
 	import org.bigbluebutton.modules.sharednotes.services.MessageSender;
-	import org.bigbluebutton.core.managers.UserManager;
 
 	public class SharedNotesManager {
 		private static const LOGGER:ILogger = getClassLogger(SharedNotesManager);
@@ -42,7 +41,7 @@ package org.bigbluebutton.modules.sharednotes.managers {
 		}
 
 		public function patchDocument(e:SendPatchEvent):void {
-			sender.patchDocument(e.noteId, UserManager.getInstance().getConference().getMyUserId(), e.patch, e.operation);
+			sender.patchDocument(e.noteId, e.patch, e.operation);
 		}
 
 		public function getCurrentDocument():void {
@@ -62,12 +61,20 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			var notesSet:Number = e.payload.numAdditionalSharedNotes;
 			LOGGER.debug("SharedNotesManager: requested to open a new notes set");
 			LOGGER.debug("SharedNotesManager: set size: " + notesSet);
-			sender.requestAdditionalNotesSet(notesSet);
+			// TODO: Review this
+			for (var i:int = 0; i < notesSet; i++) {
+				sender.createAdditionalNotes("");
+			}
 		}
 
 		public function sharedNotesSyncNoteRequest(e:SharedNotesEvent):void {
 			var noteId:String = e.payload.noteId;
 			sender.sharedNotesSyncNoteRequest(noteId);
+		}
+
+		public function sharedNotesClearNoteRequest(e:SharedNotesEvent):void {
+			var noteId:String = e.payload.noteId;
+			sender.sharedNotesClearNoteRequest(noteId);
 		}
 	}
 }

@@ -1,16 +1,41 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-
-import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
-import requestStunTurn from '../methods/requestStunTurn';
+import stringHash from 'string-hash';
+import flat from 'flat';
+
+import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
+import changeRole from '/imports/api/users/server/modifiers/changeRole';
+
+const COLOR_LIST = [
+  '#d32f2f', '#c62828', '#b71c1c', '#d81b60', '#c2185b', '#ad1457', '#880e4f',
+  '#8e24aa', '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
+  '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',
+  '#0d47a1', '#0277bd', '#01579b', '#00838f', '#006064', '#00796b', '#00695c',
+  '#004d40', '#2e7d32', '#1b5e20', '#33691e', '#827717', '#bf360c', '#6d4c41',
+  '#5d4037', '#4e342e', '#3e2723', '#757575', '#616161', '#424242', '#212121',
+  '#546e7a', '#455a64', '#37474f', '#263238',
+];
 
 export default function addUser(meetingId, user) {
-  check(user, Object);
   check(meetingId, String);
 
-  const userId = user.userid;
+  check(user, {
+    intId: String,
+    extId: String,
+    name: String,
+    role: String,
+    guest: Boolean,
+    authed: Boolean,
+    waitingForAcceptance: Boolean,
+    emoji: String,
+    presenter: Boolean,
+    locked: Boolean,
+    avatar: String,
+  });
+
+  const userId = user.intId;
   check(userId, String);
 
   const selector = {
@@ -18,54 +43,76 @@ export default function addUser(meetingId, user) {
     userId,
   };
 
+  const USER_CONFIG = Meteor.settings.public.user;
+  const ROLE_PRESENTER = USER_CONFIG.role_presenter;
+  const ROLE_MODERATOR = USER_CONFIG.role_moderator;
+  const ROLE_VIEWER = USER_CONFIG.role_viewer;
+  const APP_CONFIG = Meteor.settings.public.app;
+  const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
+
+  // override moderator status of html5 client users, depending on a system flag
+  const dummyUser = Users.findOne(selector);
+  let userRole = user.role;
+
+  if (
+    dummyUser &&
+    dummyUser.clientType === 'HTML5' &&
+    userRole === ROLE_MODERATOR &&
+    !ALLOW_HTML5_MODERATOR
+  ) {
+    userRole = ROLE_VIEWER;
+  }
+
+  /* While the akka-apps dont generate a color we just pick one
+    from a list based on the userId */
+  const color = COLOR_LIST[stringHash(user.intId) % COLOR_LIST.length];
+
   const modifier = {
-    $set: {
-      meetingId,
-      userId,
-      'user.connection_status': 'online',
-      'user.userid': userId,
-      'user.extern_userid': user.extern_userid,
-      'user.role': user.role,
-      'user.name': user.name,
-      'user._sort_name': user.name.trim().toLowerCase(),
-      'user.avatarURL': user.avatarURL,
-      'user.set_emoji_time': user.set_emoji_time || (new Date()).getTime(),
-      'user.time_of_joining': (new Date()).getTime(),
-      'user.emoji_status': user.emoji_status,
-      'user.webcam_stream': user.webcam_stream,
-      'user.presenter': user.presenter,
-      'user.locked': user.locked,
-      'user.phone_user': user.phone_user,
-      'user.listenOnly': user.listenOnly,
-      'user.has_stream': user.has_stream,
-      'user.voiceUser.web_userid': user.voiceUser.web_userid,
-      'user.voiceUser.callernum': user.voiceUser.callernum,
-      'user.voiceUser.userid': user.voiceUser.userid,
-      'user.voiceUser.talking': user.voiceUser.talking,
-      'user.voiceUser.joined': user.voiceUser.joined,
-      'user.voiceUser.callername': user.voiceUser.callername,
-      'user.voiceUser.locked': user.voiceUser.locked,
-      'user.voiceUser.muted': user.voiceUser.muted,
-    },
+    $set: Object.assign(
+      {
+        meetingId,
+        connectionStatus: 'online',
+        roles: [ROLE_VIEWER.toLowerCase()],
+        sortName: user.name.trim().toLowerCase(),
+        color,
+      },
+      flat(user),
+    ),
   };
+
+  addVoiceUser(meetingId, {
+    voiceUserId: '',
+    intId: userId,
+    callerName: user.name,
+    callerNum: '',
+    muted: false,
+    talking: false,
+    callingWith: '',
+    listenOnly: false,
+    voiceConf: '',
+    joined: false,
+  });
 
   const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Adding user to collection: ${err}`);
     }
 
-    // TODO: Do we really need to request the stun/turn everytime?
-    requestStunTurn(meetingId, userId);
+    if (user.presenter) {
+      changeRole(ROLE_PRESENTER, true, userId, meetingId);
+    }
+
+    if (userRole === ROLE_MODERATOR) {
+      changeRole(ROLE_MODERATOR, true, userId, meetingId);
+    }
 
     const { insertedId } = numChanged;
     if (insertedId) {
       return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
     }
 
-    if (numChanged) {
-      return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-    }
+    return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
   };
 
   return Users.upsert(selector, modifier, cb);
-};
+}

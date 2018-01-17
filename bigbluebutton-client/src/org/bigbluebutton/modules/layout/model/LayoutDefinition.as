@@ -21,11 +21,11 @@ package org.bigbluebutton.modules.layout.model {
 	
 	import flexlib.mdi.containers.MDICanvas;
 	import flexlib.mdi.containers.MDIWindow;
-	import org.bigbluebutton.core.UsersUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 	public class LayoutDefinition {
@@ -40,9 +40,8 @@ package org.bigbluebutton.modules.layout.model {
     
 		private var _layoutsPerRole:Dictionary = new Dictionary();
 		
-		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 
-				"VideoWindow", "ScreensharePublishWindow", "ScreenshareViewWindow",
-				"LogWindow", "NetworkStatsWindow", "ShortcutHelpWindow");
+		static private var _ignoredWindows:Array = new Array("ScreensharePublishWindow", "ScreenshareViewWindow",
+			"LogWindow", "NetworkStatsWindow", "ShortcutHelpWindow");
 		static private var _roles:Array = new Array(Role.VIEWER, Role.MODERATOR, Role.PRESENTER);
 				
 		private function loadLayout(vxml:XML):void {
@@ -82,9 +81,9 @@ package org.bigbluebutton.modules.layout.model {
 			var hasModeratorLayout:Boolean = _layoutsPerRole.hasOwnProperty(Role.MODERATOR);
 			var hasPresenterLayout:Boolean = _layoutsPerRole.hasOwnProperty(Role.PRESENTER);
 			
-			if (UserManager.getInstance().getConference().amIPresenter && hasPresenterLayout) {
+			if (UsersUtil.amIPresenter() && hasPresenterLayout) {
 				return _layoutsPerRole[Role.PRESENTER];
-			} else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout) {
+			} else if (UsersUtil.amIModerator() && hasModeratorLayout) {
 				return _layoutsPerRole[Role.MODERATOR];
 			} else if (hasViewerLayout)   {
 				return _layoutsPerRole[Role.VIEWER];

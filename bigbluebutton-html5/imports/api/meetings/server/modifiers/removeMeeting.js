@@ -1,41 +1,30 @@
-import { check } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearChats from '/imports/api/chat/server/modifiers/clearChats';
-import clearShapes from '/imports/api/shapes/server/modifiers/clearShapes';
+import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
+import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
 import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
 import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import clearCursor from '/imports/api/cursor/server/modifiers/clearCursor';
 import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions';
 import clearPresentations from '/imports/api/presentations/server/modifiers/clearPresentations';
+import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 
 export default function removeMeeting(meetingId) {
-  check(meetingId, String);
+  return Meetings.remove({ meetingId }, () => {
+    clearCaptions(meetingId);
+    clearChats(meetingId);
+    clearCursor(meetingId);
+    clearPresentations(meetingId);
+    clearBreakouts(meetingId);
+    clearPolls(meetingId);
+    clearAnnotations(meetingId);
+    clearSlides(meetingId);
+    clearUsers(meetingId);
+    clearVoiceUsers(meetingId);
 
-  const selector = {
-    meetingId,
-  };
-
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Removing meeting from collection: ${err}`);
-    }
-
-    if (numChanged) {
-      clearCaptions(meetingId);
-      clearChats(meetingId);
-      clearCursor(meetingId);
-      clearPresentations(meetingId);
-      clearPolls(meetingId);
-      clearShapes(meetingId);
-      clearSlides(meetingId);
-      clearUsers(meetingId);
-
-      return Logger.info(`Removed meeting id=${meetingId}`);
-    }
-  };
-
-  return Meetings.remove(selector, cb);
-};
+    return Logger.info(`Cleared Meetings with id ${meetingId}`);
+  });
+}

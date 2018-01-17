@@ -1,31 +1,21 @@
-import React, { Component } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBar from './component';
 import Service from './service';
+import VideoService from '../video-dock/service';
+import { shareScreen, unshareScreen, isVideoBroadcasting } from '../screenshare/service';
 
-class ActionsBarContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
+const ActionsBarContainer = props => <ActionsBar {...props} />;
 
-  render() {
-    return (
-      <ActionsBar
-        {...this.props}>
-          {this.props.children}
-      </ActionsBar>
-    );
-  }
-}
+export default withTracker(() => ({
+  isUserPresenter: Service.isUserPresenter(),
+  emojiList: Service.getEmojiList(),
+  emojiSelected: Service.getEmoji(),
+  handleEmojiChange: Service.setEmoji,
+  handleExitVideo: () => VideoService.exitVideo(),
+  handleJoinVideo: () => VideoService.joinVideo(),
+  handleShareScreen: () => shareScreen(),
+  handleUnshareScreen: () => unshareScreen(),
+  isVideoBroadcasting: () => isVideoBroadcasting(),
 
-export default createContainer(() => {
-  const isPresenter = Service.isUserPresenter();
-  const handleExitAudio = () => Service.handleExitAudio();
-  const handleOpenJoinAudio = () => Service.handleJoinAudio();
-
-  return {
-    isUserPresenter: isPresenter,
-    handleExitAudio: handleExitAudio,
-    handleOpenJoinAudio: handleOpenJoinAudio,
-  };
-}, ActionsBarContainer);
+}))(ActionsBarContainer);

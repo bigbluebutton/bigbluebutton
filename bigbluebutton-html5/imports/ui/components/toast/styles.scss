@@ -1,0 +1,178 @@
+@import "../../stylesheets/variables/_all";
+
+$toast-default-color: $color-white;
+$toast-default-bg: $color-gray;
+
+$toast-info-color: $color-white;
+$toast-info-bg: $color-primary;
+
+$toast-success-color: $color-white;
+$toast-success-bg: $color-success;
+
+$toast-error-color: $color-white;
+$toast-error-bg: $color-danger;
+
+$toast-warning-color: $color-white;
+$toast-warning-bg: $color-warning;
+
+$background: $color-white;
+$background-active: darken($color-white, 5%);
+
+@mixin notification-variant($icon-color, $icon-bg) {
+  display: flex;
+
+  > .icon {
+    color: $icon-color;
+    background-color: $icon-bg;
+  }
+}
+
+.icon {
+  align-self: flex-start;
+  margin-bottom: auto;
+  margin-right: $sm-padding-x;
+  width: 2rem;
+  border-radius: 50%;
+  position: relative;
+  height: 2rem;
+  flex-shrink: 0;
+
+  > i {
+    line-height: 0;
+    color: inherit;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+  }
+}
+
+.message {
+  margin-top: auto;
+  margin-bottom: auto;
+  font-size: $font-size-small;
+  max-height: 15vh;
+  overflow: auto;
+}
+
+.default {
+  @include notification-variant($toast-default-color, $toast-default-bg);
+}
+
+.info {
+  @include notification-variant($toast-info-color, $toast-info-bg);
+}
+
+.success {
+  @include notification-variant($toast-success-color, $toast-success-bg);
+}
+
+.error {
+  @include notification-variant($toast-error-color, $toast-error-bg);
+}
+
+.warning {
+  @include notification-variant($toast-warning-color, $toast-warning-bg);
+}
+
+.container {
+  z-index: 9999;
+  position: fixed;
+  padding: $sm-padding-y;
+  width: 15vw;
+  min-width: 320px;
+  box-sizing: border-box;
+  top: $md-padding-y;
+  right: $md-padding-y;
+  max-height: 75vh;
+  overflow: hidden;
+
+  @include mq($small-only) {
+    left: $sm-padding-y;
+    width: auto;
+  }
+}
+
+.toast {
+  position: relative;
+  margin-bottom: $sm-padding-x;
+  padding: $md-padding-x;
+  border-radius: $border-radius;
+  box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1), 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  color: $color-text;
+  background-color: $background;
+  animation-duration: 0.75s;
+  animation-fill-mode: both;
+
+  &:hover,
+  &:focus {
+    background-color: $background-active;
+  }
+}
+
+.body {
+  margin: auto 0;
+  flex: 1;
+}
+
+.close {
+  background: transparent;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  opacity: .3;
+  transition: .3s ease;
+  font-size: .35rem;
+  color: $color-gray-dark;
+  border: 1px solid;
+  border-radius: 50%;
+  padding: .4rem;
+  line-height: 0;
+  position: absolute;
+  top: $md-padding-y;
+  right: $md-padding-y;
+
+  &:before {
+    margin-left: -.2rem;
+  }
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
+
+  @include mq($small-only) {
+    position: relative;
+    top: auto;
+    right: auto;
+    align-self: flex-start;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: $sm-padding-x;
+    font-size: 1rem;
+    line-height: 1;
+    border: none;
+  }
+}
+
+@keyframes track-progress {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 5px;
+  z-index: 9999;
+  animation: track-progress linear 1;
+  background-color: $color-gray-lighter;
+}

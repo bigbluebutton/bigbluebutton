@@ -1,4 +1,4 @@
- # Set encoding to utf-8
+# Set encoding to utf-8
 # encoding: UTF-8
 
 #
@@ -181,7 +181,8 @@ if not FileTest.directory?(target_dir)
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
-              text["slide-#{page}"] = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", :encoding => 'UTF-8')
+              t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
+              text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
               FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
             end
           end
@@ -189,9 +190,8 @@ if not FileTest.directory?(target_dir)
         end
       else
         ext = File.extname("#{images[0]}")
-        #BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
-        command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
-        BigBlueButton.execute(command)
+        BigBlueButton::Presentation.convert_image_to_png(
+          images[0], "#{target_pres_dir}/slide-1.png", '1600x1200')
       end
 
       # Copy thumbnails from raw files
@@ -210,12 +210,14 @@ if not FileTest.directory?(target_dir)
       File.open("#{target_dir}/presentation_text.json","w") { |f| f.puts presentation_text.to_json }
     end
 
-    # We have to decide whether to actually generate the video file
+    # We have to decide whether to actually generate the webcams video file
     # We do so if any of the following conditions are true:
     # - There is webcam video present, or
     # - There's broadcast video present, or
     # - There are closed captions present (they need a video stream to be rendered on top of)
-    if !Dir["#{raw_archive_dir}/video/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? or captions.length > 0
+    if !Dir["#{raw_archive_dir}/video/*"].empty? or
+        !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? or
+        captions.length > 0
       webcam_width = presentation_props['video_output_width']
       webcam_height = presentation_props['video_output_height']
 
@@ -225,7 +227,8 @@ if not FileTest.directory?(target_dir)
         webcam_height = presentation_props['deskshare_output_height']
       end
 
-      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'])
+      processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
+      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'], processed_audio_file)
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? and presentation_props['include_deskshare']

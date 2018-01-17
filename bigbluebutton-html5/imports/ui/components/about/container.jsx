@@ -1,29 +1,19 @@
-import React, { Component, PropTypes } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import AboutComponent from './component';
 
-class AboutContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
+const AboutContainer = props => (
+  <AboutComponent {...props}>
+    {props.children}
+  </AboutComponent>
+);
 
-  render() {
-    return (
-      <AboutComponent {...this.props}>
-        {this.props.children}
-      </AboutComponent>
-    );
-  }
-}
-
-const getClientBuildInfo = () => {
+const getClientBuildInfo = function () {
   return {
     clientBuild: Meteor.settings.public.app.html5ClientBuild,
     copyright: Meteor.settings.public.app.copyright,
   };
 };
 
-export default createContainer(() => {
-  return getClientBuildInfo();
-}, AboutContainer);
+export default withTracker(() => getClientBuildInfo())(AboutContainer);

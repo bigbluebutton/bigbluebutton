@@ -1,30 +1,22 @@
 package org.bigbluebutton.core
 
 import akka.actor.Actor
-import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
-import java.util.concurrent.TimeUnit
-import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, CaptionApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, CaptionModel }
-import org.bigbluebutton.core.apps.PresentationModel
-import org.bigbluebutton.core.service.recorder.RecorderApplication
 
 object OutMessageGatewayActor {
-  def props(meetingId: String, recorder: RecorderApplication, sender: MessageSender): Props =
-    Props(classOf[OutMessageGatewayActor], meetingId, recorder, sender)
+  def props(meetingId: String, sender: MessageSender): Props =
+    Props(classOf[OutMessageGatewayActor], meetingId, sender)
 }
 
-class OutMessageGatewayActor(val meetingId: String, val recorder: RecorderApplication, val msgSender: MessageSender)
+class OutMessageGatewayActor(val meetingId: String, val msgSender: MessageSender)
     extends Actor with ActorLogging {
 
-  private val recorderActor = context.actorOf(RecorderActor.props(recorder), "recorderActor-" + meetingId)
   private val msgSenderActor = context.actorOf(MessageSenderActor.props(msgSender), "senderActor-" + meetingId)
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -40,7 +32,6 @@ class OutMessageGatewayActor(val meetingId: String, val recorder: RecorderApplic
   def receive = {
     case msg: IOutMessage => {
       msgSenderActor forward msg
-      recorderActor forward msg
     }
     case _ => // do nothing
   }

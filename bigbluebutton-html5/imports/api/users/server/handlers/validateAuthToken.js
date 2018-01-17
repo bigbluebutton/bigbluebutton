@@ -4,15 +4,34 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
 import addChat from '/imports/api/chat/server/modifiers/addChat';
+import clearUserSystemMessages from '/imports/api/chat/server/modifiers/clearUserSystemMessages';
 
-export default function handleValidateAuthToken({ payload }) {
-  const meetingId = payload.meeting_id;
-  const userId = payload.userid;
-  const validStatus = JSON.parse(payload.valid);
+import userJoin from '../methods/userJoin';
 
-  check(meetingId, String);
+const addWelcomeChatMessage = (meetingId, userId) => {
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+
+  const Meeting = Meetings.findOne({ meetingId });
+
+  const message = {
+    message: Meeting.welcomeProp.welcomeMsg,
+    fromColor: '0x3399FF',
+    toUserId: userId,
+    toUsername: CHAT_CONFIG.type_system,
+    fromUserId: CHAT_CONFIG.type_system,
+    fromUsername: '',
+    fromTime: (new Date()).getTime(),
+  };
+
+  addChat(meetingId, message);
+};
+
+export default function handleValidateAuthToken({ body }, meetingId) {
+  const { userId, valid, waitForApproval } = body;
+
   check(userId, String);
-  check(validStatus, Boolean);
+  check(valid, Boolean);
+  check(waitForApproval, Boolean);
 
   const selector = {
     meetingId,
@@ -24,12 +43,18 @@ export default function handleValidateAuthToken({ payload }) {
   // If we dont find the user on our collection is a flash user and we can skip
   if (!User) return;
 
+  // Publish user join message
+  if (valid && !waitForApproval) {
+    userJoin(meetingId, userId, User.authToken);
+  }
+
   // User already flagged so we skip
-  if (User.validated === validStatus) return;
+  if (User.validated === valid) return;
 
   const modifier = {
     $set: {
-      validated: validStatus,
+      validated: valid,
+      approved: !waitForApproval,
     },
   };
 
@@ -39,36 +64,16 @@ export default function handleValidateAuthToken({ payload }) {
     }
 
     if (numChanged) {
-      if (validStatus) {
+      if (valid) {
+        clearUserSystemMessages(meetingId, userId);
         addWelcomeChatMessage(meetingId, userId);
       }
 
-      return Logger.info(`Validated auth token as '${validStatus}' user=${userId} meeting=${meetingId}`);
+      return Logger.info(`Validated auth token as ${valid} user=${userId} meeting=${meetingId}`);
     }
+
+    return Logger.info('No auth to validate');
   };
 
-  return Users.update(selector, modifier, cb);
-};
-
-const addWelcomeChatMessage = (meetingId, userId) => {
-  const APP_CONFIG = Meteor.settings.public.app;
-  const CHAT_CONFIG = Meteor.settings.public.chat;
-
-  const Meeting = Meetings.findOne({ meetingId });
-
-  let welcomeMessage = APP_CONFIG.defaultWelcomeMessage
-      .concat(APP_CONFIG.defaultWelcomeMessageFooter)
-      .replace(/%%CONFNAME%%/, Meeting.meetingName);
-
-  const message = {
-    chat_type: CHAT_CONFIG.type_system,
-    message: welcomeMessage,
-    from_color: '0x3399FF',
-    to_userid: userId,
-    from_userid: CHAT_CONFIG.type_system,
-    from_username: '',
-    from_time: (new Date()).getTime(),
-  };
-
-  return addChat(meetingId, message);
-};
+  Users.update(selector, modifier, cb);
+}

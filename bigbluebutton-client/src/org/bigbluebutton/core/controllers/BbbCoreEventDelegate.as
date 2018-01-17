@@ -21,8 +21,8 @@ package org.bigbluebutton.core.controllers
   import flash.events.IEventDispatcher;
   
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
-  import org.bigbluebutton.core.managers.UserManager;
 
   public class BbbCoreEventDelegate
   {
@@ -30,7 +30,7 @@ package org.bigbluebutton.core.controllers
     
     public function handleGetMyRoleReq():void {
       var event:CoreEvent = new CoreEvent(EventConstants.GET_MY_ROLE_RESP);
-      event.message.role = UserManager.getInstance().getConference().whatsMyRole();
+      event.message.role = UsersUtil.getMyRole();
       
       dispatcher.dispatchEvent(event);
     }

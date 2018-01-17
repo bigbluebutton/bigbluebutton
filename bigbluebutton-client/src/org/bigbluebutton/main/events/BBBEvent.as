@@ -48,6 +48,7 @@ package org.bigbluebutton.main.events {
 	public static const CAM_SETTINGS_CLOSED:String = "CAM_SETTINGS_CLOSED";
 	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
 	public static const CHANGE_RECORDING_STATUS:String = "CHANGE_RECORDING_STATUS";
+	public static const CHANGE_WEBCAMS_ONLY_FOR_MODERATOR:String = "CHANGE_WEBCAMS_ONLY_FOR_MODERATOR";
 
 		public static const SETTINGS_CONFIRMED:String = "BBB_SETTINGS_CONFIRMED";
 		public static const SETTINGS_CANCELLED:String = "BBB_SETTINGS_CANCELLED";
@@ -71,6 +72,7 @@ package org.bigbluebutton.main.events {
 		public static const RECONNECT_DESKSHARE_SUCCEEDED_EVENT:String = "RECONNECT_DESKSHARE_SUCCEEDED_EVENT";
 
 		public static const CANCEL_RECONNECTION_EVENT:String = "CANCEL_RECONNECTION_EVENT";
+		public static const WEBRTC_MONITOR_UPDATE_EVENT:String = "WEBRTC_MONITOR_UPDATE_EVENT";
 
 		public var message:String;
 		public var payload:Object = new Object();

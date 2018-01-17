@@ -1,96 +1,64 @@
-import React, { Component, PropTypes } from 'react';
-import Icon from '/imports/ui/components/icon/component';
-import styles from './styles.scss';
+import React from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
-import generateColor from './color-generator';
+
+import { styles } from './styles';
 
 const propTypes = {
-  user: React.PropTypes.shape({
-    name: React.PropTypes.string.isRequired,
-    isPresenter: React.PropTypes.bool.isRequired,
-    isVoiceUser: React.PropTypes.bool.isRequired,
-    isModerator: React.PropTypes.bool.isRequired,
-    image: React.PropTypes.string,
-  }).isRequired,
+  children: PropTypes.node.isRequired,
+  moderator: PropTypes.bool.isRequired,
+  presenter: PropTypes.bool.isRequired,
+  talking: PropTypes.bool.isRequired,
+  muted: PropTypes.bool.isRequired,
+  listenOnly: PropTypes.bool.isRequired,
+  voice: PropTypes.bool.isRequired,
+  color: PropTypes.string,
+  className: PropTypes.string,
 };
 
 const defaultProps = {
+  moderator: false,
+  presenter: false,
+  talking: false,
+  muted: false,
+  listenOnly: false,
+  voice: false,
+  color: '#000',
+  className: null,
 };
 
-export default class UserAvatar extends Component {
-  render() {
-    const {
-      user,
-    } = this.props;
-
-    const avatarColor = !user.isLoggedOut ? generateColor(user.name) : '#fff';
-
-    let avatarStyles = {
-      backgroundColor: avatarColor,
-      boxShadow: user.isTalking ? `0 0 .5rem ${avatarColor}` : 'none',
-    };
-
-    return (
-      <div className={!user.isLoggedOut ? styles.userAvatar : styles.userLogout}
-           style={avatarStyles}>
-        <span>
-          {this.renderAvatarContent()}
-        </span>
-        {this.renderUserStatus()}
-        {this.renderUserMediaStatus()}
-      </div>
-    );
-  }
-
-  renderAvatarContent() {
-    const user = this.props.user;
-
-    let content = user.name.slice(0, 2);
-
-    if (user.emoji.status !== 'none') {
-      content = <Icon iconName={user.emoji.status}/>;
-    }
-
-    return content;
-  }
-
-  renderUserStatus() {
-    const user = this.props.user;
-    let userStatus;
-
-    let userStatusClasses = {};
-    userStatusClasses[styles.moderator] = user.isModerator;
-    userStatusClasses[styles.presenter] = user.isPresenter;
-
-    if (user.isModerator || user.isPresenter) {
-      userStatus = (
-        <span className={cx(styles.userStatus, userStatusClasses)}>
-        </span>
-      );
-    }
-
-    return userStatus;
-  }
-
-  renderUserMediaStatus() {
-    const user = this.props.user;
-    let userMediaStatus;
-
-    let userMediaClasses = {};
-    userMediaClasses[styles.voiceOnly] = user.isListenOnly;
-    userMediaClasses[styles.microphone] = user.isVoiceUser;
-
-    if (user.isListenOnly || user.isVoiceUser) {
-      userMediaStatus = (
-        <span className={cx(styles.userMediaStatus, userMediaClasses)}>
-          {user.isMuted ? <div className={styles.microphoneMuted}/> : null}
-        </span>
-      );
-    }
-
-    return userMediaStatus;
-  }
-}
+const UserAvatar = ({
+  children,
+  moderator,
+  presenter,
+  talking,
+  muted,
+  listenOnly,
+  color,
+  voice,
+  className,
+}) => (
+  <div
+    className={cx(styles.avatar, {
+      [styles.moderator]: moderator,
+      [styles.presenter]: presenter,
+      [styles.muted]: muted,
+      [styles.listenOnly]: listenOnly,
+      [styles.talking]: (talking && !muted),
+      [styles.voice]: voice,
+    }, className)}
+    style={{
+      backgroundColor: color,
+      color, // We need the same color on both for the border
+    }}
+  >
+    <div className={styles.content}>
+      {children}
+    </div>
+  </div>
+);
 
 UserAvatar.propTypes = propTypes;
 UserAvatar.defaultProps = defaultProps;
+
+export default UserAvatar;

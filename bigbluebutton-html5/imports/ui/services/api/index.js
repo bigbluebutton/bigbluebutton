@@ -1,20 +1,65 @@
 import Auth from '/imports/ui/services/auth';
+import { check } from 'meteor/check';
+import { notify } from '/imports/ui/services/notification';
 
-/* TODO: Will be pretty sweet if we return a promise from the callServer function */
-function callServer(name) {
-  if (!name || !(typeof (name) === 'string' || name instanceof String) || name.length === 0 ||
-    !name.trim() || /^\s*$/.test(name)) {
-    console.error(`serverCall: invalid function name '${name}'`);
-    return false;
-  }
+/**
+ * Send the request to the server via Meteor.call and don't treat errors.
+ *
+ * @param {string} name
+ * @param {any} args
+ * @see https://docs.meteor.com/api/methods.html#Meteor-call
+ * @return {Promise}
+ */
+export function makeCall(name, ...args) {
+  check(name, String);
 
-  const credentials = Auth.credentials;
+  const { credentials } = Auth;
 
-  // slice off the first element. That is the function name but we already have that.
-  const args = Array.prototype.slice.call(arguments, 1);
-  Meteor.call(name, credentials, ...args);
-};
+  return new Promise((resolve, reject) => {
+    Meteor.call(name, credentials, ...args, (error, result) => {
+      if (error) {
+        reject(error);
+      }
 
-export {
-  callServer,
-};
+      resolve(result);
+    });
+  });
+}
+
+/**
+ * Send the request to the server via Meteor.call and treat the error to a default callback.
+ *
+ * @param {string} name
+ * @param {any} args
+ * @see https://docs.meteor.com/api/methods.html#Meteor-call
+ * @return {Promise}
+ */
+export function call(name, ...args) {
+  return makeCall(name, ...args).catch((e) => {
+    notify(`Ops! Error while executing ${name}`, 'error');
+    throw e;
+  });
+}
+
+export function log(type = 'error', message, ...args) {
+  const { credentials } = Auth;
+  const userInfo = window.navigator;
+  const clientInfo = {
+    language: userInfo.language,
+    userAgent: userInfo.userAgent,
+    screenSize: { width: window.screen.width, height: window.screen.height },
+    windowSize: { width: window.innerWidth, height: window.innerHeight },
+    bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+    location: window.location.href,
+  };
+
+  const messageOrStack = message.stack || message.message || message.toString();
+
+  console.debug(`CLIENT LOG (${type.toUpperCase()}): `, messageOrStack, ...args);
+
+  Meteor.call('logClient', type, messageOrStack, {
+    clientInfo,
+    credentials,
+    ...args,
+  });
+}

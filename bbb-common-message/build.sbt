@@ -4,13 +4,26 @@ organization := "org.bigbluebutton"
 
 version := "0.0.19-SNAPSHOT"
 
+scalaVersion  := "2.12.2"
+
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-Xlint",
+  "-Ywarn-dead-code",
+  "-language:_",
+  "-target:jvm-1.8",
+  "-encoding", "UTF-8"
+)
+
+resolvers += Resolver.sonatypeRepo("releases")
+
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
 // into eclipse.
 retrieveManaged := true
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
-
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 libraryDependencies ++= {
@@ -18,8 +31,25 @@ libraryDependencies ++= {
 	  "com.google.code.gson"      %  "gson"              % "2.5"
 	)}
 
+// https://mvnrepository.com/artifact/org.scala-lang/scala-library
+libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"
+// https://mvnrepository.com/artifact/org.scala-lang/scala-compiler
+libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.2"
+
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
+
+// https://mvnrepository.com/artifact/org.scalactic/scalactic_2.12
+libraryDependencies += "org.scalactic" % "scalactic_2.12" % "3.0.3" % "test"
+
+// For generating test reports
+libraryDependencies += "org.pegdown" % "pegdown" % "1.6.0" % "test"
+
+// https://mvnrepository.com/artifact/org.scalatest/scalatest_2.12
+libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.3" % "test"
+
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
 
 seq(Revolver.settings: _*)
 
@@ -36,10 +66,10 @@ seq(Revolver.settings: _*)
 
 // Build pure Java lib (i.e. without scala)
 // Do not append Scala versions to the generated artifacts
-crossPaths := false
+//crossPaths := false
 
 // This forbids including Scala related libraries into the dependency
-autoScalaLibrary := false
+//autoScalaLibrary := false
 
 /***************************
 * When developing, change the version above to x.x.x-SNAPSHOT then use the file resolver to

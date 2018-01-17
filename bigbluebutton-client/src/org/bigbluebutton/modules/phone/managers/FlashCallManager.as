@@ -11,10 +11,9 @@
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.common.Media;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.main.api.JSLog;
-  import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;
@@ -32,6 +31,7 @@
   import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+  import org.bigbluebutton.modules.phone.models.PhoneOptions;
 
   public class FlashCallManager
   {
@@ -77,7 +77,7 @@
     }
         
     private function initConnectionManager():void {
-      options = new PhoneOptions();
+      options = Options.getOptions(PhoneOptions) as PhoneOptions;
       var uid:String = String(Math.floor(new Date().getTime()));
       var uname:String = encodeURIComponent(UsersUtil.getMyUserID() + "-bbbID-" + UsersUtil.getMyUsername()); 
       connectionManager.setup(uid, UsersUtil.getMyUserID(), uname , UsersUtil.getInternalMeetingID(), options.uri);
@@ -388,20 +388,7 @@
       }
       hangup();
     }
-    
-	public function handleBecomeViewer():void {
-    LOGGER.debug("Handling BecomeViewer, current state: {0}, using flash: {1}", [state, usingFlash]);
-		if (options.presenterShareOnly) {
-			if (!usingFlash || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
-      LOGGER.debug("handleBecomeViewer leaving flash with mic and joining listen only stream");
-			hangup();
-			
-			var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-			command.mic = false;
-			dispatcher.dispatchEvent(command);
-		}
-	}
-	
+
     public function handleFlashVoiceConnected():void {
       switch (state) {
         case JOIN_VOICE_CONFERENCE:
