@@ -66,7 +66,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				hbHeader.includeInLayout = hbHeader.visible = lblName.visible || lblTime.visible;
 				
 				if (data.hasOwnProperty("senderId") && UsersUtil.getUser(data.senderId) && UsersUtil.getUser(data.senderId).role == Role.MODERATOR) {
-					hbHeader.styleName = "chatMessageHeaderModerator"
+					hbHeader.styleName = "chatMessageHeaderModerator";
+					if (lblName.visible) {
+						moderatorIcon.visible = true;
+					}
 				}
 				
 				// If you remove this some of the chat messages will fail to render
@@ -83,9 +86,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
   <mx:Canvas width="100%" id="hbHeader" styleName="chatMessageHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-    <mx:Label id="lblName" text="{data.name}" visible="true" textAlign="left" left="0" width="{this.width - lblTime.width - 22}"/>
+    <mx:Label id="lblName" text="{data.name}" visible="true" verticalCenter="0" textAlign="left" left="0" maxWidth="{this.width - lblTime.width - moderatorIcon.width - 22}"/>
+	<mx:Image id="moderatorIcon" visible="false" source="{getStyle('moderatorIcon')}" x="{lblName.width + 4}" verticalCenter="0"/>
     <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
-             visible="true" 
+			 verticalCenter="0"
+             visible="true"
              right="4" />
   </mx:Canvas>
   <mx:Text id="txtMessage" htmlText="{data.text}" link="onLinkClick(event)" color="{data.senderColor}"

@@ -645,6 +645,10 @@ chat|AddChatTabBox {
 	fontSize : 14;
 }
 
+chat|ChatMessageRenderer {
+	moderatorIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Chat_Moderator");
+}
+
 .chatMessageListStyle {
 	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
