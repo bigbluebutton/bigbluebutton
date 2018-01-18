@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -43,7 +44,27 @@ class JoinVideoOptions extends React.Component {
     }
 
     return (
+      <span className={styles.container}>
+        <Button
+          className={styles.button}
+          onClick={handleCloseVideo}
+          label={intl.formatMessage(intlMessages.leaveVideo)}
+          hideLabel
+          aria-label={intl.formatMessage(intlMessages.leaveVideo)}
+          color="danger"
+          icon="video"
+          size="lg"
+          circle
+          disabled={isWaitingResponse}
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span className={styles.container}>
       <Button
+        className={styles.button}
         onClick={handleJoinVideo}
         label={intl.formatMessage(intlMessages.joinVideo)}
         hideLabel
