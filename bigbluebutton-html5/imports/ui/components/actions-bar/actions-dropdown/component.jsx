@@ -54,6 +54,11 @@ class ActionsDropdown extends Component {
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
   }
 
+  componentWillMount() {
+    this.presentationItemId = _.uniqueId('action-item-');
+    this.videoItemId = _.uniqueId('action-item-');
+  }
+
   componentWillUpdate(nextProps) {
     const { isUserPresenter: isPresenter } = nextProps;
     const { isUserPresenter: wasPresenter, mountModal } = this.props;
@@ -66,6 +71,34 @@ class ActionsDropdown extends Component {
     this.props.mountModal(<PresentationUploaderContainer />);
   }
 
+  getAvailableActions() {
+    const {
+      intl,
+      handleShareScreen,
+      handleUnshareScreen,
+      isVideoBroadcasting,
+    } = this.props;
+
+    return _.compact([
+      (<DropdownListItem
+        icon="presentation"
+        label={intl.formatMessage(intlMessages.presentationLabel)}
+        description={intl.formatMessage(intlMessages.presentationDesc)}
+        key={this.presentationItemId}
+        onClick={this.handlePresentationClick}
+      />),
+      (Meteor.settings.public.kurento.enableScreensharing ?
+        <DropdownListItem
+          icon="desktop"
+          label={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
+          description={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
+          key={this.videoItemId}
+          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
+        />
+      : null),
+    ]);
+  }
+
   render() {
     const {
       intl,
@@ -74,6 +107,8 @@ class ActionsDropdown extends Component {
       handleUnshareScreen,
       isVideoBroadcasting,
     } = this.props;
+
+    const availableActions = this.getAvailableActions();
 
     if (!isUserPresenter) return null;
 
@@ -94,24 +129,7 @@ class ActionsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            <DropdownListItem
-              icon="presentation"
-              label={intl.formatMessage(intlMessages.presentationLabel)}
-              description={intl.formatMessage(intlMessages.presentationDesc)}
-              onClick={this.handlePresentationClick}
-            />
-            <DropdownListItem
-              icon="desktop"
-              label={intl.formatMessage(intlMessages.desktopShareLabel)}
-              description={intl.formatMessage(intlMessages.desktopShareDesc)}
-              onClick={handleShareScreen}
-            />
-            <DropdownListItem
-              icon="desktop"
-              label={intl.formatMessage(intlMessages.stopDesktopShareLabel)}
-              description={intl.formatMessage(intlMessages.stopDesktopShareDesc)}
-              onClick={handleUnshareScreen}
-            />
+            {availableActions}
           </DropdownList>
         </DropdownContent>
       </Dropdown>

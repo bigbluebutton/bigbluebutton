@@ -103,11 +103,11 @@ class VideoDock extends Component {
     const ws = this.ws;
     const { users, userId } = this.props;
 
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].has_stream && users[i].userId !== userId) {
-        this.start(users[i].userId, false);
+    users.forEach((user) => {
+      if (user.has_stream && user.userId !== userId) {
+        this.start(user.userId, false);
       }
-    }
+    })
 
     document.addEventListener('joinVideo', this.shareWebcam.bind(this));// TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam.bind(this));
@@ -481,7 +481,6 @@ class VideoDock extends Component {
     log('info', 'Handle play start <===================');
 
     if (message.cameraId == this.props.userId) {
-      log('info', "Dae ze caralhow ");
       VideoService.joinedVideo();
     }
   }
