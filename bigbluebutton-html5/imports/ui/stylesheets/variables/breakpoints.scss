@@ -13,10 +13,10 @@
   @return nth($range, 2);
 }
 
-$xsmall-range: (20em, 25.937em);
-/* 320px, 415px */
-$small-range: (23.5em, 40em);
-/* 376px, 640px */
+$xsmall-range: (0em, 25.937em);
+/* 0px, 415px */
+$small-range: (26em, 40em);
+/* 416px, 640px */
 $medium-range: (40.063em, 64em);
 /* 641px, 1024px */
 $large-range: (64.063em, 90em);
