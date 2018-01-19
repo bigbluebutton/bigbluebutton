@@ -5,15 +5,15 @@ import validateAuthToken from './methods/validateAuthToken';
 import setEmojiStatus from './methods/setEmojiStatus';
 import assignPresenter from './methods/assignPresenter';
 import changeRole from './methods/changeRole';
-import kickUser from './methods/kickUser';
+import removeUser from './methods/removeUser';
 
 Meteor.methods(mapToAcl(['methods.userLogout', 'methods.setEmojiStatus', 'methods.assignPresenter', 'methods.changeRole',
-  'methods.kickUser'], {
+  'methods.removeUser'], {
     userLogout,
     setEmojiStatus,
     assignPresenter,
     changeRole,
-    kickUser,
+    removeUser,
   }));
 
 Meteor.methods({ validateAuthToken, });

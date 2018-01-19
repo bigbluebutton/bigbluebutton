@@ -1,9 +1,8 @@
 import { Meteor } from 'meteor/meteor';
+import Langmap from 'langmap';
+import fs from 'fs';
 import Logger from './logger';
 import Redis from './redis';
-import locales from '../../utils/locales';
-
-const availableLocales = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -31,7 +30,6 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
     normalizedLocale = `${localeRegion[0]}_${localeRegion[1].toUpperCase()}`;
     localeList.push(normalizedLocale);
   }
-
   localeList.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
@@ -47,15 +45,26 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  if (!availableLocales.length) {
-    locales.forEach((l) => {
-      try {
-        Assets.absoluteFilePath(`locales/${l.locale}.json`);
-        availableLocales.push(l);
-      } catch (e) {
-        // Getting here means the locale is not available on the files.
-      }
-    });
+  const APP_CONFIG = Meteor.settings.public.app;
+  const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
+
+  let availableLocales = [];
+
+  const defaultLocaleFile = `${defaultLocale}.json`;
+  const defaultLocalePath = `locales/${defaultLocaleFile}`;
+  const localesPath = Assets.absoluteFilePath(defaultLocalePath).replace(defaultLocaleFile, '');
+
+  try {
+    const getAvailableLocales = fs.readdirSync(localesPath);
+    availableLocales = getAvailableLocales
+      .map(file => file.replace('.json', ''))
+      .map(file => file.replace('_', '-'))
+      .map(locale => ({
+        locale,
+        name: Langmap[locale].nativeName,
+      }));
+  } catch (e) {
+    // Getting here means the locale is not available on the files.
   }
 
   res.setHeader('Content-Type', 'application/json');

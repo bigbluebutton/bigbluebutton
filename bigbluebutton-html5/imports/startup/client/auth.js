@@ -35,9 +35,6 @@ export function logoutRouteHandler(nextState, replace) {
         protocolPattern.test(logoutURL) ?
           logoutURL :
           `http://${logoutURL}`;
-    })
-    .catch(() => {
-      replace({ pathname: '/error/500' });
     });
 }
 
