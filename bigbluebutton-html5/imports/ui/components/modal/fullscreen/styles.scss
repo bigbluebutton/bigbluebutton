@@ -20,6 +20,11 @@
   padding: $line-height-computed 0;
   border-bottom: $border-size solid $color-gray-lighter;
   flex-shrink: 0;
+  @include mq($small-only) {
+    text-align: center;
+    display: block;
+  }
+
 }
 
 .actions {
@@ -34,6 +39,7 @@
   flex: 1;
   margin: 0;
   font-weight: 400;
+
 }
 
 %btn {
