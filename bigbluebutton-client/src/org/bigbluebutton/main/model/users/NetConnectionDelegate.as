@@ -50,6 +50,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.options.ApplicationOptions;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.util.ConnUtil;
 
     public class NetConnectionDelegate {
         private static const LOGGER:ILogger = getClassLogger(NetConnectionDelegate);
@@ -82,7 +83,7 @@ package org.bigbluebutton.main.model.users
             dispatcher = new Dispatcher();
             _netConnection = new NetConnection();
 						_netConnection.objectEncoding = ObjectEncoding.AMF3;
-            _netConnection.proxyType = "best";
+            
             _netConnection.client = this;
             _netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
             _netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
@@ -411,18 +412,32 @@ package org.bigbluebutton.main.model.users
                 
             try {
                 var appURL:String = _applicationOptions.uri;
-                var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-                var result:Array = pattern.exec(appURL);
 
-                BandwidthMonitor.getInstance().serverURL = result.server;
-            
-                var protocol:String = "rtmp";
-                var uri:String = appURL + "/" + intMeetingId;
-            
-                if (BBB.initConnectionManager().isTunnelling) {
-                    bbbAppsUrl = "rtmpt://" + result.server + "/" + result.app + "/" + intMeetingId;
-                } else {
-                    bbbAppsUrl = result.protocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
+								var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+								var result:Array = pattern.exec(appURL);
+								var uri:String = appURL + "/" + intMeetingId;
+								var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+								
+								if (BBB.initConnectionManager().isTunnelling) {
+									var tunnelProtocol: String = ConnUtil.RTMPT;
+									
+									if (useRTMPS) {
+										_netConnection.proxyType = ConnUtil.PROXY_NONE;
+										tunnelProtocol = ConnUtil.RTMPS;
+									}
+									
+
+									bbbAppsUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
+										trace("******* BBB APPS CONNECT tunnel = TRUE " + "url=" +  bbbAppsUrl);
+								} else {
+									var nativeProtocol: String = ConnUtil.RTMP;
+									if (useRTMPS) {
+										_netConnection.proxyType = ConnUtil.PROXY_BEST;
+										nativeProtocol = ConnUtil.RTMPS;
+									}
+
+									bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
+									trace("******* BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
                 }
 
                 var logData:Object = UsersUtil.initLogData();
