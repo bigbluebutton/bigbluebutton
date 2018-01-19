@@ -22,16 +22,12 @@ package org.bigbluebutton.main.model.modules
 	
 	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
-	
 	import mx.collections.ArrayCollection;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.main.events.AppVersionEvent;
-	import org.bigbluebutton.main.model.options.PortTestOptions;
 	
 	public class ModuleManager
 	{
@@ -48,11 +44,11 @@ package org.bigbluebutton.main.model.modules
 		
 		private var modulesDispatcher:ModulesDispatcher;
 		
-		private var portTestOptions : PortTestOptions;
+		
 		
 		public function ModuleManager(modulesDispatcher: ModulesDispatcher)
 		{
-            this.modulesDispatcher = modulesDispatcher;
+      this.modulesDispatcher = modulesDispatcher;
 			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
 		}
 				
@@ -66,8 +62,6 @@ package org.bigbluebutton.main.model.modules
 			var resolver:DependancyResolver = new DependancyResolver();
 			sorted = resolver.buildDependencyTree(modules);
 			
-			portTestOptions = Options.getOptions(PortTestOptions) as PortTestOptions;
-			
 			modulesDispatcher.sendPortTestEvent();
 		}
 		
@@ -75,23 +69,7 @@ package org.bigbluebutton.main.model.modules
 			BBB.getConfigManager();
 			BBB.loadConfig();
 		}
-		
-		public function useProtocol(tunnel:Boolean):void {
-      BBB.initConnectionManager().isTunnelling = tunnel;			
-		}
-		
-		public function get portTestHost():String {
-			return portTestOptions.host;
-		}
-		
-		public function get portTestApplication():String {
-			return portTestOptions.application;
-		}
-		
-		public function get portTestTimeout():Number {
-			return portTestOptions.timeout;
-		}
-		
+
 		private function getModule(name:String):ModuleDescriptor {
 			return BBB.getConfigManager().getModuleFor(name);	
 		}
