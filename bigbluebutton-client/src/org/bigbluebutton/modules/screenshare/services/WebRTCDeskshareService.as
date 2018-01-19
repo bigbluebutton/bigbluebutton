@@ -37,13 +37,10 @@ package org.bigbluebutton.modules.screenshare.services
 
 		private var sender:MessageSender;
 
-		private var uri:String;
-		private var room:String;
-
 		public function WebRTCDeskshareService() {
 			this.dispatcher = new Dispatcher();
 
-			red5conn = new Connection(room);
+			red5conn = new Connection();
 			sender = new MessageSender(red5conn);
 			sender.queryForScreenshare();
 		}
@@ -51,14 +48,8 @@ package org.bigbluebutton.modules.screenshare.services
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
 			LOGGER.debug("Deskshare Module starting");
 			this.module = module;
-			connect(module.uri, module.getRoom());
 		}
 
-		public function connect(uri:String, room:String):void {
-			this.uri = uri;
-			this.room = room;
-			LOGGER.debug("Deskshare Service connecting to {0}", [uri]);
-		}
 
 		public function getConnection():NetConnection{
 			return red5conn.getConnection();

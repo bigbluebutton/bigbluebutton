@@ -29,9 +29,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
-	
 	import mx.utils.ObjectUtil;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -44,7 +42,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
-	import org.bigbluebutton.core.services.BandwidthMonitor;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.options.ApplicationOptions;
@@ -415,7 +412,7 @@ package org.bigbluebutton.main.model.users
 
 								var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
 								var result:Array = pattern.exec(appURL);
-								var uri:String = appURL + "/" + intMeetingId;
+
 								var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 								
 								if (BBB.initConnectionManager().isTunnelling) {
@@ -467,15 +464,14 @@ package org.bigbluebutton.main.model.users
                                         recorded, extUserId,
                                         intUserId, muteOnStart,
                                         guest, authToken);
-                   
             } catch(e:ArgumentError) {
                 // Invalid parameters.
                 switch (e.errorID) {
                     case 2004 :
-                        LOGGER.debug("Error! Invalid server location: {0}", [uri]);
+                        LOGGER.debug("Error! Invalid server location: {0}", [bbbAppsUrl]);
                         break;
                     default :
-                        LOGGER.debug("UNKNOWN Error! Invalid server location: {0}", [uri]);
+                        LOGGER.debug("UNKNOWN Error! Invalid server location: {0}", [bbbAppsUrl]);
                        break;
                 }
             }
