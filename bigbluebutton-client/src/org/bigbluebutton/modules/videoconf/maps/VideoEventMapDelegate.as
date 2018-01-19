@@ -66,7 +66,6 @@ package org.bigbluebutton.modules.videoconf.maps
     private static var PERMISSION_DENIED_ERROR:String = "PermissionDeniedError";
 
     private var options:VideoConfOptions;
-    private var uri:String;
 
     private var button:ToolbarPopupButton = new ToolbarPopupButton();
     private var proxy:VideoProxy;
@@ -98,9 +97,8 @@ package org.bigbluebutton.modules.videoconf.maps
       return UsersUtil.getMyUsername();
     }
 
-    public function start(uri:String):void {
+    public function start():void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Video Module Started.", [me]);
-      this.uri = uri;
 
       _videoDock = new VideoDock();
       var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
@@ -303,7 +301,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function connectToVideoApp():void {
-      proxy = new VideoProxy(uri);
+      proxy = new VideoProxy();
       proxy.reconnectWhenDisconnected(true);
       proxy.connect();
     }

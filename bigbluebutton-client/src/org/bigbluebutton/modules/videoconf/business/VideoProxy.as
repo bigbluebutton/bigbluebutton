@@ -43,6 +43,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+	import org.bigbluebutton.util.ConnUtil;
 
 	
 	public class VideoProxy
@@ -50,14 +51,12 @@ package org.bigbluebutton.modules.videoconf.business
 		private static const LOGGER:ILogger = getClassLogger(VideoProxy);
 		
 		public var videoOptions:VideoConfOptions;
-		
 		private var nc:NetConnection;
-		private var _url:String;
 		private var camerasPublishing:Object = new Object();
 		private var reconnect:Boolean = false;
 		private var reconnecting:Boolean = false;
 		private var dispatcher:Dispatcher = new Dispatcher();
-
+		private var vidoeConnUrl: String;
 		private var numNetworkChangeCount:int = 0;
 		
 		private function parseOptions():void {
@@ -65,13 +64,11 @@ package org.bigbluebutton.modules.videoconf.business
 			videoOptions.parseOptions();	
 		}
 		
-		public function VideoProxy(url:String)
+		public function VideoProxy()
 		{
-      		_url = url;
 			parseOptions();			
 			nc = new NetConnection();
 			nc.objectEncoding = ObjectEncoding.AMF3;
-			nc.proxyType = "best";
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
@@ -84,7 +81,36 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 	    public function connect():void {
-	      nc.connect(_url, UsersUtil.getInternalMeetingID(), 
+				var options: VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+				var result:Array = pattern.exec(options.uri);
+				
+
+				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+				if (BBB.initConnectionManager().isTunnelling) {
+					var tunnelProtocol: String = ConnUtil.RTMPT;
+					
+					if (useRTMPS) {
+						nc.proxyType = ConnUtil.PROXY_NONE;
+						tunnelProtocol = ConnUtil.RTMPS;
+					}
+					
+					
+					vidoeConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
+					trace("******* VIDEO CONNECT tunnel = TRUE " + "url=" +  vidoeConnUrl);
+				} else {
+					var nativeProtocol: String = ConnUtil.RTMP;
+					if (useRTMPS) {
+						nc.proxyType = ConnUtil.PROXY_BEST;
+						nativeProtocol = ConnUtil.RTMPS;
+					}
+					
+					vidoeConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
+					trace("******* VIDEO CONNECT tunnel = FALSE " + "url=" +  vidoeConnUrl);
+				}
+				
+				
+	      nc.connect(vidoeConnUrl, UsersUtil.getInternalMeetingID(), 
           UsersUtil.getMyUserID(), LiveMeeting.inst().me.authToken);
 	    }
 	    
@@ -115,7 +141,7 @@ package org.bigbluebutton.modules.videoconf.business
     
 		private function onNetStatus(event:NetStatusEvent):void{
 
-			LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
+			LOGGER.debug("[{0}] for [{1}]", [event.info.code, vidoeConnUrl]);
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["webcam"];
 			logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + ",reconnect=" + reconnect + "]";
@@ -179,7 +205,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 					break;
         		default:
-					LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
+					LOGGER.debug("[{0}] for [{1}]", [event.info.code, vidoeConnUrl]);
 					break;
 			}
 		}
