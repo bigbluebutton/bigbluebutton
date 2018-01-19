@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.videoconf.business
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -30,7 +29,6 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.net.ObjectEncoding;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -97,7 +95,7 @@ package org.bigbluebutton.modules.videoconf.business
 					
 					
 					vidoeConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
-					trace("******* VIDEO CONNECT tunnel = TRUE " + "url=" +  vidoeConnUrl);
+					LOGGER.debug("VIDEO CONNECT tunnel = TRUE " + "url=" +  vidoeConnUrl);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -106,7 +104,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 					
 					vidoeConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
-					trace("******* VIDEO CONNECT tunnel = FALSE " + "url=" +  vidoeConnUrl);
+					LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  vidoeConnUrl);
 				}
 				
 				

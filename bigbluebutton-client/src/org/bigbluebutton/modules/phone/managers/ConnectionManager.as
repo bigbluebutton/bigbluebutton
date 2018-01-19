@@ -19,14 +19,12 @@
 
 package org.bigbluebutton.modules.phone.managers {	
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.net.ObjectEncoding;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -103,7 +101,7 @@ package org.bigbluebutton.modules.phone.managers {
 					}
 						
 					uri = tunnelProtocol + "://" + result.server + "/" + result.app;
-					trace("******* BBB SIP CONNECT tunnel = TRUE " + "url=" +  uri);
+					LOGGER.debug("BBB SIP CONNECT tunnel = TRUE " + "url=" +  uri);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -112,10 +110,8 @@ package org.bigbluebutton.modules.phone.managers {
 					}
 					
 					uri = nativeProtocol + "://" + result.server + "/" + result.app;
-					trace("******* BBB SIP CONNECT tunnel = FALSE " + "url=" +  uri);
+					LOGGER.debug("BBB SIP CONNECT tunnel = FALSE " + "url=" +  uri);
 				}
-				
-				LOGGER.debug("******** VOICE CONF == Connecting to uri=[{0}]", [uri]);
 				
 				netConnection.objectEncoding = ObjectEncoding.AMF3;
 				netConnection.client = this;

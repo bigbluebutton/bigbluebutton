@@ -285,7 +285,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.NetworkChange":
-						trace("Detected network change. User might be on a wireless and " +
+						LOGGER.info("Detected network change. User might be on a wireless and " +
 							"temporarily dropped connection. Doing nothing. Just making a note.");
 						break;
 				}

@@ -40,16 +40,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import mx.core.UIComponent;
-			
 			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
@@ -150,7 +147,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 					
 					ssAppUrl = tunnelProtocol + "://" + result.serverAndApp;
-					trace("******* WEBRTC SSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
+					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -159,7 +156,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					
 					ssAppUrl = nativeProtocol + "://" + result.serverAndApp;
-					trace("******* WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
+					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
 				}
 
 				nc.objectEncoding = ObjectEncoding.AMF3;
@@ -211,7 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.Closed":
-						trace(LOG + "Deskshare connection closed.");
+						LOGGER.debug(LOG + "Deskshare connection closed.");
 						ce.status = WebRTCConnectionEvent.CLOSED;
 						break;
 
@@ -224,7 +221,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.NetworkChange":
-						trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+						LOGGER.debug(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 						break;
 				}
 			}

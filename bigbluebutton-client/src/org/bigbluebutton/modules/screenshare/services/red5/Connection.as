@@ -74,7 +74,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 							
 							
 							ssAppUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
-							trace("******* SCREENSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
+							LOGGER.debug("SCREENSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
 						} else {
 							var nativeProtocol: String = ConnUtil.RTMP;
 							if (useRTMPS) {
@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 							}
 							
 							ssAppUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
-							trace("******* SCREENSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
+							LOGGER.debug("SCREENSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
 						}
 						
             netConnection.client = this;
