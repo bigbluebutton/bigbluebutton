@@ -191,39 +191,51 @@
       "toolbar": {
         "colors": [
           {
+            "label": "black",
             "value": "#000000"
           },
           {
+            "label": "white",
             "value": "#ffffff"
           },
           {
+            "label": "red",
             "value": "#ff0000"
           },
           {
+            "label": "orange",
             "value": "#ff8800"
           },
           {
+            "label": "eletricLime",
             "value": "#ccff00"
           },
           {
+            "label": "Lime",
             "value": "#00ff00"
           },
           {
+            "label": "Cyan",
             "value": "#00ffff"
           },
           {
+            "label": "dodgerBlue",
             "value": "#0088ff"
           },
           {
+            "label": "blue",
             "value": "#0000ff"
           },
           {
+            "label": "violet",
             "value": "#8800ff"
           },
           {
+            "label": "magenta",
             "value": "#ff00ff"
           },
           {
+            "label": "silver",
             "value": "#c0c0c0"
           }
         ],
@@ -339,5 +351,3 @@
     }
   }
 }
-
-
