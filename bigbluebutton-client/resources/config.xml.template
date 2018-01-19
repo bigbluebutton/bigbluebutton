@@ -4,8 +4,8 @@
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
-    <porttest host="HOST" application="video/portTest" timeout="10000"/>
-    <bwMon server="HOST" application="video/bwTest"/>
+    <porttest host="rtmp://HOST" application="video/portTest" timeout="10000"/>
+    <bwMon server="rtmp://HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" rtlEnabled="false"/>
     <skinning url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
