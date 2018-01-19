@@ -7,7 +7,7 @@ NC='\033[0m'
 
 if [ "$#" = 0 ]
 then
-  echo -e "${RED}ERR${NC}: Usage = ${GREEN}./transifex pt_BR de  ${NC}or  ${GREEN}./transifex all${NC}"
+  echo -e "${RED}ERR${NC}: Usage = ${GREEN}./transifex.sh pt_BR de  ${NC}or  ${GREEN}./transifex all${NC}"
 else
   read -p "Enter Transifex Username: " USER
   read -p "password: " -s PW
