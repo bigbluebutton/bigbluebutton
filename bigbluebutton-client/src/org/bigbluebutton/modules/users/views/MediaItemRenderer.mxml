@@ -242,24 +242,35 @@
 						lockBtn.includeInLayout = false;
 					}
 
-					if (data.hasStream && !webcamsOnlyForModerator) {
-						// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
-						if (data.me || data.isViewingAllStreams()) {
-							webcamImg.visible = true;
-							webcamImg.includeInLayout = true;
-							webcamBtn.visible = false;
-							webcamBtn.includeInLayout = false;
-						} else {
-							webcamImg.visible = false;
-							webcamImg.includeInLayout = false;
-							webcamBtn.visible = true;
-							webcamBtn.includeInLayout = true;
+					if (data.hasStream) {
+						if (!webcamsOnlyForModerator || UsersUtil.amIModerator()) {
+							// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
+							if (data.me || data.isViewingAllStreams()) {
+								webcamImg.visible = webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout= false;
+							} else {
+								webcamImg.visible = webcamImg.includeInLayout = false;
+								webcamBtn.visible = webcamBtn.includeInLayout = true;
+							}
+						}
+						else {
+							if (data.me || data.isViewingAllStreams() && data.role == Role.MODERATOR) {
+								webcamImg.visible = webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout= false;
+							} else if (data.role != Role.MODERATOR) {
+								webcamImg.visible = false;
+								webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout = false;
+							}
+							else {
+								webcamImg.visible = webcamImg.includeInLayout = false;
+								webcamBtn.visible = webcamBtn.includeInLayout = true;
+							}
 						}
 					} else {
 						webcamImg.visible = false;
 						webcamImg.includeInLayout = true;
-						webcamBtn.visible = false;
-						webcamBtn.includeInLayout = false;
+						webcamBtn.visible = webcamBtn.includeInLayout = false;
 					}
 
 					if (!rolledOver) {
