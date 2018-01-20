@@ -388,7 +388,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						  maxWidth="550" />
 
 	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5" includeIn="normal">
-	  <mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
+	  <mx:Box width="100%" height="100%" styleName="presentationUploadFileFormatHintBoxStyle">
 		  <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
 		</mx:Box>
 	</mx:Box>
