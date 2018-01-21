@@ -69,6 +69,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCancelClicked():void {
 				PopUpUtil.removePopUp(this);
 			}
+			
+			protected function chkDisableWebcam_changeHandler(event:Event):void
+			{
+				if (chkDisableWebcam.selected) {
+					chkwebcamsOnlyForModerator.selected = false;
+				}
+			}
+			
+			protected function chkwebcamsOnlyForModerator_changeHandler(event:Event):void
+			{
+				if (chkwebcamsOnlyForModerator.selected) {
+					chkDisableWebcam.selected = false;
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -95,7 +110,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
 			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
-				<mx:CheckBox id="chkDisableWebcam" selected="{disableCam}" />
+				<mx:CheckBox id="chkDisableWebcam" selected="{disableCam}" change="chkDisableWebcam_changeHandler(event)"/>
 			</mx:HBox>
 		</mx:HBox>
 
@@ -103,7 +118,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcamsOnlyForModerator')}" />
 			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
-				<mx:CheckBox id="chkwebcamsOnlyForModerator" selected="{webcamsOnlyForModerator}" />
+				<mx:CheckBox id="chkwebcamsOnlyForModerator" selected="{webcamsOnlyForModerator}" change="chkwebcamsOnlyForModerator_changeHandler(event)"/>
 			</mx:HBox>
 		</mx:HBox>
 
