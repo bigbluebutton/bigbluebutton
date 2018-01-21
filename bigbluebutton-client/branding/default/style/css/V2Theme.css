@@ -968,8 +968,17 @@ views|LockSettings {
 	headerHeight : 0;
 }
 
+.lockSettingsColumnTitleStyle {
+	fontSize   : 14;
+	fontWeight : bold;
+}
+
 .lockSettingsDefaultLabelStyle {
 	fontSize : 14;
+}
+
+.lockSettingsCheckboxColumn {
+	horizontalAlign : center;
 }
 
 /*
@@ -1380,13 +1389,17 @@ mx|Panel {
 	textDecoration  : underline;
 }
 
-.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle, .lockSettingsHintBoxStyle {
 	backgroundColor : #CDD4DB;
+	horizontalAlign : center;
+	paddingTop      : 8;
+	paddingBottom   : 8;
 	paddingLeft     : 10;
 	paddingRight    : 10;
+	verticalAlign   : middle;
 }
 
-.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .logoutFeedbackHint {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .logoutFeedbackHint, .lockSettingHintTextStyle {
 	fontWeight : bold;
 }
 
