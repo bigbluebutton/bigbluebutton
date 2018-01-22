@@ -95,7 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.lockSettings.title')}"
 							  styleName="titleWindowStyle"
 							  id="titleText"
-							  maxWidth="250" />
+							  minWidth="300" />
 		
 		<mx:Box width="100%" styleName="lockSettingsHintBoxStyle">
 			<mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.hint')}" styleName="lockSettingHintTextStyle"/>
