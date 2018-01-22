@@ -61,15 +61,19 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 	private final Map<String, VideoRotator> videoRotators = new HashMap<String, VideoRotator>();
 
+	private ConnectionInvokerService connInvokerService;
+
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
 		log.info("BBB Video appStart");
+		connInvokerService.setAppScope(app);
 		return true;
 	}
 
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
+		log.info("BBB Video appConnect");
 		return super.appConnect(conn, params);
 	}
 
@@ -77,20 +81,26 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.info("BBB Video roomConnect");
 
-		if(params.length == 0) {
-			params = new Object[2];
-			params[0] = "UNKNOWN-MEETING-ID";
-			params[1] = "UNKNOWN-USER-ID";
+		if(params.length != 3) {
+			log.error("Invalid number of parameters. param length=" + params.length);
+			return false;
 		}
 
 		String meetingId = ((String) params[0]).toString();
 		String userId = ((String) params[1]).toString();
+		String authToken = ((String) params[2]).toString();
 
 		Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
 		Red5.getConnectionLocal().setAttribute("USERID", userId);
+	  	Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
+
 
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String sessionId = Red5.getConnectionLocal().getSessionId();
+
+	  log.info("BBB Video validateConnAuthToken");
+		publisher.validateConnAuthToken(meetingId, userId, authToken, sessionId);
+
 		/**
 		* Find if there are any other connections owned by this user. If we find one,
 		* that means that the connection is old and the user reconnected. Clear the
@@ -234,7 +244,16 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
     public void streamBroadcastStart(IBroadcastStream stream) {
-    	IConnection conn = Red5.getConnectionLocal();  
+    	IConnection conn = Red5.getConnectionLocal();
+    	String contextName = stream.getScope().getName();
+    	log.info("APP CONTEXT == " + contextName);
+
+    	if ("video".equals(contextName)) {
+    	    log.error("Publishing stream in app context.");
+    	    conn.close();
+    	    return;
+        }
+
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
@@ -481,4 +500,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             }
         }
     }
+
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
+	}
 }

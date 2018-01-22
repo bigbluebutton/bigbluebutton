@@ -137,8 +137,8 @@ class MeetingActor(
     MeetingStatus2x.unmuteMeeting(liveMeeting.status)
   }
 
-    // Set webcamsOnlyForModerator property in case we didn't after meeting creation
-    MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
+  // Set webcamsOnlyForModerator property in case we didn't after meeting creation
+  MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
