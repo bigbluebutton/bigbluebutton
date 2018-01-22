@@ -90,7 +90,8 @@ class VideoDock extends Component {
 
     this.state = {
       videos: {},
-      sharedWebcam: false,
+      sharedWebcam : false,
+      userNames: {},
     };
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
@@ -141,6 +142,9 @@ class VideoDock extends Component {
         setTimeout(() => {
           this.start(user.userId, false);
         }, INITIAL_SHARE_WAIT_TIME);
+      }
+      if (user.userId === userId){
+        this.myName = user.name;
       }
     });
 
@@ -260,6 +264,13 @@ class VideoDock extends Component {
     const { intl } = this.props;
 
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
+    let userNames = this.sate.userNames;
+    users.forEach((user) => {
+      if (user.userId === id) {
+        userNames[id] = user.name;
+      }
+    });
+    this.setState({userNames: userNames});
 
     this.cameraTimeouts[id] = setTimeout(() => {
       log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
@@ -274,7 +285,7 @@ class VideoDock extends Component {
 
     if (shareWebcam) {
       VideoService.joiningVideo();
-      this.setState({ sharedWebcam: true });
+      this.setState({sharedWebcam: true});
       this.myId = id;
       this.initWebRTC(id, true);
     } else {
@@ -439,9 +450,11 @@ class VideoDock extends Component {
 
   destroyVideoTag(id) {
     const videos = this.state.videos;
+    const userNames = this.state.userNames;
 
     delete videos[id];
-    this.setState({ videos });
+    delete userNames[id]
+    this.setState({videos: videos, userNames: userNames})
 
     if (id == this.myId) {
       this.setState({ sharedWebcam: false });
@@ -599,39 +612,15 @@ class VideoDock extends Component {
   }
 
   render() {
-<<<<<<< HEAD
-    let cssClass;
-    if (this.state.sharedWebcam) {
-      cssClass = styles.sharedWebcamVideoLocal;
-    } else {
-      cssClass = styles.sharedWebcamVideo;
-    }
-=======
->>>>>>> 4a34657... User video tags with new design [part 1]
-
     return (
       <div className={styles.videoDock}>
         <div id="webcamArea">
-<<<<<<< HEAD
-          {Object.keys(this.state.videos).map(id => (
-            <VideoElement videoId={id} key={id} onMount={this.initWebRTC.bind(this)} />
-          ))}
-          <video
-            autoPlay="autoPlay"
-            playsInline="playsInline"
-            muted="muted"
-            id="shareWebcamVideo"
-            className={cssClass}
-            ref="videoInput"
-          />
-=======
           {Object.keys(this.state.videos).map((id) => {
             return (
-              <VideoElement videoId={id} key={id} name={id} localCamera={false} onMount={this.initWebRTC.bind(this)} />
+              <VideoElement videoId={id} key={id} name={this.state.userNames[id]} localCamera={false} onMount={this.initWebRTC.bind(this)} />
             );
           })}
-          <VideoElement shared={this.state.sharedWebcam} name={this.myId} localCamera={true} />
->>>>>>> 4a34657... User video tags with new design [part 1]
+          <VideoElement shared={this.state.sharedWebcam} name={this.state.userNames[this.myId]} localCamera={true} />
         </div>
       </div>
     );
@@ -647,7 +636,6 @@ class VideoDock extends Component {
 
     if (!currentUsers)
       return false;
-
 
     // Map user objectos to an object in the form {userId: has_stream}
     currentUsers.forEach((user) => {
