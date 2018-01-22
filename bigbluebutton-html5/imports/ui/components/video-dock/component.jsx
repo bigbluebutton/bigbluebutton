@@ -30,6 +30,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const RECONNECT_WAIT_TIME = 5000;
+const INITIAL_SHARE_WAIT_TIME = 2000;
+
 class VideoElement extends Component {
   constructor(props) {
     super(props);
@@ -86,7 +89,7 @@ class VideoDock extends Component {
         setTimeout(() => {
           log('debug', ` [camera] Trying to reconnect camera ${id}`);
           this.start(id, false);
-        }, 5000);
+        }, RECONNECT_WAIT_TIME);
       }
     }
 
@@ -109,7 +112,7 @@ class VideoDock extends Component {
         // generated properly when we send videos right after componentDidMount
         setTimeout(() => {
           this.start(users[i].userId, false);
-        }, 2000);
+        }, INITIAL_SHARE_WAIT_TIME);
       }
     }
 
@@ -200,7 +203,7 @@ class VideoDock extends Component {
 
         const webRtcPeer = this.webRtcPeers[parsedMessage.cameraId];
 
-        if (typeof webRtcPeer !== 'undefined' && webRtcPeer !== null) {
+        if (!!webRtcPeer) {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
