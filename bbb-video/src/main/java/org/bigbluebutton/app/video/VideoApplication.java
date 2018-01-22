@@ -18,11 +18,13 @@
 */
 package org.bigbluebutton.app.video;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import org.bigbluebutton.app.video.converter.H263Converter;
 import org.bigbluebutton.app.video.converter.VideoRotator;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
@@ -33,7 +35,6 @@ import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IPlayItem;
-import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
@@ -65,13 +66,48 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 	private ConnectionInvokerService connInvokerService;
 
+    private final UserConnectionMapper userConnections = new UserConnectionMapper();
+
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
 		log.info("BBB Video appStart");
 		connInvokerService.setAppScope(app);
+
+        portTestConnAudit();
+
 		return true;
 	}
+
+    private void portTestConnAudit() {
+        Runnable portConnAuditTask = () -> portTestConnAuditHelper();
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(portConnAuditTask, 0, 5, TimeUnit.SECONDS);
+    }
+
+    private IConnection getConnectionWithConnId(IScope scope, String connId) {
+        for (IConnection conn : scope.getClientConnections()) {
+            String connID = (String) conn.getSessionId();
+            if (connID != null && connID.equals(connId)) {
+                return conn;
+            }
+        }
+
+        log.warn("Failed to get connection for connId = " + connId);
+        return null;
+    }
+
+    private void portTestConnAuditHelper() {
+
+        Collection<UserConnectionMapper.UserConnection> usersConns = userConnections.getConnections();
+        for (UserConnectionMapper.UserConnection uconn : usersConns) {
+            if (System.currentTimeMillis() - uconn.connectedOn > 10000) {
+
+            }
+        }
+
+    }
 
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
