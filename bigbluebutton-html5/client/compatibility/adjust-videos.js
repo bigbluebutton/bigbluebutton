@@ -59,7 +59,7 @@
     const x = e.outerWidth() - 1;
     const y = e.outerHeight() - 1;
 
-    const videos = $("#" + tagId + " video:visible");
+    const videos = $("#" + tagId + " videoContainer:visible");
 
     const best = findBestConfiguration(x, y, videos.length);
 
@@ -79,10 +79,12 @@
       const videoLeft = `left: ${left}px;`;
 
       $(this).attr('style', videoTop + videoLeft);
+
+      $(this).parent().attr('style', `width: ${best.width-2}px; height${best.height-2}px;`);
     });
 
-    videos.attr('width', best.width);
-    videos.attr('height', best.height);
+    videos.attr('width', best.width-2);
+    videos.attr('height', best.height-2);
   }
 
   window.adjustVideos = adjustVideos;

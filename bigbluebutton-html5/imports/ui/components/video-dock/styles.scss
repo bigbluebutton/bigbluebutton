@@ -20,3 +20,43 @@
 .sharedWebcamVideoLocal {
   display: normal;
 }
+
+.videoContainer {
+  background-color: #999;
+}
+
+.videoText {
+  // position: absolute;
+  margin-top: -30px;
+  // padding: 0 5px;
+  // width: 100%;
+  z-index: -1;
+}
+
+.userName {
+  color: #FFFFFF;
+  background: #555;
+  padding: 3px 8px;
+  border-radius: 0.75rem;
+  font-size: 10px;
+  line-height: 13px;
+  text-align: center;
+}
+
+.pauseButton {
+  float: right;
+
+  span:last-child {
+    display: none;
+  } // TODO fix it better
+
+  span:first-child {
+    background: #D8D8D8;
+    border: 1px solid #555;
+    
+    i {
+      font-size: 11px; // TODO size should be set on button?
+      color: #555;
+    }
+  }
+}

@@ -40,19 +40,39 @@ class VideoElement extends Component {
   }
 
   render() {
+    let cssClass;
+    if (this.props.shared || !this.props.localCamera) {
+      cssClass = styles.sharedWebcamVideoLocal;
+    }
+    else {
+      cssClass = styles.sharedWebcamVideo;
+    }
     return (
-      <video
-        id={`video-elem-${this.props.videoId}`}
-        width={320}
-        height={240}
-        autoPlay="autoPlay"
-        playsInline="playsInline"
-      />
+      <div className={styles.videoContainer + " " + cssClass} >
+        { this.props.localCamera ?
+            <video id="shareWebcam" muted={true} autoPlay={true} playsInline={true} />
+          :
+            <video id={`video-elem-${this.props.videoId}`} width={320} height={240} autoPlay={true} playsInline={true} />
+        }
+        <div className={styles.videoText}>
+          <span className={styles.userName}>{this.props.name}</span>
+          <Button
+            label=""
+            className={styles.pauseButton}
+            icon={'unmute'}
+            size={'sm'}
+            circle
+            onClick={() => {}}
+          />
+        </div>
+      </div>
     );
   }
 
   componentDidMount() {
-    this.props.onMount(this.props.videoId, false);
+    if (typeof this.props.onMount === 'function' && !this.props.localCamera) {
+      this.props.onMount(this.props.videoId, false);
+    }
   }
 }
 
@@ -318,7 +338,7 @@ class VideoDock extends Component {
 
     let peerObj;
     if (shareWebcam) {
-      options.localVideo = this.refs.videoInput;
+      options.localVideo = document.getElementById("shareWebcam");
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
     } else {
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
@@ -579,16 +599,20 @@ class VideoDock extends Component {
   }
 
   render() {
+<<<<<<< HEAD
     let cssClass;
     if (this.state.sharedWebcam) {
       cssClass = styles.sharedWebcamVideoLocal;
     } else {
       cssClass = styles.sharedWebcamVideo;
     }
+=======
+>>>>>>> 4a34657... User video tags with new design [part 1]
 
     return (
       <div className={styles.videoDock}>
         <div id="webcamArea">
+<<<<<<< HEAD
           {Object.keys(this.state.videos).map(id => (
             <VideoElement videoId={id} key={id} onMount={this.initWebRTC.bind(this)} />
           ))}
@@ -600,6 +624,14 @@ class VideoDock extends Component {
             className={cssClass}
             ref="videoInput"
           />
+=======
+          {Object.keys(this.state.videos).map((id) => {
+            return (
+              <VideoElement videoId={id} key={id} name={id} localCamera={false} onMount={this.initWebRTC.bind(this)} />
+            );
+          })}
+          <VideoElement shared={this.state.sharedWebcam} name={this.myId} localCamera={true} />
+>>>>>>> 4a34657... User video tags with new design [part 1]
         </div>
       </div>
     );
