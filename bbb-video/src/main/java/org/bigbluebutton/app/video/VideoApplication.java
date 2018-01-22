@@ -40,6 +40,8 @@ import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
+import org.springframework.util.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,10 +92,25 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		String userId = ((String) params[1]).toString();
 		String authToken = ((String) params[2]).toString();
 
+
+      if (StringUtils.isEmpty(meetingId)) {
+          log.error("Invalid meetingId parameter.");
+          return false;
+      }
+
+      if (StringUtils.isEmpty(userId)) {
+          log.error("Invalid userId parameter.");
+          return false;
+      }
+
+      if (StringUtils.isEmpty(authToken)) {
+          log.error("Invalid authToken parameter.");
+          return false;
+      }
+
 		Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
 		Red5.getConnectionLocal().setAttribute("USERID", userId);
 	  	Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
-
 
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -246,10 +263,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();
     	String contextName = stream.getScope().getName();
-    	log.info("APP CONTEXT == " + contextName);
 
     	if ("video".equals(contextName)) {
-    	    log.error("Publishing stream in app context.");
+            /**
+             * Prevent publishing into the /video context as all our webcams are published
+             * into /video/<meetingId> context. (ralam jan 22, 2018)
+             */
+    	    log.error("Publishing stream in app context. Closing connection. stream={}, context={}", stream.getPublishedName(), contextName);
     	    conn.close();
     	    return;
         }

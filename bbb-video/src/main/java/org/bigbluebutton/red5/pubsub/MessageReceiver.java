@@ -1,16 +1,15 @@
 package org.bigbluebutton.red5.pubsub;
 
+import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MessageReceiver {
-    private static Logger log = LoggerFactory.getLogger(MessageReceiver.class);
+    private static Logger log = Red5LoggerFactory.getLogger(MessageReceiver.class, "video");
 
     private ReceivedMessageHandler handler;
 

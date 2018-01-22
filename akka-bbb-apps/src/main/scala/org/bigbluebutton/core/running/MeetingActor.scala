@@ -78,6 +78,7 @@ class MeetingActor(
     with SendTimeRemainingUpdateHdlr
     with SendBreakoutTimeRemainingMsgHdlr
     with ChangeLockSettingsInMeetingCmdMsgHdlr
+    with ValidateConnAuthTokenSysMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr
     with ClientToServerLatencyTracerMsgHdlr {
 
@@ -154,6 +155,7 @@ class MeetingActor(
     // its type is not BbbCommonEnvCoreMsg
     case m: RegisterUserReqMsg                => usersApp.handleRegisterUserReqMsg(m)
     case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
+    case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
 
     // Meeting
     case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)

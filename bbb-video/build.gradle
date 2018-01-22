@@ -62,6 +62,7 @@ dependencies {
   compile 'org.apache.commons:commons-pool2:2.3'
   compile 'com.google.code.gson:gson:2.5'
 
+  compile 'org.apache.commons:commons-lang3:3.5'
   compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'
 }
 

@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
@@ -82,7 +83,8 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 	    public function connect():void {
-	      nc.connect(_url, UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
+				var authToken: String = "FOOOOOOO-BARRRR!!!!!!"; //LiveMeeting.inst().me.authToken;
+	      nc.connect(_url, UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), authToken);
 	    }
 	    
 		private function onAsyncError(event:AsyncErrorEvent):void{
