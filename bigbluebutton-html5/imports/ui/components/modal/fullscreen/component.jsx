@@ -65,6 +65,7 @@ class ModalFullscreen extends Component {
           <h1 className={styles.title}>{title}</h1>
           <div className={styles.actions}>
             <Button
+              data-test='modalDismissButton'
               className={styles.dismiss}
               label={dismiss.label}
               disabled={dismiss.disabled}
@@ -72,6 +73,7 @@ class ModalFullscreen extends Component {
               aria-describedby={'modalDismissDescription'}
             />
             <Button
+              data-test='modalConfirmButton'
               color={'primary'}
               className={styles.confirm}
               label={confirm.label}
