@@ -1,5 +1,5 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayService from './service';
 import WhiteboardOverlay from './component';
@@ -13,13 +13,13 @@ const WhiteboardOverlayContainer = (props) => {
   return null;
 };
 
-export default createContainer(() => ({
+export default withTracker(() => ({
   sendAnnotation: WhiteboardOverlayService.sendAnnotation,
   setTextShapeActiveId: WhiteboardOverlayService.setTextShapeActiveId,
   resetTextShapeSession: WhiteboardOverlayService.resetTextShapeSession,
   drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
   userId: WhiteboardOverlayService.getCurrentUserId(),
-}), WhiteboardOverlayContainer);
+}))(WhiteboardOverlayContainer);
 
 
 WhiteboardOverlayContainer.propTypes = {

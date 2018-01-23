@@ -11,7 +11,7 @@ import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 const propTypes = {
   intl: intlShape.isRequired,

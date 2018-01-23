@@ -146,6 +146,8 @@ phonecomponents|MuteMeButton {
 	backgroundColor : #FFFFFF;
 	paddingTop      : 0;
 	paddingBottom   : 6;
+	verticalAlign   : middle;
+	verticalGap     : 0;
 }
 
 .breakoutRoomRibbon {
@@ -648,6 +650,10 @@ chat|ChatOptionsTab {
 	fontSize : 14;
 }
 
+chat|ChatMessageRenderer {
+	moderatorIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Chat_Moderator");
+}
+
 .chatMessageListStyle {
 	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
@@ -666,6 +672,15 @@ chat|ChatMessageRenderer {
 .chatMessageTime {
 	color     : #696969;
 	textAlign : right;
+}
+
+.chatMessageHeader {
+	color : #808080;
+}
+
+.chatMessageHeaderModerator {
+	color      : #808080;
+	fontWeight : bold;
 }
 
 /*
@@ -932,6 +947,7 @@ layout|LayoutsCombo {
 
 views|LogoutWindow, views|LoggedOutWindow {
 	headerHeight              : 32;
+	horizontalAlign           : center;
 	paddingBottom             : 8;
 	paddingLeft               : 8;
 	paddingRight              : 8;
@@ -948,6 +964,58 @@ views|LogoutWindow, views|LoggedOutWindow {
 	paddingBottom : 8;
 }
 
+.logoutRatingBox {
+	paddingTop      : 12;
+	paddingBottom   : 12;
+	horizontalAlign : center;
+	verticalGap     : 8;
+}
+
+.logoutTitle {
+	fontSize : 24;
+}
+
+.logoutSubTitle {
+	fontSize : 16;
+	color    : #4E5A66;
+}
+
+.loggedOutContainer {
+	horizontalAlign : center;
+	verticalGap     : 4;
+}
+
+.logoutFeedbackHintBoxStyle {
+	backgroundColor : #CDD4DB;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	verticalGap     : 0;
+}
+
+views|StarRating {
+	paddingTop    : 4;
+	paddingBottom : 4;
+	verticalGap   : 8;
+	horizontalGap : 0;
+	emptyStar     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Star_Empty");
+	filledStar    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Star_Filled");
+}
+
+.starBoxStyle {
+	horizontalAlign : center;
+	verticalGap     : 4;
+	paddingLeft     : 0;
+	paddingRight    : 0;
+	paddingTop      : 4;
+	paddingBottom   : 4;
+
+}
+
+.logoutRule {
+	strokeWidth : 1;
+	color       : #BBBDBF;
+}
+
 /*
 //------------------------------
 //  Lock Settings
@@ -958,8 +1026,17 @@ views|LockSettings {
 	headerHeight : 0;
 }
 
+.lockSettingsColumnTitleStyle {
+	fontSize   : 14;
+	fontWeight : bold;
+}
+
 .lockSettingsDefaultLabelStyle {
 	fontSize : 14;
+}
+
+.lockSettingsCheckboxColumn {
+	horizontalAlign : center;
 }
 
 /*
@@ -1366,13 +1443,17 @@ mx|Panel {
 	textDecoration  : underline;
 }
 
-.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle, .lockSettingsHintBoxStyle {
 	backgroundColor : #CDD4DB;
+	horizontalAlign : center;
+	paddingTop      : 8;
+	paddingBottom   : 8;
 	paddingLeft     : 10;
 	paddingRight    : 10;
+	verticalAlign   : middle;
 }
 
-.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .logoutFeedbackHint, .lockSettingHintTextStyle {
 	fontWeight : bold;
 }
 
@@ -1804,7 +1885,6 @@ videoconf|UserGraphicHolder {
 
 .userGraphicBackground {
 	backgroundColor : #FFFFFF;
-	borderStyle     : solid;
 	borderColor     : #000000;
 	borderThickness : 0;
 }

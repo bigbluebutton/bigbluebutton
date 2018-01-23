@@ -129,7 +129,9 @@ class UsersApp(
     with LogoutAndEndMeetingCmdMsgHdlr
     with MeetingActivityResponseCmdMsgHdlr
     with SetRecordingStatusCmdMsgHdlr
+    with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
+    with GetWebcamsOnlyForModeratorReqMsgHdlr
     with AssignPresenterReqMsgHdlr
     with EjectDuplicateUserReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr

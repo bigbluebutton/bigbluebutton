@@ -95,6 +95,7 @@ class RedisRecorderActor(val system: ActorSystem)
 
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
+      case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
 
       // Recording
@@ -459,6 +460,15 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.setBy)
     ev.setRecordingStatus(msg.body.recording)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+  
+  private def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg) {
+    val ev = new WebcamsOnlyForModeratorRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setUserId(msg.body.setBy)
+    ev.setWebcamsOnlyForModerator(msg.body.webcamsOnlyForModerator)
 
     record(msg.header.meetingId, ev.toMap)
   }

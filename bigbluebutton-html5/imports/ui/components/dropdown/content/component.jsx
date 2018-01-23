@@ -1,7 +1,7 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const PLACEMENTS = [
   'top left', 'top', 'top right',

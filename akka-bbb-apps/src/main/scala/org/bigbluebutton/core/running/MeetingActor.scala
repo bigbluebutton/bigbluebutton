@@ -162,6 +162,9 @@ class MeetingActor(
     MeetingStatus2x.unmuteMeeting(liveMeeting.status)
   }
 
+    // Set webcamsOnlyForModerator property in case we didn't after meeting creation
+    MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
+
   /*******************************************************************/
   // Helper to create fake users for testing (ralam jan 5, 2018)
   //object FakeTestData extends FakeTestData
@@ -223,6 +226,8 @@ class MeetingActor(
       case m: MeetingActivityResponseCmdMsg => state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: GetWebcamsOnlyForModeratorReqMsg    => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
+      case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
       // Client requested to eject user

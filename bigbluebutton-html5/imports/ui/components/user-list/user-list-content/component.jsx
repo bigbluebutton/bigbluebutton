@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles';
+import { styles } from './styles';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
 
@@ -20,7 +20,7 @@ const propTypes = {
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
-  kickUser: PropTypes.func.isRequired,
+  removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
@@ -54,7 +54,7 @@ class UserContent extends Component {
           isBreakoutRoom={this.props.isBreakoutRoom}
           setEmojiStatus={this.props.setEmojiStatus}
           assignPresenter={this.props.assignPresenter}
-          kickUser={this.props.kickUser}
+          removeUser={this.props.removeUser}
           toggleVoice={this.props.toggleVoice}
           changeRole={this.props.changeRole}
           getAvailableActions={this.props.getAvailableActions}

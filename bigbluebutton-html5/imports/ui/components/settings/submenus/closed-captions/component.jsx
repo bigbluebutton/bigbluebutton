@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles';
+import { styles } from '../styles';
 import cx from 'classnames';
 import BaseMenu from '../base/component';
 import Toggle from '/imports/ui/components/switch/component';

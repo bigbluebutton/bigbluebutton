@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.SetWebcamsOnlyForModeratorEvent;
 			import org.bigbluebutton.core.events.TokenValidEvent;
 			import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
@@ -168,6 +169,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	  <EventHandlers type="{LockControlEvent.SAVE_LOCK_SETTINGS}" >
 	    <MethodInvoker generator="{UserService}" method="saveLockSettings" arguments="{event}" />
+	  </EventHandlers>
+		
+	  <EventHandlers type="{SetWebcamsOnlyForModeratorEvent.UPDATE_WEBCAMS_ONLY_FOR_MODERATOR}" >
+	    <MethodInvoker generator="{UserService}" method="updateWebcamsOnlyForModerator" arguments="{event}" />
 	  </EventHandlers>
 	  
 	  <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">

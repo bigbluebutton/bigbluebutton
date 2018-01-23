@@ -33,6 +33,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.UsersUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(ChatMessageRenderer);      
 
@@ -40,9 +42,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Clicked on link[{0}] from chat", [e.text]);
 				if (ExternalInterface.available) {
 					ExternalInterface.call("chatLinkClicked", e.text);
-				} 
+				}
 			}
-			
+
 			//private function dataChangeHandler(e:Event = null):void{
 			override public function set data(value:Object):void {
 				//if (data == null) {
@@ -63,6 +65,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				//remove the header if not needed to save space
 				hbHeader.includeInLayout = hbHeader.visible = lblName.visible || lblTime.visible;
 				
+				if (data.hasOwnProperty("senderId") && UsersUtil.getUser(data.senderId) && UsersUtil.getUser(data.senderId).role == Role.MODERATOR) {
+					hbHeader.styleName = "chatMessageHeaderModerator";
+					if (lblName.visible) {
+						moderatorIcon.visible = true;
+					}
+				}
+				
 				// If you remove this some of the chat messages will fail to render
 				validateNow();
 			}
@@ -76,10 +85,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</fx:Script>
 	
-  <mx:Canvas width="100%" id="hbHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-    <mx:Label id="lblName" styleName="chatMessageName" text="{data.name}" visible="true" left="0" width="{this.width - lblTime.width - 22}"/>
-    <mx:Text id="lblTime" styleName="chatMessageTime" htmlText="{data.time}"
-             visible="true" right="4" />
+  <mx:Canvas width="100%" id="hbHeader" styleName="chatMessageHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+    <mx:Label id="lblName" styleName="chatMessageName" text="{data.name}" visible="true"
+    left="0" maxWidth="{this.width - lblTime.width - moderatorIcon.width - 22}"/>
+	<mx:Image id="moderatorIcon" visible="false" source="{getStyle('moderatorIcon')}" x="{lblName.width + 4}" verticalCenter="0"/>
+    <mx:Text id="lblTime" htmlText="{data.time}" styleName="chatMessageTime"
+             visible="true"
+             right="4" />
   </mx:Canvas>
   <mx:Text id="txtMessage" htmlText="{data.text}" link="onLinkClick(event)" color="{data.senderColor}"
            keyDown="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>

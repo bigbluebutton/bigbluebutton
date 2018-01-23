@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles';
+import { styles } from './styles';
 import cx from 'classnames';
-
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -34,6 +33,11 @@ const propTypes = {
   mute: PropTypes.bool.isRequired,
   join: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
+  glow: PropTypes.bool,
+};
+
+const defaultProps = {
+  glow: false,
 };
 
 const AudioControls = ({
@@ -56,9 +60,9 @@ const AudioControls = ({
         hideLabel
         label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) : intl.formatMessage(intlMessages.muteAudio)}
         aria-label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) : intl.formatMessage(intlMessages.muteAudio)}
-        color={'primary'}
+        color="primary"
         icon={unmute ? 'mute' : 'unmute'}
-        size={'lg'}
+        size="lg"
         circle
       /> : null}
     <Button
@@ -70,11 +74,12 @@ const AudioControls = ({
       label={join ? intl.formatMessage(intlMessages.leaveAudio) : intl.formatMessage(intlMessages.joinAudio)}
       color={join ? 'danger' : 'primary'}
       icon={join ? 'audio_off' : 'audio_on'}
-      size={'lg'}
+      size="lg"
       circle
     />
   </span>);
 
 AudioControls.propTypes = propTypes;
+AudioControls.defaultProps = defaultProps;
 
 export default injectIntl(AudioControls);

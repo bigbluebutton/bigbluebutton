@@ -21,246 +21,251 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx" 
-         xmlns:fx="http://ns.adobe.com/mxml/2009"
-         xmlns:mate="http://mate.asfusion.com/"
-         xmlns:common="org.bigbluebutton.common.*"
-         implements="org.bigbluebutton.modules.chat.views.IChatTab"
-         creationComplete="onCreationComplete()">
-  
-  <fx:Declarations>
-    <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-    <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
-    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />
-	<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
-	<mate:Listener type="{EventConstants.NEW_GROUP_CHAT}" method="handleNewGroupChatEvent" />
-  </fx:Declarations>
-  
-  <fx:Script>
-    <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import mx.collections.ArrayCollection;
-		import mx.controls.Alert;
-		import mx.events.CloseEvent;
-		
-		import org.as3commons.lang.StringUtils;
-		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.core.EventConstants;
-		import org.bigbluebutton.core.Options;
-		import org.bigbluebutton.core.UsersUtil;
-		import org.bigbluebutton.core.events.CoreEvent;
-		import org.bigbluebutton.core.events.LockControlEvent;
-		import org.bigbluebutton.core.model.LiveMeeting;
-		import org.bigbluebutton.main.events.UserJoinedEvent;
-		import org.bigbluebutton.main.events.UserLeftEvent;
-		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-		import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
-		import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-		import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-		import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
-		import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
-		import org.bigbluebutton.modules.chat.model.ChatOptions;
-		import org.bigbluebutton.modules.chat.model.GroupChat;
-		import org.bigbluebutton.modules.chat.views.model.ChatUser;
-		import org.bigbluebutton.modules.chat.views.model.GroupChatData;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-      private static const LOGGER:ILogger = getClassLogger(ChatOptionsTab);
-      
-		[Bindable] public var users:ArrayCollection;
-		[Bindable] public var groupChats:ArrayCollection;
-      [Bindable] public var chatView:ChatView;
-      [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
-      
-      [Bindable] public var chatOptions:ChatOptions;		
-      [Bindable] private var amIModerator:Boolean = false;
-      
-      private var globalDispatcher:Dispatcher = new Dispatcher();
-      
-      private var handler: ChatWindowEventHandler = new ChatWindowEventHandler();
-      
-      private function handleUserLeftEvent(event: UserLeftEvent): void {
-        handler.handleUserLeftEvent(event.userID);  
-		handler.populateAllUsers();
-		users = removeMe(handler.users);
-      }
-		
-		private function handleNewGroupChatEvent(event:CoreEvent):void {
-			handler.populateAllGroupChats();
-		}
-      
-      private function handleUserJoinedEvent(event: UserJoinedEvent):void {
-        handler.handleUserJoinedEvent(event);
-        handler.populateAllUsers();
-        users = removeMe(handler.users);
-      }
-      
-      private function removeMe(users:ArrayCollection):ArrayCollection {
-        var myUserId:String = UsersUtil.getMyUserID();
-        var filteredUsers:Array = new Array();
-        
-        for (var i:int = 0; i < users.length; i++) {
-          var user:ChatUser = users[i] as ChatUser;
-          if (user.userId != myUserId) {
-            filteredUsers.push(user);
-          }
-        }
-        
-        return new ArrayCollection(filteredUsers);
-      }
-      
-      private function onCreationComplete():void{
-        amIModerator = UsersUtil.amIModerator();
-        
-		handler.populateAllUsers();
-		handler.populateAllGroupChats()
-        users = removeMe(handler.users);
-		groupChats = handler.groupChats;
-        chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
-        
-        if (!chatOptions.privateEnabled) {
-          usersList.includeInLayout = usersList.visible = false;
-        }
-        
-        if (fontSizes.indexOf(chatOptions.fontSize) != -1) {
-          cmbFontSize.selectedItem = chatOptions.fontSize;
-          changeFontSize(); // have to manually call it because the change event doesn't fire
-        } else {
-          LOGGER.debug("fontSize in config.xml not found: {0}", [chatOptions.fontSize]);
-        }
-        chatNoiseCheckBox.selected = Accessibility.active;
-        changeChatNoise();
-        
-        lockSettingsChanged();
-      }
-      
-      public function onUserListKeyDown(event:KeyboardEvent):void{
-        if (event.keyCode == 32){
-          openPrivateChat(event);
-        }
-      }
-      
-      private function changeFontSize():void {
-        LOGGER.debug("sending change font size")
-        var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
-        e.fontSize = int(cmbFontSize.selectedItem);
-        dispatchEvent(e);
-      }
-      
-      private function changeChatNoise():void {
-        LOGGER.debug("changing chat noise, active=" + chatNoiseCheckBox.selected);
-        dispatchEvent(new ChatNoiseEnabledEvent(chatNoiseCheckBox.selected));
-      }
-		
-		protected function openPrivateChat(event:Event):void {
-			if (usersList.selectedIndex == -1)
-				return;
-
-			if (!usersList.visible || !usersList.enabled)
-				return;
-
-			var chatWithIntId:String = usersList.selectedItem.userId;
-      var chatName:String = usersList.selectedItem.name;
-      
-			// Don't want to be chatting with ourself.
-			if (UsersUtil.isMe(chatWithIntId))
-				return;
-
-			var access:String = GroupChat.PRIVATE;
-			var users:Array = new Array();
-			users.push(chatWithIntId);
-
-      usersList.selectedIndex = -1;
-      
-			var createEvent:CreateGroupChatReqEvent = new CreateGroupChatReqEvent(chatName, access, users);
-			globalDispatcher.dispatchEvent(createEvent);
-		}
-		
-		protected function openGroupChat():void {
-			if (groupChatList.selectedItem) {
-				globalDispatcher.dispatchEvent(new OpenChatBoxEvent(GroupChatData(groupChatList.selectedItem).chatId));
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mate="http://mate.asfusion.com/"
+		 xmlns:common="org.bigbluebutton.common.*"
+		 implements="org.bigbluebutton.modules.chat.views.IChatTab"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+		<mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />
+		<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
+		<mate:Listener type="{EventConstants.NEW_GROUP_CHAT}" method="handleNewGroupChatEvent" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+			import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+			import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.chat.model.GroupChat;
+			import org.bigbluebutton.modules.chat.views.model.ChatUser;
+			import org.bigbluebutton.modules.chat.views.model.GroupChatData;
+			import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(ChatOptionsTab);
+			
+			[Bindable] public var users:ArrayCollection;
+			[Bindable] public var groupChats:ArrayCollection;
+			[Bindable] public var chatView:ChatView;
+			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
+			
+			[Bindable] public var chatOptions:ChatOptions;
+			[Bindable] public var breakoutOptions:BreakoutRoomsOptions;
+			[Bindable] private var amIModerator:Boolean = false;
+			
+			private var globalDispatcher:Dispatcher = new Dispatcher();
+			
+			private var handler: ChatWindowEventHandler = new ChatWindowEventHandler();
+			
+			private function handleUserLeftEvent(event: UserLeftEvent): void {
+				handler.handleUserLeftEvent(event.userID);  
+				handler.populateAllUsers();
+				users = removeMe(handler.users);
 			}
-		}
-		
-		public function onGroupChatListKeyDown(event:KeyboardEvent):void{
-			if (event.keyCode == 32){
-				openGroupChat();
+			
+			private function handleNewGroupChatEvent(event:CoreEvent):void {
+				handler.populateAllGroupChats();
 			}
-		}
-		
-      /**
-       * For the Options tab focus the users list instead of the text area.
-       **/
-      public function focusToTextMessageArea():void {
-        if (usersList.visible) {
-          usersList.setFocus();
-          usersList.drawFocus(true);
-        } else {
-          cmbFontSize.setFocus();
-          cmbFontSize.drawFocus(true);
-        }
-      }
-      
-      private function lockSettingsChanged(e:Event = null):void {
-        refreshListStatus();
-      }
-      
-      private function refreshRole(e:ChangeMyRole):void {
-        amIModerator = UsersUtil.amIModerator();
-        refreshListStatus();
-      }
-      
-      private function refreshListStatus():void {
-        
-        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-        
-        usersList.enabled = ! LiveMeeting.inst().me.disableMyPrivateChat;
-      }
-      
-      public function sendSaveEvent():void{
-        var saveEvent:ChatToolbarButtonEvent = 
-          new ChatToolbarButtonEvent(ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT);
-        globalDispatcher.dispatchEvent(saveEvent);
-      }
-      
-      public function sendCopyEvent():void{
-        var copyEvent:ChatToolbarButtonEvent = 
-          new ChatToolbarButtonEvent(ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT);
-        globalDispatcher.dispatchEvent(copyEvent);
-      }
-      
-      public function sendClearEvent():void{
-        var clearChatHistoryAlert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.text'),
-          ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.title'),
-          Alert.YES | Alert.NO, null, handleClearChatHistoryAlert, null, Alert.YES);
-      }
-      
-      private function handleClearChatHistoryAlert(e:CloseEvent):void {
-        if (e.detail == Alert.YES) {
-          var clearEvent:ChatToolbarButtonEvent = 
-            new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT);
-          globalDispatcher.dispatchEvent(clearEvent);
-        }
-      }
-
+			
+			private function handleUserJoinedEvent(event: UserJoinedEvent):void {
+				handler.handleUserJoinedEvent(event);
+				handler.populateAllUsers();
+				users = removeMe(handler.users);
+			}
+			
+			private function removeMe(users:ArrayCollection):ArrayCollection {
+				var myUserId:String = UsersUtil.getMyUserID();
+				var filteredUsers:Array = new Array();
+				
+				for (var i:int = 0; i < users.length; i++) {
+					var user:ChatUser = users[i] as ChatUser;
+					if (user.userId != myUserId) {
+						filteredUsers.push(user);
+					}
+				}
+				
+				return new ArrayCollection(filteredUsers);
+			}
+			
+			private function onCreationComplete():void{
+				amIModerator = UsersUtil.amIModerator();
+				
+				handler.populateAllUsers();
+				handler.populateAllGroupChats()
+				users = removeMe(handler.users);
+				groupChats = handler.groupChats;
+				chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
+				breakoutOptions = Options.getOptions(BreakoutRoomsOptions) as BreakoutRoomsOptions;
+				
+				if ((!UsersUtil.isBreakout() && !chatOptions.privateEnabled) ||
+					(UsersUtil.isBreakout() && !breakoutOptions.privateChateEnabled )
+				) {
+					usersList.includeInLayout = usersList.visible = false;
+				}
+				
+				if (fontSizes.indexOf(chatOptions.fontSize) != -1) {
+					cmbFontSize.selectedItem = chatOptions.fontSize;
+					changeFontSize(); // have to manually call it because the change event doesn't fire
+				} else {
+					LOGGER.debug("fontSize in config.xml not found: {0}", [chatOptions.fontSize]);
+				}
+				chatNoiseCheckBox.selected = Accessibility.active;
+				changeChatNoise();
+				
+				lockSettingsChanged();
+			}
+			
+			public function onUserListKeyDown(event:KeyboardEvent):void{
+				if (event.keyCode == 32){
+					openPrivateChat(event);
+				}
+			}
+			
+			private function changeFontSize():void {
+				LOGGER.debug("sending change font size")
+				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
+				e.fontSize = int(cmbFontSize.selectedItem);
+				dispatchEvent(e);
+			}
+			
+			private function changeChatNoise():void {
+				LOGGER.debug("changing chat noise, active=" + chatNoiseCheckBox.selected);
+				dispatchEvent(new ChatNoiseEnabledEvent(chatNoiseCheckBox.selected));
+			}
+			
+			protected function openPrivateChat(event:Event):void {
+				if (usersList.selectedIndex == -1)
+					return;
+				
+				if (!usersList.visible || !usersList.enabled)
+					return;
+				
+				var chatWithIntId:String = usersList.selectedItem.userId;
+				var chatName:String = usersList.selectedItem.name;
+				
+				// Don't want to be chatting with ourself.
+				if (UsersUtil.isMe(chatWithIntId))
+					return;
+				
+				var access:String = GroupChat.PRIVATE;
+				var users:Array = new Array();
+				users.push(chatWithIntId);
+				
+				usersList.selectedIndex = -1;
+				
+				var createEvent:CreateGroupChatReqEvent = new CreateGroupChatReqEvent(chatName, access, users);
+				globalDispatcher.dispatchEvent(createEvent);
+			}
+			
+			protected function openGroupChat():void {
+				if (groupChatList.selectedItem) {
+					globalDispatcher.dispatchEvent(new OpenChatBoxEvent(GroupChatData(groupChatList.selectedItem).chatId));
+				}
+			}
+			
+			public function onGroupChatListKeyDown(event:KeyboardEvent):void{
+				if (event.keyCode == 32){
+					openGroupChat();
+				}
+			}
+			
+			/**
+			 * For the Options tab focus the users list instead of the text area.
+			 **/
+			public function focusToTextMessageArea():void {
+				if (usersList.visible) {
+					usersList.setFocus();
+					usersList.drawFocus(true);
+				} else {
+					cmbFontSize.setFocus();
+					cmbFontSize.drawFocus(true);
+				}
+			}
+			
+			private function lockSettingsChanged(e:Event = null):void {
+				refreshListStatus();
+			}
+			
+			private function refreshRole(e:ChangeMyRole):void {
+				amIModerator = UsersUtil.amIModerator();
+				refreshListStatus();
+			}
+			
+			private function refreshListStatus():void {
+				
+				if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
+				
+				usersList.enabled = ! LiveMeeting.inst().me.disableMyPrivateChat;
+			}
+			
+			public function sendSaveEvent():void{
+				var saveEvent:ChatToolbarButtonEvent = 
+					new ChatToolbarButtonEvent(ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT);
+				globalDispatcher.dispatchEvent(saveEvent);
+			}
+			
+			public function sendCopyEvent():void{
+				var copyEvent:ChatToolbarButtonEvent = 
+					new ChatToolbarButtonEvent(ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT);
+				globalDispatcher.dispatchEvent(copyEvent);
+			}
+			
+			public function sendClearEvent():void{
+				var clearChatHistoryAlert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.text'),
+					ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.title'),
+					Alert.YES | Alert.NO, null, handleClearChatHistoryAlert, null, Alert.YES);
+			}
+			
+			private function handleClearChatHistoryAlert(e:CloseEvent):void {
+				if (e.detail == Alert.YES) {
+					var clearEvent:ChatToolbarButtonEvent = 
+						new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT);
+					globalDispatcher.dispatchEvent(clearEvent);
+				}
+			}
+			
 			public function onCreateChatBtnClick():void {
 				var newChatName:String = newChatNameInput.text;
 				var access:String = GroupChat.PUBLIC;
 				var users:Array = new Array();
-
+				
 				var createEvent:CreateGroupChatReqEvent = new CreateGroupChatReqEvent(newChatName, access, users);
 				globalDispatcher.dispatchEvent(createEvent);
 				
 				newChatNameInput.text = "";
 			}
-    ]]>
-  </fx:Script>
-
-  <fx:Declarations>
-    <common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
-  </fx:Declarations>
-
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox, saveBtn, copyBtn, clearBtn]}"/>
+	</fx:Declarations>
+	
 	<mx:HBox id="newGroupChatBox" width="100%" verticalAlign="middle"
 			 visible="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows &amp;&amp; amIModerator}"
 			 includeInLayout="{chatOptions.groupEnabled &amp;&amp; groupChats.length &lt; chatOptions.maxNumWindows &amp;&amp; amIModerator}">
@@ -270,7 +275,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   styleName="mainActionButton" height="30"
 				   enabled="{!StringUtils.isEmpty(newChatNameInput.text)}" click="onCreateChatBtnClick()" />
 	</mx:HBox>
-
+	
 	<!-- Group chats -->
 	<mx:Label id="lblSelectGroupChat" styleName="chatOptionsLabel"
 			  text="{ResourceUtil.getInstance().getString('bbb.chat.groupChatSelect')}"
@@ -282,7 +287,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 keyDown="onGroupChatListKeyDown(event)"
 			 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.toolTip')}"
 			 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.groupChatList.accessibilityName')}"/>
-
+	
 	<!-- Private chats -->
 	<mx:Label id="lblSelectPrivateChat" styleName="chatOptionsLabel"
 			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
@@ -294,50 +299,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 keyDown="onUserListKeyDown(event)"
 			 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
 			 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
-
-  <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
-
-  <mx:HBox width="100%">
-    <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" width="100%"/>
-    <common:ComboBox2 width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
-                 selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
-  </mx:HBox>
-  <mx:HBox width="100%">
-    <mx:Label styleName="chatOptionsLabel" 
-              text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" 
-              width="100%"/>
-    <mx:CheckBox id="chatNoiseCheckBox" change="changeChatNoise()" accessibilityName="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" />
-  </mx:HBox>
-  <mx:HBox width="100%">
-    <mx:Label styleName="chatOptionsLabel" 
-              text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.publicChatOptions')}" 
-              width="100%"/>
-    <mx:Button id="saveBtn"
-               styleName="chatSaveButtonStyle"
-               width="22"
-               height="22"
-               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}"
-               click="sendSaveEvent()"
-               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.accessibilityName')}"/>
-    
-    <mx:Button id="copyBtn"
-               styleName="chatCopyButtonStyle"
-               width="22"
-               height="22"
-               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}"
-               click="sendCopyEvent()"
-               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>
-    
-    <mx:Button id="clearBtn"
-               styleName="chatClearButtonStyle"
-               width="22"
-               height="22"
-               visible = "{amIModerator}"
-               enabled = "{amIModerator}"
-               includeInLayout = "{amIModerator}"
-               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}"
-               click="sendClearEvent()"
-               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/>
-  </mx:HBox>
-
+	
+	<mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
+	
+	<mx:HBox width="100%">
+		<mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" width="100%"/>
+		<common:ComboBox2 width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
+						  selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
+	</mx:HBox>
+	<mx:HBox width="100%">
+		<mx:Label styleName="chatOptionsLabel" 
+				  text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" 
+				  width="100%"/>
+		<mx:CheckBox id="chatNoiseCheckBox" change="changeChatNoise()" accessibilityName="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" />
+	</mx:HBox>
+	<mx:HBox width="100%">
+		<mx:Label styleName="chatOptionsLabel" 
+				  text="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.publicChatOptions')}" 
+				  width="100%"/>
+		<mx:Button id="saveBtn"
+				   styleName="chatSaveButtonStyle"
+				   width="22"
+				   height="22"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}"
+				   click="sendSaveEvent()"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.accessibilityName')}"/>
+		
+		<mx:Button id="copyBtn"
+				   styleName="chatCopyButtonStyle"
+				   width="22"
+				   height="22"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}"
+				   click="sendCopyEvent()"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>
+		
+		<mx:Button id="clearBtn"
+				   styleName="chatClearButtonStyle"
+				   width="22"
+				   height="22"
+				   visible = "{amIModerator}"
+				   enabled = "{amIModerator}"
+				   includeInLayout = "{amIModerator}"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}"
+				   click="sendClearEvent()"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/>
+	</mx:HBox>
+	
 </mx:VBox>

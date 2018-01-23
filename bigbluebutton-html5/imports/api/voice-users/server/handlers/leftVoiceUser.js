@@ -13,8 +13,14 @@ export default function handleVoiceUpdate({ body }, meetingId) {
     voiceUserId: String,
   });
 
-  const { intId } = voiceUser;
+  const { intId, voiceUserId } = voiceUser;
 
-  removeUser(meetingId, intId);
+  const isDialInUser = (voiceUserId) => {
+    return voiceUserId && (voiceUserId[0] == 'v');
+  }
+
+  // if the user is dial-in, leaving voice also means leaving userlist
+  if(isDialInUser(voiceUserId)) removeUser(meetingId, intId);
+
   return removeVoiceUser(meetingId, voiceUser);
 }
