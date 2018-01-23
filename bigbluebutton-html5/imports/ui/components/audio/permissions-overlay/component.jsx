@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { injectIntl, intlShape, defineMessages } from 'react-intl';
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -29,6 +29,10 @@ class PermissionsOverlay extends Component {
       Firefox: {
         top: '210px',
         left: '605px',
+      },
+      Safari: {
+        top: '100px',
+        left: '100px',
       },
     };
 

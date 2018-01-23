@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Icon from '/imports/ui/components/icon/component';
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
   icon: PropTypes.string.isRequired,

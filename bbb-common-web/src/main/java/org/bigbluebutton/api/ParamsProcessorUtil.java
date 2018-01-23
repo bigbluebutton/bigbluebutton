@@ -500,9 +500,9 @@ public class ParamsProcessorUtil {
 		Boolean muteOnStart = defaultMuteOnStart;
 		if (!StringUtils.isEmpty(params.get("muteOnStart"))) {
         	muteOnStart = Boolean.parseBoolean(params.get("muteOnStart"));
-			meeting.setMuteOnStart(muteOnStart);
         }
 
+		meeting.setMuteOnStart(muteOnStart);
         return meeting;
     }
 	

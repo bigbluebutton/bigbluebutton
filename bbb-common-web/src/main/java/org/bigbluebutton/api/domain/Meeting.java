@@ -207,8 +207,8 @@ public class Meeting {
 		return createdTime;
 	}
 
-	public Integer setSequence(Integer s) {
-        return sequence = s;
+	public void setSequence(Integer s) {
+        sequence = s;
     }
 
 	public Integer getSequence() {
@@ -263,8 +263,8 @@ public class Meeting {
 		return intMeetingId;
 	}
 
-	public String setParentMeetingId(String p) {
-        return parentMeetingId = p;
+	public void setParentMeetingId(String p) {
+        parentMeetingId = p;
     }
 
 	public String getParentMeetingId() {
