@@ -35,7 +35,10 @@ object AllowedMessageNames {
       SetGuestPolicyCmdMsg.NAME,
       GuestsWaitingApprovedMsg.NAME,
 
-      // Voice
+      // Webcams
+      GetWebcamsOnlyForModeratorReqMsg.NAME,
+
+        // Voice
       MuteMeetingCmdMsg.NAME,
       MuteAllExceptPresentersCmdMsg.NAME,
       MuteUserCmdMsg.NAME,
