@@ -64,7 +64,7 @@ package org.bigbluebutton.modules.users.services
     public var onAllowedToJoin:Function = null;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
 
-    private static var flashWebcamPattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)$/;
+    private static var flashWebcamPattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)(-recorded)?$/;
     
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);

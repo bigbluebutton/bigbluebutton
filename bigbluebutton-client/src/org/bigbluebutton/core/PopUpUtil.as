@@ -103,7 +103,7 @@ package org.bigbluebutton.core {
 		private static function addPopUpToStage(parent:DisplayObject, className:Class, modal:Boolean = false, center:Boolean = true):IFlexDisplayObject {
 			var popUp:IFlexDisplayObject = PopUpManager.createPopUp(parent, className, modal);
 			if (center) {
-				PopUpManager.centerPopUp(popUp)
+				PopUpManager.centerPopUp(popUp);
 			}
 			popUpDict[getQualifiedClassName(className)] = popUp;
 

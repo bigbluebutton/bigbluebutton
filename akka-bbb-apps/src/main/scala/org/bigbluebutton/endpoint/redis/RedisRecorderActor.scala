@@ -412,7 +412,7 @@ class RedisRecorderActor(val system: ActorSystem)
     val ev = new WebcamsOnlyForModeratorRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.setBy)
-    ev.setWebacmsOnlyForModerator(msg.body.webcamsOnlyForModerator)
+    ev.setWebcamsOnlyForModerator(msg.body.webcamsOnlyForModerator)
 
     record(msg.header.meetingId, ev.toMap)
   }

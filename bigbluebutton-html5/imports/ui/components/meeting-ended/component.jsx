@@ -2,7 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
+import { styles } from './styles';
 
 const intlMessage = defineMessages({
   410: {
@@ -10,8 +10,8 @@ const intlMessage = defineMessages({
     description: 'message when meeting is ended',
   },
   403: {
-    id: 'app.error.kicked',
-    description: 'message when user is kicked',
+    id: 'app.error.removed',
+    description: 'Message to display when user is removed from the conference',
   },
   messageEnded: {
     id: 'app.meeting.endedMessage',

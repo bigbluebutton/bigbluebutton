@@ -106,15 +106,15 @@ class VideoDock extends Component {
     const ws = this.ws;
     const { users, userId } = this.props;
 
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].has_stream && users[i].userId !== userId) {
+    users.forEach((user) => {
+      if (user.has_stream && user.userId !== userId) {
         // FIX: Really ugly hack, but sometimes the ICE candidates aren't
         // generated properly when we send videos right after componentDidMount
         setTimeout(() => {
-          this.start(users[i].userId, false);
+          this.start(user.userId, false);
         }, INITIAL_SHARE_WAIT_TIME);
       }
-    }
+    });
 
     document.addEventListener('joinVideo', this.shareWebcam.bind(this));// TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam.bind(this));
