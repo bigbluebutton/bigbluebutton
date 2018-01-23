@@ -18,16 +18,18 @@
  */
 package org.bigbluebutton.core.managers {
     import flash.net.NetConnection;
-    
+    import org.bigbluebutton.core.Options;
+    import org.bigbluebutton.main.model.options.PortTestOptions;
     import org.bigbluebutton.main.model.users.IMessageListener;
     import org.bigbluebutton.main.model.users.NetConnectionDelegate;
 
     public class ConnectionManager {
         private var connDelegate:NetConnectionDelegate;
 
-        [Bindable]
-        public var isTunnelling:Boolean = false;
+        private var _isTunnelling:Boolean = false;
 
+				private var portTestOptions : PortTestOptions;
+				
         public function ConnectionManager() {
             connDelegate = new NetConnectionDelegate();
         }
@@ -45,6 +47,30 @@ package org.bigbluebutton.core.managers {
             connDelegate.disconnect(onUserAction);
         }
 
+				public function initPortTestOption():void {
+					portTestOptions = Options.getOptions(PortTestOptions) as PortTestOptions;
+				}
+				
+				public function useProtocol(tunnel:Boolean):void {
+					_isTunnelling = tunnel;
+				}
+				
+				public function get isTunnelling():Boolean {
+					return _isTunnelling;
+				}
+				
+				public function get portTestHost():String {
+					return portTestOptions.host;
+				}
+				
+				public function get portTestApplication():String {
+					return portTestOptions.application;
+				}
+				
+				public function get portTestTimeout():Number {
+					return portTestOptions.timeout;
+				}
+				
         public function addMessageListener(listener:IMessageListener):void {
             connDelegate.addMessageListener(listener);
         }
