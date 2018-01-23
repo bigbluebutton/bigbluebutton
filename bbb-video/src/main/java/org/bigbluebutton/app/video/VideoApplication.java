@@ -151,6 +151,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String sessionId = Red5.getConnectionLocal().getSessionId();
 
+		userConnections.addUserConnection(sessionId, connection);
+
 	  log.info("BBB Video validateConnAuthToken");
 		publisher.validateConnAuthToken(meetingId, userId, authToken, sessionId);
 
@@ -241,7 +243,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String connId = Red5.getConnectionLocal().getSessionId();
-		
+
+		userConnections.userDisconnected(connId);
+
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", getMeetingId());
 		logData.put("userId", getUserId());

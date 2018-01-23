@@ -1,5 +1,7 @@
 package org.bigbluebutton.app.video;
 
+import org.red5.server.api.IConnection;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,8 +26,8 @@ public class UserConnectionMapper {
      * Adds a connection for a user.
      * @param connId
      */
-    public synchronized void addUserConnection(String connId) {
-        UserConnection user = new UserConnection(connId, System.currentTimeMillis());
+    public synchronized void addUserConnection(String connId, IConnection connection) {
+        UserConnection user = new UserConnection(connId, System.currentTimeMillis(), connection);
         users.put(connId, user);
     }
 
@@ -42,10 +44,12 @@ public class UserConnectionMapper {
     public class UserConnection {
         public final String connId;
         public final Long connectedOn;
+        public final IConnection connection;
 
-        public UserConnection(String connId, Long connectedOn) {
+        public UserConnection(String connId, Long connectedOn, IConnection connection) {
             this.connId = connId;
             this.connectedOn = connectedOn;
+            this.connection = connection;
         }
 
     }
