@@ -35,6 +35,7 @@ import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import com.google.gson.Gson;
+import org.springframework.util.StringUtils;
 
 public class Application extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(Application.class, "sip");
@@ -81,89 +82,119 @@ public class Application extends MultiThreadedApplicationAdapter {
         super.appStop(scope);
     }
 
-    @Override
-    public boolean appConnect(IConnection conn, Object[] params) {
-    	String meetingId = ((String) params[0]).toString();
-    	String userId = ((String) params[1]).toString();
-      String username = ((String) params[2]).toString();
-      String clientId = Red5.getConnectionLocal().getClient().getId();
-      String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-      int remotePort = Red5.getConnectionLocal().getRemotePort();
-        
-      if ((userId == null) || ("".equals(userId))) userId = "unknown-userid";
-      if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
-      Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
-      Red5.getConnectionLocal().setAttribute("USERID", userId);
-      Red5.getConnectionLocal().setAttribute("USERNAME", username);
-        
-      log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userId + "]", clientId);
-      log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
-      
-  		String connType = getConnectionType(Red5.getConnectionLocal().getType());
-  		String userFullname = username;
-  		String connId = Red5.getConnectionLocal().getSessionId();
-  		
-  		Map<String, Object> logData = new HashMap<String, Object>();
-  		logData.put("meetingId", meetingId);
-  		logData.put("connType", connType);
-  		logData.put("connId", connId);
-  		logData.put("userId", userId);
-  		logData.put("username", userFullname);
-  		logData.put("event", "user_joining_bbb_voice");
-  		logData.put("description", "User joining BBB Voice.");
-  		
-  		Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
-  		
-  		log.info("User joining bbb-voice: data={}", logStr);
-      
-      clientConnManager.createClient(clientId, userId, username, (IServiceCapableConnection) Red5.getConnectionLocal());
-      return super.appConnect(conn, params);
-    }
-    
-  	private String getConnectionType(String connType) {
-  		if ("persistent".equals(connType.toLowerCase())) {
-  			return "RTMP";
-  		} else if("polling".equals(connType.toLowerCase())) {
-  			return "RTMPT";
-  		} else {
-  			return connType.toUpperCase();
-  		}
-  	}
+	@Override
+	public boolean appConnect(IConnection conn, Object[] params) {
 
-    @Override
-    public void appDisconnect(IConnection conn) {
-    	String clientId = Red5.getConnectionLocal().getClient().getId();
-    	String userId = getUserId();
-    	String username = getUsername();
-    	
-      String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-      int remotePort = Red5.getConnectionLocal().getRemotePort();    	
-    	log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
-      log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userId + "]", clientId);
-    	
-  		String connType = getConnectionType(Red5.getConnectionLocal().getType());
-  		String userFullname = username;
-  		String connId = Red5.getConnectionLocal().getSessionId();
-  		
-  		Map<String, Object> logData = new HashMap<String, Object>();
-  		logData.put("meetingId", getMeetingId());
-  		logData.put("connType", connType);
-  		logData.put("connId", connId);
-  		logData.put("userId", userId);
-  		logData.put("username", userFullname);
-  		logData.put("event", "user_leaving_bbb_voice");
-  		logData.put("description", "User leaving BBB Voice.");
-  		
-  		Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
-  		
-  		log.info("User leaving bbb-voice: data={}", logStr);
-      
-      clientConnManager.removeClient(clientId);
+		if(params.length != 4) {
+			log.error("Invalid number of parameters. param length=" + params.length);
+			return false;
+		}
 
-      String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
-      if (peerId != null) {
+		String meetingId = ((String) params[0]).toString();
+		String userId = ((String) params[1]).toString();
+		String username = ((String) params[2]).toString();
+		String authToken = ((String) params[3]).toString();
+
+		if (StringUtils.isEmpty(meetingId)) {
+			log.error("Invalid meetingId parameter.");
+			return false;
+		}
+
+		if (StringUtils.isEmpty(userId)) {
+			log.error("Invalid userId parameter.");
+			return false;
+		}
+
+		if (StringUtils.isEmpty(username)) {
+			log.error("Invalid username parameter.");
+			return false;
+		}
+
+		if (StringUtils.isEmpty(authToken)) {
+			log.error("Invalid authToken parameter.");
+			return false;
+		}
+
+		String clientId = Red5.getConnectionLocal().getClient().getId();
+		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+		int remotePort = Red5.getConnectionLocal().getRemotePort();
+
+		Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
+		Red5.getConnectionLocal().setAttribute("USERID", userId);
+		Red5.getConnectionLocal().setAttribute("USERNAME", username);
+
+		log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userId + "]", clientId);
+		log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
+
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String userFullname = username;
+		String connId = Red5.getConnectionLocal().getSessionId();
+
+		log.info("BBB Voice validateConnAuthToken");
+		messagingService.validateConnAuthToken(meetingId, userId, authToken, connId);
+
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", meetingId);
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("userId", userId);
+		logData.put("username", userFullname);
+		logData.put("event", "user_joining_bbb_voice");
+		logData.put("description", "User joining BBB Voice.");
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+
+		log.info("User joining bbb-voice: data={}", logStr);
+
+		clientConnManager.createClient(clientId, userId, username, (IServiceCapableConnection) Red5.getConnectionLocal());
+		return super.appConnect(conn, params);
+	}
+
+	private String getConnectionType(String connType) {
+		if ("persistent".equals(connType.toLowerCase())) {
+			return "RTMP";
+		} else if("polling".equals(connType.toLowerCase())) {
+			return "RTMPT";
+		} else {
+			return connType.toUpperCase();
+		}
+	}
+
+	@Override
+	public void appDisconnect(IConnection conn) {
+		String clientId = Red5.getConnectionLocal().getClient().getId();
+		String userId = getUserId();
+		String username = getUsername();
+
+		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+		int remotePort = Red5.getConnectionLocal().getRemotePort();
+		log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
+		log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userId + "]", clientId);
+
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String userFullname = username;
+		String connId = Red5.getConnectionLocal().getSessionId();
+
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", getMeetingId());
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("userId", userId);
+		logData.put("username", userFullname);
+		logData.put("event", "user_leaving_bbb_voice");
+		logData.put("description", "User leaving BBB Voice.");
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+
+		log.info("User leaving bbb-voice: data={}", logStr);
+
+		clientConnManager.removeClient(clientId);
+
+		String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
+
+		if (peerId != null) {
 				try {
 					log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userId + "]", clientId);
 					sipPeerManager.hangup(peerId, clientId);
@@ -171,9 +202,9 @@ public class Application extends MultiThreadedApplicationAdapter {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-      }
-      super.appDisconnect(conn);
-    }
+		}
+		super.appDisconnect(conn);
+	}
     
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
