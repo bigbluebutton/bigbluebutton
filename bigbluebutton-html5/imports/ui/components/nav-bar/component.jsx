@@ -169,6 +169,7 @@ class NavBar extends Component {
       <div className={styles.navbar}>
         <div className={styles.left}>
           <Button
+            data-test="userListToggleButton"
             onClick={this.handleToggleUserList}
             ghost
             circle
