@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
@@ -28,10 +28,8 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
-  shortcuts: PropTypes.arrayOf({
-    keys: PropTypes.string.isRequired,
-    descId: PropTypes.string.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
   }).isRequired,
 };
 
@@ -48,20 +46,22 @@ class ShortcutHelpComponent extends React.PureComponent {
         }}
       >
         <table className={styles.shortcutTable}>
-          <tr>
-            <th className={styles.tableTitle}>{intl.formatMessage(intlMessages.firstColTitle)}</th>
-            <th className={styles.tableTitle}>{intl.formatMessage(intlMessages.secondColTitle)}</th>
-          </tr>
-          {shortcuts.map(shortcut => (
+          <tbody>
             <tr>
-              <td className={styles.keyCell}>{shortcut.keys}</td>
-              <td className={styles.descCell}>
-                {intl.formatMessage({
-                    id: `app.shortcut-help.${shortcut.descId}`,
-                })}
-              </td>
+              <th className={styles.tableTitle}>{intl.formatMessage(intlMessages.firstColTitle)}</th>
+              <th className={styles.tableTitle}>{intl.formatMessage(intlMessages.secondColTitle)}</th>
             </tr>
-          ))}
+            {shortcuts.map(shortcut => (
+              <tr key={shortcut.descId}>
+                <td className={styles.keyCell}>{shortcut.keys}</td>
+                <td className={styles.descCell}>
+                  {intl.formatMessage({
+                      id: `app.shortcut-help.${shortcut.descId}`,
+                  })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </Modal>
     );

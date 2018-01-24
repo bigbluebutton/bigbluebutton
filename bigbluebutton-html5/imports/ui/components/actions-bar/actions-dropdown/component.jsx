@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -81,16 +82,16 @@ class ActionsDropdown extends Component {
     } = this.props;
 
     return _.compact([
-      (<UploadPresentation />),
+      (<UploadPresentation key={this.presentationItemId} />),
       (Meteor.settings.public.kurento.enableScreensharing ?
         <DropdownListItem
           icon="desktop"
           label={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
           description={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
           key={this.videoItemId}
-          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
+          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
         />
-      : null),
+        : null),
     ]);
   }
 
@@ -98,9 +99,6 @@ class ActionsDropdown extends Component {
     const {
       intl,
       isUserPresenter,
-      handleShareScreen,
-      handleUnshareScreen,
-      isVideoBroadcasting,
     } = this.props;
 
     const availableActions = this.getAvailableActions();

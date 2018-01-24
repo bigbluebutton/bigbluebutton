@@ -7,6 +7,7 @@ import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';
 import UserActions from '../../user-list/user-list-content/user-participants/user-list-item/user-action/component';
+import FullScreenListItemContainer from '../../nav-bar/settings-dropdown/full-screen/container';
 
 const propTypes = {
   /*  We should recheck this proptype, sometimes we need to create an container and send to dropdown,
@@ -16,7 +17,9 @@ const propTypes = {
     if (propValue[key].type !== ListItem &&
       propValue[key].type !== ListSeparator &&
       propValue[key].type !== ListTitle &&
-      propValue[key].type !== UserActions) {
+      propValue[key].type !== UserActions &&
+      propValue[key].type !== FullScreenListItemContainer &&
+      propValue[key].type.name !== 'ModalMounterWrapper') {
       return new Error(`Invalid prop \`${propFullName}\` supplied to` +
         ` \`${componentName}\`. Validation failed.`);
     }

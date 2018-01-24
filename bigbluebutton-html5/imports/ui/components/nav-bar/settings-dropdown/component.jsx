@@ -38,12 +38,12 @@ class SettingsDropdown extends Component {
 
   componentWillMount() {
     this.menuItems = [
-      (<FullScreenListItemContainer />),
-      (<OpenSettingsListItem />),
-      (<OpenAboutListItem />),
-      (<ShortcutHelpListItem />),
+      (<FullScreenListItemContainer key={_.uniqueId('list-fullscreen-')} />),
+      (<OpenSettingsListItem key={_.uniqueId('list-settings-')} />),
+      (<OpenAboutListItem key={_.uniqueId('list-about-')} />),
+      (<ShortcutHelpListItem key={_.uniqueId('list-help-')} />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      (<LogoutListItem />),
+      (<LogoutListItem key={_.uniqueId('list-logout-')} />),
     ];
   }
 

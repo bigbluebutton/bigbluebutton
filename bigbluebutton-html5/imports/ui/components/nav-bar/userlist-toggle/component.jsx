@@ -10,7 +10,7 @@ const propTypes = {
   intl: intlShape.isRequired,
   isExpanded: PropTypes.bool.isRequired,
   handleToggleUserList: PropTypes.func.isRequired,
-  hasUnreadMessages: PropTypes.func.isRequired,
+  hasUnreadMessages: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
