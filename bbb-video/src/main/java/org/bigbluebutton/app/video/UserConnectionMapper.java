@@ -37,8 +37,8 @@ public class UserConnectionMapper {
      * @param connId
      * @return boolean - no more connections
      */
-    public synchronized void userDisconnected(String connId) {
-        users.remove(connId);
+    public synchronized UserConnection userDisconnected(String connId) {
+        return users.remove(connId);
     }
 
     public class UserConnection {

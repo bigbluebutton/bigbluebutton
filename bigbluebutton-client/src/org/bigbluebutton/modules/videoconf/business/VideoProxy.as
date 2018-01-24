@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 	    public function connect():void {
-				var authToken: String = "FOOOOOOO-BARRRR!!!!!!"; //LiveMeeting.inst().me.authToken;
+				var authToken: String = LiveMeeting.inst().me.authToken;
 	      nc.connect(_url, UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), authToken);
 	    }
 	    
