@@ -21,6 +21,8 @@ package org.bigbluebutton.voiceconf.red5;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.bigbluebutton.voiceconf.messaging.IMessagingService;
 import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.sip.PeerNotFoundException;
 import org.bigbluebutton.voiceconf.sip.SipPeerManager;
@@ -50,6 +52,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 	private CallStreamFactory callStreamFactory;
 
 	private ConnectionInvokerService connInvokerService;
+	private IMessagingService messagingService;
 
     @Override
     public boolean appStart(IScope scope) {
@@ -66,6 +69,8 @@ public class Application extends MultiThreadedApplicationAdapter {
       	// TODO Auto-generated catch block
       	e.printStackTrace();
       }
+
+		connInvokerService.setAppScope(scope);
       return super.appStart(scope);
     }
 
@@ -284,5 +289,9 @@ public class Application extends MultiThreadedApplicationAdapter {
 
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
 		this.connInvokerService = connInvokerService;
+	}
+
+	public void setMessagingService(IMessagingService service) {
+		messagingService = service;
 	}
 }

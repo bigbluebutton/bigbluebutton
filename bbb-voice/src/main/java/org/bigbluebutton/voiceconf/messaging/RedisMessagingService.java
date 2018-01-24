@@ -28,14 +28,14 @@ public class RedisMessagingService implements IMessagingService {
 	private Map<String, String> buildRouting() {
 		Map<String, String> routing = new HashMap<String, String>();
 		routing.put("msgType", "SYSTEM");
-		routing.put("sender", "bbb-video");
+		routing.put("sender", "bbb-voice");
 		return routing;
 	}
 
 	public void validateConnAuthToken(String meetingId, String userId, String authToken, String connId) {
 		BbbCoreBaseHeader header = new BbbCoreBaseHeader("ValidateConnAuthTokenSysMsg");
 		ValidateConnAuthTokenSysMsgBody body = new ValidateConnAuthTokenSysMsgBody(meetingId,
-				userId, authToken, connId, "VIDEO");
+				userId, authToken, connId, "VOICE");
 		ValidateConnAuthTokenSysMsg msg = new ValidateConnAuthTokenSysMsg(header, body);
 
 		Map<String, String> routing = buildRouting();

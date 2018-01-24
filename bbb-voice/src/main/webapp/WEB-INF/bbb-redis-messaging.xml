@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="port" value="${redis.port}"/>
 	</bean>
 
-	<bean id="meetingMessageHandler" class="org.bigbluebutton.red5.pubsub.MeetingMessageHandler">
+	<bean id="meetingMessageHandler" class="org.bigbluebutton.voiceconf.messaging.MeetingMessageHandler">
 		<property name="connInvokerService" ref="connInvokerService"/>
 	</bean>
 
