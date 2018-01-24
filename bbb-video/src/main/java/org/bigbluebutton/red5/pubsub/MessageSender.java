@@ -53,16 +53,16 @@ public class MessageSender {
 			sendMessage = true;
 			
 			Runnable messageSender = new Runnable() {
-			    public void run() {
-			    	while (sendMessage) {
-				    	try {
+				public void run() {
+					while (sendMessage) {
+						try {
 							MessageToSend msg = messages.take();
 							publish(msg.getChannel(), msg.getMessage());
 						} catch (InterruptedException e) {
 							log.warn("Failed to get org.bigbluebutton.red5.pubsub.message from queue.");
-						}    			    		
-			    	}
-			    }
+						}
+					}
+				}
 			};
 			msgSenderExec.execute(messageSender);
 		} catch (Exception e) {
@@ -77,16 +77,16 @@ public class MessageSender {
 	
 	private void publish(final String channel, final String message) {
 		Runnable task = new Runnable() {
-		    public void run() {
-		  		Jedis jedis = redisPool.getResource();
-		  		try {
-		  			jedis.publish(channel, message);
-		  		} catch(Exception e){
-		  			log.warn("Cannot publish the org.bigbluebutton.red5.pubsub.message to redis", e);
-		  		} finally {
-		  			redisPool.returnResource(jedis);
-		  		}	    	
-		    }
+			public void run() {
+				Jedis jedis = redisPool.getResource();
+				try {
+					jedis.publish(channel, message);
+				} catch(Exception e){
+					log.warn("Cannot publish the org.bigbluebutton.red5.pubsub.message to redis", e);
+				} finally {
+					redisPool.returnResource(jedis);
+				}
+			}
 		};
 		
 		runExec.execute(task);

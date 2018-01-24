@@ -48,7 +48,9 @@ public class Application extends MultiThreadedApplicationAdapter {
 	private String password = "secret";
 	private String username;
 	private CallStreamFactory callStreamFactory;
-	
+
+	private ConnectionInvokerService connInvokerService;
+
     @Override
     public boolean appStart(IScope scope) {
     	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
@@ -278,5 +280,9 @@ public class Application extends MultiThreadedApplicationAdapter {
 		String username = (String) Red5.getConnectionLocal().getAttribute("USERNAME");
 		if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
 		return username;
+	}
+
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
 	}
 }

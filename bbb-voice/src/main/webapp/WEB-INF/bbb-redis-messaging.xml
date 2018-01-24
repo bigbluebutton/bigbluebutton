@@ -27,32 +27,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 	
-  <bean id="messagingService" class="org.bigbluebutton.voiceconf.messaging.RedisMessagingService">
-      <property name="redisMessageSender"> <ref bean="redisMessageSender"/></property>
-  </bean>
-      	
-    <bean id="redisMessageSender" class="org.bigbluebutton.voiceconf.messaging.MessageSender" 
-                    init-method="start" destroy-method="stop">
-    	<property name="redisPool"> <ref bean="redisPool"/></property>
-  	</bean>
-<!--
-    <bean id="redisMessageReceiver" class="org.bigbluebutton.voiceconf.messaging.MessageReceiver" 
-                    init-method="start" destroy-method="stop">
-    	<property name="redisPool"> <ref bean="redisPool"/></property>
-    	<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
-  	</bean>
+	<bean id="messagingService" class="org.bigbluebutton.voiceconf.messaging.RedisMessagingService">
+		<property name="redisMessageSender"> <ref bean="redisMessageSender"/></property>
+	</bean>
 
-    <bean id="redisMessageHandler" class="org.bigbluebutton.voiceconf.messaging.ReceivedMessageHandler" 
-                    init-method="start" destroy-method="stop">
-      <property name="messageDistributor"><ref bean="redisMessageDistributor" /></property>
-    </bean>
-  	
-  	<bean id="redisMessageDistributor" class="org.bigbluebutton.voiceconf.messaging.MessageDistributor">
-  	     <property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
-  	     <property name="messageListeners">
-            <set>
-            </set>
-        </property> 
-  	</bean>	  	
---> 
+	<bean id="redisMessageSender" class="org.bigbluebutton.voiceconf.messaging.MessageSender"
+		  init-method="start" destroy-method="stop">
+		<property name="host" value="${redis.host}"/>
+		<property name="port" value="${redis.port}"/>
+	</bean>
+
+	<bean id="meetingMessageHandler" class="org.bigbluebutton.red5.pubsub.MeetingMessageHandler">
+		<property name="connInvokerService" ref="connInvokerService"/>
+	</bean>
+
+	<bean id="redisMessageReceiver" class="org.bigbluebutton.voiceconf.messaging.MessageReceiver"
+		  init-method="start" destroy-method="stop">
+		<property name="host" value="${redis.host}"/>
+		<property name="port" value="${redis.port}"/>
+		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
+	</bean>
+
+	<bean id="redisMessageHandler" class="org.bigbluebutton.voiceconf.messaging.ReceivedMessageHandler"
+		  init-method="start" destroy-method="stop">
+		<property name="messageDistributor"><ref bean="redisMessageDistributor" /></property>
+	</bean>
+
+	<bean id="redisMessageDistributor" class="org.bigbluebutton.voiceconf.messaging.MessageDistributor">
+		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
+		<property name="messageListeners">
+			<set>
+				<ref bean="meetingMessageHandler" />
+			</set>
+		</property>
+	</bean>
+
 </beans>
