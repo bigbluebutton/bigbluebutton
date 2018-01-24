@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
-import styles from './styles.scss';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   shortcutTitle: {
