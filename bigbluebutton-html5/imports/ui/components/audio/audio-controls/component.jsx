@@ -35,6 +35,11 @@ const propTypes = {
   join: PropTypes.bool.isRequired,
   glow: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
+  glow: PropTypes.bool,
+};
+
+const defaultProps = {
+  glow: false,
 };
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
@@ -94,5 +99,6 @@ const AudioControls = ({
   </span>);
 
 AudioControls.propTypes = propTypes;
+AudioControls.defaultProps = defaultProps;
 
 export default injectIntl(AudioControls);

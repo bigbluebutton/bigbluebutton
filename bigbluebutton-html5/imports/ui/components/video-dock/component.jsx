@@ -1,8 +1,34 @@
 import React, { Component } from 'react';
-import ScreenshareContainer from '/imports/ui/components/screenshare/container';
 import { styles } from './styles';
+import { defineMessages, injectIntl } from 'react-intl';
+import VideoService from './service';
 import { log } from '/imports/ui/services/api';
+import { notify } from '/imports/ui/services/notification';
+import { toast } from 'react-toastify';
+import Toast from '/imports/ui/components/toast/component';
 
+const intlMessages = defineMessages({
+  iceCandidateError: {
+    id: 'app.video.iceCandidateError',
+    description: 'Error message for ice candidate fail',
+  },
+  permissionError: {
+    id: 'app.video.permissionError',
+    description: 'Error message for webcam permission',
+  },
+  sharingError: {
+    id: 'app.video.sharingError',
+    description: 'Error on sharing webcam',
+  },
+  chromeExtensionError: {
+    id: 'app.video.chromeExtensionError',
+    description: 'Error message for Chrome Extension not installed',
+  },
+  chromeExtensionErrorLink: {
+    id: 'app.video.chromeExtensionErrorLink',
+    description: 'Error message for Chrome Extension not installed',
+  },
+});
 
 class VideoElement extends Component {
   constructor(props) {
@@ -18,7 +44,7 @@ class VideoElement extends Component {
   }
 }
 
-export default class VideoDock extends Component {
+class VideoDock extends Component {
   constructor(props) {
     super(props);
 
@@ -27,7 +53,7 @@ export default class VideoDock extends Component {
     this.wsQueue = [];
     this.webRtcPeers = {};
     this.reconnectWebcam = false;
-    this.reconnectList = false;
+    this.reconnectList = [];
     this.sharedCameraTimeout = null;
     this.subscribedCamerasTimeouts = [];
 
@@ -35,9 +61,6 @@ export default class VideoDock extends Component {
       videos: {},
       sharedWebcam : false,
     };
-
-    this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
-    this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
@@ -78,17 +101,17 @@ export default class VideoDock extends Component {
 
   componentDidMount() {
     const ws = this.ws;
-    const { users } = this.props;
-    const id = users[0].userId;
+    const { users, userId } = this.props;
 
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].has_stream && users[i].userId !== id) {
-        this.start(users[i].userId, false);
+    users.forEach((user) => {
+      if (user.has_stream && user.userId !== userId) {
+        this.start(user.userId, false);
       }
-    }
+    })
 
     document.addEventListener('joinVideo', this.shareWebcam.bind(this));// TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam.bind(this));
+    document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
 
     window.addEventListener('resize', this.adjustVideos);
 
@@ -98,22 +121,32 @@ export default class VideoDock extends Component {
   componentWillMount () {
     this.ws.addEventListener('open', this.onWsOpen);
     this.ws.addEventListener('close', this.onWsClose);
+
+    window.addEventListener('online', this.ws.open.bind(this.ws));
+    window.addEventListener('offline', this.ws.close.bind(this.ws));
   }
 
   componentWillUnmount () {
     document.removeEventListener('joinVideo', this.shareWebcam);
-    document.removeEventListener('exitVideo', this.shareWebcam);
+    document.removeEventListener('exitVideo', this.unshareWebcam);
+    document.removeEventListener('installChromeExtension', this.installChromeExtension);
     window.removeEventListener('resize', this.adjustVideos);
 
     this.ws.removeEventListener('message', this.onWsMessage);
     this.ws.removeEventListener('open', this.onWsOpen);
     this.ws.removeEventListener('close', this.onWsClose);
     // Close websocket connection to prevent multiple reconnects from happening
+
+    window.removeEventListener('online', this.ws.open);
+    window.removeEventListener('offline', this.ws.close);
+
     this.ws.close();
   }
 
   adjustVideos () {
-    window.adjustVideos('webcamArea', true);
+    setTimeout(() => {
+      window.adjustVideos('webcamArea', true);
+    }, 0);
   }
 
   onWsOpen () {
@@ -134,6 +167,7 @@ export default class VideoDock extends Component {
   }
 
   onWsMessage (msg) {
+    const { intl } = this.props;
     const parsedMessage = JSON.parse(msg.data);
 
     console.log('Received message new ws message: ');
@@ -166,6 +200,7 @@ export default class VideoDock extends Component {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
+                this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
                 return log('error', `Error adding candidate: ${err}`);
               }
             });
@@ -185,7 +220,9 @@ export default class VideoDock extends Component {
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
 
     if (shareWebcam) {
+      VideoService.joiningVideo();
       this.setState({sharedWebcam: true});
+      this.myId = id;
       this.initWebRTC(id, true);
     } else {
       // initWebRTC with shareWebcam false will be called after react mounts the element
@@ -195,6 +232,7 @@ export default class VideoDock extends Component {
 
   initWebRTC(id, shareWebcam) {
     let that = this;
+    const { intl } = this.props;
 
     const onIceCandidate = function (candidate) {
       const message = {
@@ -241,10 +279,16 @@ export default class VideoDock extends Component {
     let webRtcPeer = new peerObj(options, function (error) {
       if (error) {
         log('error', ' WebRTC peerObj create error');
+        log('error', error);
+        that.notifyError(intl.formatMessage(intlMessages.permissionError));
+        /* This notification error is displayed considering kurento-utils 
+         * returned the error 'The request is not allowed by the user agent 
+         * or the platform in the current context.', but there are other
+         * errors that could be returned. */
 
         that.destroyWebRTCPeer(id);
         that.destroyVideoTag(id);
-
+        VideoService.resetState();
         return log('error', error);
       }
 
@@ -254,7 +298,6 @@ export default class VideoDock extends Component {
       that.webRtcPeers[id] = webRtcPeer;
       if (shareWebcam) {
         that.sharedWebcam = webRtcPeer;
-        that.myId = id;
       }
 
       this.generateOffer((error, offerSdp) => {
@@ -281,6 +324,7 @@ export default class VideoDock extends Component {
         let candidate = this.iceQueue.shift();
         this.addIceCandidate(candidate, (err) => {
           if (err) {
+            this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
             return console.error(`Error adding candidate: ${err}`);
           }
         });
@@ -301,10 +345,10 @@ export default class VideoDock extends Component {
   }
 
   stop(id) {
-    const { users } = this.props;
+    const { userId } = this.props;
     this.sendMessage({
       type: 'video',
-      role: id == users[0].userId ? 'share' : 'viewer',
+      role: id == userId ? 'share' : 'viewer',
       id: 'stop',
       cameraId: id,
     });
@@ -350,21 +394,21 @@ export default class VideoDock extends Component {
   }
 
   shareWebcam() {
-    const { users } = this.props;
-    const id = users[0].userId;
+    const { users, userId } = this.props;
 
     if (this.connectedToMediaServer()) {
-      this.start(id, true);
+      this.start(userId, true);
     } else {
-      log("error", "Not connected to media server BRA");
+      log("error", "Not connected to media server");
     }
   }
 
   unshareWebcam() {
+    VideoService.exitingVideo();
     log('info', 'Unsharing webcam');
-    const { users } = this.props;
-    const id = users[0].userId;
-    this.sendUserUnshareWebcam(id);
+    const { userId } = this.props;
+    VideoService.sendUserUnshareWebcam(userId);
+    VideoService.exitedVideo();
   }
 
   startResponse(message) {
@@ -387,7 +431,10 @@ export default class VideoDock extends Component {
       }
     });
 
-    this.sendUserShareWebcam(id);
+    if (message.cameraId == this.props.userId) {
+      log('info', "camera id sendusershare ", id);
+      VideoService.sendUserShareWebcam(id);
+    }
   }
 
   sendMessage(message) {
@@ -423,7 +470,7 @@ export default class VideoDock extends Component {
 
     const { users } = this.props;
 
-    if (message.cameraId == users[0].userId) {
+    if (message.cameraId == this.props) {
       this.unshareWebcam();
     } else {
       this.stop(message.cameraId);
@@ -432,11 +479,29 @@ export default class VideoDock extends Component {
 
   handlePlayStart(message) {
     log('info', 'Handle play start <===================');
+
+    if (message.cameraId == this.props.userId) {
+      VideoService.joinedVideo();
+    }
   }
 
   handleError(message) {
+    const { intl } = this.props;
+    this.notifyError(intl.formatMessage(intlMessages.sharingError));
+
     console.error(' Handle error --------------------->');
     log('debug', message.message);
+  }
+
+  notifyError(message) {
+    notify(message, 'error', 'video');
+  }
+
+  installChromeExtension() {
+    const { intl } = this.props;
+    const CHROME_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+
+    this.notifyError(<div>{intl.formatMessage(intlMessages.chromeExtensionError)} <a href={CHROME_EXTENSION_LINK} target="_blank">{intl.formatMessage(intlMessages.chromeExtensionErrorLink)}</a></div>);
   }
 
   componentDidUpdate() {
@@ -466,9 +531,8 @@ export default class VideoDock extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { users } = this.props;
+    const { users, userId } = this.props;
     const nextUsers = nextProps.users;
-    const id = users[0].userId;
 
     if (users) {
       let suc = false;
@@ -480,7 +544,7 @@ export default class VideoDock extends Component {
             console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
             if (nextUsers[i].has_stream) {
-              if (id !== users[i].userId) {
+              if (userId !== users[i].userId) {
                 this.start(users[i].userId, false);
               }
             } else {
@@ -501,4 +565,7 @@ export default class VideoDock extends Component {
 
     return false;
   }
+
 }
+
+export default injectIntl(VideoDock);

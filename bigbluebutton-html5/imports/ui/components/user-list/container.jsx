@@ -18,7 +18,7 @@ const propTypes = {
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
-  kickUser: PropTypes.func.isRequired,
+  removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
@@ -37,7 +37,7 @@ const UserListContainer = (props) => {
     isPublicChat,
     setEmojiStatus,
     assignPresenter,
-    kickUser,
+    removeUser,
     toggleVoice,
     changeRole,
     roving,
@@ -52,7 +52,7 @@ const UserListContainer = (props) => {
       isBreakoutRoom={isBreakoutRoom}
       setEmojiStatus={setEmojiStatus}
       assignPresenter={assignPresenter}
-      kickUser={kickUser}
+      removeUser={removeUser}
       toggleVoice={toggleVoice}
       changeRole={changeRole}
       getAvailableActions={getAvailableActions}
@@ -78,7 +78,7 @@ export default withTracker(({ params }) => ({
   isPublicChat: Service.isPublicChat,
   setEmojiStatus: Service.setEmojiStatus,
   assignPresenter: Service.assignPresenter,
-  kickUser: Service.kickUser,
+  removeUser: Service.removeUser,
   toggleVoice: Service.toggleVoice,
   changeRole: Service.changeRole,
   roving: Service.roving,

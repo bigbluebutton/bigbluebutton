@@ -59,6 +59,7 @@ case class MeetingExtensionStatus(
 case class Meeting3x(
   permissions:                    Permissions,
   isRecording:                    Boolean                = false,
+  webcamsOnlyForModerator:        Boolean                = false,
   muted:                          Boolean                = false,
   ended:                          Boolean                = false,
   hasLastWebUserLeft:             Boolean                = false,
