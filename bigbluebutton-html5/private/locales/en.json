@@ -283,8 +283,6 @@
     "app.video.chromeExtensionError": "You must install",
     "app.video.chromeExtensionErrorLink": "this Chrome Extension",
     "app.meeting.endNotification.ok.label": "OK",
-    "app.video.joinVideo": "Share webcam",
-    "app.video.leaveVideo": "Unshare webcam",
     "app.whiteboard.toolbar.tools": "Tools",
     "app.whiteboard.toolbar.tools.hand": "Hand",
     "app.whiteboard.toolbar.tools.pencil": "Pencil",
