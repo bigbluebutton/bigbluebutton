@@ -39,6 +39,7 @@ const UserAvatar = ({
   className,
 }) => (
   <div
+    data-test="userAvatar"
     className={cx(styles.avatar, {
       [styles.moderator]: moderator,
       [styles.presenter]: presenter,

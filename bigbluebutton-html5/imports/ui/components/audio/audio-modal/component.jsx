@@ -193,17 +193,17 @@ class AudioModal extends Component {
         <Button
           className={styles.audioBtn}
           label={intl.formatMessage(intlMessages.microphoneLabel)}
-          icon={'unmute'}
+          icon="unmute"
           circle
-          size={'jumbo'}
+          size="jumbo"
           onClick={this.handleGoToEchoTest}
         />
         <Button
           className={styles.audioBtn}
           label={intl.formatMessage(intlMessages.listenOnlyLabel)}
-          icon={'listen'}
+          icon="listen"
           circle
-          size={'jumbo'}
+          size="jumbo"
           onClick={this.handleJoinListenOnly}
         />
       </span>
@@ -304,13 +304,17 @@ class AudioModal extends Component {
           onRequestClose={this.closeModal}
         >
           { isConnecting ? null :
-          <header className={styles.header}>
+          <header
+            data-test="audioModalHeader"
+            className={styles.header}
+          >
             <h3 className={styles.title}>
               { content ?
                 this.contents[content].title :
                 intl.formatMessage(intlMessages.audioChoiceLabel)}
             </h3>
             <Button
+              data-test="modalBaseCloseButton"
               className={styles.closeBtn}
               label={intl.formatMessage(intlMessages.closeLabel)}
               icon={'close'}

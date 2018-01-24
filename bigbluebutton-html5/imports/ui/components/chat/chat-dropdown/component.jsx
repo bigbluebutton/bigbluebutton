@@ -44,6 +44,11 @@ class ChatDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.actionsKey = [
+      _.uniqueId('action-item-'),
+      _.uniqueId('action-item-'),
+      _.uniqueId('action-item-'),
+    ];
   }
 
   componentDidMount() {
@@ -76,34 +81,37 @@ class ChatDropdown extends Component {
     const copyIcon = 'copy';
 
     return _.compact([
-      (<DropdownListItem
+      <DropdownListItem
         icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
-        key={_.uniqueId('action-item-')}
+        key={this.actionsKey[0]}
         onClick={() => {
           const link = document.createElement('a');
           const mimeType = 'text/plain';
 
           link.setAttribute('download', `public-chat-${Date.now()}.txt`);
-          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicMessages()))}`);
+          link.setAttribute(
+            'href',
+            `data: ${mimeType} ;charset=utf-8,
+            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicMessages()))}`,
+          );
           link.click();
         }}
-      />),
-      (<DropdownListItem
+      />,
+      <DropdownListItem
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
-        key={_.uniqueId('action-item-')}
-      />),
-      (Acl.can('methods.clearPublicChatHistory', Auth.credentials) ?
+        key={this.actionsKey[1]}
+      />,
+      Acl.can('methods.clearPublicChatHistory', Auth.credentials) ? (
         <DropdownListItem
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
-          key={_.uniqueId('action-item-')}
+          key={this.actionsKey[2]}
           onClick={ChatService.clearPublicChatHistory}
         />
-        : null),
+      ) : null,
     ]);
   }
 
@@ -113,7 +121,6 @@ class ChatDropdown extends Component {
     const availableActions = this.getAvailableActions();
 
     return (
-
       <Dropdown
         isOpen={this.state.isSettingOpen}
         onShow={this.onActionsShow}
@@ -121,6 +128,7 @@ class ChatDropdown extends Component {
       >
         <DropdownTrigger tabIndex={0}>
           <Button
+            data-test="chatDropdownTrigger"
             className={styles.btn}
             icon="more"
             ghost
@@ -133,9 +141,7 @@ class ChatDropdown extends Component {
           />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
-          <DropdownList>
-            {availableActions}
-          </DropdownList>
+          <DropdownList>{availableActions}</DropdownList>
         </DropdownContent>
       </Dropdown>
     );
