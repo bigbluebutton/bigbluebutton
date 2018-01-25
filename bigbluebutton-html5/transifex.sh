@@ -4,6 +4,7 @@
 RED='\033[0;31m'
 GREEN='\033[1;32m'
 NC='\033[0m'
+SOURCE_LANGUAGE="en"
 
 if [ "$#" = 0 ]
 then
@@ -32,6 +33,9 @@ else
           echo "$AVAILABLE_TRANSLATIONS" | while read l
             do
               LOCALE=$( echo "$l" | tr -d '[:space:]' )
+              if [ "$LOCALE" == "$SOURCE_LANGUAGE" ]; then
+                continue # do not pull the source file
+              fi
               TRANSLATION=$(curl -L --user "$USER":"$PW" -X GET "https://www.transifex.com/api/2/project/bigbluebutton-html5/resource/enjson/translation/$LOCALE/?mode=onlytranslated&file")
               NO_EMPTY_STRINGS=$(echo "$TRANSLATION" | sed '/: *\"\"/D' | sed '/}$/D')
               if [ $(echo "$NO_EMPTY_STRINGS" | wc -l) == 1 ]
