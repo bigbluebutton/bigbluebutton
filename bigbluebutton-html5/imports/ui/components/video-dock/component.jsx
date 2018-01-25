@@ -566,38 +566,60 @@ class VideoDock extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { users, userId } = this.props;
+    const { userId } = this.props;
+    const currentUsers = this.props.users || {};
     const nextUsers = nextProps.users;
 
-    if (users) {
-      let suc = false;
+    let users = {};
+    let present = {};
 
-      for (let i = 0; i < users.length; i++) {
-        if (users && users[i] &&
-              nextUsers && nextUsers[i]) {
-          if (users[i].has_stream !== nextUsers[i].has_stream) {
-            console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
+    if (!currentUsers)
+      return false;
 
-            if (nextUsers[i].has_stream) {
-              if (userId !== users[i].userId) {
-                this.start(users[i].userId, false);
-              }
-            } else {
-              this.stop(users[i].userId);
-            }
+    // Map user objectos to an object in the form {userId: has_stream}
+    currentUsers.forEach((user) => {
+      users[user.userId] = user.has_stream;
+    });
 
-            if (!nextUsers[i].has_stream) {
-              this.destroyVideoTag(users[i].userId);
-            }
+    // Keep instances where the flag has changed or next user adds it
+    nextUsers.forEach((user) => {
+      let id = user.userId;
+      // The case when a user exists and stream status has not changed
+      if (users[id] === user.has_stream) {
+        delete users[id];
+      } else {
+        // Case when a user has been added to the list
+        users[id] = user.has_stream;
+      }
 
-            suc = suc || true;
-          }
+      // Mark the ids which are present in nextUsers
+      present[id] = true;
+    });
+
+    console.log(users);
+    const userIds = Object.keys(users);
+
+    for (let i = 0; i < userIds.length; i++) {
+      let id = userIds[i];
+
+      // 
+      if (!present[id]) {
+        this.stop(id);
+        continue;
+      }
+
+      console.log(`User ${users[id] ? '' : 'un'}shared webcam ${id}`);
+
+      if (users[id]) {
+        if (userId !== id) {
+          this.start(id, false);
         }
       }
-      return true;
+      else {
+        this.stop(id);
+      }
     }
-
-    return false;
+    return true;
   }
 
 }
