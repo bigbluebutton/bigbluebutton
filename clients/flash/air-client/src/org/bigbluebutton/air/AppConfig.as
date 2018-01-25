@@ -63,7 +63,6 @@ package org.bigbluebutton.air {
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
-			injector.map(IWhiteboardService).toSingleton(WhiteboardService);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
 			injector.map(IChatMessageService).toSingleton(ChatMessageService);
 			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);

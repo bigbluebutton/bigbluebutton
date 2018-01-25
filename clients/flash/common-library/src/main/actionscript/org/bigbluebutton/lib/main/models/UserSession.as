@@ -31,7 +31,7 @@ package org.bigbluebutton.lib.main.models {
 		protected var _userList:UserList;
 		
 		protected var _presentationList:PresentationList;
-		
+				
 		protected var _recording:Boolean;
 		
 		protected var _phoneOptions:PhoneOptions;
@@ -193,7 +193,7 @@ package org.bigbluebutton.lib.main.models {
 		}
 		
 		public function get presentationList():PresentationList {
-			return _presentationList
+			return _presentationList;
 		}
 		
 		public function get loadedMessageHistorySignal():ISignal {

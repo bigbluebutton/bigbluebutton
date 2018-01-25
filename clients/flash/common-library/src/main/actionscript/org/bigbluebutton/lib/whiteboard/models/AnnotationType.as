@@ -12,5 +12,7 @@ package org.bigbluebutton.lib.whiteboard.models {
 		public static const LINE:String = "line";
 		
 		public static const TEXT:String = "text";
+		
+		public static const POLL:String = "poll";
 	}
 }
