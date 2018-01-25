@@ -138,6 +138,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
+
+		if(params.length != 10) {
+			log.error("Invalid number of parameters. param length=" + params.length);
+			return false;
+		}
+
 		String username = ((String) params[0]).toString();
 		String role = ((String) params[1]).toString();
 		String room = ((String)params[2]).toString();
