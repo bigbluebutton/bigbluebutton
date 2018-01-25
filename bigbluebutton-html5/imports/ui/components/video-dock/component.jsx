@@ -32,6 +32,7 @@ const intlMessages = defineMessages({
 
 const RECONNECT_WAIT_TIME = 5000;
 const INITIAL_SHARE_WAIT_TIME = 2000;
+const CAMERA_SHARE_FAILED_WAIT_TIME = 15000;
 
 class VideoElement extends Component {
   constructor(props) {
@@ -57,8 +58,7 @@ class VideoDock extends Component {
     this.webRtcPeers = {};
     this.reconnectWebcam = false;
     this.reconnectList = [];
-    this.sharedCameraTimeout = null;
-    this.subscribedCamerasTimeouts = [];
+    this.cameraTimeouts = {};
 
     this.state = {
       videos: {},
@@ -186,10 +186,6 @@ class VideoDock extends Component {
         this.startResponse(parsedMessage);
         break;
 
-      case 'error':
-        this.handleError(parsedMessage);
-        break;
-
       case 'playStart':
         this.handlePlayStart(parsedMessage);
         break;
@@ -218,13 +214,30 @@ class VideoDock extends Component {
           log('error', ' [ICE] Message arrived after the peer was already thrown out, discarding it...');
         }
         break;
+
+      case 'error':
+      default:
+        this.handleError(parsedMessage);
+        break;
     }
   };
 
   start(id, shareWebcam) {
     const that = this;
+    const { intl } = this.props;
 
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
+
+    this.cameraTimeouts[id] = setTimeout(() => {
+      log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
+      if (that.myId == id) {
+        this.notifyError(intl.formatMessage(intlMessages.sharingError));
+        that.stop(id);
+      } else {
+        that.stop(id);
+        that.start(id, shareWebcam);
+      }
+    }, CAMERA_SHARE_FAILED_WAIT_TIME);
 
     if (shareWebcam) {
       VideoService.joiningVideo();
@@ -389,6 +402,10 @@ class VideoDock extends Component {
   destroyWebRTCPeer(id) {
     const webRtcPeer = this.webRtcPeers[id];
 
+    // Clear the shared camera fail timeout when destroying
+    clearTimeout(this.cameraTimeouts[id]);
+    this.cameraTimeouts[id] = null;
+
     if (webRtcPeer) {
       log('info', 'Stopping WebRTC peer');
 
@@ -439,12 +456,12 @@ class VideoDock extends Component {
       if (error) {
         return log('error', error);
       }
-    });
 
-    if (message.cameraId == this.props.userId) {
-      log('info', "camera id sendusershare ", id);
-      VideoService.sendUserShareWebcam(id);
-    }
+      if (message.cameraId == this.props.userId) {
+        log('info', "camera id sendusershare ", id);
+        VideoService.sendUserShareWebcam(id);
+      }
+    });
   }
 
   sendMessage(message) {
@@ -488,6 +505,10 @@ class VideoDock extends Component {
   handlePlayStart(message) {
     log('info', 'Handle play start <===================');
 
+    // Clear camera shared timeout when camera succesfully starts
+    clearTimeout(this.cameraTimeouts[message.cameraId]);
+    this.cameraTimeouts[message.cameraId] = null;
+
     if (message.cameraId == this.props.userId) {
       VideoService.joinedVideo();
     }
@@ -495,10 +516,10 @@ class VideoDock extends Component {
 
   handleError(message) {
     const { intl, userId } = this.props;
-    this.notifyError(intl.formatMessage(intlMessages.sharingError));
 
     if (message.cameraId == userId) {
       this.unshareWebcam();
+      this.notifyError(intl.formatMessage(intlMessages.sharingError));
     } else {
       this.stop(message.cameraId);
     }
