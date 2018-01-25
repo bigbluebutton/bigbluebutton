@@ -34,7 +34,7 @@ var _onMessage = function (_message) {
   let iceQueues = {};
   let iceQueue;
 
-  if (typeof message.cameraId === 'undefined' || !message.cameraId) {
+  if (!message.cameraId) {
     console.log("  [VideoManager] Undefined message.cameraId for session ", sessionId);
     return;
   }
@@ -118,7 +118,7 @@ var _onMessage = function (_message) {
         video.onIceCandidate(message.candidate);
       } else {
         console.log(" [iceCandidate] Queueing ice candidate for later in video " + cameraId);
-        if (typeof iceQueue === 'undefined' || !iceQueue) {
+        if (!iceQueue) {
           iceQueues[sessionId][cameraId] = [];
           iceQueue = iceQueues[sessionId][cameraId];
         }

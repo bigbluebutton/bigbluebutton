@@ -494,10 +494,10 @@ class VideoDock extends Component {
   }
 
   handleError(message) {
-    const { intl } = this.props;
+    const { intl, userId } = this.props;
     this.notifyError(intl.formatMessage(intlMessages.sharingError));
 
-    if (message.cameraId == this.props.userId) {
+    if (message.cameraId == userId) {
       this.unshareWebcam();
     } else {
       this.stop(message.cameraId);
