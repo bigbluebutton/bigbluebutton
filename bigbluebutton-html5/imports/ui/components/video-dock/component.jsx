@@ -130,7 +130,7 @@ class VideoDock extends Component {
     this.ws.addEventListener('close', this.onWsClose);
 
     window.addEventListener('online', this.ws.open.bind(this.ws));
-    window.addEventListener('offline', this.ws.close.bind(this.ws));
+    window.addEventListener('offline', this.onWsClose);
   }
 
   componentWillUnmount () {
@@ -144,8 +144,8 @@ class VideoDock extends Component {
     this.ws.removeEventListener('close', this.onWsClose);
     // Close websocket connection to prevent multiple reconnects from happening
 
-    window.removeEventListener('online', this.ws.open);
-    window.removeEventListener('offline', this.ws.close);
+    window.removeEventListener('online', this.ws.open.bind(this.ws));
+    window.removeEventListener('offline', this.onWsClose);
 
     this.ws.close();
   }
