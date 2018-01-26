@@ -49,6 +49,10 @@ exports.EVENT.MEDIA_STATE.FLOW_IN = "MediaFlowInStateChange"
 exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
 
+// Error codes
+exports.ERROR = {};
+exports.ERROR.MEDIA_SERVER_OFFLINE = "1000";
+
 // RTP params
 exports.SDP = {};
 exports.SDP.PARAMS = "params"

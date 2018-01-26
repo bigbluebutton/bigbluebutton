@@ -27,16 +27,24 @@ module.exports = class MediaServer extends EventEmitter {
   async init () {
     if (typeof this._mediaServer === 'undefined' || !this._mediaServer) {
       this._mediaServer = await this._getMediaServerClient(this._serverUri);
+      Logger.info("[mcs-media] Retrieved media server client => " + this._mediaServer);
+
+      this._mediaServer.on('disconnect', (err) => {
+        Logger.error('[mcs-media] Media server was disconnected for some reason, will have to clean up all elements and notify users');
+        this._destroyElements();
+        this._destroyMediaServer();
+        this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
+      });
     }
   }
 
   _getMediaServerClient (serverUri) {
     return new Promise((resolve, reject) =>  {
-      mediaServerClient(serverUri, (error, client) => {
+      mediaServerClient(serverUri, {failAfter: 3}, (error, client) => {
         if (error) {
           reject(error);
         }
-        Logger.info("[mcs-media] Retrieved media server client => " + client);
+
         resolve(client);
       });
     });
@@ -269,5 +277,23 @@ module.exports = class MediaServer extends EventEmitter {
 
   notifyMediaState (elementId, eventTag, event) {
     this.emit(C.MEDIA_STATE.MEDIA_EVENT , {elementId, eventTag, event});
+  }
+
+  _destroyElements() {
+    for (var pipeline in this._mediaPipelines) {
+      if (this._mediaPipelines.hasOwnProperty(pipeline)) {
+        delete this._mediaPipelines[pipeline];
+      }
+    }
+
+    for (var element in this._mediaElements) {
+      if (this._mediaElements.hasOwnProperty(element)) {
+        delete this._mediaElements[element];
+      }
+    }
+  }
+
+  _destroyMediaServer() {
+    delete this._mediaServer;
   }
 };
