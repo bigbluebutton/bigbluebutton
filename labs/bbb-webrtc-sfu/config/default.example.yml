@@ -13,3 +13,8 @@ from-video: "from-video-sfu"
 to-video: "to-video-sfu"
 from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
+
+log:
+    filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
+    level: 'verbose'
+    maxSize: 100000000

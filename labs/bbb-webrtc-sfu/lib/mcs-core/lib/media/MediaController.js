@@ -2,11 +2,10 @@
 
 const config = require('config');
 const C = require('../constants/Constants');
-
+const Logger = require('../../../utils/Logger');
 // Model
 const SfuUser = require('../model/SfuUser');
 const Room = require('../model/Room.js');
-
 const EventEmitter = require('events').EventEmitter;
 
 /* PRIVATE ELEMENTS */
@@ -69,7 +68,7 @@ module.exports = class MediaController {
   }
 
   async join (roomId, type, params) {
-    console.log("[mcs] Join room => " + roomId + ' as ' + type);
+    Logger.info("[mcs-controller] Join room => " + roomId + ' as ' + type);
     try {
       let session;
       const room = await this.createRoomMCS(roomId);
@@ -84,18 +83,18 @@ module.exports = class MediaController {
         session = user.addUri(params.sdp);
       }
 
-      console.log("[mcs] Resolving user " + user.id);
+      Logger.info("[mcs-controller] Resolving user " + user.id);
       return Promise.resolve(user.id);
     }
     catch (err) {
-      console.log("[mcs] JOIN ERROR " + err);
-      return Promise.reject(new Error(err));
+      Logger.error("[mcs-controller] Join returned an error", err);
+      return Promise.reject(err);
     }
   }
 
   async leave (roomId, userId) {
     try {
-      console.log("  [mcs] User => " + userId + " wants to leave ");
+      Logger.info("[mcs-controller] User => " + userId + " wants to leave ");
       const room = this.getRoom(roomId);
       const user = this.getUserMCS(userId);
 
@@ -121,7 +120,8 @@ module.exports = class MediaController {
   }
 
   async publishnsubscribe (userId, sourceId, sdp, params) {
-    console.log("[mcs] pns");
+    Logger.info("[mcs-controller] PublishAndSubscribe from user", userId, "to source", sourceId, "with params", params);
+
     let type = params.type;
     try {
       user = this.getUserMCS(userId);
@@ -139,42 +139,41 @@ module.exports = class MediaController {
       const answer = await user.startSession(session.id);
       await user.connect(sourceId, session.id);
 
-      console.log("[mcs] user with sdp session " + session.id);
+      Logger.info("[mcs-controller] PublishAndSubscribe return a SDP session with ID", session.id);
       return Promise.resolve({userId, sessionId});
     }
     catch (err) {
-      console.log("[mcs] PUBLISHNSUBSCRIBE ERROR " + err);
-      return Promise.reject(new Error(err));
+      Logger.error("[mcs-controller] PublishAndSubscribe returned an error", err);
+      return Promise.reject(err);
     }
   }
 
   async publish (userId, roomId, type, params) {
-    console.log("[mcs] publish");
+    Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId, "with params", params);
     let session;
     // TODO handle mediaType
     let mediaType = params.mediaType;
     let answer;
 
     try {
-      console.log("  [mcs] Fetching user => " + userId);
 
       const user = await this.getUserMCS(userId);
 
-      console.log("  [mcs] Fetched user => " + user);
+      Logger.info("[mcs-controller] Fetched user", user.id);
 
       switch (type) {
         case "RtpEndpoint":
         case "WebRtcEndpoint":
           session = user.addSdp(params.descriptor, type);
           session.on('SESSION_STOPPED', (pubId) => {
-            console.log("  [mcs] SESSION ", session.id, " STOPPED ");
+            Logger.info("[mcs-controller] Media session", session.id, "stopped");
             if(pubId === session.id) {
               for (var sub in session.subscribedSessions) {
-                console.log("  [mcs] Unsubscribing session ", sub);
+                Logger.info("[mcs-controller] Unsubscribing session ", sub);
                 let subSession = this._mediaSessions[sub];
                 if (subSession) {
                   subSession.stop();
-                  this._mediaSessions[sub] = null;
+                  delete this._mediaSessions[sub];
                 }
               }
             }
@@ -188,11 +187,11 @@ module.exports = class MediaController {
           answer = await user.startSession(session.id);
           break;
 
-        default: return Promise.reject(new Error("[mcs] Invalid media type"));
+        default: return Promise.reject("[mcs-controller] Invalid media type");
       }
     }
     catch (err) {
-      console.log(err);
+      Logger.error('[mcs-controller] Publish failed with an error', err);
       return Promise.reject(err);
     }
 
@@ -208,7 +207,8 @@ module.exports = class MediaController {
   }
 
   async subscribe (userId, sourceId, type, params) {
-    console.log("  [mcs] subscribe");
+    Logger.info("[mcs-controller] Subscribe from user", userId, "to source", sourceId, "with params", params);
+
 
     let session;
     // TODO handle mediaType
@@ -217,15 +217,13 @@ module.exports = class MediaController {
     let sourceSession = this._mediaSessions[sourceId];
 
     if (typeof sourceSession === 'undefined') {
-      return Promise.reject(new Error("  [mcs] Media session " + sourceId + " was not found"));
+      return Promise.reject(new Error("[mcs-controller] Media session", sourceId, "was not found"));
     }
 
     try {
-      console.log("  [mcs] Fetching user => " + userId);
-
       const user = await this.getUserMCS(userId);
 
-      console.log("  [mcs] Fetched user => " + user);
+      Logger.info("[mcs-controller] Fetched user", user.id);
 
       switch (type) {
         case "RtpEndpoint":
@@ -235,7 +233,7 @@ module.exports = class MediaController {
           answer = await user.startSession(session.id);
           await sourceSession.connect(session._mediaElement);
           sourceSession.subscribedSessions.push(session.id);
-          console.log("  [mcs] ", sourceSession.id,  " subscribers list ", sourceSession.subscribedSessions);
+          Logger.info("[mcs-controller] Updated", sourceSession.id,  "subscribers list to", sourceSession.subscribedSessions);
           break;
         case "URI":
           session = user.addUri(params.descriptor, type);
@@ -244,11 +242,11 @@ module.exports = class MediaController {
 
           break;
 
-        default: return Promise.reject(new Error("[mcs] Invalid media type"));
+        default: return Promise.reject(new Error("[mcs-controller] Invalid media type"));
       }
     }
     catch (err) {
-      console.log(err);
+      Logger.error("[mcs-controller] Subscribe failed with an error", err);
       return Promise.reject(err);
     }
 
@@ -299,14 +297,14 @@ module.exports = class MediaController {
   async addIceCandidate (mediaId, candidate) {
     let session = this._mediaSessions[mediaId];
     if (typeof session === 'undefined') {
-      return Promise.reject(new Error("  [mcs] Media session " + mediaId + " was not found"));
+      return Promise.reject(new Error("[mcs-controller] Media session " + mediaId + " was not found"));
     }
     try {
       const ack = await session.addIceCandidate(candidate);
       return Promise.resolve(ack);
     }
     catch (err) {
-      console.log(err);
+      Logger.error("[mcs-controller] addIceCandidate failed with an error", err);
       return Promise.reject(err);
     }
   }
@@ -318,7 +316,7 @@ module.exports = class MediaController {
   async createRoomMCS (roomId)  {
     let self = this;
 
-    console.log("  [media] Creating new room with ID " + roomId);
+    Logger.info("[mcs-controller] Creating new room with ID", roomId);
 
     if(!self._rooms[roomId]) {
       self._rooms[roomId] = new Room(roomId);
@@ -334,17 +332,17 @@ module.exports = class MediaController {
   createUserMCS (roomId, type, params)  {
     let self = this;
     let user;
-    console.log("  [media] Creating a new user[" + type + "]");
+    Logger.info("[mcs-controller] Creating a new user[" + type + "]");
 
     switch (type) {
       case C.USERS.SFU:
         user  = new SfuUser(roomId, type, this.emitter, params.userAgentString, params.sdp);
         break;
       case C.USERS.MCU:
-        console.log("  [media] createUserMCS MCU TODO");
+        Logger.info("[mcs-controller] createUserMCS MCU TODO");
         break;
       default:
-        console.log("  [controller] Unrecognized user type");
+        Logger.warn("[mcs-controller] Unrecognized user type");
     }
 
     if(!self._users[user.id]) {

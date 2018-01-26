@@ -12,6 +12,7 @@ const EventEmitter = require('events').EventEmitter;
 const MediaServer = require('../media/media-server');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
+const Logger = require('../../../utils/Logger');
 
 module.exports = class SdpSession extends EventEmitter {
   constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint') {
@@ -41,10 +42,8 @@ module.exports = class SdpSession extends EventEmitter {
     try {
       const client = await this._MediaServer.init();
 
-      console.log("[SdpSession] start/cme");
+      Logger.info("[mcs-sdp-session] Starting new SDP session", this.id, "in room", this.room );
       this._mediaElement = await this._MediaServer.createMediaElement(this.room, this._type);
-      console.log("[SdpSession] start/po " + this._mediaElement);
-
       this._MediaServer.trackMediaState(this._mediaElement, this._type);
       this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
         setTimeout(() => {
@@ -73,7 +72,7 @@ module.exports = class SdpSession extends EventEmitter {
     try {
       await this._MediaServer.stop(this._mediaElement);
       this._status = C.STATUS.STOPPED;
-      console.log("  [SdpSession] Session ", this.id, " is going to stop...");
+      Logger.info("[mcs-sdp-session] Session ", this.id, " is going to stop...");
       this.emit('SESSION_STOPPED', this.id);
       Promise.resolve();
     }
@@ -83,12 +82,11 @@ module.exports = class SdpSession extends EventEmitter {
     }
   }
 
-
   // TODO move to parent Session
   // TODO handle connection type
   async connect (sinkId) {
     try {
-      console.log("  [SdpSession] Connecting " + this._mediaElement + " => " + sinkId);
+      Logger.info("[mcs-sdp-session] Connecting " + this._mediaElement + " => " + sinkId);
       await this._MediaServer.connect(this._mediaElement, sinkId, 'ALL');
       return Promise.resolve();
     }
@@ -113,7 +111,7 @@ module.exports = class SdpSession extends EventEmitter {
   }
 
   handleError (err) {
-    console.log(err);
+    Logger.error("[mcs-sdp-session] SFU SDP Session received an error", err);
     this._status = C.STATUS.STOPPED;
   }
 }

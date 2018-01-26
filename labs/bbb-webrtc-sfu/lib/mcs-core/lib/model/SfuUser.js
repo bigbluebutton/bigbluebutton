@@ -10,13 +10,13 @@ const C = require('../constants/Constants');
 const SdpWrapper = require('../utils/SdpWrapper');
 const SdpSession = require('../model/SdpSession');
 const UriSession = require('../model/UriSession');
+const Logger = require('../../../utils/Logger');
 
 module.exports = class SfuUser extends User {
   constructor(_roomId, type, emitter, userAgentString = C.STRING.ANONYMOUS, sdp = null, uri = null) {
     super(_roomId);
     // {SdpWrapper} SdpWrapper
     this._sdp;
-    // {Object} hasAudio, hasVideo, hasContent
     this._mediaSessions = {}
     this.userAgentString;
     this.emitter = emitter;
@@ -43,7 +43,7 @@ module.exports = class SfuUser extends User {
     }
     catch (err) {
       this.handleError(err);
-      Promise.reject(new Error(err));
+      Promise.reject(err);
     }
   }
 
@@ -52,7 +52,7 @@ module.exports = class SfuUser extends User {
     let session = new SdpSession(this.emitter, sdp, this.roomId, type);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
     session.on("SESSION_STOPPED", (sessId) => {
-      console.log("  [SfuUser] Session ", sessId, "stopped, cleaning it...");
+      Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
       if (sessId === session.id) {
         this._mediaSessions[sessId] = null;
       }
@@ -63,13 +63,13 @@ module.exports = class SfuUser extends User {
       this._mediaSessions[session.id] = {};
     }
     this._mediaSessions[session.id] = session; 
-    console.log("[SfuUser] Added SDP " + session.id);
+    Logger.info("[mcs-sfu-user] Added SDP " + session.id);
 
     return session;
   }
 
   async startSession (sessionId) {
-    console.log("[SfuUser] starting session " + sessionId);
+    Logger.info("[mcs-sfu-user] starting session " + sessionId);
     let session = this._mediaSessions[sessionId];
   
     try {
@@ -78,7 +78,7 @@ module.exports = class SfuUser extends User {
     }
     catch (err) {
       this.handleError(err);
-      return Promise.reject(new Error(err));
+      return Promise.reject(err);
     }
   }
 
@@ -91,7 +91,7 @@ module.exports = class SfuUser extends User {
     } 
     catch (err) {
       this.handleError(err);
-      Promise.reject(new Error(err));
+      Promise.reject(err);
     }
   }
 
@@ -103,7 +103,7 @@ module.exports = class SfuUser extends User {
     } 
     catch (err) {
       this.handleError(err);
-      Promise.reject(new Error(err));
+      Promise.reject(err);
     }
   }
 
@@ -114,7 +114,7 @@ module.exports = class SfuUser extends User {
     } 
     catch (err) {
       this.handleError(err);
-      Promise.reject(new Error(err));
+      Promise.reject(err);
     }
   }
 
@@ -125,12 +125,12 @@ module.exports = class SfuUser extends User {
     } 
     catch (err) {
       this.handleError(err);
-      Promise.reject(new Error(err));
+      Promise.reject(err);
     }
   }
 
   async stopSession (sessionId) {
-    console.log("  [SfuUser] Stopping session => " + sessionId);
+    Logger.info("[mcs-sfu-user] Stopping session => " + sessionId);
     let session = this._mediaSessions[sessionId];
 
     try {
@@ -140,7 +140,7 @@ module.exports = class SfuUser extends User {
     }
     catch (err) {
       this.handleError(err);
-      Promise.reject(new Error(err));
+      Promise.reject(err);
     }
   }
 
@@ -148,24 +148,23 @@ module.exports = class SfuUser extends User {
     let session = this._mediaSessions[sourceId];
     if(session) {
       try {
-        console.log(" [SfuUser] Connecting sessions " + sourceId + "=>" + sinkId);
+        Logger.info("[mcs-sfu-user] Connecting sessions " + sourceId + "=>" + sinkId);
         await session.connect(sinkId);
         return Promise.resolve();
       }
       catch (err) {
         this.handleError(err);
-        return Promise.reject(new Error(err));
+        return Promise.reject(err);
       }
     }
     else {
-      return Promise.reject(new Error("  [SfuUser] Source session " + sourceId + " not found"));
+      return Promise.reject(new Error("[mcs-sfu-user] Source session " + sourceId + " not found"));
     }
   }
 
   async leave () {
     let sessions = Object.keys(this._mediaSessions);
-    console.log("  [SfuUser] User sessions will be killed");
-    console.log(sessions);
+    Logger.info("[mcs-sfu-user] User sessions will be killed");
 
     try {
       for (var session in sessions) {
@@ -176,12 +175,12 @@ module.exports = class SfuUser extends User {
     }
     catch (err) {
       this.handleError(err);
-      Promise.reject(new Error(err));
+      Promise.reject(err);
     }
   }
 
   handleError (err) {
-    console.log(err);
+    Logger.error("[mcs-sfu-user] SFU User received error", err);
     this._status = C.STATUS.STOPPED;
   }
 }

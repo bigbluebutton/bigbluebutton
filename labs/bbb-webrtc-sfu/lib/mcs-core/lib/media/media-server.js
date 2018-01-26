@@ -5,6 +5,7 @@ const config = require('config');
 const mediaServerClient = require('kurento-client');
 const util = require('util');
 const EventEmitter = require('events').EventEmitter;
+const Logger = require('../../../utils/Logger');
 
 let instance = null;
 
@@ -35,7 +36,7 @@ module.exports = class MediaServer extends EventEmitter {
         if (error) {
           reject(error);
         }
-        console.log("  [media] Retrieved media server client => " + client);
+        Logger.info("[mcs-media] Retrieved media server client => " + client);
         resolve(client);
       });
     });
@@ -44,13 +45,13 @@ module.exports = class MediaServer extends EventEmitter {
   _getMediaPipeline (conference) {
     return new Promise((resolve, reject) => {
       if (this._mediaPipelines[conference]) {
-        console.log(' [media] Pipeline already exists. ' + JSON.stringify(this._mediaPipelines, null, 2));
+        Logger.warn('[mcs-media] Pipeline for', conference, ' already exists.');
         resolve(this._mediaPipelines[conference]);
       }
       else {
         this._mediaServer.create('MediaPipeline', (error, pipeline) => {
           if (error) {
-            console.log(error);
+            Logger.error('[mcs-media] Create MediaPipeline returned error', error);
             reject(error);
           }
           this._mediaPipelines[conference] = pipeline;
@@ -74,7 +75,7 @@ module.exports = class MediaServer extends EventEmitter {
         if (error) {
           return reject(error);
         }
-        console.log("  [MediaController] Created [" + type + "] media element: " + mediaElement.id);
+        Logger.info("[mcs-media] Created [" + type + "] media element: " + mediaElement.id);
         this._mediaElements[mediaElement.id] = mediaElement;
         return resolve(mediaElement);
       });
@@ -120,19 +121,19 @@ module.exports = class MediaServer extends EventEmitter {
             });
             break;
 
-          default: return reject("  [media] Invalid connect type");
+          default: return reject("[mcs-media] Invalid connect type");
         }
       });
     }
     else {
-      return Promise.reject("  [media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+      return Promise.reject("[mcs-media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
     }
   }
 
   stop (elementId) {
     let mediaElement = this._mediaElements[elementId];
     if (typeof mediaElement !== 'undefined' && typeof mediaElement.release === 'function') {
-      console.log("  [media] Releasing endpoint => " + elementId);
+      Logger.info("[mcs-media] Releasing endpoint => " + elementId);
       mediaElement.release();
       this._mediaElements[elementId] = null;
     }
@@ -146,7 +147,7 @@ module.exports = class MediaServer extends EventEmitter {
     if (typeof mediaElement !== 'undefined' && typeof mediaElement.addIceCandidate === 'function' &&
         typeof candidate !== 'undefined') {
       mediaElement.addIceCandidate(candidate);
-      console.log("  [media] Added ICE candidate for => " + elementId);
+      Logger.debug("[mcs-media] Added ICE candidate for => " + elementId);
       return Promise.resolve();
     }
     else {
@@ -155,7 +156,7 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   gatherCandidates (elementId) {
-    console.log('  [media] Gathering ICE candidates for ' + elementId);
+    Logger.info('[mcs-media] Gathering ICE candidates for ' + elementId);
     let mediaElement = this._mediaElements[elementId];
 
     return new Promise((resolve, reject) => {
@@ -164,12 +165,12 @@ module.exports = class MediaServer extends EventEmitter {
           if (error) {
             return reject(new Error(error));
           }
-          console.log('  [media] Triggered ICE gathering for ' + elementId);
+          Logger.info('[mcs-media] Triggered ICE gathering for ' + elementId);
           return resolve(); 
         });
       }
       else {
-        return reject("  [MediaController/gatherCandidates] There is no element " + elementId);
+        return reject("[mcs-media] There is no element " + elementId);
       }
     });
   }
@@ -181,7 +182,7 @@ module.exports = class MediaServer extends EventEmitter {
       endpoint.setMinVideoRecvBandwidth(min);
       endpoint.setMaxVideoRecvBandwidth(max);
     } else {
-      return (" [MediaController/setInputBandwidth] There is no element " + elementId);
+      return ("[mcs-media] There is no element " + elementId);
     }
   }
 
@@ -192,7 +193,7 @@ module.exports = class MediaServer extends EventEmitter {
       endpoint.setMinVideoSendBandwidth(min);
       endpoint.setMaxVideoSendBandwidth(max);
     } else {
-      return (" [MediaController/setOutputBandwidth] There is no element " + elementId );
+      return ("[mcs-media] There is no element " + elementId );
     }
   }
 
@@ -203,7 +204,7 @@ module.exports = class MediaServer extends EventEmitter {
       endpoint.setMinOutputBitrate(min);
       endpoint.setMaxOutputBitrate(max);
     } else {
-      return (" [MediaController/setOutputBitrate] There is no element " + elementId);
+      return ("[mcs-media] There is no element " + elementId);
     }
   }
 
@@ -220,7 +221,7 @@ module.exports = class MediaServer extends EventEmitter {
         });
       }
       else {
-        return reject("  [MediaController/processOffer] There is no element " + elementId);
+        return reject("[mcs-media] There is no element " + elementId);
       }
     });
   }
@@ -256,7 +257,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
     // TODO event type validator
     if (typeof mediaElement !== 'undefined' && mediaElement) {
-      console.log('  [media] Adding media state listener [' + eventTag + '] for ' + elementId);
+      Logger.info('[mcs-media] Adding media state listener [' + eventTag + '] for ' + elementId);
       mediaElement.on(eventTag, (event) => {
         if (eventTag === C.EVENT.MEDIA_STATE.ICE) {
           event.candidate = mediaServerClient.getComplexType('IceCandidate')(event.candidate);

@@ -11,6 +11,7 @@ const redis = require('redis');
 const config = require('config');
 const Constants = require('../messages/Constants.js');
 const EventEmitter = require('events').EventEmitter;
+const Logger = require('../../utils/Logger');
 
 /* Public members */
 
@@ -46,7 +47,7 @@ module.exports = class RedisWrapper extends EventEmitter {
   startSubscriber () {
     let self = this;
     if (this.redisCli) {
-      console.log("  [RedisWrapper] Redis Client already exists");
+      Logger.warn("[RedisWrapper] Redis Client already exists");
       return;
     }
 
@@ -59,23 +60,23 @@ module.exports = class RedisWrapper extends EventEmitter {
 
     this.redisCli = redis.createClient(options);
 
-    console.log("  [RedisWrapper] Trying to subscribe to redis channel");
+    Logger.info("[RedisWrapper] Trying to subscribe to redis channel");
 
     this.redisCli.on("connect", () => {
-      // console.log(" [RedisWrapper] Connected to Redis Server.");
-      // DO SOMETHING
+      //TODO
     });
 
-    this.redisCli.on("error", (e) => {
-      console.error(" [RedisWrapper] " + e);
+    this.redisCli.on("error", (error) => {
+      Logger.error("[RedisWrapper] Wrapper returned an error", error);
     });
 
-    this.redisCli.on("reconnecting", (e) => {
-      // DO SOMETHING
+    this.redisCli.on("reconnecting", (msg) => {
+      Logger.warn("[RedisWrapper] Wrapper instance is reconnecting", msg);
+      //TODO
     });
 
     this.redisCli.on("psubscribe", (channel, count) => {
-      console.log(" [RedisWrapper] Successfully subscribed to pattern [" + channel + "]");
+      Logger.info("[RedisWrapper] Successfully subscribed to pattern [" + channel + "]");
     });
 
     this.redisCli.on("pmessage", this._onMessage.bind(this));
@@ -86,10 +87,8 @@ module.exports = class RedisWrapper extends EventEmitter {
 
     this.redisCli.psubscribe(this.subpattern);
 
-    console.log("  [RedisWrapper] Started Redis client at " + options.host + ":" + options.port +
+    Logger.info("[RedisWrapper] Started Redis client at " + options.host + ":" + options.port +
         " for subscription pattern: " + this.subpattern);
-
-    return ;
   }
 
   stopRedis (callback) {
