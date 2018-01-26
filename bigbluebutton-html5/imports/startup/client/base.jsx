@@ -51,6 +51,9 @@ class Base extends Component {
   }
 
   renderByState() {
+    console.log('renderByState - imports-startup-client-base.jsx');
+    console.log(this.props.params);
+
     const { updateLoadingState, updateErrorState } = this;
     const stateControls = { updateLoadingState, updateErrorState };
 
@@ -73,6 +76,7 @@ class Base extends Component {
   }
 
   render() {
+    console.log('render - imports-startup-client-base.jsx');
     const { updateLoadingState, updateErrorState } = this;
     const { locale } = this.props;
     const stateControls = { updateLoadingState, updateErrorState };
@@ -96,6 +100,10 @@ const SUBSCRIPTIONS_NAME = [
 const BaseContainer = withRouter(withTracker(({ params, router }) => {
   if (params.errorCode) return params;
 
+  console.log('BaseContainer - imports-startup-client-base.jsx');
+  console.log(params);
+  console.log(Auth);
+
   if (!Auth.loggedIn) {
     return router.push('/logout');
   }
@@ -105,6 +113,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
 
   const subscriptionErrorHandler = {
     onError: (error) => {
+      console.log('onError - imports-startup-client-base.jsx');
       console.error(error);
       return router.push('/logout');
     },
