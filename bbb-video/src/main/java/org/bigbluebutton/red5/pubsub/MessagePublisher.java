@@ -1,13 +1,14 @@
 package org.bigbluebutton.red5.pubsub;
 
-import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
-import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
+
+//import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
+//import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
+
+import com.google.gson.Gson;
+import org.bigbluebutton.common2.msgs.*;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.gson.Gson;
 
 public class MessagePublisher {
 
@@ -16,8 +17,42 @@ public class MessagePublisher {
 	public void setMessageSender(MessageSender sender) {
 		this.sender = sender;
 	}
-	
-	// Polling 
+
+	private Map<String, Object> buildEnvelope(String name, Map<String, String> routing) {
+		Map<String, Object> envelope = new HashMap<String, Object>();
+		envelope.put("name", name);
+		envelope.put("routing", routing);
+		return envelope;
+	}
+
+	private Map<String, String> buildRouting() {
+		Map<String, String> routing = new HashMap<String, String>();
+		routing.put("msgType", "SYSTEM");
+		routing.put("sender", "bbb-video");
+		return routing;
+	}
+
+	public void validateConnAuthToken(String meetingId, String userId, String authToken, String connId) {
+		BbbCoreBaseHeader header = new BbbCoreBaseHeader("ValidateConnAuthTokenSysMsg");
+		ValidateConnAuthTokenSysMsgBody body = new ValidateConnAuthTokenSysMsgBody(meetingId,
+				userId, authToken, connId, "VIDEO");
+		ValidateConnAuthTokenSysMsg msg = new ValidateConnAuthTokenSysMsg(header, body);
+
+		Map<String, String> routing = buildRouting();
+		Map<String, Object> envelope = buildEnvelope("ValidateConnAuthTokenSysMsg", routing);
+
+		Map<String, Object> fullmsg = new HashMap<String, Object>();
+		fullmsg.put("envelope", envelope);
+		fullmsg.put("core", msg);
+
+		Gson gson = new Gson();
+		String json = gson.toJson(fullmsg);
+
+		sender.send("to-akka-apps-redis-channel", json);
+	}
+
+	// Polling
+	/*
 	public void userSharedWebcamMessage(String meetingId, String userId, String streamId) {
 		UserSharedWebcamMessage msg = new UserSharedWebcamMessage(meetingId, userId, streamId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
@@ -27,6 +62,7 @@ public class MessagePublisher {
 		UserUnshareWebcamRequestMessage msg = new UserUnshareWebcamRequestMessage(meetingId, userId, streamId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
+	*/
 	
 	public void startRotateLeftTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress) {
 		Map<String, String> params = new HashMap<String, String>();

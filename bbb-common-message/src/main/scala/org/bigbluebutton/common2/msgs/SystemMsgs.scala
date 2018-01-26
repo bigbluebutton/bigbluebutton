@@ -123,3 +123,15 @@ object CheckAlivePongSysMsg { val NAME = "CheckAlivePongSysMsg" }
 case class CheckAlivePongSysMsg(header: BbbCoreBaseHeader,
                                 body: CheckAlivePongSysMsgBody) extends BbbCoreMsg
 case class CheckAlivePongSysMsgBody(system: String, timestamp: Long)
+
+object ValidateConnAuthTokenSysMsg { val NAME = "ValidateConnAuthTokenSysMsg" }
+case class ValidateConnAuthTokenSysMsg(header: BbbCoreBaseHeader,
+                                       body: ValidateConnAuthTokenSysMsgBody) extends BbbCoreMsg
+case class ValidateConnAuthTokenSysMsgBody(meetingId: String, userId: String, authToken: String,
+                                           connId: String, app: String)
+
+object ValidateConnAuthTokenSysRespMsg { val NAME = "ValidateConnAuthTokenSysRespMsg" }
+case class ValidateConnAuthTokenSysRespMsg(header: BbbCoreHeaderWithMeetingId,
+                                           body: ValidateConnAuthTokenSysRespMsgBody) extends BbbCoreMsg
+case class ValidateConnAuthTokenSysRespMsgBody(meetingId: String, userId: String,
+                                               connId: String, authzed: Boolean, app: String)

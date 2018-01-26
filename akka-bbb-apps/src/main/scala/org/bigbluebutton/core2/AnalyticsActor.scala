@@ -84,8 +84,11 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
 
+      // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
+      case m: ValidateConnAuthTokenSysMsg => traceMessage(msg)
+      case m: ValidateConnAuthTokenSysRespMsg => traceMessage(msg)
 
       case _ => // ignore message
     }

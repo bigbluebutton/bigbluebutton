@@ -36,6 +36,7 @@ import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -137,6 +138,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
+
+		if(params.length != 10) {
+			log.error("Invalid number of parameters. param length=" + params.length);
+			return false;
+		}
+
 		String username = ((String) params[0]).toString();
 		String role = ((String) params[1]).toString();
 		String room = ((String)params[2]).toString();
@@ -258,6 +265,33 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 		super.roomDisconnect(conn);
 	}
+
+	@Override
+	public void streamBroadcastStart(IBroadcastStream stream) {
+		IConnection conn = Red5.getConnectionLocal();
+		String contextName = stream.getScope().getName();
+
+		/**
+		 * There shouldn't be any broadcast stream in this scope.
+		 */
+
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("stream", stream.getPublishedName());
+		logData.put("context", contextName);
+		logData.put("event", "unauth_publish_stream_bbb_apps");
+		logData.put("description", "Publishing stream in app context.");
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		log.error(logStr);
+		conn.close();
+
+	}
+
 
 	public void onMessageFromClient(String json) {
 		//System.out.println("onMessageFromClient \n" + json);
