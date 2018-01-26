@@ -20,12 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/"
-				xmlns:fx="http://ns.adobe.com/mxml/2009"
-				xmlns:mx="library://ns.adobe.com/flex/mx"
-				minimum="0"
-				maximum="100"
-				mode="manual">
+<mx:VBox xmlns:mate="http://mate.asfusion.com/"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
 
 	<fx:Declarations>
 		<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}"
@@ -61,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function moduleLoadingStarted(e:ModuleLoadEvent):void {
 				numModules = BBB.getConfigManager().config.numberOfModules();
-				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading');
+				loadingbarLabel.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading');
 				this.visible = true;
 			}
 
@@ -79,7 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				ExternalInterface.call("setProgressBar", int(totalProgress / numModules));
 				//LogUtil.debug("Progress: " + totalProgress);
-				this.setProgress(totalProgress / numModules, 100);
+				progressBar.setProgress(totalProgress / numModules, 100);
 			}
 
 			private function allModulesLoaded(e:ModuleLoadEvent):void {
@@ -90,18 +87,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function testRTMP(e:PortTestEvent):void {
 				//- Cannot get locale string this early in loading process
-				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+				loadingbarLabel.text = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
 			}
 
 			private function testRTMPupdate(e:PortTestEvent):void {
 				//- Cannot get locale string this early in loading process
 				portUpdateStr += "...";
-				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+				loadingbarLabel.text = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
 			}
 
 			private function tunnelingFailed(e:PortTestEvent):void {
-				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
+				loadingbarLabel.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
 			}
 		]]>
 	</fx:Script>
-</mx:ProgressBar>
+
+	<mx:ProgressBar width="280"
+					height="15"
+					id="progressBar"
+					labelWidth="0"
+					minimum="0"
+					maximum="100"
+					mode="manual" />
+	<mx:Label id="loadingbarLabel" styleName="loadingBarLabel"/>
+
+</mx:VBox>

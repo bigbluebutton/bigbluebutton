@@ -887,6 +887,22 @@ layout|LoadButton {
 
 /*
 //------------------------------
+//  LoadingBar
+//------------------------------
+*/
+
+views|LoadingBar {
+	textAlign       : center;
+	horizontalAlign : center;
+}
+
+.loadingBarLabel {
+	color       : #8A9AA7;
+	fontWeight  : bold;
+}
+
+/*
+//------------------------------
 //  Logout Window
 //------------------------------
 */
