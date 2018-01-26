@@ -49,7 +49,8 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
         private var _messageListeners:Array = new Array();
         private var logoutOnUserCommand:Boolean = false;
         private var reconnecting:Boolean = false;
-        
+				private var numNetworkChangeCount:int = 0;
+				
         public function Connection(meetingId:String) {
             this.meetingId = meetingId;
         }
@@ -312,8 +313,15 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                 break;
             
             case "NetConnection.Connect.NetworkChange":
-                LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
-                break;
+								numNetworkChangeCount++;
+								if (numNetworkChangeCount % 2 == 0) {
+									var logData:Object = UsersUtil.initLogData();
+									logData.tags = ["screenshare", "flash"];
+									logData.message = "Detected network change on bbb-voice";
+									logData.numNetworkChangeCount = numNetworkChangeCount;
+									LOGGER.info(JSON.stringify(logData));
+								}
+								break;
             }
         }
         
