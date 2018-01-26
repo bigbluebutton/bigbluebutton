@@ -33,7 +33,7 @@
 			import org.bigbluebutton.air.users.UsersConfig;
 			import org.bigbluebutton.air.video.VideoConfig;
 			import org.bigbluebutton.air.voice.VoiceConfig;
-			import org.bigbluebutton.lib.whiteboard.views.WhiteboardConfig;
+			import org.bigbluebutton.air.whiteboard.WhiteboardConfig;
 			
 			import robotlegs.bender.bundles.mvcs.MVCSBundle;
 			import robotlegs.bender.extensions.contextView.ContextView;
