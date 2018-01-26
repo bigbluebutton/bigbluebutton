@@ -221,6 +221,3 @@ let logAvailableSessions = function() {
     }
   }
 }
-
-process.on('SIGTERM', stopAll);
-process.on('SIGINT', stopAll);
