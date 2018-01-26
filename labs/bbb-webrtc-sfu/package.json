@@ -8,7 +8,7 @@
   "dependencies": {
     "joi": "^13.0.2",
     "kurento-client": "git+https://github.com/Kurento/kurento-client-js.git#master",
-    "moment": "^2.19.2",
+    "moment": "^2.19.3",
     "redis": "^2.8.0",
     "sdp-transform": "^2.3.0",
     "readable-id": "^1.0.0",
