@@ -48,11 +48,11 @@ package org.bigbluebutton.main.model.modules
 		
 		private var modulesDispatcher:ModulesDispatcher;
 		
-		private var portTestOptions : PortTestOptions;
+		
 		
 		public function ModuleManager(modulesDispatcher: ModulesDispatcher)
 		{
-            this.modulesDispatcher = modulesDispatcher;
+      this.modulesDispatcher = modulesDispatcher;
 			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
 		}
 				
@@ -66,7 +66,7 @@ package org.bigbluebutton.main.model.modules
 			var resolver:DependancyResolver = new DependancyResolver();
 			sorted = resolver.buildDependencyTree(modules);
 			
-			portTestOptions = Options.getOptions(PortTestOptions) as PortTestOptions;
+			BBB.initConnectionManager().initPortTestOption();
 			
 			modulesDispatcher.sendPortTestEvent();
 		}
@@ -76,22 +76,6 @@ package org.bigbluebutton.main.model.modules
 			BBB.loadConfig();
 		}
 
-		public function useProtocol(tunnel:Boolean):void {
-			BBB.initConnectionManager().isTunnelling = tunnel;
-		}
-
-		public function get portTestHost():String {
-			return portTestOptions.host;
-		}
-		
-		public function get portTestApplication():String {
-			return portTestOptions.application;
-		}
-		
-		public function get portTestTimeout():Number {
-			return portTestOptions.timeout;
-		}
-		
 		private function getModule(name:String):ModuleDescriptor {
 			return BBB.getConfigManager().getModuleFor(name);	
 		}

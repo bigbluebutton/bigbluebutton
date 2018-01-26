@@ -48,6 +48,7 @@ package org.bigbluebutton.main.events {
 	public static const CAM_SETTINGS_CLOSED:String = "CAM_SETTINGS_CLOSED";
 	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
 	public static const CHANGE_RECORDING_STATUS:String = "CHANGE_RECORDING_STATUS";
+	public static const CHANGE_WEBCAMS_ONLY_FOR_MODERATOR:String = "CHANGE_WEBCAMS_ONLY_FOR_MODERATOR";
 
 		public static const ACCEPT_ALL_WAITING_GUESTS:String = "BBB_ACCEPT_ALL_WAITING_GUESTS";
 		public static const DENY_ALL_WAITING_GUESTS:String = "BBB_DENY_ALL_WAITING_GUESTS";

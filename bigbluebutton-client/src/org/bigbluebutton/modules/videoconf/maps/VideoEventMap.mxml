@@ -40,108 +40,113 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
-			import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;		
+			import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-	  <EventHandlers type="{VideoModuleStartEvent.START}">
-	    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="start" arguments="{event.uri}"/>
-	    <EventAnnouncer generator="{ConnectAppEvent}" type="{ConnectAppEvent.CONNECT_VIDEO_APP}" />
-	  </EventHandlers>
-	 
-	  <EventHandlers type="{VideoModuleStopEvent.STOP}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="stopModule"/>
-	  </EventHandlers>
-	  
-	  <EventHandlers type="{BBBEvent.CAMERA_SETTING}" >
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCameraSetting" arguments="{event}"/>
-	  </EventHandlers>
-	  
+		<EventHandlers type="{VideoModuleStartEvent.START}">
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="start"/>
+			<EventAnnouncer generator="{ConnectAppEvent}" type="{ConnectAppEvent.CONNECT_VIDEO_APP}" />
+		</EventHandlers>
+
+		<EventHandlers type="{VideoModuleStopEvent.STOP}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="stopModule"/>
+		</EventHandlers>
+
+		<EventHandlers type="{BBBEvent.CAMERA_SETTING}" >
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleCameraSetting" arguments="{event}"/>
+		</EventHandlers>
+
 		<EventHandlers type="{BBBEvent.ERASE_CAMERA_SETTING}" >
 			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleEraseCameraSetting" arguments="{event}"/>
 		</EventHandlers>	
-		
-	  <EventHandlers type="{ConnectAppEvent.CONNECT_VIDEO_APP}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectToVideoApp"/>
-	  </EventHandlers>
-	  
+
+		<EventHandlers type="{ConnectAppEvent.CONNECT_VIDEO_APP}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="connectToVideoApp"/>
+		</EventHandlers>
+
 		<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleShareCameraRequestEvent" arguments="{event}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleShareCameraRequestEvent" arguments="{event}"/>
 		</EventHandlers>
-	
-	  <EventHandlers type="{StopShareCameraRequestEvent.STOP_SHARE_CAMERA_REQUEST}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleStopShareCameraRequestEvent" arguments="{event}"/>
-	  </EventHandlers>
-	
-	  <EventHandlers type="{StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleStopAllShareCameraRequestEvent" arguments="{event}"/>
-	  </EventHandlers>
-	
+
+		<EventHandlers type="{StopShareCameraRequestEvent.STOP_SHARE_CAMERA_REQUEST}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleStopShareCameraRequestEvent" arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleStopAllShareCameraRequestEvent" arguments="{event}"/>
+		</EventHandlers>
+
 		<EventHandlers type="{StartBroadcastEvent.START_BROADCAST}" >
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="startPublishing" arguments="{event}" />
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="startPublishing" arguments="{event}" />
 		</EventHandlers>
-		
+
 		<EventHandlers type="{StopBroadcastEvent.STOP_BROADCASTING}" >
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="stopPublishing" arguments="{event}" />
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="stopPublishing" arguments="{event}" />
 		</EventHandlers>
-		
+
 		<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
-	    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID]}" />
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID]}" />
 		</EventHandlers>
 		
+		<EventHandlers type="{BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR}">
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="webcamsOnlyForModeratorChanged"/>
+		</EventHandlers>
+
 		<EventHandlers type="{StreamStoppedEvent.STREAM_STOPPED}">
 			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleStreamStoppedEvent" arguments="{event}" />
 		</EventHandlers>
-		
-		<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID]}" />
-		</EventHandlers>
-	
-	  <EventHandlers type="{UserJoinedEvent.JOINED}">
-	    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleUserJoinedEvent" arguments="{event}" />
-	  </EventHandlers>
-	
-	  <EventHandlers type="{UserLeftEvent.LEFT}">
-	    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleUserLeftEvent" arguments="{event}" />
-	  </EventHandlers>
-	  
-		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
-	    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToPresenter" arguments="{event}"/>	
-		</EventHandlers>
-		
-		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-	    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToViewer" arguments="{event}"/>
-		</EventHandlers>
-	
-	  <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" arguments="{event}"/>
-	  </EventHandlers>
-	 
-	  <EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleClosePublishWindowEvent" arguments="{event}"/>
-	  </EventHandlers>
-	  
-	  <EventHandlers type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleStoppedViewingWebcamEvent"  arguments="{event}"/>
-	  </EventHandlers>
-	  
-	  <EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
-	  </EventHandlers>
-	
-	  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
-	    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleReconnectDisconnectedEvent"  arguments="{event}"/>
-	  </EventHandlers>
 
-	<EventHandlers type="{AddStaticComponent.ADD_STATIC_COMPONENT}">
-		<MethodInvoker generator="{VideoEventMapDelegate}" method="addStaticComponent" arguments="{[event.component]}" />
-	</EventHandlers>
-	  <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+		<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID]}" />
+		</EventHandlers>
+
+		<EventHandlers type="{UserJoinedEvent.JOINED}">
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleUserJoinedEvent" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{UserLeftEvent.LEFT}">
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleUserLeftEvent" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="switchToPresenter" arguments="{event}"/>	
+		</EventHandlers>
+
+		<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="switchToViewer" arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleClosePublishWindowEvent" arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleStoppedViewingWebcamEvent"  arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="handleReconnectDisconnectedEvent"  arguments="{event}"/>
+		</EventHandlers>
+
+		<EventHandlers type="{AddStaticComponent.ADD_STATIC_COMPONENT}">
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="addStaticComponent" arguments="{[event.component]}" />
+		</EventHandlers>
+		<!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	</fx:Declarations>
 </EventMap>

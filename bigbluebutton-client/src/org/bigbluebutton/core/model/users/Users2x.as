@@ -1,12 +1,8 @@
 package org.bigbluebutton.core.model.users
 {
-  import mx.collections.ArrayCollection;
-  
+  import mx.collections.ArrayCollection; 
   import org.as3commons.lang.ArrayUtils;
   import org.as3commons.lang.StringUtils;
-  import org.bigbluebutton.core.model.BreakoutUser;
-  import org.bigbluebutton.main.model.users.BBBUser;
-  import org.bigbluebutton.main.model.users.BreakoutRoom;
   
   public class Users2x
   {
@@ -136,7 +132,13 @@ package org.bigbluebutton.core.model.users
 
 
     public function getPresenterGroup(): ArrayCollection {
-      return new ArrayCollection(_presenterGroup.toArray());
+			var temp: Array = new Array();
+			for (var i:int = 0; i < _users.length; i++) {
+				var user:User2x = _users.getItemAt(i) as User2x;
+					temp.push(user.intId);
+			}
+			
+			return new ArrayCollection(temp);
     }
 
     public function addToPresenterGroup(userId: String):void {

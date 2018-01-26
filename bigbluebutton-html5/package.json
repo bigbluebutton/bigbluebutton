@@ -3,8 +3,12 @@
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
     "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:prod; else npm run start:dev; fi",
-    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
-    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
+    "test-visual-regression": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome_mobile; DEVICE_NAME='iPhone 6 Plus'; export DEVICE_NAME; wdio ./tests/webdriverio/wdio.vreg.conf.js; DEVICE_NAME='Nexus 5X'; export DEVICE_NAME; wdio ./tests/webdriverio/wdio.vreg.conf.js",
+    "generate-refs-visual-regression": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression",
+    "test-visual-regression-desktop": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js",
+    "generate-refs-visual-regression-desktop": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression-desktop",
+    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production --settings private/config/settings-production.json",
+    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor --settings private/config/settings-development.json",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js",
     "precommit": "lint-staged"
@@ -20,6 +24,12 @@
   },
   "dependencies": {
     "babel-runtime": "~6.26.0",
+    "//": [
+      "core-js is included with babel-runtime",
+      "but Meteor 1.6.0.1 doesn't see it there for some reason",
+      "need to investigate"
+    ],
+    "core-js": "~2.5.3",
     "classnames": "~2.2.5",
     "clipboard": "~1.7.1",
     "eventemitter2": "~4.1.2",
@@ -27,6 +37,7 @@
     "hiredis": "~0.5.0",
     "history": "~3.3.0",
     "immutability-helper": "~2.4.0",
+    "langmap": "0.0.16",
     "lodash": "~4.17.4",
     "meteor-node-stubs": "~0.3.2",
     "node-sass": "~4.5.3",
@@ -46,12 +57,13 @@
     "react-transition-group": "~2.2.1",
     "redis": "~2.8.0",
     "string-hash": "~1.1.3",
-    "tippy.js": "^2.0.2",
+    "tippy.js": "~2.0.2",
     "winston": "~2.4.0",
     "xml2js": "~0.4.19"
   },
   "devDependencies": {
     "autoprefixer": "~7.1.6",
+    "babel-plugin-react-remove-properties": "~0.2.5",
     "chai": "~4.1.2",
     "eslint": "~4.9.0",
     "eslint-config-airbnb": "~16.1.0",
@@ -69,6 +81,8 @@
     "wdio-jasmine-framework": "~0.3.2",
     "wdio-junit-reporter": "~0.3.1",
     "wdio-spec-reporter": "~0.1.2",
+    "wdio-visual-regression-service": "~0.8.0",
+    "webdriver-manager": "~12.0.6",
     "webdriverio": "~4.8.0"
   },
   "cssModules": {

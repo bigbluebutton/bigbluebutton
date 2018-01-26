@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
 import ToolbarSubmenu from './toolbar-submenu/component';
 
@@ -14,8 +15,42 @@ const THICKNESS_RADIUSES = TOOLBAR_CONFIG.thickness;
 const FONT_SIZES = TOOLBAR_CONFIG.font_sizes;
 const ANNOTATION_TOOLS = TOOLBAR_CONFIG.tools;
 
-class WhiteboardToolbar extends Component {
+const intlMessages = defineMessages({
+  toolbarTools: {
+    id: 'app.whiteboard.toolbar.tools',
+    description: 'Whiteboard toolbar tools menu',
+  },
+  toolbarLineThickness: {
+    id: 'app.whiteboard.toolbar.thickness',
+    description: 'Whiteboard toolbar thickness menu',
+  },
+  toolbarLineColor: {
+    id: 'app.whiteboard.toolbar.color',
+    description: 'Whiteboard toolbar colors menu',
+  },
+  toolbarUndoAnnotation: {
+    id: 'app.whiteboard.toolbar.undo',
+    description: 'Whiteboard toolbar tools menu',
+  },
+  toolbarClearAnnotations: {
+    id: 'app.whiteboard.toolbar.clear',
+    description: 'Whiteboard toolbar clear menu',
+  },
+  toolbarMultiUserOn: {
+    id: 'app.whiteboard.toolbar.multiUserOn',
+    description: 'Whiteboard toolbar turn multi-user on menu',
+  },
+  toolbarMultiUserOff: {
+    id: 'app.whiteboard.toolbar.multiUserOff',
+    description: 'Whiteboard toolbar turn multi-user off menu',
+  },
+  toolbarFontSize: {
+    id: 'app.whiteboard.toolbar.fontSize',
+    description: 'Whiteboard toolbar font size menu',
+  },
+});
 
+class WhiteboardToolbar extends Component {
   constructor() {
     super();
 
@@ -25,8 +60,8 @@ class WhiteboardToolbar extends Component {
 
       // variables to keep current selected draw settings
       annotationSelected: {
-        icon: 'hand',
-        value: 'hand',
+        icon: 'pen_tool',
+        value: 'pencil',
       },
       thicknessSelected: { value: 4 },
       colorSelected: { value: '#000000' },
@@ -256,9 +291,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderToolItem() {
+    const { intl } = this.props;
+
     return (
       <ToolbarMenuItem
-        label={'Tools'}
+        label={intl.formatMessage(intlMessages.toolbarTools)}
         icon={this.state.annotationSelected.icon}
         onItemClick={this.displaySubMenu}
         objectToReturn={'annotationList'}
@@ -282,9 +319,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderFontItem() {
+    const { intl } = this.props;
+
     return (
       <ToolbarMenuItem
-        label={'Font Size List'}
+        label={intl.formatMessage(intlMessages.toolbarFontSize)}
         customIcon={this.renderFontItemIcon()}
         onItemClick={this.displaySubMenu}
         objectToReturn={'fontSizeList'}
@@ -324,9 +363,12 @@ class WhiteboardToolbar extends Component {
   }
 
   renderThicknessItem() {
+    const { intl } = this.props;
+
     return (
       <ToolbarMenuItem
-        label={'Thickness List'}
+        disabled={this.state.annotationSelected.value === 'hand'}
+        label={intl.formatMessage(intlMessages.toolbarLineThickness)}
         onItemClick={this.displaySubMenu}
         objectToReturn={'thicknessList'}
         onBlur={this.closeSubMenu}
@@ -387,9 +429,12 @@ class WhiteboardToolbar extends Component {
   }
 
   renderColorItem() {
+    const { intl } = this.props;
+
     return (
       <ToolbarMenuItem
-        label={'Color List'}
+        disabled={this.state.annotationSelected.value === 'hand'}
+        label={intl.formatMessage(intlMessages.toolbarLineColor)}
         onItemClick={this.displaySubMenu}
         objectToReturn={'colorList'}
         onBlur={this.closeSubMenu}
@@ -433,9 +478,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderUndoItem() {
+    const { intl } = this.props;
+
     return (
       <ToolbarMenuItem
-        label={'Undo Annotation'}
+        label={intl.formatMessage(intlMessages.toolbarUndoAnnotation)}
         icon={'undo'}
         onItemClick={this.handleUndo}
         className={cx(styles.toolbarButton, styles.notActive)}
@@ -444,9 +491,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderClearAllItem() {
+    const { intl } = this.props;
+
     return (
       <ToolbarMenuItem
-        label={'Clear All Annotations'}
+        label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
         icon={'circle_close'}
         onItemClick={this.handleClearAll}
         className={cx(styles.toolbarButton, styles.notActive)}
@@ -455,11 +504,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderMultiUserItem() {
-    const { multiUser } = this.props;
+    const { intl, multiUser } = this.props;
 
     return (
       <ToolbarMenuItem
-        label={multiUser ? 'Turn multi-user mode off' : 'Tuen multi-user mode on'}
+        label={multiUser ? intl.formatMessage(intlMessages.toolbarMultiUserOff) : intl.formatMessage(intlMessages.toolbarMultiUserOn)}
         icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
         onItemClick={this.handleSwitchWhiteboardMode}
         className={cx(styles.toolbarButton, styles.notActive)}
@@ -540,6 +589,9 @@ WhiteboardToolbar.propTypes = {
 
   // defines the physical height of the whiteboard
   height: PropTypes.number.isRequired,
+
+  intl: intlShape.isRequired,
+
 };
 
-export default injectWbResizeEvent(WhiteboardToolbar);
+export default injectWbResizeEvent(injectIntl(WhiteboardToolbar));

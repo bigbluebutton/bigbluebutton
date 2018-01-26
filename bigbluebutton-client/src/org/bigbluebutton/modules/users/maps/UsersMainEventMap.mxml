@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.SetWebcamsOnlyForModeratorEvent;
 			import org.bigbluebutton.core.events.TokenValidEvent;
 			import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
@@ -36,15 +37,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.UserServicesEvent;
 			import org.bigbluebutton.main.model.GuestManager;
 			import org.bigbluebutton.main.model.users.UserService;
-			import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
-			import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			<!--TODO: Move guest events to user events? -->
 
@@ -107,18 +105,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
 	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
 	  </EventHandlers>
-
-		<EventHandlers type="{AddUserToPresenterGroupEvent.ADD_USER_TO_PRESENTER_GROUP}" >
-			<MethodInvoker generator="{UserService}" method="addUserToPresenterGroup" arguments="{event}" />
-		</EventHandlers>
-
-		<EventHandlers type="{RemoveUserFromPresenterGroupEvent.REMOVE_USER_FROM_PRESENTER_GROUP}" >
-			<MethodInvoker generator="{UserService}" method="removeUserFromPresenterGroup" arguments="{event}" />
-		</EventHandlers>
-
-		<EventHandlers type="{RequestPresenterGroupEvent.REQUEST_PRESENTER_GROUP}" >
-			<MethodInvoker generator="{UserService}" method="handleRequestPresenterGroupEvent" arguments="{event}" />
-		</EventHandlers>
 
 	  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
 	    <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
@@ -183,6 +169,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	  <EventHandlers type="{LockControlEvent.SAVE_LOCK_SETTINGS}" >
 	    <MethodInvoker generator="{UserService}" method="saveLockSettings" arguments="{event}" />
+	  </EventHandlers>
+		
+	  <EventHandlers type="{SetWebcamsOnlyForModeratorEvent.UPDATE_WEBCAMS_ONLY_FOR_MODERATOR}" >
+	    <MethodInvoker generator="{UserService}" method="updateWebcamsOnlyForModerator" arguments="{event}" />
 	  </EventHandlers>
 	  
 	  <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">

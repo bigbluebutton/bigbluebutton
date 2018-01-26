@@ -21,15 +21,6 @@ object UsersApp {
     outGW.send(msgEvent)
   }
 
-  def addUserToPresenterGroup(liveMeeting: LiveMeeting, outGW: OutMsgRouter,
-                              userId: String, requesterId: String): Unit = {
-    Users2x.addUserToPresenterGroup(liveMeeting.users2x, userId)
-    UsersApp.broadcastAddUserToPresenterGroup(
-      liveMeeting.props.meetingProp.intId,
-      userId, requesterId, outGW
-    )
-  }
-
   def approveOrRejectGuest(liveMeeting: LiveMeeting, outGW: OutMsgRouter,
                            guest: GuestApprovedVO, approvedBy: String): Unit = {
     for {
@@ -102,8 +93,8 @@ object UsersApp {
 
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
+      reguser <- RegisteredUsers.remove(userId, liveMeeting.registeredUsers)
     } yield {
-      RegisteredUsers.remove(userId, liveMeeting.registeredUsers)
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
       if (user.presenter) {
@@ -138,13 +129,13 @@ class UsersApp(
     with LogoutAndEndMeetingCmdMsgHdlr
     with MeetingActivityResponseCmdMsgHdlr
     with SetRecordingStatusCmdMsgHdlr
+    with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
+    with GetWebcamsOnlyForModeratorReqMsgHdlr
     with AssignPresenterReqMsgHdlr
-    with AddUserToPresenterGroupCmdMsgHdlr
-    with RemoveUserFromPresenterGroupCmdMsgHdlr
-    with GetPresenterGroupReqMsgHdlr
     with EjectDuplicateUserReqMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr
+    with EjectUserFromMeetingSysMsgHdlr
     with MuteUserCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)

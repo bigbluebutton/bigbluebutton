@@ -22,6 +22,9 @@ package org.bigbluebutton.modules.screenshare.model {
 	public class ScreenshareOptions extends Options {
 
 		[Bindable]
+		public var uri: String = "";
+		
+		[Bindable]
 		public var showButton:Boolean = true;
 
 		[Bindable]

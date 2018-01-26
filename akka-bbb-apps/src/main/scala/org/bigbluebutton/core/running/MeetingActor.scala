@@ -35,6 +35,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core2.testdata.FakeTestData
 
 object MeetingActor {
   def props(
@@ -161,7 +162,11 @@ class MeetingActor(
     MeetingStatus2x.unmuteMeeting(liveMeeting.status)
   }
 
+  // Set webcamsOnlyForModerator property in case we didn't after meeting creation
+  MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
+
   /*******************************************************************/
+  // Helper to create fake users for testing (ralam jan 5, 2018)
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
   /*******************************************************************/
@@ -221,14 +226,16 @@ class MeetingActor(
       case m: MeetingActivityResponseCmdMsg => state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: GetWebcamsOnlyForModeratorReqMsg => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
+      case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
+      // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg => usersApp.handleEjectUserFromMeetingCmdMsg(m)
+      // Another part of system (e.g. bbb-apps) requested to eject user.
+      case m: EjectUserFromMeetingSysMsg => usersApp.handleEjectUserFromMeetingSysMsg(m)
       case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
       case m: ChangeUserRoleCmdMsg => usersApp.handleChangeUserRoleCmdMsg(m)
-      case m: AddUserToPresenterGroupCmdMsg => usersApp.handleAddUserToPresenterGroupCmdMsg(m)
-      case m: RemoveUserFromPresenterGroupCmdMsg => state = usersApp.handleRemoveUserFromPresenterGroupCmdMsg(m, state)
-      case m: GetPresenterGroupReqMsg => usersApp.handleGetPresenterGroupReqMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg => wbApp.handle(m, liveMeeting, msgBus)
@@ -281,7 +288,7 @@ class MeetingActor(
 
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: AssignPresenterReqMsg => handlePresenterChange(m)
+      case m: AssignPresenterReqMsg => state = handlePresenterChange(m, state)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -358,12 +365,12 @@ class MeetingActor(
     // TODO send all screen sharing info
   }
 
-  def handlePresenterChange(msg: AssignPresenterReqMsg): Unit = {
+  def handlePresenterChange(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
     // Stop poll if one is running as presenter left
     pollApp.stopPoll(state, msg.header.userId, liveMeeting, msgBus)
 
     // switch user presenter status for old and new presenter
-    usersApp.handleAssignPresenterReqMsg(msg)
+    val newState = usersApp.handleAssignPresenterReqMsg(msg, state)
 
     // request screenshare to end
     screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
@@ -371,6 +378,8 @@ class MeetingActor(
       liveMeeting.props.screenshareProps.screenshareConf,
       liveMeeting, msgBus
     )
+
+    newState
 
   }
 

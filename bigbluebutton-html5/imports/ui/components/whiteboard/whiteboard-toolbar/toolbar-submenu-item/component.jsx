@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
-import styles from '../styles';
+import { styles } from '../styles';
 
 export default class ToolbarSubmenuItem extends Component {
   constructor() {
@@ -50,6 +50,13 @@ export default class ToolbarSubmenuItem extends Component {
   }
 
   render() {
+    const {
+      className,
+      customIcon,
+      icon,
+      label,
+    } = this.props;
+
     return (
       <div className={styles.buttonWrapper}>
         <Button
@@ -57,11 +64,12 @@ export default class ToolbarSubmenuItem extends Component {
           role="button"
           color="default"
           size="md"
-          label={this.props.label}
-          icon={this.props.icon}
-          customIcon={this.props.customIcon}
+          label={label}
+          aria-label={label}
+          icon={icon}
+          customIcon={customIcon}
           onMouseUp={this.handleOnMouseUp}
-          className={this.props.className}
+          className={className}
           setRef={this.setRef}
         />
       </div>

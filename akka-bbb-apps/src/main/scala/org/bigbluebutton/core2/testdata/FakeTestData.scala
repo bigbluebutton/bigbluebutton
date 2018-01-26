@@ -41,6 +41,11 @@ trait FakeTestData {
     val vu5 = FakeUserGenerator.createFakeVoiceOnlyUser(CallingWith.PHONE, muted = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu5)
 
+    for (i <- 1 to 50) {
+      val guser = createUserVoiceAndCam(liveMeeting, Roles.MODERATOR_ROLE, guest = false, authed = true, CallingWith.WEBRTC, muted = false,
+        talking = false, listenOnly = false)
+      Users2x.add(liveMeeting.users2x, guser)
+    }
   }
 
   def createUserVoiceAndCam(liveMeeting: LiveMeeting, role: String, guest: Boolean, authed: Boolean, callingWith: String,

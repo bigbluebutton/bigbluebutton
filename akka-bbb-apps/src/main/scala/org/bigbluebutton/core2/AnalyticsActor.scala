@@ -40,6 +40,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ValidateAuthTokenRespMsg => logMessage(msg)
       case m: UserJoinedMeetingEvtMsg => logMessage(msg)
       case m: RecordingStatusChangedEvtMsg => logMessage(msg)
+      case m: WebcamsOnlyForModeratorChangedEvtMsg => logMessage(msg)
       case m: UserLeftMeetingEvtMsg => logMessage(msg)
       case m: PresenterUnassignedEvtMsg => logMessage(msg)
       case m: PresenterAssignedEvtMsg => logMessage(msg)
@@ -74,6 +75,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: StartRecordingVoiceConfSysMsg => logMessage(msg)
       case m: StopRecordingVoiceConfSysMsg => logMessage(msg)
       case m: TransferUserToVoiceConfSysMsg => logMessage(msg)
+      case m: EjectUserFromMeetingSysMsg => logMessage(msg)
 
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)

@@ -28,7 +28,7 @@ export default function addUser(meetingId, user) {
     role: String,
     guest: Boolean,
     authed: Boolean,
-    waitingForAcceptance: Boolean,
+    guestStatus: String,
     emoji: String,
     presenter: Boolean,
     locked: Boolean,

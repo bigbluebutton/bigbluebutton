@@ -29,6 +29,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
+	import org.bigbluebutton.core.events.SetWebcamsOnlyForModeratorEvent;
 	import org.bigbluebutton.core.events.TokenValidEvent;
 	import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
@@ -49,9 +50,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-	import org.bigbluebutton.main.model.users.events.AddUserToPresenterGroupEvent;
-	import org.bigbluebutton.main.model.users.events.RemoveUserFromPresenterGroupEvent;
-	import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
 	import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
 	import org.bigbluebutton.modules.users.services.MessageSender;
@@ -61,7 +59,7 @@ package org.bigbluebutton.main.model.users
     
 		private var joinService:JoinService;
 		private var applicationURI:String;
-		private var hostURI:String;		
+		private var hostURI:String;
 		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
 		private var reconnecting:Boolean = false;
@@ -78,6 +76,7 @@ package org.bigbluebutton.main.model.users
 		}
 
 		private function onAllowedToJoin():void {
+			sender.queryForWebcamsOnlyForModerator();
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();
@@ -93,7 +92,7 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(loadCommand);
 		}
 		
-		public function startService(e:UserServicesEvent):void {      
+		public function startService(e:UserServicesEvent):void {
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
 			var applicationOptions : ApplicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
@@ -101,7 +100,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function joinListener(success:Boolean, result: EnterApiResponse):void {
-			if (success) {        
+			if (success) {
 
         LiveMeeting.inst().me.id = result.intUserId
         LiveMeeting.inst().me.name = result.username;
@@ -130,11 +129,9 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.welcomeMessage = result.welcome;
         LiveMeeting.inst().meeting.modOnlyMessage = result.modOnlyMessage;
         LiveMeeting.inst().meeting.allowStartStopRecording = result.allowStartStopRecording;
-        LiveMeeting.inst().meeting.webcamsOnlyForModerator = result.webcamsOnlyForModerator;
         LiveMeeting.inst().meeting.metadata = result.metadata;
-        
 		LiveMeeting.inst().meeting.logoutTimer = result.logoutTimer;
-		
+
 		LiveMeeting.inst().meeting.bannerColor = result.bannerColor;
 		LiveMeeting.inst().meeting.bannerText = result.bannerText;
 
@@ -197,8 +194,7 @@ package org.bigbluebutton.main.model.users
 
 		public function changeRecordingStatus(e:BBBEvent):void {
 			if (this.isModerator() && !e.payload.remote) {
-				var myUserId:String = UsersUtil.getMyUserID();
-				sender.changeRecordingStatus(myUserId, e.payload.recording);
+				sender.changeRecordingStatus(UsersUtil.getMyUserID(), e.payload.recording);
 			}
 		}
 
@@ -234,7 +230,7 @@ package org.bigbluebutton.main.model.users
       sender.addStream(e.userid, e.stream);
 		}
 		
-		public function removeStream(e:BroadcastStoppedEvent):void {			
+		public function removeStream(e:BroadcastStoppedEvent):void {
       sender.removeStream(e.userid, e.stream);
 		}
 		
@@ -246,15 +242,15 @@ package org.bigbluebutton.main.model.users
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
 			sender.createBreakoutRooms(LiveMeeting.inst().meeting.internalId, e.rooms, e.durationInMinutes, e.record);
 		}
-    
-    public function handleApproveGuestAccess(e: ResponseModeratorEvent):void {
-      sender.approveGuestAccess(e.userIds, e.allow);
-    }
-		
+
+		public function handleApproveGuestAccess(e: ResponseModeratorEvent):void {
+			sender.approveGuestAccess(e.userIds, e.allow);
+		}
+
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
 			sender.requestBreakoutJoinUrl(LiveMeeting.inst().meeting.internalId, e.breakoutMeetingId, e.userId);
 		}
-		
+
 		public function listenInOnBreakout(e:BreakoutRoomEvent):void {
 			if (e.listen) {
 				sender.listenInOnBreakout(LiveMeeting.inst().meeting.internalId, 
@@ -273,18 +269,6 @@ package org.bigbluebutton.main.model.users
 			if (this.isModerator()) sender.kickUser(e.userid);
 		}
 
-		public function addUserToPresenterGroup(e: AddUserToPresenterGroupEvent): void {
-			if (this.isModerator()) sender.addUserToPresenterGroup(e.userId);
-		}
-
-		public function removeUserFromPresenterGroup(e: RemoveUserFromPresenterGroupEvent): void {
-			if (this.isModerator()) sender.removeUserFromPresenterGroup(e.userId);
-		}
-
-		public function handleRequestPresenterGroupEvent(e: RequestPresenterGroupEvent): void {
-			sender.handleRequestPresenterGroupEvent();
-		}
-
 		public function changeRole(e:ChangeRoleEvent):void {
 			if (this.isModerator()) sender.changeRole(e.userid, e.role);
 		}
@@ -295,7 +279,7 @@ package org.bigbluebutton.main.model.users
 				reconnecting = true;
 			}
 		}
-		
+
 		/**
 		 * Assign a new presenter 
 		 * @param e
@@ -308,49 +292,53 @@ package org.bigbluebutton.main.model.users
 		}
 
     public function muteUnmuteUser(command:VoiceConfEvent):void {
-      sender.muteUnmuteUser(command.userid, command.mute);		
+      sender.muteUnmuteUser(command.userid, command.mute);
     }
-    
-    public function muteAllUsers(command:VoiceConfEvent):void {	
-      sender.muteAllUsers(true);			
+
+    public function muteAllUsers(command:VoiceConfEvent):void {
+      sender.muteAllUsers(true);
     }
-    
+
     public function unmuteAllUsers(command:VoiceConfEvent):void{
       sender.muteAllUsers(false);
     }
-       
+
     public function muteAllUsersExceptPresenter(command:VoiceConfEvent):void {	
       sender.muteAllUsersExceptPresenter(true);
     }
-        
+
     public function ejectUser(command:VoiceConfEvent):void {
       if (this.isModerator()) sender.ejectUserFromVoice(command.userid);
     }
-    
+
     //Lock events
     public function lockAllUsers(command:LockControlEvent):void {
-      sender.setAllUsersLock(true);			
+      sender.setAllUsersLock(true);
     }
-    
-    public function unlockAllUsers(command:LockControlEvent):void {	
-      sender.setAllUsersLock(false);			
+
+    public function unlockAllUsers(command:LockControlEvent):void {
+      sender.setAllUsersLock(false);
     }
-    
-    public function lockAlmostAllUsers(command:LockControlEvent):void {	
+
+    public function lockAlmostAllUsers(command:LockControlEvent):void {
       var pres:Array = LiveMeeting.inst().users.getPresenters();
       sender.setAllUsersLock(true, pres);
     }
-    
-    public function lockUser(command:LockControlEvent):void {	
-      sender.setUserLock(command.internalUserID, true);			
+
+    public function lockUser(command:LockControlEvent):void {
+      sender.setUserLock(command.internalUserID, true);
     }
-    
-    public function unlockUser(command:LockControlEvent):void {	
-      sender.setUserLock(command.internalUserID, false);			
+
+    public function unlockUser(command:LockControlEvent):void {
+      sender.setUserLock(command.internalUserID, false);
     }
-    
-    public function saveLockSettings(command:LockControlEvent):void {	
-      sender.saveLockSettings(command.payload);			
+
+    public function saveLockSettings(command:LockControlEvent):void {
+      sender.saveLockSettings(command.payload);
     }
+
+	public function updateWebcamsOnlyForModerator(command:SetWebcamsOnlyForModeratorEvent):void {
+		sender.updateWebcamsOnlyForModerator(command.webcamsOnlyForModerator, UsersUtil.getMyUserID());
+	}
 	}
 }

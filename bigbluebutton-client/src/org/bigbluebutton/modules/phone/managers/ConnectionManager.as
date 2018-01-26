@@ -19,13 +19,12 @@
 
 package org.bigbluebutton.modules.phone.managers {	
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	
+	import flash.net.ObjectEncoding;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -35,6 +34,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
+	import org.bigbluebutton.util.ConnUtil;
 	
 	public class ConnectionManager {
 		private static const LOGGER:ILogger = getClassLogger(ConnectionManager);
@@ -85,14 +85,35 @@ package org.bigbluebutton.modules.phone.managers {
 		public function connect():void {				
 			if (!reconnecting || amIListenOnly) {
 				closedByUser = false;
-				var isTunnelling:Boolean = BBB.initConnectionManager().isTunnelling;
-				if (isTunnelling) {
-					uri = uri.replace(/rtmp:/gi, "rtmpt:");
-				}
-				LOGGER.debug("Connecting to uri=[{0}]", [uri]);
-				NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;
+				
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+				var result:Array = pattern.exec(uri);
+				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS
+					
 				netConnection = new NetConnection();
-				netConnection.proxyType = "best";
+				
+				if (BBB.initConnectionManager().isTunnelling) {
+					var tunnelProtocol: String = ConnUtil.RTMPT;
+					
+					if (useRTMPS) {
+						netConnection.proxyType = ConnUtil.PROXY_NONE;
+						tunnelProtocol = ConnUtil.RTMPS;
+					}
+						
+					uri = tunnelProtocol + "://" + result.server + "/" + result.app;
+					LOGGER.debug("BBB SIP CONNECT tunnel = TRUE " + "url=" +  uri);
+				} else {
+					var nativeProtocol: String = ConnUtil.RTMP;
+					if (useRTMPS) {
+						netConnection.proxyType = ConnUtil.PROXY_BEST;
+						nativeProtocol = ConnUtil.RTMPS;
+					}
+					
+					uri = nativeProtocol + "://" + result.server + "/" + result.app;
+					LOGGER.debug("BBB SIP CONNECT tunnel = FALSE " + "url=" +  uri);
+				}
+				
+				netConnection.objectEncoding = ObjectEncoding.AMF3;
 				netConnection.client = this;
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 				netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);

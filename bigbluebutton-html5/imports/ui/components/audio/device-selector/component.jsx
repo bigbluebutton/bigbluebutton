@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styles from '../audio-modal/styles';
+import { styles } from '../audio-modal/styles';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),

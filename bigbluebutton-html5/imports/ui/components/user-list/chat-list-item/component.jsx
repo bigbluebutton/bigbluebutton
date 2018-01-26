@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
-import styles from './styles';
+import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
@@ -65,6 +65,7 @@ const ChatListItem = (props) => {
 
   return (
     <Link
+      data-test="publicChatLink"
       to={linkPath}
       className={cx(styles.chatListItem, linkClasses)}
       role="button"

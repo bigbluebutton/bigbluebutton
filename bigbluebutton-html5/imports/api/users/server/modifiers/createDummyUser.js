@@ -27,10 +27,8 @@ export default function createDummyUser(meetingId, userId, authToken) {
       return;
     }
     if (numChanged) {
-      Logger.info(`Created dummy user 2x id=${userId} token=${authToken} meeting=${meetingId}`);
+      Logger.info(`Created dummy user id=${userId} token=${authToken} meeting=${meetingId}`);
     }
-
-    Logger.info(`Created dummy user id=${userId} token=${authToken} meeting=${meetingId}`);
   };
 
   return Users.insert(doc, cb);

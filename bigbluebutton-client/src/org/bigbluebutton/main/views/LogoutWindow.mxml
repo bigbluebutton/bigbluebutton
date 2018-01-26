@@ -25,7 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  implements="org.bigbluebutton.common.IKeyboardClose"
 		  verticalScrollPolicy="off"
           horizontalScrollPolicy="off"
-          horizontalAlign="center"
           showCloseButton="false"
           creationComplete="onCreationComplete()"
           minWidth="350"

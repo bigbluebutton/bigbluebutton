@@ -9,7 +9,7 @@ import setConnectionStatus from '../modifiers/setConnectionStatus';
 const ONLINE_CONNECTION_STATUS = 'online';
 
 export default function validateAuthToken(credentials) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ValidateAuthTokenReqMsg';
 
@@ -37,7 +37,7 @@ export default function validateAuthToken(credentials) {
 
   Logger.info(`User '${
     requesterUserId
-    }' is trying to validate auth token for meeting '${meetingId}'`);
+  }' is trying to validate auth token for meeting '${meetingId}'`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

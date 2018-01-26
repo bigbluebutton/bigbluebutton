@@ -1,24 +1,42 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.users.AssignPresenterActionHandler
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.models.{ PresentationPod, Users2x }
 
-trait SetPresenterInPodReqMsgHdlr extends RightsManagementTrait {
+trait SetPresenterInPodReqMsgHdlr {
   this: PresentationPodHdlrs =>
 
   def handle(
     msg: SetPresenterInPodReqMsg, state: MeetingState2x,
     liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
+    if (msg.body.podId == PresentationPod.DEFAULT_PRESENTATION_POD) {
+      // Swith presenter as default presenter pod has changed.
+      AssignPresenterActionHandler.handleAction(liveMeeting, bus.outGW, msg.header.userId, msg.body.nextPresenterId)
+    }
+    SetPresenterInPodActionHandler.handleAction(state, liveMeeting, bus.outGW, msg.header.userId, msg.body.podId, msg.body.nextPresenterId)
+  }
+}
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+object SetPresenterInPodActionHandler extends RightsManagementTrait {
+  def handleAction(
+    state:          MeetingState2x,
+    liveMeeting:    LiveMeeting,
+    outGW:          OutMsgRouter,
+    assignedBy:     String,
+    podId:          String,
+    newPresenterId: String
+  ): MeetingState2x = {
+
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to set presenter in presentation pod."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, assignedBy, reason, outGW, liveMeeting)
       state
     } else {
       def broadcastSetPresenterInPodRespMsg(podId: String, nextPresenterId: String, requesterId: String): Unit = {
@@ -32,32 +50,22 @@ trait SetPresenterInPodReqMsgHdlr extends RightsManagementTrait {
         val body = SetPresenterInPodRespMsgBody(podId, nextPresenterId)
         val event = SetPresenterInPodRespMsg(header, body)
         val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        bus.outGW.send(msgEvent)
+        outGW.send(msgEvent)
       }
 
-      val podId: String = msg.body.podId
-      val requesterId: String = msg.header.userId
-      val nextPresenterId: String = msg.body.nextPresenterId
-
       val newState = for {
+        user <- Users2x.findWithIntId(liveMeeting.users2x, newPresenterId)
         pod <- PresentationPodsApp.getPresentationPod(state, podId)
       } yield {
-
-        if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, nextPresenterId)) {
-
-          if (pod.currentPresenter != "") {
-            liveMeeting.users2x.addOldPresenter(pod.currentPresenter)
-          }
-
-          val updatedPod = pod.setCurrentPresenter(nextPresenterId)
-
-          broadcastSetPresenterInPodRespMsg(pod.id, nextPresenterId, requesterId)
-
-          val pods = state.presentationPodManager.addPod(updatedPod)
-          state.update(pods)
-        } else {
-          state
+        if (pod.currentPresenter != "") {
+          Users2x.removeUserFromPresenterGroup(liveMeeting.users2x, pod.currentPresenter)
+          liveMeeting.users2x.addOldPresenter(pod.currentPresenter)
         }
+        Users2x.addUserToPresenterGroup(liveMeeting.users2x, newPresenterId)
+        val updatedPod = pod.setCurrentPresenter(newPresenterId)
+        broadcastSetPresenterInPodRespMsg(pod.id, newPresenterId, assignedBy)
+        val pods = state.presentationPodManager.addPod(updatedPod)
+        state.update(pods)
       }
 
       newState match {
@@ -65,6 +73,5 @@ trait SetPresenterInPodReqMsgHdlr extends RightsManagementTrait {
         case None     => state
       }
     }
-
   }
 }

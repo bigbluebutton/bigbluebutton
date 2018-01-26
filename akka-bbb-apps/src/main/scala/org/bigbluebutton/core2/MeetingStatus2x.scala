@@ -52,6 +52,8 @@ object MeetingStatus2x {
   def isRecording(status: MeetingStatus2x): Boolean = status.recording
   def setVoiceRecordingFilename(status: MeetingStatus2x, path: String) = status.voiceRecordingFilename = path
   def getVoiceRecordingFilename(status: MeetingStatus2x): String = status.voiceRecordingFilename
+  def setWebcamsOnlyForModerator(status: MeetingStatus2x, value: Boolean) = status.webcamsOnlyForModerator = value
+  def webcamsOnlyForModeratorEnabled(status: MeetingStatus2x): Boolean = status.webcamsOnlyForModerator
   def permisionsInitialized(status: MeetingStatus2x): Boolean = status.permissionsInited
   def initializePermissions(status: MeetingStatus2x) = status.permissionsInited = true
   def audioSettingsInitialized(status: MeetingStatus2x): Boolean = status.audioSettingsInited
@@ -85,5 +87,7 @@ class MeetingStatus2x {
   private var voiceRecordingFilename: String = ""
 
   private var extension = new MeetingExtensionProp
+
+  private var webcamsOnlyForModerator = false
 
 }

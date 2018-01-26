@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.broadcast.models
 	import flash.media.Video;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.net.ObjectEncoding;
 	
 	import mx.core.UIComponent;
 	
@@ -119,6 +120,7 @@ package org.bigbluebutton.modules.broadcast.models
 		private function connect():void {
 			LOGGER.debug("Connecting {0}", [uri]);
 			nc = new NetConnection();
+			nc.objectEncoding = ObjectEncoding.AMF3;
 			nc.proxyType = "best";
 			nc.connect(uri);
 			nc.client = this;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import AboutComponent from './component';
 
@@ -16,4 +16,4 @@ const getClientBuildInfo = function () {
   };
 };
 
-export default createContainer(() => getClientBuildInfo(), AboutContainer);
+export default withTracker(() => getClientBuildInfo())(AboutContainer);

@@ -4,7 +4,7 @@ import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles';
+import { styles } from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
 
@@ -25,27 +25,21 @@ const propTypes = {
     const children = props[propName];
 
     if (!children || children.length < 2) {
-      return new Error(
-        `Invalid prop \`${propName}\` supplied to` +
-        ` \`${componentName}\`. Validation failed.`,
-      );
+      return new Error(`Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`);
     }
 
     const trigger = children.find(x => x.type === DropdownTrigger);
     const content = children.find(x => x.type === DropdownContent);
 
     if (!trigger) {
-      return new Error(
-        `Invalid prop \`${propName}\` supplied to` +
-        ` \`${componentName}\`. Missing \`DropdownTrigger\`. Validation failed.`,
-      );
+      return new Error(`Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownTrigger\`. Validation failed.`);
     }
 
     if (!content) {
-      return new Error(
-        `Invalid prop \`${propName}\` supplied to` +
-        ` \`${componentName}\`. Missing \`DropdownContent\`. Validation failed.`,
-      );
+      return new Error(`Invalid prop \`${propName}\` supplied to` +
+        ` \`${componentName}\`. Missing \`DropdownContent\`. Validation failed.`);
     }
 
     return null;
@@ -70,66 +64,48 @@ class Dropdown extends Component {
     this.state = { isOpen: false };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
-    this.handleStateCallback = this.handleStateCallback.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.isOpen !== this.props.isOpen
-      && this.state.isOpen !== this.props.isOpen) {
-      this.setState({ isOpen: this.props.isOpen }, this.handleStateCallback);
+    if (this.state.isOpen && !prevState.isOpen) {
+      this.props.onShow();
     }
-  }
 
-  handleStateCallback() {
-    const { onShow, onHide } = this.props;
-
-    if (this.state.isOpen && onShow) {
-      onShow();
-    } else if (onHide) {
-      onHide();
+    if (!this.state.isOpen && prevState.isOpen) {
+      this.props.onHide();
     }
   }
 
   handleShow() {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleWindowClick, false);
-
-    this.setState({ isOpen: true }, this.handleStateCallback);
+    this.setState({ isOpen: true }, () => {
+      const { addEventListener } = window;
+      addEventListener('click', this.handleWindowClick, true);
+    });
   }
 
   handleHide() {
-    const { removeEventListener } = window;
-    removeEventListener('click', this.handleWindowClick, false);
-
-    const { autoFocus } = this.props;
-
-    this.setState({ isOpen: false }, this.handleStateCallback);
-
-    if (autoFocus) {
-      const triggerElement = findDOMNode(this.trigger);
-      triggerElement.focus();
-    }
+    this.setState({ isOpen: false }, () => {
+      const { removeEventListener } = window;
+      removeEventListener('click', this.handleWindowClick, true);
+    });
   }
 
   handleWindowClick(event) {
-    if (this.state.isOpen) {
-      const dropdownElement = findDOMNode(this);
-      const shouldUpdateState = event.target !== dropdownElement &&
-        !dropdownElement.contains(event.target) &&
-        this.state.isOpen;
+    const triggerElement = findDOMNode(this.trigger);
 
-      if (shouldUpdateState) {
-        this.handleHide();
-      }
+    if (!this.state.isOpen
+      || triggerElement === event.target
+      || triggerElement.contains(event.target)) {
+      return;
     }
+
+    this.handleHide();
   }
 
   handleToggle() {
-    this.state.isOpen ?
-      this.handleHide() :
-      this.handleShow();
+    return this.state.isOpen ? this.handleHide() : this.handleShow();
   }
 
   render() {
@@ -175,8 +151,8 @@ class Dropdown extends Component {
           <Button
             className={styles.close}
             label={intl.formatMessage(intlMessages.close)}
-            size={'lg'}
-            color={'default'}
+            size="lg"
+            color="default"
             onClick={this.handleHide}
           /> : null}
       </div>

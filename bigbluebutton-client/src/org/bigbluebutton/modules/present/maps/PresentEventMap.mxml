@@ -25,7 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.model.users.events.RequestPresenterGroupEvent;
 			import org.bigbluebutton.modules.present.business.PresentProxy;
 			import org.bigbluebutton.modules.present.commands.ChangePageCommand;
 			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
@@ -63,7 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 			<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
 			<MethodInvoker generator="{PresentProxy}" method="getPresentationPodsInfo" />
-			<EventAnnouncer generator="{RequestPresenterGroupEvent}" type="{RequestPresenterGroupEvent.REQUEST_PRESENTER_GROUP}" />
 			<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
 		</EventHandlers>
 		

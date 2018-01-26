@@ -239,8 +239,8 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
       && user.emoji.status !== EMOJI_STATUSES.none
       && !isDialInUser;
 
-  // if currentUser is a moderator, allow kicking other users
-  const allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+  // if currentUser is a moderator, allow removing other users
+  const allowedToRemove = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
   const allowedToSetPresenter = currentUser.isModerator
       && !user.isPresenter
@@ -261,7 +261,7 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
     allowedToMuteAudio,
     allowedToUnmuteAudio,
     allowedToResetStatus,
-    allowedToKick,
+    allowedToRemove,
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
@@ -301,11 +301,11 @@ const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none');
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const kickUser = (userId) => {
+const removeUser = (userId) => {
   if (isVoiceOnlyUser(userId)) {
     makeCall('ejectUserFromVoice', userId);
   } else {
-    makeCall('kickUser', userId);
+    makeCall('removeUser', userId);
   }
 };
 
@@ -352,7 +352,7 @@ const roving = (event, itemCount, changeState) => {
 export default {
   setEmojiStatus,
   assignPresenter,
-  kickUser,
+  removeUser,
   toggleVoice,
   changeRole,
   getUsers,

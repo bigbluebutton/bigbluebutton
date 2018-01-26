@@ -1,0 +1,353 @@
+{
+  "public": {
+
+    "app": {
+      "mobileFont": 16,
+      "desktopFont": 14,
+      "audioChatNotification": false,
+      "autoJoinAudio": true,
+      "listenOnly": false,
+      "skipCheck": false,
+      "appName": "BigBlueButton HTML5 Client",
+      "bbbServerVersion": "2.0-rc",
+      "copyright": "©2018 BigBlueButton Inc.",
+      "html5ClientBuild": "HTML5_CLIENT_VERSION",
+      "lockOnJoin": true,
+      "basename": "/html5client",
+      "defaultSettings": {
+        "application": {
+          "chatAudioNotifications": false,
+          "chatPushNotifications": false,
+          "fontSize": "16px",
+          "locale": "en"
+        },
+        "audio": {
+          "inputDeviceId": "undefined",
+          "outputDeviceId": "undefined"
+        },
+        "video": {
+          "viewParticipantsWebcams": true
+        },
+        "cc": {
+          "backgroundColor": "#FFFFFF",
+          "fontColor": "#000000",
+          "enabled": false,
+          "fontFamily": "Calibri",
+          "fontSize": "16px",
+          "takeOwnership": false
+        },
+        "participants": {
+          "muteAll": false,
+          "lockAll": false,
+          "microphone": false,
+          "publicChat": false,
+          "privateChat": false,
+          "layout": false
+        }
+      },
+      "allowHTML5Moderator": true,
+      "allowModeratorToUnmuteAudio": true,
+      "httpsConnection": false,
+      "connectionTimeout": 60000
+    },
+
+    "kurento": {
+      "wsUrl": "HOST",
+      "chromeExtensionKey": "KEY",
+      "chromeExtensionLink": "LINK",
+      "enableScreensharing": false,
+      "enableVideo": false
+    },
+
+    "acl": {
+      "viewer": {
+        "subscriptions": [
+          "users",
+          "cursor",
+          "screenshare",
+          "meetings",
+          "polls",
+          "chat",
+          "presentations",
+          "annotations",
+          "slides",
+          "captions",
+          "breakouts",
+          "voiceUsers",
+          "whiteboard-multi-user"
+        ],
+        "methods": [
+          "listenOnlyToggle",
+          "userLogout",
+          "setEmojiStatus",
+          "toggleSelfVoice",
+          "publishVote",
+          "sendChat"
+        ]
+      },
+      "moderator": {
+        "methods": [
+          "assignPresenter",
+          "removeUser",
+          "muteUser",
+          "unmuteUser",
+          "endMeeting",
+          "toggleVoice",
+          "clearPublicChatHistory",
+          "changeRole",
+          "ejectUserFromVoice"
+        ]
+      },
+      "presenter": {
+        "methods": [
+          "assignPresenter",
+          "switchSlide",
+          "modifyWhiteboardAccess",
+          "undoAnnotation",
+          "clearWhiteboard",
+          "moveCursor",
+          "sendAnnotation",
+          "removePresentation",
+          "setPresentation"
+        ]
+      }
+    },
+
+    "chat": {
+      "min_message_length": 1,
+      "max_message_length": 5000,
+      "grouping_messages_window": 60000,
+      "type_system": "SYSTEM_MESSAGE",
+      "type_public": "PUBLIC_CHAT",
+      "type_private": "PRIVATE_CHAT",
+      "system_userid": "SYSTEM_MESSAGE",
+      "system_username": "SYSTEM_MESSAGE",
+      "public_id": "public",
+      "public_userid": "public_chat_userid",
+      "public_username": "public_chat_username",
+      "storage_key": "UNREAD_CHATS",
+      "path_route": "users/chat/",
+      "system_messages_keys": {
+        "chat_clear": "PUBLIC_CHAT_CLEAR"
+      }
+    },
+
+    "media": {
+      "WebRTCHangupRetryInterval": 2000,
+      "vertoServerAddress": "HOST",
+      "freeswitchProfilePassword": "1234",
+      "vertoPort": "8082",
+      "useSIPAudio": true,
+      "stunTurnServersFetchAddress": "/bigbluebutton/api/stuns",
+      "mediaTag": "#remote-media",
+      "callTransferTimeout": 5000,
+      "callHangupTimeout": 2000,
+      "callHangupMaximumRetries": 10,
+      "echoTestNumber": "9196"
+    },
+
+    "presentation": {
+      "defaultPresentationFile": "default.pdf",
+      "uploadEndpoint": "/bigbluebutton/presentation/upload",
+      "uploadSizeMin": 0,
+      "uploadSizeMax": 50000000,
+      "uploadValidMimeTypes": [
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.oasis.opendocument.text",
+        "application/rtf",
+        "text/plain",
+        "application/vnd.oasis.opendocument.spreadsheet",
+        "application/vnd.oasis.opendocument.presentation",
+        "application/vnd.oasis.opendocument.text",
+        "application/vnd.oasis.opendocument.graphics",
+        "application/vnd.oasis.opendocument.chart",
+        "application/vnd.oasis.opendocument.image",
+        "application/pdf",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+
+    "user": {
+      "role_moderator": "MODERATOR",
+      "role_viewer": "VIEWER",
+      "role_presenter": "PRESENTER"
+    },
+
+    "whiteboard": {
+      "annotations": {
+        "message_frequency": 50,
+        "status": {
+          "start": "DRAW_START",
+          "update": "DRAW_UPDATE",
+          "end": "DRAW_END"
+        }
+      },
+      "toolbar": {
+        "colors": [
+          {
+            "label": "black",
+            "value": "#000000"
+          },
+          {
+            "label": "white",
+            "value": "#ffffff"
+          },
+          {
+            "label": "red",
+            "value": "#ff0000"
+          },
+          {
+            "label": "orange",
+            "value": "#ff8800"
+          },
+          {
+            "label": "eletricLime",
+            "value": "#ccff00"
+          },
+          {
+            "label": "Lime",
+            "value": "#00ff00"
+          },
+          {
+            "label": "Cyan",
+            "value": "#00ffff"
+          },
+          {
+            "label": "dodgerBlue",
+            "value": "#0088ff"
+          },
+          {
+            "label": "blue",
+            "value": "#0000ff"
+          },
+          {
+            "label": "violet",
+            "value": "#8800ff"
+          },
+          {
+            "label": "magenta",
+            "value": "#ff00ff"
+          },
+          {
+            "label": "silver",
+            "value": "#c0c0c0"
+          }
+        ],
+        "thickness": [
+          {
+            "value": 14
+          },
+          {
+            "value": 12
+          },
+          {
+            "value": 10
+          },
+          {
+            "value": 8
+          },
+          {
+            "value": 6
+          },
+          {
+            "value": 4
+          },
+          {
+            "value": 2
+          }
+        ],
+        "font_sizes": [
+          {
+            "value": 36
+          },
+          {
+            "value": 32
+          },
+          {
+            "value": 28
+          },
+          {
+            "value": 24
+          },
+          {
+            "value": 20
+          },
+          {
+            "value": 16
+          }
+        ],
+        "tools": [
+          {
+            "icon": "text_tool",
+            "value": "text"
+          },
+          {
+            "icon": "line_tool",
+            "value": "line"
+          },
+          {
+            "icon": "circle_tool",
+            "value": "ellipse"
+          },
+          {
+            "icon": "triangle_tool",
+            "value": "triangle"
+          },
+          {
+            "icon": "rectangle_tool",
+            "value": "rectangle"
+          },
+          {
+            "icon": "pen_tool",
+            "value": "pencil"
+          },
+          {
+            "icon": "hand",
+            "value": "hand"
+          }
+        ]
+      }
+    }
+  },
+
+  "private": {
+
+    "app": {
+      "captionsChunkLength": 1000,
+      "pencilChunkLength": 100
+    },
+
+    "redis": {
+      "host": "127.0.0.1",
+      "post": "6379",
+      "timeout": 5000,
+      "debug": false,
+      "channels": {
+        "toAkkaApps": "to-akka-apps-redis-channel"
+      },
+      "subscribeTo": [
+        "to-html5-redis-channel",
+        "from-akka-apps-*"
+      ],
+      "async": [
+        "from-akka-apps-wb-redis-channel"
+      ],
+      "ignored": [
+        "CheckAlivePongSysMsg",
+        "DoLatencyTracerMsg"
+      ]
+    },
+
+
+    "log": {
+      "filename": "/log/development.log",
+      "level": "info"
+    }
+  }
+}

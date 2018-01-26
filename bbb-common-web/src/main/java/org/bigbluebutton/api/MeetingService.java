@@ -257,6 +257,7 @@ public class MeetingService implements MessageListener {
     logData.put("name", m.getName());
     logData.put("duration", m.getDuration());
     logData.put("isBreakout", m.isBreakout());
+    logData.put("webcamsOnlyForModerator", m.getWebcamsOnlyForModerator());
     logData.put("record", m.isRecord());
     logData.put("event", "create_meeting");
     logData.put("description", "Create meeting.");

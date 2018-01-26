@@ -3,7 +3,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import styles from '/imports/ui/components/user-list/user-list-content/styles';
+import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import UserListItem from './user-list-item/component';
 
 const propTypes = {
@@ -17,7 +17,7 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
-  kickUser: PropTypes.func.isRequired,
+  removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
@@ -60,8 +60,8 @@ const intlMessages = defineMessages({
     id: 'app.userList.menu.makePresenter.label',
     description: 'Set this user to be the presenter in this meeting',
   },
-  KickUserLabel: {
-    id: 'app.userList.menu.kickUser.label',
+  RemoveUserLabel: {
+    id: 'app.userList.menu.removeUser.label',
     description: 'Forcefully remove this user from the meeting',
   },
   MuteUserAudioLabel: {
@@ -140,7 +140,7 @@ class UserParticipants extends Component {
       changeRole,
       assignPresenter,
       setEmojiStatus,
-      kickUser,
+      removeUser,
       toggleVoice,
     } = this.props;
 
@@ -161,9 +161,9 @@ class UserParticipants extends Component {
         handler: user => assignPresenter(user.id),
         icon: 'presentation',
       },
-      kick: {
-        label: user => intl.formatMessage(intlMessages.KickUserLabel, { 0: user.name }),
-        handler: user => kickUser(user.id),
+      remove: {
+        label: user => intl.formatMessage(intlMessages.RemoveUserLabel, { 0: user.name }),
+        handler: user => removeUser(user.id),
         icon: 'circle_close',
       },
       mute: {
