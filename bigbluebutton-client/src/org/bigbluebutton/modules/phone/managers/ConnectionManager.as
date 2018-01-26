@@ -165,7 +165,7 @@ package org.bigbluebutton.modules.phone.managers {
           break;
         case "NetConnection.Connect.NetworkChange":
           numNetworkChangeCount++;
-          if (numNetworkChangeCount % 20 == 0) {
+          if (numNetworkChangeCount % 2 == 0) {
               logData.tags = ["voice", "flash"];
              logData.message = "Detected network change on bbb-voice";
              logData.numNetworkChangeCount = numNetworkChangeCount;
