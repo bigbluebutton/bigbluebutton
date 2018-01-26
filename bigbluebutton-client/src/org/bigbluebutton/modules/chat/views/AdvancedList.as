@@ -30,11 +30,6 @@ package org.bigbluebutton.modules.chat.views
   {
 	private static const LOGGER:ILogger = getClassLogger(AdvancedList);      
 	  
-    public function AdvancedList()
-    {
-      super();
-    }
-	
 	override protected function drawHighlightIndicator(indicator:Sprite, x:Number, y:Number, width:Number, height:Number, color:uint, itemRenderer:IListItemRenderer):void {
 		//intentionally empty to not show on hover
 	}

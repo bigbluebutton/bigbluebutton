@@ -48,7 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
