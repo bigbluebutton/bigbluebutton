@@ -34,20 +34,7 @@ const propTypes = {
   }).isRequired,
 };
 
-const handleBackAttempt = () => {
-  window.history.pushState(null, null, '403');
-};
-
 class MeetingEnded extends React.PureComponent {
-  componentDidMount() {
-    handleBackAttempt();
-    window.addEventListener('popstate', handleBackAttempt);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('popstate', handleBackAttempt);
-  }
-
   render() {
     const { intl, router, code } = this.props;
 
