@@ -30,8 +30,8 @@ package org.bigbluebutton.lib.whiteboard.views {
 			
 			this.x = x;
 			this.y = y;
-			this.width = width;
-			this.height = height;
+			this.width = annotationHolder.width = cursorHolder.width = width;
+			this.height = annotationHolder.height = cursorHolder.height = height;
 			this.validateNow();
 			if (resizeCallback != null && dimensionsChanged)
 				// FIXME: component lifecyle must respected to avoid using callLater method
