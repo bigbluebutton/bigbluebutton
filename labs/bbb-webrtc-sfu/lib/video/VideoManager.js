@@ -52,12 +52,11 @@ var _onMessage = function (_message) {
       iceQueues[sessionId] = {};
   }
 
-  if (typeof sessions[sessionId][cameraId] !== 'undefined' &&  sessions[sessionId][cameraId]) {
+  if (sessions[sessionId][cameraId]) {
     video = sessions[sessionId][cameraId];
   }
 
-  if (typeof iceQueues[sessionId][cameraId] !== 'undefined' &&
-      iceQueues[sessionId][cameraId]) {
+  if (iceQueues[sessionId][cameraId]) {
     iceQueue = iceQueues[sessionId][cameraId] ;
   }
 
@@ -202,11 +201,11 @@ let stopAll = function() {
 }
 
 let logAvailableSessions = function() {
-  if(typeof sessions !== 'undefined' && sessions) {
+  if(sessions) {
     console.log("  [VideoManager] Available sessions are =>");
     let sessionMainKeys = Object.keys(sessions);
     for (var k in sessions) {
-      if(typeof sessions[k] !== 'undefined' && sessions[k]) {
+      if(sessions[k]) {
         console.log('  [VideoManager] Session[', k,'] => ', Object.keys(sessions[k]));
       }
     }
