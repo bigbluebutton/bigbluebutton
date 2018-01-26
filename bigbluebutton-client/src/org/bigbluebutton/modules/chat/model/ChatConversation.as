@@ -50,6 +50,7 @@ package org.bigbluebutton.modules.chat.model
 		  newCM.lastTime = previousCM.time;
 	  }
 	  messages.addItem(newCM);
+	  messages.refresh();
     }
     
     public function processChatHistory(messageVOs:Array):void {
@@ -71,6 +72,7 @@ package org.bigbluebutton.modules.chat.model
           newCM.lastSenderId = previousCM.senderId;
           newCM.lastTime = previousCM.time;
         }
+		messages.refresh();
       }
     }
     
@@ -125,6 +127,8 @@ package org.bigbluebutton.modules.chat.model
 
       messages.removeAll();
       messages.addItem(cm);
+
+	  messages.refresh();
 
       var welcomeEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
       _dispatcher.dispatchEvent(welcomeEvent);
