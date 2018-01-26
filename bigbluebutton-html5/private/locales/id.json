@@ -116,18 +116,12 @@
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Status",
     "app.actionsBar.emojiMenu.awayLabel": "Tidak Fokus",
     "app.actionsBar.emojiMenu.awayDesc": "Ubah status menjadi Tidak Fokus",
-    "app.actionsBar.emojiMenu.raiseLabel": "Naikan",
-    "app.actionsBar.emojiMenu.raiseDesc": "Angkat tangan untuk bertanya",
-    "app.actionsBar.emojiMenu.undecidedLabel": "Tidak memutuskan",
-    "app.actionsBar.emojiMenu.undecidedDesc": "Ubah status anda menjadi Tidak Memutuskan",
     "app.actionsBar.emojiMenu.confusedLabel": "Bingung",
     "app.actionsBar.emojiMenu.confusedDesc": "Ubah status anda menjadi Bingung",
     "app.actionsBar.emojiMenu.sadLabel": "Sedih",
     "app.actionsBar.emojiMenu.sadDesc": "Ubah status anda menjadi Sedih",
     "app.actionsBar.emojiMenu.happyLabel": "Bahagia",
     "app.actionsBar.emojiMenu.happyDesc": "Ubah status anda menjadi Bahagia",
-    "app.actionsBar.emojiMenu.clearLabel": "Normal",
-    "app.actionsBar.emojiMenu.clearDesc": "Normalkan status anda",
     "app.actionsBar.emojiMenu.applauseLabel": "Tepuk tangan",
     "app.actionsBar.emojiMenu.applauseDesc": "Ubah status anda menjadi Tepuk Tangan",
     "app.actionsBar.currentStatusDesc": "status saat ini {0}",
@@ -159,7 +153,6 @@
     "app.audio.audioSettings.microphoneStreamLabel": "Volume stream audio anda",
     "app.audio.listenOnly.backLabel": "Kembali",
     "app.audio.listenOnly.closeLabel": "Tutup",
-    "app.error.kicked": "Anda telah dikeluarkan dari meeting",
     "app.error.meeting.ended": "Anda telah keluar dari konferensi",
     "app.dropdown.close": "Tutup",
     "app.error.500": "Ops, sepertinya ada kesalahan",
@@ -167,5 +160,6 @@
     "app.error.401": "Tidak memiliki izin",
     "app.error.403": "Dilarang",
     "app.error.leaveLabel": "Log in Kembali"
+
 }
 
