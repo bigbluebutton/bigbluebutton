@@ -120,7 +120,8 @@ module.exports = class MediaController {
   }
 
   async publishnsubscribe (userId, sourceId, sdp, params) {
-    Logger.info("[mcs-controller] PublishAndSubscribe from user", userId, "to source", sourceId, "with params", params);
+    Logger.info("[mcs-controller] PublishAndSubscribe from user", userId, "to source", sourceId);
+    Logger.debug("[mcs-controler] PublishAndSubscribe descriptor is", params.descriptor);
 
     let type = params.type;
     try {
@@ -149,7 +150,9 @@ module.exports = class MediaController {
   }
 
   async publish (userId, roomId, type, params) {
-    Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId, "with params", params);
+    Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId);
+    Logger.debug("[mcs-controler] Publish descriptor is", params.descriptor);
+
     let session;
     // TODO handle mediaType
     let mediaType = params.mediaType;
@@ -207,8 +210,8 @@ module.exports = class MediaController {
   }
 
   async subscribe (userId, sourceId, type, params) {
-    Logger.info("[mcs-controller] Subscribe from user", userId, "to source", sourceId, "with params", params);
-
+    Logger.info("[mcs-controller] Subscribe from user", userId, "to source", sourceId);
+    Logger.debug("[mcs-controler] Subscribe descriptor is", params.descriptor);
 
     let session;
     // TODO handle mediaType
@@ -332,7 +335,7 @@ module.exports = class MediaController {
   createUserMCS (roomId, type, params)  {
     let self = this;
     let user;
-    Logger.info("[mcs-controller] Creating a new user[" + type + "]");
+    Logger.info("[mcs-controller] Creating a new", type, "user at room", roomId);
 
     switch (type) {
       case C.USERS.SFU:

@@ -37,7 +37,7 @@ module.exports = class ScreenshareManager {
   }
 
   _onMessage(message) {
-    Logger.info('[ScreenshareManager] Received message [' + message.id + '] from connection', message.connectionId);
+    Logger.debug('[ScreenshareManager] Received message [' + message.id + '] from connection', message.connectionId);
 
     let session;
 

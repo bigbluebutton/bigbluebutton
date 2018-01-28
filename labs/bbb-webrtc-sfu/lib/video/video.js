@@ -59,8 +59,8 @@ module.exports = class Video {
     switch (event.eventTag) {
 
       case "OnIceCandidate":
-        Logger.debug("[video] Sending ICE candidate to user => " + this.id);
         let candidate = msEvent.candidate;
+        Logger.debug("[video] Sending ICE candidate to user", this.id, "with candidate", candidate);
         this.bbbGW.publish(JSON.stringify({
           connectionId: this.sessionId,
           type: 'video',

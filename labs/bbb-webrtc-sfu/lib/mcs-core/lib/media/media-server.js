@@ -36,7 +36,6 @@ module.exports = class MediaServer extends EventEmitter {
         if (error) {
           reject(error);
         }
-        Logger.info("[mcs-media] Retrieved media server client => " + client);
         resolve(client);
       });
     });
@@ -257,7 +256,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
     // TODO event type validator
     if (typeof mediaElement !== 'undefined' && mediaElement) {
-      Logger.info('[mcs-media] Adding media state listener [' + eventTag + '] for ' + elementId);
+      Logger.debug('[mcs-media] Adding media state listener [' + eventTag + '] for ' + elementId);
       mediaElement.on(eventTag, (event) => {
         if (eventTag === C.EVENT.MEDIA_STATE.ICE) {
           event.candidate = mediaServerClient.getComplexType('IceCandidate')(event.candidate);

@@ -60,8 +60,6 @@ module.exports = class RedisWrapper extends EventEmitter {
 
     this.redisCli = redis.createClient(options);
 
-    Logger.info("[RedisWrapper] Trying to subscribe to redis channel");
-
     this.redisCli.on("connect", () => {
       //TODO
     });
