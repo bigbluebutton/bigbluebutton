@@ -29,7 +29,7 @@
     "app.actionsBar.changeStatusLabel": "Змінити статус",
     "app.actionsBar.muteLabel": "Вимкнути мікрофон",
     "app.actionsBar.unmuteLabel": "Увімкнути мікрофон",
-    "app.actionsBar.camOffLabel": "Вимкнути камеру",
-    "app.error.kicked": "Ви були виключени з конференції"
+    "app.actionsBar.camOffLabel": "Вимкнути камеру"
+
 }
 

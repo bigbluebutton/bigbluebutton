@@ -41,7 +41,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
+
+			import flash.utils.setTimeout;
+
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.Options;
@@ -54,6 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.models.Constants;
 			import org.bigbluebutton.modules.phone.models.PhoneModel;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCEchoTest);      
@@ -70,10 +73,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var cancelButtonLabel:String = ResourceUtil.getInstance().getString('bbb.micSettings.cancel');
 
 			private var userClosed:Boolean = false;
-			
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
 			
 			private function onCancelClicked():void {
 				stopTimers();
@@ -173,9 +172,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function webRTCEchoTestStarted():void {
-        setCurrentState("started");
-        stopTimers();
+		var timeOut : Number = 50;
+		if ( BrowserCheck.isFirefox() ) {
+			timeOut = 1000;
+		}
+		setTimeout(setStartedState, timeOut);
       }
+			
+	  private function setStartedState():void {
+		  setCurrentState("started");
+		  stopTimers();
+	  }
       
 			private function handleWebRTCEchoTestEndedEvent(e:WebRTCEchoTestEvent):void {
         webRTCEchoTestEnded();

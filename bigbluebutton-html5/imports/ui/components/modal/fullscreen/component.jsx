@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import ModalBase, { withModalState } from '../base/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 const propTypes = {
   title: PropTypes.string.isRequired,
@@ -65,6 +65,7 @@ class ModalFullscreen extends Component {
           <h1 className={styles.title}>{title}</h1>
           <div className={styles.actions}>
             <Button
+              data-test='modalDismissButton'
               className={styles.dismiss}
               label={dismiss.label}
               disabled={dismiss.disabled}
@@ -72,6 +73,7 @@ class ModalFullscreen extends Component {
               aria-describedby={'modalDismissDescription'}
             />
             <Button
+              data-test='modalConfirmButton'
               color={'primary'}
               className={styles.confirm}
               label={confirm.label}

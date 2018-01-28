@@ -27,7 +27,7 @@
   <attendees>
   <#list meeting.getUsers() as att>
     <attendee>
-        <userID>${att.getInternalUserId()}</userID>
+        <userID>${att.getExternalUserId()}</userID>
         <fullName>${att.getFullname()?html}</fullName>
         <role>${att.getRole()}</role>
         <isPresenter>${att.isPresenter()?c}</isPresenter>

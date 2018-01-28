@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import BaseMenu from '../base/component';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const intlMessages = defineMessages({
   participantsTitle: {

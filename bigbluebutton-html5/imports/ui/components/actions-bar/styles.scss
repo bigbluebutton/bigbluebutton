@@ -13,18 +13,42 @@
   justify-content: center;
 
   > * {
-    margin: 0 $line-height-computed;
+    margin: 0 $sm-padding-x;
+
+    @include mq($small-only) {
+      margin: 0 $sm-padding-y;
+    }
   }
 }
 
 .left{
   position: absolute;
+  @include mq($small-only) {
+    bottom: $sm-padding-x;
+    left: $sm-padding-x;
+  }
 }
 
-.center {
-  align-items: center;
+.centerWithActions {
+  @include mq($xsmall-only) {
+    position: absolute;
+    bottom: $sm-padding-x;
+    right: $sm-padding-x;
+  }
 }
 
-.circleGlow > :first-child{
-    box-shadow: 0 0 .15rem #FFF !important;
+.button {
+  &:focus {
+    outline: none !important;
+  }
+
+  span:first-child {
+    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+  }
+}
+
+.emojiSelected {
+  span, i::before{
+    color: $color-primary;
+  }
 }

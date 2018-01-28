@@ -68,6 +68,8 @@ class ReceivedJsonMsgHandlerActor(
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
+      case ValidateConnAuthTokenSysMsg.NAME =>
+        route[ValidateConnAuthTokenSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       // Guests
       case GetGuestsWaitingApprovalReqMsg.NAME =>
@@ -91,8 +93,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[StopPollReqMsg](envelope, jsonNode)
       case ShowPollResultReqMsg.NAME =>
         routeGenericMsg[ShowPollResultReqMsg](envelope, jsonNode)
-      case HidePollResultReqMsg.NAME =>
-        routeGenericMsg[HidePollResultReqMsg](envelope, jsonNode)
       case GetCurrentPollReqMsg.NAME =>
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
@@ -243,6 +243,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>
         routeGenericMsg[GetScreenshareStatusReqMsg](envelope, jsonNode)
+      case GetWebcamsOnlyForModeratorReqMsg.NAME =>
+        routeGenericMsg[GetWebcamsOnlyForModeratorReqMsg](envelope, jsonNode)
+      case UpdateWebcamsOnlyForModeratorCmdMsg.NAME =>
+        routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>

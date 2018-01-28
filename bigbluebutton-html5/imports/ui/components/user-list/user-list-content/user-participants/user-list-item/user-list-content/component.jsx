@@ -11,7 +11,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
-import styles from './styles';
+import { styles } from './styles';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
 
@@ -57,7 +57,6 @@ const propTypes = {
 
 
 class UserListContent extends Component {
-
   /**
    * Return true if the content fit on the screen, false otherwise.
    *
@@ -85,14 +84,23 @@ class UserListContent extends Component {
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
   }
 
+  componentWillMount() {
+    this.title = _.uniqueId('dropdown-title-');
+    this.seperator = _.uniqueId('action-separator-');
+  }
+
   componentDidUpdate() {
     this.checkDropdownDirection();
   }
 
   onActionsShow() {
-    const dropdown = findDOMNode(this.dropdown);
+    const dropdown = this.getDropdownMenuParent();
     const scrollContainer = this.props.getScrollContainerRef();
     const dropdownTrigger = dropdown.children[0];
+
+    const list = findDOMNode(this.list);
+    const children = [].slice.call(list.children);
+    children.find(child => child.getAttribute('role') === 'menuitem').focus();
 
     this.setState({
       isActionsOpen: true,
@@ -129,7 +137,7 @@ class UserListContent extends Component {
    */
   checkDropdownDirection() {
     if (this.isDropdownActivedByUser()) {
-      const dropdown = findDOMNode(this.dropdown);
+      const dropdown = this.getDropdownMenuParent();
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
@@ -140,8 +148,10 @@ class UserListContent extends Component {
       };
 
       const isDropdownVisible =
-        UserListContent.checkIfDropdownIsVisible(dropdownContent.offsetTop,
-          dropdownContent.offsetHeight);
+        UserListContent.checkIfDropdownIsVisible(
+          dropdownContent.offsetTop,
+          dropdownContent.offsetHeight,
+        );
 
       if (!isDropdownVisible) {
         const offsetPageTop =
@@ -162,12 +172,6 @@ class UserListContent extends Component {
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
-    const list = findDOMNode(this.list);
-
-    if (isActionsOpen && dropdownVisible) {
-      const children = [].slice.call(list.children);
-      children.find(child => child.getAttribute('role') === 'menuitem').focus();
-    }
 
     return isActionsOpen && !dropdownVisible;
   }
@@ -201,13 +205,15 @@ class UserListContent extends Component {
       ? intl.formatMessage(messages.presenter)
       : '';
 
-    const userAriaLabel = intl.formatMessage(messages.userAriaLabel,
+    const userAriaLabel = intl.formatMessage(
+      messages.userAriaLabel,
       {
         0: user.name,
         1: presenter,
         2: you,
         3: user.emoji.status,
-      });
+      },
+    );
 
     const contents = (
       <div
@@ -280,13 +286,14 @@ class UserListContent extends Component {
           >
             {
               [
-                (<DropdownListTitle
-                  description={intl.formatMessage(messages.menuTitleContext)}
-                  key={_.uniqueId('dropdown-list-title')}
-                >
-                  {user.name}
-                </DropdownListTitle>),
-                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
+                (
+                  <DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}
+                    key={this.title}
+                  >
+                    {user.name}
+                  </DropdownListTitle>),
+                (<DropdownListSeparator key={this.seperator} />),
               ].concat(actions)
             }
           </DropdownList>

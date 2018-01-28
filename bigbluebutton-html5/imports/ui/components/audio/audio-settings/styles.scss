@@ -1,0 +1,126 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.form {
+  display: flex;
+  flex-flow: column;
+  margin-top: 1.5rem;
+}
+
+.audioNote {
+  @include mq($small-only) {
+    font-size: 0.8rem;
+  }
+}
+
+.row {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.col {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+  margin-right: 1rem;
+
+  &:last-child {
+    margin-right: 0;
+    padding-right: 0.1rem;
+    padding-left: 4rem;
+  }
+
+  &.spacedLeft {
+    // @extend .spaced;
+
+    label {
+      flex-grow: 1;
+      flex-basis: 0;
+      margin-right: 0;
+      padding-right: 0.1rem;
+      padding-left: 4rem;
+    }
+
+    &:before {
+      content: "";
+      display: block;
+      flex-grow: 1;
+      flex-basis: 0;
+      margin-right: 1rem;
+    }
+
+    &:last-child {
+      margin-right: 0;
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+}
+
+.labelSmall {
+  color: black;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  & > :first-child {
+    margin-top: 0.5rem;
+  }
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.select {
+  -webkit-appearance: none;
+  -webkit-border-radius: 0px;
+  background: $color-white url("data:image/svg+xml;charset=utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='#667189' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>") no-repeat right .35rem center/.4rem .5rem;
+  background-repeat: no-repeat;
+  border: 0.07rem solid $color-gray-light;
+  border-radius: .125rem;
+  color: $color-text;
+  width: 100%;
+  // appearance: none;
+  padding: .4rem;
+}
+
+.audioMeter {
+  width: 100%;
+}
+
+.pullContentRight {
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+}
+
+.verticalLine {
+  color: #f3f6f9;
+  border-left: 1px solid;
+  height: 5rem;
+}
+
+.backBtn {
+  margin-right: 0.5rem;
+  border: none;
+
+  @include mq($small-only) {
+    margin-right: auto;
+  }
+}
+
+.enterAudio {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chooseAudio {
+  position:absolute;
+  left:50%;
+  transform: translate(-50%, 0);
+}

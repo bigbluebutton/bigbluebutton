@@ -7,7 +7,9 @@ const ANNOTATION_TYPE_PENCIL = 'pencil';
 
 // line, triangle, ellipse, rectangle
 function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
-  const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
+  const {
+    id, status, annotationType, annotationInfo, wbId, position,
+  } = annotation;
 
   const selector = {
     meetingId,
@@ -33,7 +35,9 @@ function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
 }
 
 function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
-  const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
+  const {
+    id, status, annotationType, annotationInfo, wbId, position,
+  } = annotation;
 
   const selector = {
     meetingId,
@@ -67,15 +71,18 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
   const DRAW_UPDATE = ANOTATION_STATUSES.update;
   const DRAW_END = ANOTATION_STATUSES.end;
 
-  const SERVER_CONFIG = Meteor.settings.app;
+  const SERVER_CONFIG = Meteor.settings.private.app;
   const PENCIL_CHUNK_SIZE = SERVER_CONFIG.pencilChunkLength || 100;
 
-  const { id, status, annotationType, annotationInfo, wbId, position } = annotation;
+  const {
+    id, status, annotationType, annotationInfo, wbId, position,
+  } = annotation;
 
   const baseSelector = {
     meetingId,
     id,
     userId,
+    whiteboardId,
   };
   let baseModifier;
   let chunkSelector;
@@ -163,6 +170,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         id,
         userId,
         meetingId,
+        whiteboardId,
         position,
         annotationType: 'pencil_base',
         numberOfChunks: chunks.length,
@@ -273,6 +281,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         id,
         userId,
         meetingId,
+        whiteboardId,
         position,
         annotationType: 'pencil_base',
         numberOfChunks: _chunks.length,

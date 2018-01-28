@@ -1,15 +1,15 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
-
+import { withTracker } from 'meteor/react-meteor-data';
 import VideoDock from './component';
+import VideoService from './service';
 
-const VideoDockContainer = props => (
-  <VideoDock>
-    {props.children}
+const VideoDockContainer = ({ children, ...props }) => (
+  <VideoDock {...props}>
+    {children}
   </VideoDock>
 );
 
-export default createContainer(() => {
-  const data = {};
-  return data;
-}, VideoDockContainer);
+export default withTracker(() => ({
+  users: VideoService.getAllUsers(),
+  userId: VideoService.userId(),
+}))(VideoDockContainer);

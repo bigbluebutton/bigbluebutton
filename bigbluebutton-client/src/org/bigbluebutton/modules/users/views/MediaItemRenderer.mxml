@@ -30,6 +30,7 @@
 		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole"/>
+		<mate:Listener type="{BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR}" method="onChangeWebcamsOnlyForModerator"/>
 	</fx:Declarations>
 	
 	<fx:Script>
@@ -47,7 +48,9 @@
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -67,7 +70,7 @@
 			private var lockRolled:Boolean = false;
 			
 			private var options:UsersOptions;
-			private var myMenu:Menu = null;
+			private var actionsMenu:Menu = null;
 
 			private function onCreationComplete():void {
 				options = Options.getOptions(UsersOptions) as UsersOptions;
@@ -109,9 +112,15 @@
 				rolledOver = false;
 				updateButtons();
 				// close the menu if it was opened
-				if (myMenu) myMenu.hide();
+				closeActionsMenu();
 
 				refreshRole(e.role == Role.MODERATOR);
+			}
+			
+			private function onChangeWebcamsOnlyForModerator(e:BBBEvent):void {
+				if (data != null) {
+					updateButtons();
+				}
 			}
 
 			private function refreshRole(amIModerator:Boolean):void {
@@ -177,6 +186,8 @@
 				muteImg.filters = null;
 
 				var ls:LockSettingsVO = UsersUtil.getLockSettings();
+				
+				var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
 
 				if (data != null) {
 					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
@@ -232,23 +243,34 @@
 					}
 
 					if (data.hasStream) {
-						// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
-						if (data.me || data.isViewingAllStreams()) {
-							webcamImg.visible = true;
-							webcamImg.includeInLayout = true;
-							webcamBtn.visible = false;
-							webcamBtn.includeInLayout = false;
-						} else {
-							webcamImg.visible = false;
-							webcamImg.includeInLayout = false;
-							webcamBtn.visible = true;
-							webcamBtn.includeInLayout = true;
+						if (!webcamsOnlyForModerator || UsersUtil.amIModerator()) {
+							// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
+							if (data.me || data.isViewingAllStreams()) {
+								webcamImg.visible = webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout= false;
+							} else {
+								webcamImg.visible = webcamImg.includeInLayout = false;
+								webcamBtn.visible = webcamBtn.includeInLayout = true;
+							}
+						}
+						else {
+							if (data.me || data.isViewingAllStreams() && data.role == Role.MODERATOR) {
+								webcamImg.visible = webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout= false;
+							} else if (data.role != Role.MODERATOR) {
+								webcamImg.visible = false;
+								webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout = false;
+							}
+							else {
+								webcamImg.visible = webcamImg.includeInLayout = false;
+								webcamBtn.visible = webcamBtn.includeInLayout = true;
+							}
 						}
 					} else {
 						webcamImg.visible = false;
 						webcamImg.includeInLayout = true;
-						webcamBtn.visible = false;
-						webcamBtn.includeInLayout = false;
+						webcamBtn.visible = webcamBtn.includeInLayout = false;
 					}
 
 					if (!rolledOver) {
@@ -297,17 +319,17 @@
 
 			private function openSettings():void {
 				if (data != null) {
-					var myMenuData:Array = [];
+					var actionsMenuData:Array = [];
 
 					if (data.role != Role.VOICE_ONLY) {
 						if (data.role == Role.MODERATOR) {
-							myMenuData.push({
+							actionsMenuData.push({
 								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
 								icon: getStyle('iconDemote'),
 								callback: demoteUser
 							});
 						} else {
-							myMenuData.push({
+							actionsMenuData.push({
 								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
 								icon: getStyle('iconPromote'),
 								callback: promoteUser
@@ -316,7 +338,7 @@
 					}
 
 					if (options.allowKickUser) {
-						myMenuData.push({
+						actionsMenuData.push({
 							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
 							icon: getStyle('iconEject'),
 							callback: kickUser
@@ -326,23 +348,27 @@
 					// make sure the previous menu is closed before opening a new one
 					// This could be improved to include a flag that tells if the menu is open,
 					// but it would require an extra listener for the MenuCloseEvent.
-					if (myMenu) myMenu.hide();
+					closeActionsMenu();
 
-					myMenu = Menu.createMenu(null, myMenuData, true);
-					myMenu.variableRowHeight = true;
+					actionsMenu = Menu.createMenu(null, actionsMenuData, true);
+					actionsMenu.variableRowHeight = true;
 
 					var settingsBtnPos:Point = settingsBtn.localToGlobal(new Point(0,0));
 
-					var myMenuPos:Point = new Point();
-					myMenuPos.x = settingsBtnPos.x + settingsBtn.width;
-					myMenuPos.y = settingsBtnPos.y;
+					var actionsMenuPos:Point = new Point();
+					actionsMenuPos.x = settingsBtnPos.x + settingsBtn.width;
+					actionsMenuPos.y = settingsBtnPos.y;
 
-					myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-					myMenu.show(myMenuPos.x, myMenuPos.y);
-					myMenu.setFocus();
+					actionsMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+					actionsMenu.show(actionsMenuPos.x, actionsMenuPos.y);
+					actionsMenu.setFocus();
 				}
 			}
 
+			private function closeActionsMenu():void{
+				if (actionsMenu) actionsMenu.hide();
+			}
+			
 			private function menuClickHandler(e:MenuEvent):void {
 				e.item.callback();
 			}

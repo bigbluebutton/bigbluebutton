@@ -71,15 +71,6 @@ object Polls {
     }
   }
 
-  def handleHidePollResultReqMsg(requesterId: String, pollId: String, lm: LiveMeeting): Option[String] = {
-    for {
-      poll <- getPoll(pollId, lm.polls)
-    } yield {
-      hidePollResult(pollId, lm.polls)
-      pollId
-    }
-  }
-
   def handleGetCurrentPollReqMsg(requesterId: String, lm: LiveMeeting): Option[PollVO] = {
     val poll = for {
       page <- lm.presModel.getCurrentPage()
@@ -101,14 +92,13 @@ object Polls {
   }
 
   def handleRespondToPollReqMsg(requesterId: String, pollId: String, questionId: Int, answerId: Int,
-                                lm: LiveMeeting): Option[(String, String, SimplePollResultOutVO)] = {
+                                lm: LiveMeeting): Option[(String, SimplePollResultOutVO)] = {
 
     for {
-      curPres <- Users2x.findPresenter(lm.users2x)
       poll <- getSimplePollResult(pollId, lm.polls)
       pvo <- handleRespondToPoll(poll, requesterId, pollId, questionId, answerId, lm)
     } yield {
-      (curPres.intId, pollId, pvo)
+      (pollId, pvo)
     }
 
   }
@@ -285,14 +275,6 @@ object Polls {
     pvo
   }
 
-  def hidePollResult(pollId: String, polls: Polls) {
-    polls.get(pollId) foreach {
-      p =>
-        p.hideResult()
-        polls.currentPoll = None
-    }
-  }
-
   def showPollResult(pollId: String, polls: Polls) {
     polls.get(pollId) foreach {
       p =>
@@ -449,7 +431,6 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   private var _numResponders: Int = 0
 
   def showingResult() { _showResult = true }
-  def hideResult() { _showResult = false }
   def showResult(): Boolean = { _showResult }
   def start() { _started = true }
   def stop() { _stopped = true }

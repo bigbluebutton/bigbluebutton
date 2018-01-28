@@ -69,6 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
+			import mx.core.FlexGlobals;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
 			
@@ -298,7 +299,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onSliderZoom():void {
-				slideView.onZoomSlide(zoomSlider.value);
+				if (UsersUtil.amIPresenter()) {
+					slideView.onZoomSlide(zoomSlider.value);
+				}
 			}
 			
 			private function onResetZoom():void {
@@ -487,7 +490,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
 
-				addContextMenuItems();
+				if (UsersUtil.amIPresenter()) {
+					addContextMenuItems();
+				} else {
+					this.customContextMenuItems = new Array();
+				}
 				
 				setPollMenuData();
 				
@@ -630,7 +637,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function sendStartCustomPollEvent(pollType:String):void {
                 // Let's reset the page to display full size so we can display the result
                 // on the bottom right-corner.
-                var pollChoicesPopUp:PollChoicesModal = PopUpUtil.createModalPopUp(this, PollChoicesModal, true) as PollChoicesModal;
+                var pollChoicesPopUp:PollChoicesModal = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, PollChoicesModal, true) as PollChoicesModal;
                 if (pollChoicesPopUp) {
                     pollChoicesPopUp.setPresentationWindow(this);
                 }
@@ -691,7 +698,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// the event for this doesn't exist yet
 				if (UsersUtil.amIPresenter()) {
 					// display the results view
-					var pollResultsPopUp : PollResultsModal = PopUpUtil.createModalPopUp(this, PollResultsModal, true) as PollResultsModal;
+					var pollResultsPopUp : PollResultsModal = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, PollResultsModal, true) as PollResultsModal;
 					if (pollResultsPopUp) {
 						pollResultsPopUp.setPoll(e.poll);
 					}

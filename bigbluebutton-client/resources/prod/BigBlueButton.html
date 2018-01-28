@@ -142,8 +142,8 @@
     <script src="lib/verto-min.js" language="javascript"></script>
     <script src="lib/verto_extension.js" language="javascript"></script>
 
-    <script src="lib/kurento-utils.min.js" language="javascript"></script>
     <script src="lib/kurento-extension.js" language="javascript"></script>
+    <script src="lib/kurento-utils.js" language="javascript"></script>
 
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
     <script src="lib/sip.js?v=VERSION" language="javascript"></script>
@@ -194,15 +194,15 @@
     <div id="accessibile-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="visually-hidden">0 %</div>
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
-      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
-        You need Adobe Flash installed and enabled in order to use this client.
+      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; font-family: sans-serif; text-align: center;">
+        <p style="font-weight: bold;">You need Adobe Flash installed and enabled in order to use this client.</p>
         <br/>
-        <div style="width:50%; margin-left: auto; margin-right: auto; ">
+        <div style="width:50%; margin-left: auto; margin-right: auto;">
           <a href="http://www.adobe.com/go/getflashplayer">
             <img src="get_flash_player.gif" alt="Get Adobe Flash player" />
           </a>
           <div id="html5Section" style="display:none">
-            <p style="margin-left:50px;" >OR</p>
+            <p>OR</p>
             <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
           </div>
         </div>

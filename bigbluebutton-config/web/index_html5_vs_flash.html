@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <title>BigBlueButton - Open Source Web Conferencing</title>
+    <meta name="description" content="BigBlueButton enables universities and colleges to deliver a high-quality learning experience to remote students.">
+    <meta name="keywords" content="BigBlueButton, Open Source Web Conferencing, Distance Education, Courses Online, Web Conferencing, Open Source, Desktop Sharing, Video Conferencing, Video Collaboration, Presentation Sharing, Audio Sharing, Voice Collaboration, Public Chat, Webcam Sharing, Annotation, Whiteboard, Integrated Voice Over IP, Collaboration Software, Online Collaboration, Collaborative Learning, Virtual Classroom">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" href="images/favicon.png">
+
+    <link rel="stylesheet" href="css/bijou.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/bbb-bootstrap.css">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bigbluebutton.js"></script>
+	</head>
+  <body>
+    <div class='main'>
+
+    <!-- Github Fork Ribbon -->
+    <a href="https://github.com/bigbluebutton/bigbluebutton">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub">
+    </a>
+
+    <!-- Messages -->
+    <div id='messages' class='hidden'>
+    </div>
+
+    <!-- Header -->
+    <div class='navbar'>
+      <div class='container'>
+        <div class="logo">
+          <img src="images/bbb-logo.png" alt="BigBlueButton Demo"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class='container'>
+
+
+
+
+
+      <!-- Welcome Message & Login Into Demo -->
+      <div class='row'>
+        <div class='span six html5clientOnly'>
+          <div class='join-meeting '>
+            <h4>Try BigBlueButton via HTML5</h4>
+            <p>Join a demo session on this server.</p>
+
+            <form name="form1" method="GET" onsubmit="return checkform(this);" action="/demo/demoHTML5.jsp">
+              <input type="text" id="username" required="" name="username" placeholder="Enter Your Name" size="29" class="field input-default" autofocus>
+              <input type="submit" value="Join" class="submit_btn button success large"><br>
+              <input type="hidden" name="action" value="create">
+            </form>
+
+          <a class="watch" href="#video" class="pull-right">New to BigBlueButton?  Watch these videos.</a>
+
+          </div>
+        </div>
+        <div class='span six'>
+          <div class='join-meeting'>
+            <h4>Try BigBlueButton via Flash</h4>
+            <p>Join a demo session on this server.</p>
+
+            <form name="form1" method="GET" onsubmit="return checkform(this);" action="/demo/demo1.jsp">
+              <input type="text" id="username" required="" name="username" placeholder="Enter Your Name" size="29" class="field input-default" autofocus>
+              <input type="submit" value="Join" class="submit_btn button success large"><br>
+              <input type="hidden" name="action" value="create">
+            </form>
+
+            <a class="watch" href="#video" class="pull-right">New to BigBlueButton?  Watch these videos.</a>
+          </div>
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+      <!-- Welcome Message & Login Into Demo -->
+      <div class='row'>
+       <div >
+          <h2>BigBlueButton HTML5 client test server</h2>
+          <p> <a href="http://bigbluebutton.org/" target="_blank">BigBlueButton</a> is an open source web conferencing system for on-line learning. This is a public test server for the BigBlueButton <a href="http://docs.bigbluebutton.org/html/html5-overview.html">HTML5 client</a> currently under development.</p>
+        <p> Our goal for the upcoming release of the HTML5 client is to implement all the <a href="https://youtu.be/oh0bEk3YSwI">viewer capabilities</a> of the Flash client.  Students join online classes as a viewer.  The HTML5 client will give remote students the ability to join from their Android and Apple (iOS 11+) devices.  Users using the Flash and HTML5 clients can join the same meeting (hence the two choices above).  We built the HTML5 client using web real-time communication (WebRTC), <a href="https://facebook.github.io/react/">React</a>, and <a href="https://www.mongodb.com/">MongoDB</a>.</p>
+        <p>  What can this developer build of the HTML5 client do right now?  Pretty much everything the Flash client can do for viewers except (a) view a desktop sharing stream from the presenter and (b) send/receive webcam streams.  We're working on (a) and (b).  For now, we are really happy to share with you our progress and get <a href="https://docs.google.com/forms/d/1gFz5JdN3vD6jxhlVskFYgtEKEcexdDnUzpkwUXwQ4OY/viewform?usp=send_for">your feedback</a> on what has been implemeted so far.  Enjoy!</p>
+
+          <h4>For Developers</h4>
+          <p> The BigBlueButton project is <a href="http://bigbluebutton.org/support">supported</a> by a community of developers that care about good design and a streamlined user experience. </p>
+          <p>See <a href="http://docs.bigblubutton.org" target="_blank">Documentation</a> for more information on how you can integrate BigBlueButton with your project.</p>
+        </div>
+        <div class="span one"></div>
+
+      </div>
+
+
+
+
+      <hr class="featurette-divider">
+
+      <!-- BigBlueButton Features -->
+      <div class="bbb-features">
+	      <div class='row'>
+	        <div class='featurette-heading'>
+	          <h2>Features</h2>
+	        </div>
+
+	        <div class='span four first'>
+	          <i class="fa fa-play-circle-o"></i>
+
+	          <div class="bbb-features-content">
+	            <h3>Record and Playback</h3>
+	            <p>BigBlueButton can record your sessions for later playback by students.</p>
+	          </div>
+	        </div>
+
+	        <div class='span four'>
+	          <i class="fa fa-pencil-square-o"></i>
+
+	          <div class="bbb-features-content">
+	            <h3>Whiteboard</h3>
+	            <p>The whiteboard controls let you annotate key parts of your presentation.</p>
+	          </div>
+	        </div>
+
+	        <div class='span four last'>
+	          <i class="fa fa-desktop"></i>
+
+	          <div class="bbb-features-content">
+	            <h3><a href="https://youtu.be/xTFuEvmEqB0">Desktop Sharing</a></h3>
+	            <p>You can broadcast your desktop for all users to see (requires lastest version of Java for presenter only).</p>
+	          </div>
+	        </div>
+	      </div>
+
+
+	      <div class='row'>
+	        <div class='span four first'>
+	          <i class="fa fa-microphone"></i>
+
+	          <div class="bbb-features-content">
+	            <h3><a href="https://youtu.be/4Y__UsUrRx0">WebRTC Audio</a></h3>
+	            <p>Users of Chrome and FireFox browsers will benefit from high-quality, low-latency WebRTC audio. (Users of other browsers will seamlessly use Flash-based audio.)</p>
+	          </div>
+	        </div>
+
+	        <div class='span four'>
+	          <i class="fa fa-bar-chart-o"></i>
+
+	          <div class="bbb-features-content">
+	            <h3><a href="https://youtu.be/J9mbw00P9W0">Presentation</a></h3>
+	            <p>You can upload any PDF presentation or MS office document. BigBlueButton keeps everyone in sync with your current slide, zoom, pan, annotations, and mouse pointer.</p>
+	          </div>
+	        </div>
+
+	        <div class='span four last'>
+	          <i class="fa fa-video-camera"></i>
+
+	          <div class="bbb-features-content">
+	            <h3>Web Cam</h3>
+	            <p>Multiple users can share their webcam at the same time. There is no built-in limit on the number of simultaneously active webcams.</p>
+	          </div>
+	        </div>
+	      </div>
+
+              <div class='row'>
+                <div class='span four first'>
+                  <i class="fa fa-smile-o"></i>
+
+                  <div class="bbb-features-content">
+                    <h3>Emoji</h3>
+                    <p>Students can raise hand and use emoji icons for feedback.</p>
+                  </div>
+                </div>
+
+                <div class='span four'>
+                  <i class="fa fa-check-square-o"></i>
+
+                  <div class="bbb-features-content">
+                    <h3>Polling</h3>
+                    <p>You can poll students anytime to increase engagement.</p>
+                  </div>
+                </div>
+
+                <div class='span four last'>
+                  <i class="fa fa-comments-o"></i>
+
+                  <div class="bbb-features-content">
+                    <h3>Chat</h3>
+                    <p>You can interact with students through public and private chat.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class='row'>
+                <div class='span four first'>
+                  <i class="fa fa-cc"></i>
+
+                  <div class="bbb-features-content">
+                    <h3><a href="https://youtu.be/vDpurrMgal0">Live Captioning</a></h3>
+                    <p>You can enter live captions for students.  These captions will later appear as subtitles in recordings.</p>
+                  </div>
+                </div>
+
+                <div class='span four'>
+                  <i class="fa fa-users"></i>
+
+                  <div class="bbb-features-content">
+                    <h3><a href="https://youtu.be/q5N-lcocJss">Breakout Rooms</a></h3>
+                    <p>You can group and place students into breakout rooms (full BigBlueButton sessions) for give number of minutes for increased collaboration.</p>
+                  </div>
+                </div>
+
+                <div class='span four last'>
+                  <i class="fa fa-blind"></i>
+
+                  <div class="bbb-features-content">
+                    <h3>Screen Reader</h3>
+                    <p>Students with visual disabilities can use JAWS screen reader to interact with BigBlueButton.</p>
+                  </div>
+                </div>
+              </div>
+
+      </div>
+      <hr class="featurette-divider">
+
+      <!-- BigBlueButton Videos -->
+      <div id="video" class="bbb-videos">
+	      <div class='row'>
+	        <div class='featurette-heading'>
+	          <h2>Getting Started Quickly</h2>
+	        </div>
+
+	        <div class='span four first video-item'>
+	        	<a href="https://www.youtube.com/watch?v=4Y__UsUrRx0&feature=youtu.be" target="_blank">
+		        	<div class="video-btn"><i class="fa fa-play-circle-o"></i></div>
+		          <img src="images/bbb-setup-audio.jpg" alt="Setting Up Audio"/>
+	        	</a>
+	          <h3><a href="https://www.youtube.com/watch?v=4Y__UsUrRx0&feature=youtu.be" title="Setup Audio" target="_blank">Setting Up Audio</a></h3>
+	        </div>
+
+	        <div class='span four video-item'>
+	        	<a href="https://www.youtube.com/watch?v=oh0bEk3YSwI" target="_blank">
+		        	<div class="video-btn"><i class="fa fa-play-circle-o"></i></div>
+		          <img src="images/bbb-viewer-overview.jpg" alt="BigBlueButton Viewer Overview Video"/>
+	        	</a>
+	          <h3><a href="https://www.youtube.com/watch?v=oh0bEk3YSwI;feature=youtu.be" title="Student Overview" target="_blank">Viewer Overview</a></h3>
+	        </div>
+
+	        <div class='span four last video-item'>
+	        	<a href="https://www.youtube.com/watch?v=J9mbw00P9W0&feature=youtu.be" target="_blank">
+		        	<div class="video-btn"><i class="fa fa-play-circle-o"></i></div>
+		          <img  src="images/bbb-presenter-overview.jpg" alt="Moderator/Presenter Overview Video"/>
+	        	</a>
+	          <h3><a href="https://www.youtube.com/watch?v=J9mbw00P9W0&feature=youtu.be" title="Moderator/Presenter Overview" target="_blank">Moderator/Presenter Overview</a></h3>
+	        </div>
+	      </div>
+      </div>
+
+      </div>
+    </div>
+
+    <!--  Footer -->
+    <footer>
+      <div class='container'>
+
+	      <div class="row">
+	      	<div class="span six first">
+		        <p>BigBlueButton and the BigBlueButton logo are trademarks of <a href="http://bigbluebutton.org/">BigBlueButton Inc.</a></p>
+          </div>
+	      	<div class="span six last">
+						<ul>
+							<li>
+								Follow Us:
+							</li>
+							<li><a class="twitter" href="http://www.twitter.com/bigbluebutton" title="BigBlueButton Twitter Page" target="_blank"><i class="fa fa-twitter"></i></a></li>
+							<li><a class="facebook" href="http://www.facebook.com/bigbluebutton" title="BigBlueButton Facebook Page" target="_blank"><i class="fa fa-facebook"></i></a></li>
+							<li><a class="youtube" href="http://www.youtube.com/bigbluebuttonshare" title="BigBlueButton YouTube Page" target="_blank"><i class="fa fa-youtube"></i> </a></li>
+							<li><a class="google" href="http://google.com/+bigbluebutton" title="BigBlueButton Google Plus" target="_blank"><i class="fa fa-google-plus"></i></a></li>
+						</ul>
+	      	</div>
+	      </div> 
+
+
+	      <div class="row">
+	      	<div class="span twelve center">
+		        <p>Copyright &copy; 2017 BigBlueButton Inc.<br>
+		        <small>Version <a href="http://docs.bigbluebutton.org/">2.0-beta</a></small>
+		        </p>
+	      	</div>
+	      </div>
+      </div>
+    </footer>
+  </body>
+</html>
+

@@ -1,6 +1,31 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+$icon-offset: -.4em;
+$square-side-length: 1.56rem;
+
 .btn {
   flex: 0 0;
   margin-top: auto;
+
+  cursor: pointer;
+
+  span:first-child {
+    width: $square-side-length;
+    height: $square-side-length;
+  }
+
+
+  i {
+    color: $color-gray-dark !important;
+    top: $icon-offset;
+    left: $icon-offset;
+  }
+
+  &:hover,
+  &:focus {
+    > span:first-child {
+      background-color: transparent !important;
+    }
+  }
+
 }

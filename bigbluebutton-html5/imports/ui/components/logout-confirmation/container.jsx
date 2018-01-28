@@ -1,14 +1,17 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import { withTracker } from 'meteor/react-meteor-data';
 import LogoutConfirmation from './component';
-import LogoutConfirmationService from './service';
+import {
+  isModerator,
+  endMeeting,
+} from './service';
 
-const LogoutConfirmationContainer = () => (
-  <LogoutConfirmation {...this.props} />
+const LogoutConfirmationContainer = props => (
+  <LogoutConfirmation {...props} />
 );
 
-export default createContainer(() => ({
-  showEndMeeting: !LogoutConfirmationService.isBreakout() &&
-                  LogoutConfirmationService.isModerator(),
-  endMeeting: LogoutConfirmationService.endMeeting,
-}), LogoutConfirmationContainer);
+export default withTracker(() => ({
+  showEndMeeting: !meetingIsBreakout() && isModerator(),
+  handleEndMeeting: endMeeting,
+}))(LogoutConfirmationContainer);

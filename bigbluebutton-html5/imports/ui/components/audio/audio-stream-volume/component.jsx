@@ -99,7 +99,7 @@ class AudioStreamVolume extends Component {
 
     this.setState(prevState => ({
       instant,
-      slow: 0.75 * prevState.slow + 0.25 * instant,
+      slow: (0.75 * prevState.slow) + (0.25 * instant),
     }));
   }
 

@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
-import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import _ from 'lodash';
-import { withModalMounter } from '../modal/service';
+import PropTypes from 'prop-types';
 
+import { withModalMounter } from '../modal/service';
 import Icon from '../icon/component';
-import styles from './styles';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -55,6 +55,15 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
+  intl: intlShape.isRequired,
+  video: PropTypes.object.isRequired,
+  application: PropTypes.object.isRequired,
+  cc: PropTypes.object.isRequired,
+  participants: PropTypes.object.isRequired,
+  updateSettings: PropTypes.func.isRequired,
+  availableLocales: PropTypes.object.isRequired,
+  mountModal: PropTypes.func.isRequired,
+  locales: PropTypes.array.isRequired,
 };
 
 class Settings extends Component {
@@ -64,10 +73,12 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
-    const video = props.video;
-    const application = props.application;
-    const cc = props.cc;
-    const participants = props.participants;
+    const {
+      video,
+      participants,
+      cc,
+      application,
+    } = props;
 
     this.state = {
       current: {
@@ -110,7 +121,6 @@ class Settings extends Component {
 
   renderModalContent() {
     const {
-      isModerator,
       intl,
     } = this.props;
 
@@ -120,9 +130,16 @@ class Settings extends Component {
         onSelect={this.handleSelectTab}
         selectedIndex={this.state.selectedTab}
         role="presentation"
+        selectedTabPanelClassName={styles.selectedTab}
       >
-        <TabList className={styles.tabList}>
-          <Tab className={styles.tabSelector} aria-labelledby="appTab">
+        <TabList
+          className={styles.tabList}
+        >
+          <Tab
+            className={styles.tabSelector}
+            aria-labelledby="appTab"
+            selectedClassName={styles.selected}
+          >
             <Icon iconName="application" className={styles.icon} />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
@@ -130,16 +147,20 @@ class Settings extends Component {
           {/* <Icon iconName='video' className={styles.icon}/> */}
           {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span> */}
           {/* </Tab> */}
-          <Tab className={styles.tabSelector} aria-labelledby="ccTab">
+          <Tab
+            className={styles.tabSelector}
+            aria-labelledby="ccTab"
+            selectedClassName={styles.selected}
+          >
             <Icon iconName="user" className={styles.icon} />
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
           </Tab>
-          {/*{ isModerator ?*/}
-            {/*<Tab className={styles.tabSelector} aria-labelledby="usersTab">*/}
-              {/*<Icon iconName="user" className={styles.icon} />*/}
-              {/*<span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span>*/}
-            {/*</Tab>*/}
-            {/*: null }*/}
+          {/* { isModerator ? */}
+          {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab"> */}
+          {/* <Icon iconName="user" className={styles.icon} /> */}
+          {/* <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span> */}
+          {/* </Tab> */}
+          {/* : null } */}
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
@@ -161,19 +182,19 @@ class Settings extends Component {
             locales={this.props.locales}
           />
         </TabPanel>
-        {/*{ isModerator ?*/}
-          {/*<TabPanel className={styles.tabPanel}>*/}
-            {/*<Participants*/}
-              {/*settings={this.state.current.participants}*/}
-              {/*handleUpdateSettings={this.handleUpdateSettings}*/}
-            {/*/>*/}
-          {/*</TabPanel>*/}
-          {/*: null }*/}
+        {/* { isModerator ? */}
+        {/* <TabPanel className={styles.tabPanel}> */}
+        {/* <Participants */}
+        {/* settings={this.state.current.participants} */}
+        {/* handleUpdateSettings={this.handleUpdateSettings} */}
+        {/* /> */}
+        {/* </TabPanel> */}
+        {/* : null } */}
       </Tabs>
     );
   }
   render() {
-    const intl = this.props.intl;
+    const { intl } = this.props;
 
     return (
       <Modal
@@ -198,7 +219,6 @@ class Settings extends Component {
       </Modal>
     );
   }
-
 }
 
 Settings.propTypes = propTypes;

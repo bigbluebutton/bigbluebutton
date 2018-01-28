@@ -1,15 +1,15 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Application from './component';
 
 
-const ApplicationContainer = props => (
+const ApplicationContainer = ({ children, ...props }) => (
   <Application {...props}>
-    {props.children}
+    {children}
   </Application>
-    );
+);
 
-export default createContainer(() => ({
+export default withTracker(() => ({
   fontSizes: [
     '12px',
     '14px',
@@ -17,4 +17,4 @@ export default createContainer(() => ({
     '18px',
     '20px',
   ],
-}), ApplicationContainer);
+}))(ApplicationContainer);

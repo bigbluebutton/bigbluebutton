@@ -7,7 +7,7 @@
 
 $unread-messages-bg: $color-danger;
 $user-list-text: $color-gray;
-$user-list-bg: #F3F6F9;
+$user-list-bg: $color-off-white;
 
 $user-thumbnail-border: $color-gray-light;
 $user-thumbnail-text: $user-thumbnail-border;
@@ -23,6 +23,8 @@ $sub-name-color: $color-gray-light;
 $user-icons-color: $color-gray-light;
 $user-icons-color-hover: $color-gray;
 
+$list-item-bg-hover: darken($color-off-white, 7%);
+$item-focus-border: $color-blue-lighter;
 
 /* classes for extending
  * ==========
@@ -39,9 +41,6 @@ $user-icons-color-hover: $color-gray;
 %list-item {
   display: flex;
   flex-flow: row;
-  padding-top: $sm-padding-y;
-  padding-bottom: $sm-padding-y;
-  margin-top: $sm-padding-y * 2;
   transition: all 0.3s;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -50,6 +49,17 @@ $user-icons-color-hover: $color-gray;
   &:first-child {
     margin-top: 0;
   }
+
+  &:focus {
+    background-color: $list-item-bg-hover;
+    box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+    outline: none;
+  }
+
+  &:hover {
+    background-color: $list-item-bg-hover;
+  }
+
 }
 
 /* Styling
@@ -103,7 +113,7 @@ $user-icons-color-hover: $color-gray;
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 $sm-padding-x;
-  margin: ($md-padding-x / 2) 0 0 0;
+  margin: 0 0 ($lg-padding-x / 2) 0;
   color: $color-gray-light;
 }
 

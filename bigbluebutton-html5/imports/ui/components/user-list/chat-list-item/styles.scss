@@ -1,7 +1,7 @@
 @import "../styles.scss";
+@import "/imports/ui/stylesheets/variables/_all";
 
 .chatListItem {
-  @extend %customChatItemFocus;
   @extend %list-item;
   cursor: pointer;
   padding: 0;
@@ -42,8 +42,12 @@
   font-size: 0.9rem;
   font-weight: 400;
   margin-left: $sm-padding-x;
+  position: relative;
+  top: $md-padding-y;
 }
 
 .active {
   background-color: $list-item-bg-hover;
+  box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+  outline: none;
 }

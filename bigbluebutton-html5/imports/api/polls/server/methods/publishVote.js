@@ -4,12 +4,17 @@ import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
 export default function publishVote(credentials, id, pollAnswerId) { // TODO discuss location
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RespondToPollReqMsg';
 
   const { meetingId, requesterUserId } = credentials;
 
+  /*
+   We keep an array of people who were in the meeting at the time the poll
+   was started. The poll is published to them only.
+   Once they vote - their ID is removed and they cannot see the poll anymore
+   */
   const currentPoll = Polls.findOne({
     users: requesterUserId,
     meetingId,

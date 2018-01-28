@@ -25,7 +25,7 @@ const propTypes = {
   }).isRequired,
   userActions: PropTypes.shape({}).isRequired,
   router: PropTypes.shape({}).isRequired,
-  isBreakoutRoom: PropTypes.bool.isRequired,
+  isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
@@ -34,12 +34,10 @@ const propTypes = {
 };
 
 const defaultProps = {
-  shouldShowActions: false,
   isBreakoutRoom: false,
 };
 
 class UserListItem extends Component {
-
   static createAction(action, ...options) {
     return (
       <UserAction
@@ -66,7 +64,7 @@ class UserListItem extends Component {
       openChat,
       clearStatus,
       setPresenter,
-      kick,
+      remove,
       mute,
       unmute,
       promote,
@@ -80,7 +78,7 @@ class UserListItem extends Component {
       allowedToMuteAudio,
       allowedToUnmuteAudio,
       allowedToResetStatus,
-      allowedToKick,
+      allowedToRemove,
       allowedToSetPresenter,
       allowedToPromote,
       allowedToDemote,
@@ -92,7 +90,7 @@ class UserListItem extends Component {
       (allowedToUnmuteAudio ? UserListItem.createAction(unmute, user) : null),
       (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
       (allowedToSetPresenter ? UserListItem.createAction(setPresenter, user) : null),
-      (allowedToKick ? UserListItem.createAction(kick, user) : null),
+      (allowedToRemove ? UserListItem.createAction(remove, user) : null),
       (allowedToPromote ? UserListItem.createAction(promote, user) : null),
       (allowedToDemote ? UserListItem.createAction(demote, user) : null),
     ]);

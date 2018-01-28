@@ -1833,6 +1833,16 @@ if [ -n "$HOST" ]; then
 		sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
 	fi
 
+        #
+        # Update HTML5 client
+        #
+	if [ -f /usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json ]; then 
+        	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
+        	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" \
+                	/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
+	fi
+
+
 	echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 	stop_bigbluebutton
 	echo

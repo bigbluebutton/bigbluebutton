@@ -151,7 +151,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!Accessibility.active) {
 					quickLinks.removeAllChildren();
 				} else {
-					quickLinks.includeInLayout = true;
+					quickLinks.visible = quickLinks.includeInLayout = true;
 				}
 			}
 
@@ -178,14 +178,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			  break;
          }
        }
-								
+
 			public function displayToolbar():void{
 				if (toolbarOptions.showToolbar) {
 					showToolbar = true;
 				} else {
 					showToolbar = false;
 				}
-				
+
 				if (toolbarOptions.showHelpButton) {
 					showHelpBtn = true;
 				} else {
@@ -200,7 +200,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
 					timeRemaining.visible = true;
 				}
-				TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec);
+				TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec, true);
 			}
 
 			private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
@@ -211,12 +211,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 
-				if (UsersUtil.isBreakout()) {
-					breakoutRibbon.visible = breakoutRibbon.includeInLayout = true;
-					var sequence:String = StringUtils.substringAfterLast(UsersUtil.getMeetingName(), " ");
-					sequence = StringUtils.substringBefore(sequence, ")");
-					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
+				var customLogo: String = LiveMeeting.inst().meeting.customLogo;
+				
+				if (customLogo != "") {
+					logo.source = LiveMeeting.inst().meeting.customLogo;
 				}
+				
+				initBreakoutRibbon();
 				
 				if (LiveMeeting.inst().me.logoutTimer > 0 ) {
 					idleLogoutButton.startTimer(LiveMeeting.inst().me.logoutTimer);
@@ -225,6 +226,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				logFlashPlayerCapabilities();
+			}
+			
+			private function initBreakoutRibbon() : void {
+				if (UsersUtil.isBreakout()) {
+					breakoutRibbon.visible = breakoutRibbon.includeInLayout = true;
+					var sequence:String = StringUtils.substringAfterLast(UsersUtil.getMeetingName(), " ");
+					sequence = StringUtils.substringBefore(sequence, ")");
+					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
+				}
 			}
 
       private function refreshModeratorButtonsVisibility(e:*):void {
@@ -301,13 +311,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout) {
-					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true) as LogoutWindow;
+					var logoutWindow:LogoutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, false) as LogoutWindow;
 
-					var newX:Number = this.width - logoutWindow.width - 5;
-					var newY:Number = btnLogout.y + btnLogout.height + 5;
-
-					logoutWindow.x = newX;
-					logoutWindow.y = newY;
+					// Needs to be improved in case of RTL layout
+					PopUpUtil.lockPosition(logoutWindow, function():Point {
+						return new Point(width - logoutWindow.width - 5, btnLogout.y + btnLogout.height + 5)
+					});
 				} else {
 					doLogout();
 				}
@@ -398,7 +407,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
-					setStyle("backgroundColor", brandingOptions.toolbarColor);
+					mainBox.setStyle("backgroundColor", uint("0x" + brandingOptions.toolbarColor.substr(1)));
 				}
 			}
 			
@@ -423,6 +432,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				
 				btnLogout.styleName = "logoutButtonStyle" + styleNameExt;
+				
+				initBreakoutRibbon();
 			}
 
 			private function openSettings(e:Event = null):void{
@@ -515,7 +526,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSettingsButtonClick():void {
-				settingsPopup = PopUpUtil.createModalPopUp(this.parent, BBBSettings, true) as BBBSettings;
+				settingsPopup = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BBBSettings, true) as BBBSettings;
 				settingsPopup.pushComponents(settingsComponents);
 				PopUpManager.centerPopUp(settingsPopup);
 			}
@@ -532,10 +543,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						   tabIndices="{[recordBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 	</fx:Declarations>
 
-	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" horizontalScrollPolicy="off" verticalAlign="top">
+	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" height="100%" horizontalScrollPolicy="off">
 		<!-- Breakout room  Ribbon-->
 		<mx:HBox id="breakoutRibbon" width="100%" height="30"
-				 styleName="breakoutRoomRibbon" 
+				 styleName="breakoutRoomRibbon"
 				 visible="false" includeInLayout="false" >
 			<mx:Label id="breakoutLabel" />
 			<mx:Label text="|" visible="{timeRemaining.visible}" includeInLayout="{timeRemaining.visible}"/>
@@ -544,18 +555,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timerForRoom.toolTip')}"/>
 		</mx:HBox>
 		<!-- Top bar -->
-		<mx:HBox id="topBox" width="100%" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
-			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
+		<mx:HBox id="topBox" width="100%" height="{MainApplicationShell.DEFAULT_TOOLBAR_HEIGHT}" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
+			<mx:HBox id="titleBox" width="40%" height="100%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
 				<mx:VRule id="logoSperatator" styleName="toolbarSeparator" height="10" />
-				<mx:Label id="meetingNameLbl" minWidth="1" styleName="meetingNameLabelStyle" width="100%" truncateToFit="true"/>
+				<mx:Label id="meetingNameLbl" minWidth="1" maxWidth="{titleBox.width - logo.width - 20}" styleName="meetingNameLabelStyle" truncateToFit="true"/>
 			</mx:HBox>
-			<mx:HBox id="actionBox" width="30%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
+			<mx:HBox id="actionBox" width="30%" height="100%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:HBox id="addedBtnsMicrophone" />
 				<mx:HBox id="addedBtnsWebcam" />
 				<mx:HBox id="addedBtnsDeskShare" />
 			</mx:HBox>
-			<mx:HBox id="rightBox" width="40%" horizontalAlign="right" verticalAlign="middle" horizontalScrollPolicy="off">
+			<mx:HBox id="rightBox" width="40%" height="100%" horizontalAlign="right" verticalAlign="middle" horizontalScrollPolicy="off">
 				<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 				<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 				
@@ -593,7 +604,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 
 		<!-- Accessibilty Quick Links -->
-		<mx:HBox id="quickLinks" includeInLayout="false" width="100%" horizontalAlign="center">
+		<mx:HBox id="quickLinks" visible="false" includeInLayout="false" width="100%" height="30" horizontalAlign="center" verticalAlign="middle">
 			<mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
 						   accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
 						   height="30" styleName="quickWindowLinkStyle" />
