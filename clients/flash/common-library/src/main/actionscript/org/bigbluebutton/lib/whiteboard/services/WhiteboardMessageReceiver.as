@@ -1,107 +1,92 @@
 package org.bigbluebutton.lib.whiteboard.services {
 	import org.bigbluebutton.lib.common.models.IMessageListener;
-	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.whiteboard.models.Annotation;
+	import org.bigbluebutton.lib.whiteboard.models.IWhiteboardModel;
 	import org.bigbluebutton.lib.whiteboard.util.AnnotationUtil;
-	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
 	
 	public class WhiteboardMessageReceiver implements IMessageListener {
 		private static var LOG:String = "WhiteboardMessageReciever - ";
 		
-		private var _userSession:IUserSession;
+		private var _whiteboardModel:IWhiteboardModel;
 		
-		public function WhiteboardMessageReceiver(userSession:IUserSession) {
-			_userSession = userSession;
+		public function WhiteboardMessageReceiver(whiteboardModel:IWhiteboardModel) {
+			_whiteboardModel = whiteboardModel;
 		}
 		
 		public function onMessage(messageName:String, message:Object):void {
 			// LogUtil.debug("WB: received message " + messageName);
 			switch (messageName) {
-				case "WhiteboardRequestAnnotationHistoryReply":
-					handleRequestAnnotationHistoryReply(message);
+				case "GetWhiteboardAnnotationsRespMsg":
+					handleGetWhiteboardAnnotationsRespMsg(message);
 					break;
-				case "WhiteboardIsWhiteboardEnabledReply":
-					handleIsWhiteboardEnabledReply(message);
+				case "ModifyWhiteboardAccessEvtMsg":
+					handleModifyWhiteboardAccessEvtMsg(message);
 					break;
-				case "WhiteboardEnableWhiteboardCommand":
-					handleEnableWhiteboardCommand(message);
+				case "SendWhiteboardAnnotationEvtMsg":
+					handleSendWhiteboardAnnotationEvtMsg(message);
 					break;
-				case "WhiteboardNewAnnotationCommand":
-					handleNewAnnotationCommand(message);
+				case "ClearWhiteboardEvtMsg":
+					handleClearWhiteboardEvtMsg(message);
 					break;
-				case "WhiteboardClearCommand":
-					handleClearCommand(message);
+				case "UndoWhiteboardEvtMsg":
+					handleUndoWhiteboardEvtMsg(message);
 					break;
-				case "WhiteboardUndoCommand":
-					handleUndoCommand(message);
-					break;
-				case "WhiteboardChangePageCommand":
-					handleChangePageCommand(message);
-					break;
-				case "WhiteboardChangePresentationCommand":
-					handleChangePresentationCommand(message);
+				case "SendCursorPositionEvtMsg":
+					handleSendCursorPositionEvtMsg(message);
 					break;
 				default:
 					//          LogUtil.warn("Cannot handle message [" + messageName + "]");
 			}
 		}
 		
-		private function handleChangePresentationCommand(message:Object):void {
-			//			whiteboardModel.changePresentation(message.presentationID, message.numberOfPages);
+		private function handleGetWhiteboardAnnotationsRespMsg(message:Object):void {
+			var whiteboardId:String = message.body.whiteboardId;
+			var multiUser:Boolean = message.body.multiUser as Boolean;
+			var annotations:Array = message.body.annotations as Array;
+			var tempAnnotations:Array = new Array();
+			
+			for (var i:int = 0; i < annotations.length; i++) {
+				var processedAnnotation:Annotation = AnnotationUtil.createAnnotation(annotations[i]);
+				if (processedAnnotation != null) {
+					tempAnnotations.push(processedAnnotation);
+				}
+			}
+			
+			_whiteboardModel.addAnnotationFromHistory(whiteboardId, tempAnnotations);
+			_whiteboardModel.accessModified(whiteboardId, multiUser);
 		}
 		
-		private function handleChangePageCommand(message:Object):void {
-			//			whiteboardModel.changePage(message.pageNum, message.numAnnotations);
+		private function handleModifyWhiteboardAccessEvtMsg(message:Object):void {
+			_whiteboardModel.accessModified(message.body.whiteboardId, message.body.multiUser);
 		}
 		
-		private function handleClearCommand(message:Object):void {
-			_userSession.presentationList.clearAnnotations();
-		}
-		
-		private function handleUndoCommand(message:Object):void {
-			_userSession.presentationList.undoAnnotation();
-		}
-		
-		private function handleEnableWhiteboardCommand(message:Object):void {
-			//whiteboardModel.enable(message.enabled);
-		}
-		
-		private function handleNewAnnotationCommand(message:Object):void {
-			trace(LOG + "handleNewAnnotationCommand received");
-			message = JSON.parse(message.msg).shape.shape;
-			AnnotationUtil.createAnnotation(message);
-			var tempAnnotation:IAnnotation = AnnotationUtil.createAnnotation(message);
-			if (tempAnnotation != null) {
-				_userSession.presentationList.addAnnotation(tempAnnotation);
-			} else {
-				trace(LOG + "handleAnnotationHistoryReply: Annotation with id: " + message.id + " is invalid");
+		private function handleSendWhiteboardAnnotationEvtMsg(message:Object):void {
+			var receivedAnnotation:Object = message.body.annotation;
+			var processedAnnotation:Annotation = AnnotationUtil.createAnnotation(receivedAnnotation);
+			if (processedAnnotation != null) {
+				_whiteboardModel.addAnnotation(receivedAnnotation.wbId, processedAnnotation);
 			}
 		}
 		
-		private function handleIsWhiteboardEnabledReply(message:Object):void {
-			//LogUtil.debug("Whiteboard Enabled? " + message.enabled);
+		private function handleClearWhiteboardEvtMsg(message:Object):void {
+			if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("fullClear") && message.body.hasOwnProperty("userId")) {
+				_whiteboardModel.clear(message.body.whiteboardId, message.body.fullClear, message.body.userId);
+			}
 		}
 		
-		private function handleRequestAnnotationHistoryReply(message:Object):void {
-			var msg:Object = JSON.parse(message.msg);
-			if (msg.count == 0) {
-				trace(LOG + "handleRequestAnnotationHistoryReply: No annotations.");
-			} else {
-				trace(LOG + "handleRequestAnnotationHistoryReply: Number of annotations in history = " + msg.count);
-				var annotations:Array = msg.annotations as Array;
-				var tempAnnotations:Array = new Array();
-				for (var i:int = 0; i < msg.count; i++) {
-					var an:Object = annotations[i] as Object;
-					var tempAnnotation:IAnnotation = AnnotationUtil.createAnnotation(an.shapes);
-					if (tempAnnotation != null) {
-						tempAnnotations.push(tempAnnotation);
-					} else {
-						trace(LOG + "handleAnnotationHistoryReply: Annotation with id: " + an.id + " is invalid");
-					}
-				}
-				if (tempAnnotations.length > 0) {
-					_userSession.presentationList.addAnnotationHistory(msg.whiteboardId, tempAnnotations);
-				}
+		private function handleUndoWhiteboardEvtMsg(message:Object):void {
+			if (message.body.hasOwnProperty("whiteboardId") && message.body.hasOwnProperty("annotationId")) {
+				_whiteboardModel.removeAnnotation(message.body.whiteboardId, message.body.annotationId);
 			}
+		}
+		
+		private function handleSendCursorPositionEvtMsg(message:Object):void {
+			var userId:String = message.header.userId as String;
+			var whiteboardId:String = message.body.whiteboardId as String;
+			var xPercent:Number = message.body.xPercent as Number;
+			var yPercent:Number = message.body.yPercent as Number;
+			
+			_whiteboardModel.updateCursorPosition(whiteboardId, userId, xPercent, yPercent);
 		}
 	}
 }

@@ -48,6 +48,7 @@ package org.bigbluebutton.lib.presentation.views {
 					// @fixme: needs to be improved as the view is sometimes null
 					if (_currentSlide.loaded && view != null) {
 						view.setSlide(_currentSlide);
+						view.wbCanvas.changeWhiteboard(_currentSlide.id);
 					} else {
 						_currentSlide.slideLoadedSignal.add(slideLoadedHandler);
 						loadSlideSignal.dispatch(_currentSlide, _currentPresentation.id);
@@ -55,6 +56,7 @@ package org.bigbluebutton.lib.presentation.views {
 				}
 			} else if (view != null) {
 				view.setSlide(null);
+				view.wbCanvas.changeWhiteboard(null);
 			}
 		}
 		
@@ -92,7 +94,7 @@ package org.bigbluebutton.lib.presentation.views {
 			setViewportSize();
 			fitLoaderToSize();
 			//fitSlideToLoader();
-			zoomCanvas(view.swfLoader.x, view.swfLoader.y, view.swfLoader.width, view.swfLoader.height, 1 / Math.max(widthPercent / 100, heightPercent / 100));
+			zoomCanvas(view.swfLoader.x, view.swfLoader.y, view.swfLoader.width, view.swfLoader.height);
 		}
 		
 		protected function setViewportSize():void {
@@ -109,15 +111,8 @@ package org.bigbluebutton.lib.presentation.views {
 			view.swfLoader.height = _slideModel.loaderH;
 		}
 		
-		public function zoomCanvas(x:Number, y:Number, width:Number, height:Number, zoom:Number):void {
-			view.wbCanvas.moveCanvas(x, y, width, height, zoom);
-		}
-		
-		protected function resizeWhiteboard():void {
-			view.wbCanvas.height = view.swfLoader.height;
-			view.wbCanvas.width = view.swfLoader.width;
-			view.wbCanvas.x = view.swfLoader.x;
-			view.wbCanvas.y = view.swfLoader.y;
+		protected function zoomCanvas(x:Number, y:Number, width:Number, height:Number):void {
+			view.wbCanvas.moveCanvas(x, y, width, height);
 		}
 		
 		protected function presentationChangeHandler():void {

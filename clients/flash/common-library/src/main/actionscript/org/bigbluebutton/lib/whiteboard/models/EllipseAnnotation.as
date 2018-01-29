@@ -2,77 +2,46 @@ package org.bigbluebutton.lib.whiteboard.models {
 	
 	import mx.graphics.SolidColorStroke;
 	
+	import spark.components.Group;
 	import spark.primitives.Ellipse;
 	
-	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
-	
 	public class EllipseAnnotation extends Annotation {
-		private var _thickness:Number = 1;
-		
-		private var _transparency:Boolean = false;
-		
-		private var _points:Array = [];
-		
-		private var _circle:Boolean = false;
-		
 		private var _ellipse:Ellipse;
 		
-		public function EllipseAnnotation(type:String, anID:String, whiteboardID:String, status:String, color:Number, thickness:Number, transparency:Boolean, points:Array, circle:Boolean) {
-			super(type, anID, whiteboardID, status, color);
-			_thickness = thickness;
-			_transparency = transparency;
-			_points = points;
-			_circle = circle;
+		public function EllipseAnnotation(id:String, userId:String, type:String, status:String, annInfo:Object) {
+			super(id, userId, type, status, annInfo);
 		}
 		
-		public function get thickness():Number {
-			return _thickness;
-		}
-		
-		public function get transparency():Boolean {
-			return _transparency;
-		}
-		
-		public function get points():Array {
-			return _points;
-		}
-		
-		public function get circle():Boolean {
-			return _circle;
-		}
-		
-		override public function update(an:IAnnotation):void {
-			if (an.anID == anID) {
-				super.update(an);
-				_thickness = EllipseAnnotation(an).thickness;
-				_transparency = EllipseAnnotation(an).transparency;
-				_points = EllipseAnnotation(an).points;
-				_circle = EllipseAnnotation(an).circle;
-			}
-		}
-		
-		override public function draw(canvas:IWhiteboardCanvas, zoom:Number):void {
-			if (!_ellipse) {
-				_ellipse = new Ellipse();
-			}
-			_ellipse.stroke = new SolidColorStroke(color, thickness * zoom);
-			var arrayEnd:Number = points.length;
-			var startX:Number = denormalize(points[0], canvas.width);
-			var startY:Number = denormalize(points[1], canvas.height);
-			var width:Number = denormalize(points[arrayEnd - 2], canvas.width) - startX;
-			var height:Number = denormalize(points[arrayEnd - 1], canvas.height) - startY;
+		override protected function makeGraphic():void {
+			_ellipse.stroke = new SolidColorStroke(annInfo.color, denormalize(annInfo.thickness, _parentWidth));
+			var arrayEnd:Number = annInfo.points.length;
+			var startX:Number = denormalize(annInfo.points[0], _parentWidth);
+			var startY:Number = denormalize(annInfo.points[1], _parentHeight);
+			var width:Number = denormalize(annInfo.points[arrayEnd - 2], _parentWidth) - startX;
+			var height:Number = denormalize(annInfo.points[arrayEnd - 1], _parentHeight) - startY;
 			_ellipse.x = startX;
 			_ellipse.y = startY;
 			_ellipse.width = width;
-			_ellipse.height = (circle ? width : height);
+			_ellipse.height = height;
+		}
+		
+		override public function draw(canvas:Group):void {
+			if (!_ellipse) {
+				_ellipse = new Ellipse();
+			}
+			
+			super.draw(canvas);
+			
 			if (!canvas.containsElement(_ellipse)) {
 				canvas.addElement(_ellipse);
 			}
 		}
 		
-		override public function remove(canvas:IWhiteboardCanvas):void {
+		override public function remove(canvas:Group):void {
 			if (canvas.containsElement(_ellipse)) {
 				canvas.removeElement(_ellipse);
+				_ellipse = null;
+				super.remove(canvas);
 			}
 		}
 	}

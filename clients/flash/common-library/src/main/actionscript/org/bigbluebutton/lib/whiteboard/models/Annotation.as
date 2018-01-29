@@ -1,63 +1,87 @@
 package org.bigbluebutton.lib.whiteboard.models {
-	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
+	import org.bigbluebutton.lib.whiteboard.views.WhiteboardCanvas;
 	
-	public class Annotation implements IAnnotation {
+	import spark.components.Group;
+	
+	public class Annotation {
+		private var _id:String = "undefined";
+		
+		private var _userId:String = "undefined";
+		
+		protected var _status:String = AnnotationStatus.DRAW_START;
+		
 		private var _type:String = "undefined";
 		
-		private var _anID:String = "undefined";
+		protected var _annInfo:Object;
 		
-		private var _whiteboardID:String = "undefined";
+		protected var _parentWidth:Number = -1;
 		
-		private var _status:String = AnnotationStatus.DRAW_START;
+		protected var _parentHeight:Number = -1;
 		
-		private var _color:Number;
-		
-		public function Annotation(type:String, anID:String, whiteboardID:String, status:String, color:Number) {
+		public function Annotation(id:String, userId:String, type:String, status:String, annInfo:Object) {
+			_id = id;
+			_userId = userId;
 			_type = type;
-			_anID = anID;
-			_whiteboardID = whiteboardID;
 			_status = status;
-			_color = color;
+			_annInfo = annInfo;
+		}
+		
+		public function get id():String {
+			return _id;
+		}
+		
+		public function get userId():String {
+			return _userId;
 		}
 		
 		public function get type():String {
 			return _type;
 		}
 		
-		public function get anID():String {
-			return _anID;
-		}
-		
-		public function get whiteboardID():String {
-			return _whiteboardID;
-		}
-		
 		public function get status():String {
 			return _status;
 		}
 		
-		public function get color():Number {
-			return _color;
+		public function get annInfo():Object {
+			return _annInfo;
 		}
 		
-		public function update(an:IAnnotation):void {
-			if (an.anID == this.anID) {
-				_color = an.color;
-			}
-		}
-		
-		public function denormalize(val:Number, side:Number):Number {
+		protected final function denormalize(val:Number, side:Number):Number {
 			return (val * side) / 100.0;
 		}
 		
-		public function normalize(val:Number, side:Number):Number {
+		protected final function normalize(val:Number, side:Number):Number {
 			return (val * 100.0) / side;
 		}
 		
-		public function draw(canvas:IWhiteboardCanvas, zoom:Number):void {
+		protected function makeGraphic():void {
 		}
 		
-		public function remove(canvas:IWhiteboardCanvas):void {
+		public function update(an:Annotation):void {
+			if (an.id == this.id) {
+				_status = an.status;
+				_annInfo = an.annInfo;
+				
+				if (_parentHeight > 0 && _parentWidth > 0) {
+					makeGraphic();
+				}
+			}
+		}
+		
+		public function draw(canvas:Group):void {
+			var width:Number = canvas.width;
+			var height:Number = canvas.height;
+			
+			if (_parentWidth != width || _parentHeight != height) {
+				_parentWidth = width;
+				_parentHeight = height;
+				makeGraphic();
+			}
+		}
+		
+		public function remove(canvas:Group):void {
+			_parentWidth = -1;
+			_parentHeight = -1;
 		}
 	}
 }

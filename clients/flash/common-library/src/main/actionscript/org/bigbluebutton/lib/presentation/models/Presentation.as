@@ -3,7 +3,6 @@ package org.bigbluebutton.lib.presentation.models {
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.lib.whiteboard.models.AnnotationStatus;
-	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -111,48 +110,5 @@ package org.bigbluebutton.lib.presentation.models {
 			}
 			return false;
 		}
-		
-		/*
-		public function addAnnotationHistory(slideNum:int, annotationHistory:Array):Boolean {
-			var slide:Slide = getSlideAt(slideNum);
-			if (slide != null) {
-				for (var i:int = 0; i < annotationHistory.length; i++) {
-					slide.addAnnotation(annotationHistory[i]);
-				}
-				return true;
-			}
-			return false;
-		}
-		
-		public function addAnnotation(slideNum:int, annotation:IAnnotation):IAnnotation {
-			var slide:Slide = getSlideAt(slideNum);
-			if (slide != null) {
-				if (annotation.status == AnnotationStatus.DRAW_START || annotation.status == AnnotationStatus.TEXT_CREATED) {
-					slide.addAnnotation(annotation);
-					return annotation;
-				} else {
-					return slide.updateAnnotation(annotation);
-				}
-			}
-			return null;
-		}
-		
-		public function clearAnnotations(slideNum:int):Boolean {
-			var slide:Slide = getSlideAt(slideNum);
-			if (slide != null) {
-				slide.clearAnnotations();
-				return true;
-			}
-			return false;
-		}
-		
-		public function undoAnnotation(slideNum:int):IAnnotation {
-			var slide:Slide = getSlideAt(slideNum);
-			if (slide != null) {
-				return slide.undoAnnotation()
-			}
-			return null;
-		}
-		*/
 	}
 }

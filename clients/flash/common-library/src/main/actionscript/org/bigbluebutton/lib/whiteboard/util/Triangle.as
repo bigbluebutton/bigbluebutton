@@ -1,9 +1,9 @@
 package org.bigbluebutton.lib.whiteboard.util {
 	import flash.display.Graphics;
 	
-	import spark.primitives.supportClasses.FilledElement;
+	import spark.primitives.supportClasses.StrokedElement;
 	
-	public class Triangle extends FilledElement {
+	public class Triangle extends StrokedElement {
 		public function Triangle() {
 			super();
 		}

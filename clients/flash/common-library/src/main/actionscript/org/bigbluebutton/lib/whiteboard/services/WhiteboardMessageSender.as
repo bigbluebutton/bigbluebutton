@@ -1,32 +1,17 @@
 package org.bigbluebutton.lib.whiteboard.services {
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class WhiteboardMessageSender {
 		private static var LOG:String = "WhiteboardMessageSender - ";
 		
-		private var userSession:IUserSession;
+		private var _userSession:IUserSession;
 		
-		public function WhiteboardMessageSender(userSession:IUserSession) {
-			this.userSession = userSession;
-		}
+		private var _conferenceParameters:IConferenceParameters;
 		
-		public function changePage(pageNum:Number):void {
-			//			LogUtil.debug("Sending [whiteboard.setActivePage] to server.");
-		/*
-		   var message:Object = new Object();
-		   message["pageNum"] = pageNum;
-		
-		   var _nc:ConnectionManager = BBB.initConnectionManager();
-		   _nc.sendMessage("whiteboard.setActivePage",
-		   function(result:String):void { // On successful result
-		   LogUtil.debug(result);
-		   },
-		   function(status:String):void { // status - On error occurred
-		   LogUtil.error(status);
-		   },
-		   message
-		   );
-		 */
+		public function WhiteboardMessageSender(userSession:IUserSession, conferenceParameters:IConferenceParameters) {
+			_userSession = userSession;
+			_conferenceParameters = conferenceParameters;
 		}
 		
 		/*
@@ -91,31 +76,18 @@ package org.bigbluebutton.lib.whiteboard.services {
 		 */
 		}
 		
-		public function requestAnnotationHistory(whiteboardID:String):void {
-			trace("Sending [whiteboard.requestAnnotationHistory] to server.");
-			var msg:Object = new Object();
-			msg["whiteboardId"] = whiteboardID;
-			userSession.mainConnection.sendMessage("whiteboard.requestAnnotationHistory", function(result:String):void { // On successful result
+		public function requestAnnotationHistory(whiteboardId:String):void {
+			trace(LOG + "requestAnnotationHistory() -- Sending [GetWhiteboardAnnotationsReqMsg] message to server");
+			
+			var message:Object = {
+				header: {name: "GetWhiteboardAnnotationsReqMsg", meetingId: _conferenceParameters.meetingID, userId: _conferenceParameters.internalUserID},
+				body: {whiteboardId: whiteboardId}
+			};
+			_userSession.mainConnection.sendMessage2x(function(result:String):void { // On successful result
 				trace(result);
 			}, function(status:String):void { // status - On error occurred
 				trace(status);
-			}, msg);
-		}
-		
-		public function sendText():void {
-			//			LogUtil.debug("Sending [whiteboard.sendAnnotation] (TEXT) to server.");
-		/*
-		   var _nc:ConnectionManager = BBB.initConnectionManager();
-		   _nc.sendMessage("whiteboard.sendAnnotation",
-		   function(result:String):void { // On successful result
-		   //                    LogUtil.debug(result);
-		   },
-		   function(status:String):void { // status - On error occurred
-		   LogUtil.error(status);
-		   },
-		   e.annotation.annotation
-		   );
-		 */
+			}, message);
 		}
 		
 		public function sendShape():void {
@@ -148,24 +120,5 @@ package org.bigbluebutton.lib.whiteboard.services {
 		   );
 		   }
 		 */
-		public function setActivePresentation():void {
-			//			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
-		/*
-		   var message:Object = new Object();
-		   message["presentationID"] = e.presentationName;
-		   message["numberOfSlides"] = e.numberOfPages;
-		
-		   var _nc:ConnectionManager = BBB.initConnectionManager();
-		   _nc.sendMessage("whiteboard.setActivePresentation",
-		   function(result:String):void { // On successful result
-		   LogUtil.debug(result);
-		   },
-		   function(status:String):void { // status - On error occurred
-		   LogUtil.error(status);
-		   },
-		   message
-		   );
-		 */
-		}
 	}
 }

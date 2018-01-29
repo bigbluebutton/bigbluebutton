@@ -66,6 +66,18 @@ package org.bigbluebutton.lib.user.models {
 			return -1;
 		}
 		
+		public function getPresenter():User2x {
+			var user:User2x;
+			for (var i:int = 0; i < _users.length; i++) {
+				user = _users.getItemAt(i) as User2x;
+				
+				if (user.presenter) {
+					return user;
+				}
+			}
+			return null;
+		}
+		
 		public function changeUserLocked(intId:String, locked:Boolean):void {
 			var user:User2x = getUser(intId);
 			if (user != null) {

@@ -14,9 +14,6 @@ package org.bigbluebutton.lib.presentation.commands {
 		[Inject]
 		public var presentationID:String;
 		
-		[Inject]
-		public var whiteboardService:IWhiteboardService;
-		
 		private var _loadSlideService:LoadSlideService;
 		
 		public function LoadSlideCommand() {
@@ -28,7 +25,6 @@ package org.bigbluebutton.lib.presentation.commands {
 				if (!slide.loadRequested) {
 					slide.loadRequested = true;
 					_loadSlideService = new LoadSlideService(slide);
-					whiteboardService.getAnnotationHistory(presentationID, slide.slideNumber);
 				} else {
 					trace("LoadSlideCommand: load request has already been received, ignoring the repeat request");
 				}
