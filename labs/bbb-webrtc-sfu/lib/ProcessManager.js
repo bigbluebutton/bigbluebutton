@@ -82,9 +82,9 @@ module.exports = class ProcessManager {
   }
 
   restartProcess (pid) {
-    let process = this.processes[pid];
-    if (typeof process !== 'undefined' && process) {
-      let newProcess = this.startProcess(process.path);
+    let proc = this.processes[pid];
+    if (proc) {
+      let newProcess = this.startProcess(proc.path);
       this.processes[newProcess.pid] = newProcess;
       delete this.processes[pid];
     }
@@ -104,10 +104,12 @@ module.exports = class ProcessManager {
   async finishChildProcesses () {
     this.runningState = "STOPPING";
 
-    for (var process in this.processes) {
-      let procObj = this.processes[process];
-      if (procObj.kill === 'function' && !procObj.killed) {
-        await procObj.disconnect()
+    for (var proc in this.processes) {
+      if (this.processes.hasOwnProperty(proc)) {
+        let procObj = this.processes[proc];
+        if (procObj.kill === 'function' && !procObj.killed) {
+          await procObj.disconnect()
+        }
       }
     }
 
