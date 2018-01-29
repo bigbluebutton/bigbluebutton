@@ -63,13 +63,12 @@ module.exports = class SfuUser extends User {
       this._mediaSessions[session.id] = {};
     }
     this._mediaSessions[session.id] = session; 
-    Logger.info("[mcs-sfu-user] Added SDP " + session.id);
+    Logger.info("[mcs-sfu-user] Added new SDP session", session.id, "to user", this.id);
 
     return session;
   }
 
   async startSession (sessionId) {
-    Logger.info("[mcs-sfu-user] starting session " + sessionId);
     let session = this._mediaSessions[sessionId];
   
     try {

@@ -63,7 +63,8 @@ let _onMessage = async function (_message) {
 
   switch (message.id) {
     case 'start':
-      Logger.info('[VideoManager] Received message [' + message.id + '] from connection ' + sessionId + ". Message => " + JSON.stringify(message, null, 2));
+      Logger.info('[VideoManager] Received message [' + message.id + '] from connection ' + sessionId);
+      Logger.debug('[VideoManager] Message =>', JSON.stringify(message, null, 2));
 
       video = new Video(bbbGW, message.cameraId, shared, message.connectionId);
 
