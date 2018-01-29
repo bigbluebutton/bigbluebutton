@@ -55,7 +55,7 @@ module.exports = class MediaServer extends EventEmitter {
     return new Promise((resolve, reject) => {
       if (this._mediaPipelines[roomId]) {
         Logger.warn('[mcs-media] Pipeline for', roomId, ' already exists.');
-        return this._mediaPipelines[roomId];
+        resolve(this._mediaPipelines[roomId]);
       }
       else {
         this._mediaServer.create('MediaPipeline', (error, pipeline) => {
