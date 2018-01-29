@@ -36,7 +36,15 @@ class VideoElement extends Component {
   }
 
   render() {
-    return <video id={`video-elem-${this.props.videoId}`} width={320} height={240} autoPlay={true} playsInline={true} />;
+    return (
+      <video
+        id={`video-elem-${this.props.videoId}`}
+        width={320}
+        height={240}
+        autoPlay="autoPlay"
+        playsInline="playsInline"
+      />
+    );
   }
 
   componentDidMount() {
@@ -59,7 +67,7 @@ class VideoDock extends Component {
 
     this.state = {
       videos: {},
-      sharedWebcam : false,
+      sharedWebcam: false,
     };
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
@@ -107,9 +115,9 @@ class VideoDock extends Component {
       if (user.has_stream && user.userId !== userId) {
         this.start(user.userId, false);
       }
-    })
+    });
 
-    document.addEventListener('joinVideo', this.shareWebcam.bind(this));// TODO find a better way to do this
+    document.addEventListener('joinVideo', this.shareWebcam.bind(this)); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam.bind(this));
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
 
@@ -118,7 +126,7 @@ class VideoDock extends Component {
     ws.addEventListener('message', this.onWsMessage);
   }
 
-  componentWillMount () {
+  componentWillMount() {
     this.ws.addEventListener('open', this.onWsOpen);
     this.ws.addEventListener('close', this.onWsClose);
 
@@ -126,7 +134,15 @@ class VideoDock extends Component {
     window.addEventListener('offline', this.ws.close.bind(this.ws));
   }
 
-  componentWillUnmount () {
+  componentWillUpdate(nextProps) {
+    const { isLocked } = nextProps;
+    if (isLocked && VideoService.isConnected()) {
+      console.error(this.unshareWebcam);
+      this.unshareWebcam();
+    }
+  }
+
+  componentWillUnmount() {
     document.removeEventListener('joinVideo', this.shareWebcam);
     document.removeEventListener('exitVideo', this.unshareWebcam);
     document.removeEventListener('installChromeExtension', this.installChromeExtension);
@@ -143,13 +159,13 @@ class VideoDock extends Component {
     this.ws.close();
   }
 
-  adjustVideos () {
+  adjustVideos() {
     setTimeout(() => {
       window.adjustVideos('webcamArea', true);
     }, 0);
   }
 
-  onWsOpen () {
+  onWsOpen() {
     log('debug', '------ Websocket connection opened.');
 
     // -- Resend queued messages that happened when socket was not connected
@@ -160,13 +176,13 @@ class VideoDock extends Component {
     this.reconnectVideos();
   }
 
-  onWsClose (error) {
+  onWsClose(error) {
     log('debug', '------ Websocket connection closed.');
 
     this.setupReconnectVideos();
   }
 
-  onWsMessage (msg) {
+  onWsMessage(msg) {
     const { intl } = this.props;
     const parsedMessage = JSON.parse(msg.data);
 
@@ -174,7 +190,6 @@ class VideoDock extends Component {
     console.log(parsedMessage);
 
     switch (parsedMessage.id) {
-
       case 'startResponse':
         this.startResponse(parsedMessage);
         break;
@@ -193,7 +208,6 @@ class VideoDock extends Component {
         break;
 
       case 'iceCandidate':
-
         const webRtcPeer = this.webRtcPeers[parsedMessage.cameraId];
 
         if (webRtcPeer !== null) {
@@ -212,7 +226,7 @@ class VideoDock extends Component {
         }
         break;
     }
-  };
+  }
 
   start(id, shareWebcam) {
     const that = this;
@@ -221,7 +235,7 @@ class VideoDock extends Component {
 
     if (shareWebcam) {
       VideoService.joiningVideo();
-      this.setState({sharedWebcam: true});
+      this.setState({ sharedWebcam: true });
       this.myId = id;
       this.initWebRTC(id, true);
     } else {
@@ -231,7 +245,7 @@ class VideoDock extends Component {
   }
 
   initWebRTC(id, shareWebcam) {
-    let that = this;
+    const that = this;
     const { intl } = this.props;
 
     const onIceCandidate = function (candidate) {
@@ -246,23 +260,39 @@ class VideoDock extends Component {
     };
 
     let videoConstraints = {};
-    if (!!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) { // Custom constraints for Safari
+    if (navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
+      // Custom constraints for Safari
       videoConstraints = {
-        width: {min:320, max:640},
-        height: {min:240, max:480}
-      }
+        width: {
+          min: 320,
+          max: 640,
+        },
+        height: {
+          min: 240,
+          max: 480,
+        },
+      };
     } else {
       videoConstraints = {
-        width: {min: 320, ideal: 320},
-        height: {min: 240, ideal:240},
-        frameRate: {min: 5, ideal: 10}
+        width: {
+          min: 320,
+          ideal: 320,
+        },
+        height: {
+          min: 240,
+          ideal: 240,
+        },
+        frameRate: {
+          min: 5,
+          ideal: 10,
+        },
       };
     }
 
-    let options = {
+    const options = {
       mediaConstraints: {
         audio: false,
-        video: videoConstraints
+        video: videoConstraints,
       },
       onicecandidate: onIceCandidate,
     };
@@ -276,13 +306,13 @@ class VideoDock extends Component {
       options.remoteVideo = document.getElementById(`video-elem-${id}`);
     }
 
-    let webRtcPeer = new peerObj(options, function (error) {
+    const webRtcPeer = new peerObj(options, function (error) {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
         that.notifyError(intl.formatMessage(intlMessages.permissionError));
-        /* This notification error is displayed considering kurento-utils 
-         * returned the error 'The request is not allowed by the user agent 
+        /* This notification error is displayed considering kurento-utils
+         * returned the error 'The request is not allowed by the user agent
          * or the platform in the current context.', but there are other
          * errors that could be returned. */
 
@@ -321,7 +351,7 @@ class VideoDock extends Component {
         that.sendMessage(message);
       });
       while (this.iceQueue.length) {
-        let candidate = this.iceQueue.shift();
+        const candidate = this.iceQueue.shift();
         this.addIceCandidate(candidate, (err) => {
           if (err) {
             this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
@@ -358,20 +388,20 @@ class VideoDock extends Component {
   }
 
   createVideoTag(id) {
-    let videos = this.state.videos;
+    const videos = this.state.videos;
 
     videos[id] = true;
-    this.setState({videos: videos})
+    this.setState({ videos });
   }
 
   destroyVideoTag(id) {
-    let videos = this.state.videos;
+    const videos = this.state.videos;
 
     delete videos[id];
-    this.setState({videos: videos});
+    this.setState({ videos });
 
     if (id == this.myId) {
-      this.setState({sharedWebcam: false});
+      this.setState({ sharedWebcam: false });
     }
   }
 
@@ -399,13 +429,14 @@ class VideoDock extends Component {
     if (this.connectedToMediaServer()) {
       this.start(userId, true);
     } else {
-      log("error", "Not connected to media server");
+      log('error', 'Not connected to media server');
     }
   }
 
   unshareWebcam() {
     VideoService.exitingVideo();
     log('info', 'Unsharing webcam');
+    console.warn(this.props);
     const { userId } = this.props;
     VideoService.sendUserUnshareWebcam(userId);
     VideoService.exitedVideo();
@@ -432,7 +463,7 @@ class VideoDock extends Component {
     });
 
     if (message.cameraId == this.props.userId) {
-      log('info', "camera id sendusershare ", id);
+      log('info', 'camera id sendusershare ', id);
       VideoService.sendUserShareWebcam(id);
     }
   }
@@ -501,7 +532,12 @@ class VideoDock extends Component {
     const { intl } = this.props;
     const CHROME_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
 
-    this.notifyError(<div>{intl.formatMessage(intlMessages.chromeExtensionError)} <a href={CHROME_EXTENSION_LINK} target="_blank">{intl.formatMessage(intlMessages.chromeExtensionErrorLink)}</a></div>);
+    this.notifyError(<div>
+      {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
+      <a href={CHROME_EXTENSION_LINK} target="_blank">
+        {intl.formatMessage(intlMessages.chromeExtensionErrorLink)}
+      </a>
+                     </div>);
   }
 
   componentDidUpdate() {
@@ -512,19 +548,24 @@ class VideoDock extends Component {
     let cssClass;
     if (this.state.sharedWebcam) {
       cssClass = styles.sharedWebcamVideoLocal;
-    }
-    else {
+    } else {
       cssClass = styles.sharedWebcamVideo;
     }
 
     return (
-
       <div className={styles.videoDock}>
         <div id="webcamArea">
-          {Object.keys(this.state.videos).map((id) => {
-            return (<VideoElement videoId={id} key={id} onMount={this.initWebRTC.bind(this)} />);
-          })}
-          <video autoPlay={true} playsInline={true} muted={true} id="shareWebcamVideo" className={cssClass} ref="videoInput" />
+          {Object.keys(this.state.videos).map(id => (
+            <VideoElement videoId={id} key={id} onMount={this.initWebRTC.bind(this)} />
+          ))}
+          <video
+            autoPlay="autoPlay"
+            playsInline="playsInline"
+            muted="muted"
+            id="shareWebcamVideo"
+            className={cssClass}
+            ref="videoInput"
+          />
         </div>
       </div>
     );
@@ -538,8 +579,7 @@ class VideoDock extends Component {
       let suc = false;
 
       for (let i = 0; i < users.length; i++) {
-        if (users && users[i] &&
-              nextUsers && nextUsers[i]) {
+        if (users && users[i] && nextUsers && nextUsers[i]) {
           if (users[i].has_stream !== nextUsers[i].has_stream) {
             console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
 
@@ -565,7 +605,6 @@ class VideoDock extends Component {
 
     return false;
   }
-
 }
 
 export default injectIntl(VideoDock);

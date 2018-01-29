@@ -29,11 +29,11 @@ const mapUser = (user) => {
     isSharingWebcam: 0,
     isPhoneUser: user.phone_user,
     isOnline: user.connectionStatus === 'online',
-    isLocked: user.locked && !(user.isPresenter || user.isModerator),
   };
+
+  mappedUser.isLocked = user.locked && !(mappedUser.isPresenter || mappedUser.isModerator);
 
   return mappedUser;
 };
-
 
 export default mapUser;
