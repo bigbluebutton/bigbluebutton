@@ -197,7 +197,7 @@ package org.bigbluebutton.modules.videoconf.business
 					break;		
 				case "NetConnection.Connect.NetworkChange":
 					numNetworkChangeCount++;
-					if (numNetworkChangeCount % 20 == 0) {
+					if (numNetworkChangeCount % 2 == 0) {
 						logData.message = "Detected network change on bbb-video";
 						logData.numNetworkChangeCount = numNetworkChangeCount;
 						LOGGER.info(JSON.stringify(logData));
