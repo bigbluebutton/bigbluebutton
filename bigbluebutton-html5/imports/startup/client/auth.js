@@ -5,7 +5,6 @@ import { log } from '/imports/ui/services/api';
 const STATUS_CONNECTING = 'connecting';
 
 export function joinRouteHandler(nextState, replace, callback) {
-  console.log('joinRouteHandler - imports-startup-client-auth.js');
   const { sessionToken } = nextState.location.query;
 
   if (!nextState || !sessionToken) {
@@ -19,7 +18,9 @@ export function joinRouteHandler(nextState, replace, callback) {
   fetch(url)
     .then(response => response.json())
     .then((data) => {
-      const { meetingID, internalUserID, authToken, logoutUrl } = data.response;
+      const {
+        meetingID, internalUserID, authToken, logoutUrl,
+      } = data.response;
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
       replace({ pathname: '/' });
@@ -28,7 +29,6 @@ export function joinRouteHandler(nextState, replace, callback) {
 }
 
 export function logoutRouteHandler(nextState, replace) {
-  console.log('logoutRouteHandler - imports-startup-client-auth.js');
   Auth.logout()
     .then((logoutURL = window.location.origin) => {
       const protocolPattern = /^((http|https):\/\/)/;
@@ -46,7 +46,6 @@ export function logoutRouteHandler(nextState, replace) {
  * @param {String} lastStatus
  */
 export function shouldAuthenticate(status, lastStatus) {
-  console.log('shouldAuthenticate - imports-startup-client-auth.js');
   return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
 }
 
@@ -56,12 +55,10 @@ export function shouldAuthenticate(status, lastStatus) {
  * @param {string} lastStatus
  */
 export function updateStatus(status, lastStatus) {
-  console.log('updateStatus - imports-startup-client-auth.js');
   return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
 }
 
 function _addReconnectObservable() {
-  console.log('_addReconnectObservable - imports-startup-client-auth.js');
   let lastStatus = null;
 
   Tracker.autorun(() => {
@@ -75,7 +72,6 @@ function _addReconnectObservable() {
 }
 
 export function authenticatedRouteHandler(nextState, replace, callback) {
-  console.log('authenticatedRouteHandler - imports-startup-client-auth.js');
   const credentialsSnapshot = {
     meetingId: Auth.meetingID,
     requesterUserId: Auth.userID,

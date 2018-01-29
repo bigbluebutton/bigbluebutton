@@ -35,6 +35,12 @@ const propTypes = {
 };
 
 class MeetingEnded extends React.PureComponent {
+  componentDidMount() {
+    const { router } = this.props;
+
+    setTimeout(() => { router.push('/logout'); }, 3000);
+  }
+
   render() {
     const { intl, router, code } = this.props;
 

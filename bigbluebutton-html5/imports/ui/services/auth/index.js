@@ -10,7 +10,6 @@ const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
-    console.log('constructor - imports-ui-services-auth-index.js');
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
@@ -88,7 +87,6 @@ class Auth {
   }
 
   set(meetingId, requesterUserId, requesterToken, logoutURL, sessionToken) {
-    console.log('set - imports-ui-services-auth-index.js');
     this.meetingID = meetingId;
     this.userID = requesterUserId;
     this.token = requesterToken;
@@ -97,7 +95,6 @@ class Auth {
   }
 
   clearCredentials(...args) {
-    console.log('clearCredentials - imports-ui-services-auth-index.js');
     this.meetingID = null;
     this.userID = null;
     this.token = null;
@@ -109,7 +106,6 @@ class Auth {
   }
 
   logout() {
-    console.log('logout - imports-ui-services-auth-index.js');
     if (!this.loggedIn) {
       return Promise.resolve();
     }
@@ -120,8 +116,6 @@ class Auth {
   }
 
   authenticate(force) {
-    console.log('authenticate - imports-ui-services-auth-index.js');
-
     if (this.loggedIn && !force) return Promise.resolve();
 
     if (!(this.meetingID && this.userID && this.token)) {
@@ -135,8 +129,6 @@ class Auth {
   }
 
   validateAuthToken() {
-    console.log('validateAuthtToken - imports-ui-services-auth-index.js');
-
     return new Promise((resolve, reject) => {
       let computation = null;
 
@@ -149,8 +141,6 @@ class Auth {
       }, CONNECTION_TIMEOUT);
 
       Tracker.autorun((c) => {
-
-        console.log('tracker - imports-ui-services-auth-index.js');
         computation = c;
         const subscription = Meteor.subscribe('current-user', this.credentials);
 
@@ -162,11 +152,18 @@ class Auth {
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) return;
 
-        console.log('state of User');
-        console.log(User);
-
         if (User.validated === true) {
-          console.log('User.validated === true');
+          if (User.ejected) {
+            computation.stop();
+            clearTimeout(validationTimeout);
+            this.loggedIn = false;
+
+            return reject({
+              error: 401,
+              description: 'User has been ejected.',
+            });
+          }
+
           computation.stop();
           clearTimeout(validationTimeout);
           this.loggedIn = true;
