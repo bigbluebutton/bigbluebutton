@@ -70,7 +70,7 @@ module.exports = class SdpSession extends EventEmitter {
   async stop () {
     this._status = C.STATUS.STOPPING;
     try {
-      await this._MediaServer.stop(this._mediaElement);
+      await this._MediaServer.stop(this.room, this._mediaElement);
       this._status = C.STATUS.STOPPED;
       Logger.info("[mcs-sdp-session] Session ", this.id, " is going to stop...");
       this.emit('SESSION_STOPPED', this.id);
