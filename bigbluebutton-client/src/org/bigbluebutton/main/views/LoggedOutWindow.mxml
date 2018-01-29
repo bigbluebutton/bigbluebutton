@@ -119,7 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.info(JSON.stringify(logData));
 
 				var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
-				if (layoutOptions.askForFeedbackOnLogout) {
+				if (layoutOptions.askForFeedbackOnLogout && !UsersUtil.isBreakout()) {
 					currentState = "feedback";
 				}
 
