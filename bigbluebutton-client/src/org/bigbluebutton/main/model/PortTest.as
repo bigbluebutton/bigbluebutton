@@ -24,12 +24,11 @@ package org.bigbluebutton.main.model
 	import flash.net.ObjectEncoding;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.util.ConnUtil;
-	
+
 	[Bindable]
 	/**
 	 * Test RTMP port.
@@ -183,7 +182,7 @@ package org.bigbluebutton.main.model
 				LOGGER.debug("Connecting PORT TEST = " + this.baseURI);
 				// Create connection with the server.
 				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, 
-          "portTestDummyUserId-" + curTime, "portTestDummyToken-" + curTime);
+					"portTestDummyUserId-" + curTime, "portTestDummyAuthToken");
 				status = "Connecting...";
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.

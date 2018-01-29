@@ -1,15 +1,15 @@
 package org.bigbluebutton.red5.pubsub;
 
+
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ReceivedMessageHandler {
-    private static Logger log = LoggerFactory.getLogger(ReceivedMessageHandler.class);
+    private static Logger log = Red5LoggerFactory.getLogger(ReceivedMessageHandler.class, "video");
 
     private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
 

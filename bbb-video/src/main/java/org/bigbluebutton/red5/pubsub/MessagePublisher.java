@@ -1,12 +1,10 @@
 package org.bigbluebutton.red5.pubsub;
 
 
-//import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
-//import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
-import java.util.HashMap;
-import java.util.Map;
 import com.google.gson.Gson;
 import org.bigbluebutton.common2.msgs.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MessagePublisher {
 
@@ -30,10 +28,11 @@ public class MessagePublisher {
 		return routing;
 	}
 
-	public void validateConnAuthToken(String meetingId, String userId, String authToken) {
-		BbbClientMsgHeader header = new BbbClientMsgHeader("ValidateConnAuthTokenSysMsg", meetingId, userId);
+
+	public void validateConnAuthToken(String meetingId, String userId, String authToken, String connId) {
+		BbbCoreBaseHeader header = new BbbCoreBaseHeader("ValidateConnAuthTokenSysMsg");
 		ValidateConnAuthTokenSysMsgBody body = new ValidateConnAuthTokenSysMsgBody(meetingId,
-				userId, authToken, "VIDEO");
+				userId, authToken, connId, "VIDEO");
 		ValidateConnAuthTokenSysMsg msg = new ValidateConnAuthTokenSysMsg(header, body);
 
 		Map<String, String> routing = buildRouting();

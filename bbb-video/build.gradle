@@ -17,7 +17,7 @@ repositories {
   mavenLocal()
 }
 
-dependencies {	 
+dependencies {
   // Servlet
   providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
@@ -44,24 +44,24 @@ dependencies {
   providedCompile 'org.slf4j:jcl-over-slf4j:1.7.25@jar'
   providedCompile 'org.slf4j:jul-to-slf4j:1.7.25@jar'
   providedCompile 'org.slf4j:slf4j-api:1.7.25@jar'
-	
+
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
   providedCompile 'org.springframework:spring-aop:4.3.10.RELEASE@jar'
   compile 'aopalliance:aopalliance:1.0@jar'
-	
-  // Java Concurrency In Practice
-  providedCompile 'net.jcip:jcip-annotations:1.0@jar'
-        
+
   // Testing
-  //    compile 'org.testng:testng:5.8@jar' 
   compile 'org.easymock:easymock:2.4@jar'
-  
+
+  // Testing
+  testRuntime 'org.easymock:easymock:2.4@jar'
+
   //redis
   compile 'redis.clients:jedis:2.9.0'
   compile 'org.apache.commons:commons-pool2:2.3'
   compile 'com.google.code.gson:gson:2.5'
-	
+
+  compile 'org.apache.commons:commons-lang3:3.5'
   compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'
 }
 

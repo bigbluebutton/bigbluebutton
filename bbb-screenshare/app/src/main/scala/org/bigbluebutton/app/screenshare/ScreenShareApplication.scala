@@ -218,6 +218,11 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     screenShareManager ! new StreamStartedMessage(meetingId, streamId, url)
   }
 
+  def authorizeBroadcastStream(meetingId: String, streamId: String, connId: String, scope: String): Unit = {
+
+		screenShareManager ! new AuthorizeBroadcastStreamMessage(meetingId, streamId, connId, scope)
+	}
+
   def streamStopped(meetingId: String, streamId: String) {
 //    if (logger.isDebugEnabled()) {
 //      logger.debug("Received stream stopped on meeting=[" + meetingId

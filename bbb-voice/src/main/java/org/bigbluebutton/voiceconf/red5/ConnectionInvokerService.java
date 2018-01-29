@@ -16,17 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.app.video;
+package org.bigbluebutton.voiceconf.red5;
 
 import com.google.gson.Gson;
-import org.bigbluebutton.red5.pubsub.message.ClientMessage;
-import org.bigbluebutton.red5.pubsub.message.ValidateConnTokenRespMsg;
+import org.bigbluebutton.voiceconf.messaging.messages.ClientMessage;
+import org.bigbluebutton.voiceconf.messaging.messages.ValidateConnTokenRespMsg;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -68,15 +69,15 @@ public class ConnectionInvokerService {
             }
             message = messages.take();
             if (log.isTraceEnabled()) {
-              log.trace("Took message from queue: " + message.getMessageName());
+              log.trace("Took org.bigbluebutton.red5.pubsub.message from queue: " + message.getMessageName());
             }
             sendMessageToClient(message);
             if (log.isTraceEnabled()) {
-              log.trace("Sent message to client: " + message.getMessageName());
+              log.trace("Sent org.bigbluebutton.red5.pubsub.message to client: " + message.getMessageName());
             }
           } catch (Exception e) {
             Marker sendingException = MarkerFactory.getMarker("SENDING_EXCEPTION");
-            log.error(sendingException, "Exception while sending message to client.", e);
+            log.error(sendingException, "Exception while sending org.bigbluebutton.red5.pubsub.message to client.", e);
           }
         }
       }
@@ -91,7 +92,7 @@ public class ConnectionInvokerService {
 
   public void sendMessage(final ClientMessage message) {
     if (log.isTraceEnabled()) {
-      log.trace("Queue message: " + message.getMessageName());
+      log.trace("Queue org.bigbluebutton.red5.pubsub.message: " + message.getMessageName());
     }
     messages.offer(message);
   }
@@ -104,7 +105,7 @@ public class ConnectionInvokerService {
 
   private void handleValidateConnTokenRespMsg(ValidateConnTokenRespMsg msg) {
     if (log.isTraceEnabled()) {
-      log.trace("Handle direct message: " + msg.getMessageName() + " conn=" + msg.connId);
+      log.trace("Handle direct org.bigbluebutton.red5.pubsub.message: " + msg.getMessageName() + " conn=" + msg.connId);
     }
 
     IScope meetingScope = getScope(msg.meetingId);

@@ -99,5 +99,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
     </bean>
-
 </beans>
