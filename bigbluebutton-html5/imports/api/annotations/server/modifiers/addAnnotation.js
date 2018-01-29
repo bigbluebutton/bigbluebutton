@@ -82,6 +82,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
     meetingId,
     id,
     userId,
+    whiteboardId,
   };
   let baseModifier;
   let chunkSelector;
@@ -169,6 +170,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         id,
         userId,
         meetingId,
+        whiteboardId,
         position,
         annotationType: 'pencil_base',
         numberOfChunks: chunks.length,
@@ -279,6 +281,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         id,
         userId,
         meetingId,
+        whiteboardId,
         position,
         annotationType: 'pencil_base',
         numberOfChunks: _chunks.length,

@@ -78,6 +78,7 @@ class MeetingActor(
     with SendTimeRemainingUpdateHdlr
     with SendBreakoutTimeRemainingMsgHdlr
     with ChangeLockSettingsInMeetingCmdMsgHdlr
+    with ValidateConnAuthTokenSysMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr
     with ClientToServerLatencyTracerMsgHdlr {
 
@@ -137,8 +138,8 @@ class MeetingActor(
     MeetingStatus2x.unmuteMeeting(liveMeeting.status)
   }
 
-    // Set webcamsOnlyForModerator property in case we didn't after meeting creation
-    MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
+  // Set webcamsOnlyForModerator property in case we didn't after meeting creation
+  MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
   /*******************************************************************/
   //object FakeTestData extends FakeTestData
@@ -154,6 +155,7 @@ class MeetingActor(
     // its type is not BbbCommonEnvCoreMsg
     case m: RegisterUserReqMsg                => usersApp.handleRegisterUserReqMsg(m)
     case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
+    case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
 
     // Meeting
     case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)

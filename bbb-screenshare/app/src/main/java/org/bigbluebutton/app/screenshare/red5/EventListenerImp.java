@@ -27,9 +27,20 @@ public class EventListenerImp implements IEventListener {
         sendIsScreenSharingResponse((IsScreenSharingResponse) event);
     } else if (event instanceof ScreenShareClientPing) {
       sendScreenShareClientPing((ScreenShareClientPing) event);
+    } else if (event instanceof UnauthorizedBroadcastStreamEvent) {
+      sendUnauthorizedBroadcastStreamEvent((UnauthorizedBroadcastStreamEvent) event);
     }
 
   }
+
+  private void sendUnauthorizedBroadcastStreamEvent(UnauthorizedBroadcastStreamEvent event) {
+		if (log.isDebugEnabled()) {
+			log.debug("Sending CloseConnectionMessage to client, meetingId=" + event.meetingId + " streamId=" + event.streamId);
+		}
+
+		CloseConnectionMessage msg = new CloseConnectionMessage(event.meetingId, event.streamId, event.connId, event.scope);
+		sender.sendMessage(msg);
+	}
 
   private void sendScreenShareClientPing(ScreenShareClientPing event) {
     Map<String, Object> data = new HashMap<String, Object>();

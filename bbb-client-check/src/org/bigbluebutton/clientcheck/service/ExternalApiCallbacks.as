@@ -44,7 +44,6 @@ package org.bigbluebutton.clientcheck.service
 				ExternalInterface.addCallback("screenSize", screenSizeCallbackHandler);
 				ExternalInterface.addCallback("isPepperFlash", isPepperFlashCallbackHandler);
 				ExternalInterface.addCallback("cookieEnabled", cookieEnabledCallbackHandler);
-				ExternalInterface.addCallback("javaEnabled", javaEnabledCallbackHandler);
 				ExternalInterface.addCallback("language", languageCallbackHandler);
 				ExternalInterface.addCallback("isWebRTCSupported", isWebRTCSupportedCallbackHandler);
 				ExternalInterface.addCallback("webRTCEchoTest", webRTCEchoTestCallbackHandler);
@@ -86,21 +85,6 @@ package org.bigbluebutton.clientcheck.service
 		public function languageCallbackHandler(value:String):void
 		{
 			checkResult(value, systemConfiguration.language);
-		}
-
-		public function javaEnabledCallbackHandler(value:Object):void
-		{
-			var testResult:String;
-			if (!value.enabled) {
-				testResult = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.javaEnabled.disabled');
-			} else if (value.version.length == 0) {
-				testResult = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.javaEnabled.notDetected');
-			} else {
-				testResult = value.version.join(', ');
-			}
-
-			systemConfiguration.javaEnabled.testResult = testResult;
-			systemConfiguration.javaEnabled.testSuccessfull = value.appropriate;
 		}
 
 		public function isWebRTCSupportedCallbackHandler(value:String):void

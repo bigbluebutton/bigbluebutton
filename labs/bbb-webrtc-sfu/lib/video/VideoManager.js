@@ -30,35 +30,33 @@ let _onMessage = async function (_message) {
   let role = message.role? message.role : 'any';
   let cameraId = message.cameraId;
   let shared = false;
-  let iceQueue = {};
+  let iceQueues = {};
+  let iceQueue;
 
-  if (message.role == 'share') {
+  if (!message.cameraId) {
+    console.log("  [VideoManager] Undefined message.cameraId for session ", sessionId);
+    return;
+  }
+
+  if (message.role === 'share') {
     shared = true;
+    cameraId += '-shared';
   }
 
   if (!sessions[sessionId]) {
     sessions[sessionId] = {};
   }
 
-  switch (role) {
-    case 'share':
-      if (message.cameraId && typeof sessions[sessionId][message.cameraId+'-shared'] !== 'undefined' &&  sessions[sessionId][message.cameraId+'-shared']) {
-        video = sessions[sessionId][message.cameraId+'-shared'];
-      }
-      break;
-    case 'viewer':
-      if (message.cameraId && sessions[sessionId][message.cameraId]) {
-        video = sessions[sessionId][message.cameraId];
-      }
-    case 'any':
-      if (message.cameraId && typeof sessions[sessionId][message.cameraId+'-shared'] !== 'undefined' &&  sessions[sessionId][message.cameraId+'-shared']) {
-        video = sessions[sessionId][message.cameraId+'-shared'];
-      }
-      else if (message.cameraId && sessions[sessionId][message.cameraId]) {
-        video = sessions[sessionId][message.cameraId];
-      }
+  if (!iceQueues[sessionId]) {
+      iceQueues[sessionId] = {};
+  }
 
-      break;
+  if (sessions[sessionId][cameraId]) {
+    video = sessions[sessionId][cameraId];
+  }
+
+  if (iceQueues[sessionId][cameraId]) {
+    iceQueue = iceQueues[sessionId][cameraId] ;
   }
 
   switch (message.id) {
@@ -69,22 +67,14 @@ let _onMessage = async function (_message) {
       video = new Video(bbbGW, message.cameraId, shared, message.connectionId);
 
       // Empty ice queue after starting video
-      if (iceQueue[message.cameraId]) {
+      if (iceQueue) {
         let candidate;
-        while(candidate = iceQueue[message.cameraId].pop()) {
+        while(candidate = iceQueue.pop()) {
           video.onIceCandidate(cand);
         }
       }
 
-      switch (role) {
-        case 'share':
-          sessions[sessionId][message.cameraId+'-shared']= video;
-          break;
-        case 'viewer':
-          sessions[sessionId][message.cameraId] = video;
-          break;
-        default: console.log(" [VideoManager] Unknown role? ", role);
-      }
+      sessions[sessionId][cameraId] = video;
 
       video.start(message.sdpOffer, (error, sdpAnswer) => {
         if (error) {
@@ -111,15 +101,10 @@ let _onMessage = async function (_message) {
       break;
 
     case 'stop':
-      try {
-        if (video) {
-          await stopVideo(sessionId, role, cameraId);
-        } else {
-          Logger.warn("[VideoManager] There is no video instance named", cameraId, "to stop");
-        }
-      }
-      catch (error) {
-        Logger.error("[VideoManager] stopVideo routine failed to execute with error", error);
+      if (video) {
+        stopVideo(sessionId, role, message.cameraId);
+      } else {
+        Logger.warn("[VideoManager] There is no video instance named", cameraId, "to stop");
       }
       break;
 
@@ -128,12 +113,13 @@ let _onMessage = async function (_message) {
       if (video) {
         video.onIceCandidate(message.candidate);
       } else {
-        Logger.info("[VideoManager] Queueing ice candidate for later in video", message.cameraId);
-
-        if (!iceQueue[message.cameraId]) {
-          iceQueue[message.cameraId] = [];
+        Logger.info("[VideoManager] Queueing ice candidate for later in video", cameraId);
+        if (!iceQueue) {
+          iceQueues[sessionId][cameraId] = [];
+          iceQueue = iceQueues[sessionId][cameraId];
         }
-        iceQueue[message.cameraId].push(message.candidate);
+
+        iceQueue.push(message.candidate);
       }
       break;
 
@@ -212,15 +198,16 @@ let stopAll = function() {
 }
 
 let logAvailableSessions = function() {
-  if(typeof sessions !== 'undefined' && sessions) {
+  if(sessions) {
     Logger.info("[VideoManager] Available sessions are =>");
     let sessionMainKeys = Object.keys(sessions);
     for (var k in sessions) {
-      if(typeof sessions[k] !== 'undefined' && sessions[k]) {
+      if(sessions[k]) {
         Logger.info('[VideoManager] Session[', k,'] => ', Object.keys(sessions[k]));
       }
     }
   }
+
 }
 
 process.on('SIGTERM', stopAll);

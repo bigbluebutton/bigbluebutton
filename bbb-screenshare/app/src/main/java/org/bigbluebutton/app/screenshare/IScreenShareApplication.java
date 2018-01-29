@@ -26,4 +26,5 @@ public interface IScreenShareApplication {
   void meetingHasEnded(String meetingId);
   void meetingCreated(String meetingId, Boolean record);
   void screenShareClientPongMessage(String meetingId, String userId, String streamId, Long timestamp);
+  void authorizeBroadcastStream(String meetingId, String streamId, String connId, String scope);
 }

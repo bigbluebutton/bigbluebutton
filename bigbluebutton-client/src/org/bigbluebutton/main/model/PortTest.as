@@ -23,11 +23,13 @@ package org.bigbluebutton.main.model
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
+	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-    import flash.utils.Dictionary;
-    import org.bigbluebutton.core.UsersUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	
 	[Bindable]
 	/**
@@ -154,7 +156,9 @@ package org.bigbluebutton.main.model
         
         var curTime:Number = new Date().getTime();
 				// Create connection with the server.
-				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, "portTestDummyUserId-" + curTime);
+				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, 
+					"portTestDummyUserId-" + curTime, "portTestDummyAuthToken");
+							
 				status = "Connecting...";
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.

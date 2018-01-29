@@ -90,8 +90,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   //private val sessions = new HashMap[String, ActiveSession]
 
-  private var activeSession:Option[ActiveSession] = None
-
   private val START = "START"
   private val PAUSE = "PAUSE"
   private val RUNNING = "RUNNING"
@@ -105,8 +103,14 @@ class Screenshare(val sessionManager: ScreenshareManager,
   // start-pause-stop
   private var streamIdCount = 0
 
+	// A screen sharing session that has lifecyle of start, pause, resume, and stop.
   private var screenShareSession: Option[String] = None
-  private var currentPresenterId: Option[String]  = None
+
+	// A broadcast stream session withing the screen share session.
+	private var activeSession:Option[ActiveSession] = None
+
+
+	private var currentPresenterId: Option[String]  = None
 
   private var width: Option[Int] = None
   private var height: Option[Int] = None
@@ -168,6 +172,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
     case msg: MeetingEnded             => handleMeetingHasEnded(msg)
     case msg: SessionAuditMessage => handleSessionAuditMessage(msg)
     case msg: ClientPongMessage    => handleClientPongMessage(msg)
+    case msg: AuthorizeBroadcastStreamMessage => handleAuthorizeBroadcastStreamMessage(msg)
+
     case m: Any => log.warning("Session: Unknown message [{}]", m)
   }
 
@@ -284,9 +290,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
       if (as.token == msg.token) {
         sender ! new ScreenShareInfoRequestReply(msg.meetingId, as.streamId, sss, as.tunnel)
       }
-
     }
-
   }
   
   private def handleIsStreamRecorded(msg: IsStreamRecorded) {
@@ -383,6 +387,21 @@ class Screenshare(val sessionManager: ScreenshareManager,
         sss <- screenShareSession
       } yield (bus.send(new ScreenShareStartedEvent(meetingId, as.streamId, w, h, url, sss)))
     }
+  }
+
+  private def handleAuthorizeBroadcastStreamMessage(msg: AuthorizeBroadcastStreamMessage): Unit = {
+		if (log.isDebugEnabled) {
+			log.debug("handleAuthorizeBroadcastStreamMessage meetingId=" + msg.meetingId +
+			" streamId=" + msg.streamId + " connId=" + msg.connId + " scope=" + msg.scope)
+		}
+
+		activeSession match {
+			case Some(as) =>
+				if (as.streamId != msg.streamId) {
+					bus.send(new UnauthorizedBroadcastStreamEvent(msg.meetingId, msg.streamId, msg.connId, msg.scope))
+				}
+				case None => bus.send(new UnauthorizedBroadcastStreamEvent(msg.meetingId, msg.streamId, msg.connId, msg.scope))
+		}
   }
 
   private def resetScreenShareSession() = {

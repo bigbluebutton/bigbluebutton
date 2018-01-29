@@ -20,6 +20,7 @@ module.exports = class Video {
     this.role = this.shared? 'share' : 'view'
     this.webRtcEndpoint = null;
     this.mediaId = null;
+    this.iceQueue = null;
 
     this.candidatesQueue = [];
   }
