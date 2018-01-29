@@ -153,9 +153,10 @@ class Auth {
         if (!User || !('intId' in User)) return;
 
         if (User.validated === true) {
+          computation.stop();
+          clearTimeout(validationTimeout);
+
           if (User.ejected) {
-            computation.stop();
-            clearTimeout(validationTimeout);
             this.loggedIn = false;
 
             return reject({
@@ -164,8 +165,6 @@ class Auth {
             });
           }
 
-          computation.stop();
-          clearTimeout(validationTimeout);
           this.loggedIn = true;
           resolve();
         }
