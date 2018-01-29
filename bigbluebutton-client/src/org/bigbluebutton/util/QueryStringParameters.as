@@ -26,7 +26,7 @@ package org.bigbluebutton.util
 	public class QueryStringParameters {
 		private static const LOGGER:ILogger = getClassLogger(QueryStringParameters);
 
-		private var params:Array;
+		private var params:Array = [];
 		
 		public function collectParameters():void {
 			try {
