@@ -35,21 +35,6 @@ const propTypes = {
 };
 
 class MeetingEnded extends React.PureComponent {
-  constructor() {
-    super();
-
-    this.handleBackAttempt = this.handleBackAttempt.bind(this);
-  }
-
-  componentDidMount() {
-    window.onpopstate = this.handleBackAttempt;
-  }
-
-  handleBackAttempt() {
-    const { router } = this.props;
-    router.push('/logout');
-  }
-
   render() {
     const { intl, router, code } = this.props;
 
