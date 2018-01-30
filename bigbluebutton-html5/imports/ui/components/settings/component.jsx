@@ -155,7 +155,7 @@ class Settings extends Component {
           </Tab>
           <Tab
             className={styles.tabSelector}
-            aria-labelledby="appTab"
+            aria-labelledby="dataSavingTab"
             selectedClassName={styles.selected}
           >
             <Icon iconName="more" className={styles.icon} />

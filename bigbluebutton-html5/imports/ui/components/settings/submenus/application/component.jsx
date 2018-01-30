@@ -63,7 +63,7 @@ const intlMessages = defineMessages({
 class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
-    console.error(props.settings);
+
     this.state = {
       settingsName: 'application',
       settings: props.settings,
