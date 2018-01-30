@@ -52,7 +52,7 @@ Meteor.startup(() => {
       Winston.transports.DailyRotateFile = Npm.require('winston-daily-rotate-file');
       Logger.add(Winston.transports.DailyRotateFile, {
         filename,
-        datePattern: '.yyyy-dd-MM',
+        datePattern: '.yyyy-MM-dd',
         prepend: false,
         level,
       });
