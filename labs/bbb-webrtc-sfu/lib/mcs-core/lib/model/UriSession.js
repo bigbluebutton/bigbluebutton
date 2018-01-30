@@ -9,6 +9,7 @@ const C = require('../constants/Constants');
 const rid = require('readable-id');
 const EventEmitter = require('events').EventEmitter;
 const MediaServer = require('../media/media-server');
+const Logger = require('../../../utils/Logger');
 
 module.exports = class UriSession extends EventEmitter {
   constructor(uri = null) {
@@ -29,14 +30,13 @@ module.exports = class UriSession extends EventEmitter {
     this._status = C.STATUS.STARTING;
     try {
       const mediaElement = await MediaServer.createMediaElement(this.id, C.MEDIA_TYPE.URI);
-      console.log("start/cme");
       await MediaServer.play(this.id);
       this._status = C.STATUS.STARTED;
       return Promise.resolve();
     }
     catch (err) {
       this.handleError(err);
-      return Promise.reject(new Error(err));
+      return Promise.reject(err);
     }
   }
 
@@ -50,7 +50,7 @@ module.exports = class UriSession extends EventEmitter {
     }
     catch (err) {
       this.handleError(err);
-      return Promise.reject(new Error(err));
+      return Promise.reject(err);
     }
   }
 
@@ -62,12 +62,12 @@ module.exports = class UriSession extends EventEmitter {
     }
     catch (err) {
       this.handleError(err);
-      return Promise.reject(new Error(err));
+      return Promise.reject(err);
     }
   }
 
   handleError (err) {
-    console.log(err);
+    Logger.error(err);
     this._status = C.STATUS.STOPPED;
   }
 }

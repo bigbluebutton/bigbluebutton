@@ -1,11 +1,11 @@
 'use strict'
 
-var config = require('config');
-var C = require('../constants/Constants');
-// EventEmitter
-var util = require('util');
-var EventEmitter = require('events').EventEmitter;
-var MediaController = require('./MediaController.js');
+const config = require('config');
+const C = require('../constants/Constants');
+const util = require('util');
+const EventEmitter = require('events').EventEmitter;
+const MediaController = require('./MediaController.js');
+const Logger = require('../../../utils/Logger');
 
 let instance = null;
 
@@ -27,7 +27,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve(answer);
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       Promise.reject(err);
     }
   }
@@ -38,7 +38,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve(answer);
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -49,7 +49,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve(answer);
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -66,7 +66,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve(answer);
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -77,7 +77,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve();
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -96,7 +96,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve(answer);
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -107,7 +107,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve();
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -122,7 +122,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve(eventTag);
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       return Promise.reject();
     }
   }
@@ -133,10 +133,11 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.resolve(ack);
     }
     catch (err) {
-      console.log(err);
+      Logger.error(err);
       Promise.reject();
     }
   }
+
   setStrategy (strategy) {
     // TODO
   }
