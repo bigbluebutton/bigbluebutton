@@ -626,7 +626,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     }
                 } else if (BrowserCheck.isChrome()) {
                     if (browserPermissionHelper) {
-						browserPermissionHelper.currentState = "chromeMic";
+						if (Capabilities.os.indexOf("Mac") >= 0){
+							browserPermissionHelper.currentState = "chromeMicMacOSX";
+						} else {
+							browserPermissionHelper.currentState = "chromeMic";
+						}
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 130;
                     }
@@ -647,7 +651,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function showbrowserPermissionHelper() : void {
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
-					browserPermissionHelper.currentState = "chromeCam";
+					if (Capabilities.os.indexOf("Mac") >= 0){
+						browserPermissionHelper.currentState = "chromeCamMacOSX";
+					} else {
+						browserPermissionHelper.currentState = "chromeCam";
+					}
 					browserPermissionHelper.x = 20;
 					browserPermissionHelper.y = 150;
 				}
