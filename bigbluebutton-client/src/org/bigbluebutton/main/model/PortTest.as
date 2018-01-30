@@ -95,11 +95,6 @@ package org.bigbluebutton.main.model
     private var closeConnectionTimer:Timer;
 		
 		/**
-		* Set default encoding to AMF0 so FMS also understands.
-		*/		
-		NetConnection.defaultObjectEncoding = ObjectEncoding.AMF0;
-		
-		/**
 		 * Create new port test and connect to the RTMP server.
 		 * 
 		 * @param protocol

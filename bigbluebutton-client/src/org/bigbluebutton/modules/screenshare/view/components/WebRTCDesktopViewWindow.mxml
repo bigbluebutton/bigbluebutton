@@ -47,12 +47,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
+			import org.bigbluebutton.util.ConnUtil;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
@@ -130,13 +133,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function connect(rtmpUrl: String):void {
 				nc = new NetConnection();
-				nc.proxyType = "best";
-				nc.objectEncoding = ObjectEncoding.AMF0;
+				
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<serverAndApp>.+)/;
+				var result:Array = pattern.exec(rtmpUrl);
+				
+				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+				var ssAppUrl: String = null;
+				
+				if (BBB.initConnectionManager().isTunnelling) {
+					var tunnelProtocol: String = ConnUtil.RTMPT;
+				
+					if (useRTMPS) {
+						nc.proxyType = ConnUtil.PROXY_NONE;
+						tunnelProtocol = ConnUtil.RTMPS;
+					}
+					
+					
+					ssAppUrl = tunnelProtocol + "://" + result.serverAndApp;
+					trace("******* WEBRTC SSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
+				} else {
+					var nativeProtocol: String = ConnUtil.RTMP;
+					if (useRTMPS) {
+						nc.proxyType = ConnUtil.PROXY_BEST;
+						nativeProtocol = ConnUtil.RTMPS;
+					}
+				
+					ssAppUrl = nativeProtocol + "://" + result.serverAndApp;
+					trace("******* WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
+				}
+				
+				nc.objectEncoding = ObjectEncoding.AMF3;
 				nc.client = this;
 
 				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 				nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-				nc.connect(rtmpUrl);
+				nc.connect(ssAppUrl);
 			}
 
 			public function connectionSuccessHandler():void{

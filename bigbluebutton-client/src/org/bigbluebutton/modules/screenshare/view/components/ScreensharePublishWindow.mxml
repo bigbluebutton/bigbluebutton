@@ -49,32 +49,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <fx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.common.events.LocaleChangeEvent;
-		import org.bigbluebutton.core.Options;
-		import org.bigbluebutton.core.UsersUtil;
-		import org.bigbluebutton.core.managers.ReconnectionManager;
-		import org.bigbluebutton.main.events.BBBEvent;
-		import org.bigbluebutton.main.events.MadePresenterEvent;
-		import org.bigbluebutton.main.events.ShortcutEvent;
-		import org.bigbluebutton.main.views.MainCanvas;
-		import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
-		import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
-		import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
-		import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
-		import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
-		import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
-		import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
-		import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
-		import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-		import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-		import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-		import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-		import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.managers.ReconnectionManager;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
+			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
+			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+			import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
+			import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
+			import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
+			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
+			import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
+			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
+			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
+			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+			import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 		
       
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
@@ -84,9 +85,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private static const VID_WIDTH_PAD:Number = 6;
       
       private var connection:Connection;
-      private var uri:String;
-      private var room:String;
-      private var tunnel:Boolean = false;
       private var sharingFullScreen:Boolean = false;
       private var streaming:Boolean = false;
 
@@ -137,7 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		focusManager.setFocus(titleBarOverlay);
 
-		if (tunnel) {
+		if (BBB.initConnectionManager().isTunnelling) {
 			helpInfoBox.visible = helpInfoBox.includeInLayout = false;
 			previewBox.visible = previewBox.includeInLayout = false;
 			tunnelBox.visible = tunnelBox.includeInLayout = true;
@@ -184,11 +182,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       */
       public function resetWidthAndHeight():void{/* do nothing */}
 
-      public function initWindow(connection:Connection, uri:String, room:String, tunnel:Boolean):void {
+      public function initWindow(connection:Connection):void {
         this.connection = connection;
-        this.uri = uri;
-        this.room = room;
-		this.tunnel = tunnel;
       }
 
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
@@ -254,10 +249,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         startBtn.enabled = false;
         var shareStartEvent:ShareStartEvent = new ShareStartEvent();
         dispatchEvent(shareStartEvent);
-        startSharing(connection.getConnection(), uri, room, fullScreen);
+        startSharing(connection.getConnection(), fullScreen);
       }
 
-      private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
+      private function startSharing(connection:NetConnection, fullScreen:Boolean):void {
         var captureX:Number = 0;
         var captureY:Number = 0;
         sharingFullScreen = fullScreen;

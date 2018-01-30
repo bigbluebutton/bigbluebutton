@@ -62,6 +62,8 @@ package org.bigbluebutton.main.model.modules
 			var resolver:DependancyResolver = new DependancyResolver();
 			sorted = resolver.buildDependencyTree(modules);
 			
+			BBB.initConnectionManager().initPortTestOption();
+
 			modulesDispatcher.sendPortTestEvent();
 		}
 		
