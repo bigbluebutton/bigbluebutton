@@ -17,11 +17,13 @@
  */
 package org.bigbluebutton.app.video;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import org.bigbluebutton.app.video.converter.H263Converter;
 import org.bigbluebutton.app.video.converter.VideoRotator;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
@@ -37,9 +39,8 @@ import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.scheduling.QuartzSchedulingService;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
-
 import com.google.gson.Gson;
-
+import org.springframework.util.StringUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +67,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     private MeetingManager meetingManager;
     private ConnectionInvokerService connInvokerService;
+    private final UserConnectionMapper userConnections = new UserConnectionMapper();
 
     @Override
     public boolean appStart(IScope app) {
@@ -75,7 +77,42 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
         // get the scheduler
         scheduler = (QuartzSchedulingService) getContext().getBean(QuartzSchedulingService.BEAN_NAME);
+
+        portTestConnAudit();
+
         return true;
+    }
+
+    private void portTestConnAudit() {
+        Runnable portConnAuditTask = () -> portTestConnAuditHelper();
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(portConnAuditTask, 0, 5, TimeUnit.SECONDS);
+    }
+
+    private IConnection getConnectionWithConnId(IScope scope, String connId) {
+        for (IConnection conn : scope.getClientConnections()) {
+            String connID = (String) conn.getSessionId();
+            if (connID != null && connID.equals(connId)) {
+                return conn;
+            }
+        }
+
+        log.warn("Failed to get connection for connId = " + connId);
+        return null;
+    }
+
+    private void portTestConnAuditHelper() {
+
+        Collection<UserConnectionMapper.UserConnection> usersConns = userConnections.getConnections();
+        for (UserConnectionMapper.UserConnection uconn : usersConns) {
+            log.debug("Checking port test connection {}", uconn.connId);
+            if (System.currentTimeMillis() - uconn.connectedOn > 10000) {
+                log.debug("Closing port test connection {}", uconn.connId);
+                uconn.connection.close();
+            }
+        }
+
     }
 
     @Override
@@ -83,81 +120,120 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         return super.appConnect(conn, params);
     }
 
-    @Override
-    public boolean roomConnect(IConnection connection, Object[] params) {
-        log.info("BBB Video roomConnect");
 
-        if (params.length == 0) {
-            params = new Object[2];
-            params[0] = "UNKNOWN-MEETING-ID";
-            params[1] = "UNKNOWN-USER-ID";
-            params[2] = "UNKNOWN-AUTH-TOKEN";
-        }
+		@Override
+		public boolean roomConnect(IConnection connection, Object[] params) {
+			log.info("BBB Video roomConnect");
 
-        String meetingId = connection.getScope().getName();
-        String userId = ((String) params[1]).toString();
-        String authToken = ((String) params[2]).toString();
+			if(params.length != 3) {
+				log.error("Invalid number of parameters. param length=" + params.length);
+				return false;
+			}
 
-        Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
-        Red5.getConnectionLocal().setAttribute("USERID", userId);
-        Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
+			String meetingId = ((String) params[0]).toString();
+			String userId = ((String) params[1]).toString();
+			String authToken = ((String) params[2]).toString();
 
-        publisher.validateConnAuthToken(meetingId, userId, authToken);
+			if (StringUtils.isEmpty(meetingId)) {
+				log.error("Invalid meetingId parameter.");
+				return false;
+			}
 
-        String connType = getConnectionType(Red5.getConnectionLocal().getType());
-        String sessionId = Red5.getConnectionLocal().getSessionId();
-        /**
-         * Find if there are any other connections owned by this user. If we find one,
-         * that means that the connection is old and the user reconnected. Clear the
-         * userId attribute so that messages would not be sent in the defunct connection.
-         */
-        Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
-        for (IConnection conn : conns) {
-            String connUserId = (String) conn.getAttribute("USERID");
-            String connSessionId = conn.getSessionId();
-            String clientId = conn.getClient().getId();
-            String remoteHost = conn.getRemoteAddress();
-            int remotePort = conn.getRemotePort();
-            if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
-                conn.removeAttribute("USERID");
-                Map<String, Object> logData = new HashMap<String, Object>();
-                logData.put("meetingId", meetingId);
-                logData.put("userId", userId);
-                logData.put("oldConnId", connSessionId);
-                logData.put("newConnId", sessionId);
-                logData.put("clientId", clientId);
-                logData.put("remoteAddress", remoteHost + ":" + remotePort);
-                logData.put("event", "removing_defunct_connection");
-                logData.put("description", "Removing defunct connection BBB Video.");
+			if (StringUtils.isEmpty(userId)) {
+				log.error("Invalid userId parameter.");
+				return false;
+			}
 
-                Gson gson = new Gson();
-                String logStr = gson.toJson(logData);
+			if (StringUtils.isEmpty(authToken)) {
+				log.error("Invalid authToken parameter.");
+				return false;
+			}
 
-                log.info("Removing defunct connection: data={}", logStr);
-            }
-        }
+			Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
+			Red5.getConnectionLocal().setAttribute("USERID", userId);
+			Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
 
-        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-        int remotePort = Red5.getConnectionLocal().getRemotePort();
-        String clientId = Red5.getConnectionLocal().getClient().getId();
+			String connType = getConnectionType(Red5.getConnectionLocal().getType());
+			String sessionId = Red5.getConnectionLocal().getSessionId();
 
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData.put("meetingId", meetingId);
-        logData.put("userId", userId);
-        logData.put("connType", connType);
-        logData.put("connId", sessionId);
-        logData.put("clientId", clientId);
-        logData.put("remoteAddress", remoteHost + ":" + remotePort);
-        logData.put("event", "user_joining_bbb_video");
-        logData.put("description", "User joining BBB Video.");
+			if (userId.startsWith("portTestDummyUserId")) {
+				userConnections.addUserConnection(sessionId, connection);
 
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
+				String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+				int remotePort = Red5.getConnectionLocal().getRemotePort();
+				String clientId = Red5.getConnectionLocal().getClient().getId();
 
-        log.info("User joining bbb-video: data={}", logStr);
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", meetingId);
+				logData.put("userId", userId);
+				logData.put("connType", connType);
+				logData.put("connId", sessionId);
+				logData.put("clientId", clientId);
+				logData.put("remoteAddress", remoteHost + ":" + remotePort);
+				logData.put("event", "port_test_connection_bbb_video");
+				logData.put("description", "Keeping track of port test connection.");
 
-        return super.roomConnect(connection, params);
-    }
+				Gson gson = new Gson();
+				String logStr =  gson.toJson(logData);
+
+				log.info(logStr);
+			} else {
+				log.info("BBB Video validateConnAuthToken");
+				publisher.validateConnAuthToken(meetingId, userId, authToken, sessionId);
+
+				/**
+				 * Find if there are any other connections owned by this user. If we find one,
+				 * that means that the connection is old and the user reconnected. Clear the
+				 * userId attribute so that messages would not be sent in the defunct connection.
+				 */
+				Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
+				for (IConnection conn : conns) {
+					String connUserId = (String) conn.getAttribute("USERID");
+					String connSessionId = conn.getSessionId();
+					String clientId = conn.getClient().getId();
+					String remoteHost = conn.getRemoteAddress();
+					int remotePort = conn.getRemotePort();
+					if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
+						conn.removeAttribute("USERID");
+						Map<String, Object> logData = new HashMap<String, Object>();
+						logData.put("meetingId", meetingId);
+						logData.put("userId", userId);
+						logData.put("oldConnId", connSessionId);
+						logData.put("newConnId", sessionId);
+						logData.put("clientId", clientId);
+						logData.put("remoteAddress", remoteHost + ":" + remotePort);
+						logData.put("event", "removing_defunct_connection");
+						logData.put("description", "Removing defunct connection BBB Video.");
+
+						Gson gson = new Gson();
+						String logStr =  gson.toJson(logData);
+
+						log.info("Removing defunct connection: data={}", logStr);
+					}
+				}
+
+				String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+				int remotePort = Red5.getConnectionLocal().getRemotePort();
+				String clientId = Red5.getConnectionLocal().getClient().getId();
+
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", meetingId);
+				logData.put("userId", userId);
+				logData.put("connType", connType);
+				logData.put("connId", sessionId);
+				logData.put("clientId", clientId);
+				logData.put("remoteAddress", remoteHost + ":" + remotePort);
+				logData.put("event", "user_joining_bbb_video");
+				logData.put("description", "User joining BBB Video.");
+
+				Gson gson = new Gson();
+				String logStr =  gson.toJson(logData);
+
+				log.info("User joining bbb-video: data={}", logStr);
+			}
+
+			return super.roomConnect(connection, params);
+		}
 
     private String getConnectionType(String connType) {
         if ("persistent".equals(connType.toLowerCase())) {
@@ -181,34 +257,52 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         return meetingId;
     }
 
+
     @Override
     public void appDisconnect(IConnection conn) {
         clearH263UserVideo(getUserId());
         super.appDisconnect(conn);
     }
 
-    @Override
-    public void roomDisconnect(IConnection conn) {
-        log.info("BBB Video roomDisconnect");
 
-        String connType = getConnectionType(Red5.getConnectionLocal().getType());
-        String connId = Red5.getConnectionLocal().getSessionId();
+		@Override
+		public void roomDisconnect(IConnection conn) {
+			log.info("BBB Video roomDisconnect");
 
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData.put("meetingId", getMeetingId());
-        logData.put("userId", getUserId());
-        logData.put("connType", connType);
-        logData.put("connId", connId);
-        logData.put("event", "user_leaving_bbb_video");
-        logData.put("description", "User leaving BBB Video.");
+			String connType = getConnectionType(Red5.getConnectionLocal().getType());
+			String connId = Red5.getConnectionLocal().getSessionId();
 
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
+			UserConnectionMapper.UserConnection uconn = userConnections.userDisconnected(connId);
+			if (uconn != null) {
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", getMeetingId());
+				logData.put("userId", getUserId());
+				logData.put("connType", connType);
+				logData.put("connId", connId);
+				logData.put("event", "removing_port_test_conn_bbb_video");
+				logData.put("description", "Removing port test connection BBB Video.");
 
-        log.info("User leaving bbb-video: data={}", logStr);
+				Gson gson = new Gson();
+				String logStr =  gson.toJson(logData);
 
-        super.roomDisconnect(conn);
-    }
+				log.info(logStr);
+			} else {
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", getMeetingId());
+				logData.put("userId", getUserId());
+				logData.put("connType", connType);
+				logData.put("connId", connId);
+				logData.put("event", "user_leaving_bbb_video");
+				logData.put("description", "User leaving BBB Video.");
+
+				Gson gson = new Gson();
+				String logStr =  gson.toJson(logData);
+
+				log.info("User leaving bbb-video: data={}", logStr);
+			}
+
+			super.roomDisconnect(conn);
+		}
 
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
@@ -247,39 +341,63 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
     }
 
-    @Override
-    public void streamBroadcastStart(IBroadcastStream stream) {
-        IConnection conn = Red5.getConnectionLocal();
-        super.streamBroadcastStart(stream);
-        log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+		@Override
+		public void streamBroadcastStart(IBroadcastStream stream) {
+			IConnection conn = Red5.getConnectionLocal();
+			String contextName = stream.getScope().getName();
 
-        String userId = getUserId();
-        String meetingId = conn.getScope().getName();
-        String streamId = stream.getPublishedName();
+			if ("video".equals(contextName)) {
+				/**
+					* Prevent publishing into the /video context as all our webcams are published
+					* into /video/<meetingId> context. (ralam jan 22, 2018)
+				 **/
 
-        Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
-        addH263PublishedStream(streamId);
-        if (streamId.contains("/")) {
-            if (VideoRotator.getDirection(streamId) != null) {
-                //VideoRotator rotator = new VideoRotator(streamId);
-                videoRotators.put(streamId, null);
-                requestRotateVideoTranscoder(stream);
-            }
-        } else if (matcher.matches()) {
-            log.info("Start recording of stream=[" + stream.getPublishedName() + "] for meeting=[" + conn.getScope().getName() + "]");
+				String connType = getConnectionType(Red5.getConnectionLocal().getType());
+				String connId = Red5.getConnectionLocal().getSessionId();
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", getMeetingId());
+				logData.put("userId", getUserId());
+				logData.put("connType", connType);
+				logData.put("connId", connId);
+				logData.put("stream", stream.getPublishedName());
+				logData.put("context", contextName);
+				logData.put("event", "unauth_publish_stream_bbb_video");
+				logData.put("description", "Publishing stream in app context.");
 
-            Boolean recordVideoStream = true;
+				Gson gson = new Gson();
+				String logStr =  gson.toJson(logData);
+				log.error(logStr);
+				conn.close();
+				return;
+			}
 
-            VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
-                    recordVideoStream, userId, packetTimeout, scheduler, recordingService);
-            ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
-            stream.addStreamListener(listener);
-            VideoStream vstream = new VideoStream(stream, listener, cstream);
-            vstream.startRecording();
+			super.streamBroadcastStart(stream);
+			log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
-            meetingManager.addStream(meetingId, vstream);
-        }
-    }
+			String userId = getUserId();
+			String meetingId = conn.getScope().getName();
+			String streamId = stream.getPublishedName();
+
+			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
+			addH263PublishedStream(streamId);
+			if (streamId.contains("/")) {
+				if (VideoRotator.getDirection(streamId) != null) {
+					//VideoRotator rotator = new VideoRotator(streamId);
+					videoRotators.put(streamId, null);
+					requestRotateVideoTranscoder(stream);
+				}
+			} else if (matcher.matches()) {
+					log.info("Start recording of stream=[" + stream.getPublishedName() + "] for meeting=[" + conn.getScope().getName() + "]");
+					Boolean recordVideoStream = true;
+					VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
+									recordVideoStream, userId, packetTimeout, scheduler, recordingService);
+					ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
+					stream.addStreamListener(listener);
+					VideoStream vstream = new VideoStream(stream, listener, cstream);
+					vstream.startRecording();
+					meetingManager.addStream(meetingId, vstream);
+			}
+		}
 
     private Long genTimestamp() {
         return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
@@ -464,7 +582,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
     }
 
-    public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-        this.connInvokerService = connInvokerService;
-    }
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
+	}
 }

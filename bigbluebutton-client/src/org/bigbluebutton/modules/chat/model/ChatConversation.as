@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.chat.model
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.modules.chat.ChatUtil;
+  import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
   
@@ -92,12 +93,13 @@ package org.bigbluebutton.modules.chat.model
     
     public function newPrivateChatMessage(msg:ChatMessageVO):void {
       var newCM:ChatMessage = convertChatMessage(msg);
-      if (messages.length > 0) {
-        var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
-        newCM.lastSenderId = previousCM.senderId;
-        newCM.lastTime = previousCM.time;
-      }
-      messages.addItem(newCM);
+	  if (messages.length > 0) {
+		  var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
+		  newCM.lastSenderId = previousCM.senderId;
+		  newCM.lastTime = previousCM.time;
+	  }
+	  messages.addItem(newCM);
+	  messages.refresh();
     }
     
 		public function resetFlags():void {
@@ -129,6 +131,7 @@ package org.bigbluebutton.modules.chat.model
           newCM.lastSenderId = previousCM.senderId;
           newCM.lastTime = previousCM.time;
         }
+		messages.refresh();
       }
     }
     
@@ -182,6 +185,10 @@ package org.bigbluebutton.modules.chat.model
       
       messages.removeAll();
       messages.addItem(cm);
+	  messages.refresh();
+
+      var welcomeEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
+      _dispatcher.dispatchEvent(welcomeEvent);
     }
   }
 }

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.senders
 
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, _ }
 import org.bigbluebutton.core.models.GuestWaiting
 
 object MsgBuilder {
@@ -63,12 +63,12 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildValidateConnAuthTokenSysRespMsg(meetingId: String, userId: String, authToken: String,
-                                           authzed: Boolean, conn: String): BbbCommonEnvCoreMsg = {
+  def buildValidateConnAuthTokenSysRespMsg(meetingId: String, userId: String,
+                                           authzed: Boolean, connId: String, app: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateConnAuthTokenSysRespMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(ValidateConnAuthTokenSysRespMsg.NAME, meetingId)
-    val body = ValidateConnAuthTokenSysRespMsgBody(meetingId, userId, authToken, conn, authzed)
+    val body = ValidateConnAuthTokenSysRespMsgBody(meetingId, userId, connId, authzed, app)
     val event = ValidateConnAuthTokenSysRespMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

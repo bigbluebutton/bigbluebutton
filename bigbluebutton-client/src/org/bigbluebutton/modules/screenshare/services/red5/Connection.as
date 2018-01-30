@@ -48,8 +48,10 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
         private var _messageListeners:Array = new Array();
         private var logoutOnUserCommand:Boolean = false;
         private var reconnecting:Boolean = false;
-				private var ssAppUrl: String = null;
 
+				private var ssAppUrl: String = null;
+				private var numNetworkChangeCount:int = 0;
+				
         
         public function connect():void {
 
@@ -263,11 +265,15 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
         }
         
         private function netStatusHandler(event:NetStatusEvent):void {
-            LOGGER.debug("Connected to [" + ssAppUrl + "]. [" + event.info.code + "]");
+						var logData:Object = UsersUtil.initLogData();
+						logData.tags = ["screenshare"];
+						logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + "]";
             
             var ce:ConnectionEvent;
             switch (event.info.code) {
             case "NetConnection.Connect.Failed":
+								logData.message = "NetStream.Play.Failed from bbb-screenshare";
+								LOGGER.info(JSON.stringify(logData));
                 if (reconnecting) {
                     var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
                     attemptFailedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
@@ -278,6 +284,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                 break;
             
             case "NetConnection.Connect.Success":
+								numNetworkChangeCount = 0;
                 if (reconnecting) {
                     reconnecting = false;
                     if (ScreenshareModel.getInstance().isSharing) {
@@ -301,7 +308,8 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                 break;
             
             case "NetConnection.Connect.Closed":
-                LOGGER.debug("Screenshare connection closed.");
+								logData.message = "NetConnection.Connect.Closed from bbb-screenshare";
+								LOGGER.info(JSON.stringify(logData));
                 if (!logoutOnUserCommand) {
                     reconnecting = true;
                     
@@ -325,8 +333,14 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                 break;
             
             case "NetConnection.Connect.NetworkChange":
-                LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
-                break;
+								numNetworkChangeCount++;
+								if (numNetworkChangeCount % 2 == 0) {
+									logData.tags = ["screenshare", "flash"];
+									logData.message = "Detected network change on bbb-screenshare";
+									logData.numNetworkChangeCount = numNetworkChangeCount;
+									LOGGER.info(JSON.stringify(logData));
+								}
+								break;
             }
         }
         

@@ -137,12 +137,13 @@ case class RecordingChapterBreakSysMsg(header: BbbCoreHeaderWithMeetingId,
 case class RecordingChapterBreakSysMsgBody(meetingId: String, timestamp: Long)
 
 object ValidateConnAuthTokenSysMsg { val NAME = "ValidateConnAuthTokenSysMsg" }
-case class ValidateConnAuthTokenSysMsg(header: BbbClientMsgHeader,
-                                       body: ValidateConnAuthTokenSysMsgBody) extends StandardMsg
-case class ValidateConnAuthTokenSysMsgBody(meetingId: String, userId: String, authToken: String, conn: String)
+case class ValidateConnAuthTokenSysMsg(header: BbbCoreBaseHeader,
+                                       body: ValidateConnAuthTokenSysMsgBody) extends BbbCoreMsg
+case class ValidateConnAuthTokenSysMsgBody(meetingId: String, userId: String, authToken: String,
+                                           connId: String, app: String)
 
 object ValidateConnAuthTokenSysRespMsg { val NAME = "ValidateConnAuthTokenSysRespMsg" }
 case class ValidateConnAuthTokenSysRespMsg(header: BbbCoreHeaderWithMeetingId,
-                                       body: ValidateConnAuthTokenSysRespMsgBody) extends BbbCoreMsg
+                                           body: ValidateConnAuthTokenSysRespMsgBody) extends BbbCoreMsg
 case class ValidateConnAuthTokenSysRespMsgBody(meetingId: String, userId: String,
-                                               authToken: String, conn: String, authzed: Boolean)
+                                               connId: String, authzed: Boolean, app: String)

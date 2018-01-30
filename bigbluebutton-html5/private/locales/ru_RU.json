@@ -69,8 +69,6 @@
     "app.actionsBar.actionsDropdown.initPollLabel": "Начать опрос",
     "app.actionsBar.actionsDropdown.presentationDesc": "Загрузите вашу презентацию",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Статус",
-    "app.actionsBar.emojiMenu.clearLabel": "Сброс",
-    "app.actionsBar.emojiMenu.clearDesc": "Очистить статус",
     "app.actionsBar.emojiMenu.applauseLabel": "Апплодисменты",
     "app.audioNotification.closeLabel": "Закрыть",
     "app.breakoutJoinConfirmation.title": "Присоединиться к комнате групповой работы",
@@ -84,9 +82,8 @@
     "app.audio.backLabel": "Назад",
     "app.audio.listenOnly.backLabel": "Назад",
     "app.audio.listenOnly.closeLabel": "Закрыть",
-    "app.error.kicked": "Вас исключили из конференции",
     "app.dropdown.close": "Закрыть",
-    "app.error.500": "Упс что-то пошло не так",
+    "app.error.500": "Упс, что-то пошло не так"
 
 }
 

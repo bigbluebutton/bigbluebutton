@@ -8,6 +8,7 @@ import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
+import AudioManager from '/imports/ui/services/audio-manager';
 import IntlStartup from './intl';
 
 const propTypes = {
@@ -59,7 +60,10 @@ class Base extends Component {
     const { subscriptionsReady, errorCode } = this.props;
     const { endedCode } = this.props.params;
 
-    if (endedCode) return (<MeetingEnded code={endedCode} />);
+    if (endedCode) {
+      AudioManager.exitAudio();
+      return (<MeetingEnded code={endedCode} />);
+    }
 
     if (error || errorCode) {
       return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);

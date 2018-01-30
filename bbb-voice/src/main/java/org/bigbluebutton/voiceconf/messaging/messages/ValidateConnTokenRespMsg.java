@@ -1,4 +1,4 @@
-package org.bigbluebutton.red5.pubsub.message;
+package org.bigbluebutton.voiceconf.messaging.messages;
 
 public class ValidateConnTokenRespMsg implements ClientMessage {
 

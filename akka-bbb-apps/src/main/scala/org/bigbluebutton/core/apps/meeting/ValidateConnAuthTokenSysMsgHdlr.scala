@@ -19,11 +19,11 @@ trait ValidateConnAuthTokenSysMsgHdlr {
     regUser match {
       case Some(u) =>
         val event = MsgBuilder.buildValidateConnAuthTokenSysRespMsg(msg.body.meetingId, msg.body.userId,
-          msg.body.authToken, true, msg.body.conn)
+          true, msg.body.connId, msg.body.app)
         outGW.send(event)
       case None =>
         val event = MsgBuilder.buildValidateConnAuthTokenSysRespMsg(msg.body.meetingId, msg.body.userId,
-          msg.body.authToken, false, msg.body.conn)
+          false, msg.body.connId, msg.body.app)
         outGW.send(event)
     }
   }

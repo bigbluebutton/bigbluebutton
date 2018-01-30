@@ -422,7 +422,7 @@ start_bigbluebutton () {
 	#
 	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
         #if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
@@ -478,7 +478,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE libreoffice bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+	units="start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
@@ -835,7 +835,7 @@ check_configuration() {
 	#
 	# Check if the IP resolves to a different host
 	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
  
 	if which host > /dev/null 2>&1; then	
@@ -879,7 +879,7 @@ check_configuration() {
 	fi
 
 	BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
 		WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
@@ -1524,7 +1524,7 @@ if [ $CHECK ]; then
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl | tr --delete '\n' | sed 's/\[/, \[/g' | sed 's/0$/0\n/g')

@@ -566,7 +566,7 @@ package org.bigbluebutton.main.model.users
                 
                 case "NetConnection.Connect.NetworkChange":
                     numNetworkChangeCount++;
-                    if (numNetworkChangeCount % 20 == 0) {
+                    if (numNetworkChangeCount % 2 == 0) {
                         logData.message = "Detected network change on bbb-apps";
                         logData.numNetworkChangeCount = numNetworkChangeCount;
                         LOGGER.info(JSON.stringify(logData));

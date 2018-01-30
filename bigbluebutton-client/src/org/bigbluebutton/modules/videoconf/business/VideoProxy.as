@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.videoconf.business
 		private var reconnect:Boolean = false;
 		private var reconnecting:Boolean = false;
 		private var dispatcher:Dispatcher = new Dispatcher();
-		private var vidoeConnUrl: String;
+		private var videoConnUrl: String;
 		private var numNetworkChangeCount:int = 0;
 		
 		private function parseOptions():void {
@@ -78,40 +78,41 @@ package org.bigbluebutton.modules.videoconf.business
 			reconnect = connect;
 		}
 		
-	    public function connect():void {
-				var options: VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
-				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-				var result:Array = pattern.exec(options.uri);
+		public function connect():void {
+			var options: VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+			var result:Array = pattern.exec(options.uri);
+			
+			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+			if (BBB.initConnectionManager().isTunnelling) {
+				var tunnelProtocol: String = ConnUtil.RTMPT;
 				
-
-				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
-				if (BBB.initConnectionManager().isTunnelling) {
-					var tunnelProtocol: String = ConnUtil.RTMPT;
-					
-					if (useRTMPS) {
-						nc.proxyType = ConnUtil.PROXY_NONE;
-						tunnelProtocol = ConnUtil.RTMPS;
-					}
-					
-					
-					vidoeConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
-					LOGGER.debug("VIDEO CONNECT tunnel = TRUE " + "url=" +  vidoeConnUrl);
-				} else {
-					var nativeProtocol: String = ConnUtil.RTMP;
-					if (useRTMPS) {
-						nc.proxyType = ConnUtil.PROXY_BEST;
-						nativeProtocol = ConnUtil.RTMPS;
-					}
-					
-					vidoeConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
-					LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  vidoeConnUrl);
+				if (useRTMPS) {
+					nc.proxyType = ConnUtil.PROXY_NONE;
+					tunnelProtocol = ConnUtil.RTMPS;
 				}
 				
 				
-	      nc.connect(vidoeConnUrl, UsersUtil.getInternalMeetingID(), 
-          UsersUtil.getMyUserID(), LiveMeeting.inst().me.authToken);
-	    }
-	    
+				videoConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
+				LOGGER.debug("VIDEO CONNECT tunnel = TRUE " + "url=" +  videoConnUrl);
+			} else {
+				var nativeProtocol: String = ConnUtil.RTMP;
+				if (useRTMPS) {
+					nc.proxyType = ConnUtil.PROXY_BEST;
+					nativeProtocol = ConnUtil.RTMPS;
+				}
+					
+				videoConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
+				LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  videoConnUrl);
+			}
+				
+			videoConnUrl = videoConnUrl + "/" + UsersUtil.getInternalMeetingID();
+			
+			var authToken: String = LiveMeeting.inst().me.authToken;
+			nc.connect(videoConnUrl, UsersUtil.getInternalMeetingID(), 
+				UsersUtil.getMyUserID(), authToken);
+		}
+			
 		private function onAsyncError(event:AsyncErrorEvent):void{
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["webcam"];
@@ -139,7 +140,7 @@ package org.bigbluebutton.modules.videoconf.business
     
 		private function onNetStatus(event:NetStatusEvent):void{
 
-			LOGGER.debug("[{0}] for [{1}]", [event.info.code, vidoeConnUrl]);
+			LOGGER.debug("[{0}] for [{1}]", [event.info.code, videoConnUrl]);
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["webcam"];
 			logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + ",reconnect=" + reconnect + "]";
@@ -196,14 +197,14 @@ package org.bigbluebutton.modules.videoconf.business
 					break;		
 				case "NetConnection.Connect.NetworkChange":
 					numNetworkChangeCount++;
-					if (numNetworkChangeCount % 20 == 0) {
+					if (numNetworkChangeCount % 2 == 0) {
 						logData.message = "Detected network change on bbb-video";
 						logData.numNetworkChangeCount = numNetworkChangeCount;
 						LOGGER.info(JSON.stringify(logData));
 					}
 					break;
         		default:
-					LOGGER.debug("[{0}] for [{1}]", [event.info.code, vidoeConnUrl]);
+					LOGGER.debug("[{0}] for [{1}]", [event.info.code, videoConnUrl]);
 					break;
 			}
 		}

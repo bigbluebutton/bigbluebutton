@@ -182,6 +182,7 @@ class MeetingActor(
 
     case m: EjectDuplicateUserReqMsg          => usersApp.handleEjectDuplicateUserReqMsg(m)
     case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
+    case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
 
     // Meeting
     case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)

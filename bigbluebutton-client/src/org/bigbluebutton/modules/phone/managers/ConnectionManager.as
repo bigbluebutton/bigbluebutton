@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -117,7 +118,9 @@ package org.bigbluebutton.modules.phone.managers {
 				netConnection.client = this;
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 				netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-				netConnection.connect(uri, meetingId, externUserId, username);
+				
+				var authToken: String = LiveMeeting.inst().me.authToken;
+				netConnection.connect(uri, meetingId, externUserId, username, authToken);
 			}
 			if (reconnecting && !amIListenOnly) {
 				handleConnectionSuccess();
@@ -186,7 +189,7 @@ package org.bigbluebutton.modules.phone.managers {
           break;
         case "NetConnection.Connect.NetworkChange":
           numNetworkChangeCount++;
-          if (numNetworkChangeCount % 20 == 0) {
+          if (numNetworkChangeCount % 2 == 0) {
               logData.tags = ["voice", "flash"];
              logData.message = "Detected network change on bbb-voice";
              logData.numNetworkChangeCount = numNetworkChangeCount;
