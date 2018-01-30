@@ -3,7 +3,7 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
+import { styles } from './styles';
 
 const intlMessage = defineMessages({
   410: {
@@ -35,10 +35,19 @@ const propTypes = {
 };
 
 class MeetingEnded extends React.PureComponent {
-  componentDidMount() {
-    const { router } = this.props;
+  constructor() {
+    super();
 
-    setTimeout(() => { router.push('/logout'); }, 3000);
+    this.handleBackAttempt = this.handleBackAttempt.bind(this);
+  }
+
+  componentDidMount() {
+    window.onpopstate = this.handleBackAttempt;
+  }
+
+  handleBackAttempt() {
+    const { router } = this.props;
+    router.push('/logout');
   }
 
   render() {
