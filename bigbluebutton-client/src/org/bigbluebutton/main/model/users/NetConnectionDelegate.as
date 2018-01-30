@@ -404,8 +404,6 @@ package org.bigbluebutton.main.model.users
                 var appURL:String = _applicationOptions.uri;
                 var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
                 var result:Array = pattern.exec(appURL);
-
-                BandwidthMonitor.getInstance().serverURL = result.server;
             
                 var protocol:String = "rtmp";
                 var uri:String = appURL + "/" + intMeetingId;
