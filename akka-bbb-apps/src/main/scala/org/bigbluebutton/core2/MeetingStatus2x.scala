@@ -72,7 +72,7 @@ class MeetingStatus2x {
   private var voiceRecordingFilename: String = ""
 
   private var extension = new MeetingExtensionProp
-  
+
   private var webcamsOnlyForModerator = false
 
   private def startRecordingVoice() {

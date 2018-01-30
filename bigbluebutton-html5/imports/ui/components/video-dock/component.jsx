@@ -30,6 +30,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const RECONNECT_WAIT_TIME = 5000;
+const INITIAL_SHARE_WAIT_TIME = 2000;
+
 class VideoElement extends Component {
   constructor(props) {
     super(props);
@@ -86,7 +89,7 @@ class VideoDock extends Component {
         setTimeout(() => {
           log('debug', ` [camera] Trying to reconnect camera ${id}`);
           this.start(id, false);
-        }, 5000);
+        }, RECONNECT_WAIT_TIME);
       }
     }
 
@@ -103,11 +106,15 @@ class VideoDock extends Component {
     const ws = this.ws;
     const { users, userId } = this.props;
 
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].has_stream && users[i].userId !== userId) {
-        this.start(users[i].userId, false);
+    users.forEach((user) => {
+      if (user.has_stream && user.userId !== userId) {
+        // FIX: Really ugly hack, but sometimes the ICE candidates aren't
+        // generated properly when we send videos right after componentDidMount
+        setTimeout(() => {
+          this.start(user.userId, false);
+        }, INITIAL_SHARE_WAIT_TIME);
       }
-    }
+    });
 
     document.addEventListener('joinVideo', this.shareWebcam.bind(this));// TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam.bind(this));
@@ -196,7 +203,7 @@ class VideoDock extends Component {
 
         const webRtcPeer = this.webRtcPeers[parsedMessage.cameraId];
 
-        if (webRtcPeer !== null) {
+        if (!!webRtcPeer) {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
@@ -208,7 +215,7 @@ class VideoDock extends Component {
             webRtcPeer.iceQueue.push(parsedMessage.candidate);
           }
         } else {
-          log('error', ' [ICE] Message arrived before webRtcPeer?');
+          log('error', ' [ICE] Message arrived after the peer was already thrown out, discarding it...');
         }
         break;
     }
@@ -353,6 +360,10 @@ class VideoDock extends Component {
       cameraId: id,
     });
 
+    if (id === userId) {
+      VideoService.exitedVideo();
+    }
+
     this.destroyWebRTCPeer(id);
     this.destroyVideoTag(id);
   }
@@ -408,7 +419,6 @@ class VideoDock extends Component {
     log('info', 'Unsharing webcam');
     const { userId } = this.props;
     VideoService.sendUserUnshareWebcam(userId);
-    VideoService.exitedVideo();
   }
 
   startResponse(message) {
@@ -468,9 +478,7 @@ class VideoDock extends Component {
     log('info', 'Handle play stop <--------------------');
     log('error', message);
 
-    const { users } = this.props;
-
-    if (message.cameraId == this.props) {
+    if (message.cameraId == this.props.userId) {
       this.unshareWebcam();
     } else {
       this.stop(message.cameraId);
@@ -481,14 +489,19 @@ class VideoDock extends Component {
     log('info', 'Handle play start <===================');
 
     if (message.cameraId == this.props.userId) {
-      log('info', "Dae ze caralhow ");
       VideoService.joinedVideo();
     }
   }
 
   handleError(message) {
-    const { intl } = this.props;
+    const { intl, userId } = this.props;
     this.notifyError(intl.formatMessage(intlMessages.sharingError));
+
+    if (message.cameraId == userId) {
+      this.unshareWebcam();
+    } else {
+      this.stop(message.cameraId);
+    }
 
     console.error(' Handle error --------------------->');
     log('debug', message.message);
@@ -560,7 +573,6 @@ class VideoDock extends Component {
           }
         }
       }
-
       return true;
     }
 

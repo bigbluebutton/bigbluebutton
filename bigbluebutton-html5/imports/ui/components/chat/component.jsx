@@ -41,9 +41,15 @@ const Chat = (props) => {
   } = props;
 
   return (
-    <div className={styles.chat}>
+    <div
+      data-test="publicChat"
+      className={styles.chat}
+    >
       <header className={styles.header}>
-        <div className={styles.title}>
+        <div
+          data-test="chatTitle"
+          className={styles.title}
+        >
           <Link
             to="/users"
             role="button"

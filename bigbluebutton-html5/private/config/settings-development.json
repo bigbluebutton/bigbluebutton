@@ -9,8 +9,8 @@
       "listenOnly": false,
       "skipCheck": false,
       "appName": "BigBlueButton HTML5 Client",
-      "bbbServerVersion": "2.0-beta",
-      "copyright": "©2017 BigBlueButton Inc.",
+      "bbbServerVersion": "2.0-rc",
+      "copyright": "©2018 BigBlueButton Inc.",
       "html5ClientBuild": "HTML5_CLIENT_VERSION",
       "lockOnJoin": true,
       "basename": "/html5client",
@@ -191,39 +191,51 @@
       "toolbar": {
         "colors": [
           {
+            "label": "black",
             "value": "#000000"
           },
           {
+            "label": "white",
             "value": "#ffffff"
           },
           {
+            "label": "red",
             "value": "#ff0000"
           },
           {
+            "label": "orange",
             "value": "#ff8800"
           },
           {
+            "label": "eletricLime",
             "value": "#ccff00"
           },
           {
+            "label": "Lime",
             "value": "#00ff00"
           },
           {
+            "label": "Cyan",
             "value": "#00ffff"
           },
           {
+            "label": "dodgerBlue",
             "value": "#0088ff"
           },
           {
+            "label": "blue",
             "value": "#0000ff"
           },
           {
+            "label": "violet",
             "value": "#8800ff"
           },
           {
+            "label": "magenta",
             "value": "#ff00ff"
           },
           {
+            "label": "silver",
             "value": "#c0c0c0"
           }
         ],
@@ -339,5 +351,3 @@
     }
   }
 }
-
-

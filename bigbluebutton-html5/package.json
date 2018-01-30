@@ -3,6 +3,10 @@
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
     "start": "if test \"$NODE_ENV\" = \"production\" ; then npm run start:prod; else npm run start:dev; fi",
+    "test-visual-regression": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome_mobile; DEVICE_NAME='iPhone 6 Plus'; export DEVICE_NAME; wdio ./tests/webdriverio/wdio.vreg.conf.js; DEVICE_NAME='Nexus 5X'; export DEVICE_NAME; wdio ./tests/webdriverio/wdio.vreg.conf.js",
+    "generate-refs-visual-regression": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression",
+    "test-visual-regression-desktop": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js",
+    "generate-refs-visual-regression-desktop": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression-desktop",
     "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production --settings private/config/settings-production.json",
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor --settings private/config/settings-development.json",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
@@ -59,6 +63,7 @@
   },
   "devDependencies": {
     "autoprefixer": "~7.1.6",
+    "babel-plugin-react-remove-properties": "~0.2.5",
     "chai": "~4.1.2",
     "eslint": "~4.9.0",
     "eslint-config-airbnb": "~16.1.0",
@@ -76,6 +81,8 @@
     "wdio-jasmine-framework": "~0.3.2",
     "wdio-junit-reporter": "~0.3.1",
     "wdio-spec-reporter": "~0.1.2",
+    "wdio-visual-regression-service": "~0.8.0",
+    "webdriver-manager": "~12.0.6",
     "webdriverio": "~4.8.0"
   },
   "cssModules": {

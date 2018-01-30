@@ -16,6 +16,6 @@ export default withTracker(() => ({
   handleJoinVideo: () => VideoService.joinVideo(),
   handleShareScreen: () => shareScreen(),
   handleUnshareScreen: () => unshareScreen(),
-  isVideoBroadcasting: () => isVideoBroadcasting(),
+  isVideoBroadcasting: isVideoBroadcasting(),
 
 }))(ActionsBarContainer);

@@ -1,8 +1,8 @@
 'use strict';
 
-let LandingPage = require('../pageobjects/landing.page');
+let LandingPage = require('../../pageobjects/landing.page');
 let chai = require('chai');
-let utils = require('../utils');
+let utils = require('../../utils');
 
 describe('Landing page', function () {
 
@@ -21,9 +21,9 @@ describe('Landing page', function () {
 
       utils.setUsername(new Map([
         ['chromeBrowser', 'Alex'],
-        ['chromeDevBrowser', 'Anton'],
+        ['chromeBrowser', 'Anton'],
         ['firefoxBrowser', 'Danny'],
-        ['firefoxNightlyBrowser', 'Maxim'],
+        ['firefoxBrowser', 'Maxim'],
         ['chromeMobileBrowser', 'Oswaldo']
       ]));
 

@@ -39,7 +39,6 @@ package org.bigbluebutton.clientcheck.view.mainview
 	import org.bigbluebutton.clientcheck.model.test.DownloadBandwidthTest;
 	import org.bigbluebutton.clientcheck.model.test.FlashVersionTest;
 	import org.bigbluebutton.clientcheck.model.test.IsPepperFlashTest;
-	import org.bigbluebutton.clientcheck.model.test.JavaEnabledTest;
 	import org.bigbluebutton.clientcheck.model.test.LanguageTest;
 	import org.bigbluebutton.clientcheck.model.test.PingTest;
 	import org.bigbluebutton.clientcheck.model.test.PortTest;
@@ -122,7 +121,6 @@ package org.bigbluebutton.clientcheck.view.mainview
 			systemConfiguration.isPepperFlash.pepperFlashTestSuccessfullChangedSignal.add(isPepperFlashChangedHandler);
 			systemConfiguration.cookieEnabled.cookieEnabledTestSuccessfullChangedSignal.add(cookieEnabledChangedHandler);
 			systemConfiguration.language.languageTestSuccessfullChangedSignal.add(languageChangedHandler);
-			systemConfiguration.javaEnabled.javaEnabledTestSuccessfullChangedSignal.add(javaEnabledChangedHandler);
 			systemConfiguration.isWebRTCSupported.webRTCSupportedTestSuccessfullChangedSignal.add(isWebRTCSupportedChangedHandler);
 			systemConfiguration.webRTCEchoTest.webRTCEchoTestSuccessfullChangedSignal.add(webRTCEchoTestChangedHandler);
 			systemConfiguration.webRTCSocketTest.webRTCSocketTestSuccessfullChangedSignal.add(webRTCSocketTestChangedHandler);
@@ -151,7 +149,6 @@ package org.bigbluebutton.clientcheck.view.mainview
 			dp.addData({Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: null}, StatusENUM.LOADING);
 			dp.addData({Item: FlashVersionTest.FLASH_VERSION, Result: null}, StatusENUM.LOADING);
 			dp.addData({Item: IsPepperFlashTest.PEPPER_FLASH, Result: null}, StatusENUM.LOADING);
-			dp.addData({Item: JavaEnabledTest.JAVA_ENABLED, Result: null}, StatusENUM.LOADING);
 			dp.addData({Item: LanguageTest.LANGUAGE, Result: null}, StatusENUM.LOADING);
 			dp.addData({Item: PingTest.PING, Result: null}, StatusENUM.LOADING);
 			dp.addData({Item: ScreenSizeTest.SCREEN_SIZE, Result: null}, StatusENUM.LOADING);
@@ -275,12 +272,6 @@ package org.bigbluebutton.clientcheck.view.mainview
 			dp.updateData({Item: LanguageTest.LANGUAGE, Result: systemConfiguration.language.testResult}, status);
 		}
 
-		private function javaEnabledChangedHandler():void
-		{
-			var status:Object = (systemConfiguration.javaEnabled.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING;
-			dp.updateData({Item: JavaEnabledTest.JAVA_ENABLED, Result: systemConfiguration.javaEnabled.testResult}, status);
-		}
-
 		private function isWebRTCSupportedChangedHandler():void
 		{
 			var status:Object = (systemConfiguration.isWebRTCSupported.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
@@ -350,7 +341,6 @@ package org.bigbluebutton.clientcheck.view.mainview
 			systemConfiguration.webRTCEchoTest.webRTCEchoTestSuccessfullChangedSignal.remove(webRTCEchoTestChangedHandler);
 			systemConfiguration.webRTCSocketTest.webRTCSocketTestSuccessfullChangedSignal.remove(webRTCSocketTestChangedHandler);
 			systemConfiguration.language.languageTestSuccessfullChangedSignal.remove(languageChangedHandler);
-			systemConfiguration.javaEnabled.javaEnabledTestSuccessfullChangedSignal.remove(javaEnabledChangedHandler);
 			systemConfiguration.isWebRTCSupported.webRTCSupportedTestSuccessfullChangedSignal.remove(isWebRTCSupportedChangedHandler);
 			systemConfiguration.downloadBandwidthTest.downloadSpeedTestSuccessfullChangedSignal.remove(downloadSpeedTestChangedHandler);
 			systemConfiguration.uploadBandwidthTest.uploadSpeedTestSuccessfullChangedSignal.remove(uploadSpeedTestChangedHandler);

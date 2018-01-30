@@ -78,10 +78,12 @@ $dropdown-caret-height: 8px;
   font-size: $font-size-large * 1.1;
   width: calc(100% - #{($line-height-computed * 2)});
   left: $line-height-computed;
-  box-shadow: 0 0 0 2rem #fff;
+  box-shadow: 0 0 0 2rem $color-white !important;
+  border: $color-white !important;
 
   @include mq($small-only) {
     display: block;
+    bottom: 0.8rem;
   }
 }
 

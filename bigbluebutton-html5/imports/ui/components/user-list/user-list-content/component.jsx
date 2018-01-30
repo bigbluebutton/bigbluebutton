@@ -37,7 +37,10 @@ const defaultProps = {
 class UserContent extends Component {
   render() {
     return (
-      <div className={styles.content}>
+      <div
+        data-test="userListContent"
+        className={styles.content}
+      >
         <UserMessages
           isPublicChat={this.props.isPublicChat}
           openChats={this.props.openChats}

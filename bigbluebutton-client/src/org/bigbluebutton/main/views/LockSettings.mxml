@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				implements="org.bigbluebutton.common.IKeyboardClose"
 				show="this.setFocus()"
 				xmlns:common="org.bigbluebutton.common.*"
-				minWidth="340" showCloseButton="false" 
+				minWidth="400" showCloseButton="false" 
 				keyDown="handleKeyDown(event)">
 	
 	<fx:Script>
@@ -69,6 +69,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCancelClicked():void {
 				PopUpUtil.removePopUp(this);
 			}
+			
+			protected function chkDisableWebcam_changeHandler(event:Event):void
+			{
+				if (chkDisableWebcam.selected) {
+					chkwebcamsOnlyForModerator.selected = false;
+				}
+			}
+			
+			protected function chkwebcamsOnlyForModerator_changeHandler(event:Event):void
+			{
+				if (chkwebcamsOnlyForModerator.selected) {
+					chkDisableWebcam.selected = false;
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -80,70 +95,62 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.lockSettings.title')}"
 							  styleName="titleWindowStyle"
 							  id="titleText"
-							  maxWidth="250" />
+							  minWidth="300" />
+		
+		<mx:Box width="100%" styleName="lockSettingsHintBoxStyle">
+			<mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.hint')}" styleName="lockSettingHintTextStyle"/>
+		</mx:Box>
 
 		<mx:HBox verticalAlign="top" width="100%" paddingTop="20">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.feature')}" fontWeight="bold" />
-			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.locked')}" fontWeight="bold" />
+			<mx:Label width="70%" styleName="lockSettingsColumnTitleStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.feature')}"/>
+			<mx:Label width="30%" styleName="lockSettingsColumnTitleStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.locked')}" textAlign="center"/>
 		</mx:HBox>
 
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
-				<mx:CheckBox id="chkDisableWebcam" selected="{disableCam}" />
-				<mx:Spacer width="50%" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
+				<mx:CheckBox id="chkDisableWebcam" selected="{disableCam}" change="chkDisableWebcam_changeHandler(event)"/>
 			</mx:HBox>
 		</mx:HBox>
 
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcamsOnlyForModerator')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
-				<mx:CheckBox id="chkwebcamsOnlyForModerator" selected="{webcamsOnlyForModerator}" />
-				<mx:Spacer width="50%" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
+				<mx:CheckBox id="chkwebcamsOnlyForModerator" selected="{webcamsOnlyForModerator}" change="chkwebcamsOnlyForModerator_changeHandler(event)"/>
 			</mx:HBox>
 		</mx:HBox>
 
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.microphone')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
 				<mx:CheckBox id="chkDisableMicrophone" selected="{disableMic}"/>
-				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
 				<mx:CheckBox id="chkDisablePublicChat" selected="{disablePubChat}"/>
-				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
 				<mx:CheckBox id="chkDisablePrivateChat" selected="{disablePrivChat}"/>
-				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
 					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.layout')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
 				<mx:CheckBox id="chkDisableLayout" selected="{lockedLayout}"/>
-				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 
@@ -152,10 +159,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox verticalAlign="top" width="100%" visible="{lockOnJoinConfigurable}" includeInLayout="{lockOnJoinConfigurable}">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
 					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.lockOnJoin')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
 				<mx:CheckBox id="chkLockOnJoin" selected="{lockOnJoin}" />
-				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 

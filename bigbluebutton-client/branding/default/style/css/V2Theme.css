@@ -645,6 +645,14 @@ chat|AddChatTabBox {
 	fontSize : 14;
 }
 
+chat|ChatMessageRenderer {
+	moderatorIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Chat_Moderator");
+	verticalAlign : top;
+	verticalGap   : 0;
+	paddingBottom : 0;
+	paddingTop    : 0;
+}
+
 .chatMessageListStyle {
 	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
@@ -879,6 +887,22 @@ layout|LoadButton {
 
 /*
 //------------------------------
+//  LoadingBar
+//------------------------------
+*/
+
+views|LoadingBar {
+	textAlign       : center;
+	horizontalAlign : center;
+}
+
+.loadingBarLabel {
+	color       : #8A9AA7;
+	fontWeight  : bold;
+}
+
+/*
+//------------------------------
 //  Logout Window
 //------------------------------
 */
@@ -964,8 +988,17 @@ views|LockSettings {
 	headerHeight : 0;
 }
 
+.lockSettingsColumnTitleStyle {
+	fontSize   : 14;
+	fontWeight : bold;
+}
+
 .lockSettingsDefaultLabelStyle {
 	fontSize : 14;
+}
+
+.lockSettingsCheckboxColumn {
+	horizontalAlign : center;
 }
 
 /*
@@ -1376,13 +1409,17 @@ mx|Panel {
 	textDecoration  : underline;
 }
 
-.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle, .lockSettingsHintBoxStyle {
 	backgroundColor : #CDD4DB;
+	horizontalAlign : center;
+	paddingTop      : 8;
+	paddingBottom   : 8;
 	paddingLeft     : 10;
 	paddingRight    : 10;
+	verticalAlign   : middle;
 }
 
-.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .logoutFeedbackHint {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle, .logoutFeedbackHint, .lockSettingHintTextStyle {
 	fontWeight : bold;
 }
 

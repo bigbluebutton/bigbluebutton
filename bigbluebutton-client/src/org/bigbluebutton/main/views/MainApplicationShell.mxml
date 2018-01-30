@@ -895,7 +895,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
 		<mx:VBox horizontalCenter="0" verticalCenter="0" horizontalAlign="center" verticalGap="20">
 			<views:QuotesView id="quoteView"/>
-			<views:LoadingBar id="progressBar" width="280" height="15" labelWidth="280" textAlign="center"/>
+			<views:LoadingBar id="progressBar"/>
 		</mx:VBox>
 	</views:MainCanvas>	
 	
