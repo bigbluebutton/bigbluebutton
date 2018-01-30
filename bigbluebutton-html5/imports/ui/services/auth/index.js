@@ -4,7 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { makeCall, log } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -151,6 +151,15 @@ class Auth {
 
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) return;
+
+        if (User.ejected) {
+          this.loggedIn = false;
+
+          return reject({
+            error: 401,
+            description: 'User has been ejected.',
+          });
+        }
 
         if (User.validated === true) {
           computation.stop();
