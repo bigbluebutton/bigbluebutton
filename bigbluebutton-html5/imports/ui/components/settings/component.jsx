@@ -189,7 +189,10 @@ class Settings extends Component {
           />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
-          <DataSaving />
+          <DataSaving
+            settings={this.state.current.video}
+            handleUpdateSettings={this.handleUpdateSettings}
+          />
         </TabPanel>
         {/* { isModerator ? */}
         {/* <TabPanel className={styles.tabPanel}> */}

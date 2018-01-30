@@ -179,6 +179,8 @@
   "app.settings.dataSaving.label": "Data Savings",
   "app.settings.dataSaving.webcam": "Disable Webcams",
   "app.settings.dataSaving.screenShare": "Disable Desktop Sharing",
+  "app.settings.dataSaving.description":
+    "To save your bandwidth adjust what's currently being displayed.",
   "app.actionsBar.actionsDropdown.actionsLabel": "Actions",
   "app.actionsBar.actionsDropdown.presentationLabel": "Upload a presentation",
   "app.actionsBar.actionsDropdown.initPollLabel": "Initiate a poll",

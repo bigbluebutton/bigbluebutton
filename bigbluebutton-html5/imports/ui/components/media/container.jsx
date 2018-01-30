@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import Settings from '/imports/ui/services/settings';
 import Media from './component';
 import MediaService from './service';
 import PresentationAreaContainer from '../presentation/container';
@@ -42,18 +43,18 @@ class MediaContainer extends Component {
   }
 
   render() {
-    return (
-      <Media {...this.props}>
-        {this.props.children}
-      </Media>
-    );
+    return <Media {...this.props}>{this.props.children}</Media>;
   }
 }
 
 MediaContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
+  const videoSettings = Settings.video;
+  const viewVideoDock = videoSettings.viewParticipantsWebcams;
+
   const data = {};
+  data.viewVideoDock = viewVideoDock;
   data.currentPresentation = MediaService.getPresentationInfo();
 
   data.content = <DefaultContent />;

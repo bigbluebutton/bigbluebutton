@@ -14,7 +14,15 @@ const intlMessages = defineMessages({
   },
 });
 
-const JoinVideoOptions = ({intl, isWaitingResponse, isConnected, isSharingVideo, handleJoinVideo, handleCloseVideo}) => {
+const JoinVideoOptions = ({
+  intl,
+  isWaitingResponse,
+  isConnected,
+  isSharingVideo,
+  handleJoinVideo,
+  handleCloseVideo,
+  enableShare,
+}) => {
   if (isSharingVideo) {
     return (
       <Button
@@ -22,9 +30,9 @@ const JoinVideoOptions = ({intl, isWaitingResponse, isConnected, isSharingVideo,
         label={intl.formatMessage(intlMessages.leaveVideo)}
         hideLabel
         aria-label={intl.formatMessage(intlMessages.leaveVideo)}
-        color={'danger'}
-        icon={'video'}
-        size={'lg'}
+        color="danger"
+        icon="video"
+        size="lg"
         circle
         disabled={isWaitingResponse}
       />
@@ -37,13 +45,13 @@ const JoinVideoOptions = ({intl, isWaitingResponse, isConnected, isSharingVideo,
       label={intl.formatMessage(intlMessages.joinVideo)}
       hideLabel
       aria-label={intl.formatMessage(intlMessages.joinVideo)}
-      color={'primary'}
-      icon={'video_off'}
-      size={'lg'}
+      color="primary"
+      icon="video_off"
+      size="lg"
       circle
-      disabled={isWaitingResponse || (!isSharingVideo && isConnected)}
+      disabled={isWaitingResponse || (!isSharingVideo && isConnected) || enableShare}
     />
   );
-}
+};
 
 export default injectIntl(JoinVideoOptions);

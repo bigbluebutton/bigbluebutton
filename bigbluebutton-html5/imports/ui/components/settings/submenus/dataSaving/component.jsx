@@ -10,7 +10,7 @@ const MIN_FONTSIZE = 0;
 const MAX_FONTSIZE = 4;
 
 const intlMessages = defineMessages({
-  DataSavingLabel: {
+  dataSavingLabel: {
     id: 'app.settings.dataSaving.label',
     description: 'label for data savings tab',
   },
@@ -22,6 +22,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.dataSaving.screenShare',
     description: 'screenshare toggle',
   },
+  dataSavingDesc: {
+    id: 'app.settings.dataSaving.description',
+    description: 'description of data savings tab',
+  },
 });
 
 class DataSaving extends BaseMenu {
@@ -29,7 +33,7 @@ class DataSaving extends BaseMenu {
     super(props);
 
     this.state = {
-      settingsName: 'application',
+      settingsName: 'video',
       settings: props.settings,
     };
   }
@@ -39,7 +43,8 @@ class DataSaving extends BaseMenu {
     return (
       <div className={styles.tabContent}>
         <div className={styles.header}>
-          <h3 className={styles.title}>{intl.formatMessage(intlMessages.DataSavingLabel)}</h3>
+          <h3 className={styles.title}>{intl.formatMessage(intlMessages.dataSavingLabel)}</h3>
+          <p className={styles.subtitle}>{intl.formatMessage(intlMessages.dataSavingDesc)}</p>
         </div>
         <div className={styles.form}>
           <div className={styles.row}>
@@ -54,10 +59,10 @@ class DataSaving extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={false}
-                  onChange={() => this.handleToggle('')}
-                  ariaLabelledBy="audioNotify"
-                  ariaLabel="hahah2"
+                  defaultChecked={!this.state.settings.viewParticipantsWebcams}
+                  onChange={() => this.handleToggle('viewParticipantsWebcams')}
+                  ariaLabelledBy="webcamToggle"
+                  ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                 />
               </div>
             </div>
