@@ -17,4 +17,3 @@ to-audio: "to-audio-sfu"
 log:
     filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'
-    maxSize: 100000000
