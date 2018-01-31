@@ -1,7 +1,3 @@
-/*
- * (C) Copyright 2016 Mconf Tecnologia (http://mconf.com/)
- */
-
 /**
  * @classdesc
  * Message constants for the communication with BigBlueButton
@@ -52,8 +48,6 @@ exports.EVENT.MEDIA_STATE.FLOW_OUT = "MediaFlowOutStateChange"
 exports.EVENT.MEDIA_STATE.FLOW_IN = "MediaFlowInStateChange"
 exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
-
-
 
 // RTP params
 exports.SDP = {};

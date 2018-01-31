@@ -22,16 +22,12 @@ package org.bigbluebutton.main.model.modules
 	
 	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
-	
 	import mx.collections.ArrayCollection;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.main.events.AppVersionEvent;
-	import org.bigbluebutton.main.model.options.PortTestOptions;
 	
 	public class ModuleManager
 	{
@@ -67,7 +63,7 @@ package org.bigbluebutton.main.model.modules
 			sorted = resolver.buildDependencyTree(modules);
 			
 			BBB.initConnectionManager().initPortTestOption();
-			
+
 			modulesDispatcher.sendPortTestEvent();
 		}
 		

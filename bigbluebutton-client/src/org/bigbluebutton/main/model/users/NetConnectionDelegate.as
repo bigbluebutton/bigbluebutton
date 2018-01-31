@@ -80,7 +80,6 @@ package org.bigbluebutton.main.model.users
             dispatcher = new Dispatcher();
             _netConnection = new NetConnection();
 						_netConnection.objectEncoding = ObjectEncoding.AMF3;
-            
             _netConnection.client = this;
             _netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
             _netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
@@ -222,8 +221,6 @@ package org.bigbluebutton.main.model.users
               authToken);
 
             var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(body);
-
-            LOGGER.debug("msg \n" + JSON.stringify(message));
 
             sendMessage2x(
                 // result - On successful result
@@ -417,24 +414,21 @@ package org.bigbluebutton.main.model.users
 								
 								if (BBB.initConnectionManager().isTunnelling) {
 									var tunnelProtocol: String = ConnUtil.RTMPT;
-									
 									if (useRTMPS) {
 										_netConnection.proxyType = ConnUtil.PROXY_NONE;
 										tunnelProtocol = ConnUtil.RTMPS;
 									}
-									
-
+								
 									bbbAppsUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
-									LOGGER.debug("******* BBB APPS CONNECT tunnel = TRUE " + "url=" +  bbbAppsUrl);
+									LOGGER.debug("BBB APPS CONNECT tunnel = TRUE " + "url=" +  bbbAppsUrl);
 								} else {
 									var nativeProtocol: String = ConnUtil.RTMP;
 									if (useRTMPS) {
 										_netConnection.proxyType = ConnUtil.PROXY_BEST;
 										nativeProtocol = ConnUtil.RTMPS;
 									}
-
 									bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
-									LOGGER.debug("******* BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
+									LOGGER.debug("BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
                 }
 
                 var logData:Object = UsersUtil.initLogData();

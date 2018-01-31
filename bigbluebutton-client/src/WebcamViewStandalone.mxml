@@ -102,8 +102,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function connect(url:String):void {
         nc = new NetConnection();
-	nc.proxyType = "best";
-	nc.objectEncoding = ObjectEncoding.AMF3;
+				nc.proxyType = "best";
+				nc.objectEncoding = ObjectEncoding.AMF3;
         nc.client = this;
         nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
         nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);

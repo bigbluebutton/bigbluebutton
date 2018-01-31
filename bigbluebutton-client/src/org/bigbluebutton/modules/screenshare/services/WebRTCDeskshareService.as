@@ -50,7 +50,6 @@ package org.bigbluebutton.modules.screenshare.services
 			this.module = module;
 		}
 
-
 		public function getConnection():NetConnection{
 			return red5conn.getConnection();
 		}

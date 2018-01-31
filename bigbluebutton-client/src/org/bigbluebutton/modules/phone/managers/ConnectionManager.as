@@ -114,6 +114,8 @@ package org.bigbluebutton.modules.phone.managers {
 					LOGGER.debug("BBB SIP CONNECT tunnel = FALSE " + "url=" +  uri);
 				}
 				
+				LOGGER.debug("VOICE CONF == Connecting to uri=[{0}]", [uri]);
+				
 				netConnection.objectEncoding = ObjectEncoding.AMF3;
 				netConnection.client = this;
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );

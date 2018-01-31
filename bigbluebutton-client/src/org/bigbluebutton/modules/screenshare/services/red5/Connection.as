@@ -27,15 +27,15 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.core.BBB;
-    import org.bigbluebutton.core.Options;
+		import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.main.events.BBBEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-    import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-    import org.bigbluebutton.util.ConnUtil;
-    
+		import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+		import org.bigbluebutton.util.ConnUtil;
+
     public class Connection {
         private static const LOGGER:ILogger = getClassLogger(Connection);
         
@@ -52,50 +52,45 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 				private var ssAppUrl: String = null;
 				private var numNetworkChangeCount:int = 0;
 				
-        
-        public function connect():void {
-
-					netConnection = new NetConnection();
-					netConnection.objectEncoding = ObjectEncoding.AMF3;
+			public function connect():void {
+				netConnection = new NetConnection();
+				netConnection.objectEncoding = ObjectEncoding.AMF3;
+				
+				var options: ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+				var appURL: String = options.uri;
+				
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+				var result:Array = pattern.exec(appURL);
+			
+				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+				
+				if (BBB.initConnectionManager().isTunnelling) {
+					var tunnelProtocol: String = ConnUtil.RTMPT;
+				
+					if (useRTMPS) {
+						netConnection.proxyType = ConnUtil.PROXY_NONE;
+						tunnelProtocol = ConnUtil.RTMPS;
+					}
 					
-						var options: ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
-						var appURL: String = options.uri;
-						
-						var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-						var result:Array = pattern.exec(appURL);
-
-						var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
-						
-						if (BBB.initConnectionManager().isTunnelling) {
-							var tunnelProtocol: String = ConnUtil.RTMPT;
-							
-							if (useRTMPS) {
-								netConnection.proxyType = ConnUtil.PROXY_NONE;
-								tunnelProtocol = ConnUtil.RTMPS;
-							}
-							
-							
-							ssAppUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
-							LOGGER.debug("SCREENSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
-						} else {
-							var nativeProtocol: String = ConnUtil.RTMP;
-							if (useRTMPS) {
-								netConnection.proxyType = ConnUtil.PROXY_BEST;
-								nativeProtocol = ConnUtil.RTMPS;
-							}
-							
-							ssAppUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
-							LOGGER.debug("SCREENSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
-						}
-						
-            netConnection.client = this;
-            netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatusHandler);
-            netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-
-            LOGGER.debug("Connecting to uri=[{0}]", [ssAppUrl]);
-            netConnection.connect(ssAppUrl);
-            
-        }
+					ssAppUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
+					LOGGER.debug("SCREENSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
+				} else {
+					var nativeProtocol: String = ConnUtil.RTMP;
+					if (useRTMPS) {
+						netConnection.proxyType = ConnUtil.PROXY_BEST;
+						nativeProtocol = ConnUtil.RTMPS;
+					}
+				
+					ssAppUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
+					LOGGER.debug("SCREENSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
+				}
+				
+				netConnection.client = this;
+				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatusHandler);
+				netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+				LOGGER.debug("Connecting to uri=[{0}]", [ssAppUrl]);
+				netConnection.connect(ssAppUrl);
+			}
         
         public function addMessageListener(listener:IMessageListener):void {
             _messageListeners.push(listener);
@@ -234,7 +229,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                // LOGGER.error(status);
             }, message);
         }
-                
+
         public function onBWCheck(... rest):Number {
             return 0;
         }

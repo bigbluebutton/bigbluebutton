@@ -39,11 +39,11 @@ package org.bigbluebutton.main.views
 
         public function VideoWithWarnings() {
             super();
-
-            this.addEventListener(FlexEvent.CREATION_COMPLETE , creationCompleteHandler);
         }
 
-        private function creationCompleteHandler(e:FlexEvent):void {
+        override protected function creationCompleteHandler(e:FlexEvent):void {
+			super.creationCompleteHandler(e);
+
             _video.smoothing = true;
             _videoHolder.addChild(_video);
 

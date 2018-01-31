@@ -139,7 +139,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
-					
 					if (useRTMPS) {
 						nc.proxyType = ConnUtil.PROXY_NONE;
 						tunnelProtocol = ConnUtil.RTMPS;
@@ -154,11 +153,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						nc.proxyType = ConnUtil.PROXY_BEST;
 						nativeProtocol = ConnUtil.RTMPS;
 					}
-					
+				
 					ssAppUrl = nativeProtocol + "://" + result.serverAndApp;
 					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
 				}
-
+				
 				nc.objectEncoding = ObjectEncoding.AMF3;
 				nc.client = this;
 

@@ -9,6 +9,7 @@
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const Video = require('./video');
 const C = require('../bbb/messages/Constants');
+const Logger = require('../utils/Logger');
 
 let sessions = {};
 
@@ -20,11 +21,9 @@ let redisGateway;
 bbbGW.addSubscribeChannel(C.TO_VIDEO).then((gw) => {
   redisGateway = gw;
   redisGateway.on(C.REDIS_MESSAGE, _onMessage);
-  console.log('  [VideoManager] Successfully subscribed to redis channel ' + C.TO_VIDEO);
-
 });
 
-var _onMessage = function (_message) {
+let _onMessage = async function (_message) {
   let message = _message;
   let sessionId = message.connectionId;
   let video;
@@ -62,7 +61,8 @@ var _onMessage = function (_message) {
 
   switch (message.id) {
     case 'start':
-      console.log('[' + message.id + '] connection ' + sessionId + " message => " + JSON.stringify(message, null, 2));
+      Logger.info('[VideoManager] Received message [' + message.id + '] from connection ' + sessionId);
+      Logger.debug('[VideoManager] Message =>', JSON.stringify(message, null, 2));
 
       video = new Video(bbbGW, message.cameraId, shared, message.connectionId);
 
@@ -101,13 +101,10 @@ var _onMessage = function (_message) {
       break;
 
     case 'stop':
-
-      console.log('[' + message.id + '] connection ' + sessionId + " with message => " + JSON.stringify(message, null, 2));
-
       if (video) {
         stopVideo(sessionId, role, message.cameraId);
       } else {
-        console.log(" [stop] Why is there no video on STOP?");
+        Logger.warn("[VideoManager] There is no video instance named", cameraId, "to stop");
       }
       break;
 
@@ -116,7 +113,7 @@ var _onMessage = function (_message) {
       if (video) {
         video.onIceCandidate(message.candidate);
       } else {
-        console.log(" [iceCandidate] Queueing ice candidate for later in video " + cameraId);
+        Logger.info("[VideoManager] Queueing ice candidate for later in video", cameraId);
         if (!iceQueue) {
           iceQueues[sessionId][cameraId] = [];
           iceQueue = iceQueues[sessionId][cameraId];
@@ -127,7 +124,7 @@ var _onMessage = function (_message) {
       break;
 
     case 'close':
-      console.log(" [vide] Closing session for sessionId: " + sessionId);
+      Logger.info("[VideoManager] Closing session for sessionId: ", sessionId);
 
       stopSession(sessionId);
 
@@ -159,13 +156,13 @@ let stopSession = async function(sessionId) {
 }
 
 let stopVideo = async function(sessionId, role, cameraId) {
-  console.log('  [VideoManager/x] Stopping session ' + sessionId + " with role " + role + " for camera " + cameraId);
+  Logger.info('[VideoManager/x] Stopping session ' + sessionId + " with role " + role + " for camera " + cameraId);
 
   try {
     if (role === 'share') {
       var sharedVideo = sessions[sessionId][cameraId+'-shared'];
       if (sharedVideo) {
-        console.log('  [VideoManager] Stopping sharer [', sessionId, '][', cameraId,']');
+        Logger.info('[VideoManager] Stopping sharer [', sessionId, '][', cameraId,']');
         await sharedVideo.stop();
         delete sessions[sessionId][cameraId+'-shared'];
       }
@@ -173,19 +170,19 @@ let stopVideo = async function(sessionId, role, cameraId) {
     else if (role === 'viewer') {
       var video = sessions[sessionId][cameraId];
       if (video) {
-        console.log('  [VideoManager] Stopping viewer [', sessionId, '][', cameraId,']');
+        Logger.info('[VideoManager] Stopping viewer [', sessionId, '][', cameraId,']');
         await video.stop();
         delete sessions[sessionId][cameraId];
       }
     }
   }
   catch (err) {
-    console.log("  [VideoManager] Stop error => ", err);
+    Logger.error("[VideoManager] Stop error => ", err);
   }
 }
 
 let stopAll = function() {
-  console.log('  [Video/x] Stopping everything! ');
+  Logger.info('[VideoManager] Stopping everything! ');
 
   if (sessions == null) {
     return;
@@ -202,14 +199,15 @@ let stopAll = function() {
 
 let logAvailableSessions = function() {
   if(sessions) {
-    console.log("  [VideoManager] Available sessions are =>");
+    Logger.info("[VideoManager] Available sessions are =>");
     let sessionMainKeys = Object.keys(sessions);
     for (var k in sessions) {
       if(sessions[k]) {
-        console.log('  [VideoManager] Session[', k,'] => ', Object.keys(sessions[k]));
+        Logger.info('[VideoManager] Session[', k,'] => ', Object.keys(sessions[k]));
       }
     }
   }
+
 }
 
 process.on('SIGTERM', stopAll);

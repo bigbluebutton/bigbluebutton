@@ -1,16 +1,13 @@
 'use strict';
-// Global stuff
-var sharedWebcams = {};
 
 const kurento = require('kurento-client');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
 const C = require('../bbb/messages/Constants');
+const Logger = require('../utils/Logger');
 
-if (config.get('acceptSelfSignedCertificate')) {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED=0;
-}
+var sharedWebcams = {};
 
 module.exports = class Video {
   constructor(_bbbGW, _id, _shared, _sessionId) {
@@ -35,7 +32,7 @@ module.exports = class Video {
         this.mcs.addIceCandidate(this.mediaId, _candidate);
       }
       catch (err)   {
-        console.log(err);
+        Logger.error("[video] ICE candidate could not be added to media controller.", err);
       }
     }
     else {
@@ -52,7 +49,7 @@ module.exports = class Video {
         }
       }
       catch (err) {
-        console.log(err);
+        Logger.error("[video] ICE candidate could not be added to media controller.", err);
       }
     }
   }
@@ -63,8 +60,8 @@ module.exports = class Video {
     switch (event.eventTag) {
 
       case "OnIceCandidate":
-        //console.log("  [video] Sending ICE candidate to user => " + this.id);
         let candidate = msEvent.candidate;
+        Logger.debug("[video] Sending ICE candidate to user", this.id, "with candidate", candidate);
         this.bbbGW.publish(JSON.stringify({
           connectionId: this.sessionId,
           type: 'video',
@@ -80,7 +77,7 @@ module.exports = class Video {
 
       case "MediaFlowOutStateChange":
       case "MediaFlowInStateChange":
-        console.log(' [video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for endpoint ' + this.id);
+        Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.id);
 
         if (msEvent.state === 'NOT_FLOWING') {
           this.bbbGW.publish(JSON.stringify({
@@ -103,17 +100,17 @@ module.exports = class Video {
 
         break;
 
-      default: console.log("  [video] Unrecognized event");
+      default: Logger.warn("[video] Unrecognized event");
     }
   }
 
   async start (sdpOffer, callback) {
-    console.log("  [video] start");
+    Logger.info("[video] Starting video instance for", this.id);
     let sdpAnswer;
 
     try {
       this.userId = await this.mcs.join(this.meetingId, 'SFU', {});
-      console.log("  [video] Join returned => " + this.userId);
+      Logger.info("[video] MCS join for", this.id, "returned", this.userId);
 
       if (this.shared) {
         const ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
@@ -124,7 +121,7 @@ module.exports = class Video {
         this.flushCandidatesQueue();
         this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
 
-        console.log("  [video] Publish returned => " + this.mediaId);
+        Logger.info("[video] MCS publish for user", this.userId, "returned", this.mediaId);
 
         return callback(null, sdpAnswer);
       }
@@ -136,19 +133,19 @@ module.exports = class Video {
         this.flushCandidatesQueue();
         this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
 
-        console.log("  [video] Subscribe for user ", this.userId, " returned => " + this.mediaId);
+        Logger.info("[video] MCS subscribe for user", this.userId, "returned", this.mediaId);
 
         return callback(null, sdpAnswer);
       }
     }
     catch (err) {
-      console.log("  [video] MCS returned error => " + err);
+      Logger.error("[video] MCS returned error => " + err);
       return callback(err);
     }
   };
 
   async stop () {
-    console.log(' [stop] Releasing endpoints for user ' + this.userId + ' at room ' + this.meetingId);
+    Logger.info('[video] Releasing endpoints for user', this.userId, 'at room', this.meetingId);
 
     try {
       await this.mcs.leave(this.meetingId, this.userId);
