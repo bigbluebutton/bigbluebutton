@@ -112,7 +112,8 @@ package org.bigbluebutton.lib.video.services {
 		
 		public function connect():void {
       trace("Video connect");
-			baseConnection.connect(uri, conferenceParameters.meetingID, userSession.userId);
+	  		trace("Don't connect to video yet because it needs to have auth token added");
+			//baseConnection.connect(uri, conferenceParameters.meetingID, userSession.userId);
 		}
 		
 		public function disconnect(onUserCommand:Boolean):void {
