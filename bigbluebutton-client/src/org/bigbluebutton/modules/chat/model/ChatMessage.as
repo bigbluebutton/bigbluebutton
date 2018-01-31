@@ -17,6 +17,9 @@
 *
 */
 package org.bigbluebutton.modules.chat.model {
+	import org.as3commons.lang.StringUtils;
+	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatMessage {
@@ -30,16 +33,27 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var lastTime:String;
 		[Bindable] public var text:String;
 
-	
-    // Stores the time (millis) when the sender sent the message.
-    public var fromTime:Number;
-    // Stores the timezone offset (minutes) of the sender.
-    public var fromTimezoneOffset:Number;
-	
-	/*
-    // Stores what we display to the user. The converted fromTime and fromTimezoneOffset to local time.
-    [Bindable] public var senderTime:String;
-    */
+	    // Stores the time (millis) when the sender sent the message.
+	    public var fromTime:Number;
+	    // Stores the timezone offset (minutes) of the sender.
+	    public var fromTimezoneOffset:Number;
+
+		/*
+	    // Stores what we display to the user. The converted fromTime and fromTimezoneOffset to local time.
+	    [Bindable] public var senderTime:String;
+	    */
+		
+		public function get differentLastSenderAndTime():Boolean {
+			return !(lastTime == time) || !sameLastSender;
+		}
+		
+		public function get sameLastSender() : Boolean {
+			return StringUtils.trimToEmpty(senderId) == StringUtils.trimToEmpty(lastSenderId);
+		}
+		
+		public function get isModerator():Boolean {
+			return UsersUtil.getUser(senderId) && UsersUtil.getUser(senderId).role == Role.MODERATOR
+		}
 		
 		public function toString() : String {
 			var result:String;

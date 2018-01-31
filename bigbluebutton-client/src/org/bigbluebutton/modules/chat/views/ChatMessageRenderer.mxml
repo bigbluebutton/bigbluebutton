@@ -22,19 +22,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:common="org.bigbluebutton.common.*"
 		 verticalScrollPolicy="off" horizontalScrollPolicy="off"
-		 xmlns:common="org.bigbluebutton.common.*">
+		 dataChange="dataChangeHandler(event)"
+		 >
 	
 	<fx:Script>
 		<![CDATA[
 			import mx.core.UITextField;
 			import mx.core.mx_internal;
+			import mx.events.FlexEvent;
 			
-			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.core.UsersUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(ChatMessageRenderer);      
 
@@ -45,50 +45,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			//private function dataChangeHandler(e:Event = null):void{
-			override public function set data(value:Object):void {
-				//if (data == null) {
-				//	return;
-				//}		
-				super.data = value;
-				
-				//chatMsg = data as ChatMessage;
-				//data = null;
-				
-				if (data == null) return;
-				
-				// The visibility check has to go here becasue ORs don't work with databinding
-				lblTime.visible = (!(data.lastTime == data.time) || !(data.senderId == data.lastSenderId));
-				// check the visibility of the name as well because events might fire in different order
-				lblName.visible = !(StringUtils.trimToEmpty(data.senderId) == StringUtils.trimToEmpty(data.lastSenderId));
-				
-				//remove the header if not needed to save space
-				hbHeader.includeInLayout = hbHeader.visible = lblName.visible || lblTime.visible;
-				
-				if (data.hasOwnProperty("senderId") && UsersUtil.getUser(data.senderId) && UsersUtil.getUser(data.senderId).role == Role.MODERATOR) {
-					lblName.styleName = "chatMessageHeaderModerator";
-					moderatorIcon.visible = lblName.visible;
-				}
-				
-				// If you remove this some of the chat messages will fail to render
-				validateNow();
-			}
-			
 			private function onKeyDown(event:KeyboardEvent):void{
 				if(event.ctrlKey == true && event.keyCode == Keyboard.C){
 					System.setClipboard(UITextField(txtMessage.mx_internal::getTextField()).selectedText);
 				}
 			}
-						
+
+			protected function dataChangeHandler(event:FlexEvent):void {
+				// If you remove this some of the chat messages will fail to render
+				validateNow();
+			}
 		]]>
 	</fx:Script>
 	
-  <mx:Canvas width="100%" id="hbHeader" styleName="chatMessageHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-    <mx:Label id="lblName" text="{data.name}" visible="true" verticalCenter="0" textAlign="left" left="0" maxWidth="{this.width - lblTime.width - moderatorIcon.width - 22}"/>
-	<mx:Image id="moderatorIcon" visible="false" source="{getStyle('moderatorIcon')}" x="{lblName.width + 4}" verticalCenter="0"/>
-    <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
+  <mx:Canvas width="100%" id="hbHeader" styleName="chatMessageHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off"
+			 visible="{lblName.visible || lblTime.visible}" includeInLayout="{lblName.visible || lblTime.visible}">
+    <mx:Label id="lblName" text="{data.name}" visible="{!data.sameLastSender}"
+			  verticalCenter="0" textAlign="left" left="0" maxWidth="{this.width - lblTime.width - moderatorIcon.width - 22}"
+			  styleName="{data.isModerator ? 'chatMessageHeaderModerator' : ''}"/>
+	<mx:Image id="moderatorIcon" visible="{lblName.visible &amp;&amp; data.isModerator}"
+			  source="{getStyle('moderatorIcon')}" x="{lblName.width + 4}" verticalCenter="0"/>
+    <mx:Text id="lblTime" visible="{data.differentLastSenderAndTime}" htmlText="{data.time}" textAlign="right"
 			 verticalCenter="0"
-             visible="true"
              right="4" />
   </mx:Canvas>
   <mx:Text id="txtMessage" htmlText="{data.text}" link="onLinkClick(event)" color="{data.senderColor}"
