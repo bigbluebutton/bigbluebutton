@@ -58,6 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -74,6 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
+			import org.bigbluebutton.util.ConnUtil;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopPublishWindow);
@@ -240,13 +242,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 				connection = new NetConnection();
-				connection.proxyType = "best";
-				connection.objectEncoding = ObjectEncoding.AMF0;
+				
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<serverAndApp>.+)/;
+				var result:Array = pattern.exec(meetingUrl);
+				
+				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+				var ssAppUrl: String = null;
+				
+				if (BBB.initConnectionManager().isTunnelling) {
+					var tunnelProtocol: String = ConnUtil.RTMPT;
+					
+					if (useRTMPS) {
+						connection.proxyType = ConnUtil.PROXY_NONE;
+						tunnelProtocol = ConnUtil.RTMPS;
+					}
+					
+					
+					ssAppUrl = tunnelProtocol + "://" + result.serverAndApp;
+					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
+				} else {
+					var nativeProtocol: String = ConnUtil.RTMP;
+					if (useRTMPS) {
+						connection.proxyType = ConnUtil.PROXY_BEST;
+						nativeProtocol = ConnUtil.RTMPS;
+					}
+					
+					ssAppUrl = nativeProtocol + "://" + result.serverAndApp;
+					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
+				}
+				
+				connection.objectEncoding = ObjectEncoding.AMF3;
 				connection.client = this;
 
 				connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 				connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-				connection.connect(meetingUrl);
+				connection.connect(ssAppUrl);
 			}
 
 			private function netStatusHandler(event:NetStatusEvent):void {
@@ -268,7 +298,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.Closed":
-						trace("Deskshare connection closed.");
+						LOGGER.debug("Deskshare connection closed.");
 						ce.status = WebRTCConnectionEvent.CLOSED;
 						break;
 
@@ -281,7 +311,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.NetworkChange":
-						trace("Detected network change. User might be on a wireless and " +
+						LOGGER.debug("Detected network change. User might be on a wireless and " +
 							"temporarily dropped connection. Doing nothing. Just making a note.");
 						break;
 				}

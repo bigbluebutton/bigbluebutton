@@ -72,7 +72,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         logoutURL = p.getParameter("LOGOUTURL");
         host = p.getParameter("HOST");
         room = p.getParameter("ROOM");
-        service.connect(host, room);
+        service.connect();
         
         cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
         cursor.graphics.drawCircle(0,0,3);				

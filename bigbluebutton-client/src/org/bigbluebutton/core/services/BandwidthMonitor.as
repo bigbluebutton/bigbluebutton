@@ -25,7 +25,11 @@ package org.bigbluebutton.core.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.Options;
+  import org.bigbluebutton.core.model.BandwidthMonOptions;
   import org.bigbluebutton.main.model.NetworkStatsData;
+  import org.bigbluebutton.util.ConnUtil;
   import org.red5.flash.bwcheck.ClientServerBandwidth;
   import org.red5.flash.bwcheck.ServerClientBandwidth;
   import org.red5.flash.bwcheck.events.BandwidthDetectEvent;
@@ -35,8 +39,6 @@ package org.bigbluebutton.core.services
     public static const INTERVAL_BETWEEN_CHECKS:int = 30000; // in ms
 
     private static var _instance:BandwidthMonitor = null;
-    private var _serverURL:String = "localhost";
-    private var _serverApplication:String = "video";
     private var _clientServerService:String = "checkBandwidthUp";
     private var _serverClientService:String = "checkBandwidth";
     private var _pendingClientToServer:Boolean;
@@ -83,26 +85,43 @@ package org.bigbluebutton.core.services
         }
         return _instance;
     }
-
-    public function set serverURL(url:String):void {
-        if (_nc.connected)
-            _nc.close();
-        _serverURL = url;
-    }
-    
-    public function set serverApplication(app:String):void {
-        if (_nc.connected)
-            _nc.close();
-        _serverApplication = app;
-    }
-
+		
     public function start():void {
       connect();
     }
        
     private function connect():void {
         if (!_nc.connected && !_connecting) {
-            _nc.connect("rtmp://" + _serverURL + "/" + _serverApplication);
+					var bwMonOption:BandwidthMonOptions = Options.getOptions(BandwidthMonOptions) as BandwidthMonOptions;
+					
+					var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
+					var result:Array = pattern.exec(bwMonOption.server);
+					
+					var bwMonUrl: String;
+					var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+					if (BBB.initConnectionManager().isTunnelling) {
+						var tunnelProtocol: String = ConnUtil.RTMPT;
+						
+						if (useRTMPS) {
+							_nc.proxyType = ConnUtil.PROXY_NONE;
+							tunnelProtocol = ConnUtil.RTMPS;
+						}
+						
+						
+						bwMonUrl = tunnelProtocol + "://" + result.server + "/" + bwMonOption.application;
+						LOGGER.debug("BW MON CONNECT tunnel = TRUE " + "url=" +  bwMonUrl);
+					} else {
+						var nativeProtocol: String = ConnUtil.RTMP;
+						if (useRTMPS) {
+							_nc.proxyType = ConnUtil.PROXY_BEST;
+							nativeProtocol = ConnUtil.RTMPS;
+						}
+						
+						bwMonUrl = nativeProtocol + "://" + result.server + "/" + bwMonOption.application;
+						LOGGER.debug("BBB MON CONNECT tunnel = FALSE " + "url=" +  bwMonUrl);
+					}
+					
+            _nc.connect(bwMonUrl);
             _connecting = true;
         }
     }
