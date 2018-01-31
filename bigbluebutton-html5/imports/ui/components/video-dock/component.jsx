@@ -596,13 +596,12 @@ class VideoDock extends Component {
       present[id] = true;
     });
 
-    console.log(users);
     const userIds = Object.keys(users);
 
     for (let i = 0; i < userIds.length; i++) {
       let id = userIds[i];
 
-      // 
+      // If a userId is not present in nextUsers let's stop it
       if (!present[id]) {
         this.stop(id);
         continue;
@@ -610,6 +609,8 @@ class VideoDock extends Component {
 
       console.log(`User ${users[id] ? '' : 'un'}shared webcam ${id}`);
 
+      // If a user stream is true, changed and was shared by other
+      // user we'll start it. If it is false and changed we stop it
       if (users[id]) {
         if (userId !== id) {
           this.start(id, false);
