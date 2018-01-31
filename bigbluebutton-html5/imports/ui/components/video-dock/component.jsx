@@ -32,7 +32,7 @@ const intlMessages = defineMessages({
 
 const RECONNECT_WAIT_TIME = 5000;
 const INITIAL_SHARE_WAIT_TIME = 2000;
-const CAMERA_SHARE_FAILED_WAIT_TIME = 15000;
+const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
 
 class VideoElement extends Component {
   constructor(props) {
@@ -231,8 +231,8 @@ class VideoDock extends Component {
     this.cameraTimeouts[id] = setTimeout(() => {
       log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
       if (that.myId == id) {
-        this.notifyError(intl.formatMessage(intlMessages.sharingError));
-        that.stop(id);
+        that.notifyError(intl.formatMessage(intlMessages.sharingError));
+        that.unshareWebcam();
       } else {
         that.stop(id);
         that.start(id, shareWebcam);
