@@ -96,7 +96,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 				
 					videoConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
-					trace("******* VIDEO CONNECT tunnel = TRUE " + "url=" +  videoConnUrl);
+					LOGGER.debug("VIDEO CONNECT tunnel = TRUE " + "url=" +  videoConnUrl);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -105,7 +105,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 				
 					videoConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
-					trace("******* VIDEO CONNECT tunnel = FALSE " + "url=" +  videoConnUrl);
+					LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  videoConnUrl);
 				}
 				
 				videoConnUrl = videoConnUrl + "/" + UsersUtil.getInternalMeetingID();

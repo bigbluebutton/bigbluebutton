@@ -219,8 +219,6 @@ package org.bigbluebutton.main.model.users
 
             var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(body);
 
-            LOGGER.debug("******* msg \n" + JSON.stringify(message));
-
             sendMessage2x(
                 // result - On successful result
                 function(result:Object):void { 
@@ -417,7 +415,7 @@ package org.bigbluebutton.main.model.users
 									}
 								
 									bbbAppsUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
-									trace("******* BBB APPS CONNECT tunnel = TRUE " + "url=" +  bbbAppsUrl);
+									LOGGER.debug("BBB APPS CONNECT tunnel = TRUE " + "url=" +  bbbAppsUrl);
 								} else {
 									var nativeProtocol: String = ConnUtil.RTMP;
 									if (useRTMPS) {
@@ -426,7 +424,7 @@ package org.bigbluebutton.main.model.users
 									}
 								
 									bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
-									trace("******* BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
+									LOGGER.debug("BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
 								
                 }
 

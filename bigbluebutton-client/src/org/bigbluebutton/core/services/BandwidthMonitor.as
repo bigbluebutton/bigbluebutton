@@ -109,7 +109,7 @@ package org.bigbluebutton.core.services
 						
 						
 						bwMonUrl = tunnelProtocol + "://" + result.server + "/" + bwMonOption.application;
-						trace("******* BW MON CONNECT tunnel = TRUE " + "url=" +  bwMonUrl);
+						LOGGER.debug("BW MON CONNECT tunnel = TRUE " + "url=" +  bwMonUrl);
 					} else {
 						var nativeProtocol: String = ConnUtil.RTMP;
 						if (useRTMPS) {
@@ -118,7 +118,7 @@ package org.bigbluebutton.core.services
 						}
 						
 						bwMonUrl = nativeProtocol + "://" + result.server + "/" + bwMonOption.application;
-						trace("******* BBB MON CONNECT tunnel = FALSE " + "url=" +  bwMonUrl);
+						LOGGER.debug("BBB MON CONNECT tunnel = FALSE " + "url=" +  bwMonUrl);
 					}
 					
             _nc.connect(bwMonUrl);

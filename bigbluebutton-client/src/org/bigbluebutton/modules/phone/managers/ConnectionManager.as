@@ -104,7 +104,7 @@ package org.bigbluebutton.modules.phone.managers {
 					}
 						
 					uri = tunnelProtocol + "://" + result.server + "/" + result.app;
-					trace("******* BBB SIP CONNECT tunnel = TRUE " + "url=" +  uri);
+					LOGGER.debug("BBB SIP CONNECT tunnel = TRUE " + "url=" +  uri);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -113,10 +113,10 @@ package org.bigbluebutton.modules.phone.managers {
 					}
 					
 					uri = nativeProtocol + "://" + result.server + "/" + result.app;
-					trace("******* BBB SIP CONNECT tunnel = FALSE " + "url=" +  uri);
+					LOGGER.debug("BBB SIP CONNECT tunnel = FALSE " + "url=" +  uri);
 				}
 				
-				LOGGER.debug("******** VOICE CONF == Connecting to uri=[{0}]", [uri]);
+				LOGGER.debug("VOICE CONF == Connecting to uri=[{0}]", [uri]);
 				
 				netConnection.objectEncoding = ObjectEncoding.AMF3;
 
