@@ -41,7 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private static const LOGGER:ILogger = getClassLogger(ScreenshareModule);
       
       private var _moduleName:String = "Desk Share";
-      
+
       private var globalDispatcher:Dispatcher = new Dispatcher();;
       
       private function onCreationComplete():void{
@@ -53,8 +53,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       public function start(attributes:Object):void{
-        LOGGER.debug("desk share attr: " + attributes.username);
-
+        LOGGER.debug("desk share attr: " + attributes.username)
+        
         var startEvent:ModuleEvent = new ModuleEvent(ModuleEvent.START);
         startEvent.module = this;
         globalDispatcher.dispatchEvent(startEvent);

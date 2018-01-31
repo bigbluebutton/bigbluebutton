@@ -2,12 +2,10 @@
 
 const ws = require('ws');
 const C = require('../bbb/messages/Constants');
+const Logger = require('../utils/Logger');
 
-// initialization
+// ID counter
 let connectionIDCounter = 0;
-
-// when handling a new connection
-
 
 ws.prototype.setErrorCallback = function(callback) {
 
@@ -19,13 +17,13 @@ ws.prototype.sendMessage = function(json) {
   let websocket = this;
 
   if (this._closeCode === 1000) {
-    console.log("  [WebsocketConnectionManager] Websocket closed, not sending");
-    this._errorCallback("Error: not opened");
+    Logger.error("[WebsocketConnectionManager] Websocket closed, not sending");
+    this._errorCallback("[WebsocketConnectionManager] Error: not opened");
   }
 
   return this.send(JSON.stringify(json), function(error) {
     if(error) {
-      console.log('  [WebsocketConnectionManager] server: Websocket error "' + error + '" on message "' + json.id + '"');
+      Logger.error('[WebsocketConnectionManager] Websocket error "' + error + '" on message "' + json.id + '"');
 
       websocket._errorCallback(error);
     }
@@ -45,7 +43,7 @@ module.exports = class WebsocketConnectionManager {
 
       ws.id = connectionIDCounter++;
 
-      console.log(" [WebsocketConnectionManager] New connection with id [ " + ws.id + " ]");
+      Logger.info("[WebsocketConnectionManager] New connection with id [ " + ws.id + " ]");
 
       ws.on('message', (data) => {
         let message = {};
@@ -80,7 +78,7 @@ module.exports = class WebsocketConnectionManager {
       ws.setErrorCallback(this._onError.bind(this));
 
       ws.on('close', (ev) => {
-        console.log('  [WebsocketConnectionManager] Closed connection on [' + ws.id + ']');
+        Logger.info('[WebsocketConnectionManager] Closed connection on [' + ws.id + ']');
         let message = {
           id: 'close',
           type: ws.route,
@@ -95,7 +93,7 @@ module.exports = class WebsocketConnectionManager {
       });
 
       ws.on('error', (err) => {
-        console.log('  [WebsocketConnectionManager] Connection error [' + ws.id + ']');
+        Logger.error('[WebsocketConnectionManager] Connection error [' + ws.id + ']');
         let message = {
           id: 'error',
           type: ws.route,
@@ -145,7 +143,7 @@ module.exports = class WebsocketConnectionManager {
   }
 
   _onError (err) {
-    console.log('  [WebsocketConnectionManager] Connection error');
+    Logger.error('[WebsocketConnectionManager] Connection error');
     let message = {
       id: 'error',
       voiceBridge: ws.sessionId,
@@ -155,7 +153,7 @@ module.exports = class WebsocketConnectionManager {
   }
 
   _onClose (err) {
-    console.log('  [WebsocketConnectionManager] Closed connection [' + this.id + ']');
+    Logger.info('[WebsocketConnectionManager] Closed connection [' + this.id + ']');
     let message = {
       id: 'close',
       voiceBridge: this.sessionId,

@@ -42,7 +42,6 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 	import org.bigbluebutton.util.ConnUtil;
-
 	
 	public class VideoProxy
 	{	
@@ -66,7 +65,6 @@ package org.bigbluebutton.modules.videoconf.business
 		{
 			parseOptions();			
 			nc = new NetConnection();
-			nc.objectEncoding = ObjectEncoding.AMF3;
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
@@ -79,40 +77,41 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function connect():void {
-			var options: VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
-			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-			var result:Array = pattern.exec(options.uri);
-			
-			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
-			if (BBB.initConnectionManager().isTunnelling) {
-				var tunnelProtocol: String = ConnUtil.RTMPT;
+				var options: VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+				var result:Array = pattern.exec(options.uri);
 				
-				if (useRTMPS) {
-					nc.proxyType = ConnUtil.PROXY_NONE;
-					tunnelProtocol = ConnUtil.RTMPS;
+				
+				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+				if (BBB.initConnectionManager().isTunnelling) {
+					var tunnelProtocol: String = ConnUtil.RTMPT;
+				
+					if (useRTMPS) {
+						nc.proxyType = ConnUtil.PROXY_NONE;
+						tunnelProtocol = ConnUtil.RTMPS;
+					}
+				
+					videoConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
+					LOGGER.debug("VIDEO CONNECT tunnel = TRUE " + "url=" +  videoConnUrl);
+				} else {
+					var nativeProtocol: String = ConnUtil.RTMP;
+					if (useRTMPS) {
+						nc.proxyType = ConnUtil.PROXY_BEST;
+						nativeProtocol = ConnUtil.RTMPS;
+					}
+				
+					videoConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
+					LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  videoConnUrl);
 				}
 				
-				
-				videoConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
-				LOGGER.debug("VIDEO CONNECT tunnel = TRUE " + "url=" +  videoConnUrl);
-			} else {
-				var nativeProtocol: String = ConnUtil.RTMP;
-				if (useRTMPS) {
-					nc.proxyType = ConnUtil.PROXY_BEST;
-					nativeProtocol = ConnUtil.RTMPS;
-				}
-					
-				videoConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
-				LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  videoConnUrl);
-			}
-				
-			videoConnUrl = videoConnUrl + "/" + UsersUtil.getInternalMeetingID();
-			
-			var authToken: String = LiveMeeting.inst().me.authToken;
-			nc.connect(videoConnUrl, UsersUtil.getInternalMeetingID(), 
-				UsersUtil.getMyUserID(), authToken);
+				videoConnUrl = videoConnUrl + "/" + UsersUtil.getInternalMeetingID();
+				var authToken: String = LiveMeeting.inst().me.authToken;
+
+				nc.objectEncoding = flash.net.ObjectEncoding.AMF3;
+				nc.connect(videoConnUrl, UsersUtil.getInternalMeetingID(), 
+						UsersUtil.getMyUserID(), authToken);
 		}
-			
+	    
 		private function onAsyncError(event:AsyncErrorEvent):void{
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["webcam"];
