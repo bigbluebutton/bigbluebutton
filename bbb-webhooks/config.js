@@ -42,7 +42,7 @@ config.hooks.retryIntervals = [
 ];
 
 // Reset permanent interval when exceeding maximum attemps
-config.hooks.permanentURLsIntervalReset = 8;
+config.hooks.permanentIntervalReset = 8;
 
 // Mappings of internal to external meeting IDs
 config.mappings = {};

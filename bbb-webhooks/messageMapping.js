@@ -93,7 +93,7 @@ module.exports = class MessageMapping {
         },
         "user":{
           "internal-user-id": msgHeader.userId,
-          "external-user-id": extId,
+          "external-user-id": extId ? extId : "",
           "sharing-mic": msgBody.muted,
           "name": msgBody.name,
           "role": msgBody.role,
