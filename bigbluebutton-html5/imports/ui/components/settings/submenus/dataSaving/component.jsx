@@ -1,13 +1,9 @@
 import React from 'react';
-import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
-
-const MIN_FONTSIZE = 0;
-const MAX_FONTSIZE = 4;
 
 const intlMessages = defineMessages({
   dataSavingLabel: {

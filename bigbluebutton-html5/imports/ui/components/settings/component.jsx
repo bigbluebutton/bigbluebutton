@@ -53,7 +53,7 @@ const intlMessages = defineMessages({
     id: 'app.settings.main.save.label.description',
     description: 'Settings modal save button label',
   },
-  DataSavingLabel: {
+  dataSavingLabel: {
     id: 'app.settings.dataSaving.label',
     description: 'label for data savings tab',
   },
@@ -159,7 +159,7 @@ class Settings extends Component {
             selectedClassName={styles.selected}
           >
             <Icon iconName="more" className={styles.icon} />
-            <span id="dataSaving">{intl.formatMessage(intlMessages.DataSavingLabel)}</span>
+            <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
           </Tab>
           {/* { isModerator ? */}
           {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab"> */}

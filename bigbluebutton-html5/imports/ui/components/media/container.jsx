@@ -10,8 +10,8 @@ import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
   overlay: null,
-  content: null,
-  defaultContent: null,
+  content: <PresentationAreaContainer />,
+  defaultContent: <DefaultContent />,
 };
 
 class MediaContainer extends Component {
