@@ -563,7 +563,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 logData.message = "Loaded locale.";
                 LOGGER.info(JSON.stringify(logData));
                     
-				if ((version == "old-locales") || (version == "") || (version == null)) {
+				if ((version == "old-locales") || StringUtils.isEmpty(version)) {
 					wrongLocaleVersion();
 				} else {
 					if (version != localeVersion) wrongLocaleVersion();
