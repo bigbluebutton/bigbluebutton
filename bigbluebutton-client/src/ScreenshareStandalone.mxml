@@ -38,15 +38,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-      	
-      import mx.core.UIComponent;
-      
-      import org.bigbluebutton.modules.screenshare.events.AppletStartedEvent;
-      import org.bigbluebutton.modules.screenshare.events.CursorEvent;
-      import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-      import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
-      import org.bigbluebutton.modules.screenshare.services.red5.ConnectionEvent;
-      import org.bigbluebutton.util.QueryStringParameters;
+		import mx.core.UIComponent;
+		
+		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.modules.screenshare.events.AppletStartedEvent;
+		import org.bigbluebutton.modules.screenshare.events.CursorEvent;
+		import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+		import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
+		import org.bigbluebutton.modules.screenshare.services.red5.ConnectionEvent;
+		import org.bigbluebutton.util.QueryStringParameters;
       
       private var videoHolder:UIComponent;
       
@@ -67,7 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var videoHeight:int;
       
       private function onCreationComplete():void {			
-        var p:QueryStringParameters = new QueryStringParameters();
+        var p:QueryStringParameters = BBB.getQueryStringParameters();
         p.collectParameters();
         logoutURL = p.getParameter("LOGOUTURL");
         host = p.getParameter("HOST");

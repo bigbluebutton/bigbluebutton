@@ -14,6 +14,7 @@ package org.bigbluebutton.modules.polling.views
 	import mx.controls.HRule;
 	import mx.controls.Label;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.common.AdvancedLabel;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
@@ -130,7 +131,7 @@ package org.bigbluebutton.modules.polling.views
 				var a:SimpleAnswer = answers[j] as SimpleAnswer;
 				var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.' + a.key);
 				
-				if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+				if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
 					localizedKey = a.key
 				} 
 				resultData.push({a:localizedKey, v:0});
@@ -155,7 +156,7 @@ package org.bigbluebutton.modules.polling.views
 				var a:SimpleAnswerResult = answers[j] as SimpleAnswerResult;
 				var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.' + a.key);
 				
-				if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+				if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
 					localizedKey = a.key;
 				} 
 				

@@ -74,19 +74,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Label htmlText="{ResourceUtil.getInstance().getString('bbb.users.breakout.invited')}" paddingTop="4" />
 		<mx:Canvas>
 			<mx:Image source="{getStyle('iconRooms')}" />
-			<mx:Canvas x="16"
-					   y="47"
-					   verticalScrollPolicy="off"
-					   horizontalScrollPolicy="off"
-					   height="38"
-					   width="70">
+			<mx:Canvas x="16" y="47" height="38" width="70"
+					   verticalScrollPolicy="off" horizontalScrollPolicy="off">
 				<mx:Label id="sequenceLabel"
 						 styleName="roomNumberStyle"
 						 verticalCenter="0"
 						 horizontalCenter="0" />
 			</mx:Canvas>
 		</mx:Canvas>
-		<mx:Text width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
+		<mx:Label width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
 		<mx:Button id="joinButton"
 				   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession')}"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession.accessibilityName')}"

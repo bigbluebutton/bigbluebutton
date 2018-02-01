@@ -55,7 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.events.SuperTabEvent;
-      
+			import org.as3commons.lang.StringUtils;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.Options;
       import org.bigbluebutton.core.UsersUtil;
@@ -109,7 +109,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
       }
       
-      
       private function onCreationComplete():void{				
         openChatBoxFor(mainChatId, true);
         makePublicChatUncloseable();
@@ -142,7 +141,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var chatBox:ChatTab = getPublicChatBox();
         var saveEvent:ChatSaveEvent = new ChatSaveEvent(ChatSaveEvent.SAVE_CHAT_EVENT);
         
-        if (chatBox.chatWithUsername == null || chatBox.chatWithUsername == "") {
+        if (StringUtils.isEmpty(chatBox.chatWithUsername)) {
           saveEvent.filename = ResourceUtil.getInstance().getString('bbb.chat.save.filename');
         } else {
           saveEvent.filename = chatBox.chatWithUsername;

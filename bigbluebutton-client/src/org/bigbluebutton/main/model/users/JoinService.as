@@ -30,10 +30,10 @@ package org.bigbluebutton.main.model.users
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.MeetingNotFoundEvent;
   import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-  import org.bigbluebutton.util.QueryStringParameters;
   
   public class JoinService
   {  
@@ -50,10 +50,8 @@ package org.bigbluebutton.main.model.users
     }
     
     public function load(url:String):void {
-      var p:QueryStringParameters = new QueryStringParameters();
-      p.collectParameters();
-      var sessionToken:String = p.getParameter("sessionToken");
-      
+			var sessionToken:String = BBB.getQueryStringParameters().getSessionToken();
+			
       reqVars.sessionToken = sessionToken;
       
       var date:Date = new Date();

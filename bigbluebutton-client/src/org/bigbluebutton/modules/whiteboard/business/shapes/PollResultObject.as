@@ -317,7 +317,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var ar:Object = answers[j];
         var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key);
         
-        if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+        if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
           localizedKey = ar.key;
         } 
         var rs:Object = {a: localizedKey, v: ar.numVotes};

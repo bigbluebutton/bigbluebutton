@@ -1727,7 +1727,7 @@ if [ -n "$HOST" ]; then
 	# Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
 	#
 	echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
+	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
 	sudo sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml

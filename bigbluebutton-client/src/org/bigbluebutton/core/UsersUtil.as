@@ -33,7 +33,6 @@ package org.bigbluebutton.core
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.model.options.LockOptions;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
-  import org.bigbluebutton.util.SessionTokenUtil;
   
   public class UsersUtil
   {
@@ -317,8 +316,7 @@ package org.bigbluebutton.core
     }
     
     public static function getUserSession():String {
-        var sessionUtil:SessionTokenUtil = new SessionTokenUtil()
-        return sessionUtil.getSessionToken();
+        return BBB.getQueryStringParameters().getSessionToken();
     }
     
     public static function applyLockSettings():void {
