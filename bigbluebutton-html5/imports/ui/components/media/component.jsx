@@ -19,9 +19,9 @@ export default class Media extends Component {
   }
 
   renderOverlay() {
-    const { overlay, viewVideoDock } = this.props;
+    const { overlay } = this.props;
 
-    if (overlay && viewVideoDock) {
+    if (overlay) {
       return (
         <div className={styles.overlayWrapper}>
           <div className={styles.overlayRatio}>

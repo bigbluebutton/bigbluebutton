@@ -9,9 +9,9 @@ import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
-  overlay: <VideoDockContainer />,
-  content: <PresentationAreaContainer />,
-  defaultContent: <DefaultContent />,
+  overlay: null,
+  content: null,
+  defaultContent: null,
 };
 
 class MediaContainer extends Component {
@@ -39,6 +39,7 @@ class MediaContainer extends Component {
 
   handleToggleLayout() {
     const { overlay, content } = this.state;
+
     this.setState({ overlay: content, content: overlay });
   }
 
@@ -54,7 +55,6 @@ export default withTracker(() => {
   const viewVideoDock = videoSettings.viewParticipantsWebcams;
 
   const data = {};
-  data.viewVideoDock = viewVideoDock;
   data.currentPresentation = MediaService.getPresentationInfo();
 
   data.content = <DefaultContent />;
@@ -67,7 +67,7 @@ export default withTracker(() => {
     data.content = <ScreenshareContainer />;
   }
 
-  if (MediaService.shouldShowOverlay()) {
+  if (MediaService.shouldShowOverlay() && viewVideoDock) {
     data.overlay = <VideoDockContainer />;
   }
 
