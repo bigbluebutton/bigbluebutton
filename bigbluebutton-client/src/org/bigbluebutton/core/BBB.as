@@ -19,16 +19,16 @@
 package org.bigbluebutton.core {
 
 	import flash.system.Capabilities;
-	
+
 	import mx.core.FlexGlobals;
 	import mx.utils.URLUtil;
-	
+
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.VideoProfileManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.model.VideoProfile;
-	import org.bigbluebutton.util.SessionTokenUtil;
+	import org.bigbluebutton.util.QueryStringParameters;
 
 	public class BBB {
 		private static var configManager:ConfigManager2 = null;
@@ -37,13 +37,13 @@ package org.bigbluebutton.core {
 
 		private static var videoProfileManager:VideoProfileManager = null;
 
-		private static var sessionTokenUtil:SessionTokenUtil = null;
+		private static var queryStringParameters:QueryStringParameters = null;
 
-		public static function getSessionTokenUtil():SessionTokenUtil {
-			if (sessionTokenUtil == null) {
-				sessionTokenUtil = new SessionTokenUtil();
+		public static function getQueryStringParameters():QueryStringParameters {
+			if (queryStringParameters == null) {
+				queryStringParameters = new QueryStringParameters();
 			}
-			return sessionTokenUtil;
+			return queryStringParameters;
 		}
 
 		public static function getConfigManager():ConfigManager2 {
@@ -119,7 +119,7 @@ package org.bigbluebutton.core {
 		}
 
 		public static function getSignoutURL():String {
-			var sessionToken:String = BBB.sessionTokenUtil.getSessionToken();
+			var sessionToken:String = getQueryStringParameters().getSessionToken();
 			var logoutUrl:String = getBaseURL();
 			if (sessionToken != "") {
 				logoutUrl += "/bigbluebutton/api/signOut?sessionToken=" + sessionToken;

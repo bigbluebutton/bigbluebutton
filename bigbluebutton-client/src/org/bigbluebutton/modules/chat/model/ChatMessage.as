@@ -17,6 +17,7 @@
 *
 */
 package org.bigbluebutton.modules.chat.model {
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatMessage {
@@ -43,7 +44,7 @@ package org.bigbluebutton.modules.chat.model {
 		
 		public function toString() : String {
 			var result:String;
-			var accName:String = (!name || name == "" || name == " "? ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage") : name);
+			var accName:String = (StringUtils.isBlank(name) ? ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage") : name);
 			result = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.stringRespresentation", [accName, stripTags(text), time]);
 			return result;
 		}
