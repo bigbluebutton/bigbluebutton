@@ -23,6 +23,7 @@ module.exports = class Video {
     this.iceQueue = null;
 
     this.candidatesQueue = [];
+    this.notFlowingTimeout = null;
   }
 
   onIceCandidate (_candidate) {
@@ -80,15 +81,26 @@ module.exports = class Video {
         Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.id);
 
         if (msEvent.state === 'NOT_FLOWING') {
-          this.bbbGW.publish(JSON.stringify({
-            connectionId: this.sessionId,
-            type: 'video',
-            role: this.role,
-            id : 'playStop',
-            cameraId: this.id,
-          }), C.FROM_VIDEO);
+          Logger.warn("Setting up a timeout for " + this.sessionId + " camera " + this.id);
+          if (!this.notFlowingTimeout) {
+            this.notFlowingTimeout = setTimeout(() => {
+              this.bbbGW.publish(JSON.stringify({
+                connectionId: this.sessionId,
+                type: 'video',
+                role: this.role,
+                id : 'playStop',
+                cameraId: this.id,
+              }), C.FROM_VIDEO);
+            }, config.get('mediaFlowTimeoutDuration'));
+          }
         }
         else if (msEvent.state === 'FLOWING') {
+          if (this.notFlowingTimeout) {
+            Logger.warn("Received a media flow before stopping " + this.sessionId + " camera " + this.id);
+            clearTimeout(this.notFlowingTimeout);
+            this.notFlowingTimeout = null;
+          }
+
           this.bbbGW.publish(JSON.stringify({
             connectionId: this.sessionId,
             type: 'video',
@@ -152,6 +164,12 @@ module.exports = class Video {
       if (this.shared) {
         sharedWebcams[this.id] = null;
       }
+
+      if (this.notFlowingTimeout) {
+        clearTimeout(this.notFlowingTimeout);
+        this.notFlowingTimeout = null;
+      }
+
       this._candidatesQueue = null;
       Promise.resolve();
     }
