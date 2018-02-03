@@ -1746,12 +1746,6 @@ if [ -n "$HOST" ]; then
         sudo sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \ 
 		/var/www/bigbluebutton/client/conf/config.xml
 
-	#
-	# Update configuration for BigBlueButton client
-	#
-	echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
-
         echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
         sudo sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
 
