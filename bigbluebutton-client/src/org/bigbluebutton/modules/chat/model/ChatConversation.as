@@ -20,12 +20,11 @@ package org.bigbluebutton.modules.chat.model
 {
   import com.adobe.utils.StringUtil;
   import com.asfusion.mate.events.Dispatcher;
-  
   import flash.external.ExternalInterface;
   import flash.system.Capabilities;
-  
   import mx.collections.ArrayCollection;
-  
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.lang.StringUtils;
   import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.UsersUtil;
@@ -37,6 +36,8 @@ package org.bigbluebutton.modules.chat.model
   
   public class ChatConversation
   { 
+		private static const LOGGER:ILogger = getClassLogger(ChatConversation);
+		
     private var _dispatcher:Dispatcher = new Dispatcher();
     
     [Bindable]
@@ -105,22 +106,22 @@ package org.bigbluebutton.modules.chat.model
         }
       }
 			
-			trace("********************** CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "] *********************");
+			LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "]");
 			
 			var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
 			if (groupChat != null) {
 				if (groupChat.access == GroupChat.PRIVATE) {
 					displayHowToCloseMessage();
 				} else {
-					trace("********************** CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "] PUBLIC GROUP CHAT *********************");
+					LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "] PUBLIC GROUP CHAT");
 					if (chatId == ChatModel.MAIN_PUBLIC_CHAT) {
-						trace("********************** CHAT HISTORY ----- PROCESS CHAT HISTORY 2 *********************");
+						LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY 2");
 						sendWelcomeMessage(chatId);
 						addModOnlyMessage();
 					}
 				}
 			} else {
-				trace("********************** CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "] CANNOT FIND GROUP CHAT *********************");
+				LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "] CANNOT FIND GROUP CHAT");
 			}
 			
 			messages.refresh();

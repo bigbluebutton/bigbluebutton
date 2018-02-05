@@ -241,7 +241,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var historyTimer:Timer;
       
       private function loadChatHistory(event:TimerEvent):void {
-				trace("********************** CHAT HISTORY ----- LOAD CHAT HISTORY [" + chatId + "]*********************");
 				displayChatHistory();
       }
       
@@ -264,7 +263,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function refreshChat(e:BBBEvent):void {
         if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-					trace("********************** CHAT HISTORY ----- REFRESH CHAT HISTORY *********************");
 					displayChatHistory();
         }
       }
@@ -321,7 +319,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleReceivedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (chatId == event.chatId) {
-					trace("********************** CHAT HISTORY ----- RECEIVED CHAT HISTORY *********************");
 					displayChatHistory();
         }
       }
@@ -334,7 +331,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         if (chatId == event.chatId) {
-					trace("********************** CHAT HISTORY ----- PRIVATE CHAT HISTORY *********************");
           displayChatHistory();
         }       
       }
