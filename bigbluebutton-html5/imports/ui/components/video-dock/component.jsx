@@ -52,18 +52,18 @@ class VideoElement extends Component {
         { this.props.localCamera ?
             <video id="shareWebcam" muted={true} autoPlay={true} playsInline={true} />
           :
-            <video id={`video-elem-${this.props.videoId}`} width={320} height={240} autoPlay={true} playsInline={true} />
+            <video id={`video-elem-${this.props.videoId}`} autoPlay={true} playsInline={true} />
         }
         <div className={styles.videoText}>
-          <span className={styles.userName}>{this.props.name}</span>
-          <Button
+          <div className={styles.userName}>{this.props.name}</div>
+          {/*<Button
             label=""
             className={styles.pauseButton}
             icon={'unmute'}
             size={'sm'}
             circle
             onClick={() => {}}
-          />
+          />*/}
         </div>
       </div>
     );
@@ -142,9 +142,6 @@ class VideoDock extends Component {
         setTimeout(() => {
           this.start(user.userId, false);
         }, INITIAL_SHARE_WAIT_TIME);
-      }
-      if (user.userId === userId){
-        this.myName = user.name;
       }
     });
 
@@ -260,11 +257,12 @@ class VideoDock extends Component {
   }
 
   start(id, shareWebcam) {
+    const { users } = this.props;
     const that = this;
     const { intl } = this.props;
 
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
-    let userNames = this.sate.userNames;
+    let userNames = this.state.userNames;
     users.forEach((user) => {
       if (user.userId === id) {
         userNames[id] = user.name;
@@ -614,7 +612,7 @@ class VideoDock extends Component {
   render() {
     return (
       <div className={styles.videoDock}>
-        <div id="webcamArea">
+        <div id="webcamArea" className={styles.webcamArea}>
           {Object.keys(this.state.videos).map((id) => {
             return (
               <VideoElement videoId={id} key={id} name={this.state.userNames[id]} localCamera={false} onMount={this.initWebRTC.bind(this)} />
@@ -641,7 +639,6 @@ class VideoDock extends Component {
     currentUsers.forEach((user) => {
       users[user.userId] = user.has_stream;
     });
-
 
     // Keep instances where the flag has changed or next user adds it
     nextUsers.forEach((user) => {

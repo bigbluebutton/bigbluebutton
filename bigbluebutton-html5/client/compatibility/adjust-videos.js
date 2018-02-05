@@ -1,7 +1,7 @@
 
 (function() {
   function adjustVideos(tagId, centerVideos) {
-    const _minContentAspectRatio = 4 / 3.0;
+    const _minContentAspectRatio = 16 / 9.0;
 
     function calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, numChildren) {
       const obj = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows);
@@ -55,11 +55,29 @@
     }
 
     // http://stackoverflow.com/a/3437825/414642
-    const e = $("#" + tagId).parent();
+    const e = $("#" + tagId).parent().parent().parent().parent(); // TODO arrumar
     const x = e.outerWidth() - 1;
     const y = e.outerHeight() - 1;
 
-    const videos = $("#" + tagId + " videoContainer:visible");
+    const isPortrait = ( $(document).width() < $(document).height() );
+
+    const videos = $("#" + tagId + " > div:visible");
+
+    if (isPortrait) {
+      e.css('margin-top', $('#app > main > section > div > section._imports_ui_components_app__styles__media > div > div._imports_ui_components_presentation__styles__presentationContainer > div > div:nth-child(2)').offset().top - 221);
+      e.css('width', 'calc(100% - ' + $("#app > main > section > div > section._imports_ui_components_app__styles__media > div > div._imports_ui_components_presentation__styles__presentationContainer > div > div:nth-child(2)").offset().left + ')');
+    } else {
+      e.css('width', '100%');
+      e.css('margin-top', 0);
+    }
+
+    if (videos.length > 4 && !isPortrait) {
+      e.addClass('_imports_ui_components_media__styles__moreThan4Videos'); // TODO harcoded
+      $('._imports_ui_components_media__styles__container').css('max-width', 'calc(100% - 170px)'); // TODO hardcoded
+    } else {
+      e.removeClass('_imports_ui_components_media__styles__moreThan4Videos'); // TODO harcoded
+      $('._imports_ui_components_media__styles__container').css('max-width', '100%'); // TODO hardcoded
+    }
 
     const best = findBestConfiguration(x, y, videos.length);
 
@@ -67,24 +85,14 @@
       const row = Math.floor(i / best.numColumns);
       const col = Math.floor(i % best.numColumns);
 
-      // Free width space remaining to the right and below of the videos
-      const remX = (x - best.width * best.numColumns);
-      const remY = (y - best.height * best.numRows);
+      const top = (row > 0 && videos.length <= 4 && !isPortrait) ? 1 : 0;
+      const left = (col > 0 && videos.length <= 4 && !isPortrait) ? 1 : 0;
 
-      // Center videos
-      const top = Math.floor(((best.height) * row) + remY / 2);
-      const left = Math.floor(((best.width) * col) + remX / 2);
-
-      const videoTop = `top: ${top}px;`;
-      const videoLeft = `left: ${left}px;`;
-
-      $(this).attr('style', videoTop + videoLeft);
-
-      $(this).parent().attr('style', `width: ${best.width-2}px; height${best.height-2}px;`);
+      $(this).attr('style', `margin-top: ${top}px; margin-left: ${left}px; width: ${best.width}px; height: ${best.height}px;`);
     });
 
-    videos.attr('width', best.width-2);
-    videos.attr('height', best.height-2);
+    videos.attr('width', best.width);
+    videos.attr('height', best.height);
   }
 
   window.adjustVideos = adjustVideos;

@@ -2,35 +2,56 @@
 
 .videoDock {
   position: absolute;
+  width: 100%;
   top: 0;
   right: 0;
-  bottom: 0;
-  left: 0;
-
   background-size: cover;
   background-position: center;
-  box-shadow: 0 0 5px rgba(0, 0, 0, .5);
-  border-radius: .2rem;
+  text-align: center;
+  
+  @include mq($portrait) {
+    height: 96px;
+  }
+}
+
+.videoDock video {
+  height: auto;
+  width: auto;
+  max-height: 100%;
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.webcamArea {
+  @include mq($portrait) {
+    position: absolute;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #04111F;
+  }
 }
 
 .sharedWebcamVideo {
   display: none;
+  vertical-align: middle;
 }
 
 .sharedWebcamVideoLocal {
-  display: normal;
+  display: inline-block;
 }
 
 .videoContainer {
-  background-color: #999;
+  background-color: #000;
 }
 
 .videoText {
-  // position: absolute;
-  margin-top: -30px;
-  // padding: 0 5px;
-  // width: 100%;
-  z-index: -1;
+  margin-top: -22px;
+  padding: 0 5px;
+  z-index: 1;
+  text-align: left;
 }
 
 .userName {
@@ -40,7 +61,12 @@
   border-radius: 0.75rem;
   font-size: 10px;
   line-height: 13px;
-  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  position: relative;
+  display: inline-block;
+  max-width: 100%; // TODO when moderator, there's also the mic button, so this should be smaller.
 }
 
 .pauseButton {
