@@ -104,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var lastTime:String = "";
       
       [Bindable]
-      private var _chatMessages: ChatConversation;
+      public var chatMessages: ChatConversation;
       
       private var lastCount:Number = 0;			
       private var scrollTimer:Timer;
@@ -127,14 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var shiftPressed:Boolean = false;
       private var ctrlPressed:Boolean = false;
-      
-	  private function get chatMessages():ChatConversation {
-		  if (!_chatMessages) {
-			  _chatMessages = new ChatConversation(chatId);
-		  }
-		  return _chatMessages;
-	  }
-		
+      		
       private function onCreationComplete():void {
         chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
         bindToHeightToDetermineHeightOfMessageList();
@@ -248,15 +241,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var historyTimer:Timer;
       
       private function loadChatHistory(event:TimerEvent):void {
-        var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-        if (chat != null) {
-          chatMessages.processChatHistory(chat.messages.source);
-          scrollToEndOfMessage();
-        }
-        
-        getWelcomeMessage();
+				trace("********************** CHAT HISTORY ----- LOAD CHAT HISTORY [" + chatId + "]*********************");
+				displayChatHistory();
       }
       
+			private function displayChatHistory():void {
+				var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+				if (chat != null) {
+					chatMessages.processChatHistory(chat.messages.source);
+					scrollToEndOfMessage();
+				}
+			}
+			
       private function handleUserLeftEvent(event:UserLeftEvent):void {
         var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
         if (gc != null && gc.id == chatId) {
@@ -268,17 +264,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function refreshChat(e:BBBEvent):void {
         if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-            var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-            if (groupChat != null) {
-              chatMessages.processChatHistory(groupChat.messages.source);
-							getWelcomeMessage();
-            }
-        }
-      }
-      
-      private function getWelcomeMessage():void {
-        if (chatId == ChatModel.MAIN_PUBLIC_CHAT) {
-					sendWelcomeMessage(chatId);
+					trace("********************** CHAT HISTORY ----- REFRESH CHAT HISTORY *********************");
+					displayChatHistory();
         }
       }
       
@@ -334,52 +321,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleReceivedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (chatId == event.chatId) {
-          var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-          if (chat != null) {
-            chatMessages.processChatHistory(chat.messages.source);
-						getWelcomeMessage();
-            scrollToEndOfMessage();
-          }
+					trace("********************** CHAT HISTORY ----- RECEIVED CHAT HISTORY *********************");
+					displayChatHistory();
         }
       }
       
-			public function sendWelcomeMessage(chatId:String):void {
-				LOGGER.debug("sendWelcomeMessage");
-				var welcome:String = LiveMeeting.inst().me.welcome;
-				if (welcome != "") {
-					var welcomeMsg:ChatMessageVO = new ChatMessageVO();
-					welcomeMsg.fromUserId = ChatModel.WELCOME_MSG;
-					welcomeMsg.fromUsername = ChatModel.SPACE;
-					welcomeMsg.fromColor = "86187";
-					welcomeMsg.fromTime = new Date().getTime();
-					welcomeMsg.message = welcome;
-					
-					var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-					if (groupChat != null) {
-						groupChat.addMessage(welcomeMsg);
-					}
-					
-					//Say that client is ready when sending the welcome message
-					ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
-				}	
-				
-				if (UsersUtil.amIModerator()) {
-					if (LiveMeeting.inst().meeting.modOnlyMessage != null) {
-						var moderatorOnlyMsg:ChatMessageVO = new ChatMessageVO();
-						moderatorOnlyMsg.fromUserId = ChatModel.MOD_ONLY_MSG;
-						moderatorOnlyMsg.fromUsername = ChatModel.SPACE;
-						moderatorOnlyMsg.fromColor = "86187";
-						moderatorOnlyMsg.fromTime = new Date().getTime();
-						moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
-						
-						var groupChat2: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-						if (groupChat2 != null) {
-							groupChat2.addMessage(moderatorOnlyMsg);
-						}
-						
-					}
-				}
-			}
 			
       private function adjustToolbarWidthAccordingToScrollBar(e:ChatEvent):void{
         invalidateDisplayList();
@@ -388,33 +334,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         if (chatId == event.chatId) {
-          var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-          if (chat != null) {
-            chatMessages.processChatHistory(chat.messages.source);
-            scrollToEndOfMessage();
-          }
+					trace("********************** CHAT HISTORY ----- PRIVATE CHAT HISTORY *********************");
+          displayChatHistory();
         }       
       }
       
       public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
         handlePrivateChatMessageEvent(event);
-      }
-      
-      public function displayHowToCloseMessage():void {
-        var modifier:String = ExternalInterface.call("determineModifier");
-        var keyCombo:String = modifier + String.fromCharCode(int(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate')));
-        
-        var msg:ChatMessageVO = new ChatMessageVO();
-				msg.fromUserId = ChatModel.HOW_TO_CLOSE_MSG;
-        msg.fromUsername = ChatModel.SPACE;
-        msg.fromColor = "0";
-        msg.fromTime = new Date().getTime();
-        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
-        
-        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-        if (groupChat != null) {
-          chatMessages.newChatMessage(msg);
-        }
       }
       
       public function scrollToEndOfMessage():void {

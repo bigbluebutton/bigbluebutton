@@ -104,6 +104,8 @@ package org.bigbluebutton.modules.chat.model
           _messages.addItemAt(newCM, i);
         }
       }
+			
+			trace("********************** CHAT HISTORY ----- DISPATCH ChatHistoryEvent.RECEIVED_HISTORY *********************");
       
       var chEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
       chEvent.chatId = id;
