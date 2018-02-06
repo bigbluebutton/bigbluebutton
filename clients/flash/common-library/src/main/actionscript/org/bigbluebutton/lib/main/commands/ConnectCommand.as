@@ -160,7 +160,6 @@ package org.bigbluebutton.lib.main.commands {
 			//userSession.deskshareConnection = deskshareConnection;
 			usersService.joinMeeting();
 			// Query the server for chat, users, and presentation info
-			chatService.sendWelcomeMessage();
 			chatService.getGroupChats();
 			presentationService.getPresentationPods();
 			meetingData.users.userChangeSignal.add(successUsersAdded);

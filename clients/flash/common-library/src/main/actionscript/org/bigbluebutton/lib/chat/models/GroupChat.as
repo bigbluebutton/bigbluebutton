@@ -37,6 +37,8 @@ package org.bigbluebutton.lib.chat.models {
 		
 		public function clearMessages():void {
 			messages.removeAll();
+			newMessages = 0;
+			newChatMessage(generateSystemMessage("The public chat history was cleared by a moderator"));
 		}
 		
 		public function newChatMessage(message:ChatMessageVO):void {
@@ -74,6 +76,16 @@ package org.bigbluebutton.lib.chat.models {
 				allText += "\n" + item.name + " - " + item.time + " : " + item.message;
 			}
 			return allText;
+		}
+		
+		private function generateSystemMessage(text:String):ChatMessageVO {
+			var newMessageVO:ChatMessageVO = new ChatMessageVO();
+			newMessageVO.fromTime = (new Date()).time;
+			newMessageVO.message = "<b><i>"+text+"</i></b>";
+			newMessageVO.fromUserId = "";
+			newMessageVO.fromUsername = "";
+			newMessageVO.fromColor = "0x000000";
+			return newMessageVO;
 		}
 	}
 }

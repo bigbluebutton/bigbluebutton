@@ -3,6 +3,7 @@ package org.bigbluebutton.lib.chat.models {
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.lib.chat.commands.RequestGroupChatHistorySignal;
+	import org.bigbluebutton.lib.chat.commands.RequestWelcomeMessageSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class ChatMessagesSession implements IChatMessagesSession {
@@ -14,6 +15,9 @@ package org.bigbluebutton.lib.chat.models {
 		
 		[Inject]
 		public var requestChatHistorySignal:RequestGroupChatHistorySignal;
+		
+		[Inject]
+		public var requestWelcomeMessageSignal:RequestWelcomeMessageSignal;
 		
 		[Bindable]
 		public var chats:ArrayCollection;
@@ -45,7 +49,9 @@ package org.bigbluebutton.lib.chat.models {
 		public function addGroupChatsList(chatVOs:Array):void {
 			for each (var chat:GroupChatVO in chatVOs) {
 				chats.addItem(convertGroupChatVO(chat));
-				
+				if (chat.id == DEFAULT_CHAT_ID) {
+					requestWelcomeMessageSignal.dispatch();
+				}
 				requestChatHistorySignal.dispatch(chat.id);
 			}
 		}
@@ -61,6 +67,9 @@ package org.bigbluebutton.lib.chat.models {
 			var chatGroup:GroupChat = getGroupByChatId(chatId);
 			if (chatGroup) {
 				chatGroup.clearMessages();
+				if (chatId == DEFAULT_CHAT_ID) {
+					requestWelcomeMessageSignal.dispatch();
+				}
 			}
 		}
 		
