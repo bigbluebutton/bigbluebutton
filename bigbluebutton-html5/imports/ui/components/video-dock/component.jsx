@@ -30,6 +30,10 @@ const intlMessages = defineMessages({
   },
 });
 
+const RECONNECT_WAIT_TIME = 5000;
+const INITIAL_SHARE_WAIT_TIME = 2000;
+const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
+
 class VideoElement extends Component {
   constructor(props) {
     super(props);
@@ -62,8 +66,7 @@ class VideoDock extends Component {
     this.webRtcPeers = {};
     this.reconnectWebcam = false;
     this.reconnectList = [];
-    this.sharedCameraTimeout = null;
-    this.subscribedCamerasTimeouts = [];
+    this.cameraTimeouts = {};
 
     this.state = {
       videos: {},
@@ -94,7 +97,7 @@ class VideoDock extends Component {
         setTimeout(() => {
           log('debug', ` [camera] Trying to reconnect camera ${id}`);
           this.start(id, false);
-        }, 5000);
+        }, RECONNECT_WAIT_TIME);
       }
     }
 
@@ -113,7 +116,11 @@ class VideoDock extends Component {
 
     users.forEach((user) => {
       if (user.has_stream && user.userId !== userId) {
-        this.start(user.userId, false);
+        // FIX: Really ugly hack, but sometimes the ICE candidates aren't
+        // generated properly when we send videos right after componentDidMount
+        setTimeout(() => {
+          this.start(user.userId, false);
+        }, INITIAL_SHARE_WAIT_TIME);
       }
     });
 
@@ -131,13 +138,12 @@ class VideoDock extends Component {
     this.ws.addEventListener('close', this.onWsClose);
 
     window.addEventListener('online', this.ws.open.bind(this.ws));
-    window.addEventListener('offline', this.ws.close.bind(this.ws));
+    window.addEventListener('offline', this.onWsClose);
   }
 
   componentWillUpdate(nextProps) {
     const { isLocked } = nextProps;
     if (isLocked && VideoService.isConnected()) {
-      console.error(this.unshareWebcam);
       this.unshareWebcam();
     }
   }
@@ -153,8 +159,8 @@ class VideoDock extends Component {
     this.ws.removeEventListener('close', this.onWsClose);
     // Close websocket connection to prevent multiple reconnects from happening
 
-    window.removeEventListener('online', this.ws.open);
-    window.removeEventListener('offline', this.ws.close);
+    window.removeEventListener('online', this.ws.open.bind(this.ws));
+    window.removeEventListener('offline', this.onWsClose);
 
     this.ws.close();
   }
@@ -194,10 +200,6 @@ class VideoDock extends Component {
         this.startResponse(parsedMessage);
         break;
 
-      case 'error':
-        this.handleError(parsedMessage);
-        break;
-
       case 'playStart':
         this.handlePlayStart(parsedMessage);
         break;
@@ -210,7 +212,7 @@ class VideoDock extends Component {
       case 'iceCandidate':
         const webRtcPeer = this.webRtcPeers[parsedMessage.cameraId];
 
-        if (webRtcPeer !== null) {
+        if (!!webRtcPeer) {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
@@ -222,16 +224,33 @@ class VideoDock extends Component {
             webRtcPeer.iceQueue.push(parsedMessage.candidate);
           }
         } else {
-          log('error', ' [ICE] Message arrived before webRtcPeer?');
+          log('error', ' [ICE] Message arrived after the peer was already thrown out, discarding it...');
         }
+        break;
+
+      case 'error':
+      default:
+        this.handleError(parsedMessage);
         break;
     }
   }
 
   start(id, shareWebcam) {
     const that = this;
+    const { intl } = this.props;
 
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
+
+    this.cameraTimeouts[id] = setTimeout(() => {
+      log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
+      if (that.myId == id) {
+        that.notifyError(intl.formatMessage(intlMessages.sharingError));
+        that.unshareWebcam();
+      } else {
+        that.stop(id);
+        that.start(id, shareWebcam);
+      }
+    }, CAMERA_SHARE_FAILED_WAIT_TIME);
 
     if (shareWebcam) {
       VideoService.joiningVideo();
@@ -383,6 +402,10 @@ class VideoDock extends Component {
       cameraId: id,
     });
 
+    if (id === userId) {
+      VideoService.exitedVideo();
+    }
+
     this.destroyWebRTCPeer(id);
     this.destroyVideoTag(id);
   }
@@ -407,6 +430,10 @@ class VideoDock extends Component {
 
   destroyWebRTCPeer(id) {
     const webRtcPeer = this.webRtcPeers[id];
+
+    // Clear the shared camera fail timeout when destroying
+    clearTimeout(this.cameraTimeouts[id]);
+    this.cameraTimeouts[id] = null;
 
     if (webRtcPeer) {
       log('info', 'Stopping WebRTC peer');
@@ -439,7 +466,6 @@ class VideoDock extends Component {
     console.warn(this.props);
     const { userId } = this.props;
     VideoService.sendUserUnshareWebcam(userId);
-    VideoService.exitedVideo();
   }
 
   startResponse(message) {
@@ -460,12 +486,12 @@ class VideoDock extends Component {
       if (error) {
         return log('error', error);
       }
-    });
 
-    if (message.cameraId == this.props.userId) {
-      log('info', 'camera id sendusershare ', id);
-      VideoService.sendUserShareWebcam(id);
-    }
+      if (message.cameraId == this.props.userId) {
+        log('info', 'camera id sendusershare ', id);
+        VideoService.sendUserShareWebcam(id);
+      }
+    });
   }
 
   sendMessage(message) {
@@ -499,9 +525,7 @@ class VideoDock extends Component {
     log('info', 'Handle play stop <--------------------');
     log('error', message);
 
-    const { users } = this.props;
-
-    if (message.cameraId == this.props) {
+    if (message.cameraId == this.props.userId) {
       this.unshareWebcam();
     } else {
       this.stop(message.cameraId);
@@ -511,14 +535,24 @@ class VideoDock extends Component {
   handlePlayStart(message) {
     log('info', 'Handle play start <===================');
 
+    // Clear camera shared timeout when camera succesfully starts
+    clearTimeout(this.cameraTimeouts[message.cameraId]);
+    this.cameraTimeouts[message.cameraId] = null;
+
     if (message.cameraId == this.props.userId) {
       VideoService.joinedVideo();
     }
   }
 
   handleError(message) {
-    const { intl } = this.props;
-    this.notifyError(intl.formatMessage(intlMessages.sharingError));
+    const { intl, userId } = this.props;
+
+    if (message.cameraId == userId) {
+      this.unshareWebcam();
+      this.notifyError(intl.formatMessage(intlMessages.sharingError));
+    } else {
+      this.stop(message.cameraId);
+    }
 
     console.error(' Handle error --------------------->');
     log('debug', message.message);
@@ -572,38 +606,63 @@ class VideoDock extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { users, userId } = this.props;
+    const { userId } = this.props;
+    const currentUsers = this.props.users || {};
     const nextUsers = nextProps.users;
 
-    if (users) {
-      let suc = false;
+    let users = {};
+    let present = {};
 
-      for (let i = 0; i < users.length; i++) {
-        if (users && users[i] && nextUsers && nextUsers[i]) {
-          if (users[i].has_stream !== nextUsers[i].has_stream) {
-            console.log(`User ${nextUsers[i].has_stream ? '' : 'un'}shared webcam ${users[i].userId}`);
+    if (!currentUsers)
+      return false;
 
-            if (nextUsers[i].has_stream) {
-              if (userId !== users[i].userId) {
-                this.start(users[i].userId, false);
-              }
-            } else {
-              this.stop(users[i].userId);
-            }
 
-            if (!nextUsers[i].has_stream) {
-              this.destroyVideoTag(users[i].userId);
-            }
+    // Map user objectos to an object in the form {userId: has_stream}
+    currentUsers.forEach((user) => {
+      users[user.userId] = user.has_stream;
+    });
 
-            suc = suc || true;
-          }
-        }
+
+    // Keep instances where the flag has changed or next user adds it
+    nextUsers.forEach((user) => {
+      let id = user.userId;
+      // The case when a user exists and stream status has not changed
+      if (users[id] === user.has_stream) {
+        delete users[id];
+      } else {
+        // Case when a user has been added to the list
+        users[id] = user.has_stream;
       }
 
-      return true;
-    }
+      // Mark the ids which are present in nextUsers
+      present[id] = true;
+    });
 
-    return false;
+    const userIds = Object.keys(users);
+
+    for (let i = 0; i < userIds.length; i++) {
+      let id = userIds[i];
+
+      // If a userId is not present in nextUsers let's stop it
+      if (!present[id]) {
+        this.stop(id);
+        continue;
+      }
+
+      console.log(`User ${users[id] ? '' : 'un'}shared webcam ${id}`);
+
+      // If a user stream is true, changed and was shared by other
+      // user we'll start it. If it is false and changed we stop it
+      if (users[id]) {
+        if (userId !== id) {
+          this.start(id, false);
+        }
+      }
+      else {
+        this.stop(id);
+      }
+    }
+    return true;
   }
 }
 

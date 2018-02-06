@@ -65,7 +65,7 @@ class MettingMessageQueue {
     };
 
     const onError = (reason) => {
-      this.debug(`${eventName}: ${reason}`);
+      this.debug(`${eventName}: ${reason.stack ? reason.stack : reason}`);
       callNext();
     };
 

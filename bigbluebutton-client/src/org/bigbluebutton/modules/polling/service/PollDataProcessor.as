@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.polling.service
   
   import flash.accessibility.Accessibility;
   
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.chat.ChatConstants;
@@ -77,7 +78,7 @@ package org.bigbluebutton.modules.polling.service
         for (var k:int = 0; k < answers.length; k++) {
           var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.'+answers[k].key);
 
-          if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+          if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
             localizedKey = answers[k].key;
           }
           accessibleAnswers += ResourceUtil.getInstance().getString("bbb.polling.results.accessible.answer", [localizedKey, answers[k].numVotes]) + "<br />";

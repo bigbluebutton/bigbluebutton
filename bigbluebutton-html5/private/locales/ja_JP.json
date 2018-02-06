@@ -116,18 +116,12 @@
     "app.actionsBar.emojiMenu.statusTriggerLabel": "ステータス",
     "app.actionsBar.emojiMenu.awayLabel": "不在",
     "app.actionsBar.emojiMenu.awayDesc": "スタータスを「不在」にする",
-    "app.actionsBar.emojiMenu.raiseLabel": "手をあげる",
-    "app.actionsBar.emojiMenu.raiseDesc": "手をあげて質問する",
-    "app.actionsBar.emojiMenu.undecidedLabel": "未決定",
-    "app.actionsBar.emojiMenu.undecidedDesc": "ステータスを「未決定」にする",
     "app.actionsBar.emojiMenu.confusedLabel": "わけがわからない",
     "app.actionsBar.emojiMenu.confusedDesc": "ステータスを「わけがわからない」にする",
     "app.actionsBar.emojiMenu.sadLabel": "悲しい",
     "app.actionsBar.emojiMenu.sadDesc": "ステータスを「悲しい」にする",
     "app.actionsBar.emojiMenu.happyLabel": "ハッピー",
     "app.actionsBar.emojiMenu.happyDesc": "ステータスを「ハッピー」にする",
-    "app.actionsBar.emojiMenu.clearLabel": "クリア",
-    "app.actionsBar.emojiMenu.clearDesc": "ステータスをクリア",
     "app.actionsBar.emojiMenu.applauseLabel": "拍手",
     "app.actionsBar.emojiMenu.applauseDesc": "ステータスを「拍手」にする",
     "app.actionsBar.currentStatusDesc": "現在のステータス {0}",
@@ -159,7 +153,6 @@
     "app.audio.audioSettings.microphoneStreamLabel": "音声ストリームの音量",
     "app.audio.listenOnly.backLabel": "戻る",
     "app.audio.listenOnly.closeLabel": "閉じる",
-    "app.error.kicked": "会議から退室させられました",
     "app.error.meeting.ended": "会議からログアウトしました",
     "app.dropdown.close": "閉じる",
     "app.error.500": "あっ、何かがおかしくなりました",
@@ -167,5 +160,6 @@
     "app.error.401": "権限がありません",
     "app.error.403": "禁止されています",
     "app.error.leaveLabel": "再ログイン"
+
 }
 

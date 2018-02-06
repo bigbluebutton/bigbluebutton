@@ -42,7 +42,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:states>
 		<mx:State name="default"/>
 		<mx:State name="chromeMic"/>
+		<mx:State name="chromeMicMacOSX" basedOn="chromeMic"/>
 		<mx:State name="chromeCam"/>
+		<mx:State name="chromeCamMacOSX" basedOn="chromeCam"/>
 		<mx:State name="firefoxMic"/>
 		<mx:State name="firefoxMicMacOSX" basedOn="firefoxMic"/>
 	</mx:states>
@@ -80,8 +82,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 text.firefoxMic="{ResourceUtil.getInstance().getString('bbb.micPermissions.firefox.message')}"
 					 selectable="false"
 					 styleName="permissionSettingsTextStyle" />
-			<mx:Image source.chromeMic="@Embed('assets/chrome-permissions.png')" 
-					  source.chromeCam="@Embed('assets/chrome-permissions.png')" 
+			<mx:Image source.chromeMic="@Embed('assets/chrome-permissions-windows.png')" 
+					  source.chromeMicMacOSX="@Embed('assets/chrome-permissions-macosx.png')" 
+					  source.chromeCam="@Embed('assets/chrome-permissions-windows.png')" 
+					  source.chromeCamMacOSX="@Embed('assets/chrome-permissions-macosx.png')" 
 					  source.firefoxMic="@Embed('assets/firefox-permissions-windows.png')"
 					  source.firefoxMicMacOSX="@Embed('assets/firefox-permissions-macosx.png')"/>
 		</mx:HBox>

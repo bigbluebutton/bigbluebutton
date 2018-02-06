@@ -69,11 +69,24 @@ class BigBlueButtonActor(
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: CreateMeetingReqMsg  => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg   => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg => handleGetAllMeetingsReqMsg(m)
-      case m: CheckAlivePingSysMsg => handleCheckAlivePingSysMsg(m)
-      case _                       => log.warning("Cannot handle " + msg.envelope.name)
+      case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg          => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg        => handleGetAllMeetingsReqMsg(m)
+      case m: CheckAlivePingSysMsg        => handleCheckAlivePingSysMsg(m)
+      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
+      case _                              => log.warning("Cannot handle " + msg.envelope.name)
+    }
+  }
+
+  def handleValidateConnAuthTokenSysMsg(msg: ValidateConnAuthTokenSysMsg): Unit = {
+    RunningMeetings.findWithId(meetings, msg.body.meetingId) match {
+      case Some(meeting) =>
+        meeting.actorRef forward msg
+
+      case None =>
+        val event = MsgBuilder.buildValidateConnAuthTokenSysRespMsg(msg.body.meetingId, msg.body.userId,
+          false, msg.body.connId, msg.body.app)
+        outGW.send(event)
     }
   }
 

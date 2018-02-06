@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   import flash.text.TextFormat;
   import flash.text.TextFormatAlign;
   
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
@@ -313,7 +314,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var ar:Object = answers[j];
         var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key);
         
-        if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+        if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
           localizedKey = ar.key;
         } 
         var rs:Object = {a: localizedKey, v: ar.numVotes};

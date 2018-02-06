@@ -127,9 +127,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.model.LiveMeeting;
-			import org.bigbluebutton.core.model.Meeting;
-			import org.bigbluebutton.core.model.MeetingBuilder;
-			import org.bigbluebutton.core.model.MeetingBuilder2x;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -566,7 +563,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 logData.message = "Loaded locale.";
                 LOGGER.info(JSON.stringify(logData));
                     
-				if ((version == "old-locales") || (version == "") || (version == null)) {
+				if ((version == "old-locales") || StringUtils.isEmpty(version)) {
 					wrongLocaleVersion();
 				} else {
 					if (version != localeVersion) wrongLocaleVersion();
@@ -629,7 +626,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     }
                 } else if (BrowserCheck.isChrome()) {
                     if (browserPermissionHelper) {
-						browserPermissionHelper.currentState = "chromeMic";
+						if (Capabilities.os.indexOf("Mac") >= 0){
+							browserPermissionHelper.currentState = "chromeMicMacOSX";
+						} else {
+							browserPermissionHelper.currentState = "chromeMic";
+						}
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 130;
                     }
@@ -650,7 +651,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function showbrowserPermissionHelper() : void {
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
-					browserPermissionHelper.currentState = "chromeCam";
+					if (Capabilities.os.indexOf("Mac") >= 0){
+						browserPermissionHelper.currentState = "chromeCamMacOSX";
+					} else {
+						browserPermissionHelper.currentState = "chromeCam";
+					}
 					browserPermissionHelper.x = 20;
 					browserPermissionHelper.y = 150;
 				}
@@ -898,7 +903,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
 		<mx:VBox horizontalCenter="0" verticalCenter="0" horizontalAlign="center" verticalGap="20">
 			<views:QuotesView id="quoteView"/>
-			<views:LoadingBar id="progressBar" width="280" height="15" labelWidth="280" textAlign="center"/>
+			<views:LoadingBar id="progressBar"/>
 		</mx:VBox>
 	</views:MainCanvas>	
 	

@@ -18,11 +18,11 @@
  */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.StopSession
+import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, ScreenShareRequestTokenFailedResponse}
+import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, ScreenShareRequestTokenFailedResponse, UnauthorizedBroadcastStreamEvent}
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 
 object ScreenshareManager {
@@ -57,6 +57,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     case msg: MeetingEnded             => handleMeetingHasEnded(msg)
     case msg: MeetingCreated              => handleMeetingCreated(msg)
     case msg: ClientPongMessage           => handleClientPongMessage(msg)
+    case msg: AuthorizeBroadcastStreamMessage => handleAuthorizeBroadcastStreamMessage(msg)
 
     case msg: Any => log.warning("Unknown message " + msg)
   }
@@ -203,6 +204,20 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     screenshares.get(msg.meetingId) foreach { screenshare =>
       screenshare.actorRef ! msg
     }
+  }
+
+  private def handleAuthorizeBroadcastStreamMessage(msg: AuthorizeBroadcastStreamMessage): Unit = {
+		if (log.isDebugEnabled) {
+			log.debug("handleAuthorizeBroadcastStreamMessage meetingId=" + msg.meetingId +
+			" streamId=" + msg.streamId + " connId=" + msg.connId + " scope=" + msg.scope)
+		}
+
+		screenshares.get(msg.meetingId) match {
+			case Some(ss) =>
+				ss.actorRef forward msg
+			case None =>
+				bus.send(new UnauthorizedBroadcastStreamEvent(msg.meetingId, msg.streamId, msg.connId, msg.scope))
+		}
   }
 
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {

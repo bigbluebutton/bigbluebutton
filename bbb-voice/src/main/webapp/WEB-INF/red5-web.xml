@@ -28,12 +28,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                            http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
 	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-	    <property name="locations">
-	    	<list>
-	    	 	<value>/WEB-INF/red5-web.properties</value>
-	    	 	<value>/WEB-INF/bigbluebutton-sip.properties</value>
-	    	</list>
-	    </property>
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/red5-web.properties</value>
+				<value>/WEB-INF/bigbluebutton-sip.properties</value>
+			</list>
+		</property>
 	</bean>
 	
 	
@@ -60,12 +60,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="stopAudioPort" value="${stopAudioPort}" />
 		<property name="sipPeerManager" ref="sipPeerManager"/>
 		<property name="clientConnectionManager" ref="clientConnectionManager"/>
+		<property name="connInvokerService" ref="connInvokerService"/>
+		<property name="messagingService" ref="messagingService"/>
 	</bean>
 
-    <bean id="voiceconf.service" class="org.bigbluebutton.voiceconf.red5.Service">
-        <property name="sipPeerManager" ref="sipPeerManager"/>
-    </bean>
-    	
+	<bean id="voiceconf.service" class="org.bigbluebutton.voiceconf.red5.Service">
+		<property name="sipPeerManager" ref="sipPeerManager"/>
+	</bean>
+
+	<bean id="connInvokerService" class="org.bigbluebutton.voiceconf.red5.ConnectionInvokerService"
+		  init-method="start" destroy-method="stop"/>
+
 	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
 		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
 		<property name="sipRemotePort" value="${freeswitch.port}"/>
@@ -75,7 +80,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<bean id="clientConnectionManager" class="org.bigbluebutton.voiceconf.red5.ClientConnectionManager"/>
 
-  <import resource="bbb-redis-pool.xml"/>
-  <import resource="bbb-redis-messaging.xml"/>
-          
+	<import resource="bbb-redis-messaging.xml"/>
+
 </beans>

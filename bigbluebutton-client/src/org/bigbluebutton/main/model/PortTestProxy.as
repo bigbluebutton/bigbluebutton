@@ -36,7 +36,9 @@ package org.bigbluebutton.main.model {
             this.modulesDispatcher = modulesDispatcher;
         }
 
-        public function connect(tunnel:Boolean, hostname:String = "", port:String = "", application:String = "", testTimeout:Number = 10000):void {
+        public function connect( tunnel:Boolean, hostname:String = "", 
+																port:String = "", application:String = "", 
+																testTimeout:Number = 10000):void {
             this.tunnel = tunnel;
             portTest = new PortTest(tunnel, hostname, port, application, testTimeout);
             portTest.addConnectionSuccessListener(connectionListener);

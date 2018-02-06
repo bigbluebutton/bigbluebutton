@@ -32,11 +32,11 @@ package org.bigbluebutton.core.managers {
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.model.Config;
     import org.bigbluebutton.main.events.ConfigLoadedEvent;
     import org.bigbluebutton.main.events.MeetingNotFoundEvent;
     import org.bigbluebutton.main.model.modules.ModuleDescriptor;
-    import org.bigbluebutton.util.QueryStringParameters;
 
     public class ConfigManager2 {
         private static const LOGGER:ILogger = getClassLogger(ConfigManager2);
@@ -46,9 +46,7 @@ package org.bigbluebutton.core.managers {
         private var _config:Config = null;
         
         public function loadConfig():void {
-            var p:QueryStringParameters = new QueryStringParameters();
-            p.collectParameters();
-            var sessionToken:String = p.getParameter("sessionToken");
+            var sessionToken:String = BBB.getQueryStringParameters().getSessionToken();
 
             var reqVars:URLVariables = new URLVariables();
             reqVars.sessionToken = sessionToken;
