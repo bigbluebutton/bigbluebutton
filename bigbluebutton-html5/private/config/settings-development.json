@@ -25,8 +25,9 @@
           "inputDeviceId": "undefined",
           "outputDeviceId": "undefined"
         },
-        "video": {
-          "viewParticipantsWebcams": true
+        "dataSaving": {
+          "viewParticipantsWebcams": true,
+          "viewScreenshare": true
         },
         "cc": {
           "backgroundColor": "#FFFFFF",
@@ -52,11 +53,11 @@
     },
 
     "kurento": {
-      "wsUrl": "HOST",
-      "chromeExtensionKey": "KEY",
-      "chromeExtensionLink": "LINK",
-      "enableScreensharing": false,
-      "enableVideo": false
+      "wsUrl": "wss://bbb-joao.dev.imdt.com.br/bbb-webrtc-sfu",
+      "chromeExtensionKey": "mbfngdphjegmlbfobcblikeefpidfncb",
+      "chromeExtensionLink": "https://chrome.google.com/webstore/detail/kurento-screenshare-test/mbfngdphjegmlbfobcblikeefpidfncb",
+      "enableScreensharing": true,
+      "enableVideo": true
     },
 
     "acl": {

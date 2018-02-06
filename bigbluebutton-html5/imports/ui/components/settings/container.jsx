@@ -16,7 +16,7 @@ const SettingsContainer = props => (
 
 export default withTracker(() => ({
   audio: SettingsService.audio,
-  video: SettingsService.video,
+  dataSaving: SettingsService.dataSaving,
   application: SettingsService.application,
   cc: SettingsService.cc,
   participants: SettingsService.participants,

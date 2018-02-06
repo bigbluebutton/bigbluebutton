@@ -3,7 +3,7 @@ import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
-import DataSaving from '/imports/ui/components/settings/submenus/dataSaving/component';
+import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -54,14 +54,14 @@ const intlMessages = defineMessages({
     description: 'Settings modal save button label',
   },
   dataSavingLabel: {
-    id: 'app.settings.dataSaving.label',
+    id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
   },
 });
 
 const propTypes = {
   intl: intlShape.isRequired,
-  video: PropTypes.object.isRequired,
+  dataSaving: PropTypes.object.isRequired,
   application: PropTypes.object.isRequired,
   cc: PropTypes.object.isRequired,
   participants: PropTypes.object.isRequired,
@@ -79,18 +79,18 @@ class Settings extends Component {
     super(props);
 
     const {
-      video, participants, cc, application,
+      dataSaving, participants, cc, application,
     } = props;
 
     this.state = {
       current: {
-        video: _.clone(video),
+        dataSaving: _.clone(dataSaving),
         application: _.clone(application),
         cc: _.clone(cc),
         participants: _.clone(participants),
       },
       saved: {
-        video: _.clone(video),
+        dataSaving: _.clone(dataSaving),
         application: _.clone(application),
         cc: _.clone(cc),
         participants: _.clone(participants),
@@ -158,7 +158,7 @@ class Settings extends Component {
             aria-labelledby="dataSavingTab"
             selectedClassName={styles.selected}
           >
-            <Icon iconName="more" className={styles.icon} />
+            <Icon iconName="network" className={styles.icon} />
             <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
           </Tab>
           {/* { isModerator ? */}
@@ -190,7 +190,7 @@ class Settings extends Component {
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
           <DataSaving
-            settings={this.state.current.video}
+            settings={this.state.current.dataSaving}
             handleUpdateSettings={this.handleUpdateSettings}
           />
         </TabPanel>

@@ -51,8 +51,8 @@ class MediaContainer extends Component {
 MediaContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
-  const videoSettings = Settings.video;
-  const viewVideoDock = videoSettings.viewParticipantsWebcams;
+  const { dataSaving } = Settings;
+  const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
   const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
@@ -63,11 +63,11 @@ export default withTracker(() => {
     data.content = <PresentationAreaContainer />;
   }
 
-  if (MediaService.shouldShowScreenshare()) {
+  if (MediaService.shouldShowScreenshare() && (viewScreenshare || MediaService.isUserPresenter())) {
     data.content = <ScreenshareContainer />;
   }
 
-  if (MediaService.shouldShowOverlay() && viewVideoDock) {
+  if (MediaService.shouldShowOverlay() && viewParticipantsWebcams) {
     data.overlay = <VideoDockContainer />;
   }
 

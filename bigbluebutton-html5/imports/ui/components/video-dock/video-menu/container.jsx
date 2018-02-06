@@ -12,7 +12,7 @@ export default withTracker((params) => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const videoSettings = Settings.video;
+  const videoSettings = Settings.dataSaving;
   const enableShare = !videoSettings.viewParticipantsWebcams;
   return {
     isSharingVideo,
