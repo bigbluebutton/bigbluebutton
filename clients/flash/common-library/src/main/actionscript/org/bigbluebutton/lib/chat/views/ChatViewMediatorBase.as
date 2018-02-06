@@ -6,7 +6,7 @@ package org.bigbluebutton.lib.chat.views {
 	import mx.utils.StringUtil;
 	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
-	import org.bigbluebutton.lib.chat.models.Conversation;
+	import org.bigbluebutton.lib.chat.models.GroupChat;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.main.models.IMeetingData;
@@ -29,9 +29,7 @@ package org.bigbluebutton.lib.chat.views {
 		[Inject]
 		public var meetingData:IMeetingData;
 		
-		protected var _publicChat:Boolean = true;
-		
-		protected var _user:User2x;
+		protected var _chat:GroupChat;
 		
 		override public function initialize():void {
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
@@ -42,9 +40,10 @@ package org.bigbluebutton.lib.chat.views {
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
 		}
 		
-		protected function openChat(conv:Conversation):void {
-			conv.newMessages = 0; //resetNewMessages();
-			view.chatList.dataProvider = conv.messages;
+		protected function openChat(chat:GroupChat):void {
+			_chat = chat;
+			_chat.newMessages = 0; //resetNewMessages();
+			view.chatList.dataProvider = _chat.messages;
 		}
 		
 		private function onSendSuccess(result:String):void {
@@ -72,7 +71,7 @@ package org.bigbluebutton.lib.chat.views {
 		 * and disable text input
 		 */
 		protected function userRemoved(user:User2x):void {
-			if (view != null && _user && _user.intId == user.intId) {
+			if (view != null && _chat && _chat.partnerId == user.intId) {
 				view.textInput.enabled = false;
 			}
 		}
@@ -81,8 +80,8 @@ package org.bigbluebutton.lib.chat.views {
 		 * When user returned(refreshed the page) to the conference, remove '[Offline]' from the username
 		 * and enable text input
 		 */
-		protected function userAdded(newuser:User2x):void {
-			if ((view != null) && (_user != null) && (_user.intId == newuser.intId)) {
+		protected function userAdded(newUser:User2x):void {
+			if ((view != null) && (_chat != null) && (_chat.partnerId == newUser.intId)) {
 				view.textInput.enabled = true;
 			}
 		}
@@ -108,12 +107,8 @@ package org.bigbluebutton.lib.chat.views {
 				m.fromTime = currentDate.time;
 				m.message = message;
 				
-				trace ("*** sendButtonClickHandler: CANT PROCESS WITHOUT CHAT ID");
-				/*if (_publicChat) {
-					chatMessageService.sendPublicMessage(m);
-				} else {
-					chatMessageService.sendPrivateMessage(m);
-				}*/
+				chatMessageService.sendChatMessage(_chat.chatId, m);
+				
 			}
 		}
 		

@@ -8,7 +8,9 @@ package org.bigbluebutton.lib.chat.services {
 		function get sendMessageOnFailureSignal():ISignal;
 		function setupMessageSenderReceiver():void;
 		function getGroupChats():void;
-		function sendChatMessage(message:ChatMessageVO):void;
+		function getGroupChatHistory(chatId:String):void;
+		function createGroupChat(name:String, isPublic:Boolean, users:Array):void;
+		function sendChatMessage(chatId:String, message:ChatMessageVO):void;
 		function sendWelcomeMessage():void;
 	}
 }

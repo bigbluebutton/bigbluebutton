@@ -11,7 +11,7 @@
 @namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
 @namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
 
-@font-face { 
+@font-face {
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : normal;
@@ -19,7 +19,7 @@
 	embedAsCFF : true;
 }
 
-@font-face { 
+@font-face {
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : normal;
@@ -27,7 +27,7 @@
 	embedAsCFF : true;
 }
 
-@font-face { 
+@font-face {
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : italic;
@@ -35,7 +35,7 @@
 	embedAsCFF : true;
 }
 
-@font-face { 
+@font-face {
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : normal;
@@ -43,7 +43,7 @@
 	embedAsCFF : true;
 }
 
-@font-face { 
+@font-face {
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
 	fontFamily : SourceSansProMX;
 	fontStyle  : normal;
@@ -51,6 +51,29 @@
 	embedAsCFF : false;
 }
 
+@font-face {
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf");
+	fontFamily : SourceSansProMX;
+	fontStyle  : normal;
+	fontWeight : bold;
+	embedAsCFF : false;
+}
+
+@font-face {
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
+	fontFamily : SourceSansProMX;
+	fontStyle  : italic;
+	fontWeight : normal;
+	embedAsCFF : false;
+}
+
+@font-face {
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+	fontFamily : SourceSansProMX;
+	fontStyle  : normal;
+	fontWeight : heavy;
+	embedAsCFF : false;
+}
 
 /* Shared styles */
 
@@ -62,6 +85,10 @@ global {
 
 s|Application {
 	backgroundColor : PropertyReference("bbbBlack");	
+}
+
+s|Button {
+	fontFamily : SourceSansProMX;
 }
 
 /* Loading screen */
@@ -196,6 +223,7 @@ settings|SettingsItemRenderer {
 }
 
 .menuButton {
+	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
 	selectedBackgroundColor : PropertyReference("bbbGrey");
 	color                   : PropertyReference("white");

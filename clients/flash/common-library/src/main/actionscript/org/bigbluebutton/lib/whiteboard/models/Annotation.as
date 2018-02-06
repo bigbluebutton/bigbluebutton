@@ -14,9 +14,9 @@ package org.bigbluebutton.lib.whiteboard.models {
 		
 		protected var _annInfo:Object;
 		
-		protected var _parentWidth:Number = -1;
+		protected var _parentWidth:Number = 0;
 		
-		protected var _parentHeight:Number = -1;
+		protected var _parentHeight:Number = 0;
 		
 		public function Annotation(id:String, userId:String, type:String, status:String, annInfo:Object) {
 			_id = id;
@@ -75,13 +75,15 @@ package org.bigbluebutton.lib.whiteboard.models {
 			if (_parentWidth != width || _parentHeight != height) {
 				_parentWidth = width;
 				_parentHeight = height;
-				makeGraphic();
+				if (_parentWidth > 0 && _parentHeight > 0) {
+					makeGraphic();
+				}
 			}
 		}
 		
 		public function remove(canvas:Group):void {
-			_parentWidth = -1;
-			_parentHeight = -1;
+			_parentWidth = 0;
+			_parentHeight = 0;
 		}
 	}
 }

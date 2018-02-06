@@ -12,6 +12,8 @@
 
 @namespace users "org.bigbluebutton.lib.user.views.*";
 
+@namespace usersAIR "org.bigbluebutton.air.users.views.*";
+
 @namespace settings "org.bigbluebutton.lib.settings.views.*";
 
 @namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
@@ -57,10 +59,12 @@
     }
 
     libChat|ChatItemRenderer {
-        padding: 11.250;
-        fontSize: 12.750;
-        nameFontSize: 12.750;
-        timeFontSize: 9.000;
+		padding: 5.25;
+		gap: 3.00;
+		leftIndent: 16.50;
+		fontSize: 10.50;
+		nameFontSize: 10.50;
+		timeFontSize: 10.50;
     }
 
     settings|SettingsViewBase, camera|CameraSettingsViewBase {
@@ -70,6 +74,10 @@
     audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
         padding: 11.250;
     }
+	
+	usersAIR|UserDetailsView {
+		groupsPadding : 7.500;
+	}
 
     settings|SettingsItemRenderer {
         fontSize: 12.750;

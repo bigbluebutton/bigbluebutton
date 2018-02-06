@@ -1,6 +1,8 @@
 package org.bigbluebutton.lib.chat.services {
 	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
+	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
+	import org.bigbluebutton.lib.chat.models.GroupChat;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -47,9 +49,17 @@ package org.bigbluebutton.lib.chat.services {
 			chatMessageSender.getGroupChats();
 		}
 		
-		public function sendChatMessage(message:ChatMessageVO):void {
-			trace("CANT SEND CHAT MESSAGE BECAUSE MISSING CHAT ID");
-			//chatMessageSender.sendChatMessage(message);
+		public function getGroupChatHistory(chatId:String):void {
+			chatMessageSender.getGroupChatHistory(chatId);
+		}
+		
+		public function createGroupChat(name:String, isPublic:Boolean, users:Array):void {
+			var access:String = isPublic ? GroupChat.PUBLIC : GroupChat.PRIVATE;
+			chatMessageSender.createGroupChat(name, access, users);
+		}
+		
+		public function sendChatMessage(chatId:String, message:ChatMessageVO):void {
+			chatMessageSender.sendChatMessage(chatId, message);
 		}
 		
 		/**
@@ -67,7 +77,7 @@ package org.bigbluebutton.lib.chat.services {
 				msg.fromTime = new Date().time;
 				msg.message = welcome;
 				// imitate new public message being sent
-				chatMessagesSession.newPublicMessage(msg);
+				chatMessagesSession.addChatMessage("MAIN-PUBLIC-GROUP-CHAT", msg);
 			}
 		}
 	}

@@ -6,6 +6,7 @@ package org.bigbluebutton.air.users.views {
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.users.views.models.UserDetailsVM;
+	import org.bigbluebutton.lib.chat.commands.StartPrivateChatSignal;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
 	import org.bigbluebutton.lib.main.commands.LockUserSignal;
 	import org.bigbluebutton.lib.main.commands.PresenterSignal;
@@ -27,6 +28,9 @@ package org.bigbluebutton.air.users.views {
 		
 		[Inject]
 		public var userUISession:IUISession;
+		
+		[Inject]
+		public var startPrivateChatSignal:StartPrivateChatSignal;
 		
 		[Inject]
 		public var clearUserStatusSignal:ClearUserStatusSignal;
@@ -86,7 +90,8 @@ package org.bigbluebutton.air.users.views {
 		}
 		
 		protected function onShowPrivateChatButton(event:MouseEvent):void {
-			userUISession.pushPage(PageEnum.CHAT, {publicChat: false, intId: _user.intId}, TransitionAnimationEnum.APPEAR);
+			startPrivateChatSignal.dispatch(_user.intId);
+			userUISession.popPage();
 		}
 		
 		protected function onClearStatusButton(event:MouseEvent):void {
