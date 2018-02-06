@@ -17,6 +17,8 @@ export default withTracker((params) => {
 
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const LockCam = meeting.lockSettingsProp ? meeting.lockSettingsProp.disableCam : false;
+  const webcamOnlyModerator = meeting.usersProp.webcamsOnlyForModerator;
+
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
 
@@ -26,6 +28,6 @@ export default withTracker((params) => {
     isConnected,
     handleJoinVideo: params.handleJoinVideo,
     handleCloseVideo: params.handleCloseVideo,
-    isLocked: LockCam && userLocked,
+    isLocked: (LockCam && userLocked) || webcamOnlyModerator,
   };
 })(JoinVideoOptionsContainer);
