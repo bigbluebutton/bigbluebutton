@@ -38,7 +38,6 @@ package org.bigbluebutton.lib.main.models {
 		function get presentationList():PresentationList;
 		function get successJoiningMeetingSignal():ISignal;
 		function get failureJoiningMeetingSignal():ISignal;
-		function get loadedMessageHistorySignal():ISignal;
 		function get assignedDeskshareSignal():ISignal;
 		function get logoutSignal():Signal;
 		function get recordingStatusChangedSignal():ISignal;

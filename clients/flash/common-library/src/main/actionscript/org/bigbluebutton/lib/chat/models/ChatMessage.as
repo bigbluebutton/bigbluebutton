@@ -3,19 +3,19 @@ package org.bigbluebutton.lib.chat.models {
 	[Bindable]
 	public class ChatMessage {
 		
-		public var lastSenderId:String;
-		
 		public var senderId:String;
 		
-		public var senderColor:uint;
+		public var color:uint;
 		
 		public var name:String;
 		
 		public var time:String;
 		
-		public var lastTime:String;
-		
 		public var message:String;
+		
+		public var sameSender:Boolean;
+		
+		public var sameTime:Boolean;
 		
 		// Stores the time (millis) when the sender sent the message.
 		public var fromTime:Number;

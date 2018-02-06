@@ -47,11 +47,23 @@
 	}
 	
 	libChat|ChatItemRenderer {
-		padding      : 30;
-		fontSize     : 34;
-		nameFontSize : 34;
-		timeFontSize : 24;
+		padding      : 14;
+		gap          : 8;
+		leftIndent   : 44;
+		fontSize     : 28;
+		nameFontSize : 28;
+		timeFontSize : 28;
 	}
+	
+	libChat|ChatItemRenderer {
+		padding: 10.00;
+		gap: 6.00;
+		leftIndent: 33.00;
+		fontSize: 21.00;
+		nameFontSize: 21.00;
+		timeFontSize: 21.00;
+	}
+
 	
 	settings|SettingsViewBase, camera|CameraSettingsViewBase {
 		groupsPadding : 40;

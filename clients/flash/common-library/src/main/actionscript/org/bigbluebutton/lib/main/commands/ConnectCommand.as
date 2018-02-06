@@ -101,7 +101,6 @@ package org.bigbluebutton.lib.main.commands {
 			usersService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
 			userSession.authTokenSignal.add(onAuthTokenReply);
-			userSession.loadedMessageHistorySignal.add(chatService.sendWelcomeMessage);
 			usersService.validateToken();
 			connection.connectionSuccessSignal.remove(connectionSuccess);
 			connection.connectionFailureSignal.remove(connectionFailure);

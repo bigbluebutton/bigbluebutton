@@ -24,12 +24,12 @@
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
-					title.text = obj.userName;
+					title.text = obj.name;
 					if (obj.isPublic == true) {
 						publicChatIcon.visible = publicChatIcon.includeInLayout = true;
 						participantIcon.visible = participantIcon.includeInLayout = false;
 					} else {
-						participantIcon.displayInitials = UserUtils.getInitials(obj.userName);
+						participantIcon.displayInitials = UserUtils.getInitials(obj.name);
 						participantIcon.visible = participantIcon.includeInLayout = true;
 						publicChatIcon.visible = publicChatIcon.includeInLayout = false;
 					}
