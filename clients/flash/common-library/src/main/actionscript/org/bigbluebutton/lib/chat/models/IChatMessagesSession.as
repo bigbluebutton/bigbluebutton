@@ -4,11 +4,12 @@ package org.bigbluebutton.lib.chat.models {
 	
 	public interface IChatMessagesSession {
 		function get chats():ArrayCollection;
-		function set chats(val:ArrayCollection):void;
-		function get publicConversation():Conversation;
-		function newPublicMessage(newMessage:ChatMessageVO):void;
-		function getPrivateMessages(userId:String, userName:String):Conversation;
-		function newPrivateMessage(userId:String, userName:String, newMessage:ChatMessageVO):void;
-		function addUserToPrivateMessages(userId:String, userName:String):Conversation;
+		function getGroupByChatId(chatId:String):GroupChat;
+		function getGroupByUserId(userId:String):GroupChat;
+		function addGroupChatsList(chats:Array):void;
+		function addMessageHistory(chatId:String, messages:Array):void;
+		function clearPublicChat(chatId:String):void;
+		function addChatMessage(chatId:String, cm:ChatMessageVO):void;
+		function addGroupChat(groupChat:GroupChatVO):void;
 	}
 }

@@ -26,24 +26,36 @@ package org.bigbluebutton.lib.chat.services {
 		
 		public function getGroupChats():void {
 			trace(LOG + "Sending [GetGroupChatsReqMsg] to server.");
-			var message:Object = {
-				header: {name: "GetGroupChatsReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
-				body: {}
-			};
+			var message:Object = {header: {name: "GetGroupChatsReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID}, body: {}};
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function sendChatMessage(chatId: String, cm:ChatMessageVO):void {
+		public function getGroupChatHistory(chatId:String):void {
+			trace("Sending [GetGroupChatMsgsReqMsg] for chatId = " + chatId);
+			var message:Object = {header: {name: "GetGroupChatMsgsReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID}, body: {chatId: chatId}};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
+		public function createGroupChat(name:String, access:String, users:Array):void {
+			trace("Sending [GetGroupChatMsgsReqMsg]");
+			var myUserId:String = conferenceParameters.internalUserID;
+			var now:Date = new Date();
+			var corrId:String = myUserId + "-" + now.time;
+			
+			var message:Object = {header: {name: "CreateGroupChatReqMsg", meetingId: conferenceParameters.meetingID, userId: myUserId}, body: {correlationId: corrId, name: name, access: access, users: users, msg: []}};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
+		public function sendChatMessage(chatId:String, cm:ChatMessageVO):void {
 			trace("Sending [SendGroupChatMessageMsg] to server. [{0}]", [cm.message]);
 			var sender:Object = {id: cm.fromUserId, name: cm.fromUsername};
-			var corrId: String = ChatUtil.genCorrelationId(conferenceParameters.internalUserID);
+			var corrId:String = ChatUtil.genCorrelationId(conferenceParameters.internalUserID);
 			
 			var msgFromUser:Object = {correlationId: corrId, sender: sender, color: cm.fromColor, message: cm.message};
 			
-			var message:Object = {
-				header: {name: "SendGroupChatMessageMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
-				body: {chatId: chatId, msg: msgFromUser}
-			};
+			var message:Object = {header: {name: "SendGroupChatMessageMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID}, body: {chatId: chatId, msg: msgFromUser}};
 			
 			userSession.mainConnection.sendMessage2x(sendChatSuccessResponse, sendChatFailureResponse, message);
 		}

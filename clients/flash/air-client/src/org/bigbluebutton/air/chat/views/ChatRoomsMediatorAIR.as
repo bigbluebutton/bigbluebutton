@@ -12,8 +12,7 @@ package org.bigbluebutton.air.chat.views {
 		
 		override protected function onListIndexChangeEvent(e:IndexChangeEvent):void {
 			var item:Object = dataProvider.getItemAt(e.newIndex);
-			uiSession.pushPage(PageEnum.CHAT, {intId: item.userId, publicChat: item.isPublic});
-			//uiSession.chatInfo = new ChatRoomVO(item.userId, item.isPublic);
+			uiSession.pushPage(PageEnum.CHAT, {chatId: item.chatId});
 		}
 	}
 }

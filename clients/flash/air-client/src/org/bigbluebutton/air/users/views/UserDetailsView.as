@@ -136,7 +136,7 @@ package org.bigbluebutton.air.users.views {
 			sGroup.addElement(_clearStatusButton);
 			
 			_makePresenterButton = new Button();
-			_makePresenterButton.percentWidth
+			_makePresenterButton.percentWidth = 90;
 			_makePresenterButton.label= "Make Presenter"; //{resourceManager.getString('resources', 'userDetail.presenterBtn.text')}"
 			_makePresenterButton.styleName="userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_makePresenterButton);

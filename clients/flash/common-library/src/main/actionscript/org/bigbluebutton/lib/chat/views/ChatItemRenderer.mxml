@@ -13,8 +13,17 @@
 			import org.bigbluebutton.lib.user.utils.UserUtils;
 			
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-				wrapperGroup.padding = getStyle("padding");
-				titleGroup.gap = getStyle("padding");
+				var iPadding:int = getStyle("padding");
+				var iGap:int = getStyle("gap");
+				wrapperGroup.left = iPadding;
+				wrapperGroup.top = iPadding;
+				wrapperGroup.right = iPadding;
+				wrapperGroup.bottom = iPadding;
+				
+				messageGroup.gap = iGap;
+				titleGroup.gap = iGap;
+				
+				messageGroup.left = getStyle("leftIndent") + iGap;
 				
 				username.setStyle("color", getStyle("nameColor"));
 				username.setStyle("fontSize", getStyle("nameFontSize"));
@@ -34,25 +43,17 @@
 					} else {
 						message.textFlow = TextConverter.importToFlow(m.message, TextConverter.TEXT_FIELD_HTML_FORMAT);
 					}
-					var sameUser:Boolean = (m.lastSenderId == m.senderId);
-					var sameTime:Boolean = (m.lastTime == m.time);
-					if (sameUser && sameTime) {
-						username.includeInLayout = time.includeInLayout = false;
-						username.visible = time.visible = false;
-						participantIcon.visible = false;
+					if (m.sameSender && m.sameTime) {
+						titleGroup.includeInLayout = titleGroup.visible = false;
+						participantIcon.visible = participantIcon.includeInLayout = false;
 					} else {
-						username.includeInLayout = time.includeInLayout = true;
-						username.visible = time.visible = true;
+						titleGroup.includeInLayout = titleGroup.visible = true;
 						if (m.name == " ") {
-							participantIcon.visible = false;
-							username.visible = false;
-							username.includeInLayout = false;
+							participantIcon.visible = participantIcon.includeInLayout = false;
 						} else {
 							username.text = m.name;
 							participantIcon.displayInitials = UserUtils.getInitials(m.name);
-							participantIcon.visible = true;
-							username.visible = true;
-							username.includeInLayout = true;
+							participantIcon.visible = participantIcon.includeInLayout = true
 						}
 					}
 				}
@@ -72,20 +73,21 @@
 		]]>
 	</fx:Script>
 
-	<s:VGroup id="wrapperGroup"
-			  width="100%">
-		<s:HGroup id="titleGroup"
-				  width="100%"
-				  verticalAlign="middle">
-			<views:ParticipantIcon id="participantIcon" />
-			<s:Label id="username"
-					 visible="true" />
-			<s:Label id="time" />
-		</s:HGroup>
-		<s:RichEditableText id="message"
-							paddingLeft="{participantIcon.width + getStyle('padding')}"
-							editable="false"
-							selectable="false"
-							width="100%" />
-	</s:VGroup>
+	<s:Group id="wrapperGroup"
+			 width="100%">
+		<views:ParticipantIcon id="participantIcon" />
+		<s:VGroup id="messageGroup"
+				  width="100%">
+			<s:HGroup id="titleGroup"
+					  width="100%"
+					  verticalAlign="bottom">
+				<s:Label id="username" />
+				<s:Label id="time" />
+			</s:HGroup>
+			<s:RichEditableText id="message"
+								editable="false"
+								selectable="false"
+								width="100%" />
+		</s:VGroup>
+	</s:Group>
 </s:ItemRenderer>

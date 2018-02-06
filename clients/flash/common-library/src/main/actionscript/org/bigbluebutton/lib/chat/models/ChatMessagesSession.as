@@ -2,78 +2,102 @@ package org.bigbluebutton.lib.chat.models {
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.lib.chat.commands.RequestGroupChatHistorySignal;
+	import org.bigbluebutton.lib.main.models.IUserSession;
+	
 	public class ChatMessagesSession implements IChatMessagesSession {
 		
-		private var _chats:ArrayCollection;
+		private static const DEFAULT_CHAT_ID:String = "MAIN-PUBLIC-GROUP-CHAT";
+		
+		[Inject]
+		public var userSession:IUserSession;
+		
+		[Inject]
+		public var requestChatHistorySignal:RequestGroupChatHistorySignal;
 		
 		[Bindable]
-		public function get chats():ArrayCollection {
-			return _chats;
-		}
-		
-		public function set chats(val:ArrayCollection):void {
-			_chats = val;
-		}
-		
-		public function get publicConversation():Conversation {
-			return _chats[0];
-		}
+		public var chats:ArrayCollection;
 		
 		public function ChatMessagesSession():void {
-			_chats = new ArrayCollection();
-			_chats.addItem(new Conversation("", "Public Chat", true));
+			chats = new ArrayCollection();
 		}
 		
-		public function newPublicMessage(newMessage:ChatMessageVO):void {
-			publicConversation.newChatMessage(newMessage);
-		}
-		
-		/**
-		 * Create private chat for the new user
-		 *
-		 **/
-		public function addUserToPrivateMessages(userId:String, userName:String):Conversation {
-			var conv:Conversation = new Conversation(userId, userName, false);
-			_chats.addItem(conv);
+		public function getGroupByChatId(chatId:String):GroupChat {
+			for each (var chat:GroupChat in chats) {
+				if (chat.chatId == chatId) {
+					return chat;
+				}
+			}
 			
-			return conv;
+			return null;
 		}
 		
-		/**
-		 * Send private messages to a specific user based on a UserId
-		 *
-		 * @param UserId
-		 * @param newMessage
-		 */
-		public function newPrivateMessage(userId:String, userName:String, newMessage:ChatMessageVO):void {
-			if (_chats != null) {
-				for each (var conv:Conversation in _chats) {
-					if (conv.userId == userId) {
-						conv.newChatMessage(newMessage);
-						return;
-					}
+		public function getGroupByUserId(userId:String):GroupChat {
+			for each (var chat:GroupChat in chats) {
+				if (chat.partnerId == userId) {
+					return chat;
 				}
-				// if chat wasn't added to _privateChats colletion yet
-				var newConv:Conversation = addUserToPrivateMessages(userId, userName);
-				newConv.newChatMessage(newMessage);
+			}
+			
+			return null;
+		}
+		
+		public function addGroupChatsList(chatVOs:Array):void {
+			for each (var chat:GroupChatVO in chatVOs) {
+				chats.addItem(convertGroupChatVO(chat));
+				
+				requestChatHistorySignal.dispatch(chat.id);
 			}
 		}
 		
-		/**
-		 * Get a private chat messages based on a UserId
-		 *
-		 * @param UserId
-		 */
-		public function getPrivateMessages(userId:String, userName:String):Conversation {
-			if (_chats != null) {
-				for each (var conv:Conversation in _chats) {
-					if (conv.userId == userId) {
-						return conv;
+		public function addMessageHistory(chatId:String, messages:Array):void {
+			var chat:GroupChat = getGroupByChatId(chatId);
+			if (chat) {
+				chat.addChatHistory(messages);
+			}
+		}
+		
+		public function clearPublicChat(chatId:String):void {
+			var chatGroup:GroupChat = getGroupByChatId(chatId);
+			if (chatGroup) {
+				chatGroup.clearMessages();
+			}
+		}
+		
+		public function addChatMessage(chatId:String, newMessage:ChatMessageVO):void {
+			var chatGroup:GroupChat = getGroupByChatId(chatId);
+			if (chatGroup) {
+				chatGroup.newChatMessage(newMessage);
+			}
+		}
+		
+		public function addGroupChat(vo:GroupChatVO):void {
+			chats.addItem(convertGroupChatVO(vo));
+		}
+		
+		private function convertGroupChatVO(vo:GroupChatVO):GroupChat {
+			var partnerId:String = "";
+			
+			if (vo.access == GroupChat.PRIVATE) {
+				var myUserId:String = userSession.userList.me.userId;
+				for each (var user:GroupChatUser in vo.users) {
+					if (user.id != myUserId) {
+						partnerId = user.id;
+						// The name of a private chat group is supposed to be who you're chatting
+						// with, but it comes in relative to who created it so we need to fix the name.
+						vo.name = user.name;
 					}
 				}
 			}
-			// if user is not in private messages yet, add one
-			return addUserToPrivateMessages(userId, userName);
+			
+			// Need to replace the name with a more human redable version
+			if (vo.id == DEFAULT_CHAT_ID) {
+				vo.name = "Public Chat";
+			}
+			
+			var newGroupChat:GroupChat = new GroupChat(vo.id, vo.name, vo.access == GroupChat.PUBLIC, partnerId);
+			
+			return newGroupChat;
 		}
 	}
 }

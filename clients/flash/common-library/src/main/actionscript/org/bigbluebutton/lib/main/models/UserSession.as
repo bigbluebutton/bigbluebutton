@@ -48,8 +48,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _pushToTalk:Boolean;
 		
-		protected var _loadedMessageHistorySignal:ISignal = new Signal();
-		
 		protected var _successJoiningMeetingSignal:ISignal = new Signal();
 		
 		protected var _failureJoiningMeetingSignal:ISignal = new Signal();
@@ -194,10 +192,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get presentationList():PresentationList {
 			return _presentationList;
-		}
-		
-		public function get loadedMessageHistorySignal():ISignal {
-			return _loadedMessageHistorySignal;
 		}
 		
 		public function get successJoiningMeetingSignal():ISignal {
