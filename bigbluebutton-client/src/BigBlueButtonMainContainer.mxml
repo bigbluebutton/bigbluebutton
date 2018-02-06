@@ -88,7 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
 	
 	  private function getSessionToken():String {
-		  return BBB.getSessionTokenUtil().getSessionToken();
+		  return BBB.getQueryStringParameters().getSessionToken();
 	  }
 
       private function timerHandler(e:TimerEvent):void{

@@ -59,7 +59,7 @@ class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: St
   def onPMessage(pmessage: PMessage) {
 
     // We don't use PSubscribe anymore, but an implementation of the method is required
-    log.error("Should not be receiving a PMessage. It triggered on a match of pattern: " + pmessage.patternMatched)
-    log.error(pmessage.data.utf8String)
+    //log.error("Should not be receiving a PMessage. It triggered on a match of pattern: " + pmessage.patternMatched)
+    //log.error(pmessage.data.utf8String)
   }
 }

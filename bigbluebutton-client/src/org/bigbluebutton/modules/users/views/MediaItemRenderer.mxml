@@ -210,6 +210,12 @@
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = false;
+
+							if (data.talking && !rolledOver) {
+								muteImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+							} else {
+								muteImg.filters = [];
+							}
 						} else {
 							// can no longer unmute others
 							var showMuteBtn:Boolean = rolledOver && (!data.muted || data.me);

@@ -21,14 +21,16 @@ package org.bigbluebutton.core {
 	import flash.system.Capabilities;
 	
 	import mx.core.FlexGlobals;
+	import mx.utils.URLUtil;
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.VideoProfileManager;
+	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.core.model.VideoProfile;
-	import org.bigbluebutton.util.SessionTokenUtil;
+	import org.bigbluebutton.util.QueryStringParameters;
 
 	public class BBB {
 		
@@ -40,13 +42,13 @@ package org.bigbluebutton.core {
 
 		private static var videoProfileManager:VideoProfileManager = null;
 
-		private static var sessionTokenUtil:SessionTokenUtil = null;
+		private static var queryStringParameters:QueryStringParameters = null;
 
-		public static function getSessionTokenUtil():SessionTokenUtil {
-			if (sessionTokenUtil == null) {
-				sessionTokenUtil = new SessionTokenUtil();
+		public static function getQueryStringParameters():QueryStringParameters {
+			if (queryStringParameters == null) {
+				queryStringParameters = new QueryStringParameters();
 			}
-			return sessionTokenUtil;
+			return queryStringParameters;
 		}
 
 		public static function getConfigManager():ConfigManager2 {
@@ -105,6 +107,23 @@ package org.bigbluebutton.core {
 				LOGGER.warn("Unable to match RegExp.");
 				return 0;
 			}
+		}
+
+		public static function getLogoutURL():String {
+			var logoutUrl:String = LiveMeeting.inst().me.logoutURL;
+			if (logoutUrl == null) {
+				logoutUrl = getBaseURL();
+			}
+			return logoutUrl;
+		}
+
+		public static function getSignoutURL():String {
+			var sessionToken:String = getQueryStringParameters().getSessionToken();
+			var logoutUrl:String = getBaseURL();
+			if (sessionToken != "") {
+				logoutUrl += "/bigbluebutton/api/signOut?sessionToken=" + sessionToken;
+			}
+			return logoutUrl;
 		}
 
 		public static function getBaseURL():String {

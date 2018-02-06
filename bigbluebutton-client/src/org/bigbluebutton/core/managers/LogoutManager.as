@@ -143,7 +143,7 @@ package org.bigbluebutton.core.managers {
 		}
 
 		private function getSignoutURL():String {
-			var sessionToken:String = BBB.getSessionTokenUtil().getSessionToken();
+			var sessionToken:String = BBB.getQueryStringParameters().getSessionToken();
 			var logoutUrl:String = BBB.getBaseURL();
 			if (sessionToken != "") {
 				logoutUrl += "/bigbluebutton/api/signOut?sessionToken=" + sessionToken;

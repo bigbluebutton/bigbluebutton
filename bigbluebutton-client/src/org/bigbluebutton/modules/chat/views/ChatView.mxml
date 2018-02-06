@@ -44,37 +44,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.Event;
-      import flash.events.FocusEvent;
-      import flash.media.Sound;
-      
-      import mx.controls.Button;
-      import mx.core.INavigatorContent;
-      
-      import flexlib.controls.tabBarClasses.SuperTab;
-      import flexlib.events.SuperTabEvent;
-      
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
-      import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
-      import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
-      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-      import org.bigbluebutton.modules.chat.events.FocusOnChatBoxEvent;
-      import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
-      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
-      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.model.ChatModel;
-      import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.chat.model.GroupChat;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.Event;
+			import flash.events.FocusEvent;
+			import flash.media.Sound;
+			
+			import mx.controls.Button;
+			import mx.core.INavigatorContent;
+			
+			import flexlib.controls.tabBarClasses.SuperTab;
+			import flexlib.events.SuperTabEvent;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
+			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
+			import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
+			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+			import org.bigbluebutton.modules.chat.events.FocusOnChatBoxEvent;
+			import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
+			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.PrivateGroupChatCreatedEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.model.ChatConversation;
+			import org.bigbluebutton.modules.chat.model.ChatModel;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.chat.model.GroupChat;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
       
       
       private var PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
@@ -109,7 +111,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
       }
       
-      
       private function onCreationComplete():void{				
         openChatBoxFor(mainChatId, true);
         makePublicChatUncloseable();
@@ -142,7 +143,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var chatBox:ChatTab = getPublicChatBox();
         var saveEvent:ChatSaveEvent = new ChatSaveEvent(ChatSaveEvent.SAVE_CHAT_EVENT);
         
-        if (chatBox.chatWithUsername == null || chatBox.chatWithUsername == "") {
+        if (StringUtils.isEmpty(chatBox.chatWithUsername)) {
           saveEvent.filename = ResourceUtil.getInstance().getString('bbb.chat.save.filename');
         } else {
           saveEvent.filename = chatBox.chatWithUsername;
@@ -342,6 +343,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         chatBox.chatWithUserID = groupChatId;
         chatBox.parentWindowId = windowId;
         chatBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
+				chatBox.chatMessages = new ChatConversation(groupChatId);
         
         if (publicChat) {
           chatBox.chatId = groupChatId;
@@ -355,7 +357,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             chatBox.publicChat = false;
             // We want to display other user's name without ours.
             chatBox.label = gc.getNameAsUsers(UsersUtil.getMyUserID());
-            chatBox.displayHowToCloseMessage();
           }
         }
         

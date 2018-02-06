@@ -20,11 +20,15 @@ package org.bigbluebutton.modules.chat.model
 {
   import com.adobe.utils.StringUtil;
   import com.asfusion.mate.events.Dispatcher;
-  
+  import flash.external.ExternalInterface;
   import flash.system.Capabilities;
-  
   import mx.collections.ArrayCollection;
-  
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.lang.StringUtils;
+  import org.bigbluebutton.common.Role;
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -32,23 +36,25 @@ package org.bigbluebutton.modules.chat.model
   
   public class ChatConversation
   { 
+		private static const LOGGER:ILogger = getClassLogger(ChatConversation);
+		
     private var _dispatcher:Dispatcher = new Dispatcher();
     
     [Bindable]
     public var messages:ArrayCollection = new ArrayCollection();
     
-    private var id: String;
+    private var chatId: String;
     
 		private var welcomeMsgAdded:Boolean = false;
 		private var modOnlyMsgAdded:Boolean = false;
 		private var howToCloseMsgAdded:Boolean = false;
 		
-    public function ChatConversation(id: String) {
-      this.id = id;
+    public function ChatConversation(chatId: String) {
+      this.chatId = chatId;
     }
     
-    public function getId(): String {
-      return id;
+    public function getChatId(): String {
+      return chatId;
     }
     
     public function numMessages():int {
@@ -56,48 +62,23 @@ package org.bigbluebutton.modules.chat.model
     }
     
     public function newChatMessage(msg:ChatMessageVO):void {
-			// Let's filter messages that we don't want duplicated especially
-			// on auto-reconnects (ralam dec 19, 2017)
-			if (msg.fromUserId == ChatModel.WELCOME_MSG) {
-				if (welcomeMsgAdded) {
-					return;
-				} else {
-					welcomeMsgAdded = true;
-				}
+			var previousCM:ChatMessage = null;
+			if (messages.length > 0) {
+				previousCM= messages.getItemAt(messages.length-1) as ChatMessage;
 			}
 			
-			if (msg.fromUserId == ChatModel.MOD_ONLY_MSG) {
-				if (modOnlyMsgAdded) {
-					return;
-				} else {
-					modOnlyMsgAdded = true;
-				}
-			}
-			
-			if (msg.fromUserId == ChatModel.HOW_TO_CLOSE_MSG) {
-				if (howToCloseMsgAdded) {
-					return;
-				} else {
-					howToCloseMsgAdded = true;
-				}
-			}
-			
-      var newCM:ChatMessage = convertChatMessage(msg);
-      if (messages.length > 0) {
-        var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
-        newCM.lastSenderId = previousCM.senderId;
-        newCM.lastTime = previousCM.time;
-      }
+      var newCM:ChatMessage = convertChatMessage(msg, previousCM);
+
       messages.addItem(newCM);
     }
     
     public function newPrivateChatMessage(msg:ChatMessageVO):void {
-      var newCM:ChatMessage = convertChatMessage(msg);
-	  if (messages.length > 0) {
-		  var previousCM:ChatMessage = messages.getItemAt(messages.length-1) as ChatMessage;
-		  newCM.lastSenderId = previousCM.senderId;
-		  newCM.lastTime = previousCM.time;
-	  }
+			var previousCM:ChatMessage = null;
+			if (messages.length > 0) {
+				previousCM = messages.getItemAt(messages.length-1) as ChatMessage;
+			}
+			
+      var newCM:ChatMessage = convertChatMessage(msg, previousCM);
 	  messages.addItem(newCM);
 	  messages.refresh();
     }
@@ -114,37 +95,44 @@ package org.bigbluebutton.modules.chat.model
 				// auto-reconnected (ralam dec 19, 2017)
         messages = new ArrayCollection();
 				resetFlags();
-        var previousCM:ChatMessage = convertChatMessage(messageVOs[0] as ChatMessageVO);;
+        var previousCM:ChatMessage = convertChatMessage(messageVOs[0] as ChatMessageVO, null);
         var newCM:ChatMessage;
         messages.addItemAt(previousCM, 0);
         
         for (var i:int=1; i < messageVOs.length; i++) {
-          newCM = convertChatMessage(messageVOs[i] as ChatMessageVO);
-          newCM.lastSenderId = previousCM.senderId;
-          newCM.lastTime = previousCM.time;
+          newCM = convertChatMessage(messageVOs[i] as ChatMessageVO, previousCM);
           messages.addItemAt(newCM, i);
           previousCM = newCM;
         }
-        
-        if (messageVOs.length < messages.length) {
-          newCM = messages.getItemAt(messageVOs.length) as ChatMessage;
-          newCM.lastSenderId = previousCM.senderId;
-          newCM.lastTime = previousCM.time;
-        }
-		messages.refresh();
       }
+			
+			LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "]");
+			
+			var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+			if (groupChat != null) {
+				if (groupChat.access == GroupChat.PRIVATE) {
+					displayHowToCloseMessage();
+				} else {
+					LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "] PUBLIC GROUP CHAT");
+					if (chatId == ChatModel.MAIN_PUBLIC_CHAT) {
+						LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY 2");
+						sendWelcomeMessage(chatId);
+						addModOnlyMessage();
+					}
+				}
+			} else {
+				LOGGER.debug("CHAT HISTORY ----- PROCESS CHAT HISTORY [" + chatId + "] CANNOT FIND GROUP CHAT");
+			}
+			
+			messages.refresh();
     }
     
-    private function convertChatMessage(msgVO:ChatMessageVO):ChatMessage {
-      var cm:ChatMessage = new ChatMessage();
-      
+    private function convertChatMessage(msgVO:ChatMessageVO, prevCM:ChatMessage):ChatMessage {
+      var cm:ChatMessage = new ChatMessage();      
       cm.lastSenderId = "";
       cm.lastTime = "";
-      
       cm.senderId = msgVO.fromUserId;
-      
       cm.text = msgVO.message;
-      
       cm.name = msgVO.fromUsername;
       cm.senderColor = uint(msgVO.fromColor);
       
@@ -153,9 +141,97 @@ package org.bigbluebutton.modules.chat.model
         cm.fromTime = msgVO.fromTime;
         cm.time = convertTimeNumberToString(msgVO.fromTime);
       }
-      return cm
+			
+			if (prevCM != null) {
+				cm.lastSenderId = prevCM.senderId;
+				cm.lastTime = prevCM.time;
+				cm.differentLastSenderAndTime = differentLastSenderAndTime(cm.lastTime, cm.time, 
+					cm.senderId, cm.lastSenderId);
+				cm.sameLastSender = sameLastSender(cm.senderId, cm.lastSenderId);
+				cm.isModerator = isModerator(cm.senderId);
+			}
+			
+			return cm
     }
     
+		private function displayHowToCloseMessage():void {
+			if (howToCloseMsgAdded) {
+				return;
+			} else {
+				howToCloseMsgAdded = true;
+			}
+			
+			var modifier:String = ExternalInterface.call("determineModifier");
+			var keyCombo:String = modifier + String.fromCharCode(int(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate')));
+			
+			var msg:ChatMessageVO = new ChatMessageVO();
+			msg.fromUserId = ChatModel.HOW_TO_CLOSE_MSG;
+			msg.fromUsername = ChatModel.SPACE;
+			msg.fromColor = "0";
+			msg.fromTime = new Date().getTime();
+			msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
+			
+			newChatMessage(msg);
+		}
+		
+		private function sendWelcomeMessage(chatId:String):void {
+			if (welcomeMsgAdded) {
+				return;
+			} else {
+				welcomeMsgAdded = true;
+			}
+			
+			var welcome:String = LiveMeeting.inst().me.welcome;
+			if (welcome != "") {
+				var welcomeMsg:ChatMessageVO = new ChatMessageVO();
+				welcomeMsg.fromUserId = ChatModel.WELCOME_MSG;
+				welcomeMsg.fromUsername = ChatModel.SPACE;
+				welcomeMsg.fromColor = "86187";
+				welcomeMsg.fromTime = new Date().getTime();
+				welcomeMsg.message = welcome;
+				
+				newChatMessage(welcomeMsg);
+				
+				//Say that client is ready when sending the welcome message
+				ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
+			}	
+		}
+		
+		private function addModOnlyMessage():void {
+			if (modOnlyMsgAdded) {
+				return;
+			} else {
+				modOnlyMsgAdded = true;
+			}
+			
+			if (UsersUtil.amIModerator()) {
+				if (LiveMeeting.inst().meeting.modOnlyMessage != null) {
+					var moderatorOnlyMsg:ChatMessageVO = new ChatMessageVO();
+					moderatorOnlyMsg.fromUserId = ChatModel.MOD_ONLY_MSG;
+					moderatorOnlyMsg.fromUsername = ChatModel.SPACE;
+					moderatorOnlyMsg.fromColor = "86187";
+					moderatorOnlyMsg.fromTime = new Date().getTime();
+					moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
+					
+					newChatMessage(moderatorOnlyMsg);
+					
+				}
+			}
+		}
+		
+		private function differentLastSenderAndTime(lastTime: String, time: String, 
+																								senderId: String, lastSenderId: String):Boolean {
+			return !(lastTime == time) || !sameLastSender(senderId, lastSenderId);
+		}
+		
+		private function sameLastSender(senderId: String, lastSenderId: String) : Boolean {
+			return StringUtils.trimToEmpty(senderId) == StringUtils.trimToEmpty(lastSenderId);
+		}
+		
+		private function isModerator(senderId: String):Boolean {
+			return UsersUtil.getUser(senderId) && UsersUtil.getUser(senderId).role == Role.MODERATOR
+		}
+		
     private function convertTimeNumberToString(time:Number):String {
       var sentTime:Date = new Date();
       sentTime.setTime(time);

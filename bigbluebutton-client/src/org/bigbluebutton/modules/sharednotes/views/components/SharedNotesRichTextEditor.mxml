@@ -283,23 +283,23 @@
 
     <fx:Script>
     <![CDATA[
-
-    import flash.events.Event;
-    import flash.events.FocusEvent;
-    import flash.events.KeyboardEvent;
-    import flash.events.MouseEvent;
-    import flash.events.TextEvent;
-    import flash.text.TextFormat;
-    
-    import mx.collections.ArrayCollection;
-    import mx.controls.textClasses.TextRange;
-    import mx.core.IUITextField;
-    import mx.core.UITextFormat;
-    import mx.core.mx_internal;
-    
-    import org.as3commons.logging.api.ILogger;
-    import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+		import flash.events.Event;
+		import flash.events.FocusEvent;
+		import flash.events.KeyboardEvent;
+		import flash.events.MouseEvent;
+		import flash.events.TextEvent;
+		import flash.text.TextFormat;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.textClasses.TextRange;
+		import mx.core.IUITextField;
+		import mx.core.UITextFormat;
+		import mx.core.mx_internal;
+		
+		import org.as3commons.lang.StringUtils;
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
     use namespace mx_internal;
 
     private static const LOGGER:ILogger = getClassLogger(SharedNotesRichTextEditor);
@@ -902,7 +902,7 @@
                 if (carIndex < textArea.getTextField().length)
                 {
                     var tfNext:TextFormat=textArea.getTextField().getTextFormat(carIndex, carIndex + 1);
-                    if (!tfNext.url || tfNext.url == "")
+                    if (StringUtils.isEmpty(tfNext.url))
                         tf.url = tf.target = "";
                 }
                 else
@@ -938,7 +938,7 @@
         if (!previousTextFormat || previousTextFormat.bullet != tf.bullet)
             bulletButton.selected = tf.bullet;
         if (!previousTextFormat || previousTextFormat.url != tf.url)
-            linkTextInput.text = (tf.url == "" || tf.url == null) ? defaultLinkProtocol : tf.url;
+            linkTextInput.text = (StringUtils.isEmpty(tf.url)) ? defaultLinkProtocol : tf.url;
 
         if (textArea.getTextField().defaultTextFormat != tf)
             textArea.getTextField().defaultTextFormat = tf;
