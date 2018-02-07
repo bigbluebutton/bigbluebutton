@@ -44,25 +44,6 @@ class JoinVideoOptions extends React.Component {
     }
 
     return (
-      <span className={styles.container}>
-        <Button
-          className={styles.button}
-          onClick={handleCloseVideo}
-          label={intl.formatMessage(intlMessages.leaveVideo)}
-          hideLabel
-          aria-label={intl.formatMessage(intlMessages.leaveVideo)}
-          color="danger"
-          icon="video"
-          size="lg"
-          circle
-          disabled={isWaitingResponse}
-        />
-      </span>
-    );
-  }
-
-  return (
-    <span className={styles.container}>
       <Button
         className={styles.button}
         onClick={handleJoinVideo}
