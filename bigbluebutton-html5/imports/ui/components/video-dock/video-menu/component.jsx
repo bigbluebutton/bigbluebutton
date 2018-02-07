@@ -35,7 +35,7 @@ class JoinVideoOptions extends React.Component {
           hideLabel
           aria-label={intl.formatMessage(intlMessages.leaveVideo)}
           color="danger"
-          icon="video"
+          icon="video_off"
           size="lg"
           circle
           disabled={isLocked || isWaitingResponse}
@@ -51,7 +51,7 @@ class JoinVideoOptions extends React.Component {
         hideLabel
         aria-label={intl.formatMessage(intlMessages.joinVideo)}
         color="primary"
-        icon="video_off"
+        icon="video"
         size="lg"
         circle
         disabled={isLocked || isWaitingResponse || (!isSharingVideo && isConnected)}
