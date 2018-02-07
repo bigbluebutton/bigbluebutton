@@ -24,6 +24,10 @@ recordingBasePath: "file:///var/kurento"
 
 redisExpireTime: 1209600 # 14 days as per the akka keys
 
+freeswitch:
+    ip: ''
+    port: '5066'
+
 log:
     filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'
