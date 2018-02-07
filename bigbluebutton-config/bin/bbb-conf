@@ -355,12 +355,7 @@ start_bigbluebutton () {
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
-       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $WEBHOOKS
-       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          systemctl start mongod
-	  sleep 3
-          systemctl start bbb-html5
-       fi
+       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	$FREESWITCH_INIT_D start
 	
@@ -1746,8 +1741,10 @@ if [ -n "$HOST" ]; then
 
         echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
         chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
-        sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
-        sudo sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" /var/www/bigbluebutton/client/conf/config.xml
+        sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  \
+		/var/www/bigbluebutton/client/conf/config.xml
+        sudo sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \ 
+		/var/www/bigbluebutton/client/conf/config.xml
 
         echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
         sudo sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
