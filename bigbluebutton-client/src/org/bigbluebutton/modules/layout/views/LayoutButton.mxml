@@ -21,6 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:Button xmlns:mx="library://ns.adobe.com/flex/mx" 
 		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
+			 creationComplete="onCreationComplete()"
 		   width="{BUTTON_SIZE}"
 		   height="{BUTTON_SIZE}"
 		   click="onClick()">
@@ -42,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -55,6 +57,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var layoutMenuData:ArrayCollection = new ArrayCollection();
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
+			
+			protected function onCreationComplete():void {
+				refreshRole(UsersUtil.amIModerator());
+			}
 			
 			public function enableEditOptions(editable:Boolean):void {
 				enableEdit = editable;
