@@ -150,6 +150,7 @@ class VideoDock extends Component {
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
 
     window.addEventListener('resize', this.adjustVideos);
+    window.addEventListener('orientationchange', this.adjustVideos);
 
     ws.addEventListener('message', this.onWsMessage);
   }
