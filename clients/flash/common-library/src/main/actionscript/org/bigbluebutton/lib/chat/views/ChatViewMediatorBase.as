@@ -15,6 +15,8 @@ package org.bigbluebutton.lib.chat.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
+	import spark.core.NavigationUnit;
+	
 	public class ChatViewMediatorBase extends Mediator {
 		
 		[Inject]
@@ -41,9 +43,25 @@ package org.bigbluebutton.lib.chat.views {
 		}
 		
 		protected function openChat(chat:GroupChat):void {
+			if (_chat) {
+				_chat.newMessageSignal.remove(onNewMessage);
+			}
+			
 			_chat = chat;
-			_chat.newMessages = 0; //resetNewMessages();
-			view.chatList.dataProvider = _chat.messages;
+			if (_chat) {
+				_chat.newMessages = 0; //resetNewMessages();
+				view.chatList.dataProvider = _chat.messages;
+				_chat.newMessageSignal.add(onNewMessage);
+			}
+		}
+		
+		protected function onNewMessage(chatId:String):void {
+			if (_chat && _chat.chatId == chatId) {
+				if (view) {
+					view.chatList.scroller.verticalScrollBar.value = view.chatList.scroller.verticalScrollBar.maximum;
+				}
+				_chat.newMessages = 0;
+			}
 		}
 		
 		private function onSendSuccess(result:String):void {
@@ -116,6 +134,10 @@ package org.bigbluebutton.lib.chat.views {
 			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);
 			meetingData.users.userChangeSignal.remove(onUserChange);
+			
+			if (_chat) {
+				_chat.newMessageSignal.remove(onNewMessage);
+			}
 			
 			view.textInput.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.removeEventListener(MouseEvent.CLICK, sendButtonClickHandler);

@@ -2,6 +2,7 @@ package org.bigbluebutton.lib.chat.models {
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.lib.chat.utils.ChatUtil;
+	import org.osflash.signals.Signal;
 	
 	[Bindable]
 	public class GroupChat {
@@ -21,6 +22,8 @@ package org.bigbluebutton.lib.chat.models {
 		
 		public var newMessages:Number = 0;
 		
+		public var newMessageSignal:Signal = new Signal();
+		
 		public function GroupChat(chatId:String, name:String, isPublic:Boolean, partnerId:String) {
 			this.chatId = chatId;
 			this.name = name;
@@ -33,6 +36,7 @@ package org.bigbluebutton.lib.chat.models {
 				convertAndAddChatMessage(message);
 			}
 			newMessages += messages.length;
+			newMessageSignal.dispatch(chatId);
 		}
 		
 		public function clearMessages():void {
@@ -44,6 +48,7 @@ package org.bigbluebutton.lib.chat.models {
 		public function newChatMessage(message:ChatMessageVO):void {
 			convertAndAddChatMessage(message);
 			newMessages++;
+			newMessageSignal.dispatch(chatId);
 		}
 		
 		private function convertAndAddChatMessage(message:ChatMessageVO):void {
