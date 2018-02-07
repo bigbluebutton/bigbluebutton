@@ -76,12 +76,6 @@ module.exports = class MediaController {
       const user = await this.createUserMCS(roomId, type, params);
       room.setUser(user.id);
       this._users[user.id] = user;
-      if (params.sdp) {
-        session = user.addSdp(params.sdp);
-      }
-      if (params.uri) {
-        session = user.addUri(params.sdp);
-      }
 
       Logger.info("[mcs-controller] Resolving user " + user.id);
       return Promise.resolve(user.id);
@@ -119,7 +113,7 @@ module.exports = class MediaController {
     }
   }
 
-  async publishnsubscribe (userId, sourceId, sdp, params) {
+  async publishnsubscribe (userId, sourceId, params) {
     Logger.info("[mcs-controller] PublishAndSubscribe from user", userId, "to source", sourceId);
     Logger.debug("[mcs-controler] PublishAndSubscribe descriptor is", params.descriptor);
 
@@ -127,7 +121,7 @@ module.exports = class MediaController {
     try {
       user = this.getUserMCS(userId);
       let userId = user.id;
-      let session = user.addSdp(sdp, type);
+      let session = user.addSdp(params.descriptor, type, params.adapter, params.name);
       let sessionId = session.id;
 
       if (typeof this._mediaSessions[session.id] == 'undefined' || 
@@ -138,7 +132,7 @@ module.exports = class MediaController {
       this._mediaSessions[session.id] = session; 
 
       const answer = await user.startSession(session.id);
-      await user.connect(sourceId, session.id);
+      await user.connect(sourceId, session);
 
       Logger.info("[mcs-controller] PublishAndSubscribe return a SDP session with ID", session.id);
       return Promise.resolve({userId, sessionId});
@@ -150,7 +144,7 @@ module.exports = class MediaController {
   }
 
   async publish (userId, roomId, type, params) {
-    Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId);
+    Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId, "with type", type);
     Logger.debug("[mcs-controler] Publish descriptor is", params.descriptor);
 
     let session;
@@ -167,7 +161,7 @@ module.exports = class MediaController {
       switch (type) {
         case "RtpEndpoint":
         case "WebRtcEndpoint":
-          session = user.addSdp(params.descriptor, type);
+          session = user.addSdp(params.descriptor, type, params.adapter, params.name);
           session.on('SESSION_STOPPED', (pubId) => {
             Logger.info("[mcs-controller] Media session", session.id, "stopped");
             if(pubId === session.id) {
@@ -231,17 +225,17 @@ module.exports = class MediaController {
       switch (type) {
         case "RtpEndpoint":
         case "WebRtcEndpoint":
-          session = user.addSdp(params.descriptor, type);
+          session = user.addSdp(params.descriptor, type, params.adapter, params.name);
 
           answer = await user.startSession(session.id);
-          await sourceSession.connect(session._mediaElement);
+          await sourceSession.connect(session);
           sourceSession.subscribedSessions.push(session.id);
           Logger.info("[mcs-controller] Updated", sourceSession.id,  "subscribers list to", sourceSession.subscribedSessions);
           break;
         case "URI":
           session = user.addUri(params.descriptor, type);
           answer = await user.startSession(session.id);
-          await sourceSession.connect(session._mediaElement);
+          await sourceSession.connect(session);
 
           break;
 
@@ -339,7 +333,7 @@ module.exports = class MediaController {
 
     switch (type) {
       case C.USERS.SFU:
-        user  = new SfuUser(roomId, type, this.emitter, params.userAgentString, params.sdp);
+        user  = new SfuUser(roomId, type, this.emitter, params.userAgentString, params.descriptor);
         break;
       case C.USERS.MCU:
         Logger.info("[mcs-controller] createUserMCS MCU TODO");

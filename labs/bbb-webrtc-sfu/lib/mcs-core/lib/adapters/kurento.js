@@ -6,6 +6,7 @@ const mediaServerClient = require('kurento-client');
 const util = require('util');
 const EventEmitter = require('events').EventEmitter;
 const Logger = require('../../../utils/Logger');
+const isError = require('../utils/util').isError;
 
 let instance = null;
 
@@ -332,11 +333,5 @@ module.exports = class MediaServer extends EventEmitter {
 
     error.code = C.ERROR.MEDIA_SERVER_ERROR;
     Logger.error('[mcs-media] Media Server returned error', error);
-  }
-
-  // duck
-  isError(error) {
-    return error && error.stack && error.message && typeof error.stack === 'string'
-      && typeof error.message === 'string';
   }
 };

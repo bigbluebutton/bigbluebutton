@@ -81,6 +81,10 @@ module.exports = class ConnectionManager {
         this._emitter.emit('response', data);
       });
 
+      audio.on(C.REDIS_MESSAGE, (data) => {
+        this._emitter.emit('response', data);
+      });
+
       Logger.info('[ConnectionManager] Successfully subscribed to processes redis channels');
     }
     catch (err) {

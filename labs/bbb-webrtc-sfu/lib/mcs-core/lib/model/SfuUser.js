@@ -47,9 +47,9 @@ module.exports = class SfuUser extends User {
     }
   }
 
-  addSdp (sdp, type) {
+  addSdp (sdp, type, adapter = C.STRING.KURENTO, name = C.STRING.DEFAULT_NAME) {
     // TODO switch from type to children SdpSessions (WebRTC|SDP)
-    let session = new SdpSession(this.emitter, sdp, this.roomId, type);
+    let session = new SdpSession(this.emitter, sdp, this.roomId, type, adapter, name);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
     session.on("SESSION_STOPPED", (sessId) => {
       Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
@@ -108,6 +108,7 @@ module.exports = class SfuUser extends User {
 
   async unsubscribe (mediaId) {
     try {
+      Logger.debug("[SfuUser] Unsubscribing from session", mediaId);
       await this.stopSession(mediaId);
       Promise.resolve();
     } 
