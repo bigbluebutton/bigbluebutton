@@ -22,12 +22,9 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
     }
 
     def excludedWbMsg(annotation: AnnotationVO): Boolean = {
-      if ((WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) &&
-        (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status || WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status)) {
-        true
-      } else {
-        false
-      }
+      WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType &&
+        (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status ||
+          WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status)
     }
 
     if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, liveMeeting) && permissionFailed(
