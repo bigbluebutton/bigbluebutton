@@ -16,5 +16,12 @@ export default function handlePresenterAssigned({ body }, meetingId) {
   };
 
   const prevPresenter = Users.findOne(selector);
+
+  // no previous presenters
+  if (!prevPresenter) {
+    // return value is sponsored by eslint
+    return true;
+  }
+
   return changeRole(ROLE_PRESENTER, false, prevPresenter.userId, meetingId, assignedBy);
 }
