@@ -1,6 +1,6 @@
 
 (function() {
-  function adjustVideos(tagId, centerVideos) {
+  function adjustVideos(tagId, centerVideos, moreThan4VideosClass, mediaContainerClass, overlayWrapperClass, presentationAreaDataId) {
     const _minContentAspectRatio = 16 / 9.0;
 
     function calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, numChildren) {
@@ -55,28 +55,27 @@
     }
 
     // http://stackoverflow.com/a/3437825/414642
-    const e = $("#" + tagId).parent().parent().parent().parent(); // TODO arrumar
+    const e = $("." + overlayWrapperClass);
     const x = e.outerWidth() - 1;
     const y = e.outerHeight() - 1;
 
     const isPortrait = ( $(document).width() < $(document).height() );
 
     const videos = $("#" + tagId + " > div:visible");
-
     if (isPortrait) {
-      e.css('margin-top', $('#app > main > section > div > section._imports_ui_components_app__styles__media > div > div._imports_ui_components_presentation__styles__presentationContainer > div > div:nth-child(2)').offset().top - 221);
-      e.css('width', 'calc(100% - ' + $("#app > main > section > div > section._imports_ui_components_app__styles__media > div > div._imports_ui_components_presentation__styles__presentationContainer > div > div:nth-child(2)").offset().left + ')');
+      e.css("margin-top", $('#' + presentationAreaDataId).offset().top - 221);
+      e.css("width", "calc(100% - " + $('#' + presentationAreaDataId).offset().left + ")");
     } else {
-      e.css('width', '100%');
-      e.css('margin-top', 0);
+      e.css("width", "100%");
+      e.css("margin-top", 0);
     }
 
     if (videos.length > 4 && !isPortrait) {
-      e.addClass('_imports_ui_components_media__styles__moreThan4Videos'); // TODO harcoded
-      $('._imports_ui_components_media__styles__container').css('max-width', 'calc(100% - 170px)'); // TODO hardcoded
+      e.addClass(moreThan4VideosClass);
+      $("." + mediaContainerClass).css("max-width", "calc(100% - 170px)");
     } else {
-      e.removeClass('_imports_ui_components_media__styles__moreThan4Videos'); // TODO harcoded
-      $('._imports_ui_components_media__styles__container').css('max-width', '100%'); // TODO hardcoded
+      e.removeClass(moreThan4VideosClass);
+      $("." + mediaContainerClass).css("max-width", "100%");
     }
 
     const best = findBestConfiguration(x, y, videos.length);

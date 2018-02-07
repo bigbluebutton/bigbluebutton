@@ -29,33 +29,37 @@ class JoinVideoOptions extends React.Component {
 
     if (isSharingVideo) {
       return (
-        <Button
-          onClick={handleCloseVideo}
-          label={intl.formatMessage(intlMessages.leaveVideo)}
-          hideLabel
-          aria-label={intl.formatMessage(intlMessages.leaveVideo)}
-          color="danger"
-          icon="video_off"
-          size="lg"
-          circle
-          disabled={isLocked || isWaitingResponse}
-        />
+        <span className={styles.container}>
+          <Button
+            onClick={handleCloseVideo}
+            label={intl.formatMessage(intlMessages.leaveVideo)}
+            hideLabel
+            aria-label={intl.formatMessage(intlMessages.leaveVideo)}
+            color="danger"
+            icon="video_off"
+            size="lg"
+            circle
+            disabled={isLocked || isWaitingResponse}
+          />
+        </span>
       );
     }
 
     return (
-      <Button
-        className={styles.button}
-        onClick={handleJoinVideo}
-        label={intl.formatMessage(intlMessages.joinVideo)}
-        hideLabel
-        aria-label={intl.formatMessage(intlMessages.joinVideo)}
-        color="primary"
-        icon="video"
-        size="lg"
-        circle
-        disabled={isLocked || isWaitingResponse || (!isSharingVideo && isConnected)}
-      />
+      <span className={styles.container}>
+        <Button
+          className={styles.button}
+          onClick={handleJoinVideo}
+          label={intl.formatMessage(intlMessages.joinVideo)}
+          hideLabel
+          aria-label={intl.formatMessage(intlMessages.joinVideo)}
+          color="primary"
+          icon="video"
+          size="lg"
+          circle
+          disabled={isLocked || isWaitingResponse || (!isSharingVideo && isConnected)}
+        />
+      </span>
     );
   }
 }

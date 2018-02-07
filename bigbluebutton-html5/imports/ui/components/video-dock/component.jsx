@@ -5,6 +5,7 @@ import VideoService from './service';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
+import { styles as mediaStyles } from '/imports/ui/components/media/styles';
 import Toast from '/imports/ui/components/toast/component';
 
 const intlMessages = defineMessages({
@@ -189,7 +190,7 @@ class VideoDock extends Component {
 
   adjustVideos() {
     setTimeout(() => {
-      window.adjustVideos('webcamArea', true);
+      window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData' );
     }, 0);
   }
 
