@@ -15,7 +15,7 @@ object VoiceApp {
   }
 
   def startRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter, stream: String): Unit = {
-    MeetingStatus2x.startRecordingVoice(liveMeeting.status)
+    MeetingStatus2x.voiceRecordingStart(liveMeeting.status, stream)
     val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
       liveMeeting.props.meetingProp.intId,
       liveMeeting.props.voiceProp.voiceConf,
@@ -25,12 +25,16 @@ object VoiceApp {
   }
 
   def stopRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
-    MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
 
-    val event = MsgBuilder.buildStopRecordingVoiceConfSysMsg(
-      liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.voiceProp.voiceConf, MeetingStatus2x.getVoiceRecordingFilename(liveMeeting.status)
-    )
-    outGW.send(event)
+    val recStreams = MeetingStatus2x.getVoiceRecordingStreams(liveMeeting.status)
+
+    recStreams foreach { rs =>
+      val event = MsgBuilder.buildStopRecordingVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf, rs.stream
+      )
+      outGW.send(event)
+    }
+
   }
 }
