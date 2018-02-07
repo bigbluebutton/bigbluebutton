@@ -51,10 +51,6 @@ class VideoService {
     document.dispatchEvent(exitVideoEvent);
   }
 
-  exitingVideo() {
-    this.isWaitingResponse = true;
-  }
-
   exitedVideo() {
     this.isWaitingResponse = false;
     this.isConnected = false;
@@ -70,6 +66,7 @@ class VideoService {
   }
 
   sendUserUnshareWebcam(stream) {
+    this.isWaitingResponse = true;
     makeCall('userUnshareWebcam', stream);
   }
 
