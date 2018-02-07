@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.whiteboard
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, WhiteboardKeyUtil }
 
 trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
@@ -21,12 +21,21 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (filterWhiteboardMessage(msg.body.annotation.wbId, liveMeeting) && permissionFailed(
+    def excludedWbMsg(annotation: AnnotationVO): Boolean = {
+      if ((WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) &&
+        (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status || WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status)) {
+        true
+      } else {
+        false
+      }
+    }
+
+    if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, liveMeeting) && permissionFailed(
       PermissionCheck.GUEST_LEVEL,
       PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
     )) {
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to send a whiteboard annotation."
+      //val meetingId = liveMeeting.props.meetingProp.intId
+      //val reason = "No permission to send a whiteboard annotation."
 
       // Just drop messages as these might be delayed messages from multi-user whiteboard. Don't want to
       // eject user unnecessarily when switching from multi-user to single user. (ralam feb 7, 2018)
