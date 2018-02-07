@@ -2,6 +2,7 @@ package org.bigbluebutton.lib.chat.models {
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.lib.chat.utils.ChatUtil;
+	import org.osflash.signals.Signal;
 	
 	[Bindable]
 	public class GroupChat {
@@ -21,6 +22,8 @@ package org.bigbluebutton.lib.chat.models {
 		
 		public var newMessages:Number = 0;
 		
+		public var newMessageSignal:Signal = new Signal();
+		
 		public function GroupChat(chatId:String, name:String, isPublic:Boolean, partnerId:String) {
 			this.chatId = chatId;
 			this.name = name;
@@ -33,15 +36,19 @@ package org.bigbluebutton.lib.chat.models {
 				convertAndAddChatMessage(message);
 			}
 			newMessages += messages.length;
+			newMessageSignal.dispatch(chatId);
 		}
 		
 		public function clearMessages():void {
 			messages.removeAll();
+			newMessages = 0;
+			newChatMessage(generateSystemMessage("The public chat history was cleared by a moderator"));
 		}
 		
 		public function newChatMessage(message:ChatMessageVO):void {
 			convertAndAddChatMessage(message);
 			newMessages++;
+			newMessageSignal.dispatch(chatId);
 		}
 		
 		private function convertAndAddChatMessage(message:ChatMessageVO):void {
@@ -74,6 +81,16 @@ package org.bigbluebutton.lib.chat.models {
 				allText += "\n" + item.name + " - " + item.time + " : " + item.message;
 			}
 			return allText;
+		}
+		
+		private function generateSystemMessage(text:String):ChatMessageVO {
+			var newMessageVO:ChatMessageVO = new ChatMessageVO();
+			newMessageVO.fromTime = (new Date()).time;
+			newMessageVO.message = "<b><i>"+text+"</i></b>";
+			newMessageVO.fromUserId = "";
+			newMessageVO.fromUsername = "";
+			newMessageVO.fromColor = "0x000000";
+			return newMessageVO;
 		}
 	}
 }

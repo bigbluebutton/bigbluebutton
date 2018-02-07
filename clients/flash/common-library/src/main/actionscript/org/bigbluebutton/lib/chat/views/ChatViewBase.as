@@ -74,17 +74,17 @@ package org.bigbluebutton.lib.chat.views {
 			_inputGroup.percentWidth = 100;
 			group.addElement(_inputGroup);
 			
-			_sendButton = new Button();
-			_sendButton.styleName = "sendButton icon icon-plus";
-			//enabled="{inputMessage0.text!=''}"
-			_inputGroup.addElement(_sendButton);
-			
 			_textInput = new TextInput();
 			_textInput.percentWidth = 100;
 			_textInput.percentHeight = 100;
 			//_textInput.showPromptWhenFocused = false;
 			_textInput.styleName = "messageInput";
 			_inputGroup.addElement(_textInput);
+			
+			_sendButton = new Button();
+			_sendButton.styleName = "sendButton icon icon-plus";
+			//enabled="{inputMessage0.text!=''}"
+			_inputGroup.addElement(_sendButton);
 			
 			addElement(group);
 		}

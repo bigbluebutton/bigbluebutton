@@ -252,7 +252,7 @@ settings|SettingsItemRenderer {
 .messageInput {
 	fontFamily             : SourceSansProMX;
 	contentBackgroundAlpha : 0;
-	skinClass              : ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");
+	/*skinClass              : ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");*/
 }
 
 .content {

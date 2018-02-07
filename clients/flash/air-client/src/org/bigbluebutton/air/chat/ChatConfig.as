@@ -4,6 +4,8 @@ package org.bigbluebutton.air.chat {
 	import org.bigbluebutton.air.chat.views.ChatViewMediatorAIR;
 	import org.bigbluebutton.lib.chat.commands.RequestGroupChatHistoryCommand;
 	import org.bigbluebutton.lib.chat.commands.RequestGroupChatHistorySignal;
+	import org.bigbluebutton.lib.chat.commands.RequestWelcomeMessageCommand;
+	import org.bigbluebutton.lib.chat.commands.RequestWelcomeMessageSignal;
 	import org.bigbluebutton.lib.chat.commands.StartPrivateChatCommand;
 	import org.bigbluebutton.lib.chat.commands.StartPrivateChatSignal;
 	import org.bigbluebutton.lib.chat.views.ChatRoomsViewBase;
@@ -36,6 +38,7 @@ package org.bigbluebutton.air.chat {
 		
 		private function signals():void {
 			signalCommandMap.map(RequestGroupChatHistorySignal).toCommand(RequestGroupChatHistoryCommand);
+			signalCommandMap.map(RequestWelcomeMessageSignal).toCommand(RequestWelcomeMessageCommand);
 			signalCommandMap.map(StartPrivateChatSignal).toCommand(StartPrivateChatCommand);
 		}
 	}
