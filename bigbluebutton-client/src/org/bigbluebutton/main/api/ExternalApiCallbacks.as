@@ -264,7 +264,7 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetSessionToken():String {
-      return BBB.getSessionTokenUtil().getSessionToken();
+      return BBB.getQueryStringParameters().getSessionToken();
     }
     
     

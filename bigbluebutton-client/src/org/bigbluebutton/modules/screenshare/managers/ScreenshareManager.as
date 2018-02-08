@@ -152,7 +152,7 @@ package org.bigbluebutton.modules.screenshare.managers {
 
             if (force || (options.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) || !options.tryWebRTCFirst) {
               usingJava = true;
-              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), BBB.initConnectionManager().isTunnelling);
+              publishWindowManager.startSharing();
               sharing = true;
               service.requestShareToken();
             } else {
@@ -200,7 +200,7 @@ package org.bigbluebutton.modules.screenshare.managers {
         public function handleStartSharingEvent():void {
             //toolbarButtonManager.disableToolbarButton();
             toolbarButtonManager.startedSharing();
-            publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), module.tunnel());
+            publishWindowManager.startSharing();
             sharing = true;
         }
 

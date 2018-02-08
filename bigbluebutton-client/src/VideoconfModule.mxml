@@ -44,38 +44,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _moduleName;
 			}
 		
-			public function get uri():String {
-				return _attributes.uri + "/" + _attributes.room;
-			}
-			
-			public function get username():String {
-				return _attributes.username;
-			}
-					
-			public function get mode():String {
-				if (_attributes.mode == null) {					
-					//_attributes.mode = "PLAYBACK"
-					_attributes.mode = "LIVE"
-					LOGGER.debug('Setting NotesModule mode: {0}', [_attributes.mode]);
-				}
-				LOGGER.debug('VideoconfVModule mode: {0}', [_attributes.mode]);
-				return _attributes.mode;
-			}
-						
-			public function get userid():String {
-				return _attributes.userid as String;
-			}
-			
-			public function get role():String {
-				return _attributes.userrole as String;
-			}
 			
 			public function start(attributes:Object):void {
 				LOGGER.debug("Starting Video Module");
 				_attributes = attributes;
 				var globalDispatcher:Dispatcher = new Dispatcher();
 				var event:VideoModuleStartEvent = new VideoModuleStartEvent(VideoModuleStartEvent.START);
-				event.uri = uri;
 				globalDispatcher.dispatchEvent(event);
 			}
 			

@@ -3,6 +3,7 @@
 const http = require("http");
 const fs = require("fs");
 const config = require('config');
+const Logger = require('../utils/Logger');
 
 module.exports = class HttpServer {
 
@@ -23,7 +24,7 @@ module.exports = class HttpServer {
   }
 
   listen(callback) {
-    console.log(' [HttpServer] Listening in port ' + this.port);
+    Logger.info('[HttpServer] Listening in port ' + this.port);
     this.server.listen(this.port, callback);
   }
 

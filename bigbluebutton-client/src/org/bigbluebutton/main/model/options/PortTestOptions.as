@@ -29,7 +29,7 @@ package org.bigbluebutton.main.model.options {
 
 		[Bindable]
 		public var timeout:int = 10000;
-
+		
 		public function PortTestOptions() {
 			name = "porttest";
 		}

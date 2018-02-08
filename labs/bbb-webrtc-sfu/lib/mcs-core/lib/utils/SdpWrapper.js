@@ -84,7 +84,6 @@ module.exports = class SdpWrapper {
 
   getVideoParameters (sdp) {
     var res = transform.parse(sdp);
-    console.log("  [sdp] getVideoParameters => " + JSON.stringify(res, null, 2));
     var params = {};
     params.fmtp = "";
     params.codecId = 96;
@@ -94,7 +93,6 @@ module.exports = class SdpWrapper {
         if (typeof ml.fmtp[0] != 'undefined' && ml.fmtp) {
           params.codecId = ml.fmtp[0].payload;
           params.fmtp = ml.fmtp[0].config;
-          console.log("  [sdp] getVideoParameters fmtp => " + JSON.stringify(params));
           return params;
         }
       }
@@ -151,7 +149,6 @@ module.exports = class SdpWrapper {
     res.media = res.media.filter(function (ml) { return ml.type == "video"}); //&& ml.invalid[0].value != 'content:slides'});
     var mangledSdp = transform.write(res);
     if (typeof mangledSdp != undefined && mangledSdp && mangledSdp != "") {
-      console.log("  [sdp] MAIN VIDEO SDP => " + mangledSdp);
       return mangledSdp;
     }
     else {
@@ -183,7 +180,6 @@ module.exports = class SdpWrapper {
           let fmtpConfig = transform.parseParams(fmtp.config);
           let profileId = fmtpConfig['profile-level-id'];
           if(typeof profileId !== 'undefined' && parseInt(profileId, 16) > parseInt(maxProfileLevel, 16)) {
-            console.log("  [sdp] Filtering profile " + parseInt(profileId, 16) + ". Higher than max "+ parseInt(maxProfileLevel, 16));
             pt = fmtp.payload;
             delete ml.fmtp[idx];
             ml.rtp = ml.rtp.filter((rtp) => { return rtp.payload != pt});

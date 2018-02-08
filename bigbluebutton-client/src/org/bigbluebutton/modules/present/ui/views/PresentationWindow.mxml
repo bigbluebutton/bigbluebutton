@@ -77,6 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
+			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
@@ -721,7 +722,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							
 							var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.'+e.poll.answers[i].key);
 
-							if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+							if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
 								localizedKey = e.poll.answers[i].key;
 							} 
 							

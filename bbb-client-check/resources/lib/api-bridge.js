@@ -152,33 +152,6 @@
 		cookieEnabledInfo = navigator.cookieEnabled;
 		swfObj.cookieEnabled(cookieEnabledInfo);
 	}
-	
-	BBBClientCheck.javaEnabled = function(){
-		var result = {
-			enabled: navigator.javaEnabled(),
-			version: [],
-			minimum: '1.7.0_51+',
-			appropriate: false
-		};
-
-		if (result.enabled) {
-			result.version = getJavaVersion();
-			result.appropriate = isJavaVersionAppropriateForDeskshare(result.minimum);
-		}
-
-		console.log(result);
-
-		var swfObj = getSwfObj();
-		swfObj.javaEnabled(result);
-	}
-
-	function getJavaVersion() {
-		return deployJava.getJREs();
-	}
-
-	function isJavaVersionAppropriateForDeskshare(required) {
-		return deployJava.versionCheck(required);
-	}
 
 	BBBClientCheck.language = function(){ 
 		var languageInfo = '';

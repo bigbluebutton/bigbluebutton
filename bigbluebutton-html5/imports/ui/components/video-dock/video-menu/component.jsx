@@ -14,44 +14,49 @@ const intlMessages = defineMessages({
   },
 });
 
-const JoinVideoOptions = ({
-  intl,
-  isWaitingResponse,
-  isConnected,
-  isSharingVideo,
-  handleJoinVideo,
-  handleCloseVideo,
-  enableShare,
-}) => {
-  if (isSharingVideo) {
+class JoinVideoOptions extends React.Component {
+  render() {
+    const {
+      intl,
+      isWaitingResponse,
+      isConnected,
+      isSharingVideo,
+      handleJoinVideo,
+      handleCloseVideo,
+      isLocked,
+      enableShare,
+    } = this.props;
+
+    if (isSharingVideo) {
+      return (
+        <Button
+          onClick={handleCloseVideo}
+          label={intl.formatMessage(intlMessages.leaveVideo)}
+          hideLabel
+          aria-label={intl.formatMessage(intlMessages.leaveVideo)}
+          color="danger"
+          icon="video"
+          size="lg"
+          circle
+          disabled={isLocked || isWaitingResponse}
+        />
+      );
+    }
+
     return (
       <Button
-        onClick={handleCloseVideo}
-        label={intl.formatMessage(intlMessages.leaveVideo)}
+        onClick={handleJoinVideo}
+        label={intl.formatMessage(intlMessages.joinVideo)}
         hideLabel
-        aria-label={intl.formatMessage(intlMessages.leaveVideo)}
-        color="danger"
-        icon="video"
+        aria-label={intl.formatMessage(intlMessages.joinVideo)}
+        color="primary"
+        icon="video_off"
         size="lg"
         circle
-        disabled={isWaitingResponse}
+        disabled={isLocked || isWaitingResponse || (!isSharingVideo && isConnected) || enableShare}
       />
     );
   }
-
-  return (
-    <Button
-      onClick={handleJoinVideo}
-      label={intl.formatMessage(intlMessages.joinVideo)}
-      hideLabel
-      aria-label={intl.formatMessage(intlMessages.joinVideo)}
-      color="primary"
-      icon="video_off"
-      size="lg"
-      circle
-      disabled={isWaitingResponse || (!isSharingVideo && isConnected) || enableShare}
-    />
-  );
-};
+}
 
 export default injectIntl(JoinVideoOptions);

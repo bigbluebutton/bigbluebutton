@@ -23,6 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:mate="http://mate.asfusion.com/"
+		 xmlns:common="org.bigbluebutton.common.*"
 		 width="620"
 		 alpha="0"
 		 verticalScrollPolicy="off"
@@ -83,12 +84,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Image source="{getStyle('iconQuote')}" />
 
-	<s:Label id="quoteLabel"
+	<common:AdvancedLabel id="quoteLabel"
 			 styleName="quoteSentenceStyle"
+			 selectable="false"
 			 width="620" />
 
-	<s:Label id="quoteAttribution"
+	<common:AdvancedLabel id="quoteAttribution"
 			 styleName="quoteAttributionStyle"
+			 selectable="false"
 			 width="620" />
 
 	<mx:HRule width="120" />
