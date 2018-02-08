@@ -22,6 +22,7 @@ const propTypes = {
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
+  toggleSelfVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
 };
@@ -59,6 +60,7 @@ class UserContent extends Component {
           assignPresenter={this.props.assignPresenter}
           removeUser={this.props.removeUser}
           toggleVoice={this.props.toggleVoice}
+          toggleSelfVoice={this.props.toggleSelfVoice}
           changeRole={this.props.changeRole}
           getAvailableActions={this.props.getAvailableActions}
           normalizeEmojiName={this.props.normalizeEmojiName}

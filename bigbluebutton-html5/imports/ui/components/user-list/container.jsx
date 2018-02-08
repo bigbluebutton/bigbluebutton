@@ -20,6 +20,7 @@ const propTypes = {
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
+  toggleSelfVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
 };
@@ -39,6 +40,7 @@ const UserListContainer = (props) => {
     assignPresenter,
     removeUser,
     toggleVoice,
+    toggleSelfVoice,
     changeRole,
     roving,
   } = props;
@@ -54,6 +56,7 @@ const UserListContainer = (props) => {
       assignPresenter={assignPresenter}
       removeUser={removeUser}
       toggleVoice={toggleVoice}
+      toggleSelfVoice={toggleSelfVoice}
       changeRole={changeRole}
       getAvailableActions={getAvailableActions}
       normalizeEmojiName={normalizeEmojiName}
@@ -80,6 +83,7 @@ export default withTracker(({ params }) => ({
   assignPresenter: Service.assignPresenter,
   removeUser: Service.removeUser,
   toggleVoice: Service.toggleVoice,
+  toggleSelfVoice: Service.toggleSelfVoice,
   changeRole: Service.changeRole,
   roving: Service.roving,
 }))(UserListContainer);

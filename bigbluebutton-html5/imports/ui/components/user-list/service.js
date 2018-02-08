@@ -311,6 +311,8 @@ const removeUser = (userId) => {
 
 const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
 
+const toggleSelfVoice = () => { makeCall('toggleSelfVoice'); };
+
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const roving = (event, itemCount, changeState) => {
@@ -354,6 +356,7 @@ export default {
   assignPresenter,
   removeUser,
   toggleVoice,
+  toggleSelfVoice,
   changeRole,
   getUsers,
   getOpenChats,
