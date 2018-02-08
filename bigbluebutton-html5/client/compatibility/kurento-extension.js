@@ -418,13 +418,28 @@ window.getScreenConstraints = function(sendSource, callback) {
   let chromeMediaSourceId = sendSource;
   let screenConstraints = {video: {}};
 
+  // Limiting FPS to a range of 5-10 (5 ideal)
+  screenConstraints.video.frameRate = {ideal: 5, max: 10};
+
+  // Limiting max resolution to screen size
+  screenConstraints.video.height = {max: window.screen.height};
+  screenConstraints.video.width = {max: window.screen.width};
+
   if(isChrome) {
     getChromeScreenConstraints ((constraints) => {
+      if (!constraints) {
+        document.dispatchEvent(new Event("installChromeExtension"));
+        return;
+      }
+
       let sourceId = constraints.streamId;
+
+      kurentoManager.kurentoScreenshare.extensionInstalled = true;
 
       // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
       screenConstraints.video.chromeMediaSource = { exact: [sendSource]};
       screenConstraints.video.chromeMediaSourceId = sourceId;
+
       console.log("getScreenConstraints for Chrome returns => ");
       console.log(screenConstraints);
       // now invoking native getUserMedia API
@@ -434,8 +449,6 @@ window.getScreenConstraints = function(sendSource, callback) {
   }
   else if (isFirefox) {
     screenConstraints.video.mediaSource= "window";
-    screenConstraints.video.width= {max: "1280"};
-    screenConstraints.video.height = {max:  "720"};
 
     console.log("getScreenConstraints for Firefox returns => ");
     console.log(screenConstraints);
@@ -444,8 +457,6 @@ window.getScreenConstraints = function(sendSource, callback) {
   }
   else if(isSafari) {
     screenConstraints.video.mediaSource= "screen";
-    screenConstraints.video.width= {max: window.screen.width};
-    screenConstraints.video.height = {max:  window.screen.vid_height};
 
     console.log("getScreenConstraints for Safari returns => ");
     console.log(screenConstraints);
