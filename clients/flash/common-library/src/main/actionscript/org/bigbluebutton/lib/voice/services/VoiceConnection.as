@@ -104,7 +104,7 @@ package org.bigbluebutton.lib.voice.services {
 			_listenOnly = listenOnly;
 			_username = encodeURIComponent(confParams.internalUserID + "-bbbID-" + confParams.username);
       trace("Voice app connect");
-			baseConnection.connect(_applicationURI, confParams.meetingID, confParams.externUserID, _username);
+			baseConnection.connect(_applicationURI, confParams.meetingID, confParams.externUserID, _username, confParams.authToken);
 		}
 		
 		public function disconnect(onUserCommand:Boolean):void {
