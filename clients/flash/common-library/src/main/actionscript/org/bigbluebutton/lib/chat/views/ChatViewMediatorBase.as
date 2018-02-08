@@ -15,6 +15,7 @@ package org.bigbluebutton.lib.chat.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
+	import spark.components.VScrollBar;
 	import spark.core.NavigationUnit;
 	
 	public class ChatViewMediatorBase extends Mediator {
@@ -58,7 +59,10 @@ package org.bigbluebutton.lib.chat.views {
 		protected function onNewMessage(chatId:String):void {
 			if (_chat && _chat.chatId == chatId) {
 				if (view) {
-					view.chatList.scroller.verticalScrollBar.value = view.chatList.scroller.verticalScrollBar.maximum;
+					var vScrollBar:VScrollBar = view.chatList.scroller.verticalScrollBar;
+					if (vScrollBar) {
+						vScrollBar.value = vScrollBar.maximum;
+					}
 				}
 				_chat.newMessages = 0;
 			}
