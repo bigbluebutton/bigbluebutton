@@ -19,7 +19,6 @@ export default function handlePresenterAssigned({ body }, meetingId) {
 
   // no previous presenters
   if (!prevPresenter) {
-    // return value is sponsored by eslint
     return true;
   }
 
