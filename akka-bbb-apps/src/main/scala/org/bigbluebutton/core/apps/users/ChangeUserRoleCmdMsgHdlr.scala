@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Roles, Users2x }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait ChangeUserRoleCmdMsgHdlr {
@@ -15,7 +15,12 @@ trait ChangeUserRoleCmdMsgHdlr {
       uvo <- Users2x.changeRole(liveMeeting.users2x, msg.body.userId, msg.body.role)
     } yield {
       val userRole = if (uvo.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
-
+      for {
+        // Update guest from waiting list
+        u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
+      } yield {
+        RegisteredUsers.updateUserRole(liveMeeting.registeredUsers, u, userRole)
+      }
       val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
         msg.body.changedBy, userRole)
 

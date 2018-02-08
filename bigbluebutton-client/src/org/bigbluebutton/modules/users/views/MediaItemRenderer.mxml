@@ -91,6 +91,7 @@
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (data != null) {
 					updateButtons();
+					validateNow();
 				}
 			}
 			
