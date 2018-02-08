@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -546,7 +547,7 @@ public class ParamsProcessorUtil {
 					int status = response.getStatusLine().getStatusCode();
 					if (status >= 200 && status < 300) {
 						HttpEntity entity = response.getEntity();
-						return entity != null ? EntityUtils.toString(entity) : null;
+						return entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : null;
 					} else {
 						throw new ClientProtocolException("Unexpected response status: " + status);
 					}
