@@ -63,11 +63,15 @@
 
     const videos = $("#" + tagId + " > div:visible");
     if (isPortrait) {
-      e.css("margin-top", $('#' + presentationAreaDataId).offset().top - 221);
-      e.css("width", "calc(100% - " + $('#' + presentationAreaDataId).offset().left + ")");
+      e.css({
+        "margin-top": $('#' + presentationAreaDataId).offset().top - 221,
+        "width": "calc(100% - " + $('#' + presentationAreaDataId).offset().left + ")"
+      });
     } else {
-      e.css("width", "100%");
-      e.css("margin-top", 0);
+      e.css({
+        "width": "100%",
+        "margin-top": 0
+      });
     }
 
     if (videos.length > 4 && !isPortrait) {
