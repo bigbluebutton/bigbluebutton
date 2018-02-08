@@ -176,6 +176,7 @@ class VideoDock extends Component {
     document.removeEventListener('exitVideo', this.unshareWebcam);
     document.removeEventListener('installChromeExtension', this.installChromeExtension);
     window.removeEventListener('resize', this.adjustVideos);
+    window.removeEventListener('orientationchange', this.adjustVideos);
 
     this.ws.removeEventListener('message', this.onWsMessage);
     this.ws.removeEventListener('open', this.onWsOpen);
@@ -190,7 +191,7 @@ class VideoDock extends Component {
 
   adjustVideos() {
     setTimeout(() => {
-      window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData' );
+      window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData', 'screenshareVideo' );
     }, 0);
   }
 

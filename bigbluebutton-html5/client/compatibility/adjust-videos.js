@@ -1,6 +1,6 @@
 
 (function() {
-  function adjustVideos(tagId, centerVideos, moreThan4VideosClass, mediaContainerClass, overlayWrapperClass, presentationAreaDataId) {
+  function adjustVideos(tagId, centerVideos, moreThan4VideosClass, mediaContainerClass, overlayWrapperClass, presentationAreaDataId, screenshareVideoId) {
     const _minContentAspectRatio = 16 / 9.0;
 
     function calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, numChildren) {
@@ -59,14 +59,22 @@
     const x = e.outerWidth() - 1;
     const y = e.outerHeight() - 1;
 
+    const videos = $("#" + tagId + " > div:visible");
     const isPortrait = ( $(document).width() < $(document).height() );
 
-    const videos = $("#" + tagId + " > div:visible");
     if (isPortrait) {
-      e.css({
-        "margin-top": $('#' + presentationAreaDataId).offset().top - 221,
-        "width": "calc(100% - " + $('#' + presentationAreaDataId).offset().left + ")"
-      });
+      // If currently displaying a presentation
+      if ( $("#" + presentationAreaDataId).length ) {
+        e.css({
+          "margin-top": $('#' + presentationAreaDataId).offset().top - 221,
+          "width": "calc(100% - " + $('#' + presentationAreaDataId).offset().left + ")"
+        });
+      } else if ( $("#" + screenshareVideoId).length ) { // Or if currently displaying a screenshare
+        e.css({
+          "margin-top": $('#' + screenshareVideoId).offset().top - 221,
+          "width": "calc(100% - " + $('#' + screenshareVideoId).offset().left + ")"
+        });
+      }
     } else {
       e.css({
         "width": "100%",
