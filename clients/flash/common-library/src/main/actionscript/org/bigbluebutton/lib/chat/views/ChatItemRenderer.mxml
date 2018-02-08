@@ -48,7 +48,8 @@
 						participantIcon.visible = participantIcon.includeInLayout = false;
 					} else {
 						titleGroup.includeInLayout = titleGroup.visible = true;
-						if (m.name == " ") {
+						if (m.name == " " || m.name == "") {
+							username.text = "";
 							participantIcon.visible = participantIcon.includeInLayout = false;
 						} else {
 							username.text = m.name;
