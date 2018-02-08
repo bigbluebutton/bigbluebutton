@@ -19,7 +19,6 @@ const propTypes = {
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
-  toggleSelfVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
@@ -143,7 +142,6 @@ class UserParticipants extends Component {
       setEmojiStatus,
       removeUser,
       toggleVoice,
-      toggleSelfVoice,
     } = this.props;
 
     const userActions =
@@ -170,12 +168,12 @@ class UserParticipants extends Component {
       },
       mute: {
         label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: (user) => { user.id == currentUser.id ? toggleSelfVoice() : toggleVoice(user.id); },
+        handler: (user) => toggleVoice(user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: (user) => { user.id == currentUser.id ? toggleSelfVoice() : toggleVoice(user.id); },
+        handler: (user) => toggleVoice(user.id),
         icon: 'audio_on',
       },
       promote: {

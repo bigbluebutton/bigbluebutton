@@ -309,9 +309,7 @@ const removeUser = (userId) => {
   }
 };
 
-const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
-
-const toggleSelfVoice = () => { makeCall('toggleSelfVoice'); };
+const toggleVoice = (userId) => { userId === Auth.userID ? makeCall('toggleSelfVoice') : makeCall('toggleVoice', userId); };
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
@@ -356,7 +354,6 @@ export default {
   assignPresenter,
   removeUser,
   toggleVoice,
-  toggleSelfVoice,
   changeRole,
   getUsers,
   getOpenChats,
