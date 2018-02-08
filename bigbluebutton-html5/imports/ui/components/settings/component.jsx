@@ -206,7 +206,7 @@ class Settings extends Component {
         confirm={{
           callback: (() => {
             this.props.mountModal(null);
-            if (location.pathname.indexOf('/users') !== -1) {
+            if (location.pathname.includes('/users')) {
               router.push('/');
             }
             this.updateSettings(this.state.current);
