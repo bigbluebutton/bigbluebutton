@@ -194,7 +194,11 @@ class Settings extends Component {
     );
   }
   render() {
-    const { intl } = this.props;
+    const {
+      intl,
+      router,
+      location,
+    } = this.props;
 
     return (
       <Modal
@@ -202,6 +206,9 @@ class Settings extends Component {
         confirm={{
           callback: (() => {
             this.props.mountModal(null);
+            if (location.pathname.includes('/users')) {
+              router.push('/');
+            }
             this.updateSettings(this.state.current);
           }),
           label: intl.formatMessage(intlMessages.SaveLabel),
