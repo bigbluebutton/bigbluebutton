@@ -11,6 +11,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     talking: Match.Maybe(Boolean),
     muted: Match.Maybe(Boolean),
     voiceConf: String,
+    joined: Match.Maybe(Boolean)
   });
 
   const { intId } = voiceUser;
