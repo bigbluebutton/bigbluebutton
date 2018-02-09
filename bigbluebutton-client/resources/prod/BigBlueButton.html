@@ -9,7 +9,6 @@
       #altContent                             { /* style alt content */ }
       .visually-hidden {
         position: absolute !important;
-        clip: rect(1px 1px, 1px, 1px);
         clip: rect(1px, 1px, 1px, 1px);
         padding: 0 !important;
         border: 0 !important;
@@ -163,24 +162,33 @@
       }
     </script>
     <script type="text/javascript">
-      window.onload = function() {
-        let checkRequest = $.ajax({
-           dataType: 'json',
-           url: '/html5client/check'
-        });
-        checkRequest.done(function(data) {
-          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus === "running" && document.getElementById('html5Section') != null) {
-            document.getElementById('html5Section').style.display='inherit';
-          }
-        });
-        
-        if (fillContent) fillContent();
-      };
+    window.onload = function () {
+      const checkRequest = $.ajax({
+         dataType: 'json',
+         url: '/html5client/check',
+      });
+      checkRequest.done(function(data) {
+        if (data.html5clientStatus && data.html5clientStatus === 'running') {
+          const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          const android = navigator.userAgent.match(/android/ig);
+          const puffin = navigator.userAgent.match(/Puffin/ig);
 
-      function html5() {
-        // Navigate to HTML5 login
-        document.location.pathname = "/html5client/join";
-      }
+          if ((iOS || android) && !puffin) {
+            redirectToHtml5();
+          }
+
+          if (document.getElementById('html5Section')) {
+            document.getElementById('html5Section').style.display = 'inherit';
+          }
+        }
+      });
+
+      if (fillContent) fillContent();
+    };
+
+    function redirectToHtml5 () {
+      document.location.pathname = '/html5client/join';
+    }
     </script>
   </head>
 
@@ -203,7 +211,7 @@
           </a>
           <div id="html5Section" style="display:none">
             <p>OR</p>
-            <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
+            <button type="button" onclick="redirectToHtml5();"><h3>Launch the HTML5 client instead</h3></button>
           </div>
         </div>
       </div>
