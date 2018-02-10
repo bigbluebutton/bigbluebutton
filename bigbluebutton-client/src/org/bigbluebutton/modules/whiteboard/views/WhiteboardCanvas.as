@@ -339,10 +339,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			var multiUser:Boolean = whiteboardModel.getMultiUser(wbId);
 			whiteboardToolbar.whiteboardAccessModified(multiUser);
 			canvasModel.multiUserChange(multiUser);
-		}
-		
-		public function getMultiUserState():Boolean {
-			return whiteboardModel.getMultiUser(currentWhiteboardId);
+			canvasDisplayModel.multiUserChange(multiUser);
 		}
 		
 		private function onNewAnnotationEvent(e:WhiteboardUpdateReceived):void {
@@ -373,6 +370,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			if (e.whiteboardId == currentWhiteboardId) {
 				whiteboardToolbar.whiteboardAccessModified(e.multiUser);
 				canvasModel.multiUserChange(e.multiUser);
+				canvasDisplayModel.multiUserChange(e.multiUser);
 			}
 		}
 		
