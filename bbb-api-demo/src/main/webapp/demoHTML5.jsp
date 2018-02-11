@@ -70,7 +70,7 @@ if (request.getParameterMap().isEmpty()) {
 				<td>&nbsp;</td>
 				<td style="text-align: right; ">Moderator Role:</td>
 				<td style="width: 5px; ">&nbsp;</td>
-				<td style="text-align: left "><input type=checkbox name=isModerator value="true"></td>
+				<td style="text-align: left "><input type=checkbox name=isModerator value="true" checked></td>
 			<tr>
 
 		<tr>
