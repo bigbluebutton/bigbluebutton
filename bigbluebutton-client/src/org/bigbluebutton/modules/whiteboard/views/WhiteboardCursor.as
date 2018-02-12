@@ -36,12 +36,13 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private var _nameTextField:TextField;
 		
-    private var _showUser: Boolean = false;
+		private var _multiUser:Boolean = false;
+		
 		public function WhiteboardCursor(userId:String, userName:String, x:Number, 
                                      y:Number, parentWidth:Number, 
                                      parentHeight:Number, 
                                      isPresenter:Boolean,
-                                      showUser: Boolean) {
+                                     multiUser:Boolean) {
 			_userId = userId;
 			_userName = userName;
 			_origX = x;
@@ -49,6 +50,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			_parentWidth = parentWidth;
 			_parentHeight = parentHeight;
 			_isPresenter = isPresenter;
+			_multiUser = multiUser;
 			
 			_nameTextField = new TextField();
 			_nameTextField.text = _userName;
@@ -71,49 +73,48 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			addChild(_nameTextField);
 			
-      _showUser = showUser;
 			drawCursor();
 			setPosition();
+			validateVisibility();
 		}
 		
-		public function updatePosition(x:Number, y:Number, showUser: Boolean):void {
+		public function updatePosition(x:Number, y:Number):void {
 			_origX = x;
 			_origY = y;
-      _showUser = showUser;
 			setPosition();
 		}
 		
 		public function updateParentSize(parentWidth:Number, parentHeight:Number):void {
 			_parentWidth = parentWidth;
 			_parentHeight = parentHeight;
-			
 			setPosition();
 		}
 		
-		public function updatePresenter(isPresenter:Boolean, showUser: Boolean):void {
-			_isPresenter = isPresenter;
-      _showUser = showUser;
+		public function updatePresenter(newPresenterId:String):void {
+			_isPresenter = _userId == newPresenterId;
 			drawCursor();
+			validateVisibility();
+		}
+		
+		public function updateMultiUser(multiUser:Boolean):void {
+			_multiUser = multiUser;
+			drawCursor();
+			validateVisibility();
 		}
 		
 		private function setPosition():void {
 			x = denormalize(_origX, _parentWidth);
 			y = denormalize(_origY, _parentHeight);
 			
-			if (isCursorOutsideWindow()) {
-				hideCursor()
+			validateVisibility();
+		}
+		
+		private function validateVisibility():void {
+			if (isCursorOutsideWindow() || (!_multiUser && !_isPresenter)) {
+				visible = false;
 			} else {
-				showCursor();
+				visible = true;
 			}
-      _nameTextField.visible = _showUser;
-		}
-		
-		private function showCursor():void {
-			visible = true;
-		}
-		
-		private function hideCursor():void{
-			visible = false;
 		}
 		
 		private function isCursorOutsideWindow():Boolean {
@@ -124,11 +125,10 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private function drawCursor():void {
 			var cursorColor:uint = (_isPresenter ? PRESENTER_COLOR : OTHER_COLOR);
 			
-      _nameTextField.textColor = cursorColor;
-      _nameTextField.borderColor = cursorColor; 
+			_nameTextField.textColor = cursorColor;
+			_nameTextField.borderColor = cursorColor;
 
-      _nameTextField.visible = _showUser;
-
+			_nameTextField.visible = _multiUser;
 			
 			graphics.clear();
 			graphics.lineStyle(6, cursorColor, 0.6);
