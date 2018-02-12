@@ -25,6 +25,7 @@ require 'rubygems'
 require 'redis'
 require 'builder'
 require 'yaml'
+require 'fileutils'
 
 module BigBlueButton  
   $bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
@@ -332,10 +333,12 @@ module BigBlueButton
         end
       end
 
-      # Write the events file.
-      io = File.open(events_file, 'wb')
-      io.write(events_doc.to_xml(indent: 2, encoding: 'UTF-8'))
-      io.close
+      # Write the events file. Write to a temp file then rename so other
+      # scripts running concurrently don't see a partially written file.
+      File.open(events_file + ".tmp", 'wb') do |io|
+        io.write(events_doc.to_xml(indent: 2, encoding: 'UTF-8'))
+      end
+      FileUtils.mv(events_file + ".tmp", events_file)
 
       # Once the events file has been written, we can delete this segment's
       # events from redis.
