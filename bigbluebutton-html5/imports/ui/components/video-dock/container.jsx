@@ -16,13 +16,18 @@ export default withTracker(() => {
   const user = Users.findOne({ userId: Auth.userID });
   const mappedUser = mapUser(user);
   const userLocked = mappedUser.isLocked;
+  const { isModerator } = mappedUser;
   const isLocked = (lockCam && userLocked);
+  const users = VideoService.getAllUsers();
+  const mappedUsers = users.map(u => mapUser(u));
 
   return {
-    users: VideoService.getAllUsers(),
     userId: VideoService.userId(),
     meetingId: Auth.meetingID,
+    users,
+    mappedUsers,
     isLocked,
     webcamOnlyModerator,
+    isModerator,
   };
 })(VideoDockContainer);

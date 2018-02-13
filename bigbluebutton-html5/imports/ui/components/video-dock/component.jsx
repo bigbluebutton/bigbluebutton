@@ -145,29 +145,25 @@ class VideoDock extends Component {
     const {
       isLocked,
       webcamOnlyModerator,
-      users,
+      isModerator,
       userId,
+      mappedUsers,
      } = nextProps;
+
     if(!VideoService.isConnected()) return;
 
     if (isLocked) {
       this.unshareWebcam();
       return;
     }
-    if (webcamOnlyModerator) {
-      const usersJoinedInWebcam = users
-        .filter(a => Object.keys(this.webRtcPeers).includes(a.userId))
-        .filter(a => a.userId !== userId);
-
-      const MODERATOR_ROLE = Meteor.settings.public.user.role_moderator;
-      const currentUser = users.find(a => a.userId === userId);
-
-      if (currentUser.role !== MODERATOR_ROLE) {
-        usersJoinedInWebcam.forEach(user => {
-          user.role !== MODERATOR_ROLE ? this.stop(user.userId) : null
+    if (webcamOnlyModerator && !isModerator) {
+     mappedUsers
+        .filter(a => Object.keys(this.webRtcPeers).includes(a.id))
+        .filter(a => a.id !== userId)
+        .forEach(user => {
+          !user.isModerator ? this.stop(user.id) : null
         });
         return;
-      }
     }
   }
 
