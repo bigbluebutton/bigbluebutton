@@ -7,6 +7,7 @@ import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import { styles as mediaStyles } from '/imports/ui/components/media/styles';
 import Toast from '/imports/ui/components/toast/component';
+import _ from 'lodash';
 
 const intlMessages = defineMessages({
   iceCandidateError: {
@@ -452,8 +453,8 @@ class VideoDock extends Component {
     const { videos, userNames } = this.state;
 
     this.setState({
-      videos: videos.filter((_, i) => i !== id),
-      userNames: userNames.filter((_, i) => i !== id),
+      videos: _.omit(videos, id),
+      userNames: _.omit(userNames, id),
       sharedWebcam: id !== this.myId,
     });
   }
