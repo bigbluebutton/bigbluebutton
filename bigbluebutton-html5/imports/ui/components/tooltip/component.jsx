@@ -44,6 +44,20 @@ class Tooltip extends Component {
     };
 
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
+
+    const MAX_PHONE_VIEWPORT = 480;
+
+    const hasPhoneDimensions = (
+      (window.screen.width <= MAX_PHONE_VIEWPORT && window.screen.width < window.screen.height)
+      ||
+      (window.screen.height <= MAX_PHONE_VIEWPORT && window.screen.width > window.screen.height)
+    );
+
+    const method = (
+      ('ontouchstart' in window || navigator.msMaxTouchPoints) && hasPhoneDimensions)
+      ? 'disable' : 'enable';
+
+    this.tooltip.tooltips.map(tip => tip[method]());
   }
 
   onShow() {
