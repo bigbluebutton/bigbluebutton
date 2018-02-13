@@ -44,27 +44,26 @@ class VideoElement extends Component {
     let cssClass;
     if (this.props.shared || !this.props.localCamera) {
       cssClass = styles.sharedWebcamVideoLocal;
-    }
-    else {
+    } else {
       cssClass = styles.sharedWebcamVideo;
     }
     return (
-      <div className={styles.videoContainer + " " + cssClass} >
+      <div className={`${styles.videoContainer} ${cssClass}`} >
         { this.props.localCamera ?
-            <video id="shareWebcam" muted={true} autoPlay={true} playsInline={true} />
+          <video id="shareWebcam" muted autoPlay playsInline />
           :
-            <video id={`video-elem-${this.props.videoId}`} autoPlay={true} playsInline={true} />
+          <video id={`video-elem-${this.props.videoId}`} autoPlay playsInline />
         }
         <div className={styles.videoText}>
           <div className={styles.userName}>{this.props.name}</div>
-          {/*<Button
+          {/* <Button
             label=""
             className={styles.pauseButton}
             icon={'unmute'}
             size={'sm'}
             circle
             onClick={() => {}}
-          />*/}
+          /> */}
         </div>
       </div>
     );
@@ -91,7 +90,7 @@ class VideoDock extends Component {
 
     this.state = {
       videos: {},
-      sharedWebcam : false,
+      sharedWebcam: false,
       userNames: {},
     };
 
@@ -191,7 +190,7 @@ class VideoDock extends Component {
 
   adjustVideos() {
     setTimeout(() => {
-      window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData', 'screenshareVideo' );
+      window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData', 'screenshareVideo');
     }, 0);
   }
 
@@ -236,7 +235,7 @@ class VideoDock extends Component {
       case 'iceCandidate':
         const webRtcPeer = this.webRtcPeers[parsedMessage.cameraId];
 
-        if (!!webRtcPeer) {
+        if (webRtcPeer) {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
@@ -265,13 +264,13 @@ class VideoDock extends Component {
     const { intl } = this.props;
 
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
-    let userNames = this.state.userNames;
+    const userNames = this.state.userNames;
     users.forEach((user) => {
       if (user.userId === id) {
         userNames[id] = user.name;
       }
     });
-    this.setState({userNames: userNames});
+    this.setState({ userNames });
 
     this.cameraTimeouts[id] = setTimeout(() => {
       log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
@@ -286,7 +285,7 @@ class VideoDock extends Component {
 
     if (shareWebcam) {
       VideoService.joiningVideo();
-      this.setState({sharedWebcam: true});
+      this.setState({ sharedWebcam: true });
       this.myId = id;
       this.initWebRTC(id, true);
     } else {
@@ -350,7 +349,7 @@ class VideoDock extends Component {
 
     let peerObj;
     if (shareWebcam) {
-      options.localVideo = document.getElementById("shareWebcam");
+      options.localVideo = document.getElementById('shareWebcam');
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
     } else {
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
@@ -450,16 +449,13 @@ class VideoDock extends Component {
   }
 
   destroyVideoTag(id) {
-    const videos = this.state.videos;
-    const userNames = this.state.userNames;
+    const { videos, userNames } = this.state;
 
-    delete videos[id];
-    delete userNames[id]
-    this.setState({videos: videos, userNames: userNames})
-
-    if (id == this.myId) {
-      this.setState({ sharedWebcam: false });
-    }
+    this.setState({
+      videos: videos.filter((_, i) => i !== id),
+      userNames: userNames.filter((_, i) => i !== id),
+      sharedWebcam: id !== this.myId,
+    });
   }
 
   destroyWebRTCPeer(id) {
@@ -616,12 +612,10 @@ class VideoDock extends Component {
     return (
       <div className={styles.videoDock}>
         <div id="webcamArea" className={styles.webcamArea}>
-          {Object.keys(this.state.videos).map((id) => {
-            return (
-              <VideoElement videoId={id} key={id} name={this.state.userNames[id]} localCamera={false} onMount={this.initWebRTC.bind(this)} />
-            );
-          })}
-          <VideoElement shared={this.state.sharedWebcam} name={this.state.userNames[this.myId]} localCamera={true} />
+          {Object.keys(this.state.videos).map(id => (
+            <VideoElement videoId={id} key={id} name={this.state.userNames[id]} localCamera={false} onMount={this.initWebRTC.bind(this)} />
+            ))}
+          <VideoElement shared={this.state.sharedWebcam} name={this.state.userNames[this.myId]} localCamera />
         </div>
       </div>
     );
@@ -632,11 +626,10 @@ class VideoDock extends Component {
     const currentUsers = this.props.users || {};
     const nextUsers = nextProps.users;
 
-    let users = {};
-    let present = {};
+    const users = {};
+    const present = {};
 
-    if (!currentUsers)
-      return false;
+    if (!currentUsers) { return false; }
 
     // Map user objectos to an object in the form {userId: has_stream}
     currentUsers.forEach((user) => {
@@ -645,7 +638,7 @@ class VideoDock extends Component {
 
     // Keep instances where the flag has changed or next user adds it
     nextUsers.forEach((user) => {
-      let id = user.userId;
+      const id = user.userId;
       // The case when a user exists and stream status has not changed
       if (users[id] === user.has_stream) {
         delete users[id];
@@ -661,7 +654,7 @@ class VideoDock extends Component {
     const userIds = Object.keys(users);
 
     for (let i = 0; i < userIds.length; i++) {
-      let id = userIds[i];
+      const id = userIds[i];
 
       // If a userId is not present in nextUsers let's stop it
       if (!present[id]) {
@@ -677,8 +670,7 @@ class VideoDock extends Component {
         if (userId !== id) {
           this.start(id, false);
         }
-      }
-      else {
+      } else {
         this.stop(id);
       }
     }
