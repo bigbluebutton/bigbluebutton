@@ -158,6 +158,7 @@ export default class PresentationArea extends Component {
           WebkitTransition: 'width 0.2s', /* Safari */
           transition: 'width 0.2s',
         }}
+        id="presentationAreaData"
       >
         <TransitionGroup>
           <CSSTransition
@@ -281,7 +282,7 @@ export default class PresentationArea extends Component {
 
   render() {
     return (
-      <div className={styles.presentationContainer}>
+      <div className={styles.presentationContainer} id="presentationContainer">
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}
