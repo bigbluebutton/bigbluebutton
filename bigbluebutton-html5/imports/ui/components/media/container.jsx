@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/api/meetings/';
-import Auth from '/imports/ui/services/auth';
 import Media from './component';
 import MediaService from './service';
 import PresentationAreaContainer from '../presentation/container';
@@ -58,9 +56,6 @@ export default withTracker(() => {
   const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
 
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const webcamOnlyModerator = meeting.usersProp.webcamsOnlyForModerator;
-
   data.content = <DefaultContent />;
 
   if (MediaService.shouldShowWhiteboard()) {
@@ -71,7 +66,7 @@ export default withTracker(() => {
     data.content = <ScreenshareContainer />;
   }
 
-  if (MediaService.shouldShowOverlay() && !webcamOnlyModerator) {
+  if (MediaService.shouldShowOverlay()) {
     data.overlay = <VideoDockContainer />;
   }
 

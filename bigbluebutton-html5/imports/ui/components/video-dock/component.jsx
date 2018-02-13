@@ -142,9 +142,32 @@ class VideoDock extends Component {
   }
 
   componentWillUpdate(nextProps) {
-    const { isLocked } = nextProps;
-    if (isLocked && VideoService.isConnected()) {
+    const {
+      isLocked,
+      webcamOnlyModerator,
+      users,
+      userId,
+     } = nextProps;
+    if(!VideoService.isConnected()) return;
+
+    if (isLocked) {
       this.unshareWebcam();
+      return;
+    }
+    if (webcamOnlyModerator) {
+      const usersJoinedInWebcam = users
+        .filter(a => Object.keys(this.webRtcPeers).includes(a.userId))
+        .filter(a => a.userId !== userId);
+
+      const MODERATOR_ROLE = Meteor.settings.public.user.role_moderator;
+      const currentUser = users.find(a => a.userId === userId);
+
+      if (currentUser.role !== MODERATOR_ROLE) {
+        usersJoinedInWebcam.forEach(user => {
+          user.role !== MODERATOR_ROLE ? this.stop(user.userId) : null
+        });
+        return;
+      }
     }
   }
 
@@ -463,7 +486,6 @@ class VideoDock extends Component {
   unshareWebcam() {
     VideoService.exitingVideo();
     log('info', 'Unsharing webcam');
-    console.warn(this.props);
     const { userId } = this.props;
     VideoService.sendUserUnshareWebcam(userId);
   }
