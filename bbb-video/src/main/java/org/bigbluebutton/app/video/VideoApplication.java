@@ -345,15 +345,14 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		public void streamBroadcastStart(IBroadcastStream stream) {
 			IConnection conn = Red5.getConnectionLocal();
 			String contextName = stream.getScope().getName();
+			String connType = getConnectionType(Red5.getConnectionLocal().getType());
+			String connId = Red5.getConnectionLocal().getSessionId();
 
 			if ("video".equals(contextName)) {
 				/**
 					* Prevent publishing into the /video context as all our webcams are published
 					* into /video/<meetingId> context. (ralam jan 22, 2018)
 				 **/
-
-				String connType = getConnectionType(Red5.getConnectionLocal().getType());
-				String connId = Red5.getConnectionLocal().getSessionId();
 				Map<String, Object> logData = new HashMap<String, Object>();
 				logData.put("meetingId", getMeetingId());
 				logData.put("userId", getUserId());
@@ -378,6 +377,20 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			String meetingId = conn.getScope().getName();
 			String streamId = stream.getPublishedName();
 
+			Map<String, Object> logData = new HashMap<String, Object>();
+			logData.put("meetingId", getMeetingId());
+			logData.put("userId", getUserId());
+			logData.put("connType", connType);
+			logData.put("connId", connId);
+			logData.put("stream", stream.getPublishedName());
+			logData.put("context", contextName);
+			logData.put("event", "stream_broadcast_start");
+			logData.put("description", "Stream broadcast start.");
+
+			Gson gson = new Gson();
+			String logStr =  gson.toJson(logData);
+			log.info(logStr);
+
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
 			addH263PublishedStream(streamId);
 			if (streamId.contains("/")) {
@@ -387,7 +400,20 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 					requestRotateVideoTranscoder(stream);
 				}
 			} else if (matcher.matches()) {
-					log.info("Start recording of stream=[" + stream.getPublishedName() + "] for meeting=[" + conn.getScope().getName() + "]");
+				Map<String, Object> logData2 = new HashMap<String, Object>();
+				logData2.put("meetingId", getMeetingId());
+				logData2.put("userId", getUserId());
+				logData2.put("connType", connType);
+				logData2.put("connId", connId);
+				logData2.put("stream", stream.getPublishedName());
+				logData2.put("context", contextName);
+				logData2.put("event", "stream_broadcast_record_start");
+				logData2.put("description", "Stream broadcast record start.");
+
+				Gson gson2 = new Gson();
+				String logStr2 =  gson2.toJson(logData2);
+				log.info(logStr2);
+
 					Boolean recordVideoStream = true;
 					VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
 									recordVideoStream, userId, packetTimeout, scheduler, recordingService);
@@ -412,6 +438,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamBroadcastClose(IBroadcastStream stream) {
         super.streamBroadcastClose(stream);
         IConnection conn = Red5.getConnectionLocal();
+			String connType = getConnectionType(Red5.getConnectionLocal().getType());
+			String connId = Red5.getConnectionLocal().getSessionId();
+
         String scopeName;
         if (conn != null) {
             scopeName = conn.getScope().getName();
@@ -420,11 +449,23 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             scopeName = stream.getScope().getName();
         }
 
-        log.info("Stream broadcast closed for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
-
         String userId = getUserId();
         String meetingId = conn.getScope().getName();
         String streamId = stream.getPublishedName();
+
+			Map<String, Object> logData2 = new HashMap<String, Object>();
+			logData2.put("meetingId", getMeetingId());
+			logData2.put("userId", getUserId());
+			logData2.put("connType", connType);
+			logData2.put("connId", connId);
+			logData2.put("stream", stream.getPublishedName());
+			logData2.put("context", scopeName);
+			logData2.put("event", "stream_broadcast_close");
+			logData2.put("description", "Stream broadcast close.");
+
+			Gson gson2 = new Gson();
+			String logStr2 =  gson2.toJson(logData2);
+			log.info(logStr2);
 
         Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
         removeH263ConverterIfNeeded(streamId);

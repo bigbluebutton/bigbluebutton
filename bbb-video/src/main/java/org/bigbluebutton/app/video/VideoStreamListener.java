@@ -17,6 +17,7 @@
  */
 package org.bigbluebutton.app.video;
 
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
 import com.google.gson.Gson;
+import java.text.SimpleDateFormat;
 
 /**
  * Class to listen for the first video packet of the webcam.
@@ -61,6 +63,8 @@ public class VideoStreamListener implements IStreamListener {
   private long firstPacketTime = 0L;
   private long packetCount = 0L;
 
+  private int keyFrameCount = 0;
+
   // Last time video was received, not video timestamp
   private long lastVideoTime;
 
@@ -82,9 +86,14 @@ public class VideoStreamListener implements IStreamListener {
 
   private volatile boolean streamPaused = false;
 
+  private volatile boolean streamStarted = false;
+
   private String meetingId;
 
   private long recordingStartTime;
+
+  private final String DATE = "date";
+	private final String TIMESTAMP_UTC = "timestampUTC";
 
   public VideoStreamListener(String meetingId, String streamId, Boolean record,
                              String userId, int packetTimeout,
@@ -97,6 +106,9 @@ public class VideoStreamListener implements IStreamListener {
     this.userId = userId;
     this.scheduler = scheduler;
     this.recordingService = recordingService;
+
+		// start the worker to monitor if we are still receiving video packets
+		timeoutJobName = scheduler.addScheduledJob(videoTimeout, new TimeoutJob());
   }
 
   private Long genTimestamp() {
@@ -105,6 +117,7 @@ public class VideoStreamListener implements IStreamListener {
 
   public void reset() {
     firstPacketReceived = false;
+		keyFrameCount = 0;
   }
 
   public void setStreamId(String streamId) {
@@ -126,14 +139,14 @@ public class VideoStreamListener implements IStreamListener {
       lastVideoTime = System.currentTimeMillis();
       packetCount++;
 
-      if (!firstPacketReceived) {
-        log.info("******* Receiving first video packet");
+      VideoData vidPkt = (VideoData) packet;
+
+      if (!firstPacketReceived && vidPkt.getFrameType() == VideoData.FrameType.KEYFRAME) {
+        log.info("******* Receiving first video KEYFRAME packet");
         firstPacketReceived = true;
         publishing = true;
         firstPacketTime = lastVideoTime;
-
-        // start the worker to monitor if we are still receiving video packets
-        timeoutJobName = scheduler.addScheduledJob(videoTimeout, new TimeoutJob());
+				streamStarted = true;
 
         if (record) {
           recordingStartTime = System.currentTimeMillis();
@@ -142,9 +155,16 @@ public class VideoStreamListener implements IStreamListener {
           event.put("timestamp", genTimestamp().toString());
           event.put("meetingId", meetingId);
           event.put("stream", streamId);
+					event.put(TIMESTAMP_UTC, Long.toString(recordingStartTime));
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+					event.put(DATE, sdf.format(recordingStartTime));
           event.put("eventName", "StartWebcamShareEvent");
-          log.info("******* StartWebcamShareEvent " + streamId);
+
           recordingService.record(meetingId, event);
+
+					Gson gson = new Gson();
+					String logStr = gson.toJson(event);
+					log.info("StartWebcamShareEvent data={} timeoutJobName={}", logStr, timeoutJobName);
         }
       }
 
@@ -168,32 +188,75 @@ public class VideoStreamListener implements IStreamListener {
         log.warn("Video stream restarted. data={}", logStr);
       }
 
+			if (vidPkt.getFrameType() == VideoData.FrameType.KEYFRAME && keyFrameCount < 3) {
+				// Log first 3 keyframe packets to allow us to see interval between key frames. Helps
+				// to debug if there are any synch issues with recording playback. (ralam feb 12, 2018)
+				keyFrameCount++;
+				long now = System.currentTimeMillis();
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", meetingId);
+				logData.put("userId", userId);
+				logData.put("stream", stream.getPublishedName());
+				logData.put("packetCount", packetCount);
+				logData.put("keyFrameCount", keyFrameCount);
+				logData.put("publishing", publishing);
+				logData.put(TIMESTAMP_UTC, Long.toString(now));
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+				logData.put(DATE, sdf.format(now));
+
+				Gson gson = new Gson();
+				String logStr = gson.toJson(logData);
+
+				log.warn("Video stream keyframe. data={}", logStr);
+			}
+
     }
   }
 
   public void stopRecording() {
     if (record) {
-      long publishDuration = (System.currentTimeMillis() - recordingStartTime) / 1000;
+			long now = System.currentTimeMillis();
+      long publishDuration = (now - recordingStartTime) / 1000;
 
       Map<String, String> event = new HashMap<String, String>();
       event.put("module", "WEBCAM");
       event.put("timestamp", genTimestamp().toString());
       event.put("meetingId", meetingId);
       event.put("stream", streamId);
-      event.put("duration", new Long(publishDuration).toString());
+      event.put("duration", Long.toString(publishDuration));
+			event.put(TIMESTAMP_UTC, Long.toString(now));
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+			event.put(DATE, sdf.format(now));
       event.put("eventName", "StopWebcamShareEvent");
 
-      log.info("******* StopWebcamShareEvent " + streamId);
       recordingService.record(meetingId, event);
+
+			Gson gson = new Gson();
+			String logStr = gson.toJson(event);
+			log.info("StopWebcamShareEvent data={}", logStr);
     }
   }
 
   public void streamStopped() {
     this.publishing = false;
+    if (!streamStarted) {
+			Map<String, Object> logData = new HashMap<String, Object>();
+			logData.put("meetingId", meetingId);
+			logData.put("userId", userId);
+			logData.put("stream", streamId);
+			logData.put("packetCount", packetCount);
+			logData.put("publishing", publishing);
+			logData.put("timeoutJobName", timeoutJobName);
+
+			Gson gson = new Gson();
+			String logStr = gson.toJson(logData);
+			log.warn("Removing scheduled job.as stream hasn't started. data={}", logStr);
+			// remove the scheduled job
+			scheduler.removeScheduledJob(timeoutJobName);
+		}
   }
 
   private class TimeoutJob implements IScheduledJob {
-    private boolean streamStopped = false;
 
     public void execute(ISchedulingService service) {
       Map<String, Object> logData = new HashMap<String, Object>();
@@ -202,11 +265,12 @@ public class VideoStreamListener implements IStreamListener {
       logData.put("stream", streamId);
       logData.put("packetCount", packetCount);
       logData.put("publishing", publishing);
+			logData.put("timeoutJobName", timeoutJobName);
 
-      Gson gson = new Gson();
+			Gson gson = new Gson();
 
       long now = System.currentTimeMillis();
-      if ((now - lastVideoTime) > videoTimeout && !streamPaused) {
+      if ((now - lastVideoTime) > videoTimeout && !streamPaused && streamStarted) {
         streamPaused = true;
         long numSeconds = (now - lastVideoTime) / 1000;
 
@@ -215,11 +279,10 @@ public class VideoStreamListener implements IStreamListener {
         String logStr = gson.toJson(logData);
 
         log.warn("Video packet timeout. data={}", logStr);
-
       }
 
       String logStr = gson.toJson(logData);
-      if (!publishing) {
+      if (!publishing && streamStarted) {
         log.warn("Removing scheduled job. data={}", logStr);
         // remove the scheduled job
         scheduler.removeScheduledJob(timeoutJobName);
