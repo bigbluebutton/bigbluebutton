@@ -125,17 +125,13 @@ export default class Button extends BaseButton {
     if (hideLabel) {
       const tooltipLabel = label || ariaLabel;
 
-      const isMobile
-      = /Android|iPhone|iPad|Windows Phone|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
-
-      return isMobile
-        ? this[renderFuncName]()
-        :
+      return (
         <Tooltip
           title={tooltipLabel}
         >
           {this[renderFuncName]()}
-        </Tooltip>;
+        </Tooltip>
+      );
     }
 
     return this[renderFuncName]();
