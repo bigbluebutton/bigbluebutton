@@ -3,6 +3,7 @@ import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
+import DataSaving from '/imports/ui/components/settings/submenus/dataSaving/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -52,6 +53,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.main.save.label.description',
     description: 'Settings modal save button label',
   },
+  dataSavingLabel: {
+    id: 'app.settings.dataSaving.label',
+    description: 'label for data savings tab',
+  },
 });
 
 const propTypes = {
@@ -74,10 +79,7 @@ class Settings extends Component {
     super(props);
 
     const {
-      video,
-      participants,
-      cc,
-      application,
+      video, participants, cc, application,
     } = props;
 
     this.state = {
@@ -120,9 +122,7 @@ class Settings extends Component {
   }
 
   renderModalContent() {
-    const {
-      intl,
-    } = this.props;
+    const { intl } = this.props;
 
     return (
       <Tabs
@@ -132,9 +132,7 @@ class Settings extends Component {
         role="presentation"
         selectedTabPanelClassName={styles.selectedTab}
       >
-        <TabList
-          className={styles.tabList}
-        >
+        <TabList className={styles.tabList}>
           <Tab
             className={styles.tabSelector}
             aria-labelledby="appTab"
@@ -154,6 +152,14 @@ class Settings extends Component {
           >
             <Icon iconName="user" className={styles.icon} />
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
+          </Tab>
+          <Tab
+            className={styles.tabSelector}
+            aria-labelledby="dataSavingTab"
+            selectedClassName={styles.selected}
+          >
+            <Icon iconName="more" className={styles.icon} />
+            <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
           </Tab>
           {/* { isModerator ? */}
           {/* <Tab className={styles.tabSelector} aria-labelledby="usersTab"> */}
@@ -182,6 +188,12 @@ class Settings extends Component {
             locales={this.props.locales}
           />
         </TabPanel>
+        <TabPanel className={styles.tabPanel}>
+          <DataSaving
+            settings={this.state.current.video}
+            handleUpdateSettings={this.handleUpdateSettings}
+          />
+        </TabPanel>
         {/* { isModerator ? */}
         {/* <TabPanel className={styles.tabPanel}> */}
         {/* <Participants */}
@@ -204,20 +216,20 @@ class Settings extends Component {
       <Modal
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
-          callback: (() => {
+          callback: () => {
             this.props.mountModal(null);
             if (location.pathname.includes('/users')) {
               router.push('/');
             }
             this.updateSettings(this.state.current);
-          }),
+          },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
         }}
         dismiss={{
-          callback: (() => {
+          callback: () => {
             Settings.setHtmlFontSize(this.state.saved.application.fontSize);
-          }),
+          },
           label: intl.formatMessage(intlMessages.CancelLabel),
           description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}

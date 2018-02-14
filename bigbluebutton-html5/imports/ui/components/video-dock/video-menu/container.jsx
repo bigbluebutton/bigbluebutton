@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import Settings from '/imports/ui/services/settings';
 import mapUser from '/imports/ui/services/user/mapUser';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings/';
@@ -15,6 +16,8 @@ export default withTracker((params) => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
+  const videoSettings = Settings.video;
+  const enableShare = !videoSettings.viewParticipantsWebcams;
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const LockCam = meeting.lockSettingsProp ? meeting.lockSettingsProp.disableCam : false;
   const webcamOnlyModerator = meeting.usersProp.webcamsOnlyForModerator;
@@ -26,6 +29,7 @@ export default withTracker((params) => {
     isSharingVideo,
     isWaitingResponse,
     isConnected,
+    enableShare,
     handleJoinVideo: params.handleJoinVideo,
     handleCloseVideo: params.handleCloseVideo,
     isLocked: (LockCam && userLocked) || webcamOnlyModerator,

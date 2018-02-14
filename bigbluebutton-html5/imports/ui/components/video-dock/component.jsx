@@ -181,11 +181,20 @@ class VideoDock extends Component {
     this.ws.removeEventListener('message', this.onWsMessage);
     this.ws.removeEventListener('open', this.onWsOpen);
     this.ws.removeEventListener('close', this.onWsClose);
-    // Close websocket connection to prevent multiple reconnects from happening
 
     window.removeEventListener('online', this.ws.open.bind(this.ws));
     window.removeEventListener('offline', this.onWsClose);
 
+    // Unshare user webcam
+    if (this.state.sharedWebcam) {
+      this.unshareWebcam();
+      this.stop(this.props.userId);
+    }
+
+    Object.keys(this.webRtcPeers).forEach((id) => {
+     this.destroyWebRTCPeer(id);
+    });
+    // Close websocket connection to prevent multiple reconnects from happening
     this.ws.close();
   }
 
@@ -492,11 +501,8 @@ class VideoDock extends Component {
   }
 
   unshareWebcam() {
-    VideoService.exitingVideo();
     log('info', 'Unsharing webcam');
-    console.warn(this.props);
-    const { userId } = this.props;
-    VideoService.sendUserUnshareWebcam(userId);
+    VideoService.sendUserUnshareWebcam(this.props.userId);
   }
 
   startResponse(message) {

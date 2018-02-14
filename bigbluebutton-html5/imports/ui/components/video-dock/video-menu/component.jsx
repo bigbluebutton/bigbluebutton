@@ -25,6 +25,7 @@ class JoinVideoOptions extends React.Component {
       handleJoinVideo,
       handleCloseVideo,
       isLocked,
+      enableShare,
     } = this.props;
 
     if (isSharingVideo) {
@@ -57,7 +58,7 @@ class JoinVideoOptions extends React.Component {
           icon="video"
           size="lg"
           circle
-          disabled={isLocked || isWaitingResponse || (!isSharingVideo && isConnected)}
+          disabled={isLocked || isWaitingResponse || (!isSharingVideo && isConnected) || enableShare}
         />
       </span>
     );

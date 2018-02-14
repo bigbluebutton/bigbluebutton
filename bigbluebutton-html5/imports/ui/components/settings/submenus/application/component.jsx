@@ -93,8 +93,7 @@ class ApplicationMenu extends BaseMenu {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < MAX_FONTSIZE;
-    const fs = (canIncreaseFontSize) ?
-      availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
+    const fs = canIncreaseFontSize ? availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
   }
 
@@ -102,8 +101,7 @@ class ApplicationMenu extends BaseMenu {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
-    const fs = (canDecreaseFontSize) ?
-      availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
+    const fs = canDecreaseFontSize ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
   }
 
@@ -115,14 +113,14 @@ class ApplicationMenu extends BaseMenu {
 
   // Adjust the locale format to be able to display the locale names properly in the client
   formatLocale(locale) {
-    return locale.split('-').map((val, idx) => (idx == 1 ? val.toUpperCase() : val)).join('_');
+    return locale
+      .split('-')
+      .map((val, idx) => (idx == 1 ? val.toUpperCase() : val))
+      .join('_');
   }
 
   render() {
-    const {
-      availableLocales,
-      intl,
-    } = this.props;
+    const { availableLocales, intl } = this.props;
 
     return (
       <div className={styles.tabContent}>
@@ -155,7 +153,7 @@ class ApplicationMenu extends BaseMenu {
 
           <div className={styles.row}>
             <div className={styles.col}>
-              <div className={styles.formElement} >
+              <div className={styles.formElement}>
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.pushNotifyLabel)}
                 </label>
@@ -182,22 +180,24 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
-      { availableLocales && availableLocales.length > 0 ?
+              <label
+                aria-labelledby="changeLangLabel"
+                className={cx(styles.formElement, styles.pullContentRight)}
+              >
+                {availableLocales && availableLocales.length > 0 ? (
                   <select
                     defaultValue={this.formatLocale(this.state.settings.locale)}
                     className={styles.select}
                     onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
                   >
-                    <option disabled>
-                      { intl.formatMessage(intlMessages.languageOptionLabel) }
-                    </option>
-                    { availableLocales.map((locale, index) =>
-                      (<option key={index} value={locale.locale}>
+                    <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
+                    {availableLocales.map((locale, index) => (
+                      <option key={index} value={locale.locale}>
                         {locale.name}
-                      </option>)) }
+                      </option>
+                    ))}
                   </select>
-                : null }
+                ) : null}
               </label>
               <div
                 id="changeLangLabel"
