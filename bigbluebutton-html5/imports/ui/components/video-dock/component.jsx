@@ -464,8 +464,10 @@ class VideoDock extends Component {
     this.setState({
       videos: _.omit(videos, id),
       userNames: _.omit(userNames, id),
-      sharedWebcam: id !== this.myId,
     });
+    if (id == this.myId) {
+      this.setState({ sharedWebcam: false });
+    }
   }
 
   destroyWebRTCPeer(id) {
