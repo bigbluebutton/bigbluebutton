@@ -9,6 +9,8 @@ import { styles as mediaStyles } from '/imports/ui/components/media/styles';
 import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
+import VideoElement from './video-element';
+
 const intlMessages = defineMessages({
   iceCandidateError: {
     id: 'app.video.iceCandidateError',
@@ -35,47 +37,6 @@ const intlMessages = defineMessages({
 const RECONNECT_WAIT_TIME = 5000;
 const INITIAL_SHARE_WAIT_TIME = 2000;
 const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
-
-class VideoElement extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    let cssClass;
-    if (this.props.shared || !this.props.localCamera) {
-      cssClass = styles.sharedWebcamVideoLocal;
-    } else {
-      cssClass = styles.sharedWebcamVideo;
-    }
-    return (
-      <div className={`${styles.videoContainer} ${cssClass}`} >
-        { this.props.localCamera ?
-          <video id="shareWebcam" muted autoPlay playsInline />
-          :
-          <video id={`video-elem-${this.props.videoId}`} autoPlay playsInline />
-        }
-        <div className={styles.videoText}>
-          <div className={styles.userName}>{this.props.name}</div>
-          {/* <Button
-            label=""
-            className={styles.pauseButton}
-            icon={'unmute'}
-            size={'sm'}
-            circle
-            onClick={() => {}}
-          /> */}
-        </div>
-      </div>
-    );
-  }
-
-  componentDidMount() {
-    if (typeof this.props.onMount === 'function' && !this.props.localCamera) {
-      this.props.onMount(this.props.videoId, false);
-    }
-  }
-}
 
 class VideoDock extends Component {
   constructor(props) {
@@ -269,12 +230,11 @@ class VideoDock extends Component {
   }
 
   start(id, shareWebcam) {
-    const { users } = this.props;
+    const { users, intl } = this.props;
     const that = this;
-    const { intl } = this.props;
 
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
-    const userNames = this.state.userNames;
+    const userNames = {...this.state.userNames};
     users.forEach((user) => {
       if (user.userId === id) {
         userNames[id] = user.name;
@@ -304,21 +264,7 @@ class VideoDock extends Component {
     }
   }
 
-  initWebRTC(id, shareWebcam) {
-    const that = this;
-    const { intl } = this.props;
-
-    const onIceCandidate = function (candidate) {
-      const message = {
-        type: 'video',
-        role: shareWebcam ? 'share' : 'viewer',
-        id: 'onIceCandidate',
-        candidate,
-        cameraId: id,
-      };
-      that.sendMessage(message);
-    };
-
+  getVideoConstraints() {
     let videoConstraints = {};
     if (navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
       // Custom constraints for Safari
@@ -349,10 +295,28 @@ class VideoDock extends Component {
       };
     }
 
+    return videoConstraints;
+  }
+
+  initWebRTC(id, shareWebcam) {
+    const that = this;
+    const { intl } = this.props;
+
+    const onIceCandidate = function (candidate) {
+      const message = {
+        type: 'video',
+        role: shareWebcam ? 'share' : 'viewer',
+        id: 'onIceCandidate',
+        candidate,
+        cameraId: id,
+      };
+      that.sendMessage(message);
+    };
+
     const options = {
       mediaConstraints: {
         audio: false,
-        video: videoConstraints,
+        video: that.getVideoConstraints(),
       },
       onicecandidate: onIceCandidate,
     };
