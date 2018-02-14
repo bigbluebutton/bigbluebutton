@@ -5,7 +5,9 @@ import VideoService from './service';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
+import { styles as mediaStyles } from '/imports/ui/components/media/styles';
 import Toast from '/imports/ui/components/toast/component';
+import _ from 'lodash';
 
 const intlMessages = defineMessages({
   iceCandidateError: {
@@ -40,19 +42,38 @@ class VideoElement extends Component {
   }
 
   render() {
+    let cssClass;
+    if (this.props.shared || !this.props.localCamera) {
+      cssClass = styles.sharedWebcamVideoLocal;
+    } else {
+      cssClass = styles.sharedWebcamVideo;
+    }
     return (
-      <video
-        id={`video-elem-${this.props.videoId}`}
-        width={320}
-        height={240}
-        autoPlay="autoPlay"
-        playsInline="playsInline"
-      />
+      <div className={`${styles.videoContainer} ${cssClass}`} >
+        { this.props.localCamera ?
+          <video id="shareWebcam" muted autoPlay playsInline />
+          :
+          <video id={`video-elem-${this.props.videoId}`} autoPlay playsInline />
+        }
+        <div className={styles.videoText}>
+          <div className={styles.userName}>{this.props.name}</div>
+          {/* <Button
+            label=""
+            className={styles.pauseButton}
+            icon={'unmute'}
+            size={'sm'}
+            circle
+            onClick={() => {}}
+          /> */}
+        </div>
+      </div>
     );
   }
 
   componentDidMount() {
-    this.props.onMount(this.props.videoId, false);
+    if (typeof this.props.onMount === 'function' && !this.props.localCamera) {
+      this.props.onMount(this.props.videoId, false);
+    }
   }
 }
 
@@ -71,6 +92,7 @@ class VideoDock extends Component {
     this.state = {
       videos: {},
       sharedWebcam: false,
+      userNames: {},
     };
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
@@ -129,6 +151,7 @@ class VideoDock extends Component {
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
 
     window.addEventListener('resize', this.adjustVideos);
+    window.addEventListener('orientationchange', this.adjustVideos);
 
     ws.addEventListener('message', this.onWsMessage);
   }
@@ -153,6 +176,7 @@ class VideoDock extends Component {
     document.removeEventListener('exitVideo', this.unshareWebcam);
     document.removeEventListener('installChromeExtension', this.installChromeExtension);
     window.removeEventListener('resize', this.adjustVideos);
+    window.removeEventListener('orientationchange', this.adjustVideos);
 
     this.ws.removeEventListener('message', this.onWsMessage);
     this.ws.removeEventListener('open', this.onWsOpen);
@@ -176,7 +200,7 @@ class VideoDock extends Component {
 
   adjustVideos() {
     setTimeout(() => {
-      window.adjustVideos('webcamArea', true);
+      window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData', 'screenshareVideo');
     }, 0);
   }
 
@@ -221,7 +245,7 @@ class VideoDock extends Component {
       case 'iceCandidate':
         const webRtcPeer = this.webRtcPeers[parsedMessage.cameraId];
 
-        if (!!webRtcPeer) {
+        if (webRtcPeer) {
           if (webRtcPeer.didSDPAnswered) {
             webRtcPeer.addIceCandidate(parsedMessage.candidate, (err) => {
               if (err) {
@@ -245,10 +269,18 @@ class VideoDock extends Component {
   }
 
   start(id, shareWebcam) {
+    const { users } = this.props;
     const that = this;
     const { intl } = this.props;
 
     console.log(`Starting video call for video: ${id} with ${shareWebcam}`);
+    const userNames = this.state.userNames;
+    users.forEach((user) => {
+      if (user.userId === id) {
+        userNames[id] = user.name;
+      }
+    });
+    this.setState({ userNames });
 
     this.cameraTimeouts[id] = setTimeout(() => {
       log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
@@ -327,7 +359,7 @@ class VideoDock extends Component {
 
     let peerObj;
     if (shareWebcam) {
-      options.localVideo = this.refs.videoInput;
+      options.localVideo = document.getElementById('shareWebcam');
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
     } else {
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
@@ -427,14 +459,13 @@ class VideoDock extends Component {
   }
 
   destroyVideoTag(id) {
-    const videos = this.state.videos;
+    const { videos, userNames } = this.state;
 
-    delete videos[id];
-    this.setState({ videos });
-
-    if (id == this.myId) {
-      this.setState({ sharedWebcam: false });
-    }
+    this.setState({
+      videos: _.omit(videos, id),
+      userNames: _.omit(userNames, id),
+      sharedWebcam: id !== this.myId,
+    });
   }
 
   destroyWebRTCPeer(id) {
@@ -585,27 +616,13 @@ class VideoDock extends Component {
   }
 
   render() {
-    let cssClass;
-    if (this.state.sharedWebcam) {
-      cssClass = styles.sharedWebcamVideoLocal;
-    } else {
-      cssClass = styles.sharedWebcamVideo;
-    }
-
     return (
       <div className={styles.videoDock}>
-        <div id="webcamArea">
+        <div id="webcamArea" className={styles.webcamArea}>
           {Object.keys(this.state.videos).map(id => (
-            <VideoElement videoId={id} key={id} onMount={this.initWebRTC.bind(this)} />
-          ))}
-          <video
-            autoPlay="autoPlay"
-            playsInline="playsInline"
-            muted="muted"
-            id="shareWebcamVideo"
-            className={cssClass}
-            ref="videoInput"
-          />
+            <VideoElement videoId={id} key={id} name={this.state.userNames[id]} localCamera={false} onMount={this.initWebRTC.bind(this)} />
+            ))}
+          <VideoElement shared={this.state.sharedWebcam} name={this.state.userNames[this.myId]} localCamera />
         </div>
       </div>
     );
@@ -616,22 +633,19 @@ class VideoDock extends Component {
     const currentUsers = this.props.users || {};
     const nextUsers = nextProps.users;
 
-    let users = {};
-    let present = {};
+    const users = {};
+    const present = {};
 
-    if (!currentUsers)
-      return false;
-
+    if (!currentUsers) { return false; }
 
     // Map user objectos to an object in the form {userId: has_stream}
     currentUsers.forEach((user) => {
       users[user.userId] = user.has_stream;
     });
 
-
     // Keep instances where the flag has changed or next user adds it
     nextUsers.forEach((user) => {
-      let id = user.userId;
+      const id = user.userId;
       // The case when a user exists and stream status has not changed
       if (users[id] === user.has_stream) {
         delete users[id];
@@ -647,7 +661,7 @@ class VideoDock extends Component {
     const userIds = Object.keys(users);
 
     for (let i = 0; i < userIds.length; i++) {
-      let id = userIds[i];
+      const id = userIds[i];
 
       // If a userId is not present in nextUsers let's stop it
       if (!present[id]) {
@@ -663,8 +677,7 @@ class VideoDock extends Component {
         if (userId !== id) {
           this.start(id, false);
         }
-      }
-      else {
+      } else {
         this.stop(id);
       }
     }

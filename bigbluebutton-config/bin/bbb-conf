@@ -295,7 +295,7 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+       if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
@@ -351,7 +351,7 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+       if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 

@@ -7,6 +7,7 @@ redisPort : "6379"
 clientPort : "3008"
 minVideoPort: 30000
 maxVideoPort: 33000
+mediaFlowTimeoutDuration: 5000
 from-screenshare: "from-screenshare-sfu"
 to-screenshare: "to-screenshare-sfu"
 from-video: "from-video-sfu"
