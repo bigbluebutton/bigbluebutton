@@ -327,11 +327,11 @@ class VideoDock extends Component {
       videoConstraints = {
         width: {
           min: 320,
-          ideal: 320,
+          ideal: 640,
         },
         height: {
           min: 240,
-          ideal: 240,
+          ideal: 480,
         },
         frameRate: {
           min: 5,
