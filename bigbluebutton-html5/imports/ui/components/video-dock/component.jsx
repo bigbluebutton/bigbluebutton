@@ -165,9 +165,28 @@ class VideoDock extends Component {
   }
 
   componentWillUpdate(nextProps) {
-    const { isLocked } = nextProps;
-    if (isLocked && VideoService.isConnected()) {
+    const {
+      isLocked,
+      webcamOnlyModerator,
+      isModerator,
+      userId,
+      mappedUsers,
+     } = nextProps;
+
+    if(!VideoService.isConnected()) return;
+
+    if (isLocked) {
       this.unshareWebcam();
+      return;
+    }
+    if (webcamOnlyModerator && !isModerator) {
+     mappedUsers
+        .filter(a => Object.keys(this.webRtcPeers).includes(a.id))
+        .filter(a => a.id !== userId)
+        .forEach(user => {
+          !user.isModerator ? this.stop(user.id) : null
+        });
+        return;
     }
   }
 
@@ -494,7 +513,6 @@ class VideoDock extends Component {
   unshareWebcam() {
     VideoService.exitingVideo();
     log('info', 'Unsharing webcam');
-    console.warn(this.props);
     const { userId } = this.props;
     VideoService.sendUserUnshareWebcam(userId);
   }
