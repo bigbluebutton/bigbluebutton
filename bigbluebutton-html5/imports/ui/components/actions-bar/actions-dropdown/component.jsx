@@ -9,6 +9,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import { makeCall } from '/imports/ui/services/api';
 import { styles } from '../styles';
 
 const propTypes = {
@@ -46,17 +47,27 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
   },
+  startRecording: {
+    id: 'app.actionsBar.actionsDropdown.startRecording',
+    description: 'start recording option',
+  },
+  endRecording: {
+    id: 'app.actionsBar.actionsDropdown.endRecording',
+    description: 'end recording option',
+  },
 });
 
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
+    this.handleToggleRecording = this.handleToggleRecording.bind(this);
   }
 
   componentWillMount() {
     this.presentationItemId = _.uniqueId('action-item-');
     this.videoItemId = _.uniqueId('action-item-');
+    this.recordId = _.uniqueId('action-item-');
   }
 
   componentWillUpdate(nextProps) {
@@ -71,29 +82,48 @@ class ActionsDropdown extends Component {
     this.props.mountModal(<PresentationUploaderContainer />);
   }
 
+  handleToggleRecording() {
+    makeCall('toggleRecording');
+  }
+
   getAvailableActions() {
     const {
       intl,
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
+      isUserPresenter,
+      isUserModerator,
+      allowStartStopRecording,
+      isRecording,
     } = this.props;
 
     return _.compact([
-      (<DropdownListItem
-        icon="presentation"
-        label={intl.formatMessage(intlMessages.presentationLabel)}
-        description={intl.formatMessage(intlMessages.presentationDesc)}
-        key={this.presentationItemId}
-        onClick={this.handlePresentationClick}
-      />),
-      (Meteor.settings.public.kurento.enableScreensharing ?
+      (isUserPresenter ?
+        <DropdownListItem
+          icon="presentation"
+          label={intl.formatMessage(intlMessages.presentationLabel)}
+          description={intl.formatMessage(intlMessages.presentationDesc)}
+          key={this.presentationItemId}
+          onClick={this.handlePresentationClick}
+        />
+      : null),
+      (Meteor.settings.public.kurento.enableScreensharing && isUserPresenter ?
         <DropdownListItem
           icon="desktop"
           label={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
           description={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
           key={this.videoItemId}
           onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
+        />
+      : null),
+      (isUserModerator && allowStartStopRecording ?
+        <DropdownListItem
+          icon="record"
+          label={intl.formatMessage(isRecording ? intlMessages.endRecording : intlMessages.startRecording)}
+          description={intl.formatMessage(isRecording ? intlMessages.endRecording : intlMessages.startRecording)}
+          key={this.recordId}
+          onClick={this.handleToggleRecording}
         />
       : null),
     ]);
@@ -106,11 +136,14 @@ class ActionsDropdown extends Component {
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
+      isUserModerator,
+      allowStartStopRecording,
+      isRecording,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if (!isUserPresenter) return null;
+    if (!isUserPresenter && !isUserModerator || (isUserModerator && !allowStartStopRecording && !isUserPresenter)) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >
