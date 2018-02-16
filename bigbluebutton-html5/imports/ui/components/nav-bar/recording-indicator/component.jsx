@@ -1,9 +1,23 @@
 import React from 'react';
+import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
-const RecordingIndicator = ({ beingRecorded }) => {
+const RecordingIndicator = ({ beingRecorded, title }) => {
   if (!beingRecorded) return null;
-  return <div className={styles.indicator} />;
+
+  return (
+    <Button
+      hideLabel
+      className={styles.recordBtn}
+      aria-label={title}
+      label={title}
+      icon="record"
+      size="md"
+      circle
+      ghost
+      onClick={() => null}
+    />
+  )
 };
 
 export default RecordingIndicator;

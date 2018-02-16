@@ -1,33 +1,17 @@
 @import "../../../stylesheets/variables/_all";
 
-.indicator {
-  position: relative;
-  display: inline-block;
-  width: $font-size-base;
-  height: $font-size-base;
-  border-radius: 50%;
-  border: 1px solid $color-white;
-  margin-left: $line-height-computed;
+.recordBtn {
 
-  &:before {
-    content: '';
-    position: absolute;
-    left: calc( -1px - #{($line-height-computed / 2)});
-    width: 1px;
-    height: 100%;
-    background-color: $color-white;
+  &:hover,
+  &:focus {
+    span {
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
   }
 
-  &:after {
-    content: '';
-    width: $font-size-base / 2;
-    height: $font-size-base / 2;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -($font-size-base / 4);
-    margin-left: -($font-size-base / 4);
-    border-radius: 50%;
-    background-color: $color-danger;
+  i {
+    color: red;
   }
+
 }

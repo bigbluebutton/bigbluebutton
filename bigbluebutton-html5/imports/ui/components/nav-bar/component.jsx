@@ -25,6 +25,10 @@ const intlMessages = defineMessages({
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
   },
+  recordingSession: {
+    id: 'app.navBar.recording',
+    description: 'label for when the session is being recorded',
+  },
 });
 
 const propTypes = {
@@ -187,7 +191,7 @@ class NavBar extends Component {
         </div>
         <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
-          <RecordingIndicator beingRecorded={beingRecorded} />
+          <RecordingIndicator beingRecorded={beingRecorded} title={intl.formatMessage(intlMessages.recordingSession)}/>
         </div>
         <div className={styles.right}>
           <SettingsDropdownContainer />
