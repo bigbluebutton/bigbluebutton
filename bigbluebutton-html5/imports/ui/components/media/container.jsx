@@ -6,7 +6,7 @@ import Auth from '/imports/ui/services/auth';
 import Media from './component';
 import MediaService from './service';
 import PresentationAreaContainer from '../presentation/container';
-import VideoDockContainer from '../video-dock/container';
+import VideoProviderContainer from '../video-provider/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
@@ -54,7 +54,7 @@ MediaContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
   const videoSettings = Settings.video;
-  const viewVideoDock = videoSettings.viewParticipantsWebcams;
+  const viewVideoProvider = videoSettings.viewParticipantsWebcams;
 
   const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
@@ -72,8 +72,8 @@ export default withTracker(() => {
     data.content = <ScreenshareContainer />;
   }
 
-  if (MediaService.shouldShowOverlay() && viewVideoDock && !webcamOnlyModerator) {
-    data.overlay = <VideoDockContainer />;
+  if (MediaService.shouldShowOverlay() && viewVideoProvider && !webcamOnlyModerator) {
+    data.overlay = <VideoProviderContainer />;
   }
 
   return data;

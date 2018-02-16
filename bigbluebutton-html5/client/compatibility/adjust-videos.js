@@ -60,6 +60,7 @@
     const y = e.outerHeight() - 1;
 
     const videos = $("#" + tagId + " > div:visible");
+
     const isPortrait = ( $(document).width() < $(document).height() );
 
     if (isPortrait) {
