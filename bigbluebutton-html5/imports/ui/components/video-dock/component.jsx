@@ -27,9 +27,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const RECONNECT_WAIT_TIME = 5000;
 const INITIAL_SHARE_WAIT_TIME = 2000;
-const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
 
 class VideoDock extends Component {
   constructor(props) {
@@ -50,7 +48,7 @@ class VideoDock extends Component {
         // FIX: Really ugly hack, but sometimes the ICE candidates aren't
         // generated properly when we send videos right after componentDidMount
         setTimeout(() => {
-          this.start(user.userId, false);
+          this.start(user.userId);
         }, INITIAL_SHARE_WAIT_TIME);
       }
     });
@@ -133,8 +131,7 @@ class VideoDock extends Component {
               key={id}
               name={this.getNameFromId(id)}
               localCamera={false}
-              onMount={this.props.onStart.bind(this)}
-              candidateCallback={this.props.getOnIceCandidateCallback(id, false)} />
+              onMount={this.props.onStart.bind(this)} />
           ))}
           {this.props.sharedWebcam &&
             <VideoElement
@@ -142,8 +139,7 @@ class VideoDock extends Component {
               name={this.getNameFromId(this.props.userId)}
               videoId={this.props.userId}
               localCamera
-              onMount={this.props.onStart.bind(this)}
-              candidateCallback={this.props.getOnIceCandidateCallback(this.props.userId, true)} />
+              onMount={this.props.onStart.bind(this)} />
           }
         </div>
       </div>
@@ -158,9 +154,15 @@ class VideoDock extends Component {
     const users = {};
     const present = {};
 
+    sharedWebcam = sharedWebcam || false;
+
+    if (sharedWebcam !== nextProps.sharedWebcam && !nextProps.sharedWebcam) {
+      this.stop(userId);
+    }
+
     if (!currentUsers) { return false; }
 
-    // Map user objectos to an object in the form {userId: has_stream}
+    // Map user objects to an object in the form {userId: has_stream}
     currentUsers.forEach((user) => {
       users[user.userId] = user.has_stream;
     });

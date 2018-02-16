@@ -30,22 +30,16 @@ class VideoElement extends Component {
 
   componentDidMount() {
     const { videoId, localCamera } = this.props;
-    const options = {
-      mediaConstraints: {
-        audio: false,
-        video: this.getVideoConstraints(),
-      },
-      onicecandidate: this.props.candidateCallback,
-    };
 
+    let tag;
     if (localCamera) {
-      options.localVideo = document.getElementById('shareWebcam');
+      tag = document.getElementById('shareWebcam');
     } else {
-      options.remoteVideo = document.getElementById(`video-elem-${videoId}`);
+      tag = document.getElementById(`video-elem-${videoId}`);
     }
 
     if (typeof this.props.onMount === 'function') {
-      this.props.onMount(videoId, localCamera, options);
+      this.props.onMount(videoId, localCamera, this.getVideoConstraints(), tag);
     }
   }
 
