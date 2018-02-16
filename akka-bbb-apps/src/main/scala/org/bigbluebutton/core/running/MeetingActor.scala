@@ -359,7 +359,7 @@ class MeetingActor(
     usersApp.handleSyncGetUsersMeetingRespMsg()
 
     // sync all presentations
-    presentationApp2x.handle(liveMeeting, msgBus)
+    presentationPodsApp.handleSyncGetPresentationPods(state, liveMeeting, msgBus)
 
     // TODO send all chat
     // TODO send all lock settings

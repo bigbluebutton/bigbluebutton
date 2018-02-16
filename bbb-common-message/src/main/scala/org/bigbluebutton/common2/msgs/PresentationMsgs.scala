@@ -27,9 +27,4 @@ case class PresenterUnassignedEvtMsgBody(intId: String, name: String, assignedBy
 object NewPresentationEvtMsg { val NAME = "NewPresentationEvtMsg"}
 case class NewPresentationEvtMsg(header: BbbClientMsgHeader, body: NewPresentationEvtMsgBody) extends BbbCoreMsg
 case class NewPresentationEvtMsgBody(presentation: PresentationVO)
-
-// html5 client only
-object SyncGetPresentationInfoRespMsg { val NAME = "SyncGetPresentationInfoRespMsg"}
-case class SyncGetPresentationInfoRespMsg(header: BbbClientMsgHeader, body: SyncGetPresentationInfoRespMsgBody) extends BbbCoreMsg
-case class SyncGetPresentationInfoRespMsgBody(presentations: Vector[PresentationVO])
 // ------------ akka-apps to client ------------
