@@ -3,7 +3,7 @@ package org.bigbluebutton.lib.main.views {
 	import flash.events.MouseEvent;
 	
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	
@@ -24,7 +24,7 @@ package org.bigbluebutton.lib.main.views {
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
 		
 		public override function initialize():void {
-			userSession.userList.userChangeSignal.add(userChanged);
+			//TODO: Listen for voice and webcam changes
 			view.camButton.addEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.addEventListener(MouseEvent.CLICK, micOnOff);
 			view.statusButton.addEventListener(MouseEvent.CLICK, changeStatus);
@@ -49,17 +49,19 @@ package org.bigbluebutton.lib.main.views {
 		
 		private function micOnOff(e:MouseEvent):void {
 			var audioOptions:Object = new Object();
-			audioOptions.shareMic = !userSession.userList.me.voiceJoined;
+			audioOptions.shareMic = false;//!userSession.userList.me.voiceJoined;
 			audioOptions.listenOnly = false;
 			shareMicrophoneSignal.dispatch(audioOptions);
 		}
 		
 		private function camOnOff(e:MouseEvent):void {
-			shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
+			//shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
 		}
 		
-		private function userChanged(user:User, property:String = null):void {
-			if (user && user.me) {
+		private function userChanged(user:User2x, type:int):void {
+			//TODO: Need to fix MenuButton updating for new models
+			/*
+			if (user.me) {
 				if (user.hasStream) {
 					view.camButton.label = "Cam off";// ResourceManager.getInstance().getString('resources', 'menuButtons.camOff');
 					view.camButton.styleName = "icon-video-off menuButton"
@@ -75,10 +77,10 @@ package org.bigbluebutton.lib.main.views {
 					view.micButton.styleName = "icon-unmute menuButton"
 				}
 			}
+			*/
 		}
 		
 		public override function destroy():void {
-			userSession.userList.userChangeSignal.remove(userChanged);
 			view.camButton.removeEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.removeEventListener(MouseEvent.CLICK, micOnOff);
 			view.statusButton.removeEventListener(MouseEvent.CLICK, changeStatus);

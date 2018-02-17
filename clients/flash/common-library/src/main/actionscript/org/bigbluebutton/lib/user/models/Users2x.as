@@ -93,5 +93,13 @@ package org.bigbluebutton.lib.user.models {
 				_userChangeSignal.dispatch(user, UserChangeEnum.PRESENTER);
 			}
 		}
+		
+		public function changeUserStatus(intId:String, status:String):void {
+			var user:User2x = getUser(intId);
+			if (user != null && EmojiStatus.STATUS_ARRAY.indexOf(status)) {
+				user.emoji = status;
+				_userChangeSignal.dispatch(user, UserChangeEnum.EMOJI);
+			}
+		}
 	}
 }

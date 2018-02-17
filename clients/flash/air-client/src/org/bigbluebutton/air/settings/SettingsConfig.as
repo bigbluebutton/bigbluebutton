@@ -16,8 +16,6 @@ package org.bigbluebutton.air.settings {
 	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewMediatorBase;
 	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewBase;
-	import org.bigbluebutton.lib.video.commands.CameraQualityCommand;
-	import org.bigbluebutton.lib.video.commands.CameraQualitySignal;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -53,7 +51,6 @@ package org.bigbluebutton.air.settings {
 		 */
 		private function signals():void {
 			signalCommandMap.map(SaveLockSettingsSignal).toCommand(SaveLockSettingsCommand);
-			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
 		}
 	}
 }

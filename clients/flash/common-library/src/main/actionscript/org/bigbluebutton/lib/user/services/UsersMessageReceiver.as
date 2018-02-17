@@ -9,9 +9,12 @@ package org.bigbluebutton.lib.user.services {
 	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.user.models.User2x;
+	import org.bigbluebutton.lib.video.models.WebcamStreamInfo;
 	
 	public class UsersMessageReceiver implements IMessageListener {
 		private const LOG:String = "UsersMessageReceiver::";
+		
+		private const flashWebcamPattern:RegExp = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)(-recorded)?$/;
 		
 		public var userSession:IUserSession;
 		
@@ -26,28 +29,6 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function onMessage(messageName:String, message:Object):void {
 			switch (messageName) {
-				case "voiceUserTalking":
-					handleVoiceUserTalking(message);
-					break;
-				case "userJoinedVoice":
-					handleUserJoinedVoice(message);
-					break;
-				case "userLeftVoice":
-					handleUserLeftVoice(message);
-					break;
-				case "userSharedWebcam":
-					handleUserSharedWebcam(message);
-					break;
-				case "userUnsharedWebcam":
-					handleUserUnsharedWebcam(message);
-					break;
-				case "user_listening_only":
-				case "userListeningOnly":
-					handleUserListeningOnly(message);
-					break;
-				case "voiceUserMuted":
-					handleVoiceUserMuted(message);
-					break;
 				case "recordingStatusChanged":
 					handleRecordingStatusChanged(message);
 					break;
@@ -60,9 +41,6 @@ package org.bigbluebutton.lib.user.services {
 				case "meetingHasEnded":
 				case "meetingEnded":
 					handleMeetingHasEnded(message);
-					break;
-				case "userEmojiStatus":
-					handleEmojiStatus(message);
 					break;
 				case "meetingState":
 					handleMeetingState(message);
@@ -105,6 +83,18 @@ package org.bigbluebutton.lib.user.services {
 				case "ValidateAuthTokenRespMsg":
 					handleValidateAuthTokenRespMsg(message);
 					break;
+				case "GetWebcamStreamsMeetingRespMsg":
+					handleGetWebcamStreamsMeetingRespMsg(message);
+					break;
+				case "UserBroadcastCamStartedEvtMsg":
+					handleUserBroadcastCamStartedEvtMsg(message);
+					break;
+				case "UserBroadcastCamStoppedEvtMsg":
+					handleUserBroadcastCamStoppedEvtMsg(message);
+					break;
+				case "UserEmojiChangedEvtMsg":
+					handleUserEmojiChangedEvtMsg(message);
+					break;
 				default:
 					break;
 			}
@@ -120,55 +110,6 @@ package org.bigbluebutton.lib.user.services {
 			var msg:Object = JSON.parse(m.msg);
 			userSession.meetingMuted = msg.meetingMuted;
 			updateLockSettings(msg.permissions);
-		}
-		
-		private function handleEmojiStatus(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("UsersMessageReceiver::handleEmojiStatusHand() -- user [" + msg.userId + "," + msg.emojiStatus + "] ");
-			userSession.userList.statusChange(msg.userId, msg.emojiStatus);
-		}
-		
-		private function handleVoiceUserTalking(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			//trace(LOG + "handleVoiceUserTalking() -- user [" + +msg.voiceUserId + "," + msg.talking + "] ");
-			userSession.userList.userTalkingChange(msg.voiceUserId, msg.talking);
-		}
-		
-		private function handleUserJoinedVoice(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			var voiceUser:Object = msg.user.voiceUser;
-			trace(LOG + "handleUserJoinedVoice() -- user [" + msg.user.userId + "] has joined voice with voiceId [" + voiceUser.userId + "]");
-			userSession.userList.userJoinAudio(msg.user.userId, voiceUser.userId, voiceUser.muted, voiceUser.talking, voiceUser.locked);
-		}
-		
-		private function handleUserLeftVoice(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleUserLeftVoice() -- user [" + msg.user.userId + "] has left voice");
-			userSession.userList.userLeaveAudio(msg.user.userId);
-		}
-		
-		private function handleUserSharedWebcam(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleUserSharedWebcam() -- user [" + msg.userId + "] has shared their webcam with stream [" + msg.webcamStream + "]");
-			userSession.userList.userStreamChange(msg.userId, true, msg.webcamStream);
-		}
-		
-		private function handleUserUnsharedWebcam(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleUserUnsharedWebcam() -- user [" + msg.userId + "] has unshared their webcam");
-			userSession.userList.userStreamChange(msg.userId, false, msg.webcamStream);
-		}
-		
-		private function handleUserListeningOnly(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleUserListeningOnly -- user [" + msg.userId + "] has listen only set to [" + userSession.userList.me.listenOnly + "]");
-			userSession.userList.listenOnlyChange(msg.userId, userSession.userList.me.listenOnly);
-		}
-		
-		private function handleVoiceUserMuted(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleVoiceUserMuted() -- user [" + msg.voiceUserId + ", muted: " + msg.muted + "]");
-			userSession.userList.userMuteChange(msg.voiceUserId, msg.muted);
 		}
 		
 		private function handleMeetingHasEnded(m:Object):void {
@@ -246,7 +187,7 @@ package org.bigbluebutton.lib.user.services {
 		private function handleUserLeftMeetingEvtMsg(msg:Object):void {
 			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + msg.body.intId + "] has left the meeting");
 			meetingData.users.remove(msg.intId);
-		}		
+		}
 		
 		private function handleUserLockedInMeetingEvtMsg(msg:Object):void {
 			trace(LOG + "handleUserLockedInMeetingEvtMsg: " + ObjectUtil.toString(msg));
@@ -295,6 +236,66 @@ package org.bigbluebutton.lib.user.services {
 			trace(LOG + "handleValidateAuthTokenReply() valid=" + tokenValid);
 			userSession.userId = msg.body.userId;
 			userSession.authTokenSignal.dispatch(tokenValid);
+		}
+		
+		private function handleGetWebcamStreamsMeetingRespMsg(msg:Object):void {
+			var body:Object = msg.body as Object
+			var streams:Array = body.streams as Array;
+			trace("Num streams = " + streams.length);
+			
+			for (var i:int = 0; i < streams.length; i++) {
+				var stream:Object = streams[i] as Object;
+				var streamId:String = stream.streamId as String;
+				var media:Object = stream.stream as Object;
+				var url:String = media.url as String;
+				var userId:String = media.userId as String;
+				var attributes:Object = media.attributes as Object;
+				var viewers:Array = media.viewers as Array;
+				
+				
+				if (isValidFlashWebcamStream(streamId)) {
+					var user:User2x = meetingData.users.getUser(userId);
+					if (user) {
+						var webcamStream:WebcamStreamInfo = new WebcamStreamInfo(streamId, userId, user.name);
+						webcamStream.streamId = streamId;
+						webcamStream.userId = userId;
+						
+						trace("STREAM = " + JSON.stringify(webcamStream));
+						meetingData.webcams.add(webcamStream);
+					}
+				}
+			}
+		}
+		
+		private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
+			var userId:String = msg.body.userId as String;
+			var streamId:String = msg.body.stream as String;
+			
+			if (isValidFlashWebcamStream(streamId)) {
+				var user:User2x = meetingData.users.getUser(userId);
+				if (user) {
+					var webcamStream:WebcamStreamInfo = new WebcamStreamInfo(streamId, userId, user.name)
+					meetingData.webcams.add(webcamStream);
+				}
+			}
+		}
+		
+		private function isValidFlashWebcamStream(streamId:String):Boolean {
+			return flashWebcamPattern.test(streamId);
+		}
+		
+		private function handleUserBroadcastCamStoppedEvtMsg(msg:Object):void {
+			var userId:String = msg.body.userId as String;
+			var stream:String = msg.body.stream as String;
+			
+			meetingData.webcams.remove(stream);
+		}
+		
+		private function handleUserEmojiChangedEvtMsg(msg:Object):void {
+			var userId:String = msg.body.userId as String;
+			var emoji:String = msg.body.emoji as String;
+			
+			meetingData.users.changeUserStatus(userId, emoji);
 		}
 	}
 }

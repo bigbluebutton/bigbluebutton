@@ -144,13 +144,13 @@ package org.bigbluebutton.lib.main.commands {
 			var audioOptions:Object = new Object();
 			if (userSession.phoneOptions.autoJoin && userSession.phoneOptions.skipCheck) {
 				var forceListenOnly:Boolean = (userSession.config.getConfigFor("PhoneModule").@forceListenOnly.toString().toUpperCase() == "TRUE") ? true : false;
-				audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
-				audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
-				shareMicrophoneSignal.dispatch(audioOptions);
+				//audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
+				//audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
+				//shareMicrophoneSignal.dispatch(audioOptions);
 			} else {
-				audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
-				audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
-				shareMicrophoneSignal.dispatch(audioOptions);
+				//audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
+				//audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
+				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
 			
 			trace("Configuring deskshare");
@@ -194,7 +194,8 @@ package org.bigbluebutton.lib.main.commands {
 		private function videoConnectedSuccess():void {
 			trace(LOG + "successVideoConnected()");
 			if (userSession.videoAutoStart && userSession.skipCamSettingsCheck) {
-				shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
+				trace("TODO: Need to implement auto start cam still");
+				//shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
 			}
 			videoConnection.connectionSuccessSignal.remove(videoConnectedSuccess);
 			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);

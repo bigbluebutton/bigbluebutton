@@ -1,13 +1,11 @@
 package org.bigbluebutton.lib.user.services {
 	
-	import org.bigbluebutton.lib.user.models.User;
-	
 	public interface IUsersService {
 		function setupMessageSenderReceiver():void;
 		function kickUser(userId:String):void;
 		function queryForParticipants():void;
 		function assignPresenter(userId:String, name:String):void;
-		function emojiStatus(status:String):void;
+		function emojiStatus(userId:String, status:String):void;
 		function clearUserStatus(userId:String):void
 		function addStream(userId:String, streamName:String):void;
 		function removeStream(userId:String, streamName:String):void;
@@ -23,10 +21,8 @@ package org.bigbluebutton.lib.user.services {
 		function setUserLock(internalUserId:String, lock:Boolean):void;
 		function getLockSettings():void;
 		function saveLockSettings(newLockSettings:Object):void;
-		function muteMe():void;
-		function unmuteMe():void;
-		function mute(user:User):void;
-		function unmute(user:User):void;
+		function mute(userId:String):void;
+		function unmute(userId:String):void;
 		function validateToken():void;
 		function joinMeeting():void;
 	}

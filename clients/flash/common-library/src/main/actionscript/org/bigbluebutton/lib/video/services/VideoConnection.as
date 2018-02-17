@@ -11,7 +11,10 @@ package org.bigbluebutton.lib.video.services {
 	import org.bigbluebutton.lib.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.LockSettings2x;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.models.VideoProfile;
 	import org.osflash.signals.ISignal;
@@ -28,6 +31,9 @@ package org.bigbluebutton.lib.video.services {
 		
 		[Inject]
 		public var userSession:IUserSession;
+		
+		[Inject]
+		public var meetingData:IMeetingData;
 		
 		[Inject]
 		public var saveData:ISaveData;
@@ -61,11 +67,11 @@ package org.bigbluebutton.lib.video.services {
 			userSession.successJoiningMeetingSignal.add(loadCameraSettings);
 			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
 			baseConnection.connectionFailureSignal.add(onConnectionFailure);
-			userSession.lockSettings.disableCamSignal.add(disableCam);
+			meetingData.meetingStatus.lockSettingsChangeSignal.add(lockSettingsChange);
 		}
 		
-		private function disableCam(disable:Boolean):void {
-			if (disable && userSession.userList.me.locked && !userSession.userList.me.presenter) {
+		private function lockSettingsChange(lockSettings:LockSettings2x):void {
+			if (lockSettings.disableCam && meetingData.users.me.locked && meetingData.users.me.role != User2x.MODERATOR) {
 				shareCameraSignal.dispatch(false, null);
 			}
 		}

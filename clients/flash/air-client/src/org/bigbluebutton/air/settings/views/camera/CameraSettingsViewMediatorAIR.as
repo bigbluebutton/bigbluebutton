@@ -11,8 +11,7 @@ package org.bigbluebutton.air.settings.views.camera {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewMediatorBase;
-	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.models.UserList;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.models.VideoProfile;
 	
@@ -26,7 +25,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		
 		override public function initialize():void {
 			super.initialize();
-			var userMe:User = userSession.userList.me;
+			//var userMe:User = userSession.userList.me;
 			if (Camera.getCamera() == null) {
 				// view.startCameraButton.label = ResourceManager.getInstance().getString('resources', 'profile.settings.camera.unavailable');
 				// view.startCameraButton.enabled = false;
@@ -37,11 +36,11 @@ package org.bigbluebutton.air.settings.views.camera {
 			if (Camera.names.length <= 1) {
 				setSwapCameraButtonEnable(false);
 			} else {
-				setSwapCameraButtonEnable(!userMe.hasStream);
+				//setSwapCameraButtonEnable(!userMe.hasStream);
 				view.swapCameraButton.addEventListener(MouseEvent.CLICK, mouseClickHandler);
 			}
 			
-			setRotateCameraButtonEnable(!userMe.hasStream);
+			//setRotateCameraButtonEnable(!userMe.hasStream);
 			// FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			// view.startCameraButton.addEventListener(MouseEvent.CLICK, onShareCameraClick);
 			view.rotateCameraButton.addEventListener(MouseEvent.CLICK, onRotateCameraClick);
@@ -55,7 +54,8 @@ package org.bigbluebutton.air.settings.views.camera {
 		}
 		
 		
-		override protected function userChangeHandler(user:User, type:int):void {
+		override protected function userChangeHandler(user:User2x, type:int):void {
+			/*
 			if (user.me) {
 				if (type == UserList.HAS_STREAM) {
 					// view.startCameraButton.label = ResourceManager.getInstance().getString('resources', user.hasStream ? 'profile.settings.camera.on' : 'profile.settings.camera.off');
@@ -65,9 +65,11 @@ package org.bigbluebutton.air.settings.views.camera {
 					}
 				}
 			}
+			*/
 		}
 		
 		protected function onShareCameraClick(event:MouseEvent):void {
+			/*
 			setRotateCameraButtonEnable(userSession.userList.me.hasStream);
 			setQualityListEnable(userSession.userList.me.hasStream);
 			view.cameraProfilesList.selectedIndex = dataProvider.getItemIndex(userSession.videoConnection.selectedCameraQuality);
@@ -77,6 +79,7 @@ package org.bigbluebutton.air.settings.views.camera {
 				userSession.videoAutoStart = false;
 				userUISession.popPage();
 			}
+			*/
 		}
 		
 		protected function onRotateCameraClick(event:MouseEvent):void {
@@ -168,6 +171,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		 */
 		//close old stream on swap
 		private function mouseClickHandler(e:MouseEvent):void {
+			/*
 			if (!userSession.userList.me.hasStream) {
 				if (String(userSession.videoConnection.cameraPosition) == CameraPosition.FRONT) {
 					userSession.videoConnection.cameraPosition = CameraPosition.BACK;
@@ -185,6 +189,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			}
 			saveData.save("cameraPosition", userSession.videoConnection.cameraPosition);
 			displayPreviewCamera();
+			*/
 		}
 		
 		override public function destroy():void {

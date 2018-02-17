@@ -8,7 +8,10 @@ package org.bigbluebutton.lib.voice.services {
 	import org.bigbluebutton.lib.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.LockSettings2x;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
@@ -21,6 +24,9 @@ package org.bigbluebutton.lib.voice.services {
 		
 		[Inject]
 		public var userSession:IUserSession;
+		
+		[Inject]
+		public var meetingData:IMeetingData;
 		
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
@@ -49,15 +55,13 @@ package org.bigbluebutton.lib.voice.services {
 			baseConnection.init(this);
 			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
 			baseConnection.connectionFailureSignal.add(onConnectionFailure);
-			userSession.lockSettings.disableMicSignal.add(disableMic);
+			meetingData.meetingStatus.lockSettingsChangeSignal.add(lockSettingsChange);
 		}
 		
-		private function disableMic(disable:Boolean):void {
-			if (disable && callActive) {
-				var audioOptions:Object = new Object();
-				audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
-				audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
-				shareMicrophoneSignal.dispatch(audioOptions);
+		private function lockSettingsChange(lockSettings:LockSettings2x):void {
+			if (lockSettings.disableMic && meetingData.users.me.locked && meetingData.users.me.role != User2x.MODERATOR) {
+				trace("TODO: Disabling the mic still needs to be finished");
+				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
 		}
 		
@@ -66,7 +70,6 @@ package org.bigbluebutton.lib.voice.services {
 		}
 		
 		private function onConnectionSuccess():void {
-			userSession.userList.me.listenOnly = _listenOnly;
 			call(_listenOnly);
 		}
 		
