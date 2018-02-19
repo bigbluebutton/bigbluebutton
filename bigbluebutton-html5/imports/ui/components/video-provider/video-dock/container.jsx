@@ -1,11 +1,11 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import mapUser from '../../services/user/mapUser';
+import mapUser from '../../../services/user/mapUser';
 import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
 import VideoDock from './component';
-import VideoService from './service';
+import VideoService from '../service';
 
 const VideoDockContainer = ({ children, ...props }) => <VideoDock {...props}>{children}</VideoDock>;
 

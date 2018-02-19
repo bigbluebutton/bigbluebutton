@@ -7,8 +7,8 @@ import { toast } from 'react-toastify';
 import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
-import VideoService from '../video-dock/service';
-import VideoDockContainer from '../video-dock/container';
+import VideoService from './service';
+import VideoDockContainer from './video-dock/container';
 
 const intlMessages = defineMessages({
   iceCandidateError: {

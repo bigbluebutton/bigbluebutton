@@ -2,7 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBar from './component';
 import Service from './service';
-import VideoService from '../video-dock/service';
+import VideoService from '../video-provider/service';
 import { shareScreen, unshareScreen, isVideoBroadcasting } from '../screenshare/service';
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;

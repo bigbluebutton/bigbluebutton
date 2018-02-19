@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { styles } from './styles';
+import { styles } from '../styles';
 import { defineMessages, injectIntl } from 'react-intl';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
@@ -8,7 +8,7 @@ import { styles as mediaStyles } from '/imports/ui/components/media/styles';
 import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
-import VideoElement from './video-element';
+import VideoElement from '../video-element/component';
 
 const INITIAL_SHARE_WAIT_TIME = 2000;
 
