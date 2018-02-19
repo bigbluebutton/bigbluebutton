@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { withRouter } from 'react-router';
 import SettingsService from '/imports/ui/services/settings';
 import Settings from './component';
 
@@ -14,7 +15,7 @@ const SettingsContainer = props => (
   <Settings {...props} />
 );
 
-export default withTracker(() => ({
+export default withRouter(withTracker(() => ({
   audio: SettingsService.audio,
   dataSaving: SettingsService.dataSaving,
   application: SettingsService.application,
@@ -24,4 +25,4 @@ export default withTracker(() => ({
   locales: getClosedCaptionLocales(),
   availableLocales: getAvailableLocales(),
   isModerator: getUserRoles() === 'MODERATOR',
-}))(SettingsContainer);
+}))(SettingsContainer));

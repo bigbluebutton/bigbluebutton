@@ -290,12 +290,12 @@ stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5="mongod bbb-html5"
+          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server-6.0"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+       if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
@@ -346,16 +346,21 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5="mongod bbb-html5"
+          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server-6.0"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+       if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
        systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+          systemctl start mongod
+	  sleep 3
+          systemctl start bbb-html5
+       fi
     else
 	$FREESWITCH_INIT_D start
 	
@@ -478,7 +483,12 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+	units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+
+       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+          units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server-6.0"
+       fi
+
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
@@ -1727,7 +1737,7 @@ if [ -n "$HOST" ]; then
 	# Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
 	#
 	echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
+	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
 	sudo sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
@@ -1735,11 +1745,14 @@ if [ -n "$HOST" ]; then
 	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
 	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
 
-	#
-	# Update configuration for BigBlueButton client
-	#
-	echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
+        #
+        # Update configuration for BigBlueButton client (and perserve hostname for chromeExtensionLink if exists)
+        #
+
+        echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
+        chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
+        sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
+        sudo sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" /var/www/bigbluebutton/client/conf/config.xml
 
         echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
         sudo sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
@@ -1840,6 +1853,10 @@ if [ -n "$HOST" ]; then
         	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
         	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" \
                 	/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
+
+		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
+		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "wss://$HOST/kurento"
+		fi
 	fi
 
 

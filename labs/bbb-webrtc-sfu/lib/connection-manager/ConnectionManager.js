@@ -7,15 +7,11 @@
 
 'use strict';
 
-// const express = require('express');
-// const session = require('express-session')
-// const wsModule = require('./websocket');
-
 const http = require('http');
-const fs = require('fs');
 const EventEmitter = require('events');
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const C = require('../bbb/messages/Constants');
+const Logger = require('../utils/Logger');
 
 // Global variables
 module.exports = class ConnectionManager {
@@ -85,10 +81,10 @@ module.exports = class ConnectionManager {
         this._emitter.emit('response', data);
       });
 
-      console.log('  [ConnectionManager] Successfully subscribed to processes redis channels');
+      Logger.info('[ConnectionManager] Successfully subscribed to processes redis channels');
     }
     catch (err) {
-      console.log('  [ConnectionManager] ' + err);
+      Logger.info('[ConnectionManager] ' + err);
       this._stopAll;
     }
   }

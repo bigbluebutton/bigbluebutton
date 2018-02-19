@@ -34,12 +34,10 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		private var viewWindow:WebRTCDesktopViewWindow;
 		private var shareWindow:WebRTCDesktopPublishWindow;
-		private var service:WebRTCDeskshareService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 
 		public function WebRTCViewerWindowManager(service:WebRTCDeskshareService) {
-			this.service = service;
 			globalDispatcher = new Dispatcher();
 		}
 

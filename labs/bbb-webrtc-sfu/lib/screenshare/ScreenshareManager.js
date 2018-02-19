@@ -10,7 +10,7 @@
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const Screenshare = require('./screenshare');
 const C = require('../bbb/messages/Constants');
-// Global variables
+const Logger = require('../utils/Logger');
 
 module.exports = class ScreenshareManager {
   constructor (logger) {
@@ -29,19 +29,17 @@ module.exports = class ScreenshareManager {
       this._redisGateway = await this._bbbGW.addSubscribeChannel(C.TO_SCREENSHARE);
       const transcode = await this._bbbGW.addSubscribeChannel(C.FROM_BBB_TRANSCODE_SYSTEM_CHAN);
       this._redisGateway.on(C.REDIS_MESSAGE, this._onMessage.bind(this));
-      console.log('  [ScreenshareManager] Successfully subscribed to redis channel');
     }
     catch (error) {
-      console.log('  [ScreenshareManager] Could not connect to transcoder redis channel, finishing app...');
-      console.log(error);
+      Logger.error('[ScreenshareManager] Could not connect to transcoder redis channel, finishing screensharing app with error', error);
       this.stopAll();
     }
   }
 
-  _onMessage(_message) {
-    console.log('  [ScreenshareManager] Received message => ');
+  _onMessage(message) {
+    Logger.debug('[ScreenshareManager] Received message [' + message.id + '] from connection', message.connectionId);
+
     let session;
-    let message = _message;
 
     let sessionId = message.voiceBridge;
     let connectionId = message.connectionId;
@@ -75,7 +73,7 @@ module.exports = class ScreenshareManager {
 
         // starts presenter by sending sessionID, websocket and sdpoffer
         session._startPresenter(sessionId, message.sdpOffer, (error, sdpAnswer) => {
-          console.log("  [ScreenshareManager] Started presenter " + sessionId);
+          Logger.info("[ScreenshareManager] Started presenter ", sessionId, " for connection", connectionId);
           if (error) {
             this._bbbGW.publish(JSON.stringify({
               connectionId: session._id,
@@ -93,15 +91,18 @@ module.exports = class ScreenshareManager {
             sdpAnswer : sdpAnswer
           }), C.FROM_SCREENSHARE);
 
-          console.log("  [ScreenshareManager]  [websocket] Sending presenterResponse \n" + sdpAnswer);
+          Logger.info("[ScreenshareManager] Sending presenterResponse to presenter", sessionId, "for connection", session._id);
         });
         break;
 
       case 'viewer':
-        console.log("  [ScreenshareManager][viewer] Session output \n " + session);
         if (message.sdpOffer && message.voiceBridge) {
           if (session) {
-            session._startViewer(message.connectionId, message.voiceBridge, message.sdpOffer, connectionId,
+            Logger.info("[ScreenshareManager] Starting screenshare viewer at", message.voiceBridge, " for viewer with connection ", message.connectionId);
+            session._startViewer(message.connectionId,
+                message.voiceBridge,
+                message.sdpOffer,
+                connectionId,
                 this._screenshareSessions[message.voiceBridge]._presenterEndpoint);
           } else {
             // TODO ERROR HANDLING
@@ -110,12 +111,12 @@ module.exports = class ScreenshareManager {
         break;
 
       case 'stop':
-        console.log('[' + message.id + '] connection ' + sessionId);
+        Logger.info('[ScreenshareManager] Received stop message for session', sessionId, "at connection", connectionId);
 
         if (session) {
           session._stop(sessionId);
         } else {
-          console.log(" [stop] Why is there no session on STOP?");
+          Logger.warn("[ScreenshareManager] There was no screensharing session on stop for", sessionId);
         }
         break;
 
@@ -123,28 +124,27 @@ module.exports = class ScreenshareManager {
         if (session) {
           session.onIceCandidate(message.candidate);
         } else {
-          console.log(" [iceCandidate] Why is there no session on ICE CANDIDATE?");
+          Logger.warn("[ScreenshareManager] There was no screensharing session for onIceCandidate for", sessionId, ". There should be a queue here");
         }
         break;
 
       case 'viewerIceCandidate':
-        console.log("[viewerIceCandidate] Session output => " + session);
         if (session) {
           session.onViewerIceCandidate(message.candidate, connectionId);
         } else {
-          console.log("[iceCandidate] Why is there no session on ICE CANDIDATE?");
+          Logger.warn("[ScreenshareManager] There was no screensharing session for onIceCandidate for", sessionId + ". There should be a queue here");
         }
         break;
 
       case 'close':
-        console.log('  [ScreenshareManager] Connection ' + connectionId + ' closed');
+        Logger.info('[ScreenshareManager] Connection ' + connectionId + ' closed');
 
         if (message.role === 'presenter' && this._screenshareSessions[sessionId]) {
-          console.log("  [ScreenshareManager] Stopping presenter " + sessionId);
+          Logger.info("[ScreenshareManager] Stopping presenter " + sessionId);
           this._stopSession(sessionId);
         }
         if (message.role === 'viewer' && typeof session !== 'undefined') {
-          console.log("  [ScreenshareManager] Stopping viewer " + sessionId);
+          Logger.info("[ScreenshareManager] Stopping viewer " + sessionId);
           session.stopViewer(message.connectionId);
         }
         break;
@@ -153,14 +153,14 @@ module.exports = class ScreenshareManager {
         this._bbbGW.publish(JSON.stringify({
           connectionId: session._id? session._id : 'none',
           id : 'error',
-          message: 'Invald message ' + message
+          message: 'Invalid message ' + message
         }), C.FROM_SCREENSHARE);
         break;
     }
   }
 
   _stopSession(sessionId) {
-    console.log(' [>] Stopping session ' + sessionId);
+    Logger.info('[ScreenshareManager] Stopping session ' + sessionId);
 
     if (typeof this._screenshareSessions === 'undefined' || typeof sessionId === 'undefined') {
       return;
@@ -175,7 +175,7 @@ module.exports = class ScreenshareManager {
   }
 
   stopAll() {
-    console.log('\n [x] Stopping everything! ');
+    Logger.info('[ScreenshareManager] Stopping everything! ');
 
     if (typeof this._screenshareSessions === 'undefined') {
       return;

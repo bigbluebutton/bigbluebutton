@@ -411,6 +411,9 @@
 		<copy todir="${OUTPUT_DIR}/swfobject/">
 			<fileset dir="${PROD_RESOURCES_DIR}/swfobject" />
 		</copy>
+		<copy todir="${OUTPUT_DIR}/logos/">
+			<fileset dir="${PROD_RESOURCES_DIR}/logos" />
+		</copy>
 		<copy todir="${OUTPUT_DIR}/lib/">
 			<fileset dir="${PROD_RESOURCES_DIR}/lib" />
 		</copy>
@@ -423,7 +426,6 @@
 		<copy file="${PROD_RESOURCES_DIR}/get_flash_player.gif" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/avatar.png" todir="${OUTPUT_DIR}" overwrite="true" />
-		<copy file="${PROD_RESOURCES_DIR}/logo.swf" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/background.jpg" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/expressInstall.swf" todir="${OUTPUT_DIR}" overwrite="true" />
