@@ -23,6 +23,14 @@ let ScreenshareRTMPBroadcastStoppedEventMessage2x =
 let UserCamBroadcastStoppedEventMessage2x =
     require('./video/UserCamBroadcastStoppedEventMessage2x.js')(Constants);
 let WebRTCShareEvent = require('./video/WebRTCShareEvent.js')(Constants);
+let UserConnectedToGlobalAudio =
+    require('./audio/UserConnectedToGlobalAudio.js')(Constants);
+let UserDisconnectedFromGlobalAudio =
+    require('./audio/UserDisconnectedFromGlobalAudio.js')(Constants);
+let UserConnectedToGlobalAudio2x =
+    require('./audio/UserConnectedToGlobalAudio2x.js')(Constants);
+let UserDisconnectedFromGlobalAudio2x =
+    require('./audio/UserDisconnectedFromGlobalAudio2x.js')(Constants);
 
  /**
   * @classdesc
@@ -78,4 +86,31 @@ Messaging.prototype.generateWebRTCShareEvent =
   let stodrbem = new WebRTCShareEvent(name, meetingId, streamUrl);
   return stodrbem.payload;
 }
+
+Messaging.prototype.generateUserConnectedToGlobalAudioMessage =
+  function(voiceConf, userId, name) {
+  let msg;
+  switch (Constants.COMMON_MESSAGE_VERSION) {
+    case "1.x":
+      msg = new UserConnectedToGlobalAudio(voiceConf, userId, name);
+      break;
+    default:
+      msg = new UserConnectedToGlobalAudio2x(voiceConf, userId, name);
+  }
+  return msg.toJson();
+}
+
+Messaging.prototype.generateUserDisconnectedFromGlobalAudioMessage =
+  function(voiceConf, userId, name) {
+  let msg;
+  switch (Constants.COMMON_MESSAGE_VERSION) {
+    case "1.x":
+      msg = new UserDisconnectedFromGlobalAudio(voiceConf, userId, name);
+      break;
+    default:
+      msg = new UserDisconnectedFromGlobalAudio2x(voiceConf, userId, name);
+  }
+  return msg.toJson();
+}
+
 module.exports = new Messaging();

@@ -29,6 +29,8 @@ const config = require('config');
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
         FROM_VOICE_CONF_SYSTEM_CHAN: "from-voice-conf-redis-channel",
         TO_BBB_TRANSCODE_SYSTEM_CHAN: "bigbluebutton:to-bbb-transcode:system",
+        TO_BBB_MEETING_CHAN: "bigbluebutton:to-bbb-apps:meeting",
+        TO_AKKA_APPS_CHAN_2x: "to-akka-apps-redis-channel",
         FROM_SCREENSHARE: config.get('from-screenshare'),
         TO_SCREENSHARE: config.get('to-screenshare'),
         FROM_VIDEO: config.get('from-video'),
@@ -49,6 +51,8 @@ const config = require('config');
         STOP_TRANSCODER_REPLY: "stop_transcoder_reply_message",
         DESKSHARE_RTMP_BROADCAST_STARTED: "deskshare_rtmp_broadcast_started_message",
         DESKSHARE_RTMP_BROADCAST_STOPPED: "deskshare_rtmp_broadcast_stopped_message",
+        GLOBAL_AUDIO_CONNECTED: "user_connected_to_global_audio",
+        GLOBAL_AUDIO_DISCONNECTED: "user_disconnected_from_global_audio",
 
         //Message identifiers 2x
         SCREENSHARE_RTMP_BROADCAST_STARTED_2x: "ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg",
@@ -57,6 +61,8 @@ const config = require('config');
         START_TRANSCODER_RESP_2x: "StartTranscoderSysRespMsg",
         STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
+        GLOBAL_AUDIO_CONNECTED_2x: "UserConnectedToGlobalAudioMsg",
+        GLOBAL_AUDIO_DISCONNECTED_2x: "UserDisconnectedFromGlobalAudioMsg",
 
         USER_CAM_BROADCAST_STARTED_2x: "UserBroadcastCamStartMsg",
         USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
@@ -85,6 +91,10 @@ const config = require('config');
         TIMESTAMP: "timestamp",
         VIDEO_WIDTH: "vidWidth",
         VIDEO_HEIGHT: "vidHeight",
+
+        // Audio
+        NAME: "name",
+        USERID: "userid",
 
         // RTP params
         MEETING_ID : "meeting_id",

@@ -57,7 +57,7 @@ module.exports = class AudioManager {
         this._audioSessions[sessionId] = session;
 
         // starts audio session by sending sessionID, websocket and sdpoffer
-        session.start(sessionId, connectionId, message.sdpOffer, message.callerName, (error, sdpAnswer) => {
+        session.start(sessionId, connectionId, message.sdpOffer, message.callerName, message.userId, message.userName, (error, sdpAnswer) => {
           Logger.info("[AudioManager] Started presenter ", sessionId, " for connection", connectionId);
           Logger.debug("[AudioManager] SDP answer was", sdpAnswer);
           if (error) {
