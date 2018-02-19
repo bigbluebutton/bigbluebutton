@@ -24,7 +24,8 @@ class ActionsBar extends React.PureComponent {
 
     const {
       allowStartStopRecording,
-      recording : isRecording
+      recording : isRecording,
+      record
     } = recordSettingsList;
 
     const actionBarClasses = {};
@@ -42,6 +43,7 @@ class ActionsBar extends React.PureComponent {
             isUserModerator,
             allowStartStopRecording,
             isRecording,
+            record
             }}
           />
         </div>

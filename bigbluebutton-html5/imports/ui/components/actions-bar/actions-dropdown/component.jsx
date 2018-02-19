@@ -96,6 +96,7 @@ class ActionsDropdown extends Component {
       isUserModerator,
       allowStartStopRecording,
       isRecording,
+      record,
     } = this.props;
 
     return _.compact([
@@ -117,7 +118,7 @@ class ActionsDropdown extends Component {
           onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
         />
       : null),
-      (isUserModerator && allowStartStopRecording ?
+      (record && isUserModerator && allowStartStopRecording ?
         <DropdownListItem
           icon="record"
           label={intl.formatMessage(isRecording ? intlMessages.endRecording : intlMessages.startRecording)}
@@ -139,11 +140,12 @@ class ActionsDropdown extends Component {
       isUserModerator,
       allowStartStopRecording,
       isRecording,
+      record
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if (!isUserPresenter && !isUserModerator || (isUserModerator && !allowStartStopRecording && !isUserPresenter)) return null;
+    if (!isUserPresenter && !isUserModerator || (isUserModerator && !allowStartStopRecording && !isUserPresenter) || availableActions.length == 0) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >

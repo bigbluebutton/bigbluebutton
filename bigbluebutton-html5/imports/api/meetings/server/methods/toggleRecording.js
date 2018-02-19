@@ -25,11 +25,12 @@ export default function toggleRecording(credentials) {
 
     let {
       allowStartStopRecording,
-      recording
+      recording,
+      record
     } = meetingObject.recordProp;
 
     meetingRecorded = recording;
-    allowedToRecord = allowStartStopRecording;
+    allowedToRecord = record && allowStartStopRecording;
   }
 
 
