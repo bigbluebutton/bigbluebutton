@@ -51,9 +51,9 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.startRecording',
     description: 'start recording option',
   },
-  endRecording: {
-    id: 'app.actionsBar.actionsDropdown.endRecording',
-    description: 'end recording option',
+  stopRecording: {
+    id: 'app.actionsBar.actionsDropdown.stopRecording',
+    description: 'stop recording option',
   },
 });
 
@@ -121,8 +121,8 @@ class ActionsDropdown extends Component {
       (record && isUserModerator && allowStartStopRecording ?
         <DropdownListItem
           icon="record"
-          label={intl.formatMessage(isRecording ? intlMessages.endRecording : intlMessages.startRecording)}
-          description={intl.formatMessage(isRecording ? intlMessages.endRecording : intlMessages.startRecording)}
+          label={intl.formatMessage(isRecording ? intlMessages.stopRecording : intlMessages.startRecording)}
+          description={intl.formatMessage(isRecording ? intlMessages.stopRecording : intlMessages.startRecording)}
           key={this.recordId}
           onClick={this.handleToggleRecording}
         />

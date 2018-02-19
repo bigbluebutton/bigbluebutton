@@ -182,7 +182,7 @@
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Share your screen with others",
     "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Stop sharing your screen with",
     "app.actionsBar.actionsDropdown.startRecording": "Start recording",
-    "app.actionsBar.actionsDropdown.endRecording": "End recording",
+    "app.actionsBar.actionsDropdown.stopRecording": "Stop recording",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",
     "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",
