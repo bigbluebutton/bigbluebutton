@@ -30,7 +30,7 @@ const intlMessages = defineMessages({
   chromeExtensionErrorLink: {
     id: 'app.video.chromeExtensionErrorLink',
     description: 'Error message for Chrome Extension not installed',
-  },
+  }
 });
 
 const RECONNECT_WAIT_TIME = 5000;
@@ -423,7 +423,7 @@ class VideoProvider extends Component {
 
     this.cameraTimeouts[id] = setTimeout(() => {
       log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
-      if (this.myId == id) {
+      if (this.props.userId == id) {
         this.notifyError(intl.formatMessage(intlMessages.sharingError));
         this.unshareWebcam();
       } else {

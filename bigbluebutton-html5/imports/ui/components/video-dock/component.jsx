@@ -8,26 +8,20 @@ import { styles as mediaStyles } from '/imports/ui/components/media/styles';
 import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
-import installChromeExtension from './chrome-modal';
-
 import VideoElement from './video-element';
 
+const INITIAL_SHARE_WAIT_TIME = 2000;
+
 const intlMessages = defineMessages({
-  iceCandidateError: {
-    id: 'app.video.iceCandidateError',
-    description: 'Error message for ice candidate fail',
+  chromeExtensionError: {
+    id: 'app.video.chromeExtensionError',
+    description: 'Error message for Chrome Extension not installed',
   },
-  permissionError: {
-    id: 'app.video.permissionError',
-    description: 'Error message for webcam permission',
-  },
-  sharingError: {
-    id: 'app.video.sharingError',
-    description: 'Error on sharing webcam',
+  chromeExtensionErrorLink: {
+    id: 'app.video.chromeExtensionErrorLink',
+    description: 'Error message for Chrome Extension not installed',
   },
 });
-
-const INITIAL_SHARE_WAIT_TIME = 2000;
 
 class VideoDock extends Component {
   constructor(props) {
@@ -53,7 +47,7 @@ class VideoDock extends Component {
       }
     });
 
-    document.addEventListener('installChromeExtension', installChromeExtension);
+    document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
 
     window.addEventListener('resize', this.adjustVideos);
     window.addEventListener('orientationchange', this.adjustVideos);
@@ -62,9 +56,32 @@ class VideoDock extends Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.adjustVideos);
     window.removeEventListener('orientationchange', this.adjustVideos);
-    document.removeEventListener('installChromeExtension', installChromeExtension);
+    document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
   }
 
+  componentDidUpdate() {
+    this.adjustVideos();
+  }
+
+  notifyError(message) {
+    notify(message, 'error', 'video');
+  }
+
+  installChromeExtension() {
+    console.log(intlMessages);
+    const { intl } = this.props;
+    const CHROME_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+
+    this.notifyError(<div>
+      {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
+      <a href={CHROME_EXTENSION_LINK} target="_blank">
+        {intl.formatMessage(intlMessages.chromeExtensionErrorLink)}
+      </a>
+    </div>);
+  }
+
+  // TODO
+  // Find a better place to put this piece of code
   adjustVideos() {
     setTimeout(() => {
       window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData', 'screenshareVideo');
@@ -89,12 +106,8 @@ class VideoDock extends Component {
     }
   }
 
-  componentDidUpdate() {
-    this.adjustVideos();
-  }
-
   start(id) {
-    const { users, intl } = this.props;
+    const { users } = this.props;
 
     log('info', `Starting video call for video: ${id}`);
 
@@ -156,6 +169,7 @@ class VideoDock extends Component {
 
     sharedWebcam = sharedWebcam || false;
 
+    // If the user un-shared a webcam we'll stop it
     if (sharedWebcam !== nextProps.sharedWebcam && !nextProps.sharedWebcam) {
       this.stop(userId);
     }
