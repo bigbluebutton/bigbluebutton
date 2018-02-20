@@ -16,6 +16,7 @@ package org.bigbluebutton.lib.chat.views {
 	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;
+	import org.bigbluebutton.lib.user.models.UserRole;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -43,6 +44,7 @@ package org.bigbluebutton.lib.chat.views {
 			
 			view.textInput.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
+			
 		}
 		
 		protected function openChat(chat:GroupChat):void {
@@ -55,6 +57,14 @@ package org.bigbluebutton.lib.chat.views {
 				_chat.newMessages = 0; //resetNewMessages();
 				view.chatList.dataProvider = _chat.messages;
 				_chat.newMessageSignal.add(onNewMessage);
+			}
+			
+			var lockSettings:LockSettings2x = meetingData.meetingStatus.lockSettings;
+			trace("********************** APPLYING LOCK SETTINGS pubChatDisabled=" + lockSettings.disablePubChat + ", privChatDisabled=" + lockSettings.disablePrivChat);
+			if (lockSettings == null) {
+				trace("********************** APPLYING LOCK SETTINGS - SETTING IS NULL *****************************");
+			} else {
+				applyLockSettings(lockSettings);
 			}
 		}
 		
@@ -91,14 +101,21 @@ package org.bigbluebutton.lib.chat.views {
 		}
 		
 		private function onLockSettingsChanged(newSettings:LockSettings2x):void {
+			applyLockSettings(newSettings);
+		}
+		
+		private function applyLockSettings(lockSettings:LockSettings2x):void {
+			// Lock settings applies only to viewers.
+			if (meetingData.users.me.role == UserRole.MODERATOR) return;
+			
 			if (_chat.isPublic) {
-				if (newSettings.disablePubChat) {
+				if (lockSettings.disablePubChat) {
 					view.textInput.enabled = false;
 				} else {
 					view.textInput.enabled = true;
 				}
 			} else {
-				if (newSettings.disablePrivChat) {
+				if (lockSettings.disablePrivChat) {
 					view.textInput.enabled = false;
 				} else {
 					view.textInput.enabled = true;
