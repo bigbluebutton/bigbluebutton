@@ -95,6 +95,9 @@ package org.bigbluebutton.lib.user.services {
 				case "UserEmojiChangedEvtMsg":
 					handleUserEmojiChangedEvtMsg(message);
 					break;
+				case "UserRoleChangedEvtMsg":
+					handleUserRoleChangedEvtMsg(message);
+					break;
 				default:
 					break;
 			}
@@ -296,6 +299,13 @@ package org.bigbluebutton.lib.user.services {
 			var emoji:String = msg.body.emoji as String;
 			
 			meetingData.users.changeUserStatus(userId, emoji);
+		}
+		
+		public function handleUserRoleChangedEvtMsg(msg:Object):void {
+			var userId: String = msg.body.userId as String;
+			var role: String = msg.body.role as String;
+			
+			meetingData.users.changeUserRole(userId, role);
 		}
 	}
 }

@@ -101,5 +101,13 @@ package org.bigbluebutton.lib.user.models {
 				_userChangeSignal.dispatch(user, UserChangeEnum.EMOJI);
 			}
 		}
+		
+		public function changeUserRole(intId:String, role:String):void {
+			var user:User2x = getUser(intId);
+			if (user != null && (role == UserRole.MODERATOR || role == UserRole.VIEWER)) {
+				user.role = role;
+				_userChangeSignal.dispatch(user, UserChangeEnum.ROLE);
+			}
+		}
 	}
 }
