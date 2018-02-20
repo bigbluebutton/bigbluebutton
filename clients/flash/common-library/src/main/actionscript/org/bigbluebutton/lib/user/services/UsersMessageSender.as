@@ -138,7 +138,13 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function getLockSettings():void {
 			trace("UsersMessageSender::getLockSettings() -- Sending [getLockSettings] message to server");
-			userSession.mainConnection.sendMessage("lock.getLockSettings", defaultSuccessResponse, defaultFailureResponse);
+			var message:Object = {
+				header: {name: "GetLockSettingsReqMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {requesterId: conferenceParameters.internalUserID}
+			};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function saveLockSettings(newLockSettings:Object):void {

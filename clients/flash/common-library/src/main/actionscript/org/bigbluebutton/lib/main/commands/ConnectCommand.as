@@ -164,6 +164,7 @@ package org.bigbluebutton.lib.main.commands {
 			presentationService.getPresentationPods();
 			meetingData.users.userChangeSignal.add(successUsersAdded);
 			usersService.queryForParticipants();
+			usersService.getLockSettings();
 			usersService.queryForRecordingStatus();
 			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
