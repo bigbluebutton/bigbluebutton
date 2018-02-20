@@ -30,9 +30,11 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function kickUser(userID:String):void {
 			trace("UsersMessageSender::kickUser() -- Sending [participants.kickUser] message to server.. with message [userID:" + userID + "]");
-			var message:Object = new Object();
-			message["userID"] = userID;
-			userSession.mainConnection.sendMessage("participants.kickUser", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "EjectUserFromMeetingCmdMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {userId: userID, ejectedBy: conferenceParameters.internalUserID}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function queryForParticipants():void {
@@ -120,24 +122,32 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function muteAllUsersExceptPresenter(mute:Boolean):void {
 			trace("UsersMessageSender::muteAllUsers() -- Sending [voice.muteAllUsersExceptPresenter] message to server. mute=[" + mute + "]");
-			var message:Object = new Object();
-			message["mute"] = mute;
-			userSession.mainConnection.sendMessage("voice.muteAllUsersExceptPresenter", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "MuteAllExceptPresentersCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {mutedBy: conferenceParameters.internalUserID, mute: mute}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function muteUnmuteUser(userid:String, mute:Boolean):void {
 			trace("UsersMessageSender::muteUnmuteUser() -- Sending [voice.muteUnmuteUser] message to server with message [userId:" + userid + ", mute:" + mute + "]");
-			var message:Object = new Object();
-			message["userId"] = userid;
-			message["mute"] = mute;
-			userSession.mainConnection.sendMessage("voice.muteUnmuteUser", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "MuteUserCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {userId: userid, mutedBy: conferenceParameters.internalUserID, mute: mute}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function ejectUser(userid:String):void {
 			trace("UsersMessageSender::ejectUser() -- Sending [voice.kickUSer] message to server with message [userId:" + userid + "]");
-			var message:Object = new Object();
-			message["userId"] = userid;
-			userSession.mainConnection.sendMessage("voice.kickUSer", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "EjectUserFromVoiceCmdMsg", meetingId: conferenceParameters.meetingID,
+					userId: conferenceParameters.internalUserID},
+				body: {userId: userid, ejectedBy: conferenceParameters.internalUserID}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function getRoomMuteState():void {
