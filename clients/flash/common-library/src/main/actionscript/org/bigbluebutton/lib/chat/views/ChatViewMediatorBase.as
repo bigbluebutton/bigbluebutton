@@ -5,18 +5,19 @@ package org.bigbluebutton.lib.chat.views {
 	
 	import mx.utils.StringUtil;
 	
+	import spark.components.VScrollBar;
+	import spark.core.NavigationUnit;
+	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.GroupChat;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.main.models.IMeetingData;
+	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.VScrollBar;
-	import spark.core.NavigationUnit;
 	
 	public class ChatViewMediatorBase extends Mediator {
 		
@@ -38,6 +39,7 @@ package org.bigbluebutton.lib.chat.views {
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
 			meetingData.users.userChangeSignal.add(onUserChange);
+			meetingData.meetingStatus.lockSettingsChangeSignal.add(onLockSettingsChanged);
 			
 			view.textInput.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
@@ -85,6 +87,22 @@ package org.bigbluebutton.lib.chat.views {
 				case UserChangeEnum.LEAVE:
 					userRemoved(user);
 					break;
+			}
+		}
+		
+		private function onLockSettingsChanged(newSettings:LockSettings2x):void {
+			if (_chat.isPublic) {
+				if (newSettings.disablePubChat) {
+					view.textInput.enabled = false;
+				} else {
+					view.textInput.enabled = true;
+				}
+			} else {
+				if (newSettings.disablePrivChat) {
+					view.textInput.enabled = false;
+				} else {
+					view.textInput.enabled = true;
+				}
 			}
 		}
 		
