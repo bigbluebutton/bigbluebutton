@@ -39,57 +39,83 @@ package org.bigbluebutton.lib.user.services {
 			trace("UsersMessageSender::queryForParticipants() -- Sending [GetUsersMeetingReqMsg] message to server");
 			
 			var message:Object = {
-				header: {name: "GetUsersMeetingReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				header: {name: "GetUsersMeetingReqMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
 				body: {userId: conferenceParameters.internalUserID}
 			};
 			
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
-			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " + "[newPresenterID:" + userid + ", newPresenterName:" + name + ", assignedBy:" + assignedBy + "]");
-			var message:Object = new Object();
-			message["newPresenterID"] = userid;
-			message["newPresenterName"] = name;
-			message["assignedBy"] = assignedBy;
-			userSession.mainConnection.sendMessage("participants.assignPresenter", defaultSuccessResponse, defaultFailureResponse, message);
+		public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:String):void {
+			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " 
+				+ "[newPresenterID:" + newPresenterUserId + ", newPresenterName:" + newPresenterName + ", assignedBy:" + assignedBy + "]");
+			var message:Object = {
+				header: {name: "AssignPresenterReqMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {requesterId: conferenceParameters.internalUserID, 
+					newPresenterId: newPresenterUserId, 
+					newPresenterName: newPresenterName, assignedBy: assignedBy}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function emojiStatus(userID:String, emoji:String):void {
-			var message:Object = new Object();
-			message["emojiStatus"] = emoji;
-			message["userId"] = userID;
-			userSession.mainConnection.sendMessage("participants.userEmojiStatus", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "ChangeUserEmojiCmdMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				body: {userId: userID, emoji: emoji}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function addStream(userID:String, streamName:String):void {
 			trace("UsersMessageSender::addStream() -- Sending [participants.shareWebcam] message to server with message [streamName:" + streamName + "]");
-			userSession.mainConnection.sendMessage("participants.shareWebcam", defaultSuccessResponse, defaultFailureResponse, streamName);
+			var message:Object = {
+				header: {name: "UserBroadcastCamStartMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {stream: streamName}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function removeStream(userID:String, streamName:String):void {
 			trace("UsersMessageSender::removeStream() -- Sending [participants.unshareWebcam] message to server");
-			userSession.mainConnection.sendMessage("participants.unshareWebcam", defaultSuccessResponse, defaultFailureResponse, streamName);
+			var message:Object = {
+				header: {name: "UserBroadcastCamStopMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {stream: streamName}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function queryForRecordingStatus():void {
 			trace("UsersMessageSender::queryForRecordingStatus() -- Sending [queryForRecordingStatus] message to server")
-			userSession.mainConnection.sendMessage("participants.getRecordingStatus", defaultSuccessResponse, defaultFailureResponse);
+			var message:Object = {
+				header: {name: "GetRecordingStatusReqMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {requestedBy: conferenceParameters.internalUserID}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function changeRecordingStatus(userID:String, recording:Boolean):void {
 			trace("UsersMessageSender::changeRecordingStatus() -- Sending [changeRecordingStatus] message to server with message [userId:" + userID + ", recording:" + recording + "]");
-			var message:Object = new Object();
-			message["userId"] = userID;
-			message["recording"] = recording;
-			userSession.mainConnection.sendMessage("participants.setRecordingStatus", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "SetRecordingStatusCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {recording: recording, setBy: userID}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function muteAllUsers(mute:Boolean):void {
 			trace("UsersMessageSender::muteAllUsers() -- Sending [voice.muteAllUsers] message to server. mute=[" + mute + "]");
-			var message:Object = new Object();
-			message["mute"] = mute;
-			userSession.mainConnection.sendMessage("voice.muteAllUsers", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "MuteMeetingCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {mutedBy: conferenceParameters.internalUserID, mute: mute}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function muteAllUsersExceptPresenter(mute:Boolean):void {
