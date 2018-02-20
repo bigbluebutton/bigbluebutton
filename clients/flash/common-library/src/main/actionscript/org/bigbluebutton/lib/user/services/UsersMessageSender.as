@@ -116,7 +116,12 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function getRoomMuteState():void {
 			trace("UsersMessageSender::getRoomMuteState() -- Sending [voice.isRoomMuted] message to server");
-			userSession.mainConnection.sendMessage("voice.isRoomMuted", defaultSuccessResponse, defaultFailureResponse);
+			var message:Object = {
+				header: {name: "IsMeetingMutedReqMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function getRoomLockState():void {
@@ -126,14 +131,23 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function setAllUsersLock(lock:Boolean, except:Array = null):void {
 			trace("UsersMessageSender::setAllUsersLock() -- Sending [setAllUsersLock] message to server");
+			var message:Object = {
+				header: {name: "LockUsersInMeetingCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {lock: lock, lockedBy: conferenceParameters.internalUserID, except: except}
+			};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function setUserLock(internalUserID:String, lock:Boolean):void {
 			trace("UsersMessageSender::setUserLock() -- Sending [setUserLock] message to server - userId: [" + internalUserID + "] lock: [" + lock + "]");
-			var message:Object = new Object();
-			message["userId"] = internalUserID;
-			message["lock"] = lock;
-			userSession.mainConnection.sendMessage("lock.setUserLock", defaultSuccessResponse, defaultFailureResponse, message);
+			var message:Object = {
+				header: {name: "LockUserInMeetingCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {userId: internalUserID, lock: lock, lockedBy: conferenceParameters.internalUserID}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function getLockSettings():void {
@@ -148,8 +162,20 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function saveLockSettings(newLockSettings:Object):void {
+			var message:Object = {
+				header: {name: "ChangeLockSettingsInMeetingCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {disableCam: newLockSettings.disableCam, 
+					disableMic: newLockSettings.disableMic, 
+					disablePrivChat: newLockSettings.disablePrivateChat,
+					disablePubChat: newLockSettings.disablePublicChat, 
+					lockedLayout: newLockSettings.lockedLayout, 
+					lockOnJoin: newLockSettings.lockOnJoin, 
+					lockOnJoinConfigurable: newLockSettings.lockOnJoinConfigurable, 
+					setBy: conferenceParameters.internalUserID}
+			};
 			trace("UsersMessageSender::saveLockSettings() -- Sending [saveLockSettings] message to server");
-			userSession.mainConnection.sendMessage("lock.setLockSettings", defaultSuccessResponse, defaultFailureResponse, newLockSettings);
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function validateToken(internalUserID:String, authToken:String):void {
