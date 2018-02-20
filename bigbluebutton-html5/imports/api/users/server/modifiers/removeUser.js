@@ -5,6 +5,13 @@ import removeVoiceUser from '/imports/api/voice-users/server/modifiers/removeVoi
 
 const CLIENT_TYPE_HTML = 'HTML5';
 
+const clearAllSessions = (sessionUserId) => {
+  const serverSessions = Meteor.server.sessions;
+  Object.keys(serverSessions)
+    .filter(i => serverSessions[i].userId === sessionUserId)
+    .forEach(i => serverSessions[i].close());
+};
+
 export default function removeUser(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
@@ -34,6 +41,9 @@ export default function removeUser(meetingId, userId) {
     if (err) {
       return Logger.error(`Removing user from collection: ${err}`);
     }
+
+    const sessionUserId = `${meetingId}-${userId}`;
+    clearAllSessions(sessionUserId);
 
     return Logger.info(`Removed ${CLIENT_TYPE_HTML} user id=${userId} meeting=${meetingId}`);
   };
