@@ -12,5 +12,6 @@ export default {
   setEmoji: status => makeCall('setEmojiStatus', Auth.userID, status),
   getEmojiList: () => EMOJI_STATUSES,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
-  recordSettingsList: () => recordSettings()
+  recordSettingsList: () => recordSettings(),
+  toggleRecording: () => makeCall('toggleRecording'),
 };

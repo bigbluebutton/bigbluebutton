@@ -21,27 +21,24 @@ export default function toggleRecording(credentials) {
   const meetingObject = Meetings.findOne({ meetingId });
 
   if (meetingObject != null) {
-    meetingTitle = meetingObject.meetingProp.name;
-
-    let {
+    const {
       allowStartStopRecording,
       recording,
-      record
+      record,
     } = meetingObject.recordProp;
 
     meetingRecorded = recording;
     allowedToRecord = record && allowStartStopRecording;
   }
 
-
   const payload = {
     recording: !meetingRecorded,
-    setBy: requesterUserId
+    setBy: requesterUserId,
   };
 
   if (allowedToRecord) {
     Logger.info(`Setting the record parameter to ${!meetingRecorded} for ${meetingId} by ${requesterUserId}`);
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   }
-
+  return null;
 }

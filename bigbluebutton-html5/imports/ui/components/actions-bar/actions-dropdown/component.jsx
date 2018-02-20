@@ -9,8 +9,8 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import { makeCall } from '/imports/ui/services/api';
 import { styles } from '../styles';
+import Service from '../service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -61,7 +61,6 @@ class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
-    this.handleToggleRecording = this.handleToggleRecording.bind(this);
   }
 
   componentWillMount() {
@@ -76,14 +75,6 @@ class ActionsDropdown extends Component {
     if (wasPresenter && !isPresenter) {
       mountModal(null);
     }
-  }
-
-  handlePresentationClick() {
-    this.props.mountModal(<PresentationUploaderContainer />);
-  }
-
-  handleToggleRecording() {
-    makeCall('toggleRecording');
   }
 
   getAvailableActions() {
@@ -108,44 +99,46 @@ class ActionsDropdown extends Component {
           key={this.presentationItemId}
           onClick={this.handlePresentationClick}
         />
-      : null),
+        : null),
       (Meteor.settings.public.kurento.enableScreensharing && isUserPresenter ?
         <DropdownListItem
           icon="desktop"
-          label={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
-          description={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
+          label={intl.formatMessage(isVideoBroadcasting ?
+            intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
+          description={intl.formatMessage(isVideoBroadcasting ?
+            intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
           key={this.videoItemId}
-          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
+          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
         />
-      : null),
+        : null),
       (record && isUserModerator && allowStartStopRecording ?
         <DropdownListItem
           icon="record"
-          label={intl.formatMessage(isRecording ? intlMessages.stopRecording : intlMessages.startRecording)}
-          description={intl.formatMessage(isRecording ? intlMessages.stopRecording : intlMessages.startRecording)}
+          label={intl.formatMessage(isRecording ?
+            intlMessages.stopRecording : intlMessages.startRecording)}
+          description={intl.formatMessage(isRecording ?
+            intlMessages.stopRecording : intlMessages.startRecording)}
           key={this.recordId}
-          onClick={this.handleToggleRecording}
+          onClick={Service.toggleRecording}
         />
-      : null),
+        : null),
     ]);
+  }
+
+  handlePresentationClick() {
+    this.props.mountModal(<PresentationUploaderContainer />);
   }
 
   render() {
     const {
       intl,
       isUserPresenter,
-      handleShareScreen,
-      handleUnshareScreen,
-      isVideoBroadcasting,
       isUserModerator,
-      allowStartStopRecording,
-      isRecording,
-      record
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if (!isUserPresenter && !isUserModerator || (isUserModerator && !allowStartStopRecording && !isUserPresenter) || availableActions.length == 0) return null;
+    if (availableActions.length === 0 && (!isUserPresenter || !isUserModerator)) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >
