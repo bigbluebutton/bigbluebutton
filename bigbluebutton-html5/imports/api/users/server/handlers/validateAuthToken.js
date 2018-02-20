@@ -75,7 +75,6 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
         const sessionUserId = `${meetingId}-${userId}`;
         const currentConnectionId = User.connectionId ? User.connectionId : false;
-        console.error(currentConnectionId);
         clearOtherSessions(sessionUserId, currentConnectionId);
       }
 

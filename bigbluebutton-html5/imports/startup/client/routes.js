@@ -13,9 +13,7 @@ const browserHistory = useRouterHistory(createHistory)({
 });
 
 const disconnect = () => {
-  console.log(Meteor.status());
   Meteor.disconnect();
-  console.log(Meteor.status());
 };
 
 const renderRoutes = () => (
