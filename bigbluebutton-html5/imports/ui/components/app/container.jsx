@@ -76,7 +76,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
   // Check if user is removed out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
-      const hasNewConnection = fields.connectionId !== Meteor.connection._lastSessionId;
+      const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
       if (fields.ejected || hasNewConnection) {
         router.push(`/ended/${403}`);
