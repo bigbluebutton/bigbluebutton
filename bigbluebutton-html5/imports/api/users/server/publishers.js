@@ -41,7 +41,7 @@ function users(credentials) {
 
   this.onStop(() => {
     try {
-      userLeaving(credentials, requesterUserId);
+      userLeaving(credentials, requesterUserId, this.connection.id);
     } catch (e) {
       Logger.error(`Exception while executing userLeaving: ${e}`);
     }

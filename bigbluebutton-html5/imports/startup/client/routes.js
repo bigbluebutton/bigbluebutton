@@ -12,6 +12,12 @@ const browserHistory = useRouterHistory(createHistory)({
   basename: Meteor.settings.public.app.basename,
 });
 
+const disconnect = () => {
+  console.log(Meteor.status());
+  Meteor.disconnect();
+  console.log(Meteor.status());
+};
+
 const renderRoutes = () => (
   <Router history={browserHistory} >
     <Route path="/logout" onEnter={logoutRouteHandler} />
@@ -33,8 +39,19 @@ const renderRoutes = () => (
       />
       <Redirect from="users/chat" to="/users/chat/public" />
     </Route>
-    <Route name="meeting-ended" path="/ended/:endedCode" component={Base} onLeave={logoutRouteHandler} />
-    <Route name="error" path="/error/:errorCode" component={Base} />
+    <Route
+      name="meeting-ended"
+      path="/ended/:endedCode"
+      component={Base}
+      onEnter={disconnect}
+      onLeave={logoutRouteHandler}
+    />
+    <Route
+      name="error"
+      path="/error/:errorCode"
+      component={Base}
+      onEnter={disconnect}
+    />
     <Redirect from="*" to="/error/404" />
   </Router>
 );
