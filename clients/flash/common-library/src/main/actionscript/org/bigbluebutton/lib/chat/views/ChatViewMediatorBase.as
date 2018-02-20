@@ -60,12 +60,8 @@ package org.bigbluebutton.lib.chat.views {
 			}
 			
 			var lockSettings:LockSettings2x = meetingData.meetingStatus.lockSettings;
-			trace("********************** APPLYING LOCK SETTINGS pubChatDisabled=" + lockSettings.disablePubChat + ", privChatDisabled=" + lockSettings.disablePrivChat);
-			if (lockSettings == null) {
-				trace("********************** APPLYING LOCK SETTINGS - SETTING IS NULL *****************************");
-			} else {
-				applyLockSettings(lockSettings);
-			}
+			trace("APPLYING LOCK SETTINGS pubChatDisabled=" + lockSettings.disablePubChat + ", privChatDisabled=" + lockSettings.disablePrivChat);
+			applyLockSettings(lockSettings);
 		}
 		
 		protected function onNewMessage(chatId:String):void {
