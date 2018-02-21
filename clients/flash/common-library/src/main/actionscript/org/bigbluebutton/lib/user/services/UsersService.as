@@ -5,7 +5,7 @@ package org.bigbluebutton.lib.user.services {
 	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.EmojiStatus;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class UsersService implements IUsersService {
 		
@@ -42,24 +42,24 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function muteMe():void {
-			mute(userSession.userList.me);
+			mute(meetingData.users.me);
 		}
 		
 		public function unmuteMe():void {
-			unmute(userSession.userList.me);
+			unmute(meetingData.users.me);
 		}
 		
-		public function mute(user:User):void {
+		public function mute(user:User2x):void {
 			muteUnmute(user, true);
 		}
 		
-		public function unmute(user:User):void {
+		public function unmute(user:User2x):void {
 			muteUnmute(user, false);
 		}
 		
-		private function muteUnmute(user:User, mute:Boolean):void {
+		private function muteUnmute(user:User2x, mute:Boolean):void {
 			if (user.voiceJoined) {
-				usersMessageSender.muteUnmuteUser(user.userId, mute);
+				usersMessageSender.muteUnmuteUser(user.intId, mute);
 			}
 		}
 		

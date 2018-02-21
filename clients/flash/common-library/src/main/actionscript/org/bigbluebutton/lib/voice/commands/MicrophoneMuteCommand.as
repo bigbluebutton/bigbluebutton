@@ -1,6 +1,6 @@
 package org.bigbluebutton.lib.voice.commands {
 	
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -8,7 +8,7 @@ package org.bigbluebutton.lib.voice.commands {
 	public class MicrophoneMuteCommand extends Command {
 		
 		[Inject]
-		public var user:User;
+		public var user:User2x;
 		
 		[Inject]
 		public var userService:IUsersService;

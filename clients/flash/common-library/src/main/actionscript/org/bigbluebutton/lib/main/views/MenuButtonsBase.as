@@ -6,7 +6,14 @@ package org.bigbluebutton.lib.main.views {
 	[Style(name = "bottom", inherit = "no", type = "Number")]
 	[Style(name = "gap", inherit = "no", type = "Number")]
 	[Style(name = "top", inherit = "no", type = "Number")]
+	
 	public class MenuButtonsBase extends HGroup {
+		private var _audioButton:Button;
+		
+		public function get audioButton():Button {
+			return _audioButton;
+		}
+		
 		private var _micButton:Button;
 		
 		public function get micButton():Button {
@@ -28,6 +35,12 @@ package org.bigbluebutton.lib.main.views {
 		public function MenuButtonsBase() {
 			super();
 			
+			_audioButton = new Button();
+			_audioButton.percentWidth = 100;
+			_audioButton.percentHeight = 100;
+			_audioButton.label = "Join";
+			_audioButton.styleName = "icon-audio-on menuButton";
+			addElement(_audioButton);
 			
 			_micButton = new Button();
 			_micButton.percentWidth = 100;

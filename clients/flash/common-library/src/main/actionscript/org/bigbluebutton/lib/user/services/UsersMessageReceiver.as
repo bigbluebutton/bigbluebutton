@@ -29,12 +29,6 @@ package org.bigbluebutton.lib.user.services {
 				case "voiceUserTalking":
 					handleVoiceUserTalking(message);
 					break;
-				case "userJoinedVoice":
-					handleUserJoinedVoice(message);
-					break;
-				case "userLeftVoice":
-					handleUserLeftVoice(message);
-					break;
 				case "userSharedWebcam":
 					handleUserSharedWebcam(message);
 					break;
@@ -71,9 +65,12 @@ package org.bigbluebutton.lib.user.services {
 					handleMeetingMuted(message);
 					break;
 				
-				
-				
-				
+				case "UserJoinedVoiceConfToClientEvtMsg":
+					handleUserJoinedVoiceConfToClientEvtMsg(message);
+					break;
+				case "UserLeftVoiceConfToClientEvtMsg":
+					handleUserLeftVoiceConfToClientEvtMsg(message);
+					break;
 				
 				case "GetUsersMeetingRespMsg":
 					handleGetUsersMeetingRespMsg(message);
@@ -135,16 +132,7 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		private function handleUserJoinedVoice(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			var voiceUser:Object = msg.user.voiceUser;
-			trace(LOG + "handleUserJoinedVoice() -- user [" + msg.user.userId + "] has joined voice with voiceId [" + voiceUser.userId + "]");
-			userSession.userList.userJoinAudio(msg.user.userId, voiceUser.userId, voiceUser.muted, voiceUser.talking, voiceUser.locked);
-		}
 		
-		private function handleUserLeftVoice(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleUserLeftVoice() -- user [" + msg.user.userId + "] has left voice");
-			userSession.userList.userLeaveAudio(msg.user.userId);
 		}
 		
 		private function handleUserSharedWebcam(m:Object):void {
@@ -196,19 +184,24 @@ package org.bigbluebutton.lib.user.services {
 			userSession.recordingStatusChanged(msg.recording);
 		}
 		
+		private function handleUserJoinedVoiceConfToClientEvtMsg(msg:Object):void {
+			var user:Object = msg.body as Object;
+			
+			// @todo : update lock value
+			userSession.userList.userJoinAudio(user.intId, user.voiceUserId, user.muted, user.talking, false);
+			
+			// @fixme : to be used later
+			meetingData.users.joinAudioConference(user.intId, user.muted);
+		}
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		private function handleUserLeftVoiceConfToClientEvtMsg(msg:Object):void {
+			trace(LOG + "handleUserLeftVoiceConfToClientEvtMsg() -- user [" + msg.body.intId + "] has left the voice conference");
+			
+			userSession.userList.userLeaveAudio(msg.body.intId);
+			
+			// @fixme : to be used later
+			meetingData.users.leaveAudioConference(msg.body.intId);
+		}
 		
 		private function handleGetUsersMeetingRespMsg(msg:Object):void {
 			var users:Array = msg.body.users as Array;
@@ -246,7 +239,7 @@ package org.bigbluebutton.lib.user.services {
 		private function handleUserLeftMeetingEvtMsg(msg:Object):void {
 			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + msg.body.intId + "] has left the meeting");
 			meetingData.users.remove(msg.intId);
-		}		
+		}
 		
 		private function handleUserLockedInMeetingEvtMsg(msg:Object):void {
 			trace(LOG + "handleUserLockedInMeetingEvtMsg: " + ObjectUtil.toString(msg));
@@ -293,6 +286,7 @@ package org.bigbluebutton.lib.user.services {
 		private function handleValidateAuthTokenRespMsg(msg:Object):void {
 			var tokenValid:Boolean = msg.body.valid as Boolean;
 			trace(LOG + "handleValidateAuthTokenReply() valid=" + tokenValid);
+			meetingData.users.me.intId = msg.body.userId;
 			userSession.userId = msg.body.userId;
 			userSession.authTokenSignal.dispatch(tokenValid);
 		}

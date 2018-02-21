@@ -5,6 +5,8 @@ package org.bigbluebutton.lib.chat.views {
 	
 	import mx.utils.StringUtil;
 	
+	import spark.components.VScrollBar;
+	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.GroupChat;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
@@ -14,9 +16,6 @@ package org.bigbluebutton.lib.chat.views {
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.VScrollBar;
-	import spark.core.NavigationUnit;
 	
 	public class ChatViewMediatorBase extends Mediator {
 		

@@ -1,8 +1,21 @@
 package org.bigbluebutton.air.voice {
 	
+	import org.bigbluebutton.air.voice.views.EchoTestViewMediatorAIR;
+	import org.bigbluebutton.lib.voice.commands.EchoTestHasAudioCommand;
+	import org.bigbluebutton.lib.voice.commands.EchoTestHasAudioSignal;
+	import org.bigbluebutton.lib.voice.commands.EchoTestHasNoAudioCommand;
+	import org.bigbluebutton.lib.voice.commands.EchoTestHasNoAudioSignal;
+	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteCommand;
+	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.lib.voice.commands.StartEchoTestCommand;
+	import org.bigbluebutton.lib.voice.commands.StartEchoTestSignal;
+	import org.bigbluebutton.lib.voice.commands.StopEchoTestCommand;
+	import org.bigbluebutton.lib.voice.commands.StopEchoTestSignal;
+	import org.bigbluebutton.lib.voice.views.EchoTestViewBase;
 	
+	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -25,6 +38,7 @@ package org.bigbluebutton.air.voice {
 		 */
 		private function mediators():void {
 			//mediatorMap.map(IMicButton).toMediator(MicButtonMediator);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(EchoTestViewBase)).toMediator(EchoTestViewMediatorAIR);
 		}
 		
 		/**
@@ -32,7 +46,11 @@ package org.bigbluebutton.air.voice {
 		 */
 		private function signals():void {
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
-			//signalCommandMap.map(MicrophoneMuteSignal).toCommand(MicrophoneMuteCommand);
+			signalCommandMap.map(StartEchoTestSignal).toCommand(StartEchoTestCommand);
+			signalCommandMap.map(StopEchoTestSignal).toCommand(StopEchoTestCommand);
+			signalCommandMap.map(EchoTestHasAudioSignal).toCommand(EchoTestHasAudioCommand);
+			signalCommandMap.map(EchoTestHasNoAudioSignal).toCommand(EchoTestHasNoAudioCommand);
+			signalCommandMap.map(MicrophoneMuteSignal).toCommand(MicrophoneMuteCommand);
 		}
 	}
 }

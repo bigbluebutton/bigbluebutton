@@ -11,6 +11,7 @@
 @namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
 @namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
 @namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
+@namespace voice "org.bigbluebutton.lib.voice.views.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -84,6 +85,10 @@
 	
 	users|UserItemRenderer {
 		iconSize : 44;
+	}
+	
+	voice|EchoTestViewBase {
+		padding: 30;
 	}
 	
 	s|ToggleSwitch {
@@ -166,5 +171,9 @@
 		fontSize     : 20;
 		borderWeight : 2;
 		cornerRadius : 4;
+	}
+	
+	.echoTestLabel {
+		padding : 32;
 	}
 }

@@ -6,6 +6,7 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
 	import org.bigbluebutton.air.main.views.LoadingScreen;
 	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
+	import org.bigbluebutton.air.main.views.MenuButtonsMediatorAIR;
 	import org.bigbluebutton.air.main.views.PagesNavigatorView;
 	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
@@ -13,7 +14,6 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
-	import org.bigbluebutton.lib.main.views.MenuButtonsMediatorBase;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
@@ -53,7 +53,7 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
 			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);
-			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorBase);
+			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorAIR);
 		}
 		
 		/**

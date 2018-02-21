@@ -222,7 +222,7 @@ settings|SettingsItemRenderer {
 	color : PropertyReference("grey700");
 }
 
-.menuButton {
+.menuButton, .menuButtonRed {
 	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
 	selectedBackgroundColor : PropertyReference("bbbGrey");
@@ -230,6 +230,10 @@ settings|SettingsItemRenderer {
 	iconFont				: BBBIcons;
 	iconColor    	    	: PropertyReference("white");
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
+}
+
+.menuButtonRed {
+	backgroundColor : PropertyReference("bbbRed");
 }
 
 .participantIcon {
