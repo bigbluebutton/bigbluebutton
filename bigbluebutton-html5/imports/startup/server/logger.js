@@ -18,46 +18,19 @@ Logger.configure({
 
 Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.private.log || {};
-  let { filename } = LOG_CONFIG;
   const { level } = LOG_CONFIG;
 
-  // console logging
-  if (Meteor.isDevelopment) {
+  // console logging in production
+  if (Meteor.isProduction) {
     Logger.add(Winston.transports.Console, {
       prettyPrint: false,
       humanReadableUnhandledException: true,
       colorize: true,
       handleExceptions: true,
-      level,
+      level
     });
   }
 
-  // file logging
-  if (filename) {
-    // no file rotation
-    if (Meteor.isDevelopment) {
-      const path = Npm.require('path');
-      filename = path.join(process.env.PWD, filename);
-
-      Logger.add(Winston.transports.File, {
-        filename,
-        prettyPrint: true,
-        level,
-        prepend: true,
-      });
-    }
-
-    // daily file rotation
-    if (Meteor.isProduction) {
-      Winston.transports.DailyRotateFile = Npm.require('winston-daily-rotate-file');
-      Logger.add(Winston.transports.DailyRotateFile, {
-        filename,
-        datePattern: '.yyyy-MM-dd',
-        prepend: false,
-        level,
-      });
-    }
-  }
 });
 
 export default Logger;
