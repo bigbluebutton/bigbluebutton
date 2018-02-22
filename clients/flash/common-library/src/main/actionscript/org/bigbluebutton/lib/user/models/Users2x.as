@@ -103,7 +103,7 @@ package org.bigbluebutton.lib.user.models {
 		
 		public function changeUserStatus(intId:String, status:String):void {
 			var user:User2x = getUser(intId);
-			if (user != null && EmojiStatus.STATUS_ARRAY.indexOf(status)) {
+			if (user != null) {
 				user.emoji = status;
 				_userChangeSignal.dispatch(user, UserChangeEnum.EMOJI);
 			}
