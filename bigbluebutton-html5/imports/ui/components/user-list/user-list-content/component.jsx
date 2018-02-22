@@ -40,6 +40,7 @@ class UserContent extends Component {
       <div
         data-test="userListContent"
         className={styles.content}
+        role="complementary"
       >
         <UserMessages
           isPublicChat={this.props.isPublicChat}

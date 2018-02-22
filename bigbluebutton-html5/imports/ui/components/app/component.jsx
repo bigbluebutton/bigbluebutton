@@ -122,12 +122,12 @@ class App extends Component {
     });
 
     return (
-      <nav
+      <div
         className={cx(styles.userList, userListStyle)}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
       >
         {userList}
-      </nav>
+      </div>
     );
   }
 
