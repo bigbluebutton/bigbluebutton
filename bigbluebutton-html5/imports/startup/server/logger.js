@@ -20,16 +20,14 @@ Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.private.log || {};
   const { level } = LOG_CONFIG;
 
-  // console logging in production
-  if (Meteor.isProduction) {
-    Logger.add(Winston.transports.Console, {
-      prettyPrint: false,
-      humanReadableUnhandledException: true,
-      colorize: true,
-      handleExceptions: true,
-      level
-    });
-  }
+  // console logging
+  Logger.add(Winston.transports.Console, {
+    prettyPrint: false,
+    humanReadableUnhandledException: true,
+    colorize: true,
+    handleExceptions: true,
+    level,
+  });
 
 });
 
