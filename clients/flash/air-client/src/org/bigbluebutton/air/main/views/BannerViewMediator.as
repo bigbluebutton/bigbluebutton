@@ -21,6 +21,10 @@ package org.bigbluebutton.air.main.views
 				view.visible = true;
 				view.includeInLayout = true;
 				view.stateLabel.text = confParams.bannerText;
+				if (confParams.bannerColor != null) {
+					view.setStyle('backgroundColor', confParams.bannerColor);
+				}
+				
 			}
 			
 		}
