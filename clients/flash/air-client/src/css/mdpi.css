@@ -77,6 +77,10 @@
         padding: 15.0;
     }
 
+    voice|EchoTestViewBase {
+        padding: 15.0;
+    }
+
     usersAIR|UserDetailsView {
         groupsPadding: 10.0;
     }

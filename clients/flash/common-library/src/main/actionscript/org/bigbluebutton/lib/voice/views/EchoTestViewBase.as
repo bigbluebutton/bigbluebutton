@@ -34,6 +34,9 @@ package org.bigbluebutton.lib.voice.views {
 			addElement(echoButtonGroup);
 			
 			micLevelProgressBar = new ProgressBar();
+			micLevelProgressBar.percentWidth = 80;
+			micLevelProgressBar.height = 40;
+			micLevelProgressBar.styleName = "micLevelProgressBar";
 			echoButtonGroup.addElement(micLevelProgressBar);
 			
 			echoTestButton = new Button();
@@ -72,10 +75,9 @@ package org.bigbluebutton.lib.voice.views {
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
-		/*
-		   echoTestButton.parent["padding"] = getStyle("padding");
-		   yesButton.parent["padding"] = getStyle("padding");
-		 */
+			
+			this.padding = getStyle("padding");
+			echoButtonGroup.padding = getStyle("padding");
 		}
 	}
 }
