@@ -242,10 +242,10 @@ class UserParticipants extends Component {
       <div className={styles.participants}>
         {
           !compact ?
-            <div className={styles.smallTitle} role="banner">
+            <h2 className={styles.smallTitle}>
               {intl.formatMessage(intlMessages.usersTitle)}
               &nbsp;({users.length})
-            </div> : <hr className={styles.separator} />
+            </h2> : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
