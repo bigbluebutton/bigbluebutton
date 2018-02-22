@@ -5,18 +5,20 @@ package org.bigbluebutton.lib.chat.views {
 	
 	import mx.utils.StringUtil;
 	
+	import spark.components.VScrollBar;
+	import spark.core.NavigationUnit;
+	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.GroupChat;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.main.models.IMeetingData;
+	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;
+	import org.bigbluebutton.lib.user.models.UserRole;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.VScrollBar;
-	import spark.core.NavigationUnit;
 	
 	public class ChatViewMediatorBase extends Mediator {
 		
@@ -38,9 +40,11 @@ package org.bigbluebutton.lib.chat.views {
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
 			meetingData.users.userChangeSignal.add(onUserChange);
+			meetingData.meetingStatus.lockSettingsChangeSignal.add(onLockSettingsChanged);
 			
 			view.textInput.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
+			
 		}
 		
 		protected function openChat(chat:GroupChat):void {
@@ -54,6 +58,10 @@ package org.bigbluebutton.lib.chat.views {
 				view.chatList.dataProvider = _chat.messages;
 				_chat.newMessageSignal.add(onNewMessage);
 			}
+			
+			var lockSettings:LockSettings2x = meetingData.meetingStatus.lockSettings;
+			trace("APPLYING LOCK SETTINGS pubChatDisabled=" + lockSettings.disablePubChat + ", privChatDisabled=" + lockSettings.disablePrivChat);
+			applyLockSettings(lockSettings);
 		}
 		
 		protected function onNewMessage(chatId:String):void {
@@ -85,6 +93,29 @@ package org.bigbluebutton.lib.chat.views {
 				case UserChangeEnum.LEAVE:
 					userRemoved(user);
 					break;
+			}
+		}
+		
+		private function onLockSettingsChanged(newSettings:LockSettings2x):void {
+			applyLockSettings(newSettings);
+		}
+		
+		private function applyLockSettings(lockSettings:LockSettings2x):void {
+			// Lock settings applies only to viewers.
+			if (meetingData.users.me.role == UserRole.MODERATOR) return;
+			
+			if (_chat.isPublic) {
+				if (lockSettings.disablePubChat) {
+					view.textInput.enabled = false;
+				} else {
+					view.textInput.enabled = true;
+				}
+			} else {
+				if (lockSettings.disablePrivChat) {
+					view.textInput.enabled = false;
+				} else {
+					view.textInput.enabled = true;
+				}
 			}
 		}
 		
