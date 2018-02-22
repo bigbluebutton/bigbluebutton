@@ -4,7 +4,7 @@
 			   applicationComplete="applicationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
 			   styleName="mainshell"
-			   xmlns:main="org.bigbluebutton.air.main.views.*">
+			   xmlns:main="org.bigbluebutton.air.main.views.*" xmlns:setup="org.as3commons.logging.setup.*">
 	<fx:Style source="../../shared/assets/css/common.css" />
 	<fx:Style source="../../shared/assets/css/bbb-icons.css" />
 	<fx:Style source="Default.css" />
@@ -107,6 +107,9 @@
 			  visible="false"
 			  gap="0"
 			  horizontalAlign="center">
+		<s:HGroup id="banner" visible="true" includeInLayout="true" styleName="bannerStyle" width="100%" height="30">
+			<s:Label id="bannerLabel" width="100%" textAlign="center" text="Beware the dragons!"/>
+		</s:HGroup>
 		<main:PagesNavigatorView id="pagesNavigatorView"
 								 width="100%"
 								 height="100%" />
