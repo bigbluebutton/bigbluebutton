@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.navBar.userListToggleBtnLabel',
     description: 'Toggle button label',
   },
+  toggleUserListAria: {
+    id: 'app.navBar.toggleUserList.ariaLabel',
+    description: 'description of the lists inside the userlist',
+  },
   newMessages: {
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
@@ -175,6 +179,7 @@ class NavBar extends Component {
             circle
             hideLabel
             label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+            aria-label={intl.formatMessage(intlMessages.toggleUserListAria)}
             icon="user"
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
