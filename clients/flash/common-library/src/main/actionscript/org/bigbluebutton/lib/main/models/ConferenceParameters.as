@@ -12,6 +12,7 @@ package org.bigbluebutton.lib.main.models {
 	 */
 	public class ConferenceParameters implements IConferenceParameters {
 		private var _changedSignal:Signal;
+		private var _confParamsLoadedSignal:Signal = new Signal();
 		
 		private var _meetingName:String;
 		
@@ -101,6 +102,10 @@ package org.bigbluebutton.lib.main.models {
 		 */
 		public function get changedSignal():ISignal {
 			return _changedSignal;
+		}
+		
+		public function get confParamsLoadedSignal():ISignal {
+			return _confParamsLoadedSignal;
 		}
 		
 		public function get meetingName():String {
@@ -286,6 +291,8 @@ package org.bigbluebutton.lib.main.models {
 				var value:Object = obj[key];
 				trace(key + " = " + value);
 			}
+			
+			_confParamsLoadedSignal.dispatch();
 		}
 		
 		public function set muteOnStart(mute:Boolean):void {

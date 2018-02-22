@@ -107,9 +107,7 @@
 			  visible="false"
 			  gap="0"
 			  horizontalAlign="center">
-		<s:HGroup id="banner" visible="true" includeInLayout="true" styleName="bannerStyle" width="100%" height="30">
-			<s:Label id="bannerLabel" width="100%" textAlign="center" text="Beware the dragons!"/>
-		</s:HGroup>
+		<main:BannerView id="bannerView" width="100%" height="30" visible="false" includeInLayout="false"/>
 		<main:PagesNavigatorView id="pagesNavigatorView"
 								 width="100%"
 								 height="100%" />
