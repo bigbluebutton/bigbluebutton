@@ -118,7 +118,7 @@ package org.bigbluebutton.lib.user.views.models {
 			if (userVM) {
 				var findStreamIndex:int = userVM.webcamStreams.indexOf(info.streamId);
 				if (findStreamIndex != -1) {
-					userVM.webcamStreams = userVM.webcamStreams.removeAt(findStreamIndex);
+					userVM.webcamStreams.removeAt(findStreamIndex);
 					
 					if (userVM.webcamStreams.length == 0) {
 						refresh();
