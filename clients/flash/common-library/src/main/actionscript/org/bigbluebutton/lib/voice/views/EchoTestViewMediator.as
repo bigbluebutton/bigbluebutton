@@ -53,17 +53,6 @@ package org.bigbluebutton.lib.voice.views {
 		private var doingEchoTest:Boolean = false;
 		
 		public override function initialize():void {
-			// TODO : Show the progress bar initially and the start test button
-			
-			// If the start button is clicked he hide it with the progress bar
-			// then show the the yes and no buttons
-			
-			// If the back button is selected we stop the echo test and get back the previous screen
-			
-			// If the yes button is clicked we :
-			//  1 - Stop the echo test
-			//  2 - Get back the main screen
-			//  3 - Connect to the main room audio
 			view.echoTestButton.addEventListener(MouseEvent.CLICK, echoTestButtonHandler);
 			view.yesButton.addEventListener(MouseEvent.CLICK, yesButtonHandler);
 			view.noButton.addEventListener(MouseEvent.CLICK, noButtonHandler);
@@ -104,12 +93,18 @@ package org.bigbluebutton.lib.voice.views {
 		}
 		
 		private function reInitialize():void {
+			if (microphoneNetConnection) {
+				microphoneNetConnection.close();
+			}
+			if (netStream) {
+				netStream.close();
+			}
 			microphoneNetConnection = new NetConnection();
 			microphoneNetConnection.objectEncoding = ObjectEncoding.AMF3;
 			microphoneNetConnection.proxyType = "best";
 			microphoneNetConnection.connect(null);
 			netStream = new NetStream(microphoneNetConnection);
-			if (selectedMicrophone != null) {
+			if (selectedMicrophone != null && !selectedMicrophone.hasEventListener(StatusEvent.STATUS)) {
 				selectedMicrophone.removeEventListener(StatusEvent.STATUS, micStatusEventHandler);
 			}
 			
@@ -123,18 +118,11 @@ package org.bigbluebutton.lib.voice.views {
 		private function micStatusEventHandler(event:StatusEvent):void {
 			switch (event.code) {
 				case "Microphone.Muted":
-					// statusText.text = "You did not allow Flash to access your mic.";
+					view.echoLabel.text = "You did not allow Flash to access your mic.";
 					break;
 				case "Microphone.Unmuted":
-					// Comment these next 2-lines. We don't want the user hearing audio
-					// while testing mic levels. (richard mar 26, 2014)
-					// mic.setLoopBack(true);
-					// mic.setUseEchoSuppression(true);   
-					//http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
-					//http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
-					
-					// mic.gain = micRecordVolume.value;
-					// microphoneList = Media.getMicrophoneNames();
+					// @fixme : use => saveData.read("micGain") as Number; later
+					selectedMicrophone.gain = 60;
 					break;
 				default:
 					// LOGGER.debug("unknown micStatusHandler event: {0}", [event]);
@@ -169,12 +157,15 @@ package org.bigbluebutton.lib.voice.views {
 			doingEchoTest = false;
 			view.setTestingState(false);
 			stopEchoTestSignal.dispatch();
-			testMicrophoneLoopback();
 			echoTestHasNoAudioSignal.dispatch();
+			testMicrophoneLoopback();
 		}
 		
 		override public function destroy():void {
 			super.destroy();
+			
+			microphoneNetConnection.close();
+			netStream.close();
 			
 			view.echoTestButton.removeEventListener(MouseEvent.CLICK, echoTestButtonHandler);
 			view.yesButton.removeEventListener(MouseEvent.CLICK, yesButtonHandler);

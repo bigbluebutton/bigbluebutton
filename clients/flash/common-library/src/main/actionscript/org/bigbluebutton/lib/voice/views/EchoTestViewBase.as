@@ -20,6 +20,8 @@ package org.bigbluebutton.lib.voice.views {
 		[Bindable]
 		public var noButton:Button;
 		
+		public var echoLabel:Label;
+		
 		private var echoValidationGroup:VGroup;
 		
 		private var echoButtonGroup:VGroup;
@@ -51,7 +53,7 @@ package org.bigbluebutton.lib.voice.views {
 			
 			echoValidationGroup.visible = echoValidationGroup.includeInLayout = false;
 			
-			var echoLabel:Label = new Label();
+			echoLabel = new Label();
 			echoLabel.maxDisplayedLines = 5;
 			echoLabel.percentWidth = 80;
 			echoLabel.styleName = "echoTestLabel";
