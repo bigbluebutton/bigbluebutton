@@ -40,8 +40,7 @@ package org.bigbluebutton.lib.user.views.models {
 		
 		// Webcam properties
 		
-		public var hasStream:Boolean = false;
-		
+		public var webcamStreams:Array = [];
 		
 		
 		public function UserVM() {

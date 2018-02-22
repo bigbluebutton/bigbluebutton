@@ -180,10 +180,8 @@ package org.bigbluebutton.lib.user.services {
 			user.locked = newUser.locked;
 			user.presenter = newUser.presenter;
 			user.avatar = newUser.avatar;
+			user.me = user.intId == conferenceParameters.internalUserID;
 			
-			if (user.intId == conferenceParameters.internalUserID) {
-				meetingData.users.me = user;
-			}
 			meetingData.users.add(user);
 		}
 		

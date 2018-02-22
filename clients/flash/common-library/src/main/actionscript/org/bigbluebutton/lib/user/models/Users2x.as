@@ -8,10 +8,14 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _userChangeSignal:Signal = new Signal();
 		
-		public var me:User2x;
-		
 		public function get userChangeSignal():Signal {
 			return _userChangeSignal;
+		}
+		
+		private var _me:User2x;
+		
+		public function get me():User2x {
+			return _me;
 		}
 		
 		public function Users2x() {
@@ -25,6 +29,9 @@ package org.bigbluebutton.lib.user.models {
 		public function add(user:User2x):void {
 			if (getUserIndex(user.intId) == -1) {
 				_users.addItem(user);
+				if (user.me) {
+					_me = user;
+				}
 				_userChangeSignal.dispatch(user, UserChangeEnum.JOIN);
 			}
 		}

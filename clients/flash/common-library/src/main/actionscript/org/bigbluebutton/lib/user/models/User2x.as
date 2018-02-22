@@ -26,5 +26,7 @@ package org.bigbluebutton.lib.user.models {
 		public var presenter:Boolean;
 		
 		public var avatar:String;
+		
+		public var me:Boolean;
 	}
 }
