@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
-import { styles } from './styles.scss';
-import Button from '../button/component';
-import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdownContainer from './settings-dropdown/container';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -15,6 +11,10 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
+import { styles } from './styles.scss';
+import Button from '../button/component';
+import RecordingIndicator from './recording-indicator/component';
+import SettingsDropdownContainer from './settings-dropdown/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -175,7 +175,7 @@ class NavBar extends Component {
             circle
             hideLabel
             label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-            icon={'user'}
+            icon="user"
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
             aria-describedby="newMessage"
@@ -185,7 +185,7 @@ class NavBar extends Component {
             aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}
           />
         </div>
-        <div className={styles.center} role="banner">
+        <div className={styles.center}>
           {this.renderPresentationTitle()}
           <RecordingIndicator beingRecorded={beingRecorded} />
         </div>
