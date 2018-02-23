@@ -1,10 +1,6 @@
 package org.bigbluebutton.air.voice {
 	
 	import org.bigbluebutton.air.voice.views.EchoTestViewMediatorAIR;
-	import org.bigbluebutton.lib.voice.commands.EchoTestHasAudioCommand;
-	import org.bigbluebutton.lib.voice.commands.EchoTestHasAudioSignal;
-	import org.bigbluebutton.lib.voice.commands.EchoTestHasNoAudioCommand;
-	import org.bigbluebutton.lib.voice.commands.EchoTestHasNoAudioSignal;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteCommand;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
@@ -48,8 +44,6 @@ package org.bigbluebutton.air.voice {
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
 			signalCommandMap.map(StartEchoTestSignal).toCommand(StartEchoTestCommand);
 			signalCommandMap.map(StopEchoTestSignal).toCommand(StopEchoTestCommand);
-			signalCommandMap.map(EchoTestHasAudioSignal).toCommand(EchoTestHasAudioCommand);
-			signalCommandMap.map(EchoTestHasNoAudioSignal).toCommand(EchoTestHasNoAudioCommand);
 			signalCommandMap.map(MicrophoneMuteSignal).toCommand(MicrophoneMuteCommand);
 		}
 	}

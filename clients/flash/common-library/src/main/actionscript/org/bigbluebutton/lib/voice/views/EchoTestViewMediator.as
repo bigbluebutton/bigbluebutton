@@ -9,8 +9,6 @@ package org.bigbluebutton.lib.voice.views {
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.lib.main.models.IMeetingData;
-	import org.bigbluebutton.lib.voice.commands.EchoTestHasAudioSignal;
-	import org.bigbluebutton.lib.voice.commands.EchoTestHasNoAudioSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.commands.StartEchoTestSignal;
 	import org.bigbluebutton.lib.voice.commands.StopEchoTestSignal;
@@ -24,12 +22,6 @@ package org.bigbluebutton.lib.voice.views {
 		
 		[Inject]
 		public var startEchoTestSignal:StartEchoTestSignal;
-		
-		[Inject]
-		public var echoTestHasAudioSignal:EchoTestHasAudioSignal;
-		
-		[Inject]
-		public var echoTestHasNoAudioSignal:EchoTestHasNoAudioSignal;
 		
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
@@ -137,7 +129,6 @@ package org.bigbluebutton.lib.voice.views {
 		}
 		
 		protected function yesButtonHandler(e:MouseEvent):void {
-			echoTestHasAudioSignal.dispatch();
 			stopEchoTest();
 			
 			var audioOptions:Object = new Object();
@@ -154,10 +145,8 @@ package org.bigbluebutton.lib.voice.views {
 		}
 		
 		private function noButtonHandler(e:MouseEvent):void {
-			doingEchoTest = false;
+			stopEchoTest();
 			view.setTestingState(false);
-			stopEchoTestSignal.dispatch();
-			echoTestHasNoAudioSignal.dispatch();
 			testMicrophoneLoopback();
 		}
 		
