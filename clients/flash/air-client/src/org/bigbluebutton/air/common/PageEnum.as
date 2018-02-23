@@ -7,6 +7,7 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.participants.views.ParticipantsView;
 	import org.bigbluebutton.air.settings.views.SettingsView;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
+	import org.bigbluebutton.air.voice.views.EchoTestView;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
@@ -39,6 +40,8 @@ package org.bigbluebutton.air.common {
 		
 		public static const SETTINGS:String = "Settings";
 		
+		public static const ECHOTEST:String = "EchoTest";
+		
 		public static const APPLICATION_SETTINGS:String = "ApplicationSettings";
 		
 		/**
@@ -52,6 +55,7 @@ package org.bigbluebutton.air.common {
 				dic[PARTICIPANTS] = ParticipantsView;
 				dic[CHAT] = ChatRoomView;
 				dic[SETTINGS] = SettingsView;
+				dic[ECHOTEST] = EchoTestView;
 				dic[AUDIOSETTINGS] = AudioSettingsView;
 				dic[CAMERASETTINGS] = CameraSettingsView;
 				dic[CHATSETTINGS] = ChatSettingsView;

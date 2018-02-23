@@ -24,6 +24,8 @@
 
 @namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
 
+@namespace voice "org.bigbluebutton.lib.voice.views.*";
+
 @media (application-dpi: 240) {
     main|LoadingScreen {
         fontSize: 25.50;
@@ -59,12 +61,12 @@
     }
 
     libChat|ChatItemRenderer {
-		padding: 10.50;
-		gap: 6.00;
-		leftIndent: 33.00;
-		fontSize: 21.00;
-		nameFontSize: 21.00;
-		timeFontSize: 21.00;
+        padding: 10.50;
+        gap: 6.00;
+        leftIndent: 33.00;
+        fontSize: 21.00;
+        nameFontSize: 21.00;
+        timeFontSize: 21.00;
     }
 
     settings|SettingsViewBase, camera|CameraSettingsViewBase {
@@ -74,10 +76,14 @@
     audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
         padding: 22.50;
     }
-	
-	usersAIR|UserDetailsView {
-		groupsPadding : 15.00;
-	}
+
+    voice|EchoTestViewBase {
+        padding: 22.50;
+    }
+
+    usersAIR|UserDetailsView {
+        groupsPadding: 15.00;
+    }
 
     settings|SettingsItemRenderer {
         fontSize: 25.50;
@@ -96,6 +102,10 @@
 
     users|UserItemRenderer {
         iconSize: 33.00;
+    }
+
+    voice|EchoTestViewBase {
+        padding: 22.50;
     }
 
     s|ToggleSwitch {
@@ -178,5 +188,9 @@
         fontSize: 15.00;
         borderWeight: 1.50;
         cornerRadius: 3.00;
+    }
+
+    .echoTestLabel {
+        padding: 24.00;
     }
 }

@@ -1,6 +1,6 @@
 package org.bigbluebutton.lib.user.services {
 	
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public interface IUsersService {
 		function setupMessageSenderReceiver():void;
@@ -25,8 +25,8 @@ package org.bigbluebutton.lib.user.services {
 		function saveLockSettings(newLockSettings:Object):void;
 		function muteMe():void;
 		function unmuteMe():void;
-		function mute(user:User):void;
-		function unmute(user:User):void;
+		function mute(user:User2x):void;
+		function unmute(user:User2x):void;
 		function validateToken():void;
 		function joinMeeting():void;
 	}
