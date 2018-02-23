@@ -12,6 +12,7 @@ package org.bigbluebutton.lib.main.models {
 	 */
 	public class ConferenceParameters implements IConferenceParameters {
 		private var _changedSignal:Signal;
+		private var _confParamsLoadedSignal:Signal = new Signal();
 		
 		private var _meetingName:String;
 		
@@ -84,6 +85,9 @@ package org.bigbluebutton.lib.main.models {
 		
 		private var _guest:Boolean;
 		
+		private var _bannerText:String;
+		private var _bannerColor:String;
+		
 		public function ConferenceParameters(signal:Signal = null) {
 			if (signal) {
 				_changedSignal = signal;
@@ -98,6 +102,10 @@ package org.bigbluebutton.lib.main.models {
 		 */
 		public function get changedSignal():ISignal {
 			return _changedSignal;
+		}
+		
+		public function get confParamsLoadedSignal():ISignal {
+			return _confParamsLoadedSignal;
 		}
 		
 		public function get meetingName():String {
@@ -264,6 +272,9 @@ package org.bigbluebutton.lib.main.models {
 			_avatarUrl = obj.avatarURL;
 			_authToken = obj.authToken;
 			_guest = obj.guest;
+			_bannerColor = obj.bannerColor;
+			_bannerText = obj.bannerText;
+			
 			_changedSignal.dispatch();
 			_metadata = new Object();
 			for (var n:String in obj.metadata) {
@@ -280,6 +291,8 @@ package org.bigbluebutton.lib.main.models {
 				var value:Object = obj[key];
 				trace(key + " = " + value);
 			}
+			
+			_confParamsLoadedSignal.dispatch();
 		}
 		
 		public function set muteOnStart(mute:Boolean):void {
@@ -304,6 +317,22 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set guest(value:Boolean):void {
 			_guest = value;
+		}
+		
+		public function get bannerColor():String {
+			return _bannerColor;
+		}
+		
+		public function set bannerColor(value:String):void {
+			_bannerColor = value;
+		}
+		
+		public function get bannerText():String {
+			return _bannerText;
+		}
+		
+		public function set bannerText(value:String):void {
+			_bannerText = value;
 		}
 	}
 }
