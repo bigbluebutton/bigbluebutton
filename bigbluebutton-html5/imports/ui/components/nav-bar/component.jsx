@@ -29,12 +29,20 @@ const intlMessages = defineMessages({
     id: 'app.navBar.recording',
     description: 'label for when the session is being recorded',
   },
+  recordingIndicatorOn: {
+    id: 'app.navBar.recording.on',
+    description: 'label for indicator when the session is being recorded',
+  },
+  recordingIndicatorOff: {
+    id: 'app.navBar.recording.off',
+    description: 'label for indicator when the session is not being recorded',
+  },
 });
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
   hasUnreadMessages: PropTypes.bool.isRequired,
-  beingRecorded: PropTypes.bool.isRequired,
+  beingRecorded: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -165,6 +173,8 @@ class NavBar extends Component {
   render() {
     const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
+    const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
+
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
@@ -191,7 +201,11 @@ class NavBar extends Component {
         </div>
         <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
-          <RecordingIndicator beingRecorded={beingRecorded} title={intl.formatMessage(intlMessages.recordingSession)}/>
+          <span className={styles.presentationTitleSeparator}>|</span>
+          <RecordingIndicator
+            {...beingRecorded}
+            title={intl.formatMessage(intlMessages[recordingMessage])}
+          />
         </div>
         <div className={styles.right}>
           <SettingsDropdownContainer />

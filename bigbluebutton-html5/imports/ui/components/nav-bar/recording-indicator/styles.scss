@@ -1,17 +1,33 @@
 @import "../../../stylesheets/variables/_all";
 
-.recordBtn {
+%base {
+  color: $color-gray;
+  font-size: $font-size-base;
+  height: $font-size-base;
+  display: flex;
 
-  &:hover,
-  &:focus {
-    span {
-      background-color: transparent !important;
-      box-shadow: none !important;
-    }
+  span {
+    font-size: $font-size-base;
+    margin: 0 0.5rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
+}
+
+.recordIndicator {
+  @extend %base;
+}
+
+.recording {
+  @extend %base;
+
   i {
-    color: red;
+    color: $color-danger;
+  }
+
+  span {
+    color: $color-white;
   }
 
 }

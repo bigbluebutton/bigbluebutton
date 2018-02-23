@@ -93,6 +93,8 @@
     "app.navBar.userListToggleBtnLabel": "User List Toggle",
     "app.navBar.toggleUserList.newMessages": "with new message notification",
     "app.navBar.recording": "This session is being recorded",
+    "app.navBar.recording.on": "Recording",
+    "app.navBar.recording.off": "Not recording",
     "app.leaveConfirmation.title": "Leave Session",
     "app.leaveConfirmation.message": "Do you want to leave this meeting?",
     "app.leaveConfirmation.confirmLabel": "Leave",

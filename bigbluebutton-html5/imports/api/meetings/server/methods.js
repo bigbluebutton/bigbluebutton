@@ -5,5 +5,5 @@ import toggleRecording from './methods/toggleRecording';
 
 Meteor.methods(mapToAcl(['methods.endMeeting', 'methods.toggleRecording'], {
   endMeeting,
-  toggleRecording
+  toggleRecording,
 }));

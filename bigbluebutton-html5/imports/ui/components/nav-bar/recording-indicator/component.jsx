@@ -1,23 +1,21 @@
 import React from 'react';
-import Button from '/imports/ui/components/button/component';
+import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
 
-const RecordingIndicator = ({ beingRecorded, title }) => {
-  if (!beingRecorded) return null;
+const RecordingIndicator = ({ record, allowStartStopRecording, title, recording }) => {
+
+  if (!record || !allowStartStopRecording) return null;
 
   return (
-    <Button
-      hideLabel
-      className={styles.recordBtn}
-      aria-label={title}
-      label={title}
-      icon="record"
-      size="md"
-      circle
-      ghost
-      onClick={() => null}
-    />
-  )
+    <div className={recording ? styles.recording : styles.recordIndicator}>
+      <Icon
+        iconName="record"
+      />
+      <span>
+        {title}
+      </span>
+    </div>
+  );
 };
 
 export default RecordingIndicator;
