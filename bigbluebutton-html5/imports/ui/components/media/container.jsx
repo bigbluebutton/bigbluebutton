@@ -54,7 +54,7 @@ MediaContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
   const { dataSaving } = Settings;
-  const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
+  const { viewParticipantsWebcams: viewVideoDock, viewScreenshare } = dataSaving;
 
   const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
