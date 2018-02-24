@@ -173,14 +173,14 @@ package org.bigbluebutton.lib.user.services {
 			userSession.joinMeetingResponse(msg);
 		}
 		
-		private function handleRecordingStatusChanged(msg:Object):void {
+		private function handleRecordingStatusChanged(m:Object):void {
 			trace(LOG + "handleRecordingStatusChanged() -- recording status changed");
-			meetingData.meetingStatus.recording = msg.body.recording;
+			meetingData.meetingStatus.recording = m.body.recording;
 		}
 		
-		private function handleGetRecordingStatusReply(msg:Object):void {
+		private function handleGetRecordingStatusReply(m:Object):void {
 			trace(LOG + "handleGetRecordingStatusReply() -- recording status");
-			meetingData.meetingStatus.recording = msg.body.recording;
+			meetingData.meetingStatus.recording = m.body.recording;
 		}
 		
 		private function handleUserJoinedVoiceConfToClientEvtMsg(msg:Object):void {
