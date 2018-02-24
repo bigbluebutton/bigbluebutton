@@ -14,6 +14,8 @@ package org.bigbluebutton.air.main.services {
 		
 		protected var _failureSignal:Signal = new Signal();
 		
+		protected var _guestWaitSignal:Signal = new Signal();
+		
 		private static const URL_REQUEST_ERROR_TYPE:String = "TypeError";
 		
 		private static const URL_REQUEST_INVALID_URL_ERROR:String = "invalidURL";
@@ -36,6 +38,10 @@ package org.bigbluebutton.air.main.services {
 		
 		public function get failureSignal():ISignal {
 			return _failureSignal;
+		}
+		
+		public function get guestWaitSignal():ISignal {
+			return _guestWaitSignal;
 		}
 		
 		public function join(joinUrl:String):void {
@@ -97,7 +103,14 @@ package org.bigbluebutton.air.main.services {
 							break;
 						case XML_RETURN_CODE_SUCCESS:
 							sessionToken = xml.auth_token.toString();
-							successSignal.dispatch(urlRequest, responseUrl, sessionToken);
+							if (xml.hasOwnProperty("guestStatus")) {
+								var gusetStatus:String = xml.guestStatus.toString();
+								var waitUrl:String = xml.url.toString();
+								trace("******************** GUEST STATUS = " + gusetStatus + " waitUrl=" + waitUrl);
+							}
+							trace("******************** responseUrl = " + responseUrl);
+							trace("******************** urlRequest = " + urlRequest);
+							//successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 							break;
 						default:
 							onFailure(URL_REQUEST_GENERIC_ERROR);

@@ -29,7 +29,9 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.main.models.MeetingData;
 	import org.bigbluebutton.lib.main.models.UserSession;
 	import org.bigbluebutton.lib.main.services.BigBlueButtonConnection;
+	import org.bigbluebutton.lib.main.services.GuestWaitPageService;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
+	import org.bigbluebutton.lib.main.services.IGuestWaitPageService;
 	import org.bigbluebutton.lib.main.services.ILoginService;
 	import org.bigbluebutton.lib.main.services.LoginService;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
@@ -71,6 +73,7 @@ package org.bigbluebutton.air {
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);
 			injector.map(ILoginService).toType(LoginService);
+			injector.map(IGuestWaitPageService).toType(GuestWaitPageService);
 			injector.map(IBigBlueButtonConnection).toType(BigBlueButtonConnection);
 			injector.map(IVideoConnection).toType(VideoConnection);
 			// Signal to Command mapping

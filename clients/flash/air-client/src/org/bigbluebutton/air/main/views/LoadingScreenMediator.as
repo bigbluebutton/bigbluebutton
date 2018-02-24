@@ -40,7 +40,8 @@ package org.bigbluebutton.air.main.views {
 			// If we are in the Flash Builder debugger the InvokeEvent will never be fired
 			if (Capabilities.isDebugger) {
 				//var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=AIR&meetingID=Demo+Meeting&password=mp&redirect=false&checksum=3fdf56e9915c1031c3ea012b4ec8823cedd7c272";
-				var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=User+2021828&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=8751963df96437c7d435eac8124e4fb3ec147115";
+				var reqUrl:String = "192.168.246.131/bigbluebutton/api/join?auth=true&fullName=Guest&guest=true&meetingID=guest-wait-mobile&password=ap&redirect=false&checksum=017c3ef7064276381f7a3bf3d7203df4ae6151d2";
+				var url:String = "bigbluebutton://" + reqUrl;
 				joinRoom(url);
 			}
 		}

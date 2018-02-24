@@ -8,6 +8,7 @@ package org.bigbluebutton.air.main.commands {
 	import org.bigbluebutton.lib.main.models.Config;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.services.IGuestWaitPageService;
 	import org.bigbluebutton.lib.main.services.ILoginService;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	
@@ -15,6 +16,9 @@ package org.bigbluebutton.air.main.commands {
 	
 	public class JoinMeetingCommandAIR extends Command {
 		private const LOG:String = "JoinMeetingCommandAIR::";
+		
+		[Inject]
+		public var guestWaitService:IGuestWaitPageService;
 		
 		[Inject]
 		public var loginService:ILoginService;
@@ -38,7 +42,12 @@ package org.bigbluebutton.air.main.commands {
 			var joinSubservice:JoinService = new JoinService();
 			joinSubservice.successSignal.add(joinSuccess);
 			joinSubservice.failureSignal.add(joinFailure);
+			joinSubservice.guestWaitSignal.add(onGuestWaitSignal);
 			joinSubservice.join(url);
+		}
+		
+		protected function onGuestWaitSignal(urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {
+			
 		}
 		
 		protected function joinSuccess(urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {
