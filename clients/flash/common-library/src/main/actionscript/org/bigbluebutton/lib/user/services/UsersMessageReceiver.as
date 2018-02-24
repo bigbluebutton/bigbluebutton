@@ -42,15 +42,9 @@ package org.bigbluebutton.lib.user.services {
 				case "voiceUserMuted":
 					handleVoiceUserMuted(message);
 					break;
-				case "recordingStatusChanged":
-					handleRecordingStatusChanged(message);
-					break;
 				case "joinMeetingReply":
 					handleJoinedMeeting(message);
 					break
-				case "getRecordingStatusReply":
-					handleGetRecordingStatusReply(message);
-					break;
 				case "meetingHasEnded":
 				case "meetingEnded":
 					handleMeetingHasEnded(message);
@@ -63,6 +57,13 @@ package org.bigbluebutton.lib.user.services {
 					break;
 				case "meetingMuted":
 					handleMeetingMuted(message);
+					break;
+				
+				case "GetRecordingStatusRespMsg":
+					handleGetRecordingStatusReply(message);
+					break;
+				case "RecordingStatusChangedEvtMsg":
+					handleRecordingStatusChanged(message);
 					break;
 				
 				case "UserJoinedVoiceConfToClientEvtMsg":
@@ -172,16 +173,14 @@ package org.bigbluebutton.lib.user.services {
 			userSession.joinMeetingResponse(msg);
 		}
 		
-		private function handleRecordingStatusChanged(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
+		private function handleRecordingStatusChanged(msg:Object):void {
 			trace(LOG + "handleRecordingStatusChanged() -- recording status changed");
-			userSession.recordingStatusChanged(msg.recording);
+			meetingData.meetingStatus.recording = msg.body.recording;
 		}
 		
-		private function handleGetRecordingStatusReply(m:Object):void {
+		private function handleGetRecordingStatusReply(msg:Object):void {
 			trace(LOG + "handleGetRecordingStatusReply() -- recording status");
-			var msg:Object = JSON.parse(m.msg);
-			userSession.recordingStatusChanged(msg.recording);
+			meetingData.meetingStatus.recording = msg.body.recording;
 		}
 		
 		private function handleUserJoinedVoiceConfToClientEvtMsg(msg:Object):void {
