@@ -46,7 +46,7 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private function onInvokeEvent(invocation:InvokeEvent):void {
-			if (invocation.arguments.length > 0) {
+			if (invocation.arguments.length > 0 && !Capabilities.isDebugger) {
 				var url:String = invocation.arguments[0].toString();
 				if (url.lastIndexOf("://") != -1) {
 					if (userSession.mainConnection)
@@ -63,6 +63,8 @@ package org.bigbluebutton.air.main.views {
 					
 					joinRoom(url);
 				}
+			} else {
+				uiSession.setLoading(true, "Please use a browser to join a meeting");
 			}
 		}
 		
