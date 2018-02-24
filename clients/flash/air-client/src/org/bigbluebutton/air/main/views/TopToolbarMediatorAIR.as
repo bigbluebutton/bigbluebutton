@@ -6,7 +6,7 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.lib.chat.models.GroupChat;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.main.views.TopToolbarMediatorBase;
-	import org.bigbluebutton.lib.user.models.User2x;
+	import org.bigbluebutton.lib.voice.commands.StopEchoTestSignal;
 	
 	public class TopToolbarMediatorAIR extends TopToolbarMediatorBase {
 		
@@ -15,6 +15,9 @@ package org.bigbluebutton.air.main.views {
 		
 		[Inject]
 		public var chatMessagesSession:IChatMessagesSession;
+		
+		[Inject]
+		public var stopEchoTestSignal : StopEchoTestSignal;
 		
 		override protected function setTitle():void {
 			if (uiSession.currentPage == PageEnum.CHAT) {
@@ -32,6 +35,8 @@ package org.bigbluebutton.air.main.views {
 				view.titleLabel.text = uiSession.currentPage.replace(/([A-Z])/g, ' $1');
 			} else if (uiSession.currentPage == PageEnum.USER_DETAILS) {
 				view.titleLabel.text = "User Details";
+			} else if (uiSession.currentPage == PageEnum.ECHOTEST) {
+				view.titleLabel.text = "Echo Test";
 			} else {
 				view.titleLabel.text = conferenceParameters.meetingName;
 			}
@@ -40,6 +45,9 @@ package org.bigbluebutton.air.main.views {
 		override protected function leftButtonClickHandler(e:MouseEvent):void {
 			if (uiSession.currentPage == PageEnum.MAIN) {
 				uiSession.pushPage(PageEnum.PARTICIPANTS);
+			} else if (uiSession.currentPage == PageEnum.ECHOTEST) {
+				stopEchoTestSignal.dispatch();
+				uiSession.popPage();
 			} else {
 				uiSession.popPage();
 			}

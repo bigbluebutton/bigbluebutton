@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Licensed to the Apache Software Foundation (ASF) under one or more
+//  contributor license agreements.  See the NOTICE file distributed with
+//  this work for additional information regarding copyright ownership.
+//  The ASF licenses this file to You under the Apache License, Version 2.0
+//  (the "License"); you may not use this file except in compliance with
+//  the License.  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark">
+
+	<!--
+	Original file
+	https://github.com/akamud/FlatSpark/blob/master/FlatSparkSkin/src/flatSpark/skins/ProgressBarSkin.mxml
+	-->
+
+	<fx:Metadata>
+		[HostComponent("spark.components.ProgressBar")]
+	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				bgColor.color = getStyle("trackBackgroundColor");
+				bar.color = getStyle("barColor");
+				percentDisplay.setStyle("color", getStyle("percentColor"));
+				percentDisplay.visible = percentDisplay.includeInLayout = getStyle("showLabel");
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+		]]>
+	</fx:Script>
+	<s:Rect left="0"
+			minHeight="14"
+			top="0"
+			bottom="0"
+			right="0"
+			radiusX="4">
+		<s:fill>
+			<s:SolidColor id="bgColor" />
+		</s:fill>
+	</s:Rect>
+	<s:Group id="progressGroup"
+			 top="0"
+			 bottom="0"
+			 left="{hostComponent.direction=='left' ? 0 : NaN}"
+			 right="{hostComponent.direction=='right' ? 0 : NaN}">
+		<s:Rect left="0"
+				top="0"
+				bottom="0"
+				right="0"
+				radiusX="4">
+			<s:fill>
+				<s:SolidColor id="bar" />
+			</s:fill>
+		</s:Rect>
+		<!--
+		Variant #2 (looks nicer) - uncomment this and remove last Label declaration
+		<s:Label id="percentDisplay"
+		right="2" verticalCenter="0" verticalAlign="middle"
+		visible="{progressBox.width > percentDisplay.width + 4}"
+		includeInLayout="{progressBox.width > percentDisplay.width + 4}"/>
+		-->
+	</s:Group>
+	<s:Label id="percentDisplay"
+			 left="2"
+			 right="2"
+			 verticalCenter="0"
+			 verticalAlign="middle"
+			 fontFamily="Lato"
+			 fontWeight="bold"
+			 fontSize="13"
+			 textAlign="center" />
+
+</s:Skin>

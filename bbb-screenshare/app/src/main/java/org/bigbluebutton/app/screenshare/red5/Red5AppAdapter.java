@@ -151,8 +151,24 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 
     String connId = conn.getSessionId();
     String scopeName = stream.getScope().getName();
+    String connType = getConnectionType(Red5.getConnectionLocal().getType());
 
     String streamId = stream.getPublishedName();
+
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", getMeetingId());
+		logData.put("userId", getUserId());
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("stream", stream.getPublishedName());
+		logData.put("context", scopeName);
+		logData.put("event", "stream_broadcast_start");
+		logData.put("description", "Stream broadcast start.");
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		log.info(logStr);
+
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
         String meetingId = matcher.group(1).trim();
@@ -162,25 +178,33 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
       app.authorizeBroadcastStream(meetingId, streamId, connId, scopeName);
 
 	    boolean recordVideoStream = app.recordStream(meetingId, streamId);
-          VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
-                  recordVideoStream, recordingDirectory, packetTimeout, scheduler, recordingService);
-          ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
-          stream.addStreamListener(listener);
-          VideoStream vstream = new VideoStream(stream, listener, cstream);
-          vstream.startRecording();
+	    if (recordVideoStream) {
+				Map<String, Object> logData2 = new HashMap<String, Object>();
+				logData2.put("meetingId", meetingId);
+				logData2.put("connType", connType);
+				logData2.put("connId", connId);
+				logData.put("streamId", streamId);
+				logData.put("url", url);
+				logData.put("recorded", recordVideoStream);
+				logData2.put("context", scopeName);
+				logData2.put("event", "stream_broadcast_record_start");
+				logData2.put("description", "Stream broadcast record start.");
 
-          meetingManager.addStream(meetingId, vstream);
+				Gson gson2 = new Gson();
+				String logStr2 =  gson2.toJson(logData2);
+				log.info(logStr2);
 
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", meetingId);
-      logData.put("streamId", streamId);
-      logData.put("url", url);
-      logData.put("recorded", recordVideoStream);
+				VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
+								recordVideoStream, recordingDirectory, packetTimeout, scheduler, recordingService);
+				ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
+				stream.addStreamListener(listener);
+				VideoStream vstream = new VideoStream(stream, listener, cstream);
+				vstream.startRecording();
 
-      Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
+				meetingManager.addStream(meetingId, vstream);
 
-      log.info("ScreenShare broadcast started: data={}", logStr);
+			}
+
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
     	conn.close();
@@ -195,8 +219,11 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   public void streamBroadcastClose(IBroadcastStream stream) {
     super.streamBroadcastClose(stream);
 
-    log.info("streamBroadcastStop " + stream.getPublishedName() + "]");
-    String streamId = stream.getPublishedName();
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		String scopeName = stream.getScope().getName();
+
+		String streamId = stream.getPublishedName();
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
       String meetingId = matcher.group(1).trim();
@@ -206,15 +233,18 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
       meetingManager.streamBroadcastClose(meetingId, streamId);
 
 
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", meetingId);
-      logData.put("streamId", streamId);
-      logData.put("recorded", recordVideoStream);
+			Map<String, Object> logData2 = new HashMap<String, Object>();
+			logData2.put("meetingId", meetingId);
+			logData2.put("connType", connType);
+			logData2.put("connId", connId);
+			logData2.put("stream", stream.getPublishedName());
+			logData2.put("context", scopeName);
+			logData2.put("event", "stream_broadcast_close");
+			logData2.put("description", "Stream broadcast close.");
 
-      Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
-
-      log.info("ScreenShare broadcast stopped: data={}", logStr);
+			Gson gson2 = new Gson();
+			String logStr2 =  gson2.toJson(logData2);
+			log.info(logStr2);
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
     }

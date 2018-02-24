@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.user.models {
 	import mx.collections.ArrayCollection;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.osflash.signals.Signal;
 	
 	public class Users2x {
@@ -8,18 +9,23 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _userChangeSignal:Signal = new Signal();
 		
-		public function get userChangeSignal():Signal {
-			return _userChangeSignal;
-		}
-		
 		private var _me:User2x;
 		
 		public function get me():User2x {
 			return _me;
 		}
 		
+		public function set me(value:User2x):void {
+			_me = value;
+		}
+		
+		public function get userChangeSignal():Signal {
+			return _userChangeSignal;
+		}
+		
 		public function Users2x() {
 			_users = new ArrayCollection();
+			_me = new User2x();
 		}
 		
 		public function getUsers():Array {

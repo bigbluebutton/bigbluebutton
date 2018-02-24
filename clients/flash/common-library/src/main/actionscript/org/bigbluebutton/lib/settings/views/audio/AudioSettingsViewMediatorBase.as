@@ -7,6 +7,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.user.models.User2x;
+	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
@@ -56,7 +57,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 		
 		protected function lockSettingsChange(lockSettings:LockSettings2x):void {
 			var me:User2x = meetingData.users.me;
-			if (lockSettings.disableMic && me.role != User2x.MODERATOR && me.locked) {
+			if (lockSettings.disableMic && me.role != UserRole.MODERATOR && me.locked) {
 				view.microphoneToggle.enabled = false;
 				view.microphoneToggle.selected = false;
 			} else {

@@ -32,9 +32,6 @@ package org.bigbluebutton.lib.user.services {
 				case "recordingStatusChanged":
 					handleRecordingStatusChanged(message);
 					break;
-				case "joinMeetingReply":
-					handleJoinedMeeting(message);
-					break
 				case "getRecordingStatusReply":
 					handleGetRecordingStatusReply(message);
 					break;
@@ -51,8 +48,12 @@ package org.bigbluebutton.lib.user.services {
 				
 				
 				
-				
-				
+				case "UserJoinedVoiceConfToClientEvtMsg":
+					handleUserJoinedVoiceConfToClientEvtMsg(message);
+					break;
+				case "UserLeftVoiceConfToClientEvtMsg":
+					handleUserLeftVoiceConfToClientEvtMsg(message);
+					break;
 				case "GetUsersMeetingRespMsg":
 					handleGetUsersMeetingRespMsg(message);
 					break;
@@ -122,12 +123,6 @@ package org.bigbluebutton.lib.user.services {
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MEETING_ENDED);
 		}
 		
-		private function handleJoinedMeeting(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleJoinedMeeting() -- Joining meeting");
-			userSession.joinMeetingResponse(msg);
-		}
-		
 		private function handleRecordingStatusChanged(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace(LOG + "handleRecordingStatusChanged() -- recording status changed");
@@ -146,13 +141,25 @@ package org.bigbluebutton.lib.user.services {
 		
 		
 		
+		private function handleUserJoinedVoiceConfToClientEvtMsg(msg:Object):void {
+			var body:Object = msg.body as Object;
+			
+			/*
+			var vUser:VoiceUser = new VoiceUser();
+			vUser.intId = body.intId;
+			vUser.voiceUserId = body.voiceUserId;
+			vUser.muted = body.muted;
+			vUser.talking = body.talking;
+			
+			meetingData.voiceUsers.addVoiceUser(vUser);
+			*/
+		}
 		
-		
-		
-		
-		
-		
-		
+		private function handleUserLeftVoiceConfToClientEvtMsg(msg:Object):void {
+			trace(LOG + "handleUserLeftVoiceConfToClientEvtMsg() -- user [" + msg.body.intId + "] has left the voice conference");
+			
+			//meetingData.users.removeVoiceUser(msg.body.intId);
+		}
 		
 		private function handleGetUsersMeetingRespMsg(msg:Object):void {
 			var users:Array = msg.body.users as Array;
@@ -235,6 +242,7 @@ package org.bigbluebutton.lib.user.services {
 		private function handleValidateAuthTokenRespMsg(msg:Object):void {
 			var tokenValid:Boolean = msg.body.valid as Boolean;
 			trace(LOG + "handleValidateAuthTokenReply() valid=" + tokenValid);
+			meetingData.users.me.intId = msg.body.userId;
 			userSession.userId = msg.body.userId;
 			userSession.authTokenSignal.dispatch(tokenValid);
 		}

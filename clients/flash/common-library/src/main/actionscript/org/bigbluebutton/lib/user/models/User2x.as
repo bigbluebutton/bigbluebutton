@@ -1,10 +1,6 @@
 package org.bigbluebutton.lib.user.models {
 	
 	public class User2x {
-		public static const MODERATOR:String = "MODERATOR";
-		
-		public static const VIEWER:String = "VIEWER";
-		
 		public var intId:String;
 		
 		public var extId:String;

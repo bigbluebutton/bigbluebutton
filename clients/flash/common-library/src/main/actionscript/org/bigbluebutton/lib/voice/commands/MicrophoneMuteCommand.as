@@ -14,9 +14,8 @@ package org.bigbluebutton.lib.voice.commands {
 		public var userService:IUsersService;
 		
 		override public function execute():void {
-			trace("MicrophoneMuteCommand.execute() - user.muted = unknown");// + user.muted);
+			trace("MicrophoneMuteCommand.execute() - user.muted = ");// + user.muted);
 			if (user != null) {
-				trace("TODO: MicrophoneMuteCommand needs ne VoiceUser support");
 				/*
 				if (user.muted) {
 					userService.unmute(user);

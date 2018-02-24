@@ -15,6 +15,7 @@ package org.bigbluebutton.lib.video.services {
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.user.models.User2x;
+	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.models.VideoProfile;
 	import org.osflash.signals.ISignal;
@@ -71,7 +72,7 @@ package org.bigbluebutton.lib.video.services {
 		}
 		
 		private function lockSettingsChange(lockSettings:LockSettings2x):void {
-			if (lockSettings.disableCam && meetingData.users.me.locked && meetingData.users.me.role != User2x.MODERATOR) {
+			if (lockSettings.disableCam && meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
 				shareCameraSignal.dispatch(false, null);
 			}
 		}

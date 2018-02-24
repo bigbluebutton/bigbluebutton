@@ -2,8 +2,6 @@ package org.bigbluebutton.air.users.views {
 	
 	import flash.events.MouseEvent;
 	
-	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.users.views.models.UserDetailsVM;
 	import org.bigbluebutton.lib.chat.commands.StartPrivateChatSignal;

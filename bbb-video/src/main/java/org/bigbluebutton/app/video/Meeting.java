@@ -1,9 +1,14 @@
 package org.bigbluebutton.app.video;
 
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Meeting {
+    private static Logger log = Red5LoggerFactory.getLogger(Meeting.class, "video");
+
     public final String id;
 
     private Map<String, VideoStream> videoStreams = new HashMap<String, VideoStream>();
@@ -13,16 +18,20 @@ public class Meeting {
     }
 
     public synchronized void addStream(VideoStream stream) {
+			log.debug("Adding VideoStream {} to meeting {}", stream.getStreamId(), id);
         videoStreams.put(stream.getStreamId(), stream);
     }
 
     public synchronized void removeStream(String streamId) {
+			log.debug("Removing VideoStream {} to meeting {}", streamId, id);
         VideoStream vs = videoStreams.remove(streamId);
     }
 
     public synchronized void streamBroadcastClose(String streamId) {
+			log.debug("streamBroadcastClose VideoStream {} to meeting {}", streamId, id);
         VideoStream vs = videoStreams.remove(streamId);
         if (vs != null) {
+					log.debug("Closing VideoStream {} to meeting {}", streamId, id);
             vs.streamBroadcastClose();
         }
     }

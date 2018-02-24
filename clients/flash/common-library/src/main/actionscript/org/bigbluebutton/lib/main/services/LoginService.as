@@ -97,7 +97,17 @@ package org.bigbluebutton.lib.main.services {
 		protected function afterEnter(result:Object):void {
 			if (result.returncode == 'SUCCESS') {
 				trace("Join SUCCESS");
-				var user:Object = {username: result.fullname, conference: result.conference, conferenceName: result.confname, externMeetingID: result.externMeetingID, meetingID: result.meetingID, externUserID: result.externUserID, internalUserId: result.internalUserID, role: result.role, room: result.room, authToken: result.authToken, record: result.record, webvoiceconf: result.webvoiceconf, dialnumber: result.dialnumber, voicebridge: result.voicebridge, mode: result.mode, welcome: result.welcome, logoutUrl: result.logoutUrl, defaultLayout: result.defaultLayout, avatarURL: result.avatarURL};
+				var user:Object = {username: result.fullname, conference: result.conference, 
+					conferenceName: result.confname, externMeetingID: result.externMeetingID, 
+					meetingID: result.meetingID, externUserID: result.externUserID, 
+					internalUserId: result.internalUserID, role: result.role, room: result.room, 
+					authToken: result.authToken, record: result.record, webvoiceconf: result.webvoiceconf, 
+					dialnumber: result.dialnumber, voicebridge: result.voicebridge, 
+					mode: result.mode, welcome: result.welcome, logoutUrl: result.logoutUrl, 
+					defaultLayout: result.defaultLayout, avatarURL: result.avatarURL,
+					bannerColor: result.bannerColor,
+					bannerText: result.bannerText};
+				
 				user.customdata = new Object();
 				if (result.customdata) {
 					for (var key:String in result.customdata) {

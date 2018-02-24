@@ -4,14 +4,17 @@ package org.bigbluebutton.lib.common.services {
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
+	import flash.utils.Timer;
 	
 	import mx.utils.ObjectUtil;
 	
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.ConnectionFailedEvent;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
+	import org.bigbluebutton.lib.util.ConnUtil;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -28,12 +31,14 @@ package org.bigbluebutton.lib.common.services {
 		protected var _netConnection:NetConnection;
 		
 		protected var _uri:String;
+		private var bbbAppsUrl:String;
 		
 		protected var _onUserCommand:Boolean;
 		
-    
-		public function BaseConnection() {
-		}
+		private var connectAttemptTimeout:Number = 5000;
+		private var connectionTimer:Timer;
+		private var triedTunneling:Boolean = false;
+		private var params: Array;
 		
 		public function init(callback:DefaultConnectionCallback):void {
 			_netConnection = new NetConnection();
@@ -58,9 +63,39 @@ package org.bigbluebutton.lib.common.services {
 		
 		public function connect(uri:String, ... parameters):void {
 			_uri = uri;
+			params = parameters;
+			
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+			var result:Array = pattern.exec(uri);
+			
+			_netConnection.proxyType = ConnUtil.PROXY_NONE;
+			var nativeProtocol: String = ConnUtil.RTMP;
+			
+			bbbAppsUrl = uri;
+			
+			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+
+			if (useRTMPS) {
+				_netConnection.proxyType = ConnUtil.PROXY_BEST;
+				nativeProtocol = ConnUtil.RTMPS;
+				bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app;
+			} else {
+
+				if (triedTunneling) {
+					trace("ATTEMPT CONNECTING USING TUNNEL");
+					nativeProtocol = ConnUtil.RTMPT;
+				}
+				bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app;
+				connectionTimer = new Timer(connectAttemptTimeout, 1);
+				connectionTimer.addEventListener(TimerEvent.TIMER, connectionTimeout);
+				connectionTimer.start();
+			}
+			
+			trace("CONNECTING TO  " + "url=" +  bbbAppsUrl);
+			
 			
 			try {
-				trace("Trying to connect to [" + uri + "] ...");
+
 				trace("parameters: " + parameters);
 				// passing an array to a method that expects a variable number of parameters
 				// http://stackoverflow.com/a/3852920
@@ -80,6 +115,18 @@ package org.bigbluebutton.lib.common.services {
 			}
 		}
 		
+		public function connectionTimeout (e:TimerEvent) : void {
+			trace("Timedout connecting to " + bbbAppsUrl);
+			
+			if (triedTunneling) {
+				sendConnectionFailedSignal("Failed to connect to server.");
+			} else {
+				triedTunneling = true;
+				connect(_uri, params);
+			}
+			
+		}
+		
 		public function disconnect(onUserCommand:Boolean):void {
 			_onUserCommand = onUserCommand;
 			_netConnection.removeEventListener(NetStatusEvent.NET_STATUS, netStatus);
@@ -90,31 +137,37 @@ package org.bigbluebutton.lib.common.services {
 		}
 		
 		protected function netStatus(event:NetStatusEvent):void {
+			//Stop timeout timer when connected/rejected
+			if (connectionTimer != null && connectionTimer.running) {
+				connectionTimer.stop();
+				connectionTimer = null;
+			}
+			
 			var info:Object = event.info;
 			var statusCode:String = info.code;
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
-					trace(LOG + " Connection succeeded. Uri: " + _uri);
+					trace(LOG + " Connection succeeded. Uri: " + bbbAppsUrl);
 					sendConnectionSuccessEvent();
 					break;
 				case "NetConnection.Connect.Failed":
-					trace(LOG + " Connection failed. Uri: " + _uri);
+					trace(LOG + " Connection failed. Uri: " + bbbAppsUrl);
 					sendConnectionFailedSignal(ConnectionFailedEvent.CONNECTION_FAILED);
 					break;
 				case "NetConnection.Connect.Closed":
-					trace(LOG + " Connection closed. Uri: " + _uri);
+					trace(LOG + " Connection closed. Uri: " + bbbAppsUrl);
 					sendConnectionFailedSignal(ConnectionFailedEvent.CONNECTION_CLOSED);
 					break;
 				case "NetConnection.Connect.InvalidApp":
-					trace(LOG + " application not found on server. Uri: " + _uri);
+					trace(LOG + " application not found on server. Uri: " + bbbAppsUrl);
 					sendConnectionFailedSignal(ConnectionFailedEvent.INVALID_APP);
 					break;
 				case "NetConnection.Connect.AppShutDown":
-					trace(LOG + " application has been shutdown. Uri: " + _uri);
+					trace(LOG + " application has been shutdown. Uri: " + bbbAppsUrl);
 					sendConnectionFailedSignal(ConnectionFailedEvent.APP_SHUTDOWN);
 					break;
 				case "NetConnection.Connect.Rejected":
-					trace(LOG + " Connection to the server rejected. Uri: " + _uri + ". Check if the red5 specified in the uri exists and is running");
+					trace(LOG + " Connection to the server rejected. Uri: " + bbbAppsUrl + ". Check if the red5 specified in the uri exists and is running");
 					sendConnectionFailedSignal(ConnectionFailedEvent.CONNECTION_REJECTED);
 					break;
 				case "NetConnection.Connect.NetworkChange":
@@ -146,7 +199,7 @@ package org.bigbluebutton.lib.common.services {
 		}
 		
 		protected function netASyncError(event:AsyncErrorEvent):void {
-			trace(LOG + "Asynchronous code error - " + event.error + " on " + _uri);
+			trace(LOG + "Asynchronous code error - " + event.error + " on " + bbbAppsUrl);
       		trace(event.toString());
 			sendConnectionFailedSignal(ConnectionFailedEvent.UNKNOWN_REASON);
 		}

@@ -5,6 +5,7 @@ package org.bigbluebutton.lib.voice.services {
 	
 	import mx.utils.ObjectUtil;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.lib.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
@@ -12,6 +13,7 @@ package org.bigbluebutton.lib.voice.services {
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.models.LockSettings2x;
 	import org.bigbluebutton.lib.user.models.User2x;
+	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
@@ -59,7 +61,7 @@ package org.bigbluebutton.lib.voice.services {
 		}
 		
 		private function lockSettingsChange(lockSettings:LockSettings2x):void {
-			if (lockSettings.disableMic && meetingData.users.me.locked && meetingData.users.me.role != User2x.MODERATOR) {
+			if (lockSettings.disableMic && meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
 				trace("TODO: Disabling the mic still needs to be finished");
 				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
@@ -70,7 +72,7 @@ package org.bigbluebutton.lib.voice.services {
 		}
 		
 		private function onConnectionSuccess():void {
-			call(_listenOnly);
+			
 		}
 		
 		public function get connectionFailureSignal():ISignal {
@@ -106,7 +108,7 @@ package org.bigbluebutton.lib.voice.services {
 			_conferenceParameters = confParams;
 			_listenOnly = listenOnly;
 			_username = encodeURIComponent(confParams.internalUserID + "-bbbID-" + confParams.username);
-      trace("Voice app connect");
+			trace("Voice app connect");
 			baseConnection.connect(_applicationURI, confParams.meetingID, confParams.externUserID, _username, confParams.authToken);
 		}
 		
@@ -140,10 +142,13 @@ package org.bigbluebutton.lib.voice.services {
 		//					SIP Actions					//
 		//												//
 		//**********************************************//
-		public function call(listenOnly:Boolean = false):void {
+		public function call(listenOnly:Boolean = false, dialStr:String = null):void {
 			if (!callActive) {
 				trace(LOG + "call(): starting voice call");
-				baseConnection.connection.call("voiceconf.call", new Responder(onCallSuccess, onCallFailure), "default", _username, _conferenceParameters.webvoiceconf, listenOnly.toString());
+				if (StringUtils.isEmpty(dialStr)) {
+					dialStr = _conferenceParameters.webvoiceconf;
+				}
+				baseConnection.connection.call("voiceconf.call", new Responder(onCallSuccess, onCallFailure), "default", _username, dialStr, listenOnly.toString());
 			} else {
 				trace(LOG + "call(): voice call already active");
 			}

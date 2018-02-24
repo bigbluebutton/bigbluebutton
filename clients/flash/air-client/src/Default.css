@@ -10,6 +10,7 @@
 @namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
 @namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
 @namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
+@namespace ex "http://flex.apache.org/experimental/ns";
 
 @font-face {
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
@@ -84,7 +85,7 @@ global {
 /* Classes */
 
 s|Application {
-	backgroundColor : PropertyReference("bbbBlack");	
+	backgroundColor : PropertyReference("bbbBlack");
 }
 
 s|Button {
@@ -93,7 +94,7 @@ s|Button {
 
 /* Loading screen */
 main|LoadingScreen {
-	color           : PropertyReference("white");	
+	color           : PropertyReference("white");
 	backgroundColor : PropertyReference("bbbBlack");
 	textAlign       : center;
 }
@@ -101,7 +102,7 @@ main|LoadingScreen {
 /* Main view */
 
 main|MainView {
-	backgroundColor : PropertyReference("bbbBlack");	
+	backgroundColor : PropertyReference("bbbBlack");
 }
 
 main|TopToolbarAIR {
@@ -110,7 +111,7 @@ main|TopToolbarAIR {
 
 participants|ParticipantsViewBase, users|UsersViewBase {
 	backgroundColor : PropertyReference("grey100");
-	color : PropertyReference("blue900");
+	color           : PropertyReference("blue900");
 }
 
 settings|SettingsViewBase, audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, camera|CameraSettingsViewBase {
@@ -119,7 +120,7 @@ settings|SettingsViewBase, audio|AudioSettingsViewBase, chat|ChatSettingsViewBas
 	separatorColor   : PropertyReference("grey200");
 }
 
-participants|ParticipantsViewBase s|List{
+participants|ParticipantsViewBase s|List {
 	contentBackgroundColor : PropertyReference("white");
 }
 
@@ -134,6 +135,14 @@ libChat|ChatViewBase {
 	inputBorderColor     : PropertyReference("grey300");
 }
 
+ex|ProgressBar {
+	skinClass            : ClassReference("org.bigbluebutton.air.common.views.skins.ProgressBarSkin");
+	fontFamily           : SourceSansProMX;
+	trackBackgroundColor : PropertyReference("grey100");
+	barColor             : PropertyReference("bbbBlue");
+	percentColor         : PropertyReference("white");
+}
+
 s|ToggleSwitch {
 	accentColor : PropertyReference("green500");
 	color       : PropertyReference("white");
@@ -142,7 +151,7 @@ s|ToggleSwitch {
 }
 
 s|HSlider {
-	skinClass   : ClassReference("spark.skins.ios7.HSliderSkin");
+	skinClass : ClassReference("spark.skins.ios7.HSliderSkin");
 }
 
 s|CheckBox {
@@ -177,7 +186,7 @@ libChat|ChatItemRenderer {
 }
 
 users|UserItemRenderer {
-	color    : PropertyReference("grey700");
+	color : PropertyReference("grey700");
 }
 
 settings|SettingsItemRenderer {
@@ -215,21 +224,25 @@ settings|SettingsItemRenderer {
 }
 
 .settingsIcon {
-	iconColor  : PropertyReference("grey700");
+	iconColor : PropertyReference("grey700");
 }
 
 .chatIcon {
 	color : PropertyReference("grey700");
 }
 
-.menuButton {
+.menuButton, .menuButtonRed {
 	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
 	selectedBackgroundColor : PropertyReference("bbbGrey");
 	color                   : PropertyReference("white");
-	iconFont				: BBBIcons;
-	iconColor    	    	: PropertyReference("white");
+	iconFont                : BBBIcons;
+	iconColor               : PropertyReference("white");
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
+}
+
+.menuButtonRed {
+	backgroundColor : PropertyReference("bbbRed");
 }
 
 .participantIcon {
@@ -261,4 +274,8 @@ settings|SettingsItemRenderer {
 
 .leaveLabel {
 	color : PropertyReference("blue500");
+}
+
+.micLevelProgressBar {
+	showLabel : false;
 }
