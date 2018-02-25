@@ -35,6 +35,7 @@ export default function userLeaving(credentials, userId) {
     const modifier = {
       $set: {
         validated: null,
+        ejected: true,
       },
     };
 
