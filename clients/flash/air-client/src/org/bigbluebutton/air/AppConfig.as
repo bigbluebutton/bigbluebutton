@@ -40,6 +40,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.video.services.VideoConnection;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
+	import org.bigbluebutton.lib.voice.services.IVoiceService;
+	import org.bigbluebutton.lib.voice.services.VoiceService;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -60,6 +62,7 @@ package org.bigbluebutton.air {
 			injector.map(IMeetingData).toSingleton(MeetingData);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
+			injector.map(IVoiceService).toSingleton(VoiceService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
 			injector.map(IChatMessageService).toSingleton(ChatMessageService);

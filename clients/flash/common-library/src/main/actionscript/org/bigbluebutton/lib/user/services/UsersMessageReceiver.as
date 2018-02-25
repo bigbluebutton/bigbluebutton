@@ -48,12 +48,7 @@ package org.bigbluebutton.lib.user.services {
 				
 				
 				
-				case "UserJoinedVoiceConfToClientEvtMsg":
-					handleUserJoinedVoiceConfToClientEvtMsg(message);
-					break;
-				case "UserLeftVoiceConfToClientEvtMsg":
-					handleUserLeftVoiceConfToClientEvtMsg(message);
-					break;
+				
 				case "GetUsersMeetingRespMsg":
 					handleGetUsersMeetingRespMsg(message);
 					break;
@@ -141,25 +136,7 @@ package org.bigbluebutton.lib.user.services {
 		
 		
 		
-		private function handleUserJoinedVoiceConfToClientEvtMsg(msg:Object):void {
-			var body:Object = msg.body as Object;
-			
-			/*
-			var vUser:VoiceUser = new VoiceUser();
-			vUser.intId = body.intId;
-			vUser.voiceUserId = body.voiceUserId;
-			vUser.muted = body.muted;
-			vUser.talking = body.talking;
-			
-			meetingData.voiceUsers.addVoiceUser(vUser);
-			*/
-		}
 		
-		private function handleUserLeftVoiceConfToClientEvtMsg(msg:Object):void {
-			trace(LOG + "handleUserLeftVoiceConfToClientEvtMsg() -- user [" + msg.body.intId + "] has left the voice conference");
-			
-			//meetingData.users.removeVoiceUser(msg.body.intId);
-		}
 		
 		private function handleGetUsersMeetingRespMsg(msg:Object):void {
 			var users:Array = msg.body.users as Array;

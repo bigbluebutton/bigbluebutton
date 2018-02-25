@@ -18,6 +18,7 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
+	import org.bigbluebutton.lib.voice.services.IVoiceService;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -54,6 +55,9 @@ package org.bigbluebutton.lib.main.commands {
 		
 		[Inject]
 		public var usersService:IUsersService;
+		
+		[Inject]
+		public var voiceService:IVoiceService;
 		
 		[Inject]
 		public var chatService:IChatMessageService;
@@ -99,6 +103,7 @@ package org.bigbluebutton.lib.main.commands {
 			whiteboardService.setupMessageSenderReceiver();
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
+			voiceService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
 			userSession.authTokenSignal.add(onAuthTokenReply);
 			usersService.validateToken();

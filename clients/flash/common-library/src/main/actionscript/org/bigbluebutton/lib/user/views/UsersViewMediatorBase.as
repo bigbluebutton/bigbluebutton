@@ -8,6 +8,8 @@ package org.bigbluebutton.lib.user.views {
 	import org.bigbluebutton.lib.user.views.models.UsersVMCollection;
 	import org.bigbluebutton.lib.video.models.WebcamChangeEnum;
 	import org.bigbluebutton.lib.video.models.WebcamStreamInfo;
+	import org.bigbluebutton.lib.voice.models.VoiceUser;
+	import org.bigbluebutton.lib.voice.models.VoiceUserChangeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -26,8 +28,9 @@ package org.bigbluebutton.lib.user.views {
 			initializeUserCollection();
 			view.userList.dataProvider = _userCollection;
 			
-			meetingData.users.userChangeSignal.add(onUserChangeSignal);
+			meetingData.users.userChangeSignal.add(onUserChange);
 			meetingData.meetingStatus.lockSettingsChangeSignal.add(onLockSettingsChange);
+			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChange);
 			meetingData.webcams.webcamChangeSignal.add(onWebcamChange);
 			
 			view.userList.addEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
@@ -37,14 +40,13 @@ package org.bigbluebutton.lib.user.views {
 			_userCollection = new UsersVMCollection();
 			_userCollection.setRoomLockState(meetingData.meetingStatus.lockSettings.isRoomLocked());
 			_userCollection.addUsers(meetingData.users.getUsers());
-			//_userCollection.addVoiceUsers(meetingData.voiceUsers.getUsers());
+			_userCollection.addVoiceUsers(meetingData.voiceUsers.getAll());
 			_userCollection.addWebcams(meetingData.webcams.getAll());
-			
 			
 			_userCollection.refresh();
 		}
 		
-		private function onUserChangeSignal(user:User2x, property:int):void {
+		private function onUserChange(user:User2x, property:int):void {
 			switch (property) {
 				case UserChangeEnum.JOIN:
 					_userCollection.addUser(user);
@@ -71,6 +73,23 @@ package org.bigbluebutton.lib.user.views {
 			_userCollection.setRoomLockState(newLockSettings.isRoomLocked());
 		}
 		
+		private function onVoiceUserChange(voiceUser:VoiceUser, enum:int):void {
+			switch (enum) {
+				case VoiceUserChangeEnum.JOIN:
+					_userCollection.addVoiceUser(voiceUser);
+					break;
+				case VoiceUserChangeEnum.LEAVE:
+					_userCollection.removeVoiceUser(voiceUser);
+					break;
+				case VoiceUserChangeEnum.MUTE:
+					_userCollection.updateMute(voiceUser);
+					break;
+				case VoiceUserChangeEnum.TALKING:
+					_userCollection.updateTalking(voiceUser);
+					break;
+			}
+		}
+		
 		private function onWebcamChange(webcam:WebcamStreamInfo, enum:int):void {
 			switch (enum) {
 				case WebcamChangeEnum.ADD:
@@ -87,7 +106,11 @@ package org.bigbluebutton.lib.user.views {
 		}
 		
 		override public function destroy():void {
-			meetingData.users.userChangeSignal.remove(onUserChangeSignal);
+			meetingData.users.userChangeSignal.remove(onUserChange);
+			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChange);
+			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChange);
+			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
+			
 			view.userList.removeEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
 			
 			super.destroy();

@@ -40,14 +40,6 @@ package org.bigbluebutton.lib.user.services {
 			userSession.logoutSignal.add(logout);
 		}
 		
-		public function mute(userId:String):void {
-			usersMessageSender.muteUnmuteUser(userId, true);
-		}
-		
-		public function unmute(userId:String):void {
-			usersMessageSender.muteUnmuteUser(userId, false);
-		}
-		
 		public function addStream(userId:String, streamName:String):void {
 			usersMessageSender.addStream(userId, streamName);
 		}
@@ -99,10 +91,6 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function muteAllUsersExceptPresenter(mute:Boolean):void {
 			usersMessageSender.muteAllUsersExceptPresenter(mute);
-		}
-		
-		public function muteUnmuteUser(userId:String, mute:Boolean):void {
-			usersMessageSender.muteUnmuteUser(userId, mute);
 		}
 		
 		public function ejectUser(userId:String):void {

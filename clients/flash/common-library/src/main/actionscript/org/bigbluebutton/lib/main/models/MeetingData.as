@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.user.models.Users2x;
 	import org.bigbluebutton.lib.video.models.Webcams;
+	import org.bigbluebutton.lib.voice.models.VoiceUsers;
 	
 	public class MeetingData implements IMeetingData {
 		private var _users:Users2x = new Users2x();
@@ -15,7 +16,11 @@ package org.bigbluebutton.lib.main.models {
 			return _webcams;
 		}
 		
-		//public var voiceUsers: VoiceUsers2x = new VoiceUsers2x();
+		private var _voiceUsers:VoiceUsers = new VoiceUsers();
+		
+		public function get voiceUsers():VoiceUsers {
+			return _voiceUsers;
+		}
 		//public var guestsWaiting: GuestsApp = new GuestsApp();
 		
 		private var _meetingStatus:MeetingStatus = new MeetingStatus();

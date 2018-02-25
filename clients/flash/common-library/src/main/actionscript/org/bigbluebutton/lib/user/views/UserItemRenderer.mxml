@@ -65,17 +65,18 @@
 					cameraIcon.visible = vm.webcamStreams.length > 0;
 					
 					if (vm.inVoiceConf) {
-						if (vm.muted) {
-							audioIcon.styleName = "icon icon-audio-off";
+						audioIcon.visible = true;
+						if (vm.listenOnly) {
+							audioIcon.styleName = "icon icon-listen";
+						} else if (vm.muted) {
+							audioIcon.styleName = "icon icon-mute";
 						} else if (vm.talking) {
-							audioIcon.styleName = "icon icon-audio-close";
+							audioIcon.styleName = "icon icon-mute-filled";
 						} else {
-							audioIcon.styleName = "icon icon-audio-on";
+							audioIcon.styleName = "icon icon-unmute";
 						}
-					} else if (vm.listenOnly) {
-						audioIcon.styleName = "icon icon-listen";
 					} else {
-						audioIcon.styleName = "";
+						audioIcon.visible = false;
 					}
 					
 					lockIcon.visible = vm.role != UserRole.MODERATOR && vm.locked && vm.roomLocked;
@@ -116,7 +117,7 @@
 			<s:Label id="cameraIcon"
 					 styleName="icon icon-video" />
 			<s:Label id="audioIcon"
-					 styleName="icon icon-audio-on" />
+					 styleName="icon icon-mute" />
 			<s:Label id="lockIcon"
 					 styleName="icon icon-lock" />
 		</s:HGroup>

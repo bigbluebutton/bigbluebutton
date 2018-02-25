@@ -7,6 +7,7 @@ package org.bigbluebutton.lib.user.views.models {
 	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.user.models.Users2x;
 	import org.bigbluebutton.lib.video.models.WebcamStreamInfo;
+	import org.bigbluebutton.lib.voice.models.VoiceUser;
 	
 	public class UsersVMCollection extends ArrayCollection {
 		private var _quickLookup:Object;
@@ -39,12 +40,6 @@ package org.bigbluebutton.lib.user.views.models {
 			userVM.avatarURL = user.avatar;
 			userVM.emoji = user.emoji;
 			userVM.me = user.me;
-			
-			// Needs to be grabbed from the new VoiceUser info
-			userVM.inVoiceConf = false;
-			userVM.talking = false;
-			userVM.phoneUser = false;
-			userVM.listenOnly = false;
 			
 			userVM.roomLocked = _roomLocked;
 			
@@ -93,6 +88,70 @@ package org.bigbluebutton.lib.user.views.models {
 			var userVM:UserVM = findUser(user.intId);
 			if (userVM) {
 				userVM.emoji = user.emoji;
+				refresh();
+			}
+		}
+		
+		public function addVoiceUsers(voiceUsers:Array):void {
+			for each (var vUser:VoiceUser in voiceUsers) {
+				addVoiceUser(vUser, true);
+			}
+		}
+		
+		public function addVoiceUser(voiceUser:VoiceUser, initLoad:Boolean = false):void {
+			var userVM:UserVM = findUser(voiceUser.intId);
+			if (userVM) {
+				userVM.voiceOnly = false;
+			} else {
+				userVM = new UserVM();
+				userVM.intId = voiceUser.intId;
+				userVM.name = voiceUser.callerName;
+				userVM.voiceOnly = false;
+				
+				addItem(userVM);
+				_quickLookup[voiceUser.intId] = userVM;
+			}
+			
+			userVM.inVoiceConf = true;
+			userVM.talking = voiceUser.talking;
+			userVM.muted = voiceUser.muted;
+			userVM.listenOnly = voiceUser.listenOnly;
+			
+			if (!initLoad) {
+				refresh();
+			}
+		}
+		
+		public function removeVoiceUser(voiceUser:VoiceUser):void {
+			var userVM:UserVM = findUser(voiceUser.intId);
+			if (userVM) {
+				// if voice only remove whole thing
+				if (userVM.voiceOnly) {
+					removeItem(userVM);
+					delete _quickLookup[userVM.intId];
+				} else {
+					userVM.inVoiceConf = false;
+					userVM.talking = false;
+					userVM.muted = false;
+					userVM.listenOnly = false;
+				}
+				refresh();
+			}
+		}
+		
+		public function updateMute(voiceUser:VoiceUser):void {
+			var userVM:UserVM = findUser(voiceUser.intId);
+			if (userVM) {
+				userVM.muted = voiceUser.muted;
+				userVM.talking = voiceUser.talking;
+				refresh();
+			}
+		}
+		
+		public function updateTalking(voiceUser:VoiceUser):void {
+			var userVM:UserVM = findUser(voiceUser.intId);
+			if (userVM) {
+				userVM.talking = voiceUser.talking;
 				refresh();
 			}
 		}
@@ -166,10 +225,10 @@ package org.bigbluebutton.lib.user.views.models {
 				return -1;
 			else if (EmojiStatus.STATUS_ARRAY.indexOf(au.emoji) > -1)
 				return 1;
-			else if (au.phoneUser && bu.phoneUser) {
-			} else if (au.phoneUser)
+			else if (au.voiceOnly && bu.voiceOnly) {
+			} else if (au.voiceOnly)
 				return -1;
-			else if (bu.phoneUser)
+			else if (bu.voiceOnly)
 				return 1;
 			/**
 			 * Check name (case-insensitive) in the event of a tie up above. If the name

@@ -13,7 +13,6 @@ package org.bigbluebutton.lib.user.services {
 		function changeRecordingStatus(userId:String, recording:Boolean):void;
 		function muteAllUsers(mute:Boolean):void;
 		function muteAllUsersExceptPresenter(mute:Boolean):void;
-		function muteUnmuteUser(userId:String, mute:Boolean):void;
 		function ejectUser(userId:String):void;
 		function getRoomMuteState():void;
 		function getRoomLockState():void;
@@ -21,8 +20,6 @@ package org.bigbluebutton.lib.user.services {
 		function setUserLock(internalUserId:String, lock:Boolean):void;
 		function getLockSettings():void;
 		function saveLockSettings(newLockSettings:Object):void;
-		function mute(userId:String):void;
-		function unmute(userId:String):void;
 		function validateToken():void;
 		function joinMeeting():void;
 	}
