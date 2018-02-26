@@ -1,33 +1,57 @@
 @import "../../../stylesheets/variables/_all";
 
-%base {
-  color: $color-gray;
-  font-size: $font-size-base;
+%baseIndicator {
+  position: relative;
+  display: inline-block;
+  width: $font-size-base;
   height: $font-size-base;
-  display: flex;
+  border-radius: 50%;
+  border: 1px solid $color-white;
 
-  span {
-    font-size: $font-size-base;
-    margin: 0 0.5rem;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  &:after {
+    content: '';
+    width: $font-size-base / 2;
+    height: $font-size-base / 2;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -($font-size-base / 4);
+    margin-left: -($font-size-base / 4);
+    border-radius: 50%;
+    background-color: $color-danger;
   }
+}
 
+%baseIndicatorLabel {
+  font-weight: 200;
+  font-size: $font-size-base;
+  margin: 0 0 0 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .recordIndicator {
-  @extend %base;
+  @extend %baseIndicator;
 }
 
-.recording {
-  @extend %base;
+.notRecording {
+  @extend %baseIndicator;
+  border: 1px solid $color-gray;
 
-  i {
-    color: $color-danger;
+  &:after {
+    background-color: $color-gray;
   }
 
-  span {
-    color: $color-white;
-  }
+}
 
+.recordingLabel {
+  @extend %baseIndicatorLabel;
+  color: $color-white;
+}
+
+.notRecordingLabel {
+  @extend %baseIndicatorLabel;
+  color: $color-gray;
 }
