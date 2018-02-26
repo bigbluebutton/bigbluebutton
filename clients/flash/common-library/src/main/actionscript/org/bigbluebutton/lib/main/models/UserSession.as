@@ -32,8 +32,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _presentationList:PresentationList;
 				
-		protected var _recording:Boolean;
-		
 		protected var _phoneOptions:PhoneOptions;
 		
 		protected var _videoAutoStart:Boolean;
@@ -53,8 +51,6 @@ package org.bigbluebutton.lib.main.models {
 		protected var _failureJoiningMeetingSignal:ISignal = new Signal();
 		
 		protected var _assignedDeskshareSignal:ISignal = new Signal();
-		
-		protected var _recordingStatusChangedSignal:ISignal = new Signal();
 		
 		protected var _logoutSignal:Signal = new Signal();
 		
@@ -220,15 +216,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get pushToTalkSignal():ISignal {
 			return _pushToTalkSignal;
-		}
-		
-		public function get recordingStatusChangedSignal():ISignal {
-			return _recordingStatusChangedSignal;
-		}
-		
-		public function recordingStatusChanged(recording:Boolean):void {
-			_recording = recording;
-			recordingStatusChangedSignal.dispatch(recording);
 		}
 		
 		public function get authTokenSignal():ISignal {

@@ -20,8 +20,10 @@ package org.bigbluebutton.lib.main.views {
 		override public function initialize():void {
 			view.leftButton.addEventListener(MouseEvent.CLICK, leftButtonClickHandler);
 			view.rightButton.addEventListener(MouseEvent.CLICK, rightButtonClickHandler);
+			meetingData.meetingStatus.recordingStatusChangedSignal.add(onRecordingStatusChanged);
 			
 			setTitle();
+			view.showRecording(meetingData.meetingStatus.isRecording);
 		}
 		
 		protected function setTitle():void {
@@ -36,9 +38,14 @@ package org.bigbluebutton.lib.main.views {
 		
 		}
 		
+		protected function onRecordingStatusChanged(isRecording:Boolean):void {
+			view.showRecording(isRecording);
+		}
+		
 		override public function destroy():void {
 			view.leftButton.removeEventListener(MouseEvent.CLICK, leftButtonClickHandler);
 			view.rightButton.removeEventListener(MouseEvent.CLICK, rightButtonClickHandler);
+			meetingData.meetingStatus.recordingStatusChangedSignal.remove(onRecordingStatusChanged);
 			
 			super.destroy();
 			view = null;

@@ -198,7 +198,7 @@ settings|SettingsItemRenderer {
 	backgroundColor : PropertyReference("white");
 }
 
-.titleLabel {
+.titleGroup {
 	color : PropertyReference("white");
 }
 
@@ -206,6 +206,11 @@ settings|SettingsItemRenderer {
 	iconColor  : PropertyReference("white");
 	fontFamily : BBBIcons;
 	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
+}
+
+.recordIcon {
+	color      : PropertyReference("bbbRed");
+	fontFamily : BBBIcons;
 }
 
 .actionButton {
