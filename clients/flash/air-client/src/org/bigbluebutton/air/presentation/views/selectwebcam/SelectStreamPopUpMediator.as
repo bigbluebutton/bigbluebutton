@@ -11,6 +11,7 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.video.models.UserStreamName;
 	
@@ -163,7 +164,7 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 			return userStreamNames;
 		}
 		
-		private function userChangeHandler(user:User, property:int):void {
+		private function userChangeHandler(user:User2x, property:int):void {
 			if (property == UserList.HAS_STREAM) {
 				var userStreamNames:Array = getUserStreamNamesByUserID(user.userID);
 				for each (var userStreamName:UserStreamName in userStreamNames) {

@@ -6,7 +6,6 @@ package org.bigbluebutton.lib.chat.views {
 	import mx.utils.StringUtil;
 	
 	import spark.components.VScrollBar;
-	import spark.core.NavigationUnit;
 	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.GroupChat;

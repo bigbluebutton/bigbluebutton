@@ -107,6 +107,9 @@ package org.bigbluebutton.lib.settings.views.audio {
 			
 			_gainSlider = new HSlider();
 			_gainSlider.percentWidth = 100;
+			_gainSlider.maximum = 100;
+			_gainSlider.snapInterval = 1;
+			_gainSlider.value = 60;
 			gainSliderGroup.addElement(_gainSlider);
 			
 			var fullMicGroup:VGroup = new VGroup();

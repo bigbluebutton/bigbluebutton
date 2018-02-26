@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.user.models {
 	import mx.collections.ArrayCollection;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.osflash.signals.Signal;
 	
 	public class Users2x {
@@ -8,7 +9,17 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _userChangeSignal:Signal = new Signal();
 		
-		public var me:User2x;
+		private var _me:User2x;
+		
+		public function get me():User2x {
+			return _me;
+		}
+		
+		public function set me(value:User2x):void {
+			if (StringUtils.isEmpty(_me.extId)) {
+				_me = value;
+			}
+		}
 		
 		public function get userChangeSignal():Signal {
 			return _userChangeSignal;
@@ -16,6 +27,7 @@ package org.bigbluebutton.lib.user.models {
 		
 		public function Users2x() {
 			_users = new ArrayCollection();
+			_me = new User2x();
 		}
 		
 		public function getUsers():Array {
@@ -76,6 +88,24 @@ package org.bigbluebutton.lib.user.models {
 				}
 			}
 			return null;
+		}
+		
+		public function joinAudioConference(intId:String, muted:Boolean):void {
+			var user:User2x = getUser(intId);
+			if (user) {
+				user.muted = muted;
+				user.voiceJoined = true;
+				_userChangeSignal.dispatch(user, UserChangeEnum.AUDIO_JOIN);
+			}
+		}
+		
+		public function leaveAudioConference(intId:String):void {
+			var user:User2x = getUser(intId);
+			if (user) {
+				user.muted = false;
+				user.voiceJoined = false;
+				_userChangeSignal.dispatch(user, UserChangeEnum.AUDIO_LEAVE);
+			}
 		}
 		
 		public function changeUserLocked(intId:String, locked:Boolean):void {

@@ -1,6 +1,4 @@
 package org.bigbluebutton.air.main.commands {
-	import mx.core.FlexGlobals;
-	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;

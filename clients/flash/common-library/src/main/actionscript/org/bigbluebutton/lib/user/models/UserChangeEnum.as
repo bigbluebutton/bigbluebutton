@@ -12,5 +12,9 @@ package org.bigbluebutton.lib.user.models {
 		public static const EMOJI:int = 4;
 		
 		public static const ROLE:int = 5;
+		
+		public static const AUDIO_JOIN:int = 6;
+		
+		public static const AUDIO_LEAVE:int = 7;
 	}
 }

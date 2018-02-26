@@ -26,6 +26,8 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const LISTEN_ONLY:int = 8;
 		
+		public static const LEAVE_AUDIO:int = 9;
+		
 		private var _users:ArrayCollection;
 		
 		[Bindable]
@@ -325,7 +327,7 @@ package org.bigbluebutton.lib.user.models {
 			if (user != null) {
 				user.talking = false;
 				user.voiceJoined = false;
-				userChangeSignal.dispatch(user, JOIN_AUDIO);
+				userChangeSignal.dispatch(user, LEAVE_AUDIO);
 			} else {
 				trace("UserList: User leave audio failed - user not found");
 			}

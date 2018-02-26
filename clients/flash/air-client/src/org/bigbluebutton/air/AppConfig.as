@@ -42,8 +42,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.video.services.VideoConnection;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
-	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
-	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;

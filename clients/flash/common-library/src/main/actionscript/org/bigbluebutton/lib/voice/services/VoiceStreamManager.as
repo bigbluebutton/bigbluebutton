@@ -154,6 +154,26 @@ package org.bigbluebutton.lib.voice.services {
 			}
 		}
 		
+		private function callIntoEchoTest():void {
+			/*
+			if (isConnected()) {
+				var destination:String = options.echoTestApp;
+				if (destination != null && destination != "") {
+					LOGGER.debug("Calling into echo test =[{0}]", [destination]);
+					state = CALLING_INTO_ECHO_TEST;
+					VoiceConnection.doCall(destination);
+				} else {
+					LOGGER.debug("Invalid echo test destination [{0}]", [destination]);
+					dispatcher.dispatchEvent(new FlashErrorEvent(FlashErrorEvent.INVALID_ECHO_TEST_DESTINATION));
+				}
+			} else {
+				LOGGER.debug("Need to connect before we can call into echo test.");
+				state = DO_ECHO_TEST;
+				connect();
+			}
+			*/
+		}
+		
 		public function close():void {
 			if (_incomingStream) {
 				_incomingStream.removeEventListener(NetDataEvent.MEDIA_TYPE_DATA, onNetDataEvent);

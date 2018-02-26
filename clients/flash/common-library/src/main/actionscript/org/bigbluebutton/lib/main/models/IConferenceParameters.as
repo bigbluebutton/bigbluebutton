@@ -6,6 +6,7 @@ package org.bigbluebutton.lib.main.models {
 	
 	public interface IConferenceParameters {
 		function get changedSignal():ISignal;
+		function get confParamsLoadedSignal():ISignal;
 		function get meetingName():String;
 		function set meetingName(meetingName:String):void;
 		function get externMeetingID():String;
@@ -46,5 +47,9 @@ package org.bigbluebutton.lib.main.models {
 		function set avatarUrl(value:String):void;
 		function get guest():Boolean;
 		function set guest(v:Boolean):void;
+		function get bannerColor():String;
+		function set bannerColor(value:String):void;
+		function get bannerText():String;
+		function set bannerText(value:String):void;
 	}
 }

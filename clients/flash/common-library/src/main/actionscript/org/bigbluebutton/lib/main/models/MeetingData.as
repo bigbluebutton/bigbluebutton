@@ -12,12 +12,12 @@ package org.bigbluebutton.lib.main.models {
 		//public var voiceUsers: VoiceUsers2x = new VoiceUsers2x();
 		//public var guestsWaiting: GuestsApp = new GuestsApp();
 		
-		private var _meetingStatus: MeetingStatus = new MeetingStatus();
+		private var _meetingStatus:MeetingStatus = new MeetingStatus();
 		
 		public function get meetingStatus():MeetingStatus {
 			return _meetingStatus;
 		}
-		
+	
 		//public var meeting: Meeting = new Meeting();
 		//public var config: Config;
 		//public var sharedNotes: SharedNotes = new SharedNotes();
