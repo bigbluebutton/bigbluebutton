@@ -2,8 +2,6 @@ package org.bigbluebutton.lib.main.services {
 	
 	import flash.net.URLRequest;
 	import flash.net.URLVariables;
-	
-	import org.bigbluebutton.lib.common.utils.QueryStringParameters;
 	import org.bigbluebutton.lib.common.utils.URLFetcher;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;

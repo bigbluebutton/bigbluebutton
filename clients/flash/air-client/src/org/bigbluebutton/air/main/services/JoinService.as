@@ -104,13 +104,16 @@ package org.bigbluebutton.air.main.services {
 						case XML_RETURN_CODE_SUCCESS:
 							sessionToken = xml.auth_token.toString();
 							if (xml.hasOwnProperty("guestStatus")) {
-								var gusetStatus:String = xml.guestStatus.toString();
+								var guestStatus:String = xml.guestStatus.toString();
 								var waitUrl:String = xml.url.toString();
-								trace("******************** GUEST STATUS = " + gusetStatus + " waitUrl=" + waitUrl);
+								trace("******************** GUEST STATUS = " + guestStatus + " waitUrl=" + waitUrl);
+								trace("******************** responseUrl = " + responseUrl);
+								trace("******************** urlRequest = " + urlRequest);
+								guestWaitSignal.dispatch(waitUrl, urlRequest, responseUrl, sessionToken);
+							} else {
+								successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 							}
-							trace("******************** responseUrl = " + responseUrl);
-							trace("******************** urlRequest = " + urlRequest);
-							//successSignal.dispatch(urlRequest, responseUrl, sessionToken);
+
 							break;
 						default:
 							onFailure(URL_REQUEST_GENERIC_ERROR);
