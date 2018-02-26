@@ -40,16 +40,16 @@ package org.bigbluebutton.air.main {
 		 */
 		private function mediators():void {
 			/*
-			   mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
-			   mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
-			   mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
-			   mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
-			   mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
-			   mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
-			   mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
-			   mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
-			   mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
-			   mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
+				 mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
+				 mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
+				 mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
+				 mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
+				 mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
+				 mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
+				 mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
+				 mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
+				 mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
+				 mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
 			 */
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
 			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);

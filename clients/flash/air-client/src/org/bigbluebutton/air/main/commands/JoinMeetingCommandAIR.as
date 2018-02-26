@@ -49,7 +49,7 @@ package org.bigbluebutton.air.main.commands {
 			joinSubservice.join(url);
 		}
 		
-		protected function onGuestWaitSignal(waitUrl: String, urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {
+		protected function onGuestWaitSignal(waitUrl:String, urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {
 			//trace("GUEST WAIT URL = " + waitUrl);
 			guestWaitService.wait(waitUrl, urlRequest, responseUrl, sessionToken);
 		}

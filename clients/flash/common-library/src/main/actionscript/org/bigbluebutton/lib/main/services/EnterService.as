@@ -21,13 +21,13 @@ package org.bigbluebutton.lib.main.services {
 		
 		public function enter(enterUrl:String, urlRequest:URLRequest, sessionToken:String):void {
 			/*
-      var p:QueryStringParameters = new QueryStringParameters();
-      p.collectParameters();
-      var sessionToken:String = p.getParameter("sessionToken");
-			*/
-      var reqVars:URLVariables = new URLVariables();
-      reqVars.sessionToken = sessionToken;
-      
+				 var p:QueryStringParameters = new QueryStringParameters();
+				 p.collectParameters();
+				 var sessionToken:String = p.getParameter("sessionToken");
+			 */
+			var reqVars:URLVariables = new URLVariables();
+			reqVars.sessionToken = sessionToken;
+			
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
 			fetcher.failureSignal.add(onFailure);

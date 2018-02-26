@@ -1,5 +1,4 @@
-package org.bigbluebutton.lib.common.utils
-{
+package org.bigbluebutton.lib.common.utils {
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
@@ -13,9 +12,8 @@ package org.bigbluebutton.lib.common.utils
 	
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
-
-	public class GuestWaitURLFetcher
-	{
+	
+	public class GuestWaitURLFetcher {
 		protected var _successSignal:Signal = new Signal();
 		
 		protected var _failureSignal:Signal = new Signal();
@@ -24,8 +22,7 @@ package org.bigbluebutton.lib.common.utils
 		
 		protected var _responseURL:String = null;
 		
-		public function GuestWaitURLFetcher()
-		{
+		public function GuestWaitURLFetcher() {
 		}
 		
 		public function get successSignal():ISignal {
@@ -36,8 +33,7 @@ package org.bigbluebutton.lib.common.utils
 			return _failureSignal;
 		}
 		
-		public function fetch(url:String, urlRequest:URLRequest, reqVars: URLVariables,
-							  dataFormat:String = URLLoaderDataFormat.TEXT):void {
+		public function fetch(url:String, urlRequest:URLRequest, reqVars:URLVariables, dataFormat:String = URLLoaderDataFormat.TEXT):void {
 			//trace("Fetching " + url);
 			_urlRequest = urlRequest;
 			if (_urlRequest == null) {

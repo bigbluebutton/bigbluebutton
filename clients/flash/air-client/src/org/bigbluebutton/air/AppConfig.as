@@ -5,8 +5,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.UISession;
 	import org.bigbluebutton.air.main.services.GuestWaitPageService;
-	import org.bigbluebutton.air.main.views.LoadingScreen;
-	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
 	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.ChatMessageService;

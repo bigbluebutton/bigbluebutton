@@ -1,5 +1,4 @@
-package org.bigbluebutton.air.main.services
-{
+package org.bigbluebutton.air.main.services {
 	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
 	import flash.net.URLVariables;
@@ -9,9 +8,9 @@ package org.bigbluebutton.air.main.services
 	import org.bigbluebutton.lib.main.services.IGuestWaitPageService;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
-
-	public class GuestWaitPageService implements IGuestWaitPageService
-	{
+	
+	public class GuestWaitPageService implements IGuestWaitPageService {
+		
 		[Inject]
 		public var uiSession:IUISession;
 		
@@ -32,9 +31,11 @@ package org.bigbluebutton.air.main.services
 		private static const TOKEN_QUERY_PARAM:String = "sessionToken=";
 		
 		protected var _urlRequest:URLRequest = null;
-		protected var _guestWaitUrl: String = null;
+		
+		protected var _guestWaitUrl:String = null;
 		
 		protected var _guestAccessAllowedSignal:Signal = new Signal();
+		
 		protected var _guestAccessDeniedSignal:Signal = new Signal();
 		
 		protected var _failureSignal:Signal = new Signal();
@@ -42,6 +43,7 @@ package org.bigbluebutton.air.main.services
 		private var sessionToken:String;
 		
 		private var connectAttemptTimeout:Number = 5000;
+		
 		private var connectionTimer:Timer;
 		
 		public function get guestAccessAllowedSignal():ISignal {
@@ -55,20 +57,20 @@ package org.bigbluebutton.air.main.services
 		public function get failureSignal():ISignal {
 			return _failureSignal;
 		}
-				
+		
 		protected function fail(reason:String):void {
 			//trace("Login failed. " + reason);
 			_failureSignal.dispatch(reason);
 			//TODO: show message to user saying that the meeting identifier is invalid 
 		}
 		
-		public function wait(guestWaitUrl: String, urlRequest:URLRequest, url:String, sessionToken:String):void {
+		public function wait(guestWaitUrl:String, urlRequest:URLRequest, url:String, sessionToken:String):void {
 			_urlRequest = urlRequest;
 			this.sessionToken = sessionToken;
 			_guestWaitUrl = guestWaitUrl;
 			
 			fetch();
-			
+		
 		}
 		
 		private function fetch():void {
@@ -90,7 +92,7 @@ package org.bigbluebutton.air.main.services
 			connectionTimer.start();
 		}
 		
-		public function connectionTimeout (e:TimerEvent) : void {
+		public function connectionTimeout(e:TimerEvent):void {
 			//trace("Timedout connecting to " + _guestWaitUrl);
 			fetch();
 		}
@@ -99,11 +101,11 @@ package org.bigbluebutton.air.main.services
 			//trace(JSON.stringify(data));
 			if (httpStatusCode == 200) {
 				var result:Object = JSON.parse(data as String);
-				var guestStatus: String = result.response.guestStatus;
+				var guestStatus:String = result.response.guestStatus;
 				if (guestStatus == "WAIT") {
 					uiSession.setLoading(true, "Waiting for moderator approval.");
 					queueFetch();
-				} else if(guestStatus == "ALLOW") {
+				} else if (guestStatus == "ALLOW") {
 					guestAccessAllowedSignal.dispatch(urlRequest, responseUrl, sessionToken);
 				} else if (guestStatus == "DENY") {
 					// signal denied
@@ -117,6 +119,6 @@ package org.bigbluebutton.air.main.services
 		protected function onFailure(reason:String):void {
 			failureSignal.dispatch(reason);
 		}
-		
+	
 	}
 }

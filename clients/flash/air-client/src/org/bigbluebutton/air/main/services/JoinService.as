@@ -112,7 +112,7 @@ package org.bigbluebutton.air.main.services {
 							} else {
 								successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 							}
-
+							
 							break;
 						default:
 							onFailure(URL_REQUEST_GENERIC_ERROR);
