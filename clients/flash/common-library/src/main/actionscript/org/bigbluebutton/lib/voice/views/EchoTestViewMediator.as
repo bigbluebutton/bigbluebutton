@@ -164,7 +164,9 @@ package org.bigbluebutton.lib.voice.views {
 				selectedMicrophone.removeEventListener(StatusEvent.STATUS, micStatusEventHandler)
 			}
 			
-			micActivityTimer.removeEventListener(TimerEvent.TIMER, updateMicLevel);
+			if (micActivityTimer) {
+				micActivityTimer.removeEventListener(TimerEvent.TIMER, updateMicLevel);
+			}
 		}
 	}
 }

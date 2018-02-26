@@ -2,19 +2,17 @@ package org.bigbluebutton.lib.main.views {
 	
 	import flash.events.MouseEvent;
 	
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IMeetingData;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.lib.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.lib.voice.models.VoiceUser;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class MenuButtonsMediatorBase extends Mediator {
-		
-		[Inject]
-		public var userSession:IUserSession;
 		
 		[Inject]
 		public var view:MenuButtonsBase;
@@ -31,8 +29,13 @@ package org.bigbluebutton.lib.main.views {
 		[Inject]
 		public var meetingData:IMeetingData;
 		
+		[Inject]
+		public var conferenceParameters:IConferenceParameters;
+		
 		public override function initialize():void {
-			meetingData.users.userChangeSignal.add(userChanged);
+			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChanged);
+			meetingData.webcams.webcamChangeSignal.add(onWebcamChange);
+			
 			view.audioButton.addEventListener(MouseEvent.CLICK, audioOnOff);
 			view.camButton.addEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.addEventListener(MouseEvent.CLICK, micOnOff);
@@ -66,51 +69,56 @@ package org.bigbluebutton.lib.main.views {
 		}
 		
 		private function camOnOff(e:MouseEvent):void {
-			//shareCameraSignal.dispatch(!meetingData.users.me.hasStream, userSession.videoConnection.cameraPosition);
+			var noActiveWebcam:Boolean = meetingData.webcams.findWebcamsByUserId(conferenceParameters.internalUserID).length == 0;
+			shareCameraSignal.dispatch(noActiveWebcam);
 		}
 		
 		private function updateButtons():void {
-			if (!meetingData.users.me) {
-				return;
-			}
-			/*
-			if (meetingData.users.me.hasStream) {
+			if (meetingData.webcams.findWebcamsByUserId(conferenceParameters.internalUserID).length > 0) {
 				view.camButton.label = "Cam off"; // ResourceManager.getInstance().getString('resources', 'menuButtons.camOff');
 				view.camButton.styleName = "icon-video-off menuButton"
 			} else {
 				view.camButton.label = "Cam on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
 				view.camButton.styleName = "icon-video menuButton"
 			}
-			*/
-			/*
-			if (meetingData.users.me.voiceJoined) {
+			
+			if (meetingData.voiceUsers.me) {
 				view.micButton.visible = view.micButton.includeInLayout = true;
 				view.audioButton.styleName = "icon-audio-off menuButtonRed";
 				view.audioButton.label = "Hang Up";
 				
-				if (!meetingData.users.me.muted) {
+				if (meetingData.voiceUsers.me.muted) {
+					view.micButton.label = "Mic off"; // ResourceManager.getInstance().getString('resources', 'menuButtons.micOff');
+					view.micButton.styleName = "icon-mute menuButton";
+				} else if (meetingData.voiceUsers.me.talking) {
+					view.micButton.label = "Mic on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.micOn');
+					view.micButton.styleName = "icon-mute-filled menuButton"
+				} else {
 					view.micButton.label = "Mic on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.micOn');
 					view.micButton.styleName = "icon-unmute menuButton"
-				} else {
-					view.micButton.label = "Mic off"; // ResourceManager.getInstance().getString('resources', 'menuButtons.micOff');
-					view.micButton.styleName = "icon-mute menuButton"
 				}
 			} else {
 				view.audioButton.label = "Join";
 				view.audioButton.styleName = "icon-audio-on menuButton";
 				view.micButton.visible = view.micButton.includeInLayout = false;
 			}
-			*/
 		}
 		
-		private function userChanged(user:User2x, property:String = null):void {
-			if (user && meetingData.users.me.intId == user.intId) {
+		private function onVoiceUserChanged(user:VoiceUser, enum:int):void {
+			if (user && user.me) {
+				updateButtons();
+			}
+		}
+		
+		private function onWebcamChange(webcam:WebcamStreamInfo, enum:int):void {
+			if (webcam.userId == conferenceParameters.internalUserID) {
 				updateButtons();
 			}
 		}
 		
 		public override function destroy():void {
-			meetingData.users.userChangeSignal.remove(userChanged);
+			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChanged);
+			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
 			view.audioButton.removeEventListener(MouseEvent.CLICK, audioOnOff);
 			view.camButton.removeEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.removeEventListener(MouseEvent.CLICK, micOnOff);

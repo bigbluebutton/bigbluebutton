@@ -6,6 +6,12 @@ package org.bigbluebutton.lib.voice.models {
 	public class VoiceUsers {
 		private var _users:ArrayCollection = new ArrayCollection();
 		
+		private var _me:VoiceUser;
+		
+		public function get me():VoiceUser {
+			return _me;
+		}
+		
 		private var _userChangeSignal:Signal = new Signal();
 		
 		public function get userChangeSignal():Signal {
@@ -20,6 +26,11 @@ package org.bigbluebutton.lib.voice.models {
 			} else {
 				_users.addItem(nuser);
 			}
+			
+			if (nuser.me) {
+				_me = nuser;
+			}
+			
 			_userChangeSignal.dispatch(nuser, VoiceUserChangeEnum.JOIN);
 		}
 		
@@ -27,6 +38,11 @@ package org.bigbluebutton.lib.voice.models {
 			var index:int = getIndex(userId);
 			if (index >= 0) {
 				var removedUser:VoiceUser = _users.removeItemAt(index) as VoiceUser;
+				
+				if (_me == removedUser) {
+					_me = null;
+				}
+				
 				_userChangeSignal.dispatch(removedUser, VoiceUserChangeEnum.LEAVE);
 				return removedUser;
 			}

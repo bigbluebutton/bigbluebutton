@@ -21,15 +21,11 @@ package org.bigbluebutton.air.video.commands {
 		public var enabled:Boolean;
 		
 		[Inject]
-		public var position:String;
-		
-		[Inject]
 		public var usersService:IUsersService;
 		
 		override public function execute():void {
 			if (enabled) {
-				userSession.videoConnection.cameraPosition = position;
-				enableCamera(position);
+				enableCamera(userSession.videoConnection.cameraPosition);
 			} else {
 				disableCamera();
 			}
@@ -108,7 +104,7 @@ package org.bigbluebutton.air.video.commands {
 		private function disableCamera():void {
 			trace("TODO: Need to actually end the webcam stream");
 			//usersService.removeStream(meetingData.users.me.intId, meetingData.webcams. .me.streamName);
-			userSession.videoConnection.stopPublishing(setupCamera(position));
+			userSession.videoConnection.stopPublishing(setupCamera(userSession.videoConnection.cameraPosition));
 		}
 	}
 }

@@ -11,13 +11,13 @@ package org.bigbluebutton.air.main.views {
 		public var uiSession:IUISession;
 		
 		override protected function audioOnOff(e:MouseEvent):void {
-			//if (!meetingData.users.me.voiceJoined) {
+			if (meetingData.voiceUsers.me == null) {
 				uiSession.pushPage(PageEnum.ECHOTEST);
-			//} else {
-			//	var audioOptions:Object = new Object();
-			//	audioOptions.shareMic = !meetingData.users.me.voiceJoined;
-			//	shareMicrophoneSignal.dispatch(audioOptions);
-			//}
+			} else {
+				var audioOptions:Object = new Object();
+				audioOptions.shareMic = false;
+				shareMicrophoneSignal.dispatch(audioOptions);
+			}
 		}
 	}
 }

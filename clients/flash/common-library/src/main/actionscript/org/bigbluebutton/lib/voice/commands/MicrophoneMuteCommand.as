@@ -18,7 +18,7 @@ package org.bigbluebutton.lib.voice.commands {
 		public var userId:String;
 		
 		override public function execute():void {
-			trace("MicrophoneMuteCommand.execute() - user.muted = "); // + user.muted);
+			trace("MicrophoneMuteCommand.execute() - userId = " + userId);
 			var vu:VoiceUser = meetingData.voiceUsers.getUser(userId);
 			if (vu != null) {
 				if (vu.muted) {

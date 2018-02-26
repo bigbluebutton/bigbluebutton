@@ -34,13 +34,25 @@ package org.bigbluebutton.lib.video.models {
 		}
 		
 		public function getAll():Array {
-			var webcams:Array = new Array();
+			var rw:Array = new Array();
 			
 			for each (var webcam:WebcamStreamInfo in _webcams) {
-				webcams.push(webcam);
+				rw.push(webcam);
 			}
 			
-			return webcams;
+			return rw;
+		}
+		
+		public function findWebcamsByUserId(userId:String):Array {
+			var rw:Array = new Array();
+			
+			for each (var webcam:WebcamStreamInfo in _webcams) {
+				if (webcam.userId == userId) {
+					rw.push(webcam);
+				}
+			}
+			
+			return rw;
 		}
 	}
 }

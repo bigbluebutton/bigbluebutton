@@ -18,5 +18,7 @@ package org.bigbluebutton.lib.voice.models {
 		public var listenOnly:Boolean;
 		
 		public var voiceOnlyUser:Boolean;
+		
+		public var me:Boolean;
 	}
 }

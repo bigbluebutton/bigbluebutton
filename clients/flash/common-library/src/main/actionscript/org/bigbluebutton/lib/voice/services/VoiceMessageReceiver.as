@@ -55,6 +55,7 @@ package org.bigbluebutton.lib.voice.services {
 			vu.callingWith = raw.callingWith as String;
 			vu.listenOnly = raw.listenOnly as Boolean;
 			vu.voiceOnlyUser = raw.intId.indexOf("v_") == 0;
+			vu.me = raw.intId == conferenceParameters.internalUserID;
 			
 			meetingData.voiceUsers.add(vu);
 		}
