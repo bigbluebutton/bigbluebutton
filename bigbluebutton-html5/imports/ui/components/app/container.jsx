@@ -73,19 +73,12 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
-  // Displayed error messages according to the mode (removed, end meeting)
-  const sendToError = (code, message) => {
-    Auth.clearCredentials()
-      .then(() => {
-        router.push(`/error/${code}`);
-        baseControls.updateErrorState(message);
-      });
-  };
-
   // Check if user is removed out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
-      if (fields.ejected) {
+      const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
+
+      if (fields.ejected || hasNewConnection) {
         router.push(`/ended/${403}`);
       }
     },
