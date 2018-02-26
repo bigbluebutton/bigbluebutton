@@ -1,3 +1,5 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
 .container {
 
   span:first-child{
@@ -12,4 +14,27 @@
     outline: none !important;
   }
 
+}
+
+.imageSize {
+  height: 4rem;
+}
+
+.label {
+  font-size: auto;
+  display: none;
+  @include mq($small-only) {
+    display: flex;
+    margin-left: $jumbo-padding-x;
+  };
+}
+
+.item {
+  padding-left: 0;
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  flex-direction: row;
+  align-items: center;
+  margin: auto 0.25rem;
 }

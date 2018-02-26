@@ -22,6 +22,12 @@ const propTypes = {
     }
     return true;
   }).isRequired,
+
+  horizontal: PropTypes.bool,
+};
+
+const defaultProps = {
+  horizontal: false,
 };
 
 export default class DropdownList extends Component {
@@ -151,10 +157,11 @@ export default class DropdownList extends Component {
         });
       });
 
+    const listDirection = this.props.horizontal ? styles.horizontalList : styles.verticalList;
     return (
       <ul
         style={style}
-        className={cx(styles.list, className)}
+        className={cx(listDirection, className)}
         role="menu"
         ref={(menu) => {
           this._menu = menu;
@@ -168,3 +175,4 @@ export default class DropdownList extends Component {
 }
 
 DropdownList.propTypes = propTypes;
+DropdownList.defaultProps = defaultProps;
