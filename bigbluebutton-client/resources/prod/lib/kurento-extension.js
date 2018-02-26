@@ -448,7 +448,7 @@ window.getScreenConstraints = function(sendSource, callback) {
     }, chromeExtension);
   }
   else if (isFirefox) {
-    screenConstraints.video.mediaSource= "window";
+    screenConstraints.video.mediaSource= "screen";
 
     console.log("getScreenConstraints for Firefox returns => ");
     console.log(screenConstraints);
