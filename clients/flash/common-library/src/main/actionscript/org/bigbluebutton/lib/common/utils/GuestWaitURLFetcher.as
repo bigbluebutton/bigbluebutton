@@ -38,7 +38,7 @@ package org.bigbluebutton.lib.common.utils
 		
 		public function fetch(url:String, urlRequest:URLRequest, reqVars: URLVariables,
 							  dataFormat:String = URLLoaderDataFormat.TEXT):void {
-			trace("Fetching " + url);
+			//trace("Fetching " + url);
 			_urlRequest = urlRequest;
 			if (_urlRequest == null) {
 				_urlRequest = new URLRequest();
@@ -52,7 +52,7 @@ package org.bigbluebutton.lib.common.utils
 			_urlRequest.url = _responseURL = url;
 			
 			if (reqVars != null) {
-				trace("reqVars " + reqVars.toString());
+				//trace("reqVars " + reqVars.toString());
 				_urlRequest.data = reqVars;
 			}
 			
@@ -69,7 +69,7 @@ package org.bigbluebutton.lib.common.utils
 		
 		private function httpResponseStatusHandler(e:HTTPStatusEvent):void {
 			_responseURL = e.responseURL;
-			trace("httpResponseStatusHandler Redirected to " + _responseURL);
+			//trace("httpResponseStatusHandler Redirected to " + _responseURL);
 		}
 		
 		private function httpStatusHandler(e:HTTPStatusEvent):void {
@@ -77,7 +77,7 @@ package org.bigbluebutton.lib.common.utils
 		}
 		
 		private function handleComplete(e:Event):void {
-			trace("httpResponseStatusHandler Redirected to " + _responseURL);
+			//trace("httpResponseStatusHandler Redirected to " + _responseURL);
 			successSignal.dispatch(e.target.data, _responseURL, _urlRequest);
 		}
 		

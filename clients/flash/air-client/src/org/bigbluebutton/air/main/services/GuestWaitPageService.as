@@ -1,16 +1,19 @@
-package org.bigbluebutton.lib.main.services
+package org.bigbluebutton.air.main.services
 {
 	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
 	import flash.net.URLVariables;
 	import flash.utils.Timer;
-	
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.common.utils.GuestWaitURLFetcher;
+	import org.bigbluebutton.lib.main.services.IGuestWaitPageService;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
 	public class GuestWaitPageService implements IGuestWaitPageService
 	{
+		[Inject]
+		public var uiSession:IUISession;
 		
 		private static const URL_REQUEST_ERROR_TYPE:String = "TypeError";
 		
@@ -54,7 +57,7 @@ package org.bigbluebutton.lib.main.services
 		}
 				
 		protected function fail(reason:String):void {
-			trace("Login failed. " + reason);
+			//trace("Login failed. " + reason);
 			_failureSignal.dispatch(reason);
 			//TODO: show message to user saying that the meeting identifier is invalid 
 		}
@@ -75,6 +78,7 @@ package org.bigbluebutton.lib.main.services
 			
 			var reqVars:URLVariables = new URLVariables();
 			reqVars.sessionToken = sessionToken;
+			// Prevent redirecting the client. We want a json return to parse.
 			reqVars.redirect = "false";
 			
 			fetcher.fetch(_guestWaitUrl, null, reqVars);
@@ -87,21 +91,23 @@ package org.bigbluebutton.lib.main.services
 		}
 		
 		public function connectionTimeout (e:TimerEvent) : void {
-			trace("Timedout connecting to " + _guestWaitUrl);
+			//trace("Timedout connecting to " + _guestWaitUrl);
 			fetch();
 		}
 		
 		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 200):void {
-			trace(JSON.stringify(data));
+			//trace(JSON.stringify(data));
 			if (httpStatusCode == 200) {
 				var result:Object = JSON.parse(data as String);
 				var guestStatus: String = result.response.guestStatus;
 				if (guestStatus == "WAIT") {
+					uiSession.setLoading(true, "Waiting for moderator approval.");
 					queueFetch();
 				} else if(guestStatus == "ALLOW") {
 					guestAccessAllowedSignal.dispatch(urlRequest, responseUrl, sessionToken);
-				} else if (guestStatus == "DENIED") {
+				} else if (guestStatus == "DENY") {
 					// signal denied
+					uiSession.setLoading(true, "Guest access denied.");
 				}
 			} else {
 				onFailure(URL_REQUEST_GENERIC_ERROR);

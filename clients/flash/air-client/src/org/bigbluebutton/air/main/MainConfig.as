@@ -17,7 +17,6 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
-	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -57,6 +56,7 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(BannerView).toMediator(BannerViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);
 			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorAIR);
+		
 		}
 		
 		/**

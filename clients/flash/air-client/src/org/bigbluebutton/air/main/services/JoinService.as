@@ -1,12 +1,9 @@
 package org.bigbluebutton.air.main.services {
 	
 	import com.freshplanet.nativeExtensions.AirCapabilities;
-	
 	import flash.desktop.NativeApplication;
 	import flash.net.URLRequest;
-	
 	import org.bigbluebutton.lib.common.utils.URLFetcher;
-	import org.bigbluebutton.lib.common.utils.URLParser;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -107,9 +104,9 @@ package org.bigbluebutton.air.main.services {
 							if (xml.hasOwnProperty("guestStatus")) {
 								var guestStatus:String = xml.guestStatus.toString();
 								var waitUrl:String = xml.url.toString();
-								trace("******************** GUEST STATUS = " + guestStatus + " waitUrl=" + waitUrl);
+								//trace("******************** GUEST STATUS = " + guestStatus + " waitUrl=" + waitUrl);
 								//trace("******************** responseUrl = " + responseUrl);
-								trace("******************** sessionToken = " + sessionToken);
+								//trace("******************** sessionToken = " + sessionToken);
 								var waitUrlTrim:String = getServerUrl(waitUrl);
 								guestWaitSignal.dispatch(waitUrlTrim, urlRequest, responseUrl, sessionToken);
 							} else {
