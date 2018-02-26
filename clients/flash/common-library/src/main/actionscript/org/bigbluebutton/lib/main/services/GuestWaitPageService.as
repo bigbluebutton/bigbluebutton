@@ -2,6 +2,7 @@ package org.bigbluebutton.lib.main.services
 {
 	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
+	import flash.net.URLVariables;
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.lib.common.utils.GuestWaitURLFetcher;
@@ -28,6 +29,7 @@ package org.bigbluebutton.lib.main.services
 		private static const TOKEN_QUERY_PARAM:String = "sessionToken=";
 		
 		protected var _urlRequest:URLRequest = null;
+		protected var _guestWaitUrl: String = null;
 		
 		protected var _guestAccessAllowedSignal:Signal = new Signal();
 		protected var _guestAccessDeniedSignal:Signal = new Signal();
@@ -57,10 +59,13 @@ package org.bigbluebutton.lib.main.services
 			//TODO: show message to user saying that the meeting identifier is invalid 
 		}
 		
-		public function wait(urlRequest:URLRequest, url:String, sessionToken:String):void {
+		public function wait(guestWaitUrl: String, urlRequest:URLRequest, url:String, sessionToken:String):void {
 			_urlRequest = urlRequest;
 			this.sessionToken = sessionToken;
-
+			_guestWaitUrl = guestWaitUrl;
+			
+			fetch();
+			
 		}
 		
 		private function fetch():void {
@@ -68,7 +73,11 @@ package org.bigbluebutton.lib.main.services
 			fetcher.successSignal.add(onSuccess);
 			fetcher.failureSignal.add(onFailure);
 			
-			fetcher.fetch(guestWaitUrl, null, null);
+			var reqVars:URLVariables = new URLVariables();
+			reqVars.sessionToken = sessionToken;
+			reqVars.redirect = "false";
+			
+			fetcher.fetch(_guestWaitUrl, null, reqVars);
 		}
 		
 		private function queueFetch():void {
@@ -78,18 +87,20 @@ package org.bigbluebutton.lib.main.services
 		}
 		
 		public function connectionTimeout (e:TimerEvent) : void {
-			trace("Timedout connecting to " + guestWaitUrl);
+			trace("Timedout connecting to " + _guestWaitUrl);
 			fetch();
 		}
 		
 		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 200):void {
+			trace(JSON.stringify(data));
 			if (httpStatusCode == 200) {
 				var result:Object = JSON.parse(data as String);
-				if (result.guestStatus == "WAIT") {
+				var guestStatus: String = result.response.guestStatus;
+				if (guestStatus == "WAIT") {
 					queueFetch();
-				} else if(result.guestStatus == "ALLOW") {
-					// signal allowed
-				} else if (result.guestStatus == "DENIED") {
+				} else if(guestStatus == "ALLOW") {
+					guestAccessAllowedSignal.dispatch(urlRequest, responseUrl, sessionToken);
+				} else if (guestStatus == "DENIED") {
 					// signal denied
 				}
 			} else {

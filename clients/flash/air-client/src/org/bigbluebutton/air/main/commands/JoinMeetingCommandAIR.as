@@ -43,11 +43,16 @@ package org.bigbluebutton.air.main.commands {
 			joinSubservice.successSignal.add(joinSuccess);
 			joinSubservice.failureSignal.add(joinFailure);
 			joinSubservice.guestWaitSignal.add(onGuestWaitSignal);
+			
+			guestWaitService.guestAccessAllowedSignal.add(joinSuccess);
+			
 			joinSubservice.join(url);
 		}
 		
-		protected function onGuestWaitSignal(urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {
+		protected function onGuestWaitSignal(waitUrl: String, urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {
+			trace("GUEST WAIT URL = " + waitUrl);
 			
+			guestWaitService.wait(waitUrl, urlRequest, responseUrl, sessionToken);
 		}
 		
 		protected function joinSuccess(urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {

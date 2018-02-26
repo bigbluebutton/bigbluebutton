@@ -10,8 +10,8 @@ package org.bigbluebutton.lib.main.services
 		
 		function get guestAccessDeniedSignal():ISignal;
 		
-		function get loginFailureSignal():ISignal;
+		function get failureSignal():ISignal;
 		
-		function wait(urlRequest:URLRequest, url:String, sessionToken:String):void;
+		function wait(guestWaitUrl: String, urlRequest:URLRequest, url:String, sessionToken:String):void;
 	}
 }

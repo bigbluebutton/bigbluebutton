@@ -6,6 +6,7 @@ package org.bigbluebutton.air.main.services {
 	import flash.net.URLRequest;
 	
 	import org.bigbluebutton.lib.common.utils.URLFetcher;
+	import org.bigbluebutton.lib.common.utils.URLParser;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -102,14 +103,15 @@ package org.bigbluebutton.air.main.services {
 							onFailure(xml.messageKey);
 							break;
 						case XML_RETURN_CODE_SUCCESS:
-							sessionToken = xml.auth_token.toString();
+							sessionToken = xml.session_token.toString();
 							if (xml.hasOwnProperty("guestStatus")) {
 								var guestStatus:String = xml.guestStatus.toString();
 								var waitUrl:String = xml.url.toString();
 								trace("******************** GUEST STATUS = " + guestStatus + " waitUrl=" + waitUrl);
-								trace("******************** responseUrl = " + responseUrl);
-								trace("******************** urlRequest = " + urlRequest);
-								guestWaitSignal.dispatch(waitUrl, urlRequest, responseUrl, sessionToken);
+								//trace("******************** responseUrl = " + responseUrl);
+								trace("******************** sessionToken = " + sessionToken);
+								var waitUrlTrim:String = getServerUrl(waitUrl);
+								guestWaitSignal.dispatch(waitUrlTrim, urlRequest, responseUrl, sessionToken);
 							} else {
 								successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 							}
@@ -140,6 +142,12 @@ package org.bigbluebutton.air.main.services {
 			} else {
 				onFailure(URL_REQUEST_GENERIC_ERROR);
 			}
+		}
+		
+		protected function getServerUrl(url:String):String {
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/client\/guest-wait.html(?P<app>.+)/;
+			var result:Array = pattern.exec(url);
+			return result.protocol + "://" + result.server + "/bigbluebutton/api/guestWait";
 		}
 		
 		protected function onFailure(reason:String):void {

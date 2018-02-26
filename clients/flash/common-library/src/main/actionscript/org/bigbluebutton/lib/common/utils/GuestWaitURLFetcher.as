@@ -69,7 +69,7 @@ package org.bigbluebutton.lib.common.utils
 		
 		private function httpResponseStatusHandler(e:HTTPStatusEvent):void {
 			_responseURL = e.responseURL;
-			trace("Redirected to " + _responseURL);
+			trace("httpResponseStatusHandler Redirected to " + _responseURL);
 		}
 		
 		private function httpStatusHandler(e:HTTPStatusEvent):void {
@@ -77,6 +77,7 @@ package org.bigbluebutton.lib.common.utils
 		}
 		
 		private function handleComplete(e:Event):void {
+			trace("httpResponseStatusHandler Redirected to " + _responseURL);
 			successSignal.dispatch(e.target.data, _responseURL, _urlRequest);
 		}
 		

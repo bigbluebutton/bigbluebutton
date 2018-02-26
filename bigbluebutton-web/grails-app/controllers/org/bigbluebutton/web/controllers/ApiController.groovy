@@ -1303,7 +1303,7 @@ class ApiController {
     boolean reject = false;
 
     if (StringUtils.isEmpty(params.sessionToken)) {
-      println("SessionToken is missing.")
+      log.debug("SessionToken is missing.")
     }
 
     String sessionToken = StringUtils.strip(params.sessionToken)
@@ -1312,16 +1312,19 @@ class ApiController {
     Meeting meeting = null;
     UserSession userSession = null;
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
+      log.debug("No user with session token.")
       reject = true;
-    else {
+    } else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
+        log.debug("Meeting not found.")
         reject = true
       }
       userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
       if (userSession == null) {
+        log.debug("Session with user not found.")
         reject = true
       }
 
@@ -1352,10 +1355,11 @@ class ApiController {
       //check if exists the param redirect
       boolean redirectClient = true;
       String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-
+      log.info("redirect = ." + redirectClient)
       if(! StringUtils.isEmpty(params.redirect)) {
         try{
           redirectClient = Boolean.parseBoolean(params.redirect);
+          log.info("redirect 2 = ." + redirectClient)
         }catch(Exception e){
           redirectClient = true;
         }
