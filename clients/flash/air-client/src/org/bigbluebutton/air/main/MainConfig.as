@@ -17,7 +17,6 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
-	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -41,22 +40,23 @@ package org.bigbluebutton.air.main {
 		 */
 		private function mediators():void {
 			/*
-			   mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
-			   mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
-			   mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
-			   mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
-			   mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
-			   mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
-			   mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
-			   mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
-			   mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
-			   mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
+				 mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
+				 mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
+				 mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
+				 mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
+				 mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
+				 mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
+				 mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
+				 mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
+				 mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
+				 mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
 			 */
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
 			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);
 			mediatorMap.map(BannerView).toMediator(BannerViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);
 			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorAIR);
+		
 		}
 		
 		/**

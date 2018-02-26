@@ -442,7 +442,7 @@ class ApiController {
       respondWithErrors(errors);
     }
 
-    String guestStatus = meeting.calcGuestStatus(role, guest, authenticated)
+    String guestStatusVal = meeting.calcGuestStatus(role, guest, authenticated)
 
     UserSession us = new UserSession();
     us.authToken = authToken;
@@ -462,7 +462,7 @@ class ApiController {
     us.welcome = meeting.getWelcomeMessage()
     us.guest = guest
     us.authed = authenticated
-    us.guestStatus = guestStatus
+    us.guestStatus = guestStatusVal
     us.logoutUrl = meeting.getLogoutUrl()
     us.configXML = configxml;
 
@@ -481,7 +481,7 @@ class ApiController {
 
     // Register user into the meeting.
     meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
-            us.authToken, us.avatarURL, us.guest, us.authed, guestStatus)
+            us.authToken, us.avatarURL, us.guest, us.authed, guestStatusVal)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored
@@ -539,12 +539,12 @@ class ApiController {
     String msgKey = "successfullyJoined"
     String msgValue = "You have joined successfully."
     String destUrl = clientURL + "?sessionToken=" + sessionToken
-    if (guestStatus.equals(GuestPolicy.WAIT)) {
+    if (guestStatusVal.equals(GuestPolicy.WAIT)) {
       clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
       destUrl = clientURL + "?sessionToken=" + sessionToken
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
-    } else if (guestStatus.equals(GuestPolicy.DENY)) {
+    } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
       destUrl = meeting.getLogoutUrl()
       msgKey = "guestDeny"
       msgValue = "Guest denied to join meeting."
@@ -567,7 +567,7 @@ class ApiController {
               user_id(us.internalUserId)
               auth_token(us.authToken)
               session_token(session[sessionToken])
-              guestStatus(guestStatus)
+              guestStatus(guestStatusVal)
               url(destUrl)
             }
           }
@@ -1303,7 +1303,7 @@ class ApiController {
     boolean reject = false;
 
     if (StringUtils.isEmpty(params.sessionToken)) {
-      println("SessionToken is missing.")
+      log.debug("SessionToken is missing.")
     }
 
     String sessionToken = StringUtils.strip(params.sessionToken)
@@ -1312,16 +1312,19 @@ class ApiController {
     Meeting meeting = null;
     UserSession userSession = null;
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
+      log.debug("No user with session token.")
       reject = true;
-    else {
+    } else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
+        log.debug("Meeting not found.")
         reject = true
       }
       userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
       if (userSession == null) {
+        log.debug("Session with user not found.")
         reject = true
       }
 
@@ -1352,10 +1355,11 @@ class ApiController {
       //check if exists the param redirect
       boolean redirectClient = true;
       String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-
+      log.info("redirect = ." + redirectClient)
       if(! StringUtils.isEmpty(params.redirect)) {
         try{
           redirectClient = Boolean.parseBoolean(params.redirect);
+          log.info("redirect 2 = ." + redirectClient)
         }catch(Exception e){
           redirectClient = true;
         }
