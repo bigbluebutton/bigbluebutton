@@ -29,6 +29,7 @@
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
 			import org.bigbluebutton.air.participants.ParticipantsConfig;
 			import org.bigbluebutton.air.presentation.PresentationConfig;
+			import org.bigbluebutton.air.screenshare.ScreenshareConfig;
 			import org.bigbluebutton.air.settings.SettingsConfig;
 			import org.bigbluebutton.air.users.UsersConfig;
 			import org.bigbluebutton.air.video.VideoConfig;
@@ -71,6 +72,7 @@
 					.configure(ParticipantsConfig)
 					.configure(UsersConfig)
 					.configure(ChatConfig)
+					.configure(ScreenshareConfig)
 					.configure(new ContextView(this));
 				// If you wish to change the log level then uncomment the line below and set 
 				// the logLevel to the value you desire. The default logLevel is DEBUG, which 

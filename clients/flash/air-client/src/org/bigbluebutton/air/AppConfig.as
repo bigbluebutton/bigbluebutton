@@ -12,8 +12,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.common.models.SaveData;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
-	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
-	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
@@ -34,6 +32,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.main.services.LoginService;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
 	import org.bigbluebutton.lib.presentation.services.PresentationService;
+	import org.bigbluebutton.lib.screenshare.services.IScreenshareConnection;
+	import org.bigbluebutton.lib.screenshare.services.ScreenshareConnection;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.user.services.UsersService;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
@@ -61,7 +61,7 @@ package org.bigbluebutton.air {
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
-			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
+			injector.map(IScreenshareConnection).toSingleton(ScreenshareConnection);
 			injector.map(IChatMessageService).toSingleton(ChatMessageService);
 			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(ISaveData).toSingleton(SaveData);

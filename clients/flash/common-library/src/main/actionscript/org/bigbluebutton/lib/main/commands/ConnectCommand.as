@@ -2,15 +2,14 @@ package org.bigbluebutton.lib.main.commands {
 	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
-	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
+	import org.bigbluebutton.lib.screenshare.services.IScreenshareConnection;
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
@@ -44,7 +43,7 @@ package org.bigbluebutton.lib.main.commands {
 		public var voiceConnection:IVoiceConnection;
 		
 		[Inject]
-		public var deskshareConnection:IDeskshareConnection;
+		public var screenshareConnection:IScreenshareConnection;
 		
 		[Inject]
 		public var uri:String;
