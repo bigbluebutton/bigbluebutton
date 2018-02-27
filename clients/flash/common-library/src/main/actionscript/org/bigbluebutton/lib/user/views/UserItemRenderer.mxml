@@ -19,6 +19,8 @@
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
+			import org.bigbluebutton.lib.user.models.EmojiStatus;
+			import org.bigbluebutton.lib.user.models.UserRole;
 			import org.bigbluebutton.lib.user.utils.UserUtils;
 			import org.bigbluebutton.lib.user.views.models.UserVM;
 			
@@ -58,33 +60,41 @@
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
-					cameraIcon.visible = obj.hasStream;
+					var vm:UserVM = obj as UserVM;
 					
-					if (obj.inVoiceConf) {
-						if (obj.muted) {
-							audioIcon.styleName = "icon icon-audio-off";
-						} else if (obj.talking) {
-							audioIcon.styleName = "icon icon-audio-close";
+					cameraIcon.visible = vm.webcamStreams.length > 0;
+					
+					if (vm.inVoiceConf) {
+						audioIcon.visible = true;
+						if (vm.listenOnly) {
+							audioIcon.styleName = "icon icon-listen";
+						} else if (vm.muted) {
+							audioIcon.styleName = "icon icon-mute";
+						} else if (vm.talking) {
+							audioIcon.styleName = "icon icon-mute-filled";
 						} else {
-							audioIcon.styleName = "icon icon-audio-on";
+							audioIcon.styleName = "icon icon-unmute";
 						}
-					} else if (obj.listenOnly) {
-						audioIcon.styleName = "icon icon-listen";
 					} else {
-						audioIcon.styleName = "";
+						audioIcon.visible = false;
 					}
 					
-					lockIcon.visible = obj.locked && obj.roomLocked;
+					lockIcon.visible = vm.role != UserRole.MODERATOR && vm.locked && vm.roomLocked;
 					
-					if (obj.me) {
-						labelDisplay.text = obj.name + " " + "(you)"; //resourceManager.getString('resources', 'userDetail.you');
+					if (vm.me) {
+						labelDisplay.text = vm.name + " " + "(you)"; //resourceManager.getString('resources', 'userDetail.you');
 					} else {
-						labelDisplay.text = obj.name;
+						labelDisplay.text = vm.name;
 					}
 					
-					participantIcon.displayInitials = UserUtils.getInitials(obj.name);
+					if (vm.emoji != EmojiStatus.NO_STATUS) {
+						participantIcon.setEmoji(vm.emoji);
+					} else {
+						participantIcon.setInitials(UserUtils.getInitials(vm.name));
+					}
+					participantIcon.setRole(vm.role);
 					
-					if (obj.presenter) {
+					if (vm.presenter) {
 						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;
 						subLabelDisplay.text = "Presenter"; // resourceManager.getString('resources', 'participants.status.presenter');
 					} else {
@@ -107,7 +117,7 @@
 			<s:Label id="cameraIcon"
 					 styleName="icon icon-video" />
 			<s:Label id="audioIcon"
-					 styleName="icon icon-audio-on" />
+					 styleName="icon icon-mute" />
 			<s:Label id="lockIcon"
 					 styleName="icon icon-lock" />
 		</s:HGroup>

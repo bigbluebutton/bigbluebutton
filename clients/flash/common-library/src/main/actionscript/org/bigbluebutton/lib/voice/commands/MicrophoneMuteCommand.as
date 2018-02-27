@@ -1,27 +1,33 @@
 package org.bigbluebutton.lib.voice.commands {
 	
-	import org.bigbluebutton.lib.user.models.User2x;
-	import org.bigbluebutton.lib.user.services.IUsersService;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
+	import org.bigbluebutton.lib.voice.models.VoiceUser;
+	import org.bigbluebutton.lib.voice.services.IVoiceService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
 	public class MicrophoneMuteCommand extends Command {
 		
 		[Inject]
-		public var user:User2x;
+		public var voiceService:IVoiceService;
 		
 		[Inject]
-		public var userService:IUsersService;
+		public var meetingData:IMeetingData;
+		
+		[Inject]
+		public var userId:String;
 		
 		override public function execute():void {
-			trace("MicrophoneMuteCommand.execute() - user.muted = " + user.muted);
-			if (user != null) {
-				if (user.muted) {
-					userService.unmute(user);
+			trace("MicrophoneMuteCommand.execute() - userId = " + userId);
+			var vu:VoiceUser = meetingData.voiceUsers.getUser(userId);
+			if (vu != null) {
+				if (vu.muted) {
+					voiceService.unmute(userId);
 				} else {
-					userService.mute(user);
+					voiceService.mute(userId);
 				}
 			}
 		}
 	}
 }
+

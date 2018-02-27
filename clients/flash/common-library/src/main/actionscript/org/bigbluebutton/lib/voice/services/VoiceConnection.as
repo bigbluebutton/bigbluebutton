@@ -9,7 +9,10 @@ package org.bigbluebutton.lib.voice.services {
 	import org.bigbluebutton.lib.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.LockSettings2x;
+	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
@@ -24,6 +27,9 @@ package org.bigbluebutton.lib.voice.services {
 		public var userSession:IUserSession;
 		
 		[Inject]
+		public var meetingData:IMeetingData;
+		
+		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
 		
 		public var _callActive:Boolean = false;
@@ -31,6 +37,8 @@ package org.bigbluebutton.lib.voice.services {
 		protected var _connectionSuccessSignal:ISignal = new Signal();
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
+		
+		protected var _joinedVoiceConferenceSignal:ISignal = new Signal();
 		
 		protected var _hangUpSuccessSignal:ISignal = new Signal();
 		
@@ -40,8 +48,6 @@ package org.bigbluebutton.lib.voice.services {
 		
 		protected var _conferenceParameters:IConferenceParameters;
 		
-		protected var _listenOnly:Boolean;
-		
 		public function VoiceConnection() {
 		}
 		
@@ -50,15 +56,13 @@ package org.bigbluebutton.lib.voice.services {
 			baseConnection.init(this);
 			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
 			baseConnection.connectionFailureSignal.add(onConnectionFailure);
-			userSession.lockSettings.disableMicSignal.add(disableMic);
+			meetingData.meetingStatus.lockSettingsChangeSignal.add(lockSettingsChange);
 		}
 		
-		private function disableMic(disable:Boolean):void {
-			if (disable && callActive) {
-				var audioOptions:Object = new Object();
-				audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
-				audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
-				shareMicrophoneSignal.dispatch(audioOptions);
+		private function lockSettingsChange(lockSettings:LockSettings2x):void {
+			if (lockSettings.disableMic && meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
+				trace("TODO: Disabling the mic still needs to be finished");
+				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
 		}
 		
@@ -67,8 +71,7 @@ package org.bigbluebutton.lib.voice.services {
 		}
 		
 		private function onConnectionSuccess():void {
-			userSession.userList.me.listenOnly = _listenOnly;
-			// call(_listenOnly);
+			connectionSuccessSignal.dispatch();
 		}
 		
 		public function get connectionFailureSignal():ISignal {
@@ -95,14 +98,17 @@ package org.bigbluebutton.lib.voice.services {
 			return _callActive;
 		}
 		
+		public function get joinedVoiceConferenceSignal():ISignal {
+			return _joinedVoiceConferenceSignal;
+		}
+		
 		public function get hangUpSuccessSignal():ISignal {
 			return _hangUpSuccessSignal;
 		}
 		
-		public function connect(confParams:IConferenceParameters, listenOnly:Boolean):void {
+		public function connect(confParams:IConferenceParameters):void {
 			// we don't use scope in the voice communication (many hours lost on it)
 			_conferenceParameters = confParams;
-			_listenOnly = listenOnly;
 			_username = encodeURIComponent(confParams.internalUserID + "-bbbID-" + confParams.username);
 			trace("Voice app connect");
 			baseConnection.connect(_applicationURI, confParams.meetingID, confParams.externUserID, _username, confParams.authToken);
@@ -130,7 +136,7 @@ package org.bigbluebutton.lib.voice.services {
 		
 		public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
 			trace(LOG + "successfullyJoinedVoiceConferenceCallback()");
-			connectionSuccessSignal.dispatch(publishName, playName, codec);
+			_joinedVoiceConferenceSignal.dispatch(publishName, playName, codec);
 		}
 		
 		//**********************************************//

@@ -2,6 +2,14 @@ package org.bigbluebutton.air.users.views {
 	import mx.core.ScrollPolicy;
 	import mx.graphics.SolidColor;
 	
+	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.users.views.models.UserDetailsVM;
+	import org.bigbluebutton.lib.common.views.ParticipantIcon;
+	import org.bigbluebutton.lib.user.models.EmojiStatus;
+	import org.bigbluebutton.lib.user.models.UserRole;
+	import org.bigbluebutton.lib.user.utils.UserUtils;
+	
 	import spark.components.Button;
 	import spark.components.Group;
 	import spark.components.HGroup;
@@ -12,13 +20,6 @@ package org.bigbluebutton.air.users.views {
 	import spark.components.VGroup;
 	import spark.layouts.VerticalLayout;
 	import spark.primitives.Rect;
-	
-	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.air.users.views.models.UserDetailsVM;
-	import org.bigbluebutton.lib.common.views.ParticipantIcon;
-	import org.bigbluebutton.lib.user.models.EmojiStatus;
-	import org.bigbluebutton.lib.user.utils.UserUtils;
 	
 	public class UserDetailsView extends NoTabView {
 		private var _participantIcon:ParticipantIcon;
@@ -119,8 +120,8 @@ package org.bigbluebutton.air.users.views {
 			
 			_showCameraButton = new Button();
 			_showCameraButton.percentWidth = 90;
-			_showCameraButton.label= "Show Camera"; //{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}"
-			_showCameraButton.styleName="userSettingsButton logoutButton contentFontSize";
+			_showCameraButton.label = "Show Camera"; //{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}"
+			_showCameraButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_showCameraButton);
 			
 			_privateChatButton = new Button();
@@ -137,26 +138,26 @@ package org.bigbluebutton.air.users.views {
 			
 			_makePresenterButton = new Button();
 			_makePresenterButton.percentWidth = 90;
-			_makePresenterButton.label= "Make Presenter"; //{resourceManager.getString('resources', 'userDetail.presenterBtn.text')}"
-			_makePresenterButton.styleName="userSettingsButton logoutButton contentFontSize";
+			_makePresenterButton.label = "Make Presenter"; //{resourceManager.getString('resources', 'userDetail.presenterBtn.text')}"
+			_makePresenterButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_makePresenterButton);
 			
 			_promoteButton = new Button();
 			_promoteButton.percentWidth = 90;
 			_promoteButton.label = "Promote to Moderator";
-			_promoteButton.styleName="userSettingsButton logoutButton contentFontSize";
+			_promoteButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_promoteButton);
 			
 			_lockButton = new Button();
 			_lockButton.percentWidth = 90;
-			_lockButton.label="Lock User"; //{resourceManager.getString('resources', 'userDetail.lockButton.text')}"
-			_lockButton.styleName="userSettingsButton logoutButton contentFontSize";
+			_lockButton.label = "Lock User"; //{resourceManager.getString('resources', 'userDetail.lockButton.text')}"
+			_lockButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_lockButton);
 			
 			_unlockButton = new Button();
 			_unlockButton.percentWidth = 90;
-			_unlockButton.label="Unlock User"; //{resourceManager.getString('resources', 'userDetail.unlockButton.text')}"
-			_unlockButton.styleName="userSettingsButton logoutButton contentFontSize";
+			_unlockButton.label = "Unlock User"; //{resourceManager.getString('resources', 'userDetail.unlockButton.text')}"
+			_unlockButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_unlockButton);
 			
 			skinnableWrapper.addElement(scroller);
@@ -175,24 +176,25 @@ package org.bigbluebutton.air.users.views {
 		public function update():void {
 			if (_viewModel != null) {
 				/*
-				if (_isMe) {
-					userNameText.text = _user.name + " " + resourceManager.getString('resources', 'userDetail.you');
-				} else {
-					userNameText.text = _user.name;
-				}
-				if (_user.presenter) {
-					roleText.text = resourceManager.getString('resources', 'participants.status.presenter');
-					if (_user.role == UserRole.MODERATOR) {
-						roleText.text += "/" + resourceManager.getString('resources', 'participants.status.moderator');
-					}
-				} else if (_user.role == UserRole.MODERATOR) {
-					roleText.text = resourceManager.getString('resources', 'participants.status.moderator');
-				} else {
-					roleText.text = "";
-				}
-				*/
+				   if (_isMe) {
+				   userNameText.text = _user.name + " " + resourceManager.getString('resources', 'userDetail.you');
+				   } else {
+				   userNameText.text = _user.name;
+				   }
+				   if (_user.presenter) {
+				   roleText.text = resourceManager.getString('resources', 'participants.status.presenter');
+				   if (_user.role == UserRole.MODERATOR) {
+				   roleText.text += "/" + resourceManager.getString('resources', 'participants.status.moderator');
+				   }
+				   } else if (_user.role == UserRole.MODERATOR) {
+				   roleText.text = resourceManager.getString('resources', 'participants.status.moderator');
+				   } else {
+				   roleText.text = "";
+				   }
+				 */
 				
-				_participantIcon.displayInitials = UserUtils.getInitials(_viewModel.userName);
+				_participantIcon.setInitials(UserUtils.getInitials(_viewModel.userName));
+				_participantIcon.setRole(_viewModel.userModerator ? UserRole.MODERATOR : UserRole.VIEWER);
 				_participantLabel.text = _viewModel.userName;
 				
 				if (_viewModel.userEmoji != EmojiStatus.NO_STATUS && _viewModel.amIModerator) {

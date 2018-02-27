@@ -6,7 +6,8 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.lib.chat.models.GroupChat;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.main.views.TopToolbarMediatorBase;
-	import org.bigbluebutton.lib.voice.commands.StopEchoTestSignal;
+	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.lib.voice.models.AudioTypeEnum;
 	
 	public class TopToolbarMediatorAIR extends TopToolbarMediatorBase {
 		
@@ -17,7 +18,7 @@ package org.bigbluebutton.air.main.views {
 		public var chatMessagesSession:IChatMessagesSession;
 		
 		[Inject]
-		public var stopEchoTestSignal:StopEchoTestSignal;
+		public var shareMicrophoneSignal:ShareMicrophoneSignal;
 		
 		override protected function setVisibility():void {
 			if (uiSession.currentPage == PageEnum.DISCONNECT || uiSession.currentPage == PageEnum.EXIT) {
@@ -57,7 +58,7 @@ package org.bigbluebutton.air.main.views {
 			if (uiSession.currentPage == PageEnum.MAIN) {
 				uiSession.pushPage(PageEnum.PARTICIPANTS);
 			} else if (uiSession.currentPage == PageEnum.ECHOTEST) {
-				stopEchoTestSignal.dispatch();
+				shareMicrophoneSignal.dispatch(AudioTypeEnum.LEAVE, "");
 				uiSession.popPage();
 			} else {
 				uiSession.popPage();

@@ -2,6 +2,7 @@ package org.bigbluebutton.air.video.commands {
 	
 	import flash.media.Camera;
 	
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.models.VideoProfile;
@@ -14,18 +15,17 @@ package org.bigbluebutton.air.video.commands {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var enabled:Boolean;
+		public var meetingData:IMeetingData;
 		
 		[Inject]
-		public var position:String;
+		public var enabled:Boolean;
 		
 		[Inject]
 		public var usersService:IUsersService;
 		
 		override public function execute():void {
 			if (enabled) {
-				userSession.videoConnection.cameraPosition = position;
-				enableCamera(position);
+				enableCamera(userSession.videoConnection.cameraPosition);
 			} else {
 				disableCamera();
 			}
@@ -102,8 +102,9 @@ package org.bigbluebutton.air.video.commands {
 		}
 		
 		private function disableCamera():void {
-			usersService.removeStream(userSession.userId, userSession.userList.me.streamName);
-			userSession.videoConnection.stopPublishing(setupCamera(position));
+			trace("TODO: Need to actually end the webcam stream");
+			//usersService.removeStream(meetingData.users.me.intId, meetingData.webcams. .me.streamName);
+			userSession.videoConnection.stopPublishing(setupCamera(userSession.videoConnection.cameraPosition));
 		}
 	}
 }

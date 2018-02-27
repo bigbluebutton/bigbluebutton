@@ -34,14 +34,13 @@ package org.bigbluebutton.lib.user.views.models {
 		
 		public var talking:Boolean = false;
 		
-		public var phoneUser:Boolean = false;
+		public var voiceOnly:Boolean = false;
 		
 		public var listenOnly:Boolean = false;
 		
 		// Webcam properties
 		
-		public var hasStream:Boolean = false;
-		
+		public var webcamStreams:Array = [];
 		
 		
 		public function UserVM() {

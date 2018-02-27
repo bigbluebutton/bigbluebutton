@@ -3,7 +3,6 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
-	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
@@ -21,8 +20,6 @@ package org.bigbluebutton.lib.main.models {
 		function set config(value:Config):void;
 		function get userId():String;
 		function set userId(value:String):void;
-		function get userList():UserList;
-		function set userList(userList:UserList):void;
 		function get phoneOptions():PhoneOptions;
 		function set phoneOptions(value:PhoneOptions):void;
 		function get voiceConnection():IVoiceConnection;
@@ -47,7 +44,6 @@ package org.bigbluebutton.lib.main.models {
 		function get lockSettings():LockSettings;
 		function set meetingMuted(mute:Boolean):void;
 		function get meetingMuted():Boolean;
-		function dispatchLockSettings():void;
 		function get pushToTalk():Boolean;
 		function set pushToTalk(value:Boolean):void;
 		function get pushToTalkSignal():ISignal;

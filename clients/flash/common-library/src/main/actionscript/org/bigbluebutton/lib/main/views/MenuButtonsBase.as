@@ -35,19 +35,19 @@ package org.bigbluebutton.lib.main.views {
 		public function MenuButtonsBase() {
 			super();
 			
-			_audioButton = new Button();
-			_audioButton.percentWidth = 100;
-			_audioButton.percentHeight = 100;
-			_audioButton.label = "Join";
-			_audioButton.styleName = "icon-audio-on menuButton";
-			addElement(_audioButton);
-			
 			_micButton = new Button();
 			_micButton.percentWidth = 100;
 			_micButton.percentHeight = 100;
 			_micButton.label = "Mic on";
 			_micButton.styleName = "icon-unmute menuButton";
 			addElement(_micButton);
+			
+			_audioButton = new Button();
+			_audioButton.percentWidth = 100;
+			_audioButton.percentHeight = 100;
+			_audioButton.label = "Join";
+			_audioButton.styleName = "icon-audio-on menuButton";
+			addElement(_audioButton);
 			
 			_camButton = new Button();
 			_camButton.percentWidth = 100;
