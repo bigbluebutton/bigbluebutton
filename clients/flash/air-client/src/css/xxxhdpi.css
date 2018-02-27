@@ -73,11 +73,12 @@
         groupsPadding: 80;
     }
 
-    audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
+    audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, voice|EchoTestViewBase {
         padding: 60;
     }
 
-    voice|EchoTestViewBase {
+    main|ExitView, main|DisconnectView {
+        gap: 60;
         padding: 60;
     }
 

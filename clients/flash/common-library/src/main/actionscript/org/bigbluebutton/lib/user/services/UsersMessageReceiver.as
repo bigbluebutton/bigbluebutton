@@ -45,9 +45,8 @@ package org.bigbluebutton.lib.user.services {
 				case "joinMeetingReply":
 					handleJoinedMeeting(message);
 					break
-				case "meetingHasEnded":
-				case "meetingEnded":
-					handleMeetingHasEnded(message);
+				case "MeetingEndingEvtMsg":
+					handleMeetingEnding(message);
 					break;
 				case "userEmojiStatus":
 					handleEmojiStatus(message);
@@ -57,6 +56,10 @@ package org.bigbluebutton.lib.user.services {
 					break;
 				case "meetingMuted":
 					handleMeetingMuted(message);
+					break;
+				
+				case "UserEjectedFromMeetingEvtMsg":
+					handleUserEjectedFromMeeting(message);
 					break;
 				
 				case "GetRecordingStatusRespMsg":
@@ -160,8 +163,8 @@ package org.bigbluebutton.lib.user.services {
 			userSession.userList.userMuteChange(msg.voiceUserId, msg.muted);
 		}
 		
-		private function handleMeetingHasEnded(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
+		private function handleMeetingEnding(m:Object):void {
+			var msg:Object = m.body;
 			trace(LOG + "handleMeetingHasEnded() -- meeting has ended");
 			userSession.logoutSignal.dispatch();
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MEETING_ENDED);
@@ -171,6 +174,11 @@ package org.bigbluebutton.lib.user.services {
 			var msg:Object = JSON.parse(m.msg);
 			trace(LOG + "handleJoinedMeeting() -- Joining meeting");
 			userSession.joinMeetingResponse(msg);
+		}
+		
+		private function handleUserEjectedFromMeeting(m:Object):void {
+			trace(LOG + "handleUserEjectedFromMeeting() -- user ejected from meeting");
+			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_USER_KICKED_OUT);
 		}
 		
 		private function handleRecordingStatusChanged(m:Object):void {
@@ -235,9 +243,9 @@ package org.bigbluebutton.lib.user.services {
 			meetingData.users.add(user);
 		}
 		
-		private function handleUserLeftMeetingEvtMsg(msg:Object):void {
-			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + msg.body.intId + "] has left the meeting");
-			meetingData.users.remove(msg.intId);
+		private function handleUserLeftMeetingEvtMsg(m:Object):void {
+			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + m.body.intId + "] has left the meeting");
+			var user:User2x = meetingData.users.getUser(m.body.intId);
 		}
 		
 		private function handleUserLockedInMeetingEvtMsg(msg:Object):void {

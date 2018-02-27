@@ -17,9 +17,20 @@ package org.bigbluebutton.air.main.views {
 		public var chatMessagesSession:IChatMessagesSession;
 		
 		[Inject]
-		public var stopEchoTestSignal : StopEchoTestSignal;
+		public var stopEchoTestSignal:StopEchoTestSignal;
+		
+		override protected function setVisibility():void {
+			if (uiSession.currentPage == PageEnum.DISCONNECT || uiSession.currentPage == PageEnum.EXIT) {
+				view.visible = view.includeInLayout = false;
+			} else {
+				view.visible = view.includeInLayout = true;
+			}
+		}
 		
 		override protected function setTitle():void {
+			if (!view.visible) {
+				return;
+			}
 			if (uiSession.currentPage == PageEnum.CHAT) {
 				var chatData:Object = uiSession.currentPageDetails;
 				
