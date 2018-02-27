@@ -5,7 +5,6 @@ package org.bigbluebutton.lib.user.services {
 	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.EmojiStatus;
-	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class UsersService implements IUsersService {
 		
@@ -41,28 +40,6 @@ package org.bigbluebutton.lib.user.services {
 			userSession.logoutSignal.add(logout);
 		}
 		
-		public function muteMe():void {
-			mute(meetingData.users.me);
-		}
-		
-		public function unmuteMe():void {
-			unmute(meetingData.users.me);
-		}
-		
-		public function mute(user:User2x):void {
-			muteUnmute(user, true);
-		}
-		
-		public function unmute(user:User2x):void {
-			muteUnmute(user, false);
-		}
-		
-		private function muteUnmute(user:User2x, mute:Boolean):void {
-			if (user.voiceJoined) {
-				usersMessageSender.muteUnmuteUser(user.intId, mute);
-			}
-		}
-		
 		public function addStream(userId:String, streamName:String):void {
 			usersMessageSender.addStream(userId, streamName);
 		}
@@ -80,8 +57,8 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.disconnect(onUserAction);
 		}
 		
-		public function emojiStatus(status:String):void {
-			usersMessageSender.emojiStatus(userSession.userList.me.userId, status);
+		public function emojiStatus(userId:String, status:String):void {
+			usersMessageSender.emojiStatus(userId, status);
 		}
 		
 		public function clearUserStatus(userId:String):void {
@@ -114,10 +91,6 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function muteAllUsersExceptPresenter(mute:Boolean):void {
 			usersMessageSender.muteAllUsersExceptPresenter(mute);
-		}
-		
-		public function muteUnmuteUser(userId:String, mute:Boolean):void {
-			usersMessageSender.muteUnmuteUser(userId, mute);
 		}
 		
 		public function ejectUser(userId:String):void {

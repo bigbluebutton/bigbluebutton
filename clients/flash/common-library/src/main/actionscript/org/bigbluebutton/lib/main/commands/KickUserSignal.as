@@ -1,5 +1,5 @@
 package org.bigbluebutton.lib.main.commands {
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	import org.osflash.signals.Signal;
 	
 	public class KickUserSignal extends Signal {
@@ -7,7 +7,7 @@ package org.bigbluebutton.lib.main.commands {
 			/**
 			 * @1 user
 			 */
-			super(User);
+			super(User2x);
 		}
 	}
 }

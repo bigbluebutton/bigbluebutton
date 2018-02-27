@@ -8,7 +8,7 @@ package org.bigbluebutton.lib.video.commands {
 			 * @1 camera enabled
 			 * @2 camera position
 			 */
-			super(Boolean, String);
+			super(Boolean);
 		}
 	}
 }

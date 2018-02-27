@@ -3,6 +3,7 @@ package org.bigbluebutton.lib.voice.commands {
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.voice.models.AudioTypeEnum;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceStreamManager;
 	
@@ -21,41 +22,34 @@ package org.bigbluebutton.lib.voice.commands {
 		public var saveData:ISaveData;
 		
 		[Inject]
-		public var audioOptions:Object;
+		public var audioType:int;
 		
-		private var _shareMic:Boolean;
-		
-		private var _listenOnly:Boolean;
+		[Inject]
+		public var dialStr:String;
 		
 		private var voiceConnection:IVoiceConnection;
 		
 		override public function execute():void {
-			getAudioOption(audioOptions);
-			if (_shareMic || _listenOnly) {
-				enableAudio();
-			} else {
+			if (audioType == AudioTypeEnum.LEAVE) {
 				disableAudio();
-			}
-		}
-		
-		private function getAudioOption(option:Object):void {
-			if (option != null && option.hasOwnProperty("shareMic") && option.hasOwnProperty("listenOnly")) {
-				_shareMic = option.shareMic;
-				_listenOnly = option.listenOnly;
+			} else {
+				enableAudio();
 			}
 		}
 		
 		private function enableAudio():void {
 			voiceConnection = userSession.voiceConnection;
 			voiceConnection.hangUpSuccessSignal.remove(enableAudio);
+			voiceConnection.connectionSuccessSignal.remove(enableAudio);
+			
 			if (!voiceConnection.connection.connected) {
-				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccess);
-				voiceConnection.connectionFailureSignal.add(mediaConnectionFailure);
-				voiceConnection.connect(conferenceParameters, _listenOnly);
+				voiceConnection.connectionSuccessSignal.add(enableAudio);
+				voiceConnection.connectionFailureSignal.add(connectionFailure);
+				voiceConnection.connect(conferenceParameters);
 			} else if (!voiceConnection.callActive) {
-				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccess);
-				voiceConnection.connectionFailureSignal.add(mediaConnectionFailure);
-				voiceConnection.call(_listenOnly);
+				voiceConnection.joinedVoiceConferenceSignal.add(joinVoiceConferenceSuccess);
+				voiceConnection.connectionFailureSignal.add(connectionFailure);
+				voiceConnection.call(audioType == AudioTypeEnum.LISTEN_ONLY, dialStr);
 			} else {
 				disableAudio();
 				voiceConnection.hangUpSuccessSignal.add(enableAudio);
@@ -71,8 +65,8 @@ package org.bigbluebutton.lib.voice.commands {
 			}
 		}
 		
-		private function mediaconnectionSuccess(publishName:String, playName:String, codec:String, manager:VoiceStreamManager = null):void {
-			trace(LOG + "mediaconnectionSuccessSignal()");
+		private function joinVoiceConferenceSuccess(publishName:String, playName:String, codec:String, manager:VoiceStreamManager = null):void {
+			trace(LOG + "mediaConnectionSuccessSignal()");
 			if (!manager) {
 				var manager:VoiceStreamManager = new VoiceStreamManager();
 				var savedGain:Number = Number(saveData.read("micGain"));
@@ -85,17 +79,17 @@ package org.bigbluebutton.lib.voice.commands {
 				manager.publish(voiceConnection.connection, publishName, codec, userSession.pushToTalk);
 			}
 			userSession.voiceStreamManager = manager;
-			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccess);
-			voiceConnection.connectionFailureSignal.remove(mediaConnectionFailure);
+			voiceConnection.joinedVoiceConferenceSignal.remove(joinVoiceConferenceSuccess);
+			voiceConnection.connectionFailureSignal.remove(connectionFailure);
 			if (userSession.pushToTalk) {
 				userSession.pushToTalkSignal.dispatch();
 			}
 		}
 		
-		private function mediaConnectionFailure(reason:String):void {
-			trace(LOG + "mediaUnconnectionSuccessSignal()");
-			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccess);
-			voiceConnection.connectionFailureSignal.remove(mediaConnectionFailure);
+		private function connectionFailure(reason:String):void {
+			trace(LOG + "connectionFailureSignal()");
+			voiceConnection.joinedVoiceConferenceSignal.remove(joinVoiceConferenceSuccess);
+			voiceConnection.connectionFailureSignal.remove(connectionFailure);
 		}
 	}
 }

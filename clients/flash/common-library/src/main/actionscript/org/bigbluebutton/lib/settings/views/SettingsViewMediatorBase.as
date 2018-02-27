@@ -19,7 +19,8 @@ package org.bigbluebutton.lib.settings.views {
 		protected var dataProvider:ArrayCollection;
 		
 		override public function initialize():void {
-			view.participantIcon.displayInitials = UserUtils.getInitials(meetingData.users.me.name);
+			view.participantIcon.setInitials(UserUtils.getInitials(meetingData.users.me.name));
+			view.participantIcon.setRole(meetingData.users.me.role);
 			view.participantLabel.text = meetingData.users.me.name;
 			view.settingsList.dataProvider = dataProvider = new ArrayCollection([{label: "Audio", icon: "icon-unmute", page: "audio"}, {label: "Video", icon: "icon-video", page: "camera"}, {label: "Application", icon: "icon-application", page: "chat"}, {label: "Participants", icon: "icon-user", page: "lock"}, {label: "Leave Session", icon: "icon-logout", page: "exit"}]);
 			

@@ -9,10 +9,10 @@ package org.bigbluebutton.lib.main.commands {
 	public class EmojiCommand extends Command {
 		
 		[Inject]
-		public var userSession:IUserSession;
+		public var userService:IUsersService;
 		
 		[Inject]
-		public var userService:IUsersService;
+		public var userId:String;
 		
 		[Inject]
 		public var status:String;
@@ -20,9 +20,9 @@ package org.bigbluebutton.lib.main.commands {
 		override public function execute():void {
 			trace("EmojiCommand.execute() - change emoji status");
 			if (EmojiStatus.STATUS_ARRAY.indexOf(status) != -1) {
-				userService.emojiStatus(status);
+				userService.emojiStatus(userId, status);
 			} else {
-				trace("Emoji status ["+status+"] not supported");
+				trace("Emoji status [" + status + "] not supported");
 			}
 		}
 	}

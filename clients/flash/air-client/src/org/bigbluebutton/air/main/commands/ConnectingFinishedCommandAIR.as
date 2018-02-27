@@ -29,6 +29,7 @@ package org.bigbluebutton.air.main.commands {
 	//		}
 		}
 		
+		/*
 		private function displayAudioSettings(micLocked:Boolean = false):void {
 			userSession.lockSettings.disableMicSignal.remove(displayAudioSettings);
 			if (userSession.phoneOptions.autoJoin && !userSession.phoneOptions.skipCheck && (userSession.userList.me.isModerator() || !userSession.lockSettings.disableMic)) {
@@ -37,6 +38,7 @@ package org.bigbluebutton.air.main.commands {
 				userSession.phoneOptions.autoJoin = false;
 			}
 		}
+		*/
 	
 	}
 }

@@ -16,9 +16,7 @@ package org.bigbluebutton.lib.user.models {
 		}
 		
 		public function set me(value:User2x):void {
-			if (StringUtils.isEmpty(_me.extId)) {
-				_me = value;
-			}
+			_me = value;
 		}
 		
 		public function get userChangeSignal():Signal {
@@ -37,6 +35,9 @@ package org.bigbluebutton.lib.user.models {
 		public function add(user:User2x):void {
 			if (getUserIndex(user.intId) == -1) {
 				_users.addItem(user);
+				if (user.me) {
+					_me = user;
+				}
 				_userChangeSignal.dispatch(user, UserChangeEnum.JOIN);
 			}
 		}
@@ -90,24 +91,6 @@ package org.bigbluebutton.lib.user.models {
 			return null;
 		}
 		
-		public function joinAudioConference(intId:String, muted:Boolean):void {
-			var user:User2x = getUser(intId);
-			if (user) {
-				user.muted = muted;
-				user.voiceJoined = true;
-				_userChangeSignal.dispatch(user, UserChangeEnum.AUDIO_JOIN);
-			}
-		}
-		
-		public function leaveAudioConference(intId:String):void {
-			var user:User2x = getUser(intId);
-			if (user) {
-				user.muted = false;
-				user.voiceJoined = false;
-				_userChangeSignal.dispatch(user, UserChangeEnum.AUDIO_LEAVE);
-			}
-		}
-		
 		public function changeUserLocked(intId:String, locked:Boolean):void {
 			var user:User2x = getUser(intId);
 			if (user != null) {
@@ -121,6 +104,22 @@ package org.bigbluebutton.lib.user.models {
 			if (user != null) {
 				user.presenter = presenter;
 				_userChangeSignal.dispatch(user, UserChangeEnum.PRESENTER);
+			}
+		}
+		
+		public function changeUserStatus(intId:String, status:String):void {
+			var user:User2x = getUser(intId);
+			if (user != null) {
+				user.emoji = status;
+				_userChangeSignal.dispatch(user, UserChangeEnum.EMOJI);
+			}
+		}
+		
+		public function changeUserRole(intId:String, role:String):void {
+			var user:User2x = getUser(intId);
+			if (user != null && (role == UserRole.MODERATOR || role == UserRole.VIEWER)) {
+				user.role = role;
+				_userChangeSignal.dispatch(user, UserChangeEnum.ROLE);
 			}
 		}
 	}

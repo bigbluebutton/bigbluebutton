@@ -15,15 +15,15 @@
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				var iPadding:int = getStyle("padding");
 				var iGap:int = getStyle("gap");
-				wrapperGroup.left = iPadding;
-				wrapperGroup.top = iPadding;
-				wrapperGroup.right = iPadding;
-				wrapperGroup.bottom = iPadding;
+				messageGroup.left = iPadding;
+				messageGroup.top = iPadding;
+				messageGroup.right = iPadding;
+				messageGroup.bottom = iPadding;
 				
 				messageGroup.gap = iGap;
 				titleGroup.gap = iGap;
 				
-				messageGroup.left = getStyle("leftIndent") + iGap;
+				//messageGroup.left = getStyle("leftIndent") + iGap;
 				
 				username.setStyle("color", getStyle("nameColor"));
 				username.setStyle("fontSize", getStyle("nameFontSize"));
@@ -45,16 +45,12 @@
 					}
 					if (m.sameSender && m.sameTime) {
 						titleGroup.includeInLayout = titleGroup.visible = false;
-						participantIcon.visible = participantIcon.includeInLayout = false;
 					} else {
 						titleGroup.includeInLayout = titleGroup.visible = true;
 						if (m.name == " " || m.name == "") {
 							username.text = "";
-							participantIcon.visible = participantIcon.includeInLayout = false;
 						} else {
 							username.text = m.name;
-							participantIcon.displayInitials = UserUtils.getInitials(m.name);
-							participantIcon.visible = participantIcon.includeInLayout = true
 						}
 					}
 				}
@@ -74,21 +70,17 @@
 		]]>
 	</fx:Script>
 
-	<s:Group id="wrapperGroup"
-			 width="100%">
-		<views:ParticipantIcon id="participantIcon" />
-		<s:VGroup id="messageGroup"
-				  width="100%">
-			<s:HGroup id="titleGroup"
-					  width="100%"
-					  verticalAlign="bottom">
-				<s:Label id="username" />
-				<s:Label id="time" />
-			</s:HGroup>
-			<s:RichEditableText id="message"
-								editable="false"
-								selectable="false"
-								width="100%" />
-		</s:VGroup>
-	</s:Group>
+	<s:VGroup id="messageGroup"
+			  width="100%">
+		<s:HGroup id="titleGroup"
+				  width="100%"
+				  verticalAlign="bottom">
+			<s:Label id="username" />
+			<s:Label id="time" />
+		</s:HGroup>
+		<s:RichEditableText id="message"
+							editable="false"
+							selectable="false"
+							width="100%" />
+	</s:VGroup>
 </s:ItemRenderer>

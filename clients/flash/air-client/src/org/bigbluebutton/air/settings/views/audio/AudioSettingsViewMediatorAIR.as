@@ -5,7 +5,7 @@ package org.bigbluebutton.air.settings.views.audio {
 	
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewMediatorBase;
-	import org.bigbluebutton.lib.user.models.User;
+	import org.bigbluebutton.lib.user.models.User2x;
 	
 	public class AudioSettingsViewMediatorAIR extends AudioSettingsViewMediatorBase {
 		
@@ -16,11 +16,10 @@ package org.bigbluebutton.air.settings.views.audio {
 		
 		override public function initialize():void {
 			super.initialize();
-			var userMe:User = userSession.userList.me;
+			var userMe:User2x = meetingData.users.me;
 			
 			// view.continueBtn.addEventListener(MouseEvent.CLICK, onContinueClick);
 			// view.enablePushToTalk.addEventListener(Event.CHANGE, onEnablePushToTalkClick);
-			disableMic(userSession.lockSettings.disableMic && userMe.role != User.MODERATOR && !userMe.presenter && userMe.locked);
 			// view.enablePushToTalk.enabled = view.microphoneToggle.selected = userMe.voiceJoined;
 			// view.enablePushToTalk.selected = (userSession.pushToTalk || userSession.phoneOptions.autoJoin);
 			loadMicGain();
