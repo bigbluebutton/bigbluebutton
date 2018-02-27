@@ -29,12 +29,6 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function onMessage(messageName:String, message:Object):void {
 			switch (messageName) {
-				case "recordingStatusChanged":
-					handleRecordingStatusChanged(message);
-					break;
-				case "getRecordingStatusReply":
-					handleGetRecordingStatusReply(message);
-					break;
 				case "meetingHasEnded":
 				case "meetingEnded":
 					handleMeetingHasEnded(message);
@@ -49,6 +43,12 @@ package org.bigbluebutton.lib.user.services {
 				
 				
 				
+				case "GetRecordingStatusRespMsg":
+					handleGetRecordingStatusRespMsg(message);
+					break;
+				case "RecordingStatusChangedEvtMsg":
+					handleRecordingStatusChangedEvtMsg(message);
+					break;
 				case "GetUsersMeetingRespMsg":
 					handleGetUsersMeetingRespMsg(message);
 					break;
@@ -118,25 +118,19 @@ package org.bigbluebutton.lib.user.services {
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MEETING_ENDED);
 		}
 		
-		private function handleRecordingStatusChanged(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleRecordingStatusChanged() -- recording status changed");
-			userSession.recordingStatusChanged(msg.recording);
+
+		
+		
+		
+		private function handleGetRecordingStatusRespMsg(m:Object):void {
+			trace(LOG + "handleGetRecordingStatusRespMsg() -- recording status");
+			meetingData.meetingStatus.recording = m.body.recording;
 		}
 		
-		private function handleGetRecordingStatusReply(m:Object):void {
-			trace(LOG + "handleGetRecordingStatusReply() -- recording status");
-			var msg:Object = JSON.parse(m.msg);
-			userSession.recordingStatusChanged(msg.recording);
+		private function handleRecordingStatusChangedEvtMsg(m:Object):void {
+			trace(LOG + "handleRecordingStatusChangedEvtMsg() -- recording status changed");
+			meetingData.meetingStatus.recording = m.body.recording;
 		}
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		private function handleGetUsersMeetingRespMsg(msg:Object):void {
 			var users:Array = msg.body.users as Array;

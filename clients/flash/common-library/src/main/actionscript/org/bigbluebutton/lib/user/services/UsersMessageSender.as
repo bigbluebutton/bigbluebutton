@@ -100,12 +100,12 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function changeRecordingStatus(userID:String, recording:Boolean):void {
-			trace("UsersMessageSender::changeRecordingStatus() -- Sending [changeRecordingStatus] message to server with message [userId:" + userID + ", recording:" + recording + "]");
+		public function changeRecordingStatus(userId:String, recording:Boolean):void {
+			trace("UsersMessageSender::changeRecordingStatus() -- Sending [changeRecordingStatus] message to server with message [userId:" + userId + ", recording:" + recording + "]");
 			var message:Object = {
 				header: {name: "SetRecordingStatusCmdMsg", meetingId: conferenceParameters.meetingID, 
 					userId: conferenceParameters.internalUserID},
-				body: {recording: recording, setBy: userID}
+				body: {recording: recording, setBy: userId}
 			};
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}

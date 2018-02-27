@@ -108,7 +108,7 @@
 		diameter     : 40;
 	}
 	
-	.titleLabel {
+	.titleGroup {
 		fontSize : 34;
 		left     : 90;
 		right    : 90;
@@ -164,6 +164,10 @@
 	
 	.chatIcon, .settingsIcon {
 		fontSize : 44;
+	}
+	
+	.recordIcon {
+		fontSize : 34;
 	}
 	
 	.chatRoomItem {
