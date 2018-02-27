@@ -246,7 +246,7 @@ package org.bigbluebutton.lib.user.services {
 		
 		private function handleUserLeftMeetingEvtMsg(m:Object):void {
 			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + m.body.intId + "] has left the meeting");
-			var user:User2x = meetingData.users.getUser(m.body.intId);
+			meetingData.users.remove(m.body.intId);
 		}
 		
 		private function handleUserLockedInMeetingEvtMsg(msg:Object):void {
