@@ -62,7 +62,7 @@ package org.bigbluebutton.lib.main.views {
 		}
 		
 		protected function micOnOff(e:MouseEvent):void {
-			microphoneMuteSignal.dispatch(meetingData.users.me);
+			microphoneMuteSignal.dispatch(meetingData.users.me.intId);
 		}
 		
 		protected function audioOnOff(e:MouseEvent):void {

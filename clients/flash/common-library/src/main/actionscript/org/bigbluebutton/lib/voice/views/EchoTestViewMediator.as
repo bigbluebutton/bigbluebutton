@@ -8,10 +8,11 @@ package org.bigbluebutton.lib.voice.views {
 	import flash.net.ObjectEncoding;
 	import flash.utils.Timer;
 	
+	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IMeetingData;
+	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
-	import org.bigbluebutton.lib.voice.commands.StartEchoTestSignal;
-	import org.bigbluebutton.lib.voice.commands.StopEchoTestSignal;
+	import org.bigbluebutton.lib.voice.models.AudioTypeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -21,13 +22,13 @@ package org.bigbluebutton.lib.voice.views {
 		public var view:EchoTestViewBase;
 		
 		[Inject]
-		public var startEchoTestSignal:StartEchoTestSignal;
+		public var userSession:IUserSession;
+		
+		[Inject]
+		public var conferenceParameters:IConferenceParameters;
 		
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
-		
-		[Inject]
-		public var stopEchoTestSignal:StopEchoTestSignal;
 		
 		[Inject]
 		public var meetingData:IMeetingData;
@@ -125,7 +126,7 @@ package org.bigbluebutton.lib.voice.views {
 			micActivityTimer.stop();
 			doingEchoTest = true;
 			view.setTestingState(true);
-			startEchoTestSignal.dispatch();
+			shareMicrophoneSignal.dispatch(AudioTypeEnum.WITH_MIC, userSession.phoneOptions.echoTestApp);
 		}
 		
 		protected function yesButtonHandler(e:MouseEvent):void {
@@ -134,13 +135,13 @@ package org.bigbluebutton.lib.voice.views {
 			var audioOptions:Object = new Object();
 			audioOptions.shareMic = true;
 			audioOptions.listenOnly = false;
-			shareMicrophoneSignal.dispatch(audioOptions);
+			shareMicrophoneSignal.dispatch(AudioTypeEnum.WITH_MIC, conferenceParameters.webvoiceconf);
 		}
 		
 		private function stopEchoTest():void {
 			if (doingEchoTest) {
 				doingEchoTest = false;
-				stopEchoTestSignal.dispatch();
+				shareMicrophoneSignal.dispatch(AudioTypeEnum.LEAVE, userSession.phoneOptions.echoTestApp);
 			}
 		}
 		

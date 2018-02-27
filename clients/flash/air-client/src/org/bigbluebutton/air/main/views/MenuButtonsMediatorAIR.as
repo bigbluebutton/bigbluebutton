@@ -4,6 +4,7 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.views.MenuButtonsMediatorBase;
+	import org.bigbluebutton.lib.voice.models.AudioTypeEnum;
 	
 	public class MenuButtonsMediatorAIR extends MenuButtonsMediatorBase {
 		
@@ -14,9 +15,7 @@ package org.bigbluebutton.air.main.views {
 			if (meetingData.voiceUsers.me == null) {
 				uiSession.pushPage(PageEnum.ECHOTEST);
 			} else {
-				var audioOptions:Object = new Object();
-				audioOptions.shareMic = false;
-				shareMicrophoneSignal.dispatch(audioOptions);
+				shareMicrophoneSignal.dispatch(AudioTypeEnum.LEAVE, "");
 			}
 		}
 	}

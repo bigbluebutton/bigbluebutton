@@ -12,7 +12,6 @@ package org.bigbluebutton.lib.voice.services {
 	import org.bigbluebutton.lib.main.models.IMeetingData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.models.LockSettings2x;
-	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.osflash.signals.ISignal;
@@ -39,6 +38,8 @@ package org.bigbluebutton.lib.voice.services {
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
 		
+		protected var _joinedVoiceConferenceSignal:ISignal = new Signal();
+		
 		protected var _hangUpSuccessSignal:ISignal = new Signal();
 		
 		protected var _applicationURI:String;
@@ -46,8 +47,6 @@ package org.bigbluebutton.lib.voice.services {
 		protected var _username:String;
 		
 		protected var _conferenceParameters:IConferenceParameters;
-		
-		protected var _listenOnly:Boolean;
 		
 		public function VoiceConnection() {
 		}
@@ -72,7 +71,7 @@ package org.bigbluebutton.lib.voice.services {
 		}
 		
 		private function onConnectionSuccess():void {
-			
+			connectionSuccessSignal.dispatch();
 		}
 		
 		public function get connectionFailureSignal():ISignal {
@@ -99,14 +98,17 @@ package org.bigbluebutton.lib.voice.services {
 			return _callActive;
 		}
 		
+		public function get joinedVoiceConferenceSignal():ISignal {
+			return _joinedVoiceConferenceSignal;
+		}
+		
 		public function get hangUpSuccessSignal():ISignal {
 			return _hangUpSuccessSignal;
 		}
 		
-		public function connect(confParams:IConferenceParameters, listenOnly:Boolean):void {
+		public function connect(confParams:IConferenceParameters):void {
 			// we don't use scope in the voice communication (many hours lost on it)
 			_conferenceParameters = confParams;
-			_listenOnly = listenOnly;
 			_username = encodeURIComponent(confParams.internalUserID + "-bbbID-" + confParams.username);
 			trace("Voice app connect");
 			baseConnection.connect(_applicationURI, confParams.meetingID, confParams.externUserID, _username, confParams.authToken);
@@ -134,7 +136,7 @@ package org.bigbluebutton.lib.voice.services {
 		
 		public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
 			trace(LOG + "successfullyJoinedVoiceConferenceCallback()");
-			connectionSuccessSignal.dispatch(publishName, playName, codec);
+			_joinedVoiceConferenceSignal.dispatch(publishName, playName, codec);
 		}
 		
 		//**********************************************//
