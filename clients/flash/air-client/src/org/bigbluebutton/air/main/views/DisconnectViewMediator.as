@@ -5,8 +5,6 @@ package org.bigbluebutton.air.main.views {
 	import flash.events.MouseEvent;
 	import flash.system.Capabilities;
 	
-	import mx.core.FlexGlobals;
-	
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;

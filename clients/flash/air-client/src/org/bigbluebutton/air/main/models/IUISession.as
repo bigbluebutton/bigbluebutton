@@ -7,7 +7,7 @@ package org.bigbluebutton.air.main.models {
 		function get loading():Boolean;
 		function get loadingMessage():String;
 		function get loadingChangeSignal():ISignal;
-		function setLoading(val:Boolean, message:String):void;
+		function setLoading(val:Boolean, message:String = ""):void;
 		function get pageChangedSignal():ISignal;
 		function get pageTransitionStartSignal():ISignal;
 		function get currentPage():String;

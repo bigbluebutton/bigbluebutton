@@ -178,6 +178,7 @@ package org.bigbluebutton.lib.user.services {
 		
 		private function handleUserEjectedFromMeeting(m:Object):void {
 			trace(LOG + "handleUserEjectedFromMeeting() -- user ejected from meeting");
+			userSession.logoutSignal.dispatch();
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_USER_KICKED_OUT);
 		}
 		
