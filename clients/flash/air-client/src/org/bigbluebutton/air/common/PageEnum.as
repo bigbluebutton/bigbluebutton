@@ -4,14 +4,16 @@ package org.bigbluebutton.air.common {
 	
 	import org.bigbluebutton.air.chat.views.ChatRoomView;
 	import org.bigbluebutton.air.main.views.MainView;
+	import org.bigbluebutton.air.main.views.DisconnectView;
+	import org.bigbluebutton.air.main.views.ExitView;
 	import org.bigbluebutton.air.participants.views.ParticipantsView;
 	import org.bigbluebutton.air.settings.views.SettingsView;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
-	import org.bigbluebutton.air.voice.views.EchoTestView;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
 	import org.bigbluebutton.air.users.views.UserDetailsView;
+	import org.bigbluebutton.air.voice.views.EchoTestView;
 	
 	public class PageEnum {
 		public static const MAIN:String = "main";
@@ -65,9 +67,9 @@ package org.bigbluebutton.air.common {
 				//		dic[VIDEO_CHAT] = VideoChatView;
 				//		dic[CHATROOMS] = ChatRoomsView;
 				//		dic[SELECT_PARTICIPANT] = SelectParticipantView;
-				//		dic[DISCONNECT] = DisconnectPageView;
+				dic[DISCONNECT] = DisconnectView;
 				//		dic[DESKSHARE] = DeskshareView;
-				//		dic[EXIT] = ExitPageView;
+				dic[EXIT] = ExitView;
 				dicInitiated = true;
 			}
 		}

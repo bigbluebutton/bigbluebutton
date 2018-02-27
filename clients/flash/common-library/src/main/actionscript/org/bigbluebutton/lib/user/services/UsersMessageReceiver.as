@@ -29,10 +29,6 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function onMessage(messageName:String, message:Object):void {
 			switch (messageName) {
-				case "meetingHasEnded":
-				case "meetingEnded":
-					handleMeetingHasEnded(message);
-					break;
 				case "meetingState":
 					handleMeetingState(message);
 					break;
@@ -40,8 +36,9 @@ package org.bigbluebutton.lib.user.services {
 					handleMeetingMuted(message);
 					break;
 				
-				
-				
+				case "UserEjectedFromMeetingEvtMsg":
+					handleUserEjectedFromMeeting(message);
+					break;
 				
 				case "GetRecordingStatusRespMsg":
 					handleGetRecordingStatusRespMsg(message);
@@ -117,10 +114,17 @@ package org.bigbluebutton.lib.user.services {
 			userSession.logoutSignal.dispatch();
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MEETING_ENDED);
 		}
-		
 
+		private function handleUserEjectedFromMeeting(m:Object):void {
+			trace(LOG + "handleUserEjectedFromMeeting() -- user ejected from meeting");
+			userSession.logoutSignal.dispatch();
+			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_USER_KICKED_OUT);
+		}
 		
-		
+		private function handleRecordingStatusChanged(m:Object):void {
+			trace(LOG + "handleRecordingStatusChanged() -- recording status changed");
+			meetingData.meetingStatus.recording = m.body.recording;
+		}
 		
 		private function handleGetRecordingStatusRespMsg(m:Object):void {
 			trace(LOG + "handleGetRecordingStatusRespMsg() -- recording status");
@@ -163,9 +167,9 @@ package org.bigbluebutton.lib.user.services {
 			meetingData.users.add(user);
 		}
 		
-		private function handleUserLeftMeetingEvtMsg(msg:Object):void {
-			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + msg.body.intId + "] has left the meeting");
-			meetingData.users.remove(msg.intId);
+		private function handleUserLeftMeetingEvtMsg(m:Object):void {
+			trace(LOG + "handleUserLeftMeetingEvtMsg() -- user [" + m.body.intId + "] has left the meeting");
+			meetingData.users.remove(m.body.intId);
 		}
 		
 		private function handleUserLockedInMeetingEvtMsg(msg:Object):void {

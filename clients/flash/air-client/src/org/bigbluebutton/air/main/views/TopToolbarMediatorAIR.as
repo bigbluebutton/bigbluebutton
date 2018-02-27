@@ -20,7 +20,18 @@ package org.bigbluebutton.air.main.views {
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
 		
+		override protected function setVisibility():void {
+			if (uiSession.currentPage == PageEnum.DISCONNECT || uiSession.currentPage == PageEnum.EXIT) {
+				view.visible = view.includeInLayout = false;
+			} else {
+				view.visible = view.includeInLayout = true;
+			}
+		}
+		
 		override protected function setTitle():void {
+			if (!view.visible) {
+				return;
+			}
 			if (uiSession.currentPage == PageEnum.CHAT) {
 				var chatData:Object = uiSession.currentPageDetails;
 				

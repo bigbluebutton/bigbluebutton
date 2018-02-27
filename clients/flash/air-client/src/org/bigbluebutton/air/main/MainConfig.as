@@ -6,6 +6,10 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
 	import org.bigbluebutton.air.main.views.BannerView;
 	import org.bigbluebutton.air.main.views.BannerViewMediator;
+	import org.bigbluebutton.air.main.views.DisconnectView;
+	import org.bigbluebutton.air.main.views.DisconnectViewMediator;
+	import org.bigbluebutton.air.main.views.ExitView;
+	import org.bigbluebutton.air.main.views.ExitViewMediator;
 	import org.bigbluebutton.air.main.views.LoadingScreen;
 	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
 	import org.bigbluebutton.air.main.views.MenuButtonsMediatorAIR;
@@ -17,6 +21,7 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
+	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -56,7 +61,8 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(BannerView).toMediator(BannerViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);
 			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorAIR);
-		
+			mediatorMap.map(ExitView).toMediator(ExitViewMediator);
+			mediatorMap.map(DisconnectView).toMediator(DisconnectViewMediator);
 		}
 		
 		/**

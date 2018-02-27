@@ -8,11 +8,12 @@ package org.bigbluebutton.air.main.commands {
 	public class DisconnectUserCommandAIR extends DisconnectUserCommand {
 		
 		[Inject]
-		public var userUISession:IUISession;
+		public var uiSession:IUISession;
 		
 		override public function execute():void {
-			userUISession.pushPage(PageEnum.DISCONNECT, disconnectionStatusCode, TransitionAnimationEnum.APPEAR);
 			super.execute();
+			uiSession.setLoading(false);
+			uiSession.pushPage(PageEnum.DISCONNECT, disconnectionStatusCode, TransitionAnimationEnum.APPEAR);
 		}
 	}
 }
