@@ -14,6 +14,8 @@ case class StopShareRequestMessage(meetingId: String, streamId: String)
 
 case class StreamStartedMessage(meetingId: String, streamId: String, url: String)
 
+case class AuthorizeBroadcastStreamMessage(meetingId: String, streamId: String, connId: String, scope: String)
+
 case class StreamStoppedMessage(meetingId: String, streamId: String)
 
 case class SharingStartedMessage(meetingId: String, streamId: String, width: Int, height: Int)

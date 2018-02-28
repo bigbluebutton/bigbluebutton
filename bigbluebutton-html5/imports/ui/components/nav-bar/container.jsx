@@ -24,7 +24,7 @@ export default withRouter(withTracker(({ location, router }) => {
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
-    meetingRecorded = meetingObject.currentlyBeingRecorded;
+    meetingRecorded = meetingObject.recordProp.recording;
   }
 
   const breakouts = Service.getBreakouts();

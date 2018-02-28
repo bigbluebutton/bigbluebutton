@@ -25,9 +25,7 @@ export default class Media extends Component {
       return (
         <div className={styles.overlayWrapper}>
           <div className={styles.overlayRatio}>
-            <div className={styles.overlay}>
-              {overlay}
-            </div>
+            <div className={styles.overlay}>{overlay}</div>
           </div>
         </div>
       );

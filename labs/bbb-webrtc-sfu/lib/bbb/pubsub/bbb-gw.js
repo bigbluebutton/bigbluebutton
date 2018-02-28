@@ -12,6 +12,7 @@ const RedisWrapper = require('./RedisWrapper.js');
 const config = require('config');
 const util = require('util');
 const EventEmitter = require('events').EventEmitter;
+const Logger = require('../../utils/Logger');
 
 let instance = null;
 
@@ -38,11 +39,11 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
     try {
       wrobj.startSubscriber();
       wrobj.on(C.REDIS_MESSAGE, this.incomingMessage.bind(this));
-      console.log("  [BigBlueButtonGW] Added redis client to this.subscribers[" + channel + "]");
+      Logger.info("[BigBlueButtonGW] Added redis client to this.subscribers[" + channel + "]");
       return Promise.resolve(wrobj);
     }
     catch (error) {
-      return Promise.reject("  [BigBlueButtonGW] Could not start redis client for channel " + channel);
+      return Promise.reject("[BigBlueButtonGW] Could not start redis client for channel " + channel);
     }
   }
 

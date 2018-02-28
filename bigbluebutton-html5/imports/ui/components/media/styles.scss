@@ -15,7 +15,7 @@
   display: block;
   height: 0;
   padding: 0;
-  padding-bottom: calc(100% * 9 / 16);
+  //padding-bottom: calc(100% * 9 / 16);
 }
 
 %ratio-item {
@@ -29,14 +29,35 @@
 }
 
 .overlayWrapper {
-  position: absolute;
-  width: 30%;
-  right: 2%;
-  bottom: 2%;
+  position: fixed;
+  width: 100%;
+  max-width: 170px;
+  height: 96px;
+  right: 8px;
+  bottom: 8px;
+
+  @include mq($portrait) {
+    position: absolute;
+    width: 100%;
+    max-width: none;
+    height: 96px;
+    top: 60px;
+    left: 0;
+    margin: 0 auto;
+  }
 
   @include mq($large-up) {
     flex-basis: 15%;
+
   }
+}
+
+.moreThan4Videos{
+  top: 63px;
+  right: 0;
+  position: fixed;
+  height: calc(100% - 143px);
+  text-align: right;
 }
 
 .overlayRatio {

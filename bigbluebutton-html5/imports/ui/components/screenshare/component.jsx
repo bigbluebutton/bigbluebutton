@@ -7,7 +7,7 @@ export default class ScreenshareComponent extends React.Component {
 
   render() {
     return (
-      <video id="screenshareVideo" style={{ height: '100%', width: '100%' }} autoPlay playsInline />
+      <video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline />
     );
   }
 }

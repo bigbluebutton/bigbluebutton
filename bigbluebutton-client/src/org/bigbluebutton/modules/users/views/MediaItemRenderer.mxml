@@ -209,6 +209,12 @@
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = false;
+
+							if (data.talking && !rolledOver) {
+								muteImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+							} else {
+								muteImg.filters = [];
+							}
 						} else {
 							muteImg.visible = !rolledOver;
 							muteImg.includeInLayout = !rolledOver;

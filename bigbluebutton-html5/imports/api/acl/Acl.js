@@ -26,6 +26,10 @@ export default class Acl {
       meetingId,
       userId,
       authToken,
+      validated: true,
+      // TODO: We cant check for approved until we move subscription logif out of <Base />
+      // approved: true,
+      connectionStatus: 'online',
     });
 
     return !!User; // if he found a user means the meeting/user/token is valid
@@ -40,8 +44,10 @@ export default class Acl {
       return permissions.some(internalAcl => (this.fetchPermission(permission, internalAcl)));
     } else if (Match.test(permissions, Object)) {
       if (permission.indexOf('.') > -1) {
-        return this.fetchPermission(permission.substring(permission.indexOf('.') + 1),
-          permissions[permission.substring(0, permission.indexOf('.'))]);
+        return this.fetchPermission(
+          permission.substring(permission.indexOf('.') + 1),
+          permissions[permission.substring(0, permission.indexOf('.'))],
+        );
       }
       return permissions[permission];
     }
@@ -53,8 +59,7 @@ export default class Acl {
       return false;
     }
 
-    const meetingId = credentials.meetingId;
-    const userId = credentials.requesterUserId;
+    const { meetingId, requesterUserId: userId } = credentials;
 
     const user = this.Users.findOne({
       meetingId,
@@ -64,7 +69,7 @@ export default class Acl {
     const containRole = Acl.containsRole(user);
 
     if (containRole) {
-      const roles = user.roles;
+      const { roles } = user;
       let permissions = {};
 
       roles.forEach((role) => {

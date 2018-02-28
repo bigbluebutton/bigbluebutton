@@ -18,11 +18,8 @@
  */
 package org.bigbluebutton.app.screenshare.red5;
 
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,6 +33,7 @@ import org.red5.server.api.so.ISharedObjectService;
 import org.red5.server.so.SharedObjectService;
 import org.red5.server.util.ScopeUtils;
 import org.slf4j.Logger;
+import com.google.gson.Gson;
 
 public class ConnectionInvokerService {
   private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "screenshare");
@@ -74,7 +72,7 @@ public class ConnectionInvokerService {
         }
       }
     };
-    exec.execute(sender);		
+    exec.execute(sender);
   }
 
   public void stop() {
@@ -96,8 +94,43 @@ public class ConnectionInvokerService {
       handlDisconnectClientMessage((DisconnectClientMessage) message);
     } else if (message instanceof DisconnectAllClientsMessage) {
       handleDisconnectAllClientsMessage((DisconnectAllClientsMessage) message);
+    } else if (message instanceof CloseConnectionMessage) {
+      handleCloseConnectionMessage((CloseConnectionMessage) message);
     }
-  }	
+  }
+
+  private void handleCloseConnectionMessage(CloseConnectionMessage msg) {
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", msg.meetingId);
+		logData.put("connId", msg.connId);
+		logData.put("streamId", msg.streamId);
+		logData.put("scope", msg.scope);
+		logData.put("event", "unauth_publish_stream_bbb_screenshare");
+		logData.put("description", "Unauthorized publish stream.");
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		log.info(logStr);
+
+		IScope meetingScope = null;
+
+		if (bbbAppScope.getName().equals(msg.scope)) {
+			meetingScope = bbbAppScope;
+		} else {
+			meetingScope = getScope(msg.scope);
+		}
+
+		if (meetingScope != null) {
+			IConnection conn = getConnectionWithConnId(meetingScope, msg.connId);
+			if (conn != null) {
+				if (conn.isConnected()) {
+					log.info("Disconnecting connection. data={}", logStr);
+					conn.close();
+				}
+			}
+		}
+
+	}
 
   private void handleDisconnectAllClientsMessage(DisconnectAllClientsMessage msg) {
     IScope meetingScope = getScope(msg.getMeetingId());
@@ -123,9 +156,9 @@ public class ConnectionInvokerService {
           log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());
           conn.close();
         }
-      }				
-    }		
-  }	
+      }
+    }
+  }
 
   private void sendSharedObjectMessage(SharedObjectClientMessage msg) {
     System.out.println("*********** Request to send [" + msg.getMessageName() + "] using shared object.");
@@ -153,14 +186,14 @@ public class ConnectionInvokerService {
       public void run() {
         IScope meetingScope = getScope(msg.getMeetingID());
         if (meetingScope != null) {
-          log.debug("Found scope =[{}] for meeting=[{}]", meetingScope.getName(), msg.getMeetingID());
+          //log.debug("Found scope =[{}] for meeting=[{}]", meetingScope.getName(), msg.getMeetingID());
           IConnection conn = getConnection(meetingScope, msg.getUserID());
           if (conn != null) {
             if (conn.isConnected()) {
               List<Object> params = new ArrayList<Object>();
               params.add(msg.getMessageName());
               params.add(msg.getMessage());
-              log.debug("Sending message=[{}] to meeting=[{}]", msg.getMessageName(), msg.getMeetingID());
+              //log.debug("Sending message=[{}] to meeting=[{}]", msg.getMessageName(), msg.getMeetingID());
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             } else {
               log.warn("Connection not connected for userid=[{}] in meeting=[{}]", msg.getUserID(), msg.getMeetingID());
@@ -190,6 +223,18 @@ public class ConnectionInvokerService {
     };	
     runExec.execute(sender);
   }
+
+	private IConnection getConnectionWithConnId(IScope scope, String connId) {
+		Set<IConnection> conns = scope.getClientConnections();
+		for (IConnection conn : conns) {
+			String connID = (String) conn.getSessionId();
+			if (connID != null && connID.equals(connId)) {
+				return conn;
+			}
+		}
+
+		return null;
+	}
 
   private IConnection getConnection(IScope scope, String userID) {
     Set<IConnection> conns = scope.getClientConnections();

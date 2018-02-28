@@ -140,6 +140,10 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     super.streamBroadcastStart(stream);
 
     log.info("streamBroadcastStart " + stream.getPublishedName() + "]");
+
+    String connId = conn.getSessionId();
+    String scopeName = stream.getScope().getName();
+
     String streamId = stream.getPublishedName();
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
@@ -147,7 +151,11 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
         String url = streamBaseUrl + "/" + meetingId + "/" + streamId;
         app.streamStarted(meetingId, streamId, url);
 
-	    boolean recordVideoStream = app.recordStream(meetingId, streamId);
+
+
+      app.authorizeBroadcastStream(meetingId, streamId, connId, scopeName);
+
+        boolean recordVideoStream = app.recordStream(meetingId, streamId);
 	    if (recordVideoStream) {
 	      recordStream(stream);
 	      ScreenshareStreamListener listener = new ScreenshareStreamListener(recordingService, recordingDirectory);
@@ -167,6 +175,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
       log.info("ScreenShare broadcast started: data={}", logStr);
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
+    	conn.close();
     }
   }
 

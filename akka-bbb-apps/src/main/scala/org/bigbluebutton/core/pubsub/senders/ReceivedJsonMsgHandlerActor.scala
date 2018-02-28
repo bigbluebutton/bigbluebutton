@@ -68,6 +68,8 @@ class ReceivedJsonMsgHandlerActor(
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
+      case ValidateConnAuthTokenSysMsg.NAME =>
+        route[ValidateConnAuthTokenSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       // Guests
       case GetGuestsWaitingApprovalReqMsg.NAME =>

@@ -376,9 +376,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </fx:Script>
 	
 	<mx:states>
-		<s:State name="normal" />
-		<s:State name="uploading" />
-		<s:State name="error" />
+		<mx:State name="normal" />
+		<mx:State name="uploading" />
+		<mx:State name="error" />
 	</mx:states>
 	
 
