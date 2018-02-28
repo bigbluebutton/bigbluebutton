@@ -20,6 +20,7 @@ class ActionsBar extends React.PureComponent {
       handleEmojiChange,
       isUserModerator,
       recordSettingsList,
+      toggleRecording,
     } = this.props;
 
     const {
@@ -44,6 +45,7 @@ class ActionsBar extends React.PureComponent {
             allowStartStopRecording,
             isRecording,
             record,
+            toggleRecording,
             }}
           />
         </div>

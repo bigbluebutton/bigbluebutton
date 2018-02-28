@@ -10,7 +10,6 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { styles } from '../styles';
-import Service from '../service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -88,6 +87,7 @@ class ActionsDropdown extends Component {
       allowStartStopRecording,
       isRecording,
       record,
+      toggleRecording,
     } = this.props;
 
     return _.compact([
@@ -119,7 +119,7 @@ class ActionsDropdown extends Component {
           description={intl.formatMessage(isRecording ?
             intlMessages.stopRecording : intlMessages.startRecording)}
           key={this.recordId}
-          onClick={Service.toggleRecording}
+          onClick={toggleRecording}
         />
         : null),
     ]);
@@ -138,7 +138,7 @@ class ActionsDropdown extends Component {
 
     const availableActions = this.getAvailableActions();
 
-    if (availableActions.length === 0 && (!isUserPresenter || !isUserModerator)) return null;
+    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >

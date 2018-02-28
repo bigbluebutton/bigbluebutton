@@ -201,7 +201,9 @@ class NavBar extends Component {
         </div>
         <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
-          <span className={styles.presentationTitleSeparator}>|</span>
+          {beingRecorded.record ?
+            <span className={styles.presentationTitleSeparator}>|</span>
+          : null}
           <RecordingIndicator
             {...beingRecorded}
             title={intl.formatMessage(intlMessages[recordingMessage])}

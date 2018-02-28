@@ -2,9 +2,9 @@ import React from 'react';
 import { styles } from './styles';
 
 const RecordingIndicator = ({
-  record, allowStartStopRecording, title, recording,
+  record, title, recording,
 }) => {
-  if (!record || !allowStartStopRecording) return null;
+  if (!record) return null;
 
   return (
     <div>

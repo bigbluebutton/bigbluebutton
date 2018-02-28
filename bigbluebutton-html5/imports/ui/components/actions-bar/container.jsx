@@ -19,4 +19,5 @@ export default withTracker(() => ({
   handleUnshareScreen: () => unshareScreen(),
   isVideoBroadcasting: isVideoBroadcasting(),
   recordSettingsList: Service.recordSettingsList(),
+  toggleRecording: Service.toggleRecording,
 }))(ActionsBarContainer);
