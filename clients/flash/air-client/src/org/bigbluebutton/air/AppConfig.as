@@ -21,6 +21,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.lib.main.commands.KickUserCommand;
+	import org.bigbluebutton.lib.main.commands.KickUserSignal;
 	import org.bigbluebutton.lib.main.commands.LockUserCommand;
 	import org.bigbluebutton.lib.main.commands.LockUserSignal;
 	import org.bigbluebutton.lib.main.commands.PresenterCommand;
@@ -87,6 +89,7 @@ package org.bigbluebutton.air {
 			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
 			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
 			signalCommandMap.map(ChangeUserRoleSignal).toCommand(ChangeUserRoleCommand);
+			signalCommandMap.map(KickUserSignal).toCommand(KickUserCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 		}
 	}

@@ -73,6 +73,12 @@ package org.bigbluebutton.air.users.views {
 			return _unlockButton;
 		}
 		
+		private var _kickButton:Button;
+		
+		public function get kickButton():Button {
+			return _kickButton;
+		}
+		
 		private var _viewModel:UserDetailsVM;
 		
 		public function UserDetailsView() {
@@ -124,13 +130,11 @@ package org.bigbluebutton.air.users.views {
 			_showCameraButton = new Button();
 			_showCameraButton.percentWidth = 90;
 			_showCameraButton.label = "Show Camera"; //{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}"
-			
 			sGroup.addElement(_showCameraButton);
 			
 			_privateChatButton = new Button();
 			_privateChatButton.percentWidth = 90;
 			_privateChatButton.label = "Private Chat"; //{resourceManager.getString('resources', 'userDetail.privateChatBtn.text')}"
-			
 			sGroup.addElement(_privateChatButton);
 			
 			_clearStatusButton = new Button();
@@ -145,12 +149,12 @@ package org.bigbluebutton.air.users.views {
 			
 			_promoteButton = new Button();
 			_promoteButton.percentWidth = 90;
-			_promoteButton.label = "Promote to Moderator";
+			_promoteButton.label = "Promote to Moderator"; //{resourceManager.getString('resources', 'userDetail.promoteButton.text')}"
 			sGroup.addElement(_promoteButton);
 			
 			_demoteButton = new Button();
 			_demoteButton.percentWidth = 90;
-			_demoteButton.label = "Demote to Viewer";
+			_demoteButton.label = "Demote to Viewer"; //{resourceManager.getString('resources', 'userDetail.demoteButton.text')}"
 			sGroup.addElement(_demoteButton);
 			
 			_lockButton = new Button();
@@ -162,6 +166,11 @@ package org.bigbluebutton.air.users.views {
 			_unlockButton.percentWidth = 90;
 			_unlockButton.label = "Unlock User"; //{resourceManager.getString('resources', 'userDetail.unlockButton.text')}"
 			sGroup.addElement(_unlockButton);
+			
+			_kickButton = new Button();
+			_kickButton.percentWidth = 90;
+			_kickButton.label = "Remove User"; //{resourceManager.getString('resources', 'userDetail.kickButton.text')}"
+			sGroup.addElement(_kickButton);
 			
 			skinnableWrapper.addElement(scroller);
 			
@@ -258,6 +267,14 @@ package org.bigbluebutton.air.users.views {
 					lockButton.visible = false;
 					lockButton.includeInLayout = false;
 				}
+				
+				if (_viewModel.amIModerator && !_viewModel.me) {
+					kickButton.visible = true;
+					kickButton.includeInLayout = true;
+				} else {
+					kickButton.visible = false;
+					kickButton.includeInLayout = false;
+				}
 			}
 		}
 		
@@ -282,6 +299,7 @@ package org.bigbluebutton.air.users.views {
 			_lockButton.styleName = "userDetailsButton";
 			_promoteButton.styleName = "userDetailsButton";
 			_demoteButton.styleName = "userDetailsButton";
+			_kickButton.styleName = "userDetailsButton";
 			_showCameraButton.styleName = "userDetailsButton";
 			_privateChatButton.styleName = "userDetailsButton";
 			_clearStatusButton.styleName = "userDetailsButton";
