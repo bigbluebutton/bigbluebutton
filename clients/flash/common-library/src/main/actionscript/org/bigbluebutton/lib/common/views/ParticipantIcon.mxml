@@ -23,7 +23,7 @@
 			}
 			
 			public function setEmoji(emoji:String):void {
-				firstLetters.styleName = "icon icon-"+emoji;
+				firstLetters.styleName = "icon icon-" + emoji;
 				firstLetters.text = "";
 			}
 			
@@ -42,7 +42,7 @@
 	<fx:Declarations>
 		<s:SolidColorStroke id="borderStroke" />
 	</fx:Declarations>
-	
+
 	<s:Label id="firstLetters"
 			 paddingTop="0"
 			 paddingLeft="0"
@@ -56,8 +56,8 @@
 		<s:stroke>{borderStroke}</s:stroke>
 	</s:Ellipse>
 	<s:Rect id="rectangle"
-			   verticalCenter="0"
-			   horizontalCenter="0">
+			verticalCenter="0"
+			horizontalCenter="0">
 		<s:stroke>{borderStroke}</s:stroke>
 	</s:Rect>
 </s:Group>

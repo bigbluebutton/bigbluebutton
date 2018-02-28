@@ -22,5 +22,6 @@ package org.bigbluebutton.lib.user.services {
 		function saveLockSettings(newLockSettings:Object):void;
 		function validateToken():void;
 		function joinMeeting():void;
+		function changeRole(userId:String, role:String):void;
 	}
 }

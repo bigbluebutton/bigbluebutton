@@ -1,6 +1,14 @@
 package org.bigbluebutton.air.users.views {
-	import mx.core.ScrollPolicy;
 	import mx.graphics.SolidColor;
+	
+	import spark.components.Button;
+	import spark.components.Group;
+	import spark.components.Label;
+	import spark.components.Scroller;
+	import spark.components.SkinnableContainer;
+	import spark.components.VGroup;
+	import spark.layouts.VerticalLayout;
+	import spark.primitives.Rect;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
@@ -9,17 +17,6 @@ package org.bigbluebutton.air.users.views {
 	import org.bigbluebutton.lib.user.models.EmojiStatus;
 	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.user.utils.UserUtils;
-	
-	import spark.components.Button;
-	import spark.components.Group;
-	import spark.components.HGroup;
-	import spark.components.Image;
-	import spark.components.Label;
-	import spark.components.Scroller;
-	import spark.components.SkinnableContainer;
-	import spark.components.VGroup;
-	import spark.layouts.VerticalLayout;
-	import spark.primitives.Rect;
 	
 	public class UserDetailsView extends NoTabView {
 		private var _participantIcon:ParticipantIcon;
@@ -56,6 +53,12 @@ package org.bigbluebutton.air.users.views {
 		
 		public function get promoteButton():Button {
 			return _promoteButton;
+		}
+		
+		private var _demoteButton:Button;
+		
+		public function get demoteButton():Button {
+			return _demoteButton;
 		}
 		
 		private var _lockButton:Button;
@@ -121,43 +124,43 @@ package org.bigbluebutton.air.users.views {
 			_showCameraButton = new Button();
 			_showCameraButton.percentWidth = 90;
 			_showCameraButton.label = "Show Camera"; //{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}"
-			_showCameraButton.styleName = "userSettingsButton logoutButton contentFontSize";
+			
 			sGroup.addElement(_showCameraButton);
 			
 			_privateChatButton = new Button();
 			_privateChatButton.percentWidth = 90;
 			_privateChatButton.label = "Private Chat"; //{resourceManager.getString('resources', 'userDetail.privateChatBtn.text')}"
-			_privateChatButton.styleName = "userSettingsButton logoutButton contentFontSize";
+			
 			sGroup.addElement(_privateChatButton);
 			
 			_clearStatusButton = new Button();
 			_clearStatusButton.percentWidth = 90;
 			_clearStatusButton.label = "Clear Status"; //{resourceManager.getString('resources', 'userDetail.clearStatus')}"
-			_clearStatusButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_clearStatusButton);
 			
 			_makePresenterButton = new Button();
 			_makePresenterButton.percentWidth = 90;
 			_makePresenterButton.label = "Make Presenter"; //{resourceManager.getString('resources', 'userDetail.presenterBtn.text')}"
-			_makePresenterButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_makePresenterButton);
 			
 			_promoteButton = new Button();
 			_promoteButton.percentWidth = 90;
 			_promoteButton.label = "Promote to Moderator";
-			_promoteButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_promoteButton);
+			
+			_demoteButton = new Button();
+			_demoteButton.percentWidth = 90;
+			_demoteButton.label = "Demote to Viewer";
+			sGroup.addElement(_demoteButton);
 			
 			_lockButton = new Button();
 			_lockButton.percentWidth = 90;
 			_lockButton.label = "Lock User"; //{resourceManager.getString('resources', 'userDetail.lockButton.text')}"
-			_lockButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_lockButton);
 			
 			_unlockButton = new Button();
 			_unlockButton.percentWidth = 90;
 			_unlockButton.label = "Unlock User"; //{resourceManager.getString('resources', 'userDetail.unlockButton.text')}"
-			_unlockButton.styleName = "userSettingsButton logoutButton contentFontSize";
 			sGroup.addElement(_unlockButton);
 			
 			skinnableWrapper.addElement(scroller);
@@ -214,9 +217,18 @@ package org.bigbluebutton.air.users.views {
 				if (!_viewModel.userModerator && _viewModel.amIModerator) {
 					promoteButton.includeInLayout = true;
 					promoteButton.visible = true;
+					demoteButton.includeInLayout = false;
+					demoteButton.visible = false;
+				} else if (_viewModel.userModerator && _viewModel.amIModerator) {
+					promoteButton.includeInLayout = false;
+					promoteButton.visible = false;
+					demoteButton.includeInLayout = true;
+					demoteButton.visible = true;
 				} else {
 					promoteButton.includeInLayout = false;
 					promoteButton.visible = false;
+					demoteButton.includeInLayout = false;
+					demoteButton.visible = false;
 				}
 				//cameraIcon.visible = cameraIcon.includeInLayout = false;// _user.hasStream;
 				//micIcon.visible = micIcon.includeInLayout = false; //(_user.voiceJoined && !_user.muted);
@@ -264,6 +276,15 @@ package org.bigbluebutton.air.users.views {
 			_participantLabel.setStyle("fontSize", _participantIcon.getStyle("fontSize") * 0.65);
 			_participantLabel.setStyle("paddingBottom", groupsPadding);
 			_participantLabel.y = _participantIcon.y + _participantIcon.height + groupsPadding;
+			
+			_makePresenterButton.styleName = "userDetailsButton";
+			_unlockButton.styleName = "userDetailsButton";
+			_lockButton.styleName = "userDetailsButton";
+			_promoteButton.styleName = "userDetailsButton";
+			_demoteButton.styleName = "userDetailsButton";
+			_showCameraButton.styleName = "userDetailsButton";
+			_privateChatButton.styleName = "userDetailsButton";
+			_clearStatusButton.styleName = "userDetailsButton";
 		}
 	}
 }

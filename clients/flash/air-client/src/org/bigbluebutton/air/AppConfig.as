@@ -15,6 +15,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
+	import org.bigbluebutton.lib.main.commands.ChangeUserRoleCommand;
+	import org.bigbluebutton.lib.main.commands.ChangeUserRoleSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
@@ -41,8 +43,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.video.services.VideoConnection;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
-	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.lib.voice.services.IVoiceService;
+	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceService;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -84,6 +86,7 @@ package org.bigbluebutton.air {
 			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
 			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
 			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
+			signalCommandMap.map(ChangeUserRoleSignal).toCommand(ChangeUserRoleCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 		}
 	}

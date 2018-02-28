@@ -5,6 +5,7 @@ package org.bigbluebutton.air.users.views {
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.users.views.models.UserDetailsVM;
 	import org.bigbluebutton.lib.chat.commands.StartPrivateChatSignal;
+	import org.bigbluebutton.lib.main.commands.ChangeUserRoleSignal;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
 	import org.bigbluebutton.lib.main.commands.LockUserSignal;
 	import org.bigbluebutton.lib.main.commands.PresenterSignal;
@@ -39,6 +40,9 @@ package org.bigbluebutton.air.users.views {
 		[Inject]
 		public var lockUserSignal:LockUserSignal;
 		
+		[Inject]
+		public var changeUserRoleSignal:ChangeUserRoleSignal;
+		
 		protected var _user:User2x;
 		
 		protected var _viewModel:UserDetailsVM;
@@ -66,6 +70,8 @@ package org.bigbluebutton.air.users.views {
 			view.privateChatButton.addEventListener(MouseEvent.CLICK, onShowPrivateChatButton);
 			view.clearStatusButton.addEventListener(MouseEvent.CLICK, onClearStatusButton);
 			view.makePresenterButton.addEventListener(MouseEvent.CLICK, onMakePresenterButton);
+			view.promoteButton.addEventListener(MouseEvent.CLICK, onPromoteButton);
+			view.demoteButton.addEventListener(MouseEvent.CLICK, onDemoteButton);
 			view.lockButton.addEventListener(MouseEvent.CLICK, onLockUser);
 			view.unlockButton.addEventListener(MouseEvent.CLICK, onUnlockUser);
 		}
@@ -101,6 +107,16 @@ package org.bigbluebutton.air.users.views {
 		
 		protected function onMakePresenterButton(event:MouseEvent):void {
 			presenterSignal.dispatch(_user);
+			userUISession.popPage();
+		}
+		
+		protected function onPromoteButton(event:MouseEvent):void {
+			changeUserRoleSignal.dispatch(_user, UserRole.MODERATOR);
+			userUISession.popPage();
+		}
+		
+		protected function onDemoteButton(event:MouseEvent):void {
+			changeUserRoleSignal.dispatch(_user, UserRole.VIEWER);
 			userUISession.popPage();
 		}
 		

@@ -128,5 +128,9 @@ package org.bigbluebutton.lib.user.services {
 		public function joinMeeting():void {
 			usersMessageSender.joinMeeting();
 		}
+		
+		public function changeRole(userId:String, role:String):void {
+			usersMessageSender.changeRole(userId, role);
+		}
 	}
 }
