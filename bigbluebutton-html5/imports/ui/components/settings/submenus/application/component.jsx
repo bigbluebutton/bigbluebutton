@@ -67,6 +67,8 @@ class ApplicationMenu extends BaseMenu {
     this.state = {
       settingsName: 'application',
       settings: props.settings,
+      isLargestFontSize: false,
+      isSmallestFontSize: false,
     };
   }
 
@@ -95,6 +97,8 @@ class ApplicationMenu extends BaseMenu {
     const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < MAX_FONTSIZE;
     const fs = canIncreaseFontSize ? availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
+    if (fs === MAX_FONTSIZE) this.setState({ isLargestFontSize: true });
+    this.setState({ isSmallestFontSize: false });
   }
 
   handleDecreaseFontSize() {
@@ -103,6 +107,8 @@ class ApplicationMenu extends BaseMenu {
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
     const fs = canDecreaseFontSize ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
+    if (fs === MIN_FONTSIZE) this.setState({ isSmallestFontSize: true });
+    this.setState({ isLargestFontSize: false });
   }
 
   handleSelectChange(fieldname, options, e) {
@@ -121,6 +127,7 @@ class ApplicationMenu extends BaseMenu {
 
   render() {
     const { availableLocales, intl } = this.props;
+    const { isLargestFontSize, isSmallestFontSize } = this.state;
 
     return (
       <div className={styles.tabContent}>
@@ -232,6 +239,7 @@ class ApplicationMenu extends BaseMenu {
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
+                      disabled={isLargestFontSize}
                     />
                   </div>
                   <div className={styles.col}>
@@ -242,6 +250,7 @@ class ApplicationMenu extends BaseMenu {
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
+                      disabled={isSmallestFontSize}
                     />
                   </div>
                 </div>
