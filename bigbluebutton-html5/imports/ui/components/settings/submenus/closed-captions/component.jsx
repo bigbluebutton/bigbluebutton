@@ -137,7 +137,7 @@ class ClosedCaptionsMenu extends BaseMenu {
         </div>
         <div className={styles.form}>
           <div className={styles.row}>
-            <div className={styles.col}>
+            <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.closedCaptionsLabel)}
@@ -150,7 +150,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={this.state.settings.enabled}
                   onChange={() => this.handleToggle('enabled')}
-                  ariaLabelledBy={'closedCaptions'}
+                  ariaLabelledBy="closedCaptions"
                   ariaLabel={intl.formatMessage(intlMessages.closedCaptionsLabel)}
                 />
               </div>
@@ -172,7 +172,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                       <Checkbox
                         onChange={() => this.handleToggle('takeOwnership')}
                         checked={this.state.settings.takeOwnership}
-                        ariaLabelledBy={'takeOwnership'}
+                        ariaLabelledBy="takeOwnership"
                         ariaLabel={intl.formatMessage(intlMessages.takeOwnershipLabel)}
                       />
                     </div>
@@ -206,8 +206,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                       {this.props.locales ? this.props.locales.map((locale, index) =>
                         (<option key={index} value={index}>
                           {locale}
-                        </option>),
-                      ) : null }
+                        </option>)) : null }
                     </select>
                   </label>
                 </div>
@@ -238,8 +237,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                         FONT_FAMILIES.map((family, index) =>
                           (<option key={index} value={index}>
                             {family}
-                          </option>),
-                        )
+                          </option>))
                       }
                     </select>
                   </label>
@@ -271,8 +269,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                           FONT_SIZES.map((size, index) =>
                             (<option key={index} value={index}>
                               {size}
-                            </option>),
-                          )
+                            </option>))
                         }
                     </select>
                   </label>
@@ -314,8 +311,8 @@ class ClosedCaptionsMenu extends BaseMenu {
                           onChange={this.handleColorChange.bind(this, 'backgroundColor')}
                           color={this.state.settings.backgroundColor}
                           colors={COLORS}
-                          width={'140px'}
-                          triangle={'top-right'}
+                          width="140px"
+                          triangle="top-right"
                         />
                       </div>
                     : null }
@@ -356,8 +353,8 @@ class ClosedCaptionsMenu extends BaseMenu {
                           onChange={this.handleColorChange.bind(this, 'fontColor')}
                           color={this.state.settings.fontColor}
                           colors={COLORS}
-                          width={'140px'}
-                          triangle={'top-right'}
+                          width="140px"
+                          triangle="top-right"
                         />
                       </div>
                     : null }

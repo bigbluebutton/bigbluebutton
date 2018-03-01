@@ -78,7 +78,7 @@ class DataSaving extends BaseMenu {
                   defaultChecked={false}
                   onChange={() => this.handleToggle('')}
                   ariaLabelledBy="screenShare"
-                  ariaLabel="screenShare"
+                  ariaLabel={intl.formatMessage(intlMessages.screenShareLabel)}
                 />
               </div>
             </div>
