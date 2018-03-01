@@ -1521,14 +1521,14 @@ if [ $CHECK ]; then
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
         if grep -q ws-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="//;s/".*//;p}')
         fi
         if grep -q wss-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="://;s/".*//;p}')
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="//;s/".*//;p}')
         fi
 	echo
 	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
-	echo "                    websocket port: $WEBRTC_SOCKET"	
+	echo "                         websocket: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
 
