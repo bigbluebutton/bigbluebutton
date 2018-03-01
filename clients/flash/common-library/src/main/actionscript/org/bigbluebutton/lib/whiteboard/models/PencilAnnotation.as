@@ -35,15 +35,19 @@ package org.bigbluebutton.lib.whiteboard.models {
 					an.annInfo.points = annInfo.points.concat(an.annInfo.points);
 					_annInfo = an.annInfo;
 					
-					var newSegment:String = "";
-					for (var i:int = 0; i < newPoints.length; ) {
-						newSegment += "L ";
-						newSegment += denormalize(newPoints[i++], _parentWidth) + " " + denormalize(newPoints[i++], _parentHeight) + " ";
+					if (shouldDraw()) {
+						var newSegment:String = "";
+						for (var i:int = 0; i < newPoints.length; ) {
+							newSegment += "L ";
+							newSegment += denormalize(newPoints[i++], _parentWidth) + " " + denormalize(newPoints[i++], _parentHeight) + " ";
+						}
+						_path.data += newSegment;
 					}
-					_path.data += newSegment;
 				} else {
 					_annInfo = an.annInfo;
-					makeGraphic();
+					if (shouldDraw()) {
+						makeGraphic();
+					}
 				}
 			}
 		}

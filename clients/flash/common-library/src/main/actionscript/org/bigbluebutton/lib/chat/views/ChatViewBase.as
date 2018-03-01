@@ -82,7 +82,7 @@ package org.bigbluebutton.lib.chat.views {
 			_inputGroup.addElement(_textInput);
 			
 			_sendButton = new Button();
-			_sendButton.styleName = "sendButton icon icon-plus";
+			_sendButton.styleName = "sendButton icon icon-send";
 			//enabled="{inputMessage0.text!=''}"
 			_inputGroup.addElement(_sendButton);
 			
