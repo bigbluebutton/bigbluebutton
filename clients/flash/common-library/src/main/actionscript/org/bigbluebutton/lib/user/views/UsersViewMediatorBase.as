@@ -4,7 +4,6 @@ package org.bigbluebutton.lib.user.views {
 	import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;
-	import org.bigbluebutton.lib.user.views.models.UserVM;
 	import org.bigbluebutton.lib.user.views.models.UsersVMCollection;
 	import org.bigbluebutton.lib.video.models.WebcamChangeEnum;
 	import org.bigbluebutton.lib.video.models.WebcamStreamInfo;

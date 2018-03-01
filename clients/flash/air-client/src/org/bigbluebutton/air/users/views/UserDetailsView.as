@@ -73,6 +73,18 @@ package org.bigbluebutton.air.users.views {
 			return _unlockButton;
 		}
 		
+		private var _muteButton:Button;
+		
+		public function get muteButton():Button {
+			return _muteButton;
+		}
+		
+		private var _unmuteButton:Button;
+		
+		public function get unmuteButton():Button {
+			return _unmuteButton;
+		}
+		
 		private var _kickButton:Button;
 		
 		public function get kickButton():Button {
@@ -167,6 +179,16 @@ package org.bigbluebutton.air.users.views {
 			_unlockButton.label = "Unlock User"; //{resourceManager.getString('resources', 'userDetail.unlockButton.text')}"
 			sGroup.addElement(_unlockButton);
 			
+			_muteButton = new Button();
+			_muteButton.percentWidth = 90;
+			_muteButton.label = "Mute User"; //{resourceManager.getString('resources', 'userDetail.muteButton.text')}"
+			sGroup.addElement(_muteButton);
+			
+			_unmuteButton = new Button();
+			_unmuteButton.percentWidth = 90;
+			_unmuteButton.label = "Unmute User"; //{resourceManager.getString('resources', 'userDetail.unmuteButton.text')}"
+			sGroup.addElement(_unmuteButton);
+			
 			_kickButton = new Button();
 			_kickButton.percentWidth = 90;
 			_kickButton.label = "Remove User"; //{resourceManager.getString('resources', 'userDetail.kickButton.text')}"
@@ -185,6 +207,9 @@ package org.bigbluebutton.air.users.views {
 			_viewModel = vm;
 		}
 		
+		/**
+		 *
+		 */
 		public function update():void {
 			if (_viewModel != null) {
 				/*
@@ -275,6 +300,23 @@ package org.bigbluebutton.air.users.views {
 					kickButton.visible = false;
 					kickButton.includeInLayout = false;
 				}
+				
+				if (_viewModel.userVoiceJoined && _viewModel.userMuted && _viewModel.amIModerator) {
+					muteButton.visible = false;
+					muteButton.includeInLayout = false;
+					unmuteButton.visible = true;
+					unmuteButton.includeInLayout = true;
+				} else if (_viewModel.userVoiceJoined && !_viewModel.userMuted && _viewModel.amIModerator) {
+					muteButton.visible = true;
+					muteButton.includeInLayout = true;
+					unmuteButton.visible = false;
+					unmuteButton.includeInLayout = false;
+				} else {
+					muteButton.visible = false;
+					muteButton.includeInLayout = false;
+					unmuteButton.visible = false;
+					unmuteButton.includeInLayout = false;
+				}
 			}
 		}
 		
@@ -300,6 +342,8 @@ package org.bigbluebutton.air.users.views {
 			_promoteButton.styleName = "userDetailsButton";
 			_demoteButton.styleName = "userDetailsButton";
 			_kickButton.styleName = "userDetailsButton";
+			_muteButton.styleName = "userDetailsButton";
+			_unmuteButton.styleName = "userDetailsButton";
 			_showCameraButton.styleName = "userDetailsButton";
 			_privateChatButton.styleName = "userDetailsButton";
 			_clearStatusButton.styleName = "userDetailsButton";

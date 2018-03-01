@@ -15,6 +15,7 @@ package org.bigbluebutton.air.users.views {
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;
 	import org.bigbluebutton.lib.user.models.UserRole;
+	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -43,6 +44,9 @@ package org.bigbluebutton.air.users.views {
 		
 		[Inject]
 		public var changeUserRoleSignal:ChangeUserRoleSignal;
+		
+		[Inject]
+		public var microphoneMuteSignal:MicrophoneMuteSignal;
 		
 		[Inject]
 		public var kickUserSignal:KickUserSignal;
@@ -77,11 +81,13 @@ package org.bigbluebutton.air.users.views {
 			view.promoteButton.addEventListener(MouseEvent.CLICK, onPromoteButton);
 			view.demoteButton.addEventListener(MouseEvent.CLICK, onDemoteButton);
 			view.kickButton.addEventListener(MouseEvent.CLICK, onKickButton);
-			view.lockButton.addEventListener(MouseEvent.CLICK, onLockUser);
+			view.lockButton.addEventListener(MouseEvent.CLICK, onLockButton);
+			view.muteButton.addEventListener(MouseEvent.CLICK, onMuteUser);
+			view.unmuteButton.addEventListener(MouseEvent.CLICK, onUnmuteUser);
 			view.unlockButton.addEventListener(MouseEvent.CLICK, onUnlockUser);
 		}
 		
-		protected function onLockUser(event:MouseEvent):void {
+		protected function onLockButton(event:MouseEvent):void {
 			//dispatch lock signal
 			lockUserSignal.dispatch(_user.intId, true);
 			userUISession.popPage();
@@ -91,6 +97,14 @@ package org.bigbluebutton.air.users.views {
 			//dispatch lock signal
 			lockUserSignal.dispatch(_user.intId, false);
 			userUISession.popPage();
+		}
+		
+		protected function onMuteUser(event:MouseEvent):void {
+			microphoneMuteSignal.dispatch(_user.intId);
+		}
+		
+		protected function onUnmuteUser(event:MouseEvent):void {
+			microphoneMuteSignal.dispatch(_user.intId);
 		}
 		
 		protected function onShowCameraButton(event:MouseEvent):void {
@@ -127,7 +141,6 @@ package org.bigbluebutton.air.users.views {
 		
 		protected function onKickButton(event:MouseEvent):void {
 			kickUserSignal.dispatch(_user);
-			userUISession.popPage();
 		}
 		
 		private function onUserChanged(user:User2x, prop:int):void {
@@ -168,12 +181,18 @@ package org.bigbluebutton.air.users.views {
 		
 		override public function destroy():void {
 			super.destroy();
+			
 			view.clearStatusButton.removeEventListener(MouseEvent.CLICK, onClearStatusButton);
 			view.makePresenterButton.removeEventListener(MouseEvent.CLICK, onMakePresenterButton);
-			view.lockButton.removeEventListener(MouseEvent.CLICK, onLockUser);
+			view.lockButton.removeEventListener(MouseEvent.CLICK, onLockButton);
 			view.unlockButton.removeEventListener(MouseEvent.CLICK, onUnlockUser);
 			view.showCameraButton.removeEventListener(MouseEvent.CLICK, onShowCameraButton);
 			view.privateChatButton.removeEventListener(MouseEvent.CLICK, onShowPrivateChatButton);
+			view.promoteButton.removeEventListener(MouseEvent.CLICK, onPromoteButton);
+			view.demoteButton.removeEventListener(MouseEvent.CLICK, onDemoteButton);
+			view.kickButton.removeEventListener(MouseEvent.CLICK, onKickButton);
+			view.muteButton.removeEventListener(MouseEvent.CLICK, onMuteUser);
+			view.unmuteButton.removeEventListener(MouseEvent.CLICK, onUnmuteUser);
 			meetingData.users.userChangeSignal.remove(onUserChanged);
 			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChange);
 			view = null;
