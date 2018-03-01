@@ -56,8 +56,13 @@ package org.bigbluebutton.lib.common.services {
 		
 		private function notifyListeners(messageName:String, message:Object):void {
 			if (messageName != null && messageName != "") {
-				for (var notify:String in _messageListeners) {
-					_messageListeners[notify].onMessage(messageName, message);
+				try {
+					for (var notify:String in _messageListeners) {
+						_messageListeners[notify].onMessage(messageName, message);
+					}
+				} catch(error:Error) {
+					trace(LOG + "Exception dispatched by a MessageListener, error: " + error.message + ", while trying to process " + ObjectUtil.toString(message));
+					trace(error.getStackTrace());
 				}
 			} else {
 				trace(LOG + "Message name is undefined");
