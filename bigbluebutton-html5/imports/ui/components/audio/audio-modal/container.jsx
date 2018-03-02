@@ -6,6 +6,8 @@ import Service from '../service';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
 
+const APP_CONFIG = Meteor.settings.public.app;
+
 export default withModalMounter(withTracker(({ mountModal }) =>
   ({
     closeModal: () => {
@@ -13,7 +15,7 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     },
     joinMicrophone: () =>
       new Promise((resolve, reject) => {
-        Service.transferCall().then(() => {
+        Service.joinMicrophone().then(() => {
           mountModal(null);
           resolve();
         }).catch(() => {
@@ -38,4 +40,6 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
+    listenOnlyMode: APP_CONFIG.listenOnlyMode,
+    skipCheck: APP_CONFIG.skipCheck,
   }))(AudioModalContainer));

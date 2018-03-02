@@ -24,6 +24,9 @@ const propTypes = {
   isConnected: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
+  showPermissionsOvelay: PropTypes.bool.isRequired,
+  listenOnlyMode: PropTypes.bool.isRequired,
+  skipCheck: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -81,7 +84,6 @@ class AudioModal extends Component {
     const {
       intl,
       closeModal,
-      joinListenOnly,
       joinEchoTest,
       exitAudio,
       leaveEchoTest,
@@ -113,8 +115,14 @@ class AudioModal extends Component {
       help: {
         title: intl.formatMessage(intlMessages.helpTitle),
         component: () => this.renderHelp(),
-      }
+      },
     };
+  }
+
+  componentWillMount() {
+    if (this.props.skipCheck) {
+      this.handleJoinMicrophone();
+    }
   }
 
   componentWillUnmount() {
@@ -152,7 +160,7 @@ class AudioModal extends Component {
       this.setState({
         content: 'echoTest',
       });
-    }).catch(err => {
+    }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -166,7 +174,7 @@ class AudioModal extends Component {
       joinListenOnly,
     } = this.props;
 
-    return joinListenOnly().catch(err => {
+    return joinListenOnly().catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -186,6 +194,7 @@ class AudioModal extends Component {
   renderAudioOptions() {
     const {
       intl,
+      listenOnlyMode,
     } = this.props;
 
     return (
@@ -198,14 +207,16 @@ class AudioModal extends Component {
           size="jumbo"
           onClick={this.handleGoToEchoTest}
         />
-        <Button
-          className={styles.audioBtn}
-          label={intl.formatMessage(intlMessages.listenOnlyLabel)}
-          icon="listen"
-          circle
-          size="jumbo"
-          onClick={this.handleJoinListenOnly}
-        />
+        {listenOnlyMode ?
+          <Button
+            className={styles.audioBtn}
+            label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+            icon="listen"
+            circle
+            size="jumbo"
+            onClick={this.handleJoinListenOnly}
+          />
+        : null}
       </span>
     );
   }
@@ -235,15 +246,8 @@ class AudioModal extends Component {
   }
 
   renderEchoTest() {
-    const {
-      isConnecting,
-    } = this.props;
-
     return (
       <EchoTest
-        isConnecting={isConnecting}
-        joinEchoTest={this.joinEchoTest}
-        leaveEchoTest={this.leaveEchoTest}
         handleNo={this.handleGoToAudioSettings}
         handleYes={this.handleJoinMicrophone}
       />
@@ -317,8 +321,8 @@ class AudioModal extends Component {
               data-test="modalBaseCloseButton"
               className={styles.closeBtn}
               label={intl.formatMessage(intlMessages.closeLabel)}
-              icon={'close'}
-              size={'md'}
+              icon="close"
+              size="md"
               hideLabel
               onClick={this.closeModal}
             />

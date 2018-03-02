@@ -5,8 +5,9 @@
       "mobileFont": 16,
       "desktopFont": 14,
       "audioChatNotification": false,
-      "autoJoinAudio": true,
-      "listenOnly": false,
+      "autoJoin": false,
+      "listenOnlyMode": true,
+      "forceListenOnly": false,
       "skipCheck": false,
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
@@ -52,9 +53,9 @@
     },
 
     "kurento": {
-      "wsUrl": "HOST",
-      "chromeExtensionKey": "KEY",
-      "chromeExtensionLink": "LINK",
+      "wsUrl": "wss://bbb-joao.dev.imdt.com.br/bbb-webrtc-sfu",
+      "chromeExtensionKey": "mbfngdphjegmlbfobcblikeefpidfncb",
+      "chromeExtensionLink": "https://chrome.google.com/webstore/detail/kurento-screenshare-test/mbfngdphjegmlbfobcblikeefpidfncb",
       "enableScreensharing": false,
       "enableVideo": false
     },
