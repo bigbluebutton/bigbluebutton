@@ -16,6 +16,8 @@ package org.bigbluebutton.air.voice.views {
 		override protected function yesButtonHandler(e:MouseEvent):void {
 			super.yesButtonHandler(e);
 			uiSession.popPage();
+			uiSession.popPage();
 		}
+
 	}
 }

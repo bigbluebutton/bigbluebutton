@@ -7,7 +7,6 @@ package org.bigbluebutton.lib.main.views {
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.models.VoiceUser;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
@@ -22,9 +21,6 @@ package org.bigbluebutton.lib.main.views {
 		
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;
-		
-		[Inject]
-		public var shareMicrophoneSignal:ShareMicrophoneSignal;
 		
 		[Inject]
 		public var meetingData:IMeetingData;

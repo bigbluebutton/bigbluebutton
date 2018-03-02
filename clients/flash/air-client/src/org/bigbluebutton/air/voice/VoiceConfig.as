@@ -1,6 +1,8 @@
 package org.bigbluebutton.air.voice {
 	
 	import org.bigbluebutton.air.voice.views.EchoTestViewMediatorAIR;
+	import org.bigbluebutton.air.voice.views.JoinAudioView;
+	import org.bigbluebutton.air.voice.views.JoinAudioViewMediator;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteCommand;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
@@ -30,6 +32,7 @@ package org.bigbluebutton.air.voice {
 		 */
 		private function mediators():void {
 			//mediatorMap.map(IMicButton).toMediator(MicButtonMediator);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(JoinAudioView)).toMediator(JoinAudioViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(EchoTestViewBase)).toMediator(EchoTestViewMediatorAIR);
 		}
 		
