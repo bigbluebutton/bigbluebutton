@@ -10,7 +10,6 @@
 			import flashx.textLayout.conversion.TextConverter;
 			
 			import org.bigbluebutton.lib.chat.models.ChatMessage;
-			import org.bigbluebutton.lib.user.utils.UserUtils;
 			
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				var iPadding:int = getStyle("padding");

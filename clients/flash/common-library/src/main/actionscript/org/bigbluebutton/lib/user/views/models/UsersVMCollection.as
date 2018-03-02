@@ -5,7 +5,6 @@ package org.bigbluebutton.lib.user.views.models {
 	import org.bigbluebutton.lib.user.models.EmojiStatus;
 	import org.bigbluebutton.lib.user.models.User2x;
 	import org.bigbluebutton.lib.user.models.UserRole;
-	import org.bigbluebutton.lib.user.models.Users2x;
 	import org.bigbluebutton.lib.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.lib.voice.models.VoiceUser;
 	

@@ -19,9 +19,9 @@ package org.bigbluebutton.lib.voice.services {
 		public function VoiceMessageSender() {
 		}
 		
-		public function muteUnmuteUser(userid:String, mute:Boolean):void {
-			trace("VoiceMessageSender::muteUnmuteUser() -- Sending [MuteUserCmdMsg] message to server with message [userId:" + userid + ", mute:" + mute + "]");
-			var message:Object = {header: {name: "MuteUserCmdMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID}, body: {userId: userid, mutedBy: conferenceParameters.internalUserID, mute: mute}};
+		public function muteUnmuteUser(userId:String, mute:Boolean):void {
+			trace("VoiceMessageSender::muteUnmuteUser() -- Sending [MuteUserCmdMsg] message to server with message [userId:" + userId + ", mute:" + mute + "]");
+			var message:Object = {header: {name: "MuteUserCmdMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID}, body: {userId: userId, mutedBy: conferenceParameters.internalUserID, mute: mute}};
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 	}

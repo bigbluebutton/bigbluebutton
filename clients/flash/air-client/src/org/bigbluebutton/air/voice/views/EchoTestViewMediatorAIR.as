@@ -17,6 +17,5 @@ package org.bigbluebutton.air.voice.views {
 			super.yesButtonHandler(e);
 			uiSession.popPage();
 		}
-
 	}
 }

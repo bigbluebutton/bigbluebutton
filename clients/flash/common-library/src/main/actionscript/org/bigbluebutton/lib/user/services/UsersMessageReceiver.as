@@ -114,7 +114,7 @@ package org.bigbluebutton.lib.user.services {
 			userSession.logoutSignal.dispatch();
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MEETING_ENDED);
 		}
-
+		
 		private function handleUserEjectedFromMeeting(m:Object):void {
 			trace(LOG + "handleUserEjectedFromMeeting() -- user ejected from meeting");
 			userSession.logoutSignal.dispatch();
@@ -283,8 +283,8 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function handleUserRoleChangedEvtMsg(msg:Object):void {
-			var userId: String = msg.body.userId as String;
-			var role: String = msg.body.role as String;
+			var userId:String = msg.body.userId as String;
+			var role:String = msg.body.role as String;
 			
 			meetingData.users.changeUserRole(userId, role);
 		}

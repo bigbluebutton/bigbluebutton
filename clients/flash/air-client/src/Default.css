@@ -218,12 +218,14 @@ settings|SettingsItemRenderer {
 	cornerRadius            : 5;
 	backgroundColor         : PropertyReference("blue500");
 	borderColor             : PropertyReference("white");
+	fontFamily              : SourceSansPro;
 	selectedBackgroundColor : PropertyReference("blue900");
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.ActionButtonSkin");
 }
 
 .saveButton {
 	color      : PropertyReference("white");
+	fontFamily : SourceSansPro;
 	fontWeight : normal;
 	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.SaveButtonSkin");
 }
@@ -283,4 +285,8 @@ settings|SettingsItemRenderer {
 
 .micLevelProgressBar {
 	showLabel : false;
+}
+
+.userDetailsButton {
+	color : PropertyReference("bbbBlack");
 }

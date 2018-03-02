@@ -5,6 +5,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 	import spark.components.HGroup;
 	import spark.components.HSlider;
 	import spark.components.Label;
+	import spark.components.ToggleButton;
 	import spark.components.VGroup;
 	import spark.components.supportClasses.ToggleButtonBase;
 	import spark.layouts.HorizontalAlign;
@@ -36,7 +37,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 		}
 		
 		protected function get toggleButtonClass():Class {
-			return ToggleButtonBase;
+			return ToggleButton;
 		}
 		
 		public function AudioSettingsViewBase() {
