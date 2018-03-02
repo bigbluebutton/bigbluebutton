@@ -16,6 +16,8 @@ package org.bigbluebutton.air.users.views {
 	import org.bigbluebutton.lib.user.models.UserChangeEnum;
 	import org.bigbluebutton.lib.user.models.UserRole;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
+	import org.bigbluebutton.lib.voice.models.VoiceUser;
+	import org.bigbluebutton.lib.voice.models.VoiceUserChangeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -58,6 +60,7 @@ package org.bigbluebutton.air.users.views {
 		override public function initialize():void {
 			var selectedUserId:String = userUISession.currentPageDetails as String;
 			meetingData.users.userChangeSignal.add(onUserChanged);
+			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChange);
 			_user = meetingData.users.getUser(selectedUserId);
 			
 			_viewModel = new UserDetailsVM();
@@ -66,6 +69,10 @@ package org.bigbluebutton.air.users.views {
 			_viewModel.userPresenter = _user.presenter;
 			_viewModel.userEmoji = _user.emoji;
 			_viewModel.userLocked = _user.locked;
+			
+			var _voiceUser:VoiceUser = meetingData.voiceUsers.getUser(_user.intId);
+			_viewModel.userVoiceJoined = _voiceUser != null;
+			_viewModel.userMuted = _voiceUser != null && _voiceUser.muted;
 			// user webcam, voicejoined, muted
 			_viewModel.amIModerator = meetingData.users.me.role == UserRole.MODERATOR;
 			_viewModel.me = _user.intId == meetingData.users.me.intId;
@@ -101,10 +108,12 @@ package org.bigbluebutton.air.users.views {
 		
 		protected function onMuteUser(event:MouseEvent):void {
 			microphoneMuteSignal.dispatch(_user.intId);
+			userUISession.popPage();
 		}
 		
 		protected function onUnmuteUser(event:MouseEvent):void {
 			microphoneMuteSignal.dispatch(_user.intId);
+			userUISession.popPage();
 		}
 		
 		protected function onShowCameraButton(event:MouseEvent):void {
@@ -174,6 +183,26 @@ package org.bigbluebutton.air.users.views {
 			}
 		}
 		
+		private function onVoiceUserChange(voiceUser:VoiceUser, enum:int):void {
+			switch (enum) {
+				case VoiceUserChangeEnum.JOIN:
+					_viewModel.userVoiceJoined = true;
+					view.update();
+					break;
+				case VoiceUserChangeEnum.LEAVE:
+					_viewModel.userVoiceJoined = false;
+					_viewModel.userMuted = true;
+					view.update();
+					break;
+				case VoiceUserChangeEnum.MUTE:
+					_viewModel.userMuted = voiceUser.muted;
+					view.update();
+					break;
+				default:
+					break;
+			}
+		}
+		
 		private function onLockSettingsChange(lockSettings:LockSettings2x):void {
 			_viewModel.roomLocked = lockSettings.isRoomLocked();
 			view.update();
@@ -194,6 +223,7 @@ package org.bigbluebutton.air.users.views {
 			view.muteButton.removeEventListener(MouseEvent.CLICK, onMuteUser);
 			view.unmuteButton.removeEventListener(MouseEvent.CLICK, onUnmuteUser);
 			meetingData.users.userChangeSignal.remove(onUserChanged);
+			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChange);
 			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChange);
 			view = null;
 		}

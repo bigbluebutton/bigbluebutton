@@ -301,12 +301,12 @@ package org.bigbluebutton.air.users.views {
 					kickButton.includeInLayout = false;
 				}
 				
-				if (_viewModel.userVoiceJoined && _viewModel.userMuted && _viewModel.amIModerator) {
+				if (_viewModel.userVoiceJoined && _viewModel.userMuted && _viewModel.me) {
 					muteButton.visible = false;
 					muteButton.includeInLayout = false;
 					unmuteButton.visible = true;
 					unmuteButton.includeInLayout = true;
-				} else if (_viewModel.userVoiceJoined && !_viewModel.userMuted && _viewModel.amIModerator) {
+				} else if (_viewModel.userVoiceJoined && !_viewModel.userMuted) {
 					muteButton.visible = true;
 					muteButton.includeInLayout = true;
 					unmuteButton.visible = false;
