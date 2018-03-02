@@ -73,11 +73,12 @@
         groupsPadding: 30.00;
     }
 
-    audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
+    audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, voice|EchoTestViewBase {
         padding: 22.50;
     }
 
-    voice|EchoTestViewBase {
+    main|ExitView, main|DisconnectView {
+        gap: 22.50;
         padding: 22.50;
     }
 
@@ -118,7 +119,7 @@
 
     .sendButton {
         borderWeight: 1.50;
-        diameter: 30.00;
+        diameter: 42.00;
     }
 
     .titleGroup {

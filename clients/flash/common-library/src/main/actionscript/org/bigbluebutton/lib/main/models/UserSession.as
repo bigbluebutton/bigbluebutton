@@ -3,8 +3,6 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
-	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
@@ -27,8 +25,6 @@ package org.bigbluebutton.lib.main.models {
 		protected var _videoConnection:IVideoConnection;
 		
 		protected var _deskshareConnection:IDeskshareConnection;
-		
-		protected var _userList:UserList;
 		
 		protected var _presentationList:PresentationList;
 				
@@ -76,14 +72,6 @@ package org.bigbluebutton.lib.main.models {
 			_videoProfileManager = value;
 		}
 		
-		public function get userList():UserList {
-			return _userList;
-		}
-		
-		public function set userList(userList:UserList):void {
-			_userList = userList;
-		}
-		
 		public function get lockSettings():LockSettings {
 			return _lockSettings;
 		}
@@ -126,7 +114,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set userId(value:String):void {
 			_userId = value;
-			_userList.me.userId = value;
 		}
 		
 		public function get voiceConnection():IVoiceConnection {
@@ -180,10 +167,8 @@ package org.bigbluebutton.lib.main.models {
 		}
 		
 		public function UserSession() {
-			_userList = new UserList();
 			_presentationList = new PresentationList();
 			_lockSettings = new LockSettings();
-			userList.userChangeSignal.add(userChangedHandler);
 		}
 		
 		public function get presentationList():PresentationList {
@@ -220,21 +205,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get authTokenSignal():ISignal {
 			return _authTokenSignal;
-		}
-		
-		private function userChangedHandler(user:User, type:int):void {
-			if (user && user.me && (type == UserList.PRESENTER) || (type == UserList.MODERATOR)) {
-				dispatchLockSettings();
-			}
-		}
-		
-		public function dispatchLockSettings():void {
-			var userLocked:Boolean = (userList.me.role != User.MODERATOR && !userList.me.presenter && userList.me.locked);
-			lockSettings.loaded = true;
-			lockSettings.disableCamSignal.dispatch(lockSettings.disableCam && userLocked);
-			lockSettings.disableMicSignal.dispatch(lockSettings.disableMic && userLocked);
-			lockSettings.disablePrivateChatSignal.dispatch(lockSettings.disablePrivateChat && userLocked);
-			lockSettings.disablePublicChatSignal.dispatch(lockSettings.disablePublicChat && userLocked);
 		}
 	}
 }

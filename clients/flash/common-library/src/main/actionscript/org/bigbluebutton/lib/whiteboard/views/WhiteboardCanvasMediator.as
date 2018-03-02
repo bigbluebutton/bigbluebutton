@@ -38,6 +38,9 @@ package org.bigbluebutton.lib.whiteboard.views {
 		}
 		
 		private function userChangeHandler(user:User2x, type:int):void {
+			if (_whiteboard == null) {
+				return;
+			}
 			switch (type) {
 				case UserChangeEnum.PRESENTER:
 					if (user.presenter) {

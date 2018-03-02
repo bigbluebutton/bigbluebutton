@@ -60,12 +60,13 @@
 		groupsPadding : 40;
 	}
 	
-	audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
+	audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, voice|EchoTestViewBase {
 		padding: 30;
 	}
 	
-	voice|EchoTestViewBase {
-		padding: 30;
+	main|ExitView, main|DisconnectView {
+		gap     : 30;
+		padding : 30;
 	}
 	
 	usersAIR|UserDetailsView {
@@ -105,7 +106,7 @@
 	
 	.sendButton {
 		borderWeight : 2;
-		diameter     : 40;
+		diameter     : 56;
 	}
 	
 	.titleGroup {

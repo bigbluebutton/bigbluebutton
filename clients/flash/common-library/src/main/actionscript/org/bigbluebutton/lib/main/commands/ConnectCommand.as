@@ -17,6 +17,7 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
+	import org.bigbluebutton.lib.voice.services.IVoiceService;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -53,6 +54,9 @@ package org.bigbluebutton.lib.main.commands {
 		
 		[Inject]
 		public var usersService:IUsersService;
+		
+		[Inject]
+		public var voiceService:IVoiceService;
 		
 		[Inject]
 		public var chatService:IChatMessageService;
@@ -98,6 +102,7 @@ package org.bigbluebutton.lib.main.commands {
 			whiteboardService.setupMessageSenderReceiver();
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
+			voiceService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
 			userSession.authTokenSignal.add(onAuthTokenReply);
 			usersService.validateToken();
@@ -143,13 +148,13 @@ package org.bigbluebutton.lib.main.commands {
 			var audioOptions:Object = new Object();
 			if (userSession.phoneOptions.autoJoin && userSession.phoneOptions.skipCheck) {
 				var forceListenOnly:Boolean = (userSession.config.getConfigFor("PhoneModule").@forceListenOnly.toString().toUpperCase() == "TRUE") ? true : false;
-				audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
-				audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
-				shareMicrophoneSignal.dispatch(audioOptions);
+				//audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
+				//audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
+				//shareMicrophoneSignal.dispatch(audioOptions);
 			} else {
-				audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
-				audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
-				shareMicrophoneSignal.dispatch(audioOptions);
+				//audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
+				//audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
+				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
 			
 			trace("Configuring deskshare");
@@ -194,7 +199,8 @@ package org.bigbluebutton.lib.main.commands {
 		private function videoConnectedSuccess():void {
 			trace(LOG + "successVideoConnected()");
 			if (userSession.videoAutoStart && userSession.skipCamSettingsCheck) {
-				shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
+				trace("TODO: Need to implement auto start cam still");
+				//shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
 			}
 			videoConnection.connectionSuccessSignal.remove(videoConnectedSuccess);
 			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);

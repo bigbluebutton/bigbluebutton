@@ -12,7 +12,11 @@ package org.bigbluebutton.air.settings.views {
 		
 		override protected function onListIndexChangeEvent(e:IndexChangeEvent):void {
 			var item:Object = dataProvider.getItemAt(e.newIndex);
-			uiSession.pushPage(PageEnum[String(item.page).toUpperCase() + "SETTINGS"]);
+			if (item.page != "exit") {
+				uiSession.pushPage(PageEnum[String(item.page).toUpperCase() + "SETTINGS"]);
+			} else {
+				uiSession.pushPage(PageEnum.EXIT);
+			}
 		}
 	}
 }

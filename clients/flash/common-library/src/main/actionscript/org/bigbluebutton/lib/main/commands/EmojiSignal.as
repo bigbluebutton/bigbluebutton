@@ -5,9 +5,10 @@ package org.bigbluebutton.lib.main.commands {
 	public class EmojiSignal extends Signal {
 		public function EmojiSignal() {
 			/**
-			 * @1 status
+			 * @1 userId
+			 * @2 status
 			 */
-			super(String);
+			super(String, String);
 		}
 	}
 }

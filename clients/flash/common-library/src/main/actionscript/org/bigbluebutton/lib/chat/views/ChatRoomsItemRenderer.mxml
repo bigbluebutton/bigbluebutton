@@ -29,7 +29,7 @@
 						publicChatIcon.visible = publicChatIcon.includeInLayout = true;
 						participantIcon.visible = participantIcon.includeInLayout = false;
 					} else {
-						participantIcon.displayInitials = UserUtils.getInitials(obj.name);
+						participantIcon.setInitials(UserUtils.getInitials(obj.name));
 						participantIcon.visible = participantIcon.includeInLayout = true;
 						publicChatIcon.visible = publicChatIcon.includeInLayout = false;
 					}

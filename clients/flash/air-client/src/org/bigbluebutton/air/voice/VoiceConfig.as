@@ -5,10 +5,6 @@ package org.bigbluebutton.air.voice {
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
-	import org.bigbluebutton.lib.voice.commands.StartEchoTestCommand;
-	import org.bigbluebutton.lib.voice.commands.StartEchoTestSignal;
-	import org.bigbluebutton.lib.voice.commands.StopEchoTestCommand;
-	import org.bigbluebutton.lib.voice.commands.StopEchoTestSignal;
 	import org.bigbluebutton.lib.voice.views.EchoTestViewBase;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
@@ -42,8 +38,6 @@ package org.bigbluebutton.air.voice {
 		 */
 		private function signals():void {
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
-			signalCommandMap.map(StartEchoTestSignal).toCommand(StartEchoTestCommand);
-			signalCommandMap.map(StopEchoTestSignal).toCommand(StopEchoTestCommand);
 			signalCommandMap.map(MicrophoneMuteSignal).toCommand(MicrophoneMuteCommand);
 		}
 	}

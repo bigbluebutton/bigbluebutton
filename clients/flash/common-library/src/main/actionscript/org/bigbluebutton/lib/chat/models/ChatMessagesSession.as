@@ -4,14 +4,14 @@ package org.bigbluebutton.lib.chat.models {
 	
 	import org.bigbluebutton.lib.chat.commands.RequestGroupChatHistorySignal;
 	import org.bigbluebutton.lib.chat.commands.RequestWelcomeMessageSignal;
-	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.IMeetingData;
 	
 	public class ChatMessagesSession implements IChatMessagesSession {
 		
 		private static const DEFAULT_CHAT_ID:String = "MAIN-PUBLIC-GROUP-CHAT";
 		
 		[Inject]
-		public var userSession:IUserSession;
+		public var meetingData:IMeetingData;
 		
 		[Inject]
 		public var requestChatHistorySignal:RequestGroupChatHistorySignal;
@@ -88,7 +88,7 @@ package org.bigbluebutton.lib.chat.models {
 			var partnerId:String = "";
 			
 			if (vo.access == GroupChat.PRIVATE) {
-				var myUserId:String = userSession.userList.me.userId;
+				var myUserId:String = meetingData.users.me.intId;
 				for each (var user:GroupChatUser in vo.users) {
 					if (user.id != myUserId) {
 						partnerId = user.id;

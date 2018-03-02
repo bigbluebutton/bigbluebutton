@@ -22,12 +22,16 @@ package org.bigbluebutton.lib.main.views {
 			view.rightButton.addEventListener(MouseEvent.CLICK, rightButtonClickHandler);
 			meetingData.meetingStatus.recordingStatusChangedSignal.add(onRecordingStatusChanged);
 			
+			setVisibility()
 			setTitle();
 			view.showRecording(meetingData.meetingStatus.isRecording);
 		}
 		
 		protected function setTitle():void {
 			view.titleLabel.text = conferenceParameters.meetingName;
+		}
+		
+		protected function setVisibility():void {
 		}
 		
 		protected function leftButtonClickHandler(e:MouseEvent):void {

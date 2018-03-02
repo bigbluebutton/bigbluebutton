@@ -4,7 +4,7 @@ package org.bigbluebutton.lib.voice.commands {
 	
 	public class ShareMicrophoneSignal extends Signal {
 		public function ShareMicrophoneSignal() {
-			super(Object);
+			super(int, String);
 		}
 	}
 }

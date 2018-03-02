@@ -15,7 +15,7 @@ package org.bigbluebutton.lib.user.models {
 		
 		public var waitingForAcceptance:Boolean;
 		
-		public var emoji:String;
+		public var emoji:String = EmojiStatus.NO_STATUS;
 		
 		public var locked:Boolean;
 		
@@ -23,10 +23,6 @@ package org.bigbluebutton.lib.user.models {
 		
 		public var avatar:String;
 		
-		public var voiceJoined:Boolean;
-		
-		public var muted:Boolean;
-		
-		public var hasStream:Boolean = false;
+		public var me:Boolean;
 	}
 }

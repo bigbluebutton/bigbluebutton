@@ -1,10 +1,8 @@
 package org.bigbluebutton.air.main.services {
 	
 	import com.freshplanet.nativeExtensions.AirCapabilities;
-	
 	import flash.desktop.NativeApplication;
 	import flash.net.URLRequest;
-	
 	import org.bigbluebutton.lib.common.utils.URLFetcher;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
@@ -13,6 +11,8 @@ package org.bigbluebutton.air.main.services {
 		protected var _successSignal:Signal = new Signal();
 		
 		protected var _failureSignal:Signal = new Signal();
+		
+		protected var _guestWaitSignal:Signal = new Signal();
 		
 		private static const URL_REQUEST_ERROR_TYPE:String = "TypeError";
 		
@@ -36,6 +36,10 @@ package org.bigbluebutton.air.main.services {
 		
 		public function get failureSignal():ISignal {
 			return _failureSignal;
+		}
+		
+		public function get guestWaitSignal():ISignal {
+			return _guestWaitSignal;
 		}
 		
 		public function join(joinUrl:String):void {
@@ -96,8 +100,19 @@ package org.bigbluebutton.air.main.services {
 							onFailure(xml.messageKey);
 							break;
 						case XML_RETURN_CODE_SUCCESS:
-							sessionToken = xml.auth_token.toString();
-							successSignal.dispatch(urlRequest, responseUrl, sessionToken);
+							sessionToken = xml.session_token.toString();
+							if (xml.hasOwnProperty("guestStatus")) {
+								var guestStatus:String = xml.guestStatus.toString();
+								var waitUrl:String = xml.url.toString();
+								//trace("******************** GUEST STATUS = " + guestStatus + " waitUrl=" + waitUrl);
+								//trace("******************** responseUrl = " + responseUrl);
+								//trace("******************** sessionToken = " + sessionToken);
+								var waitUrlTrim:String = getServerUrl(waitUrl);
+								guestWaitSignal.dispatch(waitUrlTrim, urlRequest, responseUrl, sessionToken);
+							} else {
+								successSignal.dispatch(urlRequest, responseUrl, sessionToken);
+							}
+							
 							break;
 						default:
 							onFailure(URL_REQUEST_GENERIC_ERROR);
@@ -124,6 +139,12 @@ package org.bigbluebutton.air.main.services {
 			} else {
 				onFailure(URL_REQUEST_GENERIC_ERROR);
 			}
+		}
+		
+		protected function getServerUrl(url:String):String {
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/client\/guest-wait.html(?P<app>.+)/;
+			var result:Array = pattern.exec(url);
+			return result.protocol + "://" + result.server + "/bigbluebutton/api/guestWait";
 		}
 		
 		protected function onFailure(reason:String):void {

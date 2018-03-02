@@ -31,7 +31,7 @@ package org.bigbluebutton.air.main.models {
 			return _loadingChangeSignal;
 		}
 		
-		public function setLoading(val:Boolean, message:String):void {
+		public function setLoading(val:Boolean, message:String = ""):void {
 			_loading = val;
 			_loadingMessage = message;
 			try {

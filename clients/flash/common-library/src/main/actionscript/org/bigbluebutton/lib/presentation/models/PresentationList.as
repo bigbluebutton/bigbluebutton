@@ -66,7 +66,7 @@ package org.bigbluebutton.lib.presentation.models {
 		}
 		
 		public function setCurrentPresentation(presentationId:String):void {
-			if (currentPresentation && currentPresentation.id != presentationId) {
+			if (currentPresentation && currentPresentation.id == presentationId) {
 				return;
 			}
 			

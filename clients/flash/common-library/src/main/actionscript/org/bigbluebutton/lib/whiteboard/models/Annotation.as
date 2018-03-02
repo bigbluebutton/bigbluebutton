@@ -62,7 +62,7 @@ package org.bigbluebutton.lib.whiteboard.models {
 				_status = an.status;
 				_annInfo = an.annInfo;
 				
-				if (_parentHeight > 0 && _parentWidth > 0) {
+				if (shouldDraw()) {
 					makeGraphic();
 				}
 			}
@@ -75,7 +75,7 @@ package org.bigbluebutton.lib.whiteboard.models {
 			if (_parentWidth != width || _parentHeight != height) {
 				_parentWidth = width;
 				_parentHeight = height;
-				if (_parentWidth > 0 && _parentHeight > 0) {
+				if (shouldDraw()) {
 					makeGraphic();
 				}
 			}
@@ -84,6 +84,10 @@ package org.bigbluebutton.lib.whiteboard.models {
 		public function remove(canvas:Group):void {
 			_parentWidth = 0;
 			_parentHeight = 0;
+		}
+		
+		protected function shouldDraw():Boolean {
+			return _parentHeight > 0 && _parentWidth > 0;
 		}
 	}
 }
