@@ -76,7 +76,11 @@ package org.bigbluebutton.lib.common.services {
 			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 
 			if (useRTMPS) {
-				_netConnection.proxyType = ConnUtil.PROXY_BEST;
+				// Set the proxyType=none as RTMPS doesn't work when deployed
+				// to mobile device (android). Handshake is failing and client
+				// closes with Connection.Failed. (ralam mar 2, 2018)
+				//_netConnection.proxyType = ConnUtil.PROXY_BEST;
+				_netConnection.proxyType = ConnUtil.PROXY_NONE;
 				nativeProtocol = ConnUtil.RTMPS;
 				bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app;
 			} else {
@@ -91,7 +95,7 @@ package org.bigbluebutton.lib.common.services {
 				connectionTimer.start();
 			}
 			
-			trace("CONNECTING TO  " + "url=" +  bbbAppsUrl);
+			trace("CONNECTING TO  " + "url=" +  bbbAppsUrl + " proxyType=" + _netConnection.proxyType);
 			
 			
 			try {
