@@ -225,5 +225,23 @@ package org.bigbluebutton.lib.common.services {
 				_netConnection.call("onMessageFromClient", responder, JSON.stringify(message));
 			}
 		}
+		
+		public function sendMessageAsObject(remoteMethod: String, onSuccess:Function, onFailure:Function, message:Object):void {
+			if (message && message.header && message.body && message.header.name) {
+				var responder:Responder = new Responder(
+					function(result:Object):void { // On successful result
+						onSuccess("Successfully sent [" + message.header.name + "]."); 
+					},
+					function(status:Object):void { // status - On error occurred
+						var errorReason:String = "Failed to send [" + message.header.name + "]:\n"; 
+						for (var x:Object in status) { 
+							errorReason += "\t" + x + " : " + status[x]; 
+						} 
+					}
+				);
+				
+				_netConnection.call(remoteMethod, responder, message);
+			}
+		}
 	}
 }
