@@ -23,10 +23,8 @@ package org.bigbluebutton.lib.screenshare.services
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
 		
-		public function ScreenshareConnection()
-		{
-		}
-		
+		protected var _applicationURI:String;
+				
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
@@ -39,10 +37,12 @@ package org.bigbluebutton.lib.screenshare.services
 		}
 		
 		private function onConnectionSuccess():void {
+			trace("SCREENSHARE CONNECTION SUCCESS");
 			connectionSuccessSignal.dispatch();
 		}
 		
 		public function get connectionFailureSignal():ISignal {
+			trace("SCREENSHARE CONNECTION FAILED");
 			return _connectionFailureSignal;
 		}
 		
@@ -50,13 +50,22 @@ package org.bigbluebutton.lib.screenshare.services
 			return _connectionSuccessSignal;
 		}
 		
+		public function set uri(uri:String):void {
+			_applicationURI = uri;
+		}
+		
+		public function get uri():String {
+			return _applicationURI;
+		}
+		
 		public function get connection():NetConnection {
 			return baseConnection.connection;
 		}
 		
 		public function connect():void {
-			trace("Screenshare connect");
-	//		baseConnection.connect(uri, conferenceParameters.meetingID);
+			var ssUri:String = _applicationURI + "/" + conferenceParameters.meetingID
+			trace("Screenshare connect to " + ssUri);
+			baseConnection.connect(ssUri, null);
 		}
 		
 		public function disconnect(onUserCommand:Boolean):void {

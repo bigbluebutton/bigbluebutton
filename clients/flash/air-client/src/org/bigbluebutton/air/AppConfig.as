@@ -13,8 +13,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.common.models.SaveData;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
-	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
-	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.commands.ChangeUserRoleCommand;
 	import org.bigbluebutton.lib.main.commands.ChangeUserRoleSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;

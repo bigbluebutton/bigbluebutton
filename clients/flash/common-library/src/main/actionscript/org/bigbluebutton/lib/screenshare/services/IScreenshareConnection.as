@@ -8,8 +8,8 @@ package org.bigbluebutton.lib.screenshare.services
 	{
 		function get connectionFailureSignal():ISignal;
 		function get connectionSuccessSignal():ISignal;
-		//function set uri(uri:String):void;
-		//function get uri():String;
+		function set uri(uri:String):void;
+		function get uri():String;
 		function get connection():NetConnection;
 		function connect():void;
 		function disconnect(onUserCommand:Boolean):void;

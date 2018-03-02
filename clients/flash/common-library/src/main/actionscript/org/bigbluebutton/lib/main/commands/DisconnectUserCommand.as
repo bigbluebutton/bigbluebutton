@@ -23,8 +23,8 @@ package org.bigbluebutton.lib.main.commands {
 				userSession.videoConnection.disconnect(true);
 			if (userSession.voiceConnection)
 				userSession.voiceConnection.disconnect(true);
-			if (userSession.deskshareConnection)
-				userSession.deskshareConnection.disconnect(true);
+			if (userSession.screenshareConnection)
+				userSession.screenshareConnection.disconnect(true);
 		}
 	}
 }

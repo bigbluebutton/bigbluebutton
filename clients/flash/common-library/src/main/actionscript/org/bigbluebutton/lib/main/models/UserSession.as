@@ -3,6 +3,7 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
+	import org.bigbluebutton.lib.screenshare.services.IScreenshareConnection;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
@@ -24,7 +25,7 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _videoConnection:IVideoConnection;
 		
-		protected var _deskshareConnection:IDeskshareConnection;
+		protected var _screenshareConnection:IScreenshareConnection;
 		
 		protected var _presentationList:PresentationList;
 				
@@ -148,12 +149,12 @@ package org.bigbluebutton.lib.main.models {
 			_videoConnection = value;
 		}
 		
-		public function get deskshareConnection():IDeskshareConnection {
-			return _deskshareConnection;
+		public function get screenshareConnection():IScreenshareConnection {
+			return _screenshareConnection;
 		}
 		
-		public function set deskshareConnection(value:IDeskshareConnection):void {
-			_deskshareConnection = value;
+		public function set screenshareConnection(value:IScreenshareConnection):void {
+			_screenshareConnection = value;
 			_assignedDeskshareSignal.dispatch();
 		}
 		

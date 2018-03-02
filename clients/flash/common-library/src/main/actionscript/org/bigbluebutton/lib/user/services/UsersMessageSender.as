@@ -217,8 +217,19 @@ package org.bigbluebutton.lib.user.services {
 		public function changeRole(userId:String, role:String):void {
 			trace("UsersMessageSender::changeRole() -- Sending [ChangeUserRoleCmdMsg] message to server");
 			var message:Object = {
-				header: {name: "ChangeUserRoleCmdMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
+				header: {name: "ChangeUserRoleCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
 				body: {userId: userId, role: role, changedBy: conferenceParameters.internalUserID}
+			};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
+		public function queryForScreenshare():void {
+			var message:Object = {
+				header: {name: "GetScreenshareStatusReqMsg", meetingId: conferenceParameters.meetingID,
+					userId: conferenceParameters.internalUserID},
+				body: {requestedBy: conferenceParameters.internalUserID}
 			};
 			
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);

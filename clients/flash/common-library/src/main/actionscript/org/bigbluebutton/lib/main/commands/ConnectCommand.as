@@ -157,11 +157,11 @@ package org.bigbluebutton.lib.main.commands {
 				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
 			
-			trace("Configuring deskshare");
-			//deskshareConnection.applicationURI = userSession.config.getConfigFor("DeskShareModule").@uri;
-			//deskshareConnection.room = conferenceParameters.room;
-			//deskshareConnection.connect();
-			//userSession.deskshareConnection = deskshareConnection;
+			trace("Configuring Screenshare");
+			screenshareConnection.uri = userSession.config.getConfigFor("ScreenshareModule").@uri;
+			screenshareConnection.connect();
+			userSession.screenshareConnection = screenshareConnection;
+			
 			usersService.joinMeeting();
 			// Query the server for chat, users, and presentation info
 			chatService.getGroupChats();

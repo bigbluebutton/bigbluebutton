@@ -3,6 +3,7 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
+	import org.bigbluebutton.lib.screenshare.services.IScreenshareConnection;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
@@ -30,8 +31,8 @@ package org.bigbluebutton.lib.main.models {
 		function set voiceStreamManager(value:VoiceStreamManager):void;
 		function get videoConnection():IVideoConnection;
 		function set videoConnection(value:IVideoConnection):void;
-		function get deskshareConnection():IDeskshareConnection;
-		function set deskshareConnection(value:IDeskshareConnection):void;
+		function get screenshareConnection():IScreenshareConnection;
+		function set screenshareConnection(value:IScreenshareConnection):void;
 		function get presentationList():PresentationList;
 		function get successJoiningMeetingSignal():ISignal;
 		function get failureJoiningMeetingSignal():ISignal;
