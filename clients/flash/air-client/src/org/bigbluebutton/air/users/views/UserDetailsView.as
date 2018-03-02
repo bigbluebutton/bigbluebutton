@@ -306,7 +306,7 @@ package org.bigbluebutton.air.users.views {
 					muteButton.includeInLayout = false;
 					unmuteButton.visible = true;
 					unmuteButton.includeInLayout = true;
-				} else if (_viewModel.userVoiceJoined && !_viewModel.userMuted) {
+				} else if (_viewModel.userVoiceJoined && !_viewModel.userMuted && (_viewModel.amIModerator || _viewModel.me)) {
 					muteButton.visible = true;
 					muteButton.includeInLayout = true;
 					unmuteButton.visible = false;
