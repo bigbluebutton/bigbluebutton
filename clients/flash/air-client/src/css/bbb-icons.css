@@ -3,7 +3,7 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 
 @font-face {
-	src: url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
+	src: url("../assets/fonts/BBBIcons/bbb-icons.ttf");
 	fontFamily: BBBIcons;
 	fontStyle: normal;
 	fontWeight: normal;
@@ -11,7 +11,7 @@
 }
 
 @font-face {
-	src: url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
+	src: url("../assets/fonts/BBBIcons/bbb-icons.ttf");
 	fontFamily: BBBIcons;
 	fontStyle: normal;
 	fontWeight: bold;

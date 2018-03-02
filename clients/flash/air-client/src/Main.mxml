@@ -4,9 +4,9 @@
 			   applicationComplete="applicationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
 			   styleName="mainshell"
-			   xmlns:main="org.bigbluebutton.air.main.views.*" xmlns:setup="org.as3commons.logging.setup.*">
-	<fx:Style source="../../shared/assets/css/common.css" />
-	<fx:Style source="../../shared/assets/css/bbb-icons.css" />
+			   xmlns:main="org.bigbluebutton.air.main.views.*"
+			   xmlns:setup="org.as3commons.logging.setup.*">
+	<fx:Style source="css/bbb-icons.css" />
 	<fx:Style source="Default.css" />
 	<fx:Style source="css/ldpi.css" />
 	<fx:Style source="css/mdpi.css" />
@@ -42,7 +42,7 @@
 			import robotlegs.bender.framework.api.LogLevel;
 			import robotlegs.bender.framework.impl.Context;
 
-			include "../../shared/ColorPalette.as"
+			include "css/ColorPalette.as"
 			
 			protected var context:IContext;
 			
