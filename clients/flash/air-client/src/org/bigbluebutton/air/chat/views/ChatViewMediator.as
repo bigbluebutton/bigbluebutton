@@ -5,13 +5,12 @@ package org.bigbluebutton.air.chat.views {
 	
 	import mx.utils.StringUtil;
 	
-	import spark.components.VScrollBar;
-	
 	import org.bigbluebutton.air.chat.models.ChatMessageVO;
 	import org.bigbluebutton.air.chat.models.GroupChat;
 	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.chat.services.IChatMessageService;
 	import org.bigbluebutton.air.main.models.IMeetingData;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.LockSettings2x;
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserChangeEnum;
@@ -19,7 +18,9 @@ package org.bigbluebutton.air.chat.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class ChatViewMediatorBase extends Mediator {
+	import spark.components.VScrollBar;
+	
+	public class ChatViewMediator extends Mediator {
 		
 		[Inject]
 		public var view:ChatViewBase;
@@ -33,6 +34,9 @@ package org.bigbluebutton.air.chat.views {
 		[Inject]
 		public var meetingData:IMeetingData;
 		
+		[Inject]
+		public var uiSession:IUISession;
+		
 		protected var _chat:GroupChat;
 		
 		override public function initialize():void {
@@ -43,6 +47,13 @@ package org.bigbluebutton.air.chat.views {
 			
 			view.textInput.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
+			
+			var data:Object = uiSession.currentPageDetails;
+			
+			var chat:GroupChat = chatMessagesSession.getGroupByChatId(data.chatId);
+			if (chat) {
+				openChat(chat);
+			}
 			
 		}
 		

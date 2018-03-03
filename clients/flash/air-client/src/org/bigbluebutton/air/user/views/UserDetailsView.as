@@ -3,7 +3,7 @@ package org.bigbluebutton.air.user.views {
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.common.views.ParticipantIcon;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	import org.bigbluebutton.air.user.models.EmojiStatus;
 	import org.bigbluebutton.air.user.models.UserRole;
 	import org.bigbluebutton.air.user.utils.UserUtils;
@@ -199,7 +199,7 @@ package org.bigbluebutton.air.user.views {
 			addElement(skinnableWrapper);
 		}
 		
-		override protected function createToolbar():TopToolbarAIR {
+		override protected function createToolbar():TopToolbarBase {
 			return new TopToolbarUserDetails();
 		}
 		

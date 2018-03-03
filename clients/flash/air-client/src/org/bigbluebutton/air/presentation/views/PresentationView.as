@@ -9,7 +9,7 @@ package org.bigbluebutton.air.presentation.views {
 	
 	import spark.components.Group;
 	
-	public class PresentationViewBase extends Group {
+	public class PresentationView extends Group {
 		private var _viewport:Group;
 		
 		public function get viewport():Group {
@@ -28,7 +28,7 @@ package org.bigbluebutton.air.presentation.views {
 			return _wbCanvas;
 		}
 		
-		public function PresentationViewBase() {
+		public function PresentationView() {
 			super();
 			
 			_viewport = new Group();

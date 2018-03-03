@@ -2,20 +2,23 @@ package org.bigbluebutton.air.main.views {
 	
 	import flash.events.MouseEvent;
 	
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
 	import org.bigbluebutton.air.voice.models.VoiceUser;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class MenuButtonsMediatorBase extends Mediator {
+	public class MenuButtonsMediator extends Mediator {
 		
 		[Inject]
-		public var view:MenuButtonsBase;
+		public var view:MenuButtons;
 		
 		[Inject]
 		public var microphoneMuteSignal:MicrophoneMuteSignal;
@@ -31,6 +34,9 @@ package org.bigbluebutton.air.main.views {
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
+		
+		[Inject]
+		public var uiSession:IUISession;
 		
 		public override function initialize():void {
 			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChanged);
@@ -66,6 +72,11 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		protected function audioOnOff(e:MouseEvent):void {
+			if (meetingData.voiceUsers.me == null) {
+				uiSession.pushPage(PageEnum.ECHOTEST);
+			} else {
+				shareMicrophoneSignal.dispatch(AudioTypeEnum.LEAVE, "");
+			}
 		}
 		
 		private function camOnOff(e:MouseEvent):void {

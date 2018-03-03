@@ -1,5 +1,8 @@
 package org.bigbluebutton.air.main.commands {
 	
+	import org.bigbluebutton.air.common.PageEnum;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -11,6 +14,9 @@ package org.bigbluebutton.air.main.commands {
 		
 		[Inject]
 		public var userSession:IUserSession;
+		
+		[Inject]
+		public var uiSession:IUISession;
 		
 		public function DisconnectUserCommand() {
 			super();
@@ -25,6 +31,9 @@ package org.bigbluebutton.air.main.commands {
 				userSession.voiceConnection.disconnect(true);
 			if (userSession.deskshareConnection)
 				userSession.deskshareConnection.disconnect(true);
+			
+			uiSession.setLoading(false);
+			uiSession.pushPage(PageEnum.DISCONNECT, disconnectionStatusCode, TransitionAnimationEnum.APPEAR);
 		}
 	}
 }

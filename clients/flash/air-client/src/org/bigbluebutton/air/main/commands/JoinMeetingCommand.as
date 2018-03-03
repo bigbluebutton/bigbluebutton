@@ -12,8 +12,8 @@ package org.bigbluebutton.air.main.commands {
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
-	public class JoinMeetingCommandAIR extends Command {
-		private const LOG:String = "JoinMeetingCommandAIR::";
+	public class JoinMeetingCommand extends Command {
+		private const LOG:String = "JoinMeetingCommand::";
 		
 		[Inject]
 		public var guestWaitService:IGuestWaitPageService;

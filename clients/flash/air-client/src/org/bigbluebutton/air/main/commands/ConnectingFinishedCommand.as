@@ -6,7 +6,7 @@ package org.bigbluebutton.air.main.commands {
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
-	public class ConnectingFinishedCommandAIR extends Command {
+	public class ConnectingFinishedCommand extends Command {
 		
 		[Inject]
 		public var uiSession:IUISession

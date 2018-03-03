@@ -7,7 +7,7 @@ package org.bigbluebutton.air.main.views {
 	[Style(name = "gap", inherit = "no", type = "Number")]
 	[Style(name = "top", inherit = "no", type = "Number")]
 	
-	public class MenuButtonsBase extends HGroup {
+	public class MenuButtons extends HGroup {
 		private var _audioButton:Button;
 		
 		public function get audioButton():Button {
@@ -32,7 +32,7 @@ package org.bigbluebutton.air.main.views {
 			return _statusButton;
 		}
 		
-		public function MenuButtonsBase() {
+		public function MenuButtons() {
 			super();
 			
 			_micButton = new Button();

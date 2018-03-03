@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.settings.views.camera {
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
 	
 	import spark.layouts.VerticalLayout;
@@ -23,7 +23,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			addElement(_settingsView);
 		}
 		
-		override protected function createToolbar():TopToolbarAIR {
+		override protected function createToolbar():TopToolbarBase {
 			return new TopToolbarSubSettings();
 		}
 	}

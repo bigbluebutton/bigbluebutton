@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.settings.views {
 	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	
 	import spark.components.Scroller;
 	import spark.layouts.HorizontalAlign;
@@ -28,7 +28,7 @@ package org.bigbluebutton.air.settings.views {
 			addElement(scroller);
 		}
 		
-		override protected function createToolbar():TopToolbarAIR {
+		override protected function createToolbar():TopToolbarBase {
 			return new TopToolbarSettings();
 		}
 	}

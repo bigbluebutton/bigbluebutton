@@ -6,7 +6,7 @@ package org.bigbluebutton.air.user.views {
 	import spark.components.VGroup;
 	import spark.layouts.VerticalLayout;
 	
-	public class UsersViewBase extends VGroup {
+	public class UsersView extends VGroup {
 		
 		private var _userLabel:Label;
 		
@@ -20,7 +20,7 @@ package org.bigbluebutton.air.user.views {
 			return _userList;
 		}
 		
-		public function UsersViewBase() {
+		public function UsersView() {
 			super();
 			
 			_userLabel = new Label();

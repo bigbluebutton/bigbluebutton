@@ -2,7 +2,7 @@ package org.bigbluebutton.air.presentation {
 	import org.bigbluebutton.air.presentation.commands.LoadSlideCommand;
 	import org.bigbluebutton.air.presentation.commands.LoadSlideSignal;
 	import org.bigbluebutton.air.presentation.views.PresentationMediatorBase;
-	import org.bigbluebutton.air.presentation.views.PresentationViewBase;
+	import org.bigbluebutton.air.presentation.views.PresentationView;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -38,7 +38,7 @@ package org.bigbluebutton.air.presentation {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(PresentationViewBase).toMediator(PresentationMediatorBase);
+			mediatorMap.map(PresentationView).toMediator(PresentationMediatorBase);
 		}
 		
 		/**

@@ -106,13 +106,10 @@ main|MainView {
 
 main|TopToolbarBase {
 	textAlign : center;
-}
-
-main|TopToolbarAIR {
 	backgroundColor : PropertyReference("bbbBlack");
 }
 
-participants|ParticipantsViewBase, user|UsersViewBase {
+participants|ParticipantsViewBase, user|UsersView {
 	backgroundColor : PropertyReference("grey100");
 	color           : PropertyReference("blue900");
 }

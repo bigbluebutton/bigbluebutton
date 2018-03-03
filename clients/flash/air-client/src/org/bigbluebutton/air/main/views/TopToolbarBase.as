@@ -1,11 +1,14 @@
 package org.bigbluebutton.air.main.views {
 	
+	import mx.graphics.SolidColor;
+	
 	import spark.components.Button;
 	import spark.components.Group;
 	import spark.components.HGroup;
 	import spark.components.Label;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalAlign;
+	import spark.primitives.Rect;
 	
 	public class TopToolbarBase extends Group {
 		private var _leftButton:Button;
@@ -33,6 +36,8 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private var titleGroup:HGroup;
+		
+		private var _background:Rect;
 		
 		/**
 		 *
@@ -64,6 +69,12 @@ package org.bigbluebutton.air.main.views {
 			_recordingIcon = new Label();
 			_recordingIcon.styleName = "icon-record recordIcon";
 			titleGroup.addElement(_recordingIcon);
+			
+			_background = new Rect();
+			_background.percentHeight = 100;
+			_background.percentWidth = 100;
+			_background.fill = new SolidColor();
+			addElementAt(_background, 0);
 		}
 		
 		public function showRecording(isRecording:Boolean):void {
@@ -75,6 +86,7 @@ package org.bigbluebutton.air.main.views {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			_recordingIcon.text = _recordingIcon.getStyle("content");
+			SolidColor(_background.fill).color = getStyle("backgroundColor");
 		}
 	}
 }

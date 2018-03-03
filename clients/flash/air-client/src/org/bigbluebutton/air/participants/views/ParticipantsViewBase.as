@@ -7,7 +7,7 @@ package org.bigbluebutton.air.participants.views {
 	import spark.primitives.Rect;
 	
 	import org.bigbluebutton.air.chat.views.ChatRoomsViewBase;
-	import org.bigbluebutton.air.user.views.UsersViewBase;
+	import org.bigbluebutton.air.user.views.UsersView;
 	
 	public class ParticipantsViewBase extends Group {
 		
@@ -35,7 +35,7 @@ package org.bigbluebutton.air.participants.views {
 			chatRoomsView.percentWidth = 100;
 			group.addElement(chatRoomsView);
 			
-			var usersView:UsersViewBase = createUsersView();
+			var usersView:UsersView = createUsersView();
 			usersView.percentWidth = 100;
 			usersView.percentHeight = 100;
 			group.addElement(usersView);
@@ -47,8 +47,8 @@ package org.bigbluebutton.air.participants.views {
 			return new ChatRoomsViewBase;
 		}
 		
-		protected function createUsersView():UsersViewBase {
-			return new UsersViewBase;
+		protected function createUsersView():UsersView {
+			return new UsersView;
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {

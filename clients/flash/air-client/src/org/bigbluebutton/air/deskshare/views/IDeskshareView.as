@@ -5,6 +5,7 @@ package org.bigbluebutton.air.deskshare.views {
 	import spark.components.Group;
 	
 	public interface IDeskshareView {
+		function get noDeskshareMessage():Label;
 		function get deskshareGroup():Group;
 		function stopStream():void;
 		function startStream(connection:NetConnection, name:String, streamName:String, userID:String, width:Number, height:Number):void;

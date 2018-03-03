@@ -27,7 +27,7 @@
         fontSize: 12.750;
     }
 
-    main|TopToolbarAIR {
+    main|TopToolbarBase {
         height: 30.000;
     }
 
@@ -39,7 +39,7 @@
         menuHeight: 60.000;
     }
 
-    main|MenuButtonsBase {
+    main|MenuButtons {
         bottom: 13.125;
         top: 5.250;
         gap: 16.875;

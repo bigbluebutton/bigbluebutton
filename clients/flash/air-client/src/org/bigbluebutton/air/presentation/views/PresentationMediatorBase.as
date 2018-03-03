@@ -8,14 +8,13 @@ package org.bigbluebutton.air.presentation.views {
 	import org.bigbluebutton.air.presentation.models.Presentation;
 	import org.bigbluebutton.air.presentation.models.Slide;
 	import org.bigbluebutton.air.presentation.models.SlideModel;
-	import org.bigbluebutton.air.presentation.utils.CursorIndicator;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class PresentationMediatorBase extends Mediator {
 		
 		[Inject]
-		public var view:PresentationViewBase;
+		public var view:PresentationView;
 		
 		[Inject]
 		public var userSession:IUserSession;

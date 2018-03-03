@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.user.views {
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	
-	public class TopToolbarUserDetails extends TopToolbarAIR {
+	public class TopToolbarUserDetails extends TopToolbarBase {
 		public function TopToolbarUserDetails() {
 			super();
 			

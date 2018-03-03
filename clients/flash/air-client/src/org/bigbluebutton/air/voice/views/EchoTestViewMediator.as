@@ -10,6 +10,7 @@ package org.bigbluebutton.air.voice.views {
 	
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
@@ -32,6 +33,9 @@ package org.bigbluebutton.air.voice.views {
 		
 		[Inject]
 		public var meetingData:IMeetingData;
+		
+		[Inject]
+		public var uiSession:IUISession;
 		
 		private var selectedMicrophone:Microphone;
 		
@@ -131,6 +135,8 @@ package org.bigbluebutton.air.voice.views {
 		
 		protected function yesButtonHandler(e:MouseEvent):void {
 			stopEchoTest();
+			
+			uiSession.popPage();
 			
 			var audioOptions:Object = new Object();
 			audioOptions.shareMic = true;

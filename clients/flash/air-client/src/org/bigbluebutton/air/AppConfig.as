@@ -14,9 +14,9 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.commands.ChangeUserRoleSignal;
 	import org.bigbluebutton.air.main.commands.ConnectCommand;
 	import org.bigbluebutton.air.main.commands.ConnectSignal;
-	import org.bigbluebutton.air.main.commands.ConnectingFinishedCommandAIR;
+	import org.bigbluebutton.air.main.commands.ConnectingFinishedCommand;
 	import org.bigbluebutton.air.main.commands.ConnectingFinishedSignal;
-	import org.bigbluebutton.air.main.commands.DisconnectUserCommandAIR;
+	import org.bigbluebutton.air.main.commands.DisconnectUserCommand;
 	import org.bigbluebutton.air.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.air.main.commands.KickUserCommand;
 	import org.bigbluebutton.air.main.commands.KickUserSignal;
@@ -84,13 +84,11 @@ package org.bigbluebutton.air {
 			
 			// Signal to Command mapping
 			signalCommandMap.map(ConnectSignal).toCommand(ConnectCommand);
-			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
-			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
+			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommand);
+			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommand);
 			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
 			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
 			signalCommandMap.map(ChangeUserRoleSignal).toCommand(ChangeUserRoleCommand);
-			signalCommandMap.map(KickUserSignal).toCommand(KickUserCommand);
-			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
-		}
+			signalCommandMap.map(KickUserSignal).toCommand(KickUserCommand);		}
 	}
 }

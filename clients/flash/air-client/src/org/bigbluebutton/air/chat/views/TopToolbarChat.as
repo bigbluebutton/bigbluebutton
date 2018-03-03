@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.chat.views {
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	
-	public class TopToolbarChat extends TopToolbarAIR {
+	public class TopToolbarChat extends TopToolbarBase {
 		public function TopToolbarChat() {
 			super();
 			

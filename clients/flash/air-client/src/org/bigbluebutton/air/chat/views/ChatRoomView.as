@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.chat.views {
 	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	
 	import spark.components.SkinnableContainer;
 	import spark.layouts.VerticalLayout;
@@ -28,7 +28,7 @@ package org.bigbluebutton.air.chat.views {
 			addElement(skinnableWrapper);
 		}
 		
-		override protected function createToolbar():TopToolbarAIR {
+		override protected function createToolbar():TopToolbarBase {
 			return new TopToolbarChat();
 		}
 	}

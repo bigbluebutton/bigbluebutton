@@ -3,7 +3,7 @@ package org.bigbluebutton.air.main.commands {
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
-	public class ConnectingFailedCommandAIR extends Command {
+	public class ConnectingFailedCommand extends Command {
 		
 		[Inject]
 		public var uiSession:IUISession;

@@ -1,5 +1,7 @@
 package org.bigbluebutton.air.user.views {
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IMeetingData;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.LockSettings2x;
 	import org.bigbluebutton.air.user.events.UserItemSelectedEvent;
 	import org.bigbluebutton.air.user.models.User2x;
@@ -12,13 +14,16 @@ package org.bigbluebutton.air.user.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class UsersViewMediatorBase extends Mediator {
+	public class UsersViewMediator extends Mediator {
 		
 		[Inject]
-		public var view:UsersViewBase;
+		public var view:UsersView;
 		
 		[Inject]
 		public var meetingData:IMeetingData;
+		
+		[Inject]
+		public var uiSession:IUISession;
 		
 		[Bindable]
 		private var _userCollection:UsersVMCollection;
@@ -101,7 +106,7 @@ package org.bigbluebutton.air.user.views {
 		}
 		
 		protected function onUserItemSelected(e:UserItemSelectedEvent):void {
-			// leave the implementation to the specific client
+			uiSession.pushPage(PageEnum.USER_DETAILS, e.user.intId);
 		}
 		
 		override public function destroy():void {
