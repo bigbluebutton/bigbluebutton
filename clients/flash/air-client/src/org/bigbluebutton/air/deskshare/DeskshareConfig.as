@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.deskshare {
 	
 	import org.bigbluebutton.air.deskshare.views.DeskshareViewMediator;
-	import org.bigbluebutton.lib.deskshare.views.IDeskshareView;
+	import org.bigbluebutton.air.deskshare.views.IDeskshareView;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;

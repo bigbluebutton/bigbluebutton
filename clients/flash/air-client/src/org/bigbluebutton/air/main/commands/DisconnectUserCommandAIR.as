@@ -3,7 +3,6 @@ package org.bigbluebutton.air.main.commands {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.commands.DisconnectUserCommand;
 	
 	public class DisconnectUserCommandAIR extends DisconnectUserCommand {
 		

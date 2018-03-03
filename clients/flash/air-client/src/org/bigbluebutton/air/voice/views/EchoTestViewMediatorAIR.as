@@ -2,7 +2,6 @@ package org.bigbluebutton.air.voice.views {
 	import flash.events.MouseEvent;
 	
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.voice.views.EchoTestViewMediator;
 	
 	public class EchoTestViewMediatorAIR extends EchoTestViewMediator {
 		

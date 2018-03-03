@@ -1,10 +1,9 @@
 package org.bigbluebutton.air.main.views {
-	import spark.layouts.VerticalLayout;
-	
 	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
-	import org.bigbluebutton.lib.presentation.views.PresentationViewBase;
+	import org.bigbluebutton.air.presentation.views.PresentationViewBase;
 	import org.osmf.layout.HorizontalAlign;
+	
+	import spark.layouts.VerticalLayout;
 	
 	[Style(name = "menuHeight", inherit = "no", type = "Number")]
 	public class MainView extends NoTabView {

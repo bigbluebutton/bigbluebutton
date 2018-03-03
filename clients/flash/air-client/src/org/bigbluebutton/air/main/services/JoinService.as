@@ -1,9 +1,11 @@
 package org.bigbluebutton.air.main.services {
 	
 	import com.freshplanet.nativeExtensions.AirCapabilities;
+	
 	import flash.desktop.NativeApplication;
 	import flash.net.URLRequest;
-	import org.bigbluebutton.lib.common.utils.URLFetcher;
+	
+	import org.bigbluebutton.air.common.utils.URLFetcher;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	

@@ -2,10 +2,10 @@ package org.bigbluebutton.air.video.commands {
 	
 	import flash.media.Camera;
 	
-	import org.bigbluebutton.lib.main.models.IMeetingData;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.services.IUsersService;
-	import org.bigbluebutton.lib.video.models.VideoProfile;
+	import org.bigbluebutton.air.main.models.IMeetingData;
+	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.user.services.IUsersService;
+	import org.bigbluebutton.air.video.models.VideoProfile;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	

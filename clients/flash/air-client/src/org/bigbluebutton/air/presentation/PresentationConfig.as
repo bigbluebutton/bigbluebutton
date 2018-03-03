@@ -1,8 +1,8 @@
 package org.bigbluebutton.air.presentation {
-	import org.bigbluebutton.lib.presentation.commands.LoadSlideCommand;
-	import org.bigbluebutton.lib.presentation.commands.LoadSlideSignal;
-	import org.bigbluebutton.lib.presentation.views.PresentationMediatorBase;
-	import org.bigbluebutton.lib.presentation.views.PresentationViewBase;
+	import org.bigbluebutton.air.presentation.commands.LoadSlideCommand;
+	import org.bigbluebutton.air.presentation.commands.LoadSlideSignal;
+	import org.bigbluebutton.air.presentation.views.PresentationMediatorBase;
+	import org.bigbluebutton.air.presentation.views.PresentationViewBase;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;

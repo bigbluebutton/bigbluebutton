@@ -1,11 +1,10 @@
 package org.bigbluebutton.air.participants.views {
+	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	
 	import spark.components.SkinnableContainer;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalLayout;
-	
-	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.lib.participants.views.ParticipantsViewBase;
 	
 	public class ParticipantsView extends NoTabView {
 		public function ParticipantsView() {

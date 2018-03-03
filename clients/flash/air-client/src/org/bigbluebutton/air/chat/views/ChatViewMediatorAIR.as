@@ -1,7 +1,6 @@
 package org.bigbluebutton.air.chat.views {
+	import org.bigbluebutton.air.chat.models.GroupChat;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.chat.models.GroupChat;
-	import org.bigbluebutton.lib.chat.views.ChatViewMediatorBase;
 	
 	public class ChatViewMediatorAIR extends ChatViewMediatorBase {
 		

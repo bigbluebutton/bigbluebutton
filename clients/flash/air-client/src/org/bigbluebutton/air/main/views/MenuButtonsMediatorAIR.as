@@ -3,8 +3,7 @@ package org.bigbluebutton.air.main.views {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.views.MenuButtonsMediatorBase;
-	import org.bigbluebutton.lib.voice.models.AudioTypeEnum;
+	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
 	
 	public class MenuButtonsMediatorAIR extends MenuButtonsMediatorBase {
 		

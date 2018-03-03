@@ -3,9 +3,6 @@ package org.bigbluebutton.air.common.views {
 	import flash.net.NetConnection;
 	import flash.system.Capabilities;
 	
-	import org.bigbluebutton.lib.common.views.VideoView;
-	
-	
 	public class VideoViewAir extends VideoView {
 		protected var aspectRatio:Number = 0;
 		

@@ -1,7 +1,6 @@
 package org.bigbluebutton.air.chat.views {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.chat.views.ChatRoomsMediatorBase;
 	
 	import spark.events.IndexChangeEvent;
 	

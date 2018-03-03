@@ -1,13 +1,12 @@
 package org.bigbluebutton.air.main.views {
 	import flash.events.MouseEvent;
 	
+	import org.bigbluebutton.air.chat.models.GroupChat;
+	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.chat.models.GroupChat;
-	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
-	import org.bigbluebutton.lib.main.views.TopToolbarMediatorBase;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
-	import org.bigbluebutton.lib.voice.models.AudioTypeEnum;
+	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
 	
 	public class TopToolbarMediatorAIR extends TopToolbarMediatorBase {
 		

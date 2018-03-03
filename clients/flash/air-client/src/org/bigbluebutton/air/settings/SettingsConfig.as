@@ -1,21 +1,21 @@
 package org.bigbluebutton.air.settings {
 	
+	import org.bigbluebutton.air.main.commands.SaveLockSettingsCommand;
+	import org.bigbluebutton.air.main.commands.SaveLockSettingsSignal;
+	import org.bigbluebutton.air.settings.views.SettingsViewBase;
 	import org.bigbluebutton.air.settings.views.SettingsViewMediatorAIR;
+	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewBase;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediatorAIR;
+	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewBase;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewMediatorAIR;
+	import org.bigbluebutton.air.settings.views.chat.ChatSettingsViewBase;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsViewBaseAIR;
+	import org.bigbluebutton.air.settings.views.chat.ChatSettingsViewMediatorBase;
+	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewBase;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewMediatorAIR;
-	import org.bigbluebutton.lib.main.commands.SaveLockSettingsCommand;
-	import org.bigbluebutton.lib.main.commands.SaveLockSettingsSignal;
-	import org.bigbluebutton.lib.settings.views.SettingsViewBase;
-	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewBase;
-	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewBase;
-	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewBase;
-	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewMediatorBase;
-	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewBase;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;

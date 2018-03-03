@@ -2,29 +2,25 @@
 
 @namespace main "org.bigbluebutton.air.main.views.*";
 
-@namespace mainviews "org.bigbluebutton.lib.main.views.*";
-
-@namespace skins "org.bigbluebutton.lib.main.views.skins.*";
+@namespace skins "org.bigbluebutton.air.main.views.skins.*";
 
 @namespace views "org.bigbluebutton.air.common.views.*";
 
-@namespace libChat "org.bigbluebutton.lib.chat.views.*";
+@namespace chat "org.bigbluebutton.air.chat.views.*";
 
-@namespace users "org.bigbluebutton.lib.user.views.*";
+@namespace user "org.bigbluebutton.air.user.views.*";
 
-@namespace usersAIR "org.bigbluebutton.air.users.views.*";
+@namespace settings "org.bigbluebutton.air.settings.views.*";
 
-@namespace settings "org.bigbluebutton.lib.settings.views.*";
+@namespace settingsAudio "org.bigbluebutton.air.settings.views.audio.*";
 
-@namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
+@namespace settingsChat "org.bigbluebutton.air.settings.views.chat.*";
 
-@namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
+@namespace settingsLock "org.bigbluebutton.air.settings.views.lock.*";
 
-@namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
+@namespace settingsCamera "org.bigbluebutton.air.settings.views.camera.*";
 
-@namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
-
-@namespace voice "org.bigbluebutton.lib.voice.views.*";
+@namespace voice "org.bigbluebutton.air.voice.views.*";
 
 @media (application-dpi: 120) {
     main|LoadingScreen {
@@ -43,7 +39,7 @@
         menuHeight: 60.000;
     }
 
-    mainviews|MenuButtonsBase {
+    main|MenuButtonsBase {
         bottom: 13.125;
         top: 5.250;
         gap: 16.875;
@@ -55,12 +51,12 @@
         labelPadding: 4.500;
     }
 
-    libChat|NewMessagesIndicator {
+    chat|NewMessagesIndicator {
         cornerRadius: 9.750;
         labelPadding: 11.250;
     }
 
-    libChat|ChatItemRenderer {
+    chat|ChatItemRenderer {
         padding: 5.250;
         gap: 3.000;
         leftIndent: 16.500;
@@ -69,11 +65,11 @@
         timeFontSize: 10.500;
     }
 
-    settings|SettingsViewBase, camera|CameraSettingsViewBase {
+    settings|SettingsViewBase, settingsCamera|CameraSettingsViewBase {
         groupsPadding: 15.000;
     }
 
-    audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, voice|EchoTestViewBase {
+    settingsAudio|AudioSettingsViewBase, settingsChat|ChatSettingsViewBase, settingsLock|LockSettingsViewBase, voice|EchoTestViewBase {
         padding: 11.250;
     }
 
@@ -82,7 +78,7 @@
         padding: 11.250;
     }
 
-    usersAIR|UserDetailsView {
+    user|UserDetailsView {
         groupsPadding: 7.500;
     }
 
@@ -92,16 +88,16 @@
         padding: 12.000;
     }
 
-    camera|CameraProfileItemRenderer {
+    settingsCamera|CameraProfileItemRenderer {
         fontSize: 12.750;
         padding: 12.000;
     }
 
-    libChat|ChatViewBase {
+    chat|ChatViewBase {
         inputPadding: 9.750;
     }
 
-    users|UserItemRenderer {
+    user|UserItemRenderer {
         iconSize: 16.500;
     }
 

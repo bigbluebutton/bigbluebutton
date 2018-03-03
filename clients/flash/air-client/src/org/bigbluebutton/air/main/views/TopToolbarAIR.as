@@ -3,8 +3,6 @@ package org.bigbluebutton.air.main.views {
 	
 	import spark.primitives.Rect;
 	
-	import org.bigbluebutton.lib.main.views.TopToolbarBase;
-	
 	public class TopToolbarAIR extends TopToolbarBase {
 		
 		private var _background:Rect;

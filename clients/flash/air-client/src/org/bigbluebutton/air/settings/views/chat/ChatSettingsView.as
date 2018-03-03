@@ -1,10 +1,9 @@
 package org.bigbluebutton.air.settings.views.chat {
-	import spark.layouts.VerticalLayout;
-	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
 	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
-	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewBase;
+	
+	import spark.layouts.VerticalLayout;
 	
 	public class ChatSettingsView extends NoTabView {
 		

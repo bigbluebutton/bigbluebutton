@@ -1,10 +1,9 @@
 package org.bigbluebutton.air.chat.views {
-	import spark.components.SkinnableContainer;
-	import spark.layouts.VerticalLayout;
-	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.lib.chat.views.ChatViewBase;
+	
+	import spark.components.SkinnableContainer;
+	import spark.layouts.VerticalLayout;
 	
 	public class ChatRoomView extends NoTabView {
 		public function ChatRoomView() {

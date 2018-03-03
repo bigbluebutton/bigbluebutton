@@ -1,10 +1,9 @@
 package org.bigbluebutton.air.voice.views {
-	import spark.layouts.VerticalLayout;
-	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.lib.voice.views.EchoTestViewBase;
 	import org.osmf.layout.HorizontalAlign;
+	
+	import spark.layouts.VerticalLayout;
 	
 	public class EchoTestView extends NoTabView {
 		

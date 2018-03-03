@@ -1,17 +1,15 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace main "org.bigbluebutton.air.main.views.*";
-@namespace mainviews "org.bigbluebutton.lib.main.views.*";
-@namespace skins "org.bigbluebutton.lib.main.views.skins.*";
+@namespace skins "org.bigbluebutton.air.main.views.skins.*";
 @namespace views "org.bigbluebutton.air.common.views.*";
-@namespace libChat "org.bigbluebutton.lib.chat.views.*";
-@namespace users "org.bigbluebutton.lib.user.views.*";
-@namespace usersAIR "org.bigbluebutton.air.users.views.*";
-@namespace settings "org.bigbluebutton.lib.settings.views.*";
-@namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
-@namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
-@namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
-@namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
-@namespace voice "org.bigbluebutton.lib.voice.views.*";
+@namespace chat "org.bigbluebutton.air.chat.views.*";
+@namespace user "org.bigbluebutton.air.user.views.*";
+@namespace settings "org.bigbluebutton.air.settings.views.*";
+@namespace settingsAudio "org.bigbluebutton.air.settings.views.audio.*";
+@namespace settingsChat "org.bigbluebutton.air.settings.views.chat.*";
+@namespace settingsLock "org.bigbluebutton.air.settings.views.lock.*";
+@namespace settingsCamera "org.bigbluebutton.air.settings.views.camera.*";
+@namespace voice "org.bigbluebutton.air.voice.views.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -30,7 +28,7 @@
 		menuHeight : 160;
 	}
 	
-	mainviews|MenuButtonsBase {
+	main|MenuButtonsBase {
 		bottom   : 35;
 		top      : 14;
 		gap      : 45;
@@ -42,12 +40,12 @@
 		labelPadding : 12;
 	}
 	
-	libChat|NewMessagesIndicator {
+	chat|NewMessagesIndicator {
 		cornerRadius : 26;
 		labelPadding : 30;
 	}
 	
-	libChat|ChatItemRenderer {
+	chat|ChatItemRenderer {
 		padding      : 14;
 		gap          : 8;
 		leftIndent   : 44;
@@ -56,11 +54,11 @@
 		timeFontSize : 28;
 	}
 	
-	settings|SettingsViewBase, camera|CameraSettingsViewBase {
+	settings|SettingsViewBase, settingsCamera|CameraSettingsViewBase {
 		groupsPadding : 40;
 	}
 	
-	audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, voice|EchoTestViewBase {
+	settingsAudio|AudioSettingsViewBase, settingsChat|ChatSettingsViewBase, settingsLock|LockSettingsViewBase, voice|EchoTestViewBase {
 		padding: 30;
 	}
 	
@@ -69,7 +67,7 @@
 		padding : 30;
 	}
 	
-	usersAIR|UserDetailsView {
+	user|UserDetailsView {
 		groupsPadding : 20;
 	}
 	
@@ -79,16 +77,16 @@
 		padding  : 32;
 	}
 	
-	camera|CameraProfileItemRenderer {
+	settingsCamera|CameraProfileItemRenderer {
 		fontSize : 34;
 		padding  : 32;
 	}
 	
-	libChat|ChatViewBase {
+	chat|ChatViewBase {
 		inputPadding : 26;
 	}
 	
-	users|UserItemRenderer {
+	user|UserItemRenderer {
 		iconSize : 44;
 	}
 	

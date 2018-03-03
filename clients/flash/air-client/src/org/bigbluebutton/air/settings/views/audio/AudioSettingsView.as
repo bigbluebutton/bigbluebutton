@@ -1,10 +1,9 @@
 package org.bigbluebutton.air.settings.views.audio {
-	import spark.layouts.VerticalLayout;
-	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
 	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
-	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewBase;
+	
+	import spark.layouts.VerticalLayout;
 	
 	public class AudioSettingsView extends NoTabView {
 		
