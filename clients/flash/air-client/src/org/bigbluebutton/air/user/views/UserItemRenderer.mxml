@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:common="org.bigbluebutton.air.common.views.*"
+				width="100%"
+				click="onClick()"
+				keyUp="onKeyUp()"
+				styleName="participantItem">
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="selected" />
+	</s:states>
+
+	<fx:Metadata>
+		[Style(name="iconSize", inherit="no", type="Number")]
+	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.air.user.events.UserItemSelectedEvent;
+			import org.bigbluebutton.air.user.models.EmojiStatus;
+			import org.bigbluebutton.air.user.models.UserRole;
+			import org.bigbluebutton.air.user.utils.UserUtils;
+			import org.bigbluebutton.air.user.views.models.UserVM;
+			
+			private function onClick():void {
+				sendSelectedEvent();
+			}
+			
+			private function onKeyUp():void {
+				sendSelectedEvent();
+			}
+			
+			private function sendSelectedEvent():void {
+				if (currentState == "selected") {
+					dispatchEvent(new UserItemSelectedEvent(data as UserVM, localToGlobal(new Point()), width, height));
+				}
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				wrapperGroup.padding = getStyle("padding");
+				wrapperGroup.gap = getStyle("padding") / 4;
+				
+				labelDisplay.setStyle("paddingLeft", getStyle("padding"));
+				labelDisplay.setStyle("paddingRight", getStyle("padding"));
+				
+				cameraIcon.text = cameraIcon.getStyle("icon");
+				cameraIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				audioIcon.text = audioIcon.getStyle("icon");
+				audioIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				lockIcon.text = lockIcon.getStyle("icon");
+				lockIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					var vm:UserVM = obj as UserVM;
+					
+					cameraIcon.visible = vm.webcamStreams.length > 0;
+					
+					if (vm.inVoiceConf) {
+						audioIcon.visible = true;
+						if (vm.listenOnly) {
+							audioIcon.styleName = "icon icon-listen";
+						} else if (vm.muted) {
+							audioIcon.styleName = "icon icon-mute";
+						} else if (vm.talking) {
+							audioIcon.styleName = "icon icon-mute-filled";
+						} else {
+							audioIcon.styleName = "icon icon-unmute";
+						}
+					} else {
+						audioIcon.visible = false;
+					}
+					
+					lockIcon.visible = vm.role != UserRole.MODERATOR && vm.locked && vm.roomLocked;
+					
+					if (vm.me) {
+						labelDisplay.text = vm.name + " " + "(you)"; //resourceManager.getString('resources', 'userDetail.you');
+					} else {
+						labelDisplay.text = vm.name;
+					}
+					
+					if (vm.emoji != EmojiStatus.NO_STATUS) {
+						participantIcon.setEmoji(vm.emoji);
+					} else {
+						participantIcon.setInitials(UserUtils.getInitials(vm.name));
+					}
+					participantIcon.setRole(vm.role);
+					
+					if (vm.presenter) {
+						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;
+						subLabelDisplay.text = "Presenter"; // resourceManager.getString('resources', 'participants.status.presenter');
+					} else {
+						subLabelDisplay.visible = subLabelDisplay.includeInLayout = false;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup id="wrapperGroup"
+			  width="100%">
+		<s:HGroup width="100%"
+				  verticalAlign="middle">
+
+			<common:ParticipantIcon id="participantIcon" />
+
+			<s:Label id="labelDisplay"
+					 width="100%"
+					 styleName="participantTitle" />
+			<s:Label id="cameraIcon"
+					 styleName="icon icon-video" />
+			<s:Label id="audioIcon"
+					 styleName="icon icon-mute" />
+			<s:Label id="lockIcon"
+					 styleName="icon icon-lock" />
+		</s:HGroup>
+		<s:Label id="subLabelDisplay"
+				 styleName="participantStatus"
+				 paddingLeft="{labelDisplay.x + getStyle('padding')}" />
+	</s:VGroup>
+
+</s:ItemRenderer>
