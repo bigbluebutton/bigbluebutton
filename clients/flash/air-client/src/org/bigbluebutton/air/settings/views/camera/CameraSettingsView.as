@@ -1,11 +1,10 @@
 package org.bigbluebutton.air.settings.views.camera {
 	
-	import spark.layouts.VerticalLayout;
-	
 	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
-	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewBase;
+	
+	import spark.layouts.VerticalLayout;
 	
 	public class CameraSettingsView extends NoTabView {
 		
@@ -24,7 +23,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			addElement(_settingsView);
 		}
 		
-		override protected function createToolbar():TopToolbarAIR {
+		override protected function createToolbar():TopToolbarBase {
 			return new TopToolbarSubSettings();
 		}
 	}

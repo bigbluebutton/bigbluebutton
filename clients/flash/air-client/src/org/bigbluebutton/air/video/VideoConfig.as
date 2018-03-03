@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.video {
 	
 	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;

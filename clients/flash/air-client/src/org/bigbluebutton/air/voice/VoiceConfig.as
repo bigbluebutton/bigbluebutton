@@ -1,11 +1,11 @@
 package org.bigbluebutton.air.voice {
 	
-	import org.bigbluebutton.air.voice.views.EchoTestViewMediatorAIR;
-	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteCommand;
-	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
-	import org.bigbluebutton.lib.voice.views.EchoTestViewBase;
+	import org.bigbluebutton.air.voice.commands.MicrophoneMuteCommand;
+	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
+	import org.bigbluebutton.air.voice.commands.ShareMicrophoneCommand;
+	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.air.voice.views.EchoTestViewBase;
+	import org.bigbluebutton.air.voice.views.EchoTestViewMediator;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -30,7 +30,7 @@ package org.bigbluebutton.air.voice {
 		 */
 		private function mediators():void {
 			//mediatorMap.map(IMicButton).toMediator(MicButtonMediator);
-			mediatorMap.mapMatcher(new TypeMatcher().allOf(EchoTestViewBase)).toMediator(EchoTestViewMediatorAIR);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(EchoTestViewBase)).toMediator(EchoTestViewMediator);
 		}
 		
 		/**

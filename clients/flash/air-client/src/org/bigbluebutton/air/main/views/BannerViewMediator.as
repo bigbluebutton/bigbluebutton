@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.main.views
 {
-	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 
