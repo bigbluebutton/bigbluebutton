@@ -5,7 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <style type="text/css" media="screen">
       html, body, #content    { height:100%; width: 100%; }
-      .hiddenContent { display: none; }
       body                                    { margin:0; padding:0; overflow:hidden; }
       #altContent                             { /* style alt content */ }
       .visually-hidden {
@@ -176,15 +175,11 @@
 
           if ((iOS || android) && !puffin) {
             redirectToHtml5();
-          } else {
-            showContent();
           }
 
           if (document.getElementById('html5Section')) {
             document.getElementById('html5Section').style.display = 'inherit';
           }
-        } else {
-          showContent();
         }
       });
 
@@ -193,10 +188,6 @@
 
     function redirectToHtml5 () {
       document.location.pathname = '/html5client/join';
-    }
-
-    function showContent () {
-      $('#content').removeClass('hiddenContent');
     }
     </script>
   </head>
