@@ -6,8 +6,8 @@ package org.bigbluebutton.air.main.views {
 	import flash.system.Capabilities;
 	
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
+	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.main.utils.DisconnectEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

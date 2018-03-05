@@ -4,8 +4,7 @@ package org.bigbluebutton.air.settings.views.audio {
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewMediatorBase;
-	import org.bigbluebutton.lib.user.models.User2x;
+	import org.bigbluebutton.air.user.models.User2x;
 	
 	public class AudioSettingsViewMediatorAIR extends AudioSettingsViewMediatorBase {
 		

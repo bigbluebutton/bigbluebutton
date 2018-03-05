@@ -7,7 +7,6 @@ package org.bigbluebutton.air.deskshare.views {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.deskshare.views.DeskshareMediator;
 	
 	public class DeskshareViewMediator extends DeskshareMediator {
 		

@@ -1,15 +1,15 @@
 package org.bigbluebutton.air.chat {
 	
-	import org.bigbluebutton.air.chat.views.ChatRoomsMediatorAIR;
-	import org.bigbluebutton.air.chat.views.ChatViewMediatorAIR;
-	import org.bigbluebutton.lib.chat.commands.RequestGroupChatHistoryCommand;
-	import org.bigbluebutton.lib.chat.commands.RequestGroupChatHistorySignal;
-	import org.bigbluebutton.lib.chat.commands.RequestWelcomeMessageCommand;
-	import org.bigbluebutton.lib.chat.commands.RequestWelcomeMessageSignal;
-	import org.bigbluebutton.lib.chat.commands.StartPrivateChatCommand;
-	import org.bigbluebutton.lib.chat.commands.StartPrivateChatSignal;
-	import org.bigbluebutton.lib.chat.views.ChatRoomsViewBase;
-	import org.bigbluebutton.lib.chat.views.ChatViewBase;
+	import org.bigbluebutton.air.chat.commands.RequestGroupChatHistoryCommand;
+	import org.bigbluebutton.air.chat.commands.RequestGroupChatHistorySignal;
+	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageCommand;
+	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageSignal;
+	import org.bigbluebutton.air.chat.commands.StartPrivateChatCommand;
+	import org.bigbluebutton.air.chat.commands.StartPrivateChatSignal;
+	import org.bigbluebutton.air.chat.views.ChatRoomsMediator;
+	import org.bigbluebutton.air.chat.views.ChatRoomsViewBase;
+	import org.bigbluebutton.air.chat.views.ChatViewBase;
+	import org.bigbluebutton.air.chat.views.ChatViewMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -32,8 +32,8 @@ package org.bigbluebutton.air.chat {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(ChatRoomsViewBase).toMediator(ChatRoomsMediatorAIR);
-			mediatorMap.map(ChatViewBase).toMediator(ChatViewMediatorAIR);
+			mediatorMap.map(ChatRoomsViewBase).toMediator(ChatRoomsMediator);
+			mediatorMap.map(ChatViewBase).toMediator(ChatViewMediator);
 		}
 		
 		private function signals():void {

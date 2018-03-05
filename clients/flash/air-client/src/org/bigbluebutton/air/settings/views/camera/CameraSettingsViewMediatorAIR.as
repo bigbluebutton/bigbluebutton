@@ -5,15 +5,13 @@ package org.bigbluebutton.air.settings.views.camera {
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.media.Camera;
-	import flash.media.CameraPosition;
 	import flash.media.Video;
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewMediatorBase;
-	import org.bigbluebutton.lib.user.models.User2x;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
-	import org.bigbluebutton.lib.video.models.VideoProfile;
+	import org.bigbluebutton.air.user.models.User2x;
+	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.air.video.models.VideoProfile;
 	
 	public class CameraSettingsViewMediatorAIR extends CameraSettingsViewMediatorBase {
 		

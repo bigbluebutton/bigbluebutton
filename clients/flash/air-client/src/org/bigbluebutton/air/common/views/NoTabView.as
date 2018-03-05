@@ -6,12 +6,12 @@ package org.bigbluebutton.air.common.views {
 	
 	import spark.components.View;
 	
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	
 	[Style(name = "toolbarHeight", inherit = "yes", type = "Number")]
 	public class NoTabView extends View {
 		
-		protected var _topToolbar:TopToolbarAIR;
+		protected var _topToolbar:TopToolbarBase;
 		
 		public function NoTabView() {
 			super();
@@ -34,8 +34,8 @@ package org.bigbluebutton.air.common.views {
 			}
 		}
 		
-		protected function createToolbar():TopToolbarAIR {
-			return new TopToolbarAIR();
+		protected function createToolbar():TopToolbarBase {
+			return new TopToolbarBase();
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {

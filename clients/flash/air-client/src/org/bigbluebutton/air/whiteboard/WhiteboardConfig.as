@@ -1,13 +1,13 @@
 package org.bigbluebutton.air.whiteboard {
 	
-	import org.bigbluebutton.lib.whiteboard.commands.GetWhiteboardHistoryCommand;
-	import org.bigbluebutton.lib.whiteboard.commands.GetWhiteboardHistorySignal;
-	import org.bigbluebutton.lib.whiteboard.models.IWhiteboardModel;
-	import org.bigbluebutton.lib.whiteboard.models.WhiteboardModel;
-	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
-	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
-	import org.bigbluebutton.lib.whiteboard.views.WhiteboardCanvas;
-	import org.bigbluebutton.lib.whiteboard.views.WhiteboardCanvasMediator;
+	import org.bigbluebutton.air.whiteboard.commands.GetWhiteboardHistoryCommand;
+	import org.bigbluebutton.air.whiteboard.commands.GetWhiteboardHistorySignal;
+	import org.bigbluebutton.air.whiteboard.models.IWhiteboardModel;
+	import org.bigbluebutton.air.whiteboard.models.WhiteboardModel;
+	import org.bigbluebutton.air.whiteboard.services.IWhiteboardService;
+	import org.bigbluebutton.air.whiteboard.services.WhiteboardService;
+	import org.bigbluebutton.air.whiteboard.views.WhiteboardCanvas;
+	import org.bigbluebutton.air.whiteboard.views.WhiteboardCanvasMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;

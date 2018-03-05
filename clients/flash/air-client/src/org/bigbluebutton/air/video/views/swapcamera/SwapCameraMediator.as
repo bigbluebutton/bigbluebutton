@@ -4,10 +4,8 @@ package org.bigbluebutton.air.video.views.swapcamera {
 	import flash.media.Camera;
 	import flash.media.CameraPosition;
 	
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.models.UserList;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

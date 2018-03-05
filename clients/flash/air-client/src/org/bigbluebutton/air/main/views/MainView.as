@@ -1,16 +1,15 @@
 package org.bigbluebutton.air.main.views {
-	import spark.layouts.VerticalLayout;
-	
 	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
-	import org.bigbluebutton.lib.presentation.views.PresentationViewBase;
+	import org.bigbluebutton.air.presentation.views.PresentationView;
 	import org.osmf.layout.HorizontalAlign;
+	
+	import spark.layouts.VerticalLayout;
 	
 	[Style(name = "menuHeight", inherit = "no", type = "Number")]
 	public class MainView extends NoTabView {
-		private var _presentationView:PresentationViewBase;
+		private var _presentationView:PresentationView;
 		
-		private var _menuButtons:MenuButtonsBase;
+		private var _menuButtons:MenuButtons;
 		
 		public function MainView() {
 			super();
@@ -20,12 +19,12 @@ package org.bigbluebutton.air.main.views {
 			vLayout.horizontalAlign = HorizontalAlign.CENTER;
 			layout = vLayout;
 			
-			_presentationView = new PresentationViewBase();
+			_presentationView = new PresentationView();
 			_presentationView.percentWidth = 100;
 			_presentationView.percentHeight = 100;
 			addElement(_presentationView);
 			
-			_menuButtons = new MenuButtonsBase();
+			_menuButtons = new MenuButtons();
 			addElement(_menuButtons);
 		}
 		

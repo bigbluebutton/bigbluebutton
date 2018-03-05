@@ -3,9 +3,9 @@ package org.bigbluebutton.air.main.services {
 	import flash.net.URLRequest;
 	import flash.net.URLVariables;
 	import flash.utils.Timer;
+	
+	import org.bigbluebutton.air.common.utils.GuestWaitURLFetcher;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.common.utils.GuestWaitURLFetcher;
-	import org.bigbluebutton.lib.main.services.IGuestWaitPageService;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	

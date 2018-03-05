@@ -1,7 +1,9 @@
 package org.bigbluebutton.air.main {
 	
-	import org.bigbluebutton.air.main.commands.ConnectingFailedCommandAIR;
-	import org.bigbluebutton.air.main.commands.JoinMeetingCommandAIR;
+	import org.bigbluebutton.air.main.commands.ConnectingFailedCommand;
+	import org.bigbluebutton.air.main.commands.ConnectingFailedSignal;
+	import org.bigbluebutton.air.main.commands.JoinMeetingCommand;
+	import org.bigbluebutton.air.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.air.main.commands.NavigateToCommand;
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
 	import org.bigbluebutton.air.main.views.BannerView;
@@ -12,15 +14,12 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.ExitViewMediator;
 	import org.bigbluebutton.air.main.views.LoadingScreen;
 	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
-	import org.bigbluebutton.air.main.views.MenuButtonsMediatorAIR;
+	import org.bigbluebutton.air.main.views.MenuButtons;
+	import org.bigbluebutton.air.main.views.MenuButtonsMediator;
 	import org.bigbluebutton.air.main.views.PagesNavigatorView;
 	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.air.main.views.TopToolbarMediatorAIR;
-	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
-	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
-	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
-	import org.bigbluebutton.lib.main.views.TopToolbarBase;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
+	import org.bigbluebutton.air.main.views.TopToolbarMediator;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -59,8 +58,8 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
 			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);
 			mediatorMap.map(BannerView).toMediator(BannerViewMediator);
-			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);
-			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorAIR);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase)).toMediator(TopToolbarMediator);
+			mediatorMap.map(MenuButtons).toMediator(MenuButtonsMediator);
 			mediatorMap.map(ExitView).toMediator(ExitViewMediator);
 			mediatorMap.map(DisconnectView).toMediator(DisconnectViewMediator);
 		}
@@ -69,8 +68,8 @@ package org.bigbluebutton.air.main {
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommandAIR);
-			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandAIR);
+			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommand);
+			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommand);
 			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
 		}
 	}
