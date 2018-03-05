@@ -171,6 +171,7 @@ package org.bigbluebutton.air.main.commands {
 			usersService.queryForParticipants();
 			usersService.getLockSettings();
 			usersService.queryForRecordingStatus();
+			usersService.queryForScreenshare();
 			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
 			usersService.getRoomLockState();

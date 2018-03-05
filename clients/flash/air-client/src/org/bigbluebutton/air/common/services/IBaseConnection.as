@@ -13,5 +13,6 @@ package org.bigbluebutton.air.common.services {
 		function init(callback:DefaultConnectionCallback):void;
 		function get connectionSuccessSignal():ISignal;
 		function get connectionFailureSignal():ISignal;
+		function isTunnelling():Boolean;
 	}
 }

@@ -23,5 +23,6 @@ package org.bigbluebutton.air.user.services {
 		function validateToken():void;
 		function joinMeeting():void;
 		function changeRole(userId:String, role:String):void;
+		function queryForScreenshare():void;
 	}
 }

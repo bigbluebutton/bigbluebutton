@@ -38,6 +38,9 @@ package org.bigbluebutton.air.common.services {
 		private var connectAttemptTimeout:Number = 5000;
 		private var connectionTimer:Timer;
 		private var triedTunneling:Boolean = false;
+		
+		private var _isTunnelling:Boolean = false;
+		
 		private var params: Array;
 		
 		public function init(callback:DefaultConnectionCallback):void {
@@ -59,6 +62,10 @@ package org.bigbluebutton.air.common.services {
 		
 		public function get connection():NetConnection {
 			return _netConnection;
+		}
+		
+		public function isTunnelling():Boolean {
+			return _isTunnelling;
 		}
 		
 		public function connect(uri:String, ... parameters):void {
@@ -152,6 +159,9 @@ package org.bigbluebutton.air.common.services {
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					trace(LOG + " Connection succeeded. Uri: " + bbbAppsUrl);
+					if (triedTunneling) {
+						_isTunnelling = true;
+					}
 					sendConnectionSuccessEvent();
 					break;
 				case "NetConnection.Connect.Failed":

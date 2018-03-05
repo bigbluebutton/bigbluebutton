@@ -2,7 +2,6 @@ package org.bigbluebutton.air.presentation.commands {
 	
 	import org.bigbluebutton.air.presentation.models.Slide;
 	import org.bigbluebutton.air.presentation.services.LoadSlideService;
-	import org.bigbluebutton.air.whiteboard.services.IWhiteboardService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	

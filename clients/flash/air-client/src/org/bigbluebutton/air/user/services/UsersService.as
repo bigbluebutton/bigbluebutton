@@ -132,5 +132,9 @@ package org.bigbluebutton.air.user.services {
 		public function changeRole(userId:String, role:String):void {
 			usersMessageSender.changeRole(userId, role);
 		}
+		
+		public function queryForScreenshare():void {
+			usersMessageSender.queryForScreenshare();
+		}
 	}
 }

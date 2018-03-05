@@ -2,6 +2,7 @@ package org.bigbluebutton.air.screenshare.services
 {
 
 	import flash.net.NetConnection;
+	
 	import org.bigbluebutton.air.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.air.common.services.IBaseConnection;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
@@ -17,7 +18,7 @@ package org.bigbluebutton.air.screenshare.services
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
-		
+			
 		protected var _connectionSuccessSignal:ISignal = new Signal();
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
@@ -59,6 +60,10 @@ package org.bigbluebutton.air.screenshare.services
 		
 		public function get connection():NetConnection {
 			return baseConnection.connection;
+		}
+		
+		public function isTunnelling():Boolean {
+			return baseConnection.isTunnelling();
 		}
 		
 		public function connect():void {
