@@ -31,7 +31,6 @@ package org.bigbluebutton.air.user.views {
 			
 			_userList = new List();
 			_userList.percentWidth = 100;
-			_userList.percentHeight = 100;
 			_userList.itemRenderer = new ClassFactory(getItemRendererClass());
 			
 			var listLayout:VerticalLayout = new VerticalLayout();
