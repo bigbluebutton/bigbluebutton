@@ -13,6 +13,6 @@ package org.bigbluebutton.air.whiteboard.models {
 		
 		public static const TEXT:String = "text";
 		
-		public static const POLL:String = "poll";
+		public static const POLL:String = "poll_result";
 	}
 }

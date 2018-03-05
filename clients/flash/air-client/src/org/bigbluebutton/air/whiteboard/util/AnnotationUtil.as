@@ -4,6 +4,7 @@ package org.bigbluebutton.air.whiteboard.util {
 	import org.bigbluebutton.air.whiteboard.models.EllipseAnnotation;
 	import org.bigbluebutton.air.whiteboard.models.LineAnnotation;
 	import org.bigbluebutton.air.whiteboard.models.PencilAnnotation;
+	import org.bigbluebutton.air.whiteboard.models.PollAnnotation;
 	import org.bigbluebutton.air.whiteboard.models.RectangleAnnotation;
 	import org.bigbluebutton.air.whiteboard.models.TextAnnotation;
 	import org.bigbluebutton.air.whiteboard.models.TriangleAnnotation;
@@ -35,6 +36,9 @@ package org.bigbluebutton.air.whiteboard.util {
 					break;
 				case AnnotationType.TEXT:
 					return new TextAnnotation(an.id, an.userId, an.annotationType, an.status, an.annotationInfo);
+					break;
+				case AnnotationType.POLL:
+					return new PollAnnotation(an.id, an.userId, an.annotationType, an.status, an.annotationInfo);
 					break;
 				default:
 					return null;
