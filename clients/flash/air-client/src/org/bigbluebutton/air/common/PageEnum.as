@@ -3,9 +3,9 @@ package org.bigbluebutton.air.common {
 	import flash.utils.Dictionary;
 	
 	import org.bigbluebutton.air.chat.views.ChatRoomView;
-	import org.bigbluebutton.air.main.views.MainView;
 	import org.bigbluebutton.air.main.views.DisconnectView;
 	import org.bigbluebutton.air.main.views.ExitView;
+	import org.bigbluebutton.air.main.views.MainView;
 	import org.bigbluebutton.air.participants.views.ParticipantsView;
 	import org.bigbluebutton.air.settings.views.SettingsView;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
@@ -14,9 +14,12 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
 	import org.bigbluebutton.air.user.views.UserDetailsView;
 	import org.bigbluebutton.air.voice.views.EchoTestView;
+	import org.bigbluebutton.air.voice.views.JoinAudioView;
 	
 	public class PageEnum {
 		public static const MAIN:String = "main";
+		
+		public static const AUDIO:String = "audio";
 		
 		public static const PROFILE:String = "profile";
 		
@@ -67,6 +70,7 @@ package org.bigbluebutton.air.common {
 				//		dic[VIDEO_CHAT] = VideoChatView;
 				//		dic[CHATROOMS] = ChatRoomsView;
 				//		dic[SELECT_PARTICIPANT] = SelectParticipantView;
+				dic[AUDIO] = JoinAudioView;
 				dic[DISCONNECT] = DisconnectView;
 				//		dic[DESKSHARE] = DeskshareView;
 				dic[EXIT] = ExitView;
