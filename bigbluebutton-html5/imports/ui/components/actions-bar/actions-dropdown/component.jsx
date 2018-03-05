@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -7,8 +8,9 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import UploadPresentation from './upload-presentation/component';
 import { styles } from '../styles';
 
 const propTypes = {
@@ -68,7 +70,7 @@ class ActionsDropdown extends Component {
   }
 
   handlePresentationClick() {
-    this.props.mountModal(<PresentationUploaderContainer />);
+    this.props.mountModal(<UploadPresentation />);
   }
 
   getAvailableActions() {
@@ -80,22 +82,16 @@ class ActionsDropdown extends Component {
     } = this.props;
 
     return _.compact([
-      (<DropdownListItem
-        icon="presentation"
-        label={intl.formatMessage(intlMessages.presentationLabel)}
-        description={intl.formatMessage(intlMessages.presentationDesc)}
-        key={this.presentationItemId}
-        onClick={this.handlePresentationClick}
-      />),
+      (<UploadPresentation key={this.presentationItemId} />),
       (Meteor.settings.public.kurento.enableScreensharing ?
         <DropdownListItem
           icon="desktop"
           label={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
           description={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
           key={this.videoItemId}
-          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
+          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
         />
-      : null),
+        : null),
     ]);
   }
 
@@ -103,9 +99,6 @@ class ActionsDropdown extends Component {
     const {
       intl,
       isUserPresenter,
-      handleShareScreen,
-      handleUnshareScreen,
-      isVideoBroadcasting,
     } = this.props;
 
     const availableActions = this.getAvailableActions();

@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
-import { styles } from './styles.scss';
-import Button from '../button/component';
-import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdownContainer from './settings-dropdown/container';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -15,6 +11,10 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
+import RecordingIndicator from './recording-indicator/component';
+import { styles } from './styles';
+import SettingsDropdown from './settings-dropdown/component';
+import UserListToggleContainer from './userlist-toggle/container';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -45,7 +45,7 @@ const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
     breakoutName={breakoutName}
   />);
 
-const closeBreakoutJoinConfirmation = (mountModal) =>
+const closeBreakoutJoinConfirmation = mountModal =>
    mountModal(null);
 
 class NavBar extends Component {
@@ -56,16 +56,6 @@ class NavBar extends Component {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
     };
-
-    this.handleToggleUserList = this.handleToggleUserList.bind(this);
-  }
-
-  componendDidMount() {
-    document.title = this.props.presentationTitle;
-  }
-
-  handleToggleUserList() {
-    this.props.toggleUserList();
   }
 
   componentDidUpdate(oldProps) {
@@ -97,6 +87,10 @@ class NavBar extends Component {
     if (!breakouts.length && this.state.didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
+  }
+
+  componendDidMount() {
+    document.title = this.props.presentationTitle;
   }
 
   inviteUserToBreakout(breakout, breakoutURL) {
@@ -159,7 +153,7 @@ class NavBar extends Component {
     );
   }
   render() {
-    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
+    const { hasUnreadMessages, beingRecorded, intl } = this.props;
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -168,18 +162,7 @@ class NavBar extends Component {
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
-          <Button
-            data-test="userListToggleButton"
-            onClick={this.handleToggleUserList}
-            ghost
-            circle
-            hideLabel
-            label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-            icon={'user'}
-            className={cx(toggleBtnClasses)}
-            aria-expanded={isExpanded}
-            aria-describedby="newMessage"
-          />
+          <UserListToggleContainer />
           <div
             id="newMessage"
             aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}
@@ -190,7 +173,7 @@ class NavBar extends Component {
           <RecordingIndicator beingRecorded={beingRecorded} />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer />
+          <SettingsDropdown />
         </div>
       </div>
     );

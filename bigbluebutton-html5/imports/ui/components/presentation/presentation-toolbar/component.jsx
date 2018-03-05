@@ -2,18 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Button from '/imports/ui/components/button/component';
+import PreviousSlide from './previous-slide/component';
+import NextSlide from './next-slide/component'
 import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
-  previousSlideLabel: {
-    id: 'app.presentation.presentationToolbar.prevSlideLabel',
-    description: 'Previous slide button label',
-  },
-  nextSlideLabel: {
-    id: 'app.presentation.presentationToolbar.nextSlideLabel',
-    description: 'Next slide button label',
-  },
   goToSlide: {
     id: 'app.presentation.presentationToolbar.goToSlide',
     description: 'button for slide select',
@@ -165,24 +158,14 @@ class PresentationToolbar extends Component {
       currentSlideNum,
       numberOfSlides,
       actions,
-      intl,
     } = this.props;
 
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
-        <Button
-          role="button"
-          aria-labelledby="prevSlideLabel"
-          aria-describedby="prevSlideDesc"
-          disabled={!(currentSlideNum > 1)}
-          color="default"
-          icon="left_arrow"
-          size="md"
-          onClick={actions.previousSlideHandler}
-          label={intl.formatMessage(intlMessages.previousSlideLabel)}
-          hideLabel
-          className={styles.prevSlide}
+        <PreviousSlide
+          currentSlideNum={currentSlideNum}
+          previousSlideHandler={actions.previousSlideHandler}
         />
         <select
           // <select> has an implicit role of listbox, no need to define role="listbox" explicitly
@@ -197,17 +180,10 @@ class PresentationToolbar extends Component {
         >
           {this.renderSkipSlideOpts(numberOfSlides)}
         </select>
-        <Button
-          role="button"
-          aria-labelledby="nextSlideLabel"
-          aria-describedby="nextSlideDesc"
-          disabled={!(currentSlideNum < numberOfSlides)}
-          color="default"
-          icon="right_arrow"
-          size="md"
-          onClick={actions.nextSlideHandler}
-          label={intl.formatMessage(intlMessages.nextSlideLabel)}
-          hideLabel
+        <NextSlide
+          numberOfSlides={numberOfSlides}
+          currentSlideNum={currentSlideNum}
+          nextSlideHandler={actions.nextSlideHandler}
         />
 
         {/* Fit to width button

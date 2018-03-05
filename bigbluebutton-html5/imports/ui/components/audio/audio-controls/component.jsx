@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
 import cx from 'classnames';
+import Shortcut from '/imports/ui/components/shortcut/component';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -32,6 +33,7 @@ const propTypes = {
   unmute: PropTypes.bool.isRequired,
   mute: PropTypes.bool.isRequired,
   join: PropTypes.bool.isRequired,
+  glow: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
   glow: PropTypes.bool,
 };
@@ -39,6 +41,9 @@ const propTypes = {
 const defaultProps = {
   glow: false,
 };
+
+const SHORTCUTS_CONFIG = Meteor.settings.public.shortcuts;
+const SHORTCUT_COMBO = SHORTCUTS_CONFIG.mute_unmute.keys;
 
 const AudioControls = ({
   handleToggleMuteMicrophone,
@@ -53,25 +58,39 @@ const AudioControls = ({
 }) => (
   <span className={styles.container}>
     {mute ?
-      <Button
-        className={glow ? cx(styles.button, styles.glow) : styles.button}
-        onClick={handleToggleMuteMicrophone}
-        disabled={disable}
-        hideLabel
-        label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) : intl.formatMessage(intlMessages.muteAudio)}
-        aria-label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) : intl.formatMessage(intlMessages.muteAudio)}
-        color="primary"
-        icon={unmute ? 'mute' : 'unmute'}
-        size="lg"
-        circle
-      /> : null}
+      <Shortcut keyCombo={SHORTCUT_COMBO}>
+        <Button
+          className={glow ? cx(styles.button, styles.glow) : styles.button}
+          onClick={handleToggleMuteMicrophone}
+          disabled={disable}
+          hideLabel
+          label={unmute
+            ? intl.formatMessage(intlMessages.unmuteAudio)
+            : intl.formatMessage(intlMessages.muteAudio)
+          }
+          aria-label={unmute
+            ? intl.formatMessage(intlMessages.unmuteAudio)
+            : intl.formatMessage(intlMessages.muteAudio)
+          }
+          color="primary"
+          icon={unmute ? 'mute' : 'unmute'}
+          size="lg"
+          circle
+        />
+      </Shortcut> : null}
     <Button
       className={styles.button}
       onClick={join ? handleLeaveAudio : handleJoinAudio}
       disabled={disable}
       hideLabel
-      aria-label={join ? intl.formatMessage(intlMessages.leaveAudio) : intl.formatMessage(intlMessages.joinAudio)}
-      label={join ? intl.formatMessage(intlMessages.leaveAudio) : intl.formatMessage(intlMessages.joinAudio)}
+      aria-label={join
+        ? intl.formatMessage(intlMessages.leaveAudio)
+        : intl.formatMessage(intlMessages.joinAudio)
+      }
+      label={join
+        ? intl.formatMessage(intlMessages.leaveAudio)
+        : intl.formatMessage(intlMessages.joinAudio)
+      }
       color={join ? 'danger' : 'primary'}
       icon={join ? 'audio_off' : 'audio_on'}
       size="lg"
