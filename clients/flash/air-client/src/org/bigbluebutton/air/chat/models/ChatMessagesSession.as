@@ -2,6 +2,9 @@ package org.bigbluebutton.air.chat.models {
 	
 	import mx.collections.ArrayCollection;
 	
+	import spark.collections.Sort;
+	import spark.collections.SortField;
+	
 	import org.bigbluebutton.air.chat.commands.RequestGroupChatHistorySignal;
 	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageSignal;
 	import org.bigbluebutton.air.main.models.IMeetingData;
@@ -24,6 +27,15 @@ package org.bigbluebutton.air.chat.models {
 		
 		public function ChatMessagesSession():void {
 			chats = new ArrayCollection();
+		}
+		
+		private function sortChats():void {
+			if (!chats.sort) {
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("isPublic", true), new SortField("name", false)];
+				chats.sort = sort;
+			}
+			chats.refresh();
 		}
 		
 		public function getGroupByChatId(chatId:String):GroupChat {
@@ -54,6 +66,7 @@ package org.bigbluebutton.air.chat.models {
 				}
 				requestChatHistorySignal.dispatch(chat.id);
 			}
+			sortChats();
 		}
 		
 		public function addMessageHistory(chatId:String, messages:Array):void {
@@ -82,6 +95,7 @@ package org.bigbluebutton.air.chat.models {
 		
 		public function addGroupChat(vo:GroupChatVO):void {
 			chats.addItem(convertGroupChatVO(vo));
+			sortChats();
 		}
 		
 		private function convertGroupChatVO(vo:GroupChatVO):GroupChat {
