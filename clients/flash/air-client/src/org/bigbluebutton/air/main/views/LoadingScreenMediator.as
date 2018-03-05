@@ -8,8 +8,8 @@ package org.bigbluebutton.air.main.views {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
-	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.air.main.commands.JoinMeetingSignal;
+	import org.bigbluebutton.air.main.models.IUserSession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

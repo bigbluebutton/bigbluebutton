@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.video.air {
 	import flash.media.CameraPosition;
 	
-	import org.bigbluebutton.lib.video.services.VideoConnection;
+	import org.bigbluebutton.air.video.services.VideoConnection;
 	
 	public class AIRVideoConnection extends VideoConnection {
 		

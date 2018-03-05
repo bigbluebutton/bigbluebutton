@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%">
+
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			
+			import org.bigbluebutton.air.chat.models.ChatMessage;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				var iPadding:int = getStyle("padding");
+				var iGap:int = getStyle("gap");
+				messageGroup.left = iPadding;
+				messageGroup.top = iPadding;
+				messageGroup.right = iPadding;
+				messageGroup.bottom = iPadding;
+				
+				messageGroup.gap = iGap;
+				titleGroup.gap = iGap;
+				
+				//messageGroup.left = getStyle("leftIndent") + iGap;
+				
+				username.setStyle("color", getStyle("nameColor"));
+				username.setStyle("fontSize", getStyle("nameFontSize"));
+				
+				time.setStyle("fontSize", getStyle("timeFontSize"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				var m:ChatMessage = obj as ChatMessage;
+				if (m) {
+					time.text = m.time
+					if (!isHTMLString(m.message)) {
+						message.text = m.message;
+					} else {
+						message.textFlow = TextConverter.importToFlow(m.message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+					}
+					if (m.sameSender && m.sameTime) {
+						titleGroup.includeInLayout = titleGroup.visible = false;
+					} else {
+						titleGroup.includeInLayout = titleGroup.visible = true;
+						if (m.name == " " || m.name == "") {
+							username.text = "";
+						} else {
+							username.text = m.name;
+						}
+					}
+				}
+			}
+			
+			/**
+			 * Checks if message string contains opening and closing HTML tag e.g. <....>
+			 **/
+			public function isHTMLString(str:String):Boolean {
+				var pattern:RegExp = new RegExp("(\<+.*\>+)");
+				var result:Object = pattern.exec(str);
+				if (result == null) {
+					return false;
+				}
+				return true;
+			}
+		]]>
+	</fx:Script>
+
+	<s:VGroup id="messageGroup"
+			  width="100%">
+		<s:HGroup id="titleGroup"
+				  width="100%"
+				  verticalAlign="bottom">
+			<s:Label id="username" />
+			<s:Label id="time" />
+		</s:HGroup>
+		<s:RichEditableText id="message"
+							editable="false"
+							selectable="false"
+							width="100%" />
+	</s:VGroup>
+</s:ItemRenderer>

@@ -2,10 +2,10 @@ package org.bigbluebutton.air.voice.views {
 	import flash.events.MouseEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
+	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.models.IConferenceParameters;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
-	import org.bigbluebutton.lib.voice.models.AudioTypeEnum;
+	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

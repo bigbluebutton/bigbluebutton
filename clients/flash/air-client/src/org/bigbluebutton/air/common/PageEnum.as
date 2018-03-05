@@ -12,7 +12,7 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
-	import org.bigbluebutton.air.users.views.UserDetailsView;
+	import org.bigbluebutton.air.user.views.UserDetailsView;
 	import org.bigbluebutton.air.voice.views.EchoTestView;
 	import org.bigbluebutton.air.voice.views.JoinAudioView;
 	
