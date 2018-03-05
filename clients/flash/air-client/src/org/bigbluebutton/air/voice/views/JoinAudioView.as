@@ -17,6 +17,12 @@ package org.bigbluebutton.air.voice.views {
 		[Bindable]
 		public var microphoneButton:Button;
 		
+		private var helpLabel:Label;
+		
+		private var listenLabel:Label;
+		
+		private var micLabel:Label;
+		
 		private var _buttonsGroup:HGroup;
 		
 		private var _micGroup:VGroup;
@@ -28,12 +34,22 @@ package org.bigbluebutton.air.voice.views {
 			
 			var vLayout:VerticalLayout = new VerticalLayout();
 			vLayout.horizontalAlign = HorizontalAlign.CENTER;
+			vLayout.verticalAlign = VerticalAlign.MIDDLE;
 			layout = vLayout;
 			
+			var mainGroup:VGroup = new VGroup();
+			mainGroup.verticalAlign = VerticalAlign.MIDDLE;
+			mainGroup.horizontalAlign = HorizontalAlign.CENTER;
+			mainGroup.percentHeight = 100;
+			this.addElement(mainGroup);
+			
+			helpLabel = new Label();
+			helpLabel.text = "How do you want to join the audio?";
+			mainGroup.addElement(helpLabel);
+			
 			_buttonsGroup = new HGroup();
-			_buttonsGroup.percentHeight = 100;
 			_buttonsGroup.verticalAlign = VerticalAlign.MIDDLE;
-			this.addElement(_buttonsGroup);
+			mainGroup.addElement(_buttonsGroup);
 			
 			_micGroup = new VGroup();
 			_micGroup.horizontalAlign = HorizontalAlign.CENTER;
@@ -42,7 +58,7 @@ package org.bigbluebutton.air.voice.views {
 			microphoneButton = new Button();
 			_micGroup.addElement(microphoneButton);
 			
-			var micLabel:Label = new Label();
+			micLabel = new Label();
 			micLabel.text = "Microphone"
 			_micGroup.addElement(micLabel);
 			
@@ -53,14 +69,17 @@ package org.bigbluebutton.air.voice.views {
 			listenOnlyButton = new Button();
 			_listenGroup.addElement(listenOnlyButton);
 			
-			var listenLabel:Label = new Label();
+			listenLabel = new Label();
 			listenLabel.text = "Listen Only";
 			_listenGroup.addElement(listenLabel);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
-			
+		
+			helpLabel.styleName = "audioHelpLabel";
+			micLabel.styleName = "audioButtonLabel";
+			listenLabel.styleName = "audioButtonLabel";
 			_buttonsGroup.gap = getStyle("gap");
 			listenOnlyButton.styleName = "audioButtonStyle menuButton icon-listen";
 			microphoneButton.styleName = "audioButtonStyle menuButton icon-audio-on";

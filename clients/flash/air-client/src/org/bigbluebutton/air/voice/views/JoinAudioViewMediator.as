@@ -31,9 +31,6 @@ package org.bigbluebutton.air.voice.views {
 		}
 		
 		private function listenOnlyButtonHandler(event:MouseEvent):void {
-			var audioOptions:Object = new Object();
-			audioOptions.shareMic = true;
-			audioOptions.listenOnly = false;
 			shareMicrophoneSignal.dispatch(AudioTypeEnum.LISTEN_ONLY, conferenceParameters.webvoiceconf);
 			uiSession.popPage();
 		}

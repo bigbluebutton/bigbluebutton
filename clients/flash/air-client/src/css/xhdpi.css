@@ -188,6 +188,14 @@
 		padding : 32;
 	}
 	
+	.audioHelpLabel {
+		fontSize : 36;
+	}
+	
+	.audioButtonLabel {
+		fontSize : 28;
+	}
+	
 	.audioButtonStyle {
 		iconSize : 88;
 	}

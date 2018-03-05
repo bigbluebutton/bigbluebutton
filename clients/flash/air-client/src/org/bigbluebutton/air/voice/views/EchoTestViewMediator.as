@@ -139,9 +139,6 @@ package org.bigbluebutton.air.voice.views {
 			uiSession.popPage();
 			uiSession.popPage();
 			
-			var audioOptions:Object = new Object();
-			audioOptions.shareMic = true;
-			audioOptions.listenOnly = false;
 			shareMicrophoneSignal.dispatch(AudioTypeEnum.WITH_MIC, conferenceParameters.webvoiceconf);
 		}
 		
