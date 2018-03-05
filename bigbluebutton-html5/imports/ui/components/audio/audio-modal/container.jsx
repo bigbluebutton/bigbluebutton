@@ -8,21 +8,35 @@ const AudioModalContainer = props => <AudioModal {...props} />;
 
 const APP_CONFIG = Meteor.settings.public.app;
 
+const { listenOnlyMode, forceListenOnly, skipCheck } = APP_CONFIG;
+
 export default withModalMounter(withTracker(({ mountModal }) =>
   ({
     closeModal: () => {
       if (!Service.isConnecting()) mountModal(null);
     },
-    joinMicrophone: () =>
-      new Promise((resolve, reject) => {
-        Service.joinMicrophone().then(() => {
+    joinMicrophone: () => {
+      if (APP_CONFIG.skipCheck) {
+        return new Promise((resolve, reject) => {
+          Service.joinMicrophone().then(() => {
+            mountModal(null);
+            resolve();
+          }).catch(() => {
+            Service.exitAudio();
+            reject();
+          });
+        });
+      }
+      return new Promise((resolve, reject) => {
+        Service.transferCall().then(() => {
           mountModal(null);
           resolve();
         }).catch(() => {
           Service.exitAudio();
           reject();
         });
-      }),
+      });
+    },
     joinListenOnly: () => Service.joinListenOnly().then(() => mountModal(null)),
     leaveEchoTest: () => {
       if (!Service.isEchoTest()) {
@@ -40,6 +54,9 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
-    listenOnlyMode: APP_CONFIG.listenOnlyMode,
-    skipCheck: APP_CONFIG.skipCheck,
+    listenOnlyMode,
+    skipCheck,
+    joinFullAudioImmediately: !listenOnlyMode && skipCheck,
+    joinFullAudioEchoTest: !listenOnlyMode && !skipCheck && !forceListenOnly,
+    forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
   }))(AudioModalContainer));
