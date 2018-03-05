@@ -26,6 +26,8 @@
 
 @namespace voice "org.bigbluebutton.lib.voice.views.*";
 
+@namespace views1 "org.bigbluebutton.air.voice.views.*";
+
 @media (application-dpi: 640) {
     main|LoadingScreen {
         fontSize: 68;
@@ -107,6 +109,10 @@
 
     voice|EchoTestViewBase {
         padding: 60;
+    }
+
+    views1|JoinAudioView {
+        gap: 112;
     }
 
     s|ToggleSwitch {
@@ -197,5 +203,9 @@
 
     .echoTestLabel {
         padding: 64;
+    }
+
+    .audioButtonStyle {
+        iconSize: 176;
     }
 }

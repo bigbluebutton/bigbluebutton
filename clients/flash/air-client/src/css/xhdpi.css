@@ -12,6 +12,7 @@
 @namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
 @namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
 @namespace voice "org.bigbluebutton.lib.voice.views.*";
+@namespace views1 "org.bigbluebutton.air.voice.views.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -94,6 +95,10 @@
 	
 	voice|EchoTestViewBase {
 		padding: 30;
+	}
+	
+	views1|JoinAudioView {
+		gap : 56;
 	}
 	
 	s|ToggleSwitch {
@@ -184,5 +189,9 @@
 	
 	.echoTestLabel {
 		padding : 32;
+	}
+	
+	.audioButtonStyle {
+		iconSize : 88;
 	}
 }
