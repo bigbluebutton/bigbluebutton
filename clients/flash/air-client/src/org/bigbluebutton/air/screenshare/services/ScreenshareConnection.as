@@ -98,61 +98,6 @@ package org.bigbluebutton.air.screenshare.services
 			baseConnection.sendMessageAsObject(service, onSuccess, onFailure, message);
 		}
 		
-		public function restartShareRequest(meetingId:String, userId:String):void {
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["userId"] = userId;
-			
-			sendMessage("screenshare.restartShareRequest", defaultSuccessResponse, defaultFailureResponse, message);
-			
-		}
-		
-		public function pauseShareRequest(meetingId:String, userId:String, streamId:String):void {
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["userId"] = userId;
-			message["streamId"] = streamId;
-			
-			sendMessage("screenshare.pauseShareRequest", defaultSuccessResponse, defaultFailureResponse, message);
-			
-		}
-		
-		public function requestShareToken(meetingId:String, userId:String, record:Boolean, tunnel: Boolean):void {
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["userId"] = userId;
-			message["record"] = record;
-			message["tunnel"] = tunnel;
-			
-			sendMessage("screenshare.requestShareToken", defaultSuccessResponse, defaultFailureResponse, message);
-		}
-		
-		public function startShareRequest(meetingId:String, userId:String, session:String):void {
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["userId"] = userId;
-			message["session"] = session;
-			
-			sendMessage("screenshare.startShareRequest", defaultSuccessResponse, defaultFailureResponse, message);
-		}
-		
-		public function stopShareRequest(meetingId:String, streamId:String):void {
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["streamId"] = streamId;
-			
-			sendMessage("screenshare.stopShareRequest", defaultSuccessResponse, defaultFailureResponse, message);
-		}
-		
-		public function sendClientPongMessage(meetingId:String, session:String, timestamp: Number):void {
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["session"] = session;
-			message["timestamp"] = timestamp;
-			
-			sendMessage("screenshare.screenShareClientPongMessage", defaultSuccessResponse, defaultFailureResponse, message);
-		}
-		
 		private var defaultSuccessResponse:Function = function(result:String):void {
 			trace(result);
 		};
