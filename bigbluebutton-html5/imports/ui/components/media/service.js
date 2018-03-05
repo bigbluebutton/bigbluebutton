@@ -1,5 +1,7 @@
 import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
@@ -11,6 +13,8 @@ const getPresentationInfo = () => {
 
   };
 };
+
+const isUserPresenter = () => Users.findOne({ userId: Auth.userID }).presenter;
 
 function shouldShowWhiteboard() {
   return true;
@@ -29,4 +33,5 @@ export default {
   shouldShowWhiteboard,
   shouldShowScreenshare,
   shouldShowOverlay,
+  isUserPresenter,
 };

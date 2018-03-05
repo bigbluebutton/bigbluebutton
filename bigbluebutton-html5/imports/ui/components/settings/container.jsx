@@ -17,7 +17,7 @@ const SettingsContainer = props => (
 
 export default withRouter(withTracker(() => ({
   audio: SettingsService.audio,
-  video: SettingsService.video,
+  dataSaving: SettingsService.dataSaving,
   application: SettingsService.application,
   cc: SettingsService.cc,
   participants: SettingsService.participants,
