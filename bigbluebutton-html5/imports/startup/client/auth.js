@@ -28,7 +28,7 @@ export function joinRouteHandler(nextState, replace, callback) {
     });
 }
 
-export function logoutRouteHandler(nextState, replace) {
+export function logoutRouteHandler() {
   Auth.logout()
     .then((logoutURL = window.location.origin) => {
       const protocolPattern = /^((http|https):\/\/)/;
@@ -72,12 +72,6 @@ function _addReconnectObservable() {
 }
 
 export function authenticatedRouteHandler(nextState, replace, callback) {
-  const credentialsSnapshot = {
-    meetingId: Auth.meetingID,
-    requesterUserId: Auth.userID,
-    requesterToken: Auth.token,
-  };
-
   if (Auth.loggedIn) {
     callback();
   }
@@ -88,15 +82,6 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
     .then(callback)
     .catch((reason) => {
       log('error', reason);
-
-      // make sure users who did not connect are not added to the meeting
-      // do **not** use the custom call - it relies on expired data
-      Meteor.call('userLogout', credentialsSnapshot, (error) => {
-        if (error) {
-          throw new Error(error);
-        }
-      });
-
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });

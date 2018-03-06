@@ -1,6 +1,5 @@
 'use strict';
 
-const kurento = require('kurento-client');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
@@ -18,7 +17,6 @@ module.exports = class Video {
     this.meetingId = _id;
     this.shared = _shared;
     this.role = this.shared? 'share' : 'view'
-    this.webRtcEndpoint = null;
     this.mediaId = null;
     this.iceQueue = null;
 
