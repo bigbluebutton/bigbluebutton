@@ -129,6 +129,10 @@ class AudioModal extends Component {
       forceListenOnlyAttendee,
     } = this.props;
 
+    console.log('AudioModal.componentWillMount.joinFullAudioImmediately', joinFullAudioImmediately);
+    console.log('AudioModal.componentWillMount.joinFullAudioEchoTest', joinFullAudioEchoTest);
+    console.log('AudioModal.componentWillMount.forceListenOnlyAttendee', forceListenOnlyAttendee);
+
     if (joinFullAudioImmediately) {
       this.handleJoinMicrophone();
     }
@@ -266,7 +270,7 @@ class AudioModal extends Component {
       isConnecting ||
       forceListenOnlyAttendee ||
       joinFullAudioImmediately ||
-      joinFullAudioEchoTest
+      (joinFullAudioEchoTest && !content)
     ) {
       return (
         <span className={styles.connecting}>
@@ -348,7 +352,7 @@ class AudioModal extends Component {
           { isConnecting ||
             forceListenOnlyAttendee ||
             joinFullAudioImmediately ||
-            joinFullAudioEchoTest ? null :
+            (joinFullAudioEchoTest && !content) ? null :
             <header
               data-test="audioModalHeader"
               className={styles.header}

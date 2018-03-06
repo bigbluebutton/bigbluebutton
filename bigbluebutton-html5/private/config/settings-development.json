@@ -5,7 +5,7 @@
       "mobileFont": 16,
       "desktopFont": 14,
       "audioChatNotification": false,
-      "autoJoin": false,
+      "autoJoin": true,
       "listenOnlyMode": true,
       "forceListenOnly": false,
       "skipCheck": false,
@@ -53,9 +53,9 @@
     },
 
     "kurento": {
-      "wsUrl": "wss://bbb-joao.dev.imdt.com.br/bbb-webrtc-sfu",
-      "chromeExtensionKey": "mbfngdphjegmlbfobcblikeefpidfncb",
-      "chromeExtensionLink": "https://chrome.google.com/webstore/detail/kurento-screenshare-test/mbfngdphjegmlbfobcblikeefpidfncb",
+      "wsUrl": "HOST",
+      "chromeExtensionKey": "KEY",
+      "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
       "enableVideo": false
     },

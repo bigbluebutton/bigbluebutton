@@ -16,7 +16,7 @@ export default withModalMounter(withTracker(({ mountModal }) =>
       if (!Service.isConnecting()) mountModal(null);
     },
     joinMicrophone: () => {
-      if (APP_CONFIG.skipCheck) {
+      if (skipCheck) {
         return new Promise((resolve, reject) => {
           Service.joinMicrophone().then(() => {
             mountModal(null);
@@ -57,6 +57,6 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     listenOnlyMode,
     skipCheck,
     joinFullAudioImmediately: !listenOnlyMode && skipCheck,
-    joinFullAudioEchoTest: !listenOnlyMode && !skipCheck && !forceListenOnly,
+    joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
     forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
   }))(AudioModalContainer));
