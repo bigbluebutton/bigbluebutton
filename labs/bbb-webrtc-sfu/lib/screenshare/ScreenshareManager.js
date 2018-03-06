@@ -13,11 +13,7 @@ const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 
 module.exports = class ScreenshareManager {
-  constructor (logger) {
-    this._logger = logger;
-    this._clientId = 0;
-
-    this._sessions = {};
+  constructor () {
     this._screenshareSessions = {};
 
     this._bbbGW = new BigBlueButtonGW("MANAGER");
