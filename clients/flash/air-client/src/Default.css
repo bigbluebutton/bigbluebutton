@@ -110,7 +110,7 @@ main|TopToolbarBase {
 }
 
 participants|ParticipantsViewBase, user|UsersView {
-	backgroundColor : PropertyReference("grey100");
+	backgroundColor : PropertyReference("white");
 	color           : PropertyReference("blue900");
 }
 

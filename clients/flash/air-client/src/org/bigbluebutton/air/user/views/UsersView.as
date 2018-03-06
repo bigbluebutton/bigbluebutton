@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.user.views {
 	import mx.core.ClassFactory;
+	import mx.core.ScrollPolicy;
 	
 	import spark.components.Label;
 	import spark.components.List;
@@ -43,6 +44,12 @@ package org.bigbluebutton.air.user.views {
 		
 		protected function getItemRendererClass():Class {
 			return UserItemRenderer;
+		}
+		
+		override protected function updateDisplayList(w:Number, h:Number):void {
+			super.updateDisplayList(w, h);
+			
+			_userList.scroller.setStyle('verticalScrollPolicy', ScrollPolicy.OFF)
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.chat.views {
 	import mx.core.ClassFactory;
+	import mx.core.ScrollPolicy;
 	
 	import spark.components.Label;
 	import spark.components.List;
@@ -42,6 +43,13 @@ package org.bigbluebutton.air.chat.views {
 		
 		protected function getItemRendererClass():Class {
 			return ChatRoomsItemRenderer;
+		}
+		
+		
+		override protected function updateDisplayList(w:Number, h:Number):void {
+			super.updateDisplayList(w, h);
+			
+			_chatRoomList.scroller.setStyle('verticalScrollPolicy', ScrollPolicy.OFF)
 		}
 	}
 }
