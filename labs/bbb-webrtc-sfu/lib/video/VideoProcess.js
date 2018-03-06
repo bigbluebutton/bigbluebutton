@@ -1,3 +1,5 @@
+'use strict';
+
 const Logger = require('../utils/Logger');
 const config = require('config');
 
@@ -13,8 +15,11 @@ process.on('uncaughtException', (error) => {
   Logger.error('[VideoProcess] Uncaught exception ', error.stack);
 });
 
-process.on('disconnect', () => {
-  Logger.info("[VideoProcess] Parent process disconnected!");
+process.on('disconnect', async () => {
+  Logger.warn('[VideoProcess] Parent process exited, cleaning things up and finishing child now...');
+  //TODO below
+  //async VideoManager.stopAll();
+  process.exit(0);
 });
 
 // Added this listener to identify unhandled promises, but we should start making
