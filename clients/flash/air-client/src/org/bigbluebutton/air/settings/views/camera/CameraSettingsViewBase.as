@@ -14,8 +14,6 @@ package org.bigbluebutton.air.settings.views.camera {
 	import spark.layouts.VerticalLayout;
 	import spark.primitives.Rect;
 	
-	import org.bigbluebutton.air.user.views.UserItemRenderer;
-	
 	public class CameraSettingsViewBase extends VGroup {
 		
 		private var _cameraBackground:Rect;

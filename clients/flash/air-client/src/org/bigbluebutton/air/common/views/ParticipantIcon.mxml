@@ -51,11 +51,13 @@
 			 verticalCenter="0"
 			 horizontalCenter="0" />
 	<s:Ellipse id="circle"
+			   visible="false"
 			   verticalCenter="0"
 			   horizontalCenter="0">
 		<s:stroke>{borderStroke}</s:stroke>
 	</s:Ellipse>
 	<s:Rect id="rectangle"
+			visible="false"
 			verticalCenter="0"
 			horizontalCenter="0">
 		<s:stroke>{borderStroke}</s:stroke>

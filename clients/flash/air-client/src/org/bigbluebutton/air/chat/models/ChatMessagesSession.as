@@ -5,6 +5,7 @@ package org.bigbluebutton.air.chat.models {
 	import spark.collections.Sort;
 	import spark.collections.SortField;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.air.chat.commands.RequestGroupChatHistorySignal;
 	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageSignal;
 	import org.bigbluebutton.air.main.models.IMeetingData;
@@ -118,7 +119,12 @@ package org.bigbluebutton.air.chat.models {
 				vo.name = "Public Chat";
 			}
 			
-			var newGroupChat:GroupChat = new GroupChat(vo.id, vo.name, vo.access == GroupChat.PUBLIC, partnerId);
+			var partnerRole:String;
+			if (!StringUtils.isEmpty(partnerId) && meetingData.users.getUser(partnerId)) {
+				partnerRole = meetingData.users.getUser(partnerId).role;
+			}
+			
+			var newGroupChat:GroupChat = new GroupChat(vo.id, vo.name, vo.access == GroupChat.PUBLIC, partnerId, partnerRole);
 			
 			return newGroupChat;
 		}

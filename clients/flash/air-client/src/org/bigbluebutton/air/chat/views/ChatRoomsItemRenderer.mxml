@@ -31,6 +31,7 @@
 					} else {
 						participantIcon.setInitials(UserUtils.getInitials(obj.name));
 						participantIcon.visible = participantIcon.includeInLayout = true;
+						participantIcon.setRole(obj.partnerRole);
 						publicChatIcon.visible = publicChatIcon.includeInLayout = false;
 					}
 					newMessages.label = String(obj.newMessages);
@@ -47,9 +48,7 @@
 				 visible="false"
 				 includeInLayout="false"
 				 styleName="icon-group-chat chatIcon" />
-		<common:ParticipantIcon id="participantIcon"
-								visible="false"
-								includeInLayout="false" />
+		<common:ParticipantIcon id="participantIcon" />
 		<s:Label id="title"
 				 width="100%"
 				 styleName="contentFontSize" />

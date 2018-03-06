@@ -302,7 +302,7 @@ settings|SettingsItemRenderer {
 	borderAlphaDown     : 1;
 	borderAlphaDisabled : 0;
 	
-	fillColorUp         : #EFF5FA;
-	borderColorOver     : #1070D7;
-	borderColorDown     : #1070D7;
+	fillColorUp         : PropertyReference("blue500");
+	borderColorOver     : PropertyReference("grey700");
+	borderColorDown     : PropertyReference("grey700");
 }
