@@ -287,6 +287,7 @@ class VideoDock extends Component {
       if (that.myId == id) {
         that.notifyError(intl.formatMessage(intlMessages.sharingError));
         that.unshareWebcam();
+        that.stop(id);
       } else {
         that.stop(id);
         that.start(id, shareWebcam);
@@ -587,8 +588,9 @@ class VideoDock extends Component {
     const { intl, userId } = this.props;
 
     if (message.cameraId == userId) {
-      this.unshareWebcam();
       this.notifyError(intl.formatMessage(intlMessages.sharingError));
+      this.unshareWebcam();
+      this.stop(userId);
     } else {
       this.stop(message.cameraId);
     }
