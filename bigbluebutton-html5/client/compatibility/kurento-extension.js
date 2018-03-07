@@ -280,6 +280,15 @@ Kurento.prototype.startScreenStreamFrom = function () {
 
     self.webRtcPeer.generateOffer(self.onOfferPresenter.bind(self));
     console.log("Generated peer offer w/ options "  + JSON.stringify(options));
+
+    const localStream = self.webRtcPeer.peerConnection.getLocalStreams()[0];
+    localStream.getVideoTracks()[0].onended = function () {
+      return kurentoManager.exitScreenShare();
+    };
+
+    localStream.getVideoTracks()[0].oninactive = function () {
+      return kurentoManager.exitScreenShare();
+    };
   });
 }
 
