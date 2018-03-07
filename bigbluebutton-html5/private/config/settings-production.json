@@ -346,7 +346,7 @@
     },
 
     "log": {
-      "level": "warn"
+      "level": "info"
     }
   }
 }
