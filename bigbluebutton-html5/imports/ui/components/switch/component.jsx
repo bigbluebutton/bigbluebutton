@@ -26,7 +26,7 @@ export default class Switch extends Toggle {
         onTouchStart={this.handleTouchStart}
         onTouchMove={this.handleTouchMove}
         onTouchEnd={this.handleTouchEnd}>
-        <div className='react-toggle-track'>
+        <div className='react-toggle-track' aria-hidden="true">
           <div className='react-toggle-track-check'>
             ON
           </div>
@@ -44,9 +44,8 @@ export default class Switch extends Toggle {
           className='react-toggle-screenreader-only'
           type='checkbox'
           tabIndex='0'
-          aria-labelledby={ariaLabelledBy}
+          aria-label={ariaLabel}
           aria-describedby={ariaDescribedBy}/>
-          <div id={ariaLabelledBy} hidden>{ariaLabel}</div>
           <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
       </div>
     );
