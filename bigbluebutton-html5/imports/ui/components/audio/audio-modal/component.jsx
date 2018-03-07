@@ -129,10 +129,6 @@ class AudioModal extends Component {
       forceListenOnlyAttendee,
     } = this.props;
 
-    console.log('AudioModal.componentWillMount.joinFullAudioImmediately', joinFullAudioImmediately);
-    console.log('AudioModal.componentWillMount.joinFullAudioEchoTest', joinFullAudioEchoTest);
-    console.log('AudioModal.componentWillMount.forceListenOnlyAttendee', forceListenOnlyAttendee);
-
     if (joinFullAudioImmediately) {
       this.handleJoinMicrophone();
     }
