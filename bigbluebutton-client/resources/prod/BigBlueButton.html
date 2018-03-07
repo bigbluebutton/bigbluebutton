@@ -186,6 +186,8 @@
         } else {
           showContent();
         }
+      }).fail(function(data) {
+        showContent();
       });
 
       if (fillContent) fillContent();
