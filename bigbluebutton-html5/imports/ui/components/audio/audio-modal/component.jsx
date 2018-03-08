@@ -82,6 +82,7 @@ class AudioModal extends Component {
 
     this.state = {
       content: null,
+      joinAudioError: false,
     };
 
     const {
@@ -155,6 +156,7 @@ class AudioModal extends Component {
   handleGoToAudioOptions() {
     this.setState({
       content: null,
+      joinAudioError: true,
     });
   }
 
@@ -170,13 +172,11 @@ class AudioModal extends Component {
     const {
       inputDeviceId,
       outputDeviceId,
-      skipCheck,
     } = this.props;
 
-
-    if (skipCheck) {
-      return this.handleJoinMicrophone();
-    }
+    this.setState({
+      joinAudioError: false,
+    });
 
     return this.joinEchoTest().then(() => {
       console.log(inputDeviceId, outputDeviceId);
@@ -211,6 +211,10 @@ class AudioModal extends Component {
       joinMicrophone,
     } = this.props;
 
+    this.setState({
+      joinAudioError: false,
+    });
+
     joinMicrophone().catch(this.handleGoToAudioOptions);
   }
 
@@ -219,6 +223,7 @@ class AudioModal extends Component {
       intl,
       listenOnlyMode,
       forceListenOnlyAttendee,
+      skipCheck,
     } = this.props;
 
     return (
@@ -231,7 +236,7 @@ class AudioModal extends Component {
             icon="unmute"
             circle
             size="jumbo"
-            onClick={this.handleGoToEchoTest}
+            onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
           />
         }
         {listenOnlyMode ?
@@ -260,13 +265,14 @@ class AudioModal extends Component {
 
     const {
       content,
+      joinAudioError,
     } = this.state;
 
     if (
-      isConnecting ||
+      (isConnecting ||
       forceListenOnlyAttendee ||
       joinFullAudioImmediately ||
-      (joinFullAudioEchoTest && !content)
+      joinFullAudioEchoTest) && !content && !joinAudioError
     ) {
       return (
         <span className={styles.connecting}>
@@ -335,6 +341,7 @@ class AudioModal extends Component {
 
     const {
       content,
+      joinAudioError,
     } = this.state;
 
     return (
@@ -345,10 +352,10 @@ class AudioModal extends Component {
           className={styles.modal}
           onRequestClose={this.closeModal}
         >
-          { isConnecting ||
+          { (isConnecting ||
             forceListenOnlyAttendee ||
             joinFullAudioImmediately ||
-            (joinFullAudioEchoTest && !content) ? null :
+            joinFullAudioEchoTest) && !content && !joinAudioError ? null :
             <header
               data-test="audioModalHeader"
               className={styles.header}

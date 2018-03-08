@@ -16,25 +16,21 @@ export default withModalMounter(withTracker(({ mountModal }) =>
       if (!Service.isConnecting()) mountModal(null);
     },
     joinMicrophone: () => {
-      if (skipCheck) {
-        return new Promise((resolve, reject) => {
-          Service.joinMicrophone().then(() => {
-            mountModal(null);
-            resolve();
-          }).catch(() => {
-            Service.exitAudio();
-            reject();
-          });
-        });
-      }
-      return new Promise((resolve, reject) => {
-        Service.transferCall().then(() => {
-          mountModal(null);
-          resolve();
-        }).catch(() => {
+      const call = new Promise((resolve, reject) => {
+        if (skipCheck) {
+          resolve(Service.joinMicrophone());
+        } else {
+          resolve(Service.transferCall());
+        }
+        reject(() => {
           Service.exitAudio();
-          reject();
-        });
+        })
+      });
+
+      return call.then(() => {
+        mountModal(null);
+      }).catch((error) => {
+        throw error;
       });
     },
     joinListenOnly: () => Service.joinListenOnly().then(() => mountModal(null)),

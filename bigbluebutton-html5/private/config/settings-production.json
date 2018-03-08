@@ -6,7 +6,7 @@
       "desktopFont": 14,
       "audioChatNotification": false,
       "autoJoin": true,
-      "listenOnlyMode": false,
+      "listenOnlyMode": true,
       "forceListenOnly": false,
       "skipCheck": false,
       "appName": "BigBlueButton HTML5 Client",
