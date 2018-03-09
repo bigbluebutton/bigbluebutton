@@ -25,7 +25,7 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   async init () {
-    if (typeof this._mediaServer === 'undefined' || !this._mediaServer) {
+    if (!this._mediaServer) {
       this._mediaServer = await this._getMediaServerClient(this._serverUri);
       Logger.info("[mcs-media] Retrieved media server client => " + this._mediaServer);
 
@@ -143,12 +143,14 @@ module.exports = class MediaServer extends EventEmitter {
             });
             break;
 
-          default: return reject("[mcs-media] Invalid connect type");
+          default:
+            return this._handleError("[mcs-media] Invalid connect type");
         }
       });
     }
     else {
-      return Promise.reject("[mcs-media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+      let error = this._handleError("[mcs-media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+      return Promise.reject(error);
     }
   }
 
@@ -177,8 +179,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
     let kurentoCandidate = mediaServerClient.getComplexType('IceCandidate')(candidate);
 
-    if (typeof mediaElement !== 'undefined' && typeof mediaElement.addIceCandidate === 'function' &&
-        typeof candidate !== 'undefined') {
+    if (mediaElement != null  && candidate != null) {
       mediaElement.addIceCandidate(candidate);
       Logger.debug("[mcs-media] Added ICE candidate for => " + elementId);
       return Promise.resolve();
@@ -193,7 +194,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
 
     return new Promise((resolve, reject) => {
-      if (typeof mediaElement !== 'undefined' && typeof mediaElement.gatherCandidates === 'function') {
+      if (mediaElement != null) {
         mediaElement.gatherCandidates((error) => {
           if (error) {
             error = this._handleError(error);
@@ -212,7 +213,7 @@ module.exports = class MediaServer extends EventEmitter {
   setInputBandwidth (elementId, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
-    if (typeof mediaElement !== 'undefined') {
+    if (mediaElement != null) {
       endpoint.setMinVideoRecvBandwidth(min);
       endpoint.setMaxVideoRecvBandwidth(max);
     } else {
@@ -223,7 +224,7 @@ module.exports = class MediaServer extends EventEmitter {
   setOutputBandwidth (endpoint, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
-    if (typeof mediaElement !== 'undefined') {
+    if (mediaElement != null) {
       endpoint.setMinVideoSendBandwidth(min);
       endpoint.setMaxVideoSendBandwidth(max);
     } else {
@@ -234,7 +235,7 @@ module.exports = class MediaServer extends EventEmitter {
   setOutputBitrate (endpoint, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
-    if (typeof mediaElement !== 'undefined') {
+    if (mediaElement != null) {
       endpoint.setMinOutputBitrate(min);
       endpoint.setMaxOutputBitrate(max);
     } else {
@@ -246,7 +247,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
 
     return new Promise((resolve, reject) => {
-      if (typeof mediaElement !== 'undefined' && typeof mediaElement.processOffer === 'function') {
+      if (mediaElement != null) {
         mediaElement.processOffer(sdpOffer, (error, answer) => {
           if (error) {
             error = this._handleError(error);
@@ -256,7 +257,7 @@ module.exports = class MediaServer extends EventEmitter {
         });
       }
       else {
-        return reject("[mcs-media] There is no element " + elementId);
+        return reject(this._handleError("[mcs-media] There is no element " + elementId));
       }
     });
   }
@@ -291,7 +292,7 @@ module.exports = class MediaServer extends EventEmitter {
   addMediaEventListener (eventTag, elementId) {
     let mediaElement = this._mediaElements[elementId];
     // TODO event type validator
-    if (typeof mediaElement !== 'undefined' && mediaElement) {
+    if (mediaElement != null) {
       Logger.debug('[mcs-media] Adding media state listener [' + eventTag + '] for ' + elementId);
       mediaElement.on(eventTag, (event) => {
         if (eventTag === C.EVENT.MEDIA_STATE.ICE) {
@@ -306,7 +307,7 @@ module.exports = class MediaServer extends EventEmitter {
     this.emit(C.MEDIA_STATE.MEDIA_EVENT , {elementId, eventTag, event});
   }
 
-  _destroyElements() {
+  _destroyElements () {
     for (var pipeline in this._mediaPipelines) {
       if (this._mediaPipelines.hasOwnProperty(pipeline)) {
         delete this._mediaPipelines[pipeline];

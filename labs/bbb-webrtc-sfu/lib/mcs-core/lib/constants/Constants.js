@@ -53,6 +53,9 @@ exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
 exports.ERROR = {};
 exports.ERROR.MEDIA_SERVER_OFFLINE = "1000";
 exports.ERROR.MEDIA_SERVER_ERROR = "1001";
+exports.ERROR.USER_NOT_FOUND = "1100";
+exports.ERROR.MEDIA_NOT_FOUND = "1101";
+exports.ERROR.INVALID_SDP = "1102";
 
 // RTP params
 exports.SDP = {};
