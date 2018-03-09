@@ -42,13 +42,22 @@ package org.bigbluebutton.air.main.views {
 					view.messageText.text = "Current meeting has been ended";
 					break;
 				case DisconnectEnum.CONNECTION_STATUS_CONNECTION_DROPPED:
-					view.messageText.text = "Meeting connection was dropped!";
+					view.messageText.text = "Meeting connection was dropped";
 					break;
 				case DisconnectEnum.CONNECTION_STATUS_USER_KICKED_OUT:
 					view.messageText.text = "You have been kicked out of the meeting";
 					break;
 				case DisconnectEnum.CONNECTION_STATUS_USER_LOGGED_OUT:
 					view.messageText.text = "You have logged out of the meeting";
+					break;
+				case DisconnectEnum.AUTH_TOKEN_INVALID:
+					view.messageText.text = "Your authorization token is invalid";
+					break;
+				case DisconnectEnum.AUTH_TOKEN_TIMEOUT:
+					view.messageText.text = "A timeout triggered while validating your authorization token";
+					break;
+				case DisconnectEnum.JOIN_MEETING_TIMEOUT:
+					view.messageText.text = "A timeout triggered while trying to join the meeting";
 					break;
 			}
 		}
