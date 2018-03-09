@@ -96,7 +96,8 @@
           "toggleVoice",
           "clearPublicChatHistory",
           "changeRole",
-          "ejectUserFromVoice"
+          "ejectUserFromVoice",
+          "toggleRecording"
         ]
       },
       "presenter": {
