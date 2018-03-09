@@ -74,7 +74,9 @@
           "captions",
           "breakouts",
           "voiceUsers",
-          "whiteboard-multi-user"
+          "whiteboard-multi-user",
+          "group-chat",
+          "group-chat-msg"
         ],
         "methods": [
           "listenOnlyToggle",
@@ -82,7 +84,10 @@
           "setEmojiStatus",
           "toggleSelfVoice",
           "publishVote",
-          "sendChat"
+          "sendChat",
+          "createGroupChat",
+          "destroyGroupChat",
+          "sendGroupChatMsg"
         ]
       },
       "moderator": {
