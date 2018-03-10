@@ -7,28 +7,9 @@ const Logger = require('../../../utils/Logger');
 const SfuUser = require('../model/SfuUser');
 const Room = require('../model/Room.js');
 
-/* PRIVATE ELEMENTS */
-/**
- * Deep copy a javascript Object
- * @param  {Object} object The object to be copied
- * @return {Object}        A deep copy of the given object
- */
-function copy(object) {
-  return JSON.parse(JSON.stringify(object));
-}
-
-function getPort(min_port, max_port) {
-  return Math.floor((Math.random()*(max_port - min_port +1)+ min_port));
-}
-
-function getVideoPort() {
-  return getPort(config.get('sip.min_video_port'), config.get('sip.max_video_port'));
-}
-
 /* PUBLIC ELEMENTS */
 
 let instance = null;
-
 
 module.exports = class MediaController {
   constructor(emitter) {
@@ -44,22 +25,12 @@ module.exports = class MediaController {
   }
 
   start (_kurentoClient, _kurentoToken, callback) {
-    var self = this;
+    // TODO
     return callback(null);
   }
 
   stop (callback) {
-    var self = this;
-    self.stopAllMedias(function (e) {
-      if (e) {
-        callback(e);
-      }
-      self._rooms = {};
-    });
-  }
-
-  getVideoPort () {
-    return getPort(config.get('sip.min_video_port'), config.get('sip.max_video_port'));
+    // TODO
   }
 
   getRoom (roomId) {
@@ -122,8 +93,8 @@ module.exports = class MediaController {
     Logger.info("[mcs-controller] PublishAndSubscribe from user", userId, "to source", sourceId);
     Logger.debug("[mcs-controler] PublishAndSubscribe descriptor is", params.descriptor);
 
-    let type = params.type;
     try {
+      let type = params.type;
       const user = this.getUserMCS(userId);
       let userId = user.id;
       let session = user.addSdp(sdp, type);
@@ -167,7 +138,7 @@ module.exports = class MediaController {
         case "RtpEndpoint":
         case "WebRtcEndpoint":
           session = user.addSdp(params.descriptor, type);
-          session.on('SESSION_STOPPED', (pubId) => {
+          session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (pubId) => {
             Logger.info("[mcs-controller] Media session", session.id, "stopped");
             if(pubId === session.id) {
               for (var sub in session.subscribedSessions) {
@@ -341,7 +312,7 @@ module.exports = class MediaController {
         user  = new SfuUser(roomId, type, this.emitter, params.userAgentString, params.sdp);
         break;
       case C.USERS.MCU:
-        Logger.info("[mcs-controller] createUserMCS MCU TODO");
+        Logger.warn("[mcs-controller] createUserMCS MCU TODO");
         break;
       default:
         Logger.warn("[mcs-controller] Unrecognized user type");

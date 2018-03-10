@@ -8,13 +8,6 @@
 
 exports.ALL = 'ALL'
 
-exports.LOG_LEVEL = {}
-exports.LOG_LEVEL.DEBUG = 0
-exports.LOG_LEVEL.INFO = 1
-exports.LOG_LEVEL.WARN = 2
-exports.LOG_LEVEL.ERROR = 3
-exports.LOG_LEVEL.OFF = 100
-
 exports.STATUS = {}
 exports.STATUS.STARTED = "STARTED"
 exports.STATUS.STOPPED = "STOPPED"
@@ -32,15 +25,10 @@ exports.MEDIA_TYPE.WEBRTC = "WebRtcEndpoint"
 exports.MEDIA_TYPE.RTP= "RtpEndpoint"
 exports.MEDIA_TYPE.URI = "PlayerEndpoint"
 
-// Observer Constants
+// Media server state changes
 exports.EVENT = {}
-exports.EVENT.DIAL_EVENT = "BRIDGE_DIAL"
-exports.EVENT.HANGUP_EVENT = "BRIDGE_HANGUP"
-exports.EVENT.SESSION_ID_EVENT = "SESSION_ID"
-exports.EVENT.AUDIO_SESSION_TERMINATED = "AUDIO_SESSION_TERMINATED"
-
-// Media server state changes 
-exports.EVENT.NEW_SESSION = "NewSession"
+exports.EVENT.NEW_MEDIA_SESSION = "NewMediaSession"
+exports.EVENT.MEDIA_SESSION_STOPPED = "MediaSessionStopped"
 exports.EVENT.MEDIA_STATE = {};
 exports.EVENT.MEDIA_STATE.MEDIA_EVENT = "MediaEvent"
 exports.EVENT.MEDIA_STATE.CHANGED = "MediaStateChanged"
