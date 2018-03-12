@@ -41,7 +41,8 @@ class VideoProvider extends Component {
     super(props);
 
     this.state = {
-      sharedWebcam: false
+      sharedWebcam: false,
+      socketOpen: false
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
@@ -49,7 +50,6 @@ class VideoProvider extends Component {
     this.wsQueue = [];
 
     this.reconnectWebcam = false;
-    this.reconnectList = [];
     this.cameraTimeouts = {};
     this.webRtcPeers = {};
 
@@ -116,33 +116,14 @@ class VideoProvider extends Component {
       this.sendMessage(this.wsQueue.pop());
     }
 
-    this.reconnectVideos();
+    this.setState({socketOpen: true});
   }
 
   onWsClose(error) {
     log('debug', '------ Websocket connection closed.');
 
-    this.setupReconnectVideos();
-  }
-
-  setupReconnectVideos() {
-    for (id in this.webRtcPeers) {
-      this.disconnected(id);
-      this.stop(id);
-    }
-  }
-
-  reconnectVideos() {
-    for (i in this.reconnectList) {
-      const id = this.reconnectList[i];
-      // TODO: base this on BBB API users instead of using memory
-      setTimeout(() => {
-        log('debug', ` [camera] Trying to reconnect camera ${id}`);
-        this.start(id, id === this.props.userId);
-      }, RECONNECT_WAIT_TIME);
-    }
-
-    this.reconnectList = [];
+    //this.setupReconnectVideos();
+    this.setState({socketOpen: false});
   }
 
   disconnected(id) {
@@ -228,6 +209,7 @@ class VideoProvider extends Component {
   }
 
   handleIceCandidate(message) {
+    const { intl } = this.props;
     const webRtcPeer = this.webRtcPeers[message.cameraId];
 
     if (webRtcPeer) {
@@ -256,9 +238,8 @@ class VideoProvider extends Component {
     if (webRtcPeer) {
       log('info', 'Stopping WebRTC peer');
 
-      if (id == this.props.userId && this.sharedWebcam) {
-        this.sharedWebcam.dispose();
-        this.sharedWebcam = null;
+      if (id == this.props.userId && this.state.sharedWebcam) {
+        this.setState({ sharedWebcam: false });
       }
 
       webRtcPeer.dispose();
@@ -289,7 +270,16 @@ class VideoProvider extends Component {
       options.remoteVideo = tag;
     }
 
-    this.setCameraTimeout(id, shareWebcam);
+    this.cameraTimeouts[id] = setTimeout(() => {
+      log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
+      if (this.props.userId == id) {
+        this.notifyError(intl.formatMessage(intlMessages.sharingError));
+        this.unshareWebcam();
+      } else {
+        this.stop(id);
+        this.initWebRTC(id, shareWebcam, videoOptions, tag);
+      }
+    }, CAMERA_SHARE_FAILED_WAIT_TIME);
 
     const webRtcPeer = new peerObj(options, function (error) {
       if (error) {
@@ -418,24 +408,8 @@ class VideoProvider extends Component {
     notify(message, 'error', 'video');
   }
 
-  setCameraTimeout(id, shareWebcam) {
-    let that = this;
-
-    this.cameraTimeouts[id] = setTimeout(() => {
-      log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
-      if (this.props.userId == id) {
-        this.notifyError(intl.formatMessage(intlMessages.sharingError));
-        this.unshareWebcam();
-      } else {
-        this.stop(id);
-        that.start(id, shareWebcam);
-      }
-    }, CAMERA_SHARE_FAILED_WAIT_TIME);
-  }
-
   shareWebcam() {
     log('info', 'Sharing webcam');
-
     this.setState({sharedWebcam: true});
 
     VideoService.joiningVideo();
@@ -454,7 +428,9 @@ class VideoProvider extends Component {
       <VideoDockContainer
         onStart={this.initWebRTC.bind(this)}
         onStop={this.stop.bind(this)}
-        sharedWebcam={this.state.sharedWebcam} />
+        sharedWebcam={this.state.sharedWebcam}
+        onShareWebcam={this.shareWebcam.bind(this)}
+        socketOpen={this.state.socketOpen} />
     );
   }
 

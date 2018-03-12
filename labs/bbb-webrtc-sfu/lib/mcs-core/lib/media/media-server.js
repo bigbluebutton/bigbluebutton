@@ -131,7 +131,7 @@ module.exports = class MediaServer extends EventEmitter {
 
   stop (elementId) {
     let mediaElement = this._mediaElements[elementId];
-    if (typeof mediaElement !== 'undefined' && typeof mediaElement.release === 'function') {
+    if (mediaElement && typeof mediaElement.release === 'function') {
       Logger.info("[mcs-media] Releasing endpoint => " + elementId);
       mediaElement.release();
       this._mediaElements[elementId] = null;

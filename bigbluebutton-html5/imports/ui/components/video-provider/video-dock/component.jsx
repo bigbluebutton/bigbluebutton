@@ -29,7 +29,7 @@ class VideoDock extends Component {
 
     this.state = {
       videos: {},
-      sharedWebcam: false,
+      sharingWebcamBefore: false,
       userNames: {},
     };
   }
@@ -97,13 +97,12 @@ class VideoDock extends Component {
   destroyVideoTag(id) {
     const { videos } = this.state;
 
-    if (id == this.props.userId) {
-      this.setState({ sharedWebcam: false });
-    } else {
+    if (id !== this.props.userId) {
       this.setState({
         videos: _.omit(videos, id)
       });
     }
+    console.log(_.omit(videos, id));
   }
 
   start(id) {
@@ -119,24 +118,35 @@ class VideoDock extends Component {
     this.props.onStop(id);
   }
 
-  // TODO: bad way of getting this
-  // o(n) ... oh well
-  getNameFromId(id) {
-    const { users } = this.props;
-    let name = undefined;
+  stopMany(ids) {
+    const { videos } = this.state;
 
-    users.forEach((user) => {
-      if (user.userId === id) {
-        name = user.name;
+    ids.forEach((id) => {
+      if (id === this.props.userId) {
+        this.setState({ sharingWebcamBefore: true });
+        delete ids[id];
       }
     });
+
+    this.setState({
+      videos: _.omit(videos, ids)
+    });
+
+    ids.forEach((id) => {
+      this.props.onStop(id);
+    });
+  }
+
+  getNameFromId(id) {
+    const { users } = this.props;
+    let name = users.find(u => u.userId === id).name;
 
     return name;
   }
 
   render() {
     return (
-      <div className={styles.videoDock}>
+      <div className={styles.videoDock} id={this.props.sharedWebcam.toString()}>
         <div id="webcamArea" className={styles.webcamArea}>
           {Object.keys(this.state.videos).map(id => (
             <VideoElement
@@ -160,7 +170,7 @@ class VideoDock extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { userId, sharedWebcam } = this.props;
+    const { userId, sharedWebcam, socketOpen } = this.props;
     const currentUsers = this.props.users || {};
     const nextUsers = nextProps.users;
 
@@ -169,6 +179,23 @@ class VideoDock extends Component {
 
     sharedWebcam = sharedWebcam || false;
 
+    // If disconnected, stop all webcams
+    if (socketOpen && !nextProps.socketOpen) {
+      this.stopMany(nextUsers.filter(u => u.has_stream).map(u => u.userId));
+    }
+
+    // When reconnecting, restart all webcams.
+    if (!socketOpen && nextProps.socketOpen) {
+      nextUsers.forEach((user) => {
+        if (user.has_stream && user.userId != userId) {
+          this.start(user.userId);
+        }
+      });
+      if (this.state.sharingWebcamBefore){
+        this.props.onShareWebcam(this);
+        this.setState({ sharingWebcamBefore: false });
+      }
+    }
     // If the user un-shared a webcam we'll stop it
     if (sharedWebcam !== nextProps.sharedWebcam && !nextProps.sharedWebcam) {
       this.stop(userId);

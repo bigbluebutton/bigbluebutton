@@ -164,7 +164,9 @@ let stopVideo = async function(sessionId, role, cameraId) {
       if (sharedVideo) {
         Logger.info('[VideoManager] Stopping sharer [', sessionId, '][', cameraId,']');
         await sharedVideo.stop();
-        delete sessions[sessionId][cameraId+'-shared'];
+        if (sessions[sessionId][cameraId+'-shared']) {
+          delete sessions[sessionId][cameraId+'-shared'];
+        }
       }
     }
     else if (role === 'viewer') {
@@ -174,6 +176,9 @@ let stopVideo = async function(sessionId, role, cameraId) {
         await video.stop();
         delete sessions[sessionId][cameraId];
       }
+    }
+    if (sessions[sessionId]) {
+      delete sessions[sessionId];
     }
   }
   catch (err) {
