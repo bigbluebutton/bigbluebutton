@@ -13,18 +13,19 @@ Kurento = function (
   chromeExtension = null,
 ) {
   this.ws = null;
-  this.video;
-  this.screen;
-  this.webRtcPeer;
-  this.extensionInstalled = false;
-  this.screenConstraints = {};
+  this.video = null;
+  this.screen = null;
+  this.webRtcPeer = null;
   this.mediaCallback = null;
 
   this.voiceBridge = `${voiceBridge}-SCREENSHARE`;
   this.internalMeetingId = internalMeetingId;
 
-  this.vid_width = window.screen.width;
-  this.vid_height = window.screen.height;
+  // Limiting max resolution to 1080p
+  // In FireFox we force full screen share and in the case
+  // of multiple screens the total area shared becomes too large
+  this.vid_max_width = 1920;
+  this.vid_max_height = 1080;
 
   // TODO properly generate a uuid
   this.sessid = Math.random().toString();
@@ -150,7 +151,6 @@ Kurento.prototype.init = function () {
 Kurento.prototype.onWSMessage = function (message) {
   const parsedMessage = JSON.parse(message.data);
   switch (parsedMessage.id) {
-
     case 'presenterResponse':
       this.presenterResponse(parsedMessage);
       break;
@@ -208,11 +208,7 @@ Kurento.prototype.serverResponse = function (message) {
 
 Kurento.prototype.makeShare = function () {
   const self = this;
-  if (!this.webRtcPeer) {
-    const options = {
-      onicecandidate: self.onIceCandidate.bind(self),
-    };
-
+  if (!self.webRtcPeer) {
     this.startScreenStreamFrom();
   }
 };
@@ -233,8 +229,8 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.caller_id_name,
     sdpOffer: offerSdp,
-    vh: self.vid_height,
-    vw: self.vid_width,
+    vh: self.vid_max_height,
+    vw: self.vid_max_width,
   };
   console.log(`onOfferPresenter sending to screenshare server => ${JSON.stringify(message, null, 2)}`);
   this.sendMessage(message);
@@ -252,17 +248,11 @@ Kurento.prototype.startScreenStreamFrom = function () {
       return;
     }
   }
-  // TODO it would be nice to check those constraints
-  if (typeof screenConstraints !== undefined) {
-    self.screenConstraints = {};
-  }
-  self.screenConstraints.video = {};
 
   console.log(self);
   const options = {
     localVideo: document.getElementById(this.renderTag),
     onicecandidate: self.onIceCandidate.bind(self),
-    mediaConstraints: self.screenConstraints,
     sendSource: 'desktop',
   };
 
@@ -419,15 +409,13 @@ Kurento.normalizeCallback = function (callback) {
 
 // this function explains how to use above methods/objects
 window.getScreenConstraints = function (sendSource, callback) {
-  const chromeMediaSourceId = sendSource;
   const screenConstraints = { video: {} };
 
   // Limiting FPS to a range of 5-10 (5 ideal)
   screenConstraints.video.frameRate = { ideal: 5, max: 10 };
 
-  // Limiting max resolution to screen size
-  screenConstraints.video.height = { max: window.screen.height };
-  screenConstraints.video.width = { max: window.screen.width };
+  screenConstraints.video.height = { max: this.vid_max_height };
+  screenConstraints.video.width = { max: this.vid_max_width };
 
   if (isChrome) {
     getChromeScreenConstraints((constraints) => {
@@ -444,23 +432,20 @@ window.getScreenConstraints = function (sendSource, callback) {
       screenConstraints.video.chromeMediaSource = { exact: [sendSource] };
       screenConstraints.video.chromeMediaSourceId = sourceId;
 
-      console.log('getScreenConstraints for Chrome returns => ');
-      console.log(screenConstraints);
+      console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
       // now invoking native getUserMedia API
       callback(null, screenConstraints);
     }, chromeExtension);
   } else if (isFirefox) {
     screenConstraints.video.mediaSource = 'screen';
 
-    console.log('getScreenConstraints for Firefox returns => ');
-    console.log(screenConstraints);
+    console.log('getScreenConstraints for Firefox returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
   } else if (isSafari) {
     screenConstraints.video.mediaSource = 'screen';
 
-    console.log('getScreenConstraints for Safari returns => ');
-    console.log(screenConstraints);
+    console.log('getScreenConstraints for Safari returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
   }
