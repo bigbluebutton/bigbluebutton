@@ -44,6 +44,10 @@ const intlMessages = defineMessages({
     id: 'app.leaveConfirmation.endMeetingLabel',
     description: 'End meeting button label',
   },
+  endMeetingAriaLabel: {
+    id: 'app.leaveConfirmation.endMeetingAriaLabel',
+    description: 'End meeting button aria label',
+  },
   endMeetingDesc: {
     id: 'app.leaveConfirmation.endMeetingDesc',
     description: 'adds context to end meeting option',
@@ -69,13 +73,14 @@ const LeaveConfirmation = ({
       description: intl.formatMessage(intlMessages.dismissDesc),
     }}
   >
-    {intl.formatMessage(intlMessages.message)}
+    <span aria-hidden="true">{intl.formatMessage(intlMessages.message)}</span>
     {showEndMeeting ?
       <Button
         className={styles.endMeeting}
         label={intl.formatMessage(intlMessages.endMeetingLabel)}
+        aria-label={intl.formatMessage(intlMessages.endMeetingAriaLabel)}
+        aria-describedby="modalEndMeetingDesc"
         onClick={handleEndMeeting}
-        aria-describedby={'modalEndMeetingDesc'}
       /> : null
     }
     <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>

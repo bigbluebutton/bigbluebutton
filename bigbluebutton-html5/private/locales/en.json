@@ -103,6 +103,7 @@
     "app.leaveConfirmation.dismissLabel": "Cancel",
     "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation",
     "app.leaveConfirmation.endMeetingLabel": "Yes and close the session",
+    "app.leaveConfirmation.endMeetingAriaLabel": "Leave and close the meeting",
     "app.leaveConfirmation.endMeetingDesc": "Closes and end meeting confirmation",
     "app.about.title": "About",
     "app.about.version": "Client Build:",
