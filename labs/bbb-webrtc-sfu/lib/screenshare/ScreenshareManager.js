@@ -156,31 +156,47 @@ module.exports = class ScreenshareManager {
   }
 
   _stopSession(sessionId) {
-    Logger.info('[ScreenshareManager] Stopping session ' + sessionId);
+    return new Promise(async (resolve, reject) => {
+      Logger.info('[ScreenshareManager] Stopping session ' + sessionId);
+      try {
+        if (!this._screenshareSessions || !sessionId) {
+          return resolve();
+        }
 
-    if (typeof this._screenshareSessions === 'undefined' || typeof sessionId === 'undefined') {
-      return;
-    }
-
-    let session = this._screenshareSessions[sessionId];
-    if(typeof session !== 'undefined' && typeof session._stop === 'function') {
-      session._stop();
-    }
-
-    delete this._screenshareSessions[sessionId];
+        let session = this._screenshareSessions[sessionId];
+        if(session && typeof session._stop === 'function') {
+          await session._stop();
+          delete this._screenshareSessions[sessionId];
+          resolve();
+        }
+      }
+      catch (err) {
+        Logger.err(error);
+        resolve();
+      }
+    });
   }
 
   stopAll() {
-    Logger.info('[ScreenshareManager] Stopping everything! ');
+    return new Promise(async (resolve, reject) => {
+      try {
+        Logger.info('[ScreenshareManager] Stopping everything! ');
+        if (!this._screenshareSessions) {
+          return resolve;
+        }
 
-    if (typeof this._screenshareSessions === 'undefined') {
-      return;
-    }
+        let sessionIds = Object.keys(this._screenshareSessions);
+        let stopProcedures = [];
 
-    let sessionIds = Object.keys(this._screenshareSessions);
-
-    for (let i = 0; i < sessionIds.length; i++) {
-      this._stopSession(sessionIds[i]);
-    }
+        for (let i = 0; i < sessionIds.length; i++) {
+          stopProcedures.push(this._stopSession(sessionIds[i]));
+        }
+        resolve(Promise.all(stopProcedures));
+      }
+      catch (err) {
+        Logger.error(error);
+        resolve();
+      }
+    });
   }
 };

@@ -243,45 +243,60 @@ module.exports = class Screenshare {
     }
   }
 
-  async _stop() {
-    Logger.info('[screnshare] Stopping and releasing endpoints for MCS user', this.userId);
-
-    this._stopScreensharing();
-
-    if (this._presenterEndpoint) {
+  _stop() {
+    return new Promise(async (resolve, reject) => {
       try {
-        await this.mcs.leave(this._meetingId, this.userId);
-        sharedScreens[this._presenterEndpoint] = null;
-        this._candidatesQueue = null;
-        this._presenterEndpoint = null;
-        this._ffmpegEndpoint = null;
-        return;
+        Logger.info('[screnshare] Stopping and releasing endpoints for MCS user', this.userId);
+
+        if (this._presenterEndpoint) {
+          await this._stopScreensharing();
+          Logger.info("[screenshare] Leaving mcs room");
+          await this.mcs.leave(this._meetingId, this.userId);
+          delete sharedScreens[this._presenterEndpoint];
+          this._candidatesQueue = null;
+          this._presenterEndpoint = null;
+          this._ffmpegEndpoint = null;
+          resolve();
+        }
       }
       catch (err) {
         Logger.error('[screenshare] MCS returned an error when trying to leave =>', err);
-        return;
+        resolve();
       }
-    }
-    return;
+    });
   }
 
   _stopScreensharing() {
-    let strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
+    return new Promise((resolve, reject) => {
+      try {
+        let strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
 
-    this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+        this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
-    // Interoperability: capturing 1.1 stop_transcoder_reply messages
-    this._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY, (payload) => {
-      let meetingId = payload[C.MEETING_ID];
-      this._stopRtmpBroadcast(meetingId);
+        // Interoperability: capturing 1.1 stop_transcoder_reply messages
+        this._BigBlueButtonGW.on(C.STOP_TRANSCODER_REPLY, async (payload) => {
+          let meetingId = payload[C.MEETING_ID];
+          if(this._meetingId === meetingId) {
+            await this._stopRtmpBroadcast(meetingId);
+            return resolve();
+          }
+        });
+
+        // Capturing stop transcoder responses from the 2x model
+        this._BigBlueButtonGW.on(C.STOP_TRANSCODER_RESP_2x, async (payload) => {
+          Logger.info(payload);
+          let meetingId = payload[C.MEETING_ID_2x];
+          if(this._meetingId === meetingId) {
+            await this._stopRtmpBroadcast(meetingId);
+            return resolve();
+          }
+        });
+      }
+      catch (err) {
+        Logger.error(err);
+        resolve();
+      }
     });
-
-    // Capturing stop transcoder responses from the 2x model
-    this._BigBlueButtonGW.once(C.STOP_TRANSCODER_RESP_2x, (payload) => {
-      let meetingId = payload[C.MEETING_ID_2x];
-      this._stopRtmpBroadcast(meetingId);
-    });
-
   }
 
   _onRtpMediaFlowing() {
@@ -307,20 +322,19 @@ module.exports = class Screenshare {
   };
 
   _stopRtmpBroadcast (meetingId) {
-    Logger.info("[screenshare] _stopRtmpBroadcast for meeting", meetingId);
-    if(this._meetingId === meetingId) {
-      // TODO correctly assemble this timestamp
+    return new Promise((resolve, reject) => {
+      Logger.info("[screenshare] _stopRtmpBroadcast for meeting", meetingId);
       let timestamp = now.format('hhmmss');
       let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(this._voiceBridge,
-          this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
-      this._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
-    }
+        this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
+      this._BigBlueButtonGW.publish(dsrstom, C.FROM_VOICE_CONF_SYSTEM_CHAN);
+      resolve();
+    });
   }
 
   _startRtmpBroadcast (meetingId, output) {
     Logger.info("[screenshare] _startRtmpBroadcast for meeting", + meetingId);
     if(this._meetingId === meetingId) {
-      // TODO correctly assemble this timestamp
       let timestamp = now.format('hhmmss');
       this._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
       let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(this._voiceBridge,
