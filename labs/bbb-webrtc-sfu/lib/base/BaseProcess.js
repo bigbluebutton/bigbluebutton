@@ -11,7 +11,6 @@ module.exports = class BaseProcess {
   }
 
   start () {
-    try {
     this.manager.start();
 
     if (config.get('acceptSelfSignedCertificate')) {
@@ -23,11 +22,6 @@ module.exports = class BaseProcess {
     process.on('SIGINT', this.stop.bind(this));
     process.on('uncaughtException', this.handleException.bind(this));
     process.on('unhandledRejection', this.handleRejection.bind(this));
-    this.manager.sti();
-    }
-    catch (err) {
-      throw new Error(err);
-    }
   }
 
   async stop () {
