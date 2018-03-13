@@ -30,6 +30,7 @@ const config = require('config');
         FROM_VOICE_CONF_SYSTEM_CHAN: "from-voice-conf-redis-channel",
         TO_BBB_TRANSCODE_SYSTEM_CHAN: "bigbluebutton:to-bbb-transcode:system",
         TO_BBB_MEETING_CHAN: "bigbluebutton:to-bbb-apps:meeting",
+        FROM_BBB_MEETING_CHAN: "bigbluebutton:from-bbb-apps:meeting",
         TO_AKKA_APPS_CHAN_2x: "to-akka-apps-redis-channel",
         FROM_SCREENSHARE: config.get('from-screenshare'),
         TO_SCREENSHARE: config.get('to-screenshare'),
@@ -53,6 +54,7 @@ const config = require('config');
         DESKSHARE_RTMP_BROADCAST_STOPPED: "deskshare_rtmp_broadcast_stopped_message",
         GLOBAL_AUDIO_CONNECTED: "user_connected_to_global_audio",
         GLOBAL_AUDIO_DISCONNECTED: "user_disconnected_from_global_audio",
+        DICONNECT_ALL_USERS: "disconnect_all_users_message",
 
         //Message identifiers 2x
         SCREENSHARE_RTMP_BROADCAST_STARTED_2x: "ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg",
@@ -63,6 +65,8 @@ const config = require('config');
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
         GLOBAL_AUDIO_CONNECTED_2x: "UserConnectedToGlobalAudioMsg",
         GLOBAL_AUDIO_DISCONNECTED_2x: "UserDisconnectedFromGlobalAudioMsg",
+        // TODO: Check if this is the correct message in BBB 2.x
+        DICONNECT_ALL_USERS_2x: "DisconnectAllClientsSysMsg",
 
         USER_CAM_BROADCAST_STARTED_2x: "UserBroadcastCamStartMsg",
         USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",

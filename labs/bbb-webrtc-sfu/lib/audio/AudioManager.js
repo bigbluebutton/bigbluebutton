@@ -16,7 +16,7 @@ module.exports = class AudioManager {
   constructor () {
     this._clientId = 0;
 
-    this._sessions = {};
+    this._meetings = {};
     this._audioSessions = {};
 
     this._bbbGW = new BigBlueButtonGW('MANAGER');
@@ -26,11 +26,37 @@ module.exports = class AudioManager {
   async start() {
     try {
       this._redisGateway = await this._bbbGW.addSubscribeChannel(C.TO_AUDIO);
+      const meeting = await this._bbbGW.addSubscribeChannel(C.FROM_BBB_MEETING_CHAN);
       this._redisGateway.on(C.REDIS_MESSAGE, this._onMessage.bind(this));
+
+      // Interoperability between transcoder messages
+      // TODO: Do we need to remove this listeners at some point?
+      switch (C.COMMON_MESSAGE_VERSION) {
+        case "1.x":
+          this._bbbGW.on(C.DICONNECT_ALL_USERS, (payload) => {
+              let meetingId = payload[C.MEETING_ID];
+              this._disconnectAllUsers(meetingId);
+          });
+          break;
+        default:
+          this._bbbGW.on(C.DICONNECT_ALL_USERS_2x, (payload) => {
+              let meetingId = payload[C.MEETING_ID_2x];
+              this._disconnectAllUsers(meetingId);
+          });
+      }
     }
     catch (error) {
       Logger.error('[AudioManager] Could not connect to audio redis channel, finishing audio app with error', error);
       this.stopAll();
+    }
+  }
+
+  _disconnectAllUsers(meetingId) {
+    let sessionId = this._meetings[meetingId];
+    if (typeof sessionId !== 'undefined') {
+      Logger.debug('[AudioManager] Disconnecting all users from', sessionId);
+      delete this._meetings[sessionId];
+      this._stopSession(sessionId);
     }
   }
 
@@ -53,6 +79,8 @@ module.exports = class AudioManager {
           session = new Audio(this._bbbGW, connectionId, voiceBridge);
         }
 
+        this._meetings[message.internalMeetingId] = {};
+        this._meetings[message.internalMeetingId] = sessionId;
         this._audioSessions[sessionId] = {}
         this._audioSessions[sessionId] = session;
 
@@ -129,7 +157,7 @@ module.exports = class AudioManager {
     }
 
     let session = this._audioSessions[sessionId];
-    if(typeof session !== 'undefined' && typeof session._stop === 'function') {
+    if(typeof session !== 'undefined' && typeof session.stopAll === 'function') {
       session.stopAll();
     }
 

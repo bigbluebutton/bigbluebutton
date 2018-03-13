@@ -77,6 +77,9 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
         case C.STOP_TRANSCODER_REPLY:
           this.emit(C.STOP_TRANSCODER_REPLY, payload);
           break;
+        case C.DICONNECT_ALL_USERS:
+          this.emit(C.DICONNECT_ALL_USERS, payload);
+          break;
           // 2x messages
         case C.START_TRANSCODER_RESP_2x:
           payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
@@ -88,9 +91,13 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
           break;
         case C.USER_CAM_BROADCAST_STARTED_2x:
           this.emit(C.USER_CAM_BROADCAST_STARTED_2x, payload[C.STREAM_URL]);
-          break; 
+          break;
         // SCREENSHARE
-
+        case C.DICONNECT_ALL_USERS_2x:
+          // TODO: Check if this is correct for BBB 2.x
+          payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
+          this.emit(C.DICONNECT_ALL_USERS_2x, payload);
+          break;
         default:
           this.emit(C.GATEWAY_MESSAGE, msg);
       }
