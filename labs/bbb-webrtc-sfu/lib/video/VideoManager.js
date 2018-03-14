@@ -8,80 +8,75 @@
 
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const Video = require('./video');
+const BaseManager = require('../base/BaseManager');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 
-module.exports = class VideoManager {
-  constructor() {
-    this.sessions = {};
-    this.bbbGW = new BigBlueButtonGW();
-    this.redisGateway;
-    this.iceQueues = {};
-  }
-
-  start () {
-    this.bbbGW.addSubscribeChannel(C.TO_VIDEO).then((gw) => {
-      this.redisGateway = gw;
-      this.redisGateway.on(C.REDIS_MESSAGE, this._onMessage.bind(this));
-    });
+module.exports = class VideoManager extends BaseManager {
+  constructor (connectionChannel, additionalChannels, logPrefix) {
+    super(connectionChannel, additionalChannels, logPrefix);
+    this.messageFactory(this._onMessage);
+    this._iceQueues = {};
   }
 
   async _onMessage (_message) {
     let message = _message;
-    let sessionId = message.connectionId;
+    let connectionId = message.connectionId;
+    let sessionId;
     let video;
     let role = message.role? message.role : 'any';
     let cameraId = message.cameraId;
-    let shared = false;
+    let shared = role === 'share' ? true : false;
     let iceQueue;
 
-    if (!message.cameraId) {
-      Logger.warn("  [VideoManager] Undefined message.cameraId for session ", sessionId);
+    if (!message.cameraId && message.id !== 'close') {
+      Logger.warn(this._logPrefix, 'Undefined message.cameraId for session', sessionId);
       return;
     }
 
-    if (message.role === 'share') {
-      shared = true;
-      cameraId += '-shared';
+    cameraId += '-' + role;
+
+    sessionId = connectionId + cameraId;
+
+    if (!this._sessions[sessionId] && typeof message.cameraId !== 'undefined') {
+      this._sessions[sessionId] = {};
     }
 
-    if (!this.sessions[sessionId]) {
-      this.sessions[sessionId] = {};
+    if (!this._iceQueues[sessionId] && message.cameraId) {
+      this._iceQueues[sessionId] = [];
     }
 
-    if (!this.iceQueues[sessionId]) {
-      this.iceQueues[sessionId] = {};
+    if (this._sessions[sessionId]) {
+      video = this._sessions[sessionId];
     }
 
-    if (this.sessions[sessionId][cameraId]) {
-      video = this.sessions[sessionId][cameraId];
+    if (this._iceQueues[sessionId]) {
+      iceQueue = this._iceQueues[sessionId] ;
     }
 
-    if (this.iceQueues[sessionId][cameraId]) {
-      iceQueue = this.iceQueues[sessionId][cameraId] ;
-    }
+
+    Logger.debug(this._logPrefix, 'Message =>', message);
 
     switch (message.id) {
       case 'start':
-        Logger.info('[VideoManager] Received message [' + message.id + '] from connection ' + sessionId);
-        Logger.debug('[VideoManager] Message =>', JSON.stringify(message, null, 2));
+        Logger.info(this._logPrefix, 'Received message [' + message.id + '] from connection ' + sessionId);
 
-        video = new Video(this.bbbGW, message.cameraId, shared, message.connectionId);
+        video = new Video(this._bbbGW, message.cameraId, shared, message.connectionId);
 
         // Empty ice queue after starting video
         if (iceQueue) {
           let candidate;
           while(candidate = iceQueue.pop()) {
-            video.onIceCandidate(cand);
+            video.onIceCandidate(candidate);
           }
         }
 
-        this.sessions[sessionId][cameraId] = video;
+        this._sessions[sessionId] = video;
 
         video.start(message.sdpOffer, (error, sdpAnswer) => {
           if (error) {
-            return this.bbbGW.publish(JSON.stringify({
-              connectionId: sessionId,
+            return this._bbbGW.publish(JSON.stringify({
+              connectionId: connectionId,
               type: 'video',
               role: role,
               id : 'error',
@@ -91,8 +86,8 @@ module.exports = class VideoManager {
             }), C.FROM_VIDEO);
           }
 
-          this.bbbGW.publish(JSON.stringify({
-            connectionId: sessionId,
+          this._bbbGW.publish(JSON.stringify({
+            connectionId: connectionId,
             type: 'video',
             role: role,
             id : 'startResponse',
@@ -103,22 +98,22 @@ module.exports = class VideoManager {
         break;
 
       case 'stop':
-        if (video) {
-          this._stopVideo(sessionId, role, message.cameraId);
+        if (video.constructor=== Video) {
+          this._stopSession(sessionId, role, message.cameraId);
         } else {
-          Logger.warn("[VideoManager] There is no video instance named", cameraId, "to stop");
+          Logger.warn(this._logPrefix, "There is no video instance named", cameraId, "to stop");
         }
         break;
 
       case 'onIceCandidate':
 
-        if (video) {
+        if (video.constructor === Video) {
           video.onIceCandidate(message.candidate);
         } else {
-          Logger.info("[VideoManager] Queueing ice candidate for later in video", cameraId);
+          Logger.info(this._logPrefix, "Queueing ice candidate for later in video", cameraId);
           if (!iceQueue) {
-            this.iceQueues[sessionId][cameraId] = [];
-            iceQueue = this.iceQueues[sessionId][cameraId];
+            this._iceQueues[sessionId] = [];
+            iceQueue = this._iceQueues[sessionId];
           }
 
           iceQueue.push(message.candidate);
@@ -126,88 +121,25 @@ module.exports = class VideoManager {
         break;
 
       case 'close':
-        Logger.info("[VideoManager] Closing session for sessionId: ", sessionId);
+        Logger.info(this._logPrefix, "Closing session for sessionId: ", sessionId);
 
-        this._stopSession(sessionId);
-
+        let keys = Object.keys(this._sessions);
+        for (var k in this._sessions) {
+          if(this._sessions[k].connectionId === connectionId) {
+            this._stopSession(sessionId);
+          }
+        }
         break;
 
       default:
-        this.bbbGW.publish(JSON.stringify({
-          connectionId: sessionId,
+        this._bbbGW.publish(JSON.stringify({
+          connectionId: connectionId,
           type: 'video',
           id : 'error',
           response : 'rejected',
           message : 'Invalid message ' + JSON.stringify(message)
         }), C.FROM_VIDEO);
         break;
-    }
-  }
-
-  async _stopSession (sessionId) {
-
-    let videoIds = Object.keys(this.sessions[sessionId]);
-
-    for (let i=0; i < videoIds.length; i++) {
-      let camId = videoIds[i].split('-')[0], role = videoIds[i].split('-')[1];
-      await this._stopVideo(sessionId, role ? 'share' : 'viewer', camId);
-    }
-
-    delete this.sessions[sessionId];
-    this.logAvailableSessions();
-  }
-
-  async _stopVideo (sessionId, role, cameraId) {
-    Logger.info('[VideoManager/x] Stopping session ' + sessionId + " with role " + role + " for camera " + cameraId);
-
-    try {
-      if (role === 'share') {
-        var sharedVideo = this.sessions[sessionId][cameraId+'-shared'];
-        if (sharedVideo) {
-          Logger.info('[VideoManager] Stopping sharer [', sessionId, '][', cameraId,']');
-          await sharedVideo.stop();
-          delete this.sessions[sessionId][cameraId+'-shared'];
-        }
-      }
-      else if (role === 'viewer') {
-        var video = this.sessions[sessionId][cameraId];
-        if (video) {
-          Logger.info('[VideoManager] Stopping viewer [', sessionId, '][', cameraId,']');
-          await video.stop();
-          delete this.sessions[sessionId][cameraId];
-        }
-      }
-    }
-    catch (err) {
-      Logger.error("[VideoManager] Stop error => ", err);
-    }
-  }
-
-  stopAll () {
-    Logger.info('[VideoManager] Stopping everything! ');
-
-    if (this.sessions == null) {
-      return;
-    }
-
-    let sessionIds = Object.keys(this.sessions);
-
-    for (var i = 0; i < sessionIds.length; i++) {
-      this._stopSession(sessionIds[i]);
-    }
-
-    setTimeout(process.exit, 100);
-  }
-
-  _logAvailableSessions () {
-    if(this.sessions) {
-      Logger.info("[VideoManager] Available sessions are =>");
-      let sessionMainKeys = Object.keys(this.sessions);
-      for (var k in this.sessions) {
-        if(this.sessions[k]) {
-          Logger.info('[VideoManager] Session[', k,'] => ', Object.keys(this.sessions[k]));
-        }
-      }
     }
   }
 }

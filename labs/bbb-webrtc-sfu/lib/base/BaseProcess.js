@@ -2,9 +2,10 @@
 
 const Logger = require('../utils/Logger');
 const config = require('config');
+const C = require('../bbb/messages/Constants');
 
 module.exports = class BaseProcess {
-  constructor(manager, logPrefix) {
+  constructor(manager, logPrefix = C.BASE_PROCESS_PREFIX) {
     this.runningState = "RUNNING";
     this.manager = manager;
     this.logPrefix = logPrefix;

@@ -23,7 +23,6 @@ module.exports = class ScreenshareManager extends BaseManager {
     Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
 
     let session;
-
     let sessionId = message.voiceBridge;
     let connectionId = message.connectionId;
 

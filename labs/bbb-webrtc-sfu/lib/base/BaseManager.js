@@ -12,7 +12,7 @@ const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 
 module.exports = class BaseManager {
-  constructor (connectionChannel, additionalChannels, logPrefix) {
+  constructor (connectionChannel, additionalChannels = [], logPrefix = C.BASE_MANAGER_PREFIX) {
     this._sessions = {};
     this._bbbGW = new BigBlueButtonGW();
     this._redisGateway;
@@ -50,9 +50,10 @@ module.exports = class BaseManager {
         }
 
         let session = this._sessions[sessionId];
-        if(session && typeof session._stop === 'function') {
-          await session._stop();
+        if(session && typeof session.stop === 'function') {
+          await session.stop();
           delete this._sessions[sessionId];
+          this._logAvailableSessions();
           resolve();
         }
       }
@@ -84,5 +85,18 @@ module.exports = class BaseManager {
         resolve();
       }
     });
+  }
+
+  _logAvailableSessions () {
+    if(this._sessions) {
+      let sessionMainKeys = Object.keys(this._sessions);
+      let logInfo = this._logPrefix + 'There are ' + sessionMainKeys.length + ' sessions available =>\n';
+      for (var k in this._sessions) {
+        if(this._sessions[k]) {
+          logInfo += '(Session[' +  k +']' + ' of type ' + this._sessions[k].constructor.name + ');\n';
+        }
+      }
+      Logger.debug(logInfo);
+    }
   }
 };
