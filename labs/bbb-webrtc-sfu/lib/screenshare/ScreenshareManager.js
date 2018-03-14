@@ -9,39 +9,26 @@
 
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const Screenshare = require('./screenshare');
+const BaseManager = require('../base/BaseManager');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 
-module.exports = class ScreenshareManager {
-  constructor () {
-    this._screenshareSessions = {};
-
-    this._bbbGW = new BigBlueButtonGW("MANAGER");
-    this._redisGateway;
-  }
-
-  async start() {
-    try {
-      this._redisGateway = await this._bbbGW.addSubscribeChannel(C.TO_SCREENSHARE);
-      const transcode = await this._bbbGW.addSubscribeChannel(C.FROM_BBB_TRANSCODE_SYSTEM_CHAN);
-      this._redisGateway.on(C.REDIS_MESSAGE, this._onMessage.bind(this));
-    }
-    catch (error) {
-      Logger.error('[ScreenshareManager] Could not connect to transcoder redis channel, finishing screensharing app with error', error);
-      this.stopAll();
-    }
+module.exports = class ScreenshareManager extends BaseManager {
+  constructor (connectionChannel, additionalChannels, logPrefix) {
+    super(connectionChannel, additionalChannels, logPrefix);
+    this.messageFactory(this._onMessage);
   }
 
   _onMessage(message) {
-    Logger.debug('[ScreenshareManager] Received message [' + message.id + '] from connection', message.connectionId);
+    Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
 
     let session;
 
     let sessionId = message.voiceBridge;
     let connectionId = message.connectionId;
 
-    if(this._screenshareSessions[sessionId]) {
-      session = this._screenshareSessions[sessionId];
+    if(this._sessions[sessionId]) {
+      session = this._sessions[sessionId];
     }
 
     switch (message.id) {
@@ -51,9 +38,9 @@ module.exports = class ScreenshareManager {
         // Checking if there's already a Screenshare session started
         // because we shouldn't overwrite it
 
-        if (!this._screenshareSessions[message.voiceBridge]) {
-          this._screenshareSessions[message.voiceBridge] = {}
-          this._screenshareSessions[message.voiceBridge] = session;
+        if (!this._sessions[message.voiceBridge]) {
+          this._sessions[message.voiceBridge] = {}
+          this._sessions[message.voiceBridge] = session;
         }
 
         if(session) {
@@ -64,12 +51,12 @@ module.exports = class ScreenshareManager {
             sessionId, connectionId, message.vh, message.vw,
             message.internalMeetingId);
 
-        this._screenshareSessions[sessionId] = {}
-        this._screenshareSessions[sessionId] = session;
+        this._sessions[sessionId] = {}
+        this._sessions[sessionId] = session;
 
         // starts presenter by sending sessionID, websocket and sdpoffer
         session._startPresenter(sessionId, message.sdpOffer, (error, sdpAnswer) => {
-          Logger.info("[ScreenshareManager] Started presenter ", sessionId, " for connection", connectionId);
+          Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
           if (error) {
             this._bbbGW.publish(JSON.stringify({
               connectionId: session._id,
@@ -87,19 +74,19 @@ module.exports = class ScreenshareManager {
             sdpAnswer : sdpAnswer
           }), C.FROM_SCREENSHARE);
 
-          Logger.info("[ScreenshareManager] Sending presenterResponse to presenter", sessionId, "for connection", session._id);
+          Logger.info(this._logPrefix, "Sending presenterResponse to presenter", sessionId, "for connection", session._id);
         });
         break;
 
       case 'viewer':
         if (message.sdpOffer && message.voiceBridge) {
           if (session) {
-            Logger.info("[ScreenshareManager] Starting screenshare viewer at", message.voiceBridge, " for viewer with connection ", message.connectionId);
+            Logger.info(this._logPrefix, "Starting screenshare viewer at", message.voiceBridge, " for viewer with connection ", message.connectionId);
             session._startViewer(message.connectionId,
                 message.voiceBridge,
                 message.sdpOffer,
                 connectionId,
-                this._screenshareSessions[message.voiceBridge]._presenterEndpoint);
+                this._sessions[message.voiceBridge]._presenterEndpoint);
           } else {
             // TODO ERROR HANDLING
           }
@@ -107,12 +94,12 @@ module.exports = class ScreenshareManager {
         break;
 
       case 'stop':
-        Logger.info('[ScreenshareManager] Received stop message for session', sessionId, "at connection", connectionId);
+        Logger.info(this._logPrefix, 'Received stop message for session', sessionId, "at connection", connectionId);
 
         if (session) {
           session._stop(sessionId);
         } else {
-          Logger.warn("[ScreenshareManager] There was no screensharing session on stop for", sessionId);
+          Logger.warn(this._logPrefix, "There was no screensharing session on stop for", sessionId);
         }
         break;
 
@@ -120,7 +107,7 @@ module.exports = class ScreenshareManager {
         if (session) {
           session.onIceCandidate(message.candidate);
         } else {
-          Logger.warn("[ScreenshareManager] There was no screensharing session for onIceCandidate for", sessionId, ". There should be a queue here");
+          Logger.warn(this._logPrefix, "There was no screensharing session for onIceCandidate for", sessionId, ". There should be a queue here");
         }
         break;
 
@@ -128,19 +115,19 @@ module.exports = class ScreenshareManager {
         if (session) {
           session.onViewerIceCandidate(message.candidate, connectionId);
         } else {
-          Logger.warn("[ScreenshareManager] There was no screensharing session for onIceCandidate for", sessionId + ". There should be a queue here");
+          Logger.warn(this._logPrefix, "There was no screensharing session for onIceCandidate for", sessionId + ". There should be a queue here");
         }
         break;
 
       case 'close':
-        Logger.info('[ScreenshareManager] Connection ' + connectionId + ' closed');
+        Logger.info(this._logPrefix, 'Connection ' + connectionId + ' closed');
 
-        if (message.role === 'presenter' && this._screenshareSessions[sessionId]) {
-          Logger.info("[ScreenshareManager] Stopping presenter " + sessionId);
+        if (message.role === 'presenter' && this._sessions[sessionId]) {
+          Logger.info(this._logPrefix, "Stopping presenter " + sessionId);
           this._stopSession(sessionId);
         }
         if (message.role === 'viewer' && typeof session !== 'undefined') {
-          Logger.info("[ScreenshareManager] Stopping viewer " + sessionId);
+          Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
           session.stopViewer(message.connectionId);
         }
         break;
@@ -153,50 +140,5 @@ module.exports = class ScreenshareManager {
         }), C.FROM_SCREENSHARE);
         break;
     }
-  }
-
-  _stopSession(sessionId) {
-    return new Promise(async (resolve, reject) => {
-      Logger.info('[ScreenshareManager] Stopping session ' + sessionId);
-      try {
-        if (!this._screenshareSessions || !sessionId) {
-          return resolve();
-        }
-
-        let session = this._screenshareSessions[sessionId];
-        if(session && typeof session._stop === 'function') {
-          await session._stop();
-          delete this._screenshareSessions[sessionId];
-          resolve();
-        }
-      }
-      catch (err) {
-        Logger.err(error);
-        resolve();
-      }
-    });
-  }
-
-  stopAll() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        Logger.info('[ScreenshareManager] Stopping everything! ');
-        if (!this._screenshareSessions) {
-          return resolve;
-        }
-
-        let sessionIds = Object.keys(this._screenshareSessions);
-        let stopProcedures = [];
-
-        for (let i = 0; i < sessionIds.length; i++) {
-          stopProcedures.push(this._stopSession(sessionIds[i]));
-        }
-        resolve(Promise.all(stopProcedures));
-      }
-      catch (err) {
-        Logger.error(error);
-        resolve();
-      }
-    });
   }
 };
