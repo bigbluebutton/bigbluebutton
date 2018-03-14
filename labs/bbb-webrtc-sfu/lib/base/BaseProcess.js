@@ -27,9 +27,8 @@ module.exports = class BaseProcess {
   async stop () {
     try {
       await this.manager.stopAll();
-      Logger.info(this.logPrefix, "Exiting screenshare process");
+      Logger.info(this.logPrefix, "Exiting process");
       process.exit(0);
-
     }
     catch (err) {
       Logger.error(this.logPrefix, err);
@@ -38,11 +37,11 @@ module.exports = class BaseProcess {
   }
 
   handleException (error) {
-    process.exit(1);
     Logger.error(this.logPrefix, 'TODO => Uncaught exception', error.stack);
+    process.exit(1);
   }
 
   handleRejection (reason, promise) {
-    Logger.error(this.logPrefix, 'Unhandled Rejection at: Promise', p, 'reason:', reason);
+    Logger.error(this.logPrefix, 'TODO => Unhandled Rejection at: Promise', promise, 'reason:', reason);
   }
 }
