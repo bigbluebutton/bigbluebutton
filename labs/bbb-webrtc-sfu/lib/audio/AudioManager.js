@@ -55,7 +55,7 @@ module.exports = class AudioManager {
     let sessionId = this._meetings[meetingId];
     if (typeof sessionId !== 'undefined') {
       Logger.debug('[AudioManager] Disconnecting all users from', sessionId);
-      delete this._meetings[sessionId];
+      delete this._meetings[meetingId];
       this._stopSession(sessionId);
     }
   }
