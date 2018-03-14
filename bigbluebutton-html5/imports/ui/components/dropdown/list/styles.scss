@@ -26,6 +26,7 @@ $item-border-focus: $color-blue-lighter;
 
 .horizontalList {
   @extend %list;
+  padding: 0;
   flex-direction: row;
   @include mq($small-only) {
     flex-direction: column;

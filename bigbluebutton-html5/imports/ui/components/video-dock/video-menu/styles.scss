@@ -18,23 +18,31 @@
 
 .imageSize {
   height: 4rem;
+  @include mq($small-only) {
+    margin: auto 1rem;
+  };
 }
 
 .label {
-  font-size: auto;
-  display: none;
+  font-size: $font-size-small;
+  white-space: nowrap;
+  margin-top: .5rem;
+  color: $color-gray;
   @include mq($small-only) {
-    display: flex;
-    margin-left: $jumbo-padding-x;
+    margin-top: 0;
+    color: #06172A;
+    font-size: 90%;
   };
 }
 
 .item {
   padding-left: 0;
   display: flex;
-  width: 100%;
   justify-content: flex-start;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   margin: auto 0.25rem;
+  @include mq($small-only) {
+    flex-direction: row;
+  };
 }
