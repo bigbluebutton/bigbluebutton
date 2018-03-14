@@ -228,6 +228,7 @@ class Settings extends Component {
         }}
         dismiss={{
           callback: () => {
+            this.props.mountModal(null);
             Settings.setHtmlFontSize(this.state.saved.application.fontSize);
           },
           label: intl.formatMessage(intlMessages.CancelLabel),

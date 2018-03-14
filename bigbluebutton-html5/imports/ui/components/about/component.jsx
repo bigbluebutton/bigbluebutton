@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 
 const intlMessages = defineMessages({
   title: {
@@ -34,17 +35,31 @@ const intlMessages = defineMessages({
   },
 });
 
-const AboutComponent = ({ intl, clientBuild, copyright }) => (
-  <Modal
-    title={intl.formatMessage(intlMessages.title)}
-    dismiss={{
-      label: intl.formatMessage(intlMessages.dismissLabel),
-      description: intl.formatMessage(intlMessages.dismissDesc),
-    }}
-  >
-    {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`} <br />
-    {`${intl.formatMessage(intlMessages.version)} ${clientBuild}`}
-  </Modal>
-);
+class AboutComponent extends PureComponent {
+  render() {
+    const {
+      intl,
+      clientBuild,
+      copyright,
+      mountModal,
+    } = this.props;
 
-export default injectIntl(AboutComponent);
+    return (
+      <Modal
+        title={intl.formatMessage(intlMessages.title)}
+        dismiss={{
+          callback: () => {
+            mountModal(null);
+          },
+          label: intl.formatMessage(intlMessages.dismissLabel),
+          description: intl.formatMessage(intlMessages.dismissDesc),
+        }}
+      >
+        {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`} <br />
+        {`${intl.formatMessage(intlMessages.version)} ${clientBuild}`}
+      </Modal>
+    );
+  }
+}
+
+export default withModalMounter(injectIntl(AboutComponent));

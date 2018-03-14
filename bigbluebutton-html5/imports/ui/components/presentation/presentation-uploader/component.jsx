@@ -8,6 +8,7 @@ import _ from 'lodash';
 
 import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
@@ -481,7 +482,7 @@ class PresentationUploader extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, mountModal } = this.props;
     const { preventClosing, disableActions } = this.state;
 
     return (
@@ -489,13 +490,19 @@ class PresentationUploader extends Component {
         title={intl.formatMessage(intlMessages.title)}
         preventClosing={preventClosing}
         confirm={{
-          callback: this.handleConfirm,
+          callback: () => {
+            mountModal(null);
+            this.handleConfirm();
+          },
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
           disabled: disableActions,
         }}
         dismiss={{
-          callback: this.handleDismiss,
+          callback: () => {
+            mountModal(null);
+            this.handleDismiss();
+          },
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
           disabled: disableActions,
@@ -512,4 +519,4 @@ class PresentationUploader extends Component {
 PresentationUploader.propTypes = propTypes;
 PresentationUploader.defaultProps = defaultProps;
 
-export default injectIntl(PresentationUploader);
+export default withModalMounter(injectIntl(PresentationUploader));
