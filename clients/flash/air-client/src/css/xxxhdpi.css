@@ -113,6 +113,10 @@
         fontSize: 48;
     }
 
+    main|EmojiPopUp {
+        fontSize: 44;
+    }
+
     .icon {
         fontSize: 40;
     }

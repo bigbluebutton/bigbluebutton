@@ -4,7 +4,7 @@ package org.bigbluebutton.air.main.commands {
 	public class GoToSlideSignal extends Signal {
 		public function GoToSlideSignal() {
 			/**
-			 * @1 mute
+			 * @1 pageId
 			 */
 			super(String);
 		}
