@@ -1,16 +1,16 @@
 // Base colours
 
-private const bbbBlack:uint = 0x2A2D33;
+private const bbbBlack:uint = 0x06172A;
 
-private const bbbBlue:uint = 0x299AD5;
+private const bbbBlue:uint = 0x0F70D7;
 
-private const bbbGreen:uint = 0x4DC0A2;
+private const bbbGreen:uint = 0x008081;
 
-private const bbbRed:uint = 0xF0615F;
+private const bbbRed:uint = 0xDF2721;
 
-private const bbbDarkGrey:uint = 0x353B42;
+private const bbbDarkGrey:uint = 0x4E5A66;
 
-private const bbbGrey:uint = 0x8B9AA8;
+private const darkBlue:uint = 0x0A5EAC;
 
 private const bbbWhite:uint = 0xF3F6F9;
 
