@@ -113,7 +113,7 @@ class AudioModal extends Component {
       help: {
         title: intl.formatMessage(intlMessages.helpTitle),
         component: () => this.renderHelp(),
-      }
+      },
     };
   }
 
@@ -152,7 +152,7 @@ class AudioModal extends Component {
       this.setState({
         content: 'echoTest',
       });
-    }).catch(err => {
+    }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -166,7 +166,7 @@ class AudioModal extends Component {
       joinListenOnly,
     } = this.props;
 
-    return joinListenOnly().catch(err => {
+    return joinListenOnly().catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -317,8 +317,8 @@ class AudioModal extends Component {
               data-test="modalBaseCloseButton"
               className={styles.closeBtn}
               label={intl.formatMessage(intlMessages.closeLabel)}
-              icon={'close'}
-              size={'md'}
+              icon="close"
+              size="md"
               hideLabel
               onClick={this.closeModal}
             />
