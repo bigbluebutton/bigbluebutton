@@ -243,7 +243,7 @@ module.exports = class Screenshare {
     }
   }
 
-  _stop() {
+  stop () {
     return new Promise(async (resolve, reject) => {
       try {
         Logger.info('[screnshare] Stopping and releasing endpoints for MCS user', this.userId);
