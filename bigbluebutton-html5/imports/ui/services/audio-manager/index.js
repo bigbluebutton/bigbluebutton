@@ -118,7 +118,6 @@ class AudioManager {
   }
 
   joinListenOnly() {
-    console.log('entrei');
     this.isListenOnly = true;
     this.isEchoTest = false;
 
@@ -141,7 +140,7 @@ class AudioManager {
       ]))
       .catch((err) => {
         // If theres a iceGathering timeout we retry to join after asking device permissions
-        if (err === iceGatheringErr) {
+        if (err === iceGatheringErr && !this.devicesInitialized) {
           return this.askDevicesPermissions()
             .then(() => this.joinListenOnly());
         }
