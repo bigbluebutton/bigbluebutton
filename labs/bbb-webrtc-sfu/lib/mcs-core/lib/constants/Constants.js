@@ -27,6 +27,7 @@ exports.MEDIA_TYPE.URI = "PlayerEndpoint"
 
 // Media server state changes
 exports.EVENT = {}
+exports.EVENT.MEDIA_SERVER_ONLINE = "MediaServerOnline"
 exports.EVENT.NEW_MEDIA_SESSION = "NewMediaSession"
 exports.EVENT.MEDIA_SESSION_STOPPED = "MediaSessionStopped"
 exports.EVENT.MEDIA_STATE = {};

@@ -3,21 +3,20 @@
 const C = require('../constants/Constants.js');
 const config = require('config');
 const mediaServerClient = require('kurento-client');
-const util = require('util');
 const EventEmitter = require('events').EventEmitter;
 const Logger = require('../../../utils/Logger');
 
 let instance = null;
 
-/* Public members */
 module.exports = class MediaServer extends EventEmitter {
   constructor(serverUri) {
     if(!instance){
       super();
       this._serverUri = serverUri;
       this._mediaPipelines = {};
-      this._mediaElements= {};
+      this._mediaElements = {};
       this._mediaServer;
+      this._reconnectionRoutine = null;
       instance = this;
     }
 
@@ -28,27 +27,60 @@ module.exports = class MediaServer extends EventEmitter {
     if (!this._mediaServer) {
       this._mediaServer = await this._getMediaServerClient(this._serverUri);
       Logger.info("[mcs-media] Retrieved media server client => " + this._mediaServer);
-
-      this._mediaServer.on('disconnect', (err) => {
-        Logger.error('[mcs-media] Media server was disconnected for some reason, will have to clean up all elements and notify users');
-        this._destroyElements();
-        this._destroyMediaServer();
-        this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
-      });
+      this._monitorConnectionState();
     }
   }
 
   _getMediaServerClient (serverUri) {
     return new Promise((resolve, reject) =>  {
-      mediaServerClient(serverUri, {failAfter: 3}, (error, client) => {
+      mediaServerClient(serverUri, {failAfter: 5}, (error, client) => {
         if (error) {
           error = this._handleError(error);
-          reject(error);
+          return reject(error);
         }
         resolve(client);
       });
     });
   }
+
+  _monitorConnectionState () {
+    Logger.debug('[mcs-media] Monitoring connection state');
+    this._mediaServer.on('disconnect', this._onDisconnection.bind(this));
+    this._mediaServer.on('reconnected',this._onReconnection.bind(this));
+  }
+
+  _onDisconnection () {
+    Logger.error('[mcs-media] Media server was disconnected for some reason, will have to clean up all elements and notify users');
+    this._destroyElements();
+    this._destroyMediaServer();
+    this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
+    this._reconnectToServer();
+  }
+
+  _onReconnection (sameSession) {
+    if (!sameSession) {
+      Logger.info('[mcs-media] Media server is back online');
+      this.emit(C.EVENT.MEDIA_SERVER_ONLINE);
+    }
+  }
+
+  _reconnectToServer () {
+    if (!this._reconnectionRoutine) {
+      this._reconnectionRoutine = setInterval(async () => {
+        try {
+          this._mediaServer = await this._getMediaServerClient(this._serverUri);
+          this._monitorConnectionState();
+          clearInterval(this._reconnectionRoutine);
+          this._reconnectionRoutine = null;
+          Logger.warn("[mcs-media] Reconnection to media server succeeded");
+        }
+        catch (error) {
+          delete this._mediaServer;
+        }
+      }, 2000);
+    }
+  }
+
 
   _getMediaPipeline (roomId) {
     return new Promise((resolve, reject) => {
@@ -113,7 +145,7 @@ module.exports = class MediaServer extends EventEmitter {
     if (source && sink) {
       return new Promise((resolve, reject) => {
         switch (type) {
-          case 'ALL': 
+          case 'ALL':
             source.connect(sink, (error) => {
               if (error) {
                 error = this._handleError(error);
@@ -174,7 +206,7 @@ module.exports = class MediaServer extends EventEmitter {
     }
   }
 
-  
+
   addIceCandidate (elementId, candidate) {
     let mediaElement = this._mediaElements[elementId];
     let kurentoCandidate = mediaServerClient.getComplexType('IceCandidate')(candidate);
@@ -201,7 +233,7 @@ module.exports = class MediaServer extends EventEmitter {
             return reject(error);
           }
           Logger.info('[mcs-media] Triggered ICE gathering for ' + elementId);
-          return resolve(); 
+          return resolve();
         });
       }
       else {
@@ -327,12 +359,12 @@ module.exports = class MediaServer extends EventEmitter {
 
   _handleError(error) {
     // Checking if the error needs to be wrapped into a JS Error instance
-    if(!isError(error)) {
+    if(!this.isError(error)) {
       error = new Error(error);
     }
 
     error.code = C.ERROR.MEDIA_SERVER_ERROR;
-    Logger.error('[mcs-media] Media Server returned error', error);
+    Logger.error('[mcs-media] Media Server returned an', error.message);
   }
 
   // duck
