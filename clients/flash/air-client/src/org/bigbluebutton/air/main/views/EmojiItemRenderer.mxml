@@ -10,6 +10,8 @@
 
 	<fx:Script>
 		<![CDATA[
+			import org.bigbluebutton.air.user.models.EmojiStatus;
+			
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				icon.text = getStyle("icon");
 				icon.setStyle("fontFamily", getStyle("iconFont"));
