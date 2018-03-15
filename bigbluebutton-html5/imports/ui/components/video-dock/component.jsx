@@ -504,7 +504,9 @@ class VideoDock extends Component {
 
   unshareWebcam() {
     log('info', 'Unsharing webcam');
-    VideoService.sendUserUnshareWebcam(this.props.userId);
+    const { userId } = this.props;
+    VideoService.sendUserUnshareWebcam(userId);
+    this.stop(userId);
   }
 
   startResponse(message) {
@@ -587,8 +589,8 @@ class VideoDock extends Component {
     const { intl, userId } = this.props;
 
     if (message.cameraId == userId) {
-      this.unshareWebcam();
       this.notifyError(intl.formatMessage(intlMessages.sharingError));
+      this.unshareWebcam();
     } else {
       this.stop(message.cameraId);
     }

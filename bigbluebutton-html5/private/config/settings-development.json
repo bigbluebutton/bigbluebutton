@@ -25,8 +25,9 @@
           "inputDeviceId": "undefined",
           "outputDeviceId": "undefined"
         },
-        "video": {
-          "viewParticipantsWebcams": true
+        "dataSaving": {
+          "viewParticipantsWebcams": true,
+          "viewScreenshare": true
         },
         "cc": {
           "backgroundColor": "#FFFFFF",
@@ -95,7 +96,8 @@
           "toggleVoice",
           "clearPublicChatHistory",
           "changeRole",
-          "ejectUserFromVoice"
+          "ejectUserFromVoice",
+          "toggleRecording"
         ]
       },
       "presenter": {
@@ -346,7 +348,6 @@
 
 
     "log": {
-      "filename": "/log/development.log",
       "level": "info"
     }
   }

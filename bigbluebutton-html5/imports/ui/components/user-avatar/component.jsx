@@ -39,6 +39,7 @@ const UserAvatar = ({
   className,
 }) => (
   <div
+    aria-hidden="true"
     data-test="userAvatar"
     className={cx(styles.avatar, {
       [styles.moderator]: moderator,

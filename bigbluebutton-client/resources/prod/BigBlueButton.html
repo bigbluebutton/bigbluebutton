@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <style type="text/css" media="screen">
       html, body, #content    { height:100%; width: 100%; }
+      .hiddenContent { display: none; }
       body                                    { margin:0; padding:0; overflow:hidden; }
       #altContent                             { /* style alt content */ }
       .visually-hidden {
@@ -175,12 +176,18 @@
 
           if ((iOS || android) && !puffin) {
             redirectToHtml5();
+          } else {
+            showContent();
           }
 
           if (document.getElementById('html5Section')) {
             document.getElementById('html5Section').style.display = 'inherit';
           }
+        } else {
+          showContent();
         }
+      }).fail(function(data) {
+        showContent();
       });
 
       if (fillContent) fillContent();
@@ -188,6 +195,10 @@
 
     function redirectToHtml5 () {
       document.location.pathname = '/html5client/join';
+    }
+
+    function showContent () {
+      $('#content').removeClass('hiddenContent');
     }
     </script>
   </head>
@@ -201,7 +212,7 @@
     </div>
     <div id="accessibile-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="visually-hidden">0 %</div>
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
-    <div id="content">
+    <div id="content" class="hiddenContent">
       <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; font-family: sans-serif; text-align: center;">
         <p style="font-weight: bold;">You need Adobe Flash installed and enabled in order to use this client.</p>
         <br/>

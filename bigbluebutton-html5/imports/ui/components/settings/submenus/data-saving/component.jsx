@@ -7,19 +7,19 @@ import { styles } from '../styles';
 
 const intlMessages = defineMessages({
   dataSavingLabel: {
-    id: 'app.settings.dataSaving.label',
+    id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
   },
   webcamLabel: {
-    id: 'app.settings.dataSaving.webcam',
+    id: 'app.settings.dataSavingTab.webcam',
     description: 'webcam toggle',
   },
   screenShareLabel: {
-    id: 'app.settings.dataSaving.screenShare',
+    id: 'app.settings.dataSavingTab.screenShare',
     description: 'screenshare toggle',
   },
   dataSavingDesc: {
-    id: 'app.settings.dataSaving.description',
+    id: 'app.settings.dataSavingTab.description',
     description: 'description of data savings tab',
   },
 });
@@ -29,12 +29,14 @@ class DataSaving extends BaseMenu {
     super(props);
 
     this.state = {
-      settingsName: 'video',
+      settingsName: 'dataSaving',
       settings: props.settings,
     };
   }
   render() {
     const { intl } = this.props;
+
+    const { viewParticipantsWebcams, viewScreenshare } = this.state.settings;
 
     return (
       <div className={styles.tabContent}>
@@ -55,7 +57,7 @@ class DataSaving extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={!this.state.settings.viewParticipantsWebcams}
+                  defaultChecked={!viewParticipantsWebcams}
                   onChange={() => this.handleToggle('viewParticipantsWebcams')}
                   ariaLabelledBy="webcamToggle"
                   ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
@@ -75,10 +77,10 @@ class DataSaving extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={false}
-                  onChange={() => this.handleToggle('')}
+                  defaultChecked={!viewScreenshare}
+                  onChange={() => this.handleToggle('viewScreenshare')}
                   ariaLabelledBy="screenShare"
-                  ariaLabel="screenShare"
+                  ariaLabel={intl.formatMessage(intlMessages.screenShareLabel)}
                 />
               </div>
             </div>

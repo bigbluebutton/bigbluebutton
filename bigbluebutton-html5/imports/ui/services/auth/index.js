@@ -130,6 +130,8 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
+      Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
+
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
@@ -155,10 +157,11 @@ class Auth {
         if (User.ejected) {
           this.loggedIn = false;
 
-          return reject({
+          reject({
             error: 401,
             description: 'User has been ejected.',
           });
+          return;
         }
 
         if (User.validated === true) {

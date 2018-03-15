@@ -43,51 +43,51 @@ module.exports = class Screenshare {
   }
 
   onIceCandidate (_candidate) {
+    Logger.debug("[screenshare] onIceCandidate");
     if (this._presenterEndpoint) {
       try {
         this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
         this.mcs.addIceCandidate(this._presenterEndpoint, _candidate);
-      }
-      catch (err)   {
+      } catch (err) {
         Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
       }
-    }
-    else {
+    } else {
+      Logger.debug("[screenshare] Pushing ICE candidate to presenter queue");
       this._presenterCandidatesQueue.push(_candidate);
     }
   }
 
   onViewerIceCandidate(candidate, callerName) {
+    Logger.debug("[screenshare] onViewerIceCandidate");
     if (this._viewersEndpoint[callerName]) {
       try {
         this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
         this.mcs.addIceCandidate(this._viewersEndpoint[callerName], candidate);
-      }
-      catch (err)   {
+      } catch (err) {
         Logger.error("[screenshare] Viewer ICE candidate could not be added to media controller.", err);
       }
-    }
-    else {
+    } else {
       if (!this._viewersCandidatesQueue[callerName]) {
         this._viewersCandidatesQueue[callerName] = [];
       }
+      Logger.debug("[screenshare] Pushing ICE candidate to viewer queue", callerName);
       this._viewersCandidatesQueue[callerName].push(candidate);
     }
   }
 
-
-
   flushCandidatesQueue (mediaId, queue) {
-    if (this.mediaId) {
+    Logger.debug("[screenshare] flushCandidatesQueue", queue);
+    if (mediaId) {
       try {
         while(queue.length) {
           let candidate = queue.shift();
           this.mcs.addIceCandidate(mediaId, candidate);
         }
-      }
-      catch (err) {
+      } catch (err) {
         Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
       }
+    } else {
+      Logger.error("[screenshare] No mediaId");
     }
   }
 

@@ -11,7 +11,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     talking: Match.Maybe(Boolean),
     muted: Match.Maybe(Boolean),
     voiceConf: String,
-    joined: Match.Maybe(Boolean)
+    joined: Match.Maybe(Boolean),
   });
 
   const { intId } = voiceUser;
@@ -33,7 +33,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
       return Logger.error(`Update voiceUser=${intId}: ${err}`);
     }
 
-    return Logger.verbose(`Update voiceUser=${intId} meeting=${meetingId}`);
+    return Logger.info(`Update voiceUser=${intId} meeting=${meetingId}`);
   };
 
   return VoiceUsers.update(selector, modifier, cb);

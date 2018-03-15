@@ -4,9 +4,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import createDummyUser from '../modifiers/createDummyUser';
-import setConnectionStatus from '../modifiers/setConnectionStatus';
-
-const ONLINE_CONNECTION_STATUS = 'online';
+import setConnectionId from '../modifiers/setConnectionId';
 
 export default function validateAuthToken(credentials) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -19,6 +17,9 @@ export default function validateAuthToken(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
+  const sessionId = `${meetingId}-${requesterUserId}`;
+  this.setUserId(sessionId);
+
   const User = Users.findOne({
     meetingId,
     userId: requesterUserId,
@@ -26,18 +27,16 @@ export default function validateAuthToken(credentials) {
 
   if (!User) {
     createDummyUser(meetingId, requesterUserId, requesterToken);
-  } else if (User.validated) {
-    setConnectionStatus(meetingId, requesterUserId, ONLINE_CONNECTION_STATUS);
   }
+
+  setConnectionId(meetingId, requesterUserId, this.connection.id);
 
   const payload = {
     userId: requesterUserId,
     authToken: requesterToken,
   };
 
-  Logger.info(`User '${
-    requesterUserId
-  }' is trying to validate auth token for meeting '${meetingId}'`);
+  Logger.info(`User '${requesterUserId}' is trying to validate auth token for meeting '${meetingId}'`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
