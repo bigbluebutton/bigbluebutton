@@ -34,11 +34,8 @@ package org.bigbluebutton.air.main.models {
 		function get screenshareConnection():IScreenshareConnection;
 		function set screenshareConnection(value:IScreenshareConnection):void;
 		function get presentationList():PresentationList;
-		function get successJoiningMeetingSignal():ISignal;
-		function get failureJoiningMeetingSignal():ISignal;
 		function get assignedDeskshareSignal():ISignal;
 		function get logoutSignal():Signal;
-		function joinMeetingResponse(msg:Object):void;
 		function get videoProfileManager():VideoProfileManager
 		function set videoProfileManager(value:VideoProfileManager):void;
 		function get authTokenSignal():ISignal

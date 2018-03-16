@@ -10,6 +10,8 @@ package org.bigbluebutton.air.video.models {
 			return _webcamChangeSignal;
 		}
 		
+		public var viewedWebcamStream:String;
+		
 		public function Webcams() {
 			_webcams = new Object();
 			_webcamChangeSignal = new Signal();
@@ -53,6 +55,16 @@ package org.bigbluebutton.air.video.models {
 			}
 			
 			return rw;
+		}
+		
+		public function findWebcamByStreamId(streamId:String):WebcamStreamInfo {
+			for each (var webcam:WebcamStreamInfo in _webcams) {
+				if (webcam.streamId == streamId) {
+					return webcam;
+				}
+			}
+			
+			return null;
 		}
 	}
 }

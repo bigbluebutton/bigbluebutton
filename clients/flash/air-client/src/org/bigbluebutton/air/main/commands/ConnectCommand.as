@@ -12,6 +12,7 @@ package org.bigbluebutton.air.main.commands {
 	import org.bigbluebutton.air.presentation.services.IPresentationService;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
 	import org.bigbluebutton.air.user.models.User2x;
+	import org.bigbluebutton.air.user.models.UserChangeEnum;
 	import org.bigbluebutton.air.user.services.IUsersService;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.services.IVideoConnection;
@@ -82,6 +83,8 @@ package org.bigbluebutton.air.main.commands {
 		
 		private var authTokenTimeout:Timer;
 		
+		private var joinMeetingTimeout:Timer;
+		
 		override public function execute():void {
 			loadConfigOptions();
 			connection.uri = uri;
@@ -149,9 +152,9 @@ package org.bigbluebutton.air.main.commands {
 			var audioOptions:Object = new Object();
 			if (userSession.phoneOptions.autoJoin && userSession.phoneOptions.skipCheck) {
 				var forceListenOnly:Boolean = (userSession.config.getConfigFor("PhoneModule").@forceListenOnly.toString().toUpperCase() == "TRUE") ? true : false;
-				//audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
-				//audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
-				//shareMicrophoneSignal.dispatch(audioOptions);
+					//audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
+					//audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
+					//shareMicrophoneSignal.dispatch(audioOptions);
 			} else {
 				//audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
 				//audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
@@ -175,15 +178,42 @@ package org.bigbluebutton.air.main.commands {
 			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
 			usersService.getRoomLockState();
+			meetingData.users.userChangeSignal.add(userChangeListener);
+			joinMeetingTimeout = new Timer(5000, 1);
+			joinMeetingTimeout.addEventListener(TimerEvent.TIMER, onJoinMeetingTimeout);
+			joinMeetingTimeout.start();
 		}
 		
 		// reason is one of the DisconnectEnum types
 		private function joiningMeetingFailure(reason:int):void {
 			trace(LOG + "joiningMeetingFailure() -- Failed to join the meeting!!!");
-			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
-			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
-			
 			disconnectUserSignal.dispatch(reason);
+		}
+		
+		private function userChangeListener(user:User2x, enum:int):void {
+			// If we fetch data before the server has recognized the join we can get disconnected. Need
+			// to delay the fetch until after the join is received back.
+			if (user.me && enum == UserChangeEnum.JOIN) {
+				meetingData.users.userChangeSignal.remove(userChangeListener);
+				joinMeetingTimeout.stop();
+				
+				// Query the server for chat, users, and presentation info
+				chatService.getGroupChats();
+				presentationService.getPresentationPods();
+				meetingData.users.userChangeSignal.add(successUsersAdded);
+				usersService.queryForParticipants();
+				usersService.getLockSettings();
+				usersService.getRoomLockState();
+				
+				videoConnection.loadCameraSettings();
+			}
+		}
+		
+		private function onJoinMeetingTimeout(e:TimerEvent):void {
+			trace(LOG + "onJoinMeetingTimeout - timeout hit");
+			meetingData.users.userChangeSignal.remove(userChangeListener);
+			
+			joiningMeetingFailure(DisconnectEnum.JOIN_MEETING_TIMEOUT);
 		}
 		
 		protected function successUsersAdded(user:User2x, property:int):void {
@@ -200,10 +230,6 @@ package org.bigbluebutton.air.main.commands {
 		
 		private function videoConnectedSuccess():void {
 			trace(LOG + "successVideoConnected()");
-			if (userSession.videoAutoStart && userSession.skipCamSettingsCheck) {
-				trace("TODO: Need to implement auto start cam still");
-				//shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
-			}
 			videoConnection.connectionSuccessSignal.remove(videoConnectedSuccess);
 			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);
 		}

@@ -102,6 +102,9 @@ package org.bigbluebutton.air.whiteboard.views {
 		}
 		
 		private function drawAllAnnotations():void {
+			if (_whiteboard == null) {
+				return;
+			}
 			trace("++ draw draw Draw");
 			var annotations:Array = _whiteboard.getAnnotations();
 			for (var i:int = 0; i < annotations.length; i++) {

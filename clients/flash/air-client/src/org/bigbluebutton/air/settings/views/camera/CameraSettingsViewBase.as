@@ -2,19 +2,20 @@ package org.bigbluebutton.air.settings.views.camera {
 	import mx.core.ClassFactory;
 	import mx.graphics.SolidColor;
 	
+	import org.bigbluebutton.air.user.views.UserItemRenderer;
+	
 	import spark.components.Button;
 	import spark.components.Group;
 	import spark.components.HGroup;
 	import spark.components.Label;
 	import spark.components.List;
+	import spark.components.ToggleSwitch;
 	import spark.components.VGroup;
 	import spark.components.VideoDisplay;
 	import spark.components.supportClasses.ToggleButtonBase;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalLayout;
 	import spark.primitives.Rect;
-	
-	import org.bigbluebutton.air.user.views.UserItemRenderer;
 	
 	public class CameraSettingsViewBase extends VGroup {
 		
@@ -35,7 +36,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		private var _rotateCameraButton:Button;
 		
 		protected function get toggleButtonClass():Class {
-			return ToggleButtonBase;
+			return ToggleSwitch;
 		}
 		
 		public function get cameraHolder():Group {
