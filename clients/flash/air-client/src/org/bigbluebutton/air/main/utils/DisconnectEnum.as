@@ -12,5 +12,7 @@ package org.bigbluebutton.air.main.utils {
 		public static const AUTH_TOKEN_TIMEOUT:int = 5;
 		
 		public static const AUTH_TOKEN_INVALID:int = 6;
+		
+		public static const JOIN_MEETING_TIMEOUT:int = 7;
 	}
 }

@@ -40,8 +40,6 @@
     }
 
     main|MenuButtons {
-        bottom: 13.125;
-        top: 5.250;
         gap: 16.875;
     }
 
