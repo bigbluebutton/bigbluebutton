@@ -168,6 +168,7 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
+    const { mountModal } = this.props;
     const presentationsToSave = this.state.presentations
       .filter(p => !p.upload.error && !p.conversion.error);
 
@@ -200,7 +201,7 @@ class PresentationUploader extends Component {
             this.handleCurrentChange(this.state.oldCurrentId);
           }
         });
-      })
+      }).then(() => mountModal(null))
       .catch((error) => {
         notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
 
@@ -214,6 +215,8 @@ class PresentationUploader extends Component {
   }
 
   handleDismiss() {
+    const { mountModal } = this.props;
+    mountModal(null);
     return new Promise((resolve) => {
       this.setState({
         preventClosing: false,
@@ -482,7 +485,7 @@ class PresentationUploader extends Component {
   }
 
   render() {
-    const { intl, mountModal } = this.props;
+    const { intl } = this.props;
     const { preventClosing, disableActions } = this.state;
 
     return (
@@ -490,19 +493,13 @@ class PresentationUploader extends Component {
         title={intl.formatMessage(intlMessages.title)}
         preventClosing={preventClosing}
         confirm={{
-          callback: () => {
-            mountModal(null);
-            this.handleConfirm();
-          },
+          callback: this.handleConfirm,
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
           disabled: disableActions,
         }}
         dismiss={{
-          callback: () => {
-            mountModal(null);
-            this.handleDismiss();
-          },
+          callback: this.handleDismiss,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
           disabled: disableActions,
