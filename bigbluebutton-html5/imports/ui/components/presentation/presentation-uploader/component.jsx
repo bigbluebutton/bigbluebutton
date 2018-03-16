@@ -8,7 +8,6 @@ import _ from 'lodash';
 
 import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
-import { withModalMounter } from '/imports/ui/components/modal/service';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
@@ -168,7 +167,6 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
-    const { mountModal } = this.props;
     const presentationsToSave = this.state.presentations
       .filter(p => !p.upload.error && !p.conversion.error);
 
@@ -201,7 +199,7 @@ class PresentationUploader extends Component {
             this.handleCurrentChange(this.state.oldCurrentId);
           }
         });
-      }).then(() => mountModal(null))
+      })
       .catch((error) => {
         notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
 
@@ -215,8 +213,6 @@ class PresentationUploader extends Component {
   }
 
   handleDismiss() {
-    const { mountModal } = this.props;
-    mountModal(null);
     return new Promise((resolve) => {
       this.setState({
         preventClosing: false,
@@ -516,4 +512,4 @@ class PresentationUploader extends Component {
 PresentationUploader.propTypes = propTypes;
 PresentationUploader.defaultProps = defaultProps;
 
-export default withModalMounter(injectIntl(PresentationUploader));
+export default injectIntl(PresentationUploader);

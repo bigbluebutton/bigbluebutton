@@ -4,7 +4,6 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
-import { withModalMounter } from '/imports/ui/components/modal/service';
 import { styles } from './styles';
 
 const propTypes = {
@@ -62,22 +61,18 @@ class LeaveConfirmation extends PureComponent {
       router,
       handleEndMeeting,
       showEndMeeting,
-      mountModal,
     } = this.props;
 
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
         confirm={{
-          callback: () => {
-            mountModal(null);
-            router.push('/logout');
-          },
+          callback: () => router.push('/logout'),
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
         }}
         dismiss={{
-          callback: () => mountModal(null),
+          callback: () => null,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
@@ -95,9 +90,9 @@ class LeaveConfirmation extends PureComponent {
         <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>
       </Modal>
     );
-  }  
+  }
 }
 
 LeaveConfirmation.propTypes = propTypes;
 
-export default withModalMounter(withRouter(injectIntl(LeaveConfirmation)));
+export default withRouter(injectIntl(LeaveConfirmation));

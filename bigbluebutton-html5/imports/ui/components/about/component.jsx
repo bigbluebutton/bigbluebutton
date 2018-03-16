@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
-import { withModalMounter } from '/imports/ui/components/modal/service';
 
 const intlMessages = defineMessages({
   title: {
@@ -41,16 +40,12 @@ class AboutComponent extends PureComponent {
       intl,
       clientBuild,
       copyright,
-      mountModal,
     } = this.props;
 
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
         dismiss={{
-          callback: () => {
-            mountModal(null);
-          },
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
@@ -62,4 +57,4 @@ class AboutComponent extends PureComponent {
   }
 }
 
-export default withModalMounter(injectIntl(AboutComponent));
+export default injectIntl(AboutComponent);
