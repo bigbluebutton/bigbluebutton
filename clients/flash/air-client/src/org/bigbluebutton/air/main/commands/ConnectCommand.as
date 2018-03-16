@@ -167,17 +167,7 @@ package org.bigbluebutton.air.main.commands {
 			userSession.screenshareConnection = screenshareConnection;
 			
 			usersService.joinMeeting();
-			// Query the server for chat, users, and presentation info
-			chatService.getGroupChats();
-			presentationService.getPresentationPods();
-			meetingData.users.userChangeSignal.add(successUsersAdded);
-			usersService.queryForParticipants();
-			usersService.getLockSettings();
-			usersService.queryForRecordingStatus();
-			usersService.queryForScreenshare();
-			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
-			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
-			usersService.getRoomLockState();
+
 			meetingData.users.userChangeSignal.add(userChangeListener);
 			joinMeetingTimeout = new Timer(5000, 1);
 			joinMeetingTimeout.addEventListener(TimerEvent.TIMER, onJoinMeetingTimeout);
