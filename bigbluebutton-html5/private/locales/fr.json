@@ -93,8 +93,8 @@
     "app.error.500": "Oups, quelque chose s'est mal passé",
     "app.error.404": "Non trouvé",
     "app.error.403": "Interdit",
-    "app.toast.chat.singular":"vous avez {0} nouveau message dans {1}",
-    "app.toast.chat.plural":"vous avez {0} nouveaux messages dans {1}",
+    "app.toast.chat.singular": "vous avez {0} nouveau message dans {1}",
+    "app.toast.chat.plural": "vous avez {0} nouveaux messages dans {1}",
     "app.notification.recordingStart": "Cette session est maintenant enregistrée",
     "app.notification.recordingStop": "Cette session n'est maintenant plus enregistrée"
 
