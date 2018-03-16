@@ -14,6 +14,8 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.ExitViewMediator;
 	import org.bigbluebutton.air.main.views.LoadingScreen;
 	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
+	import org.bigbluebutton.air.main.views.MainView;
+	import org.bigbluebutton.air.main.views.MainViewMediator;
 	import org.bigbluebutton.air.main.views.MenuButtons;
 	import org.bigbluebutton.air.main.views.MenuButtonsMediator;
 	import org.bigbluebutton.air.main.views.PagesNavigatorView;
@@ -62,6 +64,7 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(MenuButtons).toMediator(MenuButtonsMediator);
 			mediatorMap.map(ExitView).toMediator(ExitViewMediator);
 			mediatorMap.map(DisconnectView).toMediator(DisconnectViewMediator);
+			mediatorMap.map(MainView).toMediator(MainViewMediator);
 		}
 		
 		/**
