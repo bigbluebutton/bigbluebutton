@@ -294,3 +294,15 @@ settings|SettingsItemRenderer {
 .userDetailsButton {
 	color : PropertyReference("bbbBlack");
 }
+
+
+.audioButtonStyle {
+	borderAlphaUp       : 0;
+	borderAlphaOver     : 1;
+	borderAlphaDown     : 1;
+	borderAlphaDisabled : 0;
+	
+	fillColorUp         : #EFF5FA;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #1070D7;
+}

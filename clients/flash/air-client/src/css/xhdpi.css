@@ -94,6 +94,10 @@
 		padding: 30;
 	}
 	
+	voice|JoinAudioView {
+		gap : 56;
+	}
+	
 	s|ToggleSwitch {
 		fontSize : 24;
 	}
@@ -182,5 +186,17 @@
 	
 	.echoTestLabel {
 		padding : 32;
+	}
+	
+	.audioHelpLabel {
+		fontSize : 36;
+	}
+	
+	.audioButtonLabel {
+		fontSize : 28;
+	}
+	
+	.audioButtonStyle {
+		iconSize : 88;
 	}
 }

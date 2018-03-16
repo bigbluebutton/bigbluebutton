@@ -6,6 +6,8 @@ package org.bigbluebutton.air.voice {
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.air.voice.views.EchoTestViewBase;
 	import org.bigbluebutton.air.voice.views.EchoTestViewMediator;
+	import org.bigbluebutton.air.voice.views.JoinAudioView;
+	import org.bigbluebutton.air.voice.views.JoinAudioViewMediator;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -30,6 +32,7 @@ package org.bigbluebutton.air.voice {
 		 */
 		private function mediators():void {
 			//mediatorMap.map(IMicButton).toMediator(MicButtonMediator);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(JoinAudioView)).toMediator(JoinAudioViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(EchoTestViewBase)).toMediator(EchoTestViewMediator);
 		}
 		

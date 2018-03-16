@@ -21,13 +21,13 @@ package org.bigbluebutton.air.main.views {
 		public var view:MenuButtons;
 		
 		[Inject]
+		public var shareMicrophoneSignal:ShareMicrophoneSignal;
+		
+		[Inject]
 		public var microphoneMuteSignal:MicrophoneMuteSignal;
 		
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;
-		
-		[Inject]
-		public var shareMicrophoneSignal:ShareMicrophoneSignal;
 		
 		[Inject]
 		public var meetingData:IMeetingData;
@@ -73,7 +73,7 @@ package org.bigbluebutton.air.main.views {
 		
 		protected function audioOnOff(e:MouseEvent):void {
 			if (meetingData.voiceUsers.me == null) {
-				uiSession.pushPage(PageEnum.ECHOTEST);
+				uiSession.pushPage(PageEnum.AUDIO);
 			} else {
 				shareMicrophoneSignal.dispatch(AudioTypeEnum.LEAVE, "");
 			}
