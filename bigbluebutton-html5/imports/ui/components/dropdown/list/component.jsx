@@ -22,6 +22,12 @@ const propTypes = {
     }
     return true;
   }).isRequired,
+
+  horizontal: PropTypes.bool,
+};
+
+const defaultProps = {
+  horizontal: false,
 };
 
 export default class DropdownList extends Component {
@@ -59,8 +65,17 @@ export default class DropdownList extends Component {
   handleItemKeyDown(event, callback) {
     const { getDropdownMenuParent } = this.props;
     let nextFocusedIndex = this.state.focusedIndex;
+    const isHorizontal = this.props.horizontal;
+    const navigationKeys = {
+      previous: KEY_CODES[`ARROW_${isHorizontal ? 'LEFT' : 'UP'}`],
+      next: KEY_CODES[`ARROW_${isHorizontal ? 'RIGHT' : 'DOWN'}`],
+      click: isHorizontal ? [KEY_CODES.ENTER] : [KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT],
+      close: [KEY_CODES.ESCAPE,
+        KEY_CODES.TAB,
+        KEY_CODES[`ARROW_${isHorizontal ? 'DOWN' : 'LEFT'}`]],
+    };
 
-    if (KEY_CODES.ARROW_UP === event.which) {
+    if (navigationKeys.previous === event.which) {
       event.stopPropagation();
 
       nextFocusedIndex -= 1;
@@ -72,7 +87,7 @@ export default class DropdownList extends Component {
       }
     }
 
-    if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
+    if ([navigationKeys.next].includes(event.keyCode)) {
       event.stopPropagation();
 
       nextFocusedIndex += 1;
@@ -82,12 +97,12 @@ export default class DropdownList extends Component {
       }
     }
 
-    if ([KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
+    if (navigationKeys.click.includes(event.keyCode)) {
       event.stopPropagation();
       document.activeElement.firstChild.click();
     }
 
-    if ([KEY_CODES.ESCAPE, KEY_CODES.TAB, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+    if (navigationKeys.close.includes(event.keyCode)) {
       const { dropdownHide } = this.props;
 
       event.stopPropagation();
@@ -151,10 +166,11 @@ export default class DropdownList extends Component {
         });
       });
 
+    const listDirection = this.props.horizontal ? styles.horizontalList : styles.verticalList;
     return (
       <ul
         style={style}
-        className={cx(styles.list, className)}
+        className={cx(listDirection, className)}
         role="menu"
         ref={(menu) => {
           this._menu = menu;
@@ -168,3 +184,4 @@ export default class DropdownList extends Component {
 }
 
 DropdownList.propTypes = propTypes;
+DropdownList.defaultProps = defaultProps;
