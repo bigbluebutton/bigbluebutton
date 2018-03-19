@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -54,44 +54,37 @@ const intlMessages = defineMessages({
   },
 });
 
-class LeaveConfirmation extends PureComponent {
-  render() {
-    const {
-      intl,
-      router,
-      handleEndMeeting,
-      showEndMeeting,
-    } = this.props;
-
-    return (
-      <Modal
-        title={intl.formatMessage(intlMessages.title)}
-        confirm={{
-          callback: () => router.push('/logout'),
-          label: intl.formatMessage(intlMessages.confirmLabel),
-          description: intl.formatMessage(intlMessages.confirmDesc),
-        }}
-        dismiss={{
-          callback: () => null,
-          label: intl.formatMessage(intlMessages.dismissLabel),
-          description: intl.formatMessage(intlMessages.dismissDesc),
-        }}
-      >
-        <span aria-hidden="true">{intl.formatMessage(intlMessages.message)}</span>
-        {showEndMeeting ?
-          <Button
-            className={styles.endMeeting}
-            label={intl.formatMessage(intlMessages.endMeetingLabel)}
-            aria-label={intl.formatMessage(intlMessages.endMeetingAriaLabel)}
-            aria-describedby="modalEndMeetingDesc"
-            onClick={handleEndMeeting}
-          /> : null
-        }
-        <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>
-      </Modal>
-    );
-  }
-}
+const LeaveConfirmation = ({
+  intl,
+  router,
+  handleEndMeeting,
+  showEndMeeting,
+}) => (
+  <Modal
+    title={intl.formatMessage(intlMessages.title)}
+    confirm={{
+      callback: () => router.push('/logout'),
+      label: intl.formatMessage(intlMessages.confirmLabel),
+      description: intl.formatMessage(intlMessages.confirmDesc),
+    }}
+    dismiss={{
+      callback: () => null,
+      label: intl.formatMessage(intlMessages.dismissLabel),
+      description: intl.formatMessage(intlMessages.dismissDesc),
+    }}
+  >
+    {intl.formatMessage(intlMessages.message)}
+    {showEndMeeting ?
+      <Button
+        className={styles.endMeeting}
+        label={intl.formatMessage(intlMessages.endMeetingLabel)}
+        onClick={handleEndMeeting}
+        aria-describedby={'modalEndMeetingDesc'}
+      /> : null
+    }
+    <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>
+  </Modal>
+);
 
 LeaveConfirmation.propTypes = propTypes;
 
