@@ -27,9 +27,9 @@ export default class Acl {
       userId,
       authToken,
       validated: true,
-      // TODO: We cant check for approved until we move subscription logif out of <Base />
-      // approved: true,
       connectionStatus: 'online',
+      // TODO: We cant check for approved until we move subscription login out of <Base />
+      // approved: true,
     });
 
     return !!User; // if he found a user means the meeting/user/token is valid
