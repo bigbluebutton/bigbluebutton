@@ -2,8 +2,11 @@ package org.bigbluebutton.air.chat.models {
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.osflash.signals.Signal;
+	
 	public interface IChatMessagesSession {
 		function get chats():ArrayCollection;
+		function get groupChatChangeSignal():Signal;
 		function getGroupByChatId(chatId:String):GroupChat;
 		function getGroupByUserId(userId:String):GroupChat;
 		function addGroupChatsList(chats:Array):void;

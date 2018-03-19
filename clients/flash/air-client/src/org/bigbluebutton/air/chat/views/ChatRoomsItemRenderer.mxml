@@ -3,13 +3,37 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:common="org.bigbluebutton.air.common.views.*"
+				xmlns:views="org.bigbluebutton.air.chat.views.*"
 				width="100%"
 				styleName="chatRoomItem"
-				xmlns:views="org.bigbluebutton.air.chat.views.*">
+				click="onClick()"
+				keyUp="onKeyUp()">
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="selected" />
+	</s:states>
 
 	<fx:Script>
 		<![CDATA[
+			import org.bigbluebutton.air.chat.events.ChatRoomItemSelectedEvent;
+			import org.bigbluebutton.air.chat.models.GroupChat;
 			import org.bigbluebutton.air.user.utils.UserUtils;
+			
+			private function onClick():void {
+				sendSelectedEvent();
+			}
+			
+			private function onKeyUp():void {
+				sendSelectedEvent();
+			}
+			
+			private function sendSelectedEvent():void {
+				if (currentState == "selected") {
+					dispatchEvent(new ChatRoomItemSelectedEvent(data as GroupChat));
+				}
+			}
 			
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				publicChatIcon.text = publicChatIcon.getStyle("icon");

@@ -2,6 +2,8 @@ package org.bigbluebutton.air.user.views.models {
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	
+	import org.bigbluebutton.air.participants.models.CollectionActionResult;
+	import org.bigbluebutton.air.participants.models.CollectionUpdateAction;
 	import org.bigbluebutton.air.user.models.EmojiStatus;
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserRole;
@@ -28,7 +30,7 @@ package org.bigbluebutton.air.user.views.models {
 			}
 		}
 		
-		public function addUser(user:User2x, initLoad:Boolean = false):void {
+		public function addUser(user:User2x, initLoad:Boolean = false):CollectionActionResult {
 			var userVM:UserVM = new UserVM();
 			userVM.intId = user.intId;
 			userVM.extId = user.extId;
@@ -49,14 +51,18 @@ package org.bigbluebutton.air.user.views.models {
 			
 			if (!initLoad)
 				refresh();
+			
+			return new CollectionActionResult(CollectionUpdateAction.ADD, userVM, getItemIndex(userVM));
 		}
 		
-		public function removeUser(user:User2x):void {
+		public function removeUser(user:User2x):CollectionActionResult {
 			var userVM:UserVM = findUser(user.intId);
 			if (userVM) {
 				delete _quickLookup[userVM.intId];
 				removeItem(userVM);
+				return new CollectionActionResult(CollectionUpdateAction.DELETE, userVM);
 			}
+			return null;
 		}
 		
 		public function updateRole(user:User2x):void {
@@ -97,15 +103,16 @@ package org.bigbluebutton.air.user.views.models {
 			}
 		}
 		
-		public function addVoiceUser(voiceUser:VoiceUser, initLoad:Boolean = false):void {
+		public function addVoiceUser(voiceUser:VoiceUser, initLoad:Boolean = false):CollectionActionResult {
 			var userVM:UserVM = findUser(voiceUser.intId);
+			var userInitiallyExists:Boolean = userVM != null;
 			if (userVM) {
 				userVM.voiceOnly = false;
 			} else {
 				userVM = new UserVM();
 				userVM.intId = voiceUser.intId;
 				userVM.name = voiceUser.callerName;
-				userVM.voiceOnly = false;
+				userVM.voiceOnly = true;
 				
 				addItem(userVM);
 				_quickLookup[voiceUser.intId] = userVM;
@@ -119,6 +126,7 @@ package org.bigbluebutton.air.user.views.models {
 			if (!initLoad) {
 				refresh();
 			}
+			return new CollectionActionResult(userInitiallyExists ? CollectionUpdateAction.UPDATE : CollectionUpdateAction.ADD, userVM, getItemIndex(userVM));
 		}
 		
 		public function removeVoiceUser(voiceUser:VoiceUser):void {

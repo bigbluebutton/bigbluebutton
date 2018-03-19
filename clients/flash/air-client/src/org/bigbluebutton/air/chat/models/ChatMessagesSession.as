@@ -9,6 +9,7 @@ package org.bigbluebutton.air.chat.models {
 	import org.bigbluebutton.air.chat.commands.RequestGroupChatHistorySignal;
 	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageSignal;
 	import org.bigbluebutton.air.main.models.IMeetingData;
+	import org.osflash.signals.Signal;
 	
 	public class ChatMessagesSession implements IChatMessagesSession {
 		
@@ -23,11 +24,17 @@ package org.bigbluebutton.air.chat.models {
 		[Inject]
 		public var requestWelcomeMessageSignal:RequestWelcomeMessageSignal;
 		
+		private var _groupChatChangeSignal:Signal = new Signal();
+		
 		[Bindable]
 		public var chats:ArrayCollection;
 		
 		public function ChatMessagesSession():void {
 			chats = new ArrayCollection();
+		}
+		
+		public function get groupChatChangeSignal():Signal {
+			return _groupChatChangeSignal;
 		}
 		
 		private function sortChats():void {
@@ -97,6 +104,7 @@ package org.bigbluebutton.air.chat.models {
 		public function addGroupChat(vo:GroupChatVO):void {
 			chats.addItem(convertGroupChatVO(vo));
 			sortChats();
+			_groupChatChangeSignal.dispatch(vo, GroupChatChangeEnum.ADD);
 		}
 		
 		private function convertGroupChatVO(vo:GroupChatVO):GroupChat {

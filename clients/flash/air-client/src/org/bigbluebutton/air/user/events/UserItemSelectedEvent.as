@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.user.events {
 	import flash.events.Event;
-	import flash.geom.Point;
 	
 	import org.bigbluebutton.air.user.views.models.UserVM;
 	
@@ -8,17 +7,11 @@ package org.bigbluebutton.air.user.events {
 		public static var SELECTED:String = "USER_ITEM_SELECTED_EVENT";
 		
 		public var user:UserVM;
-		public var globalPos:Point;
-		public var width:Number;
-		public var height:Number;
 		
-		public function UserItemSelectedEvent(u:UserVM, gp:Point, w:Number, h:Number) {
+		public function UserItemSelectedEvent(u:UserVM) {
 			super(SELECTED, true, false);
 			
 			user = u;
-			globalPos = gp;
-			width = w;
-			height = h;
 		}
 	}
 }

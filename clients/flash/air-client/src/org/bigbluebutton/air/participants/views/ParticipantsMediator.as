@@ -1,11 +1,21 @@
-package org.bigbluebutton.air.user.views {
+package org.bigbluebutton.air.participants.views {
+	import mx.collections.ArrayCollection;
+	
+	import org.bigbluebutton.air.chat.events.ChatRoomItemSelectedEvent;
+	import org.bigbluebutton.air.chat.models.GroupChatChangeEnum;
+	import org.bigbluebutton.air.chat.models.GroupChatVO;
+	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.LockSettings2x;
+	import org.bigbluebutton.air.participants.models.CollectionActionResult;
+	import org.bigbluebutton.air.participants.models.CollectionUpdateAction;
+	import org.bigbluebutton.air.participants.models.ParticipantsCollection;
 	import org.bigbluebutton.air.user.events.UserItemSelectedEvent;
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserChangeEnum;
+	import org.bigbluebutton.air.user.views.models.UserVM;
 	import org.bigbluebutton.air.user.views.models.UsersVMCollection;
 	import org.bigbluebutton.air.video.models.WebcamChangeEnum;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
@@ -14,10 +24,10 @@ package org.bigbluebutton.air.user.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class UsersViewMediator extends Mediator {
+	public class ParticipantsMediator extends Mediator {
 		
 		[Inject]
-		public var view:UsersView;
+		public var view:ParticipantsViewBase;
 		
 		[Inject]
 		public var meetingData:IMeetingData;
@@ -25,19 +35,37 @@ package org.bigbluebutton.air.user.views {
 		[Inject]
 		public var uiSession:IUISession;
 		
+		[Inject]
+		public var chatMessagesSession:IChatMessagesSession;
+		
 		[Bindable]
 		private var _userCollection:UsersVMCollection;
 		
+		[Bindable]
+		private var _participantsCollection:ParticipantsCollection;
+		
+		protected var dataProvider:ArrayCollection;
+		
 		override public function initialize():void {
-			initializeUserCollection();
-			view.userList.dataProvider = _userCollection;
+			initializeParticipantsCollection();
 			
 			meetingData.users.userChangeSignal.add(onUserChange);
 			meetingData.meetingStatus.lockSettingsChangeSignal.add(onLockSettingsChange);
 			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChange);
 			meetingData.webcams.webcamChangeSignal.add(onWebcamChange);
 			
-			view.userList.addEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
+			chatMessagesSession.groupChatChangeSignal.add(onGroupChatChange)
+			
+			view.participantsList.addEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
+			view.participantsList.addEventListener(ChatRoomItemSelectedEvent.SELECTED, onChatItemSelected);
+		}
+		
+		private function initializeParticipantsCollection():void {
+			initializeUserCollection();
+			_participantsCollection = new ParticipantsCollection();
+			_participantsCollection.initUsers(_userCollection);
+			_participantsCollection.initGroupChats(chatMessagesSession.chats);
+			view.participantsList.dataProvider = _participantsCollection;
 		}
 		
 		private function initializeUserCollection():void {
@@ -46,17 +74,17 @@ package org.bigbluebutton.air.user.views {
 			_userCollection.addUsers(meetingData.users.getUsers());
 			_userCollection.addVoiceUsers(meetingData.voiceUsers.getAll());
 			_userCollection.addWebcams(meetingData.webcams.getAll());
-			
-			_userCollection.refresh();
 		}
 		
 		private function onUserChange(user:User2x, property:int):void {
 			switch (property) {
 				case UserChangeEnum.JOIN:
-					_userCollection.addUser(user);
+					var addResult:CollectionActionResult = _userCollection.addUser(user);
+					_participantsCollection.addUser(addResult.item as UserVM, addResult.newIndex);
 					break;
 				case UserChangeEnum.LEAVE:
-					_userCollection.removeUser(user);
+					var removeResult:CollectionActionResult = _userCollection.removeUser(user);
+					_participantsCollection.removeUser(removeResult.item as UserVM);
 					break;
 				case UserChangeEnum.ROLE:
 					_userCollection.updateRole(user);
@@ -73,17 +101,19 @@ package org.bigbluebutton.air.user.views {
 			}
 		}
 		
-		private function onLockSettingsChange(newLockSettings:LockSettings2x):void {
-			_userCollection.setRoomLockState(newLockSettings.isRoomLocked());
-		}
-		
 		private function onVoiceUserChange(voiceUser:VoiceUser, enum:int):void {
 			switch (enum) {
 				case VoiceUserChangeEnum.JOIN:
-					_userCollection.addVoiceUser(voiceUser);
+					var addResult:CollectionActionResult = _userCollection.addVoiceUser(voiceUser);
+					if (addResult.action == CollectionUpdateAction.ADD) {
+						_participantsCollection.addUser(addResult.item as UserVM, addResult.newIndex);
+					}
 					break;
 				case VoiceUserChangeEnum.LEAVE:
 					_userCollection.removeVoiceUser(voiceUser);
+					if (addResult.action == CollectionUpdateAction.DELETE) {
+						_participantsCollection.removeUser(addResult.item as UserVM);
+					}
 					break;
 				case VoiceUserChangeEnum.MUTE:
 					_userCollection.updateMute(voiceUser);
@@ -105,8 +135,26 @@ package org.bigbluebutton.air.user.views {
 			}
 		}
 		
+		private function onGroupChatChange(groupChat:GroupChatVO, enum:int):void {
+			switch (enum) {
+				case GroupChatChangeEnum.ADD:
+					_participantsCollection.addGroupChat(groupChat, chatMessagesSession.chats.getItemIndex(groupChat));
+					break;
+				default:
+					break;
+			}
+		}
+		
+		private function onLockSettingsChange(newLockSettings:LockSettings2x):void {
+			_userCollection.setRoomLockState(newLockSettings.isRoomLocked());
+		}
+		
 		protected function onUserItemSelected(e:UserItemSelectedEvent):void {
 			uiSession.pushPage(PageEnum.USER_DETAILS, e.user.intId);
+		}
+		
+		private function onChatItemSelected(e:ChatRoomItemSelectedEvent):void {
+			uiSession.pushPage(PageEnum.CHAT, {chatId: e.chatRoom.chatId});
 		}
 		
 		override public function destroy():void {
@@ -115,7 +163,8 @@ package org.bigbluebutton.air.user.views {
 			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChange);
 			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
 			
-			view.userList.removeEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
+			view.participantsList.removeEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
+			view.participantsList.removeEventListener(ChatRoomItemSelectedEvent.SELECTED, onChatItemSelected);
 			
 			super.destroy();
 			view = null;
