@@ -71,7 +71,7 @@
 					.configure(ParticipantsConfig)
 					.configure(UsersConfig)
 					.configure(ChatConfig)
-					.configure(new ContextView(this));
+					.configure(new ContextView(this.systemManager as DisplayObjectContainer));
 				// If you wish to change the log level then uncomment the line below and set 
 				// the logLevel to the value you desire. The default logLevel is DEBUG, which 
 				// is set in the MVCSBundle. The default log level traces out the framework 
