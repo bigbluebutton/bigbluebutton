@@ -40,6 +40,8 @@
     "app.userList.menu.promoteUser.label": "Promote {0} to moderator",
     "app.userList.menu.demoteUser.label": "Demote {0} to viewer",
     "app.media.label": "Media",
+    "app.media.screenshare.start": "Screenshare has started",
+    "app.media.screenshare.end": "Screenshare has ended",
     "app.meeting.ended": "This session has ended",
     "app.meeting.endedMessage": "You will be forwarded back to the home screen",
     "app.presentation.presentationToolbar.prevSlideLabel": "Previous slide",
