@@ -1,8 +1,10 @@
 package org.bigbluebutton.air.screenshare.views
 {
 	import flash.net.NetConnection;
+	
+	import spark.components.Group;
 
-	public class ScreenshareViewStream
+	public class ScreenshareView extends Group
 	{
 
 		public function viewStream(conn:NetConnection, streamId:String, width:int, height:int):void {

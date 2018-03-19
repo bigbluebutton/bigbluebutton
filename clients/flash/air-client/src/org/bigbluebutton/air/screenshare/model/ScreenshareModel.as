@@ -1,18 +1,24 @@
 package org.bigbluebutton.air.screenshare.model
 {
-	import org.bigbluebutton.air.screenshare.signals.ScreenshareStreamStartedSignal;
-	import org.bigbluebutton.air.screenshare.signals.ScreenshareStreamStoppedSignal;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 
 	public class ScreenshareModel implements IScreenshareModel
 	{
-		[Inject]
-		public var screenshareStreamStartedSignal:ScreenshareStreamStartedSignal;
+		private var _screenshareStreamStartedSignal:ISignal = new Signal();
 		
-		[Inject]
-		public var screenshareStreamStoppedSignal:ScreenshareStreamStoppedSignal;
+		private var _screenshareStreamStoppedSignal:ISignal = new Signal();
 		
 		private var _isScreenSharing:Boolean = false;
 		private var _stream:ScreenshareStream = new ScreenshareStream();
+		
+		public function get screenshareStreamStartedSignal():ISignal {
+			return _screenshareStreamStartedSignal;
+		}
+		
+		public function get screenshareStreamStoppedSignal():ISignal {
+			return _screenshareStreamStoppedSignal;
+		}
 		
 		public function get isSharing():Boolean {
 			return _isScreenSharing;
@@ -81,15 +87,16 @@ package org.bigbluebutton.air.screenshare.model
 			this.url = url;
 			this.session = session;
 			
-			screenshareStreamStartedSignal.dispatch();
+			screenshareStreamStartedSignal.dispatch(streamId, width, height);
 		}
 		
-		public function screenshareStreamStarted(streamId:String, width:int, height:int, url:String):void {
+		public function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void {
 			this.streamId = streamId;
 			this.width = width;
 			this.height = height;
 			this.url = url;
-			screenshareStreamStartedSignal.dispatch();
+			this.session = session;
+			screenshareStreamStartedSignal.dispatch(streamId, width, height);
 		}
 		
 		public function screenshareStreamStopped(session:String, reason:String):void {

@@ -33,8 +33,8 @@ package org.bigbluebutton.air.screenshare.services
 			trace("SCREENSHARE: handleScreenShareStartedMessage " + message.msg);      
 			var map:Object = JSON.parse(message.msg);
 			if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&
-				map.hasOwnProperty("height") && map.hasOwnProperty("url")) {
-				model.screenshareStreamStarted(map.streamId, map.width, map.height, map.url);
+				map.hasOwnProperty("height") && map.hasOwnProperty("url") && map.hasOwnProperty("session")) {
+				model.screenshareStreamStarted(map.streamId, map.width, map.height, map.url, map.session);
 			}
 		}
 		

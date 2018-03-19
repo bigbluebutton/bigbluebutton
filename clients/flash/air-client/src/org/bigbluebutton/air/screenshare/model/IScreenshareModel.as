@@ -1,7 +1,12 @@
 package org.bigbluebutton.air.screenshare.model
 {
+	import org.osflash.signals.ISignal;
+
 	public interface IScreenshareModel
 	{
+		function get screenshareStreamStartedSignal():ISignal;
+		function get screenshareStreamStoppedSignal():ISignal;
+		
 		function get isSharing():Boolean;
 		
 		function get width():int;
@@ -35,7 +40,7 @@ package org.bigbluebutton.air.screenshare.model
 		// Handles query from server that presenter is currently sharing screen.
 		function screenshareStreamRunning(streamId:String, width:int, height:int, url:String, session:String):void;
 		
-		function screenshareStreamStarted(streamId:String, width:int, height:int, url:String):void;
+		function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void;
 		
 		function screenshareStreamStopped(session:String, reason:String):void;
 	}

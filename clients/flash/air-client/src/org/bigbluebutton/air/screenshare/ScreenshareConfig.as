@@ -1,15 +1,11 @@
 package org.bigbluebutton.air.screenshare
 {
-	import org.bigbluebutton.air.screenshare.commands.ScreenshareStreamStartedCommand;
-	import org.bigbluebutton.air.screenshare.commands.ScreenshareStreamStoppedCommand;
 	import org.bigbluebutton.air.screenshare.model.IScreenshareModel;
 	import org.bigbluebutton.air.screenshare.model.ScreenshareModel;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareService;
 	import org.bigbluebutton.air.screenshare.services.ScreenshareService;
-	import org.bigbluebutton.air.screenshare.signals.ScreenshareStreamStartedSignal;
-	import org.bigbluebutton.air.screenshare.signals.ScreenshareStreamStoppedSignal;
-	import org.bigbluebutton.air.screenshare.views.ScreenshareViewStream;
-	import org.bigbluebutton.air.screenshare.views.ScreenshareViewStreamMediator;
+	import org.bigbluebutton.air.screenshare.views.ScreenshareView;
+	import org.bigbluebutton.air.screenshare.views.ScreenshareViewMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -28,11 +24,8 @@ package org.bigbluebutton.air.screenshare
 		public var signalCommandMap:ISignalCommandMap;
 		
 		public function configure():void {
-			injector.map(IScreenshareService).toSingleton(ScreenshareService);
-			
+			injector.map(IScreenshareService).toSingleton(ScreenshareService);			
 			injector.map(IScreenshareModel).toSingleton(ScreenshareModel);
-			injector.map(ScreenshareViewStreamMediator);
-			injector.map(ScreenshareViewStream);
 			
 			mediators();
 			signals();
@@ -42,14 +35,10 @@ package org.bigbluebutton.air.screenshare
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(ScreenshareViewStream).toMediator(ScreenshareViewStreamMediator);
-			//mediatorMap.map(IVideoChatView).toMediator(VideoChatViewMediator);
-			//mediatorMap.map(ISwapCameraButton).toMediator(SwapCameraMediator);
+			mediatorMap.map(ScreenshareView).toMediator(ScreenshareViewMediator);
 		}
 		
 		private function signals():void {
-			signalCommandMap.map(ScreenshareStreamStartedSignal).toCommand(ScreenshareStreamStartedCommand);
-			signalCommandMap.map(ScreenshareStreamStoppedSignal).toCommand(ScreenshareStreamStoppedCommand);
 		}
 	}
 }
