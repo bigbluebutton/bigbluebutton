@@ -20,6 +20,8 @@ const defaultProps = {
 
 export default class ModalBase extends Component {
   render() {
+    if (!this.props.isOpen) return null;
+
     return (
       <ReactModal {...this.props}>
         {this.props.children}
