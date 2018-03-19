@@ -11,7 +11,7 @@ package org.bigbluebutton.air.screenshare.services
 		}
 		
 		public function checkIfPresenterIsSharingScreen(meetingId: String):void {
-			trace("check if presenter is sharing screen");
+			trace("SCREENSHARE: check if presenter is sharing screen");
 			conn.isScreenSharing(meetingId);
 		}
 		

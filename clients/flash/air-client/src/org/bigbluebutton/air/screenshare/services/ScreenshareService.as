@@ -2,8 +2,9 @@ package org.bigbluebutton.air.screenshare.services
 {
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 
-	public class ScreenshareService
+	public class ScreenshareService implements IScreenshareService
 	{
+		
 		[Inject]
 		public var conn:IScreenshareConnection;
 		
@@ -15,18 +16,27 @@ package org.bigbluebutton.air.screenshare.services
 		
 		public function ScreenshareService()
 		{
+		}
+		
+		public function setupMessageSenderReceiver():void {
 			_sender = new ScreenshareMessageSender(conn);
 			_receiver = new ScreenshareMessageReceiver();
+			conn.addMessageListener(_receiver);
 			conn.connectionSuccessSignal.add(onConnectionSuccess);
+			trace("SCREENSHARE: setupMessageSenderReceiver");
 		}
 		
 		private function onConnectionSuccess():void {
-			conn.addMessageListener(_receiver);
+			checkIfPresenterIsSharingScreen();
+		}
+				
+		public function checkIfPresenterIsSharingScreen():void {
+			trace("SCREENSHARE: check if presenter is sharing screen");
+			_sender.checkIfPresenterIsSharingScreen(confParams.meetingID);
 		}
 		
-		public function checkIfPresenterIsSharingScreen():void {
-			trace("check if presenter is sharing screen");
-			_sender.checkIfPresenterIsSharingScreen(confParams.meetingID);
+		public function sendClientPongMessage(session: String, timestamp: Number):void {
+			
 		}
 	}
 }

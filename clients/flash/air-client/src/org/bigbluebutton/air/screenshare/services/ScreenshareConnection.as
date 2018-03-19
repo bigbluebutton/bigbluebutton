@@ -15,7 +15,7 @@ package org.bigbluebutton.air.screenshare.services
 		
 		[Inject]
 		public var baseConnection:IBaseConnection;
-		
+				
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
 			
@@ -33,16 +33,17 @@ package org.bigbluebutton.air.screenshare.services
 		}
 		
 		private function onConnectionFailure(reason:String):void {
+			trace("SCREENSHARE CONNECTION FAILED");
 			connectionFailureSignal.dispatch(reason);
 		}
 		
 		private function onConnectionSuccess():void {
 			trace("SCREENSHARE CONNECTION SUCCESS");
+			sendUserIdToServer();
 			connectionSuccessSignal.dispatch();
 		}
 		
 		public function get connectionFailureSignal():ISignal {
-			trace("SCREENSHARE CONNECTION FAILED");
 			return _connectionFailureSignal;
 		}
 		
@@ -88,7 +89,7 @@ package org.bigbluebutton.air.screenshare.services
 		public function isScreenSharing(meetingId:String):void {
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
-			
+			trace("SCREENSHARE: screenshare.isScreenSharing for" + meetingId);
 			sendMessage("screenshare.isScreenSharing", defaultSuccessResponse, defaultFailureResponse, message);
 			
 		}

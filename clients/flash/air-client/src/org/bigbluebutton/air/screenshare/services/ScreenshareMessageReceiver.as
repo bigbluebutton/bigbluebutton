@@ -9,7 +9,7 @@ package org.bigbluebutton.air.screenshare.services
 		public var model: IScreenshareModel;
 		
 		public function onMessage(messageName:String, message:Object):void {
-			//LOGGER.debug(" Received message " + messageName);
+			trace("SCREENSHARE: Received message " + messageName);
 			
 			switch (messageName) {
 				case "isSharingScreenRequestResponse":
@@ -22,12 +22,12 @@ package org.bigbluebutton.air.screenshare.services
 					handleScreenShareStoppedMessage(message);
 					break;  
 				default:
-					trace("Cannot handle message [" + messageName + "]");
+					trace("SCREENSHARE: Cannot handle message [" + messageName + "]");
 			}
 		}
 		
 		private function handleScreenShareStartedMessage(message:Object):void {
-			trace("handleScreenShareStartedMessage " + message.msg);      
+			trace("SCREENSHARE: handleScreenShareStartedMessage " + message.msg);      
 			var map:Object = JSON.parse(message.msg);
 			if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&
 				map.hasOwnProperty("height") && map.hasOwnProperty("url")) {
@@ -36,7 +36,7 @@ package org.bigbluebutton.air.screenshare.services
 		}
 		
 		private function handleScreenShareStoppedMessage(message:Object):void {
-			trace("handleScreenShareStoppedMessage " + message.msg);      
+			trace("SCREENSHARE: handleScreenShareStoppedMessage " + message.msg);      
 			var map:Object = JSON.parse(message.msg);      
 			if (map.hasOwnProperty("session") && map.hasOwnProperty("reason")) {
 				model.screenshareStreamStopped(map.session, map.reason);
@@ -44,7 +44,7 @@ package org.bigbluebutton.air.screenshare.services
 		}
 		
 		private function handleIsSharingScreenRequestResponse(message:Object):void {
-			trace("handleIsSharingScreenRequestResponse " + message.msg);
+			trace("SCREENSHARE: handleIsSharingScreenRequestResponse " + message.msg);
 			var map:Object = JSON.parse(message.msg);
 			if (map.hasOwnProperty("sharing") && map.sharing) {
 				if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&

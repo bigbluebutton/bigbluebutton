@@ -11,6 +11,7 @@ package org.bigbluebutton.air.main.commands {
 	import org.bigbluebutton.air.main.utils.DisconnectEnum;
 	import org.bigbluebutton.air.presentation.services.IPresentationService;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
+	import org.bigbluebutton.air.screenshare.services.IScreenshareService;
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserChangeEnum;
 	import org.bigbluebutton.air.user.services.IUsersService;
@@ -64,6 +65,9 @@ package org.bigbluebutton.air.main.commands {
 		public var chatService:IChatMessageService;
 		
 		[Inject]
+		public var screenshareService:IScreenshareService;
+		
+		[Inject]
 		public var presentationService:IPresentationService;
 		
 		[Inject]
@@ -107,6 +111,7 @@ package org.bigbluebutton.air.main.commands {
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
 			voiceService.setupMessageSenderReceiver();
+			screenshareService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
 			userSession.authTokenSignal.add(onAuthTokenReply);
 			usersService.validateToken();

@@ -24,8 +24,8 @@ package org.bigbluebutton.air.common.services {
 		}
 		
 		public function onMessageFromServer(messageName:String, result:Object):void {
-			trace(LOG + "RECEIVED OLD MESSAGE TYPE: [" + messageName + "]");
-			//notifyListeners(messageName, result);
+			trace(LOG + "RECEIVED MESSAGE : [" + messageName + "]");
+			notifyListeners(messageName, result);
 		}
 		
 		public function onMessageFromServer2x(messageName:String, msg:String):void {
