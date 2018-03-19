@@ -31,6 +31,8 @@ package org.bigbluebutton.air.screenshare
 			injector.map(IScreenshareService).toSingleton(ScreenshareService);
 			
 			injector.map(IScreenshareModel).toSingleton(ScreenshareModel);
+			injector.map(ScreenshareViewStreamMediator);
+			injector.map(ScreenshareViewStream);
 			
 			mediators();
 			signals();

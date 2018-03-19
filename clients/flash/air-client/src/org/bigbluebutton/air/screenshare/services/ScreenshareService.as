@@ -1,6 +1,7 @@
 package org.bigbluebutton.air.screenshare.services
 {
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.screenshare.model.IScreenshareModel;
 
 	public class ScreenshareService implements IScreenshareService
 	{
@@ -11,6 +12,9 @@ package org.bigbluebutton.air.screenshare.services
 		[Inject]
 		public var confParams:IConferenceParameters;
 		
+		[Inject]
+		public var model: IScreenshareModel;
+		
 		private var _sender:ScreenshareMessageSender;
 		private var _receiver:ScreenshareMessageReceiver;
 		
@@ -20,7 +24,7 @@ package org.bigbluebutton.air.screenshare.services
 		
 		public function setupMessageSenderReceiver():void {
 			_sender = new ScreenshareMessageSender(conn);
-			_receiver = new ScreenshareMessageReceiver();
+			_receiver = new ScreenshareMessageReceiver(model);
 			conn.addMessageListener(_receiver);
 			conn.connectionSuccessSignal.add(onConnectionSuccess);
 			trace("SCREENSHARE: setupMessageSenderReceiver");

@@ -5,8 +5,11 @@ package org.bigbluebutton.air.screenshare.services
 
 	public class ScreenshareMessageReceiver implements IMessageListener
 	{
-		[Inject]
-		public var model: IScreenshareModel;
+		private var model: IScreenshareModel;
+		
+		public function ScreenshareMessageReceiver(model: IScreenshareModel) {
+			this.model = model;
+		}
 		
 		public function onMessage(messageName:String, message:Object):void {
 			trace("SCREENSHARE: Received message " + messageName);
