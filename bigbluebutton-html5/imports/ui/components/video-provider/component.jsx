@@ -30,7 +30,7 @@ const intlMessages = defineMessages({
   chromeExtensionErrorLink: {
     id: 'app.video.chromeExtensionErrorLink',
     description: 'Error message for Chrome Extension not installed',
-  }
+  },
 });
 
 const RECONNECT_WAIT_TIME = 5000;
@@ -42,7 +42,7 @@ class VideoProvider extends Component {
 
     this.state = {
       sharedWebcam: false,
-      socketOpen: false
+      socketOpen: false,
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
@@ -94,7 +94,7 @@ class VideoProvider extends Component {
     }
 
     Object.keys(this.webRtcPeers).forEach((id) => {
-     this.destroyWebRTCPeer(id);
+      this.destroyWebRTCPeer(id);
     });
 
     // Close websocket connection to prevent multiple reconnects from happening
@@ -116,18 +116,21 @@ class VideoProvider extends Component {
       this.sendMessage(this.wsQueue.pop());
     }
 
-    this.setState({socketOpen: true});
+    this.setState({ socketOpen: true });
   }
 
   onWsClose(error) {
     log('debug', '------ Websocket connection closed.');
 
-    //this.setupReconnectVideos();
-    this.setState({socketOpen: false});
+    this.unshareWebcam();
+    VideoService.exitedVideo();
+
+    this.setState({ socketOpen: false });
   }
 
   disconnected(id) {
     this.reconnectList.push(id);
+
     log('debug', ` [camera] ${id} disconnected, will try re-subscribe later.`);
   }
 
@@ -251,9 +254,9 @@ class VideoProvider extends Component {
 
   initWebRTC(id, shareWebcam, videoOptions, tag) {
     const that = this;
-    const { intl } = this.props;
+    const { intl, meetingId } = this.props;
 
-    let options = {
+    const options = {
       mediaConstraints: {
         audio: false,
         video: videoOptions,
@@ -292,7 +295,11 @@ class VideoProvider extends Component {
          * errors that could be returned. */
 
         that.destroyWebRTCPeer(id);
-        VideoService.exitedVideo();
+
+        if (shareWebcam) {
+          this.unshareWebcam();
+          VideoService.exitedVideo();
+        }
         return log('error', error);
       }
 
@@ -319,6 +326,7 @@ class VideoProvider extends Component {
           id: 'start',
           sdpOffer: offerSdp,
           cameraId: id,
+          meetingId,
         };
         that.sendMessage(message);
       });
@@ -335,8 +343,8 @@ class VideoProvider extends Component {
     });
   }
 
-  getOnIceCandidateCallback (id, shareWebcam) {
-    let that = this;
+  getOnIceCandidateCallback(id, shareWebcam) {
+    const that = this;
 
     return function (candidate) {
       const message = {
@@ -347,19 +355,20 @@ class VideoProvider extends Component {
         cameraId: id,
       };
       that.sendMessage(message);
-    }
-  };
+    };
+  }
 
   stop(id) {
     const userId = this.props.userId;
-    this.sendMessage({
-      type: 'video',
-      role: id == userId ? 'share' : 'viewer',
-      id: 'stop',
-      cameraId: id,
-    });
 
     if (id === userId) {
+      this.sendMessage({
+        type: 'video',
+        role: id == userId ? 'share' : 'viewer',
+        id: 'stop',
+        cameraId: id,
+      });
+
       VideoService.exitedVideo();
     }
 
@@ -367,13 +376,14 @@ class VideoProvider extends Component {
   }
 
   handlePlayStop(message) {
+    const id = message.cameraId;
     log('info', 'Handle play stop <--------------------');
     log('error', message);
 
-    if (message.cameraId == this.props.userId) {
+    if (id === this.props.userId) {
       this.unshareWebcam();
     } else {
-      this.stop(message.cameraId);
+      this.stop(id);
     }
   }
 
@@ -410,7 +420,7 @@ class VideoProvider extends Component {
 
   shareWebcam() {
     log('info', 'Sharing webcam');
-    this.setState({sharedWebcam: true});
+    this.setState({ sharedWebcam: true });
 
     VideoService.joiningVideo();
   }
@@ -418,7 +428,7 @@ class VideoProvider extends Component {
   unshareWebcam() {
     log('info', 'Unsharing webcam');
 
-    this.setState({...this.state, ['sharedWebcam']: false});
+    this.setState({ ...this.state, sharedWebcam: false });
 
     VideoService.sendUserUnshareWebcam(this.props.userId);
   }
@@ -430,10 +440,10 @@ class VideoProvider extends Component {
         onStop={this.stop.bind(this)}
         sharedWebcam={this.state.sharedWebcam}
         onShareWebcam={this.shareWebcam.bind(this)}
-        socketOpen={this.state.socketOpen} />
+        socketOpen={this.state.socketOpen}
+      />
     );
   }
-
 }
 
 export default injectIntl(VideoProvider);

@@ -38,8 +38,18 @@ class VideoElement extends Component {
       tag = document.getElementById(`video-elem-${videoId}`);
     }
 
+    if (localCamera && this.props.onShareWebcam === 'function') {
+      this.props.onShareWebcam();
+    }
+
     if (typeof this.props.onMount === 'function') {
       this.props.onMount(videoId, localCamera, this.getVideoConstraints(), tag);
+    }
+  }
+
+  componentWillUnmount() {
+    if (typeof this.props.onUnmount === 'function') {
+      this.props.onUnmount(this.props.videoId);
     }
   }
 

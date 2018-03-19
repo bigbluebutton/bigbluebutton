@@ -33,7 +33,7 @@ class VideoService {
   }
 
   joinVideo() {
-    var joinVideoEvent = new Event('joinVideo');
+    const joinVideoEvent = new Event('joinVideo');
     document.dispatchEvent(joinVideoEvent);
   }
 
@@ -47,16 +47,11 @@ class VideoService {
   }
 
   exitVideo() {
-    var exitVideoEvent = new Event('exitVideo');
+    const exitVideoEvent = new Event('exitVideo');
     document.dispatchEvent(exitVideoEvent);
   }
 
   exitedVideo() {
-    this.isWaitingResponse = false;
-    this.isConnected = false;
-  }
-
-  resetState() {
     this.isWaitingResponse = false;
     this.isConnected = false;
   }
@@ -76,6 +71,10 @@ class VideoService {
 
   userId() {
     return Auth.userID;
+  }
+
+  meetingId() {
+    return Auth.meetingID;
   }
 
   isConnected() {
@@ -99,8 +98,8 @@ export default {
   joinVideo: () => videoService.joinVideo(),
   joiningVideo: () => videoService.joiningVideo(),
   joinedVideo: () => videoService.joinedVideo(),
-  resetState: () => videoService.resetState(),
-  sendUserShareWebcam: (stream) => videoService.sendUserShareWebcam(stream),
-  sendUserUnshareWebcam: (stream) => videoService.sendUserUnshareWebcam(stream),
+  sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
+  sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
   userId: () => videoService.userId(),
+  meetingId: () => videoService.meetingId(),
 };

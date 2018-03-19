@@ -27,25 +27,11 @@ class VideoDock extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      videos: {},
-      sharingWebcamBefore: false,
-      userNames: {},
-    };
+    this.state = {};
   }
 
   componentDidMount() {
     const { users, userId } = this.props;
-
-    users.forEach((user) => {
-      if (user.has_stream && user.userId !== userId) {
-        // FIX: Really ugly hack, but sometimes the ICE candidates aren't
-        // generated properly when we send videos right after componentDidMount
-        setTimeout(() => {
-          this.start(user.userId);
-        }, INITIAL_SHARE_WAIT_TIME);
-      }
-    });
 
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
 
@@ -88,165 +74,40 @@ class VideoDock extends Component {
     }, 0);
   }
 
-  createVideoTag(id) {
-    let newState = {...this.state};
-    newState.videos[id] = true;
-    this.setState(newState);
-  }
-
-  destroyVideoTag(id) {
-    const { videos } = this.state;
-
-    if (id !== this.props.userId) {
-      this.setState({
-        videos: _.omit(videos, id)
-      });
-    }
-    console.log(_.omit(videos, id));
-  }
-
-  start(id) {
-    const { users } = this.props;
-
-    log('info', `Starting video call for video: ${id}`);
-
-    this.createVideoTag(id);
-  }
-
-  stop(id) {
-    this.destroyVideoTag(id);
-    this.props.onStop(id);
-  }
-
-  stopMany(ids) {
-    const { videos } = this.state;
-
-    ids.forEach((id) => {
-      if (id === this.props.userId) {
-        this.setState({ sharingWebcamBefore: true });
-        delete ids[id];
-      }
-    });
-
-    this.setState({
-      videos: _.omit(videos, ids)
-    });
-
-    ids.forEach((id) => {
-      this.props.onStop(id);
-    });
-  }
-
   getNameFromId(id) {
     const { users } = this.props;
-    let name = users.find(u => u.userId === id).name;
+    const user = users.find(u => u.userId === id);
 
-    return name;
+    return user ? user.name : null;
   }
 
   render() {
+    if (!this.props.socketOpen) {
+      // TODO: return something when disconnected
+      return ('');
+    }
+
+    const id = this.props.userId;
+    const sharedWebcam = this.props.sharedWebcam;
+
     return (
       <div className={styles.videoDock} id={this.props.sharedWebcam.toString()}>
         <div id="webcamArea" className={styles.webcamArea}>
-          {Object.keys(this.state.videos).map(id => (
+          {this.props.users.filter(u => u.has_stream || (sharedWebcam && u.userId == id)).map(user => (
             <VideoElement
-              videoId={id}
-              key={id}
-              name={this.getNameFromId(id)}
-              localCamera={false}
-              onMount={this.props.onStart.bind(this)} />
+              shared={id === user.userId && sharedWebcam}
+              videoId={user.userId}
+              key={user.userId}
+              name={user.name}
+              localCamera={id === user.userId}
+              onShareWebcam={this.props.onShareWebcam.bind(this)}
+              onMount={this.props.onStart.bind(this)}
+              onUnmount={this.props.onStop.bind(this)}
+            />
           ))}
-          {this.props.sharedWebcam &&
-            <VideoElement
-              shared={this.props.sharedWebcam}
-              name={this.getNameFromId(this.props.userId)}
-              videoId={this.props.userId}
-              localCamera
-              onMount={this.props.onStart.bind(this)} />
-          }
         </div>
       </div>
     );
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const { userId, sharedWebcam, socketOpen } = this.props;
-    const currentUsers = this.props.users || {};
-    const nextUsers = nextProps.users;
-
-    const users = {};
-    const present = {};
-
-    sharedWebcam = sharedWebcam || false;
-
-    // If disconnected, stop all webcams
-    if (socketOpen && !nextProps.socketOpen) {
-      this.stopMany(nextUsers.filter(u => u.has_stream).map(u => u.userId));
-    }
-
-    // When reconnecting, restart all webcams.
-    if (!socketOpen && nextProps.socketOpen) {
-      nextUsers.forEach((user) => {
-        if (user.has_stream && user.userId != userId) {
-          this.start(user.userId);
-        }
-      });
-      if (this.state.sharingWebcamBefore){
-        this.props.onShareWebcam(this);
-        this.setState({ sharingWebcamBefore: false });
-      }
-    }
-    // If the user un-shared a webcam we'll stop it
-    if (sharedWebcam !== nextProps.sharedWebcam && !nextProps.sharedWebcam) {
-      this.stop(userId);
-    }
-
-    if (!currentUsers) { return false; }
-
-    // Map user objects to an object in the form {userId: has_stream}
-    currentUsers.forEach((user) => {
-      users[user.userId] = user.has_stream;
-    });
-
-    // Keep instances where the flag has changed or next user adds it
-    nextUsers.forEach((user) => {
-      const id = user.userId;
-      // The case when a user exists and stream status has not changed
-      if (users[id] === user.has_stream) {
-        delete users[id];
-      } else {
-        // Case when a user has been added to the list
-        users[id] = user.has_stream;
-      }
-
-      // Mark the ids which are present in nextUsers
-      present[id] = true;
-    });
-
-    const userIds = Object.keys(users);
-
-    for (let i = 0; i < userIds.length; i++) {
-      const id = userIds[i];
-
-      // If a userId is not present in nextUsers let's stop it
-      if (!present[id]) {
-        this.stop(id);
-        continue;
-      }
-
-      console.log(`User ${users[id] ? '' : 'un'}shared webcam ${id}`);
-
-      // If a user stream is true, changed and was shared by other
-      // user we'll start it. If it is false and changed we stop it
-      if (users[id]) {
-        if (userId !== id) {
-          this.start(id);
-        }
-      } else {
-        this.stop(id);
-      }
-    }
-    return true;
   }
 }
 
