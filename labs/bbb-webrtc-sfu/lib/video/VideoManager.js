@@ -64,7 +64,7 @@ let _onMessage = async function (_message) {
       Logger.info('[VideoManager] Received message [' + message.id + '] from connection ' + sessionId);
       Logger.debug('[VideoManager] Message =>', JSON.stringify(message, null, 2));
 
-      video = new Video(bbbGW, message.cameraId, shared, message.connectionId);
+      video = new Video(bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
 
       // Empty ice queue after starting video
       if (iceQueue) {

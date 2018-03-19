@@ -20,11 +20,12 @@ let ScreenshareRTMPBroadcastStartedEventMessage2x =
     require('./screenshare/ScreenshareRTMPBroadcastStartedEventMessage2x.js')(Constants);
 let ScreenshareRTMPBroadcastStoppedEventMessage2x =
     require('./screenshare/ScreenshareRTMPBroadcastStoppedEventMessage2x.js')(Constants);
-
+let UserCamBroadcastStoppedEventMessage2x =
+    require('./video/UserCamBroadcastStoppedEventMessage2x.js')(Constants);
 
  /**
   * @classdesc
-  * Messaging utils to assemble JSON/Redis BigBlueButton messages 
+  * Messaging utils to assemble JSON/Redis BigBlueButton messages
   * @constructor
   */
 function Messaging() {}
@@ -62,6 +63,12 @@ Messaging.prototype.generateScreenshareRTMPBroadcastStartedEvent2x =
 Messaging.prototype.generateScreenshareRTMPBroadcastStoppedEvent2x =
   function(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp) {
   let stodrbem = new ScreenshareRTMPBroadcastStoppedEventMessage2x(conferenceName, screenshareConf, streamUrl, vw, vh, timestamp);
+  return stodrbem.toJson();
+}
+
+Messaging.prototype.generateUserCamBroadcastStoppedEventMessage2x =
+  function(meetingId, userId, streamUrl) {
+  let stodrbem = new UserCamBroadcastStoppedEventMessage2x(meetingId, userId, streamUrl);
   return stodrbem.toJson();
 }
 
