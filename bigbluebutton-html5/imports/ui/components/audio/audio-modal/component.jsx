@@ -355,8 +355,7 @@ class AudioModal extends Component {
           className={styles.modal}
           onRequestClose={this.closeModal}
         >
-          { this.skipAudioOptions() ?
-            null :
+          { !this.skipAudioOptions() ?
             <header
               data-test="audioModalHeader"
               className={styles.header}
@@ -376,6 +375,7 @@ class AudioModal extends Component {
                 onClick={this.closeModal}
               />
             </header>
+            : null
           }
           <div className={styles.content}>
             { this.renderContent() }
