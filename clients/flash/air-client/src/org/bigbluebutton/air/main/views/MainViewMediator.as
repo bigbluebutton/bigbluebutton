@@ -8,11 +8,11 @@ package org.bigbluebutton.air.main.views {
 		
 		
 		override public function initialize():void {
-		
+			trace("************ MainViewMediator:: INIT **************");
 		}
 		
 		override public function destroy():void {
-		
+			trace("************ MainViewMediator:: destroy **************");
 		}
 	}
 }

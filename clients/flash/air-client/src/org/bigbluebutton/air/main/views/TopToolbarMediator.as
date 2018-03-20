@@ -94,6 +94,7 @@ package org.bigbluebutton.air.main.views {
 			} else if (uiSession && uiSession.currentPage.indexOf("Settings") > 0) {
 				uiSession.popPage();
 			} else {
+				trace("***** TopToolbarMediator:: Switching to MAIN PAGE");
 				uiSession.pushPage(PageEnum.MAIN);
 			}
 		}

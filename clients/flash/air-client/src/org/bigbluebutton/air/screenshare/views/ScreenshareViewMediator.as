@@ -18,6 +18,7 @@ package org.bigbluebutton.air.screenshare.views
 		public var model:IScreenshareModel;
 		
 		override public function initialize():void {
+			trace("************ ScreenshareViewMediator:: INIT **************");
 			model.screenshareStreamStartedSignal.add(viewStream);
 			model.screenshareStreamStoppedSignal.add(streamStopped);
 		}
@@ -28,6 +29,14 @@ package org.bigbluebutton.air.screenshare.views
 		
 		public function streamStopped(session:String, reason:String):void {
 			view.streamStopped(session, reason);
+		}
+		
+		override public function destroy():void {
+			trace("************ ScreenshareViewMediator:: destroy **************");
+			model.screenshareStreamStartedSignal.remove(viewStream);
+			model.screenshareStreamStoppedSignal.remove(streamStopped);
+			view.dispose();
+			view = null;
 		}
 	}
 }
