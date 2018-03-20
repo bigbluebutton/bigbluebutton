@@ -24,7 +24,7 @@
 			
 			public function setEmoji(emoji:String):void {
 				firstLetters.styleName = "icon icon-" + emoji;
-				firstLetters.text = "";
+				firstLetters.text = firstLetters.getStyle("icon");
 			}
 			
 			public function setRole(role:String):void {

@@ -19,7 +19,7 @@ package org.bigbluebutton.air.main.commands {
 		
 		override public function execute():void {
 			trace("EmojiCommand.execute() - change emoji status");
-			if (EmojiStatus.STATUS_ARRAY.indexOf(status) != -1) {
+			if (EmojiStatus.STATUS_ARRAY.indexOf(status) != -1 || EmojiStatus.NO_STATUS == status) {
 				userService.emojiStatus(user.intId, status);
 			} else {
 				trace("Emoji status [" + status + "] not supported");

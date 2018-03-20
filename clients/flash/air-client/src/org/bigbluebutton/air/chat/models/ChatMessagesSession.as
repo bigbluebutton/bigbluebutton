@@ -2,9 +2,6 @@ package org.bigbluebutton.air.chat.models {
 	
 	import mx.collections.ArrayCollection;
 	
-	import spark.collections.Sort;
-	import spark.collections.SortField;
-	
 	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.air.chat.commands.RequestGroupChatHistorySignal;
 	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageSignal;
@@ -37,15 +34,6 @@ package org.bigbluebutton.air.chat.models {
 			return _groupChatChangeSignal;
 		}
 		
-		private function sortChats():void {
-			if (!chats.sort) {
-				var sort:Sort = new Sort();
-				sort.fields = [new SortField("isPublic", true), new SortField("name", false)];
-				chats.sort = sort;
-			}
-			chats.refresh();
-		}
-		
 		public function getGroupByChatId(chatId:String):GroupChat {
 			for each (var chat:GroupChat in chats) {
 				if (chat.chatId == chatId) {
@@ -74,7 +62,6 @@ package org.bigbluebutton.air.chat.models {
 				}
 				requestChatHistorySignal.dispatch(chat.id);
 			}
-			sortChats();
 		}
 		
 		public function addMessageHistory(chatId:String, messages:Array):void {
@@ -99,12 +86,13 @@ package org.bigbluebutton.air.chat.models {
 			if (chatGroup) {
 				chatGroup.newChatMessage(newMessage);
 			}
+			_groupChatChangeSignal.dispatch(chatGroup, GroupChatChangeEnum.MESSAGE);
 		}
 		
 		public function addGroupChat(vo:GroupChatVO):void {
-			chats.addItem(convertGroupChatVO(vo));
-			sortChats();
-			_groupChatChangeSignal.dispatch(vo, GroupChatChangeEnum.ADD);
+			var newGroupChat:GroupChat = convertGroupChatVO(vo);
+			chats.addItem(newGroupChat);
+			_groupChatChangeSignal.dispatch(newGroupChat, GroupChatChangeEnum.ADD);
 		}
 		
 		private function convertGroupChatVO(vo:GroupChatVO):GroupChat {

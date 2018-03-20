@@ -2,8 +2,8 @@ package org.bigbluebutton.air.participants.views {
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.air.chat.events.ChatRoomItemSelectedEvent;
+	import org.bigbluebutton.air.chat.models.GroupChat;
 	import org.bigbluebutton.air.chat.models.GroupChatChangeEnum;
-	import org.bigbluebutton.air.chat.models.GroupChatVO;
 	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IMeetingData;
@@ -65,6 +65,7 @@ package org.bigbluebutton.air.participants.views {
 			_participantsCollection = new ParticipantsCollection();
 			_participantsCollection.initUsers(_userCollection);
 			_participantsCollection.initGroupChats(chatMessagesSession.chats);
+			_participantsCollection.refresh();
 			view.participantsList.dataProvider = _participantsCollection;
 		}
 		
@@ -80,7 +81,7 @@ package org.bigbluebutton.air.participants.views {
 			switch (property) {
 				case UserChangeEnum.JOIN:
 					var addResult:CollectionActionResult = _userCollection.addUser(user);
-					_participantsCollection.addUser(addResult.item as UserVM, addResult.newIndex);
+					_participantsCollection.addUser(addResult.item as UserVM);
 					break;
 				case UserChangeEnum.LEAVE:
 					var removeResult:CollectionActionResult = _userCollection.removeUser(user);
@@ -99,6 +100,7 @@ package org.bigbluebutton.air.participants.views {
 					_userCollection.updateEmoji(user);
 					break;
 			}
+			_participantsCollection.refresh();
 		}
 		
 		private function onVoiceUserChange(voiceUser:VoiceUser, enum:int):void {
@@ -106,7 +108,7 @@ package org.bigbluebutton.air.participants.views {
 				case VoiceUserChangeEnum.JOIN:
 					var addResult:CollectionActionResult = _userCollection.addVoiceUser(voiceUser);
 					if (addResult.action == CollectionUpdateAction.ADD) {
-						_participantsCollection.addUser(addResult.item as UserVM, addResult.newIndex);
+						_participantsCollection.addUser(addResult.item as UserVM);
 					}
 					break;
 				case VoiceUserChangeEnum.LEAVE:
@@ -122,6 +124,7 @@ package org.bigbluebutton.air.participants.views {
 					_userCollection.updateTalking(voiceUser);
 					break;
 			}
+			_participantsCollection.refresh();
 		}
 		
 		private function onWebcamChange(webcam:WebcamStreamInfo, enum:int):void {
@@ -135,14 +138,15 @@ package org.bigbluebutton.air.participants.views {
 			}
 		}
 		
-		private function onGroupChatChange(groupChat:GroupChatVO, enum:int):void {
+		private function onGroupChatChange(groupChat:GroupChat, enum:int):void {
 			switch (enum) {
 				case GroupChatChangeEnum.ADD:
-					_participantsCollection.addGroupChat(groupChat, chatMessagesSession.chats.getItemIndex(groupChat));
+					_participantsCollection.addGroupChat(groupChat);
 					break;
 				default:
 					break;
 			}
+			_participantsCollection.refresh();
 		}
 		
 		private function onLockSettingsChange(newLockSettings:LockSettings2x):void {
@@ -162,6 +166,8 @@ package org.bigbluebutton.air.participants.views {
 			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChange);
 			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChange);
 			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
+			
+			chatMessagesSession.groupChatChangeSignal.remove(onGroupChatChange)
 			
 			view.participantsList.removeEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
 			view.participantsList.removeEventListener(ChatRoomItemSelectedEvent.SELECTED, onChatItemSelected);

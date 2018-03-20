@@ -310,7 +310,6 @@ settings|SettingsItemRenderer {
 	color : PropertyReference("bbbBlack");
 }
 
-
 .audioButtonStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;

@@ -26,7 +26,7 @@
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
-					styleName = "icon-" + obj.icon;
+					styleName = "icon-" + obj.signal;
 				}
 			}
 		]]>

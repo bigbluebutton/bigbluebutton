@@ -21,6 +21,6 @@ package org.bigbluebutton.air.user.models {
 		
 		public static const APPLAUSE:String = "applause";
 		
-		public static const STATUS_ARRAY:Array = [RAISE_HAND, HAPPY, NEUTRAL, SAD, CONFUSED, AWAY, THUMBS_UP, THUMBS_DOWN, APPLAUSE, NO_STATUS];
+		public static const STATUS_ARRAY:Array = [RAISE_HAND, HAPPY, NEUTRAL, SAD, CONFUSED, AWAY, THUMBS_UP, THUMBS_DOWN, APPLAUSE];
 	}
 }
