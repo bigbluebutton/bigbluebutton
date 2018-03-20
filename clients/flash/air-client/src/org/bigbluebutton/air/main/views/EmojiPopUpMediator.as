@@ -49,10 +49,10 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private function fillEmojiData():void {
-			view.statusList.dataProvider = new ArrayCollection([{label: "Raise", signal: EmojiStatus.RAISE_HAND, icon: "hand"}, {label: "Happy", signal: EmojiStatus.HAPPY, icon: "happy"}, {label: "Undecided", signal: EmojiStatus.NEUTRAL, icon: "undecided"}, {label: "Sad", signal: EmojiStatus.SAD, icon: "sad"}, {label: "Confused", signal: EmojiStatus.CONFUSED, icon: "confused"}, {label: "Away", signal: EmojiStatus.AWAY, icon: "hand"}, {label: "Thumbs up", signal: EmojiStatus.THUMBS_UP, icon: "thumbs-up"}, {label: "Thumbs down", signal: EmojiStatus.THUMBS_DOWN, icon: "thumbs-down"}, {label: "Applause", signal: EmojiStatus.APPLAUSE, icon: "applause"},]);
+			view.statusList.dataProvider = new ArrayCollection([{label: "Raise", signal: EmojiStatus.RAISE_HAND}, {label: "Happy", signal: EmojiStatus.HAPPY}, {label: "Undecided", signal: EmojiStatus.NEUTRAL}, {label: "Sad", signal: EmojiStatus.SAD}, {label: "Confused", signal: EmojiStatus.CONFUSED}, {label: "Away", signal: EmojiStatus.AWAY}, {label: "Thumbs up", signal: EmojiStatus.THUMBS_UP}, {label: "Thumbs down", signal: EmojiStatus.THUMBS_DOWN}, {label: "Applause", signal: EmojiStatus.APPLAUSE}]);
 			
 			if (meetingData.users.me.emoji != EmojiStatus.NO_STATUS) {
-				ArrayCollection(view.statusList.dataProvider).addItem({label: "Clear", signal: EmojiStatus.NO_STATUS, icon: "clear-status"});
+				ArrayCollection(view.statusList.dataProvider).addItem({label: "Clear", signal: EmojiStatus.NO_STATUS});
 			}
 		}
 		

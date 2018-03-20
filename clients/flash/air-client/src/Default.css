@@ -110,8 +110,8 @@ main|TopToolbarBase {
 	backgroundColor : PropertyReference("bbbBlack");
 }
 
-participants|ParticipantsViewBase, user|UsersView {
-	backgroundColor : PropertyReference("grey100");
+participants|ParticipantsViewBase {
+	backgroundColor : PropertyReference("white");
 	color           : PropertyReference("blue900");
 }
 
@@ -310,14 +310,13 @@ settings|SettingsItemRenderer {
 	color : PropertyReference("bbbBlack");
 }
 
-
 .audioButtonStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;
 	borderAlphaDisabled : 0;
 	
-	fillColorUp         : #EFF5FA;
-	borderColorOver     : #1070D7;
-	borderColorDown     : #1070D7;
+	fillColorUp         : PropertyReference("blue500");
+	borderColorOver     : PropertyReference("grey700");
+	borderColorDown     : PropertyReference("grey700");
 }

@@ -6,8 +6,6 @@ package org.bigbluebutton.air.chat {
 	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageSignal;
 	import org.bigbluebutton.air.chat.commands.StartPrivateChatCommand;
 	import org.bigbluebutton.air.chat.commands.StartPrivateChatSignal;
-	import org.bigbluebutton.air.chat.views.ChatRoomsMediator;
-	import org.bigbluebutton.air.chat.views.ChatRoomsViewBase;
 	import org.bigbluebutton.air.chat.views.ChatViewBase;
 	import org.bigbluebutton.air.chat.views.ChatViewMediator;
 	
@@ -32,7 +30,6 @@ package org.bigbluebutton.air.chat {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(ChatRoomsViewBase).toMediator(ChatRoomsMediator);
 			mediatorMap.map(ChatViewBase).toMediator(ChatViewMediator);
 		}
 		

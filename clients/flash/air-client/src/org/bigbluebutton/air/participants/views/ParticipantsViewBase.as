@@ -1,17 +1,27 @@
 package org.bigbluebutton.air.participants.views {
+	import mx.core.ClassFactory;
+	import mx.core.IFactory;
 	import mx.graphics.SolidColor;
 	
 	import spark.components.Group;
-	import spark.components.Scroller;
-	import spark.components.VGroup;
+	import spark.components.List;
 	import spark.primitives.Rect;
 	
-	import org.bigbluebutton.air.chat.views.ChatRoomsViewBase;
-	import org.bigbluebutton.air.user.views.UsersView;
+	import org.bigbluebutton.air.chat.models.GroupChat;
+	import org.bigbluebutton.air.chat.views.ChatRoomsItemRenderer;
+	import org.bigbluebutton.air.participants.models.ParticipantTitle;
+	import org.bigbluebutton.air.user.views.UserItemRenderer;
+	import org.bigbluebutton.air.user.views.models.UserVM;
 	
 	public class ParticipantsViewBase extends Group {
 		
 		private var _background:Rect;
+		
+		private var _participantsList:List;
+		
+		public function get participantsList():List {
+			return _participantsList;
+		}
 		
 		public function ParticipantsViewBase() {
 			super();
@@ -22,33 +32,30 @@ package org.bigbluebutton.air.participants.views {
 			_background.fill = new SolidColor();
 			addElementAt(_background, 0);
 			
-			var scroller:Scroller = new Scroller;
-			scroller.percentHeight = 100;
-			scroller.percentWidth = 100;
-			
-			var group:VGroup = new VGroup();
-			group.percentWidth = 100;
-			group.percentHeight = 100;
-			scroller.viewport = group;
-			
-			var chatRoomsView:ChatRoomsViewBase = createChatRoomsView();
-			chatRoomsView.percentWidth = 100;
-			group.addElement(chatRoomsView);
-			
-			var usersView:UsersView = createUsersView();
-			usersView.percentWidth = 100;
-			usersView.percentHeight = 100;
-			group.addElement(usersView);
-			
-			addElement(scroller);
+			_participantsList = new List();
+			_participantsList.percentWidth = 100;
+			_participantsList.percentHeight = 100;
+			_participantsList.itemRendererFunction = participantItemRendererFunction;
+			addElement(_participantsList);
 		}
 		
-		protected function createChatRoomsView():ChatRoomsViewBase {
-			return new ChatRoomsViewBase;
-		}
-		
-		protected function createUsersView():UsersView {
-			return new UsersView;
+		private function participantItemRendererFunction(item:Object):IFactory {
+			var factory:ClassFactory;
+			switch (item.constructor) {
+				case ParticipantTitle:
+					factory = new ClassFactory(ParticipantTitleItemRenderer);
+					break;
+				case UserVM:
+					factory = new ClassFactory(UserItemRenderer);
+					break;
+				case GroupChat:
+					factory = new ClassFactory(ChatRoomsItemRenderer);
+					break;
+				default:
+					// Unknown data type
+					break;
+			}
+			return factory;
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {

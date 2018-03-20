@@ -1,7 +1,5 @@
 package org.bigbluebutton.air.chat.services {
 	
-	import mx.collections.ArrayCollection;
-	
 	import org.bigbluebutton.air.chat.models.ChatMessageVO;
 	import org.bigbluebutton.air.chat.models.GroupChatUser;
 	import org.bigbluebutton.air.chat.models.GroupChatVO;

@@ -15,7 +15,9 @@ package org.bigbluebutton.air.user.models {
 		
 		public var waitingForAcceptance:Boolean;
 		
-		public var emoji:String = EmojiStatus.NO_STATUS;
+		private var _emoji:String = EmojiStatus.NO_STATUS;
+		
+		public var emojiStatusTime:Date;
 		
 		public var locked:Boolean;
 		
@@ -24,5 +26,14 @@ package org.bigbluebutton.air.user.models {
 		public var avatar:String;
 		
 		public var me:Boolean;
+		
+		public function get emoji():String {
+			return _emoji;
+		}
+		
+		public function set emoji(r:String):void {
+			_emoji = r;
+			emojiStatusTime = (r != EmojiStatus.NO_STATUS ? new Date() : null);
+		}
 	}
 }

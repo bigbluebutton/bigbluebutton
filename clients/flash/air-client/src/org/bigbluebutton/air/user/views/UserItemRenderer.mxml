@@ -34,7 +34,7 @@
 			
 			private function sendSelectedEvent():void {
 				if (currentState == "selected") {
-					dispatchEvent(new UserItemSelectedEvent(data as UserVM, localToGlobal(new Point()), width, height));
+					dispatchEvent(new UserItemSelectedEvent(data as UserVM));
 				}
 			}
 			

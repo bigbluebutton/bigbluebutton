@@ -2,9 +2,11 @@ package org.bigbluebutton.air.chat.models {
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.air.chat.commands.RequestGroupChatHistorySignal;
 	import org.bigbluebutton.air.chat.commands.RequestWelcomeMessageSignal;
 	import org.bigbluebutton.air.main.models.IMeetingData;
+	import org.osflash.signals.Signal;
 	
 	public class ChatMessagesSession implements IChatMessagesSession {
 		
@@ -19,11 +21,17 @@ package org.bigbluebutton.air.chat.models {
 		[Inject]
 		public var requestWelcomeMessageSignal:RequestWelcomeMessageSignal;
 		
+		private var _groupChatChangeSignal:Signal = new Signal();
+		
 		[Bindable]
 		public var chats:ArrayCollection;
 		
 		public function ChatMessagesSession():void {
 			chats = new ArrayCollection();
+		}
+		
+		public function get groupChatChangeSignal():Signal {
+			return _groupChatChangeSignal;
 		}
 		
 		public function getGroupByChatId(chatId:String):GroupChat {
@@ -78,10 +86,21 @@ package org.bigbluebutton.air.chat.models {
 			if (chatGroup) {
 				chatGroup.newChatMessage(newMessage);
 			}
+			_groupChatChangeSignal.dispatch(chatGroup, GroupChatChangeEnum.MESSAGE);
 		}
 		
 		public function addGroupChat(vo:GroupChatVO):void {
-			chats.addItem(convertGroupChatVO(vo));
+			var newGroupChat:GroupChat = convertGroupChatVO(vo);
+			chats.addItem(newGroupChat);
+			_groupChatChangeSignal.dispatch(newGroupChat, GroupChatChangeEnum.ADD);
+		}
+		
+		public function updatePartnerRole(userId:String, role:String):void {
+			for each (var chat:GroupChat in chats) {
+				if (!chat.isPublic && chat.partnerId == userId) {
+					chat.partnerRole = role;
+				}
+			}
 		}
 		
 		private function convertGroupChatVO(vo:GroupChatVO):GroupChat {
@@ -104,7 +123,12 @@ package org.bigbluebutton.air.chat.models {
 				vo.name = "Public Chat";
 			}
 			
-			var newGroupChat:GroupChat = new GroupChat(vo.id, vo.name, vo.access == GroupChat.PUBLIC, partnerId);
+			var partnerRole:String;
+			if (!StringUtils.isEmpty(partnerId) && meetingData.users.getUser(partnerId)) {
+				partnerRole = meetingData.users.getUser(partnerId).role;
+			}
+			
+			var newGroupChat:GroupChat = new GroupChat(vo.id, vo.name, vo.access == GroupChat.PUBLIC, partnerId, partnerRole);
 			
 			return newGroupChat;
 		}

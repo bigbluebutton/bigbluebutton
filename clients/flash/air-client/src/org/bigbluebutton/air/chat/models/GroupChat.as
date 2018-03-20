@@ -18,17 +18,20 @@ package org.bigbluebutton.air.chat.models {
 		
 		public var partnerId:String;
 		
+		public var partnerRole:String;
+		
 		public var messages:ArrayCollection = new ArrayCollection();
 		
 		public var newMessages:Number = 0;
 		
 		public var newMessageSignal:Signal = new Signal();
 		
-		public function GroupChat(chatId:String, name:String, isPublic:Boolean, partnerId:String) {
+		public function GroupChat(chatId:String, name:String, isPublic:Boolean, partnerId:String, partnerRole:String) {
 			this.chatId = chatId;
 			this.name = name;
 			this.isPublic = isPublic;
 			this.partnerId = partnerId;
+			this.partnerRole = partnerRole;
 		}
 		
 		public function addChatHistory(messages:Array):void {
@@ -86,7 +89,7 @@ package org.bigbluebutton.air.chat.models {
 		private function generateSystemMessage(text:String):ChatMessageVO {
 			var newMessageVO:ChatMessageVO = new ChatMessageVO();
 			newMessageVO.fromTime = (new Date()).time;
-			newMessageVO.message = "<b><i>"+text+"</i></b>";
+			newMessageVO.message = "<b><i>" + text + "</i></b>";
 			newMessageVO.fromUserId = "";
 			newMessageVO.fromUsername = "";
 			newMessageVO.fromColor = "0x000000";

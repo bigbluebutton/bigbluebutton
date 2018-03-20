@@ -1,7 +1,6 @@
 package org.bigbluebutton.air.user.models {
 	import mx.collections.ArrayCollection;
 	
-	import org.as3commons.lang.StringUtils;
 	import org.osflash.signals.Signal;
 	
 	public class Users2x {

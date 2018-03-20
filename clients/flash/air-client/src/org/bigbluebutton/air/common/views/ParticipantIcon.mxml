@@ -24,7 +24,7 @@
 			
 			public function setEmoji(emoji:String):void {
 				firstLetters.styleName = "icon icon-" + emoji;
-				firstLetters.text = "";
+				firstLetters.text = firstLetters.getStyle("icon");
 			}
 			
 			public function setRole(role:String):void {
@@ -51,11 +51,13 @@
 			 verticalCenter="0"
 			 horizontalCenter="0" />
 	<s:Ellipse id="circle"
+			   visible="false"
 			   verticalCenter="0"
 			   horizontalCenter="0">
 		<s:stroke>{borderStroke}</s:stroke>
 	</s:Ellipse>
 	<s:Rect id="rectangle"
+			visible="false"
 			verticalCenter="0"
 			horizontalCenter="0">
 		<s:stroke>{borderStroke}</s:stroke>
