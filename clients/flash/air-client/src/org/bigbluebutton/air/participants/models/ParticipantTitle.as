@@ -3,15 +3,15 @@ package org.bigbluebutton.air.participants.models {
 	[Bindable]
 	public class ParticipantTitle {
 		
-		public static const CHAT:int = 0;
+		public static const CHAT:String = "chat";
 		
-		public static const USER:int = 1;
+		public static const USER:String = "user";
 		
 		public var name:String;
 		
-		public var type:int;
+		public var type:String;
 		
-		public function ParticipantTitle(name:String, type:int) {
+		public function ParticipantTitle(name:String, type:String) {
 			this.name = name;
 			this.type = type;
 		}

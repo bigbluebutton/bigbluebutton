@@ -95,6 +95,14 @@ package org.bigbluebutton.air.chat.models {
 			_groupChatChangeSignal.dispatch(newGroupChat, GroupChatChangeEnum.ADD);
 		}
 		
+		public function updatePartnerRole(userId:String, role:String):void {
+			for each (var chat:GroupChat in chats) {
+				if (!chat.isPublic && chat.partnerId == userId) {
+					chat.partnerRole = role;
+				}
+			}
+		}
+		
 		private function convertGroupChatVO(vo:GroupChatVO):GroupChat {
 			var partnerId:String = "";
 			

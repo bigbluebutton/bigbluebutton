@@ -14,5 +14,6 @@ package org.bigbluebutton.air.chat.models {
 		function clearPublicChat(chatId:String):void;
 		function addChatMessage(chatId:String, cm:ChatMessageVO):void;
 		function addGroupChat(groupChat:GroupChatVO):void;
+		function updatePartnerRole(userId:String, role:String):void;
 	}
 }

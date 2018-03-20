@@ -1,6 +1,7 @@
 package org.bigbluebutton.air.user.services {
 	import mx.utils.ObjectUtil;
 	
+	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.common.models.IMessageListener;
 	import org.bigbluebutton.air.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
@@ -19,6 +20,8 @@ package org.bigbluebutton.air.user.services {
 		public var userSession:IUserSession;
 		
 		public var meetingData:IMeetingData;
+		
+		public var chatMessagesSession:IChatMessagesSession;
 		
 		public var conferenceParameters:IConferenceParameters;
 		
@@ -287,6 +290,7 @@ package org.bigbluebutton.air.user.services {
 			var role:String = msg.body.role as String;
 			
 			meetingData.users.changeUserRole(userId, role);
+			chatMessagesSession.updatePartnerRole(userId, role);
 		}
 	}
 }
