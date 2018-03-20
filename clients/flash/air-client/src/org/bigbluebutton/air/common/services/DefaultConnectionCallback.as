@@ -24,13 +24,13 @@ package org.bigbluebutton.air.common.services {
 		}
 		
 		public function onMessageFromServer(messageName:String, result:Object):void {
-			trace(LOG + "RECEIVED MESSAGE : [" + messageName + "]");
+			//trace(LOG + "RECEIVED MESSAGE : [" + messageName + "]");
 			notifyListeners(messageName, result);
 		}
 		
 		public function onMessageFromServer2x(messageName:String, msg:String):void {
 			if (messageName != "SendCursorPositionEvtMsg" && messageName != "UpdateBreakoutUsersEvtMsg" && messageName != "BreakoutRoomsTimeRemainingUpdateEvtMsg" && messageName != "UserTalkingVoiceEvtMsg" && messageName != "MeetingTimeRemainingUpdateEvtMsg") {
-				trace("onMessageFromServer2x - " + msg);
+				//trace("onMessageFromServer2x - " + msg);
 			}
 			
 			var map:Object = JSON.parse(msg);
