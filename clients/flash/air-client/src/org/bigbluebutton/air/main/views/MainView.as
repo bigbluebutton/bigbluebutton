@@ -61,6 +61,10 @@ package org.bigbluebutton.air.main.views {
 			_presentationView.height = h - _topToolbar.height - _menuButtons.height;
 			_presentationView.y = _topToolbar.height;
 			
+			_screenshareView.width = w;
+			_screenshareView.height = h - _topToolbar.height - _menuButtons.height;
+			_screenshareView.y = _topToolbar.height;
+			
 			_webcamDock.bottom = _menuButtons.height;
 		}
 	}
