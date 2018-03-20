@@ -17,7 +17,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			vLayout.gap = 0;
 			layout = vLayout;
 			
-			_settingsView = new CameraSettingsViewBaseAIR();
+			_settingsView = new CameraSettingsViewBase();
 			_settingsView.percentHeight = 100;
 			_settingsView.percentWidth = 100;
 			addElement(_settingsView);

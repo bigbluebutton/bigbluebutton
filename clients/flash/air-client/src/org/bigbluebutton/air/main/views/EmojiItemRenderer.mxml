@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx">
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="selected" />
+	</s:states>
+
+	<fx:Script>
+		<![CDATA[
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				icon.text = getStyle("icon");
+				icon.setStyle("fontFamily", getStyle("iconFont"));
+				icon.setStyle("fontSize", getStyle("iconSize"));
+				icon.setStyle("color", getStyle("iconColor"));
+				
+				if (selected) {
+					setStyle("color", getStyle("selectedColor"));
+					icon.setStyle("color", getStyle("selectedColor"));
+				}
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					styleName = "icon-" + obj.icon;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup id="content"
+			  width="100%"
+			  verticalAlign="middle"
+			  padding="8"
+			  height="{getStyle('itemHeight')}">
+
+		<s:Label id="icon" />
+
+		<s:Label id="labelDisplay"
+				 maxDisplayedLines="1" />
+	</s:HGroup>
+</s:ItemRenderer>

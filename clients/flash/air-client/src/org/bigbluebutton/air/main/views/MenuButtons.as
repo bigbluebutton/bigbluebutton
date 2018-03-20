@@ -36,29 +36,21 @@ package org.bigbluebutton.air.main.views {
 			super();
 			
 			_micButton = new Button();
-			_micButton.percentWidth = 100;
-			_micButton.percentHeight = 100;
 			_micButton.label = "Mic on";
 			_micButton.styleName = "icon-unmute menuButton";
 			addElement(_micButton);
 			
 			_audioButton = new Button();
-			_audioButton.percentWidth = 100;
-			_audioButton.percentHeight = 100;
 			_audioButton.label = "Join";
 			_audioButton.styleName = "icon-audio-on menuButton";
 			addElement(_audioButton);
 			
 			_camButton = new Button();
-			_camButton.percentWidth = 100;
-			_camButton.percentHeight = 100;
 			_camButton.label = "Cam on";
 			_camButton.styleName = "icon-video menuButton";
 			addElement(_camButton);
 			
 			_statusButton = new Button();
-			_statusButton.percentWidth = 100;
-			_statusButton.percentHeight = 100;
 			_statusButton.label = "Status";
 			_statusButton.styleName = "icon-hand menuButton";
 			addElement(_statusButton);
@@ -67,9 +59,7 @@ package org.bigbluebutton.air.main.views {
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
 			
-			bottom = getStyle("bottom");
 			gap = getStyle("gap");
-			top = getStyle("top");
 		}
 	}
 }

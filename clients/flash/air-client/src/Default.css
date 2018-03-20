@@ -79,6 +79,7 @@
 
 global {
 	font-family : SourceSansPro;
+	color       : PropertyReference("bbbBlack");
 }
 
 /* Classes */
@@ -158,6 +159,20 @@ s|CheckBox {
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileCheckBoxSkin");
 	fontFamily  : SourceSansProMX;
 	chromeColor : PropertyReference("white");
+}
+
+main|EmojiItemRenderer {
+	iconFont      : BBBIcons;
+	iconColor     : PropertyReference("grey700");
+	color         : PropertyReference("grey700");
+	selectedColor : PropertyReference("bbbBlue");
+	itemHeight    : 30;
+	
+}
+
+.statusList {
+	skinClass              : ClassReference("org.bigbluebutton.air.main.views.EmojiListSkin");
+	contentBackgroundAlpha : 0;
 }
 
 .sectionTitle {
@@ -241,7 +256,7 @@ settings|SettingsItemRenderer {
 .menuButton, .menuButtonRed {
 	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
-	selectedBackgroundColor : PropertyReference("bbbGrey");
+	selectedBackgroundColor : PropertyReference("darkBlue");
 	color                   : PropertyReference("white");
 	iconFont                : BBBIcons;
 	iconColor               : PropertyReference("white");

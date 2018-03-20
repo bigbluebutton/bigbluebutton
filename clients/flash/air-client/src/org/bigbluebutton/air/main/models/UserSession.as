@@ -42,10 +42,6 @@ package org.bigbluebutton.air.main.models {
 		
 		protected var _pushToTalk:Boolean;
 		
-		protected var _successJoiningMeetingSignal:ISignal = new Signal();
-		
-		protected var _failureJoiningMeetingSignal:ISignal = new Signal();
-		
 		protected var _assignedDeskshareSignal:ISignal = new Signal();
 		
 		protected var _logoutSignal:Signal = new Signal();
@@ -175,24 +171,8 @@ package org.bigbluebutton.air.main.models {
 			return _presentationList;
 		}
 		
-		public function get successJoiningMeetingSignal():ISignal {
-			return _successJoiningMeetingSignal;
-		}
-		
-		public function get failureJoiningMeetingSignal():ISignal {
-			return _failureJoiningMeetingSignal;
-		}
-		
 		public function get assignedDeskshareSignal():ISignal {
 			return _assignedDeskshareSignal;
-		}
-		
-		public function joinMeetingResponse(msg:Object):void {
-			if (msg.user) {
-				_successJoiningMeetingSignal.dispatch();
-			} else {
-				_failureJoiningMeetingSignal.dispatch();
-			}
 		}
 		
 		public function get logoutSignal():Signal {

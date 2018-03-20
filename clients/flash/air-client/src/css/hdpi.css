@@ -40,8 +40,6 @@
     }
 
     main|MenuButtons {
-        bottom: 26.25;
-        top: 10.50;
         gap: 33.75;
     }
 
@@ -111,6 +109,10 @@
 
     s|ToggleSwitch {
         fontSize: 18.00;
+    }
+
+    main|EmojiPopUp {
+        fontSize: 16.50;
     }
 
     .icon {
