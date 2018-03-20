@@ -17,7 +17,6 @@ const Logger = require('../utils/Logger');
 module.exports = class ConnectionManager {
 
   constructor (settings, logger) {
-    this._logger = logger;
     this._screenshareSessions = {};
 
     this._setupBBB();

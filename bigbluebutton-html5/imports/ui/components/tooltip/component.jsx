@@ -25,7 +25,7 @@ class Tooltip extends Component {
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
-    this.delay = [250, 100];
+    this.delay = [150, 50];
     this.dynamicTitle = true;
   }
 
@@ -40,6 +40,7 @@ class Tooltip extends Component {
       delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,
+      touchHold: true,
     };
 
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);

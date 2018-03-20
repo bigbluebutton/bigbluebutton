@@ -7,6 +7,7 @@ const SETTINGS = [
   'video',
   'cc',
   'participants',
+  'dataSaving',
 ];
 
 class Settings {

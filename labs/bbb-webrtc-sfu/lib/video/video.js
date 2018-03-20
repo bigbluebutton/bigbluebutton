@@ -1,12 +1,12 @@
 'use strict';
 
-const kurento = require('kurento-client');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const Messaging = require('../bbb/messages/Messaging');
+const h264_sdp = require('../h264-sdp');
 
 var sharedWebcams = {};
 
@@ -19,7 +19,6 @@ module.exports = class Video {
     this.meetingId = _meetingId;
     this.shared = _shared;
     this.role = this.shared? 'share' : 'view'
-    this.webRtcEndpoint = null;
     this.mediaId = null;
     this.iceQueue = null;
 
@@ -119,6 +118,9 @@ module.exports = class Video {
   async start (sdpOffer, callback) {
     Logger.info("[video] Starting video instance for", this.id);
     let sdpAnswer;
+
+    // Force H264
+    sdpOffer = h264_sdp.transform(sdpOffer);
 
     try {
       this.userId = await this.mcs.join(this.meetingId, 'SFU', {});

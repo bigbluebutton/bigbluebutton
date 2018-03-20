@@ -18,7 +18,16 @@ class ActionsBar extends React.PureComponent {
       emojiList,
       emojiSelected,
       handleEmojiChange,
+      isUserModerator,
+      recordSettingsList,
+      toggleRecording,
     } = this.props;
+
+    const {
+      allowStartStopRecording,
+      recording: isRecording,
+      record,
+    } = recordSettingsList;
 
     const actionBarClasses = {};
     actionBarClasses[styles.centerWithActions] = isUserPresenter;
@@ -32,6 +41,11 @@ class ActionsBar extends React.PureComponent {
             handleShareScreen,
             handleUnshareScreen,
             isVideoBroadcasting,
+            isUserModerator,
+            allowStartStopRecording,
+            isRecording,
+            record,
+            toggleRecording,
             }}
           />
         </div>

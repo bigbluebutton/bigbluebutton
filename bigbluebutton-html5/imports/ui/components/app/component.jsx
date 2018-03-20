@@ -122,12 +122,12 @@ class App extends Component {
     });
 
     return (
-      <nav
+      <div
         className={cx(styles.userList, userListStyle)}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
       >
         {userList}
-      </nav>
+      </div>
     );
   }
 
@@ -184,13 +184,13 @@ class App extends Component {
       <main className={styles.main}>
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
-          {this.renderUserList()}
-          {this.renderChat()}
           <div className={styles.content}>
             {this.renderNavBar()}
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
+          {this.renderUserList()}
+          {this.renderChat()}
           {this.renderSidebar()}
         </section>
         <ModalContainer />

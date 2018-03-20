@@ -54,6 +54,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 .content {
   @extend %full-page;
 
+  order: 3;
   padding: 0 .25%;
 
   &:before,
@@ -99,6 +100,8 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   z-index: 2;
   overflow: visible;
 
+  order: 1;
+
   @include mq($small-only) {
     padding-top: $navbar-height;
   }
@@ -119,6 +122,8 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .chat {
   @extend %full-page;
+
+  order: 2;
 
   @include mq($small-only) {
     z-index: 3;

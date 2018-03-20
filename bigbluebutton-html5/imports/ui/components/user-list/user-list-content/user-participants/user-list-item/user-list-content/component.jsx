@@ -218,9 +218,8 @@ class UserListContent extends Component {
     const contents = (
       <div
         className={!actions.length ? cx(styles.userListItem, userItemContentsStyle) : null}
-        aria-label={userAriaLabel}
       >
-        <div className={styles.userItemContents} aria-hidden="true">
+        <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
             <UserAvatar
               moderator={user.isModerator}
@@ -242,6 +241,7 @@ class UserListContent extends Component {
             intl={intl}
             meeting={meeting}
             isMeetingLocked={isMeetingLocked}
+            userAriaLabel={userAriaLabel}
           />}
           {<UserIcons
             user={user}

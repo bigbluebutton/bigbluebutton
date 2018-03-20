@@ -29,7 +29,7 @@ export default withRouter(withTracker(({ location, router }) => {
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
-    meetingRecorded = meetingObject.recordProp.recording;
+    meetingRecorded = meetingObject.recordProp;
   }
 
   const checkUnreadMessages = () => {

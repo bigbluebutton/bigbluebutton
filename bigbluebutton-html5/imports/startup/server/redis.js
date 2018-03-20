@@ -70,7 +70,7 @@ class MettingMessageQueue {
     };
 
     try {
-      this.debug(`${eventName} emitted`);
+      this.debug(`${JSON.stringify(data.parsedMessage.core)} emitted`);
 
       if (isAsync) {
         callNext();
