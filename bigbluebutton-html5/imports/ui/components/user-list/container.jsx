@@ -41,25 +41,30 @@ const UserListContainer = (props) => {
     toggleVoice,
     changeRole,
     roving,
+    CustomLogoUrl,
   } = props;
 
   return (
     <UserList
-      users={users}
-      meeting={meeting}
-      currentUser={currentUser}
-      openChats={openChats}
-      isBreakoutRoom={isBreakoutRoom}
-      setEmojiStatus={setEmojiStatus}
-      assignPresenter={assignPresenter}
-      removeUser={removeUser}
-      toggleVoice={toggleVoice}
-      changeRole={changeRole}
-      getAvailableActions={getAvailableActions}
-      normalizeEmojiName={normalizeEmojiName}
-      isMeetingLocked={isMeetingLocked}
-      isPublicChat={isPublicChat}
-      roving={roving}
+      {...{
+        users,
+        currentUser,
+        openChats,
+        isBreakoutRoom,
+        meeting,
+        getAvailableActions,
+        normalizeEmojiName,
+        isMeetingLocked,
+        isPublicChat,
+        setEmojiStatus,
+        assignPresenter,
+        removeUser,
+        toggleVoice,
+        changeRole,
+        roving,
+        CustomLogoUrl,
+      }
+    }
     />
   );
 };
@@ -82,4 +87,5 @@ export default withTracker(({ params }) => ({
   toggleVoice: Service.toggleVoice,
   changeRole: Service.changeRole,
   roving: Service.roving,
+  CustomLogoUrl: Service.getCustomLogoUrl(),
 }))(UserListContainer);
