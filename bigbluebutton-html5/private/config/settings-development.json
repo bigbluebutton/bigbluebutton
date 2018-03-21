@@ -47,7 +47,7 @@
         }
       },
       "branding": {
-        "displayBrandingArea": true
+        "displayBrandingArea": false
       },
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
