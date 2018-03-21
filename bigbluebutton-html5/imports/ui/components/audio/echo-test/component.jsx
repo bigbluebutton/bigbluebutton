@@ -13,6 +13,14 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.no',
     description: 'Hear yourself no',
   },
+  can: {
+    id: 'app.audioModal.yes.arialabel',
+    description: 'provides better context for yes btn label',
+  },
+  cant: {
+    id: 'app.audioModal.no.arialabel',
+    description: 'provides better context for no btn label',
+  },
 });
 
 const propTypes = {
@@ -39,19 +47,21 @@ class EchoTest extends Component {
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.yes)}
-          icon={'thumbs_up'}
+          aria-label={intl.formatMessage(intlMessages.can)}
+          icon="thumbs_up"
           circle
-          color={'success'}
-          size={'jumbo'}
+          color="success"
+          size="jumbo"
           onClick={this.handleYes}
         />
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.no)}
-          icon={'thumbs_down'}
+          aria-label={intl.formatMessage(intlMessages.cant)}
+          icon="thumbs_down"
           circle
-          color={'danger'}
-          size={'jumbo'}
+          color="danger"
+          size="jumbo"
           onClick={this.handleNo}
         />
       </span>
