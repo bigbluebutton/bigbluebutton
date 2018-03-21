@@ -4,7 +4,7 @@ package org.bigbluebutton.air.main.views {
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.presentation.views.PresentationView;
-	import org.bigbluebutton.air.screenshare.views.ScreenshareView;
+	import org.bigbluebutton.air.screenshare.views.ScreenshareDock;
 	import org.bigbluebutton.air.video.views.WebcamDock;
 	import org.osmf.layout.HorizontalAlign;
 	
@@ -16,7 +16,7 @@ package org.bigbluebutton.air.main.views {
 		
 		private var _webcamDock:WebcamDock;
 		
-		private var _screenshareView:ScreenshareView;
+		private var _screenshareView:ScreenshareDock;
 		
 		public function MainView() {
 			super();
@@ -35,7 +35,7 @@ package org.bigbluebutton.air.main.views {
 			addElement(_presentationView);
 			
 			// add deskshare view here and position like the presentation view
-			_screenshareView = new ScreenshareView();
+			_screenshareView = new ScreenshareDock();
 			_screenshareView.percentWidth = 100;
 			_screenshareView.percentHeight = 100;
 			addElement(_screenshareView);

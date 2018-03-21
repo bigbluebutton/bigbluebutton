@@ -4,6 +4,7 @@
 			   applicationComplete="applicationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
 			   styleName="mainshell"
+				 backgroundAlpha="0"
 			   xmlns:main="org.bigbluebutton.air.main.views.*"
 			   xmlns:setup="org.as3commons.logging.setup.*">
 	<fx:Style source="css/bbb-icons.css" />

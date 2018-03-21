@@ -102,7 +102,9 @@ main|LoadingScreen {
 
 main|MainView {
 	backgroundColor : PropertyReference("bbbBlack");
+	backgroundAlpha : 0
 }
+
 
 main|TopToolbarBase {
 	textAlign : center;

@@ -9,7 +9,7 @@ package org.bigbluebutton.air.screenshare.views
 	public class ScreenshareViewMediator extends Mediator
 	{
 		[Inject]
-		public var view:ScreenshareView;
+		public var view:ScreenshareDock;
 		
 		[Inject]
 		public var conn:IScreenshareConnection;

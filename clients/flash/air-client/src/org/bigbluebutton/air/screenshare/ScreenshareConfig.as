@@ -4,7 +4,7 @@ package org.bigbluebutton.air.screenshare
 	import org.bigbluebutton.air.screenshare.model.ScreenshareModel;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareService;
 	import org.bigbluebutton.air.screenshare.services.ScreenshareService;
-	import org.bigbluebutton.air.screenshare.views.ScreenshareView;
+	import org.bigbluebutton.air.screenshare.views.ScreenshareDock;
 	import org.bigbluebutton.air.screenshare.views.ScreenshareViewMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -35,7 +35,7 @@ package org.bigbluebutton.air.screenshare
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(ScreenshareView).toMediator(ScreenshareViewMediator);
+			mediatorMap.map(ScreenshareDock).toMediator(ScreenshareViewMediator);
 		}
 		
 		private function signals():void {
