@@ -6,7 +6,8 @@ import Redis from './redis';
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-  Logger.info(`SERVER STARTED. DEV_ENV=${Meteor.isDevelopment} PROD_ENV=${Meteor.isProduction}`, APP_CONFIG);
+  const env = Meteor.isDevelopment ? 'development' : 'production';
+  Logger.warn(`SERVER STARTED. ENV=${env}, nodejs version=${process.version}`, APP_CONFIG);
 });
 
 WebApp.connectHandlers.use('/check', (req, res) => {
