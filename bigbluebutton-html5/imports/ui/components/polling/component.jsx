@@ -45,12 +45,13 @@ class PollingComponent extends Component {
           >
             <Button
               className={styles.pollingButton}
-              label={pollAnswer.key}
               size="lg"
               color="primary"
+              label={pollAnswer.key}
               onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
               aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
               aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+              showTip
             />
             <div
               className={styles.hidden}
