@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import cx from 'classnames';
 import { styles } from '../styles';
 
 class VideoElement extends Component {
@@ -7,20 +8,15 @@ class VideoElement extends Component {
   }
 
   render() {
-    let cssClass;
+    const tagId = this.props.localCamera ? 'shareWebcam' : `video-elem-${this.props.videoId}`;
 
-    if (this.props.shared || !this.props.localCamera) {
-      cssClass = styles.sharedWebcamVideoLocal;
-    } else {
-      cssClass = styles.sharedWebcamVideo;
-    }
     return (
-      <div className={`${styles.videoContainer} ${cssClass}`} >
-        { this.props.localCamera ?
-          <video id="shareWebcam" muted autoPlay playsInline />
-          :
-          <video id={`video-elem-${this.props.videoId}`} autoPlay playsInline />
-        }
+      <div className={cx({
+        [styles.videoContainer]: true,
+        [styles.sharedWebcamVideo]: !this.props.shared && this.props.localCamera,
+        [styles.sharedWebcamVideoLocal]: this.props.shared || !this.props.localCamera })}>
+
+        <video id={tagId} muted={this.props.localCamera} autoPlay playsInline />
         <div className={styles.videoText}>
           <div className={styles.userName}>{this.props.name}</div>
         </div>
@@ -31,12 +27,8 @@ class VideoElement extends Component {
   componentDidMount() {
     const { videoId, localCamera } = this.props;
 
-    let tag;
-    if (localCamera) {
-      tag = document.getElementById('shareWebcam');
-    } else {
-      tag = document.getElementById(`video-elem-${videoId}`);
-    }
+    const tagId = localCamera ? 'shareWebcam' : `video-elem-${videoId}`;
+    const tag = document.getElementById(tagId);
 
     if (localCamera && this.props.onShareWebcam === 'function') {
       this.props.onShareWebcam();

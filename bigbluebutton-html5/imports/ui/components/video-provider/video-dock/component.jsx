@@ -74,17 +74,10 @@ class VideoDock extends Component {
     }, 0);
   }
 
-  getNameFromId(id) {
-    const { users } = this.props;
-    const user = users.find(u => u.userId === id);
-
-    return user ? user.name : null;
-  }
-
   render() {
     if (!this.props.socketOpen) {
       // TODO: return something when disconnected
-      return ('');
+      return null;
     }
 
     const id = this.props.userId;
