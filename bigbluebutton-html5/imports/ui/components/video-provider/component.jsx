@@ -297,8 +297,9 @@ class VideoProvider extends Component {
         that.destroyWebRTCPeer(id);
 
         if (shareWebcam) {
-          this.unshareWebcam();
+          VideoService.exitVideo();
           VideoService.exitedVideo();
+          that.unshareWebcam();
         }
         return log('error', error);
       }
@@ -419,10 +420,15 @@ class VideoProvider extends Component {
   }
 
   shareWebcam() {
+    let { intl } = this.props;
     log('info', 'Sharing webcam');
-    this.setState({ sharedWebcam: true });
 
-    VideoService.joiningVideo();
+    if (this.connectedToMediaServer()) {
+      this.setState({ sharedWebcam: true });
+      VideoService.joiningVideo();
+    } else {
+      this.notifyError(intl.formatMessage(intlMessages.sharingError));
+    }
   }
 
   unshareWebcam() {

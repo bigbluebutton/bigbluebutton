@@ -26,14 +26,14 @@ const isDisabled = () => {
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
 
-  const isConecting = (!isSharingVideo && isConnected);
+  const isConnecting = (!isSharingVideo && isConnected);
   const isLocked = (LockCam && userLocked) || webcamOnlyModerator;
+
   return isLocked
       || isWaitingResponse
-      || isConecting
+      || isConnecting
       || enableShare;
 };
-
 
 export default {
   isSharingVideo,
