@@ -74,6 +74,15 @@ class VideoDock extends Component {
     }, 0);
   }
 
+  getUsersWithActiveStreams() {
+    const { userId, sharedWebcam } = this.props;
+    const activeFilter = (user) => {
+      return user.has_stream || (sharedWebcam && user.userId == userId);
+    };
+
+    return this.props.users.filter(activeFilter);
+  }
+
   render() {
     if (!this.props.socketOpen) {
       // TODO: return something when disconnected
@@ -86,7 +95,7 @@ class VideoDock extends Component {
     return (
       <div className={styles.videoDock} id={this.props.sharedWebcam.toString()}>
         <div id="webcamArea" className={styles.webcamArea}>
-          {this.props.users.filter(u => u.has_stream || (sharedWebcam && u.userId == id)).map(user => (
+          {this.getUsersWithActiveStreams().map(user => (
             <VideoElement
               shared={id === user.userId && sharedWebcam}
               videoId={user.userId}
