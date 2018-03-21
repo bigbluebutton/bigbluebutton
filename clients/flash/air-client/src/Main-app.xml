@@ -105,7 +105,7 @@
 
         <!-- The render mode for the app (either auto, cpu, gpu, or direct). Optional. Default auto -->
 
-        <!-- <renderMode></renderMode> -->
+         <renderMode>direct</renderMode>
 
         <!-- Whether the default direct mode rendering context allocates storage for depth and stencil buffers.  Optional.  Default false. -->
         <!-- <depthAndStencil></depthAndStencil> -->
@@ -277,7 +277,7 @@
 
 
 	<android>
-		<colorDepth>16bit</colorDepth>
+		<colorDepth>32bit</colorDepth>
 		<manifestAdditions>
 			<![CDATA[
 			<manifest android:installLocation="auto">
