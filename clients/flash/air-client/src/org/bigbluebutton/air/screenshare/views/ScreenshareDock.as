@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.screenshare.views {
 	import flash.events.AsyncErrorEvent;
-	import flash.events.Event;
 	import flash.events.NetStatusEvent;
 	import flash.events.StageVideoAvailabilityEvent;
 	import flash.events.StageVideoEvent;
@@ -9,6 +8,7 @@ package org.bigbluebutton.air.screenshare.views {
 	import flash.media.StageVideoAvailability;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	
 	import spark.components.Group;
 	
 	public class ScreenshareDock extends Group {
@@ -45,7 +45,7 @@ package org.bigbluebutton.air.screenshare.views {
 		private function onStageVideoState(event:StageVideoAvailabilityEvent):void {
 			var available:Boolean = (event.availability == StageVideoAvailability.AVAILABLE);
 			
-			//available = false; // for testing!!!
+			available = false; // for testing!!!
 			
 			trace("************ ScreenshareView: STAGE VIDEO available=" + available);
 			_usingStageViewListener(available);
@@ -64,6 +64,8 @@ package org.bigbluebutton.air.screenshare.views {
 			
 			trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _width + ",h=" + _height);
 			
+			var viewPort:Rectangle = positionAndSize(this.width, this.height, _width, _height);
+			
 			// To choose StageVideo attach the NetStream to StageVideo 
 			if (on) {
 				
@@ -71,8 +73,7 @@ package org.bigbluebutton.air.screenshare.views {
 				if (_sv == null) {
 					trace("***** Using StageVideo length=" + stage.stageVideos.length);
 					_sv = stage.stageVideos[0];
-					var rect:Rectangle = new Rectangle(0, 0, _width, _height);
-					_sv.viewPort = rect;
+					_sv.viewPort = viewPort;
 					_sv.addEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
 					_sv.attachNetStream(ns);
 				}
@@ -93,11 +94,13 @@ package org.bigbluebutton.air.screenshare.views {
 				trace("***** Using classic Video");
 				_ssView = new ScreenshareView();
 				addElement(_ssView);
-				_ssView.percentWidth = 100;
-				_ssView.percentHeight = 100;
-				_ssView.display(ns, _width, _height);
+				//_ssView.percentWidth = 100;
+				//_ssView.percentHeight = 100;
+				_ssView.x = viewPort.x;
+				_ssView.y = viewPort.y;
+				_ssView.display(ns, viewPort.width, viewPort.width);
 				_classicVideoInUse = true;
-				
+				//_ssView.fitToWindow();
 			}
 			
 			if (!_played) {
@@ -185,5 +188,43 @@ package org.bigbluebutton.air.screenshare.views {
 			_usingStageViewListener = listener;
 		}
 	
+		private function positionAndSize(contWidth:int, contHeight:int, origVidWidth:int, origVidHeight:int):Rectangle {
+			var newVidWidth:int;
+			var newVidHeight:int;
+			
+			// if we have device where screen width less than screen height e.g. phone
+			if (contWidth < contHeight) {
+				// make the video width full width of the screen 
+				newVidWidth = contWidth;
+				// calculate height based on a video width, it order to keep the same aspect ratio
+				newVidHeight = (newVidWidth / origVidWidth) * origVidHeight;
+				// if calculated height appeared to be bigger than screen height, recalculuate the video size based on width
+				if (contHeight < newVidHeight) {
+					// make the video height full height of the screen
+					newVidHeight = contHeight;
+					// calculate width based on a video height, it order to keep the same aspect ratio
+					newVidWidth = ((origVidWidth * newVidHeight) / origVidHeight);
+				}
+			} // if we have device where screen height less than screen width e.g. tablet
+			else {
+				// make the video height full height of the screen
+				newVidHeight = contHeight;
+				// calculate width based on a video height, it order to keep the same aspect ratio
+				newVidWidth = ((origVidWidth * newVidHeight) / origVidHeight);
+				// if calculated width appeared to be bigger than screen width, recalculuate the video size based on height
+				if (contWidth < newVidWidth) {
+					// make the video width full width of the screen 
+					newVidWidth = contWidth;
+					// calculate height based on a video width, it order to keep the same aspect ratio
+					newVidHeight = (newVidWidth / origVidWidth) * origVidHeight;
+				}
+			}
+			
+			var x:int = (contWidth - newVidWidth) / 2;
+			var y:int = (contHeight - newVidHeight) / 2;
+			
+			return new Rectangle(x, y, newVidWidth, newVidHeight);
+		}
+		
 	}
 }

@@ -73,11 +73,11 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private function toggleStageVideo(on:Boolean):void {
-			if (on) {
+		//	if (on) {
 				trace("****** Hiding presentation window as we are using stage video");
 				// Using stage video. Need to hide PresentationWIndow to make StageVideo visible.
 				_presentationView.visible = false;
-			}
+		//	}
 		}
 	}
 }
