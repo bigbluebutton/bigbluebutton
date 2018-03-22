@@ -41,7 +41,7 @@ package org.bigbluebutton.air.screenshare.views {
 		private function onStageVideoState(event:StageVideoAvailabilityEvent):void {
 			var available:Boolean = (event.availability == StageVideoAvailability.AVAILABLE);
 			
-			//available = false; // for testing!!!
+			available = false; // for testing!!!
 			
 			trace("************ ScreenshareView: STAGE VIDEO available=" + available);
 			stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
@@ -88,10 +88,12 @@ package org.bigbluebutton.air.screenshare.views {
 				
 				trace("***** Using classic Video");
 				_ssView = new ScreenshareView();
-				addElement(_ssView);
 				_ssView.x = viewPort.x;
 				_ssView.y = viewPort.y;
-				_ssView.display(ns, viewPort.width, viewPort.width);
+				_ssView.width = viewPort.width;
+				_ssView.height = viewPort.height;
+				addElement(_ssView);
+				_ssView.display(ns, viewPort.width, viewPort.height);
 				_usingVideo = true;
 			}
 			
@@ -160,10 +162,7 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		public function onMetaData(info:Object):void {
 			trace("ScreenshareView::ScreenshareView width={0} height={1}", [info.width, info.height]);
-			if (_usingVideo) {
-				_ssView.width = info.width;
-				_ssView.height = info.height;
-			}
+
 		}
 		
 		public function dispose():void {
@@ -178,6 +177,9 @@ package org.bigbluebutton.air.screenshare.views {
 		private function stopViewing():void {
 			if (_played) {
 				ns.close();
+				if (_usingVideo) {
+					removeElement(_ssView);
+				}
 			}
 			_usingStageVideo = _usingVideo = _played = false;
 			_origVidWidth = _origVidHeight = 0;
