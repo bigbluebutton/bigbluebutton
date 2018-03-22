@@ -38,6 +38,10 @@ package org.bigbluebutton.air.main.views {
 			_screenshareView = new ScreenshareDock();
 			_screenshareView.percentWidth = 100;
 			_screenshareView.percentHeight = 100;
+			
+			// Listen for using stage view as we have to hide some views to make stage view visible.
+			_screenshareView.addUsingStageViewListener(toggleStageVideo);
+			
 			addElement(_screenshareView);
 			
 			_webcamDock = new WebcamDock();
@@ -66,6 +70,14 @@ package org.bigbluebutton.air.main.views {
 			_screenshareView.y = _topToolbar.height;
 			
 			_webcamDock.bottom = _menuButtons.height;
+		}
+		
+		private function toggleStageVideo(on:Boolean):void {
+			if (on) {
+				trace("****** Hiding presentation window as we are using stage video");
+				// Using stage video. Need to hide PresentationWIndow to make StageVideo visible.
+				_presentationView.visible = false;
+			}
 		}
 	}
 }
