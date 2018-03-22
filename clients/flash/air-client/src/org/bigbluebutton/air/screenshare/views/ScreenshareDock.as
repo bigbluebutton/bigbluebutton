@@ -32,7 +32,7 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		private var _played:Boolean = false;
 		
-		private var _usingStageViewListener:Function;
+		private var _screenshareRunningListener:Function;
 		
 		public function ScreenshareDock():void {
 			
@@ -44,7 +44,7 @@ package org.bigbluebutton.air.screenshare.views {
 			//available = false; // for testing!!!
 			
 			trace("************ ScreenshareView: STAGE VIDEO available=" + available);
-			_usingStageViewListener(available);
+			stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			// Detect if StageVideo is available and decide what to do in toggleStageVideo 
 			toggleStageVideo(available);
 		}
@@ -114,6 +114,8 @@ package org.bigbluebutton.air.screenshare.views {
 			_origVidWidth = width;
 			_origVidHeight = height;
 			
+			_screenshareRunningListener(true);
+			
 			if (stage == null) {
 				trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
 			} else {
@@ -123,6 +125,8 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		public function streamStopped(session:String, reason:String):void {
 			trace("TODO: Need to implement stopping screenshare stream");
+			_screenshareRunningListener(false);
+			stopViewing();
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
@@ -135,7 +139,7 @@ package org.bigbluebutton.air.screenshare.views {
 					//					trace("NetStream.Publish.Start for broadcast stream " + streamName);
 					break;
 				case "NetStream.Play.UnpublishNotify":
-					//					close();
+					stopViewing();
 					break;
 				case "NetStream.Play.Start":
 					trace("Netstatus: " + e.info.code);
@@ -168,10 +172,23 @@ package org.bigbluebutton.air.screenshare.views {
 				trace("************ ScreenshareView::dispose - remove listener ****************");
 				stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			}
+			stopViewing();
 		}
 		
-		public function addUsingStageViewListener(listener:Function):void {
-			_usingStageViewListener = listener;
+		private function stopViewing():void {
+			if (_played) {
+				ns.close();
+			}
+			_usingStageVideo = _usingVideo = _played = false;
+			_origVidWidth = _origVidHeight = 0;
+			_ssView = null;
+			_sv = null;
+			ns = null;
+			
+		}
+		
+		public function addScreenshareRunningListener(listener:Function):void {
+			_screenshareRunningListener = listener;
 		}
 	
 		private function positionAndSize(contWidth:int, contHeight:int, origVidWidth:int, origVidHeight:int):Rectangle {
