@@ -245,6 +245,16 @@ settings|SettingsItemRenderer {
 	skinClass  : ClassReference("org.bigbluebutton.air.main.views.skins.SaveButtonSkin");
 }
 
+.voteButton {
+	color                   : PropertyReference("white");
+	cornerRadius            : 0;
+	borderVisible 			: false;
+	backgroundColor         : PropertyReference("bbbBlue");
+	fontFamily              : SourceSansPro;
+	selectedBackgroundColor : PropertyReference("darkBlue");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.ActionButtonSkin");
+}
+
 .settingsIcon {
 	iconColor : PropertyReference("grey700");
 }

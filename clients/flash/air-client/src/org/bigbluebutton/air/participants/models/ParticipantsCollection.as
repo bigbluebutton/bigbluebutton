@@ -51,14 +51,11 @@ package org.bigbluebutton.air.participants.models {
 				} else if (pg.type == ParticipantTitle.USER) {
 					return 1;
 				}
-			} else if (a is ParticipantTitle && b is UserVM) {
-				// ParticipantTitle is always before UserVM
+			} else if ((a is ParticipantTitle || b is GroupChat) && b is UserVM) {
+				// ParticipantTitle and GroupChat are always before UserVM
 				return -1;
-			} else if (a is UserVM && b is ParticipantTitle) {
-				// UserVM is always after ParticipantTitle
-				return 1;
-			} else if (a is UserVM && b is GroupChat) {
-				// UserVM is always after GroupChat
+			} else if (a is UserVM && (b is ParticipantTitle || b is GroupChat)) {
+				// UserVM is always after ParticipantTitle and GroupChat
 				return 1;
 			} else if (a is GroupChat && b is ParticipantTitle) {
 				var gp:ParticipantTitle = b as ParticipantTitle;
@@ -67,9 +64,6 @@ package org.bigbluebutton.air.participants.models {
 				} else if (gp.type == ParticipantTitle.USER) {
 					return -1;
 				}
-			} else if (a is GroupChat && b is UserVM) {
-				// GroupChat is before after UserVM
-				return -1;
 			} else if (a is GroupChat && b is GroupChat) {
 				if (a.isPublic && !b.isPublic)
 					return -1;
@@ -116,10 +110,10 @@ package org.bigbluebutton.air.participants.models {
 				else if (!bu.voiceOnly)
 					return 1;
 				/*
-				* Check name (case-insensitive) in the event of a tie up above. If the name
-				* is the same then use userID which should be unique making the order the same
-				* across all clients.
-				*/
+				 * Check name (case-insensitive) in the event of a tie up above. If the name
+				 * is the same then use userID which should be unique making the order the same
+				 * across all clients.
+				 */
 				if (au.name.toLowerCase() < bu.name.toLowerCase())
 					return -1;
 				else if (au.name.toLowerCase() > bu.name.toLowerCase())
