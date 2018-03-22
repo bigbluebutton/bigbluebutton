@@ -75,14 +75,15 @@ class VideoDock extends Component {
   getUsersWithActiveStreams() {
     const { userId, sharedWebcam } = this.props;
     const activeFilter = (user) => {
-      return (!user.locked && user.has_stream) || (sharedWebcam && user.userId == userId);
+      const isLocked = this.props.isLocked && user.locked;
+      return !isLocked && (user.has_stream || (sharedWebcam && user.userId == userId));
     };
 
     return this.props.users.filter(activeFilter);
   }
 
   render() {
-    if (!this.props.socketOpen || this.props.isLocked) {
+    if (!this.props.socketOpen) {
       // TODO: return something when disconnected
       return null;
     }
