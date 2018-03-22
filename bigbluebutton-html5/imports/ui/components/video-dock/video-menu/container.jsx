@@ -65,4 +65,5 @@ export default injectIntl(withTracker(({
   handleJoinVideo,
   handleCloseVideo,
   intl,
+  videoShareAllowed: VideoMenuService.videoShareAllowed(),
 }))(JoinVideoOptionsContainer));

@@ -13,25 +13,25 @@ const isSharingVideo = () => {
   return !!user.has_stream;
 };
 
+const videoShareAllowed = () => Settings.dataSaving.viewParticipantsWebcams;
+
+
 const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const videoSettings = Settings.dataSaving;
-  const enableShare = !videoSettings.viewParticipantsWebcams;
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const LockCam = meeting.lockSettingsProp ? meeting.lockSettingsProp.disableCam : false;
   const webcamOnlyModerator = meeting.usersProp.webcamsOnlyForModerator;
 
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
-
-  const isConecting = (!isSharingVideo && isConnected);
+  const isConecting = (!isSharingVideo() && isConnected);
   const isLocked = (LockCam && userLocked) || webcamOnlyModerator;
   return isLocked
       || isWaitingResponse
       || isConecting
-      || enableShare;
+      || !videoShareAllowed();
 };
 
 
@@ -39,4 +39,5 @@ export default {
   isSharingVideo,
   isDisabled,
   baseName,
+  videoShareAllowed,
 };
