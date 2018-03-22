@@ -16,9 +16,6 @@ package org.bigbluebutton.air.user.services {
 			trace(status);
 		};
 		
-		public function UsersMessageSender() {
-		}
-		
 		public function joinMeeting():void {
 			var message:Object = {
 				header: {name: "UserJoinMeetingReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
