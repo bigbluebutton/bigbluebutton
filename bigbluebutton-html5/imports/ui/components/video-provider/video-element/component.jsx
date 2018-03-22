@@ -46,34 +46,19 @@ class VideoElement extends Component {
   }
 
   getVideoConstraints() {
-    let videoConstraints = {};
-    if (navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
-      // Custom constraints for Safari
-      videoConstraints = {
-        width: {
-          min: 320,
-          max: 640,
-        },
-        height: {
-          min: 240,
-          max: 480,
-        },
-      };
-    } else {
-      videoConstraints = {
-        width: {
-          min: 320,
-          ideal: 640,
-        },
-        height: {
-          min: 240,
-          ideal: 480,
-        },
-        frameRate: {
-          min: 5,
-          ideal: 10,
-        },
-      };
+    let videoConstraints = {
+      width: {
+        min: 320,
+        max: 640,
+      },
+      height: {
+        min: 240,
+        max: 480,
+      },
+    };
+
+    if (!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
+      videoConstraints.frameRate = { min: 5, ideal: 10, };
     }
 
     return videoConstraints;
