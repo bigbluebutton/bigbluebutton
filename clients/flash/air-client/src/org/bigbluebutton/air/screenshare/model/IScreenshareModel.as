@@ -38,8 +38,6 @@ package org.bigbluebutton.air.screenshare.model
 		function set session(j:String):void;
 		
 		// Handles query from server that presenter is currently sharing screen.
-		function screenshareStreamRunning(streamId:String, width:int, height:int, url:String, session:String):void;
-		
 		function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void;
 		
 		function screenshareStreamStopped(session:String, reason:String):void;

@@ -52,7 +52,7 @@ package org.bigbluebutton.air.screenshare.services
 			if (map.hasOwnProperty("sharing") && map.sharing) {
 				if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&
 					map.hasOwnProperty("height") && map.hasOwnProperty("url") && map.hasOwnProperty("session")) {
-					model.screenshareStreamRunning(map.streamId, map.width, map.height, map.url, map.session);
+					model.screenshareStreamStarted(map.streamId, map.width, map.height, map.url, map.session);
 				}
 			}
 		}

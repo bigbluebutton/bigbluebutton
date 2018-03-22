@@ -21,6 +21,9 @@ package org.bigbluebutton.air.screenshare.views
 			trace("************ ScreenshareViewMediator:: INIT **************");
 			model.screenshareStreamStartedSignal.add(viewStream);
 			model.screenshareStreamStoppedSignal.add(streamStopped);
+			if (model.isSharing) {
+				viewStream(model.streamId, model.width, model.height);
+			}
 		}
 		
 		public function viewStream(streamId:String, width:int, height:int):void {

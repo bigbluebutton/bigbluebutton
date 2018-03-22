@@ -79,28 +79,21 @@ package org.bigbluebutton.air.screenshare.model
 		public function set session(j:String):void {
 			_stream.session = j;
 		}
-		
-		public function screenshareStreamRunning(streamId:String, width:int, height:int, url:String, session:String):void {
-			this.streamId = streamId;
-			this.width = width;
-			this.height = height;
-			this.url = url;
-			this.session = session;
-			
-			screenshareStreamStartedSignal.dispatch(streamId, width, height);
-		}
-		
+				
 		public function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void {
 			this.streamId = streamId;
 			this.width = width;
 			this.height = height;
 			this.url = url;
 			this.session = session;
+			
+			_isScreenSharing = true;
 			screenshareStreamStartedSignal.dispatch(streamId, width, height);
 		}
 		
 		public function screenshareStreamStopped(session:String, reason:String):void {
 			if (this.session == session) {
+				_isScreenSharing = false;
 				screenshareStreamStoppedSignal.dispatch(session, reason);
 			}
 		}

@@ -18,23 +18,19 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		private var _streamId:String;
 		
-		private var _width:int;
+		private var _origVidWidth:int;
 		
-		private var _height:int;
+		private var _origVidHeight:int;
 		
 		private var _sv:StageVideo;
 		
 		private var _ssView:ScreenshareView;
 		
-		private var _stageVideoInUse:Boolean = false;
+		private var _usingStageVideo:Boolean = false;
 		
-		private var _classicVideoInUse:Boolean = false;
+		private var _usingVideo:Boolean = false;
 		
 		private var _played:Boolean = false;
-		
-		private var originalVideoWidth:Number;
-		
-		private var originalVideoHeight:Number;
 		
 		private var _usingStageViewListener:Function;
 		
@@ -45,7 +41,7 @@ package org.bigbluebutton.air.screenshare.views {
 		private function onStageVideoState(event:StageVideoAvailabilityEvent):void {
 			var available:Boolean = (event.availability == StageVideoAvailability.AVAILABLE);
 			
-			available = false; // for testing!!!
+			//available = false; // for testing!!!
 			
 			trace("************ ScreenshareView: STAGE VIDEO available=" + available);
 			_usingStageViewListener(available);
@@ -62,14 +58,13 @@ package org.bigbluebutton.air.screenshare.views {
 			ns.receiveVideo(true);
 			ns.receiveAudio(false);
 			
-			trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _width + ",h=" + _height);
+			trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _origVidWidth + ",h=" + _origVidHeight);
 			
-			var viewPort:Rectangle = positionAndSize(this.width, this.height, _width, _height);
+			var viewPort:Rectangle = positionAndSize(this.width, this.height, _origVidWidth, _origVidHeight);
 			
 			// To choose StageVideo attach the NetStream to StageVideo 
-			if (on) {
-				
-				_stageVideoInUse = true;
+			if (on) {				
+				_usingStageVideo = true;
 				if (_sv == null) {
 					trace("***** Using StageVideo length=" + stage.stageVideos.length);
 					_sv = stage.stageVideos[0];
@@ -78,29 +73,26 @@ package org.bigbluebutton.air.screenshare.views {
 					_sv.attachNetStream(ns);
 				}
 				
-				if (_classicVideoInUse) {
+				if (_usingVideo) {
 					// If you use StageVideo, remove from the display list the 
 					// Video object to avoid covering the StageVideo object 
 					// (which is always in the background) 
 					stage.removeChild(_ssView);
-					_classicVideoInUse = false;
+					_usingVideo = false;
 				}
 			} else {
 				// Otherwise attach it to a Video object 
-				if (_stageVideoInUse) {
-					_stageVideoInUse = false;
+				if (_usingStageVideo) {
+					_usingStageVideo = false;
 				}
 				
 				trace("***** Using classic Video");
 				_ssView = new ScreenshareView();
 				addElement(_ssView);
-				//_ssView.percentWidth = 100;
-				//_ssView.percentHeight = 100;
 				_ssView.x = viewPort.x;
 				_ssView.y = viewPort.y;
 				_ssView.display(ns, viewPort.width, viewPort.width);
-				_classicVideoInUse = true;
-				//_ssView.fitToWindow();
+				_usingVideo = true;
 			}
 			
 			if (!_played) {
@@ -113,20 +105,14 @@ package org.bigbluebutton.air.screenshare.views {
 		private function stageVideoStateChange(event:StageVideoEvent):void {
 			var status:String = event.status;
 			trace("***** stageVideoStateChange " + status + ",codec=" + event.codecInfo + ",color=" + event.colorSpace);
-			resize();
 		}
-		
-		private function resize():void {
-			//var rc = computeVideoRect(_sv.videoWidth, _sv.videoHeight);       
-			//_sv.viewPort = rc;       
-		}
-		
+			
 		public function viewStream(conn:NetConnection, streamId:String, width:int, height:int):void {
 			trace("************ ScreenshareView: viewing of screenshare streamId=" + streamId + " w=" + width + " h=" + height);
 			_conn = conn;
 			_streamId = streamId;
-			_width = width;
-			_height = height;
+			_origVidWidth = width;
+			_origVidHeight = height;
 			
 			if (stage == null) {
 				trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
@@ -170,7 +156,7 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		public function onMetaData(info:Object):void {
 			trace("ScreenshareView::ScreenshareView width={0} height={1}", [info.width, info.height]);
-			if (_classicVideoInUse) {
+			if (_usingVideo) {
 				_ssView.width = info.width;
 				_ssView.height = info.height;
 			}
@@ -198,7 +184,7 @@ package org.bigbluebutton.air.screenshare.views {
 				newVidWidth = contWidth;
 				// calculate height based on a video width, it order to keep the same aspect ratio
 				newVidHeight = (newVidWidth / origVidWidth) * origVidHeight;
-				// if calculated height appeared to be bigger than screen height, recalculuate the video size based on width
+				// if calculated height appear to be bigger than screen height, recalculate the video size based on width
 				if (contHeight < newVidHeight) {
 					// make the video height full height of the screen
 					newVidHeight = contHeight;
@@ -211,7 +197,7 @@ package org.bigbluebutton.air.screenshare.views {
 				newVidHeight = contHeight;
 				// calculate width based on a video height, it order to keep the same aspect ratio
 				newVidWidth = ((origVidWidth * newVidHeight) / origVidHeight);
-				// if calculated width appeared to be bigger than screen width, recalculuate the video size based on height
+				// if calculated width appear to be bigger than screen width, recalculate the video size based on height
 				if (contWidth < newVidWidth) {
 					// make the video width full width of the screen 
 					newVidWidth = contWidth;
