@@ -10,8 +10,6 @@ import _ from 'lodash';
 
 import VideoElement from '../video-element/component';
 
-const INITIAL_SHARE_WAIT_TIME = 2000;
-
 const intlMessages = defineMessages({
   chromeExtensionError: {
     id: 'app.video.chromeExtensionError',
@@ -77,14 +75,14 @@ class VideoDock extends Component {
   getUsersWithActiveStreams() {
     const { userId, sharedWebcam } = this.props;
     const activeFilter = (user) => {
-      return user.has_stream || (sharedWebcam && user.userId == userId);
+      return (!user.locked && user.has_stream) || (sharedWebcam && user.userId == userId);
     };
 
     return this.props.users.filter(activeFilter);
   }
 
   render() {
-    if (!this.props.socketOpen) {
+    if (!this.props.socketOpen || this.props.isLocked) {
       // TODO: return something when disconnected
       return null;
     }

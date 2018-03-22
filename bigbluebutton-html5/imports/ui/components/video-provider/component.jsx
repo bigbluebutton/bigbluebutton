@@ -101,13 +101,6 @@ class VideoProvider extends Component {
     this.ws.close();
   }
 
-  componentWillUpdate(nextProps) {
-    const { isLocked } = nextProps;
-    if (isLocked && VideoService.isConnected()) {
-      this.unshareWebcam();
-    }
-  }
-
   onWsOpen() {
     log('debug', '------ Websocket connection opened.');
 
@@ -370,6 +363,7 @@ class VideoProvider extends Component {
         cameraId: id,
       });
 
+      this.unshareWebcam();
       VideoService.exitedVideo();
     }
 
@@ -381,11 +375,7 @@ class VideoProvider extends Component {
     log('info', 'Handle play stop <--------------------');
     log('error', message);
 
-    if (id === this.props.userId) {
-      this.unshareWebcam();
-    } else {
-      this.stop(id);
-    }
+    this.stop(id);
   }
 
   handlePlayStart(message) {
@@ -447,6 +437,7 @@ class VideoProvider extends Component {
         sharedWebcam={this.state.sharedWebcam}
         onShareWebcam={this.shareWebcam.bind(this)}
         socketOpen={this.state.socketOpen}
+        isLocked={this.props.isLocked}
       />
     );
   }

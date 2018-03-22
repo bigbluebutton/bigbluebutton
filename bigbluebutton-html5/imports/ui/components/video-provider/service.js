@@ -1,6 +1,7 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings/';
 import Auth from '/imports/ui/services/auth';
 
 class VideoService {
@@ -69,6 +70,16 @@ class VideoService {
     return Users.find().fetch();
   }
 
+  webcamOnlyModerator() {
+    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    return m.usersProp.webcamsOnlyForModerator;
+  }
+
+  isLocked() {
+    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
+  }
+
   userId() {
     return Auth.userID;
   }
@@ -93,6 +104,8 @@ export default {
   exitingVideo: () => videoService.exitingVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getAllUsers: () => videoService.getAllUsers(),
+  webcamOnlyModerator: () => videoService.webcamOnlyModerator(),
+  isLocked:    () => videoService.isLocked(),
   isConnected: () => videoService.isConnected,
   isWaitingResponse: () => videoService.isWaitingResponse,
   joinVideo: () => videoService.joinVideo(),
