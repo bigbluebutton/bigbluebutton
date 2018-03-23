@@ -244,26 +244,31 @@ package org.bigbluebutton.main.model.users
 
         public function sendMessage2x(onSuccess:Function, onFailure:Function, json:Object):void {
 
-            var service: String = "onMessageFromClient";
-
-            var responder:Responder =   new Responder(
-                function(result:Object):void { // On successful result
-                    onSuccess("Successfully sent [" + service + "]."); 
-                },
-                function(status:Object):void { // status - On error occurred
-                    var errorReason:String = "Failed to send [" + service + "]:\n"; 
-                    for (var x:Object in status) { 
-                        errorReason += "\t" + x + " : " + status[x]; 
-                    } 
-                }
-            );
-
-            if (json == null) {
-                _netConnection.call(service, responder);
-            } else {
-                _netConnection.call(service, responder, json);
-            }
+					sendMessageToRed5(onSuccess, onFailure, json);
         }
+				
+				private function sendMessageToRed5(onSuccess:Function, onFailure:Function, json:Object):void {
+					var service: String = "onMessageFromClient";
+					
+					var responder:Responder =   new Responder(
+						function(result:Object):void { // On successful result
+							onSuccess("Successfully sent [" + service + "]."); 
+						},
+						function(status:Object):void { // status - On error occurred
+							var errorReason:String = "Failed to send [" + service + "]:\n"; 
+							for (var x:Object in status) { 
+								errorReason += "\t" + x + " : " + status[x]; 
+							} 
+						}
+					);
+					
+					if (json == null) {
+						_netConnection.call(service, responder);
+					} else {
+						_netConnection.call(service, responder, JSON.stringify(json));
+					}
+				}
+				
 
 
         private function validateToken():void {

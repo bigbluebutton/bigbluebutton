@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.layout.services {
 				logData.tags = ["apps"];
 				logData.message = "Error occured requesting current layout.";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 
 		public function broadcastLayout(layout:LayoutDefinition):void {
@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.layout.services {
 				logData.tags = ["apps"];
 				logData.message = "Error occured broadcasting layout.";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 	}
 }
