@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Tooltip from '/imports/ui/components/tooltip/component';
 import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
@@ -43,16 +44,19 @@ class PollingComponent extends Component {
             style={calculatedStyles}
             className={styles.pollButtonWrapper}
           >
-            <Button
-              className={styles.pollingButton}
-              size="lg"
-              color="primary"
-              label={pollAnswer.key}
-              onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
-              aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-              aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-              showTip
-            />
+            <Tooltip
+              title={pollAnswer.key}
+            >
+              <Button
+                className={styles.pollingButton}
+                size="lg"
+                color="primary"
+                label={pollAnswer.key}
+                onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
+                aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+                aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+              />
+            </Tooltip>
             <div
               className={styles.hidden}
               id={`pollAnswerLabel${pollAnswer.key}`}
