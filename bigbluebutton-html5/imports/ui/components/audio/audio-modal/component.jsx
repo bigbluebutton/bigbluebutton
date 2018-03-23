@@ -197,6 +197,7 @@ class AudioModal extends Component {
           circle
           size="jumbo"
           onClick={this.handleGoToEchoTest}
+          accessKey="m"
         />
         <Button
           className={styles.audioBtn}
@@ -205,6 +206,7 @@ class AudioModal extends Component {
           circle
           size="jumbo"
           onClick={this.handleJoinListenOnly}
+          accessKey="l"
         />
       </span>
     );
