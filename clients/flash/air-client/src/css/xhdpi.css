@@ -10,8 +10,13 @@
 @namespace settingsLock "org.bigbluebutton.air.settings.views.lock.*";
 @namespace settingsCamera "org.bigbluebutton.air.settings.views.camera.*";
 @namespace voice "org.bigbluebutton.air.voice.views.*";
+@namespace poll "org.bigbluebutton.air.poll.views.*";
 
 @media (application-dpi: 320) {
+	main|MainView {
+		pollPadding : 18;
+	}
+	
 	main|LoadingScreen {
 		fontSize : 34;
 	}
@@ -98,6 +103,15 @@
 	
 	s|ToggleSwitch {
 		fontSize : 24;
+	}
+	
+	main|EmojiPopUp {
+		fontSize     : 22;
+	}
+	
+	poll|PollButtons {
+		padding      : 12;
+		gap          : 18;
 	}
 	
 	.icon {

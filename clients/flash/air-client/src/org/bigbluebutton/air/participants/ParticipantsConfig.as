@@ -1,4 +1,7 @@
 package org.bigbluebutton.air.participants {
+	import org.bigbluebutton.air.participants.views.ParticipantsMediator;
+	import org.bigbluebutton.air.participants.views.ParticipantsViewBase;
+	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.framework.api.IConfig;
 	
@@ -15,6 +18,7 @@ package org.bigbluebutton.air.participants {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
+			mediatorMap.map(ParticipantsViewBase).toMediator(ParticipantsMediator);
 		}
 	}
 }

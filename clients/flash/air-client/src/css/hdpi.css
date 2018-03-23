@@ -22,7 +22,13 @@
 
 @namespace voice "org.bigbluebutton.air.voice.views.*";
 
+@namespace poll "org.bigbluebutton.air.poll.views.*";
+
 @media (application-dpi: 240) {
+    main|MainView {
+        pollPadding: 13.50;
+    }
+
     main|LoadingScreen {
         fontSize: 25.50;
     }
@@ -109,6 +115,15 @@
 
     s|ToggleSwitch {
         fontSize: 18.00;
+    }
+
+    main|EmojiPopUp {
+        fontSize: 16.50;
+    }
+
+    poll|PollButtons {
+        padding: 9.00;
+        gap: 13.50;
     }
 
     .icon {

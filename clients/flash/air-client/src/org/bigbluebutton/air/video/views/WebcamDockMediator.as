@@ -4,7 +4,6 @@ package org.bigbluebutton.air.video.views {
 	import org.bigbluebutton.air.video.models.VideoProfile;
 	import org.bigbluebutton.air.video.models.WebcamChangeEnum;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
-	import org.bigbluebutton.air.video.services.IVideoConnection;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

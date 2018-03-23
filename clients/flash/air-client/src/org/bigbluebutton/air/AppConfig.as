@@ -36,6 +36,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.services.IGuestWaitPageService;
 	import org.bigbluebutton.air.main.services.ILoginService;
 	import org.bigbluebutton.air.main.services.LoginService;
+	import org.bigbluebutton.air.poll.services.IPollService;
+	import org.bigbluebutton.air.poll.services.PollService;
 	import org.bigbluebutton.air.presentation.services.IPresentationService;
 	import org.bigbluebutton.air.presentation.services.PresentationService;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
@@ -68,6 +70,7 @@ package org.bigbluebutton.air {
 			injector.map(IMeetingData).toSingleton(MeetingData);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
+			injector.map(IPollService).toSingleton(PollService);
 			injector.map(IVoiceService).toSingleton(VoiceService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IScreenshareConnection).toSingleton(ScreenshareConnection);

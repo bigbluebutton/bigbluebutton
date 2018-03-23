@@ -79,6 +79,7 @@
 
 global {
 	font-family : SourceSansPro;
+	color       : PropertyReference("bbbBlack");
 }
 
 /* Classes */
@@ -111,8 +112,8 @@ main|TopToolbarBase {
 	backgroundColor : PropertyReference("bbbBlack");
 }
 
-participants|ParticipantsViewBase, user|UsersView {
-	backgroundColor : PropertyReference("grey100");
+participants|ParticipantsViewBase {
+	backgroundColor : PropertyReference("white");
 	color           : PropertyReference("blue900");
 }
 
@@ -160,6 +161,20 @@ s|CheckBox {
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileCheckBoxSkin");
 	fontFamily  : SourceSansProMX;
 	chromeColor : PropertyReference("white");
+}
+
+main|EmojiItemRenderer {
+	iconFont      : BBBIcons;
+	iconColor     : PropertyReference("grey700");
+	color         : PropertyReference("grey700");
+	selectedColor : PropertyReference("bbbBlue");
+	itemHeight    : 30;
+	
+}
+
+.statusList {
+	skinClass              : ClassReference("org.bigbluebutton.air.main.views.EmojiListSkin");
+	contentBackgroundAlpha : 0;
 }
 
 .sectionTitle {
@@ -232,6 +247,16 @@ settings|SettingsItemRenderer {
 	skinClass  : ClassReference("org.bigbluebutton.air.main.views.skins.SaveButtonSkin");
 }
 
+.voteButton {
+	color                   : PropertyReference("white");
+	cornerRadius            : 0;
+	borderVisible 			: false;
+	backgroundColor         : PropertyReference("bbbBlue");
+	fontFamily              : SourceSansPro;
+	selectedBackgroundColor : PropertyReference("darkBlue");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.ActionButtonSkin");
+}
+
 .settingsIcon {
 	iconColor : PropertyReference("grey700");
 }
@@ -243,7 +268,7 @@ settings|SettingsItemRenderer {
 .menuButton, .menuButtonRed {
 	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
-	selectedBackgroundColor : PropertyReference("bbbGrey");
+	selectedBackgroundColor : PropertyReference("darkBlue");
 	color                   : PropertyReference("white");
 	iconFont                : BBBIcons;
 	iconColor               : PropertyReference("white");
@@ -297,14 +322,13 @@ settings|SettingsItemRenderer {
 	color : PropertyReference("bbbBlack");
 }
 
-
 .audioButtonStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;
 	borderAlphaDisabled : 0;
 	
-	fillColorUp         : #EFF5FA;
-	borderColorOver     : #1070D7;
-	borderColorDown     : #1070D7;
+	fillColorUp         : PropertyReference("blue500");
+	borderColorOver     : PropertyReference("grey700");
+	borderColorDown     : PropertyReference("grey700");
 }

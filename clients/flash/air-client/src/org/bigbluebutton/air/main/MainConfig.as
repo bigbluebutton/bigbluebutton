@@ -10,6 +10,8 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.BannerViewMediator;
 	import org.bigbluebutton.air.main.views.DisconnectView;
 	import org.bigbluebutton.air.main.views.DisconnectViewMediator;
+	import org.bigbluebutton.air.main.views.EmojiPopUp;
+	import org.bigbluebutton.air.main.views.EmojiPopUpMediator;
 	import org.bigbluebutton.air.main.views.ExitView;
 	import org.bigbluebutton.air.main.views.ExitViewMediator;
 	import org.bigbluebutton.air.main.views.LoadingScreen;
@@ -46,22 +48,17 @@ package org.bigbluebutton.air.main {
 		 */
 		private function mediators():void {
 			/*
-				 mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
-				 mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
-				 mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
-				 mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
-				 mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
-				 mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
-				 mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
-				 mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
-				 mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
-				 mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
+			   mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
+			   mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
+			   mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
+			   mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
 			 */
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
 			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);
 			mediatorMap.map(BannerView).toMediator(BannerViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase)).toMediator(TopToolbarMediator);
 			mediatorMap.map(MenuButtons).toMediator(MenuButtonsMediator);
+			mediatorMap.map(EmojiPopUp).toMediator(EmojiPopUpMediator);
 			mediatorMap.map(ExitView).toMediator(ExitViewMediator);
 			mediatorMap.map(DisconnectView).toMediator(DisconnectViewMediator);
 			mediatorMap.map(MainView).toMediator(MainViewMediator);

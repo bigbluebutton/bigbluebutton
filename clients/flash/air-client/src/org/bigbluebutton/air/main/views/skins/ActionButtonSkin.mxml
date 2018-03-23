@@ -28,6 +28,8 @@
 					border.radiusX = cornerRadius;
 				}
 				
+				border.visible = getStyle("borderVisible");
+				
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 			}
 			

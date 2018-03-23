@@ -1,5 +1,5 @@
 package org.bigbluebutton.air.chat.commands {
-	import org.bigbluebutton.air.chat.models.GroupChat;
+	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.chat.services.IChatMessageService;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
@@ -13,6 +13,9 @@ package org.bigbluebutton.air.chat.commands {
 		public var chatService:IChatMessageService;
 		
 		[Inject]
+		public var chatMessagesSession:IChatMessagesSession;
+		
+		[Inject]
 		public var userSession:IUserSession;
 		
 		[Inject]
@@ -23,7 +26,7 @@ package org.bigbluebutton.air.chat.commands {
 		
 		override public function execute():void {
 			var user:User2x = meetingData.users.getUser(userId);
-			if (user) {
+			if (user && !chatMessagesSession.getGroupByUserId(userId)) {
 				chatService.createGroupChat(user.name, false, [userId]);
 			}
 		}

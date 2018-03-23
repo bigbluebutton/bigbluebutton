@@ -3,6 +3,7 @@ package org.bigbluebutton.air.main.views {
 	import spark.layouts.VerticalLayout;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.air.poll.views.PollButtons;
 	import org.bigbluebutton.air.presentation.views.PresentationView;
 	import org.bigbluebutton.air.screenshare.views.ScreenshareDock;
 	import org.bigbluebutton.air.video.views.WebcamDock;
@@ -17,6 +18,7 @@ package org.bigbluebutton.air.main.views {
 		private var _webcamDock:WebcamDock;
 		
 		private var _screenshareView:ScreenshareDock;
+		private var _pollButton:PollButtons;
 		
 		public function MainView() {
 			super();
@@ -54,6 +56,12 @@ package org.bigbluebutton.air.main.views {
 			_menuButtons.horizontalCenter = 0;
 			_menuButtons.bottom = 0;
 			addElement(_menuButtons);
+			
+			_pollButton = new PollButtons();
+			_pollButton.visible = false;
+			_pollButton.percentWidth = 100;
+			_pollButton.horizontalCenter = 0;
+			addElement(_pollButton);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
@@ -70,6 +78,8 @@ package org.bigbluebutton.air.main.views {
 			_screenshareView.y = _topToolbar.height;
 			
 			_webcamDock.bottom = _menuButtons.height;
+			
+			_pollButton.bottom = _menuButtons.height + getStyle("pollPadding");;
 		}
 		
 		private function onScreenshareRunning(running:Boolean):void {

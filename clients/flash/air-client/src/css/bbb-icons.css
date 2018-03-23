@@ -43,10 +43,10 @@
 .icon-up-arrow {
 	icon: "\ue906";
 }
-.icon-undecided {
+.icon-undecided, .icon-neutral {
 	icon: "\ue907";
 }
-.icon-time {
+.icon-time, .icon-away {
 	icon: "\ue908";
 }
 .icon-sad {
@@ -67,7 +67,7 @@
 .icon-happy {
 	icon: "\ue90e";
 }
-.icon-hand {
+.icon-hand, .icon-raiseHand {
 	icon: "\ue90f";
 }
 .icon-group-chat {
@@ -79,7 +79,7 @@
 .icon-close {
 	icon: "\ue912";
 }
-.icon-clear-status {
+.icon-clear-status, .icon-none {
 	icon: "\ue913";
 }
 .icon-circle {
@@ -154,10 +154,10 @@
 .icon-settings {
 	icon: "\ue92b";
 }
-.icon-thumbs-down {
+.icon-thumbs-down, .icon-thumbsDown {
 	icon: "\ue92c";
 }
-.icon-thumbs-up {
+.icon-thumbs-up, .icon-thumbsUp {
 	icon: "\ue92d";
 }
 .icon-file {

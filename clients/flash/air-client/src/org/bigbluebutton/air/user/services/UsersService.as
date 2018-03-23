@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.user.services {
 	
+	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
@@ -18,6 +19,9 @@ package org.bigbluebutton.air.user.services {
 		public var meetingData:IMeetingData;
 		
 		[Inject]
+		public var chatMessagesSession:IChatMessagesSession;
+		
+		[Inject]
 		public var disconnectUserSignal:DisconnectUserSignal;
 		
 		public var usersMessageSender:UsersMessageSender;
@@ -32,6 +36,7 @@ package org.bigbluebutton.air.user.services {
 		public function setupMessageSenderReceiver():void {
 			usersMessageReceiver.userSession = userSession;
 			usersMessageReceiver.meetingData = meetingData;
+			usersMessageReceiver.chatMessagesSession = chatMessagesSession;
 			usersMessageReceiver.conferenceParameters = conferenceParameters;
 			usersMessageReceiver.disconnectUserSignal = disconnectUserSignal;
 			usersMessageSender.userSession = userSession;

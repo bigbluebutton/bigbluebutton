@@ -1,11 +1,15 @@
 package org.bigbluebutton.air.main.views {
 	
+	import flash.display.DisplayObjectContainer;
 	import flash.events.MouseEvent;
+	
+	import spark.events.PopUpEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUISession;
+	import org.bigbluebutton.air.user.models.EmojiStatus;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
@@ -14,11 +18,15 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.air.voice.models.VoiceUser;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
+	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	
 	public class MenuButtonsMediator extends Mediator {
 		
 		[Inject]
 		public var view:MenuButtons;
+		
+		[Inject]
+		public var mediatorMap:IMediatorMap;
 		
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
@@ -51,20 +59,18 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private function changeStatus(e:MouseEvent):void {
-		/*var changeStatusPopUp:ChangeStatusPopUp = new ChangeStatusPopUp();
-		   mediatorMap.mediate(changeStatusPopUp);
-		   changeStatusPopUp.width = view.width;
-		   changeStatusPopUp.height = view.height;
-		   changeStatusPopUp.open(view as DisplayObjectContainer, true);
-		
-		   if (FlexGlobals.topLevelApplication.aspectRatio == "landscape") {
-		   changeStatusPopUp.x = view.x + view.statusButton.x;
-		   changeStatusPopUp.y = view.y - changeStatusPopUp.height * 2;
-		   } else {
-		   changeStatusPopUp.x = -(view.width - view.statusButton.x - view.statusButton.width) / 2 - (view.statusButton.width - (view.statusButton.skin as PresentationButtonSkin).backgroundEllipse.width) / 2 + 6;
-		   changeStatusPopUp.y = view.y - changeStatusPopUp.height * changeStatusPopUp.statusList.dataProvider.length;
-		   }
-		 */
+			// TODO : improve use a singel instance
+			var emojiPopUp:EmojiPopUp = new EmojiPopUp();
+			emojiPopUp.width = view.width;
+			emojiPopUp.height = view.height;
+			emojiPopUp.open(view.parentApplication as DisplayObjectContainer, true);
+			
+			emojiPopUp.x = view.x + view.statusButton.x - 10;
+			if (meetingData.users.me.emoji != EmojiStatus.NO_STATUS) {
+				emojiPopUp.y = view.y - emojiPopUp.height * 2 - 35;
+			} else {
+				emojiPopUp.y = view.y - emojiPopUp.height * 2 - 5;
+			}
 		}
 		
 		protected function micOnOff(e:MouseEvent):void {

@@ -26,6 +26,8 @@ package org.bigbluebutton.air.user.views.models {
 		
 		public var emoji:String = EmojiStatus.NO_STATUS;
 		
+		public var emojiStatusTime:Date;
+		
 		// Voice properties
 		
 		public var inVoiceConf:Boolean = false;
@@ -42,8 +44,8 @@ package org.bigbluebutton.air.user.views.models {
 		
 		public var webcamStreams:Array = [];
 		
-		
-		public function UserVM() {
+		public function get hasEmojiStatus():Boolean {
+			return EmojiStatus.STATUS_ARRAY.indexOf(this.emoji) > -1;
 		}
 	}
 }

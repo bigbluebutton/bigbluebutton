@@ -1,14 +1,9 @@
 package org.bigbluebutton.air.video.views {
-	import flash.media.Video;
 	import flash.net.NetConnection;
 	
-	import mx.graphics.SolidColor;
+	import spark.components.Group;
 	
 	import org.bigbluebutton.air.common.views.VideoView;
-	
-	import spark.components.BorderContainer;
-	import spark.components.Group;
-	import spark.primitives.Rect;
 	
 	public class WebcamDock extends Group {
 		
