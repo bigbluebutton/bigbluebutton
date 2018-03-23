@@ -1,6 +1,5 @@
-package org.bigbluebutton.air.screenshare.services
-{
-
+package org.bigbluebutton.air.screenshare.services {
+	
 	import flash.net.NetConnection;
 	
 	import org.bigbluebutton.air.common.services.DefaultConnectionCallback;
@@ -8,23 +7,22 @@ package org.bigbluebutton.air.screenshare.services
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
-
-	public class ScreenshareConnection extends DefaultConnectionCallback implements IScreenshareConnection
-	{
+	
+	public class ScreenshareConnection extends DefaultConnectionCallback implements IScreenshareConnection {
 		private const LOG:String = "ScreenshareConnection::";
 		
 		[Inject]
 		public var baseConnection:IBaseConnection;
-				
+		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
-			
+		
 		protected var _connectionSuccessSignal:ISignal = new Signal();
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
 		
 		protected var _applicationURI:String;
-				
+		
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
@@ -33,12 +31,12 @@ package org.bigbluebutton.air.screenshare.services
 		}
 		
 		private function onConnectionFailure(reason:String):void {
-			trace("SCREENSHARE CONNECTION FAILED");
+			//trace("SCREENSHARE CONNECTION FAILED");
 			connectionFailureSignal.dispatch(reason);
 		}
 		
 		private function onConnectionSuccess():void {
-			trace("SCREENSHARE CONNECTION SUCCESS");
+			//trace("SCREENSHARE CONNECTION SUCCESS");
 			sendUserIdToServer();
 			connectionSuccessSignal.dispatch();
 		}
@@ -69,7 +67,7 @@ package org.bigbluebutton.air.screenshare.services
 		
 		public function connect():void {
 			var ssUri:String = _applicationURI + "/" + conferenceParameters.meetingID
-			trace("Screenshare connect to " + ssUri);
+			//trace("Screenshare connect to " + ssUri);
 			baseConnection.connect(ssUri, null);
 		}
 		
@@ -83,28 +81,28 @@ package org.bigbluebutton.air.screenshare.services
 			message["userId"] = conferenceParameters.internalUserID;
 			
 			sendMessage("screenshare.setUserId", defaultSuccessResponse, defaultFailureResponse, message);
-			
+		
 		}
 		
 		public function isScreenSharing(meetingId:String):void {
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
-			trace("SCREENSHARE: screenshare.isScreenSharing for" + meetingId);
+			//trace("SCREENSHARE: screenshare.isScreenSharing for" + meetingId);
 			sendMessage("screenshare.isScreenSharing", defaultSuccessResponse, defaultFailureResponse, message);
-			
+		
 		}
 		
 		private function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object):void {
-			trace("SENDING [" + service + "]");
+			//trace("SENDING [" + service + "]");
 			baseConnection.sendMessageAsObject(service, onSuccess, onFailure, message);
 		}
 		
 		private var defaultSuccessResponse:Function = function(result:String):void {
-			trace(result);
+			//trace(result);
 		};
 		
 		private var defaultFailureResponse:Function = function(status:String):void {
-			trace(status);
+			//trace(status);
 		};
 	}
 }

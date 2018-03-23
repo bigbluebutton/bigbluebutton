@@ -1,15 +1,14 @@
-package org.bigbluebutton.air.screenshare.model
-{
+package org.bigbluebutton.air.screenshare.model {
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
-
-	public class ScreenshareModel implements IScreenshareModel
-	{
+	
+	public class ScreenshareModel implements IScreenshareModel {
 		private var _screenshareStreamStartedSignal:ISignal = new Signal();
 		
 		private var _screenshareStreamStoppedSignal:ISignal = new Signal();
 		
 		private var _isScreenSharing:Boolean = false;
+		
 		private var _stream:ScreenshareStream = new ScreenshareStream();
 		
 		public function get screenshareStreamStartedSignal():ISignal {
@@ -79,7 +78,7 @@ package org.bigbluebutton.air.screenshare.model
 		public function set session(j:String):void {
 			_stream.session = j;
 		}
-				
+		
 		public function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void {
 			this.streamId = streamId;
 			this.width = width;
@@ -97,6 +96,6 @@ package org.bigbluebutton.air.screenshare.model
 				screenshareStreamStoppedSignal.dispatch(session, reason);
 			}
 		}
-		
+	
 	}
 }

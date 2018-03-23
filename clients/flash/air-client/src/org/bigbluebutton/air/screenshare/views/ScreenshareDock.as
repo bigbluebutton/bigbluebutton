@@ -12,53 +12,42 @@ package org.bigbluebutton.air.screenshare.views {
 	import spark.components.Group;
 	
 	public class ScreenshareDock extends Group {
-		private var ns:NetStream;
+		private var _ns:NetStream;
 		
-		private var _conn:NetConnection;
-		
-		private var _streamId:String;
-		
+		private var _conn:NetConnection;		
+		private var _streamId:String;	
 		private var _origVidWidth:int;
-		
 		private var _origVidHeight:int;
-		
 		private var _sv:StageVideo;
-		
 		private var _ssView:ScreenshareView;
-		
 		private var _usingStageVideo:Boolean = false;
-		
 		private var _usingVideo:Boolean = false;
-		
 		private var _played:Boolean = false;
-		
 		private var _screenshareRunningListener:Function;
 		
-		public function ScreenshareDock():void {
-			
-		}
+		public function ScreenshareDock():void {	}
 		
 		private function onStageVideoState(event:StageVideoAvailabilityEvent):void {
 			var available:Boolean = (event.availability == StageVideoAvailability.AVAILABLE);
 			
-			available = false; // for testing!!!
+			//available = false; // for testing to force using Video instead of StageVideo!!!
 			
-			trace("************ ScreenshareView: STAGE VIDEO available=" + available);
+			//trace("************ ScreenshareView: STAGE VIDEO available=" + available);
 			stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			// Detect if StageVideo is available and decide what to do in toggleStageVideo 
 			toggleStageVideo(available);
 		}
 		
 		private function toggleStageVideo(on:Boolean):void {
-			ns = new NetStream(_conn);
-			ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
-			ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
-			ns.client = this;
-			ns.bufferTime = 0;
-			ns.receiveVideo(true);
-			ns.receiveAudio(false);
+			_ns = new NetStream(_conn);
+			_ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+			_ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+			_ns.client = this;
+			_ns.bufferTime = 0;
+			_ns.receiveVideo(true);
+			_ns.receiveAudio(false);
 			
-			trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _origVidWidth + ",h=" + _origVidHeight);
+			//trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _origVidWidth + ",h=" + _origVidHeight);
 			
 			var viewPort:Rectangle = positionAndSize(this.width, this.height, _origVidWidth, _origVidHeight);
 			
@@ -66,11 +55,11 @@ package org.bigbluebutton.air.screenshare.views {
 			if (on) {				
 				_usingStageVideo = true;
 				if (_sv == null) {
-					trace("***** Using StageVideo length=" + stage.stageVideos.length);
+					//trace("***** Using StageVideo length=" + stage.stageVideos.length);
 					_sv = stage.stageVideos[0];
 					_sv.viewPort = viewPort;
 					_sv.addEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
-					_sv.attachNetStream(ns);
+					_sv.attachNetStream(_ns);
 				}
 				
 				if (_usingVideo) {
@@ -86,31 +75,31 @@ package org.bigbluebutton.air.screenshare.views {
 					_usingStageVideo = false;
 				}
 				
-				trace("***** Using classic Video");
+				//trace("***** Using classic Video");
 				_ssView = new ScreenshareView();
 				_ssView.x = viewPort.x;
 				_ssView.y = viewPort.y;
 				_ssView.width = viewPort.width;
 				_ssView.height = viewPort.height;
 				addElement(_ssView);
-				_ssView.display(ns, viewPort.width, viewPort.height);
+				_ssView.display(_ns, viewPort.width, viewPort.height);
 				_usingVideo = true;
 			}
 			
 			if (!_played) {
 				_played = true;
-				trace("***** Playing stream " + _streamId);
-				ns.play(_streamId);
+				//trace("***** Playing stream " + _streamId);
+				_ns.play(_streamId);
 			}
 		}
 		
 		private function stageVideoStateChange(event:StageVideoEvent):void {
 			var status:String = event.status;
-			trace("***** stageVideoStateChange " + status + ",codec=" + event.codecInfo + ",color=" + event.colorSpace);
+			//trace("***** stageVideoStateChange " + status + ",codec=" + event.codecInfo + ",color=" + event.colorSpace);
 		}
 			
 		public function viewStream(conn:NetConnection, streamId:String, width:int, height:int):void {
-			trace("************ ScreenshareView: viewing of screenshare streamId=" + streamId + " w=" + width + " h=" + height);
+			//trace("************ ScreenshareView: viewing of screenshare streamId=" + streamId + " w=" + width + " h=" + height);
 			_conn = conn;
 			_streamId = streamId;
 			_origVidWidth = width;
@@ -119,14 +108,14 @@ package org.bigbluebutton.air.screenshare.views {
 			_screenshareRunningListener(true);
 			
 			if (stage == null) {
-				trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
+				//trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
 			} else {
 				stage.addEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			}
 		}
 		
 		public function streamStopped(session:String, reason:String):void {
-			trace("TODO: Need to implement stopping screenshare stream");
+			//trace("TODO: Need to implement stopping screenshare stream");
 			_screenshareRunningListener(false);
 			stopViewing();
 		}
@@ -161,14 +150,14 @@ package org.bigbluebutton.air.screenshare.views {
 		}
 		
 		public function onMetaData(info:Object):void {
-			trace("ScreenshareView::ScreenshareView width={0} height={1}", [info.width, info.height]);
+			//trace("ScreenshareView::ScreenshareView width={0} height={1}", [info.width, info.height]);
 
 		}
 		
 		public function dispose():void {
-			trace("************ ScreenshareView: dispose *********************");
+			//trace("************ ScreenshareView: dispose *********************");
 			if (stage != null) {
-				trace("************ ScreenshareView::dispose - remove listener ****************");
+				//trace("************ ScreenshareView::dispose - remove listener ****************");
 				stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			}
 			stopViewing();
@@ -176,7 +165,7 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		private function stopViewing():void {
 			if (_played) {
-				ns.close();
+				_ns.close();
 				if (_usingVideo) {
 					removeElement(_ssView);
 				}
@@ -185,7 +174,7 @@ package org.bigbluebutton.air.screenshare.views {
 			_origVidWidth = _origVidHeight = 0;
 			_ssView = null;
 			_sv = null;
-			ns = null;
+			_ns = null;
 			
 		}
 		

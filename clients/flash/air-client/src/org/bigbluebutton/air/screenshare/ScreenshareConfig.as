@@ -1,5 +1,4 @@
-package org.bigbluebutton.air.screenshare
-{
+package org.bigbluebutton.air.screenshare {
 	import org.bigbluebutton.air.screenshare.model.IScreenshareModel;
 	import org.bigbluebutton.air.screenshare.model.ScreenshareModel;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareService;
@@ -11,9 +10,9 @@ package org.bigbluebutton.air.screenshare
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
-
-	public class ScreenshareConfig implements IConfig
-	{
+	
+	public class ScreenshareConfig implements IConfig {
+		
 		[Inject]
 		public var injector:IInjector;
 		
@@ -24,7 +23,7 @@ package org.bigbluebutton.air.screenshare
 		public var signalCommandMap:ISignalCommandMap;
 		
 		public function configure():void {
-			injector.map(IScreenshareService).toSingleton(ScreenshareService);			
+			injector.map(IScreenshareService).toSingleton(ScreenshareService);
 			injector.map(IScreenshareModel).toSingleton(ScreenshareModel);
 			
 			mediators();

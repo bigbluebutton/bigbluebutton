@@ -1,13 +1,12 @@
-package org.bigbluebutton.air.screenshare.views
-{
-
+package org.bigbluebutton.air.screenshare.views {
+	
 	import org.bigbluebutton.air.screenshare.model.IScreenshareModel;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-
-	public class ScreenshareViewMediator extends Mediator
-	{
+	
+	public class ScreenshareViewMediator extends Mediator {
+		
 		[Inject]
 		public var view:ScreenshareDock;
 		
@@ -18,7 +17,7 @@ package org.bigbluebutton.air.screenshare.views
 		public var model:IScreenshareModel;
 		
 		override public function initialize():void {
-			trace("************ ScreenshareViewMediator:: INIT **************");
+			//trace("************ ScreenshareViewMediator:: INIT **************");
 			model.screenshareStreamStartedSignal.add(viewStream);
 			model.screenshareStreamStoppedSignal.add(streamStopped);
 			if (model.isSharing) {
@@ -35,7 +34,7 @@ package org.bigbluebutton.air.screenshare.views
 		}
 		
 		override public function destroy():void {
-			trace("************ ScreenshareViewMediator:: destroy **************");
+			//trace("************ ScreenshareViewMediator:: destroy **************");
 			model.screenshareStreamStartedSignal.remove(viewStream);
 			model.screenshareStreamStoppedSignal.remove(streamStopped);
 			view.dispose();

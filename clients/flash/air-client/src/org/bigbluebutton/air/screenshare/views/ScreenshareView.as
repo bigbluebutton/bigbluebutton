@@ -1,19 +1,18 @@
-package org.bigbluebutton.air.screenshare.views
-{
-
+package org.bigbluebutton.air.screenshare.views {
+	
 	import flash.media.Video;
-	import flash.net.NetStream;	
+	import flash.net.NetStream;
 	import mx.core.UIComponent;
 	
-	public class ScreenshareView extends UIComponent
-	{
+	public class ScreenshareView extends UIComponent {
 		private var _video:Video;
+		
 		private var _videoWidth:int;
+		
 		private var _videoHeight:int;
 		
 		
-		public function ScreenshareView()
-		{
+		public function ScreenshareView() {
 			super();
 		}
 		
@@ -24,7 +23,7 @@ package org.bigbluebutton.air.screenshare.views
 			_video.width = _videoWidth = vidWidth;
 			_video.height = _videoHeight = vidHeight;
 			_video.smoothing = true;
-			trace("**** ssView s=" + this.width + ",h=" + this.height + " vid w=" + vidWidth + ",h=" + vidHeight);
+			//trace("**** ssView s=" + this.width + ",h=" + this.height + " vid w=" + vidWidth + ",h=" + vidHeight);
 			_video.attachNetStream(ns);
 			addChild(_video);
 		}

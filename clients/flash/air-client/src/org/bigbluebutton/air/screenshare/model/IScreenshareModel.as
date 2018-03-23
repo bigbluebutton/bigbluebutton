@@ -1,9 +1,7 @@
-package org.bigbluebutton.air.screenshare.model
-{
+package org.bigbluebutton.air.screenshare.model {
 	import org.osflash.signals.ISignal;
-
-	public interface IScreenshareModel
-	{
+	
+	public interface IScreenshareModel {
 		function get screenshareStreamStartedSignal():ISignal;
 		function get screenshareStreamStoppedSignal():ISignal;
 		

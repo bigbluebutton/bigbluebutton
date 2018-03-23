@@ -74,7 +74,7 @@ package org.bigbluebutton.air.main.views {
 		
 		private function onScreenshareRunning(running:Boolean):void {
 			if (running) {
-				trace("****** Hiding presentation window as we are using stage video");
+				//trace("****** Hiding presentation window as we are using stage video");
 				// Using stage video. Need to hide PresentationWIndow to make StageVideo visible.
 				_presentationView.visible = false;
 			} else {
