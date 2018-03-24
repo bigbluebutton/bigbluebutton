@@ -234,7 +234,7 @@ package org.bigbluebutton.main.model.users
                         LOGGER.error(x + " : " + status[x]);
                     } 
                 },
-                JSON.stringify(message)
+                message
             ); //_netConnection.call      
             
             _validateTokenTimer = new Timer(10000, 1);
