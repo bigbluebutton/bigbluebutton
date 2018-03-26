@@ -1,7 +1,7 @@
 import Settings from '/imports/ui/services/settings';
 import mapUser from '/imports/ui/services/user/mapUser';
-import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings/';
+import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
 import VideoService from '../service';
 
@@ -33,7 +33,6 @@ const isDisabled = () => {
       || isConecting
       || !videoShareAllowed();
 };
-
 
 export default {
   isSharingVideo,
