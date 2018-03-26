@@ -4,7 +4,6 @@
 			   applicationComplete="applicationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
 			   styleName="mainshell"
-				 backgroundAlpha="0"
 			   xmlns:main="org.bigbluebutton.air.main.views.*"
 			   xmlns:setup="org.as3commons.logging.setup.*">
 	<fx:Style source="css/bbb-icons.css" />
@@ -93,6 +92,8 @@
 			
 			protected function applicationCompleteHandler(event:FlexEvent):void {
 				NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
+				// Set background to support display of screenshare using StageVideo.
+				this.styleName = "no-background";
 			}
 		]]>
 	</fx:Script>
