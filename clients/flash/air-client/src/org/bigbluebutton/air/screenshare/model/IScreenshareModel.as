@@ -6,14 +6,14 @@ package org.bigbluebutton.air.screenshare.model {
 		function get screenshareStreamStoppedSignal():ISignal;
 		
 		function get isSharing():Boolean;
+			
+		function set width(w:int):void;
 		
 		function get width():int;
 		
-		function set width(w:int):void;
+		function set height(h:int):void;
 		
 		function get height():int;
-		
-		function set height(h:int):void;
 		
 		function get url():String;
 		
@@ -39,5 +39,7 @@ package org.bigbluebutton.air.screenshare.model {
 		function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void;
 		
 		function screenshareStreamStopped(session:String, reason:String):void;
+		
+		function screenshareStreamPaused(session:String):void;
 	}
 }

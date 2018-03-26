@@ -23,22 +23,6 @@ package org.bigbluebutton.air.screenshare.model {
 			return _isScreenSharing;
 		}
 		
-		public function get width():int {
-			return _stream.width;
-		}
-		
-		public function set width(w:int):void {
-			_stream.width = w;
-		}
-		
-		public function get height():int {
-			return _stream.height;
-		}
-		
-		public function set height(h:int):void {
-			_stream.height = h;
-		}
-		
 		public function get url():String {
 			return _stream.url;
 		}
@@ -47,6 +31,22 @@ package org.bigbluebutton.air.screenshare.model {
 			_stream.url = u;
 		}
 		
+		public function set width(w:int):void {
+			_stream.width = w;
+    }
+
+		public function get width():int {
+			return _stream.width;
+		}
+
+		public function set height(h:int):void {
+			_stream.height = h;
+		}
+		
+		public function get height():int {
+			return _stream.height;
+		}
+
 		public function get streamId():String {
 			return _stream.streamId;
 		}
@@ -94,6 +94,13 @@ package org.bigbluebutton.air.screenshare.model {
 			if (this.session == session) {
 				_isScreenSharing = false;
 				screenshareStreamStoppedSignal.dispatch(session, reason);
+			}
+		}
+		
+		public function screenshareStreamPaused(session:String):void {
+			if (this.session == session) {
+				_isScreenSharing = false;
+				screenshareStreamStoppedSignal.dispatch(session, "PAUSED");
 			}
 		}
 	
