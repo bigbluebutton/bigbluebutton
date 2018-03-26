@@ -25,11 +25,14 @@ package org.bigbluebutton.main.model.users
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import mx.utils.ObjectUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -244,6 +247,10 @@ package org.bigbluebutton.main.model.users
 
         public function sendMessage2x(onSuccess:Function, onFailure:Function, json:Object):void {
 
+			if (ExternalInterface.available) {
+				ExternalInterface.call("BBB.sendToDeepstream", json);
+			}
+			
 					sendMessageToRed5(onSuccess, onFailure, json);
         }
 				

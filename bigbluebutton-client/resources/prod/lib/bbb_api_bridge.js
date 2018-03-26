@@ -587,7 +587,37 @@
       console.log("Received [" + bbbEvent.eventName + "]");
       broadcast(bbbEvent);
     }
-
+  
+  /**
+    BBB.loginToDeepstream = function(meetingId) {
+        console.log("***** LOGGING TO DS " + meetingId)
+        dsclient.login()
+        dsclient.event.subscribe("foo-bar", function (data) {
+         // console.log(data);
+          BBB.onMessageFromDS(data);
+          })
+    }
+    **/
+    
+      const eb = new vertx.EventBus("http://192.168.246.131:3001/eventbus");
+      eb.onopen = function () {
+            console.log("FOOOO!!!!!");
+            eb.registerHandler("chat.to.client", function (msg) {
+                console.log(msg + "\n");
+            });
+    
+            eb.send("foo-bar", "ValidateAuthToken", function(msg) {
+                console.log("reply: " + msg + "\n");
+            });
+      };
+      
+    BBB.sendToDeepstream = function(data) {
+      console.log(data);
+      eb.send("foo-bar", JSON.stringify(data), function(msg) {
+           console.log("reply: " + msg + "\n");
+      });
+    };
+    
     
     // Flag to indicate that the SWF file has been loaded and ready to handle calls.
     var swfReady = false;
