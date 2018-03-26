@@ -3,6 +3,7 @@ package org.bigbluebutton.core2.message.senders
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, _ }
 import org.bigbluebutton.core.models.GuestWaiting
+import org.bigbluebutton.common2.domain.PresentationPodVO
 
 object MsgBuilder {
   def buildGuestPolicyChangedEvtMsg(meetingId: String, userId: String, policy: String, setBy: String): BbbCommonEnvCoreMsg = {
@@ -284,6 +285,17 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(StopRecordingVoiceConfSysMsg.NAME, meetingId)
     val body = StopRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
     val event = StopRecordingVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCreateNewPresentationPodEvtMsg(meetingId: String, currentPresenterId: String, podId: String, userId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(CreateNewPresentationPodEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, userId)
+
+    val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
+    val event = CreateNewPresentationPodEvtMsg(header, body)
+
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }

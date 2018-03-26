@@ -152,7 +152,8 @@ class MeetingActor(
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 
   // Create a default Presentation Pod
-  state = PresentationPodsApp.createDefaultPresentationPod(state)
+  state = presentationPodsApp.handleCreateDefaultPresentationPod(state, liveMeeting, msgBus)
+
   log.debug("NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
 
   // Initialize if the meeting is muted on start
