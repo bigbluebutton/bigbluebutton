@@ -133,7 +133,7 @@ package org.bigbluebutton.air.screenshare.views {
 			trace("***** stageVideoStateChange " + status + ",codec=" + event.codecInfo + ",color=" + event.colorSpace);
 			var switchToVideo:Boolean = status == flash.media.VideoStatus.UNAVAILABLE;
 			//trace("***** stageVideoStateChange Forcing to use Video " + switchToVideo);
-			//switchToVideo = true;
+			//switchToVideo = true; // for testing to force using video
 			if (switchToVideo) {
 				// StageVideo cannot play the stream. Use Video instead.
 				useVideoRenderer();
