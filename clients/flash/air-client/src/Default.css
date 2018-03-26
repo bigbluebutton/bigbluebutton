@@ -103,7 +103,10 @@ main|LoadingScreen {
 
 main|MainView {
 	backgroundColor : PropertyReference("bbbBlack");
-	backgroundAlpha : 0
+}
+
+.no-background {
+	backgroundAlpha: 0;
 }
 
 
@@ -171,6 +174,7 @@ main|EmojiItemRenderer {
 	itemHeight    : 30;
 	
 }
+
 
 .statusList {
 	skinClass              : ClassReference("org.bigbluebutton.air.main.views.EmojiListSkin");

@@ -86,8 +86,10 @@ package org.bigbluebutton.air.main.views {
 			if (running) {
 				//trace("****** Hiding presentation window as we are using stage video");
 				// Using stage video. Need to hide PresentationWIndow to make StageVideo visible.
+				this.styleName = "no-background";
 				_presentationView.visible = false;
 			} else {
+				this.styleName = "";
 				_presentationView.visible = true;
 			}
 		}
