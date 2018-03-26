@@ -113,7 +113,7 @@ module.exports = class MediaServer extends EventEmitter {
     if (source && sink) {
       return new Promise((resolve, reject) => {
         switch (type) {
-          case 'ALL': 
+          case 'ALL':
             source.connect(sink, (error) => {
               if (error) {
                 error = this._handleError(error);
@@ -156,6 +156,7 @@ module.exports = class MediaServer extends EventEmitter {
     Logger.info("[mcs-media] Releasing endpoint", elementId, "from room", room);
     let mediaElement = this._mediaElements[elementId];
     let pipeline = this._mediaPipelines[room];
+
     if (mediaElement && typeof mediaElement.release === 'function') {
       pipeline.activeElements--;
 

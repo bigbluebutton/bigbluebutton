@@ -14,6 +14,7 @@ from-video: "from-video-sfu"
 to-video: "to-video-sfu"
 from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
+to-akka: "to-akka-apps-redis-channel"
 
 log:
     filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
