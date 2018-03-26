@@ -3,9 +3,11 @@ package org.bigbluebutton.air.screenshare.views {
 	import flash.events.NetStatusEvent;
 	import flash.events.StageVideoAvailabilityEvent;
 	import flash.events.StageVideoEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.media.StageVideo;
 	import flash.media.StageVideoAvailability;
+	import flash.media.VideoStatus;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
@@ -32,32 +34,34 @@ package org.bigbluebutton.air.screenshare.views {
 			
 			//available = false; // for testing to force using Video instead of StageVideo!!!
 			
-			//trace("************ ScreenshareView: STAGE VIDEO available=" + available);
+			trace("************ ScreenshareView: STAGE VIDEO available=" + available);
 			stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			// Detect if StageVideo is available and decide what to do in toggleStageVideo 
 			toggleStageVideo(available);
 		}
 		
-		private function toggleStageVideo(on:Boolean):void {
-			_ns = new NetStream(_conn);
-			_ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
-			_ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
-			_ns.client = this;
-			_ns.bufferTime = 0;
-			_ns.receiveVideo(true);
-			_ns.receiveAudio(false);
-			
-			//trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _origVidWidth + ",h=" + _origVidHeight);
-			
-			var viewPort:Rectangle = positionAndSize(this.width, this.height, _origVidWidth, _origVidHeight);
-			
+		private function toggleStageVideo(available:Boolean):void {
 			// To choose StageVideo attach the NetStream to StageVideo 
-			if (on) {				
-				_usingStageVideo = true;
+			if (available) {				
 				if (_sv == null) {
-					//trace("***** Using StageVideo length=" + stage.stageVideos.length);
+					_usingStageVideo = true;
+					trace("***** Using StageVideo length=" + stage.stageVideos.length);
+
+					setupNetstream();
+					
+					//trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _origVidWidth + ",h=" + _origVidHeight);
+					
+					var viewPort:Rectangle = positionAndSize(this.width, this.height, _origVidWidth, _origVidHeight);
 					_sv = stage.stageVideos[0];
-					_sv.viewPort = viewPort;
+					
+					// StageVideo uses global coordinates. We translate this coordinate into local
+					// to be relative to this container.
+					var point:Point = this.localToGlobal(new Point(viewPort.x, viewPort.y));
+					var newViewPort:Rectangle = new Rectangle(point.x, point.y, viewPort.width, viewPort.height);	
+					//trace("**** ViewPort x=" + viewPort.x + ",y=" + viewPort.y + " newViewPort x=" + newViewPort.x + ",y=" + newViewPort.y);
+					_sv.viewPort = newViewPort;
+					
+					// Listen for event if StageVideo can play the stream.
 					_sv.addEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
 					_sv.attachNetStream(_ns);
 				}
@@ -70,36 +74,75 @@ package org.bigbluebutton.air.screenshare.views {
 					_usingVideo = false;
 				}
 			} else {
-				// Otherwise attach it to a Video object 
-				if (_usingStageVideo) {
-					_usingStageVideo = false;
-				}
-				
-				//trace("***** Using classic Video");
-				_ssView = new ScreenshareView();
-				_ssView.x = viewPort.x;
-				_ssView.y = viewPort.y;
-				_ssView.width = viewPort.width;
-				_ssView.height = viewPort.height;
-				addElement(_ssView);
-				_ssView.display(_ns, viewPort.width, viewPort.height);
-				_usingVideo = true;
+				useVideoRenderer();
 			}
 			
+			playStream();
+		}
+		
+		public function setupNetstream():void {
+			_ns = new NetStream(_conn);
+			_ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+			_ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+			_ns.client = this;
+			_ns.bufferTime = 0;
+			_ns.receiveVideo(true);
+			_ns.receiveAudio(false);
+		}
+		
+		private function playStream():void {
 			if (!_played) {
 				_played = true;
-				//trace("***** Playing stream " + _streamId);
+				trace("***** Playing stream " + _streamId);
 				_ns.play(_streamId);
 			}
 		}
 		
+		private function useVideoRenderer():void {
+			if (_played) {
+				_ns.close();
+				_played = false;
+			}
+			
+			if (_usingStageVideo) {
+				// StageVideo cannot play the stream. Remove listener.
+				_usingStageVideo = false;
+				_sv.removeEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
+			}
+			
+			setupNetstream();
+			
+			trace("***** Using classic Video");
+			var viewPort:Rectangle = positionAndSize(this.width, this.height, _origVidWidth, _origVidHeight);
+			//trace("**** ViewPort x=" + viewPort.x + ",y=" + viewPort.y);
+
+			_ssView = new ScreenshareView();
+			_ssView.x = viewPort.x;
+			_ssView.y = viewPort.y;
+			_ssView.width = viewPort.width;
+			_ssView.height = viewPort.height;
+			addElement(_ssView);
+			_ssView.display(_ns, viewPort.width, viewPort.height);
+			_usingVideo = true;
+			
+			playStream();
+		}
+		
 		private function stageVideoStateChange(event:StageVideoEvent):void {
 			var status:String = event.status;
-			//trace("***** stageVideoStateChange " + status + ",codec=" + event.codecInfo + ",color=" + event.colorSpace);
+			trace("***** stageVideoStateChange " + status + ",codec=" + event.codecInfo + ",color=" + event.colorSpace);
+			var switchToVideo:Boolean = status == flash.media.VideoStatus.UNAVAILABLE;
+			//trace("***** stageVideoStateChange Forcing to use Video " + switchToVideo);
+			//switchToVideo = true;
+			if (switchToVideo) {
+				// StageVideo cannot play the stream. Use Video instead.
+				useVideoRenderer();
+			}
+			
 		}
 			
 		public function viewStream(conn:NetConnection, streamId:String, width:int, height:int):void {
-			//trace("************ ScreenshareView: viewing of screenshare streamId=" + streamId + " w=" + width + " h=" + height);
+			trace("************ ScreenshareView: viewing of screenshare streamId=" + streamId + " w=" + width + " h=" + height);
 			_conn = conn;
 			_streamId = streamId;
 			_origVidWidth = width;
@@ -108,20 +151,45 @@ package org.bigbluebutton.air.screenshare.views {
 			_screenshareRunningListener(true);
 			
 			if (stage == null) {
-				//trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
+				trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
 			} else {
 				stage.addEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			}
 		}
 		
 		public function streamStopped(session:String, reason:String):void {
-			//trace("TODO: Need to implement stopping screenshare stream");
-			_screenshareRunningListener(false);
+			if (_screenshareRunningListener != null) {
+				_screenshareRunningListener(false);
+			}
+			
 			stopViewing();
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
+			trace("************ ScreenshareView: updateDisplayList !!!!!!!!");
+			updateDisplayStream(w, h);
+		}
+		
+		private function updateDisplayStream(w:Number, h:Number):void {
+			var viewPort:Rectangle = positionAndSize(w, h, _origVidWidth, _origVidHeight);
+			
+			if (_usingStageVideo) { 
+				// StageVideo uses global coordinates. We translate this coordinate into local
+				// to be relative to this container.
+				var point:Point = this.localToGlobal(new Point(viewPort.x, viewPort.y));
+				var newViewPort:Rectangle = new Rectangle(point.x, point.y, viewPort.width, viewPort.height);	
+				//trace("**** ViewPort x=" + viewPort.x + ",y=" + viewPort.y + " newViewPort x=" + newViewPort.x + ",y=" + newViewPort.y);
+				_sv.viewPort = newViewPort;
+			} else if (_usingVideo) {
+				trace("***** Using classic Video");
+				//trace("**** ViewPort x=" + viewPort.x + ",y=" + viewPort.y);
+				_ssView.x = viewPort.x;
+				_ssView.y = viewPort.y;
+				_ssView.width = viewPort.width;
+				_ssView.height = viewPort.height;
+				_ssView.updateDisplay(viewPort.width, viewPort.height);
+			}
 		}
 		
 		private function onNetStatus(e:NetStatusEvent):void {
@@ -150,14 +218,14 @@ package org.bigbluebutton.air.screenshare.views {
 		}
 		
 		public function onMetaData(info:Object):void {
-			//trace("ScreenshareView::ScreenshareView width={0} height={1}", [info.width, info.height]);
+			trace("ScreenshareView::ScreenshareView width={0} height={1}", [info.width, info.height]);
 
 		}
 		
 		public function dispose():void {
-			//trace("************ ScreenshareView: dispose *********************");
+			trace("************ ScreenshareView: dispose *********************");
 			if (stage != null) {
-				//trace("************ ScreenshareView::dispose - remove listener ****************");
+				trace("************ ScreenshareView::dispose - remove listener ****************");
 				stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
 			}
 			stopViewing();
