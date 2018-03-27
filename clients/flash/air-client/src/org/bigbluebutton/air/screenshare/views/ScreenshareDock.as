@@ -107,7 +107,6 @@ package org.bigbluebutton.air.screenshare.views {
 			if (_usingStageVideo) {
 				// StageVideo cannot play the stream. Remove listener.
 				_usingStageVideo = false;
-				_sv.removeEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
 			}
 			
 			setupNetstream();
@@ -241,7 +240,13 @@ package org.bigbluebutton.air.screenshare.views {
 			_usingStageVideo = _usingVideo = _played = false;
 			_origVidWidth = _origVidHeight = 0;
 			_ssView = null;
-			_sv = null;
+			
+			if (_sv != null) {
+				// Clean up listener
+				_sv.removeEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
+				_sv = null;
+			}
+		
 			_ns = null;
 			
 		}
