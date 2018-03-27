@@ -68,6 +68,7 @@ package org.bigbluebutton.air.main.views {
 			super.updateDisplayList(w, h);
 			
 			_menuButtons.height = getStyle("menuHeight");
+			_menuButtons.percentWidth = 100;
 			
 			_presentationView.width = w;
 			_presentationView.height = h - _topToolbar.height - _menuButtons.height;

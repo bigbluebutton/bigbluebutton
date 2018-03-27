@@ -105,6 +105,17 @@ main|MainView {
 	backgroundColor : PropertyReference("bbbBlack");
 }
 
+
+main|MenuButtons {
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+
+.black-background {
+	backgroundColor : PropertyReference("bbbBlack");
+	backgroundAlpha: 1
+}
+
 .no-background {
 	backgroundAlpha: 0;
 }
