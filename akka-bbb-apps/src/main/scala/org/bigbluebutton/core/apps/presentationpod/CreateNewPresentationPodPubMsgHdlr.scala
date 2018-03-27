@@ -32,7 +32,6 @@ trait CreateNewPresentationPodPubMsgHdlr extends RightsManagementTrait {
         resultPod.id,
         msg.header.userId
       )
-
       bus.outGW.send(respMsg)
 
       val pods = state.presentationPodManager.addPod(resultPod)

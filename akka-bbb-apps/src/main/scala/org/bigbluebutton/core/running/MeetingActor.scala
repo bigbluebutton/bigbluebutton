@@ -141,11 +141,11 @@ class MeetingActor(
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
-  // Create a default publish group chat
-  state = GroupChatApp.createDefaultPublicGroupChat(GroupChatApp.MAIN_PUBLIC_CHAT, state)
-  //state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+  // Create a default public group chat
+  state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
 
-  // Create a default publish group chat
+  //state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+  // Create a default public group chat **DEPRECATED, NOT GOING TO WORK ANYMORE**
   //state = GroupChatApp.createDefaultPublicGroupChat("TEST_GROUP_CHAT", state)
   //state = GroupChatApp.genTestChatMsgHistory("TEST_GROUP_CHAT", state, BbbSystemConst.SYSTEM_USER, liveMeeting)
 

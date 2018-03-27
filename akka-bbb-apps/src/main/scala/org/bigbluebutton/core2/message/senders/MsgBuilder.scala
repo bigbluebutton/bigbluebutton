@@ -3,7 +3,6 @@ package org.bigbluebutton.core2.message.senders
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, _ }
 import org.bigbluebutton.core.models.GuestWaiting
-import org.bigbluebutton.common2.domain.PresentationPodVO
 
 object MsgBuilder {
   def buildGuestPolicyChangedEvtMsg(meetingId: String, userId: String, policy: String, setBy: String): BbbCommonEnvCoreMsg = {

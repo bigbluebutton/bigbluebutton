@@ -44,12 +44,9 @@ object GroupChatApp {
     }
   }
 
-  def createDefaultPublicGroupChat(chatId: String, state: MeetingState2x): MeetingState2x = {
+  def createDefaultPublicGroupChat(): GroupChat = {
     val createBy = GroupChatUser(SystemUser.ID, SystemUser.ID)
-    val defaultPubGroupChat = GroupChatFactory.create(chatId, chatId,
-      GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
-    val groupChats = state.groupChats.add(defaultPubGroupChat)
-    state.update(groupChats)
+    GroupChatFactory.create(MAIN_PUBLIC_CHAT, MAIN_PUBLIC_CHAT, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
   }
 
   def createTestPublicGroupChat(state: MeetingState2x): MeetingState2x = {
