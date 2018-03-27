@@ -13,6 +13,8 @@ package org.bigbluebutton.air.screenshare.views {
 	
 	import spark.components.Group;
 	
+	import org.bigbluebutton.air.main.views.RectCoverView;
+	
 	public class ScreenshareDock extends Group {
 		private var _ns:NetStream;
 		
@@ -26,6 +28,8 @@ package org.bigbluebutton.air.screenshare.views {
 		private var _usingVideo:Boolean = false;
 		private var _played:Boolean = false;
 		private var _screenshareRunningListener:Function;
+		private var _topRect:RectCoverView;
+		private var _bottomRect:RectCoverView;
 		
 		public function ScreenshareDock():void {	}
 		
@@ -46,7 +50,8 @@ package org.bigbluebutton.air.screenshare.views {
 				if (_sv == null) {
 					_usingStageVideo = true;
 					trace("***** Using StageVideo length=" + stage.stageVideos.length);
-
+					_screenshareRunningListener(_usingStageVideo, true);
+					
 					setupNetstream();
 					
 					//trace("**** Container w=" + this.width + ",h=" + this.height + " video w=" + _origVidWidth + ",h=" + _origVidHeight);
@@ -58,12 +63,25 @@ package org.bigbluebutton.air.screenshare.views {
 					// to be relative to this container.
 					var point:Point = this.localToGlobal(new Point(viewPort.x, viewPort.y));
 					var newViewPort:Rectangle = new Rectangle(point.x, point.y, viewPort.width, viewPort.height);	
-					//trace("**** ViewPort x=" + viewPort.x + ",y=" + viewPort.y + " newViewPort x=" + newViewPort.x + ",y=" + newViewPort.y);
+					trace("****toggleStageVideo ViewPort x=" + viewPort.x + ",y=" + viewPort.y 
+						+ " newViewPort x=" + newViewPort.x + ",y=" + newViewPort.y);
 					_sv.viewPort = newViewPort;
 					
 					// Listen for event if StageVideo can play the stream.
 					_sv.addEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
 					_sv.attachNetStream(_ns);
+					
+					var tRectCoord:Rectangle = calculateTopBlackRect(this.width, this.height, 
+						viewPort.x, viewPort.y, newViewPort.width, newViewPort.height);
+					_topRect = new RectCoverView();
+					positionRect(_topRect, tRectCoord);
+					addElement(_topRect);
+					
+					var bottRectCoord:Rectangle = calculateBottomBlackRect(this.width, this.height, 
+						viewPort.x, viewPort.y, newViewPort.width, newViewPort.height);
+					_bottomRect = new RectCoverView();
+					positionRect(_bottomRect, bottRectCoord);
+					addElement(_bottomRect);					
 				}
 				
 				if (_usingVideo) {
@@ -107,6 +125,15 @@ package org.bigbluebutton.air.screenshare.views {
 			if (_usingStageVideo) {
 				// StageVideo cannot play the stream. Remove listener.
 				_usingStageVideo = false;
+				if (_topRect != null) {
+					removeElement(_topRect);
+				}
+				if (_bottomRect != null) {
+					removeElement(_bottomRect);
+				}
+				
+				_screenshareRunningListener(_usingStageVideo, true);
+				
 			}
 			
 			setupNetstream();
@@ -146,9 +173,7 @@ package org.bigbluebutton.air.screenshare.views {
 			_streamId = streamId;
 			_origVidWidth = width;
 			_origVidHeight = height;
-			
-			_screenshareRunningListener(true);
-			
+						
 			if (stage == null) {
 				trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
 			} else {
@@ -158,7 +183,7 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		public function streamStopped(session:String, reason:String):void {
 			if (_screenshareRunningListener != null) {
-				_screenshareRunningListener(false);
+				_screenshareRunningListener(_usingStageVideo, false);
 			}
 			
 			stopViewing();
@@ -178,8 +203,24 @@ package org.bigbluebutton.air.screenshare.views {
 				// to be relative to this container.
 				var point:Point = this.localToGlobal(new Point(viewPort.x, viewPort.y));
 				var newViewPort:Rectangle = new Rectangle(point.x, point.y, viewPort.width, viewPort.height);	
-				//trace("**** ViewPort x=" + viewPort.x + ",y=" + viewPort.y + " newViewPort x=" + newViewPort.x + ",y=" + newViewPort.y);
+				trace("**** updateDisplayStream ViewPort x=" + viewPort.x + ",y=" + viewPort.y + " newViewPort x=" 
+					+ newViewPort.x + ",y=" + newViewPort.y);
 				_sv.viewPort = newViewPort;
+				var tRectCoord:Rectangle = calculateTopBlackRect(this.width, this.height, 
+					viewPort.x, viewPort.y, newViewPort.width, newViewPort.height);
+				
+				trace("**** updateDisplayStream TopRect x=" + tRectCoord.x + ",y=" + tRectCoord.y + " w=" 
+					+ tRectCoord.width + ",h=" + tRectCoord.height);
+				
+				positionRect(_topRect, tRectCoord);
+				
+				var bottRectCoord:Rectangle = calculateBottomBlackRect(this.width, this.height, 
+					viewPort.x, viewPort.y, newViewPort.width, newViewPort.height);
+				
+				trace("**** updateDisplayStream BottomRect x=" + bottRectCoord.x + ",y=" + bottRectCoord.y + " w=" 
+					+ bottRectCoord.width + ",h=" + bottRectCoord.height);
+				positionRect(_bottomRect, bottRectCoord);
+				
 			} else if (_usingVideo) {
 				trace("***** Using classic Video");
 				//trace("**** ViewPort x=" + viewPort.x + ",y=" + viewPort.y);
@@ -293,5 +334,40 @@ package org.bigbluebutton.air.screenshare.views {
 			return new Rectangle(x, y, newVidWidth, newVidHeight);
 		}
 		
+		private function calculateTopBlackRect(contWidth:int, contHeight:int, vidX:int, vidY:int, vidWidth:int, vidHeight:int):Rectangle {
+			if (vidHeight < contHeight) {
+				trace("**** calculateTopBlackRect TopRect cw=" + contWidth + ",ch=" + contHeight + " vidx=" + vidX 
+					+ ",vidy=" + vidY + " vidw=" + vidWidth + ",vidh=" + vidHeight);
+				// Display rectangle at top of video.
+				return new Rectangle(0, 0, contWidth, vidY);
+			} else {
+				trace("**** calculateTopBlackRect LeftRect cw=" + contWidth + ",ch=" + contHeight + " vidx=" + vidX 
+					+ ",vidy=" + vidY + " vidw=" + vidWidth + ",vidh=" + vidHeight);
+				// Display rectangle on left of video
+				return new Rectangle(0, 0, vidX, contHeight);
+			}			
+		}
+		
+		private function calculateBottomBlackRect(contWidth:int, contHeight:int, vidX:int, vidY:int, vidWidth:int, vidHeight:int):Rectangle {
+			if (vidHeight < contHeight) {
+				trace("**** calculateTopBlackRect BottomRect cw=" + contWidth + ",ch=" + contHeight + " vidx=" + vidX 
+					+ ",vidy=" + vidY + " vidw=" + vidWidth + ",vidh=" + vidHeight);
+				// Display rect at bottom of video
+				return new Rectangle(0, vidY + vidHeight, contWidth, contHeight - (vidY + vidHeight));
+			} else {
+				trace("**** calculateTopBlackRect RightRect cw=" + contWidth + ",ch=" + contHeight + " vidx=" + vidX 
+					+ ",vidy=" + vidY + " vidw=" + vidWidth + ",vidh=" + vidHeight);
+				// Display rect at right of video
+				return new Rectangle(vidX + vidWidth, 0, contWidth - (vidX + vidWidth), contHeight);
+			}
+			
+		}
+		
+		private function positionRect(rect: RectCoverView, coord:Rectangle):void {
+			rect.x = coord.x;
+			rect.y = coord.y;
+			rect.width = coord.width;
+			rect.height = coord.height;
+		}
 	}
 }

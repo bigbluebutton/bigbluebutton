@@ -83,13 +83,18 @@ package org.bigbluebutton.air.main.views {
 			_pollButton.bottom = _menuButtons.height + getStyle("pollPadding");;
 		}
 		
-		private function onScreenshareRunning(running:Boolean):void {
+		private function onScreenshareRunning(usingStageVideo:Boolean, running:Boolean):void {
 			if (running) {
 				//trace("****** Hiding presentation window as we are using stage video");
 				// Using stage video. Need to hide PresentationWIndow to make StageVideo visible.
-				this.styleName = "no-background";
+				if (usingStageVideo) {
+					this.styleName = "no-background";
+				} else {
+					this.styleName = "";
+				}
 				_presentationView.visible = false;
 			} else {
+				// Switch back style to display background.
 				this.styleName = "";
 				_presentationView.visible = true;
 			}
