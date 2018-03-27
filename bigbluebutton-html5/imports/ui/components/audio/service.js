@@ -8,7 +8,7 @@ const init = (messages) => {
   if (AudioManager.initialized) return;
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
-  const sessionToken = Auth.sessionToken;
+  const { sessionToken } = Auth;
   const User = Users.findOne({ userId });
   const username = User.name;
   const Meeting = Meetings.findOne({ meetingId: User.meetingId });
@@ -53,4 +53,5 @@ export default {
   outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
+  isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
 };

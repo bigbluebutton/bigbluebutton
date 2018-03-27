@@ -24,6 +24,9 @@
       margin-right: 1rem;
     }
   }
+  .audioBtn:only-child {
+    margin-right: 0;
+  }
 }
 
 .audioOptions {
