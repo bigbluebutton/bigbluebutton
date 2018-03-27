@@ -31,18 +31,10 @@ package org.bigbluebutton.air.screenshare.model {
 			_stream.url = u;
 		}
 		
-		public function set width(w:int):void {
-			_stream.width = w;
-    }
-
 		public function get width():int {
 			return _stream.width;
 		}
 
-		public function set height(h:int):void {
-			_stream.height = h;
-		}
-		
 		public function get height():int {
 			return _stream.height;
 		}
@@ -81,8 +73,8 @@ package org.bigbluebutton.air.screenshare.model {
 		
 		public function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void {
 			this.streamId = streamId;
-			this.width = width;
-			this.height = height;
+			this._stream.width = width;
+			this._stream.height = height;
 			this.url = url;
 			this.session = session;
 			

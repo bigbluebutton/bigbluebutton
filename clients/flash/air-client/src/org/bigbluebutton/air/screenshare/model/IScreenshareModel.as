@@ -6,12 +6,8 @@ package org.bigbluebutton.air.screenshare.model {
 		function get screenshareStreamStoppedSignal():ISignal;
 		
 		function get isSharing():Boolean;
-			
-		function set width(w:int):void;
 		
 		function get width():int;
-		
-		function set height(h:int):void;
 		
 		function get height():int;
 		
