@@ -113,7 +113,7 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
   }

@@ -25,11 +25,14 @@ package org.bigbluebutton.main.model.users
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import mx.utils.ObjectUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -234,7 +237,7 @@ package org.bigbluebutton.main.model.users
                         LOGGER.error(x + " : " + status[x]);
                     } 
                 },
-                JSON.stringify(message)
+                message
             ); //_netConnection.call      
             
             _validateTokenTimer = new Timer(10000, 1);
@@ -244,6 +247,10 @@ package org.bigbluebutton.main.model.users
 
         public function sendMessage2x(onSuccess:Function, onFailure:Function, json:Object):void {
 
+			if (ExternalInterface.available) {
+				ExternalInterface.call("BBB.sendToDeepstream", json);
+			}
+			
 					sendMessageToRed5(onSuccess, onFailure, json);
         }
 				
@@ -675,5 +682,10 @@ package org.bigbluebutton.main.model.users
             // when the bandwidth check is complete 
             LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
         }
+		
+		public function onMessageFromDS(msg: Object): void {
+			trace("*** From DS: " + JSON.stringify(msg));
+		}
+			
     }
 }
