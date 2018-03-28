@@ -9,8 +9,10 @@ package org.bigbluebutton.air.common.services {
 		function connect(uri:String, ... parameters):void;
 		function disconnect(onUserCommand:Boolean):void;
 		function sendMessage2x(onSuccess:Function, onFailure:Function, message:Object):void;
+		function sendMessageAsObject(remoteMethod: String, onSuccess:Function, onFailure:Function, message:Object):void;
 		function init(callback:DefaultConnectionCallback):void;
 		function get connectionSuccessSignal():ISignal;
 		function get connectionFailureSignal():ISignal;
+		function isTunnelling():Boolean;
 	}
 }
