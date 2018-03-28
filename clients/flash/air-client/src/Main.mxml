@@ -28,6 +28,7 @@
 			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
 			import org.bigbluebutton.air.participants.ParticipantsConfig;
+			import org.bigbluebutton.air.poll.PollConfig;
 			import org.bigbluebutton.air.presentation.PresentationConfig;
 			import org.bigbluebutton.air.screenshare.ScreenshareConfig;
 			import org.bigbluebutton.air.settings.SettingsConfig;
@@ -70,6 +71,7 @@
 					.configure(VideoConfig)
 					.configure(VoiceConfig)
 					.configure(ParticipantsConfig)
+					.configure(PollConfig)
 					.configure(UsersConfig)
 					.configure(ChatConfig)
 					.configure(ScreenshareConfig)

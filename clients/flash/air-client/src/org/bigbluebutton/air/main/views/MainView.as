@@ -80,7 +80,7 @@ package org.bigbluebutton.air.main.views {
 			
 			_webcamDock.bottom = _menuButtons.height;
 			
-			_pollButton.bottom = _menuButtons.height + getStyle("pollPadding");;
+			_pollButton.bottom = getStyle("pollPadding");;
 		}
 		
 		private function onScreenshareRunning(usingStageVideo:Boolean, running:Boolean):void {
