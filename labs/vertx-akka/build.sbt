@@ -6,7 +6,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.2"
 
-scalaVersion  := "2.11.6"
+scalaVersion  := "2.12.2"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -38,7 +38,10 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.4.0"
+	val scalaV = "2.12.2"
+	val akkaVersion  = "2.5.1"
+	val scalaTestV  = "2.2.6"
+
   Seq(
 	  "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
 	  "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
@@ -48,10 +51,14 @@ libraryDependencies ++= {
 	  "junit" 				      %  "junit"             % "4.11",
 	  "commons-codec"             %  "commons-codec"     % "1.8",
 	  "joda-time"                 %  "joda-time"         % "2.3",
-	  "com.google.code.gson"      %  "gson"              % "1.7.1",
+		"com.google.code.gson" % "gson" % "2.8.0",
 	  "io.vertx"                  %  "vertx-web"         % "3.1.0",
 	  "io.vertx"                  %  "vertx-auth-common" % "3.1.0",
-	  "io.vertx"                  %  "vertx-auth-shiro" % "3.1.0"
+	  "io.vertx"                  %  "vertx-auth-shiro" % "3.1.0",
+		"com.github.etaty" % "rediscala_2.12" % "1.8.0",
+		"com.softwaremill.quicklens" %% "quicklens" % "1.4.8",
+		"org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT",
+		"redis.clients" % "jedis" % "2.9.0"
 	)}
 
 seq(Revolver.settings: _*)
