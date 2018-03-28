@@ -682,5 +682,10 @@ package org.bigbluebutton.main.model.users
             // when the bandwidth check is complete 
             LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
         }
+		
+		public function onMessageFromDS(msg: Object): void {
+			trace("*** From DS: " + JSON.stringify(msg));
+		}
+			
     }
 }

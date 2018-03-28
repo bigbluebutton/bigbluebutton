@@ -515,6 +515,14 @@
         swfObj.webRTCMonitorUpdate(result);
       }
     }
+    
+    BBB.onMessageFromDS = function(data) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.onMessageFromDS(data);
+      }
+    }
+    
 
 
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
@@ -603,18 +611,19 @@
       eb.onopen = function () {
             console.log("FOOOO!!!!!");
             eb.registerHandler("chat.to.client", function (msg) {
-                console.log(msg + "\n");
+                console.log("From server: " + msg + "\n");
+                BBB.onMessageFromDS(msg);
             });
     
             eb.send("foo-bar", "ValidateAuthToken", function(msg) {
                 console.log("reply: " + msg + "\n");
+                
             });
       };
       
     BBB.sendToDeepstream = function(data) {
-      console.log(data);
-      eb.send("foo-bar", JSON.stringify(data), function(msg) {
-           console.log("reply: " + msg + "\n");
+      eb.send("chat.to.server", JSON.stringify(data), function(msg) {
+           //console.log("reply: " + msg + "\n");
       });
     };
     
