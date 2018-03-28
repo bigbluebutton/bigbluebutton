@@ -1,15 +1,13 @@
 package org.bigbluebutton.air.main.views {
 	
-	import flash.display.DisplayObjectContainer;
 	import flash.events.MouseEvent;
 	
-	import spark.events.PopUpEvent;
+	import spark.components.CalloutPosition;
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.air.user.models.EmojiStatus;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
@@ -59,18 +57,10 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private function changeStatus(e:MouseEvent):void {
-			// TODO : improve use a singel instance
-			var emojiPopUp:EmojiPopUp = new EmojiPopUp();
-			emojiPopUp.width = view.width;
-			emojiPopUp.height = view.height;
-			emojiPopUp.open(view.parentApplication as DisplayObjectContainer, true);
-			
-			emojiPopUp.x = view.x + view.statusButton.x - 10;
-			if (meetingData.users.me.emoji != EmojiStatus.NO_STATUS) {
-				emojiPopUp.y = view.y - emojiPopUp.height * 2 - 35;
-			} else {
-				emojiPopUp.y = view.y - emojiPopUp.height * 2 - 5;
-			}
+			var emojicallout:EmojiCallout = new EmojiCallout();
+			emojicallout.horizontalPosition = CalloutPosition.MIDDLE;
+			emojicallout.verticalPosition = CalloutPosition.BEFORE;
+			emojicallout.open(view.statusButton, true);
 		}
 		
 		protected function micOnOff(e:MouseEvent):void {
