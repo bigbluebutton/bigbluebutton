@@ -55,8 +55,8 @@ package org.bigbluebutton.air.main.views {
 						userSession.videoConnection.disconnect(true);
 					if (userSession.voiceConnection)
 						userSession.voiceConnection.disconnect(true);
-					if (userSession.deskshareConnection)
-						userSession.deskshareConnection.disconnect(true);
+					if (userSession.screenshareConnection)
+						userSession.screenshareConnection.disconnect(true);
 					FlexGlobals.topLevelApplication.mainshell.visible = false;
 					uiSession.popPage();
 					uiSession.pushPage(PageEnum.MAIN);

@@ -105,6 +105,19 @@ main|MainView {
 	backgroundColor : PropertyReference("bbbBlack");
 }
 
+main|RectCoverView {
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+main|MenuButtons {
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+.no-background {
+	backgroundAlpha: 0;
+}
+
+
 main|TopToolbarBase {
 	textAlign : center;
 	backgroundColor : PropertyReference("bbbBlack");
@@ -169,6 +182,7 @@ main|EmojiItemRenderer {
 	itemHeight    : 30;
 	
 }
+
 
 .statusList {
 	skinClass              : ClassReference("org.bigbluebutton.air.main.views.EmojiListSkin");

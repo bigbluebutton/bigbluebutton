@@ -6,10 +6,7 @@ package org.bigbluebutton.air.common.views {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.system.Capabilities;
-	
 	import mx.core.UIComponent;
-	
-	import spark.components.Group;
 	
 	public class VideoView extends UIComponent {
 		protected var ns:NetStream;

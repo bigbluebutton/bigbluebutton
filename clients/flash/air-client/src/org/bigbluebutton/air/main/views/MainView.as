@@ -5,6 +5,7 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.poll.views.PollButtons;
 	import org.bigbluebutton.air.presentation.views.PresentationView;
+	import org.bigbluebutton.air.screenshare.views.ScreenshareDock;
 	import org.bigbluebutton.air.video.views.WebcamDock;
 	import org.osmf.layout.HorizontalAlign;
 	
@@ -16,6 +17,7 @@ package org.bigbluebutton.air.main.views {
 		
 		private var _webcamDock:WebcamDock;
 		
+		private var _screenshareView:ScreenshareDock;
 		private var _pollButton:PollButtons;
 		
 		public function MainView() {
@@ -35,6 +37,14 @@ package org.bigbluebutton.air.main.views {
 			addElement(_presentationView);
 			
 			// add deskshare view here and position like the presentation view
+			_screenshareView = new ScreenshareDock();
+			_screenshareView.percentWidth = 100;
+			_screenshareView.percentHeight = 100;
+			
+			// Listen for using stage view as we have to hide some views to make stage view visible.
+			_screenshareView.addScreenshareRunningListener(onScreenshareRunning);
+			
+			addElement(_screenshareView);
 			
 			_webcamDock = new WebcamDock();
 			_webcamDock.percentWidth = 30;
@@ -58,14 +68,36 @@ package org.bigbluebutton.air.main.views {
 			super.updateDisplayList(w, h);
 			
 			_menuButtons.height = getStyle("menuHeight");
+			_menuButtons.percentWidth = 100;
 			
 			_presentationView.width = w;
 			_presentationView.height = h - _topToolbar.height - _menuButtons.height;
 			_presentationView.y = _topToolbar.height;
 			
+			_screenshareView.width = w;
+			_screenshareView.height = h - _topToolbar.height - _menuButtons.height;
+			_screenshareView.y = _topToolbar.height;
+			
 			_webcamDock.bottom = _menuButtons.height;
 			
 			_pollButton.bottom = _menuButtons.height + getStyle("pollPadding");;
+		}
+		
+		private function onScreenshareRunning(usingStageVideo:Boolean, running:Boolean):void {
+			if (running) {
+				//trace("****** Hiding presentation window as we are using stage video");
+				// Using stage video. Need to hide PresentationWIndow to make StageVideo visible.
+				if (usingStageVideo) {
+					this.styleName = "no-background";
+				} else {
+					this.styleName = "";
+				}
+				_presentationView.visible = false;
+			} else {
+				// Switch back style to display background.
+				this.styleName = "";
+				_presentationView.visible = true;
+			}
 		}
 	}
 }
