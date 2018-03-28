@@ -79,9 +79,9 @@ module.exports = class MediaServer extends EventEmitter {
     }
   }
 
-  _createElement (pipeline, type) {
+  _createElement (pipeline, type, options) {
     return new Promise((resolve, reject) => {
-      pipeline.create(type, (error, mediaElement) => {
+      pipeline.create(type, options, (error, mediaElement) => {
         if (error) {
           error = this._handleError(error);
           return reject(error);
@@ -94,15 +94,35 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
 
-  async createMediaElement (roomId, type) {
+  async createMediaElement (roomId, type, options) {
+    options = options || {};
     try {
       const pipeline = await this._getMediaPipeline(roomId);
-      const mediaElement = await this._createElement(pipeline, type);
+      const mediaElement = await this._createElement(pipeline, type, options);
       this._mediaPipelines[roomId].activeElements++;
       return Promise.resolve(mediaElement.id);
     }
     catch (err) {
       return Promise.reject(err);
+    }
+  }
+
+  async startRecording (sourceId) {
+    let source = this._mediaElements[sourceId];
+
+    if (source) {
+      return new Promise((resolve, reject) => {
+        source.record((err) => {
+          if (err) {
+            error = this._handlerError(error);
+            return reject(error);
+          }
+          return resolve();
+        });
+      });
+    }
+    else {
+      return Promise.reject("[mcs-recording] shit");
     }
   }
 
@@ -173,7 +193,6 @@ module.exports = class MediaServer extends EventEmitter {
     }
   }
 
-  
   addIceCandidate (elementId, candidate) {
     let mediaElement = this._mediaElements[elementId];
     let kurentoCandidate = mediaServerClient.getComplexType('IceCandidate')(candidate);
@@ -201,7 +220,7 @@ module.exports = class MediaServer extends EventEmitter {
             return reject(error);
           }
           Logger.info('[mcs-media] Triggered ICE gathering for ' + elementId);
-          return resolve(); 
+          return resolve();
         });
       }
       else {
@@ -282,6 +301,9 @@ module.exports = class MediaServer extends EventEmitter {
         this.addMediaEventListener(C.EVENT.MEDIA_STATE.CHANGED, elementId);
         this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_IN, elementId);
         this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_OUT, elementId);
+        break;
+
+      case C.MEDIA_TYPE.RECORDING:
         break;
 
       default: return;

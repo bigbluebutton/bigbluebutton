@@ -130,6 +130,9 @@ module.exports = class Video {
         const ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this.mediaId = ret.sessionId;
+
+        this.recordingId = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+
         sharedWebcams[this.id] = this.mediaId;
         sdpAnswer = ret.answer;
         this.flushCandidatesQueue();
