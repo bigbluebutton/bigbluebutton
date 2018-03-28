@@ -27,10 +27,6 @@ package org.bigbluebutton.air.screenshare.model {
 			return _stream.url;
 		}
 		
-		public function set url(u:String):void {
-			_stream.url = u;
-		}
-		
 		public function get width():int {
 			return _stream.width;
 		}
@@ -43,40 +39,18 @@ package org.bigbluebutton.air.screenshare.model {
 			return _stream.streamId;
 		}
 		
-		public function set streamId(s:String):void {
-			_stream.streamId = s;
-		}
-		
-		public function get authToken():String {
-			return _stream.authToken;
-		}
-		
-		public function set authToken(token:String):void {
-			_stream.authToken = token;
-		}
-		
-		public function get jnlp():String {
-			return _stream.jnlp;
-		}
-		
-		public function set jnlp(j:String):void {
-			_stream.jnlp = j;
-		}
-		
+				
 		public function get session():String {
 			return _stream.session;
 		}
 		
-		public function set session(j:String):void {
-			_stream.session = j;
-		}
 		
 		public function screenshareStreamStarted(streamId:String, width:int, height:int, url:String, session:String):void {
-			this.streamId = streamId;
+			this._stream.streamId = streamId;
 			this._stream.width = width;
 			this._stream.height = height;
-			this.url = url;
-			this.session = session;
+			this._stream.url = url;
+			this._stream.session = session;
 			
 			_isScreenSharing = true;
 			screenshareStreamStartedSignal.dispatch(streamId, width, height);
@@ -90,7 +64,7 @@ package org.bigbluebutton.air.screenshare.model {
 		}
 		
 		public function screenshareStreamPaused(session:String):void {
-			if (this.session == session) {
+			if (this._stream.session == session) {
 				_isScreenSharing = false;
 				screenshareStreamStoppedSignal.dispatch(session, "PAUSED");
 			}
