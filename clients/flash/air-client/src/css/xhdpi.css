@@ -105,7 +105,8 @@
 		fontSize : 24;
 	}
 	
-	main|EmojiPopUp {
+	main|EmojiCallout {
+		minListWidth : 220;
 		fontSize     : 22;
 	}
 	

@@ -1,21 +1,21 @@
 package org.bigbluebutton.air.main.views {
+	import mx.core.ClassFactory;
 	import mx.core.ScrollPolicy;
 	
+	import spark.components.Callout;
 	import spark.components.List;
-	import spark.components.SkinnablePopUpContainer;
 	import spark.components.VGroup;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalAlign;
 	
-	public class EmojiPopUp extends SkinnablePopUpContainer {
-		
+	public class EmojiCallout extends Callout {
 		private var _statusList:List;
 		
 		public function get statusList():List {
 			return _statusList;
 		}
 		
-		public function EmojiPopUp() {
+		public function EmojiCallout() {
 			super();
 			
 			var mainGroup:VGroup = new VGroup();
@@ -24,9 +24,10 @@ package org.bigbluebutton.air.main.views {
 			this.addElement(mainGroup);
 			
 			_statusList = new List();
-			_statusList.minWidth = 160;
-			_statusList.styleName = "statusList";
+			_statusList.percentWidth = 100;
 			_statusList.percentHeight = 100;
+			_statusList.itemRenderer = new ClassFactory(EmojiItemRenderer);
+			_statusList.styleName = "statusList";
 			_statusList.labelField = "label";
 			mainGroup.addElement(_statusList);
 		}
@@ -37,7 +38,7 @@ package org.bigbluebutton.air.main.views {
 			_statusList.setStyle('verticalScrollPolicy', ScrollPolicy.OFF);
 			_statusList.setStyle('horizontalScrollPolicy', ScrollPolicy.OFF);
 			
-			this.width = _statusList.width;
+			_statusList.minWidth = getStyle("minListWidth");
 		}
 	}
 }

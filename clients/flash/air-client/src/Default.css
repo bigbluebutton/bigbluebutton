@@ -10,6 +10,7 @@
 @namespace settingsLock "org.bigbluebutton.air.settings.views.lock.*";
 @namespace settingsCamera "org.bigbluebutton.air.settings.views.camera.*";
 @namespace ex "http://flex.apache.org/experimental/ns";
+@namespace supportClasses "spark.skins.mobile.supportClasses.*";
 
 @font-face {
 	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
@@ -90,6 +91,12 @@ s|Application {
 
 s|Button {
 	fontFamily : SourceSansProMX;
+}
+
+s|Callout
+{
+	skinClass: ClassReference("spark.skins.ios7.CalloutSkin");
+	backgroundColor : #FFFFFF;
 }
 
 /* Loading screen */
@@ -179,13 +186,10 @@ main|EmojiItemRenderer {
 	iconColor     : PropertyReference("grey700");
 	color         : PropertyReference("grey700");
 	selectedColor : PropertyReference("bbbBlue");
-	itemHeight    : 30;
-	
 }
 
 
 .statusList {
-	skinClass              : ClassReference("org.bigbluebutton.air.main.views.EmojiListSkin");
 	contentBackgroundAlpha : 0;
 }
 
