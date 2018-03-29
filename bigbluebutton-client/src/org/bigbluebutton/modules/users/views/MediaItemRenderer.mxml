@@ -338,7 +338,7 @@
 								icon: getStyle('iconDemote'),
 								callback: demoteUser
 							});
-						} else if (data.authed){
+						} else if (!data.guest && data.role == Role.VIEWER){
 							actionsMenuData.push({
 								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
 								icon: getStyle('iconPromote'),
