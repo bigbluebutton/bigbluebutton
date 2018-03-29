@@ -107,13 +107,25 @@ public class PrivateVerticle extends AbstractVerticle {
       if (be.type() == BridgeEventType.SOCKET_CREATED) {
         System.out.println("Socket create for session: " + be.socket().webSession().id() + " socketWriteId:" + be.socket().writeHandlerID());
       } else if (be.type() == BridgeEventType.SOCKET_CLOSED) { 
-        System.out.println("Socket closed for: " + be.socket().webSession().id());
+        System.out.println("Socket closed for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+//      } else if (be.type() == BridgeEventType.SOCKET_IDLE) {
+//        System.out.println("Socket SOCKET_IDLE for: " + be.socket().webSession().id());
+//      } else if (be.type() == BridgeEventType.SOCKET_PING) {
+ //       System.out.println("Socket SOCKET_PING for: " + be.socket().webSession().id());
+      } else if (be.type() == BridgeEventType.UNREGISTER) {
+        System.out.println("Socket UNREGISTER for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+      } else if (be.type() == BridgeEventType.PUBLISH) {
+      System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+      } else if (be.type() == BridgeEventType.RECEIVE) {
+        System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+      } else if (be.type() == BridgeEventType.SEND) {
+        System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
       } else if (be.type() == BridgeEventType.REGISTER) {
-        System.out.println("Register for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
-        eb.consumer("to-vertx").handler(message -> {
-          System.out.println("**** response to " + be.socket().webSession().id() + " msg = " +  message.body());
-        });
-        gw.send(be.rawMessage().toString());
+        System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+        //eb.consumer("to-vertx").handler(message -> {
+        //  System.out.println("**** response to " + be.socket().webSession().id() + " msg = " +  message.body());
+        //});
+        //gw.send(be.rawMessage().toString());
       } else {
         System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.rawMessage());      
       }
@@ -137,12 +149,12 @@ public class PrivateVerticle extends AbstractVerticle {
       // Create a timestamp string
       String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
       // Send the message back out to all clients with the timestamp prepended.
-      gw.send(timestamp + ": " + message.body());
-      eb.publish("foofoofoo", message.body());
+      gw.send("TO ECHO:" + timestamp + ": " + message.body());
+     // eb.publish("foofoofoo", message.body());
     });
 
     eb.consumer("to-vertx").handler(message -> {
-      eb.publish("chat.to.client", message.body());
+     eb.publish("chat.to.client", message.body());
     }); 
 
     

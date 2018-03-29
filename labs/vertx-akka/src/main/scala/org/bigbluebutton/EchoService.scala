@@ -15,8 +15,8 @@ class EchoService(gw: AkkaToVertxGateway) extends Actor with ActorLogging {
 
   def receive = {
     case msg: String => {
-      println("****** Echoing " + msg)
-      gw.send(msg)
+      //println("****** Echoing " + msg)
+      gw.send("FROM ECHO: " + msg)
     }
     case _ => log.error("Cannot handle message ")
   }
