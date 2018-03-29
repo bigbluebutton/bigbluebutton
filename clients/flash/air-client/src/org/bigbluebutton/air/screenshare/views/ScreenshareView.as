@@ -27,5 +27,10 @@ package org.bigbluebutton.air.screenshare.views {
 			_video.attachNetStream(ns);
 			addChild(_video);
 		}
+		
+		public function updateDisplay(vidWidth:int, vidHeight:int):void {
+			_video.width = _videoWidth = vidWidth;
+			_video.height = _videoHeight = vidHeight;
+		}
 	}
 }

@@ -68,6 +68,7 @@ package org.bigbluebutton.air.main.views {
 			super.updateDisplayList(w, h);
 			
 			_menuButtons.height = getStyle("menuHeight");
+			_menuButtons.percentWidth = 100;
 			
 			_presentationView.width = w;
 			_presentationView.height = h - _topToolbar.height - _menuButtons.height;
@@ -79,15 +80,22 @@ package org.bigbluebutton.air.main.views {
 			
 			_webcamDock.bottom = _menuButtons.height;
 			
-			_pollButton.bottom = _menuButtons.height + getStyle("pollPadding");;
+			_pollButton.bottom = getStyle("pollPadding");;
 		}
 		
-		private function onScreenshareRunning(running:Boolean):void {
+		private function onScreenshareRunning(usingStageVideo:Boolean, running:Boolean):void {
 			if (running) {
 				//trace("****** Hiding presentation window as we are using stage video");
 				// Using stage video. Need to hide PresentationWIndow to make StageVideo visible.
+				if (usingStageVideo) {
+					this.styleName = "no-background";
+				} else {
+					this.styleName = "";
+				}
 				_presentationView.visible = false;
 			} else {
+				// Switch back style to display background.
+				this.styleName = "";
 				_presentationView.visible = true;
 			}
 		}

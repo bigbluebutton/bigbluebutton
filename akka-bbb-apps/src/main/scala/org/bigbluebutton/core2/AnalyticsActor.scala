@@ -77,6 +77,8 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: TransferUserToVoiceConfSysMsg => logMessage(msg)
       case m: EjectUserFromMeetingSysMsg => logMessage(msg)
 
+      case m: ChangeUserRoleCmdMsg => logMessage(msg)
+
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
 

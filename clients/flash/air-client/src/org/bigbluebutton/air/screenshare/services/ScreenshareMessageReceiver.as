@@ -22,6 +22,9 @@ package org.bigbluebutton.air.screenshare.services {
 				case "screenShareStoppedMessage":
 					handleScreenShareStoppedMessage(message);
 					break;
+				case "screenSharePausedMessage":
+					handleScreenSharePausedMessage(message);
+					break;
 				default:
 					trace("SCREENSHARE: Cannot handle message [" + messageName + "]");
 			}
@@ -51,6 +54,14 @@ package org.bigbluebutton.air.screenshare.services {
 					model.screenshareStreamStarted(map.streamId, map.width, map.height, map.url, map.session);
 				}
 			}
+		}
+		
+		private function handleScreenSharePausedMessage(message:Object):void {
+			trace("SCREENSHARE: handleScreenSharePausedMessage " + message.msg);      
+			var map:Object = JSON.parse(message.msg);      
+			if (map.hasOwnProperty("meetingId") && map.hasOwnProperty("session")) {
+				model.screenshareStreamPaused(map.session);
+			} 
 		}
 	}
 }

@@ -20,8 +20,8 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
       for {
         uvo <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       } yield {
-        if (msg.body.role == Roles.MODERATOR_ROLE && uvo.authed) {
-          // Promote only authenticated users.
+        if (msg.body.role == Roles.MODERATOR_ROLE && !uvo.guest) {
+          // Promote non-guest users.
           Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
           val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
             msg.body.changedBy, "MODERATOR")

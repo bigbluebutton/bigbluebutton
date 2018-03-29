@@ -2,6 +2,7 @@ package org.bigbluebutton.air.main.views {
 	import flash.events.MouseEvent;
 	
 	import mx.collections.ArrayCollection;
+	import mx.events.FlexEvent;
 	import mx.events.FlexMouseEvent;
 	
 	import spark.components.SkinnablePopUpContainer;
@@ -12,13 +13,13 @@ package org.bigbluebutton.air.main.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class EmojiPopUpMediator extends Mediator {
+	public class EmojiCalloutMediator extends Mediator {
 		
 		[Inject]
 		public var meetingData:IMeetingData;
 		
 		[Inject]
-		public var view:EmojiPopUp;
+		public var view:EmojiCallout;
 		
 		[Inject]
 		public var emojiSignal:EmojiSignal;
@@ -35,12 +36,17 @@ package org.bigbluebutton.air.main.views {
 				}
 			}
 			
+			view.statusList.addEventListener(FlexEvent.UPDATE_COMPLETE, onUpdateComplete);
 			view.statusList.addEventListener(MouseEvent.CLICK, onSelectStatus);
 			view.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
 		}
 		
 		private function closePopUp(e:FlexMouseEvent):void {
 			(view as SkinnablePopUpContainer).close(false);
+		}
+		
+		private function onUpdateComplete(event:FlexEvent):void {
+			view.updatePopUpPosition();
 		}
 		
 		private function onSelectStatus(event:MouseEvent):void {
@@ -58,6 +64,7 @@ package org.bigbluebutton.air.main.views {
 		
 		override public function destroy():void {
 			view.statusList.addEventListener(MouseEvent.CLICK, onSelectStatus);
+			view.statusList.removeEventListener(FlexEvent.UPDATE_COMPLETE, onUpdateComplete);
 			view.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
 			view.close();
 			view = null;

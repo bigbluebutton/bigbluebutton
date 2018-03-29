@@ -32,14 +32,13 @@
 		]]>
 	</fx:Script>
 	<s:HGroup id="content"
-			  width="100%"
 			  verticalAlign="middle"
-			  padding="8"
-			  height="{getStyle('itemHeight')}">
+			  padding="8">
 
 		<s:Label id="icon" />
 
 		<s:Label id="labelDisplay"
+				 width="100%"
 				 maxDisplayedLines="1" />
 	</s:HGroup>
 </s:ItemRenderer>
