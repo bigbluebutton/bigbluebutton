@@ -90,7 +90,7 @@ package org.bigbluebutton.air.main.views {
 			}
 			
 			if (meetingData.voiceUsers.me) {
-				view.micButton.visible = view.micButton.includeInLayout = true;
+				view.micButton.visible = view.micButton.includeInLayout = !meetingData.voiceUsers.me.listenOnly;
 				view.audioButton.styleName = "icon-audio-off menuButtonRed";
 				view.audioButton.label = "Hang Up";
 				
