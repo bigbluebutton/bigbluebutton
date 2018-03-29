@@ -29,7 +29,7 @@ export default function validateAuthToken(credentials) {
     createDummyUser(meetingId, requesterUserId, requesterToken);
   }
 
-  setConnectionId(meetingId, requesterUserId, this.connection.id);
+  setConnectionId(meetingId, requesterUserId, this.connection.id, requesterToken);
 
   const payload = {
     userId: requesterUserId,
