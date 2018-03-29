@@ -94,16 +94,16 @@ public class PrivateVerticle extends AbstractVerticle {
     SockJSHandlerOptions options = new SockJSHandlerOptions().setHeartbeatInterval(2000);
     
     // Create the event bus bridge and add it to the router.
-    SockJSHandler ebHandler = SockJSHandler.create(vertx, options); 
+    SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
     
-    router.route("/eventbus/*").handler(ebHandler);
+    router.route("/eventbus/*").handler(sockJSHandler);
 
 //    SockJSHandlerFactory sockJsMessageHandler = new SockJSHandlerFactory();
 //    sockJsMessageHandler.setupHandler(ebHandler, opts);
     
     EventBus eb = vertx.eventBus();
     
-    ebHandler.bridge(opts, be -> {
+    sockJSHandler.bridge(opts, be -> {
       if (be.type() == BridgeEventType.SOCKET_CREATED) {
         System.out.println("Socket create for session: " + be.socket().webSession().id() + " socketWriteId:" + be.socket().writeHandlerID());
       } else if (be.type() == BridgeEventType.SOCKET_CLOSED) { 
