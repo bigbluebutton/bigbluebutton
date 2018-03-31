@@ -1,6 +1,6 @@
 package org.bigbluebutton.vertx;
 
-import io.vertx.ext.web.handler.sockjs.BridgeEventType;
+import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
@@ -14,7 +14,7 @@ public class SockJSHandlerFactory {
       } else if (be.type() == BridgeEventType.SOCKET_CLOSED) {
         System.out.println("Socket closed for: " + be.socket().webSession().id());
       } else {
-        System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+        System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       }
       be.complete(true);
     });

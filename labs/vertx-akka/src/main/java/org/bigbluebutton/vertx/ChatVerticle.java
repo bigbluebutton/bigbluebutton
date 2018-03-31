@@ -4,7 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.ext.web.handler.sockjs.BridgeEventType;
+import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -46,7 +46,7 @@ public class ChatVerticle extends AbstractVerticle {
 
     ebHandler.bridge(opts, be -> {
       if (be.type() == BridgeEventType.PUBLISH || be.type() == BridgeEventType.RECEIVE) {
-        if (be.rawMessage().getString("body").equals("armadillos")) {
+        if (be.getRawMessage().getString("body").equals("armadillos")) {
           // Reject it
           be.complete(false);
           return;

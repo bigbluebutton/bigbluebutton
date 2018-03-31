@@ -41,6 +41,7 @@ libraryDependencies ++= {
 	val scalaV = "2.12.2"
 	val akkaVersion  = "2.5.1"
 	val scalaTestV  = "2.2.6"
+	val vertxV = "3.5.1"
 
   Seq(
 	  "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
@@ -52,9 +53,10 @@ libraryDependencies ++= {
 	  "commons-codec"             %  "commons-codec"     % "1.8",
 	  "joda-time"                 %  "joda-time"         % "2.3",
 		"com.google.code.gson" % "gson" % "2.8.0",
-	  "io.vertx"                  %  "vertx-web"         % "3.1.0",
-	  "io.vertx"                  %  "vertx-auth-common" % "3.1.0",
-	  "io.vertx"                  %  "vertx-auth-shiro" % "3.1.0",
+	  "io.vertx"                  %  "vertx-web"         % vertxV,
+	  "io.vertx"                  %  "vertx-auth-common" % vertxV,
+	  "io.vertx"                  %  "vertx-auth-shiro" % vertxV,
+		"io.vertx" %% "vertx-lang-scala" % vertxV,
 		"com.github.etaty" % "rediscala_2.12" % "1.8.0",
 		"com.softwaremill.quicklens" %% "quicklens" % "1.4.8",
 		"org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT",

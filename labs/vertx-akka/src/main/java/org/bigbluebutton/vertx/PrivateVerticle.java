@@ -15,7 +15,7 @@ import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.*;
-import io.vertx.ext.web.handler.sockjs.BridgeEventType;
+import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -107,27 +107,27 @@ public class PrivateVerticle extends AbstractVerticle {
       if (be.type() == BridgeEventType.SOCKET_CREATED) {
         System.out.println("Socket create for session: " + be.socket().webSession().id() + " socketWriteId:" + be.socket().writeHandlerID());
       } else if (be.type() == BridgeEventType.SOCKET_CLOSED) { 
-        System.out.println("Socket closed for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+        System.out.println("Socket closed for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
 //      } else if (be.type() == BridgeEventType.SOCKET_IDLE) {
 //        System.out.println("Socket SOCKET_IDLE for: " + be.socket().webSession().id());
 //      } else if (be.type() == BridgeEventType.SOCKET_PING) {
  //       System.out.println("Socket SOCKET_PING for: " + be.socket().webSession().id());
       } else if (be.type() == BridgeEventType.UNREGISTER) {
-        System.out.println("Socket UNREGISTER for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+        System.out.println("Socket UNREGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.PUBLISH) {
-      System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+      System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.RECEIVE) {
-        System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+        System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
-        System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+        System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.REGISTER) {
-        System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.rawMessage());
+        System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
         //eb.consumer("to-vertx").handler(message -> {
         //  System.out.println("**** response to " + be.socket().webSession().id() + " msg = " +  message.body());
         //});
         //gw.send(be.rawMessage().toString());
       } else {
-        System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.rawMessage());      
+        System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       }
       
      // System.out.println("USER=" + be.socket().webUser().principal());
