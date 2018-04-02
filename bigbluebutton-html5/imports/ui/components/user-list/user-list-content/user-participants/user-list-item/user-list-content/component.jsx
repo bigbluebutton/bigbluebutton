@@ -241,6 +241,7 @@ class UserListContent extends Component {
             intl={intl}
             meeting={meeting}
             isMeetingLocked={isMeetingLocked}
+            userAriaLabel={userAriaLabel}
           />}
           {<UserIcons
             user={user}

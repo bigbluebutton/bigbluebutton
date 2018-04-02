@@ -39,19 +39,19 @@ class EchoTest extends Component {
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.yes)}
-          icon={'thumbs_up'}
+          icon="thumbs_up"
           circle
-          color={'success'}
-          size={'jumbo'}
+          color="success"
+          size="jumbo"
           onClick={this.handleYes}
         />
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.no)}
-          icon={'thumbs_down'}
+          icon="thumbs_down"
           circle
-          color={'danger'}
-          size={'jumbo'}
+          color="danger"
+          size="jumbo"
           onClick={this.handleNo}
         />
       </span>

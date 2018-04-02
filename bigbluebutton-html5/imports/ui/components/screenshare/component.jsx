@@ -4,6 +4,14 @@ export default class ScreenshareComponent extends React.Component {
   componentDidMount() {
     this.props.presenterScreenshareHasStarted();
   }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.isPresenter && !nextProps.isPresenter) {
+      this.props.unshareScreen();
+    }
+  }
+  componentWillUnmount() {
+    this.props.presenterScreenshareHasEnded();
+  }
 
   render() {
     return (

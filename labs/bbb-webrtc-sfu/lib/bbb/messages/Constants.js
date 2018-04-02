@@ -25,6 +25,7 @@ const config = require('config');
         TO_VIDEO: config.get('to-video'),
         FROM_AUDIO: config.get('from-audio'),
         TO_AUDIO: config.get('to-audio'),
+        TO_AKKA_APPS: config.get('to-akka'),
 
         // RedisWrapper events
         REDIS_MESSAGE : "redis_message",
@@ -46,6 +47,8 @@ const config = require('config');
         START_TRANSCODER_RESP_2x: "StartTranscoderSysRespMsg",
         STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
+
+        USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
 
         // Redis messages fields
         //  Transcoder 1x

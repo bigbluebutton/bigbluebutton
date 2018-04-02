@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Tooltip from '/imports/ui/components/tooltip/component';
 import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
@@ -13,7 +14,6 @@ const intlMessages = defineMessages({
 });
 
 class PollingComponent extends Component {
-
   getStyles() {
     const number = this.props.poll.answers.length + 1;
     const buttonStyle =
@@ -32,7 +32,7 @@ class PollingComponent extends Component {
     const { intl } = this.props;
 
     return (
-      <div className={styles.pollingContainer}>
+      <div className={styles.pollingContainer} role="alert">
         <div className={styles.pollingTitle}>
           <p>
             {intl.formatMessage(intlMessages.pollingTitleLabel)}
@@ -44,15 +44,19 @@ class PollingComponent extends Component {
             style={calculatedStyles}
             className={styles.pollButtonWrapper}
           >
-            <Button
-              className={styles.pollingButton}
-              label={pollAnswer.key}
-              size="lg"
-              color="primary"
-              onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
-              aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-              aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-            />
+            <Tooltip
+              title={pollAnswer.key}
+            >
+              <Button
+                className={styles.pollingButton}
+                size="lg"
+                color="primary"
+                label={pollAnswer.key}
+                onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
+                aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+                aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+              />
+            </Tooltip>
             <div
               className={styles.hidden}
               id={`pollAnswerLabel${pollAnswer.key}`}
@@ -65,8 +69,7 @@ class PollingComponent extends Component {
             >
               {`Select this option to vote for ${pollAnswer.key}`}
             </div>
-          </div>),
-        )}
+          </div>))}
       </div>
     );
   }
@@ -81,11 +84,9 @@ PollingComponent.propTypes = {
   handleVote: PropTypes.func.isRequired,
   poll: PropTypes.shape({
     pollId: PropTypes.string.isRequired,
-    answers: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        key: PropTypes.string.isRequired,
-      }).isRequired,
-    ).isRequired,
+    answers: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      key: PropTypes.string.isRequired,
+    }).isRequired).isRequired,
   }).isRequired,
 };

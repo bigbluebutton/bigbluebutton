@@ -44,6 +44,10 @@ const intlMessages = defineMessages({
     id: 'app.leaveConfirmation.endMeetingLabel',
     description: 'End meeting button label',
   },
+  endMeetingAriaLabel: {
+    id: 'app.leaveConfirmation.endMeetingAriaLabel',
+    description: 'End meeting button aria label',
+  },
   endMeetingDesc: {
     id: 'app.leaveConfirmation.endMeetingDesc',
     description: 'adds context to end meeting option',

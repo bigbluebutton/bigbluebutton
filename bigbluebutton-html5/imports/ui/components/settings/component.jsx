@@ -217,7 +217,6 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.props.mountModal(null);
             if (location.pathname.includes('/users')) {
               router.push('/');
             }
@@ -227,9 +226,7 @@ class Settings extends Component {
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
         }}
         dismiss={{
-          callback: () => {
-            Settings.setHtmlFontSize(this.state.saved.application.fontSize);
-          },
+          callback: () => Settings.setHtmlFontSize(this.state.saved.application.fontSize),
           label: intl.formatMessage(intlMessages.CancelLabel),
           description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}

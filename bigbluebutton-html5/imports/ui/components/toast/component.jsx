@@ -24,7 +24,7 @@ const defaultIcons = {
 };
 
 const Toast = ({ icon, type, message }) => (
-  <div className={styles[type]}>
+  <div className={styles[type]} role="alert">
     <div className={styles.icon}><Icon iconName={icon || defaultIcons[type]} /></div>
     <div className={styles.message}>
       <span>{message}</span>
