@@ -140,12 +140,16 @@ package org.bigbluebutton.air.user.services {
 		}
 		
 		private function handleGetUsersMeetingRespMsg(msg:Object):void {
-			var users:Array = msg.body.users as Array;
-			
-			for (var i:int; i < users.length; i++) {
+			var users:Array = msg.body.users as Array;			
+			var newUsers:Array = new Array();
+
+			for (var i:int=0; i < users.length; i++) {
 				var newUser:Object = users[i];
-				addUser(newUser);
+				var user:User2x = toUser2x(newUser);
+				newUsers.push(user);
 			}
+			
+			meetingData.users.addAllUsers(newUsers);
 		}
 		
 		private function handleUserJoinedMeetingEvtMsg(msg:Object):void {
@@ -291,6 +295,24 @@ package org.bigbluebutton.air.user.services {
 			
 			meetingData.users.changeUserRole(userId, role);
 			chatMessagesSession.updatePartnerRole(userId, role);
+		}
+		
+		private function toUser2x(newUser:Object):User2x {
+			var user:User2x = new User2x();
+			user.intId = newUser.intId;
+			user.extId = newUser.extId;
+			user.name = newUser.name;
+			user.role = newUser.role;
+			user.guest = newUser.guest;
+			user.authed = newUser.authed;
+			user.waitingForAcceptance = newUser.waitingForAcceptance;
+			user.emoji = newUser.emoji;
+			user.locked = newUser.locked;
+			user.presenter = newUser.presenter;
+			user.avatar = newUser.avatar;
+			user.me = user.intId == conferenceParameters.internalUserID;
+			
+			return user;
 		}
 	}
 }

@@ -179,6 +179,8 @@ package org.bigbluebutton.air.main.commands {
 			usersService.joinMeeting();
 
 			meetingData.users.userChangeSignal.add(userChangeListener);
+			
+			
 			joinMeetingTimeout = new Timer(5000, 1);
 			joinMeetingTimeout.addEventListener(TimerEvent.TIMER, onJoinMeetingTimeout);
 			joinMeetingTimeout.start();
@@ -200,7 +202,7 @@ package org.bigbluebutton.air.main.commands {
 				// Query the server for chat, users, and presentation info
 				chatService.getGroupChats();
 				presentationService.getPresentationPods();
-				meetingData.users.userChangeSignal.add(successUsersAdded);
+				meetingData.users.usersAddedSignal.add(successUsersAdded);
 				usersService.queryForParticipants();
 				usersService.getLockSettings();
 				usersService.getRoomLockState();
@@ -216,8 +218,8 @@ package org.bigbluebutton.air.main.commands {
 			joiningMeetingFailure(DisconnectEnum.JOIN_MEETING_TIMEOUT);
 		}
 		
-		protected function successUsersAdded(user:User2x, property:int):void {
-			meetingData.users.userChangeSignal.remove(successUsersAdded);
+		protected function successUsersAdded():void {
+			meetingData.users.usersAddedSignal.remove(successUsersAdded);
 			connectingFinishedSignal.dispatch();
 		}
 		
