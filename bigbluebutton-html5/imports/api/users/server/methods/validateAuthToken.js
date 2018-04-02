@@ -4,7 +4,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import createDummyUser from '../modifiers/createDummyUser';
-import setConnectionId from '../modifiers/setConnectionId';
+import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
 
 export default function validateAuthToken(credentials) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -29,7 +29,7 @@ export default function validateAuthToken(credentials) {
     createDummyUser(meetingId, requesterUserId, requesterToken);
   }
 
-  setConnectionId(meetingId, requesterUserId, this.connection.id, requesterToken);
+  setConnectionIdAndAuthToken(meetingId, requesterUserId, this.connection.id, requesterToken);
 
   const payload = {
     userId: requesterUserId,
