@@ -388,6 +388,12 @@ class MeetingActor(
     // sync all group chats and group chat messages
     groupChatApp.handleSyncGetGroupChatsInfo(state, liveMeeting, msgBus)
 
+    // sync all group chats
+    groupChatApp.handleSyncGetGroupChats(state, liveMeeting, msgBus)
+
+    // sync all group chat messages
+    groupChatApp.handleSyncGetGroupChatMsgs(state, liveMeeting, msgBus)
+
     // TODO send all lock settings
     // TODO send all screen sharing info
   }
