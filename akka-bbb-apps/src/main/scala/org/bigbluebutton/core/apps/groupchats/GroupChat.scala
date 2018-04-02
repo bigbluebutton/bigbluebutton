@@ -57,6 +57,10 @@ object GroupChatApp {
     state.update(groupChats)
   }
 
+  def getAllGroupChatsInMeeting(state: MeetingState2x): Vector[GroupChat] = {
+    state.groupChats.getAllGroupChatsInMeeting()
+  }
+
   def genTestChatMsgHistory(chatId: String, state: MeetingState2x, userId: String, liveMeeting: LiveMeeting): MeetingState2x = {
     def addH(state: MeetingState2x, userId: String, liveMeeting: LiveMeeting, msg: GroupChatMsgFromUser): MeetingState2x = {
       val newState = for {

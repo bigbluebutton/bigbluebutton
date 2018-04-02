@@ -362,7 +362,12 @@ class MeetingActor(
     // sync all presentations
     presentationPodsApp.handleSyncGetPresentationPods(state, liveMeeting, msgBus)
 
-    // TODO send all chat
+    // sync all group chats
+    groupChatApp.handleSyncGetGroupChats(state, liveMeeting, msgBus)
+
+    // sync all group chat messages
+    groupChatApp.handleSyncGetGroupChatMsgs(state, liveMeeting, msgBus)
+
     // TODO send all lock settings
     // TODO send all screen sharing info
   }

@@ -8,7 +8,9 @@ class GroupChatHdlrs(implicit val context: ActorContext)
     with CreateDefaultPublicGroupChat
     with GetGroupChatMsgsReqMsgHdlr
     with GetGroupChatsReqMsgHdlr
-    with SendGroupChatMessageMsgHdlr {
+    with SendGroupChatMessageMsgHdlr
+    with SyncGetGroupChatsMsgHdlr
+    with SyncGetGroupChatMsgsMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }
