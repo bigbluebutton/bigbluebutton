@@ -20,17 +20,16 @@ const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const LockCam = meeting.lockSettingsProp ? meeting.lockSettingsProp.disableCam : false;
-  const webcamOnlyModerator = meeting.usersProp.webcamsOnlyForModerator;
+  const lockCam = VideoService.isLocked();
+  const webcamOnlyModerator = VideoService.webcamOnlyModerator();
 
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
-  const isConecting = (!isSharingVideo() && isConnected);
-  const isLocked = (LockCam && userLocked) || webcamOnlyModerator;
+  const isConnecting = (!isSharingVideo() && isConnected);
+  const isLocked = (lockCam && userLocked) || webcamOnlyModerator;
   return isLocked
       || isWaitingResponse
-      || isConecting
+      || isConnecting
       || !videoShareAllowed();
 };
 
