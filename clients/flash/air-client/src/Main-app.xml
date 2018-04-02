@@ -316,8 +316,16 @@
 					        <category android:name="android.intent.category.BROWSABLE" />
 					        <!-- <data android:scheme="http" android:host="bbb.mobi" android:pathPattern=".*" />-->
 					        <data android:scheme="bigbluebutton" />
+					        <data android:scheme="bigbluebuttons" />
 					    </intent-filter>
 					    <!-- End Test for URL scheme -->
+					    
+					    <intent-filter>
+					        <action android:name="android.intent.action.VIEW" />
+					        <category android:name="android.intent.category.DEFAULT" />
+					        <category android:name="android.intent.category.BROWSABLE" />
+					        <data android:scheme="bigbluebuttons" />
+					    </intent-filter>
 					</activity>
 					<service android:name="com.juankpro.ane.localnotif.LocalNotificationIntentService"/>
                     <receiver android:name="com.juankpro.ane.localnotif.AlarmIntentService" />
