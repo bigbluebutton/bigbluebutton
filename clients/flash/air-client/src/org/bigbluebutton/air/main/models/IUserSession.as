@@ -1,6 +1,4 @@
 package org.bigbluebutton.air.main.models {
-	
-
 	import org.bigbluebutton.air.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.air.presentation.models.PresentationList;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
