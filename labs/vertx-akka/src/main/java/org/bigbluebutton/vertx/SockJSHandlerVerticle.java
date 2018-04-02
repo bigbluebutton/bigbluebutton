@@ -1,31 +1,29 @@
 package org.bigbluebutton.vertx;
 
-import java.text.DateFormat;
-import java.time.Instant;
-import java.util.Date;
-
-import org.bigbluebutton.VertxToAkkaGateway;
-
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.net.JksOptions;
-import io.vertx.ext.auth.AuthProvider;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.Session;
-import io.vertx.ext.web.handler.*;
 import io.vertx.ext.bridge.BridgeEventType;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.SessionHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.sstore.LocalSessionStore;
+import org.bigbluebutton.ConnectionManager;
+import org.bigbluebutton.VertxToAkkaGateway;
 
-public class PrivateVerticle extends AbstractVerticle {
-  private final VertxToAkkaGateway gw;
-  
-  public PrivateVerticle(VertxToAkkaGateway gw) {
+import java.text.DateFormat;
+import java.time.Instant;
+import java.util.Date;
+
+public class SockJSHandlerVerticle extends AbstractVerticle {
+  private final ConnectionManager gw;
+
+  public SockJSHandlerVerticle(ConnectionManager gw) {
     this.gw = gw;
   }
   
@@ -45,47 +43,6 @@ public class PrivateVerticle extends AbstractVerticle {
     // We need a user session handler too to make sure the user is stored in the session between requests
     //router.route().handler(UserSessionHandler.create(authProvider));
 
-    // Handles the actual login
-    //router.route("/loginhandler").handler(FormLoginHandler.create(authProvider));
-
-    router.route("/private/*").handler(routingContext -> {
-
-        // This will require a login
-
-        // This will have the value true
-        boolean isAuthenticated = routingContext.user() != null;
-
-        if (isAuthenticated) {
-          System.out.println("**** User is authenticated.");
-        } else {
-          System.out.println("**** User is NOT authenticated.");
-        }
-        Session session = routingContext.session();
-
-        Integer cnt = session.get("hitcount");
-        cnt = (cnt == null ? 0 : cnt) + 1;
-
-        session.put("hitcount", cnt);
-
-//        routingContext.response().putHeader("content-type", "text/html")
-//                                 .end("<html><body><h1>Hitcount: " + cnt + "</h1></body></html>");  
-        routingContext.next();
-        
-      });
-    
-    // Any requests to URI starting '/private/' require login
-    //router.route("/private/*").handler(RedirectAuthHandler.create(authProvider, "/loginpage.html"));
-
-    // Serve the static private pages from directory 'private'
-    //router.route("/private/*").handler(StaticHandler.create().setCachingEnabled(false).setWebRoot("private"));
-
-    // Implement logout
-    router.route("/logout").handler(context -> {
-      context.clearUser();
-      // Redirect back to the index page
-      context.response().putHeader("location", "/").setStatusCode(302).end();
-    });
-
     // Allow events for the designated addresses in/out of the event bus bridge
     BridgeOptions opts = new BridgeOptions()
       .addInboundPermitted(new PermittedOptions().setAddress("chat.to.server"))
@@ -98,20 +55,23 @@ public class PrivateVerticle extends AbstractVerticle {
     
     router.route("/eventbus/*").handler(sockJSHandler);
 
-//    SockJSHandlerFactory sockJsMessageHandler = new SockJSHandlerFactory();
-//    sockJsMessageHandler.setupHandler(ebHandler, opts);
-    
     EventBus eb = vertx.eventBus();
     
     sockJSHandler.bridge(opts, be -> {
       if (be.type() == BridgeEventType.SOCKET_CREATED) {
         System.out.println("Socket create for session: " + be.socket().webSession().id() + " socketWriteId:" + be.socket().writeHandlerID());
+        eb.consumer(be.socket().webSession().id()).handler(message -> {
+          be.socket().close();
+        });
+        gw.connectionCreated(be.socket().webSession().id());
       } else if (be.type() == BridgeEventType.SOCKET_CLOSED) { 
         System.out.println("Socket closed for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-//      } else if (be.type() == BridgeEventType.SOCKET_IDLE) {
-//        System.out.println("Socket SOCKET_IDLE for: " + be.socket().webSession().id());
-//      } else if (be.type() == BridgeEventType.SOCKET_PING) {
- //       System.out.println("Socket SOCKET_PING for: " + be.socket().webSession().id());
+        gw.connectionClosed(be.socket().webSession().id());
+        eb.consumer(be.socket().webSession().id()).unregister();
+      } else if (be.type() == BridgeEventType.SOCKET_IDLE) {
+        System.out.println("Socket SOCKET_IDLE for: " + be.socket().webSession().id());
+      } else if (be.type() == BridgeEventType.SOCKET_PING) {
+        System.out.println("Socket SOCKET_PING for: " + be.socket().webSession().id());
       } else if (be.type() == BridgeEventType.UNREGISTER) {
         System.out.println("Socket UNREGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.PUBLISH) {
@@ -122,14 +82,12 @@ public class PrivateVerticle extends AbstractVerticle {
         System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        //eb.consumer("to-vertx").handler(message -> {
-        //  System.out.println("**** response to " + be.socket().webSession().id() + " msg = " +  message.body());
-        //});
-        //gw.send(be.rawMessage().toString());
       } else {
         System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       }
-      
+
+
+
      // System.out.println("USER=" + be.socket().webUser().principal());
       
       be.complete(true);
@@ -149,7 +107,7 @@ public class PrivateVerticle extends AbstractVerticle {
       // Create a timestamp string
       String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
       // Send the message back out to all clients with the timestamp prepended.
-      gw.send("TO ECHO:" + timestamp + ": " + message.body());
+      //gw.send("TO ECHO:" + timestamp + ": " + message.body());
      // eb.publish("foofoofoo", message.body());
     });
 
@@ -161,6 +119,5 @@ public class PrivateVerticle extends AbstractVerticle {
     // Serve the non private static pages
     router.route().handler(StaticHandler.create());
   }
-
 
 }

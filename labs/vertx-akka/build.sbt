@@ -56,6 +56,7 @@ libraryDependencies ++= {
 	  "io.vertx"                  %  "vertx-web"         % vertxV,
 	  "io.vertx"                  %  "vertx-auth-common" % vertxV,
 	  "io.vertx"                  %  "vertx-auth-shiro" % vertxV,
+    "io.vertx" %% "vertx-web-scala" % vertxV,
 		"io.vertx" %% "vertx-lang-scala" % vertxV,
 		"com.github.etaty" % "rediscala_2.12" % "1.8.0",
 		"com.softwaremill.quicklens" %% "quicklens" % "1.4.8",
