@@ -347,6 +347,7 @@
 					<key>CFBundleURLSchemes</key>
 					<array>
 						<string>bigbluebutton</string>
+						<string>bigbluebuttons</string>
 					</array>
 					<key>CFBundleURLName</key>
 					<string>org.bigbluebutton</string>
