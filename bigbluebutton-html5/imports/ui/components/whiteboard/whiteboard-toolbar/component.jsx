@@ -24,8 +24,16 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.thickness',
     description: 'Whiteboard toolbar thickness menu',
   },
+  toolbarLineThicknessDisabled: {
+    id: 'app.whiteboard.toolbar.thicknessDisabled',
+    description: 'Whiteboard toolbar thickness menu',
+  },
   toolbarLineColor: {
     id: 'app.whiteboard.toolbar.color',
+    description: 'Whiteboard toolbar colors menu',
+  },
+  toolbarLineColorDisabled: {
+    id: 'app.whiteboard.toolbar.colorDisabled',
     description: 'Whiteboard toolbar colors menu',
   },
   toolbarUndoAnnotation: {
@@ -364,13 +372,15 @@ class WhiteboardToolbar extends Component {
 
   renderThicknessItem() {
     const { intl } = this.props;
-
+    const isDisabled = this.state.annotationSelected.value === 'hand';
     return (
       <ToolbarMenuItem
-        disabled={this.state.annotationSelected.value === 'hand'}
-        label={intl.formatMessage(intlMessages.toolbarLineThickness)}
+        disabled={isDisabled}
+        label={isDisabled ?
+          intl.formatMessage(intlMessages.toolbarLineThicknessDisabled)
+          : intl.formatMessage(intlMessages.toolbarLineThickness)}
         onItemClick={this.displaySubMenu}
-        objectToReturn={'thicknessList'}
+        objectToReturn="thicknessList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'thicknessList' ? '' : styles.notActive)}
         customIcon={this.renderThicknessItemIcon()}
@@ -430,13 +440,15 @@ class WhiteboardToolbar extends Component {
 
   renderColorItem() {
     const { intl } = this.props;
-
+    const isDisabled = this.state.annotationSelected.value === 'hand';
     return (
       <ToolbarMenuItem
-        disabled={this.state.annotationSelected.value === 'hand'}
-        label={intl.formatMessage(intlMessages.toolbarLineColor)}
+        disabled={isDisabled}
+        label={isDisabled ?
+          intl.formatMessage(intlMessages.toolbarLineColorDisabled)
+          : intl.formatMessage(intlMessages.toolbarLineColor)}
         onItemClick={this.displaySubMenu}
-        objectToReturn={'colorList'}
+        objectToReturn="colorList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'colorList' ? '' : styles.notActive)}
         customIcon={this.renderColorItemIcon()}
@@ -467,7 +479,7 @@ class WhiteboardToolbar extends Component {
             attributeType="XML"
             from={this.state.prevColorSelected.value}
             to={this.state.colorSelected.value}
-            begin={'indefinite'}
+            begin="indefinite"
             dur={TRANSITION_DURATION}
             repeatCount="0"
             fill="freeze"
