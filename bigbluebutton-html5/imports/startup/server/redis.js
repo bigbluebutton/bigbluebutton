@@ -61,6 +61,10 @@ class MettingMessageQueue {
       if (called) return;
       this.debug(`${eventName} completed ${isAsync ? 'async' : 'sync'}`);
       called = true;
+      const queueLength = this.queue.length();
+      if (queueLength > 0) {
+        Logger.error(`prev queue size=${queueLength} `);
+      }
       next();
     };
 
