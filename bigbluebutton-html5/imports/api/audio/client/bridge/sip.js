@@ -297,9 +297,20 @@ export default class SIPBridge extends BaseAudioBridge {
         });
       };
 
+      const handleConnectionTerminated = peer => this.callback({
+        status: this.baseCallStates.failed,
+        error: this.baseErrorCodes.CONNECTION_ERROR,
+        bridgeError: peer,
+      });
+
       currentSession.on('terminated', handleSessionTerminated);
       currentSession.mediaHandler.on('iceConnectionCompleted', handleConnectionCompleted);
       currentSession.mediaHandler.on('iceConnectionConnected', handleConnectionCompleted);
+
+
+      currentSession.mediaHandler.on('iceConnectionFailed', handleConnectionTerminated);
+      currentSession.mediaHandler.on('iceConnectionDisconnected', handleConnectionTerminated);
+      currentSession.mediaHandler.on('iceConnectionClosed', handleConnectionTerminated);
 
       this.currentSession = currentSession;
     });
