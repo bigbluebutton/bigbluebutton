@@ -26,10 +26,17 @@ module.exports = class RecordingSession extends EventEmitter {
 
     this.options = {
       mediaProfile: 'MP4_VIDEO_ONLY',
-      uri: "/recordings/" + room + "/" + recordingName + "/" + (new Date()).toISOString() + ".mp4",
+      uri: this.getRecordingPath(room, 'medium', recordingName),
       stopOnEndOfStream: true
     };
 
+  }
+
+  getRecordingPath (room, profile, recordingName) {
+    const basePath = config.get('recordingBasePath');
+    const timestamp = (new Date()).getTime();
+
+    return `${basePath}/${room}/${profile}-${recordingName}-${timestamp}.mp4`;
   }
 
   async start () {

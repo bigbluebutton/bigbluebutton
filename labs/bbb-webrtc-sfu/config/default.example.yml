@@ -16,6 +16,8 @@ from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
 
+recordingBasePath: "file:///var/kurento/recordings"
+
 log:
     filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'
