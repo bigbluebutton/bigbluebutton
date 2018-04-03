@@ -90,7 +90,12 @@ s|Application {
 }
 
 s|Button {
-	fontFamily : SourceSansProMX;
+	fontFamily 				: SourceSansPro;
+	color                   : PropertyReference("white");
+	backgroundColor         : PropertyReference("blue500");
+	borderColor             : PropertyReference("white");
+	selectedBackgroundColor : PropertyReference("blue900");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.ActionButtonSkin");
 }
 
 s|Callout
@@ -335,7 +340,7 @@ settings|SettingsItemRenderer {
 }
 
 .userDetailsButton {
-	color : PropertyReference("bbbBlack");
+	color : PropertyReference("white");
 }
 
 .audioButtonStyle {

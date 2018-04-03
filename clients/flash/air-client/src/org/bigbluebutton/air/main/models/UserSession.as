@@ -27,7 +27,7 @@ package org.bigbluebutton.air.main.models {
 		protected var _screenshareConnection:IScreenshareConnection;
 		
 		protected var _presentationList:PresentationList;
-				
+		
 		protected var _phoneOptions:PhoneOptions;
 		
 		protected var _videoAutoStart:Boolean;
@@ -186,5 +186,6 @@ package org.bigbluebutton.air.main.models {
 		public function get authTokenSignal():ISignal {
 			return _authTokenSignal;
 		}
+	
 	}
 }
