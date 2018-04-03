@@ -3,7 +3,7 @@
 $item-bg-focus: $color-blue-lightest;
 $item-border-focus: $color-blue-lighter;
 
-.list {
+%list {
   list-style: none;
   font-size: $font-size-base;
   margin: 0;
@@ -12,11 +12,24 @@ $item-border-focus: $color-blue-lighter;
   color: $color-gray-dark;
   padding: ($line-height-computed / 2);
   display: flex;
-  flex-direction: column;
 
   @include mq($small-only) {
     font-size: $font-size-large * 1.1;
     padding: $line-height-computed;
+  }
+}
+
+.verticalList {
+  @extend %list;
+  flex-direction: column;
+}
+
+.horizontalList {
+  @extend %list;
+  padding: 0;
+  flex-direction: row;
+  @include mq($small-only) {
+    flex-direction: column;
   }
 }
 
@@ -42,7 +55,6 @@ $item-border-focus: $color-blue-lighter;
   display: flex;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;
-  padding-left: ($line-height-computed / 3);
 
   &:focus {
     outline: none;

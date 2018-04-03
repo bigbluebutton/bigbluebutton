@@ -1,6 +1,8 @@
 {
     "app.home.greeting": "សូមស្វាគមន៍ {0}! បទ​បង្ហាញ​របស់​អ្នក​នឹង​ចាប់ផ្តើម​បន្តិច​ទៀត​នេះ",
     "app.chat.submitLabel": "ផ្ញើ​សារ",
+    "app.chat.errorMinMessageLength": "សារ​នេះ​នៅ​ខ្វះ {0} តួ​អក្សរ​ទៀត",
+    "app.chat.errorMaxMessageLength": "សារ​នេះ​លើស {0} តួ​អក្សរ",
     "app.chat.inputLabel": "ការ​បញ្ចូល​សារ​សម្រាប់​ការ​ជជែក {0}",
     "app.chat.inputPlaceholder": "សារ {0}",
     "app.chat.titlePublic": "ជជែក​សាធារណៈ",

@@ -249,7 +249,7 @@ class UserParticipants extends Component {
         }
         <div
           className={styles.scrollableList}
-          role="tabpanel"
+          role="list"
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >

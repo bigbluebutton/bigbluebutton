@@ -64,7 +64,7 @@ let _onMessage = async function (_message) {
       Logger.info('[VideoManager] Received message [' + message.id + '] from connection ' + sessionId);
       Logger.debug('[VideoManager] Message =>', JSON.stringify(message, null, 2));
 
-      video = new Video(bbbGW, message.cameraId, shared, message.connectionId);
+      video = new Video(bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
 
       // Empty ice queue after starting video
       if (iceQueue) {
@@ -164,7 +164,9 @@ let stopVideo = async function(sessionId, role, cameraId) {
       if (sharedVideo) {
         Logger.info('[VideoManager] Stopping sharer [', sessionId, '][', cameraId,']');
         await sharedVideo.stop();
-        delete sessions[sessionId][cameraId+'-shared'];
+        if (sessions[sessionId][cameraId+'-shared']) {
+          delete sessions[sessionId][cameraId+'-shared'];
+        }
       }
     }
     else if (role === 'viewer') {
@@ -174,6 +176,9 @@ let stopVideo = async function(sessionId, role, cameraId) {
         await video.stop();
         delete sessions[sessionId][cameraId];
       }
+    }
+    if (sessions[sessionId]) {
+      delete sessions[sessionId];
     }
   }
   catch (err) {

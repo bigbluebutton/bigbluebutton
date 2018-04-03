@@ -100,12 +100,15 @@ const SUBSCRIPTIONS_NAME = [
 const BaseContainer = withRouter(withTracker(({ params, router }) => {
   if (params.errorCode) return params;
 
-  if (!Auth.loggedIn) {
-    return router.push('/logout');
+  const { locale } = Settings.application;
+  const { credentials, loggedIn } = Auth;
+
+  if (!loggedIn) {
+    return {
+      locale,
+      subscriptionsReady: false,
+    };
   }
-
-  const { credentials } = Auth;
-
 
   const subscriptionErrorHandler = {
     onError: (error) => {
@@ -117,9 +120,8 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
     Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
-
   return {
-    locale: Settings.application.locale,
+    locale,
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
   };
 })(Base));

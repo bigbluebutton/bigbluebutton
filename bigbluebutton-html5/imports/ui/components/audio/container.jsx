@@ -63,7 +63,7 @@ let didMountAutoJoin = false;
 export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
-  const { autoJoinAudio } = APP_CONFIG;
+  const { autoJoin } = APP_CONFIG;
   const openAudioModal = mountModal.bind(
     null,
     <AudioModalContainer />,
@@ -94,7 +94,7 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
     init: () => {
       Service.init(messages);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
-      if (!autoJoinAudio || didMountAutoJoin) return;
+      if (!autoJoin || didMountAutoJoin) return;
       openAudioModal();
       didMountAutoJoin = true;
     },

@@ -34,4 +34,5 @@ export default {
   shouldShowScreenshare,
   shouldShowOverlay,
   isUserPresenter,
+  isVideoBroadcasting,
 };

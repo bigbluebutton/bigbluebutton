@@ -5,16 +5,18 @@ const kurentoUrl = config.get('kurentoUrl');
 const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const Messaging = require('../bbb/messages/Messaging');
+const h264_sdp = require('../h264-sdp');
 
 var sharedWebcams = {};
 
 module.exports = class Video {
-  constructor(_bbbGW, _id, _shared, _sessionId) {
+  constructor(_bbbGW, _meetingId, _id, _shared, _sessionId) {
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
     this.id = _id;
     this.sessionId = _sessionId;
-    this.meetingId = _id;
+    this.meetingId = _meetingId;
     this.shared = _shared;
     this.role = this.shared? 'share' : 'view'
     this.mediaId = null;
@@ -82,13 +84,12 @@ module.exports = class Video {
           Logger.warn("Setting up a timeout for " + this.sessionId + " camera " + this.id);
           if (!this.notFlowingTimeout) {
             this.notFlowingTimeout = setTimeout(() => {
-              this.bbbGW.publish(JSON.stringify({
-                connectionId: this.sessionId,
-                type: 'video',
-                role: this.role,
-                id : 'playStop',
-                cameraId: this.id,
-              }), C.FROM_VIDEO);
+
+              if (this.shared) {
+                let userCamEvent =
+                  Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id, this.id);
+                this.bbbGW.publish(userCamEvent, C.TO_AKKA_APPS, function(error) {});
+              }
             }, config.get('mediaFlowTimeoutDuration'));
           }
         }
@@ -117,6 +118,9 @@ module.exports = class Video {
   async start (sdpOffer, callback) {
     Logger.info("[video] Starting video instance for", this.id);
     let sdpAnswer;
+
+    // Force H264
+    sdpOffer = h264_sdp.transform(sdpOffer);
 
     try {
       this.userId = await this.mcs.join(this.meetingId, 'SFU', {});
