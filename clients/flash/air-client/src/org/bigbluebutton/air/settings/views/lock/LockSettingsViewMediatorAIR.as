@@ -28,8 +28,8 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.disablePrivateChat = !view.privateChatCheckbox.selected;
 			newLockSettings.disablePublicChat = !view.publicChatCheckbox.selected;
 			newLockSettings.lockedLayout = !view.layoutCheckbox.selected;
-			newLockSettings.lockOnJoin = userSession.lockSettings.lockOnJoin;
-			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
+			newLockSettings.lockOnJoin = meetingData.meetingStatus.lockSettings.lockOnJoin;
+			newLockSettings.lockOnJoinConfigurable = meetingData.meetingStatus.lockSettings.lockOnJoinConfigurable;
 			saveLockSettingsSignal.dispatch(newLockSettings);
 			userUISession.popPage();
 		}

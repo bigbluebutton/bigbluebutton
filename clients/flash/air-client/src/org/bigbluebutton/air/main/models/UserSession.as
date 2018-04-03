@@ -37,9 +37,7 @@ package org.bigbluebutton.air.main.models {
 		protected var _meetingMuted:Boolean;
 		
 		protected var _joinUrl:String;
-		
-		protected var _lockSettings:LockSettings;
-		
+			
 		protected var _pushToTalk:Boolean;
 		
 		protected var _assignedDeskshareSignal:ISignal = new Signal();
@@ -67,11 +65,7 @@ package org.bigbluebutton.air.main.models {
 		public function set videoProfileManager(value:VideoProfileManager):void {
 			_videoProfileManager = value;
 		}
-		
-		public function get lockSettings():LockSettings {
-			return _lockSettings;
-		}
-		
+				
 		public function get meetingMuted():Boolean {
 			return _meetingMuted;
 		}
@@ -164,7 +158,6 @@ package org.bigbluebutton.air.main.models {
 		
 		public function UserSession() {
 			_presentationList = new PresentationList();
-			_lockSettings = new LockSettings();
 		}
 		
 		public function get presentationList():PresentationList {

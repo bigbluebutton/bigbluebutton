@@ -5,6 +5,7 @@ package org.bigbluebutton.air.settings.views.camera {
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.media.Camera;
+	import flash.media.CameraPosition;
 	import flash.media.Video;
 	
 	import org.bigbluebutton.air.common.PageEnum;
@@ -37,6 +38,8 @@ package org.bigbluebutton.air.settings.views.camera {
 				//setSwapCameraButtonEnable(!userMe.hasStream);
 				view.swapCameraButton.addEventListener(MouseEvent.CLICK, mouseClickHandler);
 			}
+			
+			trace("NUM CAMERAS AVAILABLE = " + Camera.names.length);
 			
 			//setRotateCameraButtonEnable(!userMe.hasStream);
 			// FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
@@ -169,8 +172,10 @@ package org.bigbluebutton.air.settings.views.camera {
 		 */
 		//close old stream on swap
 		private function mouseClickHandler(e:MouseEvent):void {
-			/*
-			if (!userSession.userList.me.hasStream) {
+			var myWebcams:Array = meetingData.webcams.findWebcamsByUserId(meetingData.users.me.intId);
+			var isPublishing:Boolean = myWebcams.length > 0;
+			
+			if (!isPublishing) {
 				if (String(userSession.videoConnection.cameraPosition) == CameraPosition.FRONT) {
 					userSession.videoConnection.cameraPosition = CameraPosition.BACK;
 				} else {
@@ -178,16 +183,15 @@ package org.bigbluebutton.air.settings.views.camera {
 				}
 			} else {
 				if (String(userSession.videoConnection.cameraPosition) == CameraPosition.FRONT) {
-					shareCameraSignal.dispatch(!userSession.userList.me.hasStream, CameraPosition.FRONT);
-					shareCameraSignal.dispatch(userSession.userList.me.hasStream, CameraPosition.BACK);
+					shareCameraSignal.dispatch(!isPublishing, CameraPosition.FRONT);
+					shareCameraSignal.dispatch(isPublishing, CameraPosition.BACK);
 				} else {
-					shareCameraSignal.dispatch(!userSession.userList.me.hasStream, CameraPosition.BACK);
-					shareCameraSignal.dispatch(userSession.userList.me.hasStream, CameraPosition.FRONT);
+					shareCameraSignal.dispatch(!isPublishing, CameraPosition.BACK);
+					shareCameraSignal.dispatch(isPublishing, CameraPosition.FRONT);
 				}
 			}
 			saveData.save("cameraPosition", userSession.videoConnection.cameraPosition);
 			displayPreviewCamera();
-			*/
 		}
 		
 		override public function destroy():void {

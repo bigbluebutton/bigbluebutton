@@ -39,7 +39,6 @@ package org.bigbluebutton.air.main.models {
 		function get videoProfileManager():VideoProfileManager
 		function set videoProfileManager(value:VideoProfileManager):void;
 		function get authTokenSignal():ISignal
-		function get lockSettings():LockSettings;
 		function set meetingMuted(mute:Boolean):void;
 		function get meetingMuted():Boolean;
 		function get pushToTalk():Boolean;

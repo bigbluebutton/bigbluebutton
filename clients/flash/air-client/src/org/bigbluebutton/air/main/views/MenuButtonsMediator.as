@@ -1,20 +1,19 @@
 package org.bigbluebutton.air.main.views {
 	
 	import flash.events.MouseEvent;
-	
-	import spark.components.CalloutPosition;
-	
+	import spark.components.CalloutPosition;	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUISession;
+	import org.bigbluebutton.air.main.models.LockSettings2x;
+	import org.bigbluebutton.air.user.models.UserRole;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
 	import org.bigbluebutton.air.voice.models.VoiceUser;
-	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	
@@ -47,13 +46,27 @@ package org.bigbluebutton.air.main.views {
 		public override function initialize():void {
 			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.add(onWebcamChange);
-			
+			meetingData.meetingStatus.lockSettingsChangeSignal.add(onLockSettingsChange);
 			view.audioButton.addEventListener(MouseEvent.CLICK, audioOnOff);
 			view.camButton.addEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.addEventListener(MouseEvent.CLICK, micOnOff);
 			view.statusButton.addEventListener(MouseEvent.CLICK, changeStatus);
 			
 			updateButtons();
+		}
+		
+		private function onLockSettingsChange(lockSettings:LockSettings2x):void {
+			lockCamButtonBasedOnSetting();
+		}
+		
+		private function lockCamButtonBasedOnSetting():void {
+			if (meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
+				if (meetingData.meetingStatus.lockSettings.disableCam) {
+					view.camButton.enabled = false;
+				} else {
+					view.camButton.enabled = true;		
+				}
+			}
 		}
 		
 		private function changeStatus(e:MouseEvent):void {
@@ -88,6 +101,8 @@ package org.bigbluebutton.air.main.views {
 				view.camButton.label = "Cam on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
 				view.camButton.styleName = "icon-video menuButton"
 			}
+			
+			lockCamButtonBasedOnSetting();
 			
 			if (meetingData.voiceUsers.me) {
 				view.micButton.visible = view.micButton.includeInLayout = !meetingData.voiceUsers.me.listenOnly;
@@ -126,6 +141,7 @@ package org.bigbluebutton.air.main.views {
 		public override function destroy():void {
 			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
+			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChange);
 			view.audioButton.removeEventListener(MouseEvent.CLICK, audioOnOff);
 			view.camButton.removeEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.removeEventListener(MouseEvent.CLICK, micOnOff);
