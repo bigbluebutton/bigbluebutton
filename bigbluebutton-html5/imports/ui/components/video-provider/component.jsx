@@ -271,6 +271,7 @@ class VideoProvider extends Component {
       if (this.props.userId == id) {
         this.notifyError(intl.formatMessage(intlMessages.sharingError));
         this.unshareWebcam();
+        VideoService.exitedVideo();
       } else {
         this.stop(id);
         this.initWebRTC(id, shareWebcam, videoOptions, tag);
@@ -290,9 +291,9 @@ class VideoProvider extends Component {
         that.destroyWebRTCPeer(id);
 
         if (shareWebcam) {
+          that.unshareWebcam();
           VideoService.exitVideo();
           VideoService.exitedVideo();
-          that.unshareWebcam();
         }
         return log('error', error);
       }
@@ -396,6 +397,7 @@ class VideoProvider extends Component {
 
     if (message.cameraId == userId) {
       this.unshareWebcam();
+      VideoService.exitedVideo();
       this.notifyError(intl.formatMessage(intlMessages.sharingError));
     } else {
       this.stop(message.cameraId);
