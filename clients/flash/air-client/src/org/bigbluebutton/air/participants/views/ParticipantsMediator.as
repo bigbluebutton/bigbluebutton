@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.participants.views {
 	import mx.collections.ArrayCollection;
+	import mx.events.IndexChangedEvent;
 	
-	import org.bigbluebutton.air.chat.events.ChatRoomItemSelectedEvent;
 	import org.bigbluebutton.air.chat.models.GroupChat;
 	import org.bigbluebutton.air.chat.models.GroupChatChangeEnum;
 	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
@@ -12,7 +12,6 @@ package org.bigbluebutton.air.participants.views {
 	import org.bigbluebutton.air.participants.models.CollectionActionResult;
 	import org.bigbluebutton.air.participants.models.CollectionUpdateAction;
 	import org.bigbluebutton.air.participants.models.ParticipantsCollection;
-	import org.bigbluebutton.air.user.events.UserItemSelectedEvent;
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserChangeEnum;
 	import org.bigbluebutton.air.user.views.models.UserVM;
@@ -23,6 +22,8 @@ package org.bigbluebutton.air.participants.views {
 	import org.bigbluebutton.air.voice.models.VoiceUserChangeEnum;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
+	
+	import spark.events.IndexChangeEvent;
 	
 	public class ParticipantsMediator extends Mediator {
 		
@@ -44,8 +45,6 @@ package org.bigbluebutton.air.participants.views {
 		[Bindable]
 		private var _participantsCollection:ParticipantsCollection;
 		
-		protected var dataProvider:ArrayCollection;
-		
 		override public function initialize():void {
 			initializeParticipantsCollection();
 			
@@ -56,8 +55,7 @@ package org.bigbluebutton.air.participants.views {
 			
 			chatMessagesSession.groupChatChangeSignal.add(onGroupChatChange)
 			
-			view.participantsList.addEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
-			view.participantsList.addEventListener(ChatRoomItemSelectedEvent.SELECTED, onChatItemSelected);
+			view.participantsList.addEventListener(IndexChangeEvent.CHANGE, onItemSelected);
 		}
 		
 		private function initializeParticipantsCollection():void {
@@ -153,12 +151,23 @@ package org.bigbluebutton.air.participants.views {
 			_userCollection.setRoomLockState(newLockSettings.isRoomLocked());
 		}
 		
-		protected function onUserItemSelected(e:UserItemSelectedEvent):void {
-			uiSession.pushPage(PageEnum.USER_DETAILS, e.user.intId);
+		private function onItemSelected(e:IndexChangeEvent):void {
+			var selectedObject:Object = _participantsCollection.getItemAt(e.newIndex);
+			if (selectedObject != null) {
+				if (selectedObject is UserVM) {
+					onUserItemSelected(selectedObject as UserVM);
+				} else if (selectedObject is GroupChat) {
+					onChatItemSelected(selectedObject as GroupChat);
+				}
+			}
 		}
 		
-		private function onChatItemSelected(e:ChatRoomItemSelectedEvent):void {
-			uiSession.pushPage(PageEnum.CHAT, {chatId: e.chatRoom.chatId});
+		protected function onUserItemSelected(u:UserVM):void {
+			uiSession.pushPage(PageEnum.USER_DETAILS, u.intId);
+		}
+		
+		private function onChatItemSelected(gc:GroupChat):void {
+			uiSession.pushPage(PageEnum.CHAT, {chatId: gc.chatId});
 		}
 		
 		override public function destroy():void {
@@ -169,8 +178,7 @@ package org.bigbluebutton.air.participants.views {
 			
 			chatMessagesSession.groupChatChangeSignal.remove(onGroupChatChange)
 			
-			view.participantsList.removeEventListener(UserItemSelectedEvent.SELECTED, onUserItemSelected);
-			view.participantsList.removeEventListener(ChatRoomItemSelectedEvent.SELECTED, onChatItemSelected);
+			view.participantsList.removeEventListener(IndexChangeEvent.CHANGE, onItemSelected);
 			
 			super.destroy();
 			view = null;
