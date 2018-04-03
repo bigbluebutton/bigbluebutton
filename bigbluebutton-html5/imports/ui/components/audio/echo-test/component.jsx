@@ -5,19 +5,19 @@ import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
-  yes: {
+  confirmLabel: {
     id: 'app.audioModal.yes',
     description: 'Hear yourself yes',
   },
-  no: {
+  disconfirmLabel: {
     id: 'app.audioModal.no',
     description: 'Hear yourself no',
   },
-  can: {
+  confirmAriaLabel: {
     id: 'app.audioModal.yes.arialabel',
     description: 'provides better context for yes btn label',
   },
-  cant: {
+  disconfirmAriaLabel: {
     id: 'app.audioModal.no.arialabel',
     description: 'provides better context for no btn label',
   },
@@ -46,8 +46,8 @@ class EchoTest extends Component {
       <span className={styles.echoTest}>
         <Button
           className={styles.button}
-          label={intl.formatMessage(intlMessages.yes)}
-          aria-label={intl.formatMessage(intlMessages.can)}
+          label={intl.formatMessage(intlMessages.confirmLabel)}
+          aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
           icon="thumbs_up"
           circle
           color="success"
@@ -56,8 +56,8 @@ class EchoTest extends Component {
         />
         <Button
           className={styles.button}
-          label={intl.formatMessage(intlMessages.no)}
-          aria-label={intl.formatMessage(intlMessages.cant)}
+          label={intl.formatMessage(intlMessages.disconfirmLabel)}
+          aria-label={intl.formatMessage(intlMessages.disconfirmAriaLabel)}
           icon="thumbs_down"
           circle
           color="danger"
