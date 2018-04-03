@@ -98,7 +98,7 @@ class AudioManager {
     };
 
     return this.askDevicesPermissions()
-      .then(this.onAudioJoining)
+      .then(this.onAudioJoining.bind(this))
       .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
   }
 
@@ -113,7 +113,7 @@ class AudioManager {
     };
 
     return this.askDevicesPermissions()
-      .then(this.onAudioJoining)
+      .then(this.onAudioJoining.bind(this))
       .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
   }
 
