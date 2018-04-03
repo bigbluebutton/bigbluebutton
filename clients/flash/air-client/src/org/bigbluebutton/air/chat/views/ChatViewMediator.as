@@ -179,6 +179,7 @@ package org.bigbluebutton.air.chat.views {
 			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);
 			meetingData.users.userChangeSignal.remove(onUserChange);
+			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChanged);
 			
 			if (_chat) {
 				_chat.newMessageSignal.remove(onNewMessage);
