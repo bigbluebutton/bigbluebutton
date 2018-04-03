@@ -36,7 +36,7 @@ package org.bigbluebutton.air.voice.commands {
 		override public function execute():void {
 			if (media.microphoneAvailable) {
 				if (!media.microphonePermissionGranted) {
-					media.requestMicrophonePermission()();
+					media.requestMicrophonePermission();
 				} else {
 					enableDisableMicrophone();
 				}
