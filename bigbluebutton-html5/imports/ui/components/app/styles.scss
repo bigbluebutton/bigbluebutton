@@ -53,9 +53,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .content {
   @extend %full-page;
-
   order: 3;
-  padding: 0 .25%;
 
   &:before,
   &:after {
