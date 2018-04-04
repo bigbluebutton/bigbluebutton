@@ -107,12 +107,21 @@ module.exports = class Video {
             id : 'playStart',
             cameraId: this.id,
           }), C.FROM_VIDEO);
+
+          // Record the video stream if it's the original being shared
+          if (this.shared) {
+            this.startRecording();
+          }
         }
 
         break;
 
       default: Logger.warn("[video] Unrecognized event");
     }
+  }
+
+  async startRecording() {
+    this.recordingId = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
   }
 
   async start (sdpOffer, callback) {
@@ -130,8 +139,6 @@ module.exports = class Video {
         const ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this.mediaId = ret.sessionId;
-
-        this.recordingId = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
 
         sharedWebcams[this.id] = this.mediaId;
         sdpAnswer = ret.answer;
