@@ -142,7 +142,7 @@ class ActionsDropdown extends Component {
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >
-        <DropdownTrigger tabIndex={0} accessKey='a'>
+        <DropdownTrigger tabIndex={0} accessKey="a">
           <Button
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}

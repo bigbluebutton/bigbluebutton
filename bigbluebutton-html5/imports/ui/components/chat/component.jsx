@@ -54,7 +54,7 @@ const Chat = (props) => {
             to="/users"
             role="button"
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            accessKey='h'
+            accessKey="h"
           >
             <Icon iconName="left_arrow" /> {title}
           </Link>
