@@ -3,6 +3,7 @@ package org.bigbluebutton.air.video.commands {
 	import flash.media.Camera;
 	
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.main.models.IMedia;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.user.services.IUsersService;
@@ -26,9 +27,23 @@ package org.bigbluebutton.air.video.commands {
 		public var conferenceParameters:IConferenceParameters;
 		
 		[Inject]
+		public var media:IMedia;
+		
+		[Inject]
 		public var enabled:Boolean;
 		
 		override public function execute():void {
+			if (media.cameraAvailable) {
+				if (!media.cameraPermissionGranted) {
+					media.requestCameraPermission();
+				}
+				else {
+					enableDisableWebcam();
+				}
+			}
+		}
+		
+		private function enableDisableWebcam():void {
 			if (enabled) {
 				enableCamera(userSession.videoConnection.cameraPosition);
 			} else {
@@ -65,9 +80,6 @@ package org.bigbluebutton.air.video.commands {
 		}
 		
 		private function findCamera(position:String):Camera {
-			if (!Camera.isSupported) {
-				return null;
-			}
 			var cam:Camera = this.getCamera(position);
 			/*
 			   cam.setMode(160, 120, 5, false);

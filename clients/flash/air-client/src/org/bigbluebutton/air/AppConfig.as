@@ -24,9 +24,11 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.commands.PresenterSignal;
 	import org.bigbluebutton.air.main.models.ConferenceParameters;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.main.models.IMedia;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.main.models.Media;
 	import org.bigbluebutton.air.main.models.MeetingData;
 	import org.bigbluebutton.air.main.models.UISession;
 	import org.bigbluebutton.air.main.models.UserSession;
@@ -77,6 +79,7 @@ package org.bigbluebutton.air {
 			injector.map(IChatMessageService).toSingleton(ChatMessageService);
 			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(ISaveData).toSingleton(SaveData);
+			injector.map(IMedia).toSingleton(Media);
 			// Type mapping
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);
@@ -92,6 +95,7 @@ package org.bigbluebutton.air {
 			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
 			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
 			signalCommandMap.map(ChangeUserRoleSignal).toCommand(ChangeUserRoleCommand);
-			signalCommandMap.map(KickUserSignal).toCommand(KickUserCommand);		}
+			signalCommandMap.map(KickUserSignal).toCommand(KickUserCommand);
+		}
 	}
 }
