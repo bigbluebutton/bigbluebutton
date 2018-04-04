@@ -28,7 +28,7 @@ const propTypes = {
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
 };
-const SHOULD_SHOW_CUSTOM = Meteor.settings.public.app.branding.displayBrandingArea;
+const SHOW_BRANDING = Meteor.settings.public.app.branding.displayBrandingArea;
 const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
@@ -76,7 +76,7 @@ class UserList extends Component {
     return (
       <div className={styles.userList}>
         {
-          SHOULD_SHOW_CUSTOM
+          SHOW_BRANDING
           && !this.props.compact
           && CustomLogoUrl
           ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
