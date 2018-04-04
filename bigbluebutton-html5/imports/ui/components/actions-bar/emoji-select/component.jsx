@@ -61,6 +61,7 @@ const EmojiSelect = ({
           size="lg"
           color="primary"
           onClick={() => null}
+          accessKey="s"
         >
           <div id="currentStatus" hidden>
             { intl.formatMessage(intlMessages.currentStatusDesc, { 0: selected }) }

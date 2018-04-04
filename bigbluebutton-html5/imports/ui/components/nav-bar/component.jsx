@@ -198,6 +198,7 @@ class NavBar extends Component {
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
             aria-describedby="newMessage"
+            accessKey="u"
           />
           <div
             id="newMessage"
