@@ -13,7 +13,9 @@ package org.bigbluebutton.air.voice.services {
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.main.models.LockSettings2x;
 	import org.bigbluebutton.air.user.models.UserRole;
+	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.air.voice.models.VoiceUser;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -30,9 +32,9 @@ package org.bigbluebutton.air.voice.services {
 		public var meetingData:IMeetingData;
 		
 		[Inject]
-		public var shareMicrophoneSignal:ShareMicrophoneSignal;
+		public var microphoneMuteSignal:MicrophoneMuteSignal;
 		
-		public var _callActive:Boolean = false;
+		private var _callActive:Boolean = false;
 		
 		protected var _connectionSuccessSignal:ISignal = new Signal();
 		
@@ -61,8 +63,12 @@ package org.bigbluebutton.air.voice.services {
 		
 		private function lockSettingsChange(lockSettings:LockSettings2x):void {
 			if (lockSettings.disableMic && meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
-				trace("TODO: Disabling the mic still needs to be finished");
-				//shareMicrophoneSignal.dispatch(audioOptions);
+				if (meetingData.voiceUsers.me != null) {
+					var vu:VoiceUser = meetingData.voiceUsers.getUser(meetingData.users.me.intId);
+					if (!vu.muted && meetingData.meetingStatus.lockSettings.disableMic) {
+						microphoneMuteSignal.dispatch(meetingData.users.me.intId);
+					}					
+				}		
 			}
 		}
 		

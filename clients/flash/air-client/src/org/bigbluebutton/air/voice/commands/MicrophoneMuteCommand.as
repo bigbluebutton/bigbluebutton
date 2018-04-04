@@ -18,13 +18,12 @@ package org.bigbluebutton.air.voice.commands {
 		public var userId:String;
 		
 		override public function execute():void {
-			trace("MicrophoneMuteCommand.execute() - userId = " + userId);
 			var vu:VoiceUser = meetingData.voiceUsers.getUser(userId);
 			if (vu != null) {
-				if (vu.muted) {
-					voiceService.unmute(userId);
-				} else {
+				if (!vu.muted || meetingData.meetingStatus.lockSettings.disableMic) {
 					voiceService.mute(userId);
+				} else {
+					voiceService.unmute(userId);
 				}
 			}
 		}
