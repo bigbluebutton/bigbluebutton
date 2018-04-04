@@ -52,8 +52,7 @@ package org.bigbluebutton.air.main.views {
 		public override function initialize():void {
 			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.add(onWebcamChange);
-			meetingData.meetingStatus.lockSettingsChangeSignal.add(onLockSettingsChange);
-			
+
 			media.cameraPermissionSignal.add(onCameraPermission);
 			media.microphonePermissionSignal.add(onMicrophonePermission);
 			
@@ -63,10 +62,6 @@ package org.bigbluebutton.air.main.views {
 			view.statusButton.addEventListener(MouseEvent.CLICK, changeStatus);
 			
 			updateButtons();
-		}
-		
-		private function onLockSettingsChange(lockSettings:LockSettings2x):void {
-			lockCamButtonBasedOnSetting();	
 		}
 		
 		private function lockCamButtonBasedOnSetting():void {
@@ -96,7 +91,7 @@ package org.bigbluebutton.air.main.views {
 					var vu:VoiceUser = meetingData.voiceUsers.getUser(meetingData.users.me.intId);
 					if (vu != null) {
 						if (meetingData.meetingStatus.lockSettings.disableMic && vu.muted) {
-							Alert.show("You do not have permission to unmute.");
+							Alert.show("Unmuting denied.");
 						} else {
 							microphoneMuteSignal.dispatch(meetingData.users.me.intId);
 						}
@@ -119,26 +114,30 @@ package org.bigbluebutton.air.main.views {
 		
 		private function joinOrLeaveAudio():void {
 			if (meetingData.voiceUsers.me == null) {
-				if (meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
-					if (meetingData.meetingStatus.lockSettings.disableMic) {
-						shareMicrophoneSignal.dispatch(AudioTypeEnum.LISTEN_ONLY, conferenceParameters.webvoiceconf);
-					} else {
-						uiSession.pushPage(PageEnum.AUDIO);	
-					}
+				if (meetingData.users.me.locked && 
+					meetingData.users.me.role != UserRole.MODERATOR &&
+					meetingData.meetingStatus.lockSettings.disableMic) {
+					shareMicrophoneSignal.dispatch(AudioTypeEnum.LISTEN_ONLY, conferenceParameters.webvoiceconf);
 				} else {
-					uiSession.pushPage(PageEnum.AUDIO);
-				}				
+					uiSession.pushPage(PageEnum.AUDIO);	
+				}			
 			} else {
 				shareMicrophoneSignal.dispatch(AudioTypeEnum.LEAVE, "");
 			}
 		}
 		
 		private function camOnOff(e:MouseEvent):void {
-			if (media.cameraAvailable) {
-				if (!media.cameraPermissionGranted) {
-					media.requestCameraPermission();
-				} else {
-					enableDisableWebcam();
+			if (meetingData.users.me.locked && 
+				meetingData.users.me.role != UserRole.MODERATOR && 
+				meetingData.meetingStatus.lockSettings.disableCam) {
+				Alert.show("Sharing webcam denied.");
+			} else {
+				if (media.cameraAvailable) {
+					if (!media.cameraPermissionGranted) {
+						media.requestCameraPermission();
+					} else {
+						enableDisableWebcam();
+					}
 				}
 			}
 		}
@@ -156,9 +155,7 @@ package org.bigbluebutton.air.main.views {
 				view.camButton.label = "Cam on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
 				view.camButton.styleName = "icon-video menuButton"
 			}
-			
-			lockCamButtonBasedOnSetting();
-			
+						
 			if (meetingData.voiceUsers.me) {
 				view.micButton.visible = view.micButton.includeInLayout = !meetingData.voiceUsers.me.listenOnly;
 				view.audioButton.styleName = "icon-audio-off menuButtonRed";
@@ -212,7 +209,7 @@ package org.bigbluebutton.air.main.views {
 		public override function destroy():void {
 			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
-			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChange);
+
 			media.cameraPermissionSignal.remove(onCameraPermission);
 			media.microphonePermissionSignal.remove(onMicrophonePermission);
 			view.audioButton.removeEventListener(MouseEvent.CLICK, audioOnOff);
