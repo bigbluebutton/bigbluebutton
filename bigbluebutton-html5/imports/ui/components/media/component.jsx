@@ -14,13 +14,24 @@ const defaultProps = {
 export default class Media extends Component {
   renderContent() {
     const { content } = this.props;
+
     return content;
   }
 
   renderOverlay() {
     const { overlay } = this.props;
 
-    return overlay;
+    if (overlay) {
+      return (
+        <div className={styles.overlayWrapper}>
+          <div className={styles.overlayRatio}>
+            <div className={styles.overlay}>{overlay}</div>
+          </div>
+        </div>
+      );
+    }
+
+    return false;
   }
 
   render() {
