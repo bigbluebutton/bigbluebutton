@@ -129,7 +129,8 @@ export default class PresentationArea extends Component {
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
     if (!this.props.currentSlide ||
-        !this.props.currentSlide.calculatedData) {
+        !this.props.currentSlide.calculatedData ||
+        !this.state.showSlide) {
       return null;
     }
     // to control the size of the svg wrapper manually
@@ -151,67 +152,61 @@ export default class PresentationArea extends Component {
     } = slideObj.calculatedData;
 
     return (
-      <div
-        style={{
-          width: adjustedSizes.width,
-          height: adjustedSizes.height,
-          WebkitTransition: 'width 0.2s', /* Safari */
-          transition: 'width 0.2s',
-        }}
-        id="presentationAreaData"
-      >
-        <TransitionGroup>
-          <CSSTransition
-            key={slideObj.id}
-            classNames={{
-              enter: styles.enter,
-              enterActive: styles.enterActive,
-              appear: styles.appear,
-              appearActive: styles.appearActive,
+      <TransitionGroup className={styles.slideArea} id="presentationAreaData">
+        <CSSTransition
+          key={slideObj.id}
+          classNames={{
+            enter: styles.enter,
+            enterActive: styles.enterActive,
+            appear: styles.appear,
+            appearActive: styles.appearActive,
+          }}
+          appear
+          enter
+          exit={false}
+          timeout={{ enter: 400 }}
+        >
+          <svg
+            // width={width}
+            // height={height}
+            style={{
+              maxHeight: `${adjustedSizes.height}px`,
             }}
-            appear
-            enter
-            exit={false}
-            timeout={{ enter: 400 }}
+            preserveAspectRatio="xMidYMid meet"
+            ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
+            viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            className={styles.svgStyles}
           >
-            <svg
-              width={width}
-              height={height}
-              ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
-              viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-              className={styles.svgStyles}
-            >
-              <defs>
-                <clipPath id="viewBox">
-                  <rect x={x} y={y} width="100%" height="100%" fill="none" />
-                </clipPath>
-              </defs>
-              <g clipPath="url(#viewBox)">
-                <Slide
-                  id="slideComponent"
-                  imageUri={imageUri}
-                  svgWidth={width}
-                  svgHeight={height}
-                />
-                <AnnotationGroupContainer
-                  width={width}
-                  height={height}
-                  whiteboardId={slideObj.id}
-                />
-                <CursorWrapperContainer
-                  widthRatio={slideObj.widthRatio}
-                  physicalWidthRatio={adjustedSizes.width / width}
-                  slideWidth={width}
-                  slideHeight={height}
-                />
-              </g>
-              {this.renderOverlays(slideObj, adjustedSizes)}
-            </svg>
-          </CSSTransition>
-        </TransitionGroup>
-      </div>
+            <defs>
+              <clipPath id="viewBox">
+                <rect x={x} y={y} width="100%" height="100%" fill="none" />
+              </clipPath>
+            </defs>
+            <g clipPath="url(#viewBox)">
+              <Slide
+                id="slideComponent"
+                imageUri={imageUri}
+                svgWidth={width}
+                svgHeight={height}
+              />
+              <AnnotationGroupContainer
+                width={width}
+                height={height}
+                whiteboardId={slideObj.id}
+              />
+              <CursorWrapperContainer
+                widthRatio={slideObj.widthRatio}
+                physicalWidthRatio={adjustedSizes.width / width}
+                slideWidth={width}
+                slideHeight={height}
+              />
+            </g>
+            {this.renderOverlays(slideObj, adjustedSizes)}
+          </svg>
+        </CSSTransition>
+      </TransitionGroup>
     );
   }
 
@@ -267,7 +262,8 @@ export default class PresentationArea extends Component {
 
   renderWhiteboardToolbar() {
     if (!this.props.currentSlide ||
-        !this.props.currentSlide.calculatedData) {
+        !this.props.currentSlide.calculatedData ||
+        !(this.props.userIsPresenter || this.props.multiUser)) {
       return null;
     }
 
@@ -275,7 +271,6 @@ export default class PresentationArea extends Component {
     return (
       <WhiteboardToolbarContainer
         whiteboardId={this.props.currentSlide.id}
-        height={adjustedSizes.height}
       />
     );
   }
@@ -291,15 +286,11 @@ export default class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {this.state.showSlide ?
-              this.renderPresentationArea()
-            : null }
-          {this.props.userIsPresenter || this.props.multiUser ?
-              this.renderWhiteboardToolbar()
-            : null }
+          {this.renderWhiteboardToolbar()}
+          {this.renderPresentationArea()}
+          {this.renderPresentationToolbar()}
         </div>
         <PollingContainer />
-        {this.renderPresentationToolbar()}
       </div>
     );
   }
