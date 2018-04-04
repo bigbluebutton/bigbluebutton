@@ -88,7 +88,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			}
 			saveData.save("cameraRotation", userSession.videoConnection.selectedCameraRotation);
 			
-			trace("CAMERA ROTATION = " + userSession.videoConnection.selectedCameraRotation);
+			//trace("CAMERA ROTATION = " + userSession.videoConnection.selectedCameraRotation);
 			
 			displayPreviewCamera();
 		}
@@ -106,7 +106,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		}
 		
 		override protected function displayPreviewCamera():void {
-			trace("DISPLAY PREVIEW CAMERA = " + userSession.videoConnection.selectedCameraRotation);
+			//trace("DISPLAY PREVIEW CAMERA = " + userSession.videoConnection.selectedCameraRotation);
 			
 			var profile:VideoProfile = userSession.videoConnection.selectedCameraQuality;
 			var camera:Camera = getCamera(userSession.videoConnection.cameraPosition);
@@ -114,22 +114,22 @@ package org.bigbluebutton.air.settings.views.camera {
 			if (camera && profile) {
 				var myCam:Video = new Video();
 				
-				trace("Orientation chW=" + view.cameraHolder.width + " chH=" + view.cameraHolder.height 
-					+ " profileW=" + profile.width + " profileH=" + profile.height);
+				//trace("Orientation chW=" + view.cameraHolder.width + " chH=" + view.cameraHolder.height 
+				//	+ " profileW=" + profile.width + " profileH=" + profile.height);
 				
 				var screenAspectRatio:Number = (view.cameraHolder.width / profile.width) / (view.cameraHolder.height / profile.height);
 				
 				if (screenAspectRatio > 1) { //landscape
-					trace("DISPLAY PREVIEW CAMERA LANDSCAPE screenAspectRatio=" + screenAspectRatio);
+					//trace("DISPLAY PREVIEW CAMERA LANDSCAPE screenAspectRatio=" + screenAspectRatio);
 					myCam.height = view.cameraHolder.height;
 					myCam.width = profile.width * view.cameraHolder.height / profile.height;
 				} else { //portrait
-					trace("DISPLAY PREVIEW CAMERA PORTRAIT screenAspectRatio=" + screenAspectRatio);
+					//trace("DISPLAY PREVIEW CAMERA PORTRAIT screenAspectRatio=" + screenAspectRatio);
 					myCam.width = view.cameraHolder.width;
 					myCam.height = profile.height * view.cameraHolder.width / profile.width;
 				}
 				
-				trace("A0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
+				//trace("A0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
 				
 				if (isCamRotatedSideways()) {
 					camera.setMode(profile.height, profile.width, profile.modeFps);
@@ -140,16 +140,16 @@ package org.bigbluebutton.air.settings.views.camera {
 					camera.setMode(profile.width, profile.height, profile.modeFps);
 				}
 				
-				trace("B0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
+				//trace("B0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
 				
 				rotateObjectAroundInternalPoint(myCam, myCam.x + myCam.width / 2, myCam.y + myCam.height / 2, 
 					userSession.videoConnection.selectedCameraRotation);
 				
-				trace("C0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
+				//trace("C0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
 				
 				myCam.x = (view.cameraHolder.width - myCam.width) / 2;
 				
-				trace("D0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
+				//trace("D0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
 				
 				if (userSession.videoConnection.selectedCameraRotation == 90) {
 					myCam.x = (view.cameraHolder.width + myCam.width) / 2;
@@ -160,13 +160,13 @@ package org.bigbluebutton.air.settings.views.camera {
 					myCam.y = myCam.height;
 				}
 				
-				trace("E0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
+				//trace("E0 MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
 				
 				myCam.attachCamera(camera);
 				
 				view.previewVideo.removeChildren();
 				
-				trace("MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
+				//trace("MyCam x=" + myCam.x + " y=" + myCam.y + " w=" + myCam.width + " h=" + myCam.height);
 				
 				view.previewVideo.addChild(myCam);
 					// view.settingsGroup.y = myCam.height;
