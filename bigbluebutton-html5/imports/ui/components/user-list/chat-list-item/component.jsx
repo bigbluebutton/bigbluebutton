@@ -71,6 +71,7 @@ const ChatListItem = (props) => {
       role="button"
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
+      accessKey={isPublicChat(chat) ? 'p' : null}
     >
       <div className={styles.chatListItemLink}>
         <div className={styles.chatIcon}>
