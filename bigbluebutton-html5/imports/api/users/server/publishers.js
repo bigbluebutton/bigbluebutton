@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
@@ -6,8 +7,19 @@ import mapToAcl from '/imports/startup/mapToAcl';
 
 import userLeaving from './methods/userLeaving';
 
-Meteor.publish('current-user', (credentials) => {
+Meteor.publish('current-user', function currentUserPub(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
+
+  const connectionId = this.connection.id;
+  const onCloseConnection = Meteor.bindEnvironment(() => {
+    try {
+      userLeaving(credentials, requesterUserId, connectionId);
+    } catch (e) {
+      Logger.error(`Exception while executing userLeaving: ${e}`);
+    }
+  });
+
+  this._session.socket.on('close', _.debounce(onCloseConnection, 100));
 
   check(meetingId, String);
   check(requesterUserId, String);
@@ -38,14 +50,6 @@ function users(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
-
-  this.onStop(() => {
-    try {
-      userLeaving(credentials, requesterUserId, this.connection.id);
-    } catch (e) {
-      Logger.error(`Exception while executing userLeaving: ${e}`);
-    }
-  });
 
   const selector = {
     meetingId,

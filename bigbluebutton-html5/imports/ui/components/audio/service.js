@@ -8,7 +8,7 @@ const init = (messages) => {
   if (AudioManager.initialized) return;
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
-  const sessionToken = Auth.sessionToken;
+  const { sessionToken } = Auth;
   const User = Users.findOne({ userId });
   const username = User.name;
   const Meeting = Meetings.findOne({ meetingId: User.meetingId });
@@ -36,9 +36,9 @@ export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
   transferCall: () => AudioManager.transferCall(),
-  joinListenOnly: () => AudioManager.joinAudio({ isListenOnly: true }),
-  joinMicrophone: () => AudioManager.joinAudio(),
-  joinEchoTest: () => AudioManager.joinAudio({ isEchoTest: true }),
+  joinListenOnly: () => AudioManager.joinListenOnly(),
+  joinMicrophone: () => AudioManager.joinMicrophone(),
+  joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: () => AudioManager.toggleMuteMicrophone(),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
   changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
@@ -53,4 +53,5 @@ export default {
   outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
+  isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
 };

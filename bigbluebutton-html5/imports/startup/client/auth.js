@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
 
 // disconnected and trying to open a new connection
@@ -19,8 +20,10 @@ export function joinRouteHandler(nextState, replace, callback) {
     .then(response => response.json())
     .then((data) => {
       const {
-        meetingID, internalUserID, authToken, logoutUrl,
+        meetingID, internalUserID, authToken, logoutUrl, customLogoURL,
       } = data.response;
+
+      setCustomLogoUrl(customLogoURL);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
       replace({ pathname: '/' });

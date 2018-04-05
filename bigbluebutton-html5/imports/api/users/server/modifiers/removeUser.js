@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
-import removeVoiceUser from '/imports/api/voice-users/server/modifiers/removeVoiceUser';
+import ejectUserFromVoice from '/imports/api/voice-users/server/methods/ejectUserFromVoice';
 
 const CLIENT_TYPE_HTML = 'HTML5';
 
@@ -31,12 +31,6 @@ export default function removeUser(meetingId, userId) {
     },
   };
 
-  removeVoiceUser(meetingId, {
-    voiceConf: '',
-    voiceUserId: '',
-    intId: userId,
-  });
-
   const cb = (err) => {
     if (err) {
       return Logger.error(`Removing user from collection: ${err}`);
@@ -44,6 +38,11 @@ export default function removeUser(meetingId, userId) {
 
     const sessionUserId = `${meetingId}-${userId}`;
     clearAllSessions(sessionUserId);
+
+    ejectUserFromVoice({
+      requesterUserId: userId,
+      meetingId,
+    }, userId);
 
     return Logger.info(`Removed ${CLIENT_TYPE_HTML} user id=${userId} meeting=${meetingId}`);
   };

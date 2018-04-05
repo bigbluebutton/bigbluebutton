@@ -5,8 +5,9 @@
       "mobileFont": 16,
       "desktopFont": 14,
       "audioChatNotification": false,
-      "autoJoinAudio": true,
-      "listenOnly": false,
+      "autoJoin": true,
+      "listenOnlyMode": true,
+      "forceListenOnly": false,
       "skipCheck": false,
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
@@ -45,6 +46,9 @@
           "privateChat": false,
           "layout": false
         }
+      },
+      "branding": {
+        "displayBrandingArea": false
       },
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
@@ -96,7 +100,8 @@
           "toggleVoice",
           "clearPublicChatHistory",
           "changeRole",
-          "ejectUserFromVoice"
+          "ejectUserFromVoice",
+          "toggleRecording"
         ]
       },
       "presenter": {

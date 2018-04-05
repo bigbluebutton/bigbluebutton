@@ -73,7 +73,8 @@ $dropdown-caret-height: 8px;
 .close {
   display: none;
   position: fixed;
-  bottom: 1rem;
+  bottom: 0.8rem;
+  border-radius: 0;
   z-index: 1011;
   font-size: $font-size-large * 1.1;
   width: calc(100% - #{($line-height-computed * 2)});
@@ -83,7 +84,6 @@ $dropdown-caret-height: 8px;
 
   @include mq($small-only) {
     display: block;
-    bottom: 0.8rem;
   }
 }
 

@@ -46,6 +46,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
   },
+  startRecording: {
+    id: 'app.actionsBar.actionsDropdown.startRecording',
+    description: 'start recording option',
+  },
+  stopRecording: {
+    id: 'app.actionsBar.actionsDropdown.stopRecording',
+    description: 'stop recording option',
+  },
 });
 
 class ActionsDropdown extends Component {
@@ -57,6 +65,7 @@ class ActionsDropdown extends Component {
   componentWillMount() {
     this.presentationItemId = _.uniqueId('action-item-');
     this.videoItemId = _.uniqueId('action-item-');
+    this.recordId = _.uniqueId('action-item-');
   }
 
   componentWillUpdate(nextProps) {
@@ -67,54 +76,73 @@ class ActionsDropdown extends Component {
     }
   }
 
-  handlePresentationClick() {
-    this.props.mountModal(<PresentationUploaderContainer />);
-  }
-
   getAvailableActions() {
     const {
       intl,
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
+      isUserPresenter,
+      isUserModerator,
+      allowStartStopRecording,
+      isRecording,
+      record,
+      toggleRecording,
     } = this.props;
 
     return _.compact([
-      (<DropdownListItem
-        icon="presentation"
-        label={intl.formatMessage(intlMessages.presentationLabel)}
-        description={intl.formatMessage(intlMessages.presentationDesc)}
-        key={this.presentationItemId}
-        onClick={this.handlePresentationClick}
-      />),
-      (Meteor.settings.public.kurento.enableScreensharing ?
+      (isUserPresenter ?
+        <DropdownListItem
+          icon="presentation"
+          label={intl.formatMessage(intlMessages.presentationLabel)}
+          description={intl.formatMessage(intlMessages.presentationDesc)}
+          key={this.presentationItemId}
+          onClick={this.handlePresentationClick}
+        />
+        : null),
+      (Meteor.settings.public.kurento.enableScreensharing && isUserPresenter ?
         <DropdownListItem
           icon="desktop"
-          label={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
-          description={intl.formatMessage(isVideoBroadcasting ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
+          label={intl.formatMessage(isVideoBroadcasting ?
+            intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
+          description={intl.formatMessage(isVideoBroadcasting ?
+            intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
           key={this.videoItemId}
-          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen }
+          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
         />
-      : null),
+        : null),
+      (record && isUserModerator && allowStartStopRecording ?
+        <DropdownListItem
+          icon="record"
+          label={intl.formatMessage(isRecording ?
+            intlMessages.stopRecording : intlMessages.startRecording)}
+          description={intl.formatMessage(isRecording ?
+            intlMessages.stopRecording : intlMessages.startRecording)}
+          key={this.recordId}
+          onClick={toggleRecording}
+        />
+        : null),
     ]);
+  }
+
+  handlePresentationClick() {
+    this.props.mountModal(<PresentationUploaderContainer />);
   }
 
   render() {
     const {
       intl,
       isUserPresenter,
-      handleShareScreen,
-      handleUnshareScreen,
-      isVideoBroadcasting,
+      isUserModerator,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if (!isUserPresenter) return null;
+    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >
-        <DropdownTrigger tabIndex={0} >
+        <DropdownTrigger tabIndex={0} accessKey="a">
           <Button
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}

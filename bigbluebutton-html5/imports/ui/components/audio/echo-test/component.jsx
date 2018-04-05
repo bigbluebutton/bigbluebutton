@@ -5,13 +5,21 @@ import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
-  yes: {
+  confirmLabel: {
     id: 'app.audioModal.yes',
     description: 'Hear yourself yes',
   },
-  no: {
+  disconfirmLabel: {
     id: 'app.audioModal.no',
     description: 'Hear yourself no',
+  },
+  confirmAriaLabel: {
+    id: 'app.audioModal.yes.arialabel',
+    description: 'provides better context for yes btn label',
+  },
+  disconfirmAriaLabel: {
+    id: 'app.audioModal.no.arialabel',
+    description: 'provides better context for no btn label',
   },
 });
 
@@ -38,20 +46,22 @@ class EchoTest extends Component {
       <span className={styles.echoTest}>
         <Button
           className={styles.button}
-          label={intl.formatMessage(intlMessages.yes)}
-          icon={'thumbs_up'}
+          label={intl.formatMessage(intlMessages.confirmLabel)}
+          aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
+          icon="thumbs_up"
           circle
-          color={'success'}
-          size={'jumbo'}
+          color="success"
+          size="jumbo"
           onClick={this.handleYes}
         />
         <Button
           className={styles.button}
-          label={intl.formatMessage(intlMessages.no)}
-          icon={'thumbs_down'}
+          label={intl.formatMessage(intlMessages.disconfirmLabel)}
+          aria-label={intl.formatMessage(intlMessages.disconfirmAriaLabel)}
+          icon="thumbs_down"
           circle
-          color={'danger'}
-          size={'jumbo'}
+          color="danger"
+          size="jumbo"
           onClick={this.handleNo}
         />
       </span>

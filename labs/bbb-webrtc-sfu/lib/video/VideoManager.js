@@ -61,7 +61,7 @@ module.exports = class VideoManager extends BaseManager {
       case 'start':
         Logger.info(this._logPrefix, 'Received message [' + message.id + '] from connection ' + sessionId);
 
-        video = new Video(this._bbbGW, message.cameraId, shared, message.connectionId);
+        video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
 
         // Empty ice queue after starting video
         if (iceQueue) {
@@ -106,7 +106,6 @@ module.exports = class VideoManager extends BaseManager {
         break;
 
       case 'onIceCandidate':
-
         if (video.constructor === Video) {
           video.onIceCandidate(message.candidate);
         } else {

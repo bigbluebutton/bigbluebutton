@@ -33,7 +33,7 @@ $controls-background: #F0F2F6 !default;
     background-color: $controls-background;
     color: $controls-color;
     border-top: 0;
-    border-right: $color-gray-light 2px solid;
+    border-right: $color-gray-light $border-size solid;
     border-bottom: 0;
     border-left: 0;
     border-radius: 0;
@@ -58,12 +58,14 @@ $controls-background: #F0F2F6 !default;
   border-right: 0 !important;
 }
 
+.skipSlide,
 .prevSlide {
-  border-radius: 5px 0 0 5px;
+  border: none !important;
 }
 
-.skipSlide {
+.skipSlideSelect {
   padding: 0 0.8%;
+  border-left: $border-size solid $color-gray-light !important;
 }
 
 .zoomSlider {

@@ -1,14 +1,13 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { isVideoBroadcasting, presenterScreenshareHasEnded,
+import Users from '/imports/api/users/';
+import Auth from '/imports/ui/services/auth';
+import mapUser from '/imports/ui/services/user/mapUser';
+import { isVideoBroadcasting, presenterScreenshareHasEnded, unshareScreen,
   presenterScreenshareHasStarted } from './service';
 import ScreenshareComponent from './component';
 
 class ScreenshareContainer extends React.Component {
-  componentWillUnmount() {
-    this.props.presenterScreenshareHasEnded();
-  }
-
   render() {
     if (this.props.isVideoBroadcasting()) {
       return <ScreenshareComponent {...this.props} />;
@@ -18,9 +17,14 @@ class ScreenshareContainer extends React.Component {
   }
 }
 
-export default withTracker(() => ({
-  isVideoBroadcasting,
-  presenterScreenshareHasStarted,
-  presenterScreenshareHasEnded,
-}))(ScreenshareContainer);
-
+export default withTracker(() => {
+  const user = Users.findOne({ userId: Auth.userID });
+  const MappedUser = mapUser(user);
+  return {
+    isPresenter: MappedUser.isPresenter,
+    unshareScreen,
+    isVideoBroadcasting,
+    presenterScreenshareHasStarted,
+    presenterScreenshareHasEnded,
+  };
+})(ScreenshareContainer);

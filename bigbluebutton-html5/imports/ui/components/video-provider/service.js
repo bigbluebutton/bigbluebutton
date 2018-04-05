@@ -1,6 +1,7 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings/';
 import Auth from '/imports/ui/services/auth';
 
 class VideoService {
@@ -33,7 +34,7 @@ class VideoService {
   }
 
   joinVideo() {
-    var joinVideoEvent = new Event('joinVideo');
+    const joinVideoEvent = new Event('joinVideo');
     document.dispatchEvent(joinVideoEvent);
   }
 
@@ -47,16 +48,11 @@ class VideoService {
   }
 
   exitVideo() {
-    var exitVideoEvent = new Event('exitVideo');
+    const exitVideoEvent = new Event('exitVideo');
     document.dispatchEvent(exitVideoEvent);
   }
 
   exitedVideo() {
-    this.isWaitingResponse = false;
-    this.isConnected = false;
-  }
-
-  resetState() {
     this.isWaitingResponse = false;
     this.isConnected = false;
   }
@@ -74,8 +70,22 @@ class VideoService {
     return Users.find().fetch();
   }
 
+  webcamOnlyModerator() {
+    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    return m.usersProp.webcamsOnlyForModerator;
+  }
+
+  isLocked() {
+    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
+  }
+
   userId() {
     return Auth.userID;
+  }
+
+  meetingId() {
+    return Auth.meetingID;
   }
 
   isConnected() {
@@ -94,13 +104,15 @@ export default {
   exitingVideo: () => videoService.exitingVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getAllUsers: () => videoService.getAllUsers(),
+  webcamOnlyModerator: () => videoService.webcamOnlyModerator(),
+  isLocked:    () => videoService.isLocked(),
   isConnected: () => videoService.isConnected,
   isWaitingResponse: () => videoService.isWaitingResponse,
   joinVideo: () => videoService.joinVideo(),
   joiningVideo: () => videoService.joiningVideo(),
   joinedVideo: () => videoService.joinedVideo(),
-  resetState: () => videoService.resetState(),
-  sendUserShareWebcam: (stream) => videoService.sendUserShareWebcam(stream),
-  sendUserUnshareWebcam: (stream) => videoService.sendUserUnshareWebcam(stream),
+  sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
+  sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
   userId: () => videoService.userId(),
+  meetingId: () => videoService.meetingId(),
 };

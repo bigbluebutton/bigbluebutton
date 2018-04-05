@@ -29,12 +29,24 @@ const intlMessages = defineMessages({
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
   },
+  recordingSession: {
+    id: 'app.navBar.recording',
+    description: 'label for when the session is being recorded',
+  },
+  recordingIndicatorOn: {
+    id: 'app.navBar.recording.on',
+    description: 'label for indicator when the session is being recorded',
+  },
+  recordingIndicatorOff: {
+    id: 'app.navBar.recording.off',
+    description: 'label for indicator when the session is not being recorded',
+  },
 });
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
   hasUnreadMessages: PropTypes.bool.isRequired,
-  beingRecorded: PropTypes.bool.isRequired,
+  beingRecorded: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -165,6 +177,8 @@ class NavBar extends Component {
   render() {
     const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
+    const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
+
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
@@ -184,6 +198,7 @@ class NavBar extends Component {
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
             aria-describedby="newMessage"
+            accessKey="u"
           />
           <div
             id="newMessage"
@@ -192,7 +207,13 @@ class NavBar extends Component {
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          <RecordingIndicator beingRecorded={beingRecorded} />
+          {beingRecorded.record ?
+            <span className={styles.presentationTitleSeparator}>|</span>
+          : null}
+          <RecordingIndicator
+            {...beingRecorded}
+            title={intl.formatMessage(intlMessages[recordingMessage])}
+          />
         </div>
         <div className={styles.right}>
           <SettingsDropdownContainer />

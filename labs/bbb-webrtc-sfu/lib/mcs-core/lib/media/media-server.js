@@ -190,6 +190,7 @@ module.exports = class MediaServer extends EventEmitter {
     Logger.info("[mcs-media] Releasing endpoint", elementId, "from room", room);
     let mediaElement = this._mediaElements[elementId];
     let pipeline = this._mediaPipelines[room];
+
     if (mediaElement && typeof mediaElement.release === 'function') {
       pipeline.activeElements--;
 
