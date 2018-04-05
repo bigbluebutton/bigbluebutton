@@ -45,7 +45,7 @@ const JoinVideoOptionsContainer = (props) => {
       iconPath: `${baseName}/resources/images/video-menu/icon-webcam-off.svg`,
       description: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
       label: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
-      disabled: isDisabled,
+      disabled: isDisabled && !isSharingVideo,
       click: isSharingVideo ? handleCloseVideo : handleJoinVideo,
     },
   ];

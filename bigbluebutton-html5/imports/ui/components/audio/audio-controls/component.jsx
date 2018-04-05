@@ -64,6 +64,7 @@ const AudioControls = ({
         icon={unmute ? 'mute' : 'unmute'}
         size="lg"
         circle
+        accessKey="m"
       /> : null}
     <Button
       className={styles.button}
@@ -76,6 +77,7 @@ const AudioControls = ({
       icon={join ? 'audio_off' : 'audio_on'}
       size="lg"
       circle
+      accessKey={join ? 'l' : 'j'}
     />
   </span>);
 

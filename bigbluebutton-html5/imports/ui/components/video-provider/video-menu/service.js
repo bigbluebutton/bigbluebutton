@@ -1,6 +1,5 @@
 import Settings from '/imports/ui/services/settings';
 import mapUser from '/imports/ui/services/user/mapUser';
-import Meetings from '/imports/api/meetings/';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
 import VideoService from '../service';
@@ -21,12 +20,14 @@ const isDisabled = () => {
   const isConnected = VideoService.isConnected();
 
   const lockCam = VideoService.isLocked();
-  const webcamOnlyModerator = VideoService.webcamOnlyModerator();
 
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
-  const isConnecting = (!isSharingVideo() && isConnected);
-  const isLocked = (lockCam && userLocked) || webcamOnlyModerator;
+
+  const isConnecting = (!isSharingVideo && isConnected);
+
+  const isLocked = (lockCam && userLocked);
+
   return isLocked
       || isWaitingResponse
       || isConnecting
