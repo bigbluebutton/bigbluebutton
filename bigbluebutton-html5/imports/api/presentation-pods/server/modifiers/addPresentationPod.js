@@ -1,10 +1,11 @@
 import { Match, check } from 'meteor/check';
 import PresentationPods from '/imports/api/presentation-pods';
 import Logger from '/imports/startup/server/logger';
+import addPresentation from '/imports/api/presentations/server/modifiers/addPresentation';
 
-export default function addPresentationPod(meetingId, pod, presentation = null /* ?? */) {
+export default function addPresentationPod(meetingId, pod, presentations = undefined /* ?? */) {
   check(meetingId, String);
-  check(presentation, Match.Maybe(Object));
+  check(presentations, Match.Maybe(Array));
   check(pod, {
     currentPresenterId: String,
     podId: String,
@@ -26,6 +27,11 @@ export default function addPresentationPod(meetingId, pod, presentation = null /
   const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Adding presentation pod to the collection: ${err}`);
+    }
+
+    // presentations object is currently passed together with Sync message
+    if (presentations) {
+      presentations.forEach(presentation => addPresentation(meetingId, podId, presentation));
     }
 
     if (numChanged) {
