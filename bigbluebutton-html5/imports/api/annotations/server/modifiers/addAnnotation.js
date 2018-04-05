@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Annotations from '/imports/api/annotations';
+import RedisPubSub from '/imports/startup/server/redis';
 
 const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
@@ -377,5 +378,51 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     return Logger.info(`Upserted annotation id=${annotation.id} whiteboard=${whiteboardId}`);
   };
 
-  return Annotations.upsert(query.selector, query.modifier, cb);
+  if(annotation.annotationType !== ANNOTATION_TYPE_TEXT &&
+    annotation.annotationType !== ANNOTATION_TYPE_PENCIL) {
+
+    let lastBulkTime = RedisPubSub.getLastBulkTime();
+
+    if(lastBulkTime === null) {
+      // Upserting for the very first time
+      RedisPubSub.setLastBulkTime(process.hrtime());
+      Annotations.upsert(query.selector, query.modifier, cb);
+    } else {
+      let diff = process.hrtime(lastBulkTime)[1]/1000000;
+      if(diff < 300) {
+        // Pushing to the bulk
+        RedisPubSub.addToAnnotationsBulk({
+          query: query,
+          cb: cb
+        });
+      } else {
+        // Releasing the bulk
+        if(RedisPubSub.getAnnotationsBulk().length === 0) {
+          Annotations.upsert(query.selector, query.modifier, cb);
+        } else {
+          RedisPubSub.addToAnnotationsBulk({
+            query: query,
+            cb: cb
+          });
+          let bulk = RedisPubSub.getAnnotationsBulk();
+          let operations = [];
+          bulk.forEach(function(ann) {
+            operations.push({
+              updateOne: {
+                'filter': ann.query.selector,
+                'update': ann.query.modifier,
+                'upsert': true
+              }
+            });
+          });
+          Annotations.rawCollection().bulkWrite(operations);
+          RedisPubSub.emptyAnnotationsBulk();
+        }
+
+        RedisPubSub.setLastBulkTime(process.hrtime());
+      }
+    }
+  } else {
+    return Annotations.upsert(query.selector, query.modifier, cb);
+  }
 }

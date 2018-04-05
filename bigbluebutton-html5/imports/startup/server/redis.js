@@ -113,6 +113,9 @@ class RedisPubSub {
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.debug = makeDebugger(this.config.debug);
+
+    this.annotationsBulk = [];
+    this.lastBulkTime = null;
   }
 
   init() {
@@ -133,6 +136,25 @@ class RedisPubSub {
     this.debug = makeDebugger(this.config.debug);
   }
 
+  addToAnnotationsBulk(annotation) {
+    this.annotationsBulk.push(annotation);
+  }
+
+  getAnnotationsBulk() {
+    return this.annotationsBulk;
+  }
+
+  setLastBulkTime(time) {
+    this.lastBulkTime = time;
+  }
+
+  getLastBulkTime() {
+    return this.lastBulkTime;
+  }
+
+  emptyAnnotationsBulk() {
+    this.annotationsBulk = [];
+  }
 
   // TODO: Move this out of this class, maybe pass as a callback to init?
   handleSubscribe() {
