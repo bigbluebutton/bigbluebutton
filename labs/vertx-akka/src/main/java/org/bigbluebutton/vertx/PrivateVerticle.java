@@ -122,9 +122,12 @@ public class PrivateVerticle extends AbstractVerticle {
         System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        //eb.consumer("to-vertx").handler(message -> {
-        //  System.out.println("**** response to " + be.socket().webSession().id() + " msg = " +  message.body());
-        //});
+        eb.consumer("to-vertx").handler(message -> {
+          System.out.println("**** response to " + be.socket().webSession().id() + " msg = " +  message.body());
+          if (message.body().toString().equals("CLOSE_SOCKET")) {
+            be.socket().close();
+          }
+        });
         //gw.send(be.rawMessage().toString());
       } else {
         System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());

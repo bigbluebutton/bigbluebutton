@@ -18,7 +18,7 @@ object Boot extends App with SystemConfiguration {
 
   val vertxGW = new AkkaToVertxGateway(vertx)
 
-  val echoActor = system.actorOf(EchoService.props(vertxGW), "echo-actor")
+  val echoActor = system.actorOf(EchoService.props(vertxGW, vertx), "echo-actor")
   val authActor = system.actorOf(AuthService.props(vertxGW), "auth-actor")
 
   val akkaGW = new VertxToAkkaGateway(system, vertx, authActor, echoActor)
