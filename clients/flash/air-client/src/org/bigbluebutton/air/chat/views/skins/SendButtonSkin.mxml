@@ -13,10 +13,9 @@
 	<fx:Script>
 		<![CDATA[
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-				border.width = border.height = getStyle("diameter");
+				background.width = background.height = getStyle("diameter");
 				
-				borderStroke.color = getStyle("borderColor");
-				borderStroke.weight = getStyle("borderWeight");
+				backgroundFill.color = getStyle("backgroundColor");
 				
 				labelDisplay.text = getStyle("icon");
 				
@@ -35,10 +34,10 @@
 
 	<!-- layer 7: border - put on top of the fill so it doesn't disappear when scale is less than 1 -->
 	<!--- @private -->
-	<s:Ellipse id="border">
-		<s:stroke>
-			<s:SolidColorStroke id="borderStroke" />
-		</s:stroke>
+	<s:Ellipse id="background">
+		<s:fill>
+			<s:SolidColor id="backgroundFill" />
+		</s:fill>
 	</s:Ellipse>
 
 	<!-- layer 8: text -->

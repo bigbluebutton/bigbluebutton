@@ -33,10 +33,6 @@
         fontSize: 25.50;
     }
 
-    main|TopToolbarBase {
-        height: 60.00;
-    }
-
     views|NoTabView {
         toolbarHeight: 60.00;
     }
@@ -132,7 +128,6 @@
     }
 
     .sendButton {
-        borderWeight: 1.50;
         diameter: 42.00;
     }
 
@@ -144,6 +139,8 @@
 
     .topButton {
         fontSize: 33.00;
+        height: 57.00;
+        width: 57.00;
     }
 
     .saveButton {
@@ -151,11 +148,11 @@
     }
 
     .topLeftButton {
-        left: 22.50;
+        left: 0;
     }
 
     .topRightButton {
-        right: 22.50;
+        right: 0;
     }
 
     .actionButton {
@@ -192,6 +189,8 @@
 
     .chatIcon, .settingsIcon {
         fontSize: 33.00;
+        width: 33.00;
+        height: 33.00;
     }
 
     .recordIcon {
