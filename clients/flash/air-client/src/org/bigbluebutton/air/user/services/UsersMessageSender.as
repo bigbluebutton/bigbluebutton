@@ -231,5 +231,14 @@ package org.bigbluebutton.air.user.services {
 			
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
+		
+		public function activityResponse():void {
+			var message:Object = {
+				header: {name: "MeetingActivityResponseCmdMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {respondedBy: conferenceParameters.internalUserID}
+			};
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
+		}
 	}
 }

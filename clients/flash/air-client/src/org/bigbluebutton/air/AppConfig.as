@@ -20,6 +20,10 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.commands.KickUserSignal;
 	import org.bigbluebutton.air.main.commands.LockUserCommand;
 	import org.bigbluebutton.air.main.commands.LockUserSignal;
+	import org.bigbluebutton.air.main.commands.UserInactivityTimerCommand;
+	import org.bigbluebutton.air.main.commands.UserInactivityTimerResponseCommand;
+	import org.bigbluebutton.air.main.commands.UserInactivityTimerResponseSignal;
+	import org.bigbluebutton.air.main.commands.UserInactivityTimerSignal;
 	import org.bigbluebutton.air.main.commands.PresenterCommand;
 	import org.bigbluebutton.air.main.commands.PresenterSignal;
 	import org.bigbluebutton.air.main.models.ConferenceParameters;
@@ -96,6 +100,8 @@ package org.bigbluebutton.air {
 			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
 			signalCommandMap.map(ChangeUserRoleSignal).toCommand(ChangeUserRoleCommand);
 			signalCommandMap.map(KickUserSignal).toCommand(KickUserCommand);
+			signalCommandMap.map(UserInactivityTimerSignal).toCommand(UserInactivityTimerCommand);
+			signalCommandMap.map(UserInactivityTimerResponseSignal).toCommand(UserInactivityTimerResponseCommand);
 		}
 	}
 }

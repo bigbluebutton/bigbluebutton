@@ -21,7 +21,7 @@ trait SystemConfiguration {
   lazy val red5DeskShareIP = Try(config.getString("red5.deskshareip")).getOrElse("127.0.0.1")
   lazy val red5DeskShareApp = Try(config.getString("red5.deskshareapp")).getOrElse("")
 
-  lazy val inactivityDeadline = Try(config.getInt("inactivity.deadline")).getOrElse(2 * 3600) // 2 hours
+  lazy val userInactivityTimeout = Try(config.getInt("inactivity.timeout")).getOrElse(2 * 3600) // 2 hours
   lazy val inactivityTimeLeft = Try(config.getInt("inactivity.timeLeft")).getOrElse(5 * 60) // 5 minutes
 
   lazy val expireLastUserLeft = Try(config.getInt("expire.lastUserLeft")).getOrElse(60) // 1 minute

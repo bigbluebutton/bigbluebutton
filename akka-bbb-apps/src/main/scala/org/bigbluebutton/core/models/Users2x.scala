@@ -26,6 +26,12 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
+	def updateInactivityResponse(users: Users2x, u: UserState): UserState = {
+		val newUserState = modify(u)(_.inactivityResponseOn).setTo(System.currentTimeMillis())
+		users.save(newUserState)
+		newUserState
+	}
+
   def changeRole(users: Users2x, u: UserState, newRole: String): UserState = {
     val newUserState = modify(u)(_.role).setTo(newRole).modify(_.roleChangedOn).setTo(System.currentTimeMillis())
     users.save(newUserState)
@@ -204,7 +210,9 @@ case class OldPresenter(userId: String, changedPresenterOn: Long)
 
 case class UserState(intId: String, extId: String, name: String, role: String,
                      guest: Boolean, authed: Boolean, guestStatus: String, emoji: String, locked: Boolean,
-                     presenter: Boolean, avatar: String, roleChangedOn: Long = System.currentTimeMillis())
+                     presenter: Boolean, avatar: String,
+                     roleChangedOn:        Long = System.currentTimeMillis(),
+                     inactivityResponseOn: Long = 0L)
 
 case class UserIdAndName(id: String, name: String)
 
@@ -232,4 +240,5 @@ object EjectReasonCode {
   val EJECT_USER = "user_requested_eject_reason"
   val SYSTEM_EJECT_USER = "system_requested_eject_reason"
   val VALIDATE_TOKEN = "validate_token_failed_eject_reason"
+  val USER_INACTIVITY = "user_inactivity_eject_reason"
 }

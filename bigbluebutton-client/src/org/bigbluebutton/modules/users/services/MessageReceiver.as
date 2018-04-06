@@ -205,9 +205,16 @@ package org.bigbluebutton.modules.users.services
         case "GetGuestsWaitingApprovalRespMsg":
           handleGetGuestsWaitingApprovalRespMsg(message);
           break;
+				case "UserInactivityAuditMsg":
+					handleUserInactivityAuditMsg(message);
+					break;
       }
     }
     
+		private function handleUserInactivityAuditMsg(msg: Object):void {
+			trace("******************* RECEIVED USER INACTIVITY AUDIT!!!!! **********************");
+		}
+		
     private function handleUserJoinedVoiceConfToClientEvtMsg(msg: Object): void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;

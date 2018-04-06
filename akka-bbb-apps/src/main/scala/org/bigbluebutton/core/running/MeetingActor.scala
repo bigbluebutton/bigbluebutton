@@ -34,7 +34,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 import org.bigbluebutton.core2.testdata.FakeTestData
 
 object MeetingActor {
@@ -78,7 +78,8 @@ class MeetingActor(
     with ChangeLockSettingsInMeetingCmdMsgHdlr
     with SyncGetMeetingInfoRespMsgHdlr
     with ClientToServerLatencyTracerMsgHdlr
-    with ValidateConnAuthTokenSysMsgHdlr {
+    with ValidateConnAuthTokenSysMsgHdlr
+		with UserInactivityAuditResponseMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -165,11 +166,11 @@ class MeetingActor(
   // Set webcamsOnlyForModerator property in case we didn't after meeting creation
   MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
-  /*******************************************************************/
+  /** *****************************************************************/
   // Helper to create fake users for testing (ralam jan 5, 2018)
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
-  /*******************************************************************/
+  /** *****************************************************************/
 
   def receive = {
     //=============================
@@ -347,6 +348,8 @@ class MeetingActor(
 
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
 
+				case m: UserInactivityAuditResponseMsg => handleUserInactivityAuditResponseMsg(m)
+
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -409,6 +412,8 @@ class MeetingActor(
 
     sendRttTraceTest()
     setRecordingChapterBreak()
+
+    processUserInactivityAudit()
   }
 
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
@@ -502,7 +507,46 @@ class MeetingActor(
         "system", MeetingStatus2x.isRecording(liveMeeting.status)
       )
       outGW.send(event)
-
     }
   }
+
+  var lastUserInactivitySentOn = TimeUtil.timeNowInMs()
+  var checkInactiveUsers = false
+
+  def processUserInactivityAudit(): Unit = {
+    val now = TimeUtil.timeNowInMs()
+    if (now - lastUserInactivitySentOn > 30000) {
+      lastUserInactivitySentOn = now
+      checkInactiveUsers = true
+      val event = buildUserInactivityAuditMsg(liveMeeting.props.meetingProp.intId)
+      outGW.send(event)
+    }
+
+    if (checkInactiveUsers && now - lastUserInactivitySentOn > 10000) {
+      checkInactiveUsers = false
+      checkForInactiveUsers()
+    }
+  }
+
+  def checkForInactiveUsers(): Unit = {
+    val now = TimeUtil.timeNowInMs()
+    val users = Users2x.findAll(liveMeeting.users2x)
+    users foreach { u =>
+      if (now - u.inactivityResponseOn > 2000) {
+        UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
+        Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
+      }
+    }
+  }
+
+  def buildUserInactivityAuditMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "system")
+    val envelope = BbbCoreEnvelope(UserInactivityAuditMsg.NAME, routing)
+    val body = UserInactivityAuditMsgBody(meetingId)
+    val header = BbbClientMsgHeader(UserInactivityAuditMsg.NAME, meetingId, "system")
+    val event = UserInactivityAuditMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
 }
