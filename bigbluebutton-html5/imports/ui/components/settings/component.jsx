@@ -217,6 +217,7 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
+            this.props.mountModal(null);
             if (location.pathname.includes('/users')) {
               router.push('/');
             }
