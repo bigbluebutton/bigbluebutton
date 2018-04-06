@@ -325,11 +325,6 @@ module.exports = class MediaController {
     return Promise.resolve({});
   }
 
-  async stopRecording (mediaId) {
-   // TODO: proper stopAndWait call
-   // for now the mediaFlow stopping takes care of this
-  }
-
   async addIceCandidate (mediaId, candidate) {
     let session = this._mediaSessions[mediaId];
     if (typeof session === 'undefined') {

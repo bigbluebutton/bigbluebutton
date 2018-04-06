@@ -122,7 +122,26 @@ module.exports = class MediaServer extends EventEmitter {
       });
     }
     else {
-      return Promise.reject("[mcs-recording] shit");
+      return Promise.reject("[mcs-recording] startRecording error");
+    }
+  }
+
+  async stopRecording (sourceId) {
+    let source = this._mediaElements[sourceId];
+
+    if (source) {
+      return new Promise((resolve, reject) => {
+        source.stopAndWait((err) => {
+          if (err) {
+            error = this._handleError(error);
+            return reject(error);
+          }
+          return resolve();
+        });
+      });
+    }
+    else {
+      return Promise.reject("[mcs-recording] stopRecording error");
     }
   }
 

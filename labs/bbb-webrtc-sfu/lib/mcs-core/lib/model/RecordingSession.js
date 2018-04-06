@@ -47,7 +47,6 @@ module.exports = class RecordingSession extends EventEmitter {
       Logger.info("[mcs-recording-session] Starting new Recording session", this.id);
 
       this._mediaElement = await this._MediaServer.createMediaElement(this.room, this._type, this.options);
-
       this._MediaServer.trackMediaState(this._mediaElement, this._type);
 
       this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
@@ -71,7 +70,7 @@ module.exports = class RecordingSession extends EventEmitter {
     this._status = C.STATUS.STOPPING;
 
     try {
-      await this._MediaServer.stop(this.room, this._mediaElement);
+      await this._MediaServer.stopRecording(this._mediaElement);
       this._status = C.STATUS.STOPPED;
       Logger.info("[mcs-recording-session] Session ", this.id, " is going to stop...");
       this.emit('SESSION_STOPPED', this.id);
