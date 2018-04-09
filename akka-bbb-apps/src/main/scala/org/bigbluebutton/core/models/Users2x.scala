@@ -213,7 +213,7 @@ case class UserState(intId: String, extId: String, name: String, role: String,
                      guest: Boolean, authed: Boolean, guestStatus: String, emoji: String, locked: Boolean,
                      presenter: Boolean, avatar: String,
                      roleChangedOn:        Long = System.currentTimeMillis(),
-                     inactivityResponseOn: Long = 0L)
+                     inactivityResponseOn: Long = TimeUtil.timeNowInMs())
 
 case class UserIdAndName(id: String, name: String)
 
