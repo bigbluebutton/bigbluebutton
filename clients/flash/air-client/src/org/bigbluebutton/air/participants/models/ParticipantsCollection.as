@@ -11,7 +11,7 @@ package org.bigbluebutton.air.participants.models {
 		public function ParticipantsCollection():void {
 			addItem(new ParticipantTitle("Conversations", ParticipantTitle.CHAT));
 			addItem(new ParticipantTitle("Online", ParticipantTitle.USER));
-			sort = new Sort(null, sortFunction);
+			sort = new Sort(null, sortFunc);
 		}
 		
 		public function initGroupChats(groupChats:IList):void {
@@ -35,95 +35,84 @@ package org.bigbluebutton.air.participants.models {
 		}
 		
 		/**
-		 * Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
+		 * This sortFuc sorts the mixed collection of UserVMs, ParticipantTitles, and GroupChats. The required order 
+		 * is very specific and the sort function is carefully crafted to match. DON'T CHANGE UNLESS YOU KNOW WHAT 
+		 * YOU'RE DOING. Even if you think you know what you're doing ask Chad first to verify.
 		 */
-		private function sortFunction(a:Object, b:Object, array:Array = null):int {
-			if (a is ParticipantTitle && b is ParticipantTitle) {
-				var ap:ParticipantTitle = a as ParticipantTitle, bp:ParticipantTitle = b as ParticipantTitle;
-				if (ap.type.toLowerCase() < bp.type.toLowerCase())
-					return -1;
-				else if (ap.type.toLowerCase() > bp.type.toLowerCase())
-					return 1;
-			} else if (a is ParticipantTitle && b is GroupChat) {
-				var pg:ParticipantTitle = a as ParticipantTitle;
-				if (pg.type == ParticipantTitle.CHAT) {
-					return -1;
-				} else if (pg.type == ParticipantTitle.USER) {
-					return 1;
-				}
-			} else if ((a is ParticipantTitle || b is GroupChat) && b is UserVM) {
-				// ParticipantTitle and GroupChat are always before UserVM
-				return -1;
-			} else if (a is UserVM && (b is ParticipantTitle || b is GroupChat)) {
-				// UserVM is always after ParticipantTitle and GroupChat
+		private function sortFunc(a:Object, b:Object, fields:Array = null):int {
+			if (a is UserVM && b is UserVM) {
+				return sortUsers(a as UserVM, b as UserVM);
+			} else if (a is UserVM) {
 				return 1;
-			} else if (a is GroupChat && b is ParticipantTitle) {
-				var gp:ParticipantTitle = b as ParticipantTitle;
-				if (gp.type == ParticipantTitle.CHAT) {
-					return 1;
-				} else if (gp.type == ParticipantTitle.USER) {
+			} else if (b is UserVM) {
+				return -1;
+			} else if (a is ParticipantTitle) {
+				return a.type - 1;
+			} else if (b is ParticipantTitle) {
+				return -(b.type - 1);
+			} else {
+				return sortChat(a as GroupChat, b as GroupChat);
+			}
+		}
+		
+		private function sortChat(a:GroupChat, b:GroupChat):int {
+			if (a.isPublic && !b.isPublic)
+				return -1;
+			else if (!a.isPublic > b.isPublic)
+				return 1;
+			else {
+				var ag:GroupChat = a as GroupChat, bg:GroupChat = b as GroupChat;
+				if (ag.name.toLowerCase() < bg.name.toLowerCase())
 					return -1;
-				}
-			} else if (a is GroupChat && b is GroupChat) {
-				if (a.isPublic && !b.isPublic)
-					return -1;
-				else if (!a.isPublic > b.isPublic)
+				else
 					return 1;
-				else if (a.isPublic == b.isPublic) {
-					var ag:GroupChat = a as GroupChat, bg:GroupChat = b as GroupChat;
-					if (ag.name.toLowerCase() < bg.name.toLowerCase())
-						return -1;
-					else if (ag.name.toLowerCase() > bg.name.toLowerCase())
-						return 1;
-				}
-			} else if (a is UserVM && b is UserVM) {
-				/**
-				 * Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
-				 */
-				var au:UserVM = a as UserVM, bu:UserVM = b as UserVM;
-				if (au.role == UserRole.MODERATOR && bu.role == UserRole.MODERATOR) {
-					if (au.hasEmojiStatus && bu.hasEmojiStatus) {
-						if (au.emojiStatusTime < bu.emojiStatusTime)
-							return -1;
-						else
-							return 1;
-					} else if (au.hasEmojiStatus)
-						return -1;
-					else if (bu.hasEmojiStatus)
-						return 1;
-				} else if (au.role == UserRole.MODERATOR)
-					return -1;
-				else if (bu.role == UserRole.MODERATOR)
-					return 1;
-				else if (au.hasEmojiStatus && bu.hasEmojiStatus) {
-					if (au.emojiStatusTime < bu.emojiStatusTime)
+			}
+		}
+		
+		private function sortUsers(a:UserVM, b:UserVM):int {
+			if (a.role == UserRole.MODERATOR && b.role == UserRole.MODERATOR) {
+				if (a.hasEmojiStatus && b.hasEmojiStatus) {
+					if (a.emojiStatusTime < b.emojiStatusTime)
 						return -1;
 					else
 						return 1;
-				} else if (au.hasEmojiStatus)
+				} else if (a.hasEmojiStatus)
 					return -1;
-				else if (bu.hasEmojiStatus)
+				else if (b.hasEmojiStatus)
 					return 1;
-				else if (!au.voiceOnly && !bu.voiceOnly) {
-				} else if (!au.voiceOnly)
+			} else if (a.role == UserRole.MODERATOR)
+				return -1;
+			else if (b.role == UserRole.MODERATOR)
+				return 1;
+			else if (a.hasEmojiStatus && b.hasEmojiStatus) {
+				if (a.emojiStatusTime < b.emojiStatusTime)
 					return -1;
-				else if (!bu.voiceOnly)
+				else
 					return 1;
-				/*
-				 * Check name (case-insensitive) in the event of a tie up above. If the name
-				 * is the same then use userID which should be unique making the order the same
-				 * across all clients.
-				 */
-				if (au.name.toLowerCase() < bu.name.toLowerCase())
-					return -1;
-				else if (au.name.toLowerCase() > bu.name.toLowerCase())
-					return 1;
-				else if (au.intId.toLowerCase() > bu.intId.toLowerCase())
-					return -1;
-				else if (au.intId.toLowerCase() < bu.intId.toLowerCase())
-					return 1
-			}
-			return 0;
+			} else if (a.hasEmojiStatus)
+				return -1;
+			else if (b.hasEmojiStatus)
+				return 1;
+			else if (!a.voiceOnly && !b.voiceOnly) {
+			} else if (!a.voiceOnly)
+				return -1;
+			else if (!b.voiceOnly)
+				return 1;
+			/*
+			 * Check name (case-insensitive) in the event of a tie up above. If the name
+			 * is the same then use intId which should be unique making the order the same
+			 * across all clients.
+			 */
+			if (a.name.toLowerCase() < b.name.toLowerCase())
+				return -1;
+			else if (a.name.toLowerCase() > b.name.toLowerCase())
+				return 1;
+			else if (a.intId.toLowerCase() > b.intId.toLowerCase())
+				return -1;
+			else if (a.intId.toLowerCase() < b.intId.toLowerCase())
+				return 1
+			else
+				return 0;
 		}
 	}
 }

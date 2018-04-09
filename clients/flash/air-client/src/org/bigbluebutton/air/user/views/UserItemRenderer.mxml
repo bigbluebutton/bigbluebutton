@@ -3,8 +3,6 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:common="org.bigbluebutton.air.common.views.*"
 				width="100%"
-				click="onClick()"
-				keyUp="onKeyUp()"
 				styleName="participantItem">
 	<s:states>
 		<s:State name="normal" />
@@ -18,25 +16,10 @@
 
 	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.air.user.events.UserItemSelectedEvent;
 			import org.bigbluebutton.air.user.models.EmojiStatus;
 			import org.bigbluebutton.air.user.models.UserRole;
 			import org.bigbluebutton.air.user.utils.UserUtils;
 			import org.bigbluebutton.air.user.views.models.UserVM;
-			
-			private function onClick():void {
-				sendSelectedEvent();
-			}
-			
-			private function onKeyUp():void {
-				sendSelectedEvent();
-			}
-			
-			private function sendSelectedEvent():void {
-				if (currentState == "selected") {
-					dispatchEvent(new UserItemSelectedEvent(data as UserVM));
-				}
-			}
 			
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				wrapperGroup.padding = getStyle("padding");

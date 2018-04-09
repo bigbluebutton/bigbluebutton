@@ -23,11 +23,14 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
+			import spark.components.Alert;
+			
 			import org.bigbluebutton.air.AppConfig;
 			import org.bigbluebutton.air.chat.ChatConfig;
 			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
 			import org.bigbluebutton.air.participants.ParticipantsConfig;
+			import org.bigbluebutton.air.poll.PollConfig;
 			import org.bigbluebutton.air.presentation.PresentationConfig;
 			import org.bigbluebutton.air.screenshare.ScreenshareConfig;
 			import org.bigbluebutton.air.settings.SettingsConfig;
@@ -42,6 +45,8 @@
 			import robotlegs.bender.framework.api.IContext;
 			import robotlegs.bender.framework.api.LogLevel;
 			import robotlegs.bender.framework.impl.Context;
+			
+			
 
 			include "css/ColorPalette.as"
 			
@@ -52,6 +57,8 @@
 			public var currentOrientation:String;
 			
 			protected function preinitializeHandler(event:FlexEvent):void {
+				Alert.buttonHeight = 80;
+				Alert.buttonWidth = 200;
 				setupContext();
 				resizeForSoftKeyboard = true;
 				//ResourceManager.getInstance().localeChain = LocaleUtil.sortLanguagesByPreference(['en_US'], Capabilities.languages, "en_US");
@@ -70,6 +77,7 @@
 					.configure(VideoConfig)
 					.configure(VoiceConfig)
 					.configure(ParticipantsConfig)
+					.configure(PollConfig)
 					.configure(UsersConfig)
 					.configure(ChatConfig)
 					.configure(ScreenshareConfig)

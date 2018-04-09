@@ -1,15 +1,15 @@
 package org.bigbluebutton.air.main.views {
 	
-	import flash.display.DisplayObjectContainer;
 	import flash.events.MouseEvent;
 	
-	import spark.events.PopUpEvent;
+	import spark.components.Alert;
+	import spark.components.CalloutPosition;
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.main.models.IMedia;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.air.user.models.EmojiStatus;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
@@ -41,6 +41,9 @@ package org.bigbluebutton.air.main.views {
 		public var meetingData:IMeetingData;
 		
 		[Inject]
+		public var media:IMedia;
+		
+		[Inject]
 		public var conferenceParameters:IConferenceParameters;
 		
 		[Inject]
@@ -49,6 +52,9 @@ package org.bigbluebutton.air.main.views {
 		public override function initialize():void {
 			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.add(onWebcamChange);
+			
+			media.cameraPermissionSignal.add(onCameraPermission);
+			media.microphonePermissionSignal.add(onMicrophonePermission);
 			
 			view.audioButton.addEventListener(MouseEvent.CLICK, audioOnOff);
 			view.camButton.addEventListener(MouseEvent.CLICK, camOnOff);
@@ -59,18 +65,10 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private function changeStatus(e:MouseEvent):void {
-			// TODO : improve use a singel instance
-			var emojiPopUp:EmojiPopUp = new EmojiPopUp();
-			emojiPopUp.width = view.width;
-			emojiPopUp.height = view.height;
-			emojiPopUp.open(view.parentApplication as DisplayObjectContainer, true);
-			
-			emojiPopUp.x = view.x + view.statusButton.x - 10;
-			if (meetingData.users.me.emoji != EmojiStatus.NO_STATUS) {
-				emojiPopUp.y = view.y - emojiPopUp.height * 2 - 35;
-			} else {
-				emojiPopUp.y = view.y - emojiPopUp.height * 2 - 5;
-			}
+			var emojicallout:EmojiCallout = new EmojiCallout();
+			emojicallout.horizontalPosition = CalloutPosition.MIDDLE;
+			emojicallout.verticalPosition = CalloutPosition.BEFORE;
+			emojicallout.open(view.statusButton, true);
 		}
 		
 		protected function micOnOff(e:MouseEvent):void {
@@ -78,6 +76,16 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		protected function audioOnOff(e:MouseEvent):void {
+			if (media.microphoneAvailable) {
+				if (!media.microphonePermissionGranted) {
+					media.requestMicrophonePermission();
+				} else {
+					joinOrLeaveAudio();
+				}
+			}
+		}
+		
+		private function joinOrLeaveAudio():void {
 			if (meetingData.voiceUsers.me == null) {
 				uiSession.pushPage(PageEnum.AUDIO);
 			} else {
@@ -86,6 +94,16 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		private function camOnOff(e:MouseEvent):void {
+			if (media.cameraAvailable) {
+				if (!media.cameraPermissionGranted) {
+					media.requestCameraPermission();
+				} else {
+					enableDisableWebcam();
+				}
+			}
+		}
+		
+		private function enableDisableWebcam():void {
 			var noActiveWebcam:Boolean = meetingData.webcams.findWebcamsByUserId(conferenceParameters.internalUserID).length == 0;
 			shareCameraSignal.dispatch(noActiveWebcam);
 		}
@@ -100,7 +118,7 @@ package org.bigbluebutton.air.main.views {
 			}
 			
 			if (meetingData.voiceUsers.me) {
-				view.micButton.visible = view.micButton.includeInLayout = true;
+				view.micButton.visible = view.micButton.includeInLayout = !meetingData.voiceUsers.me.listenOnly;
 				view.audioButton.styleName = "icon-audio-off menuButtonRed";
 				view.audioButton.label = "Hang Up";
 				
@@ -133,9 +151,27 @@ package org.bigbluebutton.air.main.views {
 			}
 		}
 		
+		private function onCameraPermission(status:String):void {
+			if (media.cameraPermissionGranted) {
+				enableDisableWebcam();
+			} else {
+				Alert.show("Cannot share camera because access is disabled");
+			}
+		}
+		
+		private function onMicrophonePermission(status:String):void {
+			if (media.microphonePermissionGranted) {
+				joinOrLeaveAudio();
+			} else {
+				Alert.show("Cannot share microphone because access is disabled");
+			}
+		}
+		
 		public override function destroy():void {
 			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
+			media.cameraPermissionSignal.remove(onCameraPermission);
+			media.microphonePermissionSignal.remove(onMicrophonePermission);
 			view.audioButton.removeEventListener(MouseEvent.CLICK, audioOnOff);
 			view.camButton.removeEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.removeEventListener(MouseEvent.CLICK, micOnOff);
