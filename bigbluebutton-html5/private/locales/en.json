@@ -332,5 +332,9 @@
     "app.whiteboard.toolbar.clear": "Clear All Annotations",
     "app.whiteboard.toolbar.multiUserOn": "Turn multi-user mode on",
     "app.whiteboard.toolbar.multiUserOff": "Turn multi-user mode off",
-    "app.whiteboard.toolbar.fontSize": "Font Size List"
+    "app.whiteboard.toolbar.fontSize": "Font Size List",
+    "app.videoDock.webcamFocusLabel": "Focus",
+    "app.videoDock.webcamFocusDesc": "Focus the selected webcam",
+    "app.videoDock.webcamUnfocusLabel": "Unfocus",
+    "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam"
 }

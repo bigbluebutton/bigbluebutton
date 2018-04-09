@@ -10,7 +10,6 @@ $item-border-focus: $color-blue-lighter;
   padding: 0;
   text-align: left;
   color: $color-gray-dark;
-  padding: ($line-height-computed / 2);
   display: flex;
 
   @include mq($small-only) {

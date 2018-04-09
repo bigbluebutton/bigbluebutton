@@ -3,6 +3,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings/';
 import Auth from '/imports/ui/services/auth';
+import UserListService from '/imports/ui/components/user-list/service';
 
 class VideoService {
   constructor() {
@@ -67,16 +68,17 @@ class VideoService {
   }
 
   getAllUsers() {
-    return Users.find().fetch();
+    // Use the same function as the user-list to share the sorting/mapping
+    return UserListService.getUsers();
   }
 
   webcamOnlyModerator() {
-    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    const m = Meetings.findOne({ meetingId: Auth.meetingID });
     return m.usersProp.webcamsOnlyForModerator;
   }
 
   isLocked() {
-    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    const m = Meetings.findOne({ meetingId: Auth.meetingID });
     return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
   }
 
@@ -105,7 +107,7 @@ export default {
   exitedVideo: () => videoService.exitedVideo(),
   getAllUsers: () => videoService.getAllUsers(),
   webcamOnlyModerator: () => videoService.webcamOnlyModerator(),
-  isLocked:    () => videoService.isLocked(),
+  isLocked: () => videoService.isLocked(),
   isConnected: () => videoService.isConnected,
   isWaitingResponse: () => videoService.isWaitingResponse,
   joinVideo: () => videoService.joinVideo(),

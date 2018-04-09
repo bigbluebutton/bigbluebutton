@@ -245,20 +245,36 @@ class VideoProvider extends Component {
     }
   }
 
-  initWebRTC(id, shareWebcam, videoOptions, tag) {
+  initWebRTC(id, shareWebcam, tag) {
     const that = this;
     const { intl, meetingId } = this.props;
+
+    const videoConstraints = {
+      width: {
+        min: 320,
+        max: 640,
+      },
+      height: {
+        min: 180,
+        max: 360,
+      },
+    };
+
+    if (!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
+      videoConstraints.frameRate = { min: 5, ideal: 10 };
+    }
 
     const options = {
       mediaConstraints: {
         audio: false,
-        video: videoOptions,
+        video: videoConstraints,
       },
       onicecandidate: this.getOnIceCandidateCallback(id, shareWebcam),
     };
 
     let peerObj;
     if (shareWebcam) {
+      this.shareWebcam();
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
       options.localVideo = tag;
     } else {
@@ -410,7 +426,7 @@ class VideoProvider extends Component {
   }
 
   shareWebcam() {
-    let { intl } = this.props;
+    const { intl } = this.props;
     log('info', 'Sharing webcam');
 
     if (this.connectedToMediaServer()) {

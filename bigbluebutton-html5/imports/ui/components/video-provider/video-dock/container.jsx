@@ -19,7 +19,6 @@ export default withTracker(({ sharedWebcam }) => {
   const isSharingWebcam = user => user.isSharingWebcam || (sharedWebcam && user.isCurrent);
   const isNotLocked = user => !(lockCam && user.isLocked);
 
-
   const isWebcamOnlyModerator = VideoService.webcamOnlyModerator();
   const allowedSeeViewersWebcams = !isWebcamOnlyModerator || currentUserIsModerator;
   const webcamOnlyModerator = (user) => {
@@ -28,7 +27,6 @@ export default withTracker(({ sharedWebcam }) => {
   };
 
   const users = VideoService.getAllUsers()
-    .map(mapUser)
     .filter(isSharingWebcam)
     .filter(isNotLocked)
     .filter(webcamOnlyModerator);
