@@ -50,7 +50,6 @@ const JoinVideoOptions = ({
       ));
   return (
     <Dropdown
-      className={styles.container}
       autoFocus
     >
       <DropdownTrigger tabIndex={0}>
