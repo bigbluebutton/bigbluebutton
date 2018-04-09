@@ -1,22 +1,22 @@
 package org.bigbluebutton.air.main.views {
 	
 	import flash.events.MouseEvent;
-	
+	import spark.components.CalloutPosition;	
 	import spark.components.Alert;
 	import spark.components.CalloutPosition;
-	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMedia;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUISession;
+	import org.bigbluebutton.air.main.models.LockSettings2x;
+	import org.bigbluebutton.air.user.models.UserRole;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
 	import org.bigbluebutton.air.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
 	import org.bigbluebutton.air.voice.models.VoiceUser;
-	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	
@@ -52,7 +52,7 @@ package org.bigbluebutton.air.main.views {
 		public override function initialize():void {
 			meetingData.voiceUsers.userChangeSignal.add(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.add(onWebcamChange);
-			
+
 			media.cameraPermissionSignal.add(onCameraPermission);
 			media.microphonePermissionSignal.add(onMicrophonePermission);
 			
@@ -64,6 +64,16 @@ package org.bigbluebutton.air.main.views {
 			updateButtons();
 		}
 		
+		private function lockCamButtonBasedOnSetting():void {
+			if (meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
+				if (meetingData.meetingStatus.lockSettings.disableCam) {
+					view.camButton.enabled = false;
+				} else {
+					view.camButton.enabled = true;		
+				}
+			}
+		}
+		
 		private function changeStatus(e:MouseEvent):void {
 			var emojicallout:EmojiCallout = new EmojiCallout();
 			emojicallout.horizontalPosition = CalloutPosition.MIDDLE;
@@ -72,7 +82,24 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		protected function micOnOff(e:MouseEvent):void {
-			microphoneMuteSignal.dispatch(meetingData.users.me.intId);
+			muteUnmuteUser();
+		}
+		
+		private function muteUnmuteUser():void {
+			if (meetingData.voiceUsers.me != null) {
+				if (meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
+					var vu:VoiceUser = meetingData.voiceUsers.getUser(meetingData.users.me.intId);
+					if (vu != null) {
+						if (meetingData.meetingStatus.lockSettings.disableMic && vu.muted) {
+							Alert.show("Unmuting denied.");
+						} else {
+							microphoneMuteSignal.dispatch(meetingData.users.me.intId);
+						}
+					}
+				}	 else {
+					microphoneMuteSignal.dispatch(meetingData.users.me.intId);
+				}			
+			}
 		}
 		
 		protected function audioOnOff(e:MouseEvent):void {
@@ -87,18 +114,30 @@ package org.bigbluebutton.air.main.views {
 		
 		private function joinOrLeaveAudio():void {
 			if (meetingData.voiceUsers.me == null) {
-				uiSession.pushPage(PageEnum.AUDIO);
+				if (meetingData.users.me.locked && 
+					meetingData.users.me.role != UserRole.MODERATOR &&
+					meetingData.meetingStatus.lockSettings.disableMic) {
+					shareMicrophoneSignal.dispatch(AudioTypeEnum.LISTEN_ONLY, conferenceParameters.webvoiceconf);
+				} else {
+					uiSession.pushPage(PageEnum.AUDIO);	
+				}			
 			} else {
 				shareMicrophoneSignal.dispatch(AudioTypeEnum.LEAVE, "");
 			}
 		}
 		
 		private function camOnOff(e:MouseEvent):void {
-			if (media.cameraAvailable) {
-				if (!media.cameraPermissionGranted) {
-					media.requestCameraPermission();
-				} else {
-					enableDisableWebcam();
+			if (meetingData.users.me.locked && 
+				meetingData.users.me.role != UserRole.MODERATOR && 
+				meetingData.meetingStatus.lockSettings.disableCam) {
+				Alert.show("Sharing webcam denied.");
+			} else {
+				if (media.cameraAvailable) {
+					if (!media.cameraPermissionGranted) {
+						media.requestCameraPermission();
+					} else {
+						enableDisableWebcam();
+					}
 				}
 			}
 		}
@@ -116,7 +155,7 @@ package org.bigbluebutton.air.main.views {
 				view.camButton.label = "Cam on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
 				view.camButton.styleName = "icon-video menuButton"
 			}
-			
+						
 			if (meetingData.voiceUsers.me) {
 				view.micButton.visible = view.micButton.includeInLayout = !meetingData.voiceUsers.me.listenOnly;
 				view.audioButton.styleName = "icon-audio-off menuButtonRed";
@@ -170,6 +209,7 @@ package org.bigbluebutton.air.main.views {
 		public override function destroy():void {
 			meetingData.voiceUsers.userChangeSignal.remove(onVoiceUserChanged);
 			meetingData.webcams.webcamChangeSignal.remove(onWebcamChange);
+
 			media.cameraPermissionSignal.remove(onCameraPermission);
 			media.microphonePermissionSignal.remove(onMicrophonePermission);
 			view.audioButton.removeEventListener(MouseEvent.CLICK, audioOnOff);
