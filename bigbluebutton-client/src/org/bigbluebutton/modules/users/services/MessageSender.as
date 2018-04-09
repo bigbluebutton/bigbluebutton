@@ -321,6 +321,27 @@ package org.bigbluebutton.modules.users.services
         JSON.stringify(message)
       ); //_netConnection.call
     }
+		
+		public function userInactivityAuditResponse():void {
+			var message:Object = {
+				header: {name: "UserInactivityAuditResponseMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+					userId: UsersUtil.getMyUserID()},
+				body: {userId: UsersUtil.getMyUserID()}
+			};
+			
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage2x(
+				function(result:String):void { // On successful result
+				},
+				function(status:String):void { // status - On error occurred
+					var logData:Object = UsersUtil.initLogData();
+					logData.tags = ["apps"];
+					logData.message = "Error occured activity response.";
+					LOGGER.info(JSON.stringify(logData));
+				},
+				JSON.stringify(message)
+			); //_netConnection.call
+		}
 
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
       var message:Object = {

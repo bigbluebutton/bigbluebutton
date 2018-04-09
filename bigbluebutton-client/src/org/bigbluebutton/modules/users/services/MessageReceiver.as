@@ -212,7 +212,12 @@ package org.bigbluebutton.modules.users.services
     }
     
 		private function handleUserInactivityAuditMsg(msg: Object):void {
-			trace("******************* RECEIVED USER INACTIVITY AUDIT!!!!! **********************");
+			var header: Object = msg.header as Object;
+			var body: Object = msg.body as Object;
+			
+			var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_INACTIVITY_AUDIT_EVENT);    
+			bbbEvent.payload.duration = body.responseDuration as Number;
+			globalDispatcher.dispatchEvent(bbbEvent);
 		}
 		
     private function handleUserJoinedVoiceConfToClientEvtMsg(msg: Object): void {

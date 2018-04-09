@@ -188,6 +188,11 @@ package org.bigbluebutton.main.model.users
 			sender.activityResponse();
 		}
 		
+		public function userInactivityAuditResponse():void {
+			trace("******************** SERVICE SENDING USER INACTIVITY AUDIT RESPONSE ***********************");
+			sender.userInactivityAuditResponse();
+		}
+		
 		private function queryForRecordingStatus():void {
 			sender.queryForRecordingStatus();
 		}
