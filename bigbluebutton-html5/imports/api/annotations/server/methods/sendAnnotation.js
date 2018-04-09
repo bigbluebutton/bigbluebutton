@@ -21,7 +21,7 @@ function isLastMessage(annotation, userId) {
   return false;
 }
 
-export default function sendAnnotation(credentials, annotation) {
+export default function sendAnnotation(credentials, annotation, whiteboardId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendWhiteboardAnnotationPubMsg';
@@ -32,6 +32,7 @@ export default function sendAnnotation(credentials, annotation) {
   check(requesterUserId, String);
   check(requesterToken, String);
   check(annotation, Object);
+  check(whiteboardId, String);
 
   // We allow messages to pass through in 3 cases:
   // 1. When it's a standard message in presenter mode (Acl check)
@@ -41,7 +42,7 @@ export default function sendAnnotation(credentials, annotation) {
   // or multi-user whiteboard gets turned off
   // So we allow the last "DRAW_END" message to pass through, to finish the shape.
   const allowed = Acl.can('methods.sendAnnotation', credentials) ||
-    getMultiUserStatus(meetingId) ||
+    getMultiUserStatus(meetingId, whiteboardId) ||
     isLastMessage(annotation, requesterUserId);
 
   if (!allowed) {

@@ -64,7 +64,11 @@ export default class PresentationOverlay extends Component {
       this.lastSentClientY = currentClientY;
 
       // sending the update to the server
-      this.props.updateCursor({ xPercent: transformedSvgPoint.x, yPercent: transformedSvgPoint.y });
+      this.props.updateCursor({
+        xPercent: transformedSvgPoint.x,
+        yPercent: transformedSvgPoint.y,
+        whiteboardId: this.props.whiteboardId,
+      });
     }
   }
 
@@ -204,6 +208,8 @@ export default class PresentationOverlay extends Component {
 }
 
 PresentationOverlay.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
+
   // Defines a function which returns a reference to the main svg object
   getSvgRef: PropTypes.func.isRequired,
 

@@ -39,9 +39,10 @@ const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest
   </g>
 );
 
-export default withTracker(() => {
-  const { presenterCursorId, multiUserCursorIds } = CursorWrapperService.getCurrentCursorIds();
-  const isMultiUser = CursorWrapperService.getMultiUserStatus();
+export default withTracker((params) => {
+  const { whiteboardId } = params;
+  const { presenterCursorId, multiUserCursorIds } = CursorWrapperService.getCurrentCursorIds(whiteboardId);
+  const isMultiUser = CursorWrapperService.getMultiUserStatus(whiteboardId);
 
   return {
     presenterCursorId,

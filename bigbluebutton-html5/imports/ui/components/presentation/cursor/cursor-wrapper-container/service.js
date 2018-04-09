@@ -3,14 +3,14 @@ import Auth from '/imports/ui/services/auth';
 import Cursor from '/imports/api/cursor';
 import Users from '/imports/api/users';
 
-const getMultiUserStatus = () => {
-  const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
+const getMultiUserStatus = (whiteboardId) => {
+  const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
   return data ? data.multiUser : false;
 };
 
 const getPresenterCursorId = userId => Cursor.findOne({ userId }, { fields: { _id: 1 } });
 
-const getCurrentCursorIds = () => {
+const getCurrentCursorIds = (whiteboardId) => {
   // object to return
   const data = {};
 
@@ -23,7 +23,7 @@ const getCurrentCursorIds = () => {
   }
 
   // checking whether multiUser mode is on or off
-  const isMultiUser = getMultiUserStatus();
+  const isMultiUser = getMultiUserStatus(whiteboardId);
 
   // it's a multi-user mode - fetching all the cursors except the presenter's
   if (isMultiUser) {

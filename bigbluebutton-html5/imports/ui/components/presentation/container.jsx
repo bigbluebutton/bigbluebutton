@@ -7,8 +7,18 @@ const PresentationAreaContainer = props => (
   <PresentationArea {...props} />
 );
 
-export default withTracker(() => ({
-  currentSlide: PresentationAreaService.getCurrentSlide(),
-  userIsPresenter: PresentationAreaService.isPresenter(),
-  multiUser: PresentationAreaService.getMultiUserStatus(),
-}))(PresentationAreaContainer);
+export default withTracker(() => {
+  const currentSlide = PresentationAreaService.getCurrentSlide();
+  const userIsPresenter = PresentationAreaService.isPresenter();
+  const multiUser = currentSlide ?
+    PresentationAreaService.getMultiUserStatus(currentSlide.id) :
+    false;
+
+  const data = {
+    currentSlide,
+    userIsPresenter,
+    multiUser,
+  };
+  return data;
+
+})(PresentationAreaContainer);

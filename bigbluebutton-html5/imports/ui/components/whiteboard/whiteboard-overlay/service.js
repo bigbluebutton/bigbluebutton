@@ -4,8 +4,8 @@ import Auth from '/imports/ui/services/auth';
 
 const DRAW_SETTINGS = 'drawSettings';
 
-const sendAnnotation = (annotation) => {
-  makeCall('sendAnnotation', annotation);
+const sendAnnotation = (annotation, whiteboardId) => {
+  makeCall('sendAnnotation', annotation, whiteboardId);
 };
 
 const getWhiteboardToolbarValues = () => {

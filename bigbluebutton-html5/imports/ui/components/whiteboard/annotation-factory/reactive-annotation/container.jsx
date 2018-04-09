@@ -12,6 +12,7 @@ const ReactiveAnnotationContainer = (props) => {
         slideWidth={props.slideWidth}
         slideHeight={props.slideHeight}
         drawObject={props.drawObject}
+        whiteboardId={props.whiteboardId}
       />
     );
   }
@@ -29,6 +30,7 @@ export default withTracker((params) => {
 })(ReactiveAnnotationContainer);
 
 ReactiveAnnotationContainer.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   annotation: PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,

@@ -16,7 +16,7 @@ export default function undoAnnotation(credentials, whiteboardId) {
   check(requesterToken, String);
   check(whiteboardId, String);
 
-  const allowed = Acl.can('methods.undoAnnotation', credentials) || getMultiUserStatus(meetingId);
+  const allowed = Acl.can('methods.undoAnnotation', credentials) || getMultiUserStatus(meetingId, whiteboardId);
   if (!allowed) {
     throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to undo the annotation`);
   }

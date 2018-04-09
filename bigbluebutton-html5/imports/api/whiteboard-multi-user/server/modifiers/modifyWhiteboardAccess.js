@@ -2,21 +2,21 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 
-export default function handleGetWhiteboardAccess({ body }, meetingId) {
-  const { multiUser } = body;
 
-  check(multiUser, Boolean);
+export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUser) {
   check(meetingId, String);
+  check(whiteboardId, String);
+  check(multiUser, Boolean);
 
   const selector = {
     meetingId,
+    whiteboardId,
   };
 
   const modifier = {
-    $set: {
-      meetingId,
-      multiUser,
-    },
+    meetingId,
+    whiteboardId,
+    multiUser,
   };
 
 
@@ -27,10 +27,10 @@ export default function handleGetWhiteboardAccess({ body }, meetingId) {
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added multiUser flag to the meetingId=${meetingId}`);
+      return Logger.info(`Added multiUser flag meetingId=${meetingId} whiteboardId=${whiteboardId}`);
     }
 
-    return Logger.info(`Upserted multiUser flag into meetingId=${meetingId}`);
+    return Logger.info(`Upserted multiUser flag meetingId=${meetingId} whiteboardId=${whiteboardId}`);
   };
 
   return WhiteboardMultiUser.upsert(selector, modifier, cb);

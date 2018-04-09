@@ -200,6 +200,7 @@ export default class PresentationArea extends Component {
                   whiteboardId={slideObj.id}
                 />
                 <CursorWrapperContainer
+                  whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
                   physicalWidthRatio={adjustedSizes.width / width}
                   slideWidth={width}
@@ -231,6 +232,7 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationOverlayContainer
+        whiteboardId={slideObj.id}
         slideWidth={width}
         slideHeight={height}
         getSvgRef={this.getSvgRef}

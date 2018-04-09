@@ -13,8 +13,8 @@ export const indexOf = [].indexOf || function (item) {
 // used in 1.1
 export const inReplyToHTML5Client = arg => arg.routing.userId === 'nodeJSapp';
 
-export const getMultiUserStatus = (meetingId) => {
-  const data = WhiteboardMultiUser.findOne({ meetingId });
+export const getMultiUserStatus = (meetingId, whiteboardId) => {
+  const data = WhiteboardMultiUser.findOne({ meetingId, whiteboardId });
 
   if (data) {
     return data.multiUser;

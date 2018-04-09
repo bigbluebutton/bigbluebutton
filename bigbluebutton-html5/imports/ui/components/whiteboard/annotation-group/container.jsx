@@ -9,6 +9,7 @@ const AnnotationGroupContainer = props => (
     annotationsInfo={props.annotationsInfo}
     slideWidth={props.width}
     slideHeight={props.height}
+    whiteboardId={props.whiteboardId}
   />
 );
 
@@ -22,6 +23,7 @@ export default withTracker((params) => {
 })(AnnotationGroupContainer);
 
 AnnotationGroupContainer.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   // initial width and height of the slide; required to calculate the annotations' coordinates
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
