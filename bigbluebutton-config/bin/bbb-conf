@@ -1476,6 +1476,13 @@ check_state() {
                 echo "#"
         fi
 
+        if bbb-conf --status | grep -q inactive; then
+                echo "# Error: Detected some processes have not started correctly"
+                echo "#"
+                echo "#   $(bbb-conf --status | grep inactive)"
+                echo "#"
+        fi
+
 	exit 0
 }
 
