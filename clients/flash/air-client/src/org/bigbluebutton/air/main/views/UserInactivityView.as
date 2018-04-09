@@ -33,7 +33,6 @@ package org.bigbluebutton.air.main.views
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
-			trace("*************** UserInactivityView updateDisplayList w=" + unscaledWidth + " h=" + unscaledHeight + "*************");
 			this.layout["gap"] = getStyle("gap");
 			this.layout["padding"] = getStyle("padding");
 		}
