@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.util.TimeUtil
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {
@@ -26,11 +27,11 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
-	def updateInactivityResponse(users: Users2x, u: UserState): UserState = {
-		val newUserState = modify(u)(_.inactivityResponseOn).setTo(System.currentTimeMillis())
-		users.save(newUserState)
-		newUserState
-	}
+  def updateInactivityResponse(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.inactivityResponseOn).setTo(TimeUtil.timeNowInMs())
+    users.save(newUserState)
+    newUserState
+  }
 
   def changeRole(users: Users2x, u: UserState, newRole: String): UserState = {
     val newUserState = modify(u)(_.role).setTo(newRole).modify(_.roleChangedOn).setTo(System.currentTimeMillis())

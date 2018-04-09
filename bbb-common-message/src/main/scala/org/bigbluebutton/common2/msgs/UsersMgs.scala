@@ -362,8 +362,8 @@ case class GetPresenterGroupRespMsgBody(presenterGroup: Vector[String], requeste
 
 object UserInactivityAuditMsg { val NAME = "UserInactivityAuditMsg" }
 case class UserInactivityAuditMsg(header: BbbClientMsgHeader, body: UserInactivityAuditMsgBody) extends StandardMsg
-case class UserInactivityAuditMsgBody(meetingId: String)
+case class UserInactivityAuditMsgBody(meetingId: String, responseDuration: Long)
 
 object UserInactivityAuditResponseMsg { val NAME = "UserInactivityAuditResponseMsg" }
 case class UserInactivityAuditResponseMsg(header: BbbClientMsgHeader, body: UserInactivityAuditResponseMsgBody) extends StandardMsg
-case class UserInactivityAuditResponseMsgBody(meetingId: String, userId: String)
+case class UserInactivityAuditResponseMsgBody(userId: String)

@@ -4,6 +4,7 @@ import java.io.{ PrintWriter, StringWriter }
 
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
 import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
@@ -54,6 +55,7 @@ class MeetingActor(
   val liveMeeting: LiveMeeting
 )
     extends BaseMeetingActor
+    with SystemConfiguration
     with GuestsApp
     with LayoutApp2x
     with VoiceApp2x
@@ -79,7 +81,7 @@ class MeetingActor(
     with SyncGetMeetingInfoRespMsgHdlr
     with ClientToServerLatencyTracerMsgHdlr
     with ValidateConnAuthTokenSysMsgHdlr
-		with UserInactivityAuditResponseMsgHdlr {
+    with UserInactivityAuditResponseMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -348,7 +350,7 @@ class MeetingActor(
 
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
 
-				case m: UserInactivityAuditResponseMsg => handleUserInactivityAuditResponseMsg(m)
+      case m: UserInactivityAuditResponseMsg => handleUserInactivityAuditResponseMsg(m)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
@@ -515,24 +517,27 @@ class MeetingActor(
 
   def processUserInactivityAudit(): Unit = {
     val now = TimeUtil.timeNowInMs()
-    if (now - lastUserInactivitySentOn > 30000) {
+    val auditTimerMs = TimeUtil.minutesToMillis(userInactivityAuditTimer)
+    if (now - lastUserInactivitySentOn > auditTimerMs) {
       lastUserInactivitySentOn = now
       checkInactiveUsers = true
       val event = buildUserInactivityAuditMsg(liveMeeting.props.meetingProp.intId)
       outGW.send(event)
     }
 
-    if (checkInactiveUsers && now - lastUserInactivitySentOn > 10000) {
+    val auditResponseMs = TimeUtil.minutesToMillis(userInactivityAuditResponseDuration)
+    if (checkInactiveUsers && now - lastUserInactivitySentOn > auditResponseMs) {
       checkInactiveUsers = false
       checkForInactiveUsers()
     }
   }
 
   def checkForInactiveUsers(): Unit = {
-    val now = TimeUtil.timeNowInMs()
+    val auditResponseMs = TimeUtil.minutesToMillis(userInactivityAuditResponseDuration)
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      if (now - u.inactivityResponseOn > 2000) {
+      val respondedOntIme = lastUserInactivitySentOn < u.inactivityResponseOn && (lastUserInactivitySentOn + auditResponseMs) > u.inactivityResponseOn
+      if (!respondedOntIme) {
         UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
       }
@@ -542,7 +547,7 @@ class MeetingActor(
   def buildUserInactivityAuditMsg(meetingId: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "system")
     val envelope = BbbCoreEnvelope(UserInactivityAuditMsg.NAME, routing)
-    val body = UserInactivityAuditMsgBody(meetingId)
+    val body = UserInactivityAuditMsgBody(meetingId, TimeUtil.minutesToSeconds(userInactivityAuditResponseDuration))
     val header = BbbClientMsgHeader(UserInactivityAuditMsg.NAME, meetingId, "system")
     val event = UserInactivityAuditMsg(header, body)
 
