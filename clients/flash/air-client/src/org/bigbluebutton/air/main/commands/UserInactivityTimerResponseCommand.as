@@ -16,7 +16,7 @@ package org.bigbluebutton.air.main.commands
 		}
 		
 		override public function execute():void {
-			userService.activityResponse();
+			userService.userInactivityAuditResponse();
 		}
 	}
 }

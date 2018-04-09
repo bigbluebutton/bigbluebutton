@@ -4,8 +4,17 @@ package org.bigbluebutton.air.main.views
 
 	public class UserInactivityViewMediator extends Mediator
 	{
-		public function UserInactivityViewMediator()
-		{
+		[Inject]
+		public var view:UserInactivityView;
+		
+		
+		override public function initialize():void {
+			trace("************ UserInactivityView:: INIT **************");
+			view.okButton.visible = true;
+		}
+		
+		override public function destroy():void {
+			trace("************ UserInactivityView:: destroy **************");
 		}
 	}
 }

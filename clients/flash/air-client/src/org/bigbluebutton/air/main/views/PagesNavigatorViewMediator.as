@@ -82,6 +82,7 @@ package org.bigbluebutton.air.main.views {
 			} else if (pageRemoved) {
 				view.popView(transition);
 			} else if (pageName != null && pageName != "") {
+				trace("SWITCHING PAGE to " + pageName);
 				view.pushView(PageEnum.getClassfromName(pageName), null, null, transition);
 			}
 		}

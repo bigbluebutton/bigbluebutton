@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.main.commands
 {
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -9,13 +10,12 @@ package org.bigbluebutton.air.main.commands
 		[Inject]
 		public var uiSession:IUISession
 		
-		public function UserInactivityTimerCommand()
-		{
-			super();
-		}
+		[Inject]
+		public var responseDuration: Number
 		
 		override public function execute():void {
-			trace("RECEIVED INACTIVITY TIMER MESSAGE");
+			trace("RECEIVED INACTIVITY TIMER MESSAGE responseDuration=" + responseDuration);
+			uiSession.pushPage(PageEnum.INACTIVITY_VIEW);
 		}
 	}
 }

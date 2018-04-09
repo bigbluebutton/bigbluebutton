@@ -50,7 +50,7 @@ package org.bigbluebutton.air.common {
 		
 		public static const APPLICATION_SETTINGS:String = "ApplicationSettings";
 		
-		public static const INACTIVITY_VIEW:String = "InactivityView";
+		public static const INACTIVITY_VIEW:String = "UserInactivityView";
 		
 		/**
 		 * Especials

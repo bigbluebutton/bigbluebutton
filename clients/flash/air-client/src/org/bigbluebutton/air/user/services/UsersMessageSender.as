@@ -232,12 +232,13 @@ package org.bigbluebutton.air.user.services {
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function activityResponse():void {
+		public function userInactivityAuditResponse():void {
 			var message:Object = {
-				header: {name: "MeetingActivityResponseCmdMsg", meetingId: conferenceParameters.meetingID, 
+				header: {name: "UserInactivityAuditResponseMsg", meetingId: conferenceParameters.meetingID, 
 					userId: conferenceParameters.internalUserID},
-				body: {respondedBy: conferenceParameters.internalUserID}
+				body: {userId: conferenceParameters.internalUserID}
 			};
+			
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
 	}

@@ -40,11 +40,12 @@ package org.bigbluebutton.air.main.views {
 			// If we are in the Flash Builder debugger the InvokeEvent will never be fired
 			if (Capabilities.isDebugger) {
 				//var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=AIR&meetingID=Demo+Meeting&password=mp&redirect=false&checksum=3fdf56e9915c1031c3ea012b4ec8823cedd7c272";
-				var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=User+2021828&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=8751963df96437c7d435eac8124e4fb3ec147115";
+				//var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=User+2021828&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=8751963df96437c7d435eac8124e4fb3ec147115";
+				var url:String = "bigbluebuttons://ritz-ss.blindside-dev.com/bigbluebutton/api/join?bannerColor=%23FF0000&bannerText=TEST+MEETING&fullName=Mobile&meetingID=mobile-test&password=ap&redirect=false&checksum=a5756401838bf2b8920b062f56f75836456ba18d";
 				joinRoom(url);
 			}
 		}
-		
+				
 		private function onInvokeEvent(invocation:InvokeEvent):void {
 			if (invocation.arguments.length > 0 && !Capabilities.isDebugger) {
 				var url:String = invocation.arguments[0].toString();			
@@ -60,7 +61,6 @@ package org.bigbluebutton.air.main.views {
 					FlexGlobals.topLevelApplication.mainshell.visible = false;
 					uiSession.popPage();
 					uiSession.pushPage(PageEnum.MAIN);
-					
 					joinRoom(url);
 				}
 			} else {

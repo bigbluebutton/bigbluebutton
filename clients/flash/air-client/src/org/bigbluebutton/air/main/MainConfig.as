@@ -24,6 +24,8 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
 	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	import org.bigbluebutton.air.main.views.TopToolbarMediator;
+	import org.bigbluebutton.air.main.views.UserInactivityView;
+	import org.bigbluebutton.air.main.views.UserInactivityViewMediator;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -62,6 +64,7 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(ExitView).toMediator(ExitViewMediator);
 			mediatorMap.map(DisconnectView).toMediator(DisconnectViewMediator);
 			mediatorMap.map(MainView).toMediator(MainViewMediator);
+			mediatorMap.map(UserInactivityView).toMediator(UserInactivityViewMediator);
 		}
 		
 		/**

@@ -143,8 +143,8 @@ package org.bigbluebutton.air.user.services {
 			usersMessageSender.changeRole(userId, role);
 		}
 	
-		public function activityResponse():void {
-			usersMessageSender.activityResponse();
+		public function userInactivityAuditResponse():void {
+			usersMessageSender.userInactivityAuditResponse();
 		}
 	}
 }

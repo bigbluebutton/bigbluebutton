@@ -97,20 +97,19 @@ package org.bigbluebutton.air.user.services {
 				case "UserRoleChangedEvtMsg":
 					handleUserRoleChangedEvtMsg(message);
 					break;
-				case "MeetingInactivityWarningEvtMsg":
-					handleInactivityWarning(message);
+				case "UserInactivityAuditMsg":
+					handleUserInactivityAuditMsg(message);
 					break;
 				default:
 					break;
 			}
 		}
 		
-		private function handleInactivityWarning(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("handleInactivityWarning: " + ObjectUtil.toString(msg));
-			meetingInactivityTimerSignal.dispatch();
+		private function handleUserInactivityAuditMsg(m:Object):void {
+			trace("handleInactivityWarning: " + ObjectUtil.toString(m));
+			meetingInactivityTimerSignal.dispatch(m.body.responseDuration as Number);
 		}
-		
+				
 		private function handleMeetingMuted(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("handleMeetingMuted: " + ObjectUtil.toString(msg));

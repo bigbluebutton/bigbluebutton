@@ -6,7 +6,7 @@ package org.bigbluebutton.air.main.commands
 	{
 		public function UserInactivityTimerSignal()
 		{
-			super();
+			super(Number);
 		}
 	}
 }

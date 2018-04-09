@@ -20,7 +20,7 @@ package org.bigbluebutton.air.main.views
 			
 			var messageText:Label = new Label();
 			messageText.percentWidth = 90;
-			messageText.text = "Inacitivty Timer";
+			messageText.text = "Inactivity Timer";
 			messageText.setStyle("textAlign", "center");
 			messageText.styleName = "disconnectMessage";
 			addElement(messageText);
@@ -33,7 +33,7 @@ package org.bigbluebutton.air.main.views
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
-			
+			trace("*************** UserInactivityView updateDisplayList w=" + unscaledWidth + " h=" + unscaledHeight + "*************");
 			this.layout["gap"] = getStyle("gap");
 			this.layout["padding"] = getStyle("padding");
 		}
