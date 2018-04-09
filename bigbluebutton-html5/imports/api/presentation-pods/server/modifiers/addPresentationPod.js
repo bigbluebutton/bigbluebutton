@@ -3,7 +3,9 @@ import PresentationPods from '/imports/api/presentation-pods';
 import Logger from '/imports/startup/server/logger';
 import addPresentation from '/imports/api/presentations/server/modifiers/addPresentation';
 
-export default function addPresentationPod(meetingId, pod, presentations = undefined /* ?? */) {
+// 'presentations' is passed down here when we receive a Sync message
+// and it's not used when we just create a new presentation pod
+export default function addPresentationPod(meetingId, pod, presentations = undefined) {
   check(meetingId, String);
   check(presentations, Match.Maybe(Array));
   check(pod, {
@@ -29,7 +31,7 @@ export default function addPresentationPod(meetingId, pod, presentations = undef
       return Logger.error(`Adding presentation pod to the collection: ${err}`);
     }
 
-    // presentations object is currently passed together with Sync message
+    // if it's a Sync message - continue adding the attached presentations
     if (presentations) {
       presentations.forEach(presentation => addPresentation(meetingId, podId, presentation));
     }

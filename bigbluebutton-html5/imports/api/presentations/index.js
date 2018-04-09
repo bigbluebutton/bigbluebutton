@@ -7,7 +7,7 @@ if (Meteor.isServer) {
   // 1. meetingId, id
   // 2. meetingId
 
-  Presentations._ensureIndex({ meetingId: 1, id: 1 });
+  Presentations._ensureIndex({ meetingId: 1, id: 1, podId: 1 });
 }
 
 export default Presentations;

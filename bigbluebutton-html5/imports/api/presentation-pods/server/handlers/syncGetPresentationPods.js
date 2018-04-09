@@ -20,7 +20,8 @@ export default function handleSyncGetPresentationPods({ body }, meetingId) {
   presentationPodsToRemove.forEach(p => removePresentationPod(meetingId, p.podId));
 
   pods.forEach((pod) => {
-    // this message has unique names of 'podId' and 'currentPresenterId'
+    // 'podId' and 'currentPresenterId' for some reason called 'id' and 'currentPresenter'
+    // in this message
     const {
       id: podId,
       currentPresenter: currentPresenterId,
