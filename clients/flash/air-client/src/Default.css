@@ -311,9 +311,9 @@ settings|SettingsItemRenderer {
 }
 
 .sendButton {
-	color       : PropertyReference("blue500");
+	color       : PropertyReference("bbbWhite");
 	fontFamily  : BBBIcons;
-	borderColor : PropertyReference("blue500");
+	backgroundColor : PropertyReference("bbbBlue");
 	skinClass   : ClassReference("org.bigbluebutton.air.chat.views.skins.SendButtonSkin");
 }
 
