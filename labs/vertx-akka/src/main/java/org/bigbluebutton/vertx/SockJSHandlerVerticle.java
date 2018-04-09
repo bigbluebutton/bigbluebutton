@@ -63,10 +63,10 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
         eb.consumer(be.socket().webSession().id()).handler(message -> {
           be.socket().close();
         });
-        gw.connectionCreated(be.socket().webSession().id());
+        gw.socketCreated(be.socket().webSession().id());
       } else if (be.type() == BridgeEventType.SOCKET_CLOSED) { 
         System.out.println("Socket closed for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        gw.connectionClosed(be.socket().webSession().id());
+        gw.socketClosed(be.socket().webSession().id());
         eb.consumer(be.socket().webSession().id()).unregister();
       } else if (be.type() == BridgeEventType.SOCKET_IDLE) {
         System.out.println("Socket SOCKET_IDLE for: " + be.socket().webSession().id());
@@ -75,13 +75,14 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
       } else if (be.type() == BridgeEventType.UNREGISTER) {
         System.out.println("Socket UNREGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.PUBLISH) {
-      System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.RECEIVE) {
         System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
         System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        gw.register(be.socket().webSession().id());
       } else {
         System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       }
