@@ -534,7 +534,7 @@ class WhiteboardToolbar extends Component {
     const { annotationSelected } = this.state;
     const { isPresenter } = this.props;
     return (
-      <div className={styles.toolbarContainer} style={{ height: this.props.height }}>
+      <div className={styles.toolbarContainer}>
         <div className={styles.toolbarWrapper}>
           {this.renderToolItem()}
           {annotationSelected.value === 'text' ?
@@ -594,9 +594,6 @@ WhiteboardToolbar.propTypes = {
   thicknessRadiuses: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.number.isRequired,
   }).isRequired).isRequired,
-
-  // defines the physical height of the whiteboard
-  height: PropTypes.number.isRequired,
 
   intl: intlShape.isRequired,
 
