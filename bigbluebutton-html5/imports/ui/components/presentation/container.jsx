@@ -20,5 +20,4 @@ export default withTracker(() => {
     multiUser,
   };
   return data;
-
 })(PresentationAreaContainer);
