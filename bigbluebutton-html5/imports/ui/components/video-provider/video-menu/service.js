@@ -2,6 +2,7 @@ import Settings from '/imports/ui/services/settings';
 import mapUser from '/imports/ui/services/user/mapUser';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
+import MediaService from '/imports/ui/components/media/service';
 import VideoService from '../service';
 
 const baseName = Meteor.settings.public.app.basename;
@@ -38,4 +39,5 @@ export default {
   isSharingVideo,
   isDisabled,
   baseName,
+  toggleSwapLayout: MediaService.toggleSwapLayout,
 };

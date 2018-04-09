@@ -5,7 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Media from './component';
-import MediaService from './service';
+import MediaService, { getSwapLayout } from './service';
 import PresentationAreaContainer from '../presentation/container';
 import VideoProviderContainer from '../video-provider/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -29,18 +29,6 @@ const intlMessages = defineMessages({
 });
 
 class MediaContainer extends Component {
-  constructor(props) {
-    super(props);
-
-    const { overlay, content, defaultContent } = this.props;
-    this.state = {
-      overlay,
-      content: this.props.current_presentation ? content : defaultContent,
-    };
-
-    this.handleToggleLayout = this.handleToggleLayout.bind(this);
-  }
-
   componentWillReceiveProps(nextProps) {
     const {
       isScreensharing,
@@ -54,20 +42,6 @@ class MediaContainer extends Component {
         notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
       }
     }
-
-    if (nextProps.current_presentation !== this.props.current_presentation) {
-      if (nextProps.current_presentation) {
-        this.setState({ content: this.props.content });
-      } else {
-        this.setState({ content: this.props.defaultContent });
-      }
-    }
-  }
-
-  handleToggleLayout() {
-    const { overlay, content } = this.state;
-
-    this.setState({ overlay: content, content: overlay });
   }
 
   render() {
@@ -102,6 +76,17 @@ export default withTracker(() => {
   }
 
   data.isScreensharing = MediaService.isVideoBroadcasting();
+
+  const shouldSwapLayout = getSwapLayout();
+  if (shouldSwapLayout) {
+    return {
+      ...data,
+      hideOverlay: false,
+      floatingOverlay: true,
+      overlay: data.content,
+      content: data.overlay,
+    };
+  }
 
   return data;
 })(injectIntl(MediaContainer));

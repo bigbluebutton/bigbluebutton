@@ -40,7 +40,7 @@ const JoinVideoOptionsContainer = (props) => {
       description: intl.formatMessage(intlMessages.swapCamDesc),
       label: intl.formatMessage(intlMessages.swapCam),
       disabled: false,
-      click: () => {},
+      click: VideoMenuService.toggleSwapLayout,
     },
     {
       iconPath: `${baseName}/resources/images/video-menu/icon-webcam-off.svg`,
