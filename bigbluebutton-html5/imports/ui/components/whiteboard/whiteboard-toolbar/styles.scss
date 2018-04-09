@@ -20,6 +20,12 @@ $toolbar-list-color: $color-gray;
   right: 0;
   bottom: 0;
   pointer-events: none;
+  transition: opacity .25s;
+  opacity: 1;
+
+  :global(#presentationContainer:active:hover) & {
+    opacity: 0;
+  }
 
   @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
     transform: scale(.75);
