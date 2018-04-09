@@ -77,7 +77,7 @@
         padding: 60;
     }
 
-    main|ExitView, main|DisconnectView {
+    main|ExitView, main|DisconnectView, main|UserInactivityView {
         gap: 60;
         padding: 60;
     }
