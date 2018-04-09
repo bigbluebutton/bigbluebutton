@@ -47,7 +47,7 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
     rows,
     width: (cellWidth * columns),
     height: (cellHeight * rows),
-    filledArea: columns * cellWidth * cellHeight * rows,
+    filledArea: (cellWidth * cellHeight) * numItems,
   };
 };
 
@@ -102,6 +102,9 @@ class VideoList extends Component {
         canvasWidth, canvasHeight, gridGutter,
         aspectRatio, numItems, col,
       );
+
+      if (focusedId && testGrid.rows < 2) continue;
+
       if (optimalGrid.filledArea < testGrid.filledArea) {
         optimalGrid = testGrid;
       }
@@ -187,8 +190,8 @@ class VideoList extends Component {
             style={{
               width: optimalGrid.width,
               height: optimalGrid.height,
-              gridTemplateColumns: `repeat(${optimalGrid.columns}, ${(100 / optimalGrid.columns)}%)`,
-              gridTemplateRows: `repeat(${optimalGrid.rows}, ${(100 / optimalGrid.rows)}%)`,
+              gridTemplateColumns: `repeat(${optimalGrid.columns}, ${100 / optimalGrid.columns}%)`,
+              gridTemplateRows: `repeat(${optimalGrid.rows}, ${100 / optimalGrid.rows}%)`,
             }}
           >
             {this.renderVideoList()}

@@ -450,8 +450,6 @@ class VideoProvider extends Component {
       <VideoDockContainer
         onStart={this.initWebRTC.bind(this)}
         onStop={this.stop.bind(this)}
-        sharedWebcam={this.state.sharedWebcam}
-        onShareWebcam={this.shareWebcam.bind(this)}
         socketOpen={this.state.socketOpen}
         isLocked={this.props.isLocked}
       />

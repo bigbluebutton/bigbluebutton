@@ -1,7 +1,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$navbar-height: 60px; // TODO: Change to NavBar real height
-$actionsbar-height: 50px; // TODO: Change to ActionsBar real height
+$navbar-height: 65px; // TODO: Change to NavBar real height
+$actionsbar-height: 75px; // TODO: Change to ActionsBar real height
 $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is aligned with the presentation title
 
 .main {
@@ -153,16 +153,9 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   flex: 1 100%;
   order: 2;
 
-  flex-direction: row;
-  position: relative;
-
   @include mq($small-only) {
-    padding-bottom: $actionsbar-height;
+    margin-top: $navbar-height;
     margin-bottom: $actionsbar-height;
-  }
-
-  @include mq($portrait) {
-    flex-direction: column;
   }
 }
 

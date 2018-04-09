@@ -10,7 +10,6 @@ const getPresentationInfo = () => {
 
   return {
     current_presentation: (currentPresentation != null),
-
   };
 };
 

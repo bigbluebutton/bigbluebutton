@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Media from './component';
 import MediaService from './service';
 import PresentationAreaContainer from '../presentation/container';
@@ -93,7 +94,10 @@ export default withTracker(() => {
     data.content = <ScreenshareContainer />;
   }
 
+  const usersVideo = VideoService.getAllUsersVideo();
   if (MediaService.shouldShowOverlay() && viewParticipantsWebcams) {
+    data.floatingOverlay = usersVideo.length < 2;
+    data.hideOverlay = usersVideo.length === 0;
     data.overlay = <VideoProviderContainer />;
   }
 

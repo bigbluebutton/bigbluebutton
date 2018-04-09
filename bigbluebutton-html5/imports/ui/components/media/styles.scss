@@ -1,11 +1,50 @@
 @import "../../stylesheets/variables/_all";
 
 .container {
-  position: relative;
-  display: flex;
+  order: 1;
   flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column-reverse;
+}
+
+.content {
+  display: flex;
+  align-self: stretch;
+  flex: 3;
   align-items: center;
   justify-content: center;
   overflow: auto;
+  width: 100%;
+}
+
+.overlay {
+  flex: 1;
+  display: flex;
   order: 1;
+  width: 100%;
+}
+
+.hideOverlay {
+  display: none;
+}
+
+$overlay-width: 20vw;
+$overlay-min-width: 235px;
+$overlay-max-width: 20vw;
+$overlay-ratio: 16 / 9;
+
+.floatingOverlay {
+  @include mq($medium-up) {
+    position: fixed;
+    bottom: .8rem;
+    right: .8rem;
+    width: $overlay-width;
+    min-width: $overlay-min-width;
+    max-width: $overlay-max-width;
+    height: calc(#{$overlay-width} / #{$overlay-ratio});
+    min-height: calc(#{$overlay-min-width} / #{$overlay-ratio});
+    max-height: calc(#{$overlay-max-width} / #{$overlay-ratio});
+  }
 }

@@ -1,8 +1,9 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings/';
 import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings/';
+import Users from '/imports/api/users/';
+import mapUser from '/imports/ui/services/user/mapUser';
 import UserListService from '/imports/ui/components/user-list/service';
 
 class VideoService {
@@ -72,6 +73,29 @@ class VideoService {
     return UserListService.getUsers();
   }
 
+  getAllUsersVideo() {
+    const userId = this.userId();
+    const isLocked = this.isLocked();
+    const currentUser = Users.findOne({ userId });
+    const currentUserIsModerator = mapUser(currentUser).isModerator;
+    const sharedWebcam = this.isWaitingResponse || this.isConnected;
+
+    const isSharingWebcam = user => user.isSharingWebcam || (sharedWebcam && user.isCurrent);
+    const isNotLocked = user => !(isLocked && user.isLocked);
+
+    const isWebcamOnlyModerator = this.webcamOnlyModerator();
+    const allowedSeeViewersWebcams = !isWebcamOnlyModerator || currentUserIsModerator;
+    const webcamOnlyModerator = (user) => {
+      if (allowedSeeViewersWebcams) return true;
+      return user.isModerator || user.isCurrent;
+    };
+
+    return this.getAllUsers()
+      .filter(isSharingWebcam)
+      .filter(isNotLocked)
+      .filter(webcamOnlyModerator);
+  }
+
   webcamOnlyModerator() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID });
     return m.usersProp.webcamsOnlyForModerator;
@@ -117,4 +141,5 @@ export default {
   sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
   userId: () => videoService.userId(),
   meetingId: () => videoService.meetingId(),
+  getAllUsersVideo: () => videoService.getAllUsersVideo(),
 };
