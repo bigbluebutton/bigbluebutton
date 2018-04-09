@@ -538,10 +538,10 @@ class WhiteboardToolbar extends Component {
         <div className={styles.toolbarWrapper}>
           {this.renderToolItem()}
           {annotationSelected.value === 'text' ?
-          this.renderFontItem()
-          :
-          this.renderThicknessItem()
-        }
+            this.renderFontItem()
+            :
+            this.renderThicknessItem()
+          }
           {this.renderColorItem()}
           {this.renderUndoItem()}
           {this.renderClearAllItem()}
