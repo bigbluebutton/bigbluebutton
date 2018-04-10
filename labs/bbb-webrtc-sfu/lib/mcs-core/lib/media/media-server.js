@@ -327,7 +327,7 @@ module.exports = class MediaServer extends EventEmitter {
 
   _handleError(error) {
     // Checking if the error needs to be wrapped into a JS Error instance
-    if(!isError(error)) {
+    if(!this.isError(error)) {
       error = new Error(error);
     }
 

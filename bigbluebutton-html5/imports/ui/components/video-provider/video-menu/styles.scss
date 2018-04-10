@@ -1,19 +1,13 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-.container {
-
-  span:first-child{
-    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
-  }
-
-}
-
 .button {
-
   &:focus {
     outline: none !important;
   }
 
+  span:first-child {
+    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+  }
 }
 
 .imageSize {

@@ -54,6 +54,7 @@ const JoinVideoOptions = ({
     >
       <DropdownTrigger tabIndex={0}>
         <Button
+          className={styles.button}
           label={intl.formatMessage(intlMessages.videoMenu)}
           onClick={() => null}
           hideLabel
