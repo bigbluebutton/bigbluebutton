@@ -19,6 +19,7 @@ $toolbar-list-color: $color-gray;
   top: 0;
   right: 0;
   bottom: 0;
+  pointer-events: none;
 
   @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
     transform: scale(.75);
@@ -33,6 +34,7 @@ $toolbar-list-color: $color-gray;
   align-items: center;
   justify-content: center;
   box-shadow: $toolbar-box-shadow;
+  pointer-events: all;
 
   .buttonWrapper > .toolbarButton {
     border-bottom: 1px solid $color-gray-lighter;

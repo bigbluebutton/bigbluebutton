@@ -13,9 +13,8 @@ $controls-background: $color-white !default;
 }
 
 .presentationToolbarWrapper {
-  justify-content: center;
-  width: 100%;
-  margin-top: .8rem;
+  position: absolute;
+  bottom: .8rem;
   box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
 
   @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
@@ -70,6 +69,12 @@ $controls-background: $color-white !default;
 .skipSlide,
 .prevSlide {
   border: none !important;
+  width: 2.8rem;
+
+  &[aria-disabled="true"] {
+    opacity: 1;
+    background-color: $color-gray-lighter;
+  }
 }
 
 .skipSlideSelect {
