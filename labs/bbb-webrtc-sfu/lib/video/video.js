@@ -144,7 +144,6 @@ module.exports = class Video extends EventEmitter {
 
     // Force H264
     if (FORCE_H264) {
-      Logger.info("AAAAAA FORCING H@264");
       sdpOffer = h264_sdp.transform(sdpOffer);
     }
 
