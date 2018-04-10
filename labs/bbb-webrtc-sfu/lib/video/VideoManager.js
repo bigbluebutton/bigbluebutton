@@ -102,11 +102,7 @@ module.exports = class VideoManager extends BaseManager {
         break;
 
       case 'stop':
-        if (video.constructor === Video) {
-          this._stopSession(sessionId);
-        } else {
-          Logger.warn(this._logPrefix, "There is no video instance named", cameraId, "to stop");
-        }
+        this._stopSession(sessionId);
         break;
 
       case 'onIceCandidate':

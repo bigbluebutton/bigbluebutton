@@ -50,8 +50,10 @@ module.exports = class BaseManager {
         }
 
         let session = this._sessions[sessionId];
-        if(session && typeof session.stop === 'function') {
-          await session.stop();
+        if(session) {
+          if (session.stop === 'function') {
+            await session.stop();
+          }
           delete this._sessions[sessionId];
           this._logAvailableSessions();
           resolve();

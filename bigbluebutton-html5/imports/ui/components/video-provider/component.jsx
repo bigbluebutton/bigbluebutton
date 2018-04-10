@@ -356,14 +356,16 @@ class VideoProvider extends Component {
   stop(id) {
     const userId = this.props.userId;
 
-    if (id === userId) {
-      this.sendMessage({
+    // The stop message should be sent to server for both viewers and sharers
+    this.sendMessage({
         type: 'video',
         role: id == userId ? 'share' : 'viewer',
         id: 'stop',
         cameraId: id,
       });
 
+
+    if (id === userId) {
       this.unshareWebcam();
       VideoService.exitedVideo();
     }
