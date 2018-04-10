@@ -5,11 +5,12 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Annotations from '/imports/api/annotations';
 
-function isLastMessage(annotation, userId) {
+function isLastMessage(meetingId, annotation, userId) {
   const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
 
   if (annotation.status === DRAW_END) {
     const selector = {
+      meetingId,
       id: annotation.id,
       userId,
     };
@@ -43,7 +44,7 @@ export default function sendAnnotation(credentials, annotation, whiteboardId) {
   // So we allow the last "DRAW_END" message to pass through, to finish the shape.
   const allowed = Acl.can('methods.sendAnnotation', credentials) ||
     getMultiUserStatus(meetingId, whiteboardId) ||
-    isLastMessage(annotation, requesterUserId);
+    isLastMessage(meetingId, annotation, requesterUserId);
 
   if (!allowed) {
     throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to send an annotation`);
