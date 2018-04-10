@@ -74,7 +74,8 @@
           "captions",
           "breakouts",
           "voiceUsers",
-          "whiteboard-multi-user"
+          "whiteboard-multi-user",
+          "presentation-pods"
         ],
         "methods": [
           "listenOnlyToggle",

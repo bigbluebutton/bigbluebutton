@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import PresentationPods from '/imports/api/presentations';
+import PresentationPods from '/imports/api/presentation-pods';
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
 
@@ -11,14 +11,14 @@ function presentationPods(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing PresentationPods for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing presentation-pods for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return PresentationPods.find({ meetingId });
 }
 
 function publish(...args) {
   const boundPresentationPods = presentationPods.bind(this);
-  return mapToAcl('subscriptions.presentationPods', boundPresentationPods)(args);
+  return mapToAcl('subscriptions.presentation-pods', boundPresentationPods)(args);
 }
 
-Meteor.publish('presentationPods', publish);
+Meteor.publish('presentation-pods', publish);
