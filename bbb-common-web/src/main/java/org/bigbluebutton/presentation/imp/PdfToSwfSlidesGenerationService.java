@@ -33,15 +33,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.bigbluebutton.presentation.ConversionMessageConstants;
-import org.bigbluebutton.presentation.ConversionUpdateMessage;
+import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
-import org.bigbluebutton.presentation.PageConverter;
-import org.bigbluebutton.presentation.PdfToSwfSlide;
-import org.bigbluebutton.presentation.SvgImageCreator;
-import org.bigbluebutton.presentation.TextFileCreator;
-import org.bigbluebutton.presentation.ThumbnailCreator;
-import org.bigbluebutton.presentation.UploadedPresentation;
 import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
 import org.bigbluebutton.presentation.messages.DocPageCountFailed;
 import org.slf4j.Logger;
@@ -57,12 +50,16 @@ public class PdfToSwfSlidesGenerationService {
   private PageConverter pdfToSwfConverter;
   private ExecutorService executor;
   private ThumbnailCreator thumbnailCreator;
+	private PngCreator pngCreator;
+
   private TextFileCreator textFileCreator;
   private SvgImageCreator svgImageCreator;
   private long MAX_CONVERSION_TIME = 5 * 60 * 1000;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
   private boolean svgImagesRequired;
+	private boolean generatePngs;
+
   private final long CONVERSION_TIMEOUT = 20000000000L; // 20s
 
   public PdfToSwfSlidesGenerationService(int numConversionThreads) {
@@ -80,6 +77,11 @@ public class PdfToSwfSlidesGenerationService {
       if (svgImagesRequired) {
         createSvgImages(pres);
       }
+
+			// only create PNG images if the configuration requires it
+			if (generatePngs) {
+				createPngImages(pres);
+			}
 
       notifier.sendConversionCompletedMessage(pres);
     }
@@ -160,6 +162,10 @@ public class PdfToSwfSlidesGenerationService {
     notifier.sendCreatingSvgImagesUpdateMessage(pres);
     svgImageCreator.createSvgImages(pres);
   }
+
+	private void createPngImages(UploadedPresentation pres) {
+		pngCreator.createPng(pres);
+	}
 
   private void convertPdfToSwf(UploadedPresentation pres) {
     int numPages = pres.getNumberOfPages();
@@ -318,12 +324,20 @@ public class PdfToSwfSlidesGenerationService {
     this.MAX_SWF_FILE_SIZE = size;
   }
 
-  public void setSvgImagesRequired(boolean svg) {
-    this.svgImagesRequired = svg;
+  public void setGeneratePngs(boolean generatePngs) {
+    this.generatePngs = generatePngs;
   }
+
+	public void setSvgImagesRequired(boolean svg) {
+		this.svgImagesRequired = svg;
+	}
 
   public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
     this.thumbnailCreator = thumbnailCreator;
+  }
+
+  public void setPngCreator(PngCreator pngCreator) {
+    this.pngCreator = pngCreator;
   }
 
   public void setTextFileCreator(TextFileCreator textFileCreator) {
