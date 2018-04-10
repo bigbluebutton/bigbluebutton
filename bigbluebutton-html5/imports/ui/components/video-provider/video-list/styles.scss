@@ -13,6 +13,7 @@
 .videoList {
   display: grid;
   grid-gap: 10px;
+  margin-bottom: 10px;
   overflow: hidden;
   grid-auto-flow: dense;
 }

@@ -31,8 +31,11 @@ const intlMessages = defineMessages({
 const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItems, columns = 1) => {
   const rows = Math.ceil(numItems / columns);
 
-  const usableWidth = canvasWidth - (numItems * gutter);
-  const usableHeight = canvasHeight - (numItems * gutter);
+  const gutterTotalWidth = (columns - 1) * gutter;
+  const gutterTotalHeight = (rows - 1) * gutter;
+
+  const usableWidth = canvasWidth - gutterTotalWidth;
+  const usableHeight = canvasHeight - gutterTotalHeight;
 
   let cellWidth = Math.floor(usableWidth / columns);
   let cellHeight = Math.ceil(cellWidth / aspectRatio);
@@ -45,8 +48,8 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
   return {
     columns,
     rows,
-    width: (cellWidth * columns),
-    height: (cellHeight * rows),
+    width: (cellWidth * columns) + gutterTotalWidth,
+    height: (cellHeight * rows) + gutterTotalHeight,
     filledArea: (cellWidth * cellHeight) * numItems,
   };
 };
@@ -96,22 +99,18 @@ class VideoList extends Component {
       numItems += 3;
     }
 
-    let optimalGrid = { filledArea: 0 };
-    for (let col = 1; col <= numItems; col += 1) {
+    const optimalGrid = _.range(1, numItems + 1).reduce((currentGrid, col) => {
       const testGrid = findOptimalGrid(
         canvasWidth, canvasHeight, gridGutter,
         aspectRatio, numItems, col,
       );
 
-      if (focusedId && testGrid.rows < 2) continue;
+      // We need a minimun of 2 rows and columns for the focused
+      const focusedConstraint = focusedId ? testGrid.rows > 1 && testGrid.columns > 1 : true;
+      const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
 
-      if (optimalGrid.filledArea < testGrid.filledArea) {
-        optimalGrid = testGrid;
-      }
-    }
-
-    optimalGrid.width = `${(optimalGrid.width * 100) / canvasWidth}%`;
-    optimalGrid.height = `${(optimalGrid.height * 100) / canvasHeight}%`;
+      return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
+    }, { filledArea: 0 });
 
     this.setState({
       optimalGrid,
@@ -188,10 +187,10 @@ class VideoList extends Component {
             ref={(ref) => { this.grid = ref; }}
             className={styles.videoList}
             style={{
-              width: optimalGrid.width,
-              height: optimalGrid.height,
-              gridTemplateColumns: `repeat(${optimalGrid.columns}, ${100 / optimalGrid.columns}%)`,
-              gridTemplateRows: `repeat(${optimalGrid.rows}, ${100 / optimalGrid.rows}%)`,
+              width: `${optimalGrid.width}px`,
+              height: `${optimalGrid.height}px`,
+              gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
+              gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
             }}
           >
             {this.renderVideoList()}
