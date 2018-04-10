@@ -266,17 +266,6 @@ class VideoProvider extends Component {
       options.remoteVideo = tag;
     }
 
-    this.cameraTimeouts[id] = setTimeout(() => {
-      log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
-      if (this.props.userId == id) {
-        this.notifyError(intl.formatMessage(intlMessages.sharingError));
-        this.unshareWebcam();
-      } else {
-        this.stop(id);
-        this.initWebRTC(id, shareWebcam, videoOptions, tag);
-      }
-    }, CAMERA_SHARE_FAILED_WAIT_TIME);
-
     const webRtcPeer = new peerObj(options, function (error) {
       if (error) {
         log('error', ' WebRTC peerObj create error');
@@ -290,9 +279,9 @@ class VideoProvider extends Component {
         that.destroyWebRTCPeer(id);
 
         if (shareWebcam) {
+          that.unshareWebcam();
           VideoService.exitVideo();
           VideoService.exitedVideo();
-          that.unshareWebcam();
         }
         return log('error', error);
       }
@@ -312,6 +301,18 @@ class VideoProvider extends Component {
           that.destroyWebRTCPeer(id);
           return log('error', error);
         }
+
+        that.cameraTimeouts[id] = setTimeout(() => {
+          log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
+          if (that.props.userId == id) {
+            that.notifyError(intl.formatMessage(intlMessages.sharingError));
+            that.unshareWebcam();
+            VideoService.exitedVideo();
+          } else {
+            that.stop(id);
+            that.initWebRTC(id, shareWebcam, videoOptions, tag);
+          }
+        }, CAMERA_SHARE_FAILED_WAIT_TIME);
 
         console.log(`Invoking SDP offer callback function ${location.host}`);
         const message = {
@@ -396,6 +397,7 @@ class VideoProvider extends Component {
 
     if (message.cameraId == userId) {
       this.unshareWebcam();
+      VideoService.exitedVideo();
       this.notifyError(intl.formatMessage(intlMessages.sharingError));
     } else {
       this.stop(message.cameraId);

@@ -47,6 +47,9 @@
           "layout": false
         }
       },
+      "branding": {
+        "displayBrandingArea": false
+      },
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
       "httpsConnection": false,

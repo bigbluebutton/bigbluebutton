@@ -27,6 +27,12 @@ const mapOpenChats = (chat) => {
     : chat.toUserId;
 };
 
+const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
+
+export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+
+const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
+
 const sortUsersByName = (a, b) => {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
     return -1;
@@ -363,4 +369,6 @@ export default {
   isMeetingLocked,
   isPublicChat,
   roving,
+  setCustomLogoUrl,
+  getCustomLogoUrl,
 };

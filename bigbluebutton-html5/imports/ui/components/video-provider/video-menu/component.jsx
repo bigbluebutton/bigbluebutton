@@ -63,6 +63,7 @@ const JoinVideoOptions = ({
             intl.formatMessage(intlMessages.videoMenuDisabled)
             : intl.formatMessage(intlMessages.videoMenu)
           }
+          className={styles.button}
           onClick={() => null}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.videoMenuDesc)}
