@@ -12,12 +12,12 @@ const EventEmitter = require('events').EventEmitter;
 var sharedWebcams = {};
 
 module.exports = class Video extends EventEmitter {
-  constructor(_bbbGW, _meetingId, _id, _shared, _sessionId) {
+  constructor(_bbbGW, _meetingId, _id, _shared, _connectionId) {
     super();
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
     this.id = _id;
-    this.sessionId = _sessionId;
+    this.connectionId = _connectionId;
     this.meetingId = _meetingId;
     this.shared = _shared;
     this.role = this.shared? 'share' : 'view'
@@ -62,7 +62,7 @@ module.exports = class Video extends EventEmitter {
       case C.MEDIA_SERVER_OFFLINE:
         Logger.error("[video] Video provider received MEDIA_SERVER_OFFLINE event");
         this.bbbGW.publish(JSON.stringify({
-          connectionId: this.sessionId,
+          connectionId: this.connectionId,
           type: 'video',
           id : 'error',
           response : 'rejected',
@@ -87,7 +87,7 @@ module.exports = class Video extends EventEmitter {
         let candidate = msEvent.candidate;
         Logger.debug("[video] Sending ICE candidate to user", this.id, "with candidate", candidate);
         this.bbbGW.publish(JSON.stringify({
-          connectionId: this.sessionId,
+          connectionId: this.connectionId,
           type: 'video',
           role: this.role,
           id : 'iceCandidate',
@@ -104,7 +104,7 @@ module.exports = class Video extends EventEmitter {
         Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.id);
 
         if (msEvent.state === 'NOT_FLOWING') {
-          Logger.warn("Setting up a timeout for " + this.sessionId + " camera " + this.id);
+          Logger.warn("Setting up a timeout for " + this.connectionId + " camera " + this.id);
           if (!this.notFlowingTimeout) {
             this.notFlowingTimeout = setTimeout(() => {
 
@@ -118,13 +118,13 @@ module.exports = class Video extends EventEmitter {
         }
         else if (msEvent.state === 'FLOWING') {
           if (this.notFlowingTimeout) {
-            Logger.warn("Received a media flow before stopping " + this.sessionId + " camera " + this.id);
+            Logger.warn("Received a media flow before stopping " + this.connectionId + " camera " + this.id);
             clearTimeout(this.notFlowingTimeout);
             this.notFlowingTimeout = null;
           }
 
           this.bbbGW.publish(JSON.stringify({
-            connectionId: this.sessionId,
+            connectionId: this.connectionId,
             type: 'video',
             role: this.role,
             id : 'playStart',

@@ -120,12 +120,14 @@ module.exports = class VideoManager extends BaseManager {
         break;
 
       case 'close':
-        Logger.info(this._logPrefix, "Closing session for sessionId: ", sessionId);
+        Logger.info(this._logPrefix, "Closing sessions of connection", connectionId);
 
         let keys = Object.keys(this._sessions);
         for (var k in this._sessions) {
-          if(this._sessions[k].connectionId === connectionId) {
-            this._stopSession(sessionId);
+          let session = this._sessions[k];
+          if(session && session.connectionId === connectionId) {
+            let killedSessionId = session.connectionId + session.id + "-" + role;
+            this._stopSession(killedSessionId);
           }
         }
         break;
