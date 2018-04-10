@@ -15,6 +15,8 @@ to-video: "to-video-sfu"
 from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
+webcam-force-h264: true
+screenshare-force-h264: true
 
 log:
     filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'

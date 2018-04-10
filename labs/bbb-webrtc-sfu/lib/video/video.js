@@ -7,6 +7,7 @@ const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const Messaging = require('../bbb/messages/Messaging');
 const h264_sdp = require('../h264-sdp');
+const FORCE_H264 = config.get('webcam-force-h264');
 const EventEmitter = require('events').EventEmitter;
 
 var sharedWebcams = {};
@@ -142,7 +143,10 @@ module.exports = class Video extends EventEmitter {
     let sdpAnswer;
 
     // Force H264
-    sdpOffer = h264_sdp.transform(sdpOffer);
+    if (FORCE_H264) {
+      Logger.info("AAAAAA FORCING H@264");
+      sdpOffer = h264_sdp.transform(sdpOffer);
+    }
 
     try {
       this.userId = await this.mcs.join(this.meetingId, 'SFU', {});

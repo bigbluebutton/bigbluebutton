@@ -17,6 +17,7 @@ const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
 const config = require('config');
 const kurentoIp = config.get('kurentoIp');
 const localIpAddress = config.get('localIpAddress');
+const FORCE_H264 = config.get('screenshare-force-h264');
 const EventEmitter = require('events').EventEmitter;
 const Logger = require('../utils/Logger');
 
@@ -163,7 +164,10 @@ module.exports = class Screenshare extends EventEmitter {
     let _callback = callback;
 
     // Force H264 on Firefox and Chrome
-    sdpOffer = h264_sdp.transform(sdpOffer);
+    if (FORCE_H264) {
+      sdpOffer = h264_sdp.transform(sdpOffer);
+    }
+
     Logger.info("[screenshare] Starting presenter", id , "at session", this._voiceBridge);
 
     try {
@@ -223,13 +227,15 @@ module.exports = class Screenshare extends EventEmitter {
     }
   }
 
-    async _startViewer(connectionId, voiceBridge, sdp, callerName, presenterEndpoint, callback) {
+  async _startViewer(connectionId, voiceBridge, sdp, callerName, presenterEndpoint, callback) {
     Logger.info("[screenshare] Starting viewer", callerName, "for voiceBridge", this._voiceBridge);
     // TODO refactor the callback handling
     let _callback = function(){};
     let sdpAnswer, sdpOffer;
 
-    sdpOffer = h264_sdp.transform(sdp);
+    if (FORCE_H264) {
+      sdpOffer = h264_sdp.transform(sdp);
+    }
     sdpOffer = sdp;
     this._viewersCandidatesQueue[callerName] = [];
 
