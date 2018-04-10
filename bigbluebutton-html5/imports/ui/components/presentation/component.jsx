@@ -200,6 +200,7 @@ export default class PresentationArea extends Component {
                   whiteboardId={slideObj.id}
                 />
                 <CursorWrapperContainer
+                  podId={this.props.podId}
                   whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
                   physicalWidthRatio={adjustedSizes.width / width}
