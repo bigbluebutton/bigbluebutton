@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Media from './component';
 import MediaService from './service';
-import PresentationAreaContainer from '../presentation/container';
+import PresentationPodsContainer from '../presentation-pod/container';
 import VideoDockContainer from '../video-dock/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
   overlay: <VideoDockContainer />,
-  content: <PresentationAreaContainer />,
+  content: <PresentationPodsContainer />,
   defaultContent: <DefaultContent />,
 };
 
@@ -59,7 +59,7 @@ export default withTracker(() => {
   data.content = <DefaultContent />;
 
   if (MediaService.shouldShowWhiteboard()) {
-    data.content = <PresentationAreaContainer />;
+    data.content = <PresentationPodsContainer />;
   }
 
   if (MediaService.shouldShowScreenshare()) {

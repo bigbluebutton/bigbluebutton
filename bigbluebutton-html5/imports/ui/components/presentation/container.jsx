@@ -3,13 +3,14 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PresentationAreaService from './service';
 import PresentationArea from './component';
 
-const PresentationAreaContainer = props => (
+const PresentationAreaContainer = ({ presentationPodIds, ...props }) => (
   <PresentationArea {...props} />
 );
 
-export default withTracker(() => {
-  const currentSlide = PresentationAreaService.getCurrentSlide();
-  const userIsPresenter = PresentationAreaService.isPresenter();
+export default withTracker((params) => {
+  const { podId } = params;
+  const currentSlide = PresentationAreaService.getCurrentSlide(podId);
+  const userIsPresenter = PresentationAreaService.isPresenter(podId);
   const multiUser = currentSlide ?
     PresentationAreaService.getMultiUserStatus(currentSlide.id) :
     false;
