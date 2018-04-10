@@ -17,5 +17,5 @@ to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
 
 log:
-    filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
+    filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'
