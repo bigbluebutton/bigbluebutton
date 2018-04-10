@@ -105,8 +105,8 @@ module.exports = class ProcessManager {
     for (var proc in this.processes) {
       if (this.processes.hasOwnProperty(proc)) {
         let procObj = this.processes[proc];
-        if (typeof procObj.disconnect === 'function' && !procObj.killed) {
-          await procObj.disconnect()
+        if (typeof procObj.exit === 'function' && !procObj.killed) {
+          await procObj.exit()
         }
       }
     }

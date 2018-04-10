@@ -107,7 +107,10 @@ const config = require('config');
         SCREENSHARE_PROVIDER_PREFIX: '[ScreenshareProvider]',
         VIDEO_PROCESS_PREFIX: '[VideoProcess]',
         VIDEO_MANAGER_PREFIX: '[VideoManager]',
-        VIDEO_PROVIDER_PREFIX: '[VideoProvider]'
+        VIDEO_PROVIDER_PREFIX: '[VideoProvider]',
+
+        // MCS error codes
+        MEDIA_SERVER_OFFLINE: "1000"
     }
 }
 

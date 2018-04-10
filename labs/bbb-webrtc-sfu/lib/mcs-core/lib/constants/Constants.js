@@ -37,6 +37,7 @@ exports.EVENT.MEDIA_STATE.FLOW_OUT = "MediaFlowOutStateChange"
 exports.EVENT.MEDIA_STATE.FLOW_IN = "MediaFlowInStateChange"
 exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
+exports.EVENT.SERVER_STATE = "ServerState"
 
 // Error codes
 exports.ERROR = {};

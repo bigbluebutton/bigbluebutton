@@ -5,6 +5,7 @@ const config = require('config');
 const mediaServerClient = require('kurento-client');
 const EventEmitter = require('events').EventEmitter;
 const Logger = require('../../../utils/Logger');
+const isError = require('../utils/util').isError;
 
 let instance = null;
 
@@ -33,7 +34,7 @@ module.exports = class MediaServer extends EventEmitter {
 
   _getMediaServerClient (serverUri) {
     return new Promise((resolve, reject) =>  {
-      mediaServerClient(serverUri, {failAfter: 5}, (error, client) => {
+      mediaServerClient(serverUri, {failAfter: 1}, (error, client) => {
         if (error) {
           error = this._handleError(error);
           return reject(error);
@@ -103,12 +104,20 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   _releasePipeline (room) {
-    Logger.debug("[mcs-media] Releasing room", room, "pipeline");
-    let pipeline = this._mediaPipelines[room];
-    if (pipeline && typeof pipeline.release === 'function') {
-      pipeline.release();
-      delete this._mediaPipelines[room];
-    }
+    return new Promise((resolve, reject) => {
+      Logger.debug("[mcs-media] Releasing room", room, "pipeline");
+      let pipeline = this._mediaPipelines[room];
+      if (pipeline && typeof pipeline.release === 'function') {
+        pipeline.release((error) => {
+          if (error) {
+            error = this._handleError(error);
+            return reject(error);
+          }
+          delete this._mediaPipelines[room];
+          return resolve()
+        });
+      }
+    });
   }
 
   _createElement (pipeline, type) {
@@ -187,24 +196,42 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   stop (room, elementId) {
-    Logger.info("[mcs-media] Releasing endpoint", elementId, "from room", room);
-    let mediaElement = this._mediaElements[elementId];
-    let pipeline = this._mediaPipelines[room];
+    return new Promise((resolve, reject) => {
+      try {
+        Logger.info("[mcs-media] Releasing endpoint", elementId, "from room", room);
+        const mediaElement = this._mediaElements[elementId];
+        const pipeline = this._mediaPipelines[room];
 
-    if (mediaElement && typeof mediaElement.release === 'function') {
-      pipeline.activeElements--;
+        if (mediaElement && typeof mediaElement.release === 'function') {
+          mediaElement.release(async (error) => {
+            if (error) {
+              error = this._handleError(error);
+              return reject(error);
+            }
 
-      Logger.info("[mcs-media] Pipeline has a total of", pipeline.activeElements, "active elements");
-      if (pipeline.activeElements <= 0) {
-        this._releasePipeline(room);
+            delete this._mediaElements[elementId];
+
+            if (pipeline) {
+              pipeline.activeElements--;
+
+              Logger.info("[mcs-media] Pipeline has a total of", pipeline.activeElements, "active elements");
+              if (pipeline.activeElements <= 0) {
+                await this._releasePipeline(room);
+              }
+            }
+            return resolve();
+          });
+        }
+        else {
+          Logger.warn("[mcs-media] Media element", elementId, "could not be found to stop");
+          return resolve();
+        }
       }
-
-      mediaElement.release();
-      this._mediaElements[elementId] = null;
-    }
-    else {
-      Logger.warn("[mcs-media] Media element", elementId, "could not be found to stop");
-    }
+      catch (err) {
+        err = this._handleError(err);
+        resolve();
+      }
+    });
   }
 
 
@@ -360,17 +387,12 @@ module.exports = class MediaServer extends EventEmitter {
 
   _handleError(error) {
     // Checking if the error needs to be wrapped into a JS Error instance
-    if(!this.isError(error)) {
+    if (isError(error)) {
       error = new Error(error);
     }
 
     error.code = C.ERROR.MEDIA_SERVER_ERROR;
     Logger.error('[mcs-media] Media Server returned an', error.message);
-  }
-
-  // duck
-  isError(error) {
-    return error && error.stack && error.message && typeof error.stack === 'string'
-      && typeof error.message === 'string';
+    return error;
   }
 };

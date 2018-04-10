@@ -17,6 +17,7 @@ module.exports = class ScreenshareManager extends BaseManager {
   constructor (connectionChannel, additionalChannels, logPrefix) {
     super(connectionChannel, additionalChannels, logPrefix);
     this.messageFactory(this._onMessage);
+    this._iceQueues = {};
   }
 
   _onMessage(message) {
@@ -25,10 +26,20 @@ module.exports = class ScreenshareManager extends BaseManager {
     let session;
     let sessionId = message.voiceBridge;
     let connectionId = message.connectionId;
+    let iceQueue;
 
     if(this._sessions[sessionId]) {
       session = this._sessions[sessionId];
     }
+
+    if (!this._iceQueues[sessionId] && message.voiceBridge) {
+      this._iceQueues[sessionId] = [];
+    }
+
+    if (this._iceQueues[sessionId]) {
+      iceQueue = this._iceQueues[sessionId] ;
+    }
+
 
     switch (message.id) {
 
@@ -73,6 +84,19 @@ module.exports = class ScreenshareManager extends BaseManager {
             sdpAnswer : sdpAnswer
           }), C.FROM_SCREENSHARE);
 
+          // Empty ice queue after starting session
+          if (iceQueue) {
+            let candidate;
+            while(candidate = iceQueue.pop()) {
+              session.onIceCandidate(candidate);
+            }
+          }
+
+
+          session.once(C.MEDIA_SERVER_OFFLINE, (event) => {
+            this._stopSession(sessionId);
+          });
+
           Logger.info(this._logPrefix, "Sending presenterResponse to presenter", sessionId, "for connection", session._id);
         });
         break;
@@ -86,6 +110,14 @@ module.exports = class ScreenshareManager extends BaseManager {
                 message.sdpOffer,
                 connectionId,
                 this._sessions[message.voiceBridge]._presenterEndpoint);
+            // Empty ice queue after starting session
+            if (iceQueue) {
+              let candidate;
+              while(candidate = iceQueue.pop()) {
+                session.onViewerIceCandidate(candidate);
+              }
+            }
+
           } else {
             // TODO ERROR HANDLING
           }
@@ -103,10 +135,16 @@ module.exports = class ScreenshareManager extends BaseManager {
         break;
 
       case 'onIceCandidate':
-        if (session) {
+        if (session.constructor === Screenshare) {
           session.onIceCandidate(message.candidate);
         } else {
-          Logger.warn(this._logPrefix, "There was no screensharing session for onIceCandidate for", sessionId, ". There should be a queue here");
+          Logger.info(this._logPrefix, "Queueing ice candidate for later in screenshare", message.voiceBridge);
+          if (!iceQueue) {
+            this._iceQueues[sessionId] = [];
+            iceQueue = this._iceQueues[sessionId];
+          }
+
+          iceQueue.push(message.candidate);
         }
         break;
 
@@ -114,7 +152,13 @@ module.exports = class ScreenshareManager extends BaseManager {
         if (session) {
           session.onViewerIceCandidate(message.candidate, connectionId);
         } else {
-          Logger.warn(this._logPrefix, "There was no screensharing session for onIceCandidate for", sessionId + ". There should be a queue here");
+          Logger.info(this._logPrefix, "Queueing ice candidate for later in screenshare", message.voiceBridge);
+          if (!iceQueue) {
+            this._iceQueues[sessionId] = [];
+            iceQueue = this._iceQueues[sessionId];
+          }
+
+          iceQueue.push(message.candidate);
         }
         break;
 

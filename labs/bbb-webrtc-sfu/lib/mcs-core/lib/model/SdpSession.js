@@ -31,7 +31,7 @@ module.exports = class SdpSession extends MediaSession {
 
   async processDescriptor () {
     try {
-      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp()); 
+      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp());
 
       if (this._type === 'WebRtcEndpoint') {
         this._MediaServer.gatherCandidates(this._mediaElement);
@@ -40,7 +40,7 @@ module.exports = class SdpSession extends MediaSession {
       return Promise.resolve(answer);
     }
     catch (err) {
-      this.handleError(err);
+      err = this._handleError(err);
       return Promise.reject(err);
     }
   }
@@ -51,6 +51,7 @@ module.exports = class SdpSession extends MediaSession {
       Promise.resolve();
     }
     catch (err) {
+      err = this._handleError(err);
       Promise.reject(err);
     }
   }

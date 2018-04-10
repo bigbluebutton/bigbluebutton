@@ -7,11 +7,13 @@ const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const Messaging = require('../bbb/messages/Messaging');
 const h264_sdp = require('../h264-sdp');
+const EventEmitter = require('events').EventEmitter;
 
 var sharedWebcams = {};
 
-module.exports = class Video {
+module.exports = class Video extends EventEmitter {
   constructor(_bbbGW, _meetingId, _id, _shared, _sessionId) {
+    super();
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
     this.id = _id;
@@ -54,6 +56,27 @@ module.exports = class Video {
       }
     }
   }
+
+  serverState (event) {
+    switch (event && event.eventTag) {
+      case C.MEDIA_SERVER_OFFLINE:
+        Logger.error("[video] Video provider received MEDIA_SERVER_OFFLINE event");
+        this.bbbGW.publish(JSON.stringify({
+          connectionId: this.sessionId,
+          type: 'video',
+          id : 'error',
+          response : 'rejected',
+          cameraId : this.id,
+          message : C.MEDIA_SERVER_OFFLINE
+        }), C.FROM_VIDEO);
+        this.emit(C.MEDIA_SERVER_OFFLINE, event);
+        break;
+
+      default:
+        Logger.warn("[video] Unknown server state", event);
+    }
+  }
+
 
   mediaState (event) {
     let msEvent = event.event;
@@ -108,10 +131,9 @@ module.exports = class Video {
             cameraId: this.id,
           }), C.FROM_VIDEO);
         }
-
         break;
 
-      default: Logger.warn("[video] Unrecognized event");
+      default: Logger.warn("[video] Unrecognized event", event);
     }
   }
 
@@ -134,18 +156,20 @@ module.exports = class Video {
         sdpAnswer = ret.answer;
         this.flushCandidatesQueue();
         this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
+        this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
 
         Logger.info("[video] MCS publish for user", this.userId, "returned", this.mediaId);
 
         return callback(null, sdpAnswer);
       }
-      else {
+      else if (sharedWebcams[this.id]) {
         const ret  = await this.mcs.subscribe(this.userId, sharedWebcams[this.id], 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this.mediaId = ret.sessionId;
         sdpAnswer = ret.answer;
         this.flushCandidatesQueue();
         this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
+        this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
 
         Logger.info("[video] MCS subscribe for user", this.userId, "returned", this.mediaId);
 
@@ -159,26 +183,27 @@ module.exports = class Video {
   };
 
   async stop () {
-    Logger.info('[video] Releasing endpoints for user', this.userId, 'at room', this.meetingId);
+    return new Promise(async (resolve, reject) => {
+      Logger.info('[video] Stopping video session', this.userId, 'at room', this.meetingId);
 
-    try {
-      await this.mcs.leave(this.meetingId, this.userId);
-      if (this.shared) {
-        sharedWebcams[this.id] = null;
+      try {
+        await this.mcs.leave(this.meetingId, this.userId);
+        if (this.shared) {
+          delete sharedWebcams[this.id];
+        }
+
+        if (this.notFlowingTimeout) {
+          clearTimeout(this.notFlowingTimeout);
+          delete this.notFlowingTimeout;
+        }
+
+        delete this._candidatesQueue;
+        resolve();
       }
-
-      if (this.notFlowingTimeout) {
-        clearTimeout(this.notFlowingTimeout);
-        this.notFlowingTimeout = null;
+      catch (err) {
+        // TODO error handling
+        reject();
       }
-
-      this._candidatesQueue = null;
-      Promise.resolve();
-    }
-    catch (err) {
-      // TODO error handling
-      Promise.reject();
-    }
-    return;
-  };
+    });
+  }
 };

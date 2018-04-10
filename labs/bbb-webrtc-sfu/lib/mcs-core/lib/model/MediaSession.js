@@ -11,6 +11,7 @@ const MediaServer = require('../media/media-server');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const Logger = require('../../../utils/Logger');
+const isError = require('../utils/util').isError;
 
 module.exports = class MediaSession {
   constructor(emitter, room, type) {
@@ -31,6 +32,7 @@ module.exports = class MediaSession {
 
       Logger.info("[mcs-media-session] Starting new media session", this.id, "in room", this.room );
       this._mediaElement = await this._MediaServer.createMediaElement(this.room, this._type);
+      this._status = C.STATUS.STARTED;
       this._MediaServer.trackMediaState(this._mediaElement, this._type);
       this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
         setTimeout(() => {
@@ -39,26 +41,44 @@ module.exports = class MediaSession {
         }, 50);
       });
 
+      this._MediaServer.on(C.ERROR.MEDIA_SERVER_OFFLINE, () => {
+          let event = {};
+          event.eventTag = C.ERROR.MEDIA_SERVER_OFFLINE;
+          event.id = this.id;
+          this.emitter.emit(C.EVENT.SERVER_STATE+this.id, event);
+      });
+
+      this._MediaServer.on(C.EVENT.MEDIA_SERVER_ONLINE, () => {
+          let event = {};
+          event.eventTag = C.EVENT.MEDIA_SERVER_ONLINE;
+          event.id = this.id;
+          this.emitter.emit(C.EVENT.SERVER_STATE+this.id);
+      });
+
       return Promise.resolve(this._mediaElement);
     }
     catch (err) {
-      this.handleError(err);
+      err = this._handlerError(err);
       return Promise.reject(err);
     }
   }
 
   async stop () {
-    this._status = C.STATUS.STOPPING;
-    try {
-      await this._MediaServer.stop(this.room, this._mediaElement);
-      this._status = C.STATUS.STOPPED;
-      Logger.info("[mcs-media-session] Session ", this.id, " is going to stop...");
-      this.emitter.emit(C.EVENT.MEDIA_SESSION_STOPPED, this.id);
-      Promise.resolve();
-    }
-    catch (err) {
-      this.handleError(err);
-      Promise.reject(err);
+    if (this._status === C.STATUS.STARTED) {
+      this._status = C.STATUS.STOPPING;
+      try {
+        await this._MediaServer.stop(this.room, this._mediaElement);
+        this._status = C.STATUS.STOPPED;
+        Logger.info("[mcs-media-session] Session", this.id, "stopped with status", this._status);
+        this.emitter.emit(C.EVENT.MEDIA_SESSION_STOPPED, this.id);
+        return Promise.resolve();
+      }
+      catch (err) {
+        err = this._handlerError(err);
+        return Promise.reject(err);
+      }
+    } else {
+      return Promise.resolve();
     }
   }
 
@@ -70,7 +90,7 @@ module.exports = class MediaSession {
       return Promise.resolve();
     }
     catch (err) {
-      this.handleError(err);
+      err = this._handlerError(err);
       return Promise.reject(err);
     }
   }
@@ -79,8 +99,13 @@ module.exports = class MediaSession {
     this._MediaServer.addMediaEventListener (type, mediaId);
   }
 
-  handleError (err) {
-    Logger.error("[mcs-media-session] SFU MediaSession received an error", err);
+  _handlerError (error) {
+    Logger.error("[mcs-media-session] SFU MediaSession received an error", error);
+    // Checking if the error needs to be wrapped into a JS Error instance
+    if (isError(error)) {
+      error = new Error(error);
+    }
     this._status = C.STATUS.STOPPED;
+    return error;
   }
 }

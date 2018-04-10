@@ -86,6 +86,10 @@ module.exports = class VideoManager extends BaseManager {
             }), C.FROM_VIDEO);
           }
 
+          video.once(C.MEDIA_SERVER_OFFLINE, async (event) => {
+            this._stopSession(sessionId);
+          });
+
           this._bbbGW.publish(JSON.stringify({
             connectionId: connectionId,
             type: 'video',
@@ -98,8 +102,8 @@ module.exports = class VideoManager extends BaseManager {
         break;
 
       case 'stop':
-        if (video.constructor=== Video) {
-          this._stopSession(sessionId, role, message.cameraId);
+        if (video.constructor === Video) {
+          this._stopSession(sessionId);
         } else {
           Logger.warn(this._logPrefix, "There is no video instance named", cameraId, "to stop");
         }

@@ -39,7 +39,6 @@ module.exports = class BaseProcess {
 
   handleException (error) {
     Logger.error(this.logPrefix, 'TODO => Uncaught exception', error.stack);
-    process.exit(1);
   }
 
   handleRejection (reason, promise) {
