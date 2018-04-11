@@ -1,7 +1,9 @@
 package org.bigbluebutton.air.common.views {
 	
+	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.StageOrientationEvent;
 	import flash.ui.Keyboard;
 	
 	import spark.components.View;
@@ -20,12 +22,18 @@ package org.bigbluebutton.air.common.views {
 			_topToolbar = createToolbar();
 			_topToolbar.percentWidth = 100;
 			addElement(_topToolbar);
+			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage, false, 0, true);
+		}
+		
+		protected function onAddedToStage(event:Event):void {
+			stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE, onOrientationChange, false, 0, true);
 		}
 		
 		/**
 		 * Override this method in subclasses to be notified of rotation changes
 		 */
-		public function rotationHandler(rotation:String):void {
+		protected function onOrientationChange(event:Event):void {
+			invalidateDisplayList();
 		}
 		
 		public function triggerLeftMenuTap(event:KeyboardEvent):void {

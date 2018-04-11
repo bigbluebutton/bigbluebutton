@@ -16,6 +16,10 @@ package org.bigbluebutton.air.poll.models {
 			_pollChangeSignal.dispatch(null, PollChangeEnum.STOP);
 		}
 		
+		public function voteCurrentPoll():void {
+			_currentPoll.answered = true;
+		}
+		
 		public function getCurrentPoll():PollVO {
 			return _currentPoll;
 		}

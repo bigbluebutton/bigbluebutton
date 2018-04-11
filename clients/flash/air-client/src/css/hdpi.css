@@ -118,9 +118,13 @@
         fontSize: 16.50;
     }
 
-    poll|PollButtons {
-        padding: 9.00;
-        gap: 13.50;
+    main|MobilePopUp {
+        cornerRadius: 6.00;
+        fontSize: 16.50;
+    }
+
+    .mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+        cornerRadius: 6.00;
     }
 
     .icon {

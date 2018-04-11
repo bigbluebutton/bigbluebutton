@@ -106,9 +106,13 @@
 		fontSize     : 22;
 	}
 	
-	poll|PollButtons {
-		padding      : 12;
-		gap          : 18;
+	main|MobilePopUp {
+		cornerRadius : 8;
+		fontSize     : 22;
+	}
+	
+	.mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+		cornerRadius : 8;
 	}
 	
 	.icon {
