@@ -76,6 +76,7 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
         System.out.println("Socket UNREGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.PUBLISH) {
         System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        gw.onMessageReceived(be.socket().webSession().id(), be.getRawMessage().toString());
       } else if (be.type() == BridgeEventType.RECEIVE) {
         System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
