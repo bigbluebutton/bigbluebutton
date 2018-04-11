@@ -2,6 +2,7 @@ package org.bigbluebutton.air.user.services {
 	
 	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.air.main.commands.UserInactivityTimerSignal;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
@@ -24,6 +25,9 @@ package org.bigbluebutton.air.user.services {
 		[Inject]
 		public var disconnectUserSignal:DisconnectUserSignal;
 		
+		[Inject]
+		public var meetingInactivityTimerSignal:UserInactivityTimerSignal;
+		
 		public var usersMessageSender:UsersMessageSender;
 		
 		public var usersMessageReceiver:UsersMessageReceiver;
@@ -39,6 +43,7 @@ package org.bigbluebutton.air.user.services {
 			usersMessageReceiver.chatMessagesSession = chatMessagesSession;
 			usersMessageReceiver.conferenceParameters = conferenceParameters;
 			usersMessageReceiver.disconnectUserSignal = disconnectUserSignal;
+			usersMessageReceiver.meetingInactivityTimerSignal = meetingInactivityTimerSignal;
 			usersMessageSender.userSession = userSession;
 			usersMessageSender.conferenceParameters = conferenceParameters;
 			userSession.mainConnection.addMessageListener(usersMessageReceiver);
@@ -138,5 +143,8 @@ package org.bigbluebutton.air.user.services {
 			usersMessageSender.changeRole(userId, role);
 		}
 	
+		public function userInactivityAuditResponse():void {
+			usersMessageSender.userInactivityAuditResponse();
+		}
 	}
 }
