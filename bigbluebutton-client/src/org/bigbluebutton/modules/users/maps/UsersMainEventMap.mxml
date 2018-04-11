@@ -113,6 +113,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
 	    <MethodInvoker generator="{UserService}" method="activityResponse" />
 	  </EventHandlers>
+		
+		<EventHandlers type="{BBBEvent.USER_INACTIVITY_AUDIT_RESPONSE_EVENT}">
+			<MethodInvoker generator="{UserService}" method="userInactivityAuditResponse" />
+		</EventHandlers>
 
     <EventHandlers type="{TokenValidEvent.TOKEN_VALID_EVENT}" >
       <MethodInvoker generator="{UserService}" method="tokenValidEventHandler" arguments="{event}" />

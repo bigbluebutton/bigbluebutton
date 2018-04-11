@@ -231,5 +231,15 @@ package org.bigbluebutton.air.user.services {
 			
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
 		}
+		
+		public function userInactivityAuditResponse():void {
+			var message:Object = {
+				header: {name: "UserInactivityAuditResponseMsg", meetingId: conferenceParameters.meetingID, 
+					userId: conferenceParameters.internalUserID},
+				body: {userId: conferenceParameters.internalUserID}
+			};
+			
+			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);
+		}
 	}
 }

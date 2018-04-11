@@ -126,6 +126,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
 						} else if (reasonCode == "validate_token_failed_eject_reason") {
 							message = ResourceUtil.getInstance().getString('bbb.logout.validateTokenFailedEjectReason');
+						} else if (reasonCode == "user_inactivity_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.userInactivityEjectReason');
 						}
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
