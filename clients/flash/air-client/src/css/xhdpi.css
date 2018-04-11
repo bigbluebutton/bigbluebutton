@@ -26,7 +26,7 @@
 	}
 	
 	main|MainView {
-		menuHeight : 160;
+		menuHeight : 110;
 	}
 	
 	main|MenuButtons {
@@ -34,9 +34,7 @@
 	}
 	
 	skins|MenuButtonSkin {
-		fontSize     : 24;
-		iconSize     : 36;
-		labelPadding : 12;
+		iconSize     : 40;
 	}
 	
 	chat|NewMessagesIndicator {
@@ -48,8 +46,8 @@
 		padding      : 14;
 		gap          : 8;
 		leftIndent   : 44;
-		fontSize     : 28;
-		nameFontSize : 28;
+		fontSize     : 32;
+		nameFontSize : 32;
 		timeFontSize : 28;
 	}
 	
@@ -117,6 +115,7 @@
 	
 	.sendButton {
 		diameter     : 56;
+		fontSize     : 30;
 	}
 	
 	.titleGroup {
@@ -188,12 +187,6 @@
 	.chatRoomItem {
 		fontSize : 34;
 		padding  : 30;
-	}
-	
-	.sendButton {
-		fontSize     : 20;
-		borderWeight : 2;
-		cornerRadius : 4;
 	}
 	
 	.echoTestLabel {
