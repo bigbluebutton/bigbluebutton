@@ -20,10 +20,6 @@ class VideoListItem extends Component {
     this.props.onMount(this.videoTag);
   }
 
-  componentWillUnmount() {
-    this.props.onUnmount();
-  }
-
   render() {
     const { user, actions } = this.props;
 

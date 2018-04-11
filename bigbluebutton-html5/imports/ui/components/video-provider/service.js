@@ -9,6 +9,7 @@ import UserListService from '/imports/ui/components/user-list/service';
 class VideoService {
   constructor() {
     this.defineProperties({
+      isSharing: false,
       isConnected: false,
       isWaitingResponse: false,
     });
@@ -36,6 +37,7 @@ class VideoService {
   }
 
   joinVideo() {
+    this.isSharing = true;
     const joinVideoEvent = new Event('joinVideo');
     document.dispatchEvent(joinVideoEvent);
   }
@@ -50,11 +52,13 @@ class VideoService {
   }
 
   exitVideo() {
+    this.isSharing = false;
     const exitVideoEvent = new Event('exitVideo');
     document.dispatchEvent(exitVideoEvent);
   }
 
   exitedVideo() {
+    console.warn('exitedVideo');
     this.isWaitingResponse = false;
     this.isConnected = false;
   }
@@ -64,7 +68,6 @@ class VideoService {
   }
 
   sendUserUnshareWebcam(stream) {
-    this.isWaitingResponse = true;
     makeCall('userUnshareWebcam', stream);
   }
 
@@ -78,7 +81,7 @@ class VideoService {
     const isLocked = this.isLocked();
     const currentUser = Users.findOne({ userId });
     const currentUserIsModerator = mapUser(currentUser).isModerator;
-    const sharedWebcam = this.isWaitingResponse || this.isConnected;
+    const sharedWebcam = this.isSharing;
 
     const isSharingWebcam = user => user.isSharingWebcam || (sharedWebcam && user.isCurrent);
     const isNotLocked = user => !(isLocked && user.isLocked);

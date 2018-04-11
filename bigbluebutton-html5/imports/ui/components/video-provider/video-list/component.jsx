@@ -9,7 +9,6 @@ import VideoListItem from './video-list-item/component';
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
   onMount: PropTypes.func.isRequired,
-  onUnmount: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -85,7 +84,7 @@ class VideoList extends Component {
   setOptimalGrid() {
     let numItems = this.props.users.length;
 
-    if (numItems < 1) {
+    if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
 
@@ -137,7 +136,7 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl, users, onMount, onUnmount,
+      intl, users, onMount,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -164,9 +163,8 @@ class VideoList extends Component {
             actions={actions}
             onMount={(videoRef) => {
               this.handleCanvasResize();
-              return onMount(user.id, user.isCurrent, videoRef);
+              return onMount(user.id, videoRef);
             }}
-            onUnmount={() => onUnmount(user.id)}
           />
         </div>
       );

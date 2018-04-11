@@ -24,6 +24,7 @@
   display: flex;
   order: 1;
   width: 100%;
+  margin-bottom: 10px;
 }
 
 .hideOverlay {
@@ -37,6 +38,7 @@ $overlay-ratio: 16 / 9;
 
 .floatingOverlay {
   @include mq($medium-up) {
+    z-index: 1;
     position: fixed;
     bottom: .8rem;
     right: .8rem;

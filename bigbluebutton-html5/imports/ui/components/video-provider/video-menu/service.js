@@ -17,16 +17,12 @@ const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const videoSettings = Settings.dataSaving;
-  const enableShare = videoSettings.viewParticipantsWebcams;
+  const enableShare = Settings.dataSaving.viewParticipantsWebcams;
   const lockCam = VideoService.isLocked();
-
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
 
   const isConnecting = (!isSharingVideo && isConnected);
-
-
   const isLocked = (lockCam && userLocked);
 
   return isLocked

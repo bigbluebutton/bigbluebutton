@@ -3,10 +3,11 @@ import { withTracker } from 'meteor/react-meteor-data';
 import VideoProvider from './component';
 import VideoService from './service';
 
-const VideoProviderContainer = ({ children, ...props }) => <VideoProvider {...props}>{children}</VideoProvider>;
+const VideoProviderContainer = ({ children, ...props }) =>
+  (!props.users.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
 
 export default withTracker(() => ({
-  isLocked: VideoService.isLocked(),
   meetingId: VideoService.meetingId(),
+  users: VideoService.getAllUsersVideo(),
   userId: VideoService.userId(),
 }))(VideoProviderContainer);
