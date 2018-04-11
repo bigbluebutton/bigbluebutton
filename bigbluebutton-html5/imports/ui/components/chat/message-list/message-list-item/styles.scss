@@ -51,7 +51,7 @@
   flex: 1;
   display: flex;
   flex-flow: column;
-  overflow: hidden;
+  width: calc(100% - 1.7rem);
 }
 
 .meta {
@@ -70,9 +70,15 @@
   min-width: 0;
   font-weight: 600;
   color: $color-heading;
+  width: 100%;
+  position: relative;
 
   > span {
     @extend %text-elipsis;
+    padding: .5rem 0;
+    position: absolute;
+    top: -.5rem;
+    width: 100%;
   }
 }
 

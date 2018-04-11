@@ -13,22 +13,25 @@ const isSharingVideo = () => {
   return !!user.has_stream;
 };
 
+const videoShareAllowed = () => Settings.dataSaving.viewParticipantsWebcams;
+
+
 const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const enableShare = Settings.dataSaving.viewParticipantsWebcams;
   const lockCam = VideoService.isLocked();
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
 
   const isConnecting = (!isSharingVideo && isConnected);
+
   const isLocked = (lockCam && userLocked);
 
   return isLocked
       || isWaitingResponse
       || isConnecting
-      || !enableShare;
+      || !videoShareAllowed();
 };
 
 export default {
@@ -36,4 +39,5 @@ export default {
   isDisabled,
   baseName,
   toggleSwapLayout: MediaService.toggleSwapLayout,
+  videoShareAllowed,
 };

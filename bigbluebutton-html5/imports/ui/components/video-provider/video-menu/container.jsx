@@ -33,7 +33,6 @@ const JoinVideoOptionsContainer = (props) => {
     intl,
     ...restProps
   } = props;
-
   const videoItems = [
     {
       iconPath: `${baseName}/resources/images/video-menu/icon-swap.svg`,
@@ -54,15 +53,9 @@ const JoinVideoOptionsContainer = (props) => {
   return <JoinVideoOptions {...{ videoItems, isSharingVideo, ...restProps }} />;
 };
 
-export default injectIntl(withTracker(({
-  intl,
-  handleJoinVideo,
-  handleCloseVideo,
-}) => ({
+export default injectIntl(withTracker(() => ({
   baseName: VideoMenuService.baseName,
   isSharingVideo: VideoMenuService.isSharingVideo(),
   isDisabled: VideoMenuService.isDisabled(),
-  handleJoinVideo,
-  handleCloseVideo,
-  intl,
+  videoShareAllowed: VideoMenuService.videoShareAllowed(),
 }))(JoinVideoOptionsContainer));

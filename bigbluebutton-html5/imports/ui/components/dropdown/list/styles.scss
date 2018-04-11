@@ -29,6 +29,7 @@ $item-border-focus: $color-blue-lighter;
   flex-direction: row;
   @include mq($small-only) {
     flex-direction: column;
+    padding: $line-height-computed;
   }
 }
 
