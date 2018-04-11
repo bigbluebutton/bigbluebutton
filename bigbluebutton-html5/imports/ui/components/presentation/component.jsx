@@ -261,6 +261,7 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
+        podId={this.props.podId}
         currentSlideNum={this.props.currentSlide.num}
         presentationId={this.props.currentSlide.presentationId}
       />
@@ -308,6 +309,7 @@ export default class PresentationArea extends Component {
 }
 
 PresentationArea.propTypes = {
+  podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,
   currentSlide: PropTypes.shape({
