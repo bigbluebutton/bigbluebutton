@@ -16,6 +16,8 @@ from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
 
+recordScreenSharing: true
+recordWebcams: true
 recordingBasePath: "file:///var/kurento/recordings"
 
 log:

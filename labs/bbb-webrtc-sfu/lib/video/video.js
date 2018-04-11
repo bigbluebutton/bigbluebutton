@@ -109,7 +109,7 @@ module.exports = class Video {
           }), C.FROM_VIDEO);
 
           // Record the video stream if it's the original being shared
-          if (this.shared) {
+          if (config.get('recordWebcams') && this.shared) {
             this.startRecording();
           }
         }
