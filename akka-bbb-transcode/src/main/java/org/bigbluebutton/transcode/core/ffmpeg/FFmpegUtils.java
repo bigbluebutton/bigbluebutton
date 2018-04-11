@@ -22,7 +22,7 @@ public class FFmpegUtils {
 
     public static final String ROTATE_RIGHT = "rotate_right";
     public static final String ROTATE_LEFT = "rotate_left";
-    public static final String ROTATE_UPSIDE_DOWN = "rotate_left/rotate_left";
+    public static final String ROTATE_UPSIDE_DOWN = "rotate_upside_down";
 
     public static final String H263PREFIX = "h263";
 

@@ -83,6 +83,8 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
     private String remoteVideoPort;
     private String sdpPath;
     private String sourceModule;
+    private String authToken;
+    private String userId;
     private VideoTranscoderObserver observer;
     private String globalVideoWidth = "640";// get this from properties (Stored in FFmpegUtils)
     private String globalVideoHeight = "480";// get this from properties
@@ -181,6 +183,8 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.videoStreamName = params.get(Constants.INPUT);
+                    this.authToken = params.get(Constants.AUTH_TOKEN);
+                    this.userId = params.get(Constants.USER_ID);
                     break;
 
                 case Constants.TRANSCODE_ROTATE_RIGHT:
@@ -188,6 +192,8 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.videoStreamName = params.get(Constants.INPUT);
+                    this.authToken = params.get(Constants.AUTH_TOKEN);
+                    this.userId = params.get(Constants.USER_ID);
                     break;
 
                 case Constants.TRANSCODE_ROTATE_LEFT:
@@ -195,6 +201,8 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.videoStreamName = params.get(Constants.INPUT);
+                    this.authToken = params.get(Constants.AUTH_TOKEN);
+                    this.userId = params.get(Constants.USER_ID);
                     break;
 
                 case Constants.TRANSCODE_ROTATE_UPSIDE_DOWN:
@@ -202,6 +210,8 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.videoStreamName = params.get(Constants.INPUT);
+                    this.authToken = params.get(Constants.AUTH_TOKEN);
+                    this.userId = params.get(Constants.USER_ID);
                     break;
 
                 case Constants.PROBE_RTMP:
@@ -383,12 +393,12 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                 switch(sourceModule) {
                     case FFmpegUtils.VIDEO_MODULE:
                         input = "rtmp://" + sourceIp + "/" + sourceModule + "/" + meetingId + "/" + videoStreamName + " live=1";
-                        outputLive = "rtmp://" + destinationIp + "/" + sourceModule + "/" + meetingId + "/" + FFmpegUtils.H263PREFIX + "/" + videoStreamName;
+                        outputLive = "rtmp://" + destinationIp + "/" + sourceModule + "/" + meetingId + "/" + FFmpegUtils.H263PREFIX + "-" + videoStreamName + " live=1";
                         output = videoStreamName;
                         break;
                     case FFmpegUtils.DESKSHARE_MODULE:
                         input = "rtmp://" + sourceIp + "/" + sourceModule + "/" + meetingId + " live=1";
-                        outputLive = "rtmp://" + destinationIp + "/" + sourceModule + "/" + FFmpegUtils.H263PREFIX + "/" + meetingId;
+                        outputLive = "rtmp://" + destinationIp + "/" + sourceModule + "/" + FFmpegUtils.H263PREFIX + "/" + meetingId + " live=1";
                         output = meetingId;
                         break;
                     default:
@@ -397,10 +407,15 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
 
                 ffmpeg = new FFmpegCommand();
                 ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.addRtmpInputConnectionParameter(meetingId);
+                ffmpeg.addRtmpInputConnectionParameter(userId);
+                ffmpeg.addRtmpInputConnectionParameter(authToken);
                 ffmpeg.setInput(input);
                 ffmpeg.setCodec("flv1"); // Sorensen H263
                 ffmpeg.setFormat("flv");
                 ffmpeg.addRtmpOutputConnectionParameter(meetingId);
+                ffmpeg.addRtmpOutputConnectionParameter(userId);
+                ffmpeg.addRtmpOutputConnectionParameter(authToken);
                 ffmpeg.addRtmpOutputConnectionParameter(transcoderId);
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.setLoglevel("quiet");
@@ -414,15 +429,20 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     return false;
                 }
 
-                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_RIGHT + "/" + videoStreamName + " live=1";
-                outputLive = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName;
+                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_RIGHT + "-" + videoStreamName + " live=1";
+                outputLive = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName + " live=1";
                 output = videoStreamName;
 
                 ffmpeg = new FFmpegCommand();
                 ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.addRtmpInputConnectionParameter(meetingId);
+                ffmpeg.addRtmpInputConnectionParameter(userId);
+                ffmpeg.addRtmpInputConnectionParameter(authToken);
                 ffmpeg.setInput(input);
                 ffmpeg.setFormat("flv");
                 ffmpeg.addRtmpOutputConnectionParameter(meetingId);
+                ffmpeg.addRtmpOutputConnectionParameter(userId);
+                ffmpeg.addRtmpOutputConnectionParameter(authToken);
                 ffmpeg.addRtmpOutputConnectionParameter(transcoderId);
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.setLoglevel("warning");
@@ -437,15 +457,20 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     return false;
                 }
 
-                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_LEFT + "/" + videoStreamName + " live=1";
-                outputLive = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName;
+                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_LEFT + "-" + videoStreamName + " live=1";
+                outputLive = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName + " live=1";
                 output = videoStreamName;
 
                 ffmpeg = new FFmpegCommand();
                 ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.addRtmpInputConnectionParameter(meetingId);
+                ffmpeg.addRtmpInputConnectionParameter(userId);
+                ffmpeg.addRtmpInputConnectionParameter(authToken);
                 ffmpeg.setInput(input);
                 ffmpeg.setFormat("flv");
                 ffmpeg.addRtmpOutputConnectionParameter(meetingId);
+                ffmpeg.addRtmpOutputConnectionParameter(userId);
+                ffmpeg.addRtmpOutputConnectionParameter(authToken);
                 ffmpeg.addRtmpOutputConnectionParameter(transcoderId);
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.setLoglevel("warning");
@@ -460,15 +485,20 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     return false;
                 }
 
-                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_UPSIDE_DOWN + "/" + videoStreamName + " live=1";
-                outputLive = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName;
+                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_UPSIDE_DOWN + "-" + videoStreamName + " live=1";
+                outputLive = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName + " live=1";
                 output = videoStreamName;
 
                 ffmpeg = new FFmpegCommand();
                 ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.addRtmpInputConnectionParameter(meetingId);
+                ffmpeg.addRtmpInputConnectionParameter(userId);
+                ffmpeg.addRtmpInputConnectionParameter(authToken);
                 ffmpeg.setInput(input);
                 ffmpeg.setFormat("flv");
                 ffmpeg.addRtmpOutputConnectionParameter(meetingId);
+                ffmpeg.addRtmpOutputConnectionParameter(userId);
+                ffmpeg.addRtmpOutputConnectionParameter(authToken);
                 ffmpeg.addRtmpOutputConnectionParameter(transcoderId);
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.setLoglevel("warning");

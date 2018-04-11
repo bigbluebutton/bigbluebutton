@@ -57,7 +57,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     private int packetTimeout = 10000;
 
-    private final Pattern RECORD_STREAM_ID_PATTERN = Pattern.compile("(.*)(-recorded)$");
+    private final Pattern RECORD_STREAM_ID_PATTERN = Pattern.compile("^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9]+)(-recorded)$");
 
     private final Map<String, H263Converter> h263Converters = new HashMap<String, H263Converter>();
     private final Map<String, String> h263Users = new HashMap<String, String>(); //viewers
@@ -125,7 +125,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		public boolean roomConnect(IConnection connection, Object[] params) {
 			log.info("BBB Video roomConnect");
 
-			if(params.length != 3) {
+			if (params.length < 3) {
 				log.error("Invalid number of parameters. param length=" + params.length);
 				return false;
 			}
@@ -152,6 +152,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
 			Red5.getConnectionLocal().setAttribute("USERID", userId);
 			Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
+			if (params.length == 4) {
+				String transcoderId = ((String) params[3]).toString();
+				Red5.getConnectionLocal().setAttribute("TRANSCODER_ID", transcoderId);
+			}
 
 			String connType = getConnectionType(Red5.getConnectionLocal().getType());
 			String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -188,12 +192,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				 */
 				Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
 				for (IConnection conn : conns) {
-					String connUserId = (String) conn.getAttribute("USERID");
+					String connUserId = getUserId(conn);
 					String connSessionId = conn.getSessionId();
 					String clientId = conn.getClient().getId();
 					String remoteHost = conn.getRemoteAddress();
 					int remotePort = conn.getRemotePort();
-					if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
+					if (connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
 						conn.removeAttribute("USERID");
 						Map<String, Object> logData = new HashMap<String, Object>();
 						logData.put("meetingId", meetingId);
@@ -245,10 +249,28 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
     }
 
+    private String getUserId(IConnection conn) {
+        String transcoderId = (String) conn.getAttribute("TRANSCODER_ID");
+        String userId = (String) conn.getAttribute("USERID");
+        if ((transcoderId != null) && (!"".equals(transcoderId))) {
+            // It's a transcoder user
+            return transcoderId;
+        } else {
+            if ((userId == null) || ("".equals(userId))) userId = "unknown-userId";
+            return userId;
+        }
+    }
+
     private String getUserId() {
-        String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
-        if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
-        return userid;
+        String transcoderId = (String) Red5.getConnectionLocal().getAttribute("TRANSCODER_ID");
+        String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+        if ((transcoderId != null) && (!"".equals(transcoderId))) {
+            // It's a transcoder user
+            return transcoderId;
+        } else {
+            if ((userId == null) || ("".equals(userId))) userId = "unknown-userId";
+            return userId;
+        }
     }
 
     private String getMeetingId() {
@@ -311,36 +333,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         log.info("streamPublishStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
     }
 
-    private String getStreamName(String streamName) {
-        String parts[] = streamName.split("/");
-        if (parts.length > 1)
-            return parts[parts.length - 1];
-        return "";
-    }
-
-    private void requestRotateVideoTranscoder(IBroadcastStream stream) {
-        IConnection conn = Red5.getConnectionLocal();
-        String userId = getUserId();
-        String meetingId = conn.getScope().getName();
-        String streamId = stream.getPublishedName();
-        String streamName = getStreamName(streamId);
-        String ipAddress = conn.getHost();
-
-        switch (VideoRotator.getDirection(streamId)) {
-            case VideoRotator.ROTATE_RIGHT:
-                publisher.startRotateRightTranscoderRequest(meetingId, userId, streamName, ipAddress);
-                break;
-            case VideoRotator.ROTATE_LEFT:
-                publisher.startRotateLeftTranscoderRequest(meetingId, userId, streamName, ipAddress);
-                break;
-            case VideoRotator.ROTATE_UPSIDE_DOWN:
-                publisher.startRotateUpsideDownTranscoderRequest(meetingId, userId, streamName, ipAddress);
-                break;
-            default:
-                break;
-        }
-    }
-
 		@Override
 		public void streamBroadcastStart(IBroadcastStream stream) {
 			IConnection conn = Red5.getConnectionLocal();
@@ -391,15 +383,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			String logStr =  gson.toJson(logData);
 			log.info(logStr);
 
+			checkTranscode(streamId);
+
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
-			addH263PublishedStream(streamId);
-			if (streamId.contains("/")) {
-				if (VideoRotator.getDirection(streamId) != null) {
-					//VideoRotator rotator = new VideoRotator(streamId);
-					videoRotators.put(streamId, null);
-					requestRotateVideoTranscoder(stream);
-				}
-			} else if (matcher.matches()) {
+			if (matcher.matches()) {
 				Map<String, Object> logData2 = new HashMap<String, Object>();
 				logData2.put("meetingId", getMeetingId());
 				logData2.put("userId", getUserId());
@@ -470,11 +457,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
         removeH263ConverterIfNeeded(streamId);
         if (videoRotators.containsKey(streamId)) {
-            // Stop rotator
-            videoRotators.remove(streamId);
-            publisher.stopTranscoderRequest(meetingId, userId);
+            VideoRotator rotator = videoRotators.remove(streamId);
+            rotator.stop();
         }
-        removeH263PublishedStream(streamId);
+        removeH263PublishedStream(streamId.replaceAll(H263Converter.H263PREFIX, ""));
         if (matcher.matches()) {
             meetingManager.streamBroadcastClose(meetingId, streamId);
             meetingManager.removeStream(meetingId, streamId);
@@ -497,10 +483,26 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         this.meetingManager = meetingManager;
     }
 
+    private void checkTranscode(String streamName) {
+        // H263
+        if (streamName.contains(H263Converter.H263PREFIX)) {
+            log.debug("Publishing an h263 stream. StreamName={}.", streamName);
+            h263PublishedStreams.put(streamName.replaceAll(H263Converter.H263PREFIX, ""), getUserId());
+        }
+
+        // Rotate
+        if (VideoRotator.getDirection(streamName) != null) {
+            log.debug("Publishing a rotated stream. StreamName={}.", streamName);
+            VideoRotator rotator = new VideoRotator(streamName, publisher);
+            videoRotators.put(streamName, rotator);
+        }
+    }
+
     @Override
     public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
         // log w3c connect event
         String streamName = item.getName();
+        String userId = getUserId();
         streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
 
         if (isH263Stream(stream)) {
@@ -516,9 +518,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
                     converter = h263Converters.get(streamName);
                 }
 
-                if (!isH263UserListening(getUserId())) {
+                if (!isH263UserListening(userId)) {
                     converter.addListener();
-                    addH263User(getUserId(), streamName);
+                    addH263User(userId, streamName);
                 }
             }
         }
@@ -589,13 +591,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     private boolean isH263UserListening(String userId) {
         return (h263Users.containsKey(userId));
-    }
-
-    private void addH263PublishedStream(String streamName) {
-        if (streamName.contains(H263Converter.H263PREFIX)) {
-            log.debug("Publishing an h263 stream. StreamName={}.", streamName);
-            h263PublishedStreams.put(streamName, getUserId());
-        }
     }
 
     private void removeH263PublishedStream(String streamName) {
