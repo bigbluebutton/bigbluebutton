@@ -60,6 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 		<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 		<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
+		<mate:Listener type="{BBBEvent.USER_INACTIVITY_AUDIT_EVENT}" method="handleUserInactivityAuditEvent" />
 		<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 		<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
 		
@@ -131,7 +132,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.options.LanguageOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
@@ -496,6 +496,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			mdiCanvas.addChild(e.component);
 	   		}
 	   		
+			private function handleUserInactivityAuditEvent(e:BBBEvent):void {
+				var inactivityWarning:UserInactivityAuditWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
+					UserInactivityAuditWindow, true) as UserInactivityAuditWindow;
+				inactivityWarning.duration = e.payload.duration;
+			}
+			
 			private function handleInactivityWarningEvent(e:BBBEvent):void {
 				var inactivityWarning:InactivityWarningWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, InactivityWarningWindow, true) as InactivityWarningWindow;
 				inactivityWarning.duration = e.payload.duration;

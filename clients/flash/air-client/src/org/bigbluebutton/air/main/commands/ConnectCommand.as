@@ -16,7 +16,6 @@ package org.bigbluebutton.air.main.commands {
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserChangeEnum;
 	import org.bigbluebutton.air.user.services.IUsersService;
-	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.services.IVideoConnection;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.air.voice.models.PhoneOptions;
@@ -85,10 +84,7 @@ package org.bigbluebutton.air.main.commands {
 		
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
-		
-		[Inject]
-		public var shareCameraSignal:ShareCameraSignal;
-		
+			
 		private var authTokenTimeout:Timer;
 		
 		private var joinMeetingTimeout:Timer;

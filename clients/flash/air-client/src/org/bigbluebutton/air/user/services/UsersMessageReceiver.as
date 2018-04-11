@@ -4,6 +4,7 @@ package org.bigbluebutton.air.user.services {
 	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.common.models.IMessageListener;
 	import org.bigbluebutton.air.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.air.main.commands.UserInactivityTimerSignal;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
@@ -26,6 +27,8 @@ package org.bigbluebutton.air.user.services {
 		public var conferenceParameters:IConferenceParameters;
 		
 		public var disconnectUserSignal:DisconnectUserSignal;
+		
+		public var meetingInactivityTimerSignal:UserInactivityTimerSignal;
 		
 		public function UsersMessageReceiver() {
 		}
@@ -94,11 +97,19 @@ package org.bigbluebutton.air.user.services {
 				case "UserRoleChangedEvtMsg":
 					handleUserRoleChangedEvtMsg(message);
 					break;
+				case "UserInactivityAuditMsg":
+					handleUserInactivityAuditMsg(message);
+					break;
 				default:
 					break;
 			}
 		}
 		
+		private function handleUserInactivityAuditMsg(m:Object):void {
+			trace("handleInactivityWarning: " + ObjectUtil.toString(m));
+			meetingInactivityTimerSignal.dispatch(m.body.responseDuration as Number);
+		}
+				
 		private function handleMeetingMuted(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("handleMeetingMuted: " + ObjectUtil.toString(msg));

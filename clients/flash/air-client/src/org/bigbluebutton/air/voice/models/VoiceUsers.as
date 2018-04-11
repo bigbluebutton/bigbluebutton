@@ -39,7 +39,7 @@ package org.bigbluebutton.air.voice.models {
 			if (index >= 0) {
 				var removedUser:VoiceUser = _users.removeItemAt(index) as VoiceUser;
 				
-				if (_me == removedUser) {
+				if (_me.intId == removedUser.intId) {
 					_me = null;
 				}
 				
@@ -77,6 +77,7 @@ package org.bigbluebutton.air.voice.models {
 					// Force user to not talking if muted.
 					user.talking = false;
 				}
+
 				_userChangeSignal.dispatch(user, VoiceUserChangeEnum.MUTE);
 			}
 		}

@@ -10,6 +10,8 @@
 		<![CDATA[
 			override protected function updateDisplayList(w:Number, h:Number):void {
 				super.updateDisplayList(w, h);
+				background.width = getStyle("width");
+				background.height = getStyle("height");
 				
 				icon.setStyle("color", getStyle("iconColor"));
 				icon.text = getStyle("icon");
@@ -24,6 +26,11 @@
 		<s:State name="over" />
 		<s:State name="up" />
 	</s:states>
+	<s:Rect id="background">
+		<s:fill>
+			<s:SolidColor id="backgroundFill" alpha="0" />
+		</s:fill>
+	</s:Rect>
 	<s:Label id="icon"
 			 horizontalCenter="0"
 			 verticalCenter="0" />

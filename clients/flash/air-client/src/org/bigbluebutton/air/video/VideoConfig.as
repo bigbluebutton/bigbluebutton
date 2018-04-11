@@ -2,6 +2,8 @@ package org.bigbluebutton.air.video {
 	
 	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.air.video.commands.StopShareCameraCommand;
+	import org.bigbluebutton.air.video.commands.StopShareCameraSignal;
 	import org.bigbluebutton.air.video.views.WebcamDock;
 	import org.bigbluebutton.air.video.views.WebcamDockMediator;
 	
@@ -31,6 +33,7 @@ package org.bigbluebutton.air.video {
 		
 		private function signals():void {
 			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
+			signalCommandMap.map(StopShareCameraSignal).toCommand(StopShareCameraCommand);
 		}
 	}
 }

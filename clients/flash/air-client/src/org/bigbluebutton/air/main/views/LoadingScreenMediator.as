@@ -44,7 +44,7 @@ package org.bigbluebutton.air.main.views {
 				joinRoom(url);
 			}
 		}
-		
+				
 		private function onInvokeEvent(invocation:InvokeEvent):void {
 			if (invocation.arguments.length > 0 && !Capabilities.isDebugger) {
 				var url:String = invocation.arguments[0].toString();			
@@ -60,7 +60,6 @@ package org.bigbluebutton.air.main.views {
 					FlexGlobals.topLevelApplication.mainshell.visible = false;
 					uiSession.popPage();
 					uiSession.pushPage(PageEnum.MAIN);
-					
 					joinRoom(url);
 				}
 			} else {
