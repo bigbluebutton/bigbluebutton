@@ -22,8 +22,8 @@ const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
 };
 
-const changeWhiteboardMode = (multiUser) => {
-  makeCall('changeWhiteboardAccess', multiUser);
+const changeWhiteboardMode = (multiUser, whiteboardId) => {
+  makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
 };
 
 const setInitialWhiteboardToolbarValues = (tool, thickness, color, fontSize, textShape) => {

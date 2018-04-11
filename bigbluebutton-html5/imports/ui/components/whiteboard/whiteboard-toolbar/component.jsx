@@ -100,7 +100,9 @@ class WhiteboardToolbar extends Component {
     // no drawSettings in the sessionStorage - setting default values
     } else {
       // setting default drawing settings if they haven't been set previously
-      const { annotationSelected, thicknessSelected, colorSelected, fontSizeSelected } = this.state;
+      const {
+        annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
+      } = this.state;
       this.props.actions.setInitialWhiteboardToolbarValues(
         annotationSelected.value,
         thicknessSelected.value * 2,
@@ -218,7 +220,8 @@ class WhiteboardToolbar extends Component {
   }
 
   handleSwitchWhiteboardMode() {
-    this.props.actions.changeWhiteboardMode(!this.props.multiUser);
+    const { multiUser, whiteboardId } = this.props;
+    this.props.actions.changeWhiteboardMode(!multiUser, whiteboardId);
   }
 
   // changes a current selected annotation both in the state and in the session
@@ -298,7 +301,7 @@ class WhiteboardToolbar extends Component {
         label={intl.formatMessage(intlMessages.toolbarTools)}
         icon={this.state.annotationSelected.icon}
         onItemClick={this.displaySubMenu}
-        objectToReturn={'annotationList'}
+        objectToReturn="annotationList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'annotationList' ? '' : styles.notActive)}
       >
@@ -326,7 +329,7 @@ class WhiteboardToolbar extends Component {
         label={intl.formatMessage(intlMessages.toolbarFontSize)}
         customIcon={this.renderFontItemIcon()}
         onItemClick={this.displaySubMenu}
-        objectToReturn={'fontSizeList'}
+        objectToReturn="fontSizeList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'fontSizeList' ? '' : styles.notActive)}
       >
@@ -370,7 +373,7 @@ class WhiteboardToolbar extends Component {
         disabled={this.state.annotationSelected.value === 'hand'}
         label={intl.formatMessage(intlMessages.toolbarLineThickness)}
         onItemClick={this.displaySubMenu}
-        objectToReturn={'thicknessList'}
+        objectToReturn="thicknessList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'thicknessList' ? '' : styles.notActive)}
         customIcon={this.renderThicknessItemIcon()}
@@ -407,7 +410,7 @@ class WhiteboardToolbar extends Component {
             attributeType="XML"
             from={this.state.prevColorSelected.value}
             to={this.state.colorSelected.value}
-            begin={'indefinite'}
+            begin="indefinite"
             dur={TRANSITION_DURATION}
             repeatCount="0"
             fill="freeze"
@@ -418,7 +421,7 @@ class WhiteboardToolbar extends Component {
             attributeType="XML"
             from={this.state.prevThicknessSelected.value}
             to={this.state.thicknessSelected.value}
-            begin={'indefinite'}
+            begin="indefinite"
             dur={TRANSITION_DURATION}
             repeatCount="0"
             fill="freeze"
@@ -436,7 +439,7 @@ class WhiteboardToolbar extends Component {
         disabled={this.state.annotationSelected.value === 'hand'}
         label={intl.formatMessage(intlMessages.toolbarLineColor)}
         onItemClick={this.displaySubMenu}
-        objectToReturn={'colorList'}
+        objectToReturn="colorList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'colorList' ? '' : styles.notActive)}
         customIcon={this.renderColorItemIcon()}
@@ -467,7 +470,7 @@ class WhiteboardToolbar extends Component {
             attributeType="XML"
             from={this.state.prevColorSelected.value}
             to={this.state.colorSelected.value}
-            begin={'indefinite'}
+            begin="indefinite"
             dur={TRANSITION_DURATION}
             repeatCount="0"
             fill="freeze"
@@ -483,7 +486,7 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         label={intl.formatMessage(intlMessages.toolbarUndoAnnotation)}
-        icon={'undo'}
+        icon="undo"
         onItemClick={this.handleUndo}
         className={cx(styles.toolbarButton, styles.notActive)}
       />
@@ -496,7 +499,7 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
-        icon={'circle_close'}
+        icon="circle_close"
         onItemClick={this.handleClearAll}
         className={cx(styles.toolbarButton, styles.notActive)}
       />
@@ -568,24 +571,18 @@ WhiteboardToolbar.propTypes = {
   annotations: PropTypes.arrayOf(PropTypes.object).isRequired,
 
   // defines an array of font-sizes for the Font-size submenu of the text shape
-  fontSizes: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.number.isRequired,
-    }).isRequired,
-  ).isRequired,
+  fontSizes: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.number.isRequired,
+  }).isRequired).isRequired,
 
   // defines an array of colors for the toolbar (color submenu)
-  colors: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.string.isRequired,
-    }).isRequired,
-  ).isRequired,
+  colors: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.string.isRequired,
+  }).isRequired).isRequired,
   // defines an array of thickness values for the toolbar and their corresponding session values
-  thicknessRadiuses: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.number.isRequired,
-    }).isRequired,
-  ).isRequired,
+  thicknessRadiuses: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.number.isRequired,
+  }).isRequired).isRequired,
 
   // defines the physical height of the whiteboard
   height: PropTypes.number.isRequired,
