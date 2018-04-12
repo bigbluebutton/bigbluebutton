@@ -31,6 +31,10 @@ package org.bigbluebutton.air.main.views {
 		[SkinPart(required = "false")]
 		public var controlBarGroup:Group;
 		
+		public function set title(value:String):void {
+			_title = value;
+		}
+		
 		public function set text(value:String):void {
 			_text = value;
 		}

@@ -92,7 +92,7 @@ package org.bigbluebutton.air.main.views {
 					var vu:VoiceUser = meetingData.voiceUsers.getUser(meetingData.users.me.intId);
 					if (vu != null) {
 						if (meetingData.meetingStatus.lockSettings.disableMic && vu.muted) {
-							Alert.show("Unmuting denied.");
+							MobileAlert.show("Unmuting denied.");
 						} else {
 							microphoneMuteSignal.dispatch(meetingData.users.me.intId);
 						}

@@ -23,18 +23,17 @@ package org.bigbluebutton.air.main.views {
 		override protected function partAdded(partName:String, instance:Object):void {
 			super.partAdded(partName, instance);
 			
+			if (instance == chrome) {
+				VerticalLayout(chrome.layout).padding = getStyle("padding");
+			}
+			
 			if (instance == contentGroup) {
 				var contentGroupLayout:HorizontalLayout = new HorizontalLayout();
 				contentGroupLayout.horizontalAlign = HorizontalAlign.CENTER;
+				contentGroupLayout.padding = getStyle("padding");
 				contentGroup.layout = contentGroupLayout;
 				contentGroup.addElement(okButton);
 			}
-		}
-		
-		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-			super.updateDisplayList(unscaledWidth, unscaledHeight);
-			VerticalLayout(chrome.layout).padding = getStyle("padding");
-			HorizontalLayout(contentGroup.layout).padding = getStyle("padding");
 		}
 	}
 }

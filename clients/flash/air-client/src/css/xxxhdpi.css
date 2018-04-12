@@ -123,6 +123,10 @@
         fontSize: 44;
     }
 
+    main|MobilePopUp {
+        padding: 24;
+    }
+
     .mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
         cornerRadius: 16;
     }
