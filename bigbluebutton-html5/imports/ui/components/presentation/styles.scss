@@ -53,9 +53,9 @@
 }
 
 .svgStyles {
+  max-height: 100%;
   //always show an arrow by default
   cursor: default;
-
   //double click on the whiteboard shouldn't change the cursor
   user-select: none;
 }

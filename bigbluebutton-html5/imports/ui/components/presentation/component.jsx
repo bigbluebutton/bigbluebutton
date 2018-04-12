@@ -167,11 +167,6 @@ export default class PresentationArea extends Component {
           timeout={{ enter: 400 }}
         >
           <svg
-            // width={width}
-            // height={height}
-            style={{
-              maxHeight: `${adjustedSizes.height}px`,
-            }}
             preserveAspectRatio="xMidYMid meet"
             ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
