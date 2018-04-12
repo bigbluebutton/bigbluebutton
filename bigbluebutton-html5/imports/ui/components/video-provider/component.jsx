@@ -329,10 +329,6 @@ class VideoProvider extends Component {
         return log('error', error);
       }
 
-      if (typeof that.webRtcPeers[id].onReady === 'function') {
-        that.webRtcPeers[id].onReady;
-      }
-
       this.didSDPAnswered = false;
       this.iceQueue = [];
 

@@ -12,9 +12,14 @@
 
 .videoList {
   display: grid;
-  grid-gap: 10px;
+
   overflow: hidden;
   grid-auto-flow: dense;
+  grid-gap: 5px;
+
+  @include mq($medium-up) {
+    grid-gap: 10px;
+  }
 }
 
 .videoListItem {
