@@ -110,7 +110,12 @@ const config = require('config');
         VIDEO_PROVIDER_PREFIX: '[VideoProvider]',
 
         // MCS error codes
-        MEDIA_SERVER_OFFLINE: "1000"
+        MEDIA_SERVER_OFFLINE: "1000",
+
+        // Media states'
+        MEDIA_STARTED: 'MEDIA_STARTED',
+        MEDIA_STOPPED: 'MEDIA_STOPPED',
+        MEDIA_STARTING: 'MEDIA_STARTING'
     }
 }
 

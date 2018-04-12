@@ -22,8 +22,10 @@ module.exports = class Video extends EventEmitter {
     this.meetingId = _meetingId;
     this.shared = _shared;
     this.role = this.shared? 'share' : 'view'
+    this.streamName = this.connectionId + this.id + "-" + this.role;
     this.mediaId = null;
     this.iceQueue = null;
+    this.status = C.MEDIA_STOPPED;
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
@@ -86,7 +88,7 @@ module.exports = class Video extends EventEmitter {
 
       case "OnIceCandidate":
         let candidate = msEvent.candidate;
-        Logger.debug("[video] Sending ICE candidate to user", this.id, "with candidate", candidate);
+        Logger.debug("[video] Sending ICE candidate to user", this.streamName, "with candidate", candidate);
         this.bbbGW.publish(JSON.stringify({
           connectionId: this.connectionId,
           type: 'video',
@@ -102,10 +104,10 @@ module.exports = class Video extends EventEmitter {
 
       case "MediaFlowOutStateChange":
       case "MediaFlowInStateChange":
-        Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.id);
+        Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.streamName);
 
         if (msEvent.state === 'NOT_FLOWING') {
-          Logger.warn("Setting up a timeout for " + this.connectionId + " camera " + this.id);
+          Logger.warn("[video] Setting up a timeout for", this.streamName);
           if (!this.notFlowingTimeout) {
             this.notFlowingTimeout = setTimeout(() => {
 
@@ -113,24 +115,37 @@ module.exports = class Video extends EventEmitter {
                 let userCamEvent =
                   Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id, this.id);
                 this.bbbGW.publish(userCamEvent, C.TO_AKKA_APPS, function(error) {});
+                this.bbbGW.publish(JSON.stringify({
+                  connectionId: this.connectionId,
+                  type: 'video',
+                  role: this.role,
+                  id : 'playStop',
+                  cameraId: this.id,
+                }), C.FROM_VIDEO);
+                this.status = C.MEDIA_STOPPED;
+                clearTimeout(this.notFlowingTimeout);
+                delete this.notFlowingTimeout;
               }
             }, config.get('mediaFlowTimeoutDuration'));
           }
         }
         else if (msEvent.state === 'FLOWING') {
           if (this.notFlowingTimeout) {
-            Logger.warn("Received a media flow before stopping " + this.connectionId + " camera " + this.id);
+            Logger.warn("[video] Received a media flow before stopping", this.streamName);
             clearTimeout(this.notFlowingTimeout);
-            this.notFlowingTimeout = null;
+            delete this.notFlowingTimeout;
           }
+          if (this.status != C.MEDIA_STARTED) {
+            this.bbbGW.publish(JSON.stringify({
+              connectionId: this.connectionId,
+              type: 'video',
+              role: this.role,
+              id : 'playStart',
+              cameraId: this.id,
+            }), C.FROM_VIDEO);
 
-          this.bbbGW.publish(JSON.stringify({
-            connectionId: this.connectionId,
-            type: 'video',
-            role: this.role,
-            id : 'playStart',
-            cameraId: this.id,
-          }), C.FROM_VIDEO);
+            this.status = C.MEDIA_STARTED;
+          }
         }
         break;
 
@@ -139,8 +154,9 @@ module.exports = class Video extends EventEmitter {
   }
 
   async start (sdpOffer, callback) {
-    Logger.info("[video] Starting video instance for", this.id);
+    Logger.info("[video] Starting video instance for", this.streamName);
     let sdpAnswer;
+    let ret;
 
     // Force H264
     if (FORCE_H264) {
@@ -149,39 +165,31 @@ module.exports = class Video extends EventEmitter {
 
     try {
       this.userId = await this.mcs.join(this.meetingId, 'SFU', {});
-      Logger.info("[video] MCS join for", this.id, "returned", this.userId);
+      Logger.info("[video] MCS join for", this.streamName, "returned", this.userId);
 
       if (this.shared) {
-        const ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
+        ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this.mediaId = ret.sessionId;
         sharedWebcams[this.id] = this.mediaId;
-        sdpAnswer = ret.answer;
-        this.flushCandidatesQueue();
-        this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
-        this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
-
-        Logger.info("[video] MCS publish for user", this.userId, "returned", this.mediaId);
-
-        return callback(null, sdpAnswer);
       }
       else if (sharedWebcams[this.id]) {
-        const ret  = await this.mcs.subscribe(this.userId, sharedWebcams[this.id], 'WebRtcEndpoint', {descriptor: sdpOffer});
-
+        ret  = await this.mcs.subscribe(this.userId, sharedWebcams[this.id], 'WebRtcEndpoint', {descriptor: sdpOffer});
         this.mediaId = ret.sessionId;
-        sdpAnswer = ret.answer;
-        this.flushCandidatesQueue();
-        this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
-        this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
-
-        Logger.info("[video] MCS subscribe for user", this.userId, "returned", this.mediaId);
-
-        return callback(null, sdpAnswer);
       }
     }
     catch (err) {
       Logger.error("[video] MCS returned error => " + err);
       return callback(err);
+    }
+    finally {
+      this.status = C.MEDIA_STARTING;
+      sdpAnswer = ret.answer;
+      this.flushCandidatesQueue();
+      this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
+      this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
+      Logger.info("[video] MCS call for user", this.userId, "returned", this.mediaId);
+      return callback(null, sdpAnswer);
     }
   };
 

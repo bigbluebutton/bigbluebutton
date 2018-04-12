@@ -189,7 +189,6 @@ module.exports = class SfuUser extends User {
     if (isError(error)) {
       error = new Error(error);
     }
-    error.code = C.ERROR.MEDIA_SERVER_ERROR;
     this._status = C.STATUS.STOPPED;
     return error;
   }

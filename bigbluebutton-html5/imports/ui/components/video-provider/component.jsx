@@ -145,7 +145,6 @@ class VideoProvider extends Component {
 
       case 'playStop':
         this.handlePlayStop(parsedMessage);
-
         break;
 
       case 'iceCandidate':
@@ -303,7 +302,7 @@ class VideoProvider extends Component {
         }
 
         that.cameraTimeouts[id] = setTimeout(() => {
-          log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
+          log('error', 'Camera share has not suceeded in ' + CAMERA_SHARE_FAILED_WAIT_TIME + ' for ' + id);
           if (that.props.userId == id) {
             that.notifyError(intl.formatMessage(intlMessages.sharingError));
             that.unshareWebcam();
@@ -359,11 +358,10 @@ class VideoProvider extends Component {
     // The stop message should be sent to server for both viewers and sharers
     this.sendMessage({
         type: 'video',
-        role: id == userId ? 'share' : 'viewer',
+        role: id === userId ? 'share' : 'viewer',
         id: 'stop',
         cameraId: id,
       });
-
 
     if (id === userId) {
       this.unshareWebcam();
@@ -376,8 +374,6 @@ class VideoProvider extends Component {
   handlePlayStop(message) {
     const id = message.cameraId;
     log('info', 'Handle play stop <--------------------');
-    log('error', message);
-
     this.stop(id);
   }
 
