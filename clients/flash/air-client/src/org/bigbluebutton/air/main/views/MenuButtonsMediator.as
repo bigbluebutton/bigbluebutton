@@ -2,7 +2,6 @@ package org.bigbluebutton.air.main.views {
 	
 	import flash.events.MouseEvent;
 	
-	import spark.components.Alert;
 	import spark.components.CalloutPosition;
 	
 	import org.bigbluebutton.air.common.PageEnum;
@@ -127,7 +126,7 @@ package org.bigbluebutton.air.main.views {
 		
 		private function camOnOff(e:MouseEvent):void {
 			if (meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR && meetingData.meetingStatus.lockSettings.disableCam) {
-				Alert.show("Sharing webcam denied.");
+				MobileAlert.show("Sharing webcam denied.");
 			} else {
 				if (media.cameraAvailable) {
 					if (!media.cameraPermissionGranted) {
@@ -191,7 +190,7 @@ package org.bigbluebutton.air.main.views {
 			if (media.cameraPermissionGranted) {
 				enableDisableWebcam();
 			} else {
-				Alert.show("Cannot share camera because access is disabled");
+				MobileAlert.show("Cannot share camera because access is disabled");
 			}
 		}
 		
@@ -199,7 +198,7 @@ package org.bigbluebutton.air.main.views {
 			if (media.microphonePermissionGranted) {
 				joinOrLeaveAudio();
 			} else {
-				Alert.show("Cannot share microphone because access is disabled");
+				MobileAlert.show("Cannot share microphone because access is disabled");
 			}
 		}
 		
