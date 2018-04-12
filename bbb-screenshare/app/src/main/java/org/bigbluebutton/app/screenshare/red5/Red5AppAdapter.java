@@ -32,6 +32,8 @@ import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.api.stream.IPlayItem;
+import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
 import org.red5.server.scheduling.QuartzSchedulingService;
@@ -42,6 +44,7 @@ import org.bigbluebutton.app.screenshare.VideoStream;
 import org.bigbluebutton.app.screenshare.EventRecordingService;
 import org.bigbluebutton.app.screenshare.IScreenShareApplication;
 import org.bigbluebutton.app.screenshare.ScreenshareStreamListener;
+import org.bigbluebutton.app.screenshare.red5.converter.H263VideoHandler;
 
 public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppAdapter.class, "screenshare");
@@ -54,6 +57,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private String streamBaseUrl;
   private ConnectionInvokerService sender;
   private String recordingDirectory;
+  private H263VideoHandler h263VideoHandler;
 
   private final Pattern STREAM_ID_PATTERN = Pattern.compile("(.*)-(.*)-(.*)$");
 
@@ -171,13 +175,19 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
-        String meetingId = matcher.group(1).trim();
+        boolean isH263Stream = H263VideoHandler.isH263Stream(streamId);
+        String meetingId = isH263Stream ?
+                matcher.group(1).trim().replace(H263VideoHandler.H263PREFIX, "") :
+                matcher.group(1).trim();
         String url = streamBaseUrl + "/" + meetingId + "/" + streamId;
-        app.streamStarted(meetingId, streamId, url);
+        // Let's not broadcast the extra H263 converted stream and skip app authorization
+        // TODO: Make a better strategy for transcoding authorization
+        if (!isH263Stream) {
+            app.streamStarted(meetingId, streamId, url);
+            app.authorizeBroadcastStream(meetingId, streamId, connId, scopeName);
+        }
 
-      app.authorizeBroadcastStream(meetingId, streamId, connId, scopeName);
-
-	    boolean recordVideoStream = app.recordStream(meetingId, streamId);
+	    boolean recordVideoStream = app.recordStream(meetingId, streamId) && !isH263Stream;
 	    if (recordVideoStream) {
 				Map<String, Object> logData2 = new HashMap<String, Object>();
 				logData2.put("meetingId", meetingId);
@@ -229,7 +239,8 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
       String meetingId = matcher.group(1).trim();
       app.streamStopped(meetingId, streamId);
 
-      boolean recordVideoStream = app.recordStream(meetingId, streamId);
+      h263VideoHandler.clearH263Converter(streamId);
+      boolean recordVideoStream = app.recordStream(meetingId, streamId) && !H263VideoHandler.isH263Stream(streamId);
       meetingManager.streamBroadcastClose(meetingId, streamId);
 
 
@@ -247,6 +258,24 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 			log.info(logStr2);
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
+    }
+  }
+
+  @Override
+  public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+    String streamName = stream.getBroadcastStreamPublishName();
+    log.debug("Handling streamPlayItemPlay for stream item [{}]", streamName);
+    if (H263VideoHandler.isH263Stream(streamName)) {
+      h263VideoHandler.streamPlayItemPlay(stream);
+    }
+  }
+
+  @Override
+  public void streamSubscriberClose(ISubscriberStream stream) {
+    String streamName = stream.getBroadcastStreamPublishName();
+    log.debug("Handling streamSubscriberClose for [{}]", streamName);
+    if (H263VideoHandler.isH263Stream(streamName)) {
+      h263VideoHandler.streamSubscriberClose(stream);
     }
   }
 
@@ -272,5 +301,9 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 
   public void setMessageSender(ConnectionInvokerService sender) {
     this.sender = sender;
+  }
+
+  public void setH263VideoHandler(H263VideoHandler h263VideoHandler) {
+    this.h263VideoHandler = h263VideoHandler;
   }
 }

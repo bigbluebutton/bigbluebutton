@@ -390,20 +390,9 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     return false;
                 }
 
-                switch(sourceModule) {
-                    case FFmpegUtils.VIDEO_MODULE:
-                        input = "rtmp://" + sourceIp + "/" + sourceModule + "/" + meetingId + "/" + videoStreamName + " live=1";
-                        outputLive = "rtmp://" + destinationIp + "/" + sourceModule + "/" + meetingId + "/" + FFmpegUtils.H263PREFIX + "-" + videoStreamName + " live=1";
-                        output = videoStreamName;
-                        break;
-                    case FFmpegUtils.DESKSHARE_MODULE:
-                        input = "rtmp://" + sourceIp + "/" + sourceModule + "/" + meetingId + " live=1";
-                        outputLive = "rtmp://" + destinationIp + "/" + sourceModule + "/" + FFmpegUtils.H263PREFIX + "/" + meetingId + " live=1";
-                        output = meetingId;
-                        break;
-                    default:
-                        System.out.println("  > ***TRANSCODER WILL NOT START: Unrecognized module: " + sourceModule);
-                }
+                input = "rtmp://" + sourceIp + "/" + sourceModule + "/" + meetingId + "/" + videoStreamName + " live=1";
+                outputLive = "rtmp://" + destinationIp + "/" + sourceModule + "/" + meetingId + "/" + FFmpegUtils.H263PREFIX + "-" + videoStreamName + " live=1";
+                output = videoStreamName;
 
                 ffmpeg = new FFmpegCommand();
                 ffmpeg.setFFmpegPath(FFMPEG_PATH);

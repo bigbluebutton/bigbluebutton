@@ -34,4 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <property name="port" value="${redis.port}" />
     </bean>
 
+    <bean id="red5RedisPublisher" class="org.bigbluebutton.app.screenshare.messaging.redis.MessagePublisher">
+      <property name="messageSender" ref="red5RedisSender"/>
+    </bean>
 </beans>

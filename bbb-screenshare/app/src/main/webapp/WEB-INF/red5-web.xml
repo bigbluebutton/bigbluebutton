@@ -53,13 +53,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="application" ref="screenShareApplication"/>
     <property name="messageSender" ref="connectionInvokerService"/>
     <property name="meetingManager" ref="meetingManager"/>
+    <property name="h263VideoHandler" ref="h263VideoHandler"/>
+  </bean>
+
+  <bean id="h263VideoHandler" class="org.bigbluebutton.app.screenshare.red5.converter.H263VideoHandler">
+    <property name="messagePublisher" ref="red5RedisPublisher"/>
   </bean>
 
   <bean id="meetingManager" class="org.bigbluebutton.app.screenshare.MeetingManager"/>
   
   <bean id="screenshare.service" class="org.bigbluebutton.app.screenshare.red5.Red5AppService">
     <property name="appHandler" ref="red5AppHandler"/>
-    <property name="red5RedisSender" ref="red5RedisSender"/>
   </bean>
 
   <bean id="red5AppHandler" class="org.bigbluebutton.app.screenshare.red5.Red5AppHandler">

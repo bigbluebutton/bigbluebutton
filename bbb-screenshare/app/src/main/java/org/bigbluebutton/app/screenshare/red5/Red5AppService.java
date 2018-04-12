@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.bigbluebutton.app.screenshare.messaging.redis.MessageSender;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -15,7 +14,6 @@ public class Red5AppService {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppService.class, "screenshare");
   
   private Red5AppHandler handler;
-  private MessageSender red5RedisSender;
 
   /**
    * Called from the client to pass us the userId.
@@ -178,9 +176,5 @@ public class Red5AppService {
 
   public void setAppHandler(Red5AppHandler handler) {
     this.handler = handler;
-  }
-
-  public void setRed5RedisSender(MessageSender red5RedisSender) {
-      this.red5RedisSender = red5RedisSender;
   }
 }
