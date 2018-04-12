@@ -320,6 +320,9 @@ Kurento.prototype.viewer = function () {
   const self = this;
   if (!this.webRtcPeer) {
     const options = {
+      mediaConstraints: {
+        audio: false
+      },
       remoteVideo: document.getElementById(this.renderTag),
       onicecandidate: this.onViewerIceCandidate.bind(this),
     };
@@ -409,7 +412,7 @@ Kurento.normalizeCallback = function (callback) {
 
 // this function explains how to use above methods/objects
 window.getScreenConstraints = function (sendSource, callback) {
-  const screenConstraints = { video: {} };
+  const screenConstraints = { video: {}, audio: false };
 
   // Limiting FPS to a range of 5-10 (5 ideal)
   screenConstraints.video.frameRate = { ideal: 5, max: 10 };
