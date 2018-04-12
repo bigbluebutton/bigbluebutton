@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.poll.views {
 	import flash.display.DisplayObjectContainer;
-	import flash.events.Event;
 	
 	import spark.components.Application;
 	import spark.components.Button;

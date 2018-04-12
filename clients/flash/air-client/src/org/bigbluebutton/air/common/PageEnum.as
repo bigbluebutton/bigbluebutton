@@ -5,7 +5,6 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.chat.views.ChatRoomView;
 	import org.bigbluebutton.air.main.views.DisconnectView;
 	import org.bigbluebutton.air.main.views.ExitView;
-	import org.bigbluebutton.air.main.views.UserInactivityView;
 	import org.bigbluebutton.air.main.views.MainView;
 	import org.bigbluebutton.air.participants.views.ParticipantsView;
 	import org.bigbluebutton.air.settings.views.SettingsView;
@@ -50,8 +49,6 @@ package org.bigbluebutton.air.common {
 		
 		public static const APPLICATION_SETTINGS:String = "ApplicationSettings";
 		
-		public static const INACTIVITY_VIEW:String = "UserInactivityView";
-		
 		/**
 		 * Especials
 		 */
@@ -77,7 +74,6 @@ package org.bigbluebutton.air.common {
 				dic[DISCONNECT] = DisconnectView;
 				//		dic[DESKSHARE] = DeskshareView;
 				dic[EXIT] = ExitView;
-				dic[INACTIVITY_VIEW] = UserInactivityView;
 				dicInitiated = true;
 			}
 		}

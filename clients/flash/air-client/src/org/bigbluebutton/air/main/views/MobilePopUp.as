@@ -16,7 +16,10 @@ package org.bigbluebutton.air.main.views {
 		
 		protected var _title:String;
 		
-		[SkinPart(required = "false")]
+		[SkinPart(required = "true")]
+		public var chrome:Group;
+		
+		[SkinPart(required = "true")]
 		public var titleDisplay:Label;
 		
 		[SkinPart(required = "false")]
@@ -27,6 +30,10 @@ package org.bigbluebutton.air.main.views {
 		
 		[SkinPart(required = "false")]
 		public var controlBarGroup:Group;
+		
+		public function set text(value:String):void {
+			_text = value;
+		}
 		
 		public function MobilePopUp() {
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage, false, 0, true);

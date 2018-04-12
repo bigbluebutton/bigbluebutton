@@ -1,40 +1,40 @@
-package org.bigbluebutton.air.main.views
-{
+package org.bigbluebutton.air.main.views {
 	import spark.components.Button;
-	import spark.components.Label;
+	import spark.layouts.HorizontalAlign;
+	import spark.layouts.HorizontalLayout;
 	import spark.layouts.VerticalLayout;
 	
-	import org.bigbluebutton.air.common.views.NoTabView;
-
-	public class UserInactivityView extends NoTabView
-	{
-		public var okButton:Button;
+	public class UserInactivityView extends MobilePopUp {
+		private var _okButton:Button;
 		
-		public function UserInactivityView()
-		{
+		public function get okButton():Button {
+			return _okButton;
+		}
+		
+		public function UserInactivityView() {
 			super();
 			
-			var l:VerticalLayout = new VerticalLayout();
-			l.horizontalAlign = "center";
-			layout = l;
+			_okButton = new Button();
+			_okButton.label = "Reset Timer"
 			
-			var messageText:Label = new Label();
-			messageText.percentWidth = 90;
-			messageText.text = "Inactivity Timer";
-			messageText.setStyle("textAlign", "center");
-			messageText.styleName = "disconnectMessage";
-			addElement(messageText);
+			_title = "Inactivity Timer";
+		}
+		
+		override protected function partAdded(partName:String, instance:Object):void {
+			super.partAdded(partName, instance);
 			
-			okButton = new Button();
-			okButton.percentWidth = 90;
-			okButton.label = "Ok";
-			addElement(okButton);
+			if (instance == contentGroup) {
+				var contentGroupLayout:HorizontalLayout = new HorizontalLayout();
+				contentGroupLayout.horizontalAlign = HorizontalAlign.CENTER;
+				contentGroup.layout = contentGroupLayout;
+				contentGroup.addElement(okButton);
+			}
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
-			this.layout["gap"] = getStyle("gap");
-			this.layout["padding"] = getStyle("padding");
+			VerticalLayout(chrome.layout).padding = getStyle("padding");
+			HorizontalLayout(contentGroup.layout).padding = getStyle("padding");
 		}
 	}
 }

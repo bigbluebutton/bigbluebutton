@@ -26,6 +26,7 @@ package org.bigbluebutton.air.main.views
 		
 		private function okButtonClicked(event:Event):void {
 			userInactivityTimerResponseSignal.dispatch();
+			view.close();
 		}
 	}
 }

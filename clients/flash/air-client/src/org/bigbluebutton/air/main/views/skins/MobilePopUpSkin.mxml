@@ -60,6 +60,8 @@
                     bgFill.alpha = getStyle("backgroundAlpha");
                 }
                 
+				separator.visible = separator.includeInLayout = controlBarGroup.numElements > 0;
+				
                 super.updateDisplayList(unscaledWidth, unscaledHeight);
             }
         ]]>        
@@ -129,9 +131,9 @@
 		</s:Scroller>
 		
 		<s:VGroup gap="0" width="100%">
-			<s:Line width="100%">
+			<s:Line width="100%" id="separator">
 				<s:stroke>
-					<s:SolidColorStroke color="{getStyle('separatorColor')}" weight="1" />
+					<s:SolidColorStroke color="{getStyle('separatorColor')}" weight="1"/>
 				</s:stroke>
 			</s:Line>
 			<s:Group id="controlBarGroup" width="100%">
