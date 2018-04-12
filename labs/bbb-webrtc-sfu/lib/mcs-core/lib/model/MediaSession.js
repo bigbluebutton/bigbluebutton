@@ -58,7 +58,7 @@ module.exports = class MediaSession {
       return Promise.resolve(this._mediaElement);
     }
     catch (err) {
-      err = this._handlerError(err);
+      err = this._handleError(err);
       return Promise.reject(err);
     }
   }
@@ -74,7 +74,7 @@ module.exports = class MediaSession {
         return Promise.resolve();
       }
       catch (err) {
-        err = this._handlerError(err);
+        err = this._handleError(err);
         return Promise.reject(err);
       }
     } else {
@@ -90,7 +90,7 @@ module.exports = class MediaSession {
       return Promise.resolve();
     }
     catch (err) {
-      err = this._handlerError(err);
+      err = this._handleError(err);
       return Promise.reject(err);
     }
   }
@@ -99,7 +99,7 @@ module.exports = class MediaSession {
     this._MediaServer.addMediaEventListener (type, mediaId);
   }
 
-  _handlerError (error) {
+  _handleError (error) {
     Logger.error("[mcs-media-session] SFU MediaSession received an error", error);
     // Checking if the error needs to be wrapped into a JS Error instance
     if (isError(error)) {

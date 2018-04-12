@@ -239,7 +239,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
     let kurentoCandidate = mediaServerClient.getComplexType('IceCandidate')(candidate);
 
-    if (!mediaElement  && !candidate) {
+    if (mediaElement  && candidate) {
       mediaElement.addIceCandidate(candidate);
       Logger.debug("[mcs-media] Added ICE candidate for => " + elementId);
       return Promise.resolve();
@@ -254,7 +254,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
 
     return new Promise((resolve, reject) => {
-      if (!mediaElement) {
+      if (mediaElement) {
         mediaElement.gatherCandidates((error) => {
           if (error) {
             error = this._handleError(error);
@@ -273,7 +273,7 @@ module.exports = class MediaServer extends EventEmitter {
   setInputBandwidth (elementId, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
-    if (!mediaElement) {
+    if (mediaElement) {
       endpoint.setMinVideoRecvBandwidth(min);
       endpoint.setMaxVideoRecvBandwidth(max);
     } else {
@@ -284,7 +284,7 @@ module.exports = class MediaServer extends EventEmitter {
   setOutputBandwidth (endpoint, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
-    if (!mediaElement) {
+    if (mediaElement) {
       endpoint.setMinVideoSendBandwidth(min);
       endpoint.setMaxVideoSendBandwidth(max);
     } else {
@@ -295,7 +295,7 @@ module.exports = class MediaServer extends EventEmitter {
   setOutputBitrate (endpoint, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
-    if (!mediaElement) {
+    if (mediaElement) {
       endpoint.setMinOutputBitrate(min);
       endpoint.setMaxOutputBitrate(max);
     } else {
@@ -307,7 +307,7 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
 
     return new Promise((resolve, reject) => {
-      if (!mediaElement) {
+      if (mediaElement) {
         mediaElement.processOffer(sdpOffer, (error, answer) => {
           if (error) {
             error = this._handleError(error);
@@ -352,7 +352,7 @@ module.exports = class MediaServer extends EventEmitter {
   addMediaEventListener (eventTag, elementId) {
     let mediaElement = this._mediaElements[elementId];
     // TODO event type validator
-    if (!mediaElement) {
+    if (mediaElement) {
       Logger.debug('[mcs-media] Adding media state listener [' + eventTag + '] for ' + elementId);
       mediaElement.on(eventTag, (event) => {
         if (eventTag === C.EVENT.MEDIA_STATE.ICE) {

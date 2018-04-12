@@ -183,13 +183,15 @@ module.exports = class Video extends EventEmitter {
       return callback(err);
     }
     finally {
-      this.status = C.MEDIA_STARTING;
-      sdpAnswer = ret.answer;
-      this.flushCandidatesQueue();
-      this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
-      this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
-      Logger.info("[video] MCS call for user", this.userId, "returned", this.mediaId);
-      return callback(null, sdpAnswer);
+      if (ret) {
+        this.status = C.MEDIA_STARTING;
+        sdpAnswer = ret.answer;
+        this.flushCandidatesQueue();
+        this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
+        this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
+        Logger.info("[video] MCS call for user", this.userId, "returned", this.mediaId);
+        return callback(null, sdpAnswer);
+      }
     }
   };
 
