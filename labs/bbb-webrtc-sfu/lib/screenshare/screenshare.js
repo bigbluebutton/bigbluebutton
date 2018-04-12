@@ -236,7 +236,7 @@ module.exports = class Screenshare extends EventEmitter {
     if (FORCE_H264) {
       sdpOffer = h264_sdp.transform(sdp);
     }
-    sdpOffer = sdp;
+
     this._viewersCandidatesQueue[callerName] = [];
 
     try {
