@@ -378,6 +378,15 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     return Logger.info(`Upserted annotation id=${annotation.id} whiteboard=${whiteboardId}`);
   };
 
+  function isSelectorPresent(selectorsArray, selector) {
+    for(let i = 0; i < selectorsArray.length; i++) {
+      if(JSON.stringify(selectorsArray[i]) === JSON.stringify(selector)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   if(annotation.annotationType !== ANNOTATION_TYPE_TEXT &&
     annotation.annotationType !== ANNOTATION_TYPE_PENCIL) {
 
@@ -389,7 +398,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
       Annotations.upsert(query.selector, query.modifier, cb);
     } else {
       let diff = process.hrtime(lastBulkTime)[1]/1000000;
-      if(diff < 300) {
+      if(diff < 200) {
         // Pushing to the bulk
         RedisPubSub.addToAnnotationsBulk({
           query: query,
@@ -405,8 +414,16 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
             cb: cb
           });
           let bulk = RedisPubSub.getAnnotationsBulk();
+          let uniqueSelectors = [];
+          let filteredBulk = [];
+          bulk.forEach(function(annotation) {
+            if(annotation.query.modifier.$set.status === 'DRAW_START' || annotation.query.modifier.$set.status === 'DRAW_END' || !isSelectorPresent(uniqueSelectors, annotation.query.selector)) {
+              uniqueSelectors.push(annotation.query.selector);
+              filteredBulk.push(annotation);
+            }
+          });
           let operations = [];
-          bulk.forEach(function(ann) {
+          filteredBulk.forEach(function(ann) {
             operations.push({
               updateOne: {
                 'filter': ann.query.selector,
