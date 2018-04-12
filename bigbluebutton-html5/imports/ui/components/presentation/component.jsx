@@ -34,6 +34,12 @@ export default class PresentationArea extends Component {
     window.addEventListener('resize', this.handleResize, false);
   }
 
+  componentWillUpdate(nextProps) {
+    if (nextProps.currentSlide.id !== this.props.currentSlide.id) {
+      this.viewBox = false;
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize, false);
   }
@@ -103,14 +109,14 @@ export default class PresentationArea extends Component {
         >
           <svg
             preserveAspectRatio="xMidYMid meet"
-            ref={(ref) => { this.svggroup = ref; }}
+            ref={(ref) => { if (ref) this.svggroup = ref; }}
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
             className={styles.svgStyles}
           >
             <defs>
-              <clipPath id="viewBox" ref={(ref) => { this.viewBox = ref; }}>
+              <clipPath id="viewBox" ref={(ref) => { if (!this.viewBox) this.viewBox = ref; }}>
                 <rect x={x} y={y} width="100%" height="100%" fill="none" />
               </clipPath>
             </defs>
