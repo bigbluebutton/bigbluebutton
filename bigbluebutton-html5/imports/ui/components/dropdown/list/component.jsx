@@ -9,7 +9,7 @@ import ListTitle from './title/component';
 import UserActions from '../../user-list/user-list-content/user-participants/user-list-item/user-action/component';
 
 const propTypes = {
- /*  We should recheck this proptype, sometimes we need to create an container and send to dropdown,
+  /*  We should recheck this proptype, sometimes we need to create an container and send to dropdown,
    but with this */
   // proptype, is not possible.
   children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
@@ -33,6 +33,7 @@ const defaultProps = {
 export default class DropdownList extends Component {
   constructor(props) {
     super(props);
+
     this.childrenRefs = [];
     this.menuRefs = [];
     this.handleItemKeyDown = this.handleItemKeyDown.bind(this);
@@ -41,7 +42,7 @@ export default class DropdownList extends Component {
 
   componentWillMount() {
     this.setState({
-      focusedIndex: 0,
+      focusedIndex: false,
     });
   }
 
@@ -64,7 +65,7 @@ export default class DropdownList extends Component {
 
   handleItemKeyDown(event, callback) {
     const { getDropdownMenuParent } = this.props;
-    let nextFocusedIndex = this.state.focusedIndex;
+    let nextFocusedIndex = this.state.focusedIndex || 0;
     const isHorizontal = this.props.horizontal;
     const navigationKeys = {
       previous: KEY_CODES[`ARROW_${isHorizontal ? 'LEFT' : 'UP'}`],
@@ -139,7 +140,8 @@ export default class DropdownList extends Component {
   render() {
     const { children, style, className } = this.props;
 
-    const boundChildren = Children.map(children,
+    const boundChildren = Children.map(
+      children,
       (item) => {
         if (item.type === ListSeparator) {
           return item;
@@ -164,7 +166,8 @@ export default class DropdownList extends Component {
             this.handleItemKeyDown(event, onKeyDown);
           },
         });
-      });
+      },
+    );
 
     const listDirection = this.props.horizontal ? styles.horizontalList : styles.verticalList;
     return (
