@@ -607,7 +607,7 @@
     }
     **/
     
-      const eb = new vertx.EventBus("https://ritz-ss.blindside-dev.com/eventbus");
+      const eb = new vertx.EventBus("http://192.168.246.131:3001/eventbus");
       eb.onopen = function () {
             console.log("FOOOO!!!!!");
             eb.registerHandler("chat.to.client", function (msg) {
@@ -617,7 +617,7 @@
       };
       
     BBB.sendToDeepstream = function(data) {
-      eb.send("chat.to.server", JSON.stringify(data), function(msg) {
+      eb.send("chat.to.server", data, function(msg) {
            //console.log("reply: " + msg + "\n");
       });
     };

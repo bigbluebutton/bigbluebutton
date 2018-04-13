@@ -11,12 +11,12 @@ object Connection {
 class Connection(val connId: String, vertx: Vertx)(implicit val context: ActorContext) {
   val actorRef = context.actorOf(ConnectionActor.props(connId, vertx), "connActor" + "-" + connId)
 
-  val consumer: MessageConsumer[String] = vertx.eventBus().consumer(connId)
+  val consumer: MessageConsumer[String] = vertx.eventBus().consumer("foo-" + connId)
   consumer.handler(new MyConnHandler())
 }
 
 object ConnectionActor {
-  def props(connId: String, vertx: Vertx): Props = Props(classOf[ConnectionActor])
+  def props(connId: String, vertx: Vertx): Props = Props(classOf[ConnectionActor], connId, vertx)
 }
 
 class ConnectionActor(connId: String, vertx: Vertx) extends Actor with ActorLogging {

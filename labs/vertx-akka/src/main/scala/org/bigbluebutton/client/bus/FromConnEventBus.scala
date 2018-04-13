@@ -4,14 +4,16 @@ import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
 import org.bigbluebutton.client.ConnInfo
 
-sealed trait FromConnectionMsg
-case class ConnectMsg(connInfo: ConnInfo) extends FromConnMsg
-case class DisconnectMsg(connInfo: ConnInfo) extends FromConnMsg
-case class MsgFromClientMsg(connInfo: ConnInfo, json: String) extends FromConnMsg
-case class MsgFromClientBusMsg(val topic: String, val payload: FromConnMsg)
+case class ConnInfo2(id: String)
 
-class MsgFromClientEventBus extends EventBus with LookupClassification {
-  type Event = MsgFromClientBusMsg
+sealed trait FromConnMsg
+case class ConnectMsg(connInfo: ConnInfo2) extends FromConnMsg
+case class DisconnectMsg(connInfo: ConnInfo2) extends FromConnMsg
+case class MsgFromConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
+case class MsgFromConnBusMsg(val topic: String, val payload: FromConnMsg)
+
+class FromConnEventBus extends EventBus with LookupClassification {
+  type Event = MsgFromConnBusMsg
   type Classifier = String
   type Subscriber = ActorRef
 

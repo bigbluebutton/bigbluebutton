@@ -27,10 +27,10 @@ case class SocketCreated(id: String)
 case class SocketDestroyed(id: String)
 
 object ConnManagerActor {
-  def props(vertx: Vertx): Props = Props(classOf[ConnManagerActor])
+  def props(vertx: Vertx): Props = Props(classOf[ConnManagerActor], vertx)
 }
 
-case class ConnManagerActor(connId: String, vertx: Vertx) extends Actor with ActorLogging {
+case class ConnManagerActor(vertx: Vertx) extends Actor with ActorLogging {
   private var conns = new collection.immutable.HashMap[String, Connection]
 
   def receive = {

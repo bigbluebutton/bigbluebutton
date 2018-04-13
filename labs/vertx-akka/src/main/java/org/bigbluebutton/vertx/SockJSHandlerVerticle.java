@@ -2,6 +2,7 @@ package org.bigbluebutton.vertx;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -76,11 +77,12 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
         System.out.println("Socket UNREGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.PUBLISH) {
         System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        gw.onMessageReceived(be.socket().webSession().id(), be.getRawMessage().toString());
       } else if (be.type() == BridgeEventType.RECEIVE) {
         System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
         System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        String body = be.getRawMessage().getJsonObject("body").encode();
+        gw.onMessageReceived("foo-" + be.socket().webSession().id(), body);
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
         gw.register(be.socket().webSession().id());

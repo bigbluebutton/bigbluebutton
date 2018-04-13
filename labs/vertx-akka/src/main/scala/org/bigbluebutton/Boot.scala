@@ -23,8 +23,9 @@ object Boot extends App with SystemConfiguration {
 
   val akkaGW = new VertxToAkkaGateway(system, vertx, authActor, echoActor)
   val vertxToAkkaBus = new VertxToAkkaBus(vertx, akkaGW)
+  val connectionManager = new ConnectionManager(system, vertx)
 
-  val hello = new HelloWorld(vertx, akkaGW);
+  val hello = new HelloWorld(vertx, akkaGW, connectionManager);
   hello.startup()
 
 }
