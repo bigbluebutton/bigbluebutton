@@ -74,6 +74,7 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
+    this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
   }
 
