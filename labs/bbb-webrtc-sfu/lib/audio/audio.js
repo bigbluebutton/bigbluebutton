@@ -130,7 +130,7 @@ module.exports = class Audio {
       case "MediaFlowOutStateChange":
         Logger.info('[audio]', msEvent.type, '[' + msEvent.state? msEvent.state : 'UNKNOWN_STATE' + ']', 'for media session',  event.id);
         // TODO treat this accordingly =( (prlanzarin 05/02/2018)
-   
+
         break;
 
       case "MediaFlowInStateChange":
@@ -159,9 +159,9 @@ module.exports = class Audio {
         this.userId = await this.mcs.join(this.voiceBridge, 'SFU', {});
         Logger.info("[audio] MCS join for", this.id, "returned", this.userId);
 
-        const ret = await this.mcs.publish(this.userId, 
-            this.voiceBridge, 
-            'RtpEndpoint', 
+        const ret = await this.mcs.publish(this.userId,
+            this.voiceBridge,
+            'RtpEndpoint',
             {descriptor: sdpOffer, adapter: 'Freeswitch', name: callerName});
 
         this.sourceAudio = ret.sessionId;
@@ -171,9 +171,9 @@ module.exports = class Audio {
         Logger.info("[audio] MCS publish for user", this.userId, "returned", this.sourceAudio);
       }
 
-      const retSubscribe  = await this.mcs.subscribe(this.userId, 
+      const retSubscribe  = await this.mcs.subscribe(this.userId,
           this.sourceAudio,
-          'WebRtcEndpoint', 
+          'WebRtcEndpoint',
           {descriptor: sdpOffer, adapter: 'Kurento'});
 
       this.audioEndpoints[connectionId] = retSubscribe.sessionId;
@@ -204,7 +204,7 @@ module.exports = class Audio {
     if (listener) {
       try {
         if (this.audioEndpoints && Object.keys(this.audioEndpoints).length === 1) {
-          await this.mcs.leave(this.voiceBridge, this.userId); 
+          await this.mcs.leave(this.voiceBridge, this.userId);
           this.sourceAudioStarted = false;
         }
         else {
@@ -223,7 +223,7 @@ module.exports = class Audio {
     }
   }
 
-  async stopAll () {
+  async stop () {
     Logger.info('[audio] Releasing endpoints for user', this.userId, 'at room', this.voiceBridge);
 
     try {

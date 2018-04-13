@@ -148,6 +148,9 @@ const config = require('config');
         VIDEO_PROCESS_PREFIX: '[VideoProcess]',
         VIDEO_MANAGER_PREFIX: '[VideoManager]',
         VIDEO_PROVIDER_PREFIX: '[VideoProvider]',
+        AUDIO_PROCESS_PREFIX: '[AudioProcess]',
+        AUDIO_MANAGER_PREFIX: '[AudioManager]',
+        AUDIO_PROVIDER_PREFIX: '[AudioProvider]',
 
         // MCS error codes
         MEDIA_SERVER_OFFLINE: "1000",
