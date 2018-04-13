@@ -33,7 +33,6 @@ const JoinVideoOptionsContainer = (props) => {
     intl,
     ...restProps
   } = props;
-
   const videoItems = [
     {
       iconPath: `${baseName}/resources/images/video-menu/icon-swap.svg`,
@@ -46,7 +45,7 @@ const JoinVideoOptionsContainer = (props) => {
       iconPath: `${baseName}/resources/images/video-menu/icon-webcam-off.svg`,
       description: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
       label: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
-      disabled: isDisabled,
+      disabled: isDisabled && !isSharingVideo,
       click: isSharingVideo ? handleCloseVideo : handleJoinVideo,
     },
   ];
@@ -54,15 +53,9 @@ const JoinVideoOptionsContainer = (props) => {
   return <JoinVideoOptions {...{ videoItems, isSharingVideo, ...restProps }} />;
 };
 
-export default injectIntl(withTracker(({
-  intl,
-  handleJoinVideo,
-  handleCloseVideo,
-}) => ({
+export default injectIntl(withTracker(() => ({
   baseName: VideoMenuService.baseName,
   isSharingVideo: VideoMenuService.isSharingVideo(),
   isDisabled: VideoMenuService.isDisabled(),
-  handleJoinVideo,
-  handleCloseVideo,
-  intl,
+  videoShareAllowed: VideoMenuService.videoShareAllowed(),
 }))(JoinVideoOptionsContainer));

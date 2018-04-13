@@ -12,28 +12,31 @@ const isSharingVideo = () => {
   return !!user.has_stream;
 };
 
+const videoShareAllowed = () => Settings.dataSaving.viewParticipantsWebcams;
+
+
 const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const videoSettings = Settings.dataSaving;
-  const enableShare = videoSettings.viewParticipantsWebcams;
   const lockCam = VideoService.isLocked();
-  const webcamOnlyModerator = VideoService.webcamOnlyModerator();
+
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
 
   const isConnecting = (!isSharingVideo && isConnected);
-  const isLocked = (lockCam && userLocked) || webcamOnlyModerator;
+
+  const isLocked = (lockCam && userLocked);
 
   return isLocked
       || isWaitingResponse
       || isConnecting
-      || !enableShare;
+      || !videoShareAllowed();
 };
 
 export default {
   isSharingVideo,
   isDisabled,
   baseName,
+  videoShareAllowed,
 };

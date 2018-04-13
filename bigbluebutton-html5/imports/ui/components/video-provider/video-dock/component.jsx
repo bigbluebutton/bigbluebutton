@@ -86,11 +86,11 @@ class VideoDock extends Component {
         <div id="webcamArea" className={styles.webcamArea}>
           {this.props.users.map(user => (
             <VideoElement
-              shared={id === user.userId && sharedWebcam}
-              videoId={user.userId}
-              key={user.userId}
+              shared={id === user.id && sharedWebcam}
+              videoId={user.id}
+              key={user.id}
               name={user.name}
-              localCamera={id === user.userId}
+              localCamera={id === user.id}
               onShareWebcam={this.props.onShareWebcam.bind(this)}
               onMount={this.props.onStart.bind(this)}
               onUnmount={this.props.onStop.bind(this)}
