@@ -16,6 +16,8 @@ $controls-background: $color-white !default;
   position: absolute;
   bottom: .8rem;
   box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  align-self: center;
+  justify-content: center;
 
   @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
     transform: scale(.75);
