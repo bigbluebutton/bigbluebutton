@@ -109,6 +109,14 @@ class PresentationService {
 		new File(thumbFile)
 	}
 
+	def showPng = {conf, room, presentationName, page ->
+		def pngFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
+				"pngs" + File.separatorChar + "slide-${page}.png"
+		log.debug "showing $pngFile"
+
+		new File(pngFile)
+	}
+
 	def showTextfile = {conf, room, presentationName, textfile ->
 		def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
 					"textfiles" + File.separatorChar + "slide-${textfile}.txt"
