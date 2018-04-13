@@ -1,8 +1,5 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$item-bg-focus: $color-blue-lightest;
-$item-border-focus: $color-blue-lighter;
-
 %list {
   list-style: none;
   font-size: $font-size-base;
@@ -10,7 +7,6 @@ $item-border-focus: $color-blue-lighter;
   padding: 0;
   text-align: left;
   color: $color-gray-dark;
-  padding: ($line-height-computed / 2);
   display: flex;
 
   @include mq($small-only) {
@@ -57,13 +53,6 @@ $item-border-focus: $color-blue-lighter;
   flex: 1 1 100%;
   padding: ($line-height-computed / 3) 0;
 
-  &:focus {
-    outline: none;
-    border-radius: $border-size;
-    box-shadow: 0 0 0 $border-size $item-border-focus;
-    background-color: $item-bg-focus;
-  }
-
   @include mq($small-only) {
     padding: ($line-height-computed / 1.5) 0;
     justify-content: center;
@@ -72,11 +61,26 @@ $item-border-focus: $color-blue-lighter;
   &:hover,
   &:focus {
     cursor: pointer;
+    outline: none;
+    margin-left: -($line-height-computed / 2);
+    margin-right: -($line-height-computed / 2);
+    padding-left: ($line-height-computed / 2);
+    padding-right: ($line-height-computed / 2);
+    background-color: $color-primary;
+    color: $color-white;
+
+    @include mq($small-only) {
+      border-radius: 0.2rem;
+    }
 
     .itemIcon,
     .itemLabel {
       color: inherit;
     }
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px $color-white, 0 0 2px 4px rgba($color-primary, .4);
   }
 }
 
