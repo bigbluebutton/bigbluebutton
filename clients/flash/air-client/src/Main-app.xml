@@ -278,6 +278,7 @@
 
 	<android>
 		<colorDepth>32bit</colorDepth>
+	    <containsVideo>true</containsVideo>
 		<manifestAdditions>
 			<![CDATA[
 			<manifest android:installLocation="auto">
