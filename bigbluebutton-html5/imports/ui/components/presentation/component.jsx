@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import _ from 'lodash';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import PollingContainer from '/imports/ui/components/polling/container';
@@ -19,25 +20,22 @@ export default class PresentationArea extends Component {
     this.state = {
       presentationWidth: 0,
       presentationHeight: 0,
-      showSlide: false,
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
+    this.ticking = false;
+    this.svggroup = false;
+    this.viewBox = false;
+    this.handleResize = _.throttle(this.handleResize.bind(this), 66);
   }
 
   componentDidMount() {
-    // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
-    window.addEventListener('resize', () => {
-      setTimeout(this.handleResize.bind(this), 0);
-    });
-
-    this.getInitialPresentationSizes();
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', () => {
-      setTimeout(this.handleResize.bind(this), 0);
-    });
+    window.removeEventListener('resize', this.handleResize, false);
   }
 
   // returns a ref to the svg element, which is required by a WhiteboardOverlay
@@ -46,96 +44,33 @@ export default class PresentationArea extends Component {
     return this.svggroup;
   }
 
-  getPresentationSizesAvailable() {
-    const { refPresentationArea, refWhiteboardArea } = this;
-    const presentationSizes = {};
-
-    if (refPresentationArea && refWhiteboardArea) {
-      // By default presentation sizes are equal to the sizes of the refPresentationArea
-      // direct parent of the svg wrapper
-      let { clientWidth, clientHeight } = refPresentationArea;
-
-      // if a user is a presenter - this means there is a whiteboard toolbar on the right
-      // and we have to get the width/height of the refWhiteboardArea
-      // (inner hidden div with absolute position)
-      if (this.props.userIsPresenter || this.props.multiUser) {
-        ({ clientWidth, clientHeight } = refWhiteboardArea);
-      }
-
-      presentationSizes.presentationHeight = clientHeight;
-      presentationSizes.presentationWidth = clientWidth;
+  handleResize() {
+    if (!this.viewBox) {
+      return;
     }
-    return presentationSizes;
-  }
 
-  getInitialPresentationSizes() {
-    // determining the presentationWidth and presentationHeight (available space for the svg)
-    // on the initial load
-    const presentationSizes = this.getPresentationSizesAvailable();
-    if (Object.keys(presentationSizes).length > 0) {
-      // setting the state of the available space for the svg
-      // and set the showSlide to true to start rendering the slide
-      this.setState({
-        presentationHeight: presentationSizes.presentationHeight,
-        presentationWidth: presentationSizes.presentationWidth,
-        showSlide: true,
+    if (!this.ticking) {
+      window.requestAnimationFrame(() => {
+        this.ticking = false;
+
+        const viewBoxRect = this.viewBox.getBoundingClientRect();
+        this.setState({
+          presentationWidth: viewBoxRect.width,
+          presentationHeight: viewBoxRect.height,
+        });
       });
     }
-  }
 
-  handleResize() {
-    const presentationSizes = this.getPresentationSizesAvailable();
-    if (Object.keys(presentationSizes).length > 0) {
-      // updating the size of the space available for the slide
-      this.setState(presentationSizes);
-    }
-  }
-
-  calculateSize() {
-    const originalWidth = this.props.currentSlide.calculatedData.width;
-    const originalHeight = this.props.currentSlide.calculatedData.height;
-    const { presentationHeight, presentationWidth } = this.state;
-
-    let adjustedWidth;
-    let adjustedHeight;
-
-    // Slide has a portrait orientation
-    if (originalWidth <= originalHeight) {
-      adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
-      if (presentationWidth < adjustedWidth) {
-        adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
-        adjustedWidth = presentationWidth;
-      } else {
-        adjustedHeight = presentationHeight;
-      }
-
-      // Slide has a landscape orientation
-    } else {
-      adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
-      if (presentationHeight < adjustedHeight) {
-        adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
-        adjustedHeight = presentationHeight;
-      } else {
-        adjustedWidth = presentationWidth;
-      }
-    }
-    return {
-      width: adjustedWidth,
-      height: adjustedHeight,
-    };
+    this.ticking = true;
   }
 
   // renders the whole presentation area
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
     if (!this.props.currentSlide ||
-        !this.props.currentSlide.calculatedData ||
-        !this.state.showSlide) {
+        !this.props.currentSlide.calculatedData) {
       return null;
     }
-    // to control the size of the svg wrapper manually
-    // and adjust cursor's thickness, so that svg didn't scale it automatically
-    const adjustedSizes = this.calculateSize();
 
     // a reference to the slide object
     const slideObj = this.props.currentSlide;
@@ -167,20 +102,15 @@ export default class PresentationArea extends Component {
           timeout={{ enter: 400 }}
         >
           <svg
-            // width={width}
-            // height={height}
-            style={{
-              maxHeight: `${adjustedSizes.height}px`,
-            }}
             preserveAspectRatio="xMidYMid meet"
-            ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
+            ref={(ref) => { if (ref) this.svggroup = ref; }}
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
             className={styles.svgStyles}
           >
             <defs>
-              <clipPath id="viewBox">
+              <clipPath id="viewBox" ref={(ref) => { if (ref && this.viewBox !== ref) this.viewBox = ref; }}>
                 <rect x={x} y={y} width="100%" height="100%" fill="none" />
               </clipPath>
             </defs>
@@ -190,6 +120,7 @@ export default class PresentationArea extends Component {
                 imageUri={imageUri}
                 svgWidth={width}
                 svgHeight={height}
+                onLoad={this.handleResize}
               />
               <AnnotationGroupContainer
                 width={width}
@@ -198,19 +129,19 @@ export default class PresentationArea extends Component {
               />
               <CursorWrapperContainer
                 widthRatio={slideObj.widthRatio}
-                physicalWidthRatio={adjustedSizes.width / width}
+                physicalWidthRatio={this.state.presentationWidth / width}
                 slideWidth={width}
                 slideHeight={height}
               />
             </g>
-            {this.renderOverlays(slideObj, adjustedSizes)}
+            {this.renderOverlays(slideObj)}
           </svg>
         </CSSTransition>
       </TransitionGroup>
     );
   }
 
-  renderOverlays(slideObj, adjustedSizes) {
+  renderOverlays(slideObj) {
     if (!this.props.userIsPresenter && !this.props.multiUser) {
       return null;
     }
@@ -240,8 +171,8 @@ export default class PresentationArea extends Component {
           viewBoxY={y}
           viewBoxWidth={viewBoxWidth}
           viewBoxHeight={viewBoxHeight}
-          physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
-          physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
+          physicalSlideWidth={(this.state.presentationWidth / slideObj.widthRatio) * 100}
+          physicalSlideHeight={(this.state.presentationHeight / slideObj.heightRatio) * 100}
         />
       </PresentationOverlayContainer>
     );
@@ -268,25 +199,15 @@ export default class PresentationArea extends Component {
       return null;
     }
 
-    const adjustedSizes = this.calculateSize();
     return (
-      <WhiteboardToolbarContainer
-        whiteboardId={this.props.currentSlide.id}
-      />
+      <WhiteboardToolbarContainer whiteboardId={this.props.currentSlide.id} />
     );
   }
 
   render() {
     return (
       <div className={styles.presentationContainer} id="presentationContainer">
-        <div
-          ref={(ref) => { this.refPresentationArea = ref; }}
-          className={styles.presentationArea}
-        >
-          <div
-            ref={(ref) => { this.refWhiteboardArea = ref; }}
-            className={styles.whiteboardSizeAvailable}
-          />
+        <div className={styles.presentationArea}>
           {this.renderWhiteboardToolbar()}
           {this.renderPresentationArea()}
           {this.renderPresentationToolbar()}

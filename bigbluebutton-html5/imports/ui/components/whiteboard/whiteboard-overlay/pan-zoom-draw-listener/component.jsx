@@ -12,6 +12,7 @@ export default class PanZoomDrawListener extends React.Component {
   }
 
   mouseDownHandler() {
+    console.log('oi');
     this.dummyValue = '';
   }
 
