@@ -34,7 +34,6 @@
     "app.userList.menu.makePresenter.label": "ធ្វើ​ជា​អ្នក​ធ្វើ​បទ​បង្ហាញ",
     "app.userList.menu.muteUserAudio.label": "បិទសម្លេងអ្នកប្រើប្រាស់",
     "app.userList.menu.unmuteUserAudio.label": "ឈប់បិទសម្លេងអ្នកប្រើប្រាស់",
-    "app.userList.userAriaLabel": "អ្នកប្រើ ៖ {0} តួនាទី​ ៖ {1} មនុស្ស ៖ {2} ស្ថានភាព​ ៖ {3}",
     "app.userList.menu.promoteUser.label": "ដំឡើងតួនាទី {0} ទៅជាអ្នកសម្របសម្រួល",
     "app.userList.menu.demoteUser.label": "ដកតួនាទី {0} ទៅជាអ្នកមើល",
     "app.media.label": "មេឌៀ",

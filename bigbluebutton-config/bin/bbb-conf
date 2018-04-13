@@ -290,7 +290,7 @@ stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server-6.0"
+          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
@@ -346,7 +346,7 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server-6.0"
+          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
@@ -486,7 +486,7 @@ display_bigbluebutton_status () {
 	units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server-6.0"
+          units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
        fi
 
 	for unit in $units; do
@@ -1473,6 +1473,13 @@ check_state() {
                 echo "# Error: Detected there is no value set for useH264 in"
                 echo "#"
                 echo "#   /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+        fi
+
+        if bbb-conf --status | grep -q inactive; then
+                echo "# Error: Detected some processes have not started correctly"
+                echo "#"
+                echo "#   $(bbb-conf --status | grep inactive)"
                 echo "#"
         fi
 

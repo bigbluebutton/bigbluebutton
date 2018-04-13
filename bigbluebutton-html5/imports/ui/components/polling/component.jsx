@@ -9,7 +9,12 @@ import { styles } from './styles.scss';
 const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
-    description: 'Title label for polling options',
+  },
+  pollAnswerLabel: {
+    id: 'app.polling.pollAnswerLabel',
+  },
+  pollAnswerDesc: {
+    id: 'app.polling.pollAnswerDesc',
   },
 });
 
@@ -42,13 +47,13 @@ const Polling = ({ intl, poll, handleVote }) => (
             className={styles.hidden}
             id={`pollAnswerLabel${pollAnswer.key}`}
           >
-            {`Poll answer ${pollAnswer.key}`}
+            {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: pollAnswer.key })}
           </div>
           <div
             className={styles.hidden}
             id={`pollAnswerDesc${pollAnswer.key}`}
           >
-            {`Select this option to vote for ${pollAnswer.key}`}
+            {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: pollAnswer.key })}
           </div>
         </div>
       ))}

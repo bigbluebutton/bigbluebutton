@@ -32,7 +32,6 @@
     "app.userList.menu.makePresenter.label": "Hacer presentador",
     "app.userList.menu.muteUserAudio.label": "Silenciar usuario",
     "app.userList.menu.unmuteUserAudio.label": "Activar sonido de usuario",
-    "app.userList.userAriaLabel": "Usuario : {0} Rol: {1} Persona: {2} Estátus: {3}",
     "app.media.label": "Media",
     "app.presentation.presentationToolbar.prevSlideLabel": "Diapositiva anterior",
     "app.presentation.presentationToolbar.prevSlideDesc": "Cambiar presentación a diapositiva anterior",

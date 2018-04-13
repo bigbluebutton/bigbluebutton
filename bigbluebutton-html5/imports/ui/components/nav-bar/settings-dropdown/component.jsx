@@ -154,7 +154,7 @@ class SettingsDropdown extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0}>
+        <DropdownTrigger tabIndex={0} accessKey="o">
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"

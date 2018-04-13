@@ -57,7 +57,7 @@ class DataSaving extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={!viewParticipantsWebcams}
+                  defaultChecked={viewParticipantsWebcams}
                   onChange={() => this.handleToggle('viewParticipantsWebcams')}
                   ariaLabelledBy="webcamToggle"
                   ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
@@ -77,7 +77,7 @@ class DataSaving extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={!viewScreenshare}
+                  defaultChecked={viewScreenshare}
                   onChange={() => this.handleToggle('viewScreenshare')}
                   ariaLabelledBy="screenShare"
                   ariaLabel={intl.formatMessage(intlMessages.screenShareLabel)}
