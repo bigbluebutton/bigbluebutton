@@ -152,10 +152,11 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   @extend %full-page;
   flex: 1 100%;
   order: 2;
+  flex-direction: row;
+  position: relative;
 
-  @include mq($small-only) {
-    margin-top: $navbar-height;
-    margin-bottom: $actionsbar-height;
+  @include mq($portrait) {
+    flex-direction: column;
   }
 }
 
@@ -180,10 +181,4 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   padding: $bars-padding;
   position: relative;
   order: 3;
-
-  @include mq($small-only) {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-  }
 }

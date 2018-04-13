@@ -21,7 +21,7 @@
   }
 }
 
-.left{
+.left {
   position: absolute;
   @include mq($small-only) {
     bottom: $sm-padding-x;
@@ -31,9 +31,7 @@
 
 .centerWithActions {
   @include mq($xsmall-only) {
-    position: absolute;
-    bottom: $sm-padding-x;
-    right: $sm-padding-x;
+    justify-content: flex-end;
   }
 }
 
