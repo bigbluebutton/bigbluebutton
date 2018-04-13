@@ -19,6 +19,7 @@ const CALL_STATES = {
 class AudioManager {
   constructor() {
     this._inputDevice = {
+      value: 'default',
       tracker: new Tracker.Dependency(),
     };
 
@@ -203,6 +204,9 @@ class AudioManager {
     this.isConnecting = false;
     this.isHangingUp = false;
 
+    this.inputStream.getTracks().forEach(track => track.stop());
+    this.inputDevice = { id: 'default' };
+
     if (!this.error && !this.isEchoTest) {
       this.notify(this.messages.info.LEFT_AUDIO);
     }
@@ -273,6 +277,7 @@ class AudioManager {
         .then(handleChangeInputDeviceSuccess)
         .catch(handleChangeInputDeviceError);
     }
+
     return this.bridge.changeInputDevice(deviceId)
       .then(handleChangeInputDeviceSuccess)
       .catch(handleChangeInputDeviceError);
@@ -283,17 +288,18 @@ class AudioManager {
   }
 
   set inputDevice(value) {
-    Object.assign(this._inputDevice, value);
+    this._inputDevice.value = value;
     this._inputDevice.tracker.changed();
   }
 
   get inputStream() {
-    return this._inputDevice.stream;
+    this._inputDevice.tracker.depend();
+    return this._inputDevice.value.stream;
   }
 
   get inputDeviceId() {
     this._inputDevice.tracker.depend();
-    return this._inputDevice.id;
+    return this._inputDevice.value.id;
   }
 
   set userData(value) {
