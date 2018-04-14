@@ -1,6 +1,6 @@
 package org.bigbluebutton
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
 import org.bigbluebutton.client.bus.FromConnEventBus
 import org.bigbluebutton.client.Client
 

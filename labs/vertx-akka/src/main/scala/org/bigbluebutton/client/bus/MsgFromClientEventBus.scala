@@ -5,10 +5,10 @@ import akka.event.{ EventBus, LookupClassification }
 import org.bigbluebutton.client.ConnInfo
 
 sealed trait FromConnectionMsg
-case class ConnectMsg(connInfo: ConnInfo) extends FromConnMsg
-case class DisconnectMsg(connInfo: ConnInfo) extends FromConnMsg
-case class MsgFromClientMsg(connInfo: ConnInfo, json: String) extends FromConnMsg
-case class MsgFromClientBusMsg(val topic: String, val payload: FromConnMsg)
+case class ConnectMsg(connInfo: ConnInfo) extends FromConnectionMsg
+case class DisconnectMsg(connInfo: ConnInfo) extends FromConnectionMsg
+case class MsgFromClientMsg(connInfo: ConnInfo, json: String) extends FromConnectionMsg
+case class MsgFromClientBusMsg(val topic: String, val payload: FromConnectionMsg)
 
 class MsgFromClientEventBus extends EventBus with LookupClassification {
   type Event = MsgFromClientBusMsg
