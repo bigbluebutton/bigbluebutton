@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Slide = ({
-  imageUri, svgWidth, svgHeight, onLoad,
-}) => (
+const Slide = ({ imageUri, svgWidth, svgHeight }) => (
   <g>
     {imageUri ?
       // some pdfs lose a white background color during the conversion to svg
@@ -24,7 +22,6 @@ const Slide = ({
           height={svgHeight}
           xlinkHref={imageUri}
           strokeWidth="0.8"
-          onLoad={onLoad}
           style={{ WebkitTapHighlightColor: 'transparent' }}
         />
       </g>
