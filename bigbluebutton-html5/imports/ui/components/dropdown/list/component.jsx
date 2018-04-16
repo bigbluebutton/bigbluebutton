@@ -47,22 +47,11 @@ export default class DropdownList extends Component {
     this._menu.addEventListener('keydown', event => this.handleItemKeyDown(event));
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.dropdownIsOpen === false) {
-      this.setState({
-        focusedIndex: false,
-      });
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    console.log(this.props, prevProps);
+  componentDidUpdate() {
     const { focusedIndex } = this.state;
 
     const children = [].slice.call(this._menu.children);
     this.menuRefs = children.filter(child => child.getAttribute('role') === 'menuitem');
-
-    console.log(focusedIndex);
 
     const activeRef = this.menuRefs[focusedIndex];
 
@@ -73,7 +62,8 @@ export default class DropdownList extends Component {
 
   handleItemKeyDown(event, callback) {
     const { getDropdownMenuParent } = this.props;
-    let nextFocusedIndex = this.state.focusedIndex || 0;
+    const { focusedIndex } = this.state;
+    let nextFocusedIndex = focusedIndex > 0 ? focusedIndex : 0;
     const isHorizontal = this.props.horizontal;
     const navigationKeys = {
       previous: KEY_CODES[`ARROW_${isHorizontal ? 'LEFT' : 'UP'}`],
@@ -107,11 +97,13 @@ export default class DropdownList extends Component {
     }
 
     if (navigationKeys.click.includes(event.keyCode)) {
+      nextFocusedIndex = false;
       event.stopPropagation();
       document.activeElement.firstChild.click();
     }
 
     if (navigationKeys.close.includes(event.keyCode)) {
+      nextFocusedIndex = false;
       const { dropdownHide } = this.props;
 
       event.stopPropagation();
