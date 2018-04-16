@@ -33,6 +33,9 @@ const defaultProps = {
 export default class DropdownList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      focusedIndex: false,
+    };
 
     this.childrenRefs = [];
     this.menuRefs = [];
@@ -40,21 +43,26 @@ export default class DropdownList extends Component {
     this.handleItemClick = this.handleItemClick.bind(this);
   }
 
-  componentWillMount() {
-    this.setState({
-      focusedIndex: false,
-    });
-  }
-
   componentDidMount() {
     this._menu.addEventListener('keydown', event => this.handleItemKeyDown(event));
   }
 
-  componentDidUpdate() {
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.dropdownIsOpen === false) {
+      this.setState({
+        focusedIndex: false,
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    console.log(this.props, prevProps);
     const { focusedIndex } = this.state;
 
     const children = [].slice.call(this._menu.children);
     this.menuRefs = children.filter(child => child.getAttribute('role') === 'menuitem');
+
+    console.log(focusedIndex);
 
     const activeRef = this.menuRefs[focusedIndex];
 
