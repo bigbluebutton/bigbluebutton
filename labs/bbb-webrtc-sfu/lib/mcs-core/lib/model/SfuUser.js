@@ -71,7 +71,7 @@ module.exports = class SfuUser extends User {
   }
 
   addRecording (recordingName) {
-    let session = new RecordingSession(this.emitter, this.recordingId, this.roomId);
+    let session = new RecordingSession(this.emitter, this.roomId, this.recordingId);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
     session.on("SESSION_STOPPED", (sessId) => {

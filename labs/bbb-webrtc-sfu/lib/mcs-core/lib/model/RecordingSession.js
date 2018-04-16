@@ -82,6 +82,10 @@ module.exports = class RecordingSession extends EventEmitter {
     }
   }
 
+  async processDescriptor () {
+   // NOP
+  }
+
   async connect (sinkId) {
     try {
       Logger.info("[mcs-recording-session] Connecting " + this._mediaElement + " => " + sinkId);
