@@ -216,7 +216,10 @@ class Settings extends Component {
       <Modal
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
-          callback: () => this.updateSettings(this.state.current),
+          callback: () => {
+            this.updateSettings(this.state.current);
+            this.props.mountModal(null);
+          },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
         }}

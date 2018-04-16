@@ -113,7 +113,7 @@ class ApplicationMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     const obj = this.state;
-    obj.settings[fieldname] = e.target.value;
+    obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
     this.handleUpdateSettings('application', obj.settings);
   }
 
@@ -191,7 +191,7 @@ class ApplicationMenu extends BaseMenu {
               >
                 {availableLocales && availableLocales.length > 0 ? (
                   <select
-                    defaultValue={this.formatLocale(this.state.settings.locale)}
+                    defaultValue={this.state.settings.locale}
                     className={styles.select}
                     onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
                   >
