@@ -8,7 +8,6 @@
 const C = require('../constants/Constants');
 const SdpWrapper = require('../utils/SdpWrapper');
 const rid = require('readable-id');
-const MediaServer = require('../media/media-server');
 const MediaSession = require('./MediaSession');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
@@ -31,8 +30,7 @@ module.exports = class SdpSession extends MediaSession {
 
   async process () {
     try {
-      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp());
-
+      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp(), {name: this._name});
       if (this._type === 'WebRtcEndpoint') {
         this._MediaServer.gatherCandidates(this._mediaElement);
       }

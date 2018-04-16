@@ -7,14 +7,15 @@
 
 const C = require('../constants/Constants');
 const rid = require('readable-id');
-const MediaServer = require('../media/media-server');
+const Kurento = require('../adapters/kurento');
+const Freeswitch = require('../adapters/freeswitch/freeswitch');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const Logger = require('../../../utils/Logger');
 const isError = require('../utils/util').isError;
 
 module.exports = class MediaSession {
-  constructor(emitter, room, type, options = {}) {
+  constructor(emitter, room, type = 'WebRtcEndpoint', adapter = C.STRING.KURENTO, name = C.STRING.DEFAULT_NAME, options = {}) {
     this.id = rid();
     this.room = room;
     this.emitter = emitter;
@@ -23,7 +24,9 @@ module.exports = class MediaSession {
     this._MediaServer = new MediaServer(kurentoUrl);
     this._mediaElement;
     this.subscribedSessions = [];
-    this._options = options;
+    this._adapter = adapter;
+    this._MediaServer = MediaSession.getAdapter(adapter);
+    this._name = name;this._options = options;
     this.eventQueue = [];
   }
 
@@ -46,6 +49,7 @@ module.exports = class MediaSession {
           this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
         }
       });
+
       this._MediaServer.trackMediaState(this._mediaElement, this._type);
 
       this._MediaServer.on(C.ERROR.MEDIA_SERVER_OFFLINE, () => {
@@ -125,6 +129,23 @@ module.exports = class MediaSession {
       this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
     }
   }
+
+  static getAdapter (adapter) {
+        let obj = null;
+
+        Logger.info("[SdpSession] Session is using the", adapter, "adapter");
+
+        switch (adapter) {
+                case C.STRING.KURENTO:
+                    obj = new Kurento(kurentoUrl);
+                    break;
+                  case C.STRING.FREESWITCH:
+                    obj = new Freeswitch();
+                    break;
+                  default: Logger.warn("[SdpSession] Invalid adapter", this.adapter); }
+
+        return obj;
+      }
 
   _handleError (error) {
     Logger.error("[mcs-media-session] SFU MediaSession received an error", error);

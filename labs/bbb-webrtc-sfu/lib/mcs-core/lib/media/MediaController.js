@@ -84,7 +84,7 @@ module.exports = class MediaController {
     }
   }
 
-  publishnsubscribe (userId, sourceId, sdp, params) {
+  publishnsubscribe (userId, sourceId, sdp, params = {}) {
     return new Promise(async (resolve, reject) => {
       Logger.info("[mcs-controller] PublishAndSubscribe from user", userId, "to source", sourceId);
       Logger.debug("[mcs-controler] PublishAndSubscribe descriptor is", params.descriptor);
@@ -121,7 +121,7 @@ module.exports = class MediaController {
     });
   }
 
-  publish (userId, roomId, type, params) {
+  publish (userId, roomId, type, params = {}) {
     return new Promise(async (resolve, reject) => {
       Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId);
       Logger.debug("[mcs-controler] Publish descriptor is", params.descriptor);
@@ -136,11 +136,11 @@ module.exports = class MediaController {
         switch (type) {
           case "RtpEndpoint":
           case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type);
+            session = user.addSdp(params.descriptor, type, params.adapter, params.name);
             answer = await user.startSession(session.id);
             break;
           case "URI":
-            session = user.addUri(params.descriptor, type);
+            session = user.addUri(params.descriptor, type, params.adapter, params.name);
             answer = await user.startSession(session.id);
             break;
 
@@ -169,7 +169,7 @@ module.exports = class MediaController {
     });
   }
 
-  subscribe (userId, sourceId, type, params) {
+  subscribe (userId, sourceId, type, params = {}) {
     return new Promise(async (resolve, reject) => {
       Logger.info("[mcs-controller] Subscribe from user", userId, "to source", sourceId);
       Logger.debug("[mcs-controler] Subscribe descriptor is", params.descriptor);
@@ -190,7 +190,7 @@ module.exports = class MediaController {
         switch (type) {
           case "RtpEndpoint":
           case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type);
+            session = user.addSdp(params.descriptor, type, params.adapter, params.name);
 
             answer = await user.startSession(session.id);
             await sourceSession.connect(session._mediaElement);
@@ -198,10 +198,9 @@ module.exports = class MediaController {
             Logger.info("[mcs-controller] Updated", sourceSession.id,  "subscribers list to", sourceSession.subscribedSessions);
             break;
           case "URI":
-            session = user.addUri(params.descriptor, type);
+            session = user.addUri(params.descriptor, type, params.adapter, params.name);
             answer = await user.startSession(session.id);
             await sourceSession.connect(session._mediaElement);
-
             break;
 
           default: return reject(new Error("[mcs-controller] Invalid media type"));
