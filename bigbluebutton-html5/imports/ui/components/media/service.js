@@ -10,7 +10,6 @@ const getPresentationInfo = () => {
 
   return {
     current_presentation: (currentPresentation != null),
-
   };
 };
 
@@ -28,6 +27,21 @@ function shouldShowOverlay() {
   return Meteor.settings.public.kurento.enableVideo;
 }
 
+const swapLayout = {
+  value: false,
+  tracker: new Tracker.Dependency(),
+};
+
+const toggleSwapLayout = () => {
+  swapLayout.value = !swapLayout.value;
+  swapLayout.tracker.changed();
+};
+
+export const getSwapLayout = () => {
+  swapLayout.tracker.depend();
+  return swapLayout.value;
+};
+
 export default {
   getPresentationInfo,
   shouldShowWhiteboard,
@@ -35,4 +49,5 @@ export default {
   shouldShowOverlay,
   isUserPresenter,
   isVideoBroadcasting,
+  toggleSwapLayout,
 };

@@ -259,6 +259,7 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
+        userIsPresenter={this.props.userIsPresenter}
         currentSlideNum={this.props.currentSlide.num}
         presentationId={this.props.currentSlide.presentationId}
       />
