@@ -143,6 +143,7 @@ class MessageList extends Component {
     if (hasUnreadMessages && scrollPosition !== null) {
       return (
         <Button
+          aria-hidden="true"
           className={styles.unreadButton}
           size="sm"
           label={intl.formatMessage(intlMessages.moreMessages)}

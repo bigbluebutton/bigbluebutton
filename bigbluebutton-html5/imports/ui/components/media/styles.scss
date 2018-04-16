@@ -35,6 +35,7 @@
   height: 96px;
   right: 8px;
   bottom: 8px;
+  margin-top: 0 !important;
 
   @include mq($portrait) {
     position: absolute;

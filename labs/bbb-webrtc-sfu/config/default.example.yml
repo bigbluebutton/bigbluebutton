@@ -15,11 +15,13 @@ to-video: "to-video-sfu"
 from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
+webcam-force-h264: true
+screenshare-force-h264: true
 
 recordScreenSharing: true
 recordWebcams: true
 recordingBasePath: "file:///var/kurento/recordings"
 
 log:
-    filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
+    filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'

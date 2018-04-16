@@ -26,7 +26,7 @@ const mapUser = (user) => {
     isMuted: voiceUser ? voiceUser.muted : false,
     isTalking: voiceUser ? voiceUser.talking : false,
     isListenOnly: voiceUser ? voiceUser.listenOnly : false,
-    isSharingWebcam: 0,
+    isSharingWebcam: user.has_stream,
     isPhoneUser: user.phone_user,
     isOnline: user.connectionStatus === 'online',
   };
