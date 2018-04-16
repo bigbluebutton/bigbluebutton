@@ -3,30 +3,48 @@
 .pollingContainer {
   order: 2;
   width: 100%;
-  margin-top: 1%;
-  margin-bottom: 1%;
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.pollingButton {
-  width: 100%;
-  height: 100%;
-  white-space: nowrap;                      
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: .8rem;
+  align-items: center;
+  flex-direction: column;
 }
 
 .pollingTitle {
   color: $color-white;
+  white-space: nowrap;
+  padding-bottom: 10px;
 }
 
-.hidden {
-  display: none;
+.pollingAnswers {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: auto;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .pollButtonWrapper {
   text-align: center;
-  max-width: 150px;
+  margin-left: 5px;
+  overflow: hidden;
+
+  @include mq($medium-up) {
+    margin-left: 10px;
+  }
+
+  &:first-of-type {
+    margin-left: 0;
+  }
+}
+
+.pollingButton {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hidden {
+  display: none;
 }

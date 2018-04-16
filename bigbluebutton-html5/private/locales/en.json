@@ -78,6 +78,8 @@
     "app.presentationUploder.conversion.pageCountExceeded": "Ops, the page count exceeded the limit",
     "app.presentationUploder.conversion.timeout": "Ops, the conversion is taking too long",
     "app.polling.pollingTitle": "Polling Options",
+    "app.polling.pollAnswerLabel": "Poll answer {0}",
+    "app.polling.pollAnswerDesc": "Select this option to vote for {0}",
     "app.failedMessage": "Apologies, trouble connecting to the server.",
     "app.connectingMessage": "Connecting...",
     "app.waitingMessage": "Disconnected. Trying to reconnect in {0} seconds...",
