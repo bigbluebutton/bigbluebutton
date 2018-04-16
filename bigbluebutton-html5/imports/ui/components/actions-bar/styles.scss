@@ -46,7 +46,7 @@
 }
 
 .emojiSelected {
-  span, i::before{
+  span, i {
     color: $color-primary;
   }
 }
