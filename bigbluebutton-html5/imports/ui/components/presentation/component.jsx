@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
-import PollingContainer from '/imports/ui/components/polling/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationToolbarContainer from './presentation-toolbar/container';
@@ -295,7 +294,6 @@ export default class PresentationArea extends Component {
               this.renderWhiteboardToolbar()
             : null }
         </div>
-        <PollingContainer />
         {this.renderPresentationToolbar()}
       </div>
     );

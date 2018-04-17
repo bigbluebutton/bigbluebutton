@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import VideoProviderContainer from '/imports/ui/components/video-provider/container';
+import PollingContainer from '/imports/ui/components/polling/container';
+
 import { styles } from './styles';
-import VideoProviderContainer from '../video-provider/container';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -44,6 +46,7 @@ export default class Media extends Component {
         <div className={!swapLayout ? overlayClassName : contentClassName}>
           { !disableVideo ? <VideoProviderContainer /> : null }
         </div>
+        <PollingContainer />
       </div>
     );
   }

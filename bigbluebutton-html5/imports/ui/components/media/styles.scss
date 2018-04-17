@@ -25,11 +25,11 @@
   display: flex;
   order: 1;
   width: 100%;
-  padding: 0 5px 5px;
+  border: 5px solid transparent;
   position: relative;
 
   @include mq($medium-up) {
-    padding: 0 10px 10px;
+    border: 10px solid transparent;
   }
 }
 
