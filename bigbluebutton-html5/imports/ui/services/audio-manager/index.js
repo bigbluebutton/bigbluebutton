@@ -204,8 +204,10 @@ class AudioManager {
     this.isConnecting = false;
     this.isHangingUp = false;
 
-    this.inputStream.getTracks().forEach(track => track.stop());
-    this.inputDevice = { id: 'default' };
+    if (this.inputStream) {
+      this.inputStream.getTracks().forEach(track => track.stop());
+      this.inputDevice = { id: 'default' };
+    }
 
     if (!this.error && !this.isEchoTest) {
       this.notify(this.messages.info.LEFT_AUDIO);
