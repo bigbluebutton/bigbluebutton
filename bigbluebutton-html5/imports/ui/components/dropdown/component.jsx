@@ -122,6 +122,7 @@ class Dropdown extends Component {
 
     trigger = React.cloneElement(trigger, {
       ref: (ref) => { this.trigger = ref; },
+      dropdownIsOpen: this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
@@ -130,6 +131,7 @@ class Dropdown extends Component {
     content = React.cloneElement(content, {
       ref: (ref) => { this.content = ref; },
       'aria-expanded': this.state.isOpen,
+      dropdownIsOpen: this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,

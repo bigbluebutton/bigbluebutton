@@ -96,7 +96,26 @@ const config = require('config');
         RTP_TO_RTMP: "transcode_rtp_to_rtmp",
         TRANSCODER_CODEC: "codec",
         TRANSCODER_TYPE: "transcoder_type",
-        CALLERNAME: "callername"
+        CALLERNAME: "callername",
+
+        // Log prefixes
+        BASE_PROCESS_PREFIX: '[BaseProcess]',
+        BASE_MANAGER_PREFIX: '[BaseManager]',
+        BASE_PROVIDER_PREFIX: '[BaseProvider]',
+        SCREENSHARE_PROCESS_PREFIX: '[ScreenshareProcess]',
+        SCREENSHARE_MANAGER_PREFIX: '[ScreenshareManager]',
+        SCREENSHARE_PROVIDER_PREFIX: '[ScreenshareProvider]',
+        VIDEO_PROCESS_PREFIX: '[VideoProcess]',
+        VIDEO_MANAGER_PREFIX: '[VideoManager]',
+        VIDEO_PROVIDER_PREFIX: '[VideoProvider]',
+
+        // MCS error codes
+        MEDIA_SERVER_OFFLINE: "1000",
+
+        // Media states'
+        MEDIA_STARTED: 'MEDIA_STARTED',
+        MEDIA_STOPPED: 'MEDIA_STOPPED',
+        MEDIA_STARTING: 'MEDIA_STARTING'
     }
 }
 

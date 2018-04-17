@@ -1,12 +1,15 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings/';
 import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings/';
+import Users from '/imports/api/users/';
+import mapUser from '/imports/ui/services/user/mapUser';
+import UserListService from '/imports/ui/components/user-list/service';
 
 class VideoService {
   constructor() {
     this.defineProperties({
+      isSharing: false,
       isConnected: false,
       isWaitingResponse: false,
     });
@@ -34,6 +37,7 @@ class VideoService {
   }
 
   joinVideo() {
+    this.isSharing = true;
     const joinVideoEvent = new Event('joinVideo');
     document.dispatchEvent(joinVideoEvent);
   }
@@ -48,11 +52,13 @@ class VideoService {
   }
 
   exitVideo() {
+    this.isSharing = false;
     const exitVideoEvent = new Event('exitVideo');
     document.dispatchEvent(exitVideoEvent);
   }
 
   exitedVideo() {
+    console.warn('exitedVideo');
     this.isWaitingResponse = false;
     this.isConnected = false;
   }
@@ -62,21 +68,44 @@ class VideoService {
   }
 
   sendUserUnshareWebcam(stream) {
-    this.isWaitingResponse = true;
     makeCall('userUnshareWebcam', stream);
   }
 
   getAllUsers() {
-    return Users.find().fetch();
+    // Use the same function as the user-list to share the sorting/mapping
+    return UserListService.getUsers();
+  }
+
+  getAllUsersVideo() {
+    const userId = this.userId();
+    const isLocked = this.isLocked();
+    const currentUser = Users.findOne({ userId });
+    const currentUserIsModerator = mapUser(currentUser).isModerator;
+    const sharedWebcam = this.isSharing;
+
+    const isSharingWebcam = user => user.isSharingWebcam || (sharedWebcam && user.isCurrent);
+    const isNotLocked = user => !(isLocked && user.isLocked);
+
+    const isWebcamOnlyModerator = this.webcamOnlyModerator();
+    const allowedSeeViewersWebcams = !isWebcamOnlyModerator || currentUserIsModerator;
+    const webcamOnlyModerator = (user) => {
+      if (allowedSeeViewersWebcams) return true;
+      return user.isModerator || user.isCurrent;
+    };
+
+    return this.getAllUsers()
+      .filter(isSharingWebcam)
+      .filter(isNotLocked)
+      .filter(webcamOnlyModerator);
   }
 
   webcamOnlyModerator() {
-    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    const m = Meetings.findOne({ meetingId: Auth.meetingID });
     return m.usersProp.webcamsOnlyForModerator;
   }
 
   isLocked() {
-    const m = Meetings.findOne({meetingId: Auth.meetingID});
+    const m = Meetings.findOne({ meetingId: Auth.meetingID });
     return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
   }
 
@@ -105,7 +134,7 @@ export default {
   exitedVideo: () => videoService.exitedVideo(),
   getAllUsers: () => videoService.getAllUsers(),
   webcamOnlyModerator: () => videoService.webcamOnlyModerator(),
-  isLocked:    () => videoService.isLocked(),
+  isLocked: () => videoService.isLocked(),
   isConnected: () => videoService.isConnected,
   isWaitingResponse: () => videoService.isWaitingResponse,
   joinVideo: () => videoService.joinVideo(),
@@ -115,4 +144,5 @@ export default {
   sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
   userId: () => videoService.userId(),
   meetingId: () => videoService.meetingId(),
+  getAllUsersVideo: () => videoService.getAllUsersVideo(),
 };

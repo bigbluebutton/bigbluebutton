@@ -61,6 +61,10 @@ module.exports = class MCSApiStub extends EventEmitter{
         this.listener.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, (event) => {
           this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, event);
         });
+        this.listener.on(C.EVENT.SERVER_STATE+sessionId, (event) => {
+          this.emit(C.EVENT.SERVER_STATE+sessionId, event);
+        });
+
       });
       const answer = await this._mediaController.publish(user, room, type, params);
       return Promise.resolve(answer);
@@ -70,7 +74,7 @@ module.exports = class MCSApiStub extends EventEmitter{
       return Promise.reject(err);
     }
   }
-  
+
   async unpublish (user, mediaId) {
     try {
       await this._mediaController.unpublish(mediaId);

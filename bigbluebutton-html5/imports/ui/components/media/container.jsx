@@ -3,18 +3,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Media from './component';
-import MediaService from './service';
+import MediaService, { getSwapLayout } from './service';
 import PresentationAreaContainer from '../presentation/container';
-import VideoProviderContainer from '../video-provider/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
-
-const defaultProps = {
-  overlay: null,
-  content: <PresentationAreaContainer />,
-  defaultContent: <DefaultContent />,
-};
 
 const intlMessages = defineMessages({
   screenshareStarted: {
@@ -28,18 +22,6 @@ const intlMessages = defineMessages({
 });
 
 class MediaContainer extends Component {
-  constructor(props) {
-    super(props);
-
-    const { overlay, content, defaultContent } = this.props;
-    this.state = {
-      overlay,
-      content: this.props.current_presentation ? content : defaultContent,
-    };
-
-    this.handleToggleLayout = this.handleToggleLayout.bind(this);
-  }
-
   componentWillReceiveProps(nextProps) {
     const {
       isScreensharing,
@@ -53,28 +35,12 @@ class MediaContainer extends Component {
         notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
       }
     }
-
-    if (nextProps.current_presentation !== this.props.current_presentation) {
-      if (nextProps.current_presentation) {
-        this.setState({ content: this.props.content });
-      } else {
-        this.setState({ content: this.props.defaultContent });
-      }
-    }
-  }
-
-  handleToggleLayout() {
-    const { overlay, content } = this.state;
-
-    this.setState({ overlay: content, content: overlay });
   }
 
   render() {
-    return <Media {...this.props}>{this.props.children}</Media>;
+    return <Media {...this.props} />;
   }
 }
-
-MediaContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
   const { dataSaving } = Settings;
@@ -83,21 +49,29 @@ export default withTracker(() => {
   const data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
 
-  data.content = <DefaultContent />;
+  data.children = <DefaultContent />;
 
   if (MediaService.shouldShowWhiteboard()) {
-    data.content = <PresentationAreaContainer />;
+    data.children = <PresentationAreaContainer />;
   }
 
   if (MediaService.shouldShowScreenshare() && (viewScreenshare || MediaService.isUserPresenter())) {
-    data.content = <ScreenshareContainer />;
+    data.children = <ScreenshareContainer />;
   }
 
-  if (MediaService.shouldShowOverlay() && viewParticipantsWebcams) {
-    data.overlay = <VideoProviderContainer />;
+  const usersVideo = VideoService.getAllUsersVideo();
+  if (MediaService.shouldShowOverlay() && usersVideo.length) {
+    data.floatingOverlay = usersVideo.length < 2;
+    data.hideOverlay = usersVideo.length === 0;
   }
 
   data.isScreensharing = MediaService.isVideoBroadcasting();
+  data.swapLayout = getSwapLayout() && usersVideo.length > 0 && viewParticipantsWebcams;
+  data.disableVideo = !viewParticipantsWebcams;
+
+  if (data.swapLayout) {
+    data.floatingOverlay = true;
+  }
 
   return data;
 })(injectIntl(MediaContainer));

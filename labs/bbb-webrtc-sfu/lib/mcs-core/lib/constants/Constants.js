@@ -8,13 +8,6 @@
 
 exports.ALL = 'ALL'
 
-exports.LOG_LEVEL = {}
-exports.LOG_LEVEL.DEBUG = 0
-exports.LOG_LEVEL.INFO = 1
-exports.LOG_LEVEL.WARN = 2
-exports.LOG_LEVEL.ERROR = 3
-exports.LOG_LEVEL.OFF = 100
-
 exports.STATUS = {}
 exports.STATUS.STARTED = "STARTED"
 exports.STATUS.STOPPED = "STOPPED"
@@ -32,15 +25,11 @@ exports.MEDIA_TYPE.WEBRTC = "WebRtcEndpoint"
 exports.MEDIA_TYPE.RTP= "RtpEndpoint"
 exports.MEDIA_TYPE.URI = "PlayerEndpoint"
 
-// Observer Constants
+// Media server state changes
 exports.EVENT = {}
-exports.EVENT.DIAL_EVENT = "BRIDGE_DIAL"
-exports.EVENT.HANGUP_EVENT = "BRIDGE_HANGUP"
-exports.EVENT.SESSION_ID_EVENT = "SESSION_ID"
-exports.EVENT.AUDIO_SESSION_TERMINATED = "AUDIO_SESSION_TERMINATED"
-
-// Media server state changes 
-exports.EVENT.NEW_SESSION = "NewSession"
+exports.EVENT.MEDIA_SERVER_ONLINE = "MediaServerOnline"
+exports.EVENT.NEW_MEDIA_SESSION = "NewMediaSession"
+exports.EVENT.MEDIA_SESSION_STOPPED = "MediaSessionStopped"
 exports.EVENT.MEDIA_STATE = {};
 exports.EVENT.MEDIA_STATE.MEDIA_EVENT = "MediaEvent"
 exports.EVENT.MEDIA_STATE.CHANGED = "MediaStateChanged"
@@ -48,11 +37,15 @@ exports.EVENT.MEDIA_STATE.FLOW_OUT = "MediaFlowOutStateChange"
 exports.EVENT.MEDIA_STATE.FLOW_IN = "MediaFlowInStateChange"
 exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
+exports.EVENT.SERVER_STATE = "ServerState"
 
 // Error codes
 exports.ERROR = {};
 exports.ERROR.MEDIA_SERVER_OFFLINE = "1000";
 exports.ERROR.MEDIA_SERVER_ERROR = "1001";
+exports.ERROR.USER_NOT_FOUND = "1100";
+exports.ERROR.MEDIA_NOT_FOUND = "1101";
+exports.ERROR.INVALID_SDP = "1102";
 
 // RTP params
 exports.SDP = {};

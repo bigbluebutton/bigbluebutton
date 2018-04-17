@@ -25,11 +25,10 @@ const PresentationToolbarContainer = (props) => {
   return null;
 };
 
-export default withTracker((params) => {
-  const data = PresentationToolbarService.getSlideData(params);
+export default withTracker(({ presentationId, userIsPresenter, currentSlideNum }) => {
+  const data = PresentationToolbarService.getSlideData(presentationId);
 
   const {
-    userIsPresenter,
     numberOfSlides,
   } = data;
 
@@ -38,9 +37,9 @@ export default withTracker((params) => {
     numberOfSlides,
     actions: {
       nextSlideHandler: () =>
-        PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides),
+        PresentationToolbarService.nextSlide(currentSlideNum, numberOfSlides),
       previousSlideHandler: () =>
-        PresentationToolbarService.previousSlide(params.currentSlideNum, numberOfSlides),
+        PresentationToolbarService.previousSlide(currentSlideNum, numberOfSlides),
       skipToSlideHandler: event =>
         PresentationToolbarService.skipToSlide(event),
     },

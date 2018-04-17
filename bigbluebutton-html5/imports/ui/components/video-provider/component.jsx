@@ -8,7 +8,7 @@ import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
 import VideoService from './service';
-import VideoDockContainer from './video-dock/container';
+import VideoList from './video-list/component';
 
 const intlMessages = defineMessages({
   iceCandidateError: {
@@ -53,6 +53,7 @@ class VideoProvider extends Component {
     this.cameraTimeouts = {};
     this.webRtcPeers = {};
 
+    this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
@@ -65,15 +66,34 @@ class VideoProvider extends Component {
     this.ws.addEventListener('open', this.onWsOpen);
     this.ws.addEventListener('close', this.onWsClose);
 
-    window.addEventListener('online', this.ws.open.bind(this.ws));
+    window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
   }
 
   componentDidMount() {
-    document.addEventListener('joinVideo', this.shareWebcam.bind(this)); // TODO find a better way to do this
-    document.addEventListener('exitVideo', this.unshareWebcam.bind(this));
+    document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
+    document.addEventListener('exitVideo', this.unshareWebcam);
 
     this.ws.addEventListener('message', this.onWsMessage);
+  }
+
+  shouldComponentUpdate({ users: nextUsers }, nextState) {
+    const { users } = this.props;
+    return !_.isEqual(this.state, nextState) || users.length !== nextUsers.length;
+  }
+
+  componentWillUpdate({ users, userId }) {
+    const usersSharingIds = users.map(u => u.id);
+    const usersConnected = Object.keys(this.webRtcPeers);
+
+    const usersToConnect = usersSharingIds.filter(id => !usersConnected.includes(id));
+    const usersToDisconnect = usersConnected.filter(id => !usersSharingIds.includes(id));
+
+    usersToConnect.forEach(id => this.createWebRTCPeer(id, userId === id));
+    usersToDisconnect.forEach(id => this.destroyWebRTCPeer(id, userId === id));
+
+    console.warn('[usersToConnect]', usersToConnect);
+    console.warn('[usersToDisconnect]', usersToDisconnect);
   }
 
   componentWillUnmount() {
@@ -84,13 +104,12 @@ class VideoProvider extends Component {
     this.ws.removeEventListener('open', this.onWsOpen);
     this.ws.removeEventListener('close', this.onWsClose);
 
-    window.removeEventListener('online', this.ws.open.bind(this.ws));
+    window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
 
     // Unshare user webcam
     if (this.state.sharedWebcam) {
       this.unshareWebcam();
-      this.stop(this.props.userId);
     }
 
     Object.keys(this.webRtcPeers).forEach((id) => {
@@ -98,7 +117,8 @@ class VideoProvider extends Component {
     });
 
     // Close websocket connection to prevent multiple reconnects from happening
-    this.ws.close();
+    // Don't disonnect socket on unmount to prevent multiple reconnects
+    // this.ws.close();
   }
 
   onWsOpen() {
@@ -145,7 +165,6 @@ class VideoProvider extends Component {
 
       case 'playStop':
         this.handlePlayStop(parsedMessage);
-
         break;
 
       case 'iceCandidate':
@@ -224,8 +243,21 @@ class VideoProvider extends Component {
     }
   }
 
-  destroyWebRTCPeer(id) {
+  destroyWebRTCPeer(id, shareWebcam = false) {
     const webRtcPeer = this.webRtcPeers[id];
+
+    if (shareWebcam) {
+
+      this.unshareWebcam();
+      VideoService.exitedVideo();
+    }
+
+    this.sendMessage({
+      type: 'video',
+      role: 'share',
+      id: 'stop',
+      cameraId: id,
+    });
 
     // Clear the shared camera fail timeout when destroying
     clearTimeout(this.cameraTimeouts[id]);
@@ -245,39 +277,43 @@ class VideoProvider extends Component {
     }
   }
 
-  initWebRTC(id, shareWebcam, videoOptions, tag) {
+  createWebRTCPeer(id, shareWebcam) {
     const that = this;
     const { intl, meetingId } = this.props;
+
+    const videoConstraints = {
+      width: {
+        min: 320,
+        max: 640,
+      },
+      height: {
+        min: 180,
+        max: 360,
+      },
+    };
+
+    if (!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
+      videoConstraints.frameRate = { min: 5, ideal: 10 };
+    }
 
     const options = {
       mediaConstraints: {
         audio: false,
-        video: videoOptions,
+        video: videoConstraints,
       },
       onicecandidate: this.getOnIceCandidateCallback(id, shareWebcam),
     };
 
-    let peerObj;
+    let WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
+
     if (shareWebcam) {
-      peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
-      options.localVideo = tag;
-    } else {
-      peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-      options.remoteVideo = tag;
+      WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
+      this.shareWebcam();
     }
 
-    this.cameraTimeouts[id] = setTimeout(() => {
-      log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`);
-      if (this.props.userId == id) {
-        this.notifyError(intl.formatMessage(intlMessages.sharingError));
-        this.unshareWebcam();
-      } else {
-        this.stop(id);
-        this.initWebRTC(id, shareWebcam, videoOptions, tag);
-      }
-    }, CAMERA_SHARE_FAILED_WAIT_TIME);
+    WebRtcPeerObj.started = false;
 
-    const webRtcPeer = new peerObj(options, function (error) {
+    that.webRtcPeers[id] = new WebRtcPeerObj(options, function (error) {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
@@ -290,20 +326,15 @@ class VideoProvider extends Component {
         that.destroyWebRTCPeer(id);
 
         if (shareWebcam) {
+          that.unshareWebcam();
           VideoService.exitVideo();
           VideoService.exitedVideo();
-          that.unshareWebcam();
         }
         return log('error', error);
       }
 
       this.didSDPAnswered = false;
       this.iceQueue = [];
-
-      that.webRtcPeers[id] = webRtcPeer;
-      if (shareWebcam) {
-        that.sharedWebcam = webRtcPeer;
-      }
 
       this.generateOffer((error, offerSdp) => {
         if (error) {
@@ -312,6 +343,18 @@ class VideoProvider extends Component {
           that.destroyWebRTCPeer(id);
           return log('error', error);
         }
+
+        that.cameraTimeouts[id] = setTimeout(() => {
+          log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME} for ${id}`);
+          if (that.props.userId == id) {
+            that.notifyError(intl.formatMessage(intlMessages.sharingError));
+            that.unshareWebcam();
+            VideoService.exitedVideo();
+          } else {
+            that.destroyWebRTCPeer(id);
+            that.createWebRTCPeer(id, shareWebcam);
+          }
+        }, CAMERA_SHARE_FAILED_WAIT_TIME);
 
         console.log(`Invoking SDP offer callback function ${location.host}`);
         const message = {
@@ -352,38 +395,45 @@ class VideoProvider extends Component {
     };
   }
 
-  stop(id) {
-    const userId = this.props.userId;
+  attachVideoStream(id, video) {
+    if (video.srcObject) return; // Skip if the stream is already attached
 
-    if (id === userId) {
-      this.sendMessage({
-        type: 'video',
-        role: id == userId ? 'share' : 'viewer',
-        id: 'stop',
-        cameraId: id,
-      });
+    const isCurrent = id === this.props.userId;
+    const peer = this.webRtcPeers[id];
+    const { peerConnection } = peer;
 
-      this.unshareWebcam();
-      VideoService.exitedVideo();
+    const attachVideoStream = () => {
+      const stream = isCurrent ? peer.getLocalStream() : peer.getRemoteStream();
+      video.pause();
+      video.srcObject = stream;
+      video.load();
+    };
+
+    if (peer.started === true) {
+      attachVideoStream();
+      return;
     }
 
-    this.destroyWebRTCPeer(id);
+    peer.on('playStart', attachVideoStream);
   }
 
   handlePlayStop(message) {
     const id = message.cameraId;
     log('info', 'Handle play stop <--------------------');
-    log('error', message);
-
-    this.stop(id);
+    this.destroyWebRTCPeer(id);
   }
 
   handlePlayStart(message) {
     log('info', 'Handle play start <===================');
 
+    const peer = this.webRtcPeers[message.cameraId];
+
     // Clear camera shared timeout when camera succesfully starts
     clearTimeout(this.cameraTimeouts[message.cameraId]);
     this.cameraTimeouts[message.cameraId] = null;
+
+    peer.emit('playStart');
+    peer.started = true;
 
     if (message.cameraId == this.props.userId) {
       VideoService.joinedVideo();
@@ -396,9 +446,10 @@ class VideoProvider extends Component {
 
     if (message.cameraId == userId) {
       this.unshareWebcam();
+      VideoService.exitedVideo();
       this.notifyError(intl.formatMessage(intlMessages.sharingError));
     } else {
-      this.stop(message.cameraId);
+      this.destroyWebRTCPeer(message.cameraId);
     }
 
     console.error(' Handle error --------------------->');
@@ -410,7 +461,7 @@ class VideoProvider extends Component {
   }
 
   shareWebcam() {
-    let { intl } = this.props;
+    const { intl } = this.props;
     log('info', 'Sharing webcam');
 
     if (this.connectedToMediaServer()) {
@@ -424,20 +475,18 @@ class VideoProvider extends Component {
   unshareWebcam() {
     log('info', 'Unsharing webcam');
 
-    this.setState({ ...this.state, sharedWebcam: false });
+    this.setState({ sharedWebcam: false });
 
     VideoService.sendUserUnshareWebcam(this.props.userId);
   }
 
   render() {
+    if (!this.state.socketOpen) return null;
+
     return (
-      <VideoDockContainer
-        onStart={this.initWebRTC.bind(this)}
-        onStop={this.stop.bind(this)}
-        sharedWebcam={this.state.sharedWebcam}
-        onShareWebcam={this.shareWebcam.bind(this)}
-        socketOpen={this.state.socketOpen}
-        isLocked={this.props.isLocked}
+      <VideoList
+        users={this.props.users}
+        onMount={this.attachVideoStream.bind(this)}
       />
     );
   }
