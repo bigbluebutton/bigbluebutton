@@ -17,6 +17,7 @@
   justify-content: center;
   overflow: auto;
   width: 100%;
+  position: relative;
 }
 
 .overlay {
@@ -25,6 +26,7 @@
   order: 1;
   width: 100%;
   padding: 0 5px 5px;
+  position: relative;
 
   @include mq($medium-up) {
     padding: 0 10px 10px;
