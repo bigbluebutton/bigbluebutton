@@ -3,7 +3,7 @@ package org.bigbluebutton.air.main.commands {
 	
 	import spark.components.Application;
 	
-	import org.bigbluebutton.air.main.views.UserInactivityView;
+	import org.bigbluebutton.air.main.views.UserInactivityPopUp;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
@@ -14,7 +14,7 @@ package org.bigbluebutton.air.main.commands {
 		
 		override public function execute():void {
 			trace("RECEIVED INACTIVITY TIMER MESSAGE responseDuration=" + responseDuration);
-			var userInactivityView:UserInactivityView = new UserInactivityView();
+			var userInactivityView:UserInactivityPopUp = new UserInactivityPopUp();
 			userInactivityView.text = "Your client is going to close in " + responseDuration.toString() + " seconds";
 			userInactivityView.open(Application(FlexGlobals.topLevelApplication), true);
 		}

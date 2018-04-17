@@ -73,7 +73,7 @@
         padding: 15.0;
     }
 
-    main|ExitView, main|DisconnectView, main|UserInactivityView {
+    main|ExitView, main|DisconnectView, main|UserInactivityPopUp {
         gap: 15.0;
         padding: 15.0;
     }
@@ -121,9 +121,6 @@
     main|MobilePopUp {
         cornerRadius: 4.0;
         fontSize: 11.0;
-    }
-
-    main|MobilePopUp {
         padding: 6.0;
     }
 

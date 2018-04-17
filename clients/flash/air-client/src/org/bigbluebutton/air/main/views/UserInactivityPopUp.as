@@ -4,14 +4,14 @@ package org.bigbluebutton.air.main.views {
 	import spark.layouts.HorizontalLayout;
 	import spark.layouts.VerticalLayout;
 	
-	public class UserInactivityView extends MobilePopUp {
+	public class UserInactivityPopUp extends MobilePopUp {
 		private var _okButton:Button;
 		
 		public function get okButton():Button {
 			return _okButton;
 		}
 		
-		public function UserInactivityView() {
+		public function UserInactivityPopUp() {
 			super();
 			
 			_okButton = new Button();

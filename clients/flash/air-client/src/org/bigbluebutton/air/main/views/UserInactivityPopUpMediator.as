@@ -7,10 +7,10 @@ package org.bigbluebutton.air.main.views
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 
-	public class UserInactivityViewMediator extends Mediator
+	public class UserInactivityPopUpMediator extends Mediator
 	{
 		[Inject]
-		public var view:UserInactivityView;
+		public var view:UserInactivityPopUp;
 		
 		[Inject]
 		public var userInactivityTimerResponseSignal:UserInactivityTimerResponseSignal;

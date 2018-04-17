@@ -59,6 +59,7 @@ package org.bigbluebutton.air.poll.views {
 		public override function destroy():void {
 			meetingData.polls.pollChangeSignal.remove(onPollChange);
 			view.removeEventListener(MouseEvent.CLICK, viewMouseEventHandler);
+			view.stage.removeEventListener(StageOrientationEvent.ORIENTATION_CHANGE, onStageOrientation);
 		}
 	
 	}
