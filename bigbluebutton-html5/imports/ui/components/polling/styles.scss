@@ -6,6 +6,11 @@
   display: flex;
   align-items: center;
   flex-direction: column;
+  padding-bottom: 5px;
+
+  @include mq($medium-up) {
+    padding-bottom: 10px;
+  }
 }
 
 .pollingTitle {

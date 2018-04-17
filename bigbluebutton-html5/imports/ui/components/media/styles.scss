@@ -26,6 +26,7 @@
   order: 1;
   width: 100%;
   border: 5px solid transparent;
+  border-top: 0 !important;
   position: relative;
 
   @include mq($medium-up) {
