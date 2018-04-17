@@ -26,7 +26,18 @@ export function joinRouteHandler(nextState, replace, callback) {
       setCustomLogoUrl(customLogoURL);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
-      replace({ pathname: '/' });
+
+      const MAX_PHONE_VIEWPORT = 480;
+      const hasPhoneDimensions = (
+        (window.screen.width <= MAX_PHONE_VIEWPORT && window.screen.width < window.screen.height)
+        ||
+        (window.screen.height <= MAX_PHONE_VIEWPORT && window.screen.width > window.screen.height)
+      );
+
+      const path = (('ontouchstart' in window || navigator.msMaxTouchPoints) && hasPhoneDimensions)
+        ? '/' : '/users';
+
+      replace({ pathname: path });
       callback();
     });
 }
