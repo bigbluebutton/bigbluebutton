@@ -65,33 +65,27 @@
   }
 }
 
-.name {
+.name, .logout {
   display: flex;
   min-width: 0;
   font-weight: 600;
-  color: $color-heading;
-  width: 100%;
   position: relative;
 
   > span {
     @extend %text-elipsis;
     padding: .5rem 0;
-    position: absolute;
-    top: -.5rem;
-    width: 100%;
+    margin-top: -.5rem;
+    margin-bottom: -.5rem;
   }
 }
 
+.name {
+  color: $color-heading;
+}
+
 .logout {
-  display: flex;
-  min-width: 0;
-  font-weight: 600;
   text-transform: capitalize;
   font-style: italic;
-
-  > span {
-    @extend %text-elipsis;
-  }
 }
 
 .offline {
