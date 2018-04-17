@@ -288,7 +288,7 @@ class VideoProvider extends Component {
       },
       height: {
         min: 180,
-        max: 360,
+        max: 480,
       },
     };
 
