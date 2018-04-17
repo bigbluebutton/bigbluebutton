@@ -9,6 +9,7 @@ case class ConnInfo2(id: String)
 sealed trait FromConnMsg
 case class ConnectMsg2(connInfo: ConnInfo2) extends FromConnMsg
 case class DisconnectMsg2(connInfo: ConnInfo2) extends FromConnMsg
+case class MsgToConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
 case class MsgFromConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
 case class MsgFromConnBusMsg(val topic: String, val payload: FromConnMsg)
 

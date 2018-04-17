@@ -82,10 +82,11 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
       } else if (be.type() == BridgeEventType.SEND) {
         System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
         String body = be.getRawMessage().getJsonObject("body").encode();
-        gw.onMessageReceived("foo-" + be.socket().webSession().id(), body);
+        gw.onMessageReceived(be.socket().webSession().id(), body);
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        gw.register(be.socket().webSession().id());
+        String address = be.getRawMessage().getString("address");
+        gw.register(be.socket().webSession().id(), address);
       } else {
         System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       }
@@ -109,15 +110,15 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
     // Register to listen for messages coming IN to the server
     eb.consumer("chat.to.server").handler(message -> {
       // Create a timestamp string
-      String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
+    //  String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
       // Send the message back out to all clients with the timestamp prepended.
       //gw.send("TO ECHO:" + timestamp + ": " + message.body());
      // eb.publish("foofoofoo", message.body());
     });
 
-    eb.consumer("to-vertx").handler(message -> {
-     eb.publish("chat.to.client", message.body());
-    }); 
+    //eb.consumer("to-vertx").handler(message -> {
+     //eb.publish("chat.to.client", message.body());
+    //});
 
     
     // Serve the non private static pages

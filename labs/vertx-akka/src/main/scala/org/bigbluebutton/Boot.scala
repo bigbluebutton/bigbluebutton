@@ -1,11 +1,13 @@
 package org.bigbluebutton
 
 import akka.actor.{ ActorSystem, Props }
+
 import scala.concurrent.duration._
-import scala.concurrent.{ Future, Await }
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.bigbluebutton.vertx.HelloWorld
 import io.vertx.core.Vertx
+import org.bigbluebutton.client.bus.FromConnEventBus
 import org.bigbluebutton.vertx.AkkaToVertxGateway
 import org.bigbluebutton.vertx.IVertxToAkkaGateway
 import org.bigbluebutton.vertx.VertxToAkkaBus
@@ -23,9 +25,10 @@ object Boot extends App with SystemConfiguration {
 
   val akkaGW = new VertxToAkkaGateway(system, vertx, authActor, echoActor)
   val vertxToAkkaBus = new VertxToAkkaBus(vertx, akkaGW)
-  val connectionManager = new ConnectionManager(system, vertx)
+  val connEventBus = new FromConnEventBus
+  val connectionManager = new ConnectionManager(system, vertx, connEventBus)
 
-  val hello = new HelloWorld(vertx, akkaGW, connectionManager);
+  val hello = new HelloWorld(vertx, akkaGW, connectionManager)
   hello.startup()
 
 }

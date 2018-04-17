@@ -28,4 +28,14 @@ case class ClientManagerActor(connEventBus: FromConnEventBus) extends Actor with
 
     case _ => log.debug("***** Connection cannot handle msg ")
   }
+
+  override def preStart(): Unit = {
+    super.preStart()
+    connEventBus.subscribe(self, "clientManager")
+  }
+
+  override def postStop(): Unit = {
+    connEventBus.unsubscribe(self, "clientManager")
+    super.postStop()
+  }
 }

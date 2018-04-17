@@ -1,33 +1,56 @@
 package org.bigbluebutton
 
-import akka.actor.{ Actor, ActorContext, ActorLogging, Props }
+import akka.actor.{ Actor, ActorContext, ActorLogging, ActorRef, Props }
 import io.vertx.core.{ Handler, Vertx }
 import io.vertx.core.eventbus.{ Message, MessageConsumer }
+import org.bigbluebutton.client.bus._
 
 object Connection {
-  def apply(connId: String, vertx: Vertx)(implicit context: ActorContext): Connection = new Connection(connId, vertx)(context)
+  def apply(connId: String, vertx: Vertx, connEventBus: FromConnEventBus)(implicit context: ActorContext): Connection = new Connection(connId, vertx, connEventBus)(context)
 }
 
-class Connection(val connId: String, vertx: Vertx)(implicit val context: ActorContext) {
-  val actorRef = context.actorOf(ConnectionActor.props(connId, vertx), "connActor" + "-" + connId)
+class Connection(val connId: String, vertx: Vertx, connEventBus: FromConnEventBus)(implicit val context: ActorContext) {
+  val actorRef = context.actorOf(ConnectionActor.props(connId, vertx, connEventBus), "connActor" + "-" + connId)
 
-  val consumer: MessageConsumer[String] = vertx.eventBus().consumer("foo-" + connId)
-  consumer.handler(new MyConnHandler())
+  val consumer: MessageConsumer[String] = vertx.eventBus().consumer("FOO-" + connId)
+  consumer.handler(new MyConnHandler(actorRef))
 }
 
 object ConnectionActor {
-  def props(connId: String, vertx: Vertx): Props = Props(classOf[ConnectionActor], connId, vertx)
+  def props(connId: String, vertx: Vertx, connEventBus: FromConnEventBus): Props = Props(classOf[ConnectionActor], connId, vertx, connEventBus)
 }
 
-class ConnectionActor(connId: String, vertx: Vertx) extends Actor with ActorLogging {
+case class MsgFoo(msg: String)
+
+class ConnectionActor(connId: String, vertx: Vertx, connEventBus: FromConnEventBus) extends Actor with ActorLogging {
 
   def receive = {
+    case m: SocketDestroyed =>
+      val m2 = DisconnectMsg2(ConnInfo2(connId))
+      connEventBus.publish(MsgFromConnBusMsg("clientManager", m2))
+      context stop self
+    case m: SocketRegister =>
+      val m2 = MsgFromConnMsg(ConnInfo2(connId), m.channel)
+      connEventBus.publish(MsgFromConnBusMsg("clientManager", m2))
+    case m: MsgFoo =>
+      vertx.eventBus().publish("chat.to.client", "ECHO - " + m.msg)
     case _ => log.debug("***** Connection cannot handle msg ")
+  }
+
+  override def preStart(): Unit = {
+    super.preStart()
+    connEventBus.subscribe(self, "conn-" + connId)
+  }
+
+  override def postStop(): Unit = {
+    super.postStop()
+    connEventBus.unsubscribe(self, "conn-" + connId)
   }
 }
 
-class MyConnHandler extends Handler[Message[String]] {
+class MyConnHandler(actorRef: ActorRef) extends Handler[Message[String]] {
   def handle(message: Message[String]) = {
     println("My Handler " + message.body())
+    actorRef ! (MsgFoo(message.body()))
   }
 }
