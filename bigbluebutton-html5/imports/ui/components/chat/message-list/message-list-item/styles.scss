@@ -86,6 +86,10 @@
 .logout {
   text-transform: capitalize;
   font-style: italic;
+  & > span {
+    text-align: right;
+    padding-right: .1rem;
+  }
 }
 
 .offline {
@@ -93,7 +97,6 @@
   font-weight: 100;
   text-transform: lowercase;
   font-style: italic;
-  margin-left: .25rem;
   font-size: 90%;
   line-height: 1;
   align-self: center;
