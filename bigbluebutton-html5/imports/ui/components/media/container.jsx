@@ -66,7 +66,7 @@ export default withTracker(() => {
   }
 
   data.isScreensharing = MediaService.isVideoBroadcasting();
-  data.swapLayout = getSwapLayout() && usersVideo.length > 0 && viewParticipantsWebcams;
+  data.swapLayout = getSwapLayout();
   data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {

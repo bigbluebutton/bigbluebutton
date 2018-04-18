@@ -15,7 +15,6 @@ const isSharingVideo = () => {
 
 const videoShareAllowed = () => Settings.dataSaving.viewParticipantsWebcams;
 
-
 const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
@@ -39,5 +38,6 @@ export default {
   isDisabled,
   baseName,
   toggleSwapLayout: MediaService.toggleSwapLayout,
+  swapLayoutAllowed: MediaService.shouldEnableSwapLayout,
   videoShareAllowed,
 };

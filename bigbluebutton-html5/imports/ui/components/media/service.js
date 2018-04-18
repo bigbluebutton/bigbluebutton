@@ -2,6 +2,9 @@ import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import Settings from '/imports/ui/services/settings';
+import VideoService from '/imports/ui/components/video-provider/service';
+import PollingService from '/imports/ui/components/polling/service';
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
@@ -37,9 +40,20 @@ const toggleSwapLayout = () => {
   swapLayout.tracker.changed();
 };
 
+export const shouldEnableSwapLayout = () => {
+  const { viewParticipantsWebcams } = Settings.dataSaving;
+  const usersVideo = VideoService.getAllUsersVideo();
+  const poll = PollingService.mapPolls();
+
+  return usersVideo.length > 0 // prevent swap without any webcams
+  && viewParticipantsWebcams // prevent swap when dataSaving for webcams is enabled
+  && !poll.pollExists; // prevent swap when there is a poll running
+};
+
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
-  return swapLayout.value;
+
+  return swapLayout.value && shouldEnableSwapLayout();
 };
 
 export default {
@@ -50,4 +64,5 @@ export default {
   isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,
+  shouldEnableSwapLayout,
 };

@@ -217,10 +217,11 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            if (location.pathname.includes('/users')) {
-              router.push('/');
-            }
             this.updateSettings(this.state.current);
+            /* We need to use mountModal(null) here to prevent submenu state updates,
+            *  from re-opening the modal.
+            */
+            this.props.mountModal(null);
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),

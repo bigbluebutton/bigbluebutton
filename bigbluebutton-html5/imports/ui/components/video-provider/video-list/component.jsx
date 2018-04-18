@@ -94,8 +94,11 @@ class VideoList extends Component {
     const { width: canvasWidth, height: canvasHeight } = this.canvas.getBoundingClientRect();
     const gridGutter = parseInt(window.getComputedStyle(this.grid).getPropertyValue('grid-row-gap'), 10);
 
+
+    const hasFocusedItem = numItems > 2 && focusedId;
+
     // Has a focused item so we need +3 cells
-    if (numItems > 2 && focusedId) {
+    if (hasFocusedItem) {
       numItems += 3;
     }
 
@@ -106,7 +109,7 @@ class VideoList extends Component {
       );
 
       // We need a minimun of 2 rows and columns for the focused
-      const focusedConstraint = focusedId ? testGrid.rows > 1 && testGrid.columns > 1 : true;
+      const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
       const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
 
       return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;

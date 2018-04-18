@@ -4,9 +4,13 @@
   order: 2;
   width: 100%;
   display: flex;
-  padding: .8rem;
   align-items: center;
   flex-direction: column;
+  padding-bottom: 5px;
+
+  @include mq($medium-up) {
+    padding-bottom: 10px;
+  }
 }
 
 .pollingTitle {
