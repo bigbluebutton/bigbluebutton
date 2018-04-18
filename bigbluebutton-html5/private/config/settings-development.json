@@ -59,7 +59,7 @@
     "kurento": {
       "wsUrl": "HOST",
       "chromeExtensionKey": "KEY",
-      "chromeExtensionLink": "LINK",
+      "chromeExtensionLink": "javascript:alert('Missing kurento.chromeExtensionLink config')",
       "enableScreensharing": false,
       "enableVideo": false
     },
