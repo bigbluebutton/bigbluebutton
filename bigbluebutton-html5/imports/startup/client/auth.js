@@ -27,15 +27,9 @@ export function joinRouteHandler(nextState, replace, callback) {
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
-      const MAX_PHONE_VIEWPORT = 480;
-      const hasPhoneDimensions = (
-        (window.screen.width <= MAX_PHONE_VIEWPORT && window.screen.width < window.screen.height)
-        ||
-        (window.screen.height <= MAX_PHONE_VIEWPORT && window.screen.width > window.screen.height)
-      );
-
-      const path = (('ontouchstart' in window || navigator.msMaxTouchPoints) && hasPhoneDimensions)
-        ? '/' : '/users';
+      let path = '/';
+      const smallSide = window.matchMedia('(orientation: portrait)') ? 'width' : 'height';
+      if (!matchMedia(`only screen and (max-${smallSide}: 480px)`).matches) path += 'users';
 
       replace({ pathname: path });
       callback();
