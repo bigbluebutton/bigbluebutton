@@ -421,7 +421,7 @@ $Id: $
         }
       }
       
-	  private function setRoomLocked(e:Event = null) {
+	  private function setRoomLocked(e:Event = null):void {
 		  var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
 		  roomLocked = (lockSettings.isAnythingLocked() || LiveMeeting.inst().meeting.webcamsOnlyForModerator) && (lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 	  }
