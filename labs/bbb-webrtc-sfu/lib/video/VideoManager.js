@@ -50,8 +50,6 @@ module.exports = class VideoManager extends BaseManager {
 
         video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
 
-        // Empty ice queue after starting video
-        this._flushIceQueue(video, iceQueue);
         this._sessions[sessionId] = video;
 
         video.start(message.sdpOffer, (error, sdpAnswer) => {
@@ -66,6 +64,9 @@ module.exports = class VideoManager extends BaseManager {
               message : error
             }), C.FROM_VIDEO);
           }
+
+          // Empty ice queue after starting video
+          this._flushIceQueue(video, iceQueue);
 
           video.once(C.MEDIA_SERVER_OFFLINE, async (event) => {
             this._stopSession(sessionId);
