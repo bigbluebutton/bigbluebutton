@@ -167,7 +167,7 @@ module.exports = class MediaServer extends EventEmitter {
     }
   }
 
-  async stopRecording (sourceId) {
+  async _stopRecording (sourceId) {
     let source = this._mediaElements[sourceId];
 
     if (source) {
@@ -234,12 +234,16 @@ module.exports = class MediaServer extends EventEmitter {
     }
   }
 
-  stop (room, elementId) {
-    return new Promise((resolve, reject) => {
+  stop (room, type, elementId) {
+    return new Promise(async (resolve, reject) => {
       try {
         Logger.info("[mcs-media] Releasing endpoint", elementId, "from room", room);
         const mediaElement = this._mediaElements[elementId];
         const pipeline = this._mediaPipelines[room];
+
+        if (type === 'RecorderEndpoint') {
+          await this._stopRecording(elementId);
+        }
 
         if (mediaElement && typeof mediaElement.release === 'function') {
           mediaElement.release(async (error) => {

@@ -43,6 +43,7 @@ module.exports = class Screenshare extends EventEmitter {
     this._presenterCandidatesQueue = [];
     this._viewersEndpoint = [];
     this._viewersCandidatesQueue = [];
+    this._status = C.MEDIA_STOPPED;
   }
 
   onIceCandidate (_candidate) {
@@ -142,6 +143,18 @@ module.exports = class Screenshare extends EventEmitter {
       case "MediaFlowOutStateChange":
       case "MediaFlowInStateChange":
         Logger.info('[screenshare]', msEvent.type, '[' + msEvent.state? msEvent.state : 'UNKNOWN_STATE' + ']', 'for media session',  event.id);
+
+        if (msEvent.state === 'FLOWING' && this._status != C.MEDIA_STARTED) {
+          Logger.info('[screenshare] webRTC started flowing id: ', event.id);
+          if (config.get('recordScreenSharing')) {
+            this.startRecording();
+          }
+          this._status = C.MEDIA_STARTED;
+        }
+
+        if (msEvent.state === 'NOT_FLOWING') {
+          this._status = C.MEDIA_STOPPED;
+        }
         break;
 
       default: Logger.warn("[screenshare] Unrecognized event", event);
@@ -157,6 +170,10 @@ module.exports = class Screenshare extends EventEmitter {
       default:
         Logger.warn("[screenshare] Unknown server state", event);
     }
+  }
+
+  async startRecording() {
+    this.recordingId = await this.mcs.startRecording(this.userId, this._presenterEndpoint, this._voiceBridge);
   }
 
   async _startPresenter(id, sdpOffer, callback) {

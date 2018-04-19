@@ -71,10 +71,10 @@ module.exports = class SfuUser extends User {
   }
 
   addRecording (recordingName) {
-    let session = new RecordingSession(this.emitter, this.roomId, this.recordingId);
+    let session = new RecordingSession(this.emitter, this.roomId, recordingName);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
-    session.on("SESSION_STOPPED", (sessId) => {
+    session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
       Logger.info("[mcs-sfu-user] Recording session stopped.");
       if (sessId === session.id) {
         this._mediaSessions[sessId] = null;
@@ -97,7 +97,7 @@ module.exports = class SfuUser extends User {
 
     try {
       const mediaElement = await session.start();
-      const answer = await session.processDescriptor();
+      const answer = await session.process();
       return Promise.resolve(answer);
     }
     catch (err) {
