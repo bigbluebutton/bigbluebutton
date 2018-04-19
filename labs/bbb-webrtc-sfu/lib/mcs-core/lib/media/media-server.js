@@ -153,13 +153,17 @@ module.exports = class MediaServer extends EventEmitter {
 
     if (source) {
       return new Promise((resolve, reject) => {
-        source.record((err) => {
-          if (err) {
-            error = this._handlerError(error);
-            return reject(error);
-          }
-          return resolve();
-        });
+        try {
+          source.record((err) => {
+            if (err) {
+              return reject(this._handleError(err));
+            }
+            return resolve();
+          });
+        }
+        catch (err) {
+          return reject(this._handleError(err));
+        }
       });
     }
     else {
@@ -172,13 +176,17 @@ module.exports = class MediaServer extends EventEmitter {
 
     if (source) {
       return new Promise((resolve, reject) => {
-        source.stopAndWait((err) => {
-          if (err) {
-            error = this._handleError(error);
-            return reject(error);
-          }
-          return resolve();
-        });
+        try {
+          source.stopAndWait((err) => {
+            if (err) {
+              return reject(this._handleError(err));
+            }
+            return resolve();
+          });
+        }
+        catch (err) {
+          return reject(this._handleError(err));
+        }
       });
     }
     else {

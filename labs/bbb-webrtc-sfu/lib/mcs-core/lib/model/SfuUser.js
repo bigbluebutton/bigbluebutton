@@ -53,7 +53,7 @@ module.exports = class SfuUser extends User {
     // TODO switch from type to children SdpSessions (WebRTC|SDP)
     let session = new SdpSession(this.emitter, sdp, this.roomId, type);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
-    session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
+    session.emitter.once(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
       if (sessId === session.id) {
         Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
         this._mediaSessions[sessId] = null;
@@ -74,9 +74,9 @@ module.exports = class SfuUser extends User {
     let session = new RecordingSession(this.emitter, this.roomId, recordingName);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
-    session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
-      Logger.info("[mcs-sfu-user] Recording session stopped.");
+    session.emitter.once(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
       if (sessId === session.id) {
+        Logger.info("[mcs-sfu-user] Recording session stopped.");
         this._mediaSessions[sessId] = null;
       }
     });
