@@ -36,7 +36,7 @@ const Polling = ({ intl, poll, handleVote }) => (
             <Button
               className={styles.pollingButton}
               color="default"
-              size="lg"
+              size="md"
               label={pollAnswer.key}
               onClick={() => handleVote(poll.pollId, pollAnswer)}
               aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}

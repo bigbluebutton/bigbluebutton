@@ -434,6 +434,17 @@ window.getScreenConstraints = function (sendSource, callback) {
       // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
       screenConstraints.video.chromeMediaSource = { exact: [sendSource] };
       screenConstraints.video.chromeMediaSourceId = sourceId;
+      screenConstraints.optional = [
+        { googCpuOveruseDetection: true },
+        { googCpuOveruseEncodeUsage: true },
+        { googCpuUnderuseThreshold: 55 },
+        { googCpuOveruseThreshold: 85 },
+        { googPayloadPadding: true },
+        { googScreencastMinBitrate: 400 },
+        { googHighStartBitrate: true },
+        { googHighBitrate: true },
+        { googVeryHighBitrate: true }
+      ];
 
       console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
       // now invoking native getUserMedia API

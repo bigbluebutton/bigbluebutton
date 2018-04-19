@@ -340,7 +340,7 @@ module.exports = class MediaController {
   _handleError (error) {
     Logger.error("[mcs-controller] Controller received error", error);
     // Checking if the error needs to be wrapped into a JS Error instance
-    if (isError(error)) {
+    if (!isError(error)) {
       error = new Error(error);
     }
     return error;

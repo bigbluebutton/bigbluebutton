@@ -52,13 +52,13 @@ class VideoService {
   }
 
   exitVideo() {
-    this.isSharing = false;
     const exitVideoEvent = new Event('exitVideo');
     document.dispatchEvent(exitVideoEvent);
   }
 
   exitedVideo() {
     console.warn('exitedVideo');
+    this.isSharing = false;
     this.isWaitingResponse = false;
     this.isConnected = false;
   }
