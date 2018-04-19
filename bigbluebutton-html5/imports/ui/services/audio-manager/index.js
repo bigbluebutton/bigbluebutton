@@ -37,11 +37,13 @@ class AudioManager {
     });
   }
 
-  init(userData, messages) {
+  init(userData) {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
-    this.messages = messages;
     this.initialized = true;
+  }
+  setAudioMessages(messages) {
+    this.messages = messages;
   }
 
   defineProperties(obj) {
