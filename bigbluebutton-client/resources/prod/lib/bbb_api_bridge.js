@@ -523,6 +523,12 @@
       }
     }
     
+    BBB.connectedToVertx = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.connectedToVertx();
+      }
+    }
 
 
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
@@ -607,14 +613,23 @@
     }
     **/
     
-      const eb = new vertx.EventBus("http://192.168.246.131:3001/eventbus");
-      eb.onopen = function () {
-            console.log("FOOOO!!!!!");
-            eb.registerHandler("chat.to.client", function (msg) {
-                console.log("From server: " + msg + "\n");
-                BBB.onMessageFromDS(msg);
-            });
-      };
+    const eb = new vertx.EventBus("https://ritz-ss.blindside-dev.com/eventbus");
+    eb.onopen = function () {
+      console.log("FOOOO!!!!!");
+    };
+        
+    BBB.sendAuthToken = function(data) {
+      eb.registerHandler("chat.to.client", function (error, msg) {
+      	if (error != null) {
+      		console.log("From server error: " + JSON.stringify(error));
+      	} else {
+      	  console.log("From server: " + msg + "\n");
+        	BBB.onMessageFromDS(msg);
+      	}
+      });
+      
+      BBB.connectedToVertx();
+    }
       
     BBB.sendToDeepstream = function(data) {
       eb.send("chat.to.server", data, function(msg) {

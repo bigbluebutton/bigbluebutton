@@ -99,5 +99,9 @@ package org.bigbluebutton.core.managers {
 			connDelegate.onMessageFromDS(msg);
 		}
 
+		public function connectedToVertx(): void {
+			connDelegate.connectedToVertx();
+		}
+		
     }
 }

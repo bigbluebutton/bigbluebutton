@@ -111,7 +111,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCMonitorUpdate", handleWebRTCMonitorUpdate);
 		
 		ExternalInterface.addCallback("onMessageFromDS", handleOnMessageFromDS);
-
+		ExternalInterface.addCallback("connectedToVertx", handleOnConnectedToVertx);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -433,6 +433,14 @@ package org.bigbluebutton.main.api
 	private function handleOnMessageFromDS(msg: Object):void {
 		var _nc:ConnectionManager = BBB.initConnectionManager();
 		_nc.onMessageFromDS(msg);
+	}	
+	
+	private function handleOnConnectedToVertx():void {
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.connectedToVertx();
 	}		
+	
+	
+	
   }
 }

@@ -2,6 +2,7 @@ package org.bigbluebutton
 
 import akka.actor.{ Actor, ActorContext, ActorLogging, ActorSystem, Props }
 import io.vertx.core.Vertx
+import io.vertx.core.json.JsonObject
 import org.bigbluebutton.client.bus.FromConnEventBus
 
 class ConnectionManager(system: ActorSystem, vertx: Vertx, connEventBus: FromConnEventBus) {
@@ -19,7 +20,7 @@ class ConnectionManager(system: ActorSystem, vertx: Vertx, connEventBus: FromCon
     actorRef ! SocketRegister(id, address)
   }
 
-  def onMessageReceived(id: String, msg: String): Unit = {
+  def onMessageReceived(id: String, msg: JsonObject): Unit = {
     vertx.eventBus().publish("FOO-" + id, msg)
   }
 }

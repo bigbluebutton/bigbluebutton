@@ -8,9 +8,8 @@ import org.bigbluebutton.client.meeting.MeetingManagerActor
 
 import scala.concurrent.duration._
 
-class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfiguration {
+class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW) extends SystemConfiguration {
 
-  implicit val system = ActorSystem("bbb-apps-common")
   implicit val timeout = akka.util.Timeout(3 seconds)
 
   val log = Logging(system, getClass)

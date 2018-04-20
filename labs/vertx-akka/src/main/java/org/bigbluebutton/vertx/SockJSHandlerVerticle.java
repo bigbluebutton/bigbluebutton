@@ -81,8 +81,8 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
         System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
         System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        String body = be.getRawMessage().getJsonObject("body").encode();
-        gw.onMessageReceived(be.socket().webSession().id(), body);
+        //String body = be.getRawMessage().getJsonObject("body").encode();
+        gw.onMessageReceived(be.socket().webSession().id(), be.getRawMessage().getJsonObject("body"));
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
         String address = be.getRawMessage().getString("address");
@@ -117,7 +117,7 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
     });
 
     //eb.consumer("to-vertx").handler(message -> {
-     //eb.publish("chat.to.client", message.body());
+    // eb.publish("chat.to.client", message.body());
     //});
 
     
