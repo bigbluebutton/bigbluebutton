@@ -218,6 +218,9 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(this.state.current);
+            if (window.location.pathname.includes('users')) {
+              this.props.router.push('/users');
+            }
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
