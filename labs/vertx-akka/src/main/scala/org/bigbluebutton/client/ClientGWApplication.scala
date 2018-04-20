@@ -25,34 +25,28 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW)
   private val redisPublisher = new RedisPublisher(system)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
-  private val messageSenderActorRef = system.actorOf(
-    MessageSenderActor.props(msgSender), "messageSenderActor")
+  private val messageSenderActorRef = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
 
   jsonMsgToAkkaAppsBus.subscribe(messageSenderActorRef, toAkkaAppsJsonChannel)
 
-  private val meetingManagerActorRef = system.actorOf(
-    MeetingManagerActor.props(msgToAkkaAppsEventBus, msgToClientEventBus), "meetingManagerActor")
+  private val meetingManagerActorRef = system.actorOf(MeetingManagerActor.props(msgToAkkaAppsEventBus, msgToClientEventBus), "meetingManagerActor")
 
   msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
   msgFromClientEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
 
   private val receivedJsonMsgBus = new JsonMsgFromAkkaAppsBus
 
-  private val msgToAkkaAppsToJsonActor = system.actorOf(
-    MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor")
+  private val msgToAkkaAppsToJsonActor = system.actorOf(MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor")
 
   msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
 
-  private val msgToClientJsonActor = system.actorOf(
-    MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
+  private val msgToClientJsonActor = system.actorOf(MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
 
   msgToClientEventBus.subscribe(msgToClientJsonActor, toClientChannel)
 
-  private val appsRedisSubscriberActor = system.actorOf(
-    AppsRedisSubscriberActor.props(receivedJsonMsgBus), "appsRedisSubscriberActor")
+  private val appsRedisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(receivedJsonMsgBus), "appsRedisSubscriberActor")
 
-  private val receivedJsonMsgHdlrActor = system.actorOf(
-    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
+  private val receivedJsonMsgHdlrActor = system.actorOf(ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
 
   receivedJsonMsgBus.subscribe(receivedJsonMsgHdlrActor, fromAkkaAppsJsonChannel)
 
