@@ -28,8 +28,16 @@ export function joinRouteHandler(nextState, replace, callback) {
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
       let path = '/';
-      const smallSide = window.matchMedia('(orientation: portrait)') ? 'width' : 'height';
-      if (!matchMedia(`only screen and (max-${smallSide}: 480px)`).matches) path += 'users';
+
+      const MAX_PHONE_SHORT_SIDE = 480;
+
+      const smallSide = window.screen.width < window.screen.height
+        ? window.screen.width
+        : window.screen.height;
+
+      const isPhone = smallSide <= MAX_PHONE_SHORT_SIDE;
+
+      if (!isPhone) path += 'users';
 
       replace({ pathname: path });
       callback();
