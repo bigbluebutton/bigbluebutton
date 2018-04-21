@@ -1,16 +1,16 @@
 package org.bigbluebutton.client
 
 import akka.actor.{ Actor, ActorLogging, Props }
-import org.bigbluebutton.client.bus.{ JsonMsgToAkkaAppsBus, JsonMsgToAkkaAppsBusMsg, JsonMsgToSendToAkkaApps }
+import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 
 object MsgToAkkaAppsToJsonActor {
-  def props(jsonMsgToAkkaAppsBus: JsonMsgToAkkaAppsBus): Props =
-    Props(classOf[MsgToAkkaAppsToJsonActor], jsonMsgToAkkaAppsBus)
+  def props(connEventBus: FromConnEventBus): Props =
+    Props(classOf[MsgToAkkaAppsToJsonActor], connEventBus)
 
 }
-class MsgToAkkaAppsToJsonActor(jsonMsgToAkkaAppsBus: JsonMsgToAkkaAppsBus)
+class MsgToAkkaAppsToJsonActor(connEventBus: FromConnEventBus)
     extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {
@@ -19,8 +19,8 @@ class MsgToAkkaAppsToJsonActor(jsonMsgToAkkaAppsBus: JsonMsgToAkkaAppsBus)
 
   def handle(msg: BbbCommonEnvJsNodeMsg): Unit = {
     val json = JsonUtil.toJson(msg)
-    val jsonMsg = JsonMsgToSendToAkkaApps(toAkkaAppsRedisChannel, json)
-    jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, jsonMsg))
+    val jsonMsg = JsonMsgToAkkaApps(toAkkaAppsRedisChannel, json)
+    connEventBus.publish(MsgFromConnBusMsg(toAkkaAppsJsonChannel, jsonMsg))
   }
 
 }

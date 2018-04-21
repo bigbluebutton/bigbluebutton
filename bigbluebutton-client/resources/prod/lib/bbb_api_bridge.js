@@ -613,7 +613,7 @@
     }
     **/
     
-    const eb = new vertx.EventBus("https://ritz-ss.blindside-dev.com/eventbus");
+    const eb = new vertx.EventBus("http://192.168.246.131:3001/eventbus");
     eb.onopen = function () {
       console.log("FOOOO!!!!!");
     };

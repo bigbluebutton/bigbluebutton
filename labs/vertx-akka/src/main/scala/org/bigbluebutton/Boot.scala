@@ -25,7 +25,7 @@ object Boot extends App with SystemConfiguration {
   val connectionManager = new ConnectionManager(system, vertx, connEventBus)
 
   val msgToClientGW = new MsgToClientGW
-  val clientGW = new ClientGWApplication(system, msgToClientGW)
+  val clientGW = new ClientGWApplication(system, msgToClientGW, connEventBus)
 
   val hello = new HelloWorld(vertx, akkaGW, connectionManager)
   hello.startup()

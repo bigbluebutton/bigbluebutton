@@ -3,7 +3,6 @@ package org.bigbluebutton.client.bus
 import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
 
-case class JsonMsgFromAkkaApps(name: String, data: String)
 case class JsonMsgFromAkkaAppsEvent(val topic: String, val payload: JsonMsgFromAkkaApps)
 
 class JsonMsgFromAkkaAppsBus extends EventBus with LookupClassification {

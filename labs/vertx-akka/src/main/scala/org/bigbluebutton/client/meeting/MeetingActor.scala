@@ -6,13 +6,11 @@ import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvJsNodeMsg, DisconnectAllClientsSysMsg, MessageTypes }
 
 object MeetingActor {
-  def props(meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
-    msgToClientEventBus: MsgToClientEventBus): Props =
-    Props(classOf[MeetingActor], meetingId, msgToAkkaAppsEventBus, msgToClientEventBus)
+  def props(meetingId: String, connEventBus: FromConnEventBus): Props =
+    Props(classOf[MeetingActor], meetingId, connEventBus)
 }
 
-class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
-  msgToClientEventBus: MsgToClientEventBus)
+class MeetingActor(val meetingId: String, connEventBus: FromConnEventBus)
     extends Actor with ActorLogging
     with SystemConfiguration {
 
@@ -27,7 +25,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   }
 
   private def createUser(id: String): User = {
-    User(id, msgToAkkaAppsEventBus, meetingId, msgToClientEventBus)
+    User(id, connEventBus, meetingId)
   }
 
   def handleConnectMsg(msg: ConnectMsg): Unit = {
@@ -96,14 +94,14 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
 
   def handleBroadcastMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
-    msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, BroadcastMsgToMeeting(meetingId, msg)))
+    connEventBus.publish(MsgFromConnBusMsg(toClientChannel, BroadcastMsgToMeeting(meetingId, msg)))
   }
 
   def handleSystemMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
     msg.envelope.name match {
       case DisconnectAllClientsSysMsg.NAME =>
-        msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectAllMeetingClientsMsg(meetingId)))
+        connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DisconnectAllMeetingClientsMsg(meetingId)))
       case _ => forwardToUser(msg)
     }
 

@@ -10,7 +10,7 @@ import redis.api.pubsub.{ Message, PMessage }
 
 import scala.concurrent.duration._
 import org.bigbluebutton.client._
-import org.bigbluebutton.client.bus.{ JsonMsgFromAkkaApps, JsonMsgFromAkkaAppsBus, JsonMsgFromAkkaAppsEvent }
+import org.bigbluebutton.client.bus._
 import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
@@ -18,13 +18,13 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq(fromAkkaAppsRedisChannel, fromAkkaAppsWbRedisChannel, fromAkkaAppsChatRedisChannel, fromAkkaAppsPresRedisChannel)
   val patterns = Seq("bigbluebutton:from-bbb-apps:*")
 
-  def props(jsonMsgBus: JsonMsgFromAkkaAppsBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], jsonMsgBus,
+  def props(connEventBus: FromConnEventBus): Props =
+    Props(classOf[AppsRedisSubscriberActor], connEventBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, redisHost: String,
+class AppsRedisSubscriberActor(connEventBus: FromConnEventBus, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
@@ -49,7 +49,7 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, redisHost: St
     if (channels.contains(message.channel)) {
       //log.debug(s"RECEIVED:\n ${message.data.utf8String} \n")
       val receivedJsonMessage = new JsonMsgFromAkkaApps(message.channel, message.data.utf8String)
-      jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
+      connEventBus.publish(MsgFromConnBusMsg(fromAkkaAppsJsonChannel, receivedJsonMessage))
     }
 
   }

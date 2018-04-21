@@ -11,16 +11,14 @@ import scala.util.{ Failure, Success }
 
 object UserActor {
   def props(userId: String,
-    msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
-    meetingId: String,
-    msgToClientEventBus: MsgToClientEventBus): Props =
-    Props(classOf[UserActor], userId, msgToAkkaAppsEventBus, meetingId, msgToClientEventBus)
+    connEventBus: FromConnEventBus,
+    meetingId: String): Props =
+    Props(classOf[UserActor], userId, connEventBus, meetingId)
 }
 
 class UserActor(val userId: String,
-  msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
-  meetingId: String,
-  msgToClientEventBus: MsgToClientEventBus)
+  connEventBus: FromConnEventBus,
+  meetingId: String)
     extends Actor with ActorLogging with SystemConfiguration {
 
   private val conns = new Connections
@@ -113,7 +111,7 @@ class UserActor(val userId: String,
           for {
             conn <- Connections.findActiveConnection(conns)
           } yield {
-            msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+            connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
             // Tell Akka apps to eject user from meeting.
             sendEjectUserFromMeetingToAkkaApps(msg.connInfo, meetingId, userId)
           }
@@ -135,7 +133,7 @@ class UserActor(val userId: String,
             jsonNode <- convertToJsonNode(json)
           } yield {
             val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
-            msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+            connEventBus.publish(MsgFromConnBusMsg(toAkkaAppsChannel, MsgToAkkaApps(akkaMsg)))
           }
         }
       case None =>
@@ -177,7 +175,7 @@ class UserActor(val userId: String,
         case _ => // let it pass through
       }
       if (authorized) {
-        msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
+        connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
       }
 
     }
@@ -199,7 +197,7 @@ class UserActor(val userId: String,
     } yield {
       msg.envelope.name match {
         case DisconnectClientSysMsg.NAME =>
-          msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+          connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
         case _ => log.warning("Unhandled system messsage " + msg)
       }
     }

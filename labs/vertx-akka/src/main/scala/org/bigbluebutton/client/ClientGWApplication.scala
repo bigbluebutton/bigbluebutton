@@ -8,7 +8,7 @@ import org.bigbluebutton.client.meeting.MeetingManagerActor
 
 import scala.concurrent.duration._
 
-class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW) extends SystemConfiguration {
+class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW, connEventBus: FromConnEventBus) extends SystemConfiguration {
 
   implicit val timeout = akka.util.Timeout(3 seconds)
 
@@ -17,38 +17,32 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW)
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val msgFromClientEventBus = new MsgFromClientEventBus
-  private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
-  private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus
-  private val msgToAkkaAppsEventBus = new MsgToAkkaAppsEventBus
-  private val msgToClientEventBus = new MsgToClientEventBus
-
+  //private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
   private val redisPublisher = new RedisPublisher(system)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
   private val messageSenderActorRef = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
 
-  jsonMsgToAkkaAppsBus.subscribe(messageSenderActorRef, toAkkaAppsJsonChannel)
+  connEventBus.subscribe(messageSenderActorRef, toAkkaAppsJsonChannel)
 
-  private val meetingManagerActorRef = system.actorOf(MeetingManagerActor.props(msgToAkkaAppsEventBus, msgToClientEventBus), "meetingManagerActor")
+  private val meetingManagerActorRef = system.actorOf(MeetingManagerActor.props(connEventBus), "meetingManagerActor")
+  connEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
 
-  msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
   msgFromClientEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
 
-  private val receivedJsonMsgBus = new JsonMsgFromAkkaAppsBus
+  private val msgToAkkaAppsToJsonActor = system.actorOf(MsgToAkkaAppsToJsonActor.props(connEventBus), "msgToAkkaAppsToJsonActor")
 
-  private val msgToAkkaAppsToJsonActor = system.actorOf(MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor")
-
-  msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
+  connEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
 
   private val msgToClientJsonActor = system.actorOf(MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
 
-  msgToClientEventBus.subscribe(msgToClientJsonActor, toClientChannel)
+  connEventBus.subscribe(msgToClientJsonActor, toClientChannel)
 
-  private val appsRedisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(receivedJsonMsgBus), "appsRedisSubscriberActor")
+  private val appsRedisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(connEventBus), "appsRedisSubscriberActor")
 
-  private val receivedJsonMsgHdlrActor = system.actorOf(ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
+  private val receivedJsonMsgHdlrActor = system.actorOf(ReceivedJsonMsgHdlrActor.props(connEventBus), "receivedJsonMsgHdlrActor")
 
-  receivedJsonMsgBus.subscribe(receivedJsonMsgHdlrActor, fromAkkaAppsJsonChannel)
+  connEventBus.subscribe(receivedJsonMsgHdlrActor, fromAkkaAppsJsonChannel)
 
   /**
    *
@@ -72,7 +66,7 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW)
 
   def send(channel: String, json: String): Unit = {
     //log.debug("Sending message {}", json)
-    jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, new JsonMsgToSendToAkkaApps(channel, json)))
+    connEventBus.publish(MsgFromConnBusMsg(toAkkaAppsJsonChannel, new JsonMsgToAkkaApps(channel, json)))
   }
 
   def shutdown(): Unit = {

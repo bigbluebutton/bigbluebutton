@@ -5,13 +5,11 @@ import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvJsNodeMsg, MessageTypes }
 
 object MeetingManagerActor {
-  def props(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
-    msgToClientEventBus: MsgToClientEventBus): Props =
-    Props(classOf[MeetingManagerActor], msgToAkkaAppsEventBus, msgToClientEventBus)
+  def props(connEventBus: FromConnEventBus): Props =
+    Props(classOf[MeetingManagerActor], connEventBus)
 }
 
-class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
-  msgToClientEventBus: MsgToClientEventBus)
+class MeetingManagerActor(connEventBus: FromConnEventBus)
     extends Actor with ActorLogging {
 
   private val meetingMgr = new MeetingManager
@@ -25,7 +23,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
   }
 
   def createMeeting(meetingId: String): Meeting = {
-    Meeting(meetingId, msgToAkkaAppsEventBus, msgToClientEventBus)
+    Meeting(meetingId, connEventBus)
   }
 
   def handleConnectMsg(msg: ConnectMsg): Unit = {

@@ -2,7 +2,7 @@ package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
-import org.bigbluebutton.client.ConnInfo
+import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 
 case class ConnInfo2(id: String)
 
@@ -11,6 +11,15 @@ case class ConnectMsg2(connInfo: ConnInfo2) extends FromConnMsg
 case class DisconnectMsg2(connInfo: ConnInfo2) extends FromConnMsg
 case class MsgToConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
 case class MsgFromConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
+case class JsonMsgFromAkkaApps(name: String, data: String) extends FromConnMsg
+case class JsonMsgToAkkaApps(channel: String, json: String) extends FromConnMsg
+case class MsgFromAkkaApps(payload: BbbCommonEnvJsNodeMsg) extends FromConnMsg
+case class MsgToAkkaApps(payload: BbbCommonEnvJsNodeMsg) extends FromConnMsg
+case class BroadcastMsgToMeeting(meetingId: String, data: BbbCommonEnvJsNodeMsg) extends FromConnMsg
+case class DirectMsgToClient(meetingId: String, connId: String, data: BbbCommonEnvJsNodeMsg) extends FromConnMsg
+case class DisconnectClientMsg(meetingId: String, connId: String) extends FromConnMsg
+case class DisconnectAllMeetingClientsMsg(meetingId: String) extends FromConnMsg
+
 case class MsgFromConnBusMsg(val topic: String, val payload: FromConnMsg)
 
 class FromConnEventBus extends EventBus with LookupClassification {
