@@ -16,7 +16,7 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
 
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
-  private val msgFromClientEventBus = new MsgFromClientEventBus
+  //private val msgFromClientEventBus = new MsgFromClientEventBus
   //private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
   private val redisPublisher = new RedisPublisher(system)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
@@ -28,7 +28,7 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
   private val meetingManagerActorRef = system.actorOf(MeetingManagerActor.props(connEventBus), "meetingManagerActor")
   connEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
 
-  msgFromClientEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
+  connEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
 
   private val msgToAkkaAppsToJsonActor = system.actorOf(MsgToAkkaAppsToJsonActor.props(connEventBus), "msgToAkkaAppsToJsonActor")
 
@@ -51,17 +51,17 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
 
   def connect(connInfo: ConnInfo): Unit = {
     //log.debug("**** ClientGWApplication connect " + connInfo)
-    msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new ConnectMsg(connInfo)))
+    connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new ConnectMsg(connInfo)))
   }
 
   def disconnect(connInfo: ConnInfo): Unit = {
     //log.debug("**** ClientGWApplication disconnect " + connInfo)
-    msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new DisconnectMsg(connInfo)))
+    connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new DisconnectMsg(connInfo)))
   }
 
   def handleMsgFromClient(connInfo: ConnInfo, json: String): Unit = {
     //log.debug("**** ClientGWApplication handleMsgFromClient " + json)
-    msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
+    connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
   }
 
   def send(channel: String, json: String): Unit = {

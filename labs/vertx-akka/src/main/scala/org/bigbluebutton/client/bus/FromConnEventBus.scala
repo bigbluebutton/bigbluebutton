@@ -2,6 +2,7 @@ package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
+import org.bigbluebutton.client.ConnInfo
 import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 
 case class ConnInfo2(id: String)
@@ -19,6 +20,9 @@ case class BroadcastMsgToMeeting(meetingId: String, data: BbbCommonEnvJsNodeMsg)
 case class DirectMsgToClient(meetingId: String, connId: String, data: BbbCommonEnvJsNodeMsg) extends FromConnMsg
 case class DisconnectClientMsg(meetingId: String, connId: String) extends FromConnMsg
 case class DisconnectAllMeetingClientsMsg(meetingId: String) extends FromConnMsg
+case class ConnectMsg(connInfo: ConnInfo) extends FromConnMsg
+case class DisconnectMsg(connInfo: ConnInfo) extends FromConnMsg
+case class MsgFromClientMsg(connInfo: ConnInfo, json: String) extends FromConnMsg
 
 case class MsgFromConnBusMsg(val topic: String, val payload: FromConnMsg)
 

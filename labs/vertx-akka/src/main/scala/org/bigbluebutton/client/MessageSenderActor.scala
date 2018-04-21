@@ -1,10 +1,11 @@
 package org.bigbluebutton.client
 
 import java.io.{ PrintWriter, StringWriter }
+
 import scala.concurrent.duration._
 import akka.actor.{ Actor, ActorLogging, OneForOneStrategy, Props }
 import akka.actor.SupervisorStrategy.Resume
-import org.bigbluebutton.client.bus.JsonMsgToSendToAkkaApps
+import org.bigbluebutton.client.bus.JsonMsgToAkkaApps
 import org.bigbluebutton.client.endpoint.redis.MessageSender
 
 object MessageSenderActor {
@@ -24,7 +25,7 @@ class MessageSenderActor(msgSender: MessageSender) extends Actor with ActorLoggi
   }
 
   def receive = {
-    case msg: JsonMsgToSendToAkkaApps => msgSender.send(msg.channel, msg.json)
+    case msg: JsonMsgToAkkaApps => msgSender.send(msg.channel, msg.json)
   }
 
 }
