@@ -497,7 +497,9 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
     extensionId, {
       getStream: true,
       sources: [
-        'screen'
+        'window',
+        'screen',
+        'tab',
       ],
     },
     (response) => {
