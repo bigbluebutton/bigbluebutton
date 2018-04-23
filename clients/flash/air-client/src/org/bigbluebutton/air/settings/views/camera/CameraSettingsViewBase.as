@@ -96,7 +96,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			_rotateCameraButton = new Button();
 			_rotateCameraButton.label = "ROTATE CAMERA";
 			_rotateCameraButton.styleName = "actionButton";
-			_actionsGroup.addElement(_rotateCameraButton);
+			//_actionsGroup.addElement(_rotateCameraButton);
 			
 			var qualityTitle:Label = new Label();
 			qualityTitle.text = "Video Quality";
