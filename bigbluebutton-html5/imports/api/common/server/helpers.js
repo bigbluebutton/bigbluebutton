@@ -17,11 +17,9 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
 
-
   const shouldSkip = routing.msgType === MSG_DIRECT_TYPE && routing.userId !== NODE_USER;
   if (shouldSkip) return () => { };
-
-  return fn(...args);
+  return fn(message, ...args);
 };
 
 
