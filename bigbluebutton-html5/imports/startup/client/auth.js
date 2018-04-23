@@ -1,6 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
+import deviceType from '/imports/utils/deviceType';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -26,7 +27,11 @@ export function joinRouteHandler(nextState, replace, callback) {
       setCustomLogoUrl(customLogoURL);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
-      replace({ pathname: '/' });
+
+      const path = deviceType().isPhone ? '/' : '/users';
+
+      replace({ pathname: path });
+
       callback();
     });
 }
