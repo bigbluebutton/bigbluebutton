@@ -308,7 +308,6 @@
     "app.video.chromeExtensionErrorLink": "this Chrome Extension",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.toolbar.tools": "Tools",
-    "app.whiteboard.toolbar.tools.hand": "Hand",
     "app.whiteboard.toolbar.tools.pointer": "Pointer",
     "app.whiteboard.toolbar.tools.pencil": "Pencil",
     "app.whiteboard.toolbar.tools.rectangle": "Rectangle",
