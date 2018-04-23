@@ -317,7 +317,7 @@ export default class SIPBridge extends BaseAudioBridge {
   setDefaultInputDevice() {
     const handleMediaSuccess = (mediaStream) => {
       const deviceLabel = mediaStream.getAudioTracks()[0].label;
-      mediaStream.getTracks().forEach(track => track.stop());
+      window.defaultInputStream = mediaStream.getTracks();
       return navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
         const device = mediaDevices.find(d => d.label === deviceLabel);
         return this.changeInputDevice(device.deviceId);

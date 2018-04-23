@@ -141,7 +141,7 @@ class AudioManager {
       ]))
       .catch((err) => {
         // If theres a iceGathering timeout we retry to join after asking device permissions
-        if (err === iceGatheringErr && !this.devicesInitialized) {
+        if (err === iceGatheringErr) {
           return this.askDevicesPermissions()
             .then(() => this.joinListenOnly());
         }
@@ -205,6 +205,7 @@ class AudioManager {
     this.isHangingUp = false;
 
     if (this.inputStream) {
+      window.defaultInputStream.forEach(track => track.stop());
       this.inputStream.getTracks().forEach(track => track.stop());
       this.inputDevice = { id: 'default' };
     }
