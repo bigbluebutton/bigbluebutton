@@ -5,18 +5,18 @@ import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvJsNodeMsg, MessageTypes }
 
 object MeetingManagerActor {
-  def props(connEventBus: FromConnEventBus): Props =
+  def props(connEventBus: InternalMessageBus): Props =
     Props(classOf[MeetingManagerActor], connEventBus)
 }
 
-class MeetingManagerActor(connEventBus: FromConnEventBus)
+class MeetingManagerActor(connEventBus: InternalMessageBus)
     extends Actor with ActorLogging {
 
   private val meetingMgr = new MeetingManager
 
   def receive = {
-    case msg: ConnectMsg => handleConnectMsg(msg)
-    case msg: DisconnectMsg => handleDisconnectMsg(msg)
+    case msg: ClientConnectedMsg => handleConnectMsg(msg)
+    case msg: ClientDisconnectedMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
     // TODO we should monitor meeting lifecycle so we can remove when meeting ends.
@@ -26,7 +26,7 @@ class MeetingManagerActor(connEventBus: FromConnEventBus)
     Meeting(meetingId, connEventBus)
   }
 
-  def handleConnectMsg(msg: ConnectMsg): Unit = {
+  def handleConnectMsg(msg: ClientConnectedMsg): Unit = {
     //log.debug("****** Received handleConnectMsg " + msg)
     MeetingManager.findWithMeetingId(meetingMgr, msg.connInfo.meetingId) match {
       case Some(m) => m.actorRef forward (msg)
@@ -37,7 +37,7 @@ class MeetingManagerActor(connEventBus: FromConnEventBus)
     }
   }
 
-  def handleDisconnectMsg(msg: DisconnectMsg): Unit = {
+  def handleDisconnectMsg(msg: ClientDisconnectedMsg): Unit = {
     //log.debug("****** Received handleDisconnectMsg " + msg)
     for {
       m <- MeetingManager.findWithMeetingId(meetingMgr, msg.connInfo.meetingId)

@@ -18,13 +18,13 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq(fromAkkaAppsRedisChannel, fromAkkaAppsWbRedisChannel, fromAkkaAppsChatRedisChannel, fromAkkaAppsPresRedisChannel)
   val patterns = Seq("bigbluebutton:from-bbb-apps:*")
 
-  def props(connEventBus: FromConnEventBus): Props =
+  def props(connEventBus: InternalMessageBus): Props =
     Props(classOf[AppsRedisSubscriberActor], connEventBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(connEventBus: FromConnEventBus, redisHost: String,
+class AppsRedisSubscriberActor(connEventBus: InternalMessageBus, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),

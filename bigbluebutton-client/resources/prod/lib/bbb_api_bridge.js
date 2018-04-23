@@ -613,25 +613,23 @@
     }
     **/
     
-    const eb = new vertx.EventBus("http://192.168.246.131:3001/eventbus");
+    const eb = new vertx.EventBus("http://192.168.216.128:3001/eventbus");
     eb.onopen = function () {
       console.log("FOOOO!!!!!");
     };
         
     BBB.sendAuthToken = function(data) {
-      eb.registerHandler("chat.to.client", function (error, msg) {
-      	if (error != null) {
-      		console.log("From server error: " + JSON.stringify(error));
-      	} else {
-      	  console.log("From server: " + msg + "\n");
-        	BBB.onMessageFromDS(msg);
-      	}
+      eb.registerHandler("chat.to.client", function (msg) {
+      	//console.log("From server: " + JSON.stringify(msg) + "\n");
+        BBB.onMessageFromDS(msg);
       });
       
       BBB.connectedToVertx();
     }
       
     BBB.sendToDeepstream = function(data) {
+ //   trace("SENDING " + data);
+   // 	var json = JSON.parse(data);
       eb.send("chat.to.server", data, function(msg) {
            //console.log("reply: " + msg + "\n");
       });

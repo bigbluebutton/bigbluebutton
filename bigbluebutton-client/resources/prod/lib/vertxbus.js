@@ -140,7 +140,7 @@ var vertx = vertx || {};
       var json = JSON.parse(msg);
       var type = json.type;
       if (type === 'err') {
-        console.error("Error received on connection: " + json.body);
+        console.error("Error received on connection: " + JSON.stringify(json));
         return;
       }
       var body = json.body;

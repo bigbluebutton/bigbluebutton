@@ -6,19 +6,19 @@ import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvJsNodeMsg, DisconnectAllClientsSysMsg, MessageTypes }
 
 object MeetingActor {
-  def props(meetingId: String, connEventBus: FromConnEventBus): Props =
+  def props(meetingId: String, connEventBus: InternalMessageBus): Props =
     Props(classOf[MeetingActor], meetingId, connEventBus)
 }
 
-class MeetingActor(val meetingId: String, connEventBus: FromConnEventBus)
+class MeetingActor(val meetingId: String, connEventBus: InternalMessageBus)
     extends Actor with ActorLogging
     with SystemConfiguration {
 
   private val userMgr = new UsersManager
 
   def receive = {
-    case msg: ConnectMsg => handleConnectMsg(msg)
-    case msg: DisconnectMsg => handleDisconnectMsg(msg)
+    case msg: ClientConnectedMsg => handleConnectMsg(msg)
+    case msg: ClientDisconnectedMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
     // TODO: Should keep track of user lifecycle so we can remove when user leaves the meeting.
@@ -28,7 +28,7 @@ class MeetingActor(val meetingId: String, connEventBus: FromConnEventBus)
     User(id, connEventBus, meetingId)
   }
 
-  def handleConnectMsg(msg: ConnectMsg): Unit = {
+  def handleConnectMsg(msg: ClientConnectedMsg): Unit = {
     //log.debug("**** MeetingActor handleConnectMsg " + msg.connInfo.meetingId)
     UsersManager.findWithId(userMgr, msg.connInfo.userId) match {
       case Some(m) => m.actorRef forward (msg)
@@ -39,7 +39,7 @@ class MeetingActor(val meetingId: String, connEventBus: FromConnEventBus)
     }
   }
 
-  def handleDisconnectMsg(msg: DisconnectMsg): Unit = {
+  def handleDisconnectMsg(msg: ClientDisconnectedMsg): Unit = {
     //log.debug("**** MeetingActor handleDisconnectMsg " + msg.connInfo.meetingId)
     for {
       m <- UsersManager.findWithId(userMgr, msg.connInfo.userId)
@@ -94,16 +94,23 @@ class MeetingActor(val meetingId: String, connEventBus: FromConnEventBus)
 
   def handleBroadcastMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
-    connEventBus.publish(MsgFromConnBusMsg(toClientChannel, BroadcastMsgToMeeting(meetingId, msg)))
+    //connEventBus.publish(MsgFromConnBusMsg(toClientChannel, BroadcastMsgToMeeting(meetingId, msg)))
+
+    UsersManager.findAll(userMgr) foreach { u =>
+      u.actorRef forward (msg)
+    }
   }
 
   def handleSystemMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
-    msg.envelope.name match {
-      case DisconnectAllClientsSysMsg.NAME =>
-        connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DisconnectAllMeetingClientsMsg(meetingId)))
-      case _ => forwardToUser(msg)
-    }
+    //msg.envelope.name match {
+    //  case DisconnectAllClientsSysMsg.NAME =>
+    //    connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DisconnectAllMeetingClientsMsg(meetingId)))
+    //  case _ => forwardToUser(msg)
+    //}
 
+    UsersManager.findAll(userMgr) foreach { u =>
+      u.actorRef forward (msg)
+    }
   }
 }

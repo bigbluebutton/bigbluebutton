@@ -1,6 +1,11 @@
 package org.bigbluebutton.client.meeting
 
 object UsersManager {
+
+  def findAll(manager: UsersManager): Vector[User] = {
+    manager.toVector
+  }
+
   def findWithId(manager: UsersManager, id: String): Option[User] = {
     manager.toVector.find(m => m.userId == id)
   }

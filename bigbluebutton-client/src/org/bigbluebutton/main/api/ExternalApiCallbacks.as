@@ -431,6 +431,7 @@ package org.bigbluebutton.main.api
     }
 	
 	private function handleOnMessageFromDS(msg: Object):void {
+		trace("FROM VERTX");
 		var _nc:ConnectionManager = BBB.initConnectionManager();
 		_nc.onMessageFromDS(msg);
 	}	

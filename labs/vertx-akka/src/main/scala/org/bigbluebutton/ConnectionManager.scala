@@ -3,9 +3,9 @@ package org.bigbluebutton
 import akka.actor.{ Actor, ActorContext, ActorLogging, ActorSystem, Props }
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
-import org.bigbluebutton.client.bus.FromConnEventBus
+import org.bigbluebutton.client.bus.InternalMessageBus
 
-class ConnectionManager(system: ActorSystem, vertx: Vertx, connEventBus: FromConnEventBus) {
+class ConnectionManager(system: ActorSystem, vertx: Vertx, connEventBus: InternalMessageBus) {
   val actorRef = system.actorOf(ConnManagerActor.props(vertx, connEventBus), "connMgrActor")
 
   def socketCreated(id: String): Unit = {
@@ -30,10 +30,10 @@ case class SocketDestroyed(id: String)
 case class SocketRegister(id: String, channel: String)
 
 object ConnManagerActor {
-  def props(vertx: Vertx, connEventBus: FromConnEventBus): Props = Props(classOf[ConnManagerActor], vertx, connEventBus)
+  def props(vertx: Vertx, connEventBus: InternalMessageBus): Props = Props(classOf[ConnManagerActor], vertx, connEventBus)
 }
 
-case class ConnManagerActor(vertx: Vertx, connEventBus: FromConnEventBus) extends Actor with ActorLogging {
+case class ConnManagerActor(vertx: Vertx, connEventBus: InternalMessageBus) extends Actor with ActorLogging {
   private var conns = new collection.immutable.HashMap[String, Connection]
 
   def receive = {

@@ -1,18 +1,18 @@
 package org.bigbluebutton.client
 
 import akka.actor.{ Actor, ActorLogging, Props }
-import org.bigbluebutton.client.bus.{ FromConnEventBus, JsonMsgFromAkkaApps, MsgFromAkkaApps, MsgFromConnBusMsg }
+import org.bigbluebutton.client.bus.{ InternalMessageBus, JsonMsgFromAkkaApps, MsgFromAkkaApps, MsgFromConnBusMsg }
 import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 
 import scala.util.{ Failure, Success }
 
 object ReceivedJsonMsgHdlrActor {
-  def props(connEventBus: FromConnEventBus): Props =
+  def props(connEventBus: InternalMessageBus): Props =
     Props(classOf[ReceivedJsonMsgHdlrActor], connEventBus)
 }
 
-class ReceivedJsonMsgHdlrActor(val connEventBus: FromConnEventBus)
+class ReceivedJsonMsgHdlrActor(val connEventBus: InternalMessageBus)
     extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {

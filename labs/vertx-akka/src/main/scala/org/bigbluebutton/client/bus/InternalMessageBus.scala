@@ -2,14 +2,14 @@ package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
-import org.bigbluebutton.client.ConnInfo
+import org.bigbluebutton.client.bus.ConnInfo2
 import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 
-case class ConnInfo2(id: String)
+case class ConnInfo2(meetingId: String, userId: String, token: String, connId: String)
 
 sealed trait FromConnMsg
-case class ConnectMsg2(connInfo: ConnInfo2) extends FromConnMsg
-case class DisconnectMsg2(connInfo: ConnInfo2) extends FromConnMsg
+case class ConnCreatedMsg(connInfo: ConnInfo2) extends FromConnMsg
+case class ConnDestroyedMsg(connInfo: ConnInfo2) extends FromConnMsg
 case class MsgToConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
 case class MsgFromConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
 case class JsonMsgFromAkkaApps(name: String, data: String) extends FromConnMsg
@@ -20,13 +20,13 @@ case class BroadcastMsgToMeeting(meetingId: String, data: BbbCommonEnvJsNodeMsg)
 case class DirectMsgToClient(meetingId: String, connId: String, data: BbbCommonEnvJsNodeMsg) extends FromConnMsg
 case class DisconnectClientMsg(meetingId: String, connId: String) extends FromConnMsg
 case class DisconnectAllMeetingClientsMsg(meetingId: String) extends FromConnMsg
-case class ConnectMsg(connInfo: ConnInfo) extends FromConnMsg
-case class DisconnectMsg(connInfo: ConnInfo) extends FromConnMsg
-case class MsgFromClientMsg(connInfo: ConnInfo, json: String) extends FromConnMsg
+case class ClientConnectedMsg(connInfo: ConnInfo2) extends FromConnMsg
+case class ClientDisconnectedMsg(connInfo: ConnInfo2) extends FromConnMsg
+case class MsgFromClientMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
 
 case class MsgFromConnBusMsg(val topic: String, val payload: FromConnMsg)
 
-class FromConnEventBus extends EventBus with LookupClassification {
+class InternalMessageBus extends EventBus with LookupClassification {
   type Event = MsgFromConnBusMsg
   type Classifier = String
   type Subscriber = ActorRef

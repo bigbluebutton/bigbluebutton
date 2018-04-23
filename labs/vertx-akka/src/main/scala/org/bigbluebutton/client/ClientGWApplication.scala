@@ -8,7 +8,7 @@ import org.bigbluebutton.client.meeting.MeetingManagerActor
 
 import scala.concurrent.duration._
 
-class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW, connEventBus: FromConnEventBus) extends SystemConfiguration {
+class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW, connEventBus: InternalMessageBus) extends SystemConfiguration {
 
   implicit val timeout = akka.util.Timeout(3 seconds)
 
@@ -16,8 +16,6 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
 
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
-  //private val msgFromClientEventBus = new MsgFromClientEventBus
-  //private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
   private val redisPublisher = new RedisPublisher(system)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
@@ -49,17 +47,17 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
    * External Interface for Gateway
    */
 
-  def connect(connInfo: ConnInfo): Unit = {
+  def connect(connInfo: ConnInfo2): Unit = {
     //log.debug("**** ClientGWApplication connect " + connInfo)
-    connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new ConnectMsg(connInfo)))
+    connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new ClientConnectedMsg(connInfo)))
   }
 
-  def disconnect(connInfo: ConnInfo): Unit = {
+  def disconnect(connInfo: ConnInfo2): Unit = {
     //log.debug("**** ClientGWApplication disconnect " + connInfo)
-    connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new DisconnectMsg(connInfo)))
+    connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new ClientDisconnectedMsg(connInfo)))
   }
 
-  def handleMsgFromClient(connInfo: ConnInfo, json: String): Unit = {
+  def handleMsgFromClient(connInfo: ConnInfo2, json: String): Unit = {
     //log.debug("**** ClientGWApplication handleMsgFromClient " + json)
     connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
   }

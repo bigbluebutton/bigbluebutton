@@ -477,13 +477,15 @@ package org.bigbluebutton.main.model.users
 				private var connected2Vertx:Boolean = false;
 				
 				public function connectedToVertx(): void {
-					trace("*** From DS: connectedToVertx");
+					//trace("*** From DS: connectedToVertx");
 					connected2Vertx = true;
 					connectMessage();
 				}
 				
 				private function sendToVertx(json:Object):void {
 					if (ExternalInterface.available) {
+						//trace("SENDING TO VERTX");
+						//var jsonstr:String = JSON.stringify(json);
 						ExternalInterface.call("BBB.sendToDeepstream", json);
 					}
 				}

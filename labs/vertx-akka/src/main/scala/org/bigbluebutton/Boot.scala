@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import org.bigbluebutton.vertx.HelloWorld
 import io.vertx.core.Vertx
 import org.bigbluebutton.client.{ ClientGWApplication, MsgToClientGW }
-import org.bigbluebutton.client.bus.FromConnEventBus
+import org.bigbluebutton.client.bus.InternalMessageBus
 import org.bigbluebutton.vertx.AkkaToVertxGateway
 import org.bigbluebutton.vertx.VertxToAkkaBus
 
@@ -21,7 +21,7 @@ object Boot extends App with SystemConfiguration {
 
   val akkaGW = new VertxToAkkaGateway(system, vertx, authActor, echoActor)
   val vertxToAkkaBus = new VertxToAkkaBus(vertx, akkaGW)
-  val connEventBus = new FromConnEventBus
+  val connEventBus = new InternalMessageBus
   val connectionManager = new ConnectionManager(system, vertx, connEventBus)
 
   val msgToClientGW = new MsgToClientGW

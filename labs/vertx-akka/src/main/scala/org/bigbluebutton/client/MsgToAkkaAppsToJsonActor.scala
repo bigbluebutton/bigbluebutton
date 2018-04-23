@@ -6,11 +6,11 @@ import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 
 object MsgToAkkaAppsToJsonActor {
-  def props(connEventBus: FromConnEventBus): Props =
+  def props(connEventBus: InternalMessageBus): Props =
     Props(classOf[MsgToAkkaAppsToJsonActor], connEventBus)
 
 }
-class MsgToAkkaAppsToJsonActor(connEventBus: FromConnEventBus)
+class MsgToAkkaAppsToJsonActor(connEventBus: InternalMessageBus)
     extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {

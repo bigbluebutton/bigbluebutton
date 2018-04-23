@@ -1,7 +1,7 @@
 package org.bigbluebutton.client.meeting
 
 import akka.actor.{ Actor, ActorLogging, Props }
-import org.bigbluebutton.client.{ ConnInfo, SystemConfiguration }
+import org.bigbluebutton.client.{ SystemConfiguration }
 import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
@@ -11,13 +11,13 @@ import scala.util.{ Failure, Success }
 
 object UserActor {
   def props(userId: String,
-    connEventBus: FromConnEventBus,
+    connEventBus: InternalMessageBus,
     meetingId: String): Props =
     Props(classOf[UserActor], userId, connEventBus, meetingId)
 }
 
 class UserActor(val userId: String,
-  connEventBus: FromConnEventBus,
+  connEventBus: InternalMessageBus,
   meetingId: String)
     extends Actor with ActorLogging with SystemConfiguration {
 
@@ -26,8 +26,8 @@ class UserActor(val userId: String,
 
   def receive = {
 
-    case msg: ConnectMsg => handleConnectMsg(msg)
-    case msg: DisconnectMsg => handleDisconnectMsg(msg)
+    case msg: ClientConnectedMsg => handleConnectMsg(msg)
+    case msg: ClientDisconnectedMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg, true)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
     case _ => log.debug("***** UserActor cannot handle msg ")
@@ -37,7 +37,7 @@ class UserActor(val userId: String,
     Connection(id, sessionId, active)
   }
 
-  def handleConnectMsg(msg: ConnectMsg): Unit = {
+  def handleConnectMsg(msg: ClientConnectedMsg): Unit = {
     log.debug("**** UserActor handleConnectMsg " + msg.connInfo.userId)
     Connections.findWithId(conns, msg.connInfo.connId) match {
       case Some(m) => log.warning("Connect message on same connection id. " + JsonUtil.toJson(msg.connInfo))
@@ -47,14 +47,14 @@ class UserActor(val userId: String,
         } yield {
           Connections.setConnInactive(conns, activeConn)
         }
-        val m = createConnection(msg.connInfo.connId, msg.connInfo.sessionId, true)
+        val m = createConnection(msg.connInfo.connId, msg.connInfo.connId, true)
         log.debug("**** UserActor create connection " + m.connId)
         Connections.add(conns, m)
         authorized = false
     }
   }
 
-  def handleDisconnectMsg(msg: DisconnectMsg): Unit = {
+  def handleDisconnectMsg(msg: ClientDisconnectedMsg): Unit = {
     log.debug("**** UserActor handleDisconnectMsg " + msg.connInfo.userId)
     for {
       m <- Connections.findWithId(conns, msg.connInfo.connId)
@@ -70,9 +70,9 @@ class UserActor(val userId: String,
     }
   }
 
-  private def buildUserLeavingMessage(connInfo: ConnInfo): String = {
+  private def buildUserLeavingMessage(connInfo: ConnInfo2): String = {
     val header = BbbClientMsgHeader(UserLeaveReqMsg.NAME, meetingId, userId)
-    val body = UserLeaveReqMsgBody(userId, connInfo.sessionId)
+    val body = UserLeaveReqMsgBody(userId, connInfo.connId)
     val event = UserLeaveReqMsg(header, body)
     JsonUtil.toJson(event)
   }
@@ -84,7 +84,7 @@ class UserActor(val userId: String,
     JsonUtil.toJson(event)
   }
 
-  private def sendEjectUserFromMeetingToAkkaApps(connInfo: ConnInfo, meetingId: String, userId: String): Unit = {
+  private def sendEjectUserFromMeetingToAkkaApps(connInfo: ConnInfo2, meetingId: String, userId: String): Unit = {
     val json = buildEjectUserFromMeetingSysMsg(meetingId, userId)
     val msgFromClient = MsgFromClientMsg(connInfo, json)
     handleMsgFromClientMsg(msgFromClient, false)
