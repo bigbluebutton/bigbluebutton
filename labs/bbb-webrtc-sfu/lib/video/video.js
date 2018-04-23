@@ -112,16 +112,7 @@ module.exports = class Video extends EventEmitter {
             this.notFlowingTimeout = setTimeout(() => {
 
               if (this.shared) {
-                let userCamEvent =
-                  Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id, this.id);
-                this.bbbGW.publish(userCamEvent, C.TO_AKKA_APPS, function(error) {});
-                this.bbbGW.publish(JSON.stringify({
-                  connectionId: this.connectionId,
-                  type: 'video',
-                  role: this.role,
-                  id : 'playStop',
-                  cameraId: this.id,
-                }), C.FROM_VIDEO);
+                this.sendPlayStop();
                 this.status = C.MEDIA_STOPPED;
                 clearTimeout(this.notFlowingTimeout);
                 delete this.notFlowingTimeout;
@@ -136,13 +127,8 @@ module.exports = class Video extends EventEmitter {
             delete this.notFlowingTimeout;
           }
           if (this.status != C.MEDIA_STARTED) {
-            this.bbbGW.publish(JSON.stringify({
-              connectionId: this.connectionId,
-              type: 'video',
-              role: this.role,
-              id : 'playStart',
-              cameraId: this.id,
-            }), C.FROM_VIDEO);
+
+            this.sendPlayStart();
 
             this.status = C.MEDIA_STARTED;
           }
@@ -156,6 +142,34 @@ module.exports = class Video extends EventEmitter {
 
       default: Logger.warn("[video] Unrecognized event", event);
     }
+  }
+
+  sendPlayStart () {
+    this.bbbGW.publish(JSON.stringify({
+       connectionId: this.connectionId,
+       type: 'video',
+       role: this.role,
+       id : 'playStart',
+       cameraId: this.id,
+    }), C.FROM_VIDEO);
+
+    if (this.shared) {
+      this.sendStartShareEvent();
+    }
+  }
+
+  sendPlayStop () {
+    let userCamEvent =
+      Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id);
+    this.bbbGW.publish(userCamEvent, C.TO_AKKA_APPS, function(error) {});
+
+    this.bbbGW.publish(JSON.stringify({
+      connectionId: this.connectionId,
+      type: 'video',
+      role: this.role,
+      id : 'playStop',
+      cameraId: this.id,
+    }), C.FROM_VIDEO);
   }
 
   async startRecording() {
@@ -205,12 +219,26 @@ module.exports = class Video extends EventEmitter {
     }
   };
 
+  sendStartShareEvent() {
+    let shareCamEvent = Messaging.generateStartWebcamShareEvent(this.meetingId, this.id);
+    this.bbbGW.publish(shareCamEvent, C.TO_AKKA_APPS, function(error) {});
+  }
+
+  sendStopShareEvent () {
+    let stopShareEvent =
+      Messaging.generateStopWebcamShareEvent(this.meetingId, this.id, this.id);
+    this.bbbGW.publish(stopShareEvent, C.TO_AKKA_APPS, function(error) {});
+  }
+
   async stop () {
     return new Promise(async (resolve, reject) => {
       Logger.info('[video] Stopping video session', this.userId, 'at room', this.meetingId);
 
       try {
         await this.mcs.leave(this.meetingId, this.userId);
+
+        this.sendStopShareEvent();
+
         if (this.shared) {
           delete sharedWebcams[this.id];
         }

@@ -50,6 +50,9 @@ const config = require('config');
 
         USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
 
+        START_WEBCAM_SHARE: "StartWebcamShare",
+        STOP_WEBCAM_SHARE: "StopWebcamShare",
+
         // Redis messages fields
         //  Transcoder 1x
         USER_ID : "user_id",
@@ -97,6 +100,16 @@ const config = require('config');
         TRANSCODER_CODEC: "codec",
         TRANSCODER_TYPE: "transcoder_type",
         CALLERNAME: "callername",
+
+        DATE: 'date',
+
+        DURATION: 'duration',
+
+        TIMESTAMP: 'timestamp',
+        TIMESTAMP_UTC: 'timestampUTC',
+
+        MODULE: 'module',
+        MODULE_WEBCAM: 'WEBCAM',
 
         // Log prefixes
         BASE_PROCESS_PREFIX: '[BaseProcess]',
