@@ -149,30 +149,23 @@ package org.bigbluebutton.air.main.views {
 		
 		private function updateButtons():void {
 			if (meetingData.webcams.findWebcamsByUserId(conferenceParameters.internalUserID).length > 0) {
-				view.camButton.label = "Cam off"; // ResourceManager.getInstance().getString('resources', 'menuButtons.camOff');
 				view.camButton.styleName = "icon-video-off menuButton"
 			} else {
-				view.camButton.label = "Cam on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
 				view.camButton.styleName = "icon-video menuButton"
 			}
 						
 			if (meetingData.voiceUsers.me) {
 				view.micButton.visible = view.micButton.includeInLayout = !meetingData.voiceUsers.me.listenOnly;
 				view.audioButton.styleName = "icon-audio-off menuButtonRed";
-				view.audioButton.label = "Hang Up";
 				
 				if (meetingData.voiceUsers.me.muted) {
-					view.micButton.label = "Mic off"; // ResourceManager.getInstance().getString('resources', 'menuButtons.micOff');
 					view.micButton.styleName = "icon-mute menuButton";
 				} else if (meetingData.voiceUsers.me.talking) {
-					view.micButton.label = "Mic on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.micOn');
 					view.micButton.styleName = "icon-mute-filled menuButton"
 				} else {
-					view.micButton.label = "Mic on"; // ResourceManager.getInstance().getString('resources', 'menuButtons.micOn');
 					view.micButton.styleName = "icon-unmute menuButton"
 				}
 			} else {
-				view.audioButton.label = "Join";
 				view.audioButton.styleName = "icon-audio-on menuButton";
 				view.micButton.visible = view.micButton.includeInLayout = false;
 			}

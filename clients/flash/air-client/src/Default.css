@@ -219,7 +219,7 @@ chat|NewMessagesIndicator {
 }
 
 chat|ChatItemRenderer {
-	color     : PropertyReference("grey700");
+	color     : PropertyReference("bbbDarkGrey");
 	nameColor : PropertyReference("blue900");
 }
 
@@ -290,7 +290,6 @@ settings|SettingsItemRenderer {
 	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
 	selectedBackgroundColor : PropertyReference("darkBlue");
-	color                   : PropertyReference("white");
 	iconFont                : BBBIcons;
 	iconColor               : PropertyReference("white");
 	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.MenuButtonSkin");

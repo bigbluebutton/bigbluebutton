@@ -17,9 +17,6 @@
 				icon.setStyle("fontFamily", getStyle("iconFont"));
 				icon.setStyle("color", getStyle("iconColor"));
 				
-				iconLabel.text = hostComponent.label;
-				iconLabel.y = backgroundEllipse.y + backgroundEllipse.height + getStyle('labelPadding');
-				
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 			}
 		]]>
@@ -45,7 +42,4 @@
 	<s:Label id="icon"
 			 horizontalCenter="0"
 			 verticalCenter="0" />
-	<s:Label id="iconLabel"
-			 horizontalCenter="0" />
-
 </s:Skin>

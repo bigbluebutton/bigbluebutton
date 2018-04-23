@@ -18,6 +18,7 @@
 				backgroundFill.color = getStyle("backgroundColor");
 				
 				labelDisplay.text = getStyle("icon");
+				//labelDisplay.setStyle("fontSize", getStyle("fontSize"));
 				
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 			}
