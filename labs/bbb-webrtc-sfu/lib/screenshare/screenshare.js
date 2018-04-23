@@ -227,14 +227,14 @@ module.exports = class Screenshare extends EventEmitter {
     }
   }
 
-  async _startViewer(connectionId, voiceBridge, sdp, callerName, presenterEndpoint, callback) {
+  async _startViewer(connectionId, voiceBridge, sdpOffer, callerName, presenterEndpoint, callback) {
     Logger.info("[screenshare] Starting viewer", callerName, "for voiceBridge", this._voiceBridge);
     // TODO refactor the callback handling
     let _callback = function(){};
-    let sdpAnswer, sdpOffer;
+    let sdpAnswer;
 
     if (FORCE_H264) {
-      sdpOffer = h264_sdp.transform(sdp);
+      sdpOffer = h264_sdp.transform(sdpOffer);
     }
 
     this._viewersCandidatesQueue[callerName] = [];
