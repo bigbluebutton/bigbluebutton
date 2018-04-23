@@ -314,8 +314,8 @@
             "value": "pencil"
           },
           {
-            "icon": "hand",
-            "value": "hand"
+            "icon": "pointer",
+            "value": "pointer"
           }
         ]
       }
