@@ -60,7 +60,7 @@ module.exports = class BaseManager {
         }
       }
       catch (err) {
-        Logger.err(error);
+        Logger.error(err);
         resolve();
       }
     });
