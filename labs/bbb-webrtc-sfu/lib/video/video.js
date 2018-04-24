@@ -219,13 +219,13 @@ module.exports = class Video extends EventEmitter {
 
   sendStartShareEvent() {
     let shareCamEvent = Messaging.generateStartWebcamShareEvent(this.meetingId, this.recording.filename);
-    this.bbbGW.writeMeetingKey('recording', this.meetingId, shareCamEvent, function(error) {});
+    this.bbbGW.writeMeetingKey(this.meetingId, shareCamEvent, function(error) {});
   }
 
   sendStopShareEvent () {
     let stopShareEvent =
       Messaging.generateStopWebcamShareEvent(this.meetingId, this.recording.filename);
-    this.bbbGW.writeMeetingKey('recording', this.meetingId, stopShareEvent, function(error) {});
+    this.bbbGW.writeMeetingKey(this.meetingId, stopShareEvent, function(error) {});
   }
 
   async stop () {

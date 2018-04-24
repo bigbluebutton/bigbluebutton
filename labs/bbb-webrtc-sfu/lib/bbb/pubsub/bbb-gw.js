@@ -107,13 +107,21 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
     }
   }
 
-  writeMeetingKey(prefix, meetingId, message, callback) {
+  writeMeetingKey(meetingId, message, callback) {
     if (!this.client) {
       this.publisher = new RedisWrapper();
       this.publisher.startPublisher();
     }
 
-    this.publisher.setKeyWithIncrement(prefix + ':' + meetingId, message, callback);
+    let recKey = 'recording:' + meetingId;
+
+    this.publisher.setKeyWithIncrement(recKey, message, (err, msgId) => {
+
+      this.publisher.pushToList('meeting:' + meetingId + ':recordings', msgId);
+
+      // Not implemented yet
+      this.publisher.expireKey(recKey + ':' + msgId);
+    });
   }
 
   setEventEmitter (emitter) {

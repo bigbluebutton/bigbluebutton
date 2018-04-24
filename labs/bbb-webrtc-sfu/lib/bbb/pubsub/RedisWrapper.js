@@ -103,8 +103,15 @@ module.exports = class RedisWrapper extends EventEmitter {
     }
   }
 
-  setKeyWithIncrement (key, message, callback) {
+  pushToList (key, string, callback) {
+    if (this.redisPub) {
+      this.redisPub.rpush(key, string, callback);
+    } else {
+      callback(true, null)
+    }
+  }
 
+  setKeyWithIncrement (key, message, callback) {
     let blowObject = function (obj) {
       let arr = [];
       Object.keys(obj).map(function (key) {
@@ -115,19 +122,21 @@ module.exports = class RedisWrapper extends EventEmitter {
     }
 
     if (this.redisPub){
-      let count = null;
-
-      this.redisPub.incr('global:nextRecordedMsgId', (err, res) => {
+      this.redisPub.incr('global:nextRecordedMsgId', (err, msgId) => {
         if (err) {
           return callback(err, null);
         }
 
-        let incr = key + ':' + res;
+        let incr = key + ':' + msgId;
         let value = blowObject(message);
-        this.redisPub.hmset(incr, value, callback);
+        this.redisPub.hmset(incr, value, (err) => {
+          if (err) {
+            return callback(err, null);
+          }
 
-        // Not implemented yet
-        this.expireKey(incr);
+          // Return the increment number to the caller
+          callback(err, msgId);
+        });
       });
 
     } else {
