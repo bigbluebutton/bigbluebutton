@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -101,6 +102,18 @@ public class MeetingService implements MessageListener {
 
   public void addUserSession(String token, UserSession user) {
     sessions.put(token, user);
+  }
+  
+  public String getTokenByUserId(String internalUserId) {
+      String result = null;
+      for (Entry<String, UserSession> e : sessions.entrySet()) {
+          String token = e.getKey();
+          UserSession userSession = e.getValue();
+          if (userSession.internalUserId.equals(internalUserId)) {
+              result = token;
+          }
+      }
+      return result;
   }
 
   public void registerUser(String meetingID, String internalUserId,
@@ -782,6 +795,12 @@ public class MeetingService implements MessageListener {
       User user = m.getUserById(message.userId);
       if (user != null) {
         user.setRole(message.role);
+        String sessionToken = getTokenByUserId(user.getInternalUserId());
+        if (sessionToken != null) {
+            UserSession userSession = getUserSession(sessionToken);
+            userSession.role = message.role;
+            sessions.replace(sessionToken, userSession);
+        }
         log.debug("Setting new role in meeting " + message.meetingId + " for participant:" + user.getFullname());
         return;
       }
