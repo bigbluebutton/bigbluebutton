@@ -70,8 +70,6 @@ class Dropdown extends Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-    //if (nextState.isOpen) return screenreaderTrap.trap(this.dropdown);
-    //if (!nextState.isOpen) return screenreaderTrap.untrap();
     return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
   }
 
