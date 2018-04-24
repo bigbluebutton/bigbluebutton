@@ -1,6 +1,7 @@
 package org.bigbluebutton
 
 import akka.actor.ActorSystem
+import akka.event.Logging
 import org.bigbluebutton.vertx.HelloWorld
 import io.vertx.core.Vertx
 import org.bigbluebutton.client.{ ClientGWApplication, MsgToClientGW }
@@ -11,6 +12,9 @@ import org.bigbluebutton.vertx.VertxToAkkaBus
 object Boot extends App with SystemConfiguration {
 
   implicit val system = ActorSystem("vertx-akka-system")
+  val log = Logging(system, getClass)
+
+  log.debug("*********** vertx-akka-system ***********************")
 
   val vertx = Vertx.vertx()
 
@@ -23,6 +27,7 @@ object Boot extends App with SystemConfiguration {
   val vertxToAkkaBus = new VertxToAkkaBus(vertx, akkaGW)
   val connEventBus = new InternalMessageBus
   val connectionManager = new ConnectionManager(system, vertx, connEventBus)
+  val clientManager = new ClientManager(system, connEventBus)
 
   val msgToClientGW = new MsgToClientGW
   val clientGW = new ClientGWApplication(system, msgToClientGW, connEventBus)

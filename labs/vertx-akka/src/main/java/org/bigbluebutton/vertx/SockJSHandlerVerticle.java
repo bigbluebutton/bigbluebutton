@@ -78,9 +78,9 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
       } else if (be.type() == BridgeEventType.PUBLISH) {
         System.out.println("Socket PUBLISH for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.RECEIVE) {
-        System.out.println("Socket RECEIVE for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        System.out.println("Msg to Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
-        System.out.println("Socket SEND for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        //System.out.println("Msg from Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
         //String body = be.getRawMessage().getJsonObject("body").encode();
         gw.onMessageReceived(be.socket().webSession().id(), be.getRawMessage().getJsonObject("body"));
       } else if (be.type() == BridgeEventType.REGISTER) {

@@ -14,7 +14,7 @@ object Connection {
 class Connection(val connId: String, vertx: Vertx, connEventBus: InternalMessageBus)(implicit val context: ActorContext) {
   val actorRef = context.actorOf(ConnectionActor.props(connId, vertx, connEventBus), "connActor" + "-" + connId)
 
-  val consumer: MessageConsumer[JsonObject] = vertx.eventBus().consumer("FOO-" + connId)
+  val consumer: MessageConsumer[JsonObject] = vertx.eventBus().consumer("from-socket-" + connId)
   consumer.handler(new MyConnHandler(actorRef))
 }
 
@@ -33,8 +33,7 @@ class ConnectionActor(connId: String, vertx: Vertx, connEventBus: InternalMessag
   def receive = {
     case m: SocketDestroyed =>
       connInfo foreach { conn =>
-        val m2 = ConnDestroyedMsg(conn)
-        connEventBus.publish(MsgFromConnBusMsg("clientManager", m2))
+        connEventBus.publish(MsgFromConnBusMsg(ClientManagerActor.CLIENT_MANAGER_CHANNEL, ConnectionDestroyed(conn)))
       }
 
       context stop self
@@ -46,19 +45,27 @@ class ConnectionActor(connId: String, vertx: Vertx, connEventBus: InternalMessag
         for {
           conn <- getConnInfo(m.msg)
         } yield {
+          println("**************************** HANDSHAKE DONE *****************************")
           handshakeDone = true
           connInfo = Some(conn)
+          connEventBus.publish(MsgFromConnBusMsg(ClientManagerActor.CLIENT_MANAGER_CHANNEL, ConnectionCreated(conn)))
+
+          val response = buildHandshakeReply(conn.meetingId, conn.userId, conn.token)
+          vertx.eventBus().publish("chat.to.client", response)
         }
       } else {
-        clientAddress foreach { address =>
-          println("My Handler " + m.msg)
-          vertx.eventBus().publish("chat.to.client", m.msg)
+        //println("************ FORWARDING TO CLIENT ACTOR *****************************")
+        connInfo foreach { conn =>
+          //println("************ FORWARDING TO CLIENT ACTOR " + "clientActor-" + conn.connId + " *****************************")
+          connEventBus.publish(MsgFromConnBusMsg("clientActor-" + conn.connId, MsgFromConnMsg(conn, m.msg.encode())))
         }
-
       }
 
-    //      val connInfo = ConnInfo2(connId)
-    //			connEventBus.publish() MsgFromConnMsg
+    case m: MsgToConnMsg =>
+      //println("MsgToConnMsg " + m.json)
+      val jsonObject = new JsonObject(m.json)
+      vertx.eventBus().publish("chat.to.client", jsonObject)
+
     case _ => log.debug("***** Connection cannot handle msg ")
   }
 
@@ -80,20 +87,36 @@ class ConnectionActor(connId: String, vertx: Vertx, connEventBus: InternalMessag
     conn
   }
 
+  private def buildHandshakeReply(meetingId: String, userId: String, token: String): JsonObject = {
+    val header: JsonObject = new JsonObject()
+    header.put("name", "HandshakeReplyMessage")
+    header.put("userId", userId)
+    header.put("meetingId", meetingId)
+
+    val body = new JsonObject()
+    body.put("token", token)
+
+    val reply = new JsonObject()
+    reply.put("header", header)
+    reply.put("body", body)
+
+    reply
+  }
+
   override def preStart(): Unit = {
     super.preStart()
-    connEventBus.subscribe(self, "conn-" + connId)
+    connEventBus.subscribe(self, "connActor-" + connId)
   }
 
   override def postStop(): Unit = {
     super.postStop()
-    connEventBus.unsubscribe(self, "conn-" + connId)
+    connEventBus.unsubscribe(self, "connActor-" + connId)
   }
 }
 
 class MyConnHandler(actorRef: ActorRef) extends Handler[Message[JsonObject]] {
   def handle(message: Message[JsonObject]) = {
-    println("My Handler " + message.body())
+    //println("My Handler " + message.body())
     actorRef ! (MsgFoo(message.body()))
   }
 }

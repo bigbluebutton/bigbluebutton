@@ -21,7 +21,7 @@ class ConnectionManager(system: ActorSystem, vertx: Vertx, connEventBus: Interna
   }
 
   def onMessageReceived(id: String, msg: JsonObject): Unit = {
-    vertx.eventBus().publish("FOO-" + id, msg)
+    vertx.eventBus().publish("from-socket-" + id, msg)
   }
 }
 

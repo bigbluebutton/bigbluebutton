@@ -14,11 +14,12 @@ class MsgToAkkaAppsToJsonActor(connEventBus: InternalMessageBus)
     extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {
-    case msg: BbbCommonEnvJsNodeMsg => handle(msg)
+    case msg: MsgToAkkaApps => handle(msg)
   }
 
-  def handle(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    val json = JsonUtil.toJson(msg)
+  def handle(msg: MsgToAkkaApps): Unit = {
+    println("**************** TO AKKA APPS MESSAGE ***************")
+    val json = JsonUtil.toJson(msg.payload)
     val jsonMsg = JsonMsgToAkkaApps(toAkkaAppsRedisChannel, json)
     connEventBus.publish(MsgFromConnBusMsg(toAkkaAppsJsonChannel, jsonMsg))
   }

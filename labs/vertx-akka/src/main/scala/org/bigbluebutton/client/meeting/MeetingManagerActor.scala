@@ -18,7 +18,7 @@ class MeetingManagerActor(connEventBus: InternalMessageBus)
     case msg: ClientConnectedMsg => handleConnectMsg(msg)
     case msg: ClientDisconnectedMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
-    case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
+    case msg: MsgFromAkkaApps => handleBbbServerMsg(msg)
     // TODO we should monitor meeting lifecycle so we can remove when meeting ends.
   }
 
@@ -55,12 +55,12 @@ class MeetingManagerActor(connEventBus: InternalMessageBus)
     }
   }
 
-  def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
+  def handleBbbServerMsg(msg: MsgFromAkkaApps): Unit = {
     //log.debug("**** MeetingManagerActor handleBbbServerMsg " + msg.envelope.name)
     for {
-      msgType <- msg.envelope.routing.get("msgType")
+      msgType <- msg.payload.envelope.routing.get("msgType")
     } yield {
-      handleServerMsg(msgType, msg)
+      handleServerMsg(msgType, msg.payload)
     }
   }
 

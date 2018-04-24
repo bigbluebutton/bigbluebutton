@@ -91,6 +91,7 @@ class UserActor(val userId: String,
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg, applyWhitelist: Boolean): Unit = {
+    println("************* MESSAGE FROM CLIENT *********** \n" + msg.json)
     def convertToJsonNode(json: String): Option[JsonNode] = {
       JsonUtil.toJsonNode(json) match {
         case Success(jsonNode) => Some(jsonNode)
@@ -133,6 +134,7 @@ class UserActor(val userId: String,
             jsonNode <- convertToJsonNode(json)
           } yield {
             val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
+            println("****** FORWARDING TO AKKA APPS ******")
             connEventBus.publish(MsgFromConnBusMsg(toAkkaAppsChannel, MsgToAkkaApps(akkaMsg)))
           }
         }
@@ -152,6 +154,7 @@ class UserActor(val userId: String,
 
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
     // log.debug("**** UserActor handleServerMsg " + msg)
+    println("************* MESSAGE FROM SERVER *********** \n" + msg)
     msgType match {
       case MessageTypes.DIRECT => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)

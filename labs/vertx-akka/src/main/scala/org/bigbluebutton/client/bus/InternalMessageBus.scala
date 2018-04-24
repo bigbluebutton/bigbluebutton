@@ -8,9 +8,9 @@ import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 case class ConnInfo2(meetingId: String, userId: String, token: String, connId: String)
 
 sealed trait FromConnMsg
-case class ConnCreatedMsg(connInfo: ConnInfo2) extends FromConnMsg
-case class ConnDestroyedMsg(connInfo: ConnInfo2) extends FromConnMsg
-case class MsgToConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
+case class ConnectionCreated(connInfo: ConnInfo2) extends FromConnMsg
+case class ConnectionDestroyed(connInfo: ConnInfo2) extends FromConnMsg
+case class MsgToConnMsg(json: String) extends FromConnMsg
 case class MsgFromConnMsg(connInfo: ConnInfo2, json: String) extends FromConnMsg
 case class JsonMsgFromAkkaApps(name: String, data: String) extends FromConnMsg
 case class JsonMsgToAkkaApps(channel: String, json: String) extends FromConnMsg

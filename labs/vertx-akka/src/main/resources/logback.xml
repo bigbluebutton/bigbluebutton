@@ -7,9 +7,9 @@
 </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>logs/bbb-apps-akka.log</File>
+    <File>logs/bbb-vertx-akka.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>logs/bbb-apps-akka.%d{yyyy-MM-dd}.log</FileNamePattern>
+      <FileNamePattern>logs/bbb-vertx-akka.%d{yyyy-MM-dd}.log</FileNamePattern>
       <!-- keep 30 days worth of history -->
       <MaxHistory>5</MaxHistory>
     </rollingPolicy>

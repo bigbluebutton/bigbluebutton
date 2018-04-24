@@ -5,16 +5,11 @@ import akka.event.Logging
 import org.bigbluebutton.client.bus._
 import org.bigbluebutton.client.endpoint.redis.{ AppsRedisSubscriberActor, MessageSender, RedisPublisher }
 import org.bigbluebutton.client.meeting.MeetingManagerActor
-
 import scala.concurrent.duration._
 
 class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW, connEventBus: InternalMessageBus) extends SystemConfiguration {
 
   implicit val timeout = akka.util.Timeout(3 seconds)
-
-  val log = Logging(system, getClass)
-
-  log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val redisPublisher = new RedisPublisher(system)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
@@ -25,7 +20,6 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
 
   private val meetingManagerActorRef = system.actorOf(MeetingManagerActor.props(connEventBus), "meetingManagerActor")
   connEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
-
   connEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
 
   private val msgToAkkaAppsToJsonActor = system.actorOf(MsgToAkkaAppsToJsonActor.props(connEventBus), "msgToAkkaAppsToJsonActor")

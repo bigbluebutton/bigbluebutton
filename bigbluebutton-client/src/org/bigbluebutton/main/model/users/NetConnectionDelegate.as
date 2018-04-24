@@ -238,7 +238,11 @@ package org.bigbluebutton.main.model.users
 							} 
 						},
 						message
-					); //_netConnection.call      
+					); //_netConnection.call    
+					
+					_validateTokenTimer = new Timer(10000, 1);
+					_validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
+					_validateTokenTimer.start();
 				}
 				
         private function validateToken2x():void {
@@ -274,14 +278,13 @@ package org.bigbluebutton.main.model.users
         }
 
         public function sendMessage2x(onSuccess:Function, onFailure:Function, json:Object):void {
-					//if (useRTMP) {
+					if (useRTMP) {
 						sendMessageToRed5(onSuccess, onFailure, json);
-					//} else {
+					} else {
 						if (connected2Vertx) {
 							sendToVertx(json);
-						}
-						
-					//}		
+						}	
+					}		
         }
 								
 				private function sendMessageToRed5(onSuccess:Function, onFailure:Function, json:Object):void {
@@ -443,19 +446,19 @@ package org.bigbluebutton.main.model.users
             }
         }
 				
-				private var useRTMP:Boolean = true;
+				private var useRTMP:Boolean = false;
 				
 				public function connect():void {
-					//if (useRTMP) {
+					if (useRTMP) {
 						connectRTMP();
-					//} else {
+					} else {
 						connectToVertx(LiveMeeting.inst().me.authToken);
-					//}
+					}
 				}
 
 				private function connectMessage():void {
 					var message:Object = {
-						header: {name: "ConnectMessage", 
+						header: {name: "HandshakeMessage", 
 							meetingId: UsersUtil.getInternalMeetingID(), 
 							userId: UsersUtil.getMyUserID()},
 						body: {token: LiveMeeting.inst().me.authToken}
@@ -472,12 +475,20 @@ package org.bigbluebutton.main.model.users
 				
 				public function onMessageFromDS(msg: Object): void {
 					trace("*** From DS: " + JSON.stringify(msg));
+					var header: Object = msg.header as Object;
+					
+					var name:String = header.name as String;
+					if (name == "HandshakeReplyMessage") {
+						validateTokenVertx();
+					} else {
+						onMessageFromServer2x(header.name as String, JSON.stringify(msg));
+					}
 				}
 				
 				private var connected2Vertx:Boolean = false;
 				
 				public function connectedToVertx(): void {
-					//trace("*** From DS: connectedToVertx");
+					trace("*** From DS: connectedToVertx");
 					connected2Vertx = true;
 					connectMessage();
 				}
