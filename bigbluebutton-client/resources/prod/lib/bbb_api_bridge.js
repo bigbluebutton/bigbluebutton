@@ -618,8 +618,11 @@
       console.log("FOOOO!!!!!");
     };
         
+    var token = null;
+        
     BBB.sendAuthToken = function(data) {
-      eb.registerHandler("chat.to.client", function (msg) {
+    token = data;
+      eb.registerHandler("to-client-" + data, function (msg) {
       	//console.log("From server: " + JSON.stringify(msg) + "\n");
         BBB.onMessageFromDS(msg);
       });
@@ -630,9 +633,7 @@
     BBB.sendToDeepstream = function(data) {
  //   trace("SENDING " + data);
    // 	var json = JSON.parse(data);
-      eb.send("chat.to.server", data, function(msg) {
-           //console.log("reply: " + msg + "\n");
-      });
+      eb.send("to-server", data);
     };
     
     

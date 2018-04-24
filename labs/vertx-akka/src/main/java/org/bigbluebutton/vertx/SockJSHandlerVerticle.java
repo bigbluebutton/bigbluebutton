@@ -2,7 +2,6 @@ package org.bigbluebutton.vertx;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -15,11 +14,6 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import org.bigbluebutton.ConnectionManager;
-import org.bigbluebutton.VertxToAkkaGateway;
-
-import java.text.DateFormat;
-import java.time.Instant;
-import java.util.Date;
 
 public class SockJSHandlerVerticle extends AbstractVerticle {
   private final ConnectionManager gw;
@@ -44,10 +38,13 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
     // We need a user session handler too to make sure the user is stored in the session between requests
     //router.route().handler(UserSessionHandler.create(authProvider));
 
+   // PermittedOptions outboundPermitted2 = new PermittedOptions().setAddressRegex("to-server-.+");
+   // PermittedOptions inboundPermitted2 = new PermittedOptions().setAddressRegex("to-client-.+");
+
     // Allow events for the designated addresses in/out of the event bus bridge
     BridgeOptions opts = new BridgeOptions()
-      .addInboundPermitted(new PermittedOptions().setAddress("chat.to.server"))
-      .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client"));
+      .addInboundPermitted(new PermittedOptions().setAddress("to-server"))
+      .addOutboundPermitted(new PermittedOptions().setAddressRegex("to-client-.+"));
 
     SockJSHandlerOptions options = new SockJSHandlerOptions().setHeartbeatInterval(2000);
     
@@ -108,7 +105,7 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
     vertx.createHttpServer().requestHandler(router::accept).listen(3001);
 
     // Register to listen for messages coming IN to the server
-    eb.consumer("chat.to.server").handler(message -> {
+    eb.consumer("to.server").handler(message -> {
       // Create a timestamp string
     //  String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
       // Send the message back out to all clients with the timestamp prepended.

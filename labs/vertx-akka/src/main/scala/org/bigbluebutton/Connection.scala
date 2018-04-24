@@ -51,7 +51,7 @@ class ConnectionActor(connId: String, vertx: Vertx, connEventBus: InternalMessag
           connEventBus.publish(MsgFromConnBusMsg(ClientManagerActor.CLIENT_MANAGER_CHANNEL, ConnectionCreated(conn)))
 
           val response = buildHandshakeReply(conn.meetingId, conn.userId, conn.token)
-          vertx.eventBus().publish("chat.to.client", response)
+          vertx.eventBus().publish("to-client-" + conn.token, response)
         }
       } else {
         //println("************ FORWARDING TO CLIENT ACTOR *****************************")
@@ -63,8 +63,10 @@ class ConnectionActor(connId: String, vertx: Vertx, connEventBus: InternalMessag
 
     case m: MsgToConnMsg =>
       //println("MsgToConnMsg " + m.json)
-      val jsonObject = new JsonObject(m.json)
-      vertx.eventBus().publish("chat.to.client", jsonObject)
+      connInfo foreach { conn =>
+        val jsonObject = new JsonObject(m.json)
+        vertx.eventBus().publish("to-client-" + conn.token, jsonObject)
+      }
 
     case _ => log.debug("***** Connection cannot handle msg ")
   }
