@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import SessionStorage from '/imports/ui/services/storage/session';
 import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -46,12 +47,14 @@ export default withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
-  const data = {};
-  data.currentPresentation = MediaService.getPresentationInfo();
+  const hidePresentation = SessionStorage.getItem('meta_html5hidepresentation') || false;
 
-  data.children = <DefaultContent />;
+  const data = {
+    children: <DefaultContent />,
+  };
 
-  if (MediaService.shouldShowWhiteboard()) {
+  if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
+    data.currentPresentation = MediaService.getPresentationInfo();
     data.children = <PresentationAreaContainer />;
   }
 
@@ -71,6 +74,10 @@ export default withTracker(() => {
 
   if (data.swapLayout) {
     data.floatingOverlay = true;
+
+    if (hidePresentation) {
+      data.hideOverlay = true;
+    }
   }
 
   return data;

@@ -243,7 +243,7 @@ class VideoProvider extends Component {
 
   stopWebRTCPeer(id) {
     log('info', 'Stopping webcam', id);
-    const userId = this.props.userId
+    const userId = this.props.userId;
     const shareWebcam = id === userId;
 
     if (shareWebcam) {
