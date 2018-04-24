@@ -2,7 +2,7 @@
 
 BigBlueButton - http://www.bigbluebutton.org
 
-Copyright (c) 2008-2015 by respective authors (see below). All rights reserved.
+Copyright (c) 2008-2018 by respective authors (see below). All rights reserved.
 
 BigBlueButton is free software; you can redistribute it and/or modify it under the 
 terms of the GNU Lesser General Public License as published by the Free Software 
@@ -16,8 +16,6 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along 
 with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
-Author: Fred Dixon <ffdixon@bigbluebutton.org>
-
 -->
 
 <%@ page language="java" contentType="text/html; charset=UTF-8"
@@ -30,7 +28,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Join Meeting via HTML5 Client</title>
+	<title>Join Video Chat</title>
 </head>
 
 <body>
@@ -47,7 +45,7 @@ if (request.getParameterMap().isEmpty()) {
 	%>
 <%@ include file="demo_header.jsp"%>
 
-<h2>Join Meeting via HTML5 Client</h2>
+<h2>Video Chat via HTML5 Client</h2>
 
 <FORM NAME="form1" METHOD="GET">
 <table cellpadding="5" cellspacing="5" style="width: 400px; ">
@@ -58,20 +56,6 @@ if (request.getParameterMap().isEmpty()) {
 			<td style="width: 5px; ">&nbsp;</td>
 			<td style="text-align: left "><input type="text" autofocus required name="username" /></td>
 		</tr>
-
-		<tr>
-			<td>&nbsp;</td>
-			<td style="text-align: right; ">Meeting Name:</td>
-			<td style="width: 5px; ">&nbsp;</td>
-			<td style="text-align: left "><input type="text" required name="meetingname" value="Demo Meeting" /></td>
-		<tr>
-
-			<tr>
-				<td>&nbsp;</td>
-				<td style="text-align: right; ">Moderator Role:</td>
-				<td style="width: 5px; ">&nbsp;</td>
-				<td style="text-align: left "><input type=checkbox name=isModerator value="true" checked></td>
-			<tr>
 
 		<tr>
 			<td>&nbsp;</td>
@@ -94,33 +78,16 @@ if (request.getParameterMap().isEmpty()) {
 
 	String username = request.getParameter("username");
 
-	// set defaults and overwrite them if custom values exist
-	String meetingname = "Demo Meeting";
-	if (request.getParameter("meetingname") != null) {
-		meetingname =  request.getParameter("meetingname");
-	}
+	String meetingname = "Video Chat Meeting";
 
-	String defaultModeratorPassword = "mp";
-	String defaultAttendeePassword = "ap";
-	String defaultPassword = defaultAttendeePassword;
+	//metadata
+	Map<String,String> metadata=new HashMap<String,String>();
 
-	boolean isModerator = false;
-	if (request.getParameter("isModerator") != null) {
-		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
-		defaultPassword = defaultModeratorPassword;
-	}
+	metadata.put("html5autoswaplayout", "true");
+	metadata.put("html5autosharewebcam", "true");
+	metadata.put("html5hidepresentation", "true");
 
-	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
-	String html5url = ip + "/html5client/join";
-
-	String meetingId = createMeeting( meetingname, null, defaultModeratorPassword, "Welcome moderator! (moderator only message)", defaultAttendeePassword, null, null );
-
-	// Check if we have an existing meeting
-	if( meetingId.startsWith("Error ")) {
-		meetingId = meetingname;
-	}
-
-	String joinURL = getJoinMeetingURL(username, meetingId, defaultPassword, html5url);
+	String joinURL = getJoinURLExtended(username, meetingname, "false", null, metadata, null, "true");
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
@@ -128,6 +95,7 @@ if (request.getParameterMap().isEmpty()) {
 <script language="javascript" type="text/javascript">
 	window.location.href="<%=joinURL%>";
 </script>
+
 
 <%
 	} else {
