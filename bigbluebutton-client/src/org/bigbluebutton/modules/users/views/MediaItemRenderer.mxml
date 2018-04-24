@@ -25,14 +25,14 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	creationComplete="onCreationComplete()" > 
-	
+
 	<fx:Declarations>
 		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole"/>
 		<mate:Listener type="{BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR}" method="onChangeWebcamsOnlyForModerator"/>
 	</fx:Declarations>
-	
+
 	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
@@ -59,10 +59,14 @@
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var moderator:Boolean = false;
 			[Bindable]
 			private var rolledOver:Boolean = false;
 			
+			[Bindable]
+			private var webcamsOnlyForModerator:Boolean;
+			
+			private var moderator:Boolean = false;
+
 			private var rolledOverMute:Boolean = false;
 			private var rolledOverLock:Boolean = false;
 			
@@ -119,6 +123,8 @@
 			}
 			
 			private function onChangeWebcamsOnlyForModerator(e:BBBEvent):void {
+				webcamsOnlyForModerator = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
+
 				if (data != null) {
 					updateButtons();
 				}
@@ -188,8 +194,6 @@
 
 				var ls:LockSettingsVO = UsersUtil.getLockSettings();
 				
-				var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
-
 				if (data != null) {
 					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
 
@@ -291,8 +295,7 @@
 							}
 						}
 
-
-						if (data.locked && !data.presenter && ls.isAnythingLocked()) {
+						if (data.locked && !data.presenter && ls.isAnythingLocked() || (!data.presenter && webcamsOnlyForModerator)) {
 							lockImg.source = getStyle("iconLock");
 						} else {
 							lockImg.source = null;
