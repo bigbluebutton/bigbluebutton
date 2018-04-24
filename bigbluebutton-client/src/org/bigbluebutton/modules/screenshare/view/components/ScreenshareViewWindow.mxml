@@ -251,9 +251,6 @@
                 if (!btnActualSize.selected) {
                     fitVideoToWindow();
                 }
-
-				videoHolder.verticalCenter = 0;
-				videoHolder.horizontalCenter = 0;
             }
 
 			private function fitVideoToWindow():void {
