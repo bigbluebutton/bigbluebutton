@@ -1,4 +1,4 @@
-import { Session } from 'meteor/session';
+import SessionStorage from '/imports/ui/services/storage/session';
 import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import Auth from '/imports/ui/services/auth';
@@ -53,7 +53,7 @@ export const shouldEnableSwapLayout = () => {
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
-  const metaAutoSwapLayout = Session.get('meta.html5autoswaplayout') || false;
+  const metaAutoSwapLayout = SessionStorage.getItem('meta_html5autoswaplayout') || false;
   return metaAutoSwapLayout || (swapLayout.value && shouldEnableSwapLayout());
 };
 

@@ -5,11 +5,15 @@ import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
 import mapUser from '/imports/ui/services/user/mapUser';
 import UserListService from '/imports/ui/components/user-list/service';
+import SessionStorage from '/imports/ui/services/storage/session';
 
 class VideoService {
   constructor() {
+    const enableVideo = Meteor.settings.public.kurento.enableVideo;
+    const autoShareWebcam = SessionStorage.getItem('meta_html5autosharewebcam') || false;
+
     this.defineProperties({
-      isSharing: false,
+      isSharing: autoShareWebcam && enableVideo,
       isConnected: false,
       isWaitingResponse: false,
     });
@@ -135,6 +139,7 @@ export default {
   getAllUsers: () => videoService.getAllUsers(),
   webcamOnlyModerator: () => videoService.webcamOnlyModerator(),
   isLocked: () => videoService.isLocked(),
+  isSharing: () => videoService.isSharing,
   isConnected: () => videoService.isConnected,
   isWaitingResponse: () => videoService.isWaitingResponse,
   joinVideo: () => videoService.joinVideo(),
