@@ -20,3 +20,5 @@
 
 <a href="demoHTML5.jsp">HTML5 Client Demo</a> &nbsp;&nbsp;
 
+<a href="demoHTML5meta.jsp">HTML5 Client Meta Demo</a> &nbsp;&nbsp;
+
