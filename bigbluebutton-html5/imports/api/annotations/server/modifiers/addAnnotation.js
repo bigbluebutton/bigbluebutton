@@ -68,7 +68,13 @@ function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
     $inc: { version: 1 },
   };
 
-  return { selector, modifier };
+  return {
+    updateOne: {
+      'filter': selector,
+      'update': modifier,
+      'upsert': true
+    }
+  };
 }
 
 function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
