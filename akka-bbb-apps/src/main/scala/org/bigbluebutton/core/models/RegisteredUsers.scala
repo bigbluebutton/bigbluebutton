@@ -33,14 +33,6 @@ object RegisteredUsers {
     } yield user
   }
 
-  def updateRegUser(uvo: UserVO, users: RegisteredUsers) {
-    for {
-      ru <- RegisteredUsers.findWithUserId(uvo.id, users)
-      regUser = new RegisteredUser(uvo.id, uvo.externalId, uvo.name, uvo.role, ru.authToken,
-        uvo.avatarURL, uvo.guest, uvo.authed, uvo.waitingForAcceptance)
-    } yield users.save(regUser)
-  }
-
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
     users.save(user)
   }
@@ -52,6 +44,13 @@ object RegisteredUsers {
   def setWaitingForApproval(users: RegisteredUsers, user: RegisteredUser,
                             waitingForApproval: Boolean): RegisteredUser = {
     val u = user.modify(_.waitingForAcceptance).setTo(waitingForApproval)
+    users.save(u)
+    u
+  }
+  
+  def updateUserRole(users: RegisteredUsers, user: RegisteredUser,
+                            role: String): RegisteredUser = {
+    val u = user.modify(_.role).setTo(role)
     users.save(u)
     u
   }
