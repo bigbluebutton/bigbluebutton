@@ -5,6 +5,9 @@ import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
 import Logger from './logger';
 
+import addAnnotations from '/imports/api/annotations/server/modifiers/addAnnotation';
+import Annotations from '/imports/api/annotations';
+
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
 
@@ -129,6 +132,16 @@ class RedisPubSub {
     });
 
     this.debug(`Subscribed to '${channelsToSubscribe}'`);
+
+    let _this = this;
+    setInterval(Meteor.bindEnvironment(function() {
+      if(_this.annotationsBulk && _this.annotationsBulk.length > 0) {
+        console.log('RELEASING');
+        console.log(_this.annotationsBulk.length);
+        Annotations.rawCollection().bulkWrite(_this.annotationsBulk, function(error) { console.log(error); });
+        _this.emptyAnnotationsBulk();
+      }
+    }), 100);
   }
 
   updateConfig(config) {
@@ -138,6 +151,10 @@ class RedisPubSub {
 
   addToAnnotationsBulk(annotation) {
     this.annotationsBulk.push(annotation);
+  }
+
+  addOperationsToBulk(operations) {
+    this.annotationsBulk.push.apply(this.annotationsBulk, operations);
   }
 
   getAnnotationsBulk() {
@@ -154,6 +171,37 @@ class RedisPubSub {
 
   emptyAnnotationsBulk() {
     this.annotationsBulk = [];
+  }
+
+  findAnnotationInsideBulk(selector) {
+    let b = this.annotationsBulk;
+    for(let i = b.length - 1; i >= 0; i--) {
+      if(b[i].updateOne &&
+        b[i].updateOne.update &&
+        !(b[i].updateOne.update.$set) &&
+        b[i].updateOne.filter &&
+        b[i].updateOne.filter.id === selector.id &&
+        b[i].updateOne.filter.userId === selector.userId &&
+        b[i].updateOne.filter.meetingId === selector.meetingId &&
+        b[i].updateOne.filter.whiteboardId === selector.whiteboardId) {
+        return b[i].updateOne.update;
+      }
+    }
+    return undefined;
+  }
+
+  findChunkInsideBulk(selector) {
+    let b = this.annotationsBulk;
+    for(let i = b.length - 1; i >= 0; i--) {
+      if(b[i].updateOne &&
+        b[i].updateOne.filter &&
+        b[i].updateOne.filter.id === selector.id &&
+        b[i].updateOne.filter.userId === selector.userId &&
+        b[i].updateOne.filter.meetingId === selector.meetingId) {
+        return b[i].updateOne.update;
+      }
+    }
+    return undefined;
   }
 
   // TODO: Move this out of this class, maybe pass as a callback to init?

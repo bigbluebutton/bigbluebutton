@@ -32,7 +32,13 @@ function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
     $inc: { version: 1 },
   };
 
-  return { selector, modifier };
+  return {
+    updateOne: {
+      'filter': selector,
+      'update': modifier,
+      'upsert': true
+    }
+  };
 }
 
 function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
@@ -90,7 +96,9 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
   let chunkModifier;
 
   // fetching the Annotation object
-  const Annotation = Annotations.findOne(baseSelector);
+  let Annotation;
+  const bulkAnnotation = RedisPubSub.findAnnotationInsideBulk(baseSelector);
+  Annotation = bulkAnnotation ? bulkAnnotation : Annotations.findOne(baseSelector);
 
   // a helper func, to split the initial annotation.points into subdocuments
   // returns an array of { selector, modifier } objects for subdocuments.
@@ -161,8 +169,11 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
     return chunks;
   };
 
+  let operations = [];
+
   switch (status) {
     case DRAW_START: {
+
       // on start we split the points
       const chunks = createPencilObjects();
 
@@ -175,7 +186,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         position,
         annotationType: 'pencil_base',
         numberOfChunks: chunks.length,
-        lastChunkLength: chunks[chunks.length - 1].length,
+        lastChunkLength: chunks[chunks.length - 1].length ? chunks[chunks.length - 1].length : null,
         lastCoordinate: [
           annotationInfo.points[annotationInfo.points.length - 2],
           annotationInfo.points[annotationInfo.points.length - 1],
@@ -184,15 +195,29 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
 
       // upserting all the chunks
       for (let i = 0; i < chunks.length; i += 1) {
-        Annotations.upsert(chunks[i].selector, chunks[i].modifier);
+        operations.push({
+          updateOne: {
+            'filter': chunks[i].selector,
+            'update': chunks[i].modifier,
+            'upsert': true
+          }
+        });
       }
+      operations.push({
+        updateOne: {
+          'filter': baseSelector,
+          'update': baseModifier,
+          'upsert': true
+        }
+      });
 
-      // base will be updated in the main addAnnotation event
-      return { selector: baseSelector, modifier: baseModifier };
+      return operations;
     }
     case DRAW_UPDATE: {
+
       // checking if "pencil_base" exists
       if (Annotation) {
+
         const { numberOfChunks, lastChunkLength } = Annotation;
 
         // if lastChunkLength < PENCIL_CHUNK_SIZE then we can simply push points to the last object
@@ -216,7 +241,8 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           };
 
           // fetching the last pencil sub-document
-          const chunk = Annotations.findOne(chunkSelector);
+          const bulkChunk = RedisPubSub.findChunkInsideBulk(chunkSelector);
+          let chunk = (bulkChunk && bulkChunk.$set) ? bulkChunk.$set : Annotations.findOne(chunkSelector);
           // adding the coordinates to the end of the last sub-document
           annotationInfo.points = chunk.annotationInfo.points.concat(annotationInfo.points);
 
@@ -264,12 +290,24 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
             },
             $inc: { version: 1 },
           };
+        } else {
         }
 
-        // upserting the new subdocument
-        Annotations.upsert(chunkSelector, chunkModifier);
-        // base will be updated in the main AddAnnotation func
-        return { selector: baseSelector, modifier: baseModifier };
+        operations.push({
+          updateOne: {
+            'filter': chunkSelector,
+            'update': chunkModifier,
+            'upsert': true
+          }
+        });
+        operations.push({
+          updateOne: {
+            'filter': baseSelector,
+            'update': baseModifier,
+            'upsert': true
+          }
+        });
+        return operations;
       }
 
       // **default flow**
@@ -295,19 +333,33 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
 
       // upserting all the chunks
       for (let i = 0; i < _chunks.length; i += 1) {
-        Annotations.upsert(_chunks[i].selector, _chunks[i].modifier);
+        operations.push({
+          updateOne: {
+            'filter': _chunks[i].selector,
+            'update': _chunks[i].modifier,
+            'upsert': true
+          }
+        });
       }
 
-      // base will be updated in the main AddAnnotation func
-      return { selector: baseSelector, modifier: baseModifier };
+      operations.push({
+        updateOne: {
+          'filter': baseSelector,
+          'update': baseModifier,
+          'upsert': true
+        }
+      });
+
+      return operations;
     }
     case DRAW_END: {
+
       // If a user just finished drawing with the pencil
       // Removing all the sub-documents and replacing the 'pencil_base'
       if (Annotation && Annotation.annotationType === 'pencil_base') {
         // delete everything and replace base
         const chunkIds = [];
-        for (let i = 0; i <= Annotation.numberOfChunks; i += 1) {
+        for (let i = 0; i <= 10; i += 1) {
           chunkIds.push(`${Annotation.id}--${i}`);
         }
         chunkSelector = {
@@ -316,7 +368,11 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           id: { $in: chunkIds },
         };
 
-        Annotations.remove(chunkSelector);
+        operations.push({
+          deleteMany: {
+            'filter': chunkSelector
+          }
+        });
       }
 
       // Updating the main pencil object with the final info
@@ -338,7 +394,14 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           lastCoordinate: '',
         },
       };
-      return { selector: baseSelector, modifier: baseModifier };
+      operations.push({
+        updateOne: {
+          'filter': baseSelector,
+          'update': baseModifier,
+          'upsert': true
+        }
+      });
+      return operations;
     }
     default: {
       return {};
@@ -365,81 +428,11 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
       break;
   }
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding annotation to collection: ${err}`);
-    }
-
-    const { insertedId } = numChanged;
-    if (insertedId) {
-      return Logger.info(`Added annotation id=${annotation.id} whiteboard=${whiteboardId}`);
-    }
-
-    return Logger.info(`Upserted annotation id=${annotation.id} whiteboard=${whiteboardId}`);
-  };
-
-  function isSelectorPresent(selectorsArray, selector) {
-    for(let i = 0; i < selectorsArray.length; i++) {
-      if(JSON.stringify(selectorsArray[i]) === JSON.stringify(selector)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  if(annotation.annotationType !== ANNOTATION_TYPE_TEXT &&
-    annotation.annotationType !== ANNOTATION_TYPE_PENCIL) {
-
-    let lastBulkTime = RedisPubSub.getLastBulkTime();
-
-    if(lastBulkTime === null) {
-      // Upserting for the very first time
-      RedisPubSub.setLastBulkTime(process.hrtime());
-      Annotations.upsert(query.selector, query.modifier, cb);
-    } else {
-      let diff = process.hrtime(lastBulkTime)[1]/1000000;
-      if(diff < 200) {
-        // Pushing to the bulk
-        RedisPubSub.addToAnnotationsBulk({
-          query: query,
-          cb: cb
-        });
-      } else {
-        // Releasing the bulk
-        if(RedisPubSub.getAnnotationsBulk().length === 0) {
-          Annotations.upsert(query.selector, query.modifier, cb);
-        } else {
-          RedisPubSub.addToAnnotationsBulk({
-            query: query,
-            cb: cb
-          });
-          let bulk = RedisPubSub.getAnnotationsBulk();
-          let uniqueSelectors = [];
-          let filteredBulk = [];
-          bulk.forEach(function(annotation) {
-            if(annotation.query.modifier.$set.status === 'DRAW_START' || annotation.query.modifier.$set.status === 'DRAW_END' || !isSelectorPresent(uniqueSelectors, annotation.query.selector)) {
-              uniqueSelectors.push(annotation.query.selector);
-              filteredBulk.push(annotation);
-            }
-          });
-          let operations = [];
-          filteredBulk.forEach(function(ann) {
-            operations.push({
-              updateOne: {
-                'filter': ann.query.selector,
-                'update': ann.query.modifier,
-                'upsert': true
-              }
-            });
-          });
-          Annotations.rawCollection().bulkWrite(operations);
-          RedisPubSub.emptyAnnotationsBulk();
-        }
-
-        RedisPubSub.setLastBulkTime(process.hrtime());
-      }
-    }
+  if(query instanceof Array) {
+    RedisPubSub.addOperationsToBulk(query);
   } else {
-    return Annotations.upsert(query.selector, query.modifier, cb);
+    RedisPubSub.addToAnnotationsBulk(query);
   }
+
 }
+
