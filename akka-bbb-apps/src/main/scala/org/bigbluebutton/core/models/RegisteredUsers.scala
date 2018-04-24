@@ -47,9 +47,9 @@ object RegisteredUsers {
     users.save(u)
     u
   }
-  
+
   def updateUserRole(users: RegisteredUsers, user: RegisteredUser,
-                            role: String): RegisteredUser = {
+                     role: String): RegisteredUser = {
     val u = user.modify(_.role).setTo(role)
     users.save(u)
     u
