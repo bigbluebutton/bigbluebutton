@@ -198,7 +198,6 @@ class ApplicationMenu extends BaseMenu {
                     defaultValue={this.state.settings.locale}
                     className={styles.select}
                     onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                    label="testing"
                   >
                     <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
                     {availableLocales.map((locale, index) => (
