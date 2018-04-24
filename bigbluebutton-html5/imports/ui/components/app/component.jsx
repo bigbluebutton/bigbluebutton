@@ -109,7 +109,7 @@ class App extends Component {
   }
 
   renderUserList() {
-    const { intl } = this.props;
+    const { intl, chatIsOpen } = this.props;
     let { userList } = this.props;
     const { compactUserList } = this.state;
 
@@ -125,6 +125,7 @@ class App extends Component {
       <div
         className={cx(styles.userList, userListStyle)}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
+        aria-hidden={chatIsOpen}
       >
         {userList}
       </div>
@@ -147,7 +148,7 @@ class App extends Component {
   }
 
   renderMedia() {
-    const { media, intl } = this.props;
+    const { media, intl, chatIsOpen } = this.props;
 
     if (!media) return null;
 
@@ -155,6 +156,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
+        aria-hidden={chatIsOpen}
       >
         {media}
         {this.renderClosedCaption()}
@@ -163,7 +165,7 @@ class App extends Component {
   }
 
   renderActionsBar() {
-    const { actionsbar, intl } = this.props;
+    const { actionsbar, intl, userlistIsOpen } = this.props;
 
     if (!actionsbar) return null;
 
@@ -171,6 +173,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
+        aria-hidden={userlistIsOpen}
       >
         {actionsbar}
       </section>
