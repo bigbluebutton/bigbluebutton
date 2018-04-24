@@ -148,7 +148,7 @@ class App extends Component {
   }
 
   renderMedia() {
-    const { media, intl, chatIsOpen } = this.props;
+    const { media, intl, chatIsOpen, userlistIsOpen } = this.props;
 
     if (!media) return null;
 
@@ -156,7 +156,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={chatIsOpen}
+        aria-hidden={userlistIsOpen || chatIsOpen}
       >
         {media}
         {this.renderClosedCaption()}
@@ -165,7 +165,7 @@ class App extends Component {
   }
 
   renderActionsBar() {
-    const { actionsbar, intl, userlistIsOpen } = this.props;
+    const { actionsbar, intl, userlistIsOpen, chatIsOpen } = this.props;
 
     if (!actionsbar) return null;
 
@@ -173,7 +173,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={userlistIsOpen}
+        aria-hidden={userlistIsOpen || chatIsOpen}
       >
         {actionsbar}
       </section>
