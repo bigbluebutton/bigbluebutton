@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { Session } from 'meteor/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
 import deviceType from '/imports/utils/deviceType';
@@ -19,12 +20,28 @@ export function joinRouteHandler(nextState, replace, callback) {
 
   fetch(url)
     .then(response => response.json())
-    .then((data) => {
+    .then(({ response }) => {
       const {
-        meetingID, internalUserID, authToken, logoutUrl, customLogoURL,
-      } = data.response;
+        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+      } = response;
+
+      if (returncode === 'FAILED') {
+        replace({ pathname: '/error/404' });
+        callback();
+      }
 
       setCustomLogoUrl(customLogoURL);
+
+      metadata.forEach((meta) => {
+        const metaKey = Object.keys(meta).pop();
+        let metaValue;
+        try {
+          metaValue = JSON.parse(meta[metaKey]);
+        } catch (e) {
+          metaValue = meta[metaKey];
+        }
+        Session.set(`meta.${metaKey}`, metaValue);
+      });
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
