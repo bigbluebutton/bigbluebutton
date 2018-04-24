@@ -97,13 +97,19 @@
 				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 			}
 
+			private function resizeVideoCanvas() : void {
+				videoCanvas.width = this.width - VIDEO_WIDTH_PADDING;
+				videoCanvas.height = this.height - VIDEO_HEIGHT_PADDING;
+			}
+			
 			private function onCreationComplete():void{
 				viewScreenshareStream();
 
+				resizeVideoCanvas();
+				
 				videoHolder.addChild(video);
 				videoCanvas.addChildAt(videoHolder, 0);
-				videoHolder.percentWidth = 100;
-				videoHolder.percentHeight = 100;
+
 				videoHolder.addEventListener(MouseEvent.MOUSE_OVER, videoHolder_mouseOverHanlder);
 				videoHolder.addEventListener(MouseEvent.MOUSE_OUT, videoHolder_mouseOutHanlder);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
@@ -232,6 +238,8 @@
              * Resizes the desktop sharing video to fit to this window
              */
             private function fitToWindow():void {
+				resizeVideoCanvas();
+				
                 if (!streamAvailable)
                     return;
 
@@ -278,12 +286,16 @@
 			 */
 			private function fitToActualSize():void{
 				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
+					fitVideoToWindow();
+					videoHolder.verticalCenter = 0;
+					videoHolder.horizontalCenter = 0;
+					
 				} else {
-					video.width = videoWidth;
-					videoHolder.width = videoWidth;
-					video.height = videoHeight;
-					videoHolder.height = videoHeight;
+					fitWindowToVideo();
+					videoHolder.verticalCenter = undefined;
+					videoHolder.horizontalCenter = undefined;
+					videoHolder.x = 0;
+					videoHolder.y = 0;
 				}
 				
 				videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
@@ -339,7 +351,7 @@
 						   tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
 	</fx:Declarations>
 
-	<mx:Canvas id="videoCanvas" width="100%" height="100%" />
+	<mx:Canvas id="videoCanvas" width="100" height="100"/>
 
 	<mx:Button id="btnActualSize"
 			   styleName="screenShareActualizeButton"
