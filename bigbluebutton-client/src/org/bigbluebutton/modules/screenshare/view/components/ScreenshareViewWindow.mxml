@@ -263,6 +263,9 @@
 				videoHolder.width = video.width;
 				videoHolder.height = video.height;
 
+				videoHolder.verticalCenter = 0;
+				videoHolder.horizontalCenter = 0;
+				
 				videoCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
 				videoCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
 			}
@@ -272,6 +275,11 @@
 				videoHolder.width = videoWidth;
 				video.height = videoHeight;
 				videoHolder.height = videoHeight;
+				
+				videoHolder.verticalCenter = undefined;
+				videoHolder.horizontalCenter = undefined;
+				videoHolder.x = 0;
+				videoHolder.y = 0;
 			}
 
 			private function videoIsSmallerThanWindow():Boolean {
@@ -284,15 +292,8 @@
 			private function fitToActualSize():void{
 				if (videoIsSmallerThanWindow()) {
 					fitVideoToWindow();
-					videoHolder.verticalCenter = 0;
-					videoHolder.horizontalCenter = 0;
-					
 				} else {
 					fitWindowToVideo();
-					videoHolder.verticalCenter = undefined;
-					videoHolder.horizontalCenter = undefined;
-					videoHolder.x = 0;
-					videoHolder.y = 0;
 				}
 				
 				videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
