@@ -22,7 +22,6 @@ package org.bigbluebutton.modules.screenshare.managers {
     
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.main.events.MadePresenterEvent;

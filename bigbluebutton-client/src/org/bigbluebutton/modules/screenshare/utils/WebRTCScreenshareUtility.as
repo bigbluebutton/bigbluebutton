@@ -34,15 +34,15 @@ package org.bigbluebutton.modules.screenshare.utils
     public static var extensionLink:String = null;
     private static var options:ScreenshareOptions = null;
 
-    public static function canIUseVertoOnThisBrowser (cannotUseWebRTC:Function, webRTCWorksButNotConfigured:Function, webRTCWorksAndConfigured:Function):void {
-      LOGGER.debug("WebRTCScreenshareUtility::canIUseVertoOnThisBrowser");
+    public static function canIUseWebRTCOnThisBrowser (cannotUseWebRTC:Function, webRTCWorksButNotConfigured:Function, webRTCWorksAndConfigured:Function):void {
+      LOGGER.debug("WebRTCScreenshareUtility::canIUseWebRTCOnThisBrowser");
 
       if (!ExternalInterface.available) {
         cannotUseWebRTC("No ExternalInterface");
         return;
       }
 
-      // https is required for verto and for peripheral sharing
+      // https is required for webrtc and for peripheral sharing
       if (!BrowserCheck.isHttps()) {
         cannotUseWebRTC("WebRTC Screensharing requires an HTTPS connection");
         return;
@@ -72,7 +72,7 @@ package org.bigbluebutton.modules.screenshare.utils
 
       WebRTCScreenshareUtility.extensionLink = options.chromeExtensionLink;
 
-      // if its firefox go ahead and let verto handle it
+      // if its firefox go ahead and let webrtc handle it
       if (BrowserCheck.isFirefox()) {
         webRTCWorksAndConfigured("Firefox, lets try");
         return;
@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.screenshare.utils
           return;
         }
 
-        // connect to the verto code to attempt a connection with the extension
+        // connect to the webrtc code to attempt a connection with the extension
         var onSuccess:Function = function(exists:Boolean):void {
           // clear the check callback
           ExternalInterface.addCallback("onSuccess", null);
