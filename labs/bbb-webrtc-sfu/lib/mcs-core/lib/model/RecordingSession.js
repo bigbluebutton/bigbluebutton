@@ -22,10 +22,20 @@ module.exports = class RecordingSession extends MediaSession {
   }
 
   static getRecordingPath (room, profile, recordingName) {
+    const format = 'mp4';
     const basePath = config.get('recordingBasePath');
     const timestamp = (new Date()).getTime();
 
-    return `${basePath}/${room}/${profile}-${recordingName}-${timestamp}.mp4`;
+    let isScreenshare = (name) => {
+      return name.match(/^[0-9]+-SCREENSHARE$/);
+    };
+
+    if (isScreenshare(recordingName)) {
+      return `${basePath}/${room}-SCREENSHARE/${recordingName}-${timestamp}.${format}`
+    } else {
+      return `${basePath}/${room}/${profile}-${recordingName}-${timestamp}.${format}`;
+    }
+
   }
 
   async process () {

@@ -173,7 +173,7 @@ module.exports = class Screenshare extends EventEmitter {
   }
 
   async startRecording() {
-    this.recordingId = await this.mcs.startRecording(this.userId, this._presenterEndpoint, this._voiceBridge);
+    this.recording = await this.mcs.startRecording(this.userId, this._presenterEndpoint, this._voiceBridge);
   }
 
   async _startPresenter(id, sdpOffer, callback) {
