@@ -136,8 +136,6 @@ class RedisPubSub {
     let _this = this;
     setInterval(Meteor.bindEnvironment(function() {
       if(_this.annotationsBulk && _this.annotationsBulk.length > 0) {
-        console.log('RELEASING');
-        console.log(_this.annotationsBulk.length);
         Annotations.rawCollection().bulkWrite(_this.annotationsBulk, function(error) { console.log(error); });
         _this.emptyAnnotationsBulk();
       }
