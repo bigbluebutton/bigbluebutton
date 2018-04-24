@@ -103,6 +103,42 @@ module.exports = class RedisWrapper extends EventEmitter {
     }
   }
 
+  setKeyWithIncrement (key, message, callback) {
+
+    let blowObject = function (obj) {
+      let arr = [];
+      Object.keys(obj).map(function (key) {
+        arr.push(key)
+        arr.push(obj[key]);
+      });
+      return arr;
+    }
+
+    if (this.redisPub){
+      let count = null;
+
+      this.redisPub.incr('global:nextRecordedMsgId', (err, res) => {
+        if (err) {
+          return callback(err, null);
+        }
+
+        let incr = key + ':' + res;
+        let value = blowObject(message);
+        this.redisPub.hmset(incr, value, callback);
+
+        // Not implemented yet
+        this.expireKey(incr);
+      });
+
+    } else {
+      callback(true, null);
+    }
+  }
+
+  expireKey (key, callback) {
+    Logger.warn("[TODO] expire redis keys after setting the recording one");
+  }
+
   /* Private members */
 
   _onMessage (pattern, channel, _message) {

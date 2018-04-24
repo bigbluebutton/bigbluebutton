@@ -266,13 +266,12 @@ module.exports = class MediaController {
       await sourceSession.connect(session._mediaElement);
 
       sourceSession.subscribedSessions.push(session.id);
+      return Promise.resolve(answer);
     }
     catch (err) {
       Logger.error("[mcs-controller] Subscribe failed with an error", err);
       return Promise.reject(err);
     }
-
-    return Promise.resolve({});
   }
 
   async addIceCandidate (mediaId, candidate) {

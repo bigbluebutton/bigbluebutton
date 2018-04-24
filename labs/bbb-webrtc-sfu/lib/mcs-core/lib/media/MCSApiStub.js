@@ -118,8 +118,8 @@ module.exports = class MCSApiStub extends EventEmitter{
 
   async startRecording(userId, mediaId, recordingName) {
     try {
-      await this._mediaController.startRecording(userId, mediaId, recordingName);
-      return Promise.resolve();
+      const answer = await this._mediaController.startRecording(userId, mediaId, recordingName);
+      return Promise.resolve(answer);
     }
     catch (err) {
       Logger.error(err);
@@ -129,8 +129,8 @@ module.exports = class MCSApiStub extends EventEmitter{
 
   async stopRecording(mediaId) {
     try {
-      await this._mediaController.stopRecording(mediaId);
-      return Promise.resolve();
+      let answer = await this._mediaController.stopRecording(mediaId);
+      return Promise.resolve(answer);
     }
     catch (err) {
       Logger.error(err);

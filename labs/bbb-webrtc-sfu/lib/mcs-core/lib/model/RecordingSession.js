@@ -10,13 +10,15 @@ const MediaSession = require('./MediaSession');
 
 module.exports = class RecordingSession extends MediaSession {
   constructor(emitter, room, recordingName) {
+    let uri = RecordingSession.getRecordingPath(room, 'medium', recordingName);
     let options = {
       mediaProfile: 'MP4_VIDEO_ONLY',
-      uri: RecordingSession.getRecordingPath(room, 'medium', recordingName),
+      uri: uri,
       stopOnEndOfStream: true
     };
 
     super(emitter, room, 'RecorderEndpoint', options);
+    this.filename = uri;
   }
 
   static getRecordingPath (room, profile, recordingName) {
@@ -28,6 +30,6 @@ module.exports = class RecordingSession extends MediaSession {
 
   async process () {
     const answer = await this._MediaServer.startRecording(this._mediaElement);
-    return Promise.resolve(answer);
+    return Promise.resolve({ recordingId: this.id, filename: this.filename });
   }
 }

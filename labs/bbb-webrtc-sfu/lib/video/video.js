@@ -128,15 +128,16 @@ module.exports = class Video extends EventEmitter {
           }
           if (this.status != C.MEDIA_STARTED) {
 
+            // Record the video stream if it's the original being shared
+            if (config.get('recordWebcams') && this.shared) {
+              this.startRecording();
+            }
+
             this.sendPlayStart();
 
             this.status = C.MEDIA_STARTED;
           }
 
-          // Record the video stream if it's the original being shared
-          if (config.get('recordWebcams') && this.shared) {
-            this.startRecording();
-          }
         }
         break;
 
@@ -152,16 +153,12 @@ module.exports = class Video extends EventEmitter {
        id : 'playStart',
        cameraId: this.id,
     }), C.FROM_VIDEO);
-
-    if (this.shared) {
-      this.sendStartShareEvent();
-    }
   }
 
   sendPlayStop () {
     let userCamEvent =
-      Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id);
-    this.bbbGW.publish(userCamEvent, C.TO_AKKA_APPS, function(error) {});
+      Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id, this.id);
+    this.bbbGW.publish(userCamEvent, function(error) {});
 
     this.bbbGW.publish(JSON.stringify({
       connectionId: this.connectionId,
@@ -173,7 +170,8 @@ module.exports = class Video extends EventEmitter {
   }
 
   async startRecording() {
-    this.recordingId = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+    this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+    this.sendStartShareEvent();
   }
 
   async start (sdpOffer, callback) {
@@ -220,14 +218,14 @@ module.exports = class Video extends EventEmitter {
   };
 
   sendStartShareEvent() {
-    let shareCamEvent = Messaging.generateStartWebcamShareEvent(this.meetingId, this.id);
-    this.bbbGW.publish(shareCamEvent, C.TO_AKKA_APPS, function(error) {});
+    let shareCamEvent = Messaging.generateStartWebcamShareEvent(this.meetingId, this.recording.filename);
+    this.bbbGW.writeMeetingKey('recording', this.meetingId, shareCamEvent, function(error) {});
   }
 
   sendStopShareEvent () {
     let stopShareEvent =
-      Messaging.generateStopWebcamShareEvent(this.meetingId, this.id, this.id);
-    this.bbbGW.publish(stopShareEvent, C.TO_AKKA_APPS, function(error) {});
+      Messaging.generateStopWebcamShareEvent(this.meetingId, this.recording.filename);
+    this.bbbGW.writeMeetingKey('recording', this.meetingId, stopShareEvent, function(error) {});
   }
 
   async stop () {

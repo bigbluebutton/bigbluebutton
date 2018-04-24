@@ -77,12 +77,12 @@ Messaging.prototype.generateUserCamBroadcastStoppedEventMessage2x =
 Messaging.prototype.generateStartWebcamShareEvent =
   function(meetingId, streamUrl) {
   let stodrbem = new StartWebcamShareEvent(meetingId, streamUrl);
-  return stodrbem.toJson();
+  return stodrbem.payload;
 }
 
 Messaging.prototype.generateStopWebcamShareEvent =
   function(meetingId, streamUrl) {
   let stodrbem = new StopWebcamShareEvent(meetingId, streamUrl);
-  return stodrbem.toJson();
+  return stodrbem.payload;
 }
 module.exports = new Messaging();
