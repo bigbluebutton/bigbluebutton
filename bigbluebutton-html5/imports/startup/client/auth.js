@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
 import deviceType from '/imports/utils/deviceType';
@@ -19,12 +20,22 @@ export function joinRouteHandler(nextState, replace, callback) {
 
   fetch(url)
     .then(response => response.json())
-    .then((data) => {
+    .then(({ response }) => {
       const {
-        meetingID, internalUserID, authToken, logoutUrl, customLogoURL,
-      } = data.response;
+        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+      } = response;
+
+      if (returncode === 'FAILED') {
+        replace({ pathname: '/error/404' });
+        callback();
+      }
 
       setCustomLogoUrl(customLogoURL);
+
+      metadata.forEach((meta) => {
+        const metaKey = Object.keys(meta).pop();
+        SessionStorage.setItem(`meta_${metaKey}`, meta[metaKey]);
+      });
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
