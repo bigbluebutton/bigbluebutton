@@ -137,8 +137,11 @@ class RedisPubSub {
     let _this = this;
     setInterval(Meteor.bindEnvironment(function() {
       if(_this.annotationsBulk && _this.annotationsBulk.length > 0) {
-        Annotations.rawCollection().bulkWrite(_this.annotationsBulk, function(error) { console.log(error); });
-        _this.emptyAnnotationsBulk();
+        Annotations.rawCollection().bulkWrite(_this.annotationsBulk).then(function() {
+          _this.emptyAnnotationsBulk();
+        }, function(error) {
+          console.error(error);
+        });
       }
     }), BULK_LIFESPAN);
   }
