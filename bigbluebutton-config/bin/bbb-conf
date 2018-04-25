@@ -1862,7 +1862,7 @@ if [ -n "$HOST" ]; then
                 	/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
 
 		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
-		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "wss://$HOST/kurento"
+		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
 		fi
 	fi
 
