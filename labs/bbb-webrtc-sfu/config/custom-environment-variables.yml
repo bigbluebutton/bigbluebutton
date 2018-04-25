@@ -1,0 +1,5 @@
+kurentoUrl: KURENTO_URL
+kurentoIp: KURENTO_IP
+localIpAddress: TRANSCODE_IP
+redisHost: REDIS_HOST
+
