@@ -43,7 +43,7 @@ module.exports = class Screenshare extends EventEmitter {
     this._presenterCandidatesQueue = [];
     this._viewersEndpoint = [];
     this._viewersCandidatesQueue = [];
-    this._mediaIds;
+    this._rtmpBroadcastStarted = false;
   }
 
   onIceCandidate (candidate, role, callerName) {
@@ -328,25 +328,26 @@ module.exports = class Screenshare extends EventEmitter {
   }
 
   _onRtpMediaFlowing() {
-    Logger.info("[screenshare] RTP Media FLOWING for meeting", this._meetingId);
-    let strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
+    if (!this._rtmpBroadcastStarted) {
+      Logger.info("[screenshare] RTP Media FLOWING for meeting", this._meetingId);
+      let strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
 
-    // Interoperability: capturing 1.1 start_transcoder_reply messages
-    this._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, (payload) => {
-      let meetingId = payload[C.MEETING_ID];
-      let output = payload["params"].output;
-      this._startRtmpBroadcast(meetingId, output);
-    });
+      // Interoperability: capturing 1.1 start_transcoder_reply messages
+      this._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, (payload) => {
+        let meetingId = payload[C.MEETING_ID];
+        let output = payload["params"].output;
+        this._startRtmpBroadcast(meetingId, output);
+      });
 
-    // Capturing stop transcoder responses from the 2x model
-    this._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, (payload) => {
-      let meetingId = payload[C.MEETING_ID_2x];
-      let output = payload["params"].output;
-      this._startRtmpBroadcast(meetingId, output);
-    });
+      // Capturing stop transcoder responses from the 2x model
+      this._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, (payload) => {
+        let meetingId = payload[C.MEETING_ID_2x];
+        let output = payload["params"].output;
+        this._startRtmpBroadcast(meetingId, output);
+      });
 
-
-    this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+      this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+    }
   };
 
   _stopRtmpBroadcast (meetingId) {
@@ -362,13 +363,14 @@ module.exports = class Screenshare extends EventEmitter {
 
   _startRtmpBroadcast (meetingId, output) {
     Logger.info("[screenshare] _startRtmpBroadcast for meeting", + meetingId);
-    if(this._meetingId === meetingId) {
+    if (this._meetingId === meetingId) {
       let timestamp = now.format('hhmmss');
       this._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
       let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(this._voiceBridge,
           this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
 
       this._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+      this._rtmpBroadcastStarted = true;
     }
   }
 
