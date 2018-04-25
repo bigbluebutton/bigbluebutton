@@ -217,10 +217,10 @@ module BigBlueButton
         case start_event['eventname']
         when 'DeskshareStartedEvent'
           filename = start_event.at_xpath('file').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+          filename = File.basename(filename)
         when 'StartWebRTCDesktopShareEvent'
-          uri = event.at_xpath('filename').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+          uri = start_event.at_xpath('filename').text
+          filename = File.basename(uri)
         else
           next
         end
@@ -240,11 +240,11 @@ module BigBlueButton
       events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |stop_event|
         case stop_event['eventname']
         when 'DeskshareStoppedEvent'
-          filename = start_event.at_xpath('file').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+          filename = stop_event.at_xpath('file').text
+          filename = File.basename(filename)
         when 'StopWebRTCDesktopShareEvent'
-          uri = event.at_xpath('filename').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+          uri = stop_event.at_xpath('filename').text
+          filename = File.basename(uri)
         else
           next
         end
