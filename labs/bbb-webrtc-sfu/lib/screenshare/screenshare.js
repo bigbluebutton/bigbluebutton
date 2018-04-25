@@ -174,6 +174,14 @@ module.exports = class Screenshare extends EventEmitter {
 
   async startRecording() {
     this.recording = await this.mcs.startRecording(this.userId, this._presenterEndpoint, this._voiceBridge);
+    this.sendStartShareEvent();
+  }
+
+  sendStartShareEvent () {
+    let shareEvent = Messaging.generateWebRTCShareEvent('StartWebRTCDesktopShareEvent', this.recording.meetingId, this.recording.filename);
+    this._BigBlueButtonGW.writeMeetingKey(this.recording.meetingId, shareEvent, function(error) {
+      Logger.warn('[screenshare] Error writing share event error', error);
+    });
   }
 
   async _startPresenter(id, sdpOffer, callback) {

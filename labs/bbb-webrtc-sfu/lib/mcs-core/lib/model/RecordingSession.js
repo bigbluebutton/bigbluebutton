@@ -40,6 +40,6 @@ module.exports = class RecordingSession extends MediaSession {
 
   async process () {
     const answer = await this._MediaServer.startRecording(this._mediaElement);
-    return Promise.resolve({ recordingId: this.id, filename: this.filename });
+    return Promise.resolve({ recordingId: this.id, filename: this.filename, meetingId: this.room });
   }
 }

@@ -22,8 +22,7 @@ let ScreenshareRTMPBroadcastStoppedEventMessage2x =
     require('./screenshare/ScreenshareRTMPBroadcastStoppedEventMessage2x.js')(Constants);
 let UserCamBroadcastStoppedEventMessage2x =
     require('./video/UserCamBroadcastStoppedEventMessage2x.js')(Constants);
-let StartWebcamShareEvent = require('./video/StartWebcamShareEvent.js')(Constants);
-let StopWebcamShareEvent = require('./video/StopWebcamShareEvent.js')(Constants);
+let WebRTCShareEvent = require('./video/WebRTCShareEvent.js')(Constants);
 
  /**
   * @classdesc
@@ -74,15 +73,9 @@ Messaging.prototype.generateUserCamBroadcastStoppedEventMessage2x =
   return stodrbem.toJson();
 }
 
-Messaging.prototype.generateStartWebcamShareEvent =
-  function(meetingId, streamUrl) {
-  let stodrbem = new StartWebcamShareEvent(meetingId, streamUrl);
-  return stodrbem.payload;
-}
-
-Messaging.prototype.generateStopWebcamShareEvent =
-  function(meetingId, streamUrl) {
-  let stodrbem = new StopWebcamShareEvent(meetingId, streamUrl);
+Messaging.prototype.generateWebRTCShareEvent =
+  function(name, meetingId, streamUrl) {
+  let stodrbem = new WebRTCShareEvent(name, meetingId, streamUrl);
   return stodrbem.payload;
 }
 module.exports = new Messaging();
