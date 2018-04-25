@@ -42,9 +42,8 @@ const EmojiSelect = ({
   const statuses = Object.keys(options);
   const lastStatus = statuses.pop();
 
-  const statusLabel = statuses.indexOf(selected) === -1 ?
-    intl.formatMessage(intlMessages.statusTriggerLabel)
-    : intl.formatMessage({ id: `app.actionsBar.emojiMenu.${selected}Label` });
+  const statusLabel = intl.formatMessage(intlMessages.statusTriggerLabel);
+
 
   return (
     <Dropdown autoFocus>

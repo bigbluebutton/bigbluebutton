@@ -8,7 +8,7 @@ import { styles as mediaStyles } from '/imports/ui/components/media/styles';
 import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
-import VideoElement from '../video-element/component';
+import VideoList from '../video-list/component';
 
 const intlMessages = defineMessages({
   chromeExtensionError: {
@@ -32,19 +32,10 @@ class VideoDock extends Component {
     const { users, userId } = this.props;
 
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
-
-    window.addEventListener('resize', this.adjustVideos);
-    window.addEventListener('orientationchange', this.adjustVideos);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.adjustVideos);
-    window.removeEventListener('orientationchange', this.adjustVideos);
     document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
-  }
-
-  componentDidUpdate() {
-    this.adjustVideos();
   }
 
   notifyError(message) {
@@ -64,40 +55,18 @@ class VideoDock extends Component {
     </div>);
   }
 
-  // TODO
-  // Find a better place to put this piece of code
-  adjustVideos() {
-    setTimeout(() => {
-      window.adjustVideos('webcamArea', true, mediaStyles.moreThan4Videos, mediaStyles.container, mediaStyles.overlayWrapper, 'presentationAreaData', 'screenshareVideo');
-    }, 0);
-  }
-
   render() {
     if (!this.props.socketOpen) {
       // TODO: return something when disconnected
       return null;
     }
 
-    const id = this.props.userId;
-    const sharedWebcam = this.props.sharedWebcam;
-
     return (
-      <div className={styles.videoDock} id={this.props.sharedWebcam.toString()}>
-        <div id="webcamArea" className={styles.webcamArea}>
-          {this.props.users.map(user => (
-            <VideoElement
-              shared={id === user.id && sharedWebcam}
-              videoId={user.id}
-              key={user.id}
-              name={user.name}
-              localCamera={id === user.id}
-              onShareWebcam={this.props.onShareWebcam.bind(this)}
-              onMount={this.props.onStart.bind(this)}
-              onUnmount={this.props.onStop.bind(this)}
-            />
-          ))}
-        </div>
-      </div>
+      <VideoList
+        users={this.props.users}
+        onMount={this.props.onStart}
+        onUnmount={this.props.onStop}
+      />
     );
   }
 }

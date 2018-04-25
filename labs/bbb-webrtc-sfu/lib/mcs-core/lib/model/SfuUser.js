@@ -11,6 +11,7 @@ const SdpWrapper = require('../utils/SdpWrapper');
 const SdpSession = require('../model/SdpSession');
 const UriSession = require('../model/UriSession');
 const Logger = require('../../../utils/Logger');
+const isError = require('../utils/util').isError;
 
 module.exports = class SfuUser extends User {
   constructor(_roomId, type, emitter, userAgentString = C.STRING.ANONYMOUS, sdp = null, uri = null) {
@@ -32,17 +33,17 @@ module.exports = class SfuUser extends User {
     // TODO switch from type to children UriSessions (RTSP|HTTP|etc)
     let session = new UriSession(uri, type);
 
-    if (typeof this._mediaSessions[session.id] == 'undefined' || 
+    if (typeof this._mediaSessions[session.id] == 'undefined' ||
         !this._mediaSessions[session.id]) {
       this._mediaSessions[session.id] = {};
     }
-    this._mediaSessions[session.id] = session; 
+    this._mediaSessions[session.id] = session;
     try {
       await this.startSession(session.id);
       Promise.resolve(session.id);
     }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       Promise.reject(err);
     }
   }
@@ -51,18 +52,18 @@ module.exports = class SfuUser extends User {
     // TODO switch from type to children SdpSessions (WebRTC|SDP)
     let session = new SdpSession(this.emitter, sdp, this.roomId, type);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
-    session.on("SESSION_STOPPED", (sessId) => {
-      Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
+    session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
       if (sessId === session.id) {
+        Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
         this._mediaSessions[sessId] = null;
       }
     });
 
-    if (typeof this._mediaSessions[session.id] == 'undefined' || 
+    if (typeof this._mediaSessions[session.id] == 'undefined' ||
         !this._mediaSessions[session.id]) {
       this._mediaSessions[session.id] = {};
     }
-    this._mediaSessions[session.id] = session; 
+    this._mediaSessions[session.id] = session;
     Logger.info("[mcs-sfu-user] Added new SDP session", session.id, "to user", this.id);
 
     return session;
@@ -70,13 +71,14 @@ module.exports = class SfuUser extends User {
 
   async startSession (sessionId) {
     let session = this._mediaSessions[sessionId];
-  
+
     try {
-      const answer = await session.start();
+      const mediaElement = await session.start();
+      const answer = await session.processDescriptor();
       return Promise.resolve(answer);
     }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       return Promise.reject(err);
     }
   }
@@ -87,9 +89,9 @@ module.exports = class SfuUser extends User {
       await this.startSession(session.id);
       await this.connect(session.id, mediaId);
       Promise.resolve(session);
-    } 
+    }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       Promise.reject(err);
     }
   }
@@ -99,9 +101,9 @@ module.exports = class SfuUser extends User {
     try {
       await this.startSession(session.id);
       Promise.resolve();
-    } 
+    }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       Promise.reject(err);
     }
   }
@@ -109,10 +111,10 @@ module.exports = class SfuUser extends User {
   async unsubscribe (mediaId) {
     try {
       await this.stopSession(mediaId);
-      Promise.resolve();
-    } 
+      Promise.resolve(mediaId);
+    }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       Promise.reject(err);
     }
   }
@@ -121,9 +123,9 @@ module.exports = class SfuUser extends User {
     try {
       await this.stopSession(mediaId);
       Promise.resolve();
-    } 
+    }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       Promise.reject(err);
     }
   }
@@ -133,12 +135,14 @@ module.exports = class SfuUser extends User {
     let session = this._mediaSessions[sessionId];
 
     try {
-      await session.stop();
-      this._mediaSessions[sessionId] = null;
+      if (session) {
+        await session.stop();
+        delete this._mediaSessions[sessionId];
+      }
       return Promise.resolve();
     }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       Promise.reject(err);
     }
   }
@@ -152,7 +156,7 @@ module.exports = class SfuUser extends User {
         return Promise.resolve();
       }
       catch (err) {
-        this.handleError(err);
+        err = this.handleError(err);
         return Promise.reject(err);
       }
     }
@@ -162,24 +166,30 @@ module.exports = class SfuUser extends User {
   }
 
   async leave () {
-    let sessions = Object.keys(this._mediaSessions);
+    const sessions = Object.keys(this._mediaSessions);
+    let stopProcedures = [];
     Logger.info("[mcs-sfu-user] User sessions will be killed");
 
     try {
-      for (var session in sessions) {
-        await this.stopSession(sessions[session]);
+      for (let i = 0; i < sessions.length; i++) {
+        stopProcedures.push(this.stopSession(sessions[i]));
       }
 
-      return Promise.resolve(sessions);
+      return Promise.all(stopProcedures);
     }
     catch (err) {
-      this.handleError(err);
+      err = this.handleError(err);
       Promise.reject(err);
     }
   }
 
-  handleError (err) {
-    Logger.error("[mcs-sfu-user] SFU User received error", err);
+  handleError (error) {
+    Logger.error("[mcs-sfu-user] SFU User received error", error);
+    // Checking if the error needs to be wrapped into a JS Error instance
+    if (!isError(error)) {
+      error = new Error(error);
+    }
     this._status = C.STATUS.STOPPED;
+    return error;
   }
 }

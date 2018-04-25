@@ -19,6 +19,10 @@ const intlMessages = defineMessages({
     id: 'app.video.videoMenuDesc',
     description: 'video menu description',
   },
+  videoMenuDisabled: {
+    id: 'app.video.videoMenuDisabled',
+    description: 'video menu label',
+  },
 });
 
 
@@ -32,6 +36,7 @@ const JoinVideoOptions = ({
   intl,
   isSharingVideo,
   videoItems,
+  videoShareAllowed,
 }) => {
   const menuItems = videoItems
     .filter(item => !item.disabled)
@@ -54,8 +59,11 @@ const JoinVideoOptions = ({
     >
       <DropdownTrigger tabIndex={0}>
         <Button
+          label={!videoShareAllowed ?
+            intl.formatMessage(intlMessages.videoMenuDisabled)
+            : intl.formatMessage(intlMessages.videoMenu)
+          }
           className={styles.button}
-          label={intl.formatMessage(intlMessages.videoMenu)}
           onClick={() => null}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.videoMenuDesc)}
@@ -63,6 +71,7 @@ const JoinVideoOptions = ({
           icon={isSharingVideo ? 'video_off' : 'video'}
           size="lg"
           circle
+          disabled={!videoShareAllowed}
         />
       </DropdownTrigger>
       <DropdownContent placement="top" >

@@ -1,88 +1,18 @@
-@import "/imports/ui/stylesheets/variables/_all";
-
-.videoDock {
-  position: absolute;
-  width: 100%;
-  top: 0;
-  right: 0;
-  background-size: cover;
-  background-position: center;
-  text-align: center;
-  
-  @include mq($portrait) {
-    height: 96px;
-  }
-}
-
-.videoDock video {
-  height: auto;
-  width: auto;
-  max-height: 100%;
-  max-width: 100%;
-  display: block;
-  margin: 0 auto;
-}
-
-.webcamArea {
-  @include mq($portrait) {
-    position: absolute;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #04111F;
-  }
-}
-
-.sharedWebcamVideo {
-  display: none;
-  vertical-align: middle;
-}
-
-.sharedWebcamVideoLocal {
-  display: inline-block;
-}
-
-.videoContainer {
-  background-color: #000;
-}
-
-.videoText {
-  margin-top: -22px;
-  padding: 0 5px;
-  z-index: 1;
-  text-align: left;
-}
-
-.userName {
-  color: #FFFFFF;
-  background: #555;
-  padding: 3px 8px;
-  border-radius: 0.75rem;
-  font-size: 10px;
-  line-height: 13px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  position: relative;
-  display: inline-block;
-  max-width: 100%;
-}
-
-.pauseButton {
-  float: right;
-
-  span:last-child {
-    display: none;
-  } // TODO fix it better
-
-  span:first-child {
-    background: #D8D8D8;
-    border: 1px solid #555;
-    
-    i {
-      font-size: 11px; // TODO size should be set on button?
-      color: #555;
-    }
-  }
-}
+// .webcam {
+//   position: relative;
+//
+//   &:before {
+//     display: block;
+//     content: "";
+//     width: 100%;
+//     padding-top: ($height / $width) * 100%;
+//   }
+//
+//   > .content {
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//   }
+// }

@@ -21,21 +21,20 @@
   font-size: $font-size-small;
   white-space: nowrap;
   margin-top: .5rem;
-  color: $color-gray;
+  color: inherit;
+
   @include mq($small-only) {
     margin-top: 0;
-    color: #06172A;
     font-size: 90%;
   };
 }
 
 .item {
-  padding-left: 0;
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
   align-items: center;
-  margin: auto 0.25rem;
+
   @include mq($small-only) {
     flex-direction: row;
   };

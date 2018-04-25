@@ -320,6 +320,9 @@ Kurento.prototype.viewer = function () {
   const self = this;
   if (!this.webRtcPeer) {
     const options = {
+      mediaConstraints: {
+        audio: false
+      },
       remoteVideo: document.getElementById(this.renderTag),
       onicecandidate: this.onViewerIceCandidate.bind(this),
     };
@@ -409,7 +412,7 @@ Kurento.normalizeCallback = function (callback) {
 
 // this function explains how to use above methods/objects
 window.getScreenConstraints = function (sendSource, callback) {
-  const screenConstraints = { video: {} };
+  const screenConstraints = { video: {}, audio: false };
 
   // Limiting FPS to a range of 5-10 (5 ideal)
   screenConstraints.video.frameRate = { ideal: 5, max: 10 };
@@ -431,6 +434,17 @@ window.getScreenConstraints = function (sendSource, callback) {
       // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
       screenConstraints.video.chromeMediaSource = { exact: [sendSource] };
       screenConstraints.video.chromeMediaSourceId = sourceId;
+      screenConstraints.optional = [
+        { googCpuOveruseDetection: true },
+        { googCpuOveruseEncodeUsage: true },
+        { googCpuUnderuseThreshold: 55 },
+        { googCpuOveruseThreshold: 85 },
+        { googPayloadPadding: true },
+        { googScreencastMinBitrate: 400 },
+        { googHighStartBitrate: true },
+        { googHighBitrate: true },
+        { googVeryHighBitrate: true }
+      ];
 
       console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
       // now invoking native getUserMedia API
@@ -494,3 +508,41 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
     },
   );
 };
+
+// a function to check whether the browser (Chrome only) is in an isIncognito
+// session. Requires 1 mandatory callback that only gets called if the browser
+// session is incognito. The callback for not being incognito is optional.
+// Attempts to retrieve the chrome filesystem API.
+window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
+  isIncognito = Kurento.normalizeCallback(isIncognito);
+  isNotIncognito = Kurento.normalizeCallback(isNotIncognito);
+
+  var fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+  if (!fs) {
+    isNotIncognito();
+    return;
+  }
+  fs(window.TEMPORARY, 100, function(){isNotIncognito()}, function(){isIncognito()});
+};
+
+window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
+  callback = Kurento.normalizeCallback(callback);
+
+  if (typeof chrome === "undefined" || !chrome || !chrome.runtime) {
+    // No API, so no extension for sure
+    callback(false);
+    return;
+  }
+  chrome.runtime.sendMessage(
+    chromeExtensionId,
+    { getVersion: true },
+    function (response) {
+      if (!response || !response.version) {
+        // Communication failure - assume that no endpoint exists
+        callback(false);
+        return;
+      }
+      callback(true);
+    }
+  );
+}

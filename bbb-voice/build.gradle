@@ -23,31 +23,31 @@ dependencies {
   providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
   // Mina
-  providedCompile 'org.apache.mina:mina-core:2.0.15@jar'
-  providedCompile 'org.apache.mina:mina-integration-beans:2.0.15@jar'
-  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.14@jar'
+  providedCompile 'org.apache.mina:mina-core:2.0.17@jar'
+  providedCompile 'org.apache.mina:mina-integration-beans:2.0.17@jar'
+  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.17@jar'
 	
   // Spring 
-  providedCompile 'org.springframework:spring-web:4.3.3.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.3.3.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.3.3.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.3.3.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.3.12.RELEASE@jar'
 
-  providedCompile 'org.red5:red5-server:1.0.8-M13@jar'
-  providedCompile 'org.red5:red5-server-common:1.0.8-M13@jar'
-  providedCompile 'org.red5:red5-io:1.0.8-M13@jar'
+  providedCompile 'org.red5:red5-server:1.0.10-M5@jar'
+  providedCompile 'org.red5:red5-server-common:1.0.10-M5@jar'
+  providedCompile 'org.red5:red5-io:1.0.10-M5@jar'
 	  
   // Logging
-  providedCompile 'ch.qos.logback:logback-core:1.1.7@jar'
-  providedCompile 'ch.qos.logback:logback-classic:1.1.7@jar'
-  providedCompile 'org.slf4j:log4j-over-slf4j:1.7.21@jar'
-  providedCompile 'org.slf4j:jcl-over-slf4j:1.7.21@jar'
-  providedCompile 'org.slf4j:jul-to-slf4j:1.7.21@jar'
-  providedCompile 'org.slf4j:slf4j-api:1.7.21@jar'
+  providedCompile 'ch.qos.logback:logback-core:1.2.3@jar'
+  providedCompile 'ch.qos.logback:logback-classic:1.2.3@jar'
+  providedCompile 'org.slf4j:log4j-over-slf4j:1.7.25@jar'
+  providedCompile 'org.slf4j:jcl-over-slf4j:1.7.25@jar'
+  providedCompile 'org.slf4j:jul-to-slf4j:1.7.25@jar'
+  providedCompile 'org.slf4j:slf4j-api:1.7.25@jar'
 
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
-  providedCompile 'org.springframework:spring-aop:4.3.3.RELEASE@jar'
+  providedCompile 'org.springframework:spring-aop:4.3.12.RELEASE@jar'
   compile 'aopalliance:aopalliance:1.0@jar'
 	
   // Testing
@@ -61,7 +61,7 @@ dependencies {
   compile 'org.apache.commons:commons-pool2:2.3'
   compile 'com.google.code.gson:gson:2.5'
 
-  compile 'org.apache.commons:commons-lang3:3.5'
+  compile 'org.apache.commons:commons-lang3:3.7'
   compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'
   
 }

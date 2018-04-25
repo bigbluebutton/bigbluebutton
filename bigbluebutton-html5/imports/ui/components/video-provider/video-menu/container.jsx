@@ -29,18 +29,19 @@ const JoinVideoOptionsContainer = (props) => {
     isDisabled,
     handleJoinVideo,
     handleCloseVideo,
+    toggleSwapLayout,
+    swapLayoutAllowed,
     baseName,
     intl,
     ...restProps
   } = props;
-
   const videoItems = [
     {
       iconPath: `${baseName}/resources/images/video-menu/icon-swap.svg`,
       description: intl.formatMessage(intlMessages.swapCamDesc),
       label: intl.formatMessage(intlMessages.swapCam),
-      disabled: false,
-      click: () => {},
+      disabled: !swapLayoutAllowed,
+      click: toggleSwapLayout,
     },
     {
       iconPath: `${baseName}/resources/images/video-menu/icon-webcam-off.svg`,
@@ -54,15 +55,11 @@ const JoinVideoOptionsContainer = (props) => {
   return <JoinVideoOptions {...{ videoItems, isSharingVideo, ...restProps }} />;
 };
 
-export default injectIntl(withTracker(({
-  intl,
-  handleJoinVideo,
-  handleCloseVideo,
-}) => ({
+export default injectIntl(withTracker(() => ({
   baseName: VideoMenuService.baseName,
   isSharingVideo: VideoMenuService.isSharingVideo(),
   isDisabled: VideoMenuService.isDisabled(),
-  handleJoinVideo,
-  handleCloseVideo,
-  intl,
+  videoShareAllowed: VideoMenuService.videoShareAllowed(),
+  toggleSwapLayout: VideoMenuService.toggleSwapLayout,
+  swapLayoutAllowed: VideoMenuService.swapLayoutAllowed(),
 }))(JoinVideoOptionsContainer));
