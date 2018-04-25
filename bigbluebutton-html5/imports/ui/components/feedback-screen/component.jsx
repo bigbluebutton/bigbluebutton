@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
 import Auth from '/imports/ui/services/auth';
 import { log } from '/imports/ui/services/api';
 import { withRouter } from 'react-router';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 import Rating from './rating/component';
 
@@ -13,15 +12,15 @@ import Rating from './rating/component';
 const intlMessages = defineMessages({
   title: {
     id: 'app.feedback.title',
-    description: 'Join mic audio button label',
+    description: 'title for feedback screen',
   },
   subtitle: {
     id: 'app.feedback.subtitle',
-    description: 'Join mic audio button label',
+    description: 'subtitle for feedback screen',
   },
   textarea: {
     id: 'app.feedback.textarea',
-    description: 'Join mic audio button label',
+    description: 'placeholder for textarea',
   },
   confirmLabel: {
     id: 'app.leaveConfirmation.confirmLabel',
