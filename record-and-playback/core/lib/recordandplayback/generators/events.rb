@@ -214,7 +214,7 @@ module BigBlueButton
       start_events = []
       events = Nokogiri::XML(File.open(events_xml))
       events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |start_event|
-        case event['eventname']
+        case start_event['eventname']
         when 'DeskshareStartedEvent'
           filename = start_event.at_xpath('file').text
           filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
@@ -238,6 +238,7 @@ module BigBlueButton
       stop_events = []
       events = Nokogiri::XML(File.open(events_xml))
       events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |stop_event|
+        case stop_event['eventname']
         when 'DeskshareStoppedEvent'
           filename = start_event.at_xpath('file').text
           filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
