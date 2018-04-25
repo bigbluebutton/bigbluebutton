@@ -32,6 +32,7 @@ function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
     $inc: { version: 1 },
   };
 
+  // returning one document ready for upsert
   return {
     updateOne: {
       'filter': selector,
@@ -68,6 +69,7 @@ function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
     $inc: { version: 1 },
   };
 
+  // returning one document ready for upsert
   return {
     updateOne: {
       'filter': selector,
@@ -102,9 +104,10 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
   let chunkModifier;
 
   // fetching the Annotation object
-  let Annotation;
+  // if there's an update waiting inside a bulk, then use that info
+  // if not, then access Mongo
   const bulkAnnotation = RedisPubSub.findAnnotationInsideBulk(baseSelector);
-  Annotation = bulkAnnotation ? bulkAnnotation : Annotations.findOne(baseSelector);
+  let Annotation = bulkAnnotation ? bulkAnnotation : Annotations.findOne(baseSelector);
 
   // a helper func, to split the initial annotation.points into subdocuments
   // returns an array of { selector, modifier } objects for subdocuments.
@@ -199,7 +202,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         ],
       };
 
-      // upserting all the chunks
+      // pushing all the chunks to the array of operations to add to the bulk later
       for (let i = 0; i < chunks.length; i += 1) {
         operations.push({
           updateOne: {
@@ -209,6 +212,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           }
         });
       }
+      // pencil_base upsert to be added to the bulk
       operations.push({
         updateOne: {
           'filter': baseSelector,
@@ -247,8 +251,11 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           };
 
           // fetching the last pencil sub-document
+          // if there's a proper chunk update in the bulk, use its info
+          // if not, access Mongo
           const bulkChunk = RedisPubSub.findChunkInsideBulk(chunkSelector);
           let chunk = (bulkChunk && bulkChunk.$set) ? bulkChunk.$set : Annotations.findOne(chunkSelector);
+
           // adding the coordinates to the end of the last sub-document
           annotationInfo.points = chunk.annotationInfo.points.concat(annotationInfo.points);
 
@@ -296,9 +303,9 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
             },
             $inc: { version: 1 },
           };
-        } else {
         }
 
+        // chunk upsert to be added to the bulk later
         operations.push({
           updateOne: {
             'filter': chunkSelector,
@@ -306,6 +313,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
             'upsert': true
           }
         });
+        // pencil_base upsert to be added to the bulk later
         operations.push({
           updateOne: {
             'filter': baseSelector,
@@ -337,7 +345,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         ],
       };
 
-      // upserting all the chunks
+      // adding all the chunk upserts to the array of operations
       for (let i = 0; i < _chunks.length; i += 1) {
         operations.push({
           updateOne: {
@@ -347,7 +355,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
           }
         });
       }
-
+      // pencil_base upsert
       operations.push({
         updateOne: {
           'filter': baseSelector,
@@ -434,9 +442,9 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
       break;
   }
 
-  if(query instanceof Array) {
+  if(query instanceof Array) { // array of operations
     RedisPubSub.addOperationsToBulk(query);
-  } else {
+  } else { // one operation
     RedisPubSub.addToAnnotationsBulk(query);
   }
 

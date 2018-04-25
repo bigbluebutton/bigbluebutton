@@ -118,7 +118,6 @@ class RedisPubSub {
     this.debug = makeDebugger(this.config.debug);
 
     this.annotationsBulk = [];
-    this.lastBulkTime = null;
   }
 
   init() {
@@ -149,10 +148,12 @@ class RedisPubSub {
     this.debug = makeDebugger(this.config.debug);
   }
 
+  // add one operation to the bulk
   addToAnnotationsBulk(annotation) {
     this.annotationsBulk.push(annotation);
   }
 
+  // add multiple operations to the bulk
   addOperationsToBulk(operations) {
     this.annotationsBulk.push.apply(this.annotationsBulk, operations);
   }
@@ -161,18 +162,11 @@ class RedisPubSub {
     return this.annotationsBulk;
   }
 
-  setLastBulkTime(time) {
-    this.lastBulkTime = time;
-  }
-
-  getLastBulkTime() {
-    return this.lastBulkTime;
-  }
-
   emptyAnnotationsBulk() {
     this.annotationsBulk = [];
   }
 
+  // find pencil_base inside the bulk
   findAnnotationInsideBulk(selector) {
     let b = this.annotationsBulk;
     for(let i = b.length - 1; i >= 0; i--) {
@@ -190,6 +184,7 @@ class RedisPubSub {
     return undefined;
   }
 
+  // find pencil chunk inside the bulk
   findChunkInsideBulk(selector) {
     let b = this.annotationsBulk;
     for(let i = b.length - 1; i >= 0; i--) {
