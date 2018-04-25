@@ -153,7 +153,7 @@ if not FileTest.directory?(target_dir)
   archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
   archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
   archive_screenshare(meeting_id, screenshare_dir, raw_archive_dir)
-  archive_kurento_screenshare(meeting_id, kurento_video_dir, raw_archive_dir)
+  archive_kurento_screenshare(meeting_id, kurento_screenshare_dir, raw_archive_dir)
   archive_video(meeting_id, video_dir, raw_archive_dir)
   archive_video(meeting_id, kurento_video_dir, raw_archive_dir)
 
