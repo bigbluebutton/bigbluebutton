@@ -139,8 +139,10 @@ package org.bigbluebutton.modules.videoconf.maps
       if (!_ready) return;
 	  var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
 	  var user : User2x = LiveMeeting.inst().users.getUser(userID);
+	  var iAmModerator : Boolean = UsersUtil.amIModerator();
+	  var userIsModerator : Boolean = (user != null && user.role == Role.MODERATOR);
       if (! UsersUtil.isMe(userID) && 
-		  (!webcamsOnlyForModerator || (webcamsOnlyForModerator && (UsersUtil.amIModerator() || (user != null && user.role == Role.MODERATOR))))
+		  (!webcamsOnlyForModerator || (webcamsOnlyForModerator && (iAmModerator || userIsModerator)))
 	  ) {
         openViewWindowFor(userID);
       }
@@ -260,7 +262,7 @@ package org.bigbluebutton.modules.videoconf.maps
           closeWindow(userID);
         }
         LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindowFor:: View user's = [{1}] webcam.", [me, userID]);
-        openViewWindowFor(userID);
+		viewCamera(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
           LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.", [me]);
