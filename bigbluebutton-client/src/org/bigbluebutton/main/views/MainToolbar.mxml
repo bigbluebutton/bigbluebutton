@@ -97,6 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(MainToolbar);
@@ -226,6 +227,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				logFlashPlayerCapabilities();
+				logBrowserInfo();
+			}
+			
+			private function logBrowserInfo():void {
+				var browser:Object = new Object();
+				browser.name = BrowserCheck.browserName;
+				browser.majorVersion = BrowserCheck.browserMajorVersion;
+				browser.fullVersion = BrowserCheck.browserFullVersion;
+				
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["initialization"];
+				logData.browser = browser;
+				logData.message = "Browser info.";
+				LOGGER.info(JSON.stringify(logData));
 			}
 			
 			private function initBreakoutRibbon() : void {
