@@ -18,6 +18,7 @@
  */
 package org.bigbluebutton.core.managers {
     import flash.net.NetConnection;
+    
     import org.bigbluebutton.core.Options;
     import org.bigbluebutton.main.model.options.PortTestOptions;
     import org.bigbluebutton.main.model.users.IMessageListener;
@@ -25,6 +26,11 @@ package org.bigbluebutton.core.managers {
 
     public class ConnectionManager {
         private var connDelegate:NetConnectionDelegate;
+				
+				private var _videoConnId:String = "";
+				private var _voiceConnId:String = "";
+				private var _screenshareConnId:String = "";
+				private var _appsConnId:String = "";
 
         private var _isTunnelling:Boolean = false;
 
@@ -34,11 +40,46 @@ package org.bigbluebutton.core.managers {
             connDelegate = new NetConnectionDelegate();
         }
 
+				public function getConnectionIds():Array {
+					return new Array(_appsConnId, _videoConnId, _screenshareConnId, _voiceConnId);
+				}
+				
+				public function set appsConnId(id:String):void {
+					_appsConnId = "app_" + id;
+				}
 
+				public function get appsConnId():String {
+					return _appsConnId;
+				}
+				
+				public function set videoConnId(id:String):void {
+					_videoConnId = "vid_" + id;
+				}
+				
+				public function get videoConnId():String {
+					return _videoConnId;
+				}
+				
+				public function set screenshareConnId(id:String):void {
+					_screenshareConnId = "scr_" + id;
+				}
+				
+				public function get screenshareConnId():String {
+					return _screenshareConnId;
+				}
+				
+				public function set voiceConnId(id:String):void {
+					_voiceConnId = "voi_" + id;
+				}
+				
+				public function get voiceConnId():String {
+					return _voiceConnId;
+				}
+				
         public function get connection():NetConnection {
             return connDelegate.connection;
         }
-
+				
         public function connect():void {
             connDelegate.connect();
         }
