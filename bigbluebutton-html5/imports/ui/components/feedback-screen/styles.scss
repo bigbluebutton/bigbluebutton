@@ -1,0 +1,73 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 2rem;
+}
+.content {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0;
+  flex-direction: column;
+}
+
+
+.overlay {
+  @extend .overlay;
+}
+
+.modal {
+  @extend .modal;
+  padding: 1.5rem;
+  min-height: 20rem;
+}
+
+
+.title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.3rem;
+  white-space: normal;
+
+  @include mq($small-only) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+}
+.subtitle {
+  padding: 0;
+  margin: 0;
+  color: $color-gray-light;
+}
+
+.textarea, .disable {
+  resize: none;
+  margin: 1rem auto;
+  &::placeholder {
+    text-align: center;
+  }
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+
+.banana {
+  display: flex;
+  flex-direction: column;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  min-height: 1px;
+  background-color: $color-gray-lighter;
+  padding: 0;
+  margin-top: $line-height-computed * .5;
+  margin-bottom: $line-height-computed * .5;
+}

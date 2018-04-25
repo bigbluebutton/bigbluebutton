@@ -1,0 +1,25 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.star, .starSelected {
+  font-size: 4rem;
+  @include mq($small-only){
+    font-size: 2rem;
+  }
+}
+.starSelected {
+  color: $color-primary;
+}
+
+.button {
+  background: none;
+  border: none;
+}
+
+.father {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+  margin: 0;
+  margin-top: 1rem;
+  border: none;
+}
