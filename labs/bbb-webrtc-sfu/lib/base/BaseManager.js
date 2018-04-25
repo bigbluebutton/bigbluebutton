@@ -43,10 +43,6 @@ module.exports = class BaseManager {
   }
 
   _fetchSession (sessionId) {
-    if (!this._sessions[sessionId]) {
-      this._sessions[sessionId] = {};
-    }
-
     return this._sessions[sessionId];
   }
 

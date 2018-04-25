@@ -48,9 +48,11 @@ module.exports = class VideoManager extends BaseManager {
       case 'start':
         Logger.info(this._logPrefix, 'Received message [' + message.id + '] from connection ' + sessionId);
 
-        video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
+        if (!video) {
+          video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
 
-        this._sessions[sessionId] = video;
+          this._sessions[sessionId] = video;
+        }
 
         video.start(message.sdpOffer, (error, sdpAnswer) => {
           if (error) {
@@ -88,7 +90,7 @@ module.exports = class VideoManager extends BaseManager {
         break;
 
       case 'onIceCandidate':
-        if (video.constructor === Video) {
+        if (video && video.constructor === Video) {
           video.onIceCandidate(message.candidate);
         } else {
           Logger.info(this._logPrefix, "Queueing ice candidate for later in video", cameraId);
