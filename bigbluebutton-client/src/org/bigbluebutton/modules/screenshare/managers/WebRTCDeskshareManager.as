@@ -110,21 +110,16 @@ package org.bigbluebutton.modules.screenshare.managers
 			extension installation */
 			publishWindowManager.stopSharing();
 
-			if (ExternalInterface.available) {
-				if(usingKurentoWebRTC) {
-					ExternalInterface.call("kurentoExitScreenShare");
-				}
-				else {
-					ExternalInterface.call("vertoExitScreenShare");
-				}
+			if (ExternalInterface.available && usingKurentoWebRTC) {
+				ExternalInterface.call("kurentoExitScreenShare");
 			}
 		}
 
 		private function startWebRTCDeskshare():void {
 			LOGGER.debug("WebRTCDeskshareManager::startWebRTCDeskshare");
 
-			if (ExternalInterface.available) {
-				var videoTag:String = "localVertoVideo";
+			if (ExternalInterface.available && usingKurentoWebRTC) {
+				var videoTag:String = "localWebRTCVideo";
 				var onFail:Function = function(args:Object):void {
 					LOGGER.debug("WebRTCDeskshareManager::startWebRTCDeskshare - falling back to java");
 					globalDispatcher.dispatchEvent(new UseJavaModeCommand())
@@ -135,38 +130,15 @@ package org.bigbluebutton.modules.screenshare.managers
 				var myName:String = UsersUtil.getMyUsername();
 				var internalMeetingID:String = UsersUtil.getInternalMeetingID();
 
-				if(usingKurentoWebRTC) {
-					ExternalInterface.call(
-							'kurentoShareScreen',
-							videoTag,
-							voiceBridge,
-							myName,
-							internalMeetingID,
-							"onFail",
-							chromeExtensionKey
-							);
-				} else {
-					var videoLoadingCallback:Function = function():void {
-						ExternalInterface.addCallback(videoLoadingCallbackName, null);
-						publishWindowManager.openWindow();
-						globalDispatcher.dispatchEvent(new WebRTCPublishWindowChangeState(WebRTCPublishWindowChangeState.DISPLAY_VIDEO_LOADING));
-					}
-
-					ExternalInterface.addCallback(videoLoadingCallbackName, videoLoadingCallback);
-					var dummyStunTurn:Object = null;
-
-					ExternalInterface.call(
-						'vertoShareScreen',
+				ExternalInterface.call(
+						'kurentoShareScreen',
 						videoTag,
 						voiceBridge,
 						myName,
-						null,
+						internalMeetingID,
 						"onFail",
-						chromeExtensionKey,
-						dummyStunTurn,
-						videoLoadingCallbackName
-					);
-				}
+						chromeExtensionKey);
+				
 			}
 		}
 
@@ -177,7 +149,6 @@ package org.bigbluebutton.modules.screenshare.managers
 			if (!StringUtils.isEmpty(options.chromeExtensionKey)) {
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
-			usingWebRTC = options.tryWebRTCFirst;
 			usingKurentoWebRTC = options.tryKurentoWebRTC;
 		}
 
@@ -238,7 +209,7 @@ package org.bigbluebutton.modules.screenshare.managers
 				return;
 			}
 
-			WebRTCScreenshareUtility.canIUseVertoOnThisBrowser(cannotUseWebRTC, webRTCWorksButNotConfigured, webRTCWorksAndConfigured);
+			WebRTCScreenshareUtility.canIUseWebRTCOnThisBrowser(cannotUseWebRTC, webRTCWorksButNotConfigured, webRTCWorksAndConfigured);
 		}
 
 		public function handleShareWindowCloseEvent():void {

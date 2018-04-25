@@ -488,3 +488,41 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
     },
   );
 };
+
+// a function to check whether the browser (Chrome only) is in an isIncognito
+// session. Requires 1 mandatory callback that only gets called if the browser
+// session is incognito. The callback for not being incognito is optional.
+// Attempts to retrieve the chrome filesystem API.
+window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
+  isIncognito = Kurento.normalizeCallback(isIncognito);
+  isNotIncognito = Kurento.normalizeCallback(isNotIncognito);
+
+  var fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+  if (!fs) {
+    isNotIncognito();
+    return;
+  }
+  fs(window.TEMPORARY, 100, function(){isNotIncognito()}, function(){isIncognito()});
+};
+
+window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
+  callback = Kurento.normalizeCallback(callback);
+
+  if (typeof chrome === "undefined" || !chrome || !chrome.runtime) {
+    // No API, so no extension for sure
+    callback(false);
+    return;
+  }
+  chrome.runtime.sendMessage(
+    chromeExtensionId,
+    { getVersion: true },
+    function (response) {
+      if (!response || !response.version) {
+        // Communication failure - assume that no endpoint exists
+        callback(false);
+        return;
+      }
+      callback(true);
+    }
+  );
+}

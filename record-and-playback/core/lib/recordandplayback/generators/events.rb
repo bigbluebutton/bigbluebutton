@@ -106,17 +106,6 @@ module BigBlueButton
       start_events
     end
 
-    # Get stop video events
-    def self.get_stop_video_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting stop video events")
-      stop_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='StopWebcamShareEvent']").each do |stop_event|
-        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text}
-      end
-      stop_events
-    end
-
     # Build a webcam EDL
     def self.create_webcam_edl(archive_dir)
       events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
@@ -139,13 +128,22 @@ module BigBlueButton
         :areas => { :webcam => [] } 
       }
 
-      events.xpath('/recording/event[@module="WEBCAM"]').each do |event|
+      events.xpath('/recording/event[@module="WEBCAM" or @module="bbb-webrtc-sfu"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
+        # Determine the video filename
         case event['eventname']
-        when 'StartWebcamShareEvent'
+        when 'StartWebcamShareEvent', 'StopWebcamShareEvent'
           stream = event.at_xpath('stream').text
           filename = "#{video_dir}/#{stream}.flv"
+        when 'StartWebRTCShareEvent', 'StopWebRTCShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{video_dir}/#{File.basename(uri)}"
+        end
+        raise "Couldn't determine webcam filename" if filename.nil?
 
+        # Add the video to the EDL
+        case event['eventname']
+        when 'StartWebcamShareEvent', 'StartWebRTCShareEvent'
           videos[filename] = { :timestamp => timestamp }
           active_videos << filename
 
@@ -160,10 +158,7 @@ module BigBlueButton
             }
           end
           video_edl << edl_entry
-        when 'StopWebcamShareEvent'
-          stream = event.at_xpath('stream').text
-          filename = "#{video_dir}/#{stream}.flv"
-
+        when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
           active_videos.delete(filename)
 
           edl_entry = {
@@ -494,7 +489,7 @@ module BigBlueButton
     # of the final recording
     def self.have_webcam_events(events_xml)
       BigBlueButton.logger.debug("Checking if webcams were used...")
-      webcam_events = events_xml.xpath('/recording/event[@module="WEBCAM"]')
+      webcam_events = events_xml.xpath('/recording/event[@eventname="StartWebcamShareEvent" or @eventname="StartWebRTCShareEvent"]')
       if webcam_events.length > 0
         BigBlueButton.logger.debug("Webcam events seen in recording")
         return true

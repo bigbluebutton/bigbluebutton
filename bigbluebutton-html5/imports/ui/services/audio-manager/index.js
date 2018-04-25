@@ -37,11 +37,13 @@ class AudioManager {
     });
   }
 
-  init(userData, messages) {
+  init(userData) {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
-    this.messages = messages;
     this.initialized = true;
+  }
+  setAudioMessages(messages) {
+    this.messages = messages;
   }
 
   defineProperties(obj) {
@@ -141,7 +143,7 @@ class AudioManager {
       ]))
       .catch((err) => {
         // If theres a iceGathering timeout we retry to join after asking device permissions
-        if (err === iceGatheringErr && !this.devicesInitialized) {
+        if (err === iceGatheringErr) {
           return this.askDevicesPermissions()
             .then(() => this.joinListenOnly());
         }
@@ -205,6 +207,7 @@ class AudioManager {
     this.isHangingUp = false;
 
     if (this.inputStream) {
+      window.defaultInputStream.forEach(track => track.stop());
       this.inputStream.getTracks().forEach(track => track.stop());
       this.inputDevice = { id: 'default' };
     }
