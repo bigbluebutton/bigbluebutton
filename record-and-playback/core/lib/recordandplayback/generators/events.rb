@@ -246,12 +246,23 @@ module BigBlueButton
         :areas => { :deskshare => [] }
       }
 
-      events.xpath('/recording/event[@module="Deskshare"]').each do |event|
+      events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
+        # Determine the video filename
         case event['eventname']
-        when 'DeskshareStartedEvent'
+        when 'DeskshareStartedEvent', 'DeskshareStoppedEvent'
           filename = event.at_xpath('file').text
           filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+        when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+        end
+        raise "Couldn't determine video filename" if filename.nil?
+
+        # Add the video to the EDL
+        case event['eventname']
+        when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
+          # Only one deskshare stream is permitted at a time.
           deskshare_edl << {
             :timestamp => timestamp,
             :areas => {
@@ -260,13 +271,11 @@ module BigBlueButton
               ]
             }
           }
-        when 'DeskshareStoppedEvent'
+        when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
           # Fill in the original/expected video duration when available
           duration = event.at_xpath('duration')
           if !duration.nil?
             duration = duration.text.to_i
-            filename = event.at_xpath('file').text
-            filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
             deskshare_edl.each do |entry|
               if !entry[:areas][:deskshare].nil?
                 entry[:areas][:deskshare].each do |file|
