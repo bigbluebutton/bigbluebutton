@@ -108,12 +108,15 @@ package org.bigbluebutton.modules.videoconf.business
 					LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  videoConnUrl);
 				}
 				
+				var connId:String = ConnUtil.generateConnId();
+				BBB.initConnectionManager().videoConnId = connId;
+				
 				videoConnUrl = videoConnUrl + "/" + UsersUtil.getInternalMeetingID();
 				var authToken: String = LiveMeeting.inst().me.authToken;
 
 				nc.objectEncoding = flash.net.ObjectEncoding.AMF3;
 				nc.connect(videoConnUrl, UsersUtil.getInternalMeetingID(), 
-						UsersUtil.getMyUserID(), authToken);
+						UsersUtil.getMyUserID(), authToken, BBB.initConnectionManager().videoConnId);
 		}
 	    
 		private function onAsyncError(event:AsyncErrorEvent):void{

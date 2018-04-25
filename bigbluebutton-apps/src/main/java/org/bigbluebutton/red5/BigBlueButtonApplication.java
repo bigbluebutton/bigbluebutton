@@ -139,7 +139,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 
-		if(params.length != 10) {
+		if(params.length != 11) {
 			log.error("Invalid number of parameters. param length=" + params.length);
 			return false;
 		}
@@ -167,6 +167,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		}
 
 		String authToken = ((String) params[9]).toString();
+		String clientConnId = ((String) params[10]).toString();
 
 		String userId = internalUserID;
 		String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -178,7 +179,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
 		connection.setAttribute("USER_SESSION_ID", sessionId);
 		connection.setAttribute("TIMESTAMP", System.currentTimeMillis());
-        
+        connection.setAttribute("CLIENT_CONN_ID", clientConnId);
+
 	    String meetingId = bbbSession.getRoom();
 
 	    String userFullname = bbbSession.getUsername();
@@ -192,6 +194,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		logData.put("meetingId", meetingId);
 		logData.put("connType", connType);
 		logData.put("connId", connId);
+		logData.put("clientConnId", clientConnId);
 		logData.put("clientId", clientId);
 		logData.put("remoteAddress", remoteHost + ":" + remotePort);
 		logData.put("userId", userId);
@@ -242,11 +245,13 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String connId = Red5.getConnectionLocal().getSessionId();
 		String clientId = Red5.getConnectionLocal().getClient().getId();
         String sessionId =  CONN + userId;
-	    	    
+	    String clientConnId = conn.getAttribute("CLIENT_CONN_ID").toString();
+
 	    Map<String, Object> logData = new HashMap<String, Object>();
 	    logData.put("meetingId", meetingId);
 	    logData.put("connType", connType);
 	    logData.put("connId", connId);
+        logData.put("clientConnId", clientConnId);
 		logData.put("clientId", clientId);
 		logData.put("remoteAddress", remoteHost + ":" + remotePort);
 	    logData.put("sessionId", sessionId);

@@ -179,7 +179,7 @@ package org.bigbluebutton.main.model
 				LOGGER.debug("Connecting PORT TEST = " + this.baseURI);
 				// Create connection with the server.
 				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, 
-					"portTestDummyUserId-" + curTime, "portTestDummyAuthToken");
+					"portTestDummyUserId-" + curTime, "portTestDummyAuthToken", "portTest-" + curTime);
 							
 				status = "Connecting...";
 			} catch( e : ArgumentError ) {

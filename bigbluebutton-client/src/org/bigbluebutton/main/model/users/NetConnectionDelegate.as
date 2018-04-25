@@ -398,6 +398,8 @@ package org.bigbluebutton.main.model.users
 
         public function connect():void {
             var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
+						var connId:String = ConnUtil.generateConnId();
+						BBB.initConnectionManager().appsConnId = connId;
                 
             try {
                 var appURL:String = _applicationOptions.uri;
@@ -454,7 +456,7 @@ package org.bigbluebutton.main.model.users
                                         intMeetingId, voiceConf, 
                                         recorded, extUserId,
                                         intUserId, muteOnStart,
-                                        guest, authToken);
+                                        guest, authToken, BBB.initConnectionManager().appsConnId);
                    
             } catch(e:ArgumentError) {
                 // Invalid parameters.
