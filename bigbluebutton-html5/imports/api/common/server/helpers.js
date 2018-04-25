@@ -17,14 +17,16 @@ export const indexOf = [].indexOf || function (item) {
 export const processForHTML5ServerOnly = fn => (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
+  const { msgType, meetingId, userId } = routing;
 
   const selector = {
-    userId: routing.userId,
+    userId,
+    meetingId,
   };
 
   const user = Users.findOne(selector);
 
-  const shouldSkip = routing.msgType === MSG_DIRECT_TYPE && (routing.userId !== NODE_USER && user.clientType !== 'HTML5');
+  const shouldSkip = user && msgType === MSG_DIRECT_TYPE && userId !== NODE_USER && user.clientType !== 'HTML5';
   if (shouldSkip) return () => { };
   return fn(message, ...args);
 };
