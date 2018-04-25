@@ -210,23 +210,48 @@ module BigBlueButton
     end
 
     def self.get_start_deskshare_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting start DESKSHARE events")      
+      BigBlueButton.logger.info("Task: Getting start DESKSHARE events")
       start_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='DeskshareStartedEvent']").each do |start_event|
-        s = {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('file').text.sub(/(.+)\//, "")}
-        start_events << s
+      events = Nokogiri::XML(File.open(events_xml))
+      events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |start_event|
+        case event['eventname']
+        when 'DeskshareStartedEvent'
+          filename = start_event.at_xpath('file').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+        when 'StartWebRTCDesktopShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+        else
+          next
+        end
+
+        start_events << {
+          start_timestamp: start_event['timestamp'].to_i,
+          stream: filename
+        }
       end
       start_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}
     end
 
     def self.get_stop_deskshare_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")      
+      BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")
       stop_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='DeskshareStoppedEvent']").each do |stop_event|
-        s = {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('file').text.sub(/(.+)\//, "")}
-        stop_events << s
+      events = Nokogiri::XML(File.open(events_xml))
+      events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |stop_event|
+        when 'DeskshareStoppedEvent'
+          filename = start_event.at_xpath('file').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+        when 'StopWebRTCDesktopShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+        else
+          next
+        end
+
+        stop_events << {
+          stop_timestamp: stop_event['timestamp'].to_i,
+          stream: filename
+        }
       end
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
@@ -246,12 +271,23 @@ module BigBlueButton
         :areas => { :deskshare => [] }
       }
 
-      events.xpath('/recording/event[@module="Deskshare"]').each do |event|
+      events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
+        # Determine the video filename
         case event['eventname']
-        when 'DeskshareStartedEvent'
+        when 'DeskshareStartedEvent', 'DeskshareStoppedEvent'
           filename = event.at_xpath('file').text
           filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+        when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+        end
+        raise "Couldn't determine video filename" if filename.nil?
+
+        # Add the video to the EDL
+        case event['eventname']
+        when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
+          # Only one deskshare stream is permitted at a time.
           deskshare_edl << {
             :timestamp => timestamp,
             :areas => {
@@ -260,13 +296,11 @@ module BigBlueButton
               ]
             }
           }
-        when 'DeskshareStoppedEvent'
+        when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
           # Fill in the original/expected video duration when available
           duration = event.at_xpath('duration')
           if !duration.nil?
             duration = duration.text.to_i
-            filename = event.at_xpath('file').text
-            filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
             deskshare_edl.each do |entry|
               if !entry[:areas][:deskshare].nil?
                 entry[:areas][:deskshare].each do |file|
