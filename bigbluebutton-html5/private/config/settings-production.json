@@ -15,7 +15,7 @@
       "html5ClientBuild": "HTML5_CLIENT_VERSION",
       "lockOnJoin": true,
       "basename": "/html5client",
-      "askForFeedbackOnLogout": true,
+      "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
           "chatAudioNotifications": false,
