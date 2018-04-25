@@ -1,7 +1,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .starRating {
-  font-family: 'bbb-icons';
+  font-family: 'bbb-icons' !important;
   > fieldset {
     border: none;
     display: inline-block;
@@ -20,11 +20,17 @@
         overflow: hidden;
         white-space: nowrap;
         cursor: pointer;
-        font-size: 200%;
+        font-size: 4rem;
+        padding-left: .1rem;
         color: black;
         font-weight: 100;
+
+        @include mq($small-only) {
+          font-size: 2rem;
+        };
+
         &:before {
-          content: '\e946';
+          content: '\e918';
         }
 
         &:hover,
@@ -32,7 +38,7 @@
           color: $color-primary;
           text-shadow: 0 0 3px $color-primary;
           &:before {
-            content: '\e946';
+            content: '\e918';
           }
         }
       }
@@ -41,7 +47,7 @@
     > input:checked {
       & ~ label {
         &:before {
-          content: '\e946';
+          content: '\e918';
           color: $color-primary;
         }
       }
