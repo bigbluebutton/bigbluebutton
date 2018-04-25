@@ -217,10 +217,10 @@ module BigBlueButton
         case start_event['eventname']
         when 'DeskshareStartedEvent'
           filename = start_event.at_xpath('file').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+          filename = File.basename(filename)
         when 'StartWebRTCDesktopShareEvent'
           uri = start_event.at_xpath('filename').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+          filename = File.basename(uri)
         else
           next
         end
@@ -241,10 +241,10 @@ module BigBlueButton
         case stop_event['eventname']
         when 'DeskshareStoppedEvent'
           filename = stop_event.at_xpath('file').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+          filename = File.basename(filename)
         when 'StopWebRTCDesktopShareEvent'
           uri = stop_event.at_xpath('filename').text
-          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+          filename = File.basename(uri)
         else
           next
         end
