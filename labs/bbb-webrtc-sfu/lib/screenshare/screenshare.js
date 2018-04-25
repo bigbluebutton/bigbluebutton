@@ -180,7 +180,14 @@ module.exports = class Screenshare extends EventEmitter {
   sendStartShareEvent () {
     let shareEvent = Messaging.generateWebRTCShareEvent('StartWebRTCDesktopShareEvent', this.recording.meetingId, this.recording.filename);
     this._BigBlueButtonGW.writeMeetingKey(this.recording.meetingId, shareEvent, function(error) {
-      Logger.warn('[screenshare] Error writing share event error', error);
+      Logger.warn('[screenshare] Error writing START share event error', error);
+    });
+  }
+
+  sendStopShareEvent () {
+    let shareEvent = Messaging.generateWebRTCShareEvent('StopWebRTCDesktopShareEvent', this.recording.meetingId, this.recording.filename);
+    this._BigBlueButtonGW.writeMeetingKey(this.recording.meetingId, shareEvent, function(error) {
+      Logger.warn('[screenshare] Error writing STOP share event error', error);
     });
   }
 
@@ -297,6 +304,7 @@ module.exports = class Screenshare extends EventEmitter {
 
         if (this._presenterEndpoint) {
           await this._stopScreensharing();
+          this.sendStopShareEvent();
           Logger.info("[screenshare] Leaving mcs room");
           await this.mcs.leave(this._meetingId, this.userId);
           delete sharedScreens[this._presenterEndpoint];
