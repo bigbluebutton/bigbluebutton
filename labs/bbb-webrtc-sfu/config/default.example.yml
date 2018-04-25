@@ -20,7 +20,7 @@ screenshare-force-h264: true
 
 recordScreenSharing: true
 recordWebcams: true
-recordingBasePath: "file:///var/kurento/recordings"
+recordingBasePath: "file:///var/kurento"
 
 log:
     filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'

@@ -31,9 +31,9 @@ module.exports = class RecordingSession extends MediaSession {
     };
 
     if (isScreenshare(recordingName)) {
-      return `${basePath}/${room}-SCREENSHARE/${recordingName}-${timestamp}.${format}`
+      return `${basePath}/screenshare/${room}/${recordingName}-${timestamp}.${format}`
     } else {
-      return `${basePath}/${room}/${profile}-${recordingName}-${timestamp}.${format}`;
+      return `${basePath}/recordings/${room}/${profile}-${recordingName}-${timestamp}.${format}`;
     }
 
   }
