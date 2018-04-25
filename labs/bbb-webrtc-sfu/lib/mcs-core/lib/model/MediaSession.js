@@ -36,7 +36,7 @@ module.exports = class MediaSession {
       Logger.info("[mcs-media-session] New media session", this.id, "in room", this.room, "started with media server endpoint", this._mediaElement);
       this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
         event.id = this.id;
-        if (this.status !== C.STATUS.STARTED) {
+        if (this._status !== C.STATUS.STARTED) {
           Logger.debug("[mcs-media-session] Media session", this.id, "queuing event", event);
           this.eventQueue.push(event);
         }
@@ -105,13 +105,15 @@ module.exports = class MediaSession {
   }
 
   sessionStarted () {
-    this.status = C.STATUS.STARTED;
-    // FIXME: ugly hack, gotta change the event model to a subscription-based
-    // one to remove this - prlanzarin
-    setTimeout(() => {
-      this._flushEventQueue();
-    }, 50);
-    Logger.debug("[mcs-media-session] Session", this.id, "successfully started");
+    if (this._status === C.STATUS.STARTING) {
+      this._status = C.STATUS.STARTED;
+      // FIXME: ugly hack, gotta change the event model to a subscription-based
+      // one to remove this - prlanzarin
+      setTimeout(() => {
+        this._flushEventQueue();
+      }, 50);
+      Logger.debug("[mcs-media-session] Session", this.id, "successfully started");
+    }
   }
 
   _flushEventQueue () {
