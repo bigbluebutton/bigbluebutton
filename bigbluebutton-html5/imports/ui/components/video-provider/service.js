@@ -9,11 +9,8 @@ import SessionStorage from '/imports/ui/services/storage/session';
 
 class VideoService {
   constructor() {
-    const enableVideo = Meteor.settings.public.kurento.enableVideo;
-    const autoShareWebcam = SessionStorage.getItem('meta_html5autosharewebcam') || false;
-
     this.defineProperties({
-      isSharing: autoShareWebcam && enableVideo,
+      isSharing: false,
       isConnected: false,
       isWaitingResponse: false,
     });

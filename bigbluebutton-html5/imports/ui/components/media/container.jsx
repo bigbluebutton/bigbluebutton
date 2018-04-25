@@ -23,6 +23,11 @@ const intlMessages = defineMessages({
 });
 
 class MediaContainer extends Component {
+  componentWillMount() {
+    const { willMount } = this.props;
+    willMount && willMount();
+  }
+
   componentWillReceiveProps(nextProps) {
     const {
       isScreensharing,
@@ -74,10 +79,14 @@ export default withTracker(() => {
 
   if (data.swapLayout) {
     data.floatingOverlay = true;
+    data.hideOverlay = hidePresentation;
+  }
 
-    if (hidePresentation) {
-      data.hideOverlay = true;
-    }
+  const enableVideo = Meteor.settings.public.kurento.enableVideo;
+  const autoShareWebcam = SessionStorage.getItem('meta_html5autosharewebcam') || false;
+
+  if (enableVideo && autoShareWebcam) {
+    data.willMount = VideoService.joinVideo;
   }
 
   return data;
