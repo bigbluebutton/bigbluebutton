@@ -1,25 +1,55 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-.star, .starSelected {
-  font-size: 4rem;
-  @include mq($small-only){
-    font-size: 2rem;
+.starRating {
+  font-family: 'bbb-icons';
+  > fieldset {
+    border: none;
+    display: inline-block;
+
+    &:not(:checked) {
+      > input {
+        position: absolute;
+        top: -9999px;
+        clip: rect(0,0,0,0);
+      }
+
+      > label {
+        float: right;
+        width: 1em;
+        padding: 0 .05em;
+        overflow: hidden;
+        white-space: nowrap;
+        cursor: pointer;
+        font-size: 200%;
+        color: black;
+        font-weight: 100;
+        &:before {
+          content: '\e946';
+        }
+
+        &:hover,
+        &:hover ~ label {
+          color: $color-primary;
+          text-shadow: 0 0 3px $color-primary;
+          &:before {
+            content: '\e946';
+          }
+        }
+      }
+    }
+
+    > input:checked {
+      & ~ label {
+        &:before {
+          content: '\e946';
+          color: $color-primary;
+        }
+      }
+    }
+
+    > label:active {
+      position: relative;
+      top: 2px;
+    }
   }
-}
-.starSelected {
-  color: $color-primary;
-}
-
-.button {
-  background: none;
-  border: none;
-}
-
-.father {
-  display: flex;
-  flex-direction: row;
-  padding: 0;
-  margin: 0;
-  margin-top: 1rem;
-  border: none;
 }

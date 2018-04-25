@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import Rating from './rating/component';
+import Auth from '/imports/ui/services/auth';
+import { log } from '/imports/ui/services/api';
 import { withRouter } from 'react-router';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
+import Rating from './rating/component';
+
 
 const intlMessages = defineMessages({
   title: {
@@ -31,18 +34,56 @@ const intlMessages = defineMessages({
 });
 
 class FeedbackScreen extends Component {
+  static getComment() {
+    const textarea = document.getElementById('feedbackComment');
+    const comment = textarea.value;
+    return comment;
+  }
+
   constructor(props) {
     super(props);
-
     this.state = {
       selected: 0,
     };
+    this.setSelectedStar = this.setSelectedStar.bind(this);
+    this.sendFeedback = this.sendFeedback.bind(this);
   }
+  setSelectedStar(starNumber) {
+    this.setState({
+      selected: starNumber,
+    });
+  }
+  sendFeedback() {
+    const {
+      selected,
+    } = this.state;
+
+    const {
+      router,
+      userName,
+    } = this.props;
+
+    if (selected <= 0) {
+      router.push('/logout');
+      return;
+    }
+
+    const message = {
+      rating: selected,
+      userId: Auth.userID,
+      meetingId: Auth.meetingID,
+      comment: FeedbackScreen.getComment(),
+      userName,
+    };
+
+    log('info', JSON.stringify(message));
+    router.push('/logout');
+  }
+
 
   render() {
     const {
       intl,
-      router,
     } = this.props;
 
     return (
@@ -65,17 +106,13 @@ class FeedbackScreen extends Component {
             </h4>
             <div className={styles.banana}>
               <Rating
-                numberStar="5"
-                selected={this.state.selected}
-                onRate={(starNumber) => {
-                  this.setState({
-                    selected: starNumber,
-                  });
-                }}
+                total="5"
+                onRate={this.setSelectedStar}
               />
               <textarea
                 cols="30"
                 rows="5"
+                id="feedbackComment"
                 disabled={this.state.selected === 0}
                 className={styles.textarea}
                 placeholder={intl.formatMessage(intlMessages.textarea)}
@@ -84,7 +121,7 @@ class FeedbackScreen extends Component {
             <div>
               <Button
                 color="primary"
-                onClick={() => router.push('/logout')}
+                onClick={this.sendFeedback}
                 label={intl.formatMessage(intlMessages.confirmLabel)}
                 description={intl.formatMessage(intlMessages.confirmDesc)}
               />

@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
-import Icon from '/imports/ui/components/icon/component';
-import { styles } from './styles';
 import _ from 'lodash';
+import { styles } from './styles';
 
 class Rating extends Component {
   constructor(props) {
@@ -11,41 +9,40 @@ class Rating extends Component {
     this.clickStar = this.clickStar.bind(this);
   }
 
-clickStar(e) {
-    this.props.onRate(e);
-}
-
-  renderstars(num) {
-    const {
-      selected,
-    } = this.props;
-
-    const stars = _.range(num).map((item) => {
-      const isSelected = selected > item;
-      return (
-        <button className={styles.button} onClick={() => this.clickStar(item + 1)}>
-          <Icon className={isSelected ? styles.starSelected : styles.star} iconName="check" key={_.uniqueId('star-')} />
-        </button>
-      );
-    });
-    return stars;
+  shouldComponentUpdate() {
+    // when component re render lost checked item
+    return false;
   }
 
-  // <Button
-  //   className={isSelected ? styles.starSelected : styles.star}
-  //   onClick={() => this.clickStar(item + 1)}
-  //   circle
-  //   icon='check'
-  // />
-  // <Icon className={isSelected ? styles.starSelected : styles.star} iconName="check" key={_.uniqueId('star-')} onClick={() => this.clickStar(item + 1)} />
+  clickStar(e) {
+    this.props.onRate(e);
+  }
+
+  renderstars(num) {
+    return (
+      <div className={styles.starRating}>
+        <fieldset>
+
+          {
+              _.range(num)
+                .map(i =>
+            [(<input type="radio" id={`star ${i + 1}`} name="rating" value={i + 1} key={_.uniqueId('star-')} onChange={() => this.clickStar(i + 1)} />),
+             (<label htmlFor={`star ${i+1}`} title="Outstanding" key={_.uniqueId('star-')}>star {i + 1}</label>)
+           ]).reverse()
+          }
+        </fieldset>
+      </div>
+    );
+  }
+
   render() {
     const {
-      numberStar,
+      total,
     } = this.props;
     return (
       <div className={styles.father}>
         {
-          this.renderstars(numberStar)
+          this.renderstars(total)
         }
       </div>
     );
