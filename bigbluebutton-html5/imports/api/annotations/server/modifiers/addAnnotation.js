@@ -365,7 +365,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
       if (Annotation && Annotation.annotationType === 'pencil_base') {
         // delete everything and replace base
         const chunkIds = [];
-        for (let i = 0; i <= 10; i += 1) {
+        for (let i = 0; i <= Annotation.numberOfChunks; i += 1) {
           chunkIds.push(`${Annotation.id}--${i}`);
         }
         chunkSelector = {
