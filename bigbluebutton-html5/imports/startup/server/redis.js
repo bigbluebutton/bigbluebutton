@@ -133,13 +133,15 @@ class RedisPubSub {
 
     this.debug(`Subscribed to '${channelsToSubscribe}'`);
 
+    const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+    const BULK_LIFESPAN = ANNOTATION_CONFIG.bulk_lifespan; // bulk is released after this period of time
     let _this = this;
     setInterval(Meteor.bindEnvironment(function() {
       if(_this.annotationsBulk && _this.annotationsBulk.length > 0) {
         Annotations.rawCollection().bulkWrite(_this.annotationsBulk, function(error) { console.log(error); });
         _this.emptyAnnotationsBulk();
       }
-    }), 100);
+    }), BULK_LIFESPAN);
   }
 
   updateConfig(config) {
