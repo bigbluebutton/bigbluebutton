@@ -18,8 +18,8 @@ to-akka: "to-akka-apps-redis-channel"
 webcam-force-h264: true
 screenshare-force-h264: true
 
-recordScreenSharing: true
-recordWebcams: true
+recordScreenSharing: false
+recordWebcams: false
 recordingBasePath: "file:///var/kurento"
 
 log:
