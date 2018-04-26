@@ -19,6 +19,15 @@ module.exports = class BaseManager {
     this._connectionChannel = connectionChannel;
     this._additionalChanels = additionalChannels;
     this._logPrefix = logPrefix;
+
+    this._trackRecordedStream();
+  }
+
+  _trackRecordedStream () {
+    this._bbbGW.on(C.STREAM_IS_RECORDED, (stream) => {
+      Logger.info("[BaseManager] Server notifies that stream ", stream, " is recorded");
+      this.setStreamAsRecorded(stream);      
+    });
   }
 
   async start() {

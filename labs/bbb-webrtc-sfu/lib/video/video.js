@@ -26,9 +26,14 @@ module.exports = class Video extends EventEmitter {
     this.mediaId = null;
     this.iceQueue = null;
     this.status = C.MEDIA_STOPPED;
+    this.streamRecorded = false;
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
+  }
+
+  setStreamAsRecorded () {
+    this.streamRecorded = true;
   }
 
   onIceCandidate (_candidate) {
@@ -129,7 +134,7 @@ module.exports = class Video extends EventEmitter {
           if (this.status != C.MEDIA_STARTED) {
 
             // Record the video stream if it's the original being shared
-            if (config.get('recordWebcams') && this.shared) {
+            if (config.get('recordWebcams') && this.streamRecorded && this.shared) {
               this.startRecording();
             }
 

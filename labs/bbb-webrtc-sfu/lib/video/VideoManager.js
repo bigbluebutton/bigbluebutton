@@ -19,6 +19,17 @@ module.exports = class VideoManager extends BaseManager {
     this._iceQueues = {};
   }
 
+  setStreamAsRecorded (id) {
+    let video = this._sessions[id];
+
+    if (video) {
+      Logger.info("[VideoManager] Setting ", id, " as recorded");
+      video.setRecorded();
+    } else {
+      Logger.warn("[VideoManager] Tryed to set stream to recorded but ", id, " has no session!");
+    }
+  }  
+
   async _onMessage (_message) {
     let message = _message;
     let connectionId = message.connectionId;
