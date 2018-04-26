@@ -53,11 +53,11 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting meeting metadata")
       doc = Nokogiri::XML(File.open(events_xml))
       metadata = {}
-      doc.xpath("//metadata").each do |e| 
-        e.keys.each do |k| 
+      doc.xpath("//metadata").each do |e|
+        e.keys.each do |k|
           metadata[k] = e.attribute(k)
         end
-      end  
+      end
       metadata
     end
 
@@ -122,13 +122,13 @@ module BigBlueButton
       videos = {}
       active_videos = []
       video_edl = []
-      
+
       video_edl << {
         :timestamp => 0,
-        :areas => { :webcam => [] } 
+        :areas => { :webcam => [] }
       }
 
-      events.xpath('/recording/event[@module="WEBCAM" or @module="bbb-webrtc-sfu"]').each do |event|
+      events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent"))]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
         # Determine the video filename
         case event['eventname']
@@ -213,7 +213,7 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting start DESKSHARE events")
       start_events = []
       events = Nokogiri::XML(File.open(events_xml))
-      events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |start_event|
+      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and @eventname="StartWebRTCDesktopShareEvent")]').each do |start_event|
         case start_event['eventname']
         when 'DeskshareStartedEvent'
           filename = start_event.at_xpath('file').text
@@ -237,7 +237,7 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")
       stop_events = []
       events = Nokogiri::XML(File.open(events_xml))
-      events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |stop_event|
+      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and @eventname="StopWebRTCDesktopShareEvent")]').each do |stop_event|
         case stop_event['eventname']
         when 'DeskshareStoppedEvent'
           filename = stop_event.at_xpath('file').text
@@ -272,7 +272,7 @@ module BigBlueButton
         :areas => { :deskshare => [] }
       }
 
-      events.xpath('/recording/event[@module="Deskshare" or @module="bbb-webrtc-sfu"]').each do |event|
+      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent"))]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
         # Determine the video filename
         case event['eventname']
@@ -575,9 +575,9 @@ module BigBlueButton
 
     # Version of the bbb server where it was recorded
     def self.bbb_version(events_xml)
-      events = Nokogiri::XML(File.open(events_xml))      
+      events = Nokogiri::XML(File.open(events_xml))
       recording = events.at_xpath('/recording')
-      recording['bbb_version']      
+      recording['bbb_version']
     end
 
     # Compare version numbers
