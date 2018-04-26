@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import Meeting from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import RedisPubSub from '/imports/startup/server/redis';
 
@@ -23,8 +24,11 @@ export default function userUnshareWebcam(credentials, message) {
     throw new Meteor.Error('not-allowed', `You are not allowed to share webcam`);
   } */
 
+  const meeting = Meeting.findOne({meetingId});
+  const stream = meeting.recordProp.record ? message + '-recorded' : message;
+
   const payload = {
-    stream: message,
+    stream,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

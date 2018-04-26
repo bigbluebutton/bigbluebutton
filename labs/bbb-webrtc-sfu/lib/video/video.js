@@ -27,9 +27,14 @@ module.exports = class Video extends EventEmitter {
     this.iceQueue = null;
     this.status = C.MEDIA_STOPPED;
     this.recording = {};
+    this.streamRecorded = false;
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
+  }
+
+  setStreamAsRecorded () {
+    this.streamRecorded = true;
   }
 
   onIceCandidate (_candidate) {
@@ -171,7 +176,7 @@ module.exports = class Video extends EventEmitter {
   }
 
   shouldRecord () {
-    config.get('recordWebcams') && this.shared;
+    this.streamRecorded && this.shared && config.get('recordWebcams');
   }
 
   async startRecording() {

@@ -58,7 +58,10 @@ const config = require('config');
         STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
 
+        USER_CAM_BROADCAST_STARTED_2X: "UserBroadcastCamStartMsg",
         USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
+
+        STREAM_IS_RECORDED: "StreamIsRecordedMsg",
 
         START_WEBCAM_SHARE: "StartWebRTCShareEvent",
         STOP_WEBCAM_SHARE: "StopWebRTCShareEvent",
