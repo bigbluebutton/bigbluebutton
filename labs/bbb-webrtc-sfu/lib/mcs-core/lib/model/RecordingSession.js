@@ -22,7 +22,7 @@ module.exports = class RecordingSession extends MediaSession {
   }
 
   static getRecordingPath (room, profile, recordingName) {
-    const format = 'mp4';
+    const format = 'mkv';
     const basePath = config.get('recordingBasePath');
     const timestamp = (new Date()).getTime();
 
