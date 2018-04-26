@@ -19,6 +19,7 @@ module.exports = class BaseManager {
     this._connectionChannel = connectionChannel;
     this._additionalChanels = additionalChannels;
     this._logPrefix = logPrefix;
+    this._iceQueues = {};
   }
 
   async start() {
@@ -41,7 +42,39 @@ module.exports = class BaseManager {
     this._redisGateway.on(C.REDIS_MESSAGE, handler.bind(this));
   }
 
-  _stopSession(sessionId) {
+  _fetchSession (sessionId) {
+    return this._sessions[sessionId];
+  }
+
+  _fetchIceQueue (sessionId) {
+    if (!this._iceQueues[sessionId]) {
+      this._iceQueues[sessionId] = [];
+    }
+
+    return this._iceQueues[sessionId] ;
+  }
+
+  _flushIceQueue (session, queue) {
+    if (queue) {
+      let candidate;
+      while(candidate = queue.pop()) {
+        session.onIceCandidate(candidate);
+      }
+    }
+  }
+
+  _killConnectionSessions (connectionId, role) {
+    let keys = Object.keys(this._sessions);
+    keys.forEach((sessionId) => {
+      let session = this._sessions[sessionId];
+      if(session && session.connectionId === connectionId) {
+        let killedSessionId = session.connectionId + session.id + "-" + role;
+        this._stopSession(killedSessionId);
+      }
+    });
+  }
+
+  _stopSession (sessionId) {
     return new Promise(async (resolve, reject) => {
       Logger.info(this._logPrefix, 'Stopping session ' + sessionId);
       try {

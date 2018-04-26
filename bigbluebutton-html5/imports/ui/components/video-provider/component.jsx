@@ -229,7 +229,6 @@ class VideoProvider extends Component {
       if (webRtcPeer.didSDPAnswered) {
         webRtcPeer.addIceCandidate(message.candidate, (err) => {
           if (err) {
-            this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
             return log('error', `Error adding candidate: ${err}`);
           }
         });
