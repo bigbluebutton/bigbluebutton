@@ -4,6 +4,7 @@ package org.bigbluebutton.air.main.views {
 	import spark.components.SkinnableContainer;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.HorizontalLayout;
+	import spark.layouts.VerticalAlign;
 	
 	[Style(name = "bottom", inherit = "no", type = "Number")]
 	[Style(name = "gap", inherit = "no", type = "Number")]
@@ -40,26 +41,23 @@ package org.bigbluebutton.air.main.views {
 			super();
 			
 			bLayout = new HorizontalLayout();
-			bLayout.horizontalAlign = HorizontalAlign.CENTER
+			bLayout.horizontalAlign = HorizontalAlign.CENTER;
+			bLayout.verticalAlign = VerticalAlign.MIDDLE;
 			layout = bLayout;
 			
 			_micButton = new Button();
-			_micButton.label = "Mic on";
 			_micButton.styleName = "icon-unmute menuButton";
 			addElement(_micButton);
 			
 			_audioButton = new Button();
-			_audioButton.label = "Join";
 			_audioButton.styleName = "icon-audio-on menuButton";
 			addElement(_audioButton);
 			
 			_camButton = new Button();
-			_camButton.label = "Cam on";
 			_camButton.styleName = "icon-video menuButton";
 			addElement(_camButton);
 			
 			_statusButton = new Button();
-			_statusButton.label = "Status";
 			_statusButton.styleName = "icon-hand menuButton";
 			addElement(_statusButton);
 		}

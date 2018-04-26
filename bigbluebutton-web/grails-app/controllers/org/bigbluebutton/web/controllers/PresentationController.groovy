@@ -224,6 +224,29 @@ class PresentationController {
     
     return null;
   }
+
+  def showPng = {
+    def presentationName = params.presentation_name
+    def conf = params.conference
+    def rm = params.room
+    def png = params.id
+
+    InputStream is = null;
+    try {
+      def pres = presentationService.showPng(conf, rm, presentationName, png)
+      if (pres.exists()) {
+
+        def bytes = pres.readBytes()
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'image'
+        response.outputStream << bytes;
+      }
+    } catch (IOException e) {
+      log.error("Error reading file.\n" + e.getMessage());
+    }
+
+    return null;
+  }
   
   def showTextfile = {
     def presentationName = params.presentation_name
@@ -340,7 +363,7 @@ class PresentationController {
             }
           }
         }
-      }		
+      }
   }
 
   def numberOfSvgs = {
