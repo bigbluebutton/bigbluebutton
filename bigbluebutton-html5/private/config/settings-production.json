@@ -58,8 +58,10 @@
 
     "kurento": {
       "wsUrl": "HOST",
-      "chromeExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
-      "chromeExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
+      "chromeDefaultExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
+      "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
+      "chromeExtensionLink": "LINK",
+      "chromeExtensionKey": "KEY",
       "enableScreensharing": false,
       "enableVideo": false
     },
