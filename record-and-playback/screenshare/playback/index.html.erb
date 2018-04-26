@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title><%= meetingName %></title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="video-js/video-js.min.css">
+    <link rel="stylesheet" href="css/screenshare.css">
+    <script src="video-js/video.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <header>
+      <h1><%= meetingName %></h1>
+    </header>
+
+    <main>
+      <div id="main-area">
+        <div id="video-area">
+          <video id="video" class="video-js vjs-fill vjs-default-skin vjs-big-play-centered" controls>
+            <% screenshare_props[:formats].each_with_index do |format, i| %>
+              <source src="screenshare-<%= i %>.<%= format[:extension] %>" type="<%= CGI.escapeHTML(format[:mimetype]) %>">
+            <% end %>
+            <% captions.each do |caption| %>
+              <track kind="captions" label="<%= CGI.escapeHTML(caption['localeName']) %>" src="caption_<%= CGI.escapeHTML(caption['locale']) %>.vtt" srclang="<%= CGI.escapeHTML(caption['locale']) %>.vtt">
+            <% end %>
+          </video>
+        </div>
+      </div>
+    </main>
+
+    <footer>Recorded with <a href="http://bigbluebutton.org">BigBlueButton</a>.</footer>
+    <script src="js/screenshare.js"></script>
+  </body>
+</html>
