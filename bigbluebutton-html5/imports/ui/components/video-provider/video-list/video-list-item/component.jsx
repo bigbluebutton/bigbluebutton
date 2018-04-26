@@ -63,7 +63,7 @@ class VideoListItem extends Component {
   render() {
     const { showStats } = this.state;
     const { user, getStats, stopGettingStats } = this.props;
-    
+
     const availableActions = this.getAvailableActions();
 
     return (

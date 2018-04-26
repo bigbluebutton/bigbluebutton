@@ -113,6 +113,7 @@ class VideoProvider extends Component {
     }
 
     Object.keys(this.webRtcPeers).forEach((id) => {
+      this.stopGettingStats(id);
       this.stopWebRTCPeer(id);
     });
 
@@ -436,7 +437,6 @@ class VideoProvider extends Component {
   stopGettingStats(id) {
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
-    const { peerConnection } = peer;
 
     if (peer) {
       if (peer.started === true) {
