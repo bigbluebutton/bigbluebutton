@@ -61,7 +61,7 @@
       "chromeDefaultExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeExtensionKey": "KEY",
-      "chromeExtensionLink": "LINK",
+      "chromeExtensionLink": "javascript:alert('Missing kurento.chromeExtensionLink config')",
       "enableScreensharing": false,
       "enableVideo": false
     },
