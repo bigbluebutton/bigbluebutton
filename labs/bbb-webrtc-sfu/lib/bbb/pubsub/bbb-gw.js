@@ -113,7 +113,7 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
 
   writeMeetingKey(meetingId, message, callback) {
     const EXPIRE_TIME = config.get('redisExpireTime');
-    if (!this.client) {
+    if (!this.publisher) {
       this.publisher = new RedisWrapper();
       this.publisher.startPublisher();
     }

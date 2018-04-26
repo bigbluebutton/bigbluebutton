@@ -71,13 +71,11 @@ module.exports = class ConnectionManager {
       const screenshare = await this._bbbGW.addSubscribeChannel(C.FROM_SCREENSHARE);
       const video = await this._bbbGW.addSubscribeChannel(C.FROM_VIDEO);
       const audio = await this._bbbGW.addSubscribeChannel(C.FROM_AUDIO);
-      const toAkka = await this._bbbGW.addSubscribeChannel(C.TO_AKKA_APPS);
 
       const emitFunk = (data) => {
         this._emitter.emit('response', data);
       };
 
-      toAkka.on(C.REDIS_MESSAGE, emitFunk);
       screenshare.on(C.REDIS_MESSAGE, emitFunk);
       video.on(C.REDIS_MESSAGE, emitFunk);
 
