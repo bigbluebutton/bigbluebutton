@@ -60,8 +60,8 @@
       "wsUrl": "HOST",
       "chromeDefaultExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
-      "chromeExtensionLink": "LINK",
       "chromeExtensionKey": "KEY",
+      "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
       "enableVideo": false
     },

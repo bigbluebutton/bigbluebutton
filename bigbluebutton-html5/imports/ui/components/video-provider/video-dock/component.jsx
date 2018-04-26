@@ -56,7 +56,7 @@ class VideoDock extends Component {
       socketOpen,
       users,
       onStart,
-      onStop,
+      onStop
     } = this.props;
 
     if (!socketOpen) {
