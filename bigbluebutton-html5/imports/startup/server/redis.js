@@ -5,9 +5,6 @@ import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
 import Logger from './logger';
 
-import addAnnotations from '/imports/api/annotations/server/modifiers/addAnnotation';
-import Annotations from '/imports/api/annotations';
-
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
 
@@ -116,8 +113,6 @@ class RedisPubSub {
     this.handleSubscribe = this.handleSubscribe.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.debug = makeDebugger(this.config.debug);
-
-    this.annotationsBulk = [];
   }
 
   init() {
@@ -131,19 +126,6 @@ class RedisPubSub {
     });
 
     this.debug(`Subscribed to '${channelsToSubscribe}'`);
-
-    const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
-    const BULK_LIFESPAN = ANNOTATION_CONFIG.bulk_lifespan; // bulk is released after this period of time
-    let _this = this;
-    setInterval(Meteor.bindEnvironment(function() {
-      if(_this.annotationsBulk && _this.annotationsBulk.length > 0) {
-        Annotations.rawCollection().bulkWrite(_this.annotationsBulk).then(function() {
-          _this.emptyAnnotationsBulk();
-        }, function(error) {
-          console.error(error);
-        });
-      }
-    }), BULK_LIFESPAN);
   }
 
   updateConfig(config) {
@@ -151,56 +133,6 @@ class RedisPubSub {
     this.debug = makeDebugger(this.config.debug);
   }
 
-  // add one operation to the bulk
-  addToAnnotationsBulk(annotation) {
-    this.annotationsBulk.push(annotation);
-  }
-
-  // add multiple operations to the bulk
-  addOperationsToBulk(operations) {
-    this.annotationsBulk.push.apply(this.annotationsBulk, operations);
-  }
-
-  getAnnotationsBulk() {
-    return this.annotationsBulk;
-  }
-
-  emptyAnnotationsBulk() {
-    this.annotationsBulk = [];
-  }
-
-  // find pencil_base inside the bulk
-  findAnnotationInsideBulk(selector) {
-    let b = this.annotationsBulk;
-    for(let i = b.length - 1; i >= 0; i--) {
-      if(b[i].updateOne &&
-        b[i].updateOne.update &&
-        !(b[i].updateOne.update.$set) &&
-        b[i].updateOne.filter &&
-        b[i].updateOne.filter.id === selector.id &&
-        b[i].updateOne.filter.userId === selector.userId &&
-        b[i].updateOne.filter.meetingId === selector.meetingId &&
-        b[i].updateOne.filter.whiteboardId === selector.whiteboardId) {
-        return b[i].updateOne.update;
-      }
-    }
-    return undefined;
-  }
-
-  // find pencil chunk inside the bulk
-  findChunkInsideBulk(selector) {
-    let b = this.annotationsBulk;
-    for(let i = b.length - 1; i >= 0; i--) {
-      if(b[i].updateOne &&
-        b[i].updateOne.filter &&
-        b[i].updateOne.filter.id === selector.id &&
-        b[i].updateOne.filter.userId === selector.userId &&
-        b[i].updateOne.filter.meetingId === selector.meetingId) {
-        return b[i].updateOne.update;
-      }
-    }
-    return undefined;
-  }
 
   // TODO: Move this out of this class, maybe pass as a callback to init?
   handleSubscribe() {
