@@ -7,7 +7,10 @@ import Button from '/imports/ui/components/button/component';
 import { styles } from '../../styles';
 
 const propTypes = {
-  stats: PropTypes.object.isRequired,
+  videoTag: PropTypes.object.isRequired,
+  toggleStats: PropTypes.func.isRequired,
+  getStats: PropTypes.func.isRequired,
+  stopGettingStats: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -55,10 +58,31 @@ const intlMessages = defineMessages({
 class VideoListItemStats extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      stats: {'video':{}},
+    }
+
+    this.setStats = this.setStats.bind(this);
+  }
+
+  componentDidMount(){
+    const { videoTag, getStats } = this.props;
+    getStats(videoTag, this.setStats);
+  }
+ 
+  componentWillUnmount() {
+    const { stopGettingStats } = this.props;
+    stopGettingStats();
+  }
+
+  setStats(stats) {
+    this.setState({ stats: { ...this.state.stats, video: stats.video, audio: stats.audio }});
   }
 
   render() {
-    const { stats, intl, toggleStats } = this.props;
+    const { stats } = this.state;
+    const { intl, toggleStats } = this.props;
 
     return (
       <div className={styles.webRTCStats}>

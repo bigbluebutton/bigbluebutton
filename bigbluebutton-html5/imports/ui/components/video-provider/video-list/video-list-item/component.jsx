@@ -26,11 +26,9 @@ class VideoListItem extends Component {
 
     this.state = {
       showStats: false,
-      stats: {},
     }
 
     this.toggleStats = this.toggleStats.bind(this);
-    this.setStats = this.setStats.bind(this);
   }
 
   componentDidMount() {
@@ -38,22 +36,8 @@ class VideoListItem extends Component {
   }
 
   toggleStats() {
-    const prevState = this.state;
-    const { getStats, stopGettingStats } = this.props;
-    
-    this.setState({showStats: !prevState.showStats});
-
-    if (!prevState.showStats) {
-      getStats(this.videoTag, this.setStats);
-    } else {
-      stopGettingStats();
-    }
+    this.setState({showStats: !this.state.showStats});
   }
-
-  setStats(stats) {
-    this.setState({ stats: { ...this.state.stats, video: stats.video, audio: stats.audio }});
-  }
-
 
   getAvailableActions() {
     const {
@@ -77,8 +61,8 @@ class VideoListItem extends Component {
   }
 
   render() {
-    const { showStats, stats } = this.state;
-    const { user } = this.props;
+    const { showStats } = this.state;
+    const { user, getStats, stopGettingStats } = this.props;
     
     const availableActions = this.getAvailableActions();
 
@@ -109,7 +93,7 @@ class VideoListItem extends Component {
           </Dropdown>
           { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
         </div>
-        { showStats && stats.video ? <VideoListItemStats stats={stats} toggleStats={this.toggleStats} /> : null }
+        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} getStats={getStats} stopGettingStats={stopGettingStats} videoTag={this.videoTag} /> : null }
       </div>
     );
   }

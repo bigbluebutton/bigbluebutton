@@ -32,7 +32,6 @@ function customGetStats(peer, mediaStreamTrack, callback, interval) {
             var remoteCandidate = {};
 
             results.forEach(function(res) {
-                console.log(res);
                 if ((res.type == 'outbound-rtp' || res.type == 'outboundrtp') && res.mediaType == 'audio') {
                     audioOutbound = res;
                 } else if ((res.type == 'inbound-rtp' || res.type == 'inboundrtp') && res.mediaType == 'audio') {
