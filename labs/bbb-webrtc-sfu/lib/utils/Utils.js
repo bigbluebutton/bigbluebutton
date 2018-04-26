@@ -28,7 +28,6 @@ exports.isRecordedStream = function (stream) {
 
   if (!stream.match(flashStream)) {
     let res = stream.match(recordedStream);
-    console.log(res);
     if (res) {
       return res[1];
     }

@@ -144,8 +144,12 @@ module.exports = class RedisWrapper extends EventEmitter {
     }
   }
 
-  expireKey (key, callback) {
-    Logger.warn("[TODO] expire redis keys after setting the recording one");
+  expireKey (key, seconds, callback) {
+    if (this.redisPub) {
+      this.redisPub.expire(key, seconds, callback);
+    } else {
+      callback(true, null);
+    }
   }
 
   /* Private members */

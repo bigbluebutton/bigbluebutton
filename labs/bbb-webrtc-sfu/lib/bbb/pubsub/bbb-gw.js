@@ -112,6 +112,7 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
   }
 
   writeMeetingKey(meetingId, message, callback) {
+    const EXPIRE_TIME = config.get('redisExpireTime');
     if (!this.client) {
       this.publisher = new RedisWrapper();
       this.publisher.startPublisher();
@@ -124,7 +125,9 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
       this.publisher.pushToList('meeting:' + meetingId + ':recordings', msgId);
 
       // Not implemented yet
-      this.publisher.expireKey(recKey + ':' + msgId);
+      this.publisher.expireKey(recKey + ':' + msgId, EXPIRE_TIME, (err) => {
+        Logger.info('Recording key will expire in', EXPIRE_TIME, 'seconds', err);
+      });
     });
   }
 
