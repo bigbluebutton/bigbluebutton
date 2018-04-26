@@ -117,7 +117,7 @@ class VideoProvider extends Component {
 
     // Close websocket connection to prevent multiple reconnects from happening
     // Don't disonnect socket on unmount to prevent multiple reconnects
-    // this.ws.close();
+    this.ws.close();
   }
 
   onWsOpen() {

@@ -10,6 +10,7 @@
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const isRecordedStream = require('../utils/Utils.js').isRecordedStream;
 
 module.exports = class BaseManager {
   constructor (connectionChannel, additionalChannels = [], logPrefix = C.BASE_MANAGER_PREFIX) {
@@ -20,6 +21,16 @@ module.exports = class BaseManager {
     this._additionalChanels = additionalChannels;
     this._logPrefix = logPrefix;
     this._iceQueues = {};
+
+    this._trackRecordedStream();
+  }
+
+  _trackRecordedStream () {
+    this._bbbGW.on(C.USER_CAM_BROADCAST_STARTED_2x, (streamUrl) => {
+      Logger.info("[BaseManager] Server notifies that stream ", streamUrl, " is recorded");
+      let stream = isRecordedStream(streamUrl);
+      this.setStreamAsRecorded(stream);      
+    });
   }
 
   async start() {
@@ -89,12 +100,12 @@ module.exports = class BaseManager {
           }
           delete this._sessions[sessionId];
           this._logAvailableSessions();
-          resolve();
+          return resolve();
         }
       }
       catch (err) {
-        Logger.err(error);
-        resolve();
+        Logger.error(err);
+        return resolve();
       }
     });
   }

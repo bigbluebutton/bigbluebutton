@@ -86,6 +86,10 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
           payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
           this.emit(C.STOP_TRANSCODER_RESP_2x, payload);
           break;
+        case C.USER_CAM_BROADCAST_STARTED_2x:
+          this.emit(C.USER_CAM_BROADCAST_STARTED_2x, payload[C.STREAM_URL]);
+          break; 
+        // SCREENSHARE
 
         default:
           this.emit(C.GATEWAY_MESSAGE, msg);
@@ -105,6 +109,26 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
     if (typeof this.publisher.publishToChannel === 'function') {
       this.publisher.publishToChannel(message, channel);
     }
+  }
+
+  writeMeetingKey(meetingId, message, callback) {
+    const EXPIRE_TIME = config.get('redisExpireTime');
+    if (!this.publisher) {
+      this.publisher = new RedisWrapper();
+      this.publisher.startPublisher();
+    }
+
+    let recKey = 'recording:' + meetingId;
+
+    this.publisher.setKeyWithIncrement(recKey, message, (err, msgId) => {
+
+      this.publisher.pushToList('meeting:' + meetingId + ':recordings', msgId);
+
+      // Not implemented yet
+      this.publisher.expireKey(recKey + ':' + msgId, EXPIRE_TIME, (err) => {
+        Logger.info('Recording key will expire in', EXPIRE_TIME, 'seconds', err);
+      });
+    });
   }
 
   setEventEmitter (emitter) {

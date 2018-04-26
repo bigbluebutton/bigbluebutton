@@ -266,6 +266,34 @@ module.exports = class MediaController {
     }
   }
 
+  async startRecording (userId, sourceId, recordingName) {
+    Logger.info("[mcs-controller] startRecording ", sourceId);
+
+    const user = await this.getUserMCS(userId);
+
+    let session;
+    let answer;
+    let sourceSession = this._mediaSessions[sourceId];
+
+    if (typeof sourceSession === 'undefined') {
+      return Promise.reject(new Error("[mcs-controller] Media session", sourceId, "was not found"));
+    }
+
+    try {
+      session = await user.addRecording(recordingName);
+
+      answer = await user.startSession(session.id);
+      await sourceSession.connect(session._mediaElement);
+
+      sourceSession.subscribedSessions.push(session.id);
+      return Promise.resolve(answer);
+    }
+    catch (err) {
+      Logger.error("[mcs-controller] Subscribe failed with an error", err);
+      return Promise.reject(err);
+    }
+  }
+
   async addIceCandidate (mediaId, candidate) {
     const session = this._mediaSessions[mediaId];
     if (!session) {

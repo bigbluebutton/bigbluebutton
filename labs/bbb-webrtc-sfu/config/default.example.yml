@@ -18,6 +18,12 @@ to-akka: "to-akka-apps-redis-channel"
 webcam-force-h264: true
 screenshare-force-h264: true
 
+recordScreenSharing: false
+recordWebcams: false
+recordingBasePath: "file:///var/kurento"
+
+redisExpireTime: 1209600 # 14 days as per the akka keys
+
 log:
     filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'

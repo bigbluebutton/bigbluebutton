@@ -9,6 +9,7 @@ const User = require('./User');
 const C = require('../constants/Constants');
 const SdpWrapper = require('../utils/SdpWrapper');
 const SdpSession = require('../model/SdpSession');
+const RecordingSession = require('../model/RecordingSession');
 const UriSession = require('../model/UriSession');
 const Logger = require('../../../utils/Logger');
 const isError = require('../utils/util').isError;
@@ -68,12 +69,34 @@ module.exports = class SfuUser extends User {
     return session;
   }
 
+  addRecording (recordingName) {
+    let session = new RecordingSession(this.emitter, this.roomId, recordingName);
+    this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
+
+    session.emitter.once(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
+      if (sessId === session.id) {
+        Logger.info("[mcs-sfu-user] Recording session stopped.");
+        this._mediaSessions[sessId] = null;
+      }
+    });
+
+    if (typeof this._mediaSessions[session.id] == 'undefined' ||
+        !this._mediaSessions[session.id]) {
+      this._mediaSessions[session.id] = {};
+    }
+    this._mediaSessions[session.id] = session;
+    Logger.info("[mcs-sfu-user] Added new recording session", session.id, "to user", this.id);
+
+    return session;
+  }
+
+
   async startSession (sessionId) {
     let session = this._mediaSessions[sessionId];
 
     try {
       const mediaElement = await session.start();
-      const answer = await session.processDescriptor();
+      const answer = await session.process();
       return Promise.resolve(answer);
     }
     catch (err) {

@@ -14,7 +14,7 @@ const Logger = require('../../../utils/Logger');
 const isError = require('../utils/util').isError;
 
 module.exports = class MediaSession {
-  constructor(emitter, room, type) {
+  constructor(emitter, room, type, options = {}) {
     this.id = rid();
     this.room = room;
     this.emitter = emitter;
@@ -23,6 +23,7 @@ module.exports = class MediaSession {
     this._MediaServer = new MediaServer(kurentoUrl);
     this._mediaElement;
     this.subscribedSessions = [];
+    this._options = options;
     this.eventQueue = [];
   }
 
@@ -31,9 +32,10 @@ module.exports = class MediaSession {
     try {
       const client = await this._MediaServer.init();
 
-      this._mediaElement = await this._MediaServer.createMediaElement(this.room, this._type);
+      this._mediaElement = await this._MediaServer.createMediaElement(this.room, this._type, this._options);
 
       Logger.info("[mcs-media-session] New media session", this.id, "in room", this.room, "started with media server endpoint", this._mediaElement);
+
       this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
         event.id = this.id;
         if (this._status !== C.STATUS.STARTED) {
@@ -72,7 +74,7 @@ module.exports = class MediaSession {
     if (this._status === C.STATUS.STARTED) {
       this._status = C.STATUS.STOPPING;
       try {
-        await this._MediaServer.stop(this.room, this._mediaElement);
+        await this._MediaServer.stop(this.room, this._type, this._mediaElement);
         this._status = C.STATUS.STOPPED;
         Logger.info("[mcs-media-session] Session", this.id, "stopped with status", this._status);
         this.emitter.emit(C.EVENT.MEDIA_SESSION_STOPPED, this.id);

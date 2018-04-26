@@ -58,7 +58,13 @@ const config = require('config');
         STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
 
+        USER_CAM_BROADCAST_STARTED_2x: "UserBroadcastCamStartMsg",
         USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
+
+        STREAM_IS_RECORDED: "StreamIsRecordedMsg",
+
+        START_WEBCAM_SHARE: "StartWebRTCShareEvent",
+        STOP_WEBCAM_SHARE: "StopWebRTCShareEvent",
 
         // Redis messages fields
         //  Transcoder 1x
@@ -107,6 +113,16 @@ const config = require('config');
         TRANSCODER_CODEC: "codec",
         TRANSCODER_TYPE: "transcoder_type",
         CALLERNAME: "callername",
+
+        EVENT_NAME: 'eventName',
+
+        TIMESTAMP: 'timestamp',
+        TIMESTAMP_UTC: 'timestampUTC',
+
+        MODULE: 'module',
+        MODULE_WEBCAM: 'bbb-webrtc-sfu',
+
+        FILENAME: 'filename',
 
         // Log prefixes
         BASE_PROCESS_PREFIX: '[BaseProcess]',
