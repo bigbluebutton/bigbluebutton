@@ -87,15 +87,7 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
           this.emit(C.STOP_TRANSCODER_RESP_2x, payload);
           break;
         case C.USER_CAM_BROADCAST_STARTED_2x:
-          const flashStream = /^([A-z0-9]+)-([A-z0-9]+)-([A-z0-9+])(-recorded)?$/;
-          const recordedStream = /^(_A-z0-9]+)-recorded$/;
-          if (!payload[C.STREAM_URL].match(flashStream)) {
-            let res = payload[C.STREAM_URL].match(recordedStream);
-            if (res) {
-              this.emit(C.STREAM_IS_RECORDED, res[0]);
-            }
-          }
-
+          this.emit(C.USER_CAM_BROADCAST_STARTED_2x, payload[C.STREAM_URL]);
           break; 
         // SCREENSHARE
 

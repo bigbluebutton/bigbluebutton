@@ -18,14 +18,26 @@ module.exports = class VideoManager extends BaseManager {
     this.messageFactory(this._onMessage);
   }
 
+  _findByIdAndRole (id, role) {
+    let sesh = null;
+    let keys = Object.keys(this._sessions);
+    keys.forEach((sessionId) => {
+      let session = this._sessions[sessionId];
+      if (sessionId === (session.connectionId + id + '-' + role)) {
+        sesh = session;
+      }
+    });
+    return sesh;
+  }
+
   setStreamAsRecorded (id) {
-    let video = this._sessions[id];
+    let video = this._findByIdAndRole(id, 'share');
 
     if (video) {
       Logger.info("[VideoManager] Setting ", id, " as recorded");
-      video.setRecorded();
+      video.setStreamAsRecorded();
     } else {
-      Logger.warn("[VideoManager] Tryed to set stream to recorded but ", id, " has no session!");
+      Logger.warn("[VideoManager] Tried to set stream to recorded but ", id, " has no session!");
     }
   }  
 

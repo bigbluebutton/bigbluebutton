@@ -176,7 +176,7 @@ module.exports = class Video extends EventEmitter {
   }
 
   shouldRecord () {
-    this.streamRecorded && this.shared && config.get('recordWebcams');
+    return this.streamRecorded && this.shared && config.get('recordWebcams');
   }
 
   async startRecording() {

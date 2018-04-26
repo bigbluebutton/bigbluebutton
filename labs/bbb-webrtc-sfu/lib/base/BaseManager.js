@@ -10,6 +10,7 @@
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const isRecordedStream = require('../utils/Utils.js').isRecordedStream;
 
 module.exports = class BaseManager {
   constructor (connectionChannel, additionalChannels = [], logPrefix = C.BASE_MANAGER_PREFIX) {
@@ -25,8 +26,9 @@ module.exports = class BaseManager {
   }
 
   _trackRecordedStream () {
-    this._bbbGW.on(C.STREAM_IS_RECORDED, (stream) => {
-      Logger.info("[BaseManager] Server notifies that stream ", stream, " is recorded");
+    this._bbbGW.on(C.USER_CAM_BROADCAST_STARTED_2x, (streamUrl) => {
+      Logger.info("[BaseManager] Server notifies that stream ", streamUrl, " is recorded");
+      let stream = isRecordedStream(streamUrl);
       this.setStreamAsRecorded(stream);      
     });
   }
