@@ -185,6 +185,10 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
+              <div
+                id="changeLangLabel"
+                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
+              />
               <label
                 aria-labelledby="changeLangLabel"
                 className={cx(styles.formElement, styles.pullContentRight)}
@@ -204,10 +208,6 @@ class ApplicationMenu extends BaseMenu {
                   </select>
                 ) : null}
               </label>
-              <div
-                id="changeLangLabel"
-                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
-              />
             </div>
           </div>
           <hr className={styles.separator} />
