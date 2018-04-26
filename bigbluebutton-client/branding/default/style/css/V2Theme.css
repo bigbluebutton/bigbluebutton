@@ -87,7 +87,7 @@ mx|Application {
 	paddingTop    : 8;
 }
 
-.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
+.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle, .btnWebRTCStyle, .btnJavaStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
+				initialize="init()"
+				layout="absolute"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+				showCloseButton="false">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
+			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+			import org.bigbluebutton.modules.screenshare.utils.WebRTCScreenshareUtility;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(ScreenshareSelectionWindow);
+			
+			private function init():void {
+				if ((Options.getOptions(ScreenshareOptions) as ScreenshareOptions).offerWebRTC) {
+					WebRTCScreenshareUtility.canIUseWebRTCOnThisBrowser(webRTCNotAvailableCallback, webRTCAvailableCallback, webRTCAvailableCallback);
+				} else {
+					LOGGER.debug("WebRTC disabled in options");
+					// need to delay call so that we know that the popup actually exists on the stage
+					callLater(onJavaClick);
+				}
+			}
+			
+			private function webRTCNotAvailableCallback(reason:String):void {
+				LOGGER.debug("WebRTC not available, reason=" + reason);
+				// need to delay call so that we know that the popup actually exists on the stage
+				webrtcProblemHintBox.visible = webrtcProblemHintBox.includeInLayout = true;
+				webrtcProblemHintLbl.text = ResourceUtil.getInstance().getString('bbb.screenshareSelection.problemHintText', [reason]);
+				btnWebrtc.enabled = false;
+			}
+			
+			private function webRTCAvailableCallback(reason:String):void {
+				LOGGER.debug("WebRTC available");
+				// don't do anything special for now
+			}
+			
+			private function onWebrtcClick():void {
+				LOGGER.debug("Use WebRTC clicked");
+				var dispatcher:Dispatcher = new Dispatcher();
+				
+				dispatcher.dispatchEvent(new RequestToStartSharing(true));
+				
+				PopUpUtil.removePopUp(this);
+			}
+			
+			private function onJavaClick():void {
+				LOGGER.debug("Use Java clicked");
+				var dispatcher:Dispatcher = new Dispatcher();
+				
+				dispatcher.dispatchEvent(new RequestToStartSharing(false));
+				
+				PopUpUtil.removePopUp(this);
+			}
+			
+			private function onCancelClicked():void {
+				LOGGER.debug("Close clicked");
+				// Might need to dispatch a ScreenshareSelectionWindowEvent.HIDE_WINDOW so that the toolbar button can be reset
+				PopUpUtil.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[windowTitle, closeButton, btnWebrtc, btnJava]}"/>
+	</fx:Declarations>
+	
+	<mx:VBox width="100%" height="100%" paddingBottom="20" paddingLeft="80" paddingRight="80" paddingTop="15" horizontalAlign="center">
+		<common:AdvancedLabel id="windowTitle"
+							  text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.title')}"
+							  styleName="titleWindowStyle"
+							  maxWidth="{this.width - 40}" />
+		<mx:Box id="webrtcProblemHintBox" 
+				width="100%" height="56"
+				verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				visible="false" includeInLayout="false"
+				styleName="webHintBoxStyle">
+			<mx:Text id="webrtcProblemHintLbl" width="100%" textAlign="center" styleName="audioBroswerHintTextStyle"/>
+		</mx:Box>
+		<mx:HBox width="100%" height="100%" styleName="screenshareSelectionsStyle">
+			<mx:VBox id="vboxWebrtc" width="50%" horizontalAlign="center" verticalAlign="middle">
+				<mx:Button id="btnWebrtc" buttonMode="true" styleName="btnWebRTCStyle" width="140" height="140"
+						   click="onWebrtcClick()"
+						   label="W"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.label')}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}" />
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.label')}"
+						  styleName="audioSubtitle" />
+			</mx:VBox>
+			<mx:VBox id="vboxJava" width="50%" horizontalAlign="center" verticalAlign="middle">
+				<mx:Button id="btnJava" width="140" height="140" buttonMode="true" styleName="btnJavaStyle"
+						   click="onJavaClick()"
+						   label="J"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.label')}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}" />
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.label')}"
+						  styleName="audioSubtitle" />
+			</mx:VBox>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.cancel')}"
+			   right="10" top="15"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.cancel.accessibilityName')}" />
+</mx:TitleWindow>

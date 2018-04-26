@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.modules.screenshare.managers
 {
+	import com.asfusion.mate.actions.builders.serviceClasses.Request;
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.external.ExternalInterface;
@@ -32,8 +33,8 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 	import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
+	import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 	import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
-	import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -51,8 +52,6 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var globalDispatcher:Dispatcher;
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
-		private var usingKurentoWebRTC:Boolean = false;
-		private var chromeExtensionKey:String = null;
 		private var options:ScreenshareOptions;
 		private var videoLoadingCallbackName:String = "videoLoadingCallback";
 
@@ -69,10 +68,6 @@ package org.bigbluebutton.modules.screenshare.managers
 			LOGGER.debug("WebRTC Screenshare Module starting");
 			this.module = module;
 			service.handleStartModuleEvent(module);
-
-			if (UsersUtil.amIPresenter()) {
-				initDeskshare();
-			}
 		}
 
 		public function handleStopModuleEvent():void {
@@ -110,51 +105,14 @@ package org.bigbluebutton.modules.screenshare.managers
 			extension installation */
 			publishWindowManager.stopSharing();
 
-			if (ExternalInterface.available && usingKurentoWebRTC) {
+			if (ExternalInterface.available && usingWebRTC) {
 				ExternalInterface.call("kurentoExitScreenShare");
-			}
-		}
-
-		private function startWebRTCDeskshare():void {
-			LOGGER.debug("WebRTCDeskshareManager::startWebRTCDeskshare");
-
-			if (ExternalInterface.available && usingKurentoWebRTC) {
-				var videoTag:String = "localWebRTCVideo";
-				var onFail:Function = function(args:Object):void {
-					LOGGER.debug("WebRTCDeskshareManager::startWebRTCDeskshare - falling back to java");
-					globalDispatcher.dispatchEvent(new UseJavaModeCommand())
-				};
-				ExternalInterface.addCallback("onFail", onFail);
-
-				var voiceBridge:String = UsersUtil.getVoiceBridge();
-				var myName:String = UsersUtil.getMyUsername();
-				var internalMeetingID:String = UsersUtil.getInternalMeetingID();
-
-				ExternalInterface.call(
-						'kurentoShareScreen',
-						videoTag,
-						voiceBridge,
-						myName,
-						internalMeetingID,
-						"onFail",
-						chromeExtensionKey);
-				
 			}
 		}
 
 		private function initDeskshare():void {
 			LOGGER.debug("WebRTCDeskshareManager::initDeskshare");
 			sharing = false;
-
-			if (!StringUtils.isEmpty(options.chromeExtensionKey)) {
-				chromeExtensionKey = options.chromeExtensionKey;
-			}
-			usingKurentoWebRTC = options.tryKurentoWebRTC;
-		}
-
-		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
-			LOGGER.debug("Got MadePresenterEvent ");
-			initDeskshare();
 		}
 
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
@@ -166,50 +124,11 @@ package org.bigbluebutton.modules.screenshare.managers
 			sharing = false;
 		}
 
-		/* When WebRTC DS cannot be used. Marks usingWebRTC as false,
-			 sends out fall back to java command
-		*/
-		private function cannotUseWebRTC (message:String):void {
-			LOGGER.debug("Cannot use WebRTC Screensharing: " + message);
-			JSLog.warn("Cannot use WebRTC Screensharing: ", message);
-			usingWebRTC = false;
-			usingKurentoWebRTC = false;
-			// send out event to fallback to Java
-			globalDispatcher.dispatchEvent(new UseJavaModeCommand());
-		};
-
-		/* When WebRTC is supported in the browser, theres an extension key,
-			 but not configured properly (no extension for example)
-		*/
-		private function webRTCWorksButNotConfigured (message:String):void {
-			LOGGER.debug("WebRTC Screenshare needs to be configured clientside: " + message);
-			JSLog.warn("WebRTC Screenshare needs to be configured clientside: ", message);
-			publishWindowManager.openWindow();
-			globalDispatcher.dispatchEvent(new WebRTCPublishWindowChangeState(WebRTCPublishWindowChangeState.DISPLAY_INSTALL));
-		}
-
-		/* WebRTC is supported and everything is configured properly (extension exists),
-			 attempt to share
-		*/
-		private function webRTCWorksAndConfigured (message:String):void {
-			LOGGER.debug("WebRTC Screenshare works, start sharing: " + message);
-			JSLog.warn("WebRTC Screenshare works, start sharing: ", message);
-			usingWebRTC = true;
-			startWebRTCDeskshare();
-		}
-
 		/*handle start sharing event*/
-		public function handleStartSharingEvent():void {
+		public function startSharing():void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
 
-			if (WebRTCAudioStatus.getInstance().getDidWebRTCAudioFail()) {
-				usingWebRTC = false;
-				usingKurentoWebRTC = false;
-				globalDispatcher.dispatchEvent(new UseJavaModeCommand());
-				return;
-			}
-
-			WebRTCScreenshareUtility.canIUseWebRTCOnThisBrowser(cannotUseWebRTC, webRTCWorksButNotConfigured, webRTCWorksAndConfigured);
+			publishWindowManager.startSharing();
 		}
 
 		public function handleShareWindowCloseEvent():void {
@@ -234,7 +153,7 @@ package org.bigbluebutton.modules.screenshare.managers
 				globalDispatcher.dispatchEvent(new DeskshareToolbarEvent(DeskshareToolbarEvent.START));
 			} else {
 
-				if (!options.tryWebRTCFirst || e == null || e.rtmp == null) {
+				if (!options.offerWebRTC || e == null || e.rtmp == null) {
 					return;
 				}
 
@@ -244,16 +163,15 @@ package org.bigbluebutton.modules.screenshare.managers
 			 sharing = true; //TODO must uncomment this for the non-webrtc desktop share
 		}
 
-		public function handleUseJavaModeCommand():void {
-			LOGGER.debug("WebRTCDeskshareManager::handleUseJavaModeCommand");
-			usingWebRTC = false;
-			usingKurentoWebRTC = false;
-		}
-
-		public function handleRequestStartSharingEvent():void {
+		public function handleRequestStartSharingEvent(event:RequestToStartSharing):void {
 			LOGGER.debug("WebRTCDeskshareManager::handleRequestStartSharingEvent");
-			initDeskshare();
-			handleStartSharingEvent();
+			if (event.useWebRTC) {
+				usingWebRTC = true;
+				initDeskshare();
+				startSharing();
+			} else {
+				usingWebRTC = false
+			}
 		}
 
 		public function handleScreenShareStartedEvent(event:ShareStartedEvent):void {
