@@ -15,6 +15,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 
 import { styles } from '../styles';
 
@@ -112,6 +113,13 @@ class SettingsDropdown extends Component {
         label={intl.formatMessage(intlMessages.aboutLabel)}
         description={intl.formatMessage(intlMessages.aboutDesc)}
         onClick={() => mountModal(<AboutContainer />)}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="about"
+        label="Hotkeys"
+        description="listing of available hotkeys"
+        onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
       (<DropdownListItem
