@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
-import { styles } from '../styles';
 import { defineMessages, injectIntl } from 'react-intl';
-import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
-import { toast } from 'react-toastify';
-import { styles as mediaStyles } from '/imports/ui/components/media/styles';
-import Toast from '/imports/ui/components/toast/component';
-import _ from 'lodash';
 
 import VideoList from '../video-list/component';
 
@@ -29,8 +23,6 @@ class VideoDock extends Component {
   }
 
   componentDidMount() {
-    const { users, userId } = this.props;
-
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
   }
 
@@ -45,7 +37,11 @@ class VideoDock extends Component {
   installChromeExtension() {
     console.log(intlMessages);
     const { intl } = this.props;
-    const CHROME_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+
+    const CHROME_DEFAULT_EXTENSION_LINK = Meteor.settings.public.kurento.chromeDefaultExtensionLink;
+    const CHROME_CUSTOM_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+
+    const CHROME_EXTENSION_LINK = CHROME_CUSTOM_EXTENSION_LINK === 'LINK' ? CHROME_DEFAULT_EXTENSION_LINK : CHROME_CUSTOM_EXTENSION_LINK;
 
     this.notifyError(<div>
       {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
@@ -56,16 +52,23 @@ class VideoDock extends Component {
   }
 
   render() {
-    if (!this.props.socketOpen) {
+    const {
+      socketOpen,
+      users,
+      onStart,
+      onStop,
+    } = this.props;
+
+    if (!socketOpen) {
       // TODO: return something when disconnected
       return null;
     }
 
     return (
       <VideoList
-        users={this.props.users}
-        onMount={this.props.onStart}
-        onUnmount={this.props.onStop}
+        users={users}
+        onMount={onStart}
+        onUnmount={onStop}
       />
     );
   }
