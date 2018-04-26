@@ -149,18 +149,6 @@ module.exports = class Screenshare extends EventEmitter {
       case "MediaFlowOutStateChange":
       case "MediaFlowInStateChange":
         Logger.info('[screenshare]', msEvent.type, '[' + msEvent.state? msEvent.state : 'UNKNOWN_STATE' + ']', 'for media session',  event.id);
-
-        if (msEvent.state === 'FLOWING' && this._status != C.MEDIA_STARTED) {
-          Logger.info('[screenshare] webRTC started flowing id: ', event.id);
-          if (SHOULD_RECORD) {
-            this.startRecording();
-          }
-          this._status = C.MEDIA_STARTED;
-        }
-
-        if (msEvent.state === 'NOT_FLOWING') {
-          this._status = C.MEDIA_STOPPED;
-        }
         break;
 
       default: Logger.warn("[screenshare] Unrecognized event", event);
@@ -309,24 +297,23 @@ module.exports = class Screenshare extends EventEmitter {
     return new Promise(async (resolve, reject) => {
       try {
         Logger.info('[screnshare] Stopping and releasing endpoints for MCS user', this.userId);
+        await this._stopScreensharing();
+        this._status = C.MEDIA_STOPPED;
 
-        if (this._presenterEndpoint) {
-          await this._stopScreensharing();
-          Logger.info("[screenshare] Leaving mcs room");
-          await this.mcs.leave(this._meetingId, this.userId);
-          delete sharedScreens[this._presenterEndpoint];
-          this._candidatesQueue = null;
-          this._presenterEndpoint = null;
-          this._ffmpegEndpoint = null;
-          if (SHOULD_RECORD) {
-            this.sendStopShareEvent();
-          }
-          resolve();
+        Logger.info("[screenshare] Leaving mcs room");
+        await this.mcs.leave(this._meetingId, this.userId);
+        delete sharedScreens[this._presenterEndpoint];
+        this._candidatesQueue = null;
+        this._presenterEndpoint = null;
+        this._ffmpegEndpoint = null;
+        if (SHOULD_RECORD) {
+          this.sendStopShareEvent();
         }
+        return resolve();
       }
       catch (err) {
         Logger.error('[screenshare] MCS returned an error when trying to leave =>', err);
-        resolve();
+        return resolve();
       }
     });
   }
@@ -334,6 +321,7 @@ module.exports = class Screenshare extends EventEmitter {
   _stopScreensharing() {
     return new Promise((resolve, reject) => {
       try {
+        Logger.info("[screenshare] Stopping screensharing with status", this._status);
         let strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
 
         this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
@@ -356,6 +344,10 @@ module.exports = class Screenshare extends EventEmitter {
             return resolve();
           }
         });
+
+        if (this._status != C.MEDIA_STARTED) {
+          return resolve();
+        }
       }
       catch (err) {
         Logger.error(err);
@@ -384,6 +376,13 @@ module.exports = class Screenshare extends EventEmitter {
       });
 
       this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+      if (this._status != C.MEDIA_STARTED) {
+        Logger.info('[screenshare] webRTC started flowing for meeting', this._meetingId);
+        if (SHOULD_RECORD) {
+          this.startRecording();
+        }
+        this._status = C.MEDIA_STARTED;
+      }
     }
   };
 

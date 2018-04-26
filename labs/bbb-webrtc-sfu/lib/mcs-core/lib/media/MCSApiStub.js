@@ -27,7 +27,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(answer);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] join ", err);
       Promise.reject(err);
     }
   }
@@ -38,7 +38,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(answer);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] leave ", err);
       return Promise.reject(err);
     }
   }
@@ -49,7 +49,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(answer);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] publishnsubscribe ", err);
       return Promise.reject(err);
     }
   }
@@ -60,7 +60,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(answer);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] publish ", err);
       return Promise.reject(err);
     }
   }
@@ -71,7 +71,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve();
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] unpublish ", err);
       return Promise.reject(err);
     }
   }
@@ -83,7 +83,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(answer);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] subscribe ", err);
       return Promise.reject(err);
     }
   }
@@ -94,7 +94,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve();
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] unsubscribe ", err);
       return Promise.reject(err);
     }
   }
@@ -105,7 +105,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(answer);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] startRecording ", err);
       return Promise.reject(err);
     }
   }
@@ -116,7 +116,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(answer);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] stopRecording ", err);
       return Promise.reject(err);
     }
   }
@@ -131,7 +131,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(eventTag);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] onEvent ", err);
       return Promise.reject();
     }
   }
@@ -142,7 +142,7 @@ module.exports = class MCSApiStub extends EventEmitter {
       return Promise.resolve(ack);
     }
     catch (err) {
-      Logger.error(err);
+      Logger.error("[MCSApi] addIceCandidate ", err);
       Promise.reject();
     }
   }

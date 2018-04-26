@@ -89,12 +89,12 @@ module.exports = class BaseManager {
           }
           delete this._sessions[sessionId];
           this._logAvailableSessions();
-          resolve();
+          return resolve();
         }
       }
       catch (err) {
         Logger.error(err);
-        resolve();
+        return resolve();
       }
     });
   }
