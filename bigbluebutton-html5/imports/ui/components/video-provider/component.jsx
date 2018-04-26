@@ -326,6 +326,7 @@ class VideoProvider extends Component {
         if (shareWebcam) {
           that.unshareWebcam();
         }
+
         return log('error', error);
       }
 
@@ -415,6 +416,40 @@ class VideoProvider extends Component {
     }
   }
 
+  getStats(id, video, callback) {
+    const isCurrent = id === this.props.userId;
+    const peer = this.webRtcPeers[id];
+    const { peerConnection } = peer;
+
+    if (peer) {
+      if (peer.started === true) {
+        if (peer.peerConnection.getLocalStreams().length > 0){
+          window.monitorTrackStart(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
+        } else if (peer.peerConnection.getRemoteStreams().length > 0){
+          window.monitorTrackStart(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
+        }
+        return;
+      }
+    }
+  }
+
+  stopGettingStats(id) {
+    const isCurrent = id === this.props.userId;
+    const peer = this.webRtcPeers[id];
+    const { peerConnection } = peer;
+
+    if (peer) {
+      if (peer.started === true) {
+        if (peer.peerConnection.getLocalStreams().length > 0){
+          window.monitorTrackStop(peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].id);
+        } else if (peer.peerConnection.getRemoteStreams().length > 0){
+          window.monitorTrackStop(peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0].id);
+        }
+        return;
+      }
+    }
+  }
+
   handlePlayStop(message) {
     const id = message.cameraId;
 
@@ -487,6 +522,8 @@ class VideoProvider extends Component {
       <VideoList
         users={this.props.users}
         onMount={this.attachVideoStream.bind(this)}
+        getStats={this.getStats.bind(this)}
+        stopGettingStats={this.stopGettingStats.bind(this)}
       />
     );
   }

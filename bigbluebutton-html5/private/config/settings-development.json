@@ -61,7 +61,8 @@
       "chromeExtensionKey": "KEY",
       "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
-      "enableVideo": false
+      "enableVideo": false,
+      "enableVideoStats": false
     },
 
     "acl": {

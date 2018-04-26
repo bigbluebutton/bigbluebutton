@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -8,20 +9,78 @@ import DropdownListTitle from '/imports/ui/components/dropdown/list/title/compon
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Icon from '/imports/ui/components/icon/component';
+import Button from '/imports/ui/components/button/component';
+import VideoListItemStats from './video-list-item-stats/component';
 import { styles } from '../styles';
+
+const intlMessages = defineMessages({
+  connectionStatsLabel: {
+    id: 'app.video.stats.title',
+  },
+});
 
 class VideoListItem extends Component {
   constructor(props) {
     super(props);
     this.videoTag = null;
+
+    this.state = {
+      showStats: false,
+      stats: {},
+    }
+
+    this.toggleStats = this.toggleStats.bind(this);
+    this.setStats = this.setStats.bind(this);
   }
 
   componentDidMount() {
     this.props.onMount(this.videoTag);
   }
 
+  toggleStats() {
+    const prevState = this.state;
+    const { getStats, stopGettingStats } = this.props;
+    
+    this.setState({showStats: !prevState.showStats});
+
+    if (!prevState.showStats) {
+      getStats(this.videoTag, this.setStats);
+    } else {
+      stopGettingStats();
+    }
+  }
+
+  setStats(stats) {
+    this.setState({ stats: { ...this.state.stats, video: stats.video, audio: stats.audio }});
+  }
+
+
+  getAvailableActions() {
+    const {
+      intl,
+      actions,
+      user,
+    } = this.props;
+
+    return _.compact([
+      <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
+      <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
+      ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
+      (Meteor.settings.public.kurento.enableVideoStats ?
+        <DropdownListItem
+          key={'list-item-stats-' + user.id}
+          onClick={() => {this.toggleStats();}}
+          label={intl.formatMessage(intlMessages.connectionStatsLabel)}
+        />
+      : null),
+    ]);
+  }
+
   render() {
-    const { user, actions } = this.props;
+    const { showStats, stats } = this.state;
+    const { user } = this.props;
+    
+    const availableActions = this.getAvailableActions();
 
     return (
       <div className={cx({
@@ -44,19 +103,16 @@ class VideoListItem extends Component {
             </DropdownTrigger>
             <DropdownContent placement="top left">
               <DropdownList className={styles.dropdownList}>
-                {[
-                  <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
-                  <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-                  ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
-                ]}
+                {availableActions}
               </DropdownList>
             </DropdownContent>
           </Dropdown>
           { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
         </div>
+        { showStats && stats.video ? <VideoListItemStats stats={stats} toggleStats={this.toggleStats} /> : null }
       </div>
     );
   }
 }
 
-export default VideoListItem;
+export default injectIntl(VideoListItem);

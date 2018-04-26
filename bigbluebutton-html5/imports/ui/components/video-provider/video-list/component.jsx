@@ -9,6 +9,8 @@ import VideoListItem from './video-list-item/component';
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
   onMount: PropTypes.func.isRequired,
+  getStats: PropTypes.func.isRequired,
+  stopGettingStats: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -140,7 +142,7 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl, users, onMount,
+      intl, users, onMount, getStats, stopGettingStats
     } = this.props;
     const { focusedId } = this.state;
 
@@ -168,6 +170,12 @@ class VideoList extends Component {
             onMount={(videoRef) => {
               this.handleCanvasResize();
               return onMount(user.id, videoRef);
+            }}
+            getStats={(videoRef, callback) => {
+              return getStats(user.id, videoRef, callback);
+            }}
+            stopGettingStats={() => {
+              return stopGettingStats(user.id);
             }}
           />
         </div>
