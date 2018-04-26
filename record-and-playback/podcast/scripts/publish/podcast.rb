@@ -97,7 +97,6 @@ begin
         xml.playback {
           xml.format("podcast")
           xml.link("#{playback_protocol}://#{playback_host}/podcast/#{meeting_id}/audio.ogg")
-          xml.processing_time("#{processing_time}")
           xml.duration("#{recording_time}")
         }
       end

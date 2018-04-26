@@ -74,7 +74,7 @@ if not FileTest.directory?(target_dir)
     BigBlueButton::AudioProcessor.process("#{raw_archive_dir}", "#{target_dir}/audio")
 
     # Get the real-time start and end timestamp
-    @doc = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
+    @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
 
     meeting_start = @doc.xpath("//event")[0][:timestamp]
     meeting_end = @doc.xpath("//event").last()[:timestamp]

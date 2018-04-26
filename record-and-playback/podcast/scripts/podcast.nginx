@@ -17,6 +17,6 @@
 #
 
         location /podcast {
-                root    /var/bigbluebutton/podcast;
+                root    /var/bigbluebutton/published;
                 index  index.html index.htm;
         }
