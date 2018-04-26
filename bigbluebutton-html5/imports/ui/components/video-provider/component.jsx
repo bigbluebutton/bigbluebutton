@@ -73,7 +73,6 @@ class VideoProvider extends Component {
   componentDidMount() {
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
-
     this.ws.addEventListener('message', this.onWsMessage);
   }
 
@@ -230,7 +229,6 @@ class VideoProvider extends Component {
       if (webRtcPeer.didSDPAnswered) {
         webRtcPeer.addIceCandidate(message.candidate, (err) => {
           if (err) {
-            this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
             return log('error', `Error adding candidate: ${err}`);
           }
         });
@@ -244,7 +242,7 @@ class VideoProvider extends Component {
 
   stopWebRTCPeer(id) {
     log('info', 'Stopping webcam', id);
-    const userId = this.props.userId
+    const userId = this.props.userId;
     const shareWebcam = id === userId;
 
     if (shareWebcam) {

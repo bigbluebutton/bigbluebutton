@@ -44,39 +44,42 @@ module.exports = class Screenshare extends EventEmitter {
     this._viewersEndpoint = [];
     this._viewersCandidatesQueue = [];
     this._status = C.MEDIA_STOPPED;
+    this._rtmpBroadcastStarted = false;
   }
 
-  onIceCandidate (_candidate) {
-    Logger.debug("[screenshare] onIceCandidate");
-    if (this._presenterEndpoint) {
-      try {
-        this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
-        this.mcs.addIceCandidate(this._presenterEndpoint, _candidate);
-      } catch (err) {
-        Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
+  onIceCandidate (candidate, role, callerName) {
+    Logger.debug("[screenshare] onIceCandidate", role, callerName, candidate);
+    switch (role) {
+      case C.SEND_ROLE:
+        if (this._presenterEndpoint) {
+          try {
+            this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
+            this.mcs.addIceCandidate(this._presenterEndpoint, candidate);
+          } catch (err) {
+            Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
+          }
+        } else {
+          Logger.debug("[screenshare] Pushing ICE candidate to presenter queue");
+          this._presenterCandidatesQueue.push(candidate);
+        }
+      case C.RECV_ROLE:
+        let endpoint = this._viewersEndpoint[callerName];
+        if (endpoint) {
+          try {
+            this.flushCandidatesQueue(endpoint, this._viewersCandidatesQueue[callerName]);
+            this.mcs.addIceCandidate(endpoint, candidate);
+          } catch (err) {
+            Logger.error("[screenshare] Viewer ICE candidate could not be added to media controller.", err);
+          }
+        } else {
+          this._viewersCandidatesQueue[callerName] = [];
+          Logger.debug("[screenshare] Pushing ICE candidate to viewer queue", callerName);
+          this._viewersCandidatesQueue[callerName].push(candidate);
+        }
+        break;
+      default:
+        Logger.warn("[screenshare] Unknown role", role);
       }
-    } else {
-      Logger.debug("[screenshare] Pushing ICE candidate to presenter queue");
-      this._presenterCandidatesQueue.push(_candidate);
-    }
-  }
-
-  onViewerIceCandidate(candidate, callerName) {
-    Logger.debug("[screenshare] onViewerIceCandidate");
-    if (this._viewersEndpoint[callerName]) {
-      try {
-        this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
-        this.mcs.addIceCandidate(this._viewersEndpoint[callerName], candidate);
-      } catch (err) {
-        Logger.error("[screenshare] Viewer ICE candidate could not be added to media controller.", err);
-      }
-    } else {
-      if (!this._viewersCandidatesQueue[callerName]) {
-        this._viewersCandidatesQueue[callerName] = [];
-      }
-      Logger.debug("[screenshare] Pushing ICE candidate to viewer queue", callerName);
-      this._viewersCandidatesQueue[callerName].push(candidate);
-    }
   }
 
   flushCandidatesQueue (mediaId, queue) {
@@ -126,10 +129,11 @@ module.exports = class Screenshare extends EventEmitter {
     switch (event.eventTag) {
       case "OnIceCandidate":
         let candidate = msEvent.candidate;
-        Logger.debug('[screenshare] Received ICE candidate from mcs-core for media session', event.id, '=>', candidate);
+        Logger.debug('[screenshare] Received ICE candidate from mcs-core for media session', event.id, '=>', candidate, "for connection", id);
 
         this._BigBlueButtonGW.publish(JSON.stringify({
           connectionId: id,
+          type: C.SCREENSHARE_APP,
           id : 'iceCandidate',
           cameraId: this._id,
           candidate : candidate
@@ -191,71 +195,71 @@ module.exports = class Screenshare extends EventEmitter {
     });
   }
 
-  async _startPresenter(id, sdpOffer, callback) {
-    let presenterSdpAnswer, rtpSdpAnswer;
-    let _callback = callback;
-
+  async start (sessionId, connectionId, sdpOffer, callerName, role, callback) {
     // Force H264 on Firefox and Chrome
     if (FORCE_H264) {
       sdpOffer = h264_sdp.transform(sdpOffer);
     }
 
-    Logger.info("[screenshare] Starting presenter", id , "at session", this._voiceBridge);
+    Logger.info("[screenshare] Starting session", this._voiceBridge + '-' + role);
+    if (!this.userId) {
+      try {
+        this.userId = await this.mcs.join(this._meetingId, 'SFU', {});
+        Logger.info("[screenshare] MCS Join for", this._id, "returned", this.userId);
 
-    try {
-      this.userId = await this.mcs.join(this._meetingId, 'SFU', {});
-      Logger.info("[screenshare] MCS Join for", this._id, "returned", this.userId);
-
-    }
-    catch (error) {
-      Logger.error("[screenshare] MCS Join returned error =>", error);
-      return callback(error);
-    }
-
-    try {
-      const retSource = await this.mcs.publish(this.userId, this._meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
-
-      this._presenterEndpoint = retSource.sessionId;
-      sharedScreens[id] = this._presenterEndpoint;
-      presenterSdpAnswer = retSource.answer;
-      this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
-
-      this.mcs.on('MediaEvent' + this._presenterEndpoint, (event) => {
-        this.mediaStateWebRtc(event, this._id)
-      });
-
-      Logger.info("[screenshare] MCS publish for user", this.userId, "returned", this._presenterEndpoint);
-    }
-    catch (err) {
-      Logger.error("[screenshare] MCS publish returned error =>", err);
-      return callback(err);
-    }
-    finally {
-      this.mcs.once('ServerState' + this._presenterEndpoint, this.serverState.bind(this));
+      }
+      catch (error) {
+        Logger.error("[screenshare] MCS Join returned error =>", error);
+        return callback(error);
+      }
     }
 
-    try {
-      let sendVideoPort = MediaHandler.getVideoPort();
-      let rtpSdpOffer = MediaHandler.generateVideoSdp(localIpAddress, sendVideoPort);
+    if (role === C.RECV_ROLE) {
+      this._startViewer(connectionId, this._voiceBridge, sdpOffer, callerName, this._presenterEndpoint, callback)
+      return;
+    }
 
-      const retRtp = await this.mcs.subscribe(this.userId, sharedScreens[id], 'RtpEndpoint', {descriptor: rtpSdpOffer});
+    if (role === C.SEND_ROLE) {
+      try {
+        const retSource = await this.mcs.publish(this.userId, this._meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
 
-      this._ffmpegEndpoint = retRtp.sessionId;
-      rtpEndpoints[id] = this._ffmpegEndpoint;
+        this._presenterEndpoint = retSource.sessionId;
+        sharedScreens[this._voiceBridge] = this._presenterEndpoint;
+        let presenterSdpAnswer = retSource.answer;
+        this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
 
-      let recvVideoPort = retRtp.answer.match(/m=video\s(\d*)/)[1];
-      this._rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
+        this.mcs.on('MediaEvent' + this._presenterEndpoint, (event) => {
+          this.mediaStateWebRtc(event, this._id)
+        });
+
+        Logger.info("[screenshare] MCS publish for user", this.userId, "returned", this._presenterEndpoint);
+
+        let sendVideoPort = MediaHandler.getVideoPort();
+        let rtpSdpOffer = MediaHandler.generateVideoSdp(localIpAddress, sendVideoPort);
+
+        const retRtp = await this.mcs.subscribe(this.userId, sharedScreens[this._voiceBridge], 'RtpEndpoint', {descriptor: rtpSdpOffer});
+
+        this._ffmpegEndpoint = retRtp.sessionId;
+        rtpEndpoints[this._voiceBridge] = this._ffmpegEndpoint;
+
+        let recvVideoPort = retRtp.answer.match(/m=video\s(\d*)/)[1];
+        this._rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
           sendVideoPort, recvVideoPort, this._meetingId, "stream_type_video", C.RTP_TO_RTMP, "copy", this._caller, this._voiceBridge);
 
-      this.mcs.on('MediaEvent' + this._ffmpegEndpoint, this.mediaStateRtp.bind(this));
+        this.mcs.on('MediaEvent' + this._ffmpegEndpoint, this.mediaStateRtp.bind(this));
 
-      Logger.info("[screenshare] MCS subscribe for user", this.userId, "returned", this._ffmpegEndpoint);
+        Logger.info("[screenshare] MCS subscribe for user", this.userId, "returned", this._ffmpegEndpoint);
 
-      return callback(null, presenterSdpAnswer);
-    }
-    catch (err) {
-      Logger.error("[screenshare] MCS subscribe returned error =>", err);
-      return callback(err);
+        return callback(null, presenterSdpAnswer);
+
+      }
+      catch (err) {
+        Logger.error("[screenshare] MCS publish returned error =>", err);
+        return callback(err);
+      }
+      finally {
+        this.mcs.once('ServerState' + this._presenterEndpoint, this.serverState.bind(this));
+      }
     }
   }
 
@@ -284,12 +288,14 @@ module.exports = class Screenshare extends EventEmitter {
 
       this._BigBlueButtonGW.publish(JSON.stringify({
         connectionId: connectionId,
-        id: "viewerResponse",
+        id: "startResponse",
+        type: C.SCREENSHARE_APP,
+        role: C.RECV_ROLE,
         sdpAnswer: sdpAnswer,
         response: "accepted"
       }), C.FROM_SCREENSHARE);
 
-      Logger.info("[screenshare] MCS subscribe returned for user", this.userId, "returned", this._viewersEndpoint[callerName]);
+      Logger.info("[screenshare] MCS subscribe returned for user", this.userId, "returned", this._viewersEndpoint[callerName], "at callername", callerName);
     }
     catch (err) {
       Logger.error("[screenshare] MCS publish returned error =>", err);
@@ -355,25 +361,26 @@ module.exports = class Screenshare extends EventEmitter {
   }
 
   _onRtpMediaFlowing() {
-    Logger.info("[screenshare] RTP Media FLOWING for meeting", this._meetingId);
-    let strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
+    if (!this._rtmpBroadcastStarted) {
+      Logger.info("[screenshare] RTP Media FLOWING for meeting", this._meetingId);
+      let strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
 
-    // Interoperability: capturing 1.1 start_transcoder_reply messages
-    this._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, (payload) => {
-      let meetingId = payload[C.MEETING_ID];
-      let output = payload["params"].output;
-      this._startRtmpBroadcast(meetingId, output);
-    });
+      // Interoperability: capturing 1.1 start_transcoder_reply messages
+      this._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, (payload) => {
+        let meetingId = payload[C.MEETING_ID];
+        let output = payload["params"].output;
+        this._startRtmpBroadcast(meetingId, output);
+      });
 
-    // Capturing stop transcoder responses from the 2x model
-    this._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, (payload) => {
-      let meetingId = payload[C.MEETING_ID_2x];
-      let output = payload["params"].output;
-      this._startRtmpBroadcast(meetingId, output);
-    });
+      // Capturing stop transcoder responses from the 2x model
+      this._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, (payload) => {
+        let meetingId = payload[C.MEETING_ID_2x];
+        let output = payload["params"].output;
+        this._startRtmpBroadcast(meetingId, output);
+      });
 
-
-    this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+      this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+    }
   };
 
   _stopRtmpBroadcast (meetingId) {
@@ -389,13 +396,14 @@ module.exports = class Screenshare extends EventEmitter {
 
   _startRtmpBroadcast (meetingId, output) {
     Logger.info("[screenshare] _startRtmpBroadcast for meeting", + meetingId);
-    if(this._meetingId === meetingId) {
+    if (this._meetingId === meetingId) {
       let timestamp = now.format('hhmmss');
       this._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
       let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(this._voiceBridge,
           this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
 
       this._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+      this._rtmpBroadcastStarted = true;
     }
   }
 

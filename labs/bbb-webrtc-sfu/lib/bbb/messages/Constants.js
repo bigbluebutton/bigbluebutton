@@ -15,6 +15,16 @@ const config = require('config');
         VIDEO: "VIDEO",
         ALL: "ALL",
 
+        // SFU app types
+        SCREENSHARE_APP:  'screenshare',
+        VIDEO_APP: 'video',
+        AUDIO_APP: 'audio',
+
+        // SFU requisition roles
+        SEND_ROLE: 'send',
+        RECV_ROLE: 'recv',
+        SEND_RECV_ROLE: 'sendrecv',
+
         // Redis channels
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
         FROM_VOICE_CONF_SYSTEM_CHAN: "from-voice-conf-redis-channel",
@@ -126,6 +136,14 @@ const config = require('config');
         MEDIA_SERVER_OFFLINE: "1000",
 
         // Media states'
+        MEDIA_FLOWING_IN: 'MEDIA_FLOWING_IN',
+        MEDIA_FLOWING_OUT: 'MEDIA_FLOWING_OUT',
+        MEDIA_NOT_FLOWING_IN: 'MEDIA_NOT_FLOWING_IN',
+        MEDIA_NOT_FLOWING_OUT: 'MEDIA_NOT_FLOWING_OUT',
+        MEDIA_CONNECTED: 'MEDIA_CONNECTED',
+        MEDIA_DISCONNECTED: 'MEDIA_DISCONNECTED',
+        ON_ICE_CANDIDATE: 'ON_ICE_CANDIDATE',
+
         MEDIA_STARTED: 'MEDIA_STARTED',
         MEDIA_STOPPED: 'MEDIA_STOPPED',
         MEDIA_STARTING: 'MEDIA_STARTING'

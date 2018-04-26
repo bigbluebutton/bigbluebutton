@@ -52,8 +52,7 @@ module.exports = class SfuUser extends User {
   addSdp (sdp, type) {
     // TODO switch from type to children SdpSessions (WebRTC|SDP)
     let session = new SdpSession(this.emitter, sdp, this.roomId, type);
-    this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
-    session.emitter.once(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
+    session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
       if (sessId === session.id) {
         Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
         this._mediaSessions[sessId] = null;

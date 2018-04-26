@@ -124,8 +124,12 @@ package org.bigbluebutton.modules.phone.managers {
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 				netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 				
+				var connId:String = ConnUtil.generateConnId();
+				BBB.initConnectionManager().voiceConnId = connId;
+				
 				var authToken: String = LiveMeeting.inst().me.authToken;
-				netConnection.connect(uri, meetingId, externUserId, username, authToken);
+				netConnection.connect(uri, meetingId, externUserId, username, authToken, 
+					BBB.initConnectionManager().voiceConnId);
 			}
 			if (reconnecting && !amIListenOnly) {
 				handleConnectionSuccess();

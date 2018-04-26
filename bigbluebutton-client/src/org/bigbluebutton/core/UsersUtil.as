@@ -308,6 +308,11 @@ package org.bigbluebutton.core
             logData.user = UsersUtil.getUserData();
         }
         logData.sessionToken = getUserSession();
+				logData.connections = BBB.initConnectionManager().getConnectionIds();
+				
+				var now:Date = new Date();
+				logData.clientTimeUTC = now.getTime();
+				logData.clientTZOffsetInMin = now.getTimezoneOffset();
         return logData;
     }
     

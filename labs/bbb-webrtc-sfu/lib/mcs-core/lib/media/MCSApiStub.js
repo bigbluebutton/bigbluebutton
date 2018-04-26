@@ -9,12 +9,12 @@ const Logger = require('../../../utils/Logger');
 
 let instance = null;
 
-module.exports = class MCSApiStub extends EventEmitter{
+module.exports = class MCSApiStub extends EventEmitter {
   constructor() {
     if(!instance) {
       super();
-      this.listener = new EventEmitter();
-      this._mediaController = new MediaController(this.listener);
+      this.emitter = this;
+      this._mediaController = new MediaController(this.emitter);
       instance = this;
     }
 
@@ -56,16 +56,6 @@ module.exports = class MCSApiStub extends EventEmitter{
 
   async publish (user, room,  type, params) {
     try {
-      this.listener.once(C.EVENT.NEW_SESSION+user, (event) => {
-        let sessionId = event;
-        this.listener.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, (event) => {
-          this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, event);
-        });
-        this.listener.on(C.EVENT.SERVER_STATE+sessionId, (event) => {
-          this.emit(C.EVENT.SERVER_STATE+sessionId, event);
-        });
-
-      });
       const answer = await this._mediaController.publish(user, room, type, params);
       return Promise.resolve(answer);
     }
@@ -88,13 +78,6 @@ module.exports = class MCSApiStub extends EventEmitter{
 
   async subscribe (user, sourceId, type, params) {
     try {
-      this.listener.once(C.EVENT.NEW_SESSION+user, (event) => {
-        let sessionId = event;
-        this.listener.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, (event) => {
-          this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, event);
-        });
-      });
-
       const answer = await this._mediaController.subscribe(user, sourceId, type, params);
 
       return Promise.resolve(answer);
@@ -142,7 +125,7 @@ module.exports = class MCSApiStub extends EventEmitter{
     try {
       const eventTag = this._mediaController.onEvent(eventName, mediaId);
       this._mediaController.on(eventTag, (event) => {
-        this.emit(eventTag, event);
+        this.emitter.emit(eventTag, event);
       });
 
       return Promise.resolve(eventTag);
