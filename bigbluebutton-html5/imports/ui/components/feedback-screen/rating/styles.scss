@@ -30,7 +30,7 @@
         };
 
         &:before {
-          content: '\e918';
+          content: '\e951';
         }
 
         &:hover,
@@ -38,7 +38,7 @@
           color: $color-primary;
           text-shadow: 0 0 3px $color-primary;
           &:before {
-            content: '\e918';
+            content: '\e951';
           }
         }
       }
@@ -47,7 +47,7 @@
     > input:checked {
       & ~ label {
         &:before {
-          content: '\e918';
+          content: '\e951';
           color: $color-primary;
         }
       }
