@@ -39,13 +39,11 @@ class ClientActor(clientId: String, connEventBus: InternalMessageBus)
     super.preStart()
     //println("******** CLIENT ACTOR CREATED " + "clientActor-" + clientId + " *****************************")
     connEventBus.subscribe(self, "clientActor-" + clientId)
-    connEventBus.subscribe(self, toClientChannel)
 
   }
 
   override def postStop(): Unit = {
     connEventBus.unsubscribe(self, "clientActor-" + clientId)
-    connEventBus.unsubscribe(self, toClientChannel)
     super.postStop()
   }
 }

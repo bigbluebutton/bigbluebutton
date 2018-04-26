@@ -28,7 +28,7 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
 
   private val msgToClientJsonActor = system.actorOf(MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
 
-  connEventBus.subscribe(msgToClientJsonActor, toClientChannel)
+  //connEventBus.subscribe(msgToClientJsonActor, toClientChannel)
 
   private val appsRedisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(connEventBus), "appsRedisSubscriberActor")
 

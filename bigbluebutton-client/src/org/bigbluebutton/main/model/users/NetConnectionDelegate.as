@@ -474,7 +474,7 @@ package org.bigbluebutton.main.model.users
 				}
 				
 				public function onMessageFromDS(msg: Object): void {
-					trace("*** From DS: " + JSON.stringify(msg));
+					//trace("*** From DS: " + JSON.stringify(msg));
 					var header: Object = msg.header as Object;
 					
 					var name:String = header.name as String;
@@ -488,7 +488,7 @@ package org.bigbluebutton.main.model.users
 				private var connected2Vertx:Boolean = false;
 				
 				public function connectedToVertx(): void {
-					trace("*** From DS: connectedToVertx");
+					//trace("*** From DS: connectedToVertx");
 					connected2Vertx = true;
 					connectMessage();
 				}

@@ -112,7 +112,7 @@ class UserActor(val userId: String,
           for {
             conn <- Connections.findActiveConnection(conns)
           } yield {
-            connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+            connEventBus.publish(MsgFromConnBusMsg("clientActor-" + conn.connId, DisconnectClientMsg(meetingId, conn.connId)))
             // Tell Akka apps to eject user from meeting.
             sendEjectUserFromMeetingToAkkaApps(msg.connInfo, meetingId, userId)
           }
@@ -178,7 +178,7 @@ class UserActor(val userId: String,
         case _ => // let it pass through
       }
       if (authorized) {
-        connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
+        connEventBus.publish(MsgFromConnBusMsg("clientActor-" + conn.connId, DirectMsgToClient(meetingId, conn.connId, msg)))
       }
 
     }
@@ -200,7 +200,9 @@ class UserActor(val userId: String,
     } yield {
       msg.envelope.name match {
         case DisconnectClientSysMsg.NAME =>
-          connEventBus.publish(MsgFromConnBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+          connEventBus.publish(MsgFromConnBusMsg("clientActor-" + conn.connId, DisconnectClientMsg(meetingId, conn.connId)))
+        case DisconnectAllClientsSysMsg.NAME =>
+          connEventBus.publish(MsgFromConnBusMsg("clientActor-" + conn.connId, DisconnectClientMsg(meetingId, conn.connId)))
         case _ => log.warning("Unhandled system messsage " + msg)
       }
     }
