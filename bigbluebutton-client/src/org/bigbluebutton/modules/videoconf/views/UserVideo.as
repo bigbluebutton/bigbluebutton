@@ -231,8 +231,8 @@ package org.bigbluebutton.modules.videoconf.views
 		LOGGER.debug(e.text);
     }
     
-    private function onMetaData(info:Object):void {
-		LOGGER.debug("width={0} height={1}", [info.width, info.height]);
+    public function onMetaData(info:Object):void {
+		LOGGER.debug("onMetaData :: " + JSON.stringify(info));
     }
 
     override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
