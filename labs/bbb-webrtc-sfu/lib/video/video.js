@@ -26,6 +26,7 @@ module.exports = class Video extends EventEmitter {
     this.mediaId = null;
     this.iceQueue = null;
     this.status = C.MEDIA_STOPPED;
+    this.recording = {};
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
@@ -129,7 +130,7 @@ module.exports = class Video extends EventEmitter {
           if (this.status != C.MEDIA_STARTED) {
 
             // Record the video stream if it's the original being shared
-            if (config.get('recordWebcams') && this.shared) {
+            if (this.shouldRecord()) {
               this.startRecording();
             }
 
@@ -167,6 +168,10 @@ module.exports = class Video extends EventEmitter {
       id : 'playStop',
       cameraId: this.id,
     }), C.FROM_VIDEO);
+  }
+
+  shouldRecord () {
+    config.get('recordWebcams') && this.shared;
   }
 
   async startRecording() {
@@ -235,7 +240,9 @@ module.exports = class Video extends EventEmitter {
       try {
         await this.mcs.leave(this.meetingId, this.userId);
 
-        this.sendStopShareEvent();
+        if (this.shouldRecord()) {
+          this.sendStopShareEvent();
+        }
 
         if (this.shared) {
           delete sharedWebcams[this.id];
