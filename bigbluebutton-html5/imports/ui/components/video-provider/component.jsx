@@ -52,6 +52,7 @@ class VideoProvider extends Component {
     this.reconnectWebcam = false;
     this.cameraTimeouts = {};
     this.webRtcPeers = {};
+    this.monitoredTracks = {};
 
     this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
@@ -417,17 +418,182 @@ class VideoProvider extends Component {
     }
   }
 
+  customGetStats(peer, mediaStreamTrack, callback, interval) {
+    var globalObject = {
+        video: {},
+    };
+
+    var promise;
+    try {
+      promise = peer.getStats(mediaStreamTrack);
+    } catch (e) {
+      promise = Promise.reject(e);
+    }
+    promise.then(function(results) {
+      var videoInOrOutbound = {};
+
+      results.forEach(function(res) {
+        if (res.type == 'ssrc' || res.type == 'inbound-rtp' || res.type == 'outbound-rtp') {
+          if (res.mediaType == 'video') {
+            res.packetsSent = parseInt(res.packetsSent);
+            res.packetsLost = parseInt(res.packetsLost) || 0;
+            res.packetsReceived = parseInt(res.packetsReceived);
+
+            if (isNaN(res.packetsSent) && res.packetsReceived == 0) {
+              return; // Discard local video receiving
+            }
+
+            if (res.googFrameWidthReceived) {
+              res.width = parseInt(res.googFrameWidthReceived);
+              res.height = parseInt(res.googFrameHeightReceived);
+            } else if (res.googFrameWidthSent) {
+              res.width = parseInt(res.googFrameWidthSent);
+              res.height = parseInt(res.googFrameHeightSent);
+            }
+
+            // Extra fields available on Chrome
+            if (res.googCodecName) res.codec = res.googCodecName;
+            if (res.googDecodeMs) res.decodeDelay = res.googDecodeMs;
+            if (res.googEncodeUsagePercent) res.encodeUsagePercent = res.googEncodeUsagePercent;
+            if (res.googRtt) res.rtt = res.googRtt;
+            if (res.googCurrentDelayMs) res.currentDelay = res.googCurrentDelayMs;
+
+            videoInOrOutbound = res;
+          }
+        }
+      });
+
+      var videoStats = {
+        timestamp: videoInOrOutbound.timestamp,
+        bytesReceived: videoInOrOutbound.bytesReceived,
+        bytesSent: videoInOrOutbound.bytesSent,
+        packetsReceived: videoInOrOutbound.packetsReceived,
+        packetsLost: videoInOrOutbound.packetsLost,
+        packetsSent: videoInOrOutbound.packetsSent,
+        decodeDelay: videoInOrOutbound.decodeDelay,
+        codec: videoInOrOutbound.codec,
+        height: videoInOrOutbound.height,
+        width: videoInOrOutbound.width,
+        encodeUsagePercent: videoInOrOutbound.encodeUsagePercent,
+        rtt: videoInOrOutbound.rtt,
+        currentDelay: videoInOrOutbound.currentDelay,
+      };
+
+      if (typeof globalObject.video.statsArray === 'undefined') {
+        globalObject.video.statsArray = [];
+        globalObject.video.haveStats = false;
+      }
+
+      var videoStatsArray = globalObject.video.statsArray;
+      videoStatsArray.push(videoStats);
+      while (videoStatsArray.length > 5) {// maximum interval to consider
+        videoStatsArray.shift();
+      }
+
+      var firstVideoStats = videoStatsArray[0];
+      var lastVideoStats = videoStatsArray[videoStatsArray.length - 1];
+
+      var videoIntervalPacketsLost = lastVideoStats.packetsLost - firstVideoStats.packetsLost;
+      var videoIntervalPacketsReceived = lastVideoStats.packetsReceived - firstVideoStats.packetsReceived;
+      var videoIntervalPacketsSent = lastVideoStats.packetsSent - firstVideoStats.packetsSent;
+      var videoIntervalBytesReceived = lastVideoStats.bytesReceived - firstVideoStats.bytesReceived;
+      var videoIntervalBytesSent = lastVideoStats.bytesSent - firstVideoStats.bytesSent;
+
+      var videoReceivedInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
+      var videoSentInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
+
+      var videoKbitsReceivedPerSecond = videoIntervalBytesReceived * 8 / videoReceivedInterval;
+      var videoKbitsSentPerSecond = videoIntervalBytesSent * 8 / videoSentInterval;
+      var videoPacketDuration = videoIntervalPacketsSent / videoSentInterval * 1000;
+
+      if (videoStats.packetsReceived > 0) { // Remote video
+        var videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsReceived) * 100) || 0).toFixed(1);
+        var videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
+        var videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsReceived) * 100) || 0).toFixed(1);
+      } else {
+        var videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsSent) * 100) || 0).toFixed(1);
+        var videoBitrate = Math.floor(videoKbitsSentPerSecond || 0);
+        var videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsSent) * 100) || 0).toFixed(1);
+      }
+
+      result = {
+        video: {
+          bytesReceived: videoStats.bytesReceived,
+          bytesSent: videoStats.bytesSent,
+          packetsLost: videoStats.packetsLost,
+          packetsReceived: videoStats.packetsReceived,
+          packetsSent: videoStats.packetsSent,
+          bitrate: videoBitrate,
+          lostPercentage: videoLostPercentage,
+          lostRecentPercentage: videoLostRecentPercentage,
+          height: videoStats.height,
+          width: videoStats.width,
+          codec: videoStats.codec,
+          decodeDelay: videoStats.decodeDelay,
+          encodeUsagePercent: videoStats.encodeUsagePercent,
+          rtt: videoStats.rtt,
+          currentDelay: videoStats.currentDelay,
+        }
+      };
+
+      callback(result);
+    }, function(exception) {
+      logger.error("Promise rejected", exception.message);
+      callback(null);
+    });
+  }
+
+  monitorTrackStart(peer, track, local, callback){
+    const that = this;
+    console.log("Starting stats monitoring on", track.id);
+    const getStatsInterval = 2000;
+
+    const callGetStats = () => {
+      that.customGetStats(
+        peer,
+        track,
+        function(results) {
+          if (results == null || peer.signalingState == "closed") {
+            that.monitorTrackStop(track.id);
+          } else {
+            callback(results);
+          }
+        },
+        getStatsInterval
+      )
+    };
+
+    if (!this.monitoredTracks[track.id]) {
+      callGetStats();
+      this.monitoredTracks[track.id] = setInterval(
+        callGetStats,
+        getStatsInterval,
+      );
+    } else {
+      console.log("Already monitoring this track");
+    }
+  }
+
+  monitorTrackStop(trackId){
+    if (this.monitoredTracks[trackId]) {
+      clearInterval(this.monitoredTracks[trackId]);
+      delete this.monitoredTracks[trackId];
+      console.log("Track " + trackId + " removed");
+    } else {
+      console.log("Track " + trackId + " is not monitored");
+    }
+  }
+
   getStats(id, video, callback) {
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
-    const { peerConnection } = peer;
 
     if (peer) {
       if (peer.started === true) {
         if (peer.peerConnection.getLocalStreams().length > 0){
-          window.monitorTrackStart(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
+          this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
         } else if (peer.peerConnection.getRemoteStreams().length > 0){
-          window.monitorTrackStart(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
+          this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
         }
         return;
       }
@@ -441,9 +607,9 @@ class VideoProvider extends Component {
     if (peer) {
       if (peer.started === true) {
         if (peer.peerConnection.getLocalStreams().length > 0){
-          window.monitorTrackStop(peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].id);
+          this.monitorTrackStop(peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].id);
         } else if (peer.peerConnection.getRemoteStreams().length > 0){
-          window.monitorTrackStop(peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0].id);
+          this.monitorTrackStop(peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0].id);
         }
         return;
       }
