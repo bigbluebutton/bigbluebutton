@@ -106,6 +106,7 @@ $item-focus-border: $color-blue-lighter;
   flex-shrink: 1;
   overflow-x: hidden;
   overflow-y: auto;
+  margin-top: ($lg-padding-x / 2);
 }
 
 .smallTitle {
