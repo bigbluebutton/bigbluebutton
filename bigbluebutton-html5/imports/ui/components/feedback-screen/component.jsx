@@ -90,6 +90,7 @@ class FeedbackScreen extends Component {
         <ModalBase
           overlayClassName={styles.overlay}
           className={styles.modal}
+          contentLabel={intl.formatMessage(intlMessages.title)}
         >
           <header
             className={styles.header}
@@ -103,7 +104,7 @@ class FeedbackScreen extends Component {
             <h4 className={styles.subtitle}>
               {intl.formatMessage(intlMessages.subtitle)}
             </h4>
-            <div className={styles.banana}>
+            <div className={styles.rating}>
               <Rating
                 total="5"
                 onRate={this.setSelectedStar}
@@ -115,6 +116,7 @@ class FeedbackScreen extends Component {
                 disabled={this.state.selected === 0}
                 className={styles.textarea}
                 placeholder={intl.formatMessage(intlMessages.textarea)}
+                aria-describedby="textareaDesc"
               />
             </div>
             <div>
@@ -125,6 +127,7 @@ class FeedbackScreen extends Component {
                 description={intl.formatMessage(intlMessages.confirmDesc)}
               />
             </div>
+            <div id="textareaDesc" hidden>{intl.formatMessage(intlMessages.textarea)}</div>
           </div>
         </ModalBase>
       </span>
