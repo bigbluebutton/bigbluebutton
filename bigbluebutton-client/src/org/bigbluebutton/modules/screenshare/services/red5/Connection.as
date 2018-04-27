@@ -19,22 +19,24 @@
 
 package org.bigbluebutton.modules.screenshare.services.red5 {
     import com.asfusion.mate.events.Dispatcher;
+    
     import flash.events.NetStatusEvent;
     import flash.events.SecurityErrorEvent;
     import flash.net.NetConnection;
     import flash.net.ObjectEncoding;
     import flash.net.Responder;
+    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.core.BBB;
-		import org.bigbluebutton.core.Options;
+    import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.main.events.BBBEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-		import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-		import org.bigbluebutton.util.ConnUtil;
+    import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+    import org.bigbluebutton.util.ConnUtil;
 		
     public class Connection {
         private static const LOGGER:ILogger = getClassLogger(Connection);
@@ -83,6 +85,9 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 					ssAppUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
 					LOGGER.debug("SCREENSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
 				}
+				
+				var connId:String = ConnUtil.generateConnId();
+				BBB.initConnectionManager().screenshareConnId = connId;
 				
 				netConnection.client = this;
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatusHandler);
@@ -245,6 +250,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             var message:Object = new Object();
             message["meetingId"] = UsersUtil.getInternalMeetingID();
             message["userId"] = UsersUtil.getMyUserID();
+						message["clientConnId"] = BBB.initConnectionManager().screenshareConnId;
             
             sendMessage("screenshare.setUserId", function(result:String):void { // On successful result
                 LOGGER.debug(result);

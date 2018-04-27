@@ -3,6 +3,12 @@ const isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 const isChrome = !!window.chrome && !isOpera;
 const isSafari = navigator.userAgent.indexOf('Safari') >= 0 && !isChrome;
 const kurentoHandler = null;
+const SEND_ROLE = "send";
+const RECV_ROLE = "recv";
+const SFU_APP = "screenshare";
+const ON_ICE_CANDIDATE_MSG = "onIceCandidate";
+const START_MSG = "start";
+const START_RESPONSE_MSG = "startResponse";
 
 Kurento = function (
   tag,
@@ -104,7 +110,7 @@ KurentoManager.prototype.shareScreen = function (tag) {
   const obj = Object.create(Kurento.prototype);
   Kurento.apply(obj, arguments);
   this.kurentoScreenshare = obj;
-  this.kurentoScreenshare.setScreenShare(tag);
+  this.kurentoScreenshare.setScreensharing(tag);
 };
 
 KurentoManager.prototype.joinWatchVideo = function (tag) {
@@ -116,8 +122,8 @@ KurentoManager.prototype.joinWatchVideo = function (tag) {
 };
 
 
-Kurento.prototype.setScreenShare = function (tag) {
-  this.mediaCallback = this.makeShare.bind(this);
+Kurento.prototype.setScreensharing = function (tag) {
+  this.mediaCallback = this.startScreensharing.bind(this);
   this.create(tag);
 };
 
@@ -151,11 +157,8 @@ Kurento.prototype.init = function () {
 Kurento.prototype.onWSMessage = function (message) {
   const parsedMessage = JSON.parse(message.data);
   switch (parsedMessage.id) {
-    case 'presenterResponse':
-      this.presenterResponse(parsedMessage);
-      break;
-    case 'viewerResponse':
-      this.viewerResponse(parsedMessage);
+    case 'startResponse':
+      this.startResponse(parsedMessage);
       break;
     case 'stopSharing':
       kurentoManager.exitScreenShare();
@@ -172,44 +175,14 @@ Kurento.prototype.setRenderTag = function (tag) {
   this.renderTag = tag;
 };
 
-Kurento.prototype.presenterResponse = function (message) {
-  if (message.response !== 'accepted') {
-    const errorMsg = message.message ? message.message : 'Unknown error';
-    console.warn(`Call not accepted for the following reason: ${JSON.stringify(errorMsg, null, 2)}`);
-    kurentoManager.exitScreenShare();
-    this.onFail(errorMessage);
-  } else {
-    console.log(`Presenter call was accepted with SDP => ${message.sdpAnswer}`);
-    this.webRtcPeer.processAnswer(message.sdpAnswer);
-  }
-};
-
-Kurento.prototype.viewerResponse = function (message) {
-  if (message.response !== 'accepted') {
-    const errorMsg = message.message ? message.message : 'Unknown error';
-    console.warn(`Call not accepted for the following reason: ${errorMsg}`);
-    kurentoManager.exitScreenShare();
-    this.onFail(errorMessage);
-  } else {
-    console.log(`Viewer call was accepted with SDP => ${message.sdpAnswer}`);
-    this.webRtcPeer.processAnswer(message.sdpAnswer);
-  }
-};
-
-Kurento.prototype.serverResponse = function (message) {
+Kurento.prototype.startResponse = function (message) {
   if (message.response !== 'accepted') {
     const errorMsg = message.message ? message.message : 'Unknow error';
     console.warn(`Call not accepted for the following reason: ${errorMsg}`);
     kurentoManager.exitScreenShare();
   } else {
+    console.debug(`Screenshare procedure was accepted with SDP => ${message.sdpAnswer}`);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
-  }
-};
-
-Kurento.prototype.makeShare = function () {
-  const self = this;
-  if (!self.webRtcPeer) {
-    this.startScreenStreamFrom();
   }
 };
 
@@ -222,9 +195,9 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   }
 
   const message = {
-    id: 'presenter',
-    type: 'screenshare',
-    role: 'presenter',
+    id: 'start',
+    type: SFU_APP,
+    role: SEND_ROLE,
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
     callerName: self.caller_id_name,
@@ -232,43 +205,44 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     vh: self.vid_max_height,
     vw: self.vid_max_width,
   };
+
   console.log(`onOfferPresenter sending to screenshare server => ${JSON.stringify(message, null, 2)}`);
   this.sendMessage(message);
 };
 
-Kurento.prototype.startScreenStreamFrom = function () {
-  const self = this;
+Kurento.prototype.startScreensharing = function () {
   if (window.chrome) {
-    if (!self.chromeExtension) {
-      self.logError({
+    if (!this.chromeExtension) {
+      this.logError({
         status: 'failed',
         message: 'Missing Chrome Extension key',
       });
-      self.onFail();
+      this.onFail();
       return;
     }
   }
 
-  console.log(self);
   const options = {
     localVideo: document.getElementById(this.renderTag),
-    onicecandidate: self.onIceCandidate.bind(self),
+    onicecandidate: (candidate) => {
+      this.onIceCandidate(candidate, SEND_ROLE);
+    },
     sendSource: 'desktop',
   };
 
   console.log(` Peer options => ${JSON.stringify(options, null, 2)}`);
 
-  self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
+  this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
       console.log(`WebRtcPeerSendonly constructor error ${JSON.stringify(error, null, 2)}`);
-      self.onFail(error);
+      this.onFail(error);
       return kurentoManager.exitScreenShare();
     }
 
-    self.webRtcPeer.generateOffer(self.onOfferPresenter.bind(self));
+    this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
     console.log(`Generated peer offer w/ options ${JSON.stringify(options)}`);
 
-    const localStream = self.webRtcPeer.peerConnection.getLocalStreams()[0];
+    const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
     localStream.getVideoTracks()[0].onended = function () {
       return kurentoManager.exitScreenShare();
     };
@@ -279,32 +253,19 @@ Kurento.prototype.startScreenStreamFrom = function () {
   });
 };
 
-Kurento.prototype.onIceCandidate = function (candidate) {
+Kurento.prototype.onIceCandidate = function (candidate, role) {
   const self = this;
   console.log(`Local candidate${JSON.stringify(candidate)}`);
 
   const message = {
-    id: 'onIceCandidate',
-    role: 'presenter',
-    type: 'screenshare',
-    voiceBridge: self.voiceBridge,
-    candidate,
-  };
-  this.sendMessage(message);
-};
-
-Kurento.prototype.onViewerIceCandidate = function (candidate) {
-  const self = this;
-  console.log(`Viewer local candidate${JSON.stringify(candidate)}`);
-
-  const message = {
-    id: 'viewerIceCandidate',
-    role: 'viewer',
-    type: 'screenshare',
+    id: ON_ICE_CANDIDATE_MSG,
+    role: role,
+    type: SFU_APP,
     voiceBridge: self.voiceBridge,
     candidate,
     callerName: self.caller_id_name,
   };
+
   this.sendMessage(message);
 };
 
@@ -324,8 +285,10 @@ Kurento.prototype.viewer = function () {
         audio: false
       },
       remoteVideo: document.getElementById(this.renderTag),
-      onicecandidate: this.onViewerIceCandidate.bind(this),
-    };
+      onicecandidate: (candidate) => {
+        this.onIceCandidate(candidate, RECV_ROLE);
+      }
+    }
 
     self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (error) {
       if (error) {
@@ -344,9 +307,9 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     return this.onFail();
   }
   const message = {
-    id: 'viewer',
-    type: 'screenshare',
-    role: 'viewer',
+    id: 'start',
+    type: SFU_APP,
+    role: RECV_ROLE,
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
     callerName: self.caller_id_name,
@@ -356,6 +319,24 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   console.log(`onOfferViewer sending to screenshare server => ${JSON.stringify(message, null, 2)}`);
   this.sendMessage(message);
 };
+
+Kurento.prototype.pauseTrack = function (message) {
+  const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
+  const track = localStream.getVideoTracks()[0];
+
+  if (track) {
+    track.enabled = false;
+  }
+}
+
+Kurento.prototype.resumeTrack = function (message) {
+  const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
+  const track = localStream.getVideoTracks()[0];
+
+  if (track) {
+    track.enabled = true;
+  }
+}
 
 Kurento.prototype.stop = function () {
   // if (this.webRtcPeer) {
@@ -499,7 +480,6 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
       sources: [
         'window',
         'screen',
-        'tab',
       ],
     },
     (response) => {

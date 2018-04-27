@@ -53,11 +53,11 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting meeting metadata")
       doc = Nokogiri::XML(File.open(events_xml))
       metadata = {}
-      doc.xpath("//metadata").each do |e| 
-        e.keys.each do |k| 
+      doc.xpath("//metadata").each do |e|
+        e.keys.each do |k|
           metadata[k] = e.attribute(k)
         end
-      end  
+      end
       metadata
     end
 
@@ -106,17 +106,6 @@ module BigBlueButton
       start_events
     end
 
-    # Get stop video events
-    def self.get_stop_video_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting stop video events")
-      stop_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='StopWebcamShareEvent']").each do |stop_event|
-        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text}
-      end
-      stop_events
-    end
-
     # Build a webcam EDL
     def self.create_webcam_edl(archive_dir)
       events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
@@ -133,19 +122,28 @@ module BigBlueButton
       videos = {}
       active_videos = []
       video_edl = []
-      
+
       video_edl << {
         :timestamp => 0,
-        :areas => { :webcam => [] } 
+        :areas => { :webcam => [] }
       }
 
-      events.xpath('/recording/event[@module="WEBCAM"]').each do |event|
+      events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent"))]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
+        # Determine the video filename
         case event['eventname']
-        when 'StartWebcamShareEvent'
+        when 'StartWebcamShareEvent', 'StopWebcamShareEvent'
           stream = event.at_xpath('stream').text
           filename = "#{video_dir}/#{stream}.flv"
+        when 'StartWebRTCShareEvent', 'StopWebRTCShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{video_dir}/#{File.basename(uri)}"
+        end
+        raise "Couldn't determine webcam filename" if filename.nil?
 
+        # Add the video to the EDL
+        case event['eventname']
+        when 'StartWebcamShareEvent', 'StartWebRTCShareEvent'
           videos[filename] = { :timestamp => timestamp }
           active_videos << filename
 
@@ -160,10 +158,7 @@ module BigBlueButton
             }
           end
           video_edl << edl_entry
-        when 'StopWebcamShareEvent'
-          stream = event.at_xpath('stream').text
-          filename = "#{video_dir}/#{stream}.flv"
-
+        when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
           active_videos.delete(filename)
 
           edl_entry = {
@@ -215,23 +210,49 @@ module BigBlueButton
     end
 
     def self.get_start_deskshare_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting start DESKSHARE events")      
+      BigBlueButton.logger.info("Task: Getting start DESKSHARE events")
       start_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='DeskshareStartedEvent']").each do |start_event|
-        s = {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('file').text.sub(/(.+)\//, "")}
-        start_events << s
+      events = Nokogiri::XML(File.open(events_xml))
+      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and @eventname="StartWebRTCDesktopShareEvent")]').each do |start_event|
+        case start_event['eventname']
+        when 'DeskshareStartedEvent'
+          filename = start_event.at_xpath('file').text
+          filename = File.basename(filename)
+        when 'StartWebRTCDesktopShareEvent'
+          uri = start_event.at_xpath('filename').text
+          filename = File.basename(uri)
+        else
+          next
+        end
+
+        start_events << {
+          start_timestamp: start_event['timestamp'].to_i,
+          stream: filename
+        }
       end
       start_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}
     end
 
     def self.get_stop_deskshare_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")      
+      BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")
       stop_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='DeskshareStoppedEvent']").each do |stop_event|
-        s = {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('file').text.sub(/(.+)\//, "")}
-        stop_events << s
+      events = Nokogiri::XML(File.open(events_xml))
+      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and @eventname="StopWebRTCDesktopShareEvent")]').each do |stop_event|
+        case stop_event['eventname']
+        when 'DeskshareStoppedEvent'
+          filename = stop_event.at_xpath('file').text
+          filename = File.basename(filename)
+        when 'StopWebRTCDesktopShareEvent'
+          uri = stop_event.at_xpath('filename').text
+          filename = File.basename(uri)
+        else
+          next
+        end
+
+        stop_events << {
+          stop_timestamp: stop_event['timestamp'].to_i,
+          stream: filename
+        }
       end
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
@@ -251,12 +272,23 @@ module BigBlueButton
         :areas => { :deskshare => [] }
       }
 
-      events.xpath('/recording/event[@module="Deskshare"]').each do |event|
+      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent"))]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
+        # Determine the video filename
         case event['eventname']
-        when 'DeskshareStartedEvent'
+        when 'DeskshareStartedEvent', 'DeskshareStoppedEvent'
           filename = event.at_xpath('file').text
           filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+        when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
+        end
+        raise "Couldn't determine video filename" if filename.nil?
+
+        # Add the video to the EDL
+        case event['eventname']
+        when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
+          # Only one deskshare stream is permitted at a time.
           deskshare_edl << {
             :timestamp => timestamp,
             :areas => {
@@ -265,13 +297,11 @@ module BigBlueButton
               ]
             }
           }
-        when 'DeskshareStoppedEvent'
+        when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
           # Fill in the original/expected video duration when available
           duration = event.at_xpath('duration')
           if !duration.nil?
             duration = duration.text.to_i
-            filename = event.at_xpath('file').text
-            filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
             deskshare_edl.each do |entry|
               if !entry[:areas][:deskshare].nil?
                 entry[:areas][:deskshare].each do |file|
@@ -494,7 +524,7 @@ module BigBlueButton
     # of the final recording
     def self.have_webcam_events(events_xml)
       BigBlueButton.logger.debug("Checking if webcams were used...")
-      webcam_events = events_xml.xpath('/recording/event[@module="WEBCAM"]')
+      webcam_events = events_xml.xpath('/recording/event[@eventname="StartWebcamShareEvent" or @eventname="StartWebRTCShareEvent"]')
       if webcam_events.length > 0
         BigBlueButton.logger.debug("Webcam events seen in recording")
         return true
@@ -545,9 +575,9 @@ module BigBlueButton
 
     # Version of the bbb server where it was recorded
     def self.bbb_version(events_xml)
-      events = Nokogiri::XML(File.open(events_xml))      
+      events = Nokogiri::XML(File.open(events_xml))
       recording = events.at_xpath('/recording')
-      recording['bbb_version']      
+      recording['bbb_version']
     end
 
     # Compare version numbers

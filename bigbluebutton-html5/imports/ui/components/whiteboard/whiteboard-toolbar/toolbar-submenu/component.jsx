@@ -7,9 +7,9 @@ import { styles } from '../styles';
 import ToolbarSubmenuItem from '../toolbar-submenu-item/component';
 
 const intlMessages = defineMessages({
-  toolHand: {
-    id: 'app.whiteboard.toolbar.tools.hand',
-    description: 'Tool submenu hand item',
+  toolPointer: {
+    id: 'app.whiteboard.toolbar.tools.pointer',
+    description: 'Tool submenu pointer item',
   },
   toolPencil: {
     id: 'app.whiteboard.toolbar.tools.pencil',

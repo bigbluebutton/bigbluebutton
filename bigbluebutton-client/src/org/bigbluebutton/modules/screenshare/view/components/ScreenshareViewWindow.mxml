@@ -97,13 +97,19 @@
 				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 			}
 
+			private function resizeVideoCanvas() : void {
+				videoCanvas.width = this.width - VIDEO_WIDTH_PADDING;
+				videoCanvas.height = this.height - VIDEO_HEIGHT_PADDING;
+			}
+			
 			private function onCreationComplete():void{
 				viewScreenshareStream();
 
+				resizeVideoCanvas();
+				
 				videoHolder.addChild(video);
 				videoCanvas.addChildAt(videoHolder, 0);
-				videoHolder.percentWidth = 100;
-				videoHolder.percentHeight = 100;
+
 				videoHolder.addEventListener(MouseEvent.MOUSE_OVER, videoHolder_mouseOverHanlder);
 				videoHolder.addEventListener(MouseEvent.MOUSE_OUT, videoHolder_mouseOutHanlder);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
@@ -232,6 +238,8 @@
              * Resizes the desktop sharing video to fit to this window
              */
             private function fitToWindow():void {
+				resizeVideoCanvas();
+				
                 if (!streamAvailable)
                     return;
 
@@ -243,9 +251,6 @@
                 if (!btnActualSize.selected) {
                     fitVideoToWindow();
                 }
-
-				videoHolder.verticalCenter = 0;
-				videoHolder.horizontalCenter = 0;
             }
 
 			private function fitVideoToWindow():void {
@@ -258,6 +263,9 @@
 				videoHolder.width = video.width;
 				videoHolder.height = video.height;
 
+				videoHolder.verticalCenter = 0;
+				videoHolder.horizontalCenter = 0;
+				
 				videoCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
 				videoCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
 			}
@@ -267,6 +275,11 @@
 				videoHolder.width = videoWidth;
 				video.height = videoHeight;
 				videoHolder.height = videoHeight;
+				
+				videoHolder.verticalCenter = undefined;
+				videoHolder.horizontalCenter = undefined;
+				videoHolder.x = 0;
+				videoHolder.y = 0;
 			}
 
 			private function videoIsSmallerThanWindow():Boolean {
@@ -278,12 +291,9 @@
 			 */
 			private function fitToActualSize():void{
 				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
+					fitVideoToWindow();
 				} else {
-					video.width = videoWidth;
-					videoHolder.width = videoWidth;
-					video.height = videoHeight;
-					videoHolder.height = videoHeight;
+					fitWindowToVideo();
 				}
 				
 				videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
@@ -339,7 +349,7 @@
 						   tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
 	</fx:Declarations>
 
-	<mx:Canvas id="videoCanvas" width="100%" height="100%" />
+	<mx:Canvas id="videoCanvas" width="100" height="100"/>
 
 	<mx:Button id="btnActualSize"
 			   styleName="screenShareActualizeButton"

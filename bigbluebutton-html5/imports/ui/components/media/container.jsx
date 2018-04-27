@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import SessionStorage from '/imports/ui/services/storage/session';
 import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -22,6 +23,11 @@ const intlMessages = defineMessages({
 });
 
 class MediaContainer extends Component {
+  componentWillMount() {
+    const { willMount } = this.props;
+    willMount && willMount();
+  }
+
   componentWillReceiveProps(nextProps) {
     const {
       isScreensharing,
@@ -46,12 +52,14 @@ export default withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
-  const data = {};
-  data.currentPresentation = MediaService.getPresentationInfo();
+  const hidePresentation = SessionStorage.getItem('meta_html5hidepresentation') || false;
 
-  data.children = <DefaultContent />;
+  const data = {
+    children: <DefaultContent />,
+  };
 
-  if (MediaService.shouldShowWhiteboard()) {
+  if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
+    data.currentPresentation = MediaService.getPresentationInfo();
     data.children = <PresentationAreaContainer />;
   }
 
@@ -71,6 +79,14 @@ export default withTracker(() => {
 
   if (data.swapLayout) {
     data.floatingOverlay = true;
+    data.hideOverlay = hidePresentation;
+  }
+
+  const enableVideo = Meteor.settings.public.kurento.enableVideo;
+  const autoShareWebcam = SessionStorage.getItem('meta_html5autosharewebcam') || false;
+
+  if (enableVideo && autoShareWebcam) {
+    data.willMount = VideoService.joinVideo;
   }
 
   return data;

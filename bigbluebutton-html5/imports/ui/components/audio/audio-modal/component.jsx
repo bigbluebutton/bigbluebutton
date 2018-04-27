@@ -97,6 +97,7 @@ class AudioModal extends Component {
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
+    this.handleRetryGoToEchoTest = this.handleRetryGoToEchoTest.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
     this.handleJoinMicrophone = this.handleJoinMicrophone.bind(this);
     this.handleJoinListenOnly = this.handleJoinListenOnly.bind(this);
@@ -167,6 +168,19 @@ class AudioModal extends Component {
         content: 'settings',
       });
     });
+  }
+
+  handleRetryGoToEchoTest() {
+    const { joinFullAudioImmediately } = this.props;
+
+    this.setState({
+      hasError: false,
+      content: null,
+    });
+
+    if (joinFullAudioImmediately) return this.joinMicrophone();
+
+    return this.handleGoToEchoTest();
   }
 
   handleGoToEchoTest() {
@@ -285,7 +299,7 @@ class AudioModal extends Component {
 
     if (this.skipAudioOptions()) {
       return (
-        <span className={styles.connecting}>
+        <span className={styles.connecting} role="alert">
           { !isEchoTest ?
             intl.formatMessage(intlMessages.connecting) :
             intl.formatMessage(intlMessages.connectingEchoTest)
@@ -317,7 +331,7 @@ class AudioModal extends Component {
     return (
       <AudioSettings
         handleBack={this.handleGoToAudioOptions}
-        handleRetry={this.handleGoToEchoTest}
+        handleRetry={this.handleRetryGoToEchoTest}
         joinEchoTest={this.joinEchoTest}
         exitAudio={this.exitAudio}
         changeInputDevice={this.changeInputDevice}

@@ -64,7 +64,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			closeWindow(shareWindow);
 		}
 
-		public function openWindow(window:IBbbModuleWindow = null):void {
+		private function openWindow(window:IBbbModuleWindow = null):void {
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 
 			if (window == null) {
@@ -85,17 +85,16 @@ package org.bigbluebutton.modules.screenshare.managers
 			shareWindow = null;
 		}
 
+		public function startSharing():void {
+			openWindow();
+		}
+		
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
 			/* re use window object that is used to display installaion instructions */
 			/* the window is first created for the instructions prompting the user to
 			install the extension. this way after the extension is installed and the user
 			retries when the video stream comes in it re uses the window element instead of
 			making a second window and preventing the first from being removed */
-			if (shareWindow == null) {
-				shareWindow = new WebRTCDesktopPublishWindow();
-				shareWindow.visible = true;
-				openWindow(shareWindow);
-			}
 
 			shareWindow.startVideo(rtmp, videoWidth, videoHeight);
 		}

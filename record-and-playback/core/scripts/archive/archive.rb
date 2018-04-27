@@ -81,6 +81,18 @@ def archive_screenshare(meeting_id, deskshare_dir, raw_archive_dir)
   end
 end
 
+def archive_kurento_screenshare(meeting_id, screenshare_dir, raw_archive_dir)
+  BigBlueButton.logger.info("Archiving WebRTC screenshare for #{meeting_id}.")
+  begin
+    deskshare_dest_dir = "#{raw_archive_dir}/#{meeting_id}/deskshare"
+    FileUtils.mkdir_p(deskshare_dest_dir)
+    Dir.glob("#{screenshare_dir}/#{meeting_id}/*").each do |file|
+      BigBlueButton.logger.debug("#{file} to #{deskshare_dest_dir}")
+      FileUtils.cp(file, deskshare_dest_dir)
+    end
+  end
+end
+
 def archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
   BigBlueButton.logger.info("Archiving presentation for #{meeting_id}.")
   begin
@@ -127,6 +139,8 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
+kurento_video_dir = props['kurento_video_src']
+kurento_screenshare_dir = props['kurento_screenshare_src']
 log_dir = props['log_dir']
 
 BigBlueButton.logger = Logger.new("#{log_dir}/archive-#{meeting_id}.log", 'daily' )
@@ -139,7 +153,9 @@ if not FileTest.directory?(target_dir)
   archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
   archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
   archive_screenshare(meeting_id, screenshare_dir, raw_archive_dir)
+  archive_kurento_screenshare(meeting_id, kurento_screenshare_dir, raw_archive_dir)
   archive_video(meeting_id, video_dir, raw_archive_dir)
+  archive_video(meeting_id, kurento_video_dir, raw_archive_dir)
 
   if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
     BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")

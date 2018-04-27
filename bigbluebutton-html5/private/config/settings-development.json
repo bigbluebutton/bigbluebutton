@@ -59,6 +59,8 @@
 
     "kurento": {
       "wsUrl": "HOST",
+      "chromeDefaultExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
+      "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeExtensionKey": "KEY",
       "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
@@ -315,8 +317,8 @@
             "value": "pencil"
           },
           {
-            "icon": "hand",
-            "value": "hand"
+            "icon": "pointer",
+            "value": "pointer"
           }
         ]
       }

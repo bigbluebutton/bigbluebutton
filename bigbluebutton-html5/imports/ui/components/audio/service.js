@@ -5,6 +5,7 @@ import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users';
 
 const init = (messages) => {
+  AudioManager.setAudioMessages(messages);
   if (AudioManager.initialized) return;
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
@@ -26,7 +27,7 @@ const init = (messages) => {
     microphoneLockEnforced,
   };
 
-  AudioManager.init(userData, messages);
+  AudioManager.init(userData);
 };
 
 const isVoiceUserTalking = () =>

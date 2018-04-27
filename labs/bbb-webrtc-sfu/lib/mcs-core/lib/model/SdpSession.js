@@ -29,7 +29,7 @@ module.exports = class SdpSession extends MediaSession {
     await this._sdp.processSdp();
   }
 
-  async processDescriptor () {
+  async process () {
     try {
       const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp());
 

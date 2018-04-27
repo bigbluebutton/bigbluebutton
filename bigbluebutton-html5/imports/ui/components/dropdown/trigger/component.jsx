@@ -59,8 +59,8 @@ export default class DropdownTrigger extends Component {
       ...restProps,
       onClick: this.handleClick,
       onKeyDown: this.handleKeyDown,
-      'aria-haspopup': true,
       className: cx(children.props.className, className),
+      'aria-expanded': this.props.dropdownIsOpen,
     });
 
     return TriggerComponentBounded;

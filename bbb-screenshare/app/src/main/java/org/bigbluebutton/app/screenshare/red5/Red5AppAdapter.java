@@ -107,7 +107,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 
     String connType = getConnectionType(Red5.getConnectionLocal().getType());
     String connId = Red5.getConnectionLocal().getSessionId();
-
+    String clientConnId = (String) conn.getAttribute("CLIENT_CONN_ID");
     String meetingId = conn.getScope().getName();
     String userId = getUserId();
 
@@ -118,6 +118,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     logData.put("userId", userId);
     logData.put("connType", connType);
     logData.put("connId", connId);
+    logData.put("clientConnId", clientConnId);
     logData.put("event", "user_leaving_bbb_screenshare");
     logData.put("description", "User leaving BBB Screenshare.");
 

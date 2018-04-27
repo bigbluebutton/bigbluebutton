@@ -150,9 +150,7 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 } 
 
 
-
-	
-// 
+//
 // Create a meeting and return a URL to join it as moderator.  This is used for the API demos.
 //
 // Passed
@@ -169,6 +167,29 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 //  Note this meeting will use username for meetingID
 
 public String getJoinURL(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml) {
+    String isHTML5Client = "false";
+    return getJoinURLExtended(username, meetingID, record, welcome, metadata, xml, isHTML5Client);
+}
+
+
+//
+// Create a meeting and return a URL to join it as moderator.  This is used for the API demos.
+//
+// Passed
+//	- username
+//  - meetingID
+//  - record ["true", "false"]
+//  - welcome message (null causes BigBlueButton to use the default welcome message
+//  - metadata (passed through when record="true"
+//  - xml (used for pre-upload of slides)_
+//  - isHTML5Client ["true", "false"]
+//
+// Returned
+//  - valid join URL using the username
+//
+//  Note this meeting will use username for meetingID
+
+public String getJoinURLExtended(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, String isHTML5Client) {
 
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
@@ -182,15 +203,15 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 	if ((xml != null) && !xml.equals("")) {
 		xml_param = xml;
 	}
-	
+
 	Random random = new Random();
 	String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
-	
+
 	//
 	// When creating a meeting, the 'name' parameter is the name of the meeting (not to be confused with
 	// the username).  For example, the name could be "Fred's meeting" and the meetingID could be "ID-1234312".
 	//
-	// While name and meetingID should be different, we'll keep them the same.  Why?  Because calling api/create? 
+	// While name and meetingID should be different, we'll keep them the same.  Why?  Because calling api/create?
 	// with a previously used meetingID will return same meetingToken (regardless if the meeting is running or not).
 	//
 	// This means the first person to call getJoinURL with meetingID="Demo Meeting" will actually create the
@@ -212,7 +233,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 	try {
 		String url = base_url_create + create_parameters
 			+ "&checksum="
-			+ checksum("create" + create_parameters + salt); 
+			+ checksum("create" + create_parameters + salt);
 		doc = parseXml( postURL( url, xml_param ) );
 
 	} catch (Exception e) {
@@ -224,20 +245,24 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 
 		//
 		// Looks good, now return a URL to join that meeting
-		//  
+		//
 
 		String join_parameters = "meetingID=" + urlEncode(meetingID)
-			+ "&fullName=" + urlEncode(username) + "&password=mp";
+			+ "&fullName=" + urlEncode(username)
+
+		+ "&joinViaHtml5=" + isHTML5Client
+	 	+ "&password=mp";
 
 		return base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);
 	}
-	
+
 	return doc.getElementsByTagName("messageKey").item(0).getTextContent()
 		.trim()
-		+ ": " 
+		+ ": "
 		+ doc.getElementsByTagName("message").item(0).getTextContent()
 		.trim();
+
 }
 
 
@@ -967,3 +992,4 @@ public static Element getElementWithAttribute(Node root, String attrName, String
 }
 
 %>
+
