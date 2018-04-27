@@ -94,7 +94,7 @@ module.exports = class ScreenshareManager extends BaseManager {
         break;
 
       case 'onIceCandidate':
-        if (session.constructor === Screenshare) {
+        if (session && session.constructor === Screenshare) {
           session.onIceCandidate(message.candidate, role, callerName);
         } else {
           Logger.info(this._logPrefix, "Queueing ice candidate for later in screenshare", message.voiceBridge);

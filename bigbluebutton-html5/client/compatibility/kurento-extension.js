@@ -419,9 +419,9 @@ window.getScreenConstraints = function (sendSource, callback) {
         { googCpuOveruseDetection: true },
         { googCpuOveruseEncodeUsage: true },
         { googCpuUnderuseThreshold: 55 },
-        { googCpuOveruseThreshold: 85 },
+        { googCpuOveruseThreshold: 100},
         { googPayloadPadding: true },
-        { googScreencastMinBitrate: 400 },
+        { googScreencastMinBitrate: 600 },
         { googHighStartBitrate: true },
         { googHighBitrate: true },
         { googVeryHighBitrate: true }
