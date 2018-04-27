@@ -27,7 +27,7 @@ class Rating extends Component {
               _.range(num)
                 .map(i =>
             [(<input type="radio" id={`star ${i + 1}`} name="rating" value={i + 1} key={_.uniqueId('star-')} onChange={() => this.clickStar(i + 1)} />),
-             (<label htmlFor={`star ${i+1}`} title="Outstanding" key={_.uniqueId('star-')}>star {i + 1}</label>)
+             (<label htmlFor={`star ${i+1}`} title={`star ${i+1}`} key={_.uniqueId('star-')}>star {i + 1}</label>)
            ]).reverse()
           }
         </fieldset>
@@ -42,7 +42,7 @@ class Rating extends Component {
     return (
       <div className={styles.father}>
         {
-          this.renderstars(total)
+          this.renderStars(total)
         }
       </div>
     );
