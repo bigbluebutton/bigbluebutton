@@ -21,6 +21,7 @@ formats:
     :extension: webm
     :parameters:
 # Multi-pass encoding, high quality
+# VP9 encoder settings based on https://developers.google.com/media/vp9/settings/vod/
       - [ '-pass', '1',
           # Video
           '-c:v', 'libvpx-vp9',

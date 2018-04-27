@@ -18,7 +18,7 @@
       <div id="main-area">
         <div id="video-area">
           <video id="video" class="video-js vjs-fill vjs-default-skin vjs-big-play-centered" controls>
-            <% screenshare_props[:formats].each_with_index do |format, i| %>
+            <% screenshare_props['formats'].each_with_index do |format, i| %>
               <source src="screenshare-<%= i %>.<%= format[:extension] %>" type="<%= CGI.escapeHTML(format[:mimetype]) %>">
             <% end %>
             <% captions.each do |caption| %>

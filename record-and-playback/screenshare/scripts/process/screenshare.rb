@@ -24,6 +24,7 @@ require File.expand_path('../../../lib/recordandplayback/edl', __FILE__)
 require 'trollop'
 require 'yaml'
 require 'nokogiri'
+require 'erb'
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to process", :type => String
@@ -142,7 +143,7 @@ screenshare_props['formats'].each_with_index do |format, i|
   if File.exist?(filename)
     logger.warn "    Skipping encode ... File already exists"
   else
-    filename = BigBlueButton::EDL.encode(audio, video, format, "#{process_dir}/screenshare-#{i}", screenshare_props['audio_offset'])
+    filename = BigBlueButton::EDL.encode(audio, video, format, "#{process_dir}/screenshare-#{i}", 0)
   end
 end
 
@@ -174,7 +175,7 @@ metadata_xml = Nokogiri::XML::Builder.new do |xml|
     xml.end_time(start_real_time + final_timestamp - initial_timestamp)
     xml.playback {
       xml.format('screenshare')
-      xml.link("#{props['playback_protocol']}://#{props['playback_host']}/screenshare/#{meeting_id}/")
+      xml.link("#{props['playback_protocol']}://#{props['playback_host']}/recording/screenshare/#{meeting_id}/")
       xml.duration(duration)
     }
     xml.meta {
