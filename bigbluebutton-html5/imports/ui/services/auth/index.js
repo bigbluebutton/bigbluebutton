@@ -4,7 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { makeCall, log } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -125,11 +125,14 @@ class Auth {
       });
     }
 
-    return this.validateAuthToken();
+    this.loggedIn = false;
+    return this.validateAuthToken()
+      .then(() => { this.loggedIn = true; });
   }
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
+      Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
@@ -142,9 +145,7 @@ class Auth {
 
       Tracker.autorun((c) => {
         computation = c;
-        const subscription = Meteor.subscribe('current-user', this.credentials);
-
-        if (!subscription.ready()) return;
+        Meteor.subscribe('current-user', this.credentials);
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const User = Users.findOne(selector);
@@ -152,11 +153,19 @@ class Auth {
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) return;
 
-        if (User.validated === true) {
+        if (User.ejected) {
+          reject({
+            error: 401,
+            description: 'User has been ejected.',
+          });
+          return;
+        }
+
+        if (User.validated === true && User.connectionStatus === 'online') {
           computation.stop();
           clearTimeout(validationTimeout);
-          this.loggedIn = true;
-          resolve();
+          // setTimeout to prevent race-conditions with subscription
+          setTimeout(resolve, 100);
         }
       });
 

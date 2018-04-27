@@ -107,7 +107,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 
     String connType = getConnectionType(Red5.getConnectionLocal().getType());
     String connId = Red5.getConnectionLocal().getSessionId();
-
+    String clientConnId = (String) conn.getAttribute("CLIENT_CONN_ID");
     String meetingId = conn.getScope().getName();
     String userId = getUserId();
 
@@ -118,6 +118,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     logData.put("userId", userId);
     logData.put("connType", connType);
     logData.put("connId", connId);
+    logData.put("clientConnId", clientConnId);
     logData.put("event", "user_leaving_bbb_screenshare");
     logData.put("description", "User leaving BBB Screenshare.");
 
@@ -140,6 +141,10 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     super.streamBroadcastStart(stream);
 
     log.info("streamBroadcastStart " + stream.getPublishedName() + "]");
+
+    String connId = conn.getSessionId();
+    String scopeName = stream.getScope().getName();
+
     String streamId = stream.getPublishedName();
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
@@ -147,7 +152,11 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
         String url = streamBaseUrl + "/" + meetingId + "/" + streamId;
         app.streamStarted(meetingId, streamId, url);
 
-	    boolean recordVideoStream = app.recordStream(meetingId, streamId);
+
+
+      app.authorizeBroadcastStream(meetingId, streamId, connId, scopeName);
+
+        boolean recordVideoStream = app.recordStream(meetingId, streamId);
 	    if (recordVideoStream) {
 	      recordStream(stream);
 	      ScreenshareStreamListener listener = new ScreenshareStreamListener(recordingService, recordingDirectory);
@@ -167,6 +176,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
       log.info("ScreenShare broadcast started: data={}", logStr);
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
+    	conn.close();
     }
   }
 

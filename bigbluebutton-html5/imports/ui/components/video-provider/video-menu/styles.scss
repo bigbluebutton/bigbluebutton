@@ -1,0 +1,41 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.button {
+  &:focus {
+    outline: none !important;
+  }
+
+  span:first-child {
+    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+  }
+}
+
+.imageSize {
+  height: 4rem;
+  @include mq($small-only) {
+    margin: auto 1rem;
+  };
+}
+
+.label {
+  font-size: $font-size-small;
+  white-space: nowrap;
+  margin-top: .5rem;
+  color: inherit;
+
+  @include mq($small-only) {
+    margin-top: 0;
+    font-size: 90%;
+  };
+}
+
+.item {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+
+  @include mq($small-only) {
+    flex-direction: row;
+  };
+}

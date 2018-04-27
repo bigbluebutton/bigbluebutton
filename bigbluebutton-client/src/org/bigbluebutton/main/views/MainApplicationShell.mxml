@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 		<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
 		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
+		<mate:Listener type="{ScreenshareSelectionWindowEvent.SHOW_WINDOW}" method="handleShowScreenshareSelection" />
 	  
 		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
@@ -98,6 +99,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.net.navigateToURL;
 			import flash.utils.setTimeout;
 			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -105,8 +108,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
-			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -127,9 +128,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.RoundTripLatencyReceivedEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.model.LiveMeeting;
-			import org.bigbluebutton.core.model.Meeting;
-			import org.bigbluebutton.core.model.MeetingBuilder;
-			import org.bigbluebutton.core.model.MeetingBuilder2x;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -156,6 +154,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.modules.screenshare.events.ScreenshareSelectionWindowEvent;
+			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareSelectionWindow;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -566,7 +566,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 logData.message = "Loaded locale.";
                 LOGGER.info(JSON.stringify(logData));
                     
-				if ((version == "old-locales") || (version == "") || (version == null)) {
+				if ((version == "old-locales") || StringUtils.isEmpty(version)) {
 					wrongLocaleVersion();
 				} else {
 					if (version != localeVersion) wrongLocaleVersion();
@@ -629,7 +629,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     }
                 } else if (BrowserCheck.isChrome()) {
                     if (browserPermissionHelper) {
-						browserPermissionHelper.currentState = "chromeMic";
+						if (Capabilities.os.indexOf("Mac") >= 0){
+							browserPermissionHelper.currentState = "chromeMicMacOSX";
+						} else {
+							browserPermissionHelper.currentState = "chromeMic";
+						}
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 130;
                     }
@@ -647,10 +651,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
             }
 			
+			private function handleShowScreenshareSelection(event:ScreenshareSelectionWindowEvent):void {
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, ScreenshareSelectionWindow, true);
+			}
+			
 			private function showbrowserPermissionHelper() : void {
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
-					browserPermissionHelper.currentState = "chromeCam";
+					if (Capabilities.os.indexOf("Mac") >= 0){
+						browserPermissionHelper.currentState = "chromeCamMacOSX";
+					} else {
+						browserPermissionHelper.currentState = "chromeCam";
+					}
 					browserPermissionHelper.x = 20;
 					browserPermissionHelper.y = 150;
 				}
@@ -898,7 +910,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
 		<mx:VBox horizontalCenter="0" verticalCenter="0" horizontalAlign="center" verticalGap="20">
 			<views:QuotesView id="quoteView"/>
-			<views:LoadingBar id="progressBar" width="280" height="15" labelWidth="280" textAlign="center"/>
+			<views:LoadingBar id="progressBar"/>
 		</mx:VBox>
 	</views:MainCanvas>	
 	

@@ -16,33 +16,19 @@ Logger.configure({
   },
 });
 
-// Write logs to console
-Logger.add(Winston.transports.Console, {
-  prettyPrint: false,
-  humanReadableUnhandledException: true,
-  colorize: true,
-  handleExceptions: true,
-});
-
 Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.private.log || {};
-  let { filename } = LOG_CONFIG;
+  const { level } = LOG_CONFIG;
 
-  // Set Logger message level priority for the console
-  Logger.transports.console.level = LOG_CONFIG.level;
+  // console logging
+  Logger.add(Winston.transports.Console, {
+    prettyPrint: false,
+    humanReadableUnhandledException: true,
+    colorize: true,
+    handleExceptions: true,
+    level,
+  });
 
-  // Determine file to write logs to
-  if (filename) {
-    if (Meteor.isDevelopment) {
-      const path = Npm.require('path');
-      filename = path.join(process.env.PWD, filename);
-    }
-
-    Logger.add(Winston.transports.File, {
-      filename,
-      prettyPrint: true,
-    });
-  }
 });
 
 export default Logger;

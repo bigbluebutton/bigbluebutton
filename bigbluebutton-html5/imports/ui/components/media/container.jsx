@@ -1,74 +1,93 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import SessionStorage from '/imports/ui/services/storage/session';
+import Settings from '/imports/ui/services/settings';
+import { defineMessages, injectIntl } from 'react-intl';
+import { notify } from '/imports/ui/services/notification';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Media from './component';
-import MediaService from './service';
+import MediaService, { getSwapLayout } from './service';
 import PresentationAreaContainer from '../presentation/container';
-import VideoDockContainer from '../video-dock/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
-const defaultProps = {
-  overlay: <VideoDockContainer />,
-  content: <PresentationAreaContainer />,
-  defaultContent: <DefaultContent />,
-};
+const intlMessages = defineMessages({
+  screenshareStarted: {
+    id: 'app.media.screenshare.start',
+    description: 'toast to show when a screenshare has started',
+  },
+  screenshareEnded: {
+    id: 'app.media.screenshare.end',
+    description: 'toast to show when a screenshare has ended',
+  },
+});
 
 class MediaContainer extends Component {
-  constructor(props) {
-    super(props);
-
-    const { overlay, content, defaultContent } = this.props;
-    this.state = {
-      overlay,
-      content: this.props.current_presentation ? content : defaultContent,
-    };
-
-    this.handleToggleLayout = this.handleToggleLayout.bind(this);
+  componentWillMount() {
+    const { willMount } = this.props;
+    willMount && willMount();
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.current_presentation !== this.props.current_presentation) {
-      if (nextProps.current_presentation) {
-        this.setState({ content: this.props.content });
+    const {
+      isScreensharing,
+      intl,
+    } = this.props;
+
+    if (isScreensharing !== nextProps.isScreensharing) {
+      if (nextProps.isScreensharing) {
+        notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
       } else {
-        this.setState({ content: this.props.defaultContent });
+        notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
       }
     }
   }
 
-  handleToggleLayout() {
-    const { overlay, content } = this.state;
-    this.setState({ overlay: content, content: overlay });
-  }
-
   render() {
-    return (
-      <Media {...this.props}>
-        {this.props.children}
-      </Media>
-    );
+    return <Media {...this.props} />;
   }
 }
 
-MediaContainer.defaultProps = defaultProps;
-
 export default withTracker(() => {
-  const data = {};
-  data.currentPresentation = MediaService.getPresentationInfo();
+  const { dataSaving } = Settings;
+  const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
-  data.content = <DefaultContent />;
+  const hidePresentation = SessionStorage.getItem('meta_html5hidepresentation') || false;
 
-  if (MediaService.shouldShowWhiteboard()) {
-    data.content = <PresentationAreaContainer />;
+  const data = {
+    children: <DefaultContent />,
+  };
+
+  if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
+    data.currentPresentation = MediaService.getPresentationInfo();
+    data.children = <PresentationAreaContainer />;
   }
 
-  if (MediaService.shouldShowScreenshare()) {
-    data.content = <ScreenshareContainer />;
+  if (MediaService.shouldShowScreenshare() && (viewScreenshare || MediaService.isUserPresenter())) {
+    data.children = <ScreenshareContainer />;
   }
 
-  if (MediaService.shouldShowOverlay()) {
-    data.overlay = <VideoDockContainer />;
+  const usersVideo = VideoService.getAllUsersVideo();
+  if (MediaService.shouldShowOverlay() && usersVideo.length) {
+    data.floatingOverlay = usersVideo.length < 2;
+    data.hideOverlay = usersVideo.length === 0;
+  }
+
+  data.isScreensharing = MediaService.isVideoBroadcasting();
+  data.swapLayout = getSwapLayout();
+  data.disableVideo = !viewParticipantsWebcams;
+
+  if (data.swapLayout) {
+    data.floatingOverlay = true;
+    data.hideOverlay = hidePresentation;
+  }
+
+  const enableVideo = Meteor.settings.public.kurento.enableVideo;
+  const autoShareWebcam = SessionStorage.getItem('meta_html5autosharewebcam') || false;
+
+  if (enableVideo && autoShareWebcam) {
+    data.willMount = VideoService.joinVideo;
   }
 
   return data;
-})(MediaContainer);
+})(injectIntl(MediaContainer));

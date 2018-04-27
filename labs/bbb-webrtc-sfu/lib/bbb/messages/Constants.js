@@ -15,6 +15,16 @@ const config = require('config');
         VIDEO: "VIDEO",
         ALL: "ALL",
 
+        // SFU app types
+        SCREENSHARE_APP:  'screenshare',
+        VIDEO_APP: 'video',
+        AUDIO_APP: 'audio',
+
+        // SFU requisition roles
+        SEND_ROLE: 'send',
+        RECV_ROLE: 'recv',
+        SEND_RECV_ROLE: 'sendrecv',
+
         // Redis channels
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
         FROM_VOICE_CONF_SYSTEM_CHAN: "from-voice-conf-redis-channel",
@@ -25,6 +35,7 @@ const config = require('config');
         TO_VIDEO: config.get('to-video'),
         FROM_AUDIO: config.get('from-audio'),
         TO_AUDIO: config.get('to-audio'),
+        TO_AKKA_APPS: config.get('to-akka'),
 
         // RedisWrapper events
         REDIS_MESSAGE : "redis_message",
@@ -46,6 +57,14 @@ const config = require('config');
         START_TRANSCODER_RESP_2x: "StartTranscoderSysRespMsg",
         STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
+
+        USER_CAM_BROADCAST_STARTED_2x: "UserBroadcastCamStartMsg",
+        USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
+
+        STREAM_IS_RECORDED: "StreamIsRecordedMsg",
+
+        START_WEBCAM_SHARE: "StartWebRTCShareEvent",
+        STOP_WEBCAM_SHARE: "StopWebRTCShareEvent",
 
         // Redis messages fields
         //  Transcoder 1x
@@ -93,7 +112,44 @@ const config = require('config');
         RTP_TO_RTMP: "transcode_rtp_to_rtmp",
         TRANSCODER_CODEC: "codec",
         TRANSCODER_TYPE: "transcoder_type",
-        CALLERNAME: "callername"
+        CALLERNAME: "callername",
+
+        EVENT_NAME: 'eventName',
+
+        TIMESTAMP: 'timestamp',
+        TIMESTAMP_UTC: 'timestampUTC',
+
+        MODULE: 'module',
+        MODULE_WEBCAM: 'bbb-webrtc-sfu',
+
+        FILENAME: 'filename',
+
+        // Log prefixes
+        BASE_PROCESS_PREFIX: '[BaseProcess]',
+        BASE_MANAGER_PREFIX: '[BaseManager]',
+        BASE_PROVIDER_PREFIX: '[BaseProvider]',
+        SCREENSHARE_PROCESS_PREFIX: '[ScreenshareProcess]',
+        SCREENSHARE_MANAGER_PREFIX: '[ScreenshareManager]',
+        SCREENSHARE_PROVIDER_PREFIX: '[ScreenshareProvider]',
+        VIDEO_PROCESS_PREFIX: '[VideoProcess]',
+        VIDEO_MANAGER_PREFIX: '[VideoManager]',
+        VIDEO_PROVIDER_PREFIX: '[VideoProvider]',
+
+        // MCS error codes
+        MEDIA_SERVER_OFFLINE: "1000",
+
+        // Media states'
+        MEDIA_FLOWING_IN: 'MEDIA_FLOWING_IN',
+        MEDIA_FLOWING_OUT: 'MEDIA_FLOWING_OUT',
+        MEDIA_NOT_FLOWING_IN: 'MEDIA_NOT_FLOWING_IN',
+        MEDIA_NOT_FLOWING_OUT: 'MEDIA_NOT_FLOWING_OUT',
+        MEDIA_CONNECTED: 'MEDIA_CONNECTED',
+        MEDIA_DISCONNECTED: 'MEDIA_DISCONNECTED',
+        ON_ICE_CANDIDATE: 'ON_ICE_CANDIDATE',
+
+        MEDIA_STARTED: 'MEDIA_STARTED',
+        MEDIA_STOPPED: 'MEDIA_STOPPED',
+        MEDIA_STARTING: 'MEDIA_STARTING'
     }
 }
 

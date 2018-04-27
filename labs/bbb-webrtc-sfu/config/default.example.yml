@@ -7,14 +7,23 @@ redisPort : "6379"
 clientPort : "3008"
 minVideoPort: 30000
 maxVideoPort: 33000
+mediaFlowTimeoutDuration: 5000
 from-screenshare: "from-screenshare-sfu"
 to-screenshare: "to-screenshare-sfu"
 from-video: "from-video-sfu"
 to-video: "to-video-sfu"
 from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
+to-akka: "to-akka-apps-redis-channel"
+webcam-force-h264: true
+screenshare-force-h264: true
+
+recordScreenSharing: false
+recordWebcams: false
+recordingBasePath: "file:///var/kurento"
+
+redisExpireTime: 1209600 # 14 days as per the akka keys
 
 log:
-    filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
+    filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'
-    maxSize: 100000000

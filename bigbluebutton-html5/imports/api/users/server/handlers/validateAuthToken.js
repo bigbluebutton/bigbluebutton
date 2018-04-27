@@ -26,6 +26,14 @@ const addWelcomeChatMessage = (meetingId, userId) => {
   addChat(meetingId, message);
 };
 
+const clearOtherSessions = (sessionUserId, current = false) => {
+  const serverSessions = Meteor.server.sessions;
+  Object.keys(serverSessions)
+    .filter(i => serverSessions[i].userId === sessionUserId)
+    .filter(i => i !== current)
+    .forEach(i => serverSessions[i].close());
+};
+
 export default function handleValidateAuthToken({ body }, meetingId) {
   const { userId, valid, waitForApproval } = body;
 
@@ -45,11 +53,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
   // Publish user join message
   if (valid && !waitForApproval) {
+    Logger.info('User=', JSON.stringify(User));
     userJoin(meetingId, userId, User.authToken);
   }
-
-  // User already flagged so we skip
-  if (User.validated === valid) return;
 
   const modifier = {
     $set: {
@@ -67,6 +73,10 @@ export default function handleValidateAuthToken({ body }, meetingId) {
       if (valid) {
         clearUserSystemMessages(meetingId, userId);
         addWelcomeChatMessage(meetingId, userId);
+
+        const sessionUserId = `${meetingId}-${userId}`;
+        const currentConnectionId = User.connectionId ? User.connectionId : false;
+        clearOtherSessions(sessionUserId, currentConnectionId);
       }
 
       return Logger.info(`Validated auth token as ${valid} user=${userId} meeting=${meetingId}`);

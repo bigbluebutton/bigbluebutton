@@ -1,17 +1,14 @@
 'use strict';
 
-/**
- * @classdesc
- * Logger singleton for mcs-sip
- * @memberof mcs-sip
- */
-
 const Winston = require('winston');
 const Logger = new Winston.Logger();
 const config = require('config');
 const path = require('path');
+Winston.transports.DailyRotateFile = require('winston-daily-rotate-file');
 
 const LOG_CONFIG = config.get('log') || {};
+const { level } = LOG_CONFIG;
+let filename = LOG_CONFIG.filename;
 
 Logger.configure({
   levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4 },
@@ -31,22 +28,20 @@ Logger.add(Winston.transports.Console, {
   colorize: true,
   handleExceptions: false,
   silent: false,
-  stringify: (obj) => JSON.stringify(obj)
+  stringify: (obj) => JSON.stringify(obj),
+  level,
 });
 
-let filename = LOG_CONFIG.filename || path.join(process.env.PWD, 'mcs-sip.log');
 
 if (filename) {
-  Logger.add(Winston.transports.File, {
+  Logger.add(Winston.transports.DailyRotateFile, {
     filename,
     prettyPrint: true,
-    timestamp:true,
+    datePattern: '.yyyy-dd-MM',
+    prepend: false,
     stringify: (obj) => JSON.stringify(obj), // single lines
-    maxsize: LOG_CONFIG.maxSize || '100000000' // 100MB default
+    level,
   });
 }
-
-Logger.transports.console.level = LOG_CONFIG.level;
-Logger.transports.file.level = LOG_CONFIG.level;
 
 module.exports = Logger;

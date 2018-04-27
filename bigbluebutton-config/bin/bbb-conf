@@ -150,7 +150,7 @@ if LANG=c ifconfig | grep -q 'venet0:0'; then
         IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
         # IP detection for et* and en* networks
-IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^wl.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^bo.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')"  | head -n1)
+IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^wl.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^bo.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^em.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^p.p.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')"  | head -n1)
 fi
 
 if [ -z "$IP" ]; then
@@ -290,12 +290,12 @@ stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5="mongod bbb-html5"
+          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+       if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
@@ -346,16 +346,21 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5="mongod bbb-html5"
+          HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
        fi
-       if [ -f /usr/lib/systemd/system/bbb-bbb-transcode-akka.service ]; then
+       if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
        systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+          systemctl start mongod
+	  sleep 3
+          systemctl start bbb-html5
+       fi
     else
 	$FREESWITCH_INIT_D start
 	
@@ -422,7 +427,7 @@ start_bigbluebutton () {
 	#
 	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
         #if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
@@ -478,7 +483,12 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE libreoffice bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+	units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+
+       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+          units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
+       fi
+
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
@@ -835,7 +845,7 @@ check_configuration() {
 	#
 	# Check if the IP resolves to a different host
 	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
  
 	if which host > /dev/null 2>&1; then	
@@ -879,9 +889,9 @@ check_configuration() {
 	fi
 
 	BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
-	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
+	if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
 		WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
 		
 		if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
@@ -1466,6 +1476,13 @@ check_state() {
                 echo "#"
         fi
 
+        if bbb-conf --status | grep -q inactive; then
+                echo "# Error: Detected some processes have not started correctly"
+                echo "#"
+                echo "#   $(bbb-conf --status | grep inactive)"
+                echo "#"
+        fi
+
 	exit 0
 }
 
@@ -1511,20 +1528,20 @@ if [ $CHECK ]; then
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
         if grep -q ws-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="//;s/".*//;p}')
         fi
         if grep -q wss-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="://;s/".*//;p}')
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="//;s/".*//;p}')
         fi
 	echo
 	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
-	echo "                    websocket port: $WEBRTC_SOCKET"	
+	echo "                         websocket: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl | tr --delete '\n' | sed 's/\[/, \[/g' | sed 's/0$/0\n/g')
@@ -1727,7 +1744,7 @@ if [ -n "$HOST" ]; then
 	# Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
 	#
 	echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
+	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
 	sudo sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
@@ -1735,11 +1752,14 @@ if [ -n "$HOST" ]; then
 	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
 	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
 
-	#
-	# Update configuration for BigBlueButton client
-	#
-	echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
+        #
+        # Update configuration for BigBlueButton client (and perserve hostname for chromeExtensionLink if exists)
+        #
+
+        echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
+        chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
+        sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
+        sudo sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" /var/www/bigbluebutton/client/conf/config.xml
 
         echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
         sudo sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
@@ -1840,6 +1860,10 @@ if [ -n "$HOST" ]; then
         	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
         	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" \
                 	/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
+
+		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
+		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
+		fi
 	fi
 
 

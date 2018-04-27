@@ -269,17 +269,18 @@ export default class SIPBridge extends BaseAudioBridge {
 
   setupEventHandlers(currentSession) {
     return new Promise((resolve) => {
-      this.connectionCompleted = false;
+      const { mediaHandler } = currentSession;
 
+      const connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
       const handleConnectionCompleted = () => {
-        if (this.connectionCompleted) return;
+        connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
         this.callback({ status: this.baseCallStates.started });
         this.connectionCompleted = true;
         resolve();
       };
+      connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
       const handleSessionTerminated = (message, cause) => {
-        this.connectionCompleted = false;
         if (!message && !cause) {
           return this.callback({
             status: this.baseCallStates.ended,
@@ -296,10 +297,18 @@ export default class SIPBridge extends BaseAudioBridge {
           bridgeError: cause,
         });
       };
-
       currentSession.on('terminated', handleSessionTerminated);
-      currentSession.mediaHandler.on('iceConnectionCompleted', handleConnectionCompleted);
-      currentSession.mediaHandler.on('iceConnectionConnected', handleConnectionCompleted);
+
+      const connectionTerminatedEvents = ['iceConnectionFailed', 'iceConnectionDisconnected'];
+      const handleConnectionTerminated = (peer) => {
+        connectionTerminatedEvents.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: this.baseErrorCodes.CONNECTION_ERROR,
+          bridgeError: peer,
+        });
+      };
+      connectionTerminatedEvents.forEach(e => mediaHandler.on(e, handleConnectionTerminated));
 
       this.currentSession = currentSession;
     });
@@ -308,6 +317,7 @@ export default class SIPBridge extends BaseAudioBridge {
   setDefaultInputDevice() {
     const handleMediaSuccess = (mediaStream) => {
       const deviceLabel = mediaStream.getAudioTracks()[0].label;
+      window.defaultInputStream = mediaStream.getTracks();
       return navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
         const device = mediaDevices.find(d => d.label === deviceLabel);
         return this.changeInputDevice(device.deviceId);

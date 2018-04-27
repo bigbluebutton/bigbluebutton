@@ -87,7 +87,7 @@ mx|Application {
 	paddingTop    : 8;
 }
 
-.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
+.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle, .btnWebRTCStyle, .btnJavaStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;
@@ -647,6 +647,10 @@ chat|AddChatTabBox {
 
 chat|ChatMessageRenderer {
 	moderatorIcon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Chat_Moderator");
+	verticalAlign : top;
+	verticalGap   : 0;
+	paddingBottom : 0;
+	paddingTop    : 0;
 }
 
 .chatMessageListStyle {
@@ -879,6 +883,22 @@ layout|LoadButton {
 
 .broadcastLayoutButtonStyleRTL {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Layout_RTL");
+}
+
+/*
+//------------------------------
+//  LoadingBar
+//------------------------------
+*/
+
+views|LoadingBar {
+	textAlign       : center;
+	horizontalAlign : center;
+}
+
+.loadingBarLabel {
+	color       : #8A9AA7;
+	fontWeight  : bold;
 }
 
 /*

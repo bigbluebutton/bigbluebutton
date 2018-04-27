@@ -7,6 +7,10 @@ package org.red5.flash.bwcheck.app
 	import mx.core.Application;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
+	import org.bigbluebutton.core.model.BandwidthMonOptions;
+	import org.bigbluebutton.util.ConnUtil;
 	import org.red5.flash.bwcheck.ClientServerBandwidth;
 	import org.red5.flash.bwcheck.ServerClientBandwidth;
 	import org.red5.flash.bwcheck.events.BandwidthDetectEvent;
@@ -17,7 +21,7 @@ package org.red5.flash.bwcheck.app
 		private var _serverApplication:String = "";
 		private var _clientServerService:String = "";
 		private var _serverClientService:String = "";
-		
+		private var bwMonOption: BandwidthMonOptions; 
 		private var nc:NetConnection;
 		
 		public function BandwidthDetectionApp()
@@ -47,12 +51,41 @@ package org.red5.flash.bwcheck.app
 		
 		public function connect():void
 		{
+			bwMonOption = Options.getOptions(BandwidthMonOptions) as BandwidthMonOptions;
+			
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
+			var result:Array = pattern.exec(bwMonOption.server);
+			
+			var bwMonUrl: String;
+			
 			nc = new NetConnection();
-			nc.proxyType = "best";
-			nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
+			
+			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+			if (BBB.initConnectionManager().isTunnelling) {
+				var tunnelProtocol: String = ConnUtil.RTMPT;
+				
+				if (useRTMPS) {
+					nc.proxyType = ConnUtil.PROXY_NONE;
+					tunnelProtocol = ConnUtil.RTMPS;
+				}
+				
+				bwMonUrl = tunnelProtocol + "://" + result.server + "/" + bwMonOption.application;
+				trace("******* BW MON CONNECT tunnel = TRUE " + "url=" +  bwMonUrl);
+			} else {
+				var nativeProtocol: String = ConnUtil.RTMP;
+				if (useRTMPS) {
+					nc.proxyType = ConnUtil.PROXY_BEST;
+					nativeProtocol = ConnUtil.RTMPS;
+				}
+				
+				bwMonUrl = nativeProtocol + "://" + result.server + "/" + bwMonOption.application;
+				trace("******* BBB MON CONNECT tunnel = FALSE " + "url=" +  bwMonUrl);
+			}
+
+			nc.objectEncoding = flash.net.ObjectEncoding.AMF3;
 			nc.client = this;
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);	
-			nc.connect("rtmp://" + _serverURL + "/" + _serverApplication);
+			nc.connect(bwMonUrl);
 		}
 		
 		

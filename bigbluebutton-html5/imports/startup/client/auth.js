@@ -1,5 +1,8 @@
 import Auth from '/imports/ui/services/auth';
+import SessionStorage from '/imports/ui/services/storage/session';
+import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
+import deviceType from '/imports/utils/deviceType';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -17,16 +20,34 @@ export function joinRouteHandler(nextState, replace, callback) {
 
   fetch(url)
     .then(response => response.json())
-    .then((data) => {
-      const { meetingID, internalUserID, authToken, logoutUrl } = data.response;
+    .then(({ response }) => {
+      const {
+        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+      } = response;
+
+      if (returncode === 'FAILED') {
+        replace({ pathname: '/error/404' });
+        callback();
+      }
+
+      setCustomLogoUrl(customLogoURL);
+
+      metadata.forEach((meta) => {
+        const metaKey = Object.keys(meta).pop();
+        SessionStorage.setItem(`meta_${metaKey}`, meta[metaKey]);
+      });
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
-      replace({ pathname: '/' });
+
+      const path = deviceType().isPhone ? '/' : '/users';
+
+      replace({ pathname: path });
+
       callback();
     });
 }
 
-export function logoutRouteHandler(nextState, replace) {
+export function logoutRouteHandler() {
   Auth.logout()
     .then((logoutURL = window.location.origin) => {
       const protocolPattern = /^((http|https):\/\/)/;
@@ -70,12 +91,6 @@ function _addReconnectObservable() {
 }
 
 export function authenticatedRouteHandler(nextState, replace, callback) {
-  const credentialsSnapshot = {
-    meetingId: Auth.meetingID,
-    requesterUserId: Auth.userID,
-    requesterToken: Auth.token,
-  };
-
   if (Auth.loggedIn) {
     callback();
   }
@@ -86,15 +101,6 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
     .then(callback)
     .catch((reason) => {
       log('error', reason);
-
-      // make sure users who did not connect are not added to the meeting
-      // do **not** use the custom call - it relies on expired data
-      Meteor.call('userLogout', credentialsSnapshot, (error) => {
-        if (error) {
-          throw new Error(error);
-        }
-      });
-
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });

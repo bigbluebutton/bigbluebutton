@@ -33,7 +33,6 @@ package org.bigbluebutton.core
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.model.options.LockOptions;
   import org.bigbluebutton.main.model.users.BreakoutRoom;
-  import org.bigbluebutton.util.SessionTokenUtil;
   
   public class UsersUtil
   {
@@ -309,12 +308,16 @@ package org.bigbluebutton.core
             logData.user = UsersUtil.getUserData();
         }
         logData.sessionToken = getUserSession();
+				logData.connections = BBB.initConnectionManager().getConnectionIds();
+				
+				var now:Date = new Date();
+				logData.clientTimeUTC = now.getTime();
+				logData.clientTZOffsetInMin = now.getTimezoneOffset();
         return logData;
     }
     
     public static function getUserSession():String {
-        var sessionUtil:SessionTokenUtil = new SessionTokenUtil()
-        return sessionUtil.getSessionToken();
+        return BBB.getQueryStringParameters().getSessionToken();
     }
     
     public static function applyLockSettings():void {

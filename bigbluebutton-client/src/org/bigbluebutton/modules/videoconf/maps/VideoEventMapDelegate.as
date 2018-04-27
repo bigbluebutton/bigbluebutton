@@ -68,7 +68,6 @@ package org.bigbluebutton.modules.videoconf.maps
     private static var PERMISSION_DENIED_ERROR:String = "PermissionDeniedError";
 
     private var options:VideoConfOptions;
-    private var uri:String;
 
     private var button:ToolbarPopupButton = new ToolbarPopupButton();
     private var proxy:VideoProxy;
@@ -100,9 +99,8 @@ package org.bigbluebutton.modules.videoconf.maps
       return UsersUtil.getMyUsername();
     }
 
-    public function start(uri:String):void {
+    public function start():void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Video Module Started.", [me]);
-      this.uri = uri;
 
       _videoDock = new VideoDock();
       var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
@@ -116,14 +114,18 @@ package org.bigbluebutton.modules.videoconf.maps
       _graphics.addStaticComponent(component);
     }
 	
-	public function webcamsOnlyForModeratorChanged():void {
-		if (!UsersUtil.amIModerator()) {
+	public function userRoleChanged():void {
+		webcamsOnlyForModeratorChanged(UsersUtil.amIModerator())
+	}
+	
+	public function webcamsOnlyForModeratorChanged(promotedToModerator : Boolean = false):void {
+		if (!UsersUtil.amIModerator() || promotedToModerator) {
 			var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
 			for (var i:int = 0; i < UsersUtil.getUsers().length; i++) {
 				var user : User2x = User2x(UsersUtil.getUsers()[i]);
 				if (user.role != Role.MODERATOR) {
 					var streamNames:Array = LiveMeeting.inst().webcams.getStreamIdsForUser(user.intId);
-					if (webcamsOnlyForModerator && !UsersUtil.isMe(user.intId)) {
+					if (webcamsOnlyForModerator && !UsersUtil.isMe(user.intId) && !promotedToModerator) {
 						for (var j:int = 0; j < streamNames.length; j++) {
 							_dispatcher.dispatchEvent(new StreamStoppedEvent(user.intId, streamNames[j]));
 						}
@@ -141,8 +143,10 @@ package org.bigbluebutton.modules.videoconf.maps
       if (!_ready) return;
 	  var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
 	  var user : User2x = LiveMeeting.inst().users.getUser(userID);
+	  var iAmModerator : Boolean = UsersUtil.amIModerator();
+	  var userIsModerator : Boolean = (user != null && user.role == Role.MODERATOR);
       if (! UsersUtil.isMe(userID) && 
-		  (!webcamsOnlyForModerator || (webcamsOnlyForModerator && (UsersUtil.amIModerator() || (user != null && user.role == Role.MODERATOR))))
+		  (!webcamsOnlyForModerator || (webcamsOnlyForModerator && (iAmModerator || userIsModerator)))
 	  ) {
         openViewWindowFor(userID);
       }
@@ -262,7 +266,7 @@ package org.bigbluebutton.modules.videoconf.maps
           closeWindow(userID);
         }
         LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindowFor:: View user's = [{1}] webcam.", [me, userID]);
-        openViewWindowFor(userID);
+		viewCamera(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
           LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.", [me]);
@@ -328,7 +332,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function connectToVideoApp():void {
-      proxy = new VideoProxy(uri);
+      proxy = new VideoProxy();
       proxy.reconnectWhenDisconnected(true);
       proxy.connect();
     }

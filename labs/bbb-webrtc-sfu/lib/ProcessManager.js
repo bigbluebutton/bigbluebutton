@@ -71,13 +71,11 @@ module.exports = class ProcessManager {
     proc.on('message', this.onMessage);
     proc.on('error', this.onError);
 
-    proc.on('disconnect', (error) => {
-      Logger.info('[ProcessManager] Received disconnect event from child process with PID', this.pid, ', killing it');
+    // Tries to restart process on unsucessful exit
+    proc.on('exit', (code, signal) => {
       let processId = proc.pid;
-
-      proc.kill();
-      if (this.runningState === 'RUNNING') {
-        Logger.info('[ProcessManager] Restarting process', processId, 'because server is still running...');
+      if (this.runningState === 'RUNNING' && code === 1) {
+        Logger.error('[ProcessManager] Received exit event from child process with PID', proc.pid, ' with code', code, '. Restarting it');
         this.restartProcess(processId);
       }
     });
@@ -111,8 +109,8 @@ module.exports = class ProcessManager {
     for (var proc in this.processes) {
       if (this.processes.hasOwnProperty(proc)) {
         let procObj = this.processes[proc];
-        if (procObj.kill === 'function' && !procObj.killed) {
-          await procObj.disconnect()
+        if (typeof procObj.exit === 'function' && !procObj.killed) {
+          await procObj.exit()
         }
       }
     }

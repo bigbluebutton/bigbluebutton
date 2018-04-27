@@ -7,9 +7,9 @@ import { styles } from '../styles';
 import ToolbarSubmenuItem from '../toolbar-submenu-item/component';
 
 const intlMessages = defineMessages({
-  toolHand: {
-    id: 'app.whiteboard.toolbar.tools.hand',
-    description: 'Tool submenu hand item',
+  toolPointer: {
+    id: 'app.whiteboard.toolbar.tools.pointer',
+    description: 'Tool submenu pointer item',
   },
   toolPencil: {
     id: 'app.whiteboard.toolbar.tools.pencil',
@@ -96,7 +96,7 @@ class ToolbarSubmenu extends Component {
     } else if (type === 'thickness') {
       return (
         <svg className={styles.customSvgIcon}>
-          <circle cx="50%" cy="50%" r={obj.value} fill="#F3F6F9" />
+          <circle cx="50%" cy="50%" r={obj.value} />
         </svg>
       );
     } else if (type === 'font-size') {
@@ -197,8 +197,7 @@ class ToolbarSubmenu extends Component {
               )}
               key={obj.value}
             />
-          ),
-        ) : null}
+          )) : null}
       </div>
     );
   }
@@ -209,20 +208,18 @@ ToolbarSubmenu.propTypes = {
   handleMouseEnter: PropTypes.func.isRequired,
   handleMouseLeave: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
-  objectsToRender: PropTypes.arrayOf(
-    PropTypes.oneOfType([
-      PropTypes.shape({
-        value: PropTypes.string.isRequired,
-      }),
-      PropTypes.shape({
-        value: PropTypes.number.isRequired,
-      }),
-      PropTypes.shape({
-        value: PropTypes.string.isRequired,
-        icon: PropTypes.string.isRequired,
-      }),
-    ]).isRequired,
-  ).isRequired,
+  objectsToRender: PropTypes.arrayOf(PropTypes.oneOfType([
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+    }),
+    PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    }),
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      icon: PropTypes.string.isRequired,
+    }),
+  ]).isRequired).isRequired,
   objectSelected: PropTypes.oneOfType([
     PropTypes.shape({
       value: PropTypes.string.isRequired,

@@ -60,6 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var message:String;
 
 			private var urlLoader:URLLoader;
+			private var logoutReason:String;
 
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
@@ -73,6 +74,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					logData.meetingId = UsersUtil.getInternalMeetingID();
 					logData.rating = starRating.rating;
 					logData.comment = feedbackMsg.text;
+					logData.reason = logoutReason;
+					logData.extUserId = UsersUtil.getMyExternalUserID();
+					logData.role = UsersUtil.getMyRole();
 					LOGGER.info(JSON.stringify(logData));
 				}
 
@@ -112,6 +116,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function setReason(reason:String):void {
+				logoutReason = reason;
+				
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["connection"];
 				logData.message = "User logged out.";
@@ -119,7 +125,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.info(JSON.stringify(logData));
 
 				var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
-				if (layoutOptions.askForFeedbackOnLogout) {
+				if (layoutOptions.askForFeedbackOnLogout && !UsersUtil.isBreakout()) {
 					currentState = "feedback";
 				}
 

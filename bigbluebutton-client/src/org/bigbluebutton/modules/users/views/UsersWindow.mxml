@@ -38,7 +38,8 @@ $Id: $
     <mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
     <mate:Listener type="{ShortcutEvent.OPEN_BREAKOUT_ROOMS}" method="handleOpenBreakoutRooms" />
     <mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
-    <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
+    <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="setRoomLocked" />
+	<mate:Listener type="{BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR}" method="setRoomLocked"/>
     <mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
     <mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
     <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
@@ -266,8 +267,7 @@ $Id: $
         resourcesChanged();
         
         roomMuted = LiveMeeting.inst().meetingStatus.isMeetingMuted;
-        var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
-        roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
+        setRoomLocked();
         
         titleBarOverlay.tabIndex = partOptions.baseTabIndex;
         minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
@@ -421,10 +421,10 @@ $Id: $
         }
       }
       
-      private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
-        var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
-        roomLocked = lockSettings.isAnythingLocked() && (lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
-      }
+	  private function setRoomLocked(e:Event = null):void {
+		  var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
+		  roomLocked = (lockSettings.isAnythingLocked() || LiveMeeting.inst().meeting.webcamsOnlyForModerator) && (lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
+	  }
       
       private function lockSettings():void {
         var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);

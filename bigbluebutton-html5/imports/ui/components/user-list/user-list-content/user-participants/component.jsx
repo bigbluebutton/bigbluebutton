@@ -168,12 +168,12 @@ class UserParticipants extends Component {
       },
       mute: {
         label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => toggleVoice(user.id),
+        handler: (user) => toggleVoice(user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => toggleVoice(user.id),
+        handler: (user) => toggleVoice(user.id),
         icon: 'audio_on',
       },
       promote: {
@@ -242,14 +242,14 @@ class UserParticipants extends Component {
       <div className={styles.participants}>
         {
           !compact ?
-            <div className={styles.smallTitle} role="banner">
+            <h2 className={styles.smallTitle}>
               {intl.formatMessage(intlMessages.usersTitle)}
               &nbsp;({users.length})
-            </div> : <hr className={styles.separator} />
+            </h2> : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
-          role="tabpanel"
+          role="list"
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >

@@ -4,7 +4,7 @@ import { styles } from './styles.scss';
 import EmojiSelect from './emoji-select/component';
 import ActionsDropdown from './actions-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
-import JoinVideoOptionsContainer from '../video-dock/video-menu/container';
+import JoinVideoOptionsContainer from '../video-provider/video-menu/container';
 
 class ActionsBar extends React.PureComponent {
   render() {
@@ -18,7 +18,16 @@ class ActionsBar extends React.PureComponent {
       emojiList,
       emojiSelected,
       handleEmojiChange,
+      isUserModerator,
+      recordSettingsList,
+      toggleRecording,
     } = this.props;
+
+    const {
+      allowStartStopRecording,
+      recording: isRecording,
+      record,
+    } = recordSettingsList;
 
     const actionBarClasses = {};
     actionBarClasses[styles.centerWithActions] = isUserPresenter;
@@ -32,6 +41,11 @@ class ActionsBar extends React.PureComponent {
             handleShareScreen,
             handleUnshareScreen,
             isVideoBroadcasting,
+            isUserModerator,
+            allowStartStopRecording,
+            isRecording,
+            record,
+            toggleRecording,
             }}
           />
         </div>

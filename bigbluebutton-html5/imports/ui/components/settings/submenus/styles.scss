@@ -1,5 +1,5 @@
-@import "/imports/ui/stylesheets/mixins/focus";
-@import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/variables/_all';
 
 .title {
   color: $color-gray-dark;
@@ -7,6 +7,10 @@
   font-size: 1.3rem;
   margin: 0;
   margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  font-size: 0.9rem;
 }
 
 .form {

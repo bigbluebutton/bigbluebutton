@@ -19,6 +19,7 @@ const CALL_STATES = {
 class AudioManager {
   constructor() {
     this._inputDevice = {
+      value: 'default',
       tracker: new Tracker.Dependency(),
     };
 
@@ -36,11 +37,13 @@ class AudioManager {
     });
   }
 
-  init(userData, messages) {
+  init(userData) {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
-    this.messages = messages;
     this.initialized = true;
+  }
+  setAudioMessages(messages) {
+    this.messages = messages;
   }
 
   defineProperties(obj) {
@@ -64,47 +67,97 @@ class AudioManager {
     });
   }
 
-  joinAudio(options = {}) {
-    const {
-      isListenOnly,
-      isEchoTest,
-    } = options;
-
-    const permissionsTimeout = setTimeout(() => {
-      this.isWaitingPermissions = true;
+  askDevicesPermissions() {
+    // Only change the isWaitingPermissions for the case where the user didnt allowed it yet
+    const permTimeout = setTimeout(() => {
+      if (!this.devicesInitialized) { this.isWaitingPermissions = true; }
     }, 100);
 
-    const doCall = () => {
-      clearTimeout(permissionsTimeout);
-      this.isWaitingPermissions = false;
-      this.devicesInitialized = true;
-      this.isConnecting = true;
-      this.isMuted = false;
-      this.error = null;
-      this.isListenOnly = isListenOnly || false;
-      this.isEchoTest = isEchoTest || false;
-
-      const callOptions = {
-        isListenOnly: this.isListenOnly,
-        extension: isEchoTest ? ECHO_TEST_NUMBER : null,
-        inputStream: this.isListenOnly ? this.createListenOnlyStream() : this.inputStream,
-      };
-      return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
-    };
-
-    if (this.devicesInitialized) return doCall();
+    this.isWaitingPermissions = false;
+    this.devicesInitialized = false;
 
     return Promise.all([
       this.setDefaultInputDevice(),
       this.setDefaultOutputDevice(),
-    ]).then(doCall)
+    ]).then(() => {
+      this.devicesInitialized = true;
+      this.isWaitingPermissions = false;
+    }).catch((err) => {
+      clearTimeout(permTimeout);
+      this.isConnecting = false;
+      this.isWaitingPermissions = false;
+      throw err;
+    });
+  }
+
+  joinMicrophone() {
+    this.isListenOnly = false;
+    this.isEchoTest = false;
+
+    const callOptions = {
+      isListenOnly: false,
+      extension: null,
+      inputStream: this.inputStream,
+    };
+
+    return this.askDevicesPermissions()
+      .then(this.onAudioJoining.bind(this))
+      .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
+  }
+
+  joinEchoTest() {
+    this.isListenOnly = false;
+    this.isEchoTest = true;
+
+    const callOptions = {
+      isListenOnly: false,
+      extension: ECHO_TEST_NUMBER,
+      inputStream: this.inputStream,
+    };
+
+    return this.askDevicesPermissions()
+      .then(this.onAudioJoining.bind(this))
+      .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
+  }
+
+  joinListenOnly() {
+    this.isListenOnly = true;
+    this.isEchoTest = false;
+
+    const callOptions = {
+      isListenOnly: true,
+      extension: null,
+      inputStream: this.createListenOnlyStream(),
+    };
+
+    // We need this until we upgrade to SIP 9x. See #4690
+    const iceGatheringErr = 'ICE_TIMEOUT';
+    const iceGatheringTimeout = new Promise((resolve, reject) => {
+      setTimeout(reject, 12000, iceGatheringErr);
+    });
+
+    return this.onAudioJoining()
+      .then(() => Promise.race([
+        this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
+        iceGatheringTimeout,
+      ]))
       .catch((err) => {
-        clearTimeout(permissionsTimeout);
-        this.isWaitingPermissions = false;
-        this.error = err;
-        this.notify(err.message);
-        return Promise.reject(err);
+        // If theres a iceGathering timeout we retry to join after asking device permissions
+        if (err === iceGatheringErr) {
+          return this.askDevicesPermissions()
+            .then(() => this.joinListenOnly());
+        }
+
+        throw err;
       });
+  }
+
+  onAudioJoining() {
+    this.isConnecting = true;
+    this.isMuted = false;
+    this.error = false;
+
+    return Promise.resolve();
   }
 
   exitAudio() {
@@ -128,7 +181,7 @@ class AudioManager {
     this.isConnected = true;
 
     // listen to the VoiceUsers changes and update the flag
-    if(!this.muteHandle) {
+    if (!this.muteHandle) {
       const query = VoiceUsers.find({ intId: Auth.userID });
       this.muteHandle = query.observeChanges({
         changed: (id, fields) => {
@@ -153,11 +206,15 @@ class AudioManager {
     this.isConnecting = false;
     this.isHangingUp = false;
 
+    if (this.inputStream) {
+      window.defaultInputStream.forEach(track => track.stop());
+      this.inputStream.getTracks().forEach(track => track.stop());
+      this.inputDevice = { id: 'default' };
+    }
 
     if (!this.error && !this.isEchoTest) {
       this.notify(this.messages.info.LEFT_AUDIO);
     }
-    this.isEchoTest = false;
   }
 
   callStateCallback(response) {
@@ -181,7 +238,7 @@ class AudioManager {
         this.onAudioExit();
       } else if (status === FAILED) {
         this.error = error;
-        this.notify(this.messages.error[error]);
+        this.notify(this.messages.error[error], true);
         console.error('Audio Error:', error, bridgeError);
         this.onAudioExit();
       }
@@ -225,6 +282,7 @@ class AudioManager {
         .then(handleChangeInputDeviceSuccess)
         .catch(handleChangeInputDeviceError);
     }
+
     return this.bridge.changeInputDevice(deviceId)
       .then(handleChangeInputDeviceSuccess)
       .catch(handleChangeInputDeviceError);
@@ -235,17 +293,18 @@ class AudioManager {
   }
 
   set inputDevice(value) {
-    Object.assign(this._inputDevice, value);
+    this._inputDevice.value = value;
     this._inputDevice.tracker.changed();
   }
 
   get inputStream() {
-    return this._inputDevice.stream;
+    this._inputDevice.tracker.depend();
+    return this._inputDevice.value.stream;
   }
 
   get inputDeviceId() {
     this._inputDevice.tracker.depend();
-    return this._inputDevice.id;
+    return this._inputDevice.value.id;
   }
 
   set userData(value) {
@@ -256,10 +315,10 @@ class AudioManager {
     return this._userData;
   }
 
-  notify(message) {
+  notify(message, error = false) {
     notify(
       message,
-      this.error ? 'error' : 'info',
+      error ? 'error' : 'info',
       this.isListenOnly ? 'audio_on' : 'unmute',
     );
   }

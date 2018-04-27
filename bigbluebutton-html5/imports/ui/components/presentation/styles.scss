@@ -25,7 +25,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: calc(100% - 1px);
+  height: 100%;
   width:100%;
   overflow: hidden;
   position: relative;
@@ -34,7 +34,7 @@
 .whiteboardSizeAvailable {
   position: absolute;
   height: 100%;
-  width: calc(100% - #{$toolbar-container-width});
+  width: 100%;
   z-index: -1;
 }
 
@@ -58,6 +58,9 @@
 .presentationContainer {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }

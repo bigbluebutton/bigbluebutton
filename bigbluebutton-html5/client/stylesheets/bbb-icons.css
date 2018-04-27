@@ -268,3 +268,6 @@
 .icon-bbb-warning:before {
   content: "\e94c";
 }
+.icon-bbb-pointer:before {
+  content: "\e950";
+}

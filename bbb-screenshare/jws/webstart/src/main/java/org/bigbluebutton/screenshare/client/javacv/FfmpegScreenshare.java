@@ -7,6 +7,8 @@ import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_RGB0;
 import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_YUV420P;
 import java.awt.AWTException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -114,6 +116,7 @@ public class FfmpegScreenshare {
       mainRecorder.start();
     } catch (Exception e) {
       System.out.println("Exception starting recorder. \n" + e.toString());
+      System.out.println(printStacktrace(e));
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
@@ -166,6 +169,7 @@ public class FfmpegScreenshare {
       }
     } catch (Exception e1) {
       System.out.println("Exception grabbing image");
+      System.out.println(printStacktrace(e1));
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
@@ -475,6 +479,17 @@ private  FFmpegFrameRecorder setupMacOsXRecorder(String url, int width, int heig
     macGrabber.setOption("capture_cursor", "1");
     macGrabber.setOption("capture_mouse_clicks", "1");
     return macGrabber;
+  }
+  
+  
+  private String printStacktrace(Exception exception) {
+	  StringWriter writer = new StringWriter();
+	  PrintWriter printWriter = new PrintWriter( writer );
+	  exception.printStackTrace( printWriter );
+	  printWriter.flush();
+
+	  String stackTrace = writer.toString();
+	  return stackTrace;
   }
 
 }

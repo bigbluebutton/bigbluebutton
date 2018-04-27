@@ -1,7 +1,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$navbar-height: 60px; // TODO: Change to NavBar real height
-$actionsbar-height: 50px; // TODO: Change to ActionsBar real height
+$navbar-height: 65px; // TODO: Change to NavBar real height
+$actionsbar-height: 75px; // TODO: Change to ActionsBar real height
 $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is aligned with the presentation title
 
 .main {
@@ -53,8 +53,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .content {
   @extend %full-page;
-
-  padding: 0 .25%;
+  order: 3;
 
   &:before,
   &:after {
@@ -99,6 +98,8 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   z-index: 2;
   overflow: visible;
 
+  order: 1;
+
   @include mq($small-only) {
     padding-top: $navbar-height;
   }
@@ -119,6 +120,8 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .chat {
   @extend %full-page;
+
+  order: 2;
 
   @include mq($small-only) {
     z-index: 3;
@@ -149,14 +152,8 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   @extend %full-page;
   flex: 1 100%;
   order: 2;
-
   flex-direction: row;
   position: relative;
-
-  @include mq($small-only) {
-    padding-bottom: $actionsbar-height;
-    margin-bottom: $actionsbar-height;
-  }
 
   @include mq($portrait) {
     flex-direction: column;
@@ -184,10 +181,4 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   padding: $bars-padding;
   position: relative;
   order: 3;
-
-  @include mq($small-only) {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-  }
 }

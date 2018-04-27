@@ -19,24 +19,67 @@
 package org.bigbluebutton.core.managers {
     import flash.net.NetConnection;
     
+    import org.bigbluebutton.core.Options;
+    import org.bigbluebutton.main.model.options.PortTestOptions;
     import org.bigbluebutton.main.model.users.IMessageListener;
     import org.bigbluebutton.main.model.users.NetConnectionDelegate;
 
     public class ConnectionManager {
         private var connDelegate:NetConnectionDelegate;
+				
+				private var _videoConnId:String = "";
+				private var _voiceConnId:String = "";
+				private var _screenshareConnId:String = "";
+				private var _appsConnId:String = "";
 
-        [Bindable]
-        public var isTunnelling:Boolean = false;
+        private var _isTunnelling:Boolean = false;
 
+				private var portTestOptions : PortTestOptions;
+				
         public function ConnectionManager() {
             connDelegate = new NetConnectionDelegate();
         }
 
+				public function getConnectionIds():Array {
+					return new Array(_appsConnId, _videoConnId, _screenshareConnId, _voiceConnId);
+				}
+				
+				public function set appsConnId(id:String):void {
+					_appsConnId = "app_" + id;
+				}
 
+				public function get appsConnId():String {
+					return _appsConnId;
+				}
+				
+				public function set videoConnId(id:String):void {
+					_videoConnId = "vid_" + id;
+				}
+				
+				public function get videoConnId():String {
+					return _videoConnId;
+				}
+				
+				public function set screenshareConnId(id:String):void {
+					_screenshareConnId = "scr_" + id;
+				}
+				
+				public function get screenshareConnId():String {
+					return _screenshareConnId;
+				}
+				
+				public function set voiceConnId(id:String):void {
+					_voiceConnId = "voi_" + id;
+				}
+				
+				public function get voiceConnId():String {
+					return _voiceConnId;
+				}
+				
         public function get connection():NetConnection {
             return connDelegate.connection;
         }
-
+				
         public function connect():void {
             connDelegate.connect();
         }
@@ -45,6 +88,30 @@ package org.bigbluebutton.core.managers {
             connDelegate.disconnect(onUserAction);
         }
 
+				public function initPortTestOption():void {
+					portTestOptions = Options.getOptions(PortTestOptions) as PortTestOptions;
+				}
+				
+				public function useProtocol(tunnel:Boolean):void {
+					_isTunnelling = tunnel;
+				}
+				
+				public function get isTunnelling():Boolean {
+					return _isTunnelling;
+				}
+				
+				public function get portTestHost():String {
+					return portTestOptions.host;
+				}
+				
+				public function get portTestApplication():String {
+					return portTestOptions.application;
+				}
+				
+				public function get portTestTimeout():Number {
+					return portTestOptions.timeout;
+				}
+				
         public function addMessageListener(listener:IMessageListener):void {
             connDelegate.addMessageListener(listener);
         }

@@ -39,6 +39,12 @@
   }
 }
 
+.presentationTitleSeparator {
+  color: $color-gray;
+  font-size: $font-size-base;
+  margin: 0 1rem;
+}
+
 .btnWithNotificationDot {
   position: relative;
 

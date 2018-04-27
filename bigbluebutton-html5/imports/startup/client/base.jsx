@@ -8,6 +8,7 @@ import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
+import AudioManager from '/imports/ui/services/audio-manager';
 import IntlStartup from './intl';
 
 const propTypes = {
@@ -59,7 +60,10 @@ class Base extends Component {
     const { subscriptionsReady, errorCode } = this.props;
     const { endedCode } = this.props.params;
 
-    if (endedCode) return (<MeetingEnded code={endedCode} />);
+    if (endedCode) {
+      AudioManager.exitAudio();
+      return (<MeetingEnded code={endedCode} />);
+    }
 
     if (error || errorCode) {
       return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);
@@ -96,12 +100,15 @@ const SUBSCRIPTIONS_NAME = [
 const BaseContainer = withRouter(withTracker(({ params, router }) => {
   if (params.errorCode) return params;
 
-  if (!Auth.loggedIn) {
-    return router.push('/logout');
+  const { locale } = Settings.application;
+  const { credentials, loggedIn } = Auth;
+
+  if (!loggedIn) {
+    return {
+      locale,
+      subscriptionsReady: false,
+    };
   }
-
-  const { credentials } = Auth;
-
 
   const subscriptionErrorHandler = {
     onError: (error) => {
@@ -113,9 +120,8 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
     Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
-
   return {
-    locale: Settings.application.locale,
+    locale,
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
   };
 })(Base));

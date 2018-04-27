@@ -94,7 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var globalDispatcher:Dispatcher = new Dispatcher();
       [Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
-        '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+        '0x88FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
       
       [Bindable]
       private var backgroundColor:uint = 0x000000;

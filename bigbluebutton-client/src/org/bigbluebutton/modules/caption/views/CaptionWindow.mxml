@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flexlib.controls.tabBarClasses.SuperTab;
 			
+			import org.as3commons.lang.StringUtils;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
@@ -185,7 +186,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setTextTabLabel(ownerId:String):void {
 				var ownerText:String = null;
 				
-				if (ownerId == "") {
+				if (StringUtils.isEmpty(ownerId)) {
 					//unclaimed text
 					//ownerNameOutputLabel.text = "Owner - " + "None";
 					ownerText = ResourceUtil.getInstance().getString('bbb.caption.transcript.noowner');

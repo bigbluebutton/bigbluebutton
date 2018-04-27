@@ -4,12 +4,12 @@
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
-    <porttest host="HOST" application="video/portTest" timeout="10000"/>
-    <bwMon server="HOST" application="video/bwTest"/>
+    <porttest host="rtmp://HOST" application="video/portTest" timeout="10000"/>
+    <bwMon server="rtmp://HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" rtlEnabled="false"/>
     <skinning url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
-    <branding logo="logo.swf" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" showQuote="true"/>
+    <branding logo="logos/logo.swf" copyright="&#169; 2018 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" showQuote="true"/>
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION"/>
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
@@ -49,8 +49,7 @@
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			enablePause="true"
-			tryKurentoWebRTC="false"
-			tryWebRTCFirst="false"
+			offerWebRTC="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
 			baseTabIndex="201"

@@ -22,16 +22,16 @@ package org.bigbluebutton.modules.screenshare.model {
 	public class ScreenshareOptions extends Options {
 
 		[Bindable]
+		public var uri: String = "";
+			
+		[Bindable]
 		public var showButton:Boolean = true;
 
 		[Bindable]
 		public var baseTabIndex:int = 201;
 
 		[Bindable]
-		public var tryWebRTCFirst:Boolean = false;
-
-		[Bindable]
-		public var tryKurentoWebRTC:Boolean = false;
+		public var offerWebRTC:Boolean = false;
 
 		[Bindable]
 		public var enablePause:Boolean = true;

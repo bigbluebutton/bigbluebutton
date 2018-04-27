@@ -5,8 +5,9 @@
       "mobileFont": 16,
       "desktopFont": 14,
       "audioChatNotification": false,
-      "autoJoinAudio": true,
-      "listenOnly": false,
+      "autoJoin": true,
+      "listenOnlyMode": true,
+      "forceListenOnly": false,
       "skipCheck": false,
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
@@ -25,8 +26,9 @@
           "inputDeviceId": "undefined",
           "outputDeviceId": "undefined"
         },
-        "video": {
-          "viewParticipantsWebcams": true
+        "dataSaving": {
+          "viewParticipantsWebcams": true,
+          "viewScreenshare": true
         },
         "cc": {
           "backgroundColor": "#FFFFFF",
@@ -45,6 +47,9 @@
           "layout": false
         }
       },
+      "branding": {
+        "displayBrandingArea": false
+      },
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
       "httpsConnection": false,
@@ -53,6 +58,8 @@
 
     "kurento": {
       "wsUrl": "HOST",
+      "chromeDefaultExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
+      "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeExtensionKey": "KEY",
       "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
@@ -95,7 +102,8 @@
           "toggleVoice",
           "clearPublicChatHistory",
           "changeRole",
-          "ejectUserFromVoice"
+          "ejectUserFromVoice",
+          "toggleRecording"
         ]
       },
       "presenter": {
@@ -308,8 +316,8 @@
             "value": "pencil"
           },
           {
-            "icon": "hand",
-            "value": "hand"
+            "icon": "pointer",
+            "value": "pointer"
           }
         ]
       }
@@ -327,7 +335,7 @@
       "host": "127.0.0.1",
       "post": "6379",
       "timeout": 5000,
-      "debug": false,
+      "debug": true,
       "channels": {
         "toAkkaApps": "to-akka-apps-redis-channel"
       },
@@ -346,7 +354,6 @@
 
 
     "log": {
-      "filename": "/log/development.log",
       "level": "info"
     }
   }

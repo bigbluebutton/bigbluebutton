@@ -43,21 +43,17 @@ val akkaVersion  = "2.5.1"
 val scalaTestV  = "2.2.6"
 
 libraryDependencies ++= {
-    val springVersion = "4.3.3.RELEASE"
+    val springVersion = "4.3.12.RELEASE"
   Seq(
     "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
     "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
     "com.typesafe.akka"        %%  "akka-slf4j"        % akkaVersion,
     "com.typesafe"              %  "config"            % "1.3.0",
-    "ch.qos.logback"            %  "logback-classic"   % "1.1.6" % "runtime",
-    //    "org.pegdown"               %  "pegdown"           % "1.4.0",
-    //    "junit"                     %  "junit"             % "4.11",
-    //    "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
-    "commons-codec"             %  "commons-codec"     % "1.10",
-        "redis.clients"             %  "jedis"             % "2.7.2",
-    //    "org.apache.commons"        %  "commons-lang3"     % "3.2",
+    "ch.qos.logback"            %  "logback-classic"   % "1.2.3" % "runtime",
+    "commons-codec"             %  "commons-codec"     % "1.11",
+    "redis.clients"             %  "jedis"             % "2.7.2",
     "org.apache.commons"        %  "commons-pool2"     % "2.3",
-    "org.red5"                  %  "red5-server"       % "1.0.8-M13",
+    "org.red5"                  %  "red5-server"       % "1.0.10-M5",
     "com.google.code.gson"      %  "gson"              % "2.5",
     "org.springframework"       %  "spring-web"        % springVersion,
     "org.springframework"       %  "spring-beans"      % springVersion,

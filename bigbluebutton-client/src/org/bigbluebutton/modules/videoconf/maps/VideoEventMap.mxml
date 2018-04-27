@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.core.events.ConnectAppEvent;
+			import org.bigbluebutton.core.events.UserStatusChangedEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
@@ -46,7 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 		<EventHandlers type="{VideoModuleStartEvent.START}">
 			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-			<MethodInvoker generator="{VideoEventMapDelegate}" method="start" arguments="{event.uri}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="start"/>
 			<EventAnnouncer generator="{ConnectAppEvent}" type="{ConnectAppEvent.CONNECT_VIDEO_APP}" />
 		</EventHandlers>
 
@@ -94,6 +95,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<EventHandlers type="{BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR}">
 			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
 			<MethodInvoker generator="{VideoEventMapDelegate}" method="webcamsOnlyForModeratorChanged"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{UserStatusChangedEvent.USER_STATUS_CHANGED}">
+			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="userRoleChanged"/>
 		</EventHandlers>
 
 		<EventHandlers type="{StreamStoppedEvent.STREAM_STOPPED}">

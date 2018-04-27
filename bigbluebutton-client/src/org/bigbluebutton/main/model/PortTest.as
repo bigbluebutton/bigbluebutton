@@ -18,16 +18,17 @@
 */
 package org.bigbluebutton.main.model
 {
-	 
 	import flash.events.NetStatusEvent;
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
+	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-    import flash.utils.Dictionary;
-    import org.bigbluebutton.core.UsersUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.util.ConnUtil;
 	
 	[Bindable]
 	/**
@@ -94,11 +95,6 @@ package org.bigbluebutton.main.model
     private var closeConnectionTimer:Timer;
 		
 		/**
-		* Set default encoding to AMF0 so FMS also understands.
-		*/		
-		NetConnection.defaultObjectEncoding = ObjectEncoding.AMF0;
-		
-		/**
 		 * Create new port test and connect to the RTMP server.
 		 * 
 		 * @param protocol
@@ -123,12 +119,12 @@ package org.bigbluebutton.main.model
 			} else {
 				this.port = port;
 			}
-			// Construct URI.
-      if (tunnel) {
-        this.baseURI = "rtmpt://" + this.hostname + "/" + this.application;
-      } else {
-        this.baseURI = "rtmp://" + this.hostname + this.port + "/" + this.application;
-      }
+		}
+		
+		private function parseRTMPConn(appURL: String):Array {
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
+			var result:Array = pattern.exec(appURL);
+			return result;
 		}
 		
 		/**
@@ -137,8 +133,34 @@ package org.bigbluebutton.main.model
 		public function connect():void {
 			nc = new NetConnection();
 			nc.client = this;
-      nc.proxyType = "best";
 
+			LOGGER.debug("Connecting PORT TEST hostname= " + this.hostname);
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
+			var result:Array = pattern.exec(this.hostname);
+			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+			
+			// Construct URI.
+			if (tunnel) {
+				LOGGER.debug("Connecting PORT TEST tunnel= " + tunnel);
+				var tunnelProtocol: String = ConnUtil.RTMPT;
+				if (useRTMPS) {
+					tunnelProtocol = ConnUtil.RTMPS;
+					nc.proxyType = ConnUtil.PROXY_NONE;
+				}
+				this.baseURI = tunnelProtocol + "://" + result.server + "/" + this.application;
+				
+			} else {
+				LOGGER.debug("Connecting PORT TEST tunnel= " + tunnel);
+				var nativeProtocol: String = ConnUtil.RTMP;
+				if (useRTMPS) {
+					nativeProtocol = ConnUtil.RTMPS;
+					nc.proxyType = ConnUtil.PROXY_BEST;
+				}
+				this.baseURI = nativeProtocol + "://" + result.server + "/" + this.application;
+			}
+			
+      
+			nc.objectEncoding = ObjectEncoding.AMF3;
 			nc.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
 			// connect to server
 			try {
@@ -153,8 +175,12 @@ package org.bigbluebutton.main.model
         connectionTimer.start();
         
         var curTime:Number = new Date().getTime();
+				
+				LOGGER.debug("Connecting PORT TEST = " + this.baseURI);
 				// Create connection with the server.
-				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, "portTestDummyUserId-" + curTime);
+				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, 
+					"portTestDummyUserId-" + curTime, "portTestDummyAuthToken", "portTest-" + curTime);
+							
 				status = "Connecting...";
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.
@@ -171,7 +197,7 @@ package org.bigbluebutton.main.model
             logData.tags = ["initialization", "port-test", "connection"];
             logData.message = "Port testing connection timedout.";
             LOGGER.info(JSON.stringify(logData));
-
+						LOGGER.debug("Connect FAILED PORT TEST = " + this.baseURI);
 			status = "FAILED";
 			_connectionListener(status, tunnel, hostname, port, application);
             closeConnection();
@@ -228,11 +254,13 @@ package org.bigbluebutton.main.model
         logData.connection = this.baseURI;
         logData.tags = ["initialization", "port-test", "connection"];
 
+				LOGGER.debug("Connect SUCCESS PORT TEST connected= " + nc.connected);
+				
         if ( statusCode == "NetConnection.Connect.Success" ) {
             status = "SUCCESS";
             logData.message = "Port test successfully connected.";
             LOGGER.info(JSON.stringify(logData));
-
+						LOGGER.debug("Connect SUCCESS PORT TEST = " + this.baseURI);
             _connectionListener(status, tunnel, hostname, port, application);
         } else if ( statusCode == "NetConnection.Connect.Rejected" ||
                     statusCode == "NetConnection.Connect.Failed" || 
@@ -240,7 +268,7 @@ package org.bigbluebutton.main.model
             logData.statusCode = statusCode;            
             logData.message = "Port test failed to connect.";
             LOGGER.info(JSON.stringify(logData));
-            
+						LOGGER.debug("Connect FAILED (2) PORT TEST = " + this.baseURI);
             status = "FAILED";
             _connectionListener(status, tunnel, hostname, port, application);
             

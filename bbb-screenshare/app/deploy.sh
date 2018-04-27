@@ -21,7 +21,7 @@ sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-sc
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-2.5.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/jedis-2.7.2.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/commons-pool2-2.3.jar \
- ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/spring-webmvc-4.3.3.RELEASE.jar  \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/spring-webmvc-4.3.12.RELEASE.jar  \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/rediscala_2.12-1.8.0.jar  \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-common-message_2.12-0.0.19-SNAPSHOT.jar \
   /usr/share/red5/webapps/screenshare/WEB-INF/lib/
