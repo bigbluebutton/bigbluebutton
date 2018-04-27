@@ -33,7 +33,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const RECONNECT_WAIT_TIME = 5000;
 const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
 
 class VideoProvider extends Component {

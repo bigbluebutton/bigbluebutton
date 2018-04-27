@@ -15,13 +15,12 @@ const Logger = require('../../../utils/Logger');
 const isError = require('../utils/util').isError;
 
 module.exports = class MediaSession {
-  constructor(emitter, room, type = 'WebRtcEndpoint', adapter = C.STRING.KURENTO, name = C.STRING.DEFAULT_NAME, options = {}) {
+  constructor(emitter, room, type = 'WebRtcEndpoint', options = {}, adapter = C.STRING.KURENTO, name = C.STRING.DEFAULT_NAME) {
     this.id = rid();
     this.room = room;
     this.emitter = emitter;
     this._status = C.STATUS.STOPPED;
     this._type = type;
-    this._MediaServer = new MediaServer(kurentoUrl);
     this._mediaElement;
     this.subscribedSessions = [];
     this._adapter = adapter;

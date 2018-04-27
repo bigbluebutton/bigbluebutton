@@ -14,8 +14,15 @@ const kurentoUrl = config.get('kurentoUrl');
 const Logger = require('../../../utils/Logger');
 
 module.exports = class SdpSession extends MediaSession {
-  constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint') {
-    super(emitter, room, type);
+  constructor(
+    emitter,
+    sdp = null,
+    room,
+    type = 'WebRtcEndpoint',
+    adapter = C.STRING.KURENTO,
+    name = C.STRING.DEFAULT_NAME
+  ) {
+    super(emitter, room, type, {}, adapter, name);
     // {SdpWrapper} SdpWrapper
     this._sdp;
     if (sdp && type) {

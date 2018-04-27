@@ -17,7 +17,12 @@ Kurento = function (
   internalMeetingId,
   onFail = null,
   chromeExtension = null,
+  streamId = null,
+  userId = null,
+  userName = null,
+  onSuccess = null
 ) {
+
   this.ws = null;
   this.video = null;
   this.screen = null;
@@ -60,11 +65,21 @@ Kurento = function (
       _this.logError('Default error handler');
     };
   }
+
+  if (onSuccess != null) {
+    this.onSuccess = Kurento.normalizeCallback(onSuccess);
+  } else {
+    var _this = this;
+    this.onSuccess = function () {
+      _this.logSuccess('Default success handler');
+    };
+  }
 };
 
 this.KurentoManager = function () {
   this.kurentoVideo = null;
   this.kurentoScreenshare = null;
+  this.kurentoAudio = null;
 };
 
 KurentoManager.prototype.exitScreenShare = function () {
@@ -75,7 +90,7 @@ KurentoManager.prototype.exitScreenShare = function () {
       this.kurentoScreenshare.ws.close();
     }
 
-    this.kurentoScreenshare.disposeScreenShare();
+    this.kurentoScreenshare.dispose();
     this.kurentoScreenshare = null;
   }
 
@@ -96,7 +111,7 @@ KurentoManager.prototype.exitVideo = function () {
       this.kurentoVideo.ws.close();
     }
 
-    this.kurentoVideo.disposeScreenShare();
+    this.kurentoVideo.dispose();
     this.kurentoVideo = null;
   }
 
@@ -104,6 +119,24 @@ KurentoManager.prototype.exitVideo = function () {
     this.kurentoVideo = null;
   }
 };
+
+KurentoManager.prototype.exitAudio = function () {
+  console.log('  [exitAudio] Exiting listen only audio');
+  if (typeof this.kurentoAudio !== 'undefined' && this.kurentoAudio) {
+    if (this.kurentoAudio.ws !== null) {
+      this.kurentoAudio.ws.onclose = function () {};
+      this.kurentoAudio.ws.close();
+    }
+
+    this.kurentoAudio.dispose();
+    this.kurentoAudio = null;
+  }
+
+  if (this.kurentoAudio) {
+    this.kurentoAudio = null;
+  }
+};
+
 
 KurentoManager.prototype.shareScreen = function (tag) {
   this.exitScreenShare();
@@ -166,6 +199,12 @@ Kurento.prototype.onWSMessage = function (message) {
     case 'iceCandidate':
       this.webRtcPeer.addIceCandidate(parsedMessage.candidate);
       break;
+    case 'webRTCAudioSuccess':
+      this.onSuccess(parsedMessage.success);
+      break;
+    case 'webRTCAudioError':
+      this.onFail(parsedMessage.error);
+      break;
     default:
       console.error('Unrecognized message', parsedMessage);
   }
@@ -179,9 +218,21 @@ Kurento.prototype.startResponse = function (message) {
   if (message.response !== 'accepted') {
     const errorMsg = message.message ? message.message : 'Unknow error';
     console.warn(`Call not accepted for the following reason: ${errorMsg}`);
-    kurentoManager.exitScreenShare();
+    switch (message.type) {
+      case 'screenshare':
+        if (message.role === SEND_ROLE) {
+          kurentoManager.exitScreenShare();
+        }
+        else if (message.role === RECV_ROLE) {
+          kurentoManager.exitVideo();
+        }
+        break;
+      case 'audio':
+        kurentoManager.exitAudio();
+        break;
+    }
   } else {
-    console.debug(`Screenshare procedure was accepted with SDP => ${message.sdpAnswer}`);
+    console.debug(`Procedure for`, mesage.type, `was accepted with SDP => ${message.sdpAnswer}`);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
 };
@@ -320,6 +371,79 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   this.sendMessage(message);
 };
 
+KurentoManager.prototype.joinAudio = function (tag) {
+  this.exitAudio();
+  var obj = Object.create(Kurento.prototype);
+  Kurento.apply(obj, arguments);
+  this.kurentoAudio= obj;
+  this.kurentoAudio.setAudio(tag);
+};
+
+Kurento.prototype.setAudio = function (tag) {
+  this.mediaCallback = this.listenOnly.bind(this);
+  this.create(tag);
+};
+
+Kurento.prototype.listenOnly = function () {
+  var self = this;
+  if (!this.webRtcPeer) {
+    var options = {
+      remoteVideo: document.getElementById(this.renderTag),
+      onicecandidate : this.onListenOnlyIceCandidate.bind(this),
+      mediaConstraints: {
+        audio:true,
+        video:false
+      }
+    }
+
+    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
+      if(error) {
+        return self.onFail(PEER_ERROR);
+      }
+
+      this.generateOffer(self.onOfferListenOnly.bind(self));
+    });
+  }
+};
+
+Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
+  let self = this;
+  console.debug("[onListenOnlyIceCandidate]", JSON.stringify(candidate));
+
+  var message = {
+    id : 'iceCandidate',
+    role: 'viewer',
+    type: 'audio',
+    voiceBridge: self.voiceBridge,
+    candidate : candidate,
+    callerName: self.caller_id_name
+  }
+  this.sendMessage(message);
+};
+
+Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
+  let self = this;
+  if(error)  {
+    console.error("[onOfferListenOnly]", error);
+    return this.onFail(SDP_ERROR);
+  }
+
+  var message = {
+    id : 'start',
+    type: 'audio',
+    role: 'viewer',
+    voiceBridge: self.voiceBridge,
+    callerName : self.caller_id_name,
+    sdpOffer : offerSdp,
+    userId: self.userId,
+    userName: self.userName,
+    internalMeetingId: self.internalMeetingId
+  };
+
+  console.debug("[onOfferListenOnly]", JSON.stringify(message, null, 2));
+  this.sendMessage(message);
+};
+
 Kurento.prototype.pauseTrack = function (message) {
   const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
   const track = localStream.getVideoTracks()[0];
@@ -351,13 +475,6 @@ Kurento.prototype.stop = function () {
 };
 
 Kurento.prototype.dispose = function () {
-  if (this.webRtcPeer) {
-    this.webRtcPeer.dispose();
-    this.webRtcPeer = null;
-  }
-};
-
-Kurento.prototype.disposeScreenShare = function () {
   if (this.webRtcPeer) {
     this.webRtcPeer.dispose();
     this.webRtcPeer = null;
@@ -471,6 +588,16 @@ window.kurentoWatchVideo = function () {
 window.kurentoExitVideo = function () {
   window.kurentoInitialize();
   window.kurentoManager.exitVideo();
+};
+
+window.kurentoJoinAudio = function () {
+  window.kurentoInitialize();
+  window.kurentoManager.joinAudio.apply(window.kurentoManager, arguments);
+};
+
+window.kurentoExitAudio = function () {
+  window.kurentoInitialize();
+  window.kurentoManager.exitAudio();
 };
 
 window.getChromeScreenConstraints = function (callback, extensionId) {
