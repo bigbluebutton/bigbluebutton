@@ -339,6 +339,8 @@
     "app.feedback.title": "You have logged out of the conference",
     "app.feedback.subtitle": "we'd love to hear about your experience with BigBlueButton (optional)",
     "app.feedback.textarea": "How can we make BigBlueButton better?",
+    "app.feedback.sendFeedback": "Send Feedback",
+    "app.feedback.sendFeedbackDesc": "Send a Feedback and leave the meeting",
     "app.videoDock.webcamFocusLabel": "Focus",
     "app.videoDock.webcamFocusDesc": "Focus the selected webcam",
     "app.videoDock.webcamUnfocusLabel": "Unfocus",

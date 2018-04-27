@@ -30,6 +30,14 @@ const intlMessages = defineMessages({
     id: 'app.leaveConfirmation.confirmDesc',
     description: 'adds context to confim option',
   },
+  sendLabel: {
+    id: 'app.feedback.sendFeedback',
+    description: 'send feedback button label',
+  },
+  sendDesc: {
+    id: 'app.feedback.sendFeedbackDesc',
+    description: 'adds context to send feedback option',
+  },
 });
 
 class FeedbackScreen extends Component {
@@ -84,7 +92,7 @@ class FeedbackScreen extends Component {
     const {
       intl,
     } = this.props;
-
+    const noRating = this.state.selected <= 0;
     return (
       <span>
         <ModalBase
@@ -113,7 +121,7 @@ class FeedbackScreen extends Component {
                 cols="30"
                 rows="5"
                 id="feedbackComment"
-                disabled={this.state.selected === 0}
+                disabled={noRating}
                 className={styles.textarea}
                 placeholder={intl.formatMessage(intlMessages.textarea)}
                 aria-describedby="textareaDesc"
@@ -123,8 +131,12 @@ class FeedbackScreen extends Component {
               <Button
                 color="primary"
                 onClick={this.sendFeedback}
-                label={intl.formatMessage(intlMessages.confirmLabel)}
-                description={intl.formatMessage(intlMessages.confirmDesc)}
+                label={noRating
+                   ? intl.formatMessage(intlMessages.confirmLabel)
+                   : intl.formatMessage(intlMessages.sendLabel)}
+                description={noRating ?
+                  intl.formatMessage(intlMessages.confirmDesc)
+                  : intl.formatMessage(intlMessages.sendDesc)}
               />
             </div>
             <div id="textareaDesc" hidden>{intl.formatMessage(intlMessages.textarea)}</div>
