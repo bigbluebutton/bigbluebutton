@@ -5,7 +5,45 @@ import _ from 'lodash';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
-
+  title: {
+    id: 'app.shortcut-help.title',
+  },
+  closeLabel: {
+    id: 'app.shortcut-help.closeLabel',
+  },
+  closeDesc: {
+    id: 'app.shortcut-help.closeDesc',
+  },
+  openOptions: {
+    id: 'app.shortcut-help.openOptions',
+  },
+  toggleUserList: {
+    id: 'app.shortcut-help.toggleUserList',
+  },
+  toggleMute: {
+    id: 'app.shortcut-help.toggleMute',
+  },
+  togglePublicChat: {
+    id: 'app.shortcut-help.togglePublicChat',
+  },
+  hidePrivateChat: {
+    id: 'app.shortcut-help.hidePrivateChat',
+  },
+  closePrivateChat: {
+    id: 'app.shortcut-help.closePrivateChat',
+  },
+  openActions: {
+    id: 'app.shortcut-help.openActions',
+  },
+  openStatus: {
+    id: 'app.shortcut-help.openStatus',
+  },
+  joinAudio: {
+    id: 'app.audio.joinAudio',
+  },
+  leaveAudio: {
+    id: 'app.audio.leaveAudio',
+  },
 });
 
 class ShortcutHelpComponent extends Component {
@@ -13,35 +51,35 @@ class ShortcutHelpComponent extends Component {
     const { intl } = this.props;
 
     const shortcuts = [
-      { keys: 'AcessKey + O', function: 'Open Options',},
-      { keys: 'AcessKey + U', function: 'Toggle UserList',},
-      { keys: 'AcessKey + M', function: 'Mute / Unmute',},
-      { keys: 'AcessKey + J', function: 'Join Audio Modal',},
-      { keys: 'AcessKey + L', function: 'Leave Audio',},
-      { keys: 'AcessKey + P', function: 'Toggle Public Chat (UserList must be open)',},
-      { keys: 'AcessKey + H', function: 'Hide Open Private Chat',},
-      { keys: 'AcessKey + G', function: 'Close Open Private Chat',},
-      { keys: 'AcessKey + A', function: 'Open Actions Menu',},
-      { keys: 'AcessKey + S', function: 'Open Status Menu',},
+      { keys: 'Acess Key + O', function: intl.formatMessage(intlMessages.openOptions),},
+      { keys: 'Acess Key + U', function: intl.formatMessage(intlMessages.toggleUserList),},
+      { keys: 'Acess Key + M', function: intl.formatMessage(intlMessages.toggleMute),},
+      { keys: 'Acess Key + J', function: intl.formatMessage(intlMessages.joinAudio),},
+      { keys: 'Acess Key + L', function: intl.formatMessage(intlMessages.leaveAudio),},
+      { keys: 'Acess Key + P', function: intl.formatMessage(intlMessages.togglePublicChat),},
+      { keys: 'Acess Key + H', function: intl.formatMessage(intlMessages.hidePrivateChat),},
+      { keys: 'Acess Key + G', function: intl.formatMessage(intlMessages.closePrivateChat),},
+      { keys: 'Acess Key + A', function: intl.formatMessage(intlMessages.openActions),},
+      { keys: 'Acess Key + S', function: intl.formatMessage(intlMessages.openStatus),},
     ];
 
     return (
       <Modal
-        title={'Hotkeys'}
+        title={intl.formatMessage(intlMessages.title)}
         dismiss={{
-          label: 'close',
-          description: "closes the hotkeys modal",
+          label: intl.formatMessage(intlMessages.closeLabel),
+          description: intl.formatMessage(intlMessages.closeDesc),
         }}
       >
         <span className={styles.span}>The operation to activate the Hotkeys depends on the browser and its platform.</span>
-        <p className={styles.p}><b>Windows / Linux : AcessKey</b></p>
+        <p className={styles.p}><b>Windows / Linux : Acess Key</b></p>
         <p className={styles.p}>
           FireFox : Alt + Shift<br></br>
-          Internet Explorer / Google Chrome : Alt
+          Chrome  : Alt
         </p>
-        <p className={styles.p}><b>Mac : AcessKey</b></p>
+        <p className={styles.p}><b>Mac : Acess Key</b></p>
         <p className={styles.p}>
-          FireFox / Chrome / Safari : Control + Alt
+          Control + Alt
         </p>
         <table className={styles.shortcutTable}>
             <tbody>
