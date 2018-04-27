@@ -18,7 +18,7 @@ class Rating extends Component {
     this.props.onRate(e);
   }
 
-  renderstars(num) {
+  renderStars(num) {
     return (
       <div className={styles.starRating}>
         <fieldset>
