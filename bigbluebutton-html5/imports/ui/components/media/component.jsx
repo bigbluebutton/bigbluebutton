@@ -17,6 +17,7 @@ const defaultProps = {
   hideOverlay: true,
 };
 
+
 export default class Media extends Component {
   componentWillUpdate() {
     window.dispatchEvent(new Event('resize'));
