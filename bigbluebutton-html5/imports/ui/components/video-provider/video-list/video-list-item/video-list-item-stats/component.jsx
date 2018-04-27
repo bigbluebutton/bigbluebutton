@@ -76,8 +76,9 @@ class VideoListItemStats extends Component {
     stopGettingStats();
   }
 
-  setStats(stats) {
-    this.setState({ stats: { ...this.state.stats, video: stats.video, audio: stats.audio }});
+  setStats(updatedStats) {
+    const { audio, video } = updatedStats;
+    this.setState({ stats: { ...this.state.stats, video, audio }})
   }
 
   render() {

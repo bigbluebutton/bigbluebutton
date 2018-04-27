@@ -50,7 +50,7 @@ function customGetStats(peer, mediaStreamTrack, callback, interval) {
                         }
                     } else if (res.mediaType == 'video') {
                         res.packetsSent = parseInt(res.packetsSent);
-                        res.packetsLost = parseInt(res.packetsLost);
+                        res.packetsLost = parseInt(res.packetsLost) || 0;
                         res.packetsReceived = parseInt(res.packetsReceived);
 
                         if (isNaN(res.packetsSent) && res.packetsReceived == 0) {
