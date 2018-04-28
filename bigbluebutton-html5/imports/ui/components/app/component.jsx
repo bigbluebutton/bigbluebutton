@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
+import Resizable from 're-resizable';
 
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
@@ -72,6 +73,8 @@ class App extends Component {
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
+
+
   renderNavBar() {
     const { navbar } = this.props;
 
@@ -122,13 +125,20 @@ class App extends Component {
     });
 
     return (
-      <div
-        className={cx(styles.userList, userListStyle)}
-        aria-label={intl.formatMessage(intlMessages.userListLabel)}
-        aria-hidden={chatIsOpen}
+      <Resizable
+        minWidth={'10%'}
+        maxWidth={'20%'}
+        ref={node => { this.resizableUserList = node; }}
+        enable={{ right:true }}
       >
-        {userList}
-      </div>
+        <div
+          className={cx(styles.userList, userListStyle)}
+          aria-label={intl.formatMessage(intlMessages.userListLabel)}
+          aria-hidden={chatIsOpen}
+        >
+          {userList}
+        </div>
+      </Resizable>
     );
   }
 
@@ -138,12 +148,19 @@ class App extends Component {
     if (!chat) return null;
 
     return (
-      <section
-        className={styles.chat}
-        aria-label={intl.formatMessage(intlMessages.chatLabel)}
+      <Resizable
+        minWidth={'10%'}
+        maxWidth={'20%'}
+        ref={node => { this.resizableChat = node; }}
+        enable={{ right:true }}
       >
-        {chat}
-      </section>
+        <section
+          className={styles.chat}
+          aria-label={intl.formatMessage(intlMessages.chatLabel)}
+        >
+          {chat}
+        </section>
+      </Resizable>
     );
   }
 
@@ -193,7 +210,9 @@ class App extends Component {
             {this.renderActionsBar()}
           </div>
           {this.renderUserList()}
+          {window.location.pathname.includes('users') ? <div className={styles.userlistPad} /> : null}
           {this.renderChat()}
+          {window.location.pathname.includes('chat') ? <div className={styles.chatPad} /> : null}
           {this.renderSidebar()}
         </section>
         <ModalContainer />

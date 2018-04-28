@@ -114,6 +114,16 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   }
 }
 
+.userlistPad {
+  background-color: $color-off-white;
+  width: 4px;
+}
+
+.chatPad {
+  background-color: $color-white;
+  width: 4px;
+}
+
 .compact {
   flex-basis: 4.6rem;
 }
@@ -122,6 +132,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   @extend %full-page;
 
   order: 2;
+  height: 100%;
 
   @include mq($small-only) {
     z-index: 3;
