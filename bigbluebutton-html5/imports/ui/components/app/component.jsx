@@ -132,7 +132,7 @@ class App extends Component {
         enable={{ right:true }}
       >
         <div
-          className={cx(styles.userList, userListStyle)}
+        className={cx(styles.userList, userListStyle)}
           aria-label={intl.formatMessage(intlMessages.userListLabel)}
           aria-hidden={chatIsOpen}
         >
@@ -149,8 +149,8 @@ class App extends Component {
 
     return (
       <Resizable
-        minWidth={'10%'}
-        maxWidth={'20%'}
+        minWidth={'15%'}
+        maxWidth={'30%'}
         ref={node => { this.resizableChat = node; }}
         enable={{ right:true }}
       >
