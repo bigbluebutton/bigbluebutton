@@ -48,7 +48,7 @@ module.exports = class Freeswitch extends EventEmitter {
     try {
       let userAgent = await this._createUserAgent(type, params.name, roomId);
       this._userAgents[roomId] = userAgent;
-      return Promise.resolve(roomId); 
+      return Promise.resolve(roomId);
     }
     catch (err) {
       return Promise.reject(err);
@@ -62,7 +62,7 @@ module.exports = class Freeswitch extends EventEmitter {
     if (source) {
       return new Promise((resolve, reject) => {
         switch (type) {
-          case 'ALL': 
+          case 'ALL':
 
           case 'AUDIO':
 
@@ -80,7 +80,7 @@ module.exports = class Freeswitch extends EventEmitter {
     }
   }
 
-  stop (roomId, elementId) {
+  stop (roomId, type = {}, elementId) {
     Logger.info("[mcs-media-freeswitch] Releasing endpoint", elementId, "from room", roomId);
     let userAgent = this._userAgents[elementId];
     let rtpConverter = this._rtpConverters[elementId];
@@ -88,7 +88,7 @@ module.exports = class Freeswitch extends EventEmitter {
     if (userAgent) {
       Logger.info("[mcs-media-freeswitch] Stopping user agent", elementId);
       userAgent.stop();
-      delete this._userAgents[elementId]; 
+      delete this._userAgents[elementId];
     }
 
     if (rtpConverter) {
@@ -200,7 +200,7 @@ module.exports = class Freeswitch extends EventEmitter {
         connector: this.sipjsLogConnector
       },
       traceSip: true,
-      hackIpInContact: LOCAL_IP_ADDRESS 
+      hackIpInContact: LOCAL_IP_ADDRESS
     });
 
     Logger.info("[mcs-freeswitch-adapter] Created new user agent for endpoint " + displayName);
