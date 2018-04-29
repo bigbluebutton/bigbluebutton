@@ -62,6 +62,7 @@ class App extends Component {
 
     this.state = {
       compactUserList: false, // TODO: Change this on userlist resize (?)
+      width: 0,
     };
   }
 
@@ -73,6 +74,9 @@ class App extends Component {
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    console.log(this.state.width);
+  }
 
 
   renderNavBar() {
@@ -126,13 +130,14 @@ class App extends Component {
 
     return (
       <Resizable
-        minWidth={'10%'}
-        maxWidth={'20%'}
-        ref={node => { this.resizableUserList = node; }}
-        enable={{ right:true }}
+        minWidth="10%"
+        maxWidth="20%"
+        ref={(node) => { this.resizableUserList = node; }}
+        enable={{ right: true }}
+        className={styles.resizableUserList}
       >
         <div
-        className={cx(styles.userList, userListStyle)}
+          className={cx(styles.userList, userListStyle)}
           aria-label={intl.formatMessage(intlMessages.userListLabel)}
           aria-hidden={chatIsOpen}
         >
@@ -149,10 +154,11 @@ class App extends Component {
 
     return (
       <Resizable
-        minWidth={'15%'}
-        maxWidth={'30%'}
-        ref={node => { this.resizableChat = node; }}
-        enable={{ right:true }}
+        minWidth="15%"
+        maxWidth="30%"
+        ref={(node) => { this.resizableChat = node; }}
+        className={styles.resizableChat}
+        enable={{ right: true }}
       >
         <section
           className={styles.chat}
@@ -165,7 +171,9 @@ class App extends Component {
   }
 
   renderMedia() {
-    const { media, intl, chatIsOpen, userlistIsOpen } = this.props;
+    const {
+      media, intl, chatIsOpen, userlistIsOpen,
+    } = this.props;
 
     if (!media) return null;
 
@@ -182,7 +190,9 @@ class App extends Component {
   }
 
   renderActionsBar() {
-    const { actionsbar, intl, userlistIsOpen, chatIsOpen } = this.props;
+    const {
+      actionsbar, intl, userlistIsOpen, chatIsOpen,
+    } = this.props;
 
     if (!actionsbar) return null;
 
