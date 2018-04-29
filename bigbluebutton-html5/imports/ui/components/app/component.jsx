@@ -62,7 +62,6 @@ class App extends Component {
 
     this.state = {
       compactUserList: false, // TODO: Change this on userlist resize (?)
-      width: 0,
     };
   }
 
@@ -73,11 +72,6 @@ class App extends Component {
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    console.log(this.state.width);
-  }
-
 
   renderNavBar() {
     const { navbar } = this.props;
@@ -135,6 +129,9 @@ class App extends Component {
         ref={(node) => { this.resizableUserList = node; }}
         enable={{ right: true }}
         className={styles.resizableUserList}
+        onResize={(e, direction, ref, d) => {
+          if (e.clientX - ref.offsetLeft <= 50) this.props.router.push('/');
+        }}
       >
         <div
           className={cx(styles.userList, userListStyle)}

@@ -101,6 +101,8 @@ class Dropdown extends Component {
   handleWindowClick(event) {
     const triggerElement = findDOMNode(this.trigger);
 
+    if (!triggerElement) return;
+
     if (!this.state.isOpen
       || triggerElement === event.target
       || triggerElement.contains(event.target)) {
