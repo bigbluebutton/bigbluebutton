@@ -1866,6 +1866,12 @@ if [ -n "$HOST" ]; then
 		fi
 	fi
 
+        #
+        # Update thumbnail links
+        #
+        find /var/bigbluebutton/published -name metadata.xml -exec \
+               sed "s/<image width=\"\([0-9]*\)\" height=\"\([0-9]*\)\" alt=\"\([^\"]*\)\">\(http[s]*\):\/\/[^\/]*\/\(.*\)/<image width=\"\1\1\" height=\"\2\" alt=\"\3\">\4:\/\/$HOST\/\5/g" \
+                '{}' \;
 
 	echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 	stop_bigbluebutton
