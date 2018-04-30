@@ -295,6 +295,7 @@
     "app.notification.recordingStart": "This session is now being recorded",
     "app.notification.recordingStop": "This session is not being recorded anymore",
     "app.shortcut-help.title": "Hotkeys",
+    "app.shortcut-help.accessKeyDesc": "The operation to activate the access key depends on the browser and its platform.",
     "app.shortcut-help.closeLabel": "close",
     "app.shortcut-help.closeDesc": "closes the hotkeys modal",
     "app.shortcut-help.openOptions": "Open Options",
