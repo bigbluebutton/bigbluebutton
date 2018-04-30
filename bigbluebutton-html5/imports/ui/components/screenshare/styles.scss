@@ -1,0 +1,9 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/video-provider/video-list/styles";
+
+.connecting {
+  @extend .connecting;
+  z-index: -1;
+  background-color: transparent;
+  color: $color-white;
+}
