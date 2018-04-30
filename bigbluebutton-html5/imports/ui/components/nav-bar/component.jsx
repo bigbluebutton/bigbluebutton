@@ -176,6 +176,8 @@ class NavBar extends Component {
   }
   render() {
     const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
+    const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+    const ACCESS_KEY = SHORTCUTS_CONFIG.toggleUserList.accesskey;
 
     const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
 
@@ -198,7 +200,7 @@ class NavBar extends Component {
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
             aria-describedby="newMessage"
-            accessKey="u"
+            accessKey={ACCESS_KEY}
           />
           <div
             id="newMessage"

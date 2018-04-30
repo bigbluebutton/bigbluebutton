@@ -33,6 +33,9 @@ const propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const ACCESS_KEY = SHORTCUTS_CONFIG.openStatus.accesskey;
+
 const EmojiSelect = ({
   intl,
   options,
@@ -60,7 +63,7 @@ const EmojiSelect = ({
           size="lg"
           color="primary"
           onClick={() => null}
-          accessKey="s"
+          accessKey={ACCESS_KEY}
         >
           <div id="currentStatus" hidden>
             { intl.formatMessage(intlMessages.currentStatusDesc, { 0: selected }) }

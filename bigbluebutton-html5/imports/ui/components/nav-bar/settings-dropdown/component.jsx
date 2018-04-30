@@ -155,6 +155,9 @@ class SettingsDropdown extends Component {
   render() {
     const { intl } = this.props;
 
+    const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+    const ACCESS_KEY = SHORTCUTS_CONFIG.openOptions.accesskey;
+
     return (
       <Dropdown
         autoFocus
@@ -162,7 +165,7 @@ class SettingsDropdown extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0} accessKey="o">
+        <DropdownTrigger tabIndex={0} accessKey={ACCESS_KEY}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
