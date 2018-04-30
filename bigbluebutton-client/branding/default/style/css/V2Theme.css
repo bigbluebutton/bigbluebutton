@@ -819,6 +819,11 @@ mx|DataGrid {
 	fontWeight : bold;
 }
 
+.animatedDotsStyle {
+	fontSize  : 40;
+	textAlign : center;
+}
+
 /*
 //------------------------------
 //  Guest
