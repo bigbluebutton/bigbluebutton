@@ -59,7 +59,6 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function isWebRTCSupported():Boolean {
-      LOGGER.debug("isWebRTCSupported - ExternalInterface.available=[{0}], isWebRTCAvailable=[{1}]", [ExternalInterface.available, ExternalInterface.call("isWebRTCAvailable")]);
       return (ExternalInterface.available && ExternalInterface.call("isWebRTCAvailable"));
     }
     
@@ -75,7 +74,6 @@ package org.bigbluebutton.modules.phone.managers
     private function checkIfToUseWebRTC():Boolean {
       var webRTCSupported:Boolean = isWebRTCSupported();
       
-	  LOGGER.debug("checkIfToUseWebRTC - useWebRTCIfAvailable=[{0}], isWebRTCSupported=[{1}]", [options.useWebRTCIfAvailable, webRTCSupported]);
       if (options.useWebRTCIfAvailable && webRTCSupported) {
         return true;
       }      
@@ -105,7 +103,6 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleWebRTCEchoTestNoAudioEvent():void {
-	  LOGGER.debug("handleWebRTCEchoTestNoAudioEvent");
       model.state = Constants.ECHO_TEST_FAILED;
       endEchoTest();
       
@@ -115,13 +112,13 @@ package org.bigbluebutton.modules.phone.managers
     private var t:Timer;
     
     public function handleWebRTCEchoTestHasAudioEvent():void {
-      LOGGER.debug("handleWebRTCEchoTestHasAudioEvent");
+
       model.state = Constants.STOP_ECHO_THEN_JOIN_CONF;
       endEchoTestJoinConference();
     }
     
     public function handleWebRTCCallStartedEvent():void {
-	  LOGGER.debug("setting state to IN_CONFERENCE");
+
       model.state = Constants.IN_CONFERENCE;
       dispatcher.dispatchEvent(new WebRTCJoinedVoiceConferenceEvent());
       if(reconnecting) {
@@ -186,10 +183,10 @@ package org.bigbluebutton.modules.phone.managers
         errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
       }
       
-        var logData:Object = UsersUtil.initLogData();
+      var logData:Object = UsersUtil.initLogData();
       logData.user.reason = errorString;
       logData.tags = ["voice", "webrtc"];
-      logData.message = "WebRtc Echo test failed.";
+      logData.logCode = "call_manager_webrtc_echo_test_failed";
       logData.errorEvent = {code: event.errorCode, cause: event.cause};
       LOGGER.info(jsonXify(logData));
 
@@ -207,7 +204,7 @@ package org.bigbluebutton.modules.phone.managers
       var logData:Object = UsersUtil.initLogData();
       logData.user.reason = errorString;
       logData.tags = ["voice", "webrtc"];
-      logData.message = "WebRtc Echo test ended unexpectedly.";
+      logData.logCode = logCode;
       LOGGER.info(jsonXify(logData));
 
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
@@ -230,13 +227,10 @@ package org.bigbluebutton.modules.phone.managers
         reconnect.onDisconnect(joinVoiceConference, []);
       }
       else {
-        LOGGER.debug("WebRTC call reconnection failed");
         if( reconnect.attempts < MAX_RETRIES ) {
-          LOGGER.debug("Retrying, attempt " + reconnect.attempts);
           reconnect.onConnectionAttemptFailed();
         }
         else {
-          LOGGER.debug("Giving up");
           reconnecting = false;
 
           if (event.errorCode == 1004) {
@@ -249,15 +243,18 @@ package org.bigbluebutton.modules.phone.managers
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
           }
           
+					var logCode:String = 'bbb.webrtcWarning.failedError';
+					
           var logData:Object = UsersUtil.initLogData();
           logData.tags = ["voice", "webrtc"];
+					logData.logCode = logCode;
           logData.errorEvent = {code: event.errorCode, cause: event.cause};
           LOGGER.info(jsonXify(logData));
           
           sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
                   ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
                   errorString,
-                  'bbb.webrtcWarning.failedError');
+									logCode);
         }
       }
     }
@@ -269,6 +266,7 @@ package org.bigbluebutton.modules.phone.managers
 
       var logData:Object = UsersUtil.initLogData();
       logData.user.reason = errorString;
+			logData.logCode = logCode;
       LOGGER.info(jsonXify(logData));
 
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),

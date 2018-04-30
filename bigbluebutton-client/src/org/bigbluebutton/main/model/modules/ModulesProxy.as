@@ -47,7 +47,7 @@ package org.bigbluebutton.main.model.modules
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["initialization"];
             logData.tunnel = tunnel;
-            logData.message = "Successfully tested connection to server.";
+            logData.logCode = "port_test_done";
             LOGGER.info(JSON.stringify(logData));
                 
 						BBB.initConnectionManager().useProtocol(tunnel);

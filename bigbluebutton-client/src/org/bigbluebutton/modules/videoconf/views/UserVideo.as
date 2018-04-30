@@ -44,9 +44,9 @@ package org.bigbluebutton.modules.videoconf.views
     public function publish(camIndex:int, videoProfile:VideoProfile, streamName:String):void {
       if (_shuttingDown) {
         var logData:Object = UsersUtil.initLogData();
-        logData.streamName = streamName;
+        logData.streamId = streamName;
         logData.tags = ["video"];
-        logData.message = "Method publish called while shutting down the video window, ignoring...";
+        logData.logCode = "publish_while_shutting_video_window";
         LOGGER.warn(JSON.stringify(logData));
         return;
       }
@@ -80,19 +80,32 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     public static function getVideoProfile(stream:String):VideoProfile {
-      LOGGER.debug("Parsing stream name [{0}]", [stream]);
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["webcam"];
+			logData.app = "video";
+			logData.streamId = stream;
+			
       var pattern:RegExp = new RegExp("([A-Za-z0-9]+)-([A-Za-z0-9_]+)-\\d+", "");
       if (pattern.test(stream)) {
-        LOGGER.debug("The stream name is well formatted");
-        LOGGER.debug("Video profile resolution is [{0}]", [pattern.exec(stream)[1]]);
-        LOGGER.debug("Userid [{0}]", [pattern.exec(stream)[2]]);
-        return BBB.getVideoProfileById(pattern.exec(stream)[1]);
+
+				var vidProfile:VideoProfile = BBB.getVideoProfileById(pattern.exec(stream)[1]);
+				
+				logData.vidProfile = vidProfile.vidProfileInfo();
+				logData.logCode = "get_video_profile";
+				LOGGER.info(JSON.stringify(logData));
+				
+        return vidProfile;
       } else {
-        LOGGER.debug("Bad stream name format");
+
         var profile:VideoProfile = BBB.defaultVideoProfile;
         if (profile == null) {
           profile = BBB.fallbackVideoProfile;
         }
+				
+				logData.vidProfile = profile.vidProfileInfo();
+				logData.logCode = "get_video_profile_failed";
+				LOGGER.info(JSON.stringify(logData));
+				
         return profile;
       }
     }
@@ -160,9 +173,9 @@ package org.bigbluebutton.modules.videoconf.views
     public function view(connection:NetConnection, streamName:String):void {
       if (_shuttingDown) {
         var logData:Object = UsersUtil.initLogData();
-        logData.streamName = streamName;
+        logData.streamId = streamName;
         logData.tags = ["video"];
-        logData.message = "Method view called while shutting down the video window, ignoring...";
+        logData.logCode = "view_while_shutting_video_window";
         LOGGER.warn(JSON.stringify(logData));
         return;
       }
@@ -179,7 +192,7 @@ package org.bigbluebutton.modules.videoconf.views
       _ns.receiveAudio(false);
       
       _videoProfile = UserVideo.getVideoProfile(streamName);
-      LOGGER.debug("Remote video profile: {0}", [_videoProfile.toString()]);
+
       if (_videoProfile == null) {
         throw("Invalid video profile");
         return;
@@ -192,7 +205,7 @@ package org.bigbluebutton.modules.videoconf.views
         var filter:ConvolutionFilter = new ConvolutionFilter();
         filter.matrixX = 3;
         filter.matrixY = 3;
-        LOGGER.debug("Applying convolution filter =[{0}]", [options.convolutionFilter]);
+
         filter.matrix = options.convolutionFilter;
         filter.bias =  options.filterBias;
         filter.divisor = options.filterDivisor;
@@ -207,28 +220,42 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     private function onNetStatus(e:NetStatusEvent):void{
+			var logData:Object = UsersUtil.initLogData();
+			logData.streamId = streamName;
+			logData.tags = ["video"];
+			
       switch(e.info.code){
         case "NetStream.Publish.Start":
-          LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [_streamName]);
+					logData.logCode = "netstream_publish_start";
+					LOGGER.warn(JSON.stringify(logData));
           break;
         case "NetStream.Play.UnpublishNotify":
+					logData.logCode = "netstream_play_unpublish_notify";
+					LOGGER.warn(JSON.stringify(logData));
           shutdown();
           break;
         case "NetStream.Play.Start":
-			LOGGER.debug("Netstatus: {0}", [e.info.code ]);
+					logData.logCode = "netstream_play_start";
+					LOGGER.warn(JSON.stringify(logData));
           _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.VIDEO_STARTED));
           break;
         case "NetStream.Play.FileStructureInvalid":
-		  LOGGER.error("The MP4's file structure is invalid.");
+					logData.logCode = "netstream_play_invalid_file_structure";
+					LOGGER.warn(JSON.stringify(logData));
           break;
         case "NetStream.Play.NoSupportedTrackFound":
-		  LOGGER.error("The MP4 doesn't contain any supported tracks");
+					logData.logCode = "netstream_play_unsupported_track";
+					LOGGER.warn(JSON.stringify(logData));
           break;
       }
     }
 
     private function onAsyncError(e:AsyncErrorEvent):void{
-		LOGGER.debug(e.text);
+			var logData:Object = UsersUtil.initLogData();
+			logData.streamId = streamName;
+			logData.tags = ["video"];
+			logData.logCode = "netstream_async_error";
+			LOGGER.warn(JSON.stringify(logData));
     }
     
     private function onMetaData(info:Object):void {

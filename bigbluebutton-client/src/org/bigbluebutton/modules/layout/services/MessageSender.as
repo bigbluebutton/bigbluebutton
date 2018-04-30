@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.layout.services {
 			}, function(status:String):void { // status - On error occurred
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["apps"];
-				logData.message = "Error occured requesting current layout.";
+				logData.logCode = "error_sending_request_current_layout";
 				LOGGER.info(JSON.stringify(logData));
 			}, JSON.stringify(message));
 		}
@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.layout.services {
 			}, function(status:String):void { // status - On error occurred
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["apps"];
-				logData.message = "Error occured broadcasting layout.";
+				logData.logCode = "error_sending_broadcast_layout";
 				LOGGER.info(JSON.stringify(logData));
 			}, JSON.stringify(message));
 		}

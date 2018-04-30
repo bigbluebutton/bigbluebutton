@@ -315,7 +315,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setGuestPolicy(event:BBBEvent):void {
 				guestPolicy = event.payload.guestPolicy;
 				if(guestManagement == null) {
-					LOGGER.debug("ADD Guest Event");
 					guestManagement = new GuestManagement();
 					guestManagement.setGuestPolicy(guestPolicy);
 					guestManagement.addToSettings();
@@ -359,20 +358,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     logData.localeVersion = localeVersion;
                     logData.tags = ["locale"];
                     logData.appVersion = appVersion;
-                    logData.message = "Received locale version from config.xml";
+                    logData.logCode = "config_xml_locale_version";
                     LOGGER.info(JSON.stringify(logData));
-      
-					LOGGER.debug("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
 
                     logData.tags = ["locale"];
-                    logData.message = "Received locale version from locale file";
+                    logData.logCode = "locale_file_locale_version";
                     LOGGER.info(JSON.stringify(logData));
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LOGGER.debug("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
             
@@ -383,7 +379,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function sendStartAllModulesEvent():void{
-				LOGGER.debug("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -430,7 +425,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function closeWaitWindow(e:BBBEvent):void {
 				if(waitWindow != null && e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-					LOGGER.debug("closeWaitWindow");
 					waitWindow.removeWindow();
 				}
 			}
@@ -473,7 +467,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen");
 				if (ExternalInterface.available) {
 					ExternalInterface.call("toggleFullscreen");
 				}
@@ -560,7 +553,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 logData.localeVersion = version;
                 logData.locale = ResourceUtil.getInstance().getCurrentLanguageCode();
                 logData.tags = ["locale"];
-                logData.message = "Loaded locale.";
+                logData.logCode = "locale_loaded";
                 LOGGER.info(JSON.stringify(logData));
                     
 				if ((version == "old-locales") || StringUtils.isEmpty(version)) {
@@ -718,18 +711,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function redirectToLogoutUrl ():void {
         		var logoutURL:String = BBB.getLogoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Logging out to: {0}", [logoutURL]);
+
 				navigateToURL(request, '_self');
 			}
 			
 
 			private function handleLogoutError(e:Event):void {
-				LOGGER.debug("Call to signOut URL failed.");
+
 				redirectToLogoutUrl();
 			}
 			
 			private function handleLogoutComplete(e:Event):void {	
-				LOGGER.debug("Call to signOut URL succeeded.");
+
 				redirectToLogoutUrl();
 			}
 			

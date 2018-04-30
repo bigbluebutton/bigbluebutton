@@ -40,8 +40,13 @@ package org.bigbluebutton.core.managers {
             connDelegate = new NetConnectionDelegate();
         }
 
-				public function getConnectionIds():Array {
-					return new Array(_appsConnId, _videoConnId, _screenshareConnId, _voiceConnId);
+				public function getConnectionIds():Object {
+					var connObject:Object = new Object();
+					connObject.apps = _appsConnId;
+					connObject.video = _videoConnId;
+					connObject.voice = _voiceConnId;
+					connObject.screenshare = _screenshareConnId;
+					return connObject;
 				}
 				
 				public function set appsConnId(id:String):void {
