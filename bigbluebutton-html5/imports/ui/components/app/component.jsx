@@ -205,7 +205,7 @@ class App extends Component {
   }
 
   render() {
-    const { params } = this.props;
+    const { params, userlistIsOpen, chatIsOpen } = this.props;
 
     return (
       <main className={styles.main}>
@@ -217,9 +217,9 @@ class App extends Component {
             {this.renderActionsBar()}
           </div>
           {this.renderUserList()}
-          {window.location.pathname.includes('users') ? <div className={styles.userlistPad} /> : null}
+          {userlistIsOpen ? <div className={styles.userlistPad} /> : null}
           {this.renderChat()}
-          {window.location.pathname.includes('chat') ? <div className={styles.chatPad} /> : null}
+          {chatIsOpen ? <div className={styles.chatPad} /> : null}
           {this.renderSidebar()}
         </section>
         <ModalContainer />
