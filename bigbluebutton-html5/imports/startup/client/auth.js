@@ -29,9 +29,8 @@ export function joinRouteHandler(nextState, replace, callback) {
         replace({ pathname: '/error/404' });
         callback();
       }
-
+      SessionStorage.clear();
       setCustomLogoUrl(customLogoURL);
-
       metadata.forEach((meta) => {
         const metaKey = Object.keys(meta).pop();
         SessionStorage.setItem(`meta_${metaKey}`, meta[metaKey]);
