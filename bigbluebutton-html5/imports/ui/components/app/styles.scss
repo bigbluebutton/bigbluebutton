@@ -123,12 +123,12 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .userlistPad {
   background-color: $color-off-white;
-  width: 4px;
+  width: $border-size-large;
 }
 
 .chatPad {
   background-color: $color-white;
-  width: 4px;
+  width: $border-size-large;
 }
 
 .compact {
