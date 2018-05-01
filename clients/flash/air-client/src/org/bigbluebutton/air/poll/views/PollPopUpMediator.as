@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.poll.views {
 	import flash.events.MouseEvent;
+	import flash.events.StageOrientationEvent;
 	
 	import spark.components.Button;
 	
@@ -10,10 +11,10 @@ package org.bigbluebutton.air.poll.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class PollButtonsMediator extends Mediator {
+	public class PollPopUpMediator extends Mediator {
 		
 		[Inject]
-		public var view:PollButtons;
+		public var view:PollPopUp;
 		
 		[Inject]
 		public var meetingData:IMeetingData;
@@ -24,25 +25,29 @@ package org.bigbluebutton.air.poll.views {
 		public override function initialize():void {
 			meetingData.polls.pollChangeSignal.add(onPollChange);
 			view.addEventListener(MouseEvent.CLICK, viewMouseEventHandler);
+			
+			view.removeAllElements();
+			view.addButtons(meetingData.polls.getCurrentPoll());
+			view.stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE, onStageOrientation);
 		}
 		
 		private function viewMouseEventHandler(event:MouseEvent):void {
-			if (event.target is Button) {
-				view.removeAllElements();
+			if (event.target == view.closeButton) {
+				view.close();
+			} else if (event.target is Button) {
 				respondToPollSignal.dispatch(event.target.name);
+				view.close();
 			}
+		}
+		
+		private function onStageOrientation(event:StageOrientationEvent):void {
+			view.updateButtonGoupHeight();
 		}
 		
 		private function onPollChange(poll:PollVO, enum:int):void {
 			switch (enum) {
-				case PollChangeEnum.START:
-					view.removeAllElements();
-					view.addButtons(poll);
-					view.visible = true;
-					break;
 				case PollChangeEnum.STOP:
-					view.removeAllElements();
-					view.visible = false;
+					view.close();
 					break;
 				default:
 					break;
@@ -52,6 +57,8 @@ package org.bigbluebutton.air.poll.views {
 		public override function destroy():void {
 			meetingData.polls.pollChangeSignal.remove(onPollChange);
 			view.removeEventListener(MouseEvent.CLICK, viewMouseEventHandler);
+			view.stage.removeEventListener(StageOrientationEvent.ORIENTATION_CHANGE, onStageOrientation);
 		}
+	
 	}
 }

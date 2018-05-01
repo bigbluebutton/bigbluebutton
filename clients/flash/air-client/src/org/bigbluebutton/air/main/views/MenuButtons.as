@@ -12,6 +12,7 @@ package org.bigbluebutton.air.main.views {
 	
 	public class MenuButtons extends SkinnableContainer {
 		private var _audioButton:Button;
+		
 		private var bLayout:HorizontalLayout
 		
 		public function get audioButton():Button {
@@ -39,7 +40,7 @@ package org.bigbluebutton.air.main.views {
 		public function MenuButtons() {
 			super();
 			
-			bLayout  = new HorizontalLayout();
+			bLayout = new HorizontalLayout();
 			bLayout.horizontalAlign = HorizontalAlign.CENTER;
 			bLayout.verticalAlign = VerticalAlign.MIDDLE;
 			layout = bLayout;

@@ -15,8 +15,8 @@ package org.bigbluebutton.air.main.views {
 			return _statusList;
 		}
 		
-		public function EmojiCallout() {
-			super();
+		override protected function partAdded(partName:String, instance:Object):void {
+			super.partAdded(partName, instance);
 			
 			var mainGroup:VGroup = new VGroup();
 			mainGroup.horizontalAlign = HorizontalAlign.CENTER;
@@ -27,7 +27,6 @@ package org.bigbluebutton.air.main.views {
 			_statusList.percentWidth = 100;
 			_statusList.percentHeight = 100;
 			_statusList.itemRenderer = new ClassFactory(EmojiItemRenderer);
-			_statusList.styleName = "statusList";
 			_statusList.labelField = "label";
 			mainGroup.addElement(_statusList);
 		}
@@ -35,6 +34,7 @@ package org.bigbluebutton.air.main.views {
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
 			
+			_statusList.styleName = "statusList";
 			_statusList.setStyle('verticalScrollPolicy', ScrollPolicy.OFF);
 			_statusList.setStyle('horizontalScrollPolicy', ScrollPolicy.OFF);
 			

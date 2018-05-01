@@ -1,9 +1,9 @@
 package org.bigbluebutton.air.main.views {
+	import spark.components.Button;
 	import spark.layouts.BasicLayout;
 	import spark.layouts.VerticalLayout;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.poll.views.PollButtons;
 	import org.bigbluebutton.air.presentation.views.PresentationView;
 	import org.bigbluebutton.air.screenshare.views.ScreenshareDock;
 	import org.bigbluebutton.air.video.views.WebcamDock;
@@ -18,7 +18,12 @@ package org.bigbluebutton.air.main.views {
 		private var _webcamDock:WebcamDock;
 		
 		private var _screenshareView:ScreenshareDock;
-		private var _pollButton:PollButtons;
+		
+		private var _pollButton:Button;
+		
+		public function get pollButton():Button {
+			return _pollButton;
+		}
 		
 		public function MainView() {
 			super();
@@ -57,9 +62,9 @@ package org.bigbluebutton.air.main.views {
 			_menuButtons.bottom = 0;
 			addElement(_menuButtons);
 			
-			_pollButton = new PollButtons();
-			_pollButton.visible = false;
-			_pollButton.percentWidth = 100;
+			_pollButton = new Button();
+			_pollButton.visible = _pollButton.includeInLayout = false;
+			_pollButton.label = "View Polling Options";
 			_pollButton.horizontalCenter = 0;
 			addElement(_pollButton);
 		}
@@ -80,7 +85,11 @@ package org.bigbluebutton.air.main.views {
 			
 			_webcamDock.bottom = _menuButtons.height;
 			
-			_pollButton.bottom = getStyle("pollPadding");;
+			_pollButton.bottom = _menuButtons.height + 8;
+		}
+		
+		public function showPollingButton(visible:Boolean):void {
+			_pollButton.visible = _pollButton.includeInLayout = visible;
 		}
 		
 		private function onScreenshareRunning(usingStageVideo:Boolean, running:Boolean):void {

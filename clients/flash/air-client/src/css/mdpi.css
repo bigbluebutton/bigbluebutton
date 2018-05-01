@@ -71,7 +71,7 @@
         padding: 15.0;
     }
 
-    main|ExitView, main|DisconnectView, main|UserInactivityView {
+    main|ExitView, main|DisconnectView, main|UserInactivityPopUp {
         gap: 15.0;
         padding: 15.0;
     }
@@ -116,9 +116,14 @@
         fontSize: 11.0;
     }
 
-    poll|PollButtons {
+    main|MobilePopUp {
+        cornerRadius: 4.0;
+        fontSize: 11.0;
         padding: 6.0;
-        gap: 9.0;
+    }
+
+    .mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+        cornerRadius: 4.0;
     }
 
     .icon {

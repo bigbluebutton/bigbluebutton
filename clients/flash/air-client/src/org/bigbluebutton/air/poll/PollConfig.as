@@ -1,8 +1,8 @@
 package org.bigbluebutton.air.poll {
 	import org.bigbluebutton.air.poll.commands.RespondToPollCommand;
 	import org.bigbluebutton.air.poll.commands.RespondToPollSignal;
-	import org.bigbluebutton.air.poll.views.PollButtons;
-	import org.bigbluebutton.air.poll.views.PollButtonsMediator;
+	import org.bigbluebutton.air.poll.views.PollPopUp;
+	import org.bigbluebutton.air.poll.views.PollPopUpMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -25,7 +25,7 @@ package org.bigbluebutton.air.poll {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(PollButtons).toMediator(PollButtonsMediator);
+			mediatorMap.map(PollPopUp).toMediator(PollPopUpMediator);
 		}
 		
 		/**

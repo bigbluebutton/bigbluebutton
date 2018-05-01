@@ -23,8 +23,6 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
-			import spark.components.Alert;
-			
 			import org.bigbluebutton.air.AppConfig;
 			import org.bigbluebutton.air.chat.ChatConfig;
 			import org.bigbluebutton.air.main.MainConfig;
@@ -57,8 +55,6 @@
 			public var currentOrientation:String;
 			
 			protected function preinitializeHandler(event:FlexEvent):void {
-				Alert.buttonHeight = 80;
-				Alert.buttonWidth = 200;
 				setupContext();
 				resizeForSoftKeyboard = true;
 				//ResourceManager.getInstance().localeChain = LocaleUtil.sortLanguagesByPreference(['en_US'], Capabilities.languages, "en_US");

@@ -16,6 +16,7 @@ package org.bigbluebutton.air.poll.commands {
 		public var answer:String;
 		
 		override public function execute():void {
+			meetingData.polls.voteCurrentPoll();
 			pollService.votePoll(meetingData.polls.getCurrentPoll().id, answer);
 		}
 	}
