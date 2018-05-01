@@ -5,13 +5,10 @@ package org.bigbluebutton.modules.phone.managers
   import flash.events.TimerEvent;
   import flash.external.ExternalInterface;
   import flash.utils.Timer;
-  
   import mx.controls.Alert;
   import mx.events.CloseEvent;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.ClientStatusEvent;
@@ -188,7 +185,7 @@ package org.bigbluebutton.modules.phone.managers
       logData.tags = ["voice", "webrtc"];
       logData.logCode = "call_manager_webrtc_echo_test_failed";
       logData.errorEvent = {code: event.errorCode, cause: event.cause};
-      LOGGER.info(jsonXify(logData));
+      LOGGER.info(JSON.stringify(logData));
 
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
               ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
@@ -205,7 +202,7 @@ package org.bigbluebutton.modules.phone.managers
       logData.user.reason = errorString;
       logData.tags = ["voice", "webrtc"];
       logData.logCode = logCode;
-      LOGGER.info(jsonXify(logData));
+      LOGGER.info(JSON.stringify(logData));
 
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
               ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
@@ -249,7 +246,7 @@ package org.bigbluebutton.modules.phone.managers
           logData.tags = ["voice", "webrtc"];
 					logData.logCode = logCode;
           logData.errorEvent = {code: event.errorCode, cause: event.cause};
-          LOGGER.info(jsonXify(logData));
+          LOGGER.info(JSON.stringify(logData));
           
           sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
                   ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
@@ -267,7 +264,7 @@ package org.bigbluebutton.modules.phone.managers
       var logData:Object = UsersUtil.initLogData();
       logData.user.reason = errorString;
 			logData.logCode = logCode;
-      LOGGER.info(jsonXify(logData));
+      LOGGER.info(JSON.stringify(logData));
 
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
               ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
