@@ -73,6 +73,7 @@
 			private var streamAvailable:Boolean = false;
 
 			private var video:Video;
+			private var connection:Connection;
 			private var ns:NetStream;
 			private var videoHolder:UIComponent = new UIComponent();
 			private var streamId:String;
@@ -81,15 +82,6 @@
 
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 40;
-
-			// The following code block is to deal with a bug in FLexLib
-			// with MDI windows not responding well to being maximized
-			private var savedWindowWidth:Number;
-			private var savedWindowHeight:Number;
-			private var savedX:Number;
-			private var savedY:Number;
-			private var isMaximized:Boolean = false;
-			private var connection:Connection;
 
 			[Bindable] private var dsOptions:ScreenshareOptions;
 

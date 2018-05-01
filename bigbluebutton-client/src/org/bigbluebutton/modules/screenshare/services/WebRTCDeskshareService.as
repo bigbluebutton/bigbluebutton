@@ -48,10 +48,11 @@ package org.bigbluebutton.modules.screenshare.services
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
 			LOGGER.debug("Deskshare Module starting");
 			this.module = module;
+			red5conn.connect();
 		}
 
-		public function getConnection():NetConnection{
-			return red5conn.getConnection();
+		public function getConnection():Connection{
+			return red5conn;
 		}
 
 		public function disconnect():void{
