@@ -2,7 +2,6 @@ package org.bigbluebutton.air.poll.views {
 	import flash.events.MouseEvent;
 	import flash.events.StageOrientationEvent;
 	
-	import spark.components.Application;
 	import spark.components.Button;
 	
 	import org.bigbluebutton.air.main.models.IMeetingData;
@@ -42,8 +41,7 @@ package org.bigbluebutton.air.poll.views {
 		}
 		
 		private function onStageOrientation(event:StageOrientationEvent):void {
-			view.addButtons(meetingData.polls.getCurrentPoll());
-			view.maxHeight = Application(view.parentApplication).height - 120;
+			view.updateButtonGoupHeight();
 		}
 		
 		private function onPollChange(poll:PollVO, enum:int):void {

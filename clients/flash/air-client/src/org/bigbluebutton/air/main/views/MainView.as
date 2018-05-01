@@ -85,7 +85,7 @@ package org.bigbluebutton.air.main.views {
 			
 			_webcamDock.bottom = _menuButtons.height;
 			
-			_pollButton.bottom = _menuButtons.height - _pollButton.height - 8;
+			_pollButton.bottom = _menuButtons.height + 8;
 		}
 		
 		public function showPollingButton(visible:Boolean):void {
