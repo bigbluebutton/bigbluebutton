@@ -114,7 +114,7 @@
 				logData.width = videoWidth;
 				logData.height = videoHeight;
 				logData.streamId = streamId;
-
+				logData.logCode = "screenshare_stream_info";
 				LOGGER.info(JSON.stringify(logData));
 			}
 
@@ -133,12 +133,13 @@
 			}
 
 			public function startVideo(connection:Connection):void {
-				var logData:Object = new Object();
-				logData.width = ScreenshareModel.getInstance().width;
+
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["screenshare"];
+				logData.width = ScreenshareModel.getInstance().width;;
 				logData.height = ScreenshareModel.getInstance().height;
 				logData.streamId = ScreenshareModel.getInstance().streamId;
-
-				JSLog.debug(LOG + "startVideo", logData);
+				logData.logCode = "screenshare_stream_info_received";
 
 				this.connection = connection;
 			}
@@ -153,7 +154,7 @@
         logData.width = videoWidth;
         logData.height = videoHeight;
         logData.streamId = streamId;
-
+				logData.logCode = "screenshare_view_stream";
         LOGGER.info(JSON.stringify(logData));
 
         ns = new NetStream(connection.getConnection());
@@ -183,7 +184,7 @@
         logData.tags = ["screenshare"];
         logData.width = info.width;
         logData.height = info.height;
-
+				logData.logCode = "screenshare_stream_metadata_received";
         LOGGER.info(JSON.stringify(logData));
       }
 
@@ -200,7 +201,7 @@
         LOGGER.debug("asyncerror " + e.toString());
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["screenshare"];
-        logData.message = "asyncerror";
+				logData.logCode = "screenshare_view_stream_async_error";
         LOGGER.info(JSON.stringify(logData));
 			}
 
@@ -211,11 +212,11 @@
 
 				switch(e.info.code){
   				case "NetStream.Play.Start":
-            logData.message = "NetStream.Publish.Start for broadcast stream " + streamId;
+            logData.logCode = "screenshare_play_stream_start";
             LOGGER.info(JSON.stringify(logData));
   					break;
   				case "NetStream.Play.UnpublishNotify":
-            logData.message = "NetStream.Play.UnpublishNotify for broadcast stream " + streamId;
+						logData.logCode = "screenshare_play_stream_stop";
             LOGGER.info(JSON.stringify(logData));
   					stopViewing();
   					break;

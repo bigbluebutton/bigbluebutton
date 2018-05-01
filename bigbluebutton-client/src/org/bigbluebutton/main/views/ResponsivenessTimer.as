@@ -41,7 +41,7 @@ package org.bigbluebutton.main.views
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["responsiveness"];
         logData.freezeSec = timeDiff / 1000; 
-        logData.message = "Flash client unresponsive.";
+        logData.logCode = "flash_client_unresponsive";
         LOGGER.info(JSON.stringify(logData));
       }
       

@@ -201,8 +201,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["presentation"];
-            logData.message = "File exceeds max limit."; 
+            logData.logCode = "presentation_upload_exceeds_max_limit"; 
             logData.fileSizeBytes = fileSize;
+						logData.filename = fileToUpload.name;
             logData.maxFileSizeBytes = maxFileSizeBytes;
             LOGGER.error(JSON.stringify(logData));
                 
@@ -247,7 +248,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["presentation-conversion"];
         logData.filename = fileToUpload.name;
-        logData.message = "Presentation conversion failed";
+        logData.logCode = "presentation_conversion_failed";
         LOGGER.warn(JSON.stringify(logData));
 
         enableClosing();
@@ -258,7 +259,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["presentation-conversion"];
         logData.filename = fileToUpload.name;
-        logData.message = "Presentation conversion invalid";
+        logData.logCode = "presentation_conversion_invalid";
         LOGGER.warn(JSON.stringify(logData));
 
         enableClosing();
@@ -272,7 +273,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleSupportedDocument(e:ConversionSupportedDocEvent):void {
-        LOGGER.debug("handleSupportedDocument");
+
 		buildProgressLabel(ResourceUtil.getInstance().getString('bbb.presentation.document.supported'));
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
@@ -289,7 +290,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handlePageCountExceeded(e:ConversionPageCountMaxed):void {
-		LOGGER.debug("handlePageCountExceeded");
+
         enableClosing();
         var message:String = " Maximum supported is " + e.maxPages;
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'), message);

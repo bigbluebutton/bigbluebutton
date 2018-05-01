@@ -79,7 +79,7 @@ package org.bigbluebutton.util.logging
 		{
 			var userId:String = UsersUtil.getMyUserID();
 			var meetingId:String = UsersUtil.getInternalMeetingID();
-			name = userId + " " + meetingId + " " + name;
+			name = userId + " " + meetingId; // + " " + name;
 			var formattedMessage:String=_formatter.format(name, shortName, level, timeStamp, message, parameters, person);
 
 			// check if contains info from config field
