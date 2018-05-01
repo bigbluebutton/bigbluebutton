@@ -50,7 +50,7 @@ package org.bigbluebutton.core.managers {
 				}
 				
 				public function set appsConnId(id:String):void {
-					_appsConnId = "app_" + id;
+					_appsConnId = id;
 				}
 
 				public function get appsConnId():String {
@@ -58,7 +58,7 @@ package org.bigbluebutton.core.managers {
 				}
 				
 				public function set videoConnId(id:String):void {
-					_videoConnId = "vid_" + id;
+					_videoConnId = id;
 				}
 				
 				public function get videoConnId():String {
@@ -66,7 +66,7 @@ package org.bigbluebutton.core.managers {
 				}
 				
 				public function set screenshareConnId(id:String):void {
-					_screenshareConnId = "scr_" + id;
+					_screenshareConnId = id;
 				}
 				
 				public function get screenshareConnId():String {
@@ -74,7 +74,7 @@ package org.bigbluebutton.core.managers {
 				}
 				
 				public function set voiceConnId(id:String):void {
-					_voiceConnId = "voi_" + id;
+					_voiceConnId = id;
 				}
 				
 				public function get voiceConnId():String {
