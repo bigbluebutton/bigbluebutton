@@ -57,7 +57,7 @@ const intlMessages = defineMessages({
 });
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const ACCESS_KEY = SHORTCUTS_CONFIG.openActions.accesskey;
+const OPEN_ACTIONS_AK = SHORTCUTS_CONFIG.openActions.accesskey;
 
 class ActionsDropdown extends Component {
   constructor(props) {
@@ -145,7 +145,7 @@ class ActionsDropdown extends Component {
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }} >
-        <DropdownTrigger tabIndex={0} accessKey={ACCESS_KEY}>
+        <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}

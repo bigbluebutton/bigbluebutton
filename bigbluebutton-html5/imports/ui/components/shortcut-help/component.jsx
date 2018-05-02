@@ -49,11 +49,12 @@ const intlMessages = defineMessages({
   },
 });
 
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+
 class ShortcutHelpComponent extends Component {
   render() {
     const { intl } = this.props;
 
-    const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
     const shortcuts = Object.values(SHORTCUTS_CONFIG);
 
     return (

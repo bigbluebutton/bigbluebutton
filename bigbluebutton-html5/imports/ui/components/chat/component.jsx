@@ -24,8 +24,8 @@ const intlMessages = defineMessages({
 });
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const HIDE_PRIVATE_CHAT_AK = SHORTCUTS_CONFIG.openStatus.accesskey;
-const CLOSE_PRIVATE_CHAT_AK = SHORTCUTS_CONFIG.openStatus.accesskey;
+const HIDE_CHAT_AK = SHORTCUTS_CONFIG.hidePrivateChat.accesskey;
+const CLOSE_CHAT_AK = SHORTCUTS_CONFIG.closePrivateChat.accesskey;
 
 const Chat = (props) => {
   const {

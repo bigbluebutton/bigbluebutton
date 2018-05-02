@@ -28,7 +28,7 @@ const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
 const CLOSED_CHAT_PATH = 'users/';
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const ACCESS_KEY = SHORTCUTS_CONFIG.togglePublicChat.accesskey;
+const TOGGLE_CHAT_PUB_AK = SHORTCUTS_CONFIG.togglePublicChat.accesskey;
 
 const propTypes = {
   chat: PropTypes.shape({
@@ -74,7 +74,7 @@ const ChatListItem = (props) => {
       role="button"
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
-      accessKey={isPublicChat(chat) ? ACCESS_KEY : null}
+      accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
     >
       <div className={styles.chatListItemLink}>
         <div className={styles.chatIcon}>

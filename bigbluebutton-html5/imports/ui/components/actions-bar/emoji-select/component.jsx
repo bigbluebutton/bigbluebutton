@@ -34,7 +34,7 @@ const propTypes = {
 };
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const ACCESS_KEY = SHORTCUTS_CONFIG.openStatus.accesskey;
+const OPEN_STATUS_AK = SHORTCUTS_CONFIG.openStatus.accesskey;
 
 const EmojiSelect = ({
   intl,
@@ -46,7 +46,6 @@ const EmojiSelect = ({
   const lastStatus = statuses.pop();
 
   const statusLabel = intl.formatMessage(intlMessages.statusTriggerLabel);
-
 
   return (
     <Dropdown autoFocus>
@@ -63,7 +62,7 @@ const EmojiSelect = ({
           size="lg"
           color="primary"
           onClick={() => null}
-          accessKey={ACCESS_KEY}
+          accessKey={OPEN_STATUS_AK}
         >
           <div id="currentStatus" hidden>
             { intl.formatMessage(intlMessages.currentStatusDesc, { 0: selected }) }
