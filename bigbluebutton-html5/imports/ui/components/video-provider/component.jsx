@@ -43,6 +43,7 @@ class VideoProvider extends Component {
     this.state = {
       sharedWebcam: false,
       socketOpen: false,
+      stats: [],
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
@@ -419,18 +420,16 @@ class VideoProvider extends Component {
   }
 
   customGetStats(peer, mediaStreamTrack, callback, interval) {
-    var globalObject = {
-        video: {},
-    };
-
-    var promise;
+    const statsState = this.state.stats;
+    const that = this;
+    let promise;
     try {
       promise = peer.getStats(mediaStreamTrack);
     } catch (e) {
       promise = Promise.reject(e);
     }
     promise.then(function(results) {
-      var videoInOrOutbound = {};
+      let videoInOrOutbound = {};
       results.forEach(function(res) {
         if (res.type == 'ssrc' || res.type == 'inbound-rtp' || res.type == 'outbound-rtp') {
           res.packetsSent = parseInt(res.packetsSent);
@@ -461,7 +460,7 @@ class VideoProvider extends Component {
         }
       });
 
-      var videoStats = {
+      const videoStats = {
         timestamp: videoInOrOutbound.timestamp,
         bytesReceived: videoInOrOutbound.bytesReceived,
         bytesSent: videoInOrOutbound.bytesSent,
@@ -477,44 +476,41 @@ class VideoProvider extends Component {
         currentDelay: videoInOrOutbound.currentDelay,
       };
 
-      if (typeof globalObject.video.statsArray === 'undefined') {
-        globalObject.video.statsArray = [];
-        globalObject.video.haveStats = false;
-      }
-
-      var videoStatsArray = globalObject.video.statsArray;
+      let videoStatsArray = statsState;
       videoStatsArray.push(videoStats);
       while (videoStatsArray.length > 5) {// maximum interval to consider
         videoStatsArray.shift();
       }
+      that.setState({ stats: videoStatsArray });
 
-      var firstVideoStats = videoStatsArray[0];
-      var lastVideoStats = videoStatsArray[videoStatsArray.length - 1];
+      const firstVideoStats = videoStatsArray[0];
+      const lastVideoStats = videoStatsArray[videoStatsArray.length - 1];
 
-      var videoIntervalPacketsLost = lastVideoStats.packetsLost - firstVideoStats.packetsLost;
-      var videoIntervalPacketsReceived = lastVideoStats.packetsReceived - firstVideoStats.packetsReceived;
-      var videoIntervalPacketsSent = lastVideoStats.packetsSent - firstVideoStats.packetsSent;
-      var videoIntervalBytesReceived = lastVideoStats.bytesReceived - firstVideoStats.bytesReceived;
-      var videoIntervalBytesSent = lastVideoStats.bytesSent - firstVideoStats.bytesSent;
+      const videoIntervalPacketsLost = lastVideoStats.packetsLost - firstVideoStats.packetsLost;
+      const videoIntervalPacketsReceived = lastVideoStats.packetsReceived - firstVideoStats.packetsReceived;
+      const videoIntervalPacketsSent = lastVideoStats.packetsSent - firstVideoStats.packetsSent;
+      const videoIntervalBytesReceived = lastVideoStats.bytesReceived - firstVideoStats.bytesReceived;
+      const videoIntervalBytesSent = lastVideoStats.bytesSent - firstVideoStats.bytesSent;
 
-      var videoReceivedInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
-      var videoSentInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
+      const videoReceivedInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
+      const videoSentInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
 
-      var videoKbitsReceivedPerSecond = videoIntervalBytesReceived * 8 / videoReceivedInterval;
-      var videoKbitsSentPerSecond = videoIntervalBytesSent * 8 / videoSentInterval;
-      var videoPacketDuration = videoIntervalPacketsSent / videoSentInterval * 1000;
+      const videoKbitsReceivedPerSecond = videoIntervalBytesReceived * 8 / videoReceivedInterval;
+      const videoKbitsSentPerSecond = videoIntervalBytesSent * 8 / videoSentInterval;
+      const videoPacketDuration = videoIntervalPacketsSent / videoSentInterval * 1000;
 
+      let videoLostPercentage, videoLostRecentPercentage, videoBitrate;
       if (videoStats.packetsReceived > 0) { // Remote video
-        var videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsReceived) * 100) || 0).toFixed(1);
-        var videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
-        var videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsReceived) * 100) || 0).toFixed(1);
+        videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsReceived) * 100) || 0).toFixed(1);
+        videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
+        videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsReceived) * 100) || 0).toFixed(1);
       } else {
-        var videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsSent) * 100) || 0).toFixed(1);
-        var videoBitrate = Math.floor(videoKbitsSentPerSecond || 0);
-        var videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsSent) * 100) || 0).toFixed(1);
+        videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsSent) * 100) || 0).toFixed(1);
+        videoBitrate = Math.floor(videoKbitsSentPerSecond || 0);
+        videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsSent) * 100) || 0).toFixed(1);
       }
 
-      result = {
+      const result = {
         video: {
           bytesReceived: videoStats.bytesReceived,
           bytesSent: videoStats.bytesSent,
