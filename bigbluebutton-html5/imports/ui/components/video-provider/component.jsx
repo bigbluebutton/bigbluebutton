@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
+import VisibilityEvent from '/imports/utils/visibilityEvent';
 import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
@@ -33,7 +34,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const RECONNECT_WAIT_TIME = 5000;
 const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
 
 class VideoProvider extends Component {
@@ -49,9 +49,15 @@ class VideoProvider extends Component {
     this.ws = new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl);
     this.wsQueue = [];
 
+    console.log(VisibilityEvent);
+
+    this.visibility = new VisibilityEvent();
+
     this.reconnectWebcam = false;
     this.cameraTimeouts = {};
     this.webRtcPeers = {};
+
+    window.webRtcPeers = this.webRtcPeers;
 
     this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
@@ -60,6 +66,43 @@ class VideoProvider extends Component {
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
+
+    this.pauseViewers = this.pauseViewers.bind(this);
+    this.unpauseViewers = this.unpauseViewers.bind(this);
+  }
+
+  pauseViewers () {
+    log("debug", "Calling pause in viewer streams");
+
+    Object.keys(this.webRtcPeers).forEach((id) => {
+      console.log(id);
+      let peer = this.webRtcPeers[id];
+      console.log(peer);
+      if (id !== this.props.userId && peer) {
+        let rs = peer.peerConnection.getRemoteStreams()[0];
+        let track = rs.getVideoTracks()[0];
+
+        if (track) {
+         track.enabled = false;
+        }
+      }
+    });
+  }
+
+  unpauseViewers () {
+    log("debug", "Calling un-pause in viewer streams");
+
+    Object.keys(this.webRtcPeers).forEach((id) => {
+      let peer = this.webRtcPeers[id];
+      if (id !== this.props.userId && peer) {
+        let rs = peer.peerConnection.getRemoteStreams()[0];
+        let track = rs.getVideoTracks()[0];
+
+        if (track) {
+         track.enabled = true;
+        }
+      }
+    });
   }
 
   componentWillMount() {
@@ -74,6 +117,9 @@ class VideoProvider extends Component {
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.addEventListener('message', this.onWsMessage);
+
+    this.visibility.onVisible(this.unpauseViewers);
+    this.visibility.onHidden(this.pauseViewers);
   }
 
   shouldComponentUpdate({ users: nextUsers }, nextState) {
@@ -105,6 +151,8 @@ class VideoProvider extends Component {
 
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
+
+    this.visibility.removeEventListeners();
 
     // Unshare user webcam
     if (this.state.sharedWebcam) {
