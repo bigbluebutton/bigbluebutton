@@ -26,24 +26,7 @@ const deviceInfo = {
       isLinux: window.navigator.userAgent.indexOf('Linux') !== -1,
     };
   },
-  _os() {
-    return deviceInfo.osType().isWindows
-      ? 'Windows'
-      : deviceInfo.osType().isMac
-        ? 'Mac'
-        : deviceInfo.osType().isLinux
-          ? 'Linux'
-          : null;
-  },
-  _browser() {
-    return deviceInfo.browserType().isChrome
-      ? 'Chrome'
-      : deviceInfo.browserType().isFirefox
-        ? 'Firefox'
-        : deviceInfo.browserType().isSafari
-          ? 'Safari'
-          : null;
-  },
+
 };
 
 

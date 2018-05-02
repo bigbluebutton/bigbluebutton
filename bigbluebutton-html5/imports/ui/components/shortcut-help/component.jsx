@@ -55,8 +55,23 @@ const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
 class ShortcutHelpComponent extends Component {
   render() {
     const { intl } = this.props;
-
     const shortcuts = Object.values(SHORTCUTS_CONFIG);
+
+    const os = deviceInfo.osType().isWindows
+      ? 'Windows'
+      : deviceInfo.osType().isMac
+        ? 'Mac'
+        : deviceInfo.osType().isLinux
+          ? 'Linux'
+          : null;
+
+    const browser = deviceInfo.browserType().isChrome
+      ? 'Chrome'
+      : deviceInfo.browserType().isFirefox
+        ? 'Firefox'
+        : deviceInfo.browserType().isSafari
+          ? 'Safari'
+          : null;
 
     let accessMod = 'n/a';
 
@@ -80,7 +95,7 @@ class ShortcutHelpComponent extends Component {
         <span className={styles.span}>{intl.formatMessage(intlMessages.accesskeyDesc)}</span>
         { accessMod === 'n/a' ? <p>Access keys not available.</p> :
         <span>
-          <p>{deviceInfo._os()} : {deviceInfo._browser()}</p>
+          <p>{os} : {browser}</p>
           <p>Access Modifier : {accessMod}</p>
           <br />
           <table className={styles.shortcutTable}>
