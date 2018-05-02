@@ -1,6 +1,7 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
 import VertoBridge from '/imports/api/audio/client/bridge/verto';
+import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
@@ -8,6 +9,7 @@ import { notify } from '/imports/ui/services/notification';
 
 const MEDIA = Meteor.settings.public.media;
 const USE_SIP = MEDIA.useSIPAudio;
+const USE_KURENTO = Meteor.settings.public.kurento.enableListenOnly;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 
 const CALL_STATES = {
@@ -39,6 +41,9 @@ class AudioManager {
 
   init(userData) {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
+    if (USE_KURENTO) {
+      this.listenOnlyBridge = new KurentoBridge(userData);
+    }
     this.userData = userData;
     this.initialized = true;
   }
@@ -123,6 +128,8 @@ class AudioManager {
   joinListenOnly() {
     this.isListenOnly = true;
     this.isEchoTest = false;
+    // The kurento bridge isn't a full audio bridge yet, so we have to differ it
+    const bridge  = USE_KURENTO? this.listenOnlyBridge : this.bridge;
 
     const callOptions = {
       isListenOnly: true,
@@ -138,7 +145,7 @@ class AudioManager {
 
     return this.onAudioJoining()
       .then(() => Promise.race([
-        this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
+        bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
         iceGatheringTimeout,
       ]))
       .catch((err) => {
@@ -163,8 +170,10 @@ class AudioManager {
   exitAudio() {
     if (!this.isConnected) return Promise.resolve();
 
+    const bridge  = USE_KURENTO? this.listenOnlyBridge : this.bridge;
+
     this.isHangingUp = true;
-    return this.bridge.exitAudio();
+    return bridge.exitAudio();
   }
 
   transferCall() {
