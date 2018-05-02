@@ -431,35 +431,33 @@ class VideoProvider extends Component {
     }
     promise.then(function(results) {
       var videoInOrOutbound = {};
-
       results.forEach(function(res) {
         if (res.type == 'ssrc' || res.type == 'inbound-rtp' || res.type == 'outbound-rtp') {
-          if (res.mediaType == 'video') {
-            res.packetsSent = parseInt(res.packetsSent);
-            res.packetsLost = parseInt(res.packetsLost) || 0;
-            res.packetsReceived = parseInt(res.packetsReceived);
+          res.packetsSent = parseInt(res.packetsSent);
+          res.packetsLost = parseInt(res.packetsLost) || 0;
+          res.packetsReceived = parseInt(res.packetsReceived);
 
-            if (isNaN(res.packetsSent) && res.packetsReceived == 0) {
-              return; // Discard local video receiving
-            }
-
-            if (res.googFrameWidthReceived) {
-              res.width = parseInt(res.googFrameWidthReceived);
-              res.height = parseInt(res.googFrameHeightReceived);
-            } else if (res.googFrameWidthSent) {
-              res.width = parseInt(res.googFrameWidthSent);
-              res.height = parseInt(res.googFrameHeightSent);
-            }
-
-            // Extra fields available on Chrome
-            if (res.googCodecName) res.codec = res.googCodecName;
-            if (res.googDecodeMs) res.decodeDelay = res.googDecodeMs;
-            if (res.googEncodeUsagePercent) res.encodeUsagePercent = res.googEncodeUsagePercent;
-            if (res.googRtt) res.rtt = res.googRtt;
-            if (res.googCurrentDelayMs) res.currentDelay = res.googCurrentDelayMs;
-
-            videoInOrOutbound = res;
+          if ((isNaN(res.packetsSent) && res.packetsReceived == 0)
+            || (res.type == 'outbound-rtp' && res.isRemote)) {
+            return; // Discard local video receiving
           }
+
+          if (res.googFrameWidthReceived) {
+            res.width = parseInt(res.googFrameWidthReceived);
+            res.height = parseInt(res.googFrameHeightReceived);
+          } else if (res.googFrameWidthSent) {
+            res.width = parseInt(res.googFrameWidthSent);
+            res.height = parseInt(res.googFrameHeightSent);
+          }
+
+          // Extra fields available on Chrome
+          if (res.googCodecName) res.codec = res.googCodecName;
+          if (res.googDecodeMs) res.decodeDelay = res.googDecodeMs;
+          if (res.googEncodeUsagePercent) res.encodeUsagePercent = res.googEncodeUsagePercent;
+          if (res.googRtt) res.rtt = res.googRtt;
+          if (res.googCurrentDelayMs) res.currentDelay = res.googCurrentDelayMs;
+
+          videoInOrOutbound = res;
         }
       });
 
