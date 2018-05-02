@@ -58,7 +58,7 @@ const Chat = (props) => {
             to="/users"
             role="button"
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            accessKey={HIDE_PRIVATE_CHAT_AK}
+            accessKey={HIDE_CHAT_AK}
           >
             <Icon iconName="left_arrow" /> {title}
           </Link>
@@ -78,7 +78,7 @@ const Chat = (props) => {
                 onClick={() => actions.handleClosePrivateChat(chatID)}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                accessKey={CLOSE_PRIVATE_CHAT_AK}
+                accessKey={CLOSE_CHAT_AK}
               />
             </Link> :
             <ChatDropdown />

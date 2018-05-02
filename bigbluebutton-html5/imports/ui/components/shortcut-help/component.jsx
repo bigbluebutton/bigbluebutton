@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
 import _ from 'lodash';
 import { styles } from './styles';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   title: {
@@ -57,6 +58,17 @@ class ShortcutHelpComponent extends Component {
 
     const shortcuts = Object.values(SHORTCUTS_CONFIG);
 
+    let accessMod = 'n/a';
+
+    if (deviceInfo.osType().isMac) {
+      accessMod = 'Control + Alt';
+    }
+
+    if (deviceInfo.osType().isWindows || deviceInfo.osType().isLinux) {
+      if (deviceInfo.browserType().isFirefox) accessMod = 'Alt + Shift';
+      if (deviceInfo.browserType().isChrome) accessMod = 'Alt';
+    }
+
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
@@ -66,28 +78,27 @@ class ShortcutHelpComponent extends Component {
         }}
       >
         <span className={styles.span}>{intl.formatMessage(intlMessages.accesskeyDesc)}</span>
-        <p className={styles.p}>
-          <br /><b>Windows / Linux </b><br />
-          <b><i>FireFox</i></b> = Alt + Shift &nbsp;
-          <b><i>Chrome</i></b>  = Alt
-          <br /><br /><b>Mac</b><br />
-          <b><i>Safari</i></b>  = Control + Alt
-        </p>
-        <br />
-        <table className={styles.shortcutTable}>
-          <tbody>
-            <tr>
-              <th>Combo</th>
-              <th>Function</th>
-            </tr>
-            {shortcuts.map(shortcut => (
-              <tr key={_.uniqueId('hotkey-item-')}>
-                <td className={styles.keyCell}>{`Access key + ${shortcut.accesskey}`}</td>
-                <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
+        { accessMod === 'n/a' ? <p>Access keys not available.</p> :
+        <span>
+          <p>{deviceInfo._os()} : {deviceInfo._browser()}</p>
+          <p>Access Modifier : {accessMod}</p>
+          <br />
+          <table className={styles.shortcutTable}>
+            <tbody>
+              <tr>
+                <th>Combo</th>
+                <th>Function</th>
               </tr>
-                ))}
-          </tbody>
-        </table>
+              {shortcuts.map(shortcut => (
+                <tr key={_.uniqueId('hotkey-item-')}>
+                  <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
+                  <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
+                </tr>
+                  ))}
+            </tbody>
+          </table>
+        </span>
+        }
       </Modal>
     );
   }

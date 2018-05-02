@@ -1,0 +1,51 @@
+const deviceInfo = {
+  type() {
+    // Listing of Device Viewport sizes, Updated : March 25th, 2018
+    // http://mediag.com/news/popular-screen-resolutions-designing-for-all/
+    const MAX_PHONE_SHORT_SIDE = 480;
+
+    const smallSide = window.screen.width < window.screen.height
+      ? window.screen.width
+      : window.screen.height;
+
+    return {
+      isPhone: smallSide <= MAX_PHONE_SHORT_SIDE,
+    };
+  },
+  browserType() {
+    return {
+      isChrome: !!window.chrome && !!window.chrome.webstore,
+      isFirefox: typeof InstallTrigger !== 'undefined',
+      isSafari: /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === '[object SafariRemoteNotification]'; }(!window.safari || safari.pushNotification)),
+    };
+  },
+  osType() {
+    return {
+      isWindows: window.navigator.userAgent.indexOf('Windows') !== -1,
+      isMac: window.navigator.userAgent.indexOf('Mac') !== -1,
+      isLinux: window.navigator.userAgent.indexOf('Linux') !== -1,
+    };
+  },
+  _os() {
+    return deviceInfo.osType().isWindows
+      ? 'Windows'
+      : deviceInfo.osType().isMac
+        ? 'Mac'
+        : deviceInfo.osType().isLinux
+          ? 'Linux'
+          : null;
+  },
+  _browser() {
+    return deviceInfo.browserType().isChrome
+      ? 'Chrome'
+      : deviceInfo.browserType().isFirefox
+        ? 'Firefox'
+        : deviceInfo.browserType().isSafari
+          ? 'Safari'
+          : null;
+  },
+};
+
+
+export default deviceInfo;
+
