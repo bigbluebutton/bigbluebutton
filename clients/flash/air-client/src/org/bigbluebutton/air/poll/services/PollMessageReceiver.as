@@ -16,6 +16,8 @@ package org.bigbluebutton.air.poll.services {
 				case "PollStoppedEvtMsg":
 					handlePollStopped(message);
 					break;
+				case "PollShowResultEvtMsg":
+					handlePollShowResult(message);
 				default:
 					break;
 			}
@@ -36,6 +38,12 @@ package org.bigbluebutton.air.poll.services {
 		}
 		
 		public function handlePollStopped(msg:Object):void {
+			meetingData.polls.removeCurrentPoll();
+		}
+		
+		public function handlePollShowResult(msg:Object):void {
+			// This is sent when the presenter publishes the poll result and contains pollId and
+			// the voting results. For now just remove the active poll
 			meetingData.polls.removeCurrentPoll();
 		}
 	}
