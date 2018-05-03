@@ -506,7 +506,7 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
 // session. Requires 1 mandatory callback that only gets called if the browser
 // session is incognito. The callback for not being incognito is optional.
 // Attempts to retrieve the chrome filesystem API.
-window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
+/* window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
   isIncognito = Kurento.normalizeCallback(isIncognito);
   isNotIncognito = Kurento.normalizeCallback(isNotIncognito);
 
@@ -538,4 +538,4 @@ window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
       callback(true);
     }
   );
-}
+}*/
