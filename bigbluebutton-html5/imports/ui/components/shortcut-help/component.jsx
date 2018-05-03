@@ -77,17 +77,23 @@ const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
 class ShortcutHelpComponent extends Component {
   render() {
     const { intl } = this.props;
+    const { isWindows, isLinux, isMac } = deviceInfo.osType();
+    const { isFirefox, isChrome, isIE } = deviceInfo.browserType();
     const shortcuts = Object.values(SHORTCUTS_CONFIG);
 
     let accessMod = null;
 
-    if (deviceInfo.osType().isMac) {
+    if (isMac) {
       accessMod = 'Control + Alt';
     }
 
-    if (deviceInfo.osType().isWindows || deviceInfo.osType().isLinux) {
-      accessMod = deviceInfo.browserType().isFirefox ? 'Alt + Shift' : accessMod;
-      accessMod = deviceInfo.browserType().isChrome ? 'Alt' : accessMod;
+    if (isWindows) {
+      accessMod = isIE ? 'Alt' : accessMod;
+    }
+
+    if (isWindows || isLinux) {
+      accessMod = isFirefox ? 'Alt + Shift' : accessMod;
+      accessMod = isChrome ? 'Alt' : accessMod;
     }
 
     return (
