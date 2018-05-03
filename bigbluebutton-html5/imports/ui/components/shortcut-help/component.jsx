@@ -8,51 +8,67 @@ import deviceInfo from '/imports/utils/deviceInfo';
 const intlMessages = defineMessages({
   title: {
     id: 'app.shortcut-help.title',
+    description: 'modal title label',
   },
   closeLabel: {
     id: 'app.shortcut-help.closeLabel',
+    description: 'label for close button',
   },
   closeDesc: {
     id: 'app.shortcut-help.closeDesc',
+    description: 'description for close button',
   },
   accessKeyNotAvailable: {
     id: 'app.shortcut-help.accessKeyNotAvailable',
+    description: 'message shown in place of access key table if not supported',
   },
   comboLabel: {
     id: 'app.shortcut-help.comboLabel',
+    description: 'heading for key combo column',
   },
   functionLabel: {
     id: 'app.shortcut-help.functionLabel',
+    description: 'heading for shortcut function column',
   },
   openOptions: {
     id: 'app.shortcut-help.openOptions',
+    description: 'describes the open options shortcut',
   },
   toggleUserList: {
     id: 'app.shortcut-help.toggleUserList',
+    description: 'describes the toggle userlist shortcut',
   },
   toggleMute: {
     id: 'app.shortcut-help.toggleMute',
+    description: 'describes the toggle mute shortcut',
   },
   togglePublicChat: {
     id: 'app.shortcut-help.togglePublicChat',
+    description: 'describes the toggle public chat shortcut',
   },
   hidePrivateChat: {
     id: 'app.shortcut-help.hidePrivateChat',
+    description: 'describes the hide public chat shortcut',
   },
   closePrivateChat: {
     id: 'app.shortcut-help.closePrivateChat',
+    description: 'describes the close private chat shortcut',
   },
   openActions: {
     id: 'app.shortcut-help.openActions',
+    description: 'describes the open actions shortcut',
   },
   openStatus: {
     id: 'app.shortcut-help.openStatus',
+    description: 'describes the open status shortcut',
   },
   joinAudio: {
     id: 'app.audio.joinAudio',
+    description: 'describes the join audio shortcut',
   },
   leaveAudio: {
     id: 'app.audio.leaveAudio',
+    description: 'describes the leave audio shortcut',
   },
 });
 

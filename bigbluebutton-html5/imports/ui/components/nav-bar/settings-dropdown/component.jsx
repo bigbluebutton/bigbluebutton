@@ -66,9 +66,11 @@ const intlMessages = defineMessages({
   },
   hotkeysLabel: {
     id: 'app.navBar.settingsDropdown.hotkeysLabel',
+    description: 'Hotkeys options label',
   },
   hotkeysDesc: {
     id: 'app.navBar.settingsDropdown.hotkeysDesc',
+    description: 'Describes hotkeys option',
   },
 });
 
