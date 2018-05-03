@@ -9,6 +9,7 @@ const SFU_APP = "screenshare";
 const ON_ICE_CANDIDATE_MSG = "onIceCandidate";
 const START_MSG = "start";
 const START_RESPONSE_MSG = "startResponse";
+const PING_INTERVAL = 15000;
 
 Kurento = function (
   tag,
@@ -44,6 +45,7 @@ Kurento = function (
   this.kurentoPort = 'bbb-webrtc-sfu';
   this.hostName = window.location.hostname;
   this.socketUrl = `wss://${this.hostName}/${this.kurentoPort}`;
+  this.pingInterval = null;
 
   this.iceServers = null;
 
@@ -60,6 +62,7 @@ Kurento = function (
       _this.logError('Default error handler');
     };
   }
+
 };
 
 this.KurentoManager = function () {
@@ -75,11 +78,11 @@ KurentoManager.prototype.exitScreenShare = function () {
       this.kurentoScreenshare.ws.close();
     }
 
-    this.kurentoScreenshare.disposeScreenShare();
-    this.kurentoScreenshare = null;
-  }
+    if (this.kurentoScreenshare.pingInterval) {
+      clearInterval(this.kurentoScreenshare.pingInterval);
+    }
 
-  if (this.kurentoScreenshare) {
+    this.kurentoScreenshare.disposeScreenShare();
     this.kurentoScreenshare = null;
   }
 
@@ -96,11 +99,11 @@ KurentoManager.prototype.exitVideo = function () {
       this.kurentoVideo.ws.close();
     }
 
-    this.kurentoVideo.disposeScreenShare();
-    this.kurentoVideo = null;
-  }
+    if (this.kurentoVideo.pingInterval) {
+      clearInterval(this.kurentoVideo.pingInterval);
+    }
 
-  if (this.kurentoVideo) {
+    this.kurentoVideo.disposeScreenShare();
     this.kurentoVideo = null;
   }
 };
@@ -149,6 +152,7 @@ Kurento.prototype.init = function () {
       self.onFail('Websocket connection error');
     };
     this.ws.onopen = function () {
+      self.pingInterval = setInterval(self.ping.bind(self), PING_INTERVAL);
       self.mediaCallback();
     };
   } else { console.log('this browser does not support websockets'); }
@@ -165,6 +169,8 @@ Kurento.prototype.onWSMessage = function (message) {
       break;
     case 'iceCandidate':
       this.webRtcPeer.addIceCandidate(parsedMessage.candidate);
+      break;
+    case 'pong':
       break;
     default:
       console.error('Unrecognized message', parsedMessage);
@@ -364,6 +370,13 @@ Kurento.prototype.disposeScreenShare = function () {
   }
 };
 
+Kurento.prototype.ping = function () {
+  const message = {
+    id: 'ping'
+  };
+  this.sendMessage(message);
+}
+
 Kurento.prototype.sendMessage = function (message) {
   const jsonMessage = JSON.stringify(message);
   console.log(`Sending message: ${jsonMessage}`);
@@ -488,3 +501,41 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
     },
   );
 };
+
+// a function to check whether the browser (Chrome only) is in an isIncognito
+// session. Requires 1 mandatory callback that only gets called if the browser
+// session is incognito. The callback for not being incognito is optional.
+// Attempts to retrieve the chrome filesystem API.
+window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
+  isIncognito = Kurento.normalizeCallback(isIncognito);
+  isNotIncognito = Kurento.normalizeCallback(isNotIncognito);
+
+  var fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+  if (!fs) {
+    isNotIncognito();
+    return;
+  }
+  fs(window.TEMPORARY, 100, function(){isNotIncognito()}, function(){isIncognito()});
+};
+
+window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
+  callback = Kurento.normalizeCallback(callback);
+
+  if (typeof chrome === "undefined" || !chrome || !chrome.runtime) {
+    // No API, so no extension for sure
+    callback(false);
+    return;
+  }
+  chrome.runtime.sendMessage(
+    chromeExtensionId,
+    { getVersion: true },
+    function (response) {
+      if (!response || !response.version) {
+        // Communication failure - assume that no endpoint exists
+        callback(false);
+        return;
+      }
+      callback(true);
+    }
+  );
+}
