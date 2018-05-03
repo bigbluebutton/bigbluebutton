@@ -15,6 +15,15 @@ const intlMessages = defineMessages({
   closeDesc: {
     id: 'app.shortcut-help.closeDesc',
   },
+  accessKeyNotAvailable: {
+    id: 'app.shortcut-help.accessKeyNotAvailable',
+  },
+  comboLabel: {
+    id: 'app.shortcut-help.comboLabel',
+  },
+  functionLabel: {
+    id: 'app.shortcut-help.functionLabel',
+  },
   openOptions: {
     id: 'app.shortcut-help.openOptions',
   },
@@ -45,9 +54,6 @@ const intlMessages = defineMessages({
   leaveAudio: {
     id: 'app.audio.leaveAudio',
   },
-  accesskeyDesc: {
-    id: 'app.shortcut-help.accessKeyDesc',
-  },
 });
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
@@ -57,31 +63,15 @@ class ShortcutHelpComponent extends Component {
     const { intl } = this.props;
     const shortcuts = Object.values(SHORTCUTS_CONFIG);
 
-    const os = deviceInfo.osType().isWindows
-      ? 'Windows'
-      : deviceInfo.osType().isMac
-        ? 'Mac'
-        : deviceInfo.osType().isLinux
-          ? 'Linux'
-          : null;
-
-    const browser = deviceInfo.browserType().isChrome
-      ? 'Chrome'
-      : deviceInfo.browserType().isFirefox
-        ? 'Firefox'
-        : deviceInfo.browserType().isSafari
-          ? 'Safari'
-          : null;
-
-    let accessMod = 'n/a';
+    let accessMod = null;
 
     if (deviceInfo.osType().isMac) {
       accessMod = 'Control + Alt';
     }
 
     if (deviceInfo.osType().isWindows || deviceInfo.osType().isLinux) {
-      if (deviceInfo.browserType().isFirefox) accessMod = 'Alt + Shift';
-      if (deviceInfo.browserType().isChrome) accessMod = 'Alt';
+      accessMod = deviceInfo.browserType().isFirefox ? 'Alt + Shift' : accessMod;
+      accessMod = deviceInfo.browserType().isChrome ? 'Alt' : accessMod;
     }
 
     return (
@@ -92,17 +82,13 @@ class ShortcutHelpComponent extends Component {
           description: intl.formatMessage(intlMessages.closeDesc),
         }}
       >
-        <span className={styles.span}>{intl.formatMessage(intlMessages.accesskeyDesc)}</span>
-        { accessMod === 'n/a' ? <p>Access keys not available.</p> :
+        { !accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p> :
         <span>
-          <p>{os} : {browser}</p>
-          <p>Access Modifier : {accessMod}</p>
-          <br />
           <table className={styles.shortcutTable}>
             <tbody>
               <tr>
-                <th>Combo</th>
-                <th>Function</th>
+                <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
               </tr>
               {shortcuts.map(shortcut => (
                 <tr key={_.uniqueId('hotkey-item-')}>

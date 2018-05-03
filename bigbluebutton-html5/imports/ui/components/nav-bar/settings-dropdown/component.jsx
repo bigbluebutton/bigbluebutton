@@ -64,6 +64,12 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
+  hotkeysLabel: {
+    id: 'app.navBar.settingsDropdown.hotkeysLabel',
+  },
+  hotkeysDesc: {
+    id: 'app.navBar.settingsDropdown.hotkeysDesc',
+  },
 });
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
@@ -120,8 +126,8 @@ class SettingsDropdown extends Component {
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="about"
-        label="Hotkeys"
-        description="listing of available hotkeys"
+        label={intl.formatMessage(intlMessages.hotkeysLabel)}
+        description={intl.formatMessage(intlMessages.hotkeysDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),

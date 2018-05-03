@@ -16,7 +16,6 @@ const deviceInfo = {
     return {
       isChrome: !!window.chrome && !!window.chrome.webstore,
       isFirefox: typeof InstallTrigger !== 'undefined',
-      isSafari: /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === '[object SafariRemoteNotification]'; }(!window.safari || safari.pushNotification)),
     };
   },
   osType() {
