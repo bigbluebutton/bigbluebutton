@@ -50,6 +50,12 @@ module.exports = class WebsocketConnectionManager {
 
         try {
           message = JSON.parse(data);
+
+          if (message.id === 'ping') {
+            ws.sendMessage({id: 'pong'});
+            return;
+          }
+
           message.connectionId = ws.id;
 
           if (!ws.sessionId) {
