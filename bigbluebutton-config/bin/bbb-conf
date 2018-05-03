@@ -1909,6 +1909,8 @@ if [ $CLEAN ]; then
 	rm -f /var/log/bigbluebutton/bbb-web.log*
 	rm -f /var/log/bigbluebutton/*.log
 
+	rm -f /opt/freeswitch/var/log/freeswitch/*.log
+
 	#
 	# Clean out the log files for record and playback
 	#
