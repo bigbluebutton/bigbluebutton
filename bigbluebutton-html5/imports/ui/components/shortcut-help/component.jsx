@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/modal/simple/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 import _ from 'lodash';
 import { styles } from './styles';
-import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   title: {
