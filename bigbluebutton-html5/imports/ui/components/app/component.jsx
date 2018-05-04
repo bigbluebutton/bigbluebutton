@@ -220,7 +220,6 @@ class App extends Component {
           {this.renderUserList()}
           {userlistIsOpen ? <div className={styles.userlistPad} /> : null}
           {this.renderChat()}
-          {chatIsOpen ? <div className={styles.chatPad} /> : null}
           {this.renderSidebar()}
         </section>
         <ModalContainer />
