@@ -297,7 +297,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          var logData:Object = UsersUtil.initLogData();
          logData.tags = ["initialization"];
          logData.capabilities = getFlashPlayerCapabilities();
-         logData.logCode = "flash_player_ capabilities";
+         logData.logCode = "flash_player_capabilities";
          LOGGER.info(JSON.stringify(logData));
      }
 

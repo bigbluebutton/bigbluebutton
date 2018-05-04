@@ -6,10 +6,8 @@
   import flash.media.Sound;
   import flash.media.SoundChannel;
   import flash.media.SoundTransform;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.common.Media;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;

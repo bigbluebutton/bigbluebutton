@@ -9,10 +9,8 @@ package org.bigbluebutton.main.model.modules
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.MeetingNotFoundEvent;
   
@@ -60,7 +58,7 @@ package org.bigbluebutton.main.model.modules
     
     private function handleComplete(e:Event):void {			
       var result:Object = JSON.parse(e.target.data);
-      LOGGER.debug("Enter response = {0}", [jsonXify(result)]);
+      LOGGER.debug("Enter response = {0}", [JSON.stringify(result)]);
       
         var logData:Object = UsersUtil.initLogData();
         
