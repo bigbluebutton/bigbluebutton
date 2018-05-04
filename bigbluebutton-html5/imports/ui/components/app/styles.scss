@@ -103,6 +103,9 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
   @include mq($small-only) {
     padding-top: $navbar-height;
+    padding-top: $navbar-height;
+    height: 100vh;
+    width: 100vw;
   }
 
   @include mq($medium-up) {
@@ -112,12 +115,6 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
   @include mq($xlarge-up) {
     flex-basis: 10vw;
-  }
-
-  @include mq($medium-down) {
-    padding-top: $navbar-height;
-    height: 100vh;
-    width: 100vw;
   }
 }
 
@@ -144,6 +141,9 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   @include mq($small-only) {
     z-index: 3;
     padding-top: $navbar-height;
+    padding-top: $navbar-height;
+    height: 100vh;
+    width: 100vw;
   }
 
   @include mq($medium-up) {
@@ -153,12 +153,6 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
   @include mq($xlarge-up) {
     flex-basis: 20vw;
-  }
-
-  @include mq($medium-down) {
-    padding-top: $navbar-height;
-    height: 100vh;
-    width: 100vw;
   }
 }
 
