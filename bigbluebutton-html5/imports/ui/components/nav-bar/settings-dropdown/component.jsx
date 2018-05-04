@@ -71,6 +71,7 @@ class SettingsDropdown extends Component {
 
     this.state = {
       isSettingOpen: false,
+      isFullScreen: false,
     };
 
     this.onActionsShow = this.onActionsShow.bind(this);
@@ -79,16 +80,52 @@ class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    const { intl, isFullScreen, mountModal } = this.props;
+    this.createMenu();
+  }
 
-    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-    let fullscreenIcon = 'fullscreen';
+  componentWillReceiveProps(nextProps) {
+    this.setState(
+      { isFullScreen: nextProps.isFullScreen },
+      () => this.createMenu(),
+    );
+  }
 
-    if (isFullScreen) {
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
+  }
+
+  getListItems() {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
+    // thrown if the DropdownList receives a null value.
+    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
+  }
+
+  createMenu() {
+    const { intl, mountModal } = this.props;
+
+
+    let fullscreenLabel;
+    let fullscreenDesc;
+    let fullscreenIcon;
+
+    if (this.state.isFullScreen) {
       fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
       fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullscreenIcon = 'exit_fullscreen';
+    } else {
+      fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+      fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+      fullscreenIcon = 'fullscreen';
     }
 
     this.menuItems = [
@@ -123,27 +160,6 @@ class SettingsDropdown extends Component {
       />),
     ];
   }
-
-  onActionsShow() {
-    this.setState({
-      isSettingOpen: true,
-    });
-  }
-
-  onActionsHide() {
-    this.setState({
-      isSettingOpen: false,
-    });
-  }
-
-  getListItems() {
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
-    // thrown if the DropdownList receives a null value.
-    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
-  }
-
   render() {
     const { intl } = this.props;
 
