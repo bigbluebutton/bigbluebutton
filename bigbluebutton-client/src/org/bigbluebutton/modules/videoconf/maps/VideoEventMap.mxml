@@ -99,7 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{UserStatusChangedEvent.USER_STATUS_CHANGED}">
 			<ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-			<MethodInvoker generator="{VideoEventMapDelegate}" method="webcamsOnlyForModeratorChanged"/>
+			<MethodInvoker generator="{VideoEventMapDelegate}" method="userRoleChanged"/>
 		</EventHandlers>
 
 		<EventHandlers type="{StreamStoppedEvent.STREAM_STOPPED}">

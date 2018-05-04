@@ -53,8 +53,8 @@ package org.bigbluebutton.modules.screenshare.utils
       }
 
       // fail if you dont want to try webrtc first
-      if (!options.tryWebRTCFirst) {
-        cannotUseWebRTC("WebRTC Screensharing is not priority over Java");
+      if (!options.offerWebRTC) {
+        cannotUseWebRTC("WebRTC Screensharing is not disabled in configuration");
         return;
       }
 
@@ -62,15 +62,7 @@ package org.bigbluebutton.modules.screenshare.utils
       if (!BrowserCheck.isWebRTCSupported()) {
         cannotUseWebRTC("Web browser does not support WebRTC");
         return;
-      }
-
-      // if theres no extension link-- users cant download-- fail
-      if (StringUtils.isEmpty(options.chromeExtensionLink)) {
-        cannotUseWebRTC("No extensionLink in config.xml");
-        return;
-      }
-
-      WebRTCScreenshareUtility.extensionLink = options.chromeExtensionLink;
+	  }
 
       // if its firefox go ahead and let webrtc handle it
       if (BrowserCheck.isFirefox()) {
@@ -79,6 +71,14 @@ package org.bigbluebutton.modules.screenshare.utils
 
       // if its chrome we need to check for the extension
       } else if (BrowserCheck.isChrome()) {
+        WebRTCScreenshareUtility.extensionLink = options.chromeExtensionLink;
+        
+        // if theres no extension link-- users cant download-- fail
+        if (StringUtils.isEmpty(options.chromeExtensionLink)) {
+          cannotUseWebRTC("No extensionLink in config.xml");
+          return;
+        }
+        
         WebRTCScreenshareUtility.chromeExtensionKey = options.chromeExtensionKey;
 
         // if theres no key we cannot connect to the extension-- fail

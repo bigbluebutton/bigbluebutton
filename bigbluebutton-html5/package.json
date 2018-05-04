@@ -23,15 +23,15 @@
     }
   },
   "dependencies": {
-    "babel-runtime": "~6.26.0",
     "//": [
       "core-js is included with babel-runtime",
       "but Meteor 1.6.0.1 doesn't see it there for some reason",
       "need to investigate"
     ],
-    "core-js": "~2.5.3",
+    "babel-runtime": "~6.26.0",
     "classnames": "~2.2.5",
     "clipboard": "~1.7.1",
+    "core-js": "~2.5.3",
     "eventemitter2": "~4.1.2",
     "flat": "~4.0.0",
     "hiredis": "~0.5.0",
@@ -39,6 +39,7 @@
     "immutability-helper": "~2.4.0",
     "langmap": "0.0.16",
     "lodash": "~4.17.4",
+    "makeup-screenreader-trap": "0.0.5",
     "meteor-node-stubs": "~0.3.2",
     "node-sass": "~4.5.3",
     "probe-image-size": "~3.1.0",

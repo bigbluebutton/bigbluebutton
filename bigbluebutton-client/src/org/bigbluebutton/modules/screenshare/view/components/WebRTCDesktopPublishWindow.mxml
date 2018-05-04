@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="org.bigbluebutton.common.*"
+	xmlns:ss="org.bigbluebutton.modules.screenshare.view.components.*"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -40,9 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
 		<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_INSTALL}" method="displayInstall" />
-		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_RETRY}" method="displayRetry" />
-		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_FALLBACK}" method="displayFallback" />
 		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_VIDEO_LOADING}" method="displayLoadingScreen" />
 	</fx:Declarations>
 
@@ -53,6 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.external.ExternalInterface;
 			
 			import mx.core.UIComponent;
+			import mx.utils.ObjectUtil;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -60,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -68,20 +68,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
+			import org.bigbluebutton.modules.screenshare.utils.WebRTCScreenshareUtility;
 			import org.bigbluebutton.util.ConnUtil;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopPublishWindow);
 
 			public static const SCALE:Number = 5;
-			private static const VID_HEIGHT_PAD:Number = 73;
+			private static const VID_HEIGHT_PAD:Number = 85;
 			private static const VID_WIDTH_PAD:Number = 6;
 
 			private var connection:NetConnection;
@@ -102,16 +102,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable] private var dsOptions:ScreenshareOptions;
 
-			private function displayInstall(e:Event):void {
+			private function displayInstall():void {
 				setCurrentState("displayInstall");
 			}
 
-			private function displayRetry(e:Event):void {
+			private function displayRetry():void {
 				setCurrentState("displayRetry");
 			}
 
-			private function displayFallback(e:Event):void {
-				setCurrentState("displayFallback");
+			private function displayFail(message:String=null):void {
+				setCurrentState("displayFail");
+				if (message) {
+					failLbl.text = message;
+				}
+				
 				if (ExternalInterface.available) {
 					var isIncognito:Function = function(args:Object):void {
 						incognitoLbl.visible = true;
@@ -131,30 +135,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function onInstallButtonClicked():void {
 				navigateToURL(new URLRequest(dsOptions.chromeExtensionLink), "_blank");
-				globalDispatcher.dispatchEvent(new WebRTCPublishWindowChangeState(WebRTCPublishWindowChangeState.DISPLAY_RETRY));
+				displayRetry();
 			}
 
 			private function onRetryButtonClicked():void {
 				var onSuccess:Function = function(exists:Boolean):void {
 				  ExternalInterface.addCallback("onSuccess", null);
 				  if (exists) {
-				    globalDispatcher.dispatchEvent(new RequestToStartSharing());
+				    globalDispatcher.dispatchEvent(new RequestToStartSharing(true));
 				  } else {
-				    globalDispatcher.dispatchEvent(new WebRTCPublishWindowChangeState(WebRTCPublishWindowChangeState.DISPLAY_FALLBACK));
+				    displayFail();
 				  }
 				};
 				ExternalInterface.addCallback("onSuccess", onSuccess);
 				ExternalInterface.call("checkChromeExtInstalled", "onSuccess", dsOptions.chromeExtensionKey);
 			}
 
-			private function onFallbackButtonClicked():void {
-				closeWindow();
-				globalDispatcher.dispatchEvent(new UseJavaModeCommand());
-			}
-
 			private function init():void {
-				dsOptions = new ScreenshareOptions();
 				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+				
+				WebRTCScreenshareUtility.canIUseWebRTCOnThisBrowser(cannotUseWebRTC, webRTCWorksButNotConfigured, webRTCWorksAndConfigured);
 			}
 
 			private function onCreationComplete():void {
@@ -165,6 +165,59 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
 				titleBarOverlay.focusEnabled = true;
+			}
+			
+			private function cannotUseWebRTC(message:String):void {
+				LOGGER.debug("Cannot use WebRTC Screensharing: " + message);
+				
+				displayFail(message);
+			};
+			
+			/* When WebRTC is supported in the browser, theres an extension key,
+			but not configured properly (no extension for example)
+			*/
+			private function webRTCWorksButNotConfigured(message:String):void {
+				LOGGER.debug("WebRTC Screenshare needs to be configured clientside: " + message);
+				displayInstall();
+			}
+			
+			/* WebRTC is supported and everything is configured properly (extension exists),
+			attempt to share
+			*/
+			private function webRTCWorksAndConfigured(message:String):void {
+				LOGGER.debug("WebRTC Screenshare works, start sharing: " + message);
+				startWebRTCPublish();
+			}
+			
+			private function startWebRTCPublish():void {
+				LOGGER.debug("startWebRTCDeskshare");
+				
+				if (ExternalInterface.available) {
+					var videoTag:String = "localWebRTCVideo";
+					var onFail:Function = function(args:Object):void {
+						LOGGER.debug("startWebRTCDeskshare - failed to publish WebRTC deskshare. " + ObjectUtil.toString(args));
+						if (args is String) {
+							displayFail(args as String);
+						} else {
+							displayFail();
+						}
+					};
+					ExternalInterface.addCallback("onFail", onFail);
+					
+					var voiceBridge:String = UsersUtil.getVoiceBridge();
+					var myName:String = UsersUtil.getMyUsername();
+					var internalMeetingID:String = UsersUtil.getInternalMeetingID();
+					
+					ExternalInterface.call(
+						'kurentoShareScreen',
+						videoTag,
+						voiceBridge,
+						myName,
+						internalMeetingID,
+						"onFail",
+						dsOptions.chromeExtensionKey);
+					
+				}
 			}
 
 			private function remoteFocus(e:ShortcutEvent):void{
@@ -368,6 +421,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.play(stream);
 
 				btnClosePublish.enabled = true;
+				
+				connectingDots.startAnimation();
+				videoHolder.includeInLayout = videoHolder.visible = false;
 			}
 
 			private function stopStream():void{
@@ -395,6 +451,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				case "NetStream.Play.Start":
 					LOGGER.debug("Netstatus: {0}", [e.info.code]);
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
+				}
+			}
+			
+			public function onMetaData(info:Object):void {
+				LOGGER.debug("onMetaData: " + ObjectUtil.toString(info));
+				if (info.hasOwnProperty("encoder")) {
+					// The encoder is sent to the client when the stream has actually started sending data. We can use 
+					// it to know when the video is actually playing
+					connectingDots.endAnimation();
+					videoHolder.includeInLayout = videoHolder.visible = true;
 				}
 			}
 
@@ -458,12 +524,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:State name="dispFullRegionControlBar" />
 		<mx:State name="displayInstall" />
 		<mx:State name="displayRetry" />
-		<mx:State name="displayFallback" />
+		<mx:State name="displayFail" />
 		<mx:State name="displayLoadingScreen" />
 	</dspub:states>
 
 	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
-		<mx:HBox width="100%" height="90%" id="mainElement"/>
+		<mx:HBox width="100%" height="90%" id="mainElement" verticalAlign="middle" horizontalAlign="center">
+			<ss:AnimatedDots id="connectingDots" styleName="animatedDotsStyle" />
+		</mx:HBox>
 		<mx:HBox includeIn="dispFullRegionControlBar" width="100%" horizontalAlign="center">
 			<mx:Button id="btnClosePublish"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.toolTip')}"
@@ -495,15 +563,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label width="70%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCRetryExtensionInstallation.label')}"/>
 			<mx:Button id="btnRetry" label="Retry" visible="true" enabled="true" click="onRetryButtonClicked()" />
 		</mx:VBox>
-		<mx:VBox includeIn="displayFallback" width="100%" height="100%" horizontalAlign="center">
+		<mx:VBox includeIn="displayFail" width="100%" height="100%" horizontalAlign="center">
 			<mx:HBox width="100%" height="100%" horizontalAlign="center">
-				<mx:Text width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionFailFallback.label')}" />
+				<mx:Text id="failLbl" width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionFailFallback.label')}" />
 			</mx:HBox>
 			<mx:HBox width="100%" height="100%" horizontalAlign="center">
 				<mx:Text id="incognitoLbl" width="100%" visible="false" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCPrivateBrowsingWarning.label')}" />
-			</mx:HBox>
-			<mx:HBox width="100%" height="100%" horizontalAlign="center">
-				<mx:Button id="btnFallback" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCUseJavaButton.label')}" visible="true" enabled="true" click="onFallbackButtonClicked()" />
 			</mx:HBox>
 		</mx:VBox>
 		<mx:VBox includeIn="displayLoadingScreen" width="100%" height="100%" horizontalAlign="center">

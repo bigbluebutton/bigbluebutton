@@ -936,11 +936,11 @@ def processPresentation(package_dir)
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
       panzoom_changed = true
 
-    elsif eventname == 'DeskshareStartedEvent' and $presentation_props['include_deskshare']
+    elsif  $presentation_props['include_deskshare'] and (eventname == 'DeskshareStartedEvent' or eventname == 'StartWebRTCDesktopShareEvent')
       deskshare = true
       slide_changed = true
 
-    elsif eventname == 'DeskshareStoppedEvent' and $presentation_props['include_deskshare']
+    elsif $presentation_props['include_deskshare'] and (eventname == 'DeskshareStoppedEvent' or eventname == 'StopWebRTCDesktopShareEvent')
       deskshare = false
       slide_changed = true
 

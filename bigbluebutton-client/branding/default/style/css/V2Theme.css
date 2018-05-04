@@ -87,7 +87,7 @@ mx|Application {
 	paddingTop    : 8;
 }
 
-.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
+.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle, .btnWebRTCStyle, .btnJavaStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;
@@ -817,6 +817,11 @@ mx|DataGrid {
 	color      : #2A2D33;
 	fontSize   : 11;
 	fontWeight : bold;
+}
+
+.animatedDotsStyle {
+	fontSize  : 40;
+	textAlign : center;
 }
 
 /*

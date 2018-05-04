@@ -56,6 +56,7 @@ const UserName = (props) => {
     isMeetingLocked,
     meeting,
     userAriaLabel,
+    isActionsOpen,
   } = props;
 
   if (compact) {
@@ -80,7 +81,7 @@ const UserName = (props) => {
   }
 
   return (
-    <div className={styles.userName} role="button" aria-label={userAriaLabel}>
+    <div className={styles.userName} role="button" aria-label={userAriaLabel} aria-expanded={isActionsOpen}>
       <span className={styles.userNameMain}>
         {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>

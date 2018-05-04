@@ -26,9 +26,15 @@ module.exports = class Video extends EventEmitter {
     this.mediaId = null;
     this.iceQueue = null;
     this.status = C.MEDIA_STOPPED;
+    this.recording = {};
+    this.streamRecorded = false;
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
+  }
+
+  setStreamAsRecorded () {
+    this.streamRecorded = true;
   }
 
   onIceCandidate (_candidate) {
@@ -112,16 +118,7 @@ module.exports = class Video extends EventEmitter {
             this.notFlowingTimeout = setTimeout(() => {
 
               if (this.shared) {
-                let userCamEvent =
-                  Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id, this.id);
-                this.bbbGW.publish(userCamEvent, C.TO_AKKA_APPS, function(error) {});
-                this.bbbGW.publish(JSON.stringify({
-                  connectionId: this.connectionId,
-                  type: 'video',
-                  role: this.role,
-                  id : 'playStop',
-                  cameraId: this.id,
-                }), C.FROM_VIDEO);
+                this.sendPlayStop();
                 this.status = C.MEDIA_STOPPED;
                 clearTimeout(this.notFlowingTimeout);
                 delete this.notFlowingTimeout;
@@ -136,21 +133,55 @@ module.exports = class Video extends EventEmitter {
             delete this.notFlowingTimeout;
           }
           if (this.status != C.MEDIA_STARTED) {
-            this.bbbGW.publish(JSON.stringify({
-              connectionId: this.connectionId,
-              type: 'video',
-              role: this.role,
-              id : 'playStart',
-              cameraId: this.id,
-            }), C.FROM_VIDEO);
+
+            // Record the video stream if it's the original being shared
+            if (this.shouldRecord()) {
+              this.startRecording();
+            }
+
+            this.sendPlayStart();
 
             this.status = C.MEDIA_STARTED;
           }
+
         }
         break;
 
       default: Logger.warn("[video] Unrecognized event", event);
     }
+  }
+
+  sendPlayStart () {
+    this.bbbGW.publish(JSON.stringify({
+       connectionId: this.connectionId,
+       type: 'video',
+       role: this.role,
+       id : 'playStart',
+       cameraId: this.id,
+    }), C.FROM_VIDEO);
+  }
+
+  sendPlayStop () {
+    let userCamEvent =
+      Messaging.generateUserCamBroadcastStoppedEventMessage2x(this.meetingId, this.id, this.id);
+    this.bbbGW.publish(userCamEvent, function(error) {});
+
+    this.bbbGW.publish(JSON.stringify({
+      connectionId: this.connectionId,
+      type: 'video',
+      role: this.role,
+      id : 'playStop',
+      cameraId: this.id,
+    }), C.FROM_VIDEO);
+  }
+
+  shouldRecord () {
+    return this.streamRecorded && this.shared && config.get('recordWebcams');
+  }
+
+  async startRecording() {
+    this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+    this.sendStartShareEvent();
   }
 
   async start (sdpOffer, callback) {
@@ -171,6 +202,7 @@ module.exports = class Video extends EventEmitter {
         ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this.mediaId = ret.sessionId;
+
         sharedWebcams[this.id] = this.mediaId;
       }
       else if (sharedWebcams[this.id]) {
@@ -195,12 +227,28 @@ module.exports = class Video extends EventEmitter {
     }
   };
 
+  sendStartShareEvent() {
+    let shareCamEvent = Messaging.generateWebRTCShareEvent('StartWebRTCShareEvent', this.meetingId, this.recording.filename);
+    this.bbbGW.writeMeetingKey(this.meetingId, shareCamEvent, function(error) {});
+  }
+
+  sendStopShareEvent () {
+    let stopShareEvent =
+      Messaging.generateWebRTCShareEvent('StopWebRTCShareEvent', this.meetingId, this.recording.filename);
+    this.bbbGW.writeMeetingKey(this.meetingId, stopShareEvent, function(error) {});
+  }
+
   async stop () {
     return new Promise(async (resolve, reject) => {
       Logger.info('[video] Stopping video session', this.userId, 'at room', this.meetingId);
 
       try {
         await this.mcs.leave(this.meetingId, this.userId);
+
+        if (this.shouldRecord()) {
+          this.sendStopShareEvent();
+        }
+
         if (this.shared) {
           delete sharedWebcams[this.id];
         }

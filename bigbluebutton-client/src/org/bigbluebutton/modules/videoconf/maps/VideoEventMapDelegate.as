@@ -114,14 +114,18 @@ package org.bigbluebutton.modules.videoconf.maps
       _graphics.addStaticComponent(component);
     }
 	
-	public function webcamsOnlyForModeratorChanged():void {
-		if (!UsersUtil.amIModerator()) {
+	public function userRoleChanged():void {
+		webcamsOnlyForModeratorChanged(UsersUtil.amIModerator())
+	}
+	
+	public function webcamsOnlyForModeratorChanged(promotedToModerator : Boolean = false):void {
+		if (!UsersUtil.amIModerator() || promotedToModerator) {
 			var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
 			for (var i:int = 0; i < UsersUtil.getUsers().length; i++) {
 				var user : User2x = User2x(UsersUtil.getUsers()[i]);
 				if (user.role != Role.MODERATOR) {
 					var streamNames:Array = LiveMeeting.inst().webcams.getStreamIdsForUser(user.intId);
-					if (webcamsOnlyForModerator && !UsersUtil.isMe(user.intId)) {
+					if (webcamsOnlyForModerator && !UsersUtil.isMe(user.intId) && !promotedToModerator) {
 						for (var j:int = 0; j < streamNames.length; j++) {
 							_dispatcher.dispatchEvent(new StreamStoppedEvent(user.intId, streamNames[j]));
 						}

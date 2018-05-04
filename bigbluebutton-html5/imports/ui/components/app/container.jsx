@@ -102,6 +102,8 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
+    userlistIsOpen: window.location.pathname.includes('users'),
+    chatIsOpen: window.location.pathname.includes('chat'),
   };
 })(AppContainer))));
 
