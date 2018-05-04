@@ -151,6 +151,7 @@ class App extends Component {
 
     return (
       <Resizable
+        defaultSize={{width: "22.5%"}}
         minWidth="15%"
         maxWidth="30%"
         ref={(node) => { this.resizableChat = node; }}
