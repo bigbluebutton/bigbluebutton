@@ -144,7 +144,7 @@ package org.bigbluebutton.core.managers
 	  var logData:Object = UsersUtil.initLogData();
 	  logData.connection = type;
       logData.tags = ["connection"];
-	  logData.logData = "conn_mgr_reconnect_succeeded";
+	  logData.logCode = "conn_mgr_reconnect_succeeded";
 	  LOGGER.info(JSON.stringify(logData));
 	  
       dispatchReconnectionSucceededEvent(type);
