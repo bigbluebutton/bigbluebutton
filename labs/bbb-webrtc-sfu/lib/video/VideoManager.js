@@ -112,6 +112,12 @@ module.exports = class VideoManager extends BaseManager {
         this._stopSession(sessionId);
         break;
 
+      case 'pause':
+        if (video) {
+          video.pause(message.state);
+        }
+        break;
+
       case 'onIceCandidate':
         if (video && video.constructor === Video) {
           video.onIceCandidate(message.candidate);

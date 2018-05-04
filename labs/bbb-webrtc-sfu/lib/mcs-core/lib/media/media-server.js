@@ -242,6 +242,54 @@ module.exports = class MediaServer extends EventEmitter {
     }
   }
 
+  async disconnect (sourceId, sinkId, type) {
+    let source = this._mediaElements[sourceId];
+    let sink = this._mediaElements[sinkId];
+
+    if (source && sink) {
+      return new Promise((resolve, reject) => {
+        switch (type) {
+          case 'ALL':
+            source.disconnect(sink, (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+            break;
+
+
+          case 'AUDIO':
+            source.disconnect(sink, 'AUDIO', (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+
+          case 'VIDEO':
+            source.disconnect(sink, (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+            break;
+
+          default:
+            return this._handleError("[mcs-media] Invalid connect type");
+        }
+      });
+    }
+    else {
+      let error = this._handleError("[mcs-media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+      return Promise.reject(error);
+    }
+  }
+
   stop (room, type, elementId) {
     return new Promise(async (resolve, reject) => {
       try {

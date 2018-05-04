@@ -121,6 +121,28 @@ module.exports = class MCSApiStub extends EventEmitter {
     }
   }
 
+  async connect (source, sink, type) {
+    try {
+      await this._mediaController.connect(source, sink, type);
+      return Promise.resolve();
+    }
+    catch (err) {
+      Logger.error(err);
+      return Promise.reject(err);
+    }
+  }
+
+  async disconnect (source, sink, type) {
+    try {
+      await this._mediaController.disconnect(source, sink, type);
+      return Promise.resolve();
+    }
+    catch (err) {
+      Logger.error(err);
+      return Promise.reject(err);
+    }
+  }
+
   async onEvent (eventName, mediaId) {
     try {
       const eventTag = this._mediaController.onEvent(eventName, mediaId);

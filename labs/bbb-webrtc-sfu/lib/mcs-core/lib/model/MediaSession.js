@@ -90,10 +90,22 @@ module.exports = class MediaSession {
   }
 
   // TODO handle connection type
-  async connect (sinkId) {
+  async connect (sinkId, type = 'ALL') {
     try {
       Logger.info("[mcs-media-session] Connecting " + this._mediaElement + " => " + sinkId);
-      await this._MediaServer.connect(this._mediaElement, sinkId, 'ALL');
+      await this._MediaServer.connect(this._mediaElement, sinkId, type);
+      return Promise.resolve();
+    }
+    catch (err) {
+      err = this._handleError(err);
+      return Promise.reject(err);
+    }
+  }
+
+  async disconnect (sinkId, type = 'ALL') {
+    try {
+      Logger.info("[mcs-media-session] Dis-connecting " + this._mediaElement + " => " + sinkId);
+      await this._MediaServer.disconnect(this._mediaElement, sinkId, type);
       return Promise.resolve();
     }
     catch (err) {

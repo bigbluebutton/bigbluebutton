@@ -49,8 +49,6 @@ class VideoProvider extends Component {
     this.ws = new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl);
     this.wsQueue = [];
 
-    console.log(VisibilityEvent);
-
     this.visibility = new VisibilityEvent();
 
     this.reconnectWebcam = false;
@@ -71,20 +69,23 @@ class VideoProvider extends Component {
     this.unpauseViewers = this.unpauseViewers.bind(this);
   }
 
+  _sendPauseStream (id, role, state) {
+    this.sendMessage({
+      cameraId: id,
+      id: 'pause',
+      type: 'video',
+      role,
+      state,
+    });
+  }
+
   pauseViewers () {
     log("debug", "Calling pause in viewer streams");
 
-    Object.keys(this.webRtcPeers).forEach((id) => {
-      console.log(id);
-      let peer = this.webRtcPeers[id];
-      console.log(peer);
-      if (id !== this.props.userId && peer) {
-        let rs = peer.peerConnection.getRemoteStreams()[0];
-        let track = rs.getVideoTracks()[0];
 
-        if (track) {
-         track.enabled = false;
-        }
+    Object.keys(this.webRtcPeers).forEach((id) => {
+      if (this.props.userId !== id) {
+        this._sendPauseStream(id, 'viewer', true);
       }
     });
   }
@@ -93,14 +94,8 @@ class VideoProvider extends Component {
     log("debug", "Calling un-pause in viewer streams");
 
     Object.keys(this.webRtcPeers).forEach((id) => {
-      let peer = this.webRtcPeers[id];
-      if (id !== this.props.userId && peer) {
-        let rs = peer.peerConnection.getRemoteStreams()[0];
-        let track = rs.getVideoTracks()[0];
-
-        if (track) {
-         track.enabled = true;
-        }
+      if (id !== this.props.userId) {
+        this._sendPauseStream(id, 'viewer', false);
       }
     });
   }

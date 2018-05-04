@@ -294,6 +294,50 @@ module.exports = class MediaController {
     }
   }
 
+  async connect (sourceId, sinkId, type) {
+    Logger.info("[mcs-controller] Connect", sourceId, "to", sinkId, "with type", type);
+
+    let session;
+    let sourceSession = this._mediaSessions[sourceId];
+    let sinkSession = this._mediaSessions[sinkId];
+
+    if (!sourceSession || !sinkSession) {
+      return Promise.reject("[mcs-controller] One of the sessions for connections wasn't found");
+    }
+
+    try {
+      await sourceSession.connect(sinkSession._mediaElement, type);
+    }
+    catch (err) {
+      Logger.error("[mcs-controller] Subscribe failed with an error", err);
+      return Promise.reject(err);
+    }
+
+    return Promise.resolve();
+  }
+
+  async disconnect (sourceId, sinkId, type) {
+    Logger.info("[mcs-controller] Disconnect", sourceId, "to", sinkId, "with type", type);
+
+    let session;
+    let sourceSession = this._mediaSessions[sourceId];
+    let sinkSession = this._mediaSessions[sinkId];
+
+    if (!sourceSession || !sinkSession) {
+      return Promise.reject("[mcs-controller] One of the sessions for connections wasn't found");
+    }
+
+    try {
+      await sourceSession.disconnect(sinkSession._mediaElement, type);
+    }
+    catch (err) {
+      Logger.error("[mcs-controller] Subscribe failed with an error", err);
+      return Promise.reject(err);
+    }
+
+    return Promise.resolve();
+  }
+
   async addIceCandidate (mediaId, candidate) {
     const session = this._mediaSessions[mediaId];
     if (!session) {
