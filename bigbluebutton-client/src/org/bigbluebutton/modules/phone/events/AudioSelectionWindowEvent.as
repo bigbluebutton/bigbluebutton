@@ -7,9 +7,12 @@ package org.bigbluebutton.modules.phone.events
 		public static const SHOW_AUDIO_SELECTION:String = 'SHOW_AUDIO_SELECTION';
 		public static const CLOSED_AUDIO_SELECTION:String = 'CLOSED_AUDIO_SELECTION';
 		
-		public function AudioSelectionWindowEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+		public var closedWithoutJoin:Boolean = false;
+		
+		public function AudioSelectionWindowEvent(type:String, closedWithoutJoin:Boolean=false)
 		{
-			super(type, bubbles, cancelable);
+			super(type, false, false);
+			this.closedWithoutJoin = closedWithoutJoin;
 		}
 	}
 }

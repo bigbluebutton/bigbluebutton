@@ -257,7 +257,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cleanUp();
         stopEchoTest();
         var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION, true));
         PopUpUtil.removePopUp(this);
       }
       

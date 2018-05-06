@@ -299,7 +299,7 @@ package org.bigbluebutton.modules.phone.managers
         });
         popUpDelayTimer.start();
       } else {
-        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION, true));
       }
     }
     
