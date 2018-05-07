@@ -319,33 +319,40 @@ module.exports = class Screenshare extends EventEmitter {
   }
 
   _stopScreensharing() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         Logger.info("[screenshare] Stopping screensharing with status", this._status);
-        let strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
+        const isTranscoderAvailable = await this._BigBlueButtonGW.isChannelAvailable(C.TO_BBB_TRANSCODE_SYSTEM_CHAN);
+        const strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
 
-        this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
 
-        // Interoperability: capturing 1.1 stop_transcoder_reply messages
-        this._BigBlueButtonGW.on(C.STOP_TRANSCODER_REPLY, async (payload) => {
-          let meetingId = payload[C.MEETING_ID];
-          if(this._meetingId === meetingId) {
-            await this._stopRtmpBroadcast(meetingId);
-            return resolve();
-          }
-        });
+        if (isTranscoderAvailable) {
+          // Interoperability: capturing 1.1 stop_transcoder_reply messages
+          this._BigBlueButtonGW.on(C.STOP_TRANSCODER_REPLY, async (payload) => {
+            let meetingId = payload[C.MEETING_ID];
+            if(this._meetingId === meetingId) {
+              await this._stopRtmpBroadcast(meetingId);
+              return resolve();
+            }
+          });
 
-        // Capturing stop transcoder responses from the 2x model
-        this._BigBlueButtonGW.on(C.STOP_TRANSCODER_RESP_2x, async (payload) => {
-          Logger.info(payload);
-          let meetingId = payload[C.MEETING_ID_2x];
-          if(this._meetingId === meetingId) {
-            await this._stopRtmpBroadcast(meetingId);
-            return resolve();
-          }
-        });
+          // Capturing stop transcoder responses from the 2x model
+          this._BigBlueButtonGW.on(C.STOP_TRANSCODER_RESP_2x, async (payload) => {
+            Logger.info(payload);
+            let meetingId = payload[C.MEETING_ID_2x];
+            if(this._meetingId === meetingId) {
+              await this._stopRtmpBroadcast(meetingId);
+              return resolve();
+            }
+          });
 
-        if (this._status != C.MEDIA_STARTED) {
+          this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+        }
+
+        // Either the transcoder is not available or screensharing couldn't be
+        // correctly started
+        if (this._status != C.MEDIA_STARTED || !isTranscoderAvailable) {
+          this._stopRtmpBroadcast(this._meetingId);
           return resolve();
         }
       }
@@ -356,26 +363,34 @@ module.exports = class Screenshare extends EventEmitter {
     });
   }
 
-  _onRtpMediaFlowing() {
+  async _onRtpMediaFlowing() {
     if (!this._rtmpBroadcastStarted) {
       Logger.info("[screenshare] RTP Media FLOWING for meeting", this._meetingId);
-      let strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
+      const isTranscoderAvailable = await this._BigBlueButtonGW.isChannelAvailable(C.TO_BBB_TRANSCODE_SYSTEM_CHAN);
+      const strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
 
-      // Interoperability: capturing 1.1 start_transcoder_reply messages
-      this._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY, (payload) => {
-        let meetingId = payload[C.MEETING_ID];
-        let output = payload["params"].output;
-        this._startRtmpBroadcast(meetingId, output);
-      });
+      // Checking if transcoder is avaiable; if so, transposes the stream to RTMP
+      if (isTranscoderAvailable) {
+        // Interoperability: capturing 1.1 start_transcoder_reply messages
+        this._BigBlueButtonGW.on(C.START_TRANSCODER_REPLY, (payload) => {
+          let meetingId = payload[C.MEETING_ID];
+          let output = payload["params"].output;
+          this._startRtmpBroadcast(meetingId, output);
+        });
 
-      // Capturing stop transcoder responses from the 2x model
-      this._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x, (payload) => {
-        let meetingId = payload[C.MEETING_ID_2x];
-        let output = payload["params"].output;
-        this._startRtmpBroadcast(meetingId, output);
-      });
+        // Capturing stop transcoder responses from the 2x model
+        this._BigBlueButtonGW.on(C.START_TRANSCODER_RESP_2x, (payload) => {
+          let meetingId = payload[C.MEETING_ID_2x];
+          let output = payload["params"].output;
+          this._startRtmpBroadcast(meetingId, output);
+        });
 
-      this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+        this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
+      } else {
+        // transcoder is not available, pure WebRTC environment
+        this._startRtmpBroadcast(this._meetingId);
+      }
+
       if (this._status != C.MEDIA_STARTED) {
         Logger.info('[screenshare] webRTC started flowing for meeting', this._meetingId);
         if (SHOULD_RECORD) {

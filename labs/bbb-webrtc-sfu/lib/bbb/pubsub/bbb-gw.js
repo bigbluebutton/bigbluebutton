@@ -88,7 +88,7 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
           break;
         case C.USER_CAM_BROADCAST_STARTED_2x:
           this.emit(C.USER_CAM_BROADCAST_STARTED_2x, payload[C.STREAM_URL]);
-          break; 
+          break;
         // SCREENSHARE
 
         default:
@@ -129,6 +129,15 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
         Logger.info('Recording key will expire in', EXPIRE_TIME, 'seconds', err);
       });
     });
+  }
+
+  async isChannelAvailable (channel) {
+    const channels = await this.publisher.getChannels();
+    return channels.includes(channel);
+  }
+
+  getChannels () {
+    return this.publisher.getChannels();
   }
 
   setEventEmitter (emitter) {
