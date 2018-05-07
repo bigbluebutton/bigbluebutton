@@ -82,6 +82,7 @@ class BbbWebApiGWApp(
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean, moderatorPass: String,
                     viewerPass: String, createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
+                    freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
                     dialNumber: String, maxUsers: java.lang.Integer, maxInactivityTimeoutMinutes: java.lang.Integer,
@@ -103,7 +104,7 @@ class BbbWebApiGWApp(
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
       allowStartStopRecording = allowStartStopRecording.booleanValue())
-    val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence.intValue(), breakoutRooms = Vector())
+    val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence.intValue(), freeJoin = freeJoin.booleanValue(), breakoutRooms = Vector())
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())

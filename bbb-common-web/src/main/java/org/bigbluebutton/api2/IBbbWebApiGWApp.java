@@ -14,7 +14,7 @@ public interface IBbbWebApiGWApp {
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
                      String moderatorPass, String viewerPass, Long createTime,
-                     String createDate, Boolean isBreakout, Integer sequence, Map<String, String> metadata,
+                     String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
                      String guestPolicy, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers,
                      Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,

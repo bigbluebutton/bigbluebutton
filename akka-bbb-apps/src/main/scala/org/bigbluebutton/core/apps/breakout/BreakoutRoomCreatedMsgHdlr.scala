@@ -61,7 +61,7 @@ trait BreakoutRoomCreatedMsgHdlr extends BreakoutHdlrHelpers {
 
   def sendBreakoutRoomsList(breakoutModel: BreakoutModel): BreakoutModel = {
     val breakoutRooms = breakoutModel.rooms.values.toVector map { r =>
-      new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence)
+      new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence, r.freeJoin)
     }
 
     log.info("Sending breakout rooms list to {} with containing {} room(s)", liveMeeting.props.meetingProp.intId, breakoutRooms.length)
@@ -88,7 +88,7 @@ trait BreakoutRoomCreatedMsgHdlr extends BreakoutHdlrHelpers {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val breakoutInfo = BreakoutRoomInfo(room.name, room.externalId, room.id, room.sequence)
+    val breakoutInfo = BreakoutRoomInfo(room.name, room.externalId, room.id, room.sequence, room.freeJoin)
     val event = build(liveMeeting.props.meetingProp.intId, breakoutInfo)
     outGW.send(event)
 

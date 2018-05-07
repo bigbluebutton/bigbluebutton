@@ -774,6 +774,7 @@ package org.bigbluebutton.modules.users.services
         breakoutRoom.externalMeetingId = room.externalId as String;
         breakoutRoom.name = room.name as String;
         breakoutRoom.sequence = room.sequence as Number;
+		breakoutRoom.freeJoin = room.freeJoin as Boolean;
         LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
       }
       LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = msg.body.roomsReady as Boolean;
@@ -824,12 +825,14 @@ package org.bigbluebutton.modules.users.services
       var externalId: String = breakout.externalId as String;
       var name: String = breakout.name as String;
       var sequence: int = breakout.sequence as Number;
+      var freeJoin: Boolean = breakout.freeJoin as Boolean;
       
       var breakoutRoom : BreakoutRoom = new BreakoutRoom();
       breakoutRoom.meetingId = breakoutId;
       breakoutRoom.externalMeetingId = externalId;
       breakoutRoom.name = name;
       breakoutRoom.sequence = sequence;
+      breakoutRoom.freeJoin = freeJoin;
       LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
     }
     

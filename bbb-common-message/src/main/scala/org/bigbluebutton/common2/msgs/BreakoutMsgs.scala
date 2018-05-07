@@ -14,7 +14,7 @@ package org.bigbluebutton.common2.msgs
   object BreakoutRoomsListEvtMsg { val NAME = "BreakoutRoomsListEvtMsg" }
   case class BreakoutRoomsListEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomsListEvtMsgBody) extends BbbCoreMsg
   case class BreakoutRoomsListEvtMsgBody(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean)
-  case class BreakoutRoomInfo(name: String, externalId: String, breakoutId: String, sequence: Int)
+  case class BreakoutRoomInfo(name: String, externalId: String, breakoutId: String, sequence: Int, freeJoin:Boolean)
 
   object BreakoutRoomsListMsg { val NAME = "BreakoutRoomsListMsg" }
   case class BreakoutRoomsListMsg(header: BbbClientMsgHeader, body: BreakoutRoomsListMsgBody) extends StandardMsg
@@ -39,7 +39,7 @@ package org.bigbluebutton.common2.msgs
   case class CreateBreakoutRoomSysCmdMsg(header: BbbCoreBaseHeader,
                                       body: CreateBreakoutRoomSysCmdMsgBody) extends BbbCoreMsg
   case class CreateBreakoutRoomSysCmdMsgBody(meetingId: String, room: BreakoutRoomDetail)
-  case class BreakoutRoomDetail(breakoutMeetingId: String, name: String, parentId: String, sequence: Integer,
+  case class BreakoutRoomDetail(breakoutMeetingId: String, name: String, parentId: String, sequence: Integer, freeJoin:Boolean,
                                 voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
                                 sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
 
@@ -49,7 +49,7 @@ package org.bigbluebutton.common2.msgs
   object CreateBreakoutRoomsCmdMsg { val NAME = "CreateBreakoutRoomsCmdMsg" }
   case class CreateBreakoutRoomsCmdMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsCmdMsgBody) extends StandardMsg
   case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInMinutes: Int, record: Boolean, rooms: Vector[BreakoutRoomMsgBody])
-  case class BreakoutRoomMsgBody(name: String, sequence: Int, users: Vector[String])
+  case class BreakoutRoomMsgBody(name: String, sequence: Int, freeJoin:Boolean, users: Vector[String])
 
   // Sent by user to request ending all the breakout rooms
   object EndAllBreakoutRoomsMsg { val NAME = "EndAllBreakoutRoomsMsg" }
@@ -89,7 +89,7 @@ case class RequestBreakoutJoinURLRespMsgBody(parentId: String, breakoutId: Strin
   case class BreakoutUserVO(id: String, name: String)
 
   case class BreakoutRoomVO(id: String, externalId: String, name: String, parentId: String,
-                            sequence: Int, voiceConf: String,
+                            sequence: Int, freeJoin: Boolean, voiceConf: String,
                             assignedUsers: Vector[String], users: Vector[BreakoutUserVO])
 
 

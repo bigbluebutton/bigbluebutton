@@ -34,19 +34,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flash.net.navigateToURL;
 			
+			import mx.collections.ArrayCollection;
+			
 			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var dispatcher:Dispatcher = new Dispatcher();
 
-			private var joinUrl:String;
+			private var joinURL:String;
 
-			public function setBreakoutRoomSettings(sequence:int, joinUrl:String):void {
+			public function setBreakoutRoomSettings(sequence:int, joinURL:String):void {
+				currentState = "normal";
 				sequenceLabel.text = sequence.toString();
-				this.joinUrl = joinUrl;
+				this.joinURL = joinURL;
+			}
+			
+			public function setBeakoutRoomsData(breakoutRooms : ArrayCollection):void {
+				currentState = "freeJoin";
+				breakoutRoomsCombo.dataProvider = breakoutRooms;
 			}
 
 			protected function joinButtonClickHandler(event:MouseEvent):void {
@@ -54,11 +64,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LiveMeeting.inst().me.breakoutEjectFromAudio = true;
 				} else {
 					LiveMeeting.inst().me.breakoutEjectFromAudio = false;
-
 				}
 				dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				dispatcher.dispatchEvent(new StopBroadcastEvent());
-				navigateToURL(new URLRequest(this.joinUrl), "_blank");
+				if (currentState == "normal") {
+					navigateToURL(new URLRequest(this.joinURL), "_blank");
+				} else {
+					var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+					e.breakoutMeetingId = breakoutRoomsCombo.selectedItem.meetingId as String;
+					e.userId = UsersUtil.getMyUserID();
+					dispatcher.dispatchEvent(e);
+				}
 				PopUpUtil.removePopUp(this);
 			}
 			
@@ -67,13 +83,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</fx:Script>
+	
+	<mx:states>
+		<mx:State name="normal"/>
+		<mx:State name="freeJoin"/>
+	</mx:states>
 
 	<mx:VBox height="100%" width="100%" paddingTop="15" paddingBottom="15" verticalGap="15" horizontalAlign="center">
 		<common:AdvancedLabel styleName="titleWindowStyle"
 							  maxWidth="580"
 							  text="{ResourceUtil.getInstance().getString('bbb.users.breakout.confirm')}" />
-		<mx:Label htmlText="{ResourceUtil.getInstance().getString('bbb.users.breakout.invited')}" paddingTop="4" />
-		<mx:Canvas>
+		<mx:Label htmlText.normal="{ResourceUtil.getInstance().getString('bbb.users.breakout.invited')}"
+				  htmlText.freeJoin="{ResourceUtil.getInstance().getString('bbb.users.breakout.selectRoom')}"
+				  paddingTop="4" />
+		<mx:Canvas includeIn="normal">
 			<mx:Image source="{getStyle('iconRooms')}" />
 			<mx:Canvas x="16" y="47" height="38" width="70"
 					   verticalScrollPolicy="off" horizontalScrollPolicy="off">
@@ -83,6 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 horizontalCenter="0" />
 			</mx:Canvas>
 		</mx:Canvas>
+		<mx:ComboBox includeIn="freeJoin" id="breakoutRoomsCombo" labelField="name" width="40%"/>
 		<mx:Label width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.accept')}" />
 		<mx:Button id="joinButton"
 				   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.joinSession')}"

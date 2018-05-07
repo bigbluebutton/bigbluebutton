@@ -8,7 +8,7 @@ warnMinutesBeforeMax:     Int, meetingExpireIfNoUserJoinedInMinutes: Int,
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
-case class BreakoutProps(parentId: String, sequence: Int, breakoutRooms: Vector[String])
+case class BreakoutProps(parentId: String, sequence: Int, freeJoin: Boolean, breakoutRooms: Vector[String])
 
 case class PasswordProp(moderatorPass: String, viewerPass: String)
 
