@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { styles } from './styles';
+
 export default class ScreenshareComponent extends React.Component {
   componentDidMount() {
     this.props.presenterScreenshareHasStarted();
@@ -16,7 +18,8 @@ export default class ScreenshareComponent extends React.Component {
 
   render() {
     return (
-      <video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline />
+      [(<div className={styles.connecting} />),
+      (<video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline />)]
     );
   }
 }
