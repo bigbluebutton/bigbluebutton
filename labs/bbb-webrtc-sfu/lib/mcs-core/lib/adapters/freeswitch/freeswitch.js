@@ -81,22 +81,51 @@ module.exports = class Freeswitch extends EventEmitter {
   }
 
   stop (roomId, type = {}, elementId) {
-    Logger.info("[mcs-media-freeswitch] Releasing endpoint", elementId, "from room", roomId);
-    let userAgent = this._userAgents[elementId];
-    let rtpConverter = this._rtpConverters[elementId];
+    return new Promise(async (resolve, reject) => {
+      try {
+        Logger.info("[mcs-media-freeswitch] Releasing endpoint", elementId, "from room", roomId);
 
-    if (userAgent) {
-      Logger.info("[mcs-media-freeswitch] Stopping user agent", elementId);
-      userAgent.stop();
-      delete this._userAgents[elementId];
-    }
+        await this._stopUserAgent(elementId);
+        await this._stopRtpConverter(roomId, elementId);
+        return resolve();
+      }
+      catch (error) {
+        error = this._handleError(error);
+        return reject(error);
+      }
+    });
+  }
 
-    if (rtpConverter) {
-      this._Kurento.stop(roomId, this._rtpConverters[elementId]);
-      delete this._rtpConverters[elementId];
-    }
+  async _stopUserAgent (elementId) {
+    return new Promise(async (resolve, reject) => {
+      Logger.debug("[mcs-media-freeswitch] Releasing userAgent", elementId);
+      let userAgent = this._userAgents[elementId];
 
-    return;
+      if (userAgent) {
+        Logger.debug("[mcs-media-freeswitch] Stopping user agent", elementId);
+        await userAgent.stop();
+        delete this._userAgents[elementId];
+        return resolve();
+      }
+      else {
+        return resolve();
+      }
+    });
+  }
+
+  async _stopRtpConverter (roomId, elementId) {
+    return new Promise(async (resolve, reject) => {
+      let rtpConverter = this._rtpConverters[elementId];
+      if (rtpConverter) {
+        Logger.debug("[mcs-media-freeswitch] Stopping converter", rtpConverter);
+        await this._Kurento.stop(roomId, C.MEDIA_TYPE.RTP, this._rtpConverters[elementId]);
+        delete this._rtpConverters[elementId];
+        return resolve();
+      }
+      else {
+        return resolve();
+      }
+    });
   }
 
   async processOffer (elementId, sdpOffer, params) {
@@ -237,21 +266,18 @@ module.exports = class Freeswitch extends EventEmitter {
 
     Logger.info('[mcs-media-freeswitch] Making SIP call to: ' + sipUri + ' from: ' + username);
 
-
-
     return userAgent.invite(sipUri, options);
   }
 
   _handleError(error) {
     // Checking if the error needs to be wrapped into a JS Error instance
-    if(!isError(error)) {
+    if (!isError(error)) {
       error = new Error(error);
     }
 
     error.code = C.ERROR.MEDIA_SERVER_ERROR;
     Logger.error('[mcs-media] Media Server returned error', error);
   }
-
 
   sipjsLogConnector (level, category, label, content) {
     Logger.debug('[SIP.js]  ' + content);

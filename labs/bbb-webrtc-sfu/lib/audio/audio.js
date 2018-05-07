@@ -243,13 +243,12 @@ module.exports = class Audio {
 
       this.sourceAudioStarted = false;
 
-      Promise.resolve();
+      return Promise.resolve();
     }
     catch (err) {
       // TODO error handling
-      Promise.reject();
+      return Promise.reject();
     }
-    return;
   };
 
   sendUserDisconnectedFromGlobalAudioMessage(connectionId) {
