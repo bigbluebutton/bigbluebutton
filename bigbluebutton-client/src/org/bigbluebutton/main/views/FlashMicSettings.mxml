@@ -129,13 +129,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         switch(event.code) {
           case "Microphone.Muted":
             logData.tags = ["voice", "flash"];
-            logData.message = "Access to microphone has been denied.";
+            logData.logCode = "denied_mic_access";
             LOGGER.info(JSON.stringify(logData));
             statusText.text = "You did not allow Flash to access your mic.";
             break;
           case "Microphone.Unmuted":         
             logData.tags = ["voice", "flash"];
-            logData.message = "Access to the microphone has been allowed.";
+            logData.logCode = "allowed_mic_access";
             LOGGER.info(JSON.stringify(logData));
             
             // Comment these next 2-lines. We don't want the user hearing audio
@@ -159,7 +159,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function onCreationComplete():void {
-				LOGGER.debug("onCreationComplete. Seeting state to [flashMicSettingsTest]");
 				microphoneList = Media.getMicrophoneNames();
 				setupForMicLoopbackTest();
 			}						
@@ -258,7 +257,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cleanUp();
         stopEchoTest();
         var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION, true));
         PopUpUtil.removePopUp(this);
       }
       
@@ -294,7 +293,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function yesButtonClicked():void {
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["voice"];
-        logData.message = "Echo test passed.";
+        logData.logCode = "flash_echo_test_passed";
         LOGGER.info(JSON.stringify(logData));
 
         cleanUp();
@@ -307,7 +306,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function noButtonClicked():void {
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["voice"];
-        logData.message = "Echo test failed.";
+        logData.logCode = "flash_echo_test_failed";
         LOGGER.info(JSON.stringify(logData));
         
         dispatchEvent(new FlashEchoTestNoAudioEvent());
@@ -315,15 +314,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         setupForMicLoopbackTest();
       }
             
-      private function flashMicSettingsCreated():void {        
-		LOGGER.debug("Available microphones: {0}", [microphoneList]);         
+      private function flashMicSettingsCreated():void {                
         testMicrophoneLoopback();				         
       }
       
       private function setupForEchoTestFailed():void
       {
         dotTimer.stop();
-		LOGGER.debug("Setting state to {0}", [FLASH_MIC_TEST_FAILED_STATE]);
         setCurrentState(FLASH_MIC_TEST_FAILED_STATE);			
       }
 			

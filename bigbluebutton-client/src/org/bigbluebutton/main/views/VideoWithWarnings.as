@@ -168,7 +168,6 @@ package org.bigbluebutton.main.views
         }
 
         private function displayVideoPreview():void {
-            LOGGER.debug("Using this video profile:: {0}", [_videoProfile.toString()]);
             _camera.setMotionLevel(5, 1000);
             _camera.setKeyFrameInterval(_videoProfile.keyFrameInterval);
             _camera.setMode(_videoProfile.width, _videoProfile.height, _videoProfile.modeFps);

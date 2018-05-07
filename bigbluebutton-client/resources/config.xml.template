@@ -18,7 +18,7 @@
             showRecordingNotification="true" logoutOnStopRecording="false"
             askForFeedbackOnLogout="false"/>
     <breakoutRooms enabled="true" record="false" privateChateEnabled="true"/>
-    <logging enabled="true" logTarget="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST/log" logPattern=".*"/>
+    <logging enabled="true" logTarget="trace" level="info" format="{dateUTC} {timeUTC} :: {name} :: [{logLevel}] {message}" uri="http://HOST/log" logPattern=".*"/>
     <lock disableCam="false" disableMic="false" disablePrivateChat="false"
           disablePublicChat="false" lockedLayout="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
 
@@ -49,8 +49,7 @@
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			enablePause="true"
-			tryKurentoWebRTC="false"
-			tryWebRTCFirst="false"
+			offerWebRTC="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
 			baseTabIndex="201"

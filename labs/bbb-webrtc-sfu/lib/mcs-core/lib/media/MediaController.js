@@ -292,6 +292,11 @@ module.exports = class MediaController {
       Logger.error("[mcs-controller] Subscribe failed with an error", err);
       return Promise.reject(err);
     }
+    finally {
+      if (typeof err === 'undefined' && session) {
+        session.sessionStarted();
+      }
+    }
   }
 
   async connect (sourceId, sinkId, type) {

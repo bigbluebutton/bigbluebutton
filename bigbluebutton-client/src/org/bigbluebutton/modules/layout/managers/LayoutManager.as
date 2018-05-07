@@ -262,7 +262,7 @@ package org.bigbluebutton.modules.layout.managers
       var logData:Object = UsersUtil.initLogData();
       logData.reason = "Layout changed.";
       logData.tags = ["layout"];
-      logData.message = "The layout was changed.";
+      logData.logCode = "layout_changed";
       logData.oldLayout = _currentLayout.name;
       logData.newLayout = newLayout.name;
       LOGGER.info(JSON.stringify(logData));

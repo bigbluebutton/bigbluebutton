@@ -96,7 +96,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 				
 					videoConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
-					LOGGER.debug("VIDEO CONNECT tunnel = TRUE " + "url=" +  videoConnUrl);
+
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -105,7 +105,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 				
 					videoConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
-					LOGGER.debug("VIDEO CONNECT tunnel = FALSE " + "url=" +  videoConnUrl);
+
 				}
 				
 				var connId:String = ConnUtil.generateConnId();
@@ -114,6 +114,13 @@ package org.bigbluebutton.modules.videoconf.business
 				videoConnUrl = videoConnUrl + "/" + UsersUtil.getInternalMeetingID();
 				var authToken: String = LiveMeeting.inst().me.authToken;
 
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["webcam"];
+				logData.app = "video";
+				logData.logCode = "connection_connecting";
+				logData.url = videoConnUrl;
+				LOGGER.info(JSON.stringify(logData));
+				
 				nc.objectEncoding = flash.net.ObjectEncoding.AMF3;
 				nc.connect(videoConnUrl, UsersUtil.getInternalMeetingID(), 
 						UsersUtil.getMyUserID(), authToken, BBB.initConnectionManager().videoConnId);
@@ -122,14 +129,18 @@ package org.bigbluebutton.modules.videoconf.business
 		private function onAsyncError(event:AsyncErrorEvent):void{
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["webcam"];
-			logData.message = "VIDEO WEBCAM onAsyncError"; 
+			logData.app = "video";
+			logData.logCode = "connection_async_error";
+			logData.url = videoConnUrl;
 			LOGGER.error(JSON.stringify(logData));
 		}
 		
 		private function onIOError(event:NetStatusEvent):void{
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["webcam"];
-			logData.message = "VIDEO WEBCAM onIOError"; 
+			logData.app = "video";
+			logData.logCode = "connection_io_error";
+			logData.url = videoConnUrl;
 			LOGGER.error(JSON.stringify(logData));
 		}
 		
@@ -137,6 +148,14 @@ package org.bigbluebutton.modules.videoconf.business
 			dispatcher.dispatchEvent(new ConnectedEvent(reconnecting));
 			if (reconnecting) {
 				reconnecting = false;
+				
+				var logData:Object = UsersUtil.initLogData();
+				logData.url = videoConnUrl;
+				logData.tags = ["webcam"];
+				logData.app = "video";
+				logData.reconnecting = reconnecting;
+				logData.logCode = "connection_reconnect_attempt_succeeded";
+				LOGGER.info(JSON.stringify(logData));
 				
 				var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
 				attemptSucceeded.payload.type = ReconnectionManager.VIDEO_CONNECTION;
@@ -146,39 +165,41 @@ package org.bigbluebutton.modules.videoconf.business
     
 		private function onNetStatus(event:NetStatusEvent):void{
 
-			LOGGER.debug("[{0}] for [{1}]", [event.info.code, videoConnUrl]);
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["webcam"];
-			logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + ",reconnect=" + reconnect + "]";
+			logData.app = "video";
+			logData.url = videoConnUrl;
+			logData.reconnecting = reconnecting;
+			logData.reconnect = reconnect;
 						
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
 					numNetworkChangeCount = 0;
-          			onConnectedToVideoApp();
+					logData.logCode = "connect_attempt_connected";
+          onConnectedToVideoApp();
 					break;
 				case "NetStream.Play.Failed":
-					if (reconnect) {
-						logData.message = "NetStream.Play.Failed from bbb-video";
+						logData.logCode = "netstream_play_failed";
 						LOGGER.info(JSON.stringify(logData));
-					}
 					
 					break;
 				case "NetStream.Play.Stop":
-					if (reconnect) {
-						logData.message = "NetStream.Play.Stop from bbb-video";
+						logData.logCode = "netstream_play_stop";
 						LOGGER.info(JSON.stringify(logData));
-					}
 					
 					break;		
 				case "NetConnection.Connect.Closed":
-					logData.message = "NetConnection.Connect.Closed from bbb-video";
+					logData.logCode = "connection_closed";
 					LOGGER.info(JSON.stringify(logData));
 					
 					dispatcher.dispatchEvent(new StopBroadcastEvent());
 					
 					if (reconnect) {
 						reconnecting = true;
-
+						
+						logData.logCode = "connection_reconnect_attempt";
+						LOGGER.info(JSON.stringify(logData));
+						
 						var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
 						disconnectedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
 						disconnectedEvent.payload.callback = connect;
@@ -188,34 +209,41 @@ package org.bigbluebutton.modules.videoconf.business
 					break;
 					
 				case "NetConnection.Connect.Failed":
+					logData.logCode = "connect_attempt_failed";
+					LOGGER.info(JSON.stringify(logData));
+					
 					if (reconnecting) {
+						logData.logCode = "connection_reconnect_attempt_failed";
+						LOGGER.info(JSON.stringify(logData));
+						
 						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
 						attemptFailedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
 						dispatcher.dispatchEvent(attemptFailedEvent);
 					}
-					
-					if (reconnect) {
-						logData.message = "NetConnection.Connect.Failed from bbb-video";
-						LOGGER.info(JSON.stringify(logData));
-					}
-					
+										
 					disconnect();
 					break;		
 				case "NetConnection.Connect.NetworkChange":
 					numNetworkChangeCount++;
-					if (numNetworkChangeCount % 2 == 0) {
-						logData.message = "Detected network change on bbb-video";
-						logData.numNetworkChangeCount = numNetworkChangeCount;
-						LOGGER.info(JSON.stringify(logData));
-					}
+					logData.logCode = "connection_network_change";
+					logData.numNetworkChangeCount = numNetworkChangeCount;
+					LOGGER.info(JSON.stringify(logData));
 					break;
-        		default:
-					LOGGER.debug("[{0}] for [{1}]", [event.info.code, videoConnUrl]);
+        default:
+					logData.logCode = "connection_failed_unknown_reason";
+					logData.statusCode = event.info.code;
+					LOGGER.info(JSON.stringify(logData));
 					break;
 			}
 		}
 		
 		private function onSecurityError(event:NetStatusEvent):void{
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["webcam", "connection"];
+			logData.app = "video";
+			logData.url = videoConnUrl;
+			logData.logCode = "connection_security_error";
+			LOGGER.info(JSON.stringify(logData));
 		}
 		
 		public function get connection():NetConnection{
@@ -266,7 +294,6 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function stopBroadcasting(stream:String):void{
-			LOGGER.debug("Closing netstream for webcam publishing");
       			if (camerasPublishing[stream] != null) {
 	      			var ns:NetStream = camerasPublishing[stream];
 				ns.attachCamera(null);
@@ -287,7 +314,6 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function disconnect():void {
-      		LOGGER.debug("VideoProxy:: disconnecting from Video application");
       		stopAllBroadcasting();
 			if (nc != null) nc.close();
 		}

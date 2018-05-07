@@ -77,7 +77,7 @@ package org.bigbluebutton.modules.screenshare.services
                     function(status:String):void { // status - On error occurred
                         var logData:Object = UsersUtil.initLogData();
                         logData.tags = ["apps"];
-                        logData.message = "Error occurred getting screenshare status.";
+                        logData.logCode = "error_sending_get_screenshare_status";
                         LOGGER.info(JSON.stringify(logData));
                     },
                     JSON.stringify(message)

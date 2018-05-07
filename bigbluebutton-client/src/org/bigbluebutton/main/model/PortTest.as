@@ -133,15 +133,12 @@ package org.bigbluebutton.main.model
 		public function connect():void {
 			nc = new NetConnection();
 			nc.client = this;
-
-			LOGGER.debug("Connecting PORT TEST hostname= " + this.hostname);
 			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
 			var result:Array = pattern.exec(this.hostname);
 			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 			
 			// Construct URI.
 			if (tunnel) {
-				LOGGER.debug("Connecting PORT TEST tunnel= " + tunnel);
 				var tunnelProtocol: String = ConnUtil.RTMPT;
 				if (useRTMPS) {
 					tunnelProtocol = ConnUtil.RTMPS;
@@ -150,7 +147,6 @@ package org.bigbluebutton.main.model
 				this.baseURI = tunnelProtocol + "://" + result.server + "/" + this.application;
 				
 			} else {
-				LOGGER.debug("Connecting PORT TEST tunnel= " + tunnel);
 				var nativeProtocol: String = ConnUtil.RTMP;
 				if (useRTMPS) {
 					nativeProtocol = ConnUtil.RTMPS;
@@ -165,9 +161,9 @@ package org.bigbluebutton.main.model
 			// connect to server
 			try {
                 var logData:Object = UsersUtil.initLogData();
-                logData.connection = this.baseURI;
+                logData.uri = this.baseURI;
                 logData.tags = ["initialization", "port-test", "connection"];
-                logData.message = "Port testing connection.";
+                logData.logCode = "port_test_connect";
                 LOGGER.info(JSON.stringify(logData));
         
         connectionTimer = new Timer(testTimeout, 1);
@@ -176,7 +172,6 @@ package org.bigbluebutton.main.model
         
         var curTime:Number = new Date().getTime();
 				
-				LOGGER.debug("Connecting PORT TEST = " + this.baseURI);
 				// Create connection with the server.
 				nc.connect( this.baseURI, "portTestMeetingId-" + curTime, 
 					"portTestDummyUserId-" + curTime, "portTestDummyAuthToken", "portTest-" + curTime);
@@ -193,9 +188,9 @@ package org.bigbluebutton.main.model
 		*/
 		public function connectionTimeout (e:TimerEvent) : void {
             var logData:Object = UsersUtil.initLogData();
-            logData.connection = this.baseURI;
+            logData.uri = this.baseURI;
             logData.tags = ["initialization", "port-test", "connection"];
-            logData.message = "Port testing connection timedout.";
+            logData.logCode = "port_test_connect_timedout";
             LOGGER.info(JSON.stringify(logData));
 						LOGGER.debug("Connect FAILED PORT TEST = " + this.baseURI);
 			status = "FAILED";
@@ -225,9 +220,9 @@ package org.bigbluebutton.main.model
     
     private function closeConnectionTimerHandler (e:TimerEvent) : void {
         var logData:Object = UsersUtil.initLogData();
-        logData.connection = this.baseURI;
+        logData.uri = this.baseURI;
         logData.tags = ["initialization", "port-test", "connection"];
-        logData.message = "Closing port testing connection.";
+        logData.logCode = "closing_port_test_connection";
         LOGGER.info(JSON.stringify(logData));
 
         close();
@@ -246,7 +241,6 @@ package org.bigbluebutton.main.model
             connectionTimer = null;
         }
             
-      
         var info : Object = event.info;
         var statusCode : String = info.code;
             
@@ -254,21 +248,21 @@ package org.bigbluebutton.main.model
         logData.connection = this.baseURI;
         logData.tags = ["initialization", "port-test", "connection"];
 
-				LOGGER.debug("Connect SUCCESS PORT TEST connected= " + nc.connected);
-				
         if ( statusCode == "NetConnection.Connect.Success" ) {
             status = "SUCCESS";
-            logData.message = "Port test successfully connected.";
+						logData.uri = this.baseURI;
+            logData.logCode = "port_test_connected";
             LOGGER.info(JSON.stringify(logData));
-						LOGGER.debug("Connect SUCCESS PORT TEST = " + this.baseURI);
+
             _connectionListener(status, tunnel, hostname, port, application);
         } else if ( statusCode == "NetConnection.Connect.Rejected" ||
                     statusCode == "NetConnection.Connect.Failed" || 
                     statusCode == "NetConnection.Connect.Closed" ) {
             logData.statusCode = statusCode;            
-            logData.message = "Port test failed to connect.";
+						logData.uri = this.baseURI;
+						logData.logCode = "port_test_connect_failed";
             LOGGER.info(JSON.stringify(logData));
-						LOGGER.debug("Connect FAILED (2) PORT TEST = " + this.baseURI);
+
             status = "FAILED";
             _connectionListener(status, tunnel, hostname, port, application);
             

@@ -77,7 +77,6 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
     public function setup(uid:String, externUserId:String, username:String, meetingId:String, uri:String):void {	
-	  LOGGER.debug("Setup uid=[{0}] extuid=[{1}] name=[{2}] uri=[{3}]", [uid, externUserId, username, uri]);
       this.uid = uid;	
       this.username  = username;
       this.meetingId = meetingId;
@@ -104,7 +103,6 @@ package org.bigbluebutton.modules.phone.managers {
 					}
 						
 					uri = tunnelProtocol + "://" + result.server + "/" + result.app;
-					LOGGER.debug("BBB SIP CONNECT tunnel = TRUE " + "url=" +  uri);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -113,11 +111,8 @@ package org.bigbluebutton.modules.phone.managers {
 					}
 					
 					uri = nativeProtocol + "://" + result.server + "/" + result.app;
-					LOGGER.debug("BBB SIP CONNECT tunnel = FALSE " + "url=" +  uri);
 				}
-				
-				LOGGER.debug("VOICE CONF == Connecting to uri=[{0}]", [uri]);
-				
+								
 				netConnection.objectEncoding = ObjectEncoding.AMF3;
 
 				netConnection.client = this;
@@ -126,6 +121,13 @@ package org.bigbluebutton.modules.phone.managers {
 				
 				var connId:String = ConnUtil.generateConnId();
 				BBB.initConnectionManager().voiceConnId = connId;
+				
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["voice"];
+				logData.app = "voice";
+				logData.logCode = "connection_connecting";
+				logData.url = uri;
+				LOGGER.info(JSON.stringify(logData));
 				
 				var authToken: String = LiveMeeting.inst().me.authToken;
 				netConnection.connect(uri, meetingId, externUserId, username, authToken, 
@@ -181,45 +183,55 @@ package org.bigbluebutton.modules.phone.managers {
       var statusCode : String = info.code;
       
       var logData:Object = UsersUtil.initLogData();
-      
+			logData.tags = ["voice", "flash"];
+			logData.app = "voice";
+			logData.uri = uri;
+			
       switch (statusCode) {
         case "NetConnection.Connect.Success":
           numNetworkChangeCount = 0;
-          logData.tags = ["voice", "flash"];
-          logData.message = "Connection success.";
+					logData.logCode = "connect_attempt_connected";
           LOGGER.info(JSON.stringify(logData));
           handleConnectionSuccess();
           break;
         case "NetConnection.Connect.Failed":
-          logData.tags = ["voice", "flash"];
-		  logData.message = "NetConnection.Connect.Failed from bbb-voice";
-		  LOGGER.info(JSON.stringify(logData));
+					logData.logCode = "connect_attempt_failed";
+		  		LOGGER.info(JSON.stringify(logData));
           handleConnectionFailed();
           break;
         case "NetConnection.Connect.NetworkChange":
           numNetworkChangeCount++;
-          if (numNetworkChangeCount % 2 == 0) {
-              logData.tags = ["voice", "flash"];
-             logData.message = "Detected network change on bbb-voice";
-             logData.numNetworkChangeCount = numNetworkChangeCount;
-             LOGGER.info(JSON.stringify(logData));
-          }
+					logData.logCode = "connection_network_change";
+					logData.numNetworkChangeCount = numNetworkChangeCount;
+          LOGGER.info(JSON.stringify(logData));
           break;
         case "NetConnection.Connect.Closed":
-          logData.tags = ["voice", "flash"];
-		  logData.message = "Disconnected from BBB Voice";
-		  LOGGER.info(JSON.stringify(logData));
+					logData.logCode = "connection_closed";
+		  		LOGGER.info(JSON.stringify(logData));
           handleConnectionClosed();
           break;
+				default:
+					logData.logCode = "connection_failed_unknown_reason";
+					logData.statusCode = event.info.code;
+					LOGGER.info(JSON.stringify(logData));
+					break;
       }
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-			LOGGER.error("AsyncErrorEvent: {0}", [event]);
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["voice", "connection"];
+			logData.app = "voice";
+			logData.logCode = "connection_async_error";
+			LOGGER.info(JSON.stringify(logData));
     }
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
-			LOGGER.error("securityErrorHandler: {0}", [event]);
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["voice", "connection"];
+			logData.app = "voice";
+			logData.logCode = "connection_security_error";
+			LOGGER.info(JSON.stringify(logData));
     }
         
     //********************************************************************************************

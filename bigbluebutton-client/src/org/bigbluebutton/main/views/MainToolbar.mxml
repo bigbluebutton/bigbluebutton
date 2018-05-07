@@ -239,7 +239,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["initialization"];
 				logData.browser = browser;
-				logData.message = "Browser info.";
+				logData.logCode = "browser_info";
 				LOGGER.info(JSON.stringify(logData));
 			}
 			
@@ -297,7 +297,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          var logData:Object = UsersUtil.initLogData();
          logData.tags = ["initialization"];
          logData.capabilities = getFlashPlayerCapabilities();
-         logData.message = "Flash Player Capabilities.";
+         logData.logCode = "flash_player_capabilities";
          LOGGER.info(JSON.stringify(logData));
      }
 

@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 		<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
 		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
+		<mate:Listener type="{ScreenshareSelectionWindowEvent.SHOW_WINDOW}" method="handleShowScreenshareSelection" />
 	  
 		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
@@ -98,6 +99,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.net.navigateToURL;
 			import flash.utils.setTimeout;
 			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -105,8 +108,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
-			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -153,6 +154,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.modules.screenshare.events.ScreenshareSelectionWindowEvent;
+			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareSelectionWindow;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -315,7 +318,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setGuestPolicy(event:BBBEvent):void {
 				guestPolicy = event.payload.guestPolicy;
 				if(guestManagement == null) {
-					LOGGER.debug("ADD Guest Event");
 					guestManagement = new GuestManagement();
 					guestManagement.setGuestPolicy(guestPolicy);
 					guestManagement.addToSettings();
@@ -359,20 +361,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     logData.localeVersion = localeVersion;
                     logData.tags = ["locale"];
                     logData.appVersion = appVersion;
-                    logData.message = "Received locale version from config.xml";
+                    logData.logCode = "config_xml_locale_version";
                     LOGGER.info(JSON.stringify(logData));
-      
-					LOGGER.debug("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
 
                     logData.tags = ["locale"];
-                    logData.message = "Received locale version from locale file";
+                    logData.logCode = "locale_file_locale_version";
                     LOGGER.info(JSON.stringify(logData));
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LOGGER.debug("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
             
@@ -383,7 +382,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function sendStartAllModulesEvent():void{
-				LOGGER.debug("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -430,7 +428,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function closeWaitWindow(e:BBBEvent):void {
 				if(waitWindow != null && e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-					LOGGER.debug("closeWaitWindow");
 					waitWindow.removeWindow();
 				}
 			}
@@ -473,7 +470,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen");
 				if (ExternalInterface.available) {
 					ExternalInterface.call("toggleFullscreen");
 				}
@@ -560,7 +556,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 logData.localeVersion = version;
                 logData.locale = ResourceUtil.getInstance().getCurrentLanguageCode();
                 logData.tags = ["locale"];
-                logData.message = "Loaded locale.";
+                logData.logCode = "locale_loaded";
                 LOGGER.info(JSON.stringify(logData));
                     
 				if ((version == "old-locales") || StringUtils.isEmpty(version)) {
@@ -648,6 +644,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
             }
 			
+			private function handleShowScreenshareSelection(event:ScreenshareSelectionWindowEvent):void {
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, ScreenshareSelectionWindow, true);
+			}
+			
 			private function showbrowserPermissionHelper() : void {
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
 				if (browserPermissionHelper) {
@@ -718,18 +718,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function redirectToLogoutUrl ():void {
         		var logoutURL:String = BBB.getLogoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Logging out to: {0}", [logoutURL]);
+
 				navigateToURL(request, '_self');
 			}
 			
 
 			private function handleLogoutError(e:Event):void {
-				LOGGER.debug("Call to signOut URL failed.");
+
 				redirectToLogoutUrl();
 			}
 			
 			private function handleLogoutComplete(e:Event):void {	
-				LOGGER.debug("Call to signOut URL succeeded.");
+
 				redirectToLogoutUrl();
 			}
 			

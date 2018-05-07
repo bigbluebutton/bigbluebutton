@@ -86,9 +86,9 @@ package org.bigbluebutton.core.managers
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
       if (!_canceled) {
 		var logData:Object = UsersUtil.initLogData();
-		logData.user.connection = type;
+		logData.connection = type;
         logData.tags = ["connection"];
-		logData.message = "Connection disconnected";
+		logData.logCode = "conn_mgr_conn_disconnected";
 		LOGGER.info(JSON.stringify(logData));
 		
         var obj:Object = new Object();
@@ -107,9 +107,9 @@ package org.bigbluebutton.core.managers
 
     public function onConnectionAttemptFailed(type:String):void {
 	  var logData:Object = UsersUtil.initLogData();
-	  logData.user.connection = type; 
+	  logData.connection = type; 
       logData.tags = ["connection"];
-	  logData.message = "Reconnect attempt on connection failed.";
+	  logData.logCode = "conn_mgr_reconnect_failed";
 	  LOGGER.info(JSON.stringify(logData));
 	  
       if (_connections.hasOwnProperty(type)) {
@@ -142,9 +142,9 @@ package org.bigbluebutton.core.managers
 
     public function onConnectionAttemptSucceeded(type:String):void {
 	  var logData:Object = UsersUtil.initLogData();
-	  logData.user.connection = type;
+	  logData.connection = type;
       logData.tags = ["connection"];
-	  logData.message = "Reconnect succeeded.";
+	  logData.logCode = "conn_mgr_reconnect_succeeded";
 	  LOGGER.info(JSON.stringify(logData));
 	  
       dispatchReconnectionSucceededEvent(type);

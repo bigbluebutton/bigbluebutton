@@ -35,6 +35,7 @@ const intlMessages = defineMessages({
 });
 
 const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
+const PING_INTERVAL = 15000;
 
 class VideoProvider extends Component {
   constructor(props) {
@@ -171,6 +172,8 @@ class VideoProvider extends Component {
       this.sendMessage(this.wsQueue.pop());
     }
 
+    this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL);
+
     this.setState({ socketOpen: true });
   }
 
@@ -178,8 +181,16 @@ class VideoProvider extends Component {
     log('debug', '------ Websocket connection closed.');
 
     this.stopWebRTCPeer(this.props.userId);
+    clearInterval(this.pingInterval);
 
     this.setState({ socketOpen: false });
+  }
+
+  ping() {
+    const message = {
+      id: 'ping'
+    };
+    this.sendMessage(message);
   }
 
   disconnected(id) {
@@ -210,6 +221,10 @@ class VideoProvider extends Component {
 
       case 'iceCandidate':
         this.handleIceCandidate(parsedMessage);
+        break;
+
+      case 'pong':
+        console.debug("Received pong from server");
         break;
 
       case 'error':

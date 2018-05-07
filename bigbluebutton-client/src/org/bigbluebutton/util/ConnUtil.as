@@ -16,7 +16,8 @@ package org.bigbluebutton.util
 			}
 			
 			private static function generateRandomString(strlen:Number):String{
-				var chars:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+				//var chars:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+				var chars:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 				var num_chars:Number = chars.length - 1;
 				var randomChar:String = "";
 				
@@ -27,7 +28,7 @@ package org.bigbluebutton.util
 			}
 			
 			public static function generateConnId():String {
-				return generateRandomString(15);
+				return generateRandomString(16);
 			}
 			
 	}

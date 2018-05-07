@@ -31,10 +31,7 @@ package org.bigbluebutton.modules.screenshare.model {
 		public var baseTabIndex:int = 201;
 
 		[Bindable]
-		public var tryWebRTCFirst:Boolean = false;
-
-		[Bindable]
-		public var tryKurentoWebRTC:Boolean = false;
+		public var offerWebRTC:Boolean = false;
 
 		[Bindable]
 		public var enablePause:Boolean = true;
