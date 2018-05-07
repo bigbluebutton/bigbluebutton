@@ -19,7 +19,7 @@ common-message-version: "2.x"
 webcam-force-h264: true
 screenshare-force-h264: true
 
-recordScreenSharing: false
+recordScreenSharing: true
 recordWebcams: false
 recordingBasePath: "file:///var/kurento"
 

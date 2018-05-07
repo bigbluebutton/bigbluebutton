@@ -143,7 +143,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = UsersUtil.initLogData();       
         logData.reason = "User requested.";
         logData.tags = ["voice", "webrtc"];
-        logData.message = "WebRtc Echo test passed.";
+        logData.logCode = "webrtc_echo_test_passed";
         LOGGER.info(JSON.stringify(logData));
         
 				setCurrentState("connecting");
@@ -159,7 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 var logData:Object = UsersUtil.initLogData();       
                 logData.reason = "User requested.";
                 logData.tags = ["voice", "webrtc"];
-                logData.message = "WebRtc Echo test failed.";                
+                logData.logCode = "webrtc_echo_test_failed";                
                 LOGGER.info(JSON.stringify(logData));
                 
 				var dispatcher:Dispatcher = new Dispatcher();
@@ -235,7 +235,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = UsersUtil.initLogData();       
         logData.reason = "User requested.";
         logData.tags = ["voice", "webrtc"];
-        logData.message = "WebRtc call started.";
+        logData.logCode = "webrtc_call_started";
                 
         LOGGER.info(JSON.stringify(logData));
         

@@ -136,7 +136,8 @@ package org.bigbluebutton.main.model.modules
 			var logData:Object = UsersUtil.initLogData();
 			logData.module = getName();
 			logData.tags = ["loading"];
-			logData.message = "Error loading module ".concat(e.errorText);
+			logData.error = e.errorText;
+			logData.logCode = "error_loading_module";
 			LOGGER.error(JSON.stringify(logData));
 		}
 		

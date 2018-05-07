@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="org.bigbluebutton.common.*"
+	xmlns:ss="org.bigbluebutton.modules.screenshare.view.components.*"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -80,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopPublishWindow);
 
 			public static const SCALE:Number = 5;
-			private static const VID_HEIGHT_PAD:Number = 73;
+			private static const VID_HEIGHT_PAD:Number = 85;
 			private static const VID_WIDTH_PAD:Number = 6;
 
 			private var connection:NetConnection;
@@ -420,6 +421,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.play(stream);
 
 				btnClosePublish.enabled = true;
+				
+				connectingDots.startAnimation();
+				videoHolder.includeInLayout = videoHolder.visible = false;
 			}
 
 			private function stopStream():void{
@@ -447,6 +451,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				case "NetStream.Play.Start":
 					LOGGER.debug("Netstatus: {0}", [e.info.code]);
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
+				}
+			}
+			
+			public function onMetaData(info:Object):void {
+				LOGGER.debug("onMetaData: " + ObjectUtil.toString(info));
+				if (info.hasOwnProperty("encoder")) {
+					// The encoder is sent to the client when the stream has actually started sending data. We can use 
+					// it to know when the video is actually playing
+					connectingDots.endAnimation();
+					videoHolder.includeInLayout = videoHolder.visible = true;
 				}
 			}
 
@@ -515,7 +529,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</dspub:states>
 
 	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
-		<mx:HBox width="100%" height="90%" id="mainElement"/>
+		<mx:HBox width="100%" height="90%" id="mainElement" verticalAlign="middle" horizontalAlign="center">
+			<ss:AnimatedDots id="connectingDots" styleName="animatedDotsStyle" />
+		</mx:HBox>
 		<mx:HBox includeIn="dispFullRegionControlBar" width="100%" horizontalAlign="center">
 			<mx:Button id="btnClosePublish"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.toolTip')}"

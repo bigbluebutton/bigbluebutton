@@ -90,7 +90,7 @@ package org.bigbluebutton.modules.broadcast.models
 			var logData:Object = UsersUtil.initLogData();
 			logData.tags = ["video"];
 			logData.streamStatus = evt.info.code;
-			logData.message = "NetStreamStatus";
+			logData.logCode = "netstream_status";
 			var stringLog:String = JSON.stringify(logData);
 
 			switch(evt.info.code) {
@@ -118,7 +118,6 @@ package org.bigbluebutton.modules.broadcast.models
 		}
 		
 		private function connect():void {
-			LOGGER.debug("Connecting {0}", [uri]);
 			nc = new NetConnection();
 			nc.objectEncoding = ObjectEncoding.AMF3;
 			nc.proxyType = "best";
@@ -130,35 +129,39 @@ package org.bigbluebutton.modules.broadcast.models
 
 		private function netStatus(evt:NetStatusEvent ):void {
 			var logData:Object = UsersUtil.initLogData();
-			logData.tags = ["video"];
+			logData.tags = ["broadcast"];
 			logData.streamStatus = evt.info.code;
-
+			logData.streamId = streamName;
+			
 			switch(evt.info.code) {
 				case "NetConnection.Connect.Success":
-					logData.message = "Successfully connected to broadcast application.";
+					logData.logCode = "conn_connected";
 					LOGGER.debug(JSON.stringify(logData));
 					displayVideo();
 					break;
 				case "NetConnection.Connect.Failed":
-					logData.message = "Failed to connect to broadcast application.";
+					logData.logCode = "conn_failed";
 					LOGGER.error(JSON.stringify(logData));
 					break;
 				case "NetConnection.Connect.Closed":
-					logData.message = "Connection to broadcast application has closed.";
-					LOGGER.debug(JSON.stringify(logData));
+					logData.logCode = "conn_closed";
+					LOGGER.error(JSON.stringify(logData));
 					break;
 				case "NetConnection.Connect.Rejected":
-					logData.message = "Connection to broadcast application was rejected.";
+					logData.logCode = "conn_rejected";
 					LOGGER.warn(JSON.stringify(logData));
 					break;
 				default:
-					logData.message = "Connection to broadcast application failed";
+					logData.logCode = "conn_failed_unknown_reason";
 					LOGGER.error(JSON.stringify(logData));
 			}
 		}
 
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
-			LOGGER.debug("securityErrorHandler: {0}", [event]);
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["video"];
+			logData.logCode = "conn_security_error";
+			var stringLog:String = JSON.stringify(logData);
 		}
 		
 		public function onBWCheck(... rest):Number { 

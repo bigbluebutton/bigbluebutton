@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.main.events.BBBEvent;
+    import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -74,7 +75,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 					}
 					
 					ssAppUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
-					LOGGER.debug("SCREENSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
+
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -83,7 +84,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 					}
 				
 					ssAppUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
-					LOGGER.debug("SCREENSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
+
 				}
 				
 				var connId:String = ConnUtil.generateConnId();
@@ -92,7 +93,14 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 				netConnection.client = this;
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatusHandler);
 				netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-				LOGGER.debug("Connecting to uri=[{0}]", [ssAppUrl]);
+
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["screenshare"];
+				logData.app = "screenshare";
+				logData.logCode = "connection_connecting";
+				logData.url = ssAppUrl;
+				LOGGER.info(JSON.stringify(logData));
+				
 				netConnection.connect(ssAppUrl);
 			}
         
@@ -266,19 +274,26 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
         
         private function netStatusHandler(event:NetStatusEvent):void {
 						var logData:Object = UsersUtil.initLogData();
-						logData.tags = ["screenshare"];
-						logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + "]";
-            
+						logData.tags = ["screenshare", "flash"];
+						logData.app = "screenshare";
+						logData.reconnecting = reconnecting;
+						logData.uri = ssAppUrl;
+						
             var ce:ConnectionEvent;
             switch (event.info.code) {
             case "NetConnection.Connect.Failed":
-								logData.message = "NetStream.Play.Failed from bbb-screenshare";
-								LOGGER.info(JSON.stringify(logData));
+							logData.logCode = "connect_attempt_failed";
+							LOGGER.info(JSON.stringify(logData));
+							
                 if (reconnecting) {
+									logData.logCode = "connection_reconnect_attempt_failed";
+									LOGGER.info(JSON.stringify(logData));
+									
                     var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
                     attemptFailedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
                     dispatcher.dispatchEvent(attemptFailedEvent);
                 }
+								
                 ce = new ConnectionEvent(ConnectionEvent.FAILED);
                 dispatcher.dispatchEvent(ce);
                 break;
@@ -291,6 +306,10 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                         stopShareRequest(UsersUtil.getInternalMeetingID(), ScreenshareModel.getInstance().streamId)
                     }
                     
+										logData.reconnecting = reconnecting;
+										logData.logCode = "connection_reconnect_attempt_succeeded";
+										LOGGER.info(JSON.stringify(logData));
+										
                     var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
                     attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
                     dispatcher.dispatchEvent(attemptSucceeded);
@@ -303,13 +322,17 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                 break;
             
             case "NetConnection.Connect.Rejected":
+							logData.logCode = "connect_attempt_rejected";
+							LOGGER.info(JSON.stringify(logData));
+							
                 ce = new ConnectionEvent(ConnectionEvent.REJECTED);
                 dispatcher.dispatchEvent(ce);
                 break;
             
             case "NetConnection.Connect.Closed":
-								logData.message = "NetConnection.Connect.Closed from bbb-screenshare";
-								LOGGER.info(JSON.stringify(logData));
+							logData.logCode = "connection_closed";
+							LOGGER.info(JSON.stringify(logData));
+							
                 if (!logoutOnUserCommand) {
                     reconnecting = true;
                     
@@ -323,24 +346,33 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                 break;
             
             case "NetConnection.Connect.InvalidApp":
+							logData.logCode = "connect_attempt_invalid_app";
+							LOGGER.info(JSON.stringify(logData));
+							
                 ce = new ConnectionEvent(ConnectionEvent.INVALIDAPP);
                 dispatcher.dispatchEvent(ce);
                 break;
             
             case "NetConnection.Connect.AppShutdown":
+							logData.logCode = "connection_app_shutdown";
+							LOGGER.info(JSON.stringify(logData));
                 ce = new ConnectionEvent(ConnectionEvent.APPSHUTDOWN);
                 dispatcher.dispatchEvent(ce);
                 break;
             
             case "NetConnection.Connect.NetworkChange":
 								numNetworkChangeCount++;
-								if (numNetworkChangeCount % 2 == 0) {
-									logData.tags = ["screenshare", "flash"];
-									logData.message = "Detected network change on bbb-screenshare";
-									logData.numNetworkChangeCount = numNetworkChangeCount;
+								logData.logCode = "connection_network_change";
+								logData.numNetworkChangeCount = numNetworkChangeCount;
 									LOGGER.info(JSON.stringify(logData));
-								}
+
 								break;
+						default :
+							logData.logCode = "connection_failed_unknown_reason";
+							logData.statusCode = event.info.code;
+							LOGGER.info(JSON.stringify(logData));
+
+							break;   
             }
         }
         
