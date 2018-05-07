@@ -56,8 +56,6 @@ class VideoProvider extends Component {
     this.cameraTimeouts = {};
     this.webRtcPeers = {};
 
-    window.webRtcPeers = this.webRtcPeers;
-
     this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
     this.onWsClose = this.onWsClose.bind(this);

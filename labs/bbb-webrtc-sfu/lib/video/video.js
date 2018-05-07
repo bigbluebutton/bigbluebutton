@@ -237,8 +237,7 @@ module.exports = class Video extends EventEmitter {
     }
 
     // We want to pause the stream
-    if (state &&
-        (this.status !== C.MEDIA_STARTING || this.status !== C.MEDIA_PAUSED)) {
+    if (state && (this.status !== C.MEDIA_STARTING || this.status !== C.MEDIA_PAUSED)) {
       await this.mcs.disconnect(sourceId, sinkId, 'VIDEO');
       this.status = C.MEDIA_PAUSED;
     }
