@@ -26,31 +26,37 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   joinAudio({ isListenOnly }, callback) {
     return new Promise((resolve, reject) => {
       this.callback = callback;
+      const onSuccess = ack => resolve(this.callback({ status: baseCallStates.started }));
+
+      const onFail = error => resolve(this.callback({
+        status: this.baseCallStates.failed,
+        error: this.baseErrorCodes.CONNECTION_ERROR,
+        bridgeError: state,
+      }));
+
       if (!isListenOnly) {
-        return resolve();
+        return reject();
       }
 
       window.kurentoJoinAudio(
-        "remote-media",
+        'remote-media',
         this.voiceBridge,
-        "GLOBAL_AUDIO_" + this.voiceBridge,
+        `GLOBAL_AUDIO_${this.voiceBridge}`,
         this.internalMeetingID,
-        null,
+        onFail,
         null,
         null,
         this.userId,
         this.userName,
-        null,
+        onSuccess,
       );
-
-      resolve (this.callback({ status: this.baseCallStates.started }));
     });
   }
 
   exitAudio() {
     return new Promise((resolve, reject) => {
       window.kurentoExitAudio();
-      return resolve (this.callback({status: this.baseCallStates.ended}));
+      return resolve(this.callback({ status: this.baseCallStates.ended }));
     });
   }
 }

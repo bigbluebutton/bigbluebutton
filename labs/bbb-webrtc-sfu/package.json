@@ -16,7 +16,8 @@
     "config": "^1.26.1",
     "js-yaml": "^3.8.3",
     "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^1.7.2"
+    "winston-daily-rotate-file": "^1.7.2",
+    "sip.js": "0.7.5"
   },
   "optionalDependencies": {}
 }
