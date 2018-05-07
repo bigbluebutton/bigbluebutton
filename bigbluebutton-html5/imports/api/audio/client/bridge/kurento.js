@@ -1,7 +1,7 @@
 import BaseAudioBridge from './base';
 
 const MEDIA = Meteor.settings.public.media;
-const MEDIA_TAG = MEDIA.mediaTag;
+const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 
 export default class KurentoAudioBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -13,8 +13,11 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       internalMeetingID,
     } = userData;
 
-    this.userId = userId;
-    this.userName = username;
+    this.user = {
+      userId,
+      name: username,
+    };
+
     this.internalMeetingID = voiceBridge;
     this.voiceBridge = voiceBridge;
   }
@@ -26,28 +29,28 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   joinAudio({ isListenOnly }, callback) {
     return new Promise((resolve, reject) => {
       this.callback = callback;
-      const onSuccess = ack => resolve(this.callback({ status: baseCallStates.started }));
+      const onSuccess = ack => resolve(this.callback({ status: this.baseCallStates.started }));
 
       const onFail = error => resolve(this.callback({
         status: this.baseCallStates.failed,
         error: this.baseErrorCodes.CONNECTION_ERROR,
-        bridgeError: state,
+        bridgeError: error,
       }));
 
       if (!isListenOnly) {
-        return reject();
+        return reject("Invalid bridge option");
       }
 
       window.kurentoJoinAudio(
-        'remote-media',
+        MEDIA_TAG,
         this.voiceBridge,
         `GLOBAL_AUDIO_${this.voiceBridge}`,
         this.internalMeetingID,
         onFail,
         null,
         null,
-        this.userId,
-        this.userName,
+        this.user.userId,
+        this.user.name,
         onSuccess,
       );
     });

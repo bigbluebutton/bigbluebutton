@@ -32,6 +32,9 @@ Kurento = function (
   this.voiceBridge = `${voiceBridge}-SCREENSHARE`;
   this.internalMeetingId = internalMeetingId;
 
+  this.userId = userId;
+  this.userName = userName;
+
   // Limiting max resolution to 1080p
   // In FireFox we force full screen share and in the case
   // of multiple screens the total area shared becomes too large
@@ -232,7 +235,7 @@ Kurento.prototype.startResponse = function (message) {
         break;
     }
   } else {
-    console.debug(`Procedure for`, mesage.type, `was accepted with SDP => ${message.sdpAnswer}`);
+    console.debug(`Procedure for`, message.type, `was accepted with SDP => ${message.sdpAnswer}`);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
 };
@@ -428,7 +431,7 @@ Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
     return this.onFail(SDP_ERROR);
   }
 
-  var message = {
+  let message = {
     id : 'start',
     type: 'audio',
     role: 'viewer',
