@@ -271,7 +271,7 @@ class UserListContent extends Component {
         aria-live="assertive"
         aria-relevant="additions"
       >
-        <DropdownTrigger open={dropdownVisible}>
+        <DropdownTrigger>
           {contents}
         </DropdownTrigger>
         <DropdownContent
