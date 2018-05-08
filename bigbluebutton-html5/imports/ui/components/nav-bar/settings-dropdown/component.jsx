@@ -15,6 +15,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 
 import { styles } from '../styles';
 
@@ -63,7 +64,18 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
+  hotkeysLabel: {
+    id: 'app.navBar.settingsDropdown.hotkeysLabel',
+    description: 'Hotkeys options label',
+  },
+  hotkeysDesc: {
+    id: 'app.navBar.settingsDropdown.hotkeysDesc',
+    description: 'Describes hotkeys option',
+  },
 });
+
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const OPEN_OPTIONS_AK = SHORTCUTS_CONFIG.openOptions.accesskey;
 
 class SettingsDropdown extends Component {
   constructor(props) {
@@ -113,6 +125,13 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.aboutDesc)}
         onClick={() => mountModal(<AboutContainer />)}
       />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="about"
+        label={intl.formatMessage(intlMessages.hotkeysLabel)}
+        description={intl.formatMessage(intlMessages.hotkeysDesc)}
+        onClick={() => mountModal(<ShortcutHelpComponent />)}
+      />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -154,7 +173,7 @@ class SettingsDropdown extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0} accessKey="o">
+        <DropdownTrigger tabIndex={0} accessKey={OPEN_OPTIONS_AK}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"

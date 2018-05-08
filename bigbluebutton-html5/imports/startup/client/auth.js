@@ -2,7 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
-import deviceType from '/imports/utils/deviceType';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -39,7 +39,7 @@ export function joinRouteHandler(nextState, replace, callback) {
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
-      const path = deviceType().isPhone ? '/' : '/users';
+      const path = deviceInfo.type().isPhone ? '/' : '/users';
 
       replace({ pathname: path });
 

@@ -55,14 +55,17 @@ const defaultProps = {
   beingRecorded: false,
 };
 
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const TOGGLE_USERLIST_AK = SHORTCUTS_CONFIG.toggleUserList.accesskey;
+
 const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
   mountModal(<BreakoutJoinConfirmation
     breakoutURL={breakoutURL}
     breakoutName={breakoutName}
   />);
 
-const closeBreakoutJoinConfirmation = (mountModal) =>
-   mountModal(null);
+const closeBreakoutJoinConfirmation = mountModal =>
+  mountModal(null);
 
 class NavBar extends Component {
   constructor(props) {
@@ -174,8 +177,11 @@ class NavBar extends Component {
       />
     );
   }
+
   render() {
-    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
+    const {
+      hasUnreadMessages, beingRecorded, isExpanded, intl,
+    } = this.props;
 
     const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
 
@@ -198,7 +204,7 @@ class NavBar extends Component {
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
             aria-describedby="newMessage"
-            accessKey="u"
+            accessKey={TOGGLE_USERLIST_AK}
           />
           <div
             id="newMessage"

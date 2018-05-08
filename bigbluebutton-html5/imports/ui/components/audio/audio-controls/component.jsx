@@ -40,6 +40,11 @@ const defaultProps = {
   glow: false,
 };
 
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const JOIN_AUDIO_AK = SHORTCUTS_CONFIG.joinAudio.accesskey;
+const LEAVE_AUDIO_AK = SHORTCUTS_CONFIG.leaveAudio.accesskey;
+const MUTE_UNMUTE_AK = SHORTCUTS_CONFIG.toggleMute.accesskey;
+
 const AudioControls = ({
   handleToggleMuteMicrophone,
   handleJoinAudio,
@@ -64,7 +69,7 @@ const AudioControls = ({
         icon={unmute ? 'mute' : 'unmute'}
         size="lg"
         circle
-        accessKey="m"
+        accessKey={MUTE_UNMUTE_AK}
       /> : null}
     <Button
       className={styles.button}
@@ -77,7 +82,7 @@ const AudioControls = ({
       icon={join ? 'audio_off' : 'audio_on'}
       size="lg"
       circle
-      accessKey={join ? 'l' : 'j'}
+      accessKey={join ? LEAVE_AUDIO_AK : JOIN_AUDIO_AK}
     />
   </span>);
 
