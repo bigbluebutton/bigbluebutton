@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
-import MeetingEnded from '/imports/ui/components/meeting-ended/component';
+import MeetingEndedContainer from '/imports/ui/components/meeting-ended/container';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
@@ -62,7 +62,7 @@ class Base extends Component {
 
     if (endedCode) {
       AudioManager.exitAudio();
-      return (<MeetingEnded code={endedCode} />);
+      return (<MeetingEndedContainer code={endedCode} />);
     }
 
     if (error || errorCode) {

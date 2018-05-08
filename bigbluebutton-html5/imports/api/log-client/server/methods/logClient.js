@@ -1,6 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 
 const logClient = (type, log, ...args) => {
+  console.log('felipe');
   if (typeof log === 'string' || log instanceof String) {
     Logger.log(type, `CLIENT LOG: ${log}\n`, ...args);
   } else {

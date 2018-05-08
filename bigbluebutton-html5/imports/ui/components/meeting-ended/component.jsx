@@ -2,7 +2,10 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import Auth from '/imports/ui/services/auth';
+import { log } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
+import Rating from './rating/component';
 import { styles } from './styles';
 
 const intlMessage = defineMessages({
@@ -22,6 +25,34 @@ const intlMessage = defineMessages({
     id: 'app.meeting.endNotification.ok.label',
     description: 'label okay for button',
   },
+  title: {
+    id: 'app.feedback.title',
+    description: 'title for feedback screen',
+  },
+  subtitle: {
+    id: 'app.feedback.subtitle',
+    description: 'subtitle for feedback screen',
+  },
+  textarea: {
+    id: 'app.feedback.textarea',
+    description: 'placeholder for textarea',
+  },
+  confirmLabel: {
+    id: 'app.leaveConfirmation.confirmLabel',
+    description: 'Confirmation button label',
+  },
+  confirmDesc: {
+    id: 'app.leaveConfirmation.confirmDesc',
+    description: 'adds context to confim option',
+  },
+  sendLabel: {
+    id: 'app.feedback.sendFeedback',
+    description: 'send feedback button label',
+  },
+  sendDesc: {
+    id: 'app.feedback.sendFeedbackDesc',
+    description: 'adds context to send feedback option',
+  },
 });
 
 const propTypes = {
@@ -35,23 +66,92 @@ const propTypes = {
 };
 
 class MeetingEnded extends React.PureComponent {
-  render() {
-    const { intl, router, code } = this.props;
+  static getComment() {
+    const textarea = document.getElementById('feedbackComment');
+    const comment = textarea.value;
+    return comment;
+  }
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      selected: 0,
+    };
+    this.setSelectedStar = this.setSelectedStar.bind(this);
+    this.sendFeedback = this.sendFeedback.bind(this);
+  }
+  setSelectedStar(starNumber) {
+    this.setState({
+      selected: starNumber,
+    });
+  }
+  sendFeedback() {
+    const {
+      selected,
+    } = this.state;
+
+    const {
+      router,
+      userName,
+    } = this.props;
+
+    if (selected <= 0) {
+      router.push('/logout');
+      return;
+    }
+
+    const message = {
+      rating: selected,
+      userId: Auth.userID,
+      meetingId: Auth.meetingID,
+      comment: MeetingEnded.getComment(),
+      userName,
+    };
+    log('error', JSON.stringify(message));
+    log('info', 'coco');
+    router.push('/logout');
+  }
+
+  render() {
+    const { intl, code, shouldShowFeedback } = this.props;
+    const noRating = this.state.selected <= 0;
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
           <div className={styles.content}>
             <h1 className={styles.title}>{intl.formatMessage(intlMessage[code])}</h1>
             <div className={styles.text}>
-              {intl.formatMessage(intlMessage.messageEnded)}
+              {shouldShowFeedback
+                ? intl.formatMessage(intlMessage.subtitle)
+                : intl.formatMessage(intlMessage.messageEnded)}
             </div>
+            {shouldShowFeedback ? (
+              <div className={styles.rating}>
+                <Rating
+                  total="5"
+                  onRate={this.setSelectedStar}
+                />
+                <textarea
+                  cols="30"
+                  rows="5"
+                  id="feedbackComment"
+                  disabled={noRating}
+                  className={styles.textarea}
+                  placeholder={intl.formatMessage(intlMessage.textarea)}
+                  aria-describedby="textareaDesc"
+                />
+              </div>
+            ) : null }
             <Button
               color="primary"
+              onClick={this.sendFeedback}
               className={styles.button}
-              label={intl.formatMessage(intlMessage.buttonOkay)}
-              size="sm"
-              onClick={() => router.push('/logout')}
+              label={noRating
+                 ? intl.formatMessage(intlMessage.buttonOkay)
+                 : intl.formatMessage(intlMessage.sendLabel)}
+              description={noRating ?
+                intl.formatMessage(intlMessage.confirmDesc)
+                : intl.formatMessage(intlMessage.sendDesc)}
             />
           </div>
         </div>

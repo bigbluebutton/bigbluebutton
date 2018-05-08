@@ -13,7 +13,7 @@ const browserHistory = useRouterHistory(createHistory)({
 });
 
 const disconnect = () => {
-  Meteor.disconnect();
+  // Meteor.disconnect();
 };
 
 const renderRoutes = () => (

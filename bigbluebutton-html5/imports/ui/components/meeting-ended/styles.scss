@@ -43,3 +43,14 @@
     font-size: $font-size-base;
   }
 }
+
+.textarea, .disable {
+  resize: none;
+  margin: 1rem auto;
+  &::placeholder {
+    text-align: center;
+  }
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
