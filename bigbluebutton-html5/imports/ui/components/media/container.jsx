@@ -52,7 +52,7 @@ export default withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
-  const hidePresentation = Boolean(SessionStorage.getItem('metadata').html5hidepresentation);
+  const hidePresentation = SessionStorage.getItem('metadata').html5hidepresentation || false;
   const data = {
     children: <DefaultContent />,
   };
@@ -82,7 +82,7 @@ export default withTracker(() => {
   }
 
   const { enableVideo } = Meteor.settings.public.kurento;
-  const autoShareWebcam = Boolean(SessionStorage.getItem('metadata').html5autosharewebcam);
+  const autoShareWebcam = SessionStorage.getItem('metadata').html5autosharewebcam || false;
 
   if (enableVideo && autoShareWebcam) {
     data.willMount = VideoService.joinVideo;
