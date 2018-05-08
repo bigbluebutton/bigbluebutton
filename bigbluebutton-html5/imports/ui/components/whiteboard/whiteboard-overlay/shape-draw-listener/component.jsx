@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from '../styles.scss';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const MESSAGE_FREQUENCY = ANNOTATION_CONFIG.message_frequency;
@@ -287,12 +286,17 @@ export default class ShapeDrawListener extends Component {
 
   render() {
     const { tool } = this.props.drawSettings;
+    const shapeDrawStyle = {
+      width: '100%',
+      height: '100%',
+      touchAction: 'none',
+      cursor: `url('${Meteor.settings.public.app.basename}/resources/images/whiteboard-cursor/${tool !== 'rectangle' ? tool : 'square'}.png') 2 22, default`,
+    };
     return (
       <div
         onTouchStart={this.handleTouchStart}
         role="presentation"
-        className={styles[tool]}
-        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        style={shapeDrawStyle}
         onMouseDown={this.handleMouseDown}
       />
     );
