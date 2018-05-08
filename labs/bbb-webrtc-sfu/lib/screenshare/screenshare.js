@@ -47,6 +47,15 @@ module.exports = class Screenshare extends EventEmitter {
     this._status = C.MEDIA_STOPPED;
     this._rtmpBroadcastStarted = false;
     this.recording = {};
+    this.isRecorded = false;
+
+    this._BigBlueButtonGW.on(C.RECORDING_STATUS_REPLY_MESSAGE_2x, (payload) => {
+      Logger.info("[Screenshare] RecordingStatusReply ", payload.recorded);
+
+      if (payload.recorded) {
+        this.isRecorded = true;
+      }
+    });
   }
 
   onIceCandidate (candidate, role, callerName) {
@@ -185,10 +194,21 @@ module.exports = class Screenshare extends EventEmitter {
     });
   }
 
+  sendGetRecordingStatusRequestMessage(userId) {
+    let req = Messaging.generateRecordingStatusRequestMessage(this._meetingId, userId);
+
+    this._BigBlueButtonGW.publish(req, C.TO_AKKA_APPS);
+  }
+
   async start (sessionId, connectionId, sdpOffer, callerName, role, callback) {
     // Force H264 on Firefox and Chrome
     if (FORCE_H264) {
       sdpOffer = h264_sdp.transform(sdpOffer);
+    }
+
+    // Start the recording process
+    if (SHOULD_RECORD && role === C.SEND_ROLE) {
+      this.sendGetRecordingStatusRequestMessage(callerName);
     }
 
     Logger.info("[screenshare] Starting session", this._voiceBridge + '-' + role);
@@ -306,7 +326,7 @@ module.exports = class Screenshare extends EventEmitter {
         this._candidatesQueue = null;
         this._presenterEndpoint = null;
         this._ffmpegEndpoint = null;
-        if (SHOULD_RECORD) {
+        if (this.isRecorded) {
           this.sendStopShareEvent();
         }
         return resolve();
@@ -378,7 +398,7 @@ module.exports = class Screenshare extends EventEmitter {
       this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
       if (this._status != C.MEDIA_STARTED) {
         Logger.info('[screenshare] webRTC started flowing for meeting', this._meetingId);
-        if (SHOULD_RECORD) {
+        if (this.isRecorded) {
           this.startRecording();
         }
         this._status = C.MEDIA_STARTED;

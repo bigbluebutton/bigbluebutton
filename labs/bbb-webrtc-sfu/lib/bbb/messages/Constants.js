@@ -36,11 +36,15 @@ const config = require('config');
         FROM_AUDIO: config.get('from-audio'),
         TO_AUDIO: config.get('to-audio'),
         TO_AKKA_APPS: config.get('to-akka'),
+        FROM_AKKA_APPS: config.get('from-akka'),
 
         // RedisWrapper events
         REDIS_MESSAGE : "redis_message",
         WEBSOCKET_MESAGE: "ws_message",
         GATEWAY_MESSAGE: "gateway_message",
+
+        RECORDING_STATUS_REQUEST_MESSAGE_2x: "GetRecordingStatusReqMsg",
+        RECORDING_STATUS_REPLY_MESSAGE_2x: "GetRecordingStatusRespMsg",
 
         // Message identifiers 1x
         START_TRANSCODER_REQUEST: "start_transcoder_request_message",
@@ -77,6 +81,9 @@ const config = require('config');
         USER_ID_2x : "userId",
         TRANSCODER_ID_2x : "transcoderId",
         MEETING_ID_2x: "meetingId",
+
+        // Akka Apps 2x
+        REQUESTED_BY: "requestedBy",
 
         //  Screenshare 2x
         CONFERENCE_NAME: "voiceConf",
