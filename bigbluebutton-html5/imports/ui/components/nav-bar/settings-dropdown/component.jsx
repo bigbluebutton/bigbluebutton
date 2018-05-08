@@ -83,8 +83,8 @@ class SettingsDropdown extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (this.props.isFullScreen !== nextProps.isFullScreen && !iOS) {
+    
+    if (this.props.isFullScreen !== nextProps.isFullScreen) {
       this.alterMenu(nextProps.isFullScreen);
     }
   }
