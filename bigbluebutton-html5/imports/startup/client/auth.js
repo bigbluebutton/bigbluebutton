@@ -30,10 +30,10 @@ export function joinRouteHandler(nextState, replace, callback) {
         replace({ pathname: '/error/404' });
         callback();
       }
-      SessionStorage.clear();
+
       setCustomLogoUrl(customLogoURL);
       const metakeys = metadata.length
-        ? metadata.reduce((acc, meta) => Object.assign(acc, meta)) : {};
+        ? metadata.reduce((acc, meta) => ({ ...acc, ...meta })) : {};
       SessionStorage.setItem(METADATA_KEY, metakeys);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
