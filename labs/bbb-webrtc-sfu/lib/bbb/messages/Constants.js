@@ -149,7 +149,8 @@ const config = require('config');
 
         MEDIA_STARTED: 'MEDIA_STARTED',
         MEDIA_STOPPED: 'MEDIA_STOPPED',
-        MEDIA_STARTING: 'MEDIA_STARTING'
+        MEDIA_STARTING: 'MEDIA_STARTING',
+        MEDIA_PAUSED: 'MEDIA_PAUSE'
     }
 }
 

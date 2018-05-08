@@ -112,7 +112,7 @@ module.exports = class Video extends EventEmitter {
       case "MediaFlowInStateChange":
         Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.streamName);
 
-        if (msEvent.state === 'NOT_FLOWING') {
+        if (msEvent.state === 'NOT_FLOWING' && this.status !== C.MEDIA_PAUSED) {
           Logger.warn("[video] Setting up a timeout for", this.streamName);
           if (!this.notFlowingTimeout) {
             this.notFlowingTimeout = setTimeout(() => {
@@ -132,7 +132,7 @@ module.exports = class Video extends EventEmitter {
             clearTimeout(this.notFlowingTimeout);
             delete this.notFlowingTimeout;
           }
-          if (this.status != C.MEDIA_STARTED) {
+          if (this.status !== C.MEDIA_STARTED) {
 
             // Record the video stream if it's the original being shared
             if (this.shouldRecord()) {
@@ -226,6 +226,27 @@ module.exports = class Video extends EventEmitter {
       }
     }
   };
+
+  async pause (state) {
+    const sourceId = sharedWebcams[this.id];
+    const sinkId = this.mediaId;
+
+    if (!sourceId || !sinkId) {
+      Logger.err("[video] Source or sink is null.");
+      return;
+    }
+
+    // We want to pause the stream
+    if (state && (this.status !== C.MEDIA_STARTING || this.status !== C.MEDIA_PAUSED)) {
+      await this.mcs.disconnect(sourceId, sinkId, 'VIDEO');
+      this.status = C.MEDIA_PAUSED;
+    }
+    else if (!state && this.status === C.MEDIA_PAUSED) { //un-pause
+      await this.mcs.connect(sourceId, sinkId, 'VIDEO');
+      this.status = C.MEDIA_STARTED;
+    }
+
+  }
 
   sendStartShareEvent() {
     let shareCamEvent = Messaging.generateWebRTCShareEvent('StartWebRTCShareEvent', this.meetingId, this.recording.filename);
