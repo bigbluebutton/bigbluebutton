@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SettingsDropdown from './component';
-import {toggleFullScreen} from './service';
+import { toggleFullScreen } from './service';
 
 export default class SettingsDropdownContainer extends Component {
   constructor(props) {
@@ -38,7 +38,10 @@ export default class SettingsDropdownContainer extends Component {
   }
 
   handleFullscreenChange() {
-    if (!this.state.isFullScreen) {
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
       this.setState({ isFullScreen: true });
     } else {
       this.setState({ isFullScreen: false });

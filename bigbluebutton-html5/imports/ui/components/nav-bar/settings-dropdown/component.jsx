@@ -70,7 +70,7 @@ class SettingsDropdown extends Component {
     super(props);
 
     this.state = {
-      isSettingOpen: false
+      isSettingOpen: false,
     };
 
     this.onActionsShow = this.onActionsShow.bind(this);
@@ -79,14 +79,11 @@ class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    this.createMenu();
+    this.createMenu(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
-    
-    if (this.props.isFullScreen !== nextProps.isFullScreen) {
-      this.alterMenu(nextProps.isFullScreen);
-    }
+    this.alterMenu(nextProps);
   }
 
   onActionsShow() {
@@ -109,15 +106,15 @@ class SettingsDropdown extends Component {
     return (iOS) ? this.menuItems.slice(1) : this.menuItems;
   }
 
-  createMenu() {
-    const { intl, mountModal } = this.props;
-
+  createMenu(props) {
+    const { intl, mountModal } = props;
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
     this.menuItems = [
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon='fullscreen'
-        label={intl.formatMessage(intlMessages.fullscreenLabel)}
-        description={intl.formatMessage(intlMessages.fullscreenDesc)}
+        icon={fullscreenIcon}
+        label={fullscreenLabel}
+        description={fullscreenDesc}
         onClick={this.props.handleToggleFullscreen}
       />),
       (<DropdownListItem
@@ -145,34 +142,40 @@ class SettingsDropdown extends Component {
     ];
   }
 
-  alterMenu(fullScreenTrue){
-    const { intl } = this.props;
-    
-    let fullscreenLabel;
-    let fullscreenDesc;
-    let fullscreenIcon;
+  checkFullscreen(nextProps) {
+    const { intl, isFullScreen } = nextProps;
 
-    if (fullScreenTrue) {
+    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullscreenIcon = 'fullscreen';
+
+    if (isFullScreen) {
       fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
       fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullscreenIcon = 'exit_fullscreen';
-    } else {
-      fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-      fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-      fullscreenIcon = 'fullscreen';
     }
+    return {
+      fullscreenLabel,
+      fullscreenDesc,
+      fullscreenIcon,
+    };
+  }
 
-    let newFullScreenButton = (<DropdownListItem
+  alterMenu(props) {
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
+
+    const newFullScreenButton = (<DropdownListItem
       key={_.uniqueId('list-item-')}
       icon={fullscreenIcon}
       label={fullscreenLabel}
       description={fullscreenDesc}
       onClick={this.props.handleToggleFullscreen}
-    />)
-    const result = this.menuItems.slice(1)
-    result.unshift(newFullScreenButton)
-    this.menuItems = result
+    />);
+    const result = this.menuItems.slice(1);
+    result.unshift(newFullScreenButton);
+    this.menuItems = result;
   }
+
   render() {
     const { intl } = this.props;
 
