@@ -1713,7 +1713,11 @@ mx|ToolTip {
 }
 
 .errorTip {
-	borderColor : #DE2721;
+	borderColor     : #DE2721;
+	fontSize        : 13;
+	backgroundAlpha : 0.9;
+	cornerRadius    : 3;
+	fontWeight      : normal;
 }
 
 /*

@@ -152,6 +152,17 @@ module.exports = class RedisWrapper extends EventEmitter {
     }
   }
 
+  getChannels () {
+    return new Promise((resolve, reject) => {
+      this.redisPub.pubsub('channels', (error, channels) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(channels);
+      });
+    });
+  }
+
   /* Private members */
 
   _onMessage (pattern, channel, _message) {

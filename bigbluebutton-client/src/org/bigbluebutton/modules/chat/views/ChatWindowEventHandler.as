@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.chat.views
   import mx.collections.ArrayCollection;
   import mx.collections.Sort;
   
+  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.core.model.users.User2x;
@@ -72,6 +73,20 @@ package org.bigbluebutton.modules.chat.views
     public function handleUserLeftEvent(userId: String):void {
       removeUser(userId, users);
     }
+	
+	public function enableModeratorsFilter():void {
+		users.filterFunction = filterModeratorsOnly;
+		users.refresh();
+	}
+	
+	public function disableModeratorsFilter():void {
+		users.filterFunction = null;
+		users.refresh();
+	}
+	
+	private function filterModeratorsOnly(item:Object):Boolean {
+		return LiveMeeting.inst().users.getUser(item.userId).role == Role.MODERATOR;
+	}
 
 	private function sortFunction(a:Object, b:Object, array:Array = null):int {
 		/*
