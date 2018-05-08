@@ -53,6 +53,7 @@ const propTypes = {
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
+  setMenuState: PropTypes.func.isRequired,
 };
 
 
@@ -109,6 +110,7 @@ class UserListContent extends Component {
       dropdownDirection: 'top',
     });
 
+    this.props.setMenuState(true);
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
 
@@ -118,6 +120,7 @@ class UserListContent extends Component {
       dropdownVisible: false,
     });
 
+    this.props.setMenuState(false);
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);
   }
@@ -268,7 +271,7 @@ class UserListContent extends Component {
         aria-live="assertive"
         aria-relevant="additions"
       >
-        <DropdownTrigger>
+        <DropdownTrigger open={dropdownVisible}>
           {contents}
         </DropdownTrigger>
         <DropdownContent

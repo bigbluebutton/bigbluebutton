@@ -88,6 +88,7 @@ class UserParticipants extends Component {
 
     this.state = {
       index: -1,
+      dropdownIsOpen: false,
     };
 
     this.userRefs = [];
@@ -97,6 +98,8 @@ class UserParticipants extends Component {
     this.focusUserItem = this.focusUserItem.bind(this);
     this.changeState = this.changeState.bind(this);
     this.getUsers = this.getUsers.bind(this);
+    this.setMenuState = this.setMenuState.bind(this);
+    this.getMenuState = this.getMenuState.bind(this);
   }
 
   componentDidMount() {
@@ -107,6 +110,8 @@ class UserParticipants extends Component {
           event,
           this.props.users.length,
           this.changeState,
+          this.getMenuState,
+          this.setMenuState,
         ),
       );
     }
@@ -120,6 +125,14 @@ class UserParticipants extends Component {
     if (this.state.index !== prevState.index) {
       this.focusUserItem(this.state.index);
     }
+  }
+
+  setMenuState(state) {
+    this.setState({ dropdownIsOpen: state });
+  }
+
+  getMenuState() {
+    return this.state.dropdownIsOpen;
   }
 
   getScrollContainerRef() {
@@ -168,12 +181,12 @@ class UserParticipants extends Component {
       },
       mute: {
         label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: (user) => toggleVoice(user.id),
+        handler: user => toggleVoice(user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: (user) => toggleVoice(user.id),
+        handler: user => toggleVoice(user.id),
         icon: 'audio_on',
       },
       promote: {
@@ -213,6 +226,7 @@ class UserParticipants extends Component {
             normalizeEmojiName={normalizeEmojiName}
             isMeetingLocked={isMeetingLocked}
             getScrollContainerRef={this.getScrollContainerRef}
+            setMenuState={this.setMenuState}
           />
         </div>
       </CSSTransition>
