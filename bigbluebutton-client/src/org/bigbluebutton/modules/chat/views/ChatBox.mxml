@@ -43,7 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
     <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
     <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-    <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+    <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="refreshRole" />
   </fx:Declarations>
   
   <fx:Script>
@@ -59,15 +59,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.as3commons.lang.StringUtils;
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Role;
 		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.core.events.LockControlEvent;
+		import org.bigbluebutton.core.events.UserStatusChangedEvent;
 		import org.bigbluebutton.core.model.LiveMeeting;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.events.UserJoinedEvent;
 		import org.bigbluebutton.main.events.UserLeftEvent;
-		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.chat.ChatUtil;
 		import org.bigbluebutton.modules.chat.events.ChatEvent;
 		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
@@ -589,11 +590,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (publicChat) {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
         } else {
-          txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat;
+          txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat || LiveMeeting.inst().users.getUser(chatWithUserID).role == Role.MODERATOR;
         }
       }
       
-      private function refreshRole(e:ChangeMyRole):void {
+      private function refreshRole(e:Event):void {
         applyLockSettings();
       }
       
