@@ -6,6 +6,7 @@ import deviceType from '/imports/utils/deviceType';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
+const METADATA_KEY = 'metadata';
 
 export function joinRouteHandler(nextState, replace, callback) {
   const { sessionToken } = nextState.location.query;
@@ -31,10 +32,9 @@ export function joinRouteHandler(nextState, replace, callback) {
       }
       SessionStorage.clear();
       setCustomLogoUrl(customLogoURL);
-      metadata.forEach((meta) => {
-        const metaKey = Object.keys(meta).pop();
-        SessionStorage.setItem(`meta_${metaKey}`, meta[metaKey]);
-      });
+      const metakeys = metadata.length
+        ? metadata.reduce((acc, meta) => Object.assign(acc, meta)) : {};
+      SessionStorage.setItem(METADATA_KEY, metakeys);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
