@@ -173,5 +173,15 @@ package org.bigbluebutton.core.model
       
       dispatcher.dispatchEvent(new BreakoutRoomsListUpdatedEvent());
     }
+	
+	public function haveFreeJoinRooms():Boolean {
+		for (var i:int = 0; i < _breakoutRooms.length; i++) {
+			var br:BreakoutRoom = BreakoutRoom(_breakoutRooms.getItemAt(i));
+			if (br.freeJoin) {
+				return true;
+			}
+		}
+		return false;
+	}
   }
 }

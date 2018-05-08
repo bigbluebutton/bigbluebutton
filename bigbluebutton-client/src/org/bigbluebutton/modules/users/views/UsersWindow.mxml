@@ -42,6 +42,7 @@ $Id: $
 	<mate:Listener type="{BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR}" method="setRoomLocked"/>
     <mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
     <mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
+	<mate:Listener type="{BreakoutRoomsReadyEvent.BREAKOUT_ROOMS_READY_EVENT}" method="handleBreakoutRoomsReady" />
     <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
     <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />    
     <mate:Listener type="{BreakoutRoomsListUpdatedEvent.BREAKOUT_ROOMS_LIST_UPDATED_EVENT}" method="handleBreakoutRoomsListUpdatedEvent" />
@@ -66,6 +67,8 @@ $Id: $
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
 		
+		import flash.net.navigateToURL;
+		
 		import mx.binding.utils.BindingUtils;
 		import mx.collections.ArrayCollection;
 		import mx.controls.Menu;
@@ -89,6 +92,7 @@ $Id: $
 		import org.bigbluebutton.core.TimerUtil;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
+		import org.bigbluebutton.core.events.BreakoutRoomsReadyEvent;
 		import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
 		import org.bigbluebutton.core.events.CoreEvent;
 		import org.bigbluebutton.core.events.LockControlEvent;
@@ -467,11 +471,23 @@ $Id: $
 	  }
       
       private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
-        // We display only one alert
-        removeJoinWindow();
-		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
-		joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
+		if (!LiveMeeting.inst().breakoutRooms.haveFreeJoinRooms()) {
+			// We display only one alert
+			removeJoinWindow();
+			joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
+			joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
+		}
+		else {
+			navigateToURL(new URLRequest(event.joinURL), "_blank");
+		}
       }
+		
+	  private function handleBreakoutRoomsReady(event:BreakoutRoomsReadyEvent):void {
+		  if (LiveMeeting.inst().breakoutRooms.haveFreeJoinRooms()) {
+			  joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
+			  joinWindow.setBeakoutRoomsData(LiveMeeting.inst().breakoutRooms.breakoutRooms);
+		  }
+	  }
       
       private function removeJoinWindow():void {
         if (joinWindow != null) {

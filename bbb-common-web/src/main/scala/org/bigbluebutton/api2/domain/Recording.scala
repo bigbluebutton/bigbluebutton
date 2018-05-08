@@ -54,8 +54,9 @@ object RecMeta {
       val breakoutElem = breakoutNode(0) // convert from Node to Elem
       val parentId = breakoutElem.attribute("parentMeetingId").getOrElse("unknown").toString
       val sequence = breakoutElem.attribute("sequence").getOrElse("0").toString
+      val freeJoin = breakoutElem.attribute("freeJoin").getOrElse("false").toString
       val meetingId = breakoutElem.attribute("meetingId").getOrElse("unknown").toString
-      Some(RecMetaBreakout(parentId, sequence.toInt, meetingId))
+      Some(RecMetaBreakout(parentId, sequence.toInt, freeJoin.toBoolean, meetingId))
     }
   }
 
@@ -395,15 +396,17 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
 
 case class RecMetaImage(width: String, height: String, alt: String, link: String)
 
-case class RecMetaBreakout(parentId: String, sequence: Int, meetingId: String) {
+case class RecMetaBreakout(parentId: String, sequence: Int, freeJoin: Boolean, meetingId: String) {
   def toXml(): Elem = {
     val buffer = new scala.xml.NodeBuffer
 
     val parentIdElem = <parentId>{parentId}</parentId>
     val sequenceElem =  <sequence>{sequence}</sequence>
+    val freeJoinElem =  <freeJoin>{freeJoin}</freeJoin>
 
     buffer += parentIdElem
     buffer += sequenceElem
+    buffer += freeJoinElem
 
     <breakout>{buffer}</breakout>
   }
