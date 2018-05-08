@@ -106,7 +106,7 @@ module.exports = class WebsocketConnectionManager {
   }
 
   _onError (ws, err) {
-    Logger.error('[WebsocketConnectionManager] Connection error [' + ws.id + ']', err);
+    Logger.debug('[WebsocketConnectionManager] Connection error [' + ws.id + ']', err);
     let message = {
       id: 'error',
       type: ws.route,
