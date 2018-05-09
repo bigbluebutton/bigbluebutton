@@ -203,7 +203,6 @@ class UserListContent extends Component {
     const userItemContentsStyle = {};
 
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
-    userItemContentsStyle[styles.active] = isActionsOpen;
 
     const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
@@ -223,7 +222,7 @@ class UserListContent extends Component {
 
     const contents = (
       <div
-        className={!actions.length ? cx(styles.userListItem, userItemContentsStyle) : null}
+        className={!actions.length ? cx(styles.userListItem) : null}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -268,7 +267,13 @@ class UserListContent extends Component {
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={cx(styles.dropdown, styles.userListItem, userItemContentsStyle)}
+        className={
+          cx(
+            styles.dropdown,
+            userItemContentsStyle,
+            this.state.isActionsOpen ? styles.usertListItemWithMenu : styles.userListItem,
+)
+        }
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"

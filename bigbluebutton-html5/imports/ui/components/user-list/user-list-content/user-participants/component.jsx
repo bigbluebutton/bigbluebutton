@@ -111,7 +111,6 @@ class UserParticipants extends Component {
           this.props.users.length,
           this.changeState,
           this.getMenuState,
-          this.setMenuState,
         ),
       );
     }
