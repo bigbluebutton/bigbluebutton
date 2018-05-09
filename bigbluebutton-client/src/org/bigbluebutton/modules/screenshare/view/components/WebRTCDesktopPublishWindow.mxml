@@ -142,7 +142,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var onSuccess:Function = function(exists:Boolean):void {
 				  ExternalInterface.addCallback("onSuccess", null);
 				  if (exists) {
-				    globalDispatcher.dispatchEvent(new RequestToStartSharing(true));
+				    // try to reset the window state when the extension is installed
+				    LOGGER.debug('Screenshare extension installed, trying to publish again');
+				    setCurrentState('dispFullRegionControlBar');
+				    init();
 				  } else {
 				    displayFail();
 				  }
