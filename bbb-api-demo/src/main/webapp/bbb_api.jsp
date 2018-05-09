@@ -169,11 +169,6 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 public String getJoinURL(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml) {
     String isHTML5Client = "false";
     String isModerator = "true";
-    //TODO - can I avoid having to pass these?
-
-
-
-
 
     return getJoinURLExtended(username, meetingID, record, welcome, metadata, xml, isHTML5Client, isModerator);
 }
