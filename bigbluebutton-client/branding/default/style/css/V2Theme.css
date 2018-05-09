@@ -87,7 +87,7 @@ mx|Application {
 	paddingTop    : 8;
 }
 
-.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle, .btnWebRTCStyle, .btnJavaStyle {
+.btnMicrophoneStyle, .btnListenOnlyStyle, .btnPhoneStyle {
 	borderAlphaUp       : 0;
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;
@@ -1551,6 +1551,37 @@ mx|ScrollBar {
 	upArrowSkin   : ClassReference(null);
 	thumbColor    : #BBBDBF;
 	trackColor    : #F5F6F8;
+}
+
+/*
+//------------------------------
+//  ScreenshareSelectionWindow
+//------------------------------
+*/
+
+.screenshareTypeTitle {
+	color      : #363B43;
+	fontSize   : 14;
+	fontWeight : bold;
+}
+
+.screenshareTypeSubtitle {
+	color      : #363B43;
+	fontSize   : 14;
+	fontWeight : normal;
+}
+
+.screenshareSelectBtnStyle {
+	borderThickness       : 0;
+	color                 : #FFFFFF;
+	fillColorUp           : #1070D7;
+	fillColorOver         : #0A5EAC;
+	fillColorDown         : #1070D7;
+	textRollOverColor     : #FFFFFF;
+	textSelectedColor     : #FFFFFF;
+	fillColorSelectedUp   : #1070D7;
+	fillColorSelectedOver : #0A5EAC;
+	fillColorSelectedDown : #1070D7;
 }
 
 /*
