@@ -83,7 +83,7 @@ case class GetRecordingStatusReqMsgBody(requestedBy: String)
   */
 object GetRecordingStatusRespMsg { val NAME = "GetRecordingStatusRespMsg" }
 case class GetRecordingStatusRespMsg(header: BbbClientMsgHeader, body: GetRecordingStatusRespMsgBody) extends BbbCoreMsg
-case class GetRecordingStatusRespMsgBody(recording: Boolean, requestedBy: String)
+case class GetRecordingStatusRespMsgBody(recorded: Boolean, recording: Boolean, requestedBy: String)
 
 /**
   * Sent by user to start recording mark.
