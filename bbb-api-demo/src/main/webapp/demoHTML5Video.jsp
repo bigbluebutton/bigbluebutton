@@ -87,7 +87,7 @@ if (request.getParameterMap().isEmpty()) {
 	metadata.put("html5autosharewebcam", "true");
 	metadata.put("html5hidepresentation", "true");
 
-	String joinURL = getJoinURLExtended(username, meetingname, "false", null, metadata, null, "true");
+	String joinURL = getJoinURLExtended(username, meetingname, "true", null, metadata, null, "true");
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
