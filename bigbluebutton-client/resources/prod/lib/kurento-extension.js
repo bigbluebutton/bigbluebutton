@@ -33,6 +33,8 @@ Kurento = function (
   // of multiple screens the total area shared becomes too large
   this.vid_max_width = 1920;
   this.vid_max_height = 1080;
+  this.width = window.screen.width;
+  this.height = window.screen.height;
 
   // TODO properly generate a uuid
   this.sessid = Math.random().toString();
@@ -219,16 +221,13 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     return;
   }
 
-  const track = this.webRtcPeer.getLocalStream().getVideoTracks()[0];
-  const settings = track.getSettings();
-  let { width, height } = settings;
-  console.debug("Screenshare track dimensions are", width, "x", height);
+  console.debug("Screenshare screen dimensions are", this.width, "x", this.height);
 
-  if (width > this.vid_max_width || height > this.vid_max_height) {
-    resolution = this.downscaleResolution(width, height);
-    width = resolution.width;
-    height = resolution.height;
-    console.debug("Screenshare track dimensions have been resized to", width, "x", height);
+  if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
+    resolution = this.downscaleResolution(this.width, this.height);
+    this.width = resolution.width;
+    this.height = resolution.height;
+    console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
   }
 
   const message = {
@@ -239,8 +238,8 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.caller_id_name,
     sdpOffer: offerSdp,
-    vh: height,
-    vw: width,
+    vh: this.height,
+    vw: this.width,
   };
 
   console.log(`onOfferPresenter sending to screenshare server => ${JSON.stringify(message, null, 2)}`);
@@ -522,7 +521,6 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
     extensionId, {
       getStream: true,
       sources: [
-        'window',
         'screen',
       ],
     },
