@@ -337,7 +337,7 @@
     "app.whiteboard.toolbar.multiUserOff": "Turn multi-user mode off",
     "app.whiteboard.toolbar.fontSize": "Font Size List",
     "app.feedback.title": "You have logged out of the conference",
-    "app.feedback.subtitle": "we'd love to hear about your experience with BigBlueButton (optional)",
+    "app.feedback.subtitle": "We'd love to hear about your experience with BigBlueButton (optional)",
     "app.feedback.textarea": "How can we make BigBlueButton better?",
     "app.feedback.sendFeedback": "Send Feedback",
     "app.feedback.sendFeedbackDesc": "Send a Feedback and leave the meeting",

@@ -3,7 +3,6 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
-import { log } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
 import Rating from './rating/component';
 import { styles } from './styles';
@@ -16,6 +15,10 @@ const intlMessage = defineMessages({
   403: {
     id: 'app.error.removed',
     description: 'Message to display when user is removed from the conference',
+  },
+  430: {
+    id: 'app.error.meeting.ended',
+    description: 'user logged conference',
   },
   messageEnded: {
     id: 'app.meeting.endedMessage',
@@ -107,9 +110,18 @@ class MeetingEnded extends React.PureComponent {
       comment: MeetingEnded.getComment(),
       userName,
     };
-    log('error', JSON.stringify(message));
-    log('info', 'coco');
-    router.push('/logout');
+    const url = '/html5client/feedback';
+
+    const options = {
+      method: 'POST',
+      body: JSON.stringify(message),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    fetch(url, options)
+      .finally(() => router.push('/logout'));
   }
 
   render() {
@@ -132,7 +144,6 @@ class MeetingEnded extends React.PureComponent {
                   onRate={this.setSelectedStar}
                 />
                 <textarea
-                  cols="30"
                   rows="5"
                   id="feedbackComment"
                   disabled={noRating}

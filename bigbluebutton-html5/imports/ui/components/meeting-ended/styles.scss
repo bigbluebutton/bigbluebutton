@@ -44,13 +44,16 @@
   }
 }
 
-.textarea, .disable {
+.textarea {
   resize: none;
   margin: 1rem auto;
+  width: 100%;
   &::placeholder {
     text-align: center;
   }
   &:disabled {
     cursor: not-allowed;
+    background-color: $color-gray-lighter;
+    opacity: .5;
   }
 }
