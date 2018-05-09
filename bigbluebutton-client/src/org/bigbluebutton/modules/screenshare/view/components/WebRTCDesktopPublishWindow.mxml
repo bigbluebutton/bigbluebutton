@@ -41,7 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
 		<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_VIDEO_LOADING}" method="displayLoadingScreen" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -68,7 +67,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-			import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
@@ -127,10 +125,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ExternalInterface.addCallback("isNotIncognito", isNotIncognito);
 					ExternalInterface.call("checkIfIncognito", "isIncognito", "isNotIncognito");
 				}
-			}
-
-			private function displayLoadingScreen(e:Event):void {
-				setCurrentState("displayLoadingScreen");
 			}
 
 			private function onInstallButtonClicked():void {
@@ -528,7 +522,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:State name="displayInstall" />
 		<mx:State name="displayRetry" />
 		<mx:State name="displayFail" />
-		<mx:State name="displayLoadingScreen" />
 	</dspub:states>
 
 	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
@@ -572,11 +565,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 			<mx:HBox width="100%" height="100%" horizontalAlign="center">
 				<mx:Text id="incognitoLbl" width="100%" visible="false" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCPrivateBrowsingWarning.label')}" />
-			</mx:HBox>
-		</mx:VBox>
-		<mx:VBox includeIn="displayLoadingScreen" width="100%" height="100%" horizontalAlign="center">
-			<mx:HBox width="100%" height="100%" horizontalAlign="center">
-				<mx:Text fontSize="16" width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCVideoLoading.label')}" />
 			</mx:HBox>
 		</mx:VBox>
 	</mx:VBox>

@@ -35,7 +35,6 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
 	import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 	import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
-	import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
