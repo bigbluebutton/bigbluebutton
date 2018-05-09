@@ -23,6 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
 				implements="org.bigbluebutton.common.IKeyboardClose"
+				height="250"
 				show="this.setFocus()"
 				initialize="init()"
 				layout="absolute"
@@ -39,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
+			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.utils.WebRTCScreenshareUtility;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -88,7 +90,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onCancelClicked():void {
 				LOGGER.debug("Close clicked");
-				// Might need to dispatch a ScreenshareSelectionWindowEvent.HIDE_WINDOW so that the toolbar button can be reset
+				
+				dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));
+				
 				PopUpUtil.removePopUp(this);
 			}
 		]]>
@@ -110,24 +114,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				styleName="webHintBoxStyle">
 			<mx:Text id="webrtcProblemHintLbl" width="100%" textAlign="center" styleName="audioBroswerHintTextStyle"/>
 		</mx:Box>
-		<mx:HBox width="100%" height="100%" styleName="screenshareSelectionsStyle">
+		<mx:HBox width="100%" height="100%" styleName="screenshareSelectionsStyle" verticalAlign="middle">
 			<mx:VBox id="vboxWebrtc" width="50%" horizontalAlign="center" verticalAlign="middle">
-				<mx:Button id="btnWebrtc" buttonMode="true" styleName="btnWebRTCStyle" width="140" height="140"
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.webrtc.label1')}"
+						  styleName="screenshareTypeTitle" />
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.webrtc.label2')}"
+						  styleName="screenshareTypeSubtitle" />
+				<mx:Button id="btnWebrtc" styleName="screenshareSelectBtnStyle"
 						   click="onWebrtcClick()"
-						   label="W"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.label')}"
+						   minWidth="130"
+						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnSelect.label')}"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}" />
-				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.label')}"
-						  styleName="audioSubtitle" />
 			</mx:VBox>
 			<mx:VBox id="vboxJava" width="50%" horizontalAlign="center" verticalAlign="middle">
-				<mx:Button id="btnJava" width="140" height="140" buttonMode="true" styleName="btnJavaStyle"
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.java.label1')}"
+						  styleName="screenshareTypeTitle" />
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.java.label2')}"
+						  styleName="screenshareTypeSubtitle" />
+				<mx:Button id="btnJava" styleName="screenshareSelectBtnStyle"
 						   click="onJavaClick()"
-						   label="J"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.label')}"
+						   minWidth="130"
+						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnSelect.label')}"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}" />
-				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.label')}"
-						  styleName="audioSubtitle" />
 			</mx:VBox>
 		</mx:HBox>
 	</mx:VBox>
