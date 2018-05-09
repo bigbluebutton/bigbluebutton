@@ -329,21 +329,16 @@ module.exports = class Screenshare extends EventEmitter {
         if (isTranscoderAvailable) {
           // Interoperability: capturing 1.1 stop_transcoder_reply messages
           this._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY+this._meetingId, async (payload) => {
-            let meetingId = payload[C.MEETING_ID];
-            if(this._meetingId === meetingId) {
-              await this._stopRtmpBroadcast(meetingId);
-              return resolve();
-            }
+            const meetingId = payload[C.MEETING_ID];
+            await this._stopRtmpBroadcast(meetingId);
+            return resolve();
           });
 
           // Capturing stop transcoder responses from the 2x model
           this._BigBlueButtonGW.once(C.STOP_TRANSCODER_RESP_2x+this._meetingId, async (payload) => {
-            Logger.info(payload);
-            let meetingId = payload[C.MEETING_ID_2x];
-            if(this._meetingId === meetingId) {
-              await this._stopRtmpBroadcast(meetingId);
-              return resolve();
-            }
+            const meetingId = payload[C.MEETING_ID_2x];
+            await this._stopRtmpBroadcast(meetingId);
+            return resolve();
           });
 
           this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
