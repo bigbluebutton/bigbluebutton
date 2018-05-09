@@ -328,22 +328,17 @@ module.exports = class Screenshare extends EventEmitter {
 
         if (isTranscoderAvailable) {
           // Interoperability: capturing 1.1 stop_transcoder_reply messages
-          this._BigBlueButtonGW.on(C.STOP_TRANSCODER_REPLY, async (payload) => {
-            let meetingId = payload[C.MEETING_ID];
-            if(this._meetingId === meetingId) {
-              await this._stopRtmpBroadcast(meetingId);
-              return resolve();
-            }
+          this._BigBlueButtonGW.once(C.STOP_TRANSCODER_REPLY+this._meetingId, async (payload) => {
+            const meetingId = payload[C.MEETING_ID];
+            await this._stopRtmpBroadcast(meetingId);
+            return resolve();
           });
 
           // Capturing stop transcoder responses from the 2x model
-          this._BigBlueButtonGW.on(C.STOP_TRANSCODER_RESP_2x, async (payload) => {
-            Logger.info(payload);
-            let meetingId = payload[C.MEETING_ID_2x];
-            if(this._meetingId === meetingId) {
-              await this._stopRtmpBroadcast(meetingId);
-              return resolve();
-            }
+          this._BigBlueButtonGW.once(C.STOP_TRANSCODER_RESP_2x+this._meetingId, async (payload) => {
+            const meetingId = payload[C.MEETING_ID_2x];
+            await this._stopRtmpBroadcast(meetingId);
+            return resolve();
           });
 
           this._BigBlueButtonGW.publish(strm, C.TO_BBB_TRANSCODE_SYSTEM_CHAN, function(error) {});
@@ -372,14 +367,14 @@ module.exports = class Screenshare extends EventEmitter {
       // Checking if transcoder is avaiable; if so, transposes the stream to RTMP
       if (isTranscoderAvailable) {
         // Interoperability: capturing 1.1 start_transcoder_reply messages
-        this._BigBlueButtonGW.on(C.START_TRANSCODER_REPLY, (payload) => {
+        this._BigBlueButtonGW.once(C.START_TRANSCODER_REPLY+this._meetingId, (payload) => {
           let meetingId = payload[C.MEETING_ID];
           let output = payload["params"].output;
           this._startRtmpBroadcast(meetingId, output);
         });
 
         // Capturing stop transcoder responses from the 2x model
-        this._BigBlueButtonGW.on(C.START_TRANSCODER_RESP_2x, (payload) => {
+        this._BigBlueButtonGW.once(C.START_TRANSCODER_RESP_2x+this._meetingId, (payload) => {
           let meetingId = payload[C.MEETING_ID_2x];
           let output = payload["params"].output;
           this._startRtmpBroadcast(meetingId, output);
@@ -414,15 +409,13 @@ module.exports = class Screenshare extends EventEmitter {
 
   _startRtmpBroadcast (meetingId, output) {
     Logger.info("[screenshare] _startRtmpBroadcast for meeting", + meetingId);
-    if (this._meetingId === meetingId) {
-      let timestamp = now.format('hhmmss');
-      this._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
-      let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(this._voiceBridge,
-          this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
+    let timestamp = now.format('hhmmss');
+    this._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
+    let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(this._voiceBridge,
+      this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
 
-      this._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
-      this._rtmpBroadcastStarted = true;
-    }
+    this._BigBlueButtonGW.publish(dsrbstam, C.FROM_VOICE_CONF_SYSTEM_CHAN, function(error) {});
+    this._rtmpBroadcastStarted = true;
   }
 
   _onRtpMediaNotFlowing() {
