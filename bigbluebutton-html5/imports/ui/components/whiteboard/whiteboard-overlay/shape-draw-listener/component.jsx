@@ -286,11 +286,12 @@ export default class ShapeDrawListener extends Component {
 
   render() {
     const { tool } = this.props.drawSettings;
+    const baseName = Meteor.settings.public.app.basename;
     const shapeDrawStyle = {
       width: '100%',
       height: '100%',
       touchAction: 'none',
-      cursor: `url('${Meteor.settings.public.app.basename}/resources/images/whiteboard-cursor/${tool !== 'rectangle' ? tool : 'square'}.png') 2 22, default`,
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/${tool !== 'rectangle' ? tool : 'square'}.png'), default`,
     };
     return (
       <div

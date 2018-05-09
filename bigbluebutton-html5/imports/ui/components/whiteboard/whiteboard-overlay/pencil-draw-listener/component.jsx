@@ -217,11 +217,12 @@ export default class PencilDrawListener extends Component {
   }
 
   render() {
+    const baseName = Meteor.settings.public.app.basename;
     const pencilDrawStyle = {
       width: '100%',
       height: '100%',
       touchAction: 'none',
-      cursor: `url('${Meteor.settings.public.app.basename}/resources/images/whiteboard-cursor/pencil.png') 2 22, default`,
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/pencil.png') 2 22, default`,
     };
     return (
       <div

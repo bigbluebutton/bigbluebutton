@@ -368,11 +368,12 @@ export default class TextDrawListener extends Component {
   }
 
   render() {
+    const baseName = Meteor.settings.public.app.basename;
     const textDrawStyle = {
       width: '100%',
       height: '100%',
       touchAction: 'none',
-      cursor: `url('${Meteor.settings.public.app.basename}/resources/images/whiteboard-cursor/text.png') 2 22, default`,
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/text.png'), default`,
     };
     return (
       <div
