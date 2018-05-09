@@ -205,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ExternalInterface.addCallback("onFail", onFail);
 					
 					var voiceBridge:String = UsersUtil.getVoiceBridge();
-					var myName:String = UsersUtil.getMyUsername();
+					var myName:String = UsersUtil.getMyUserID();
 					var internalMeetingID:String = UsersUtil.getInternalMeetingID();
 					
 					ExternalInterface.call(
