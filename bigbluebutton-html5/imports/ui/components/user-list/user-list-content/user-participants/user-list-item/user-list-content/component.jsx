@@ -110,8 +110,8 @@ class UserListContent extends Component {
       dropdownDirection: 'top',
     });
 
-    this.props.setMenuState(true);
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
+    this.props.setMenuState(true);
   }
 
   onActionsHide() {
@@ -120,9 +120,12 @@ class UserListContent extends Component {
       dropdownVisible: false,
     });
 
-    this.props.setMenuState(false);
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);
+
+    setTimeout(() => {
+      this.props.setMenuState(false);
+    });
   }
 
   getDropdownMenuParent() {
