@@ -163,7 +163,7 @@
   font-family: 'Source Sans Pro';
   font-style: italic;
   font-weight: 600;
-  src: local('Source Sans Pro Semibold Italic'), local('SourceSansPro-SemiboldIt'), url(/SourceSansPro/SourceSansPro-SemiboldItalic.ttf) format('ttf');
+  src: local('Source Sans Pro Semibold Italic'), local('SourceSansPro-SemiboldIt'), url(/fonts/SourceSansPro/SourceSansPro-SemiboldItalic.ttf) format('ttf');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
 /* vietnamese */
@@ -171,7 +171,7 @@
   font-family: 'Source Sans Pro';
   font-style: italic;
   font-weight: 700;
-  src: local('Source Sans Pro Bold Italic'), local('SourceSansPro-BoldIt'), url(/SourceSansPro/SourceSansPro-BoldItalic.ttf) format('ttf');
+  src: local('Source Sans Pro Bold Italic'), local('SourceSansPro-BoldIt'), url(/fonts/SourceSansPro/SourceSansPro-BoldItalic.ttf) format('ttf');
   unicode-range: U+0102-0103, U+1EA0-1EF9, U+20AB;
 }
 /* latin-ext */
