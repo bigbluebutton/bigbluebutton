@@ -136,6 +136,23 @@ Kurento.prototype.create = function (tag) {
   this.init();
 };
 
+Kurento.prototype.downscaleResolution = function (oldWidth, oldHeight) {
+  const factorWidth = this.vid_max_width / oldWidth;
+  const factorHeight = this.vid_max_height / oldHeight;
+  let width, height;
+
+  if (factorWidth < factorHeight) {
+    width = Math.trunc(oldWidth * factorWidth);
+    height = Math.trunc(oldHeight * factorWidth);
+  }
+  else {
+    width = Math.trunc(oldWidth * factorHeight);
+    height = Math.trunc(oldHeight * factorHeight);
+  }
+
+  return { width, height };
+};
+
 Kurento.prototype.init = function () {
   const self = this;
   if ('WebSocket' in window) {
@@ -194,10 +211,24 @@ Kurento.prototype.startResponse = function (message) {
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   const self = this;
+  let resolution;
+
   if (error) {
     console.log(`Kurento.prototype.onOfferPresenter Error ${error}`);
     this.onFail(error);
     return;
+  }
+
+  const track = this.webRtcPeer.getLocalStream().getVideoTracks()[0];
+  const settings = track.getSettings();
+  let { width, height } = settings;
+  console.debug("Screenshare track dimensions are", width, "x", height);
+
+  if (width > this.vid_max_width || height > this.vid_max_height) {
+    resolution = this.downscaleResolution(width, height);
+    width = resolution.width;
+    height = resolution.height;
+    console.debug("Screenshare track dimensions have been resized to", width, "x", height);
   }
 
   const message = {
@@ -208,8 +239,8 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.caller_id_name,
     sdpOffer: offerSdp,
-    vh: self.vid_max_height,
-    vw: self.vid_max_width,
+    vh: height,
+    vw: width,
   };
 
   console.log(`onOfferPresenter sending to screenshare server => ${JSON.stringify(message, null, 2)}`);
