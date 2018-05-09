@@ -79,7 +79,7 @@ class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    this.createMenu(this.props);
+    this.createMenu();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -106,9 +106,9 @@ class SettingsDropdown extends Component {
     return (iOS) ? this.menuItems.slice(1) : this.menuItems;
   }
 
-  createMenu(props) {
-    const { intl, mountModal } = props;
-    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
+  createMenu() {
+    const { intl, mountModal } = this.props;
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     this.menuItems = [
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
