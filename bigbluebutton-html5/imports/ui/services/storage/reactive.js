@@ -34,7 +34,9 @@ export default class StorageTracker {
     const prefixedKey = this._prefixedKey(key);
     this._ensureDeps(prefixedKey);
     this._trackers[prefixedKey].depend();
+
     let value = this._storage.getItem(prefixedKey);
+
     if (value && _.isString(value)) {
       try {
         value = EJSON.parse(value);
@@ -64,7 +66,6 @@ export default class StorageTracker {
 
   removeItem(key) {
     const prefixedKey = this._prefixedKey(key);
-
     this._storage.removeItem(prefixedKey);
     this._trackers[prefixedKey].changed();
     delete this._trackers[prefixedKey];
@@ -74,6 +75,5 @@ export default class StorageTracker {
     Object.keys(this._trackers).forEach((key) => {
       this.removeItem(key);
     });
-    this._storage.clear();
   }
 }
