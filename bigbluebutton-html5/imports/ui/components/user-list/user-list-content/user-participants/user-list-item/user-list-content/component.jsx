@@ -272,7 +272,7 @@ class UserListContent extends Component {
             styles.dropdown,
             userItemContentsStyle,
             this.state.isActionsOpen ? styles.usertListItemWithMenu : styles.userListItem,
-)
+          )
         }
         autoFocus={false}
         aria-haspopup="true"

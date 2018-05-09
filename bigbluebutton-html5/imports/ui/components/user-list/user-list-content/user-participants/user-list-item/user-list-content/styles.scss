@@ -71,14 +71,6 @@
   background-color: $list-item-bg-hover;
 }
 
-.userListItemWithMenu {
-
-  @extend %list-item;
-  flex-flow: column;
-  flex-shrink: 0;
-  box-shadow: none !important;
-}
-
 .userListItem {
 
   @extend %list-item;
