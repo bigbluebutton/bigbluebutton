@@ -86,11 +86,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     room.sequence = i + 1;
                     room.name = parentMeetingName + " (" + roomResource + " - " + room.sequence.toString() + ")";
 					room.freeJoin = freeJoin;
-					if (!freeJoin) {
-	                    for (var j:int = 0; j < users.length; j++) {
-	                        room.users.push((User2x)(users[j]).intId);
-	                    }
-					}
+                    for (var j:int = 0; j < users.length; j++) {
+                        room.users.push((User2x)(users[j]).intId);
+                    }
                     event.rooms.push(room);
                 }
                 if (totalUsers > 0 || freeJoin) {
@@ -248,15 +246,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 assignment['record'] = recordCheckbox.selected;
                 assignment['duration'] = durationStepper.value;
 				assignment['freeJoin'] = freeJoinCheckbox.selected;
-				if (!freeJoin) {
-					for (var r:int = 0; r < assignment['rooms']; r++) {
-						var users:ArrayCollection = BreakoutList(roomsContainer.getChildAt(r)).users;
-						for (var u:int = 0; u < users.length; u++) {
-							// We store pairs { userID : roomNumber } to be easier to check later
-							assignment[User2x(users[u]).intId] = r;
-						}
-					}	
-				}
+				for (var r:int = 0; r < assignment['rooms']; r++) {
+					var users:ArrayCollection = BreakoutList(roomsContainer.getChildAt(r)).users;
+					for (var u:int = 0; u < users.length; u++) {
+						// We store pairs { userID : roomNumber } to be easier to check later
+						assignment[User2x(users[u]).intId] = r;
+					}
+				}	
             }
             
             public function initCreateBreakoutRooms(mode:String, record:Boolean):void {
@@ -287,12 +283,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
 				PopUpManager.centerPopUp(this);
             }
-			
-			protected function freeJoinCheckbox_changeHandler(event:Event):void
-			{
-				roomsContainer.enabled = !freeJoinCheckbox.selected;
-			}
-			
 		]]>
     </fx:Script>
     
@@ -304,34 +294,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:Canvas width="100%" styleName="breakoutTipBox" verticalScrollPolicy="off" horizontalScrollPolicy="off">
             <mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
         </mx:Canvas>
-        
-        <mx:HBox id="roomsBox" paddingTop="20" width="100%">
-            <mx:HBox width="50%" height="100%" horizontalAlign="left" verticalAlign="middle">
-                <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')}" />
-                <mx:ComboBox id="roomsCombo" width="80%" change="{assignUsersForCreation()}" dataProvider="{roomsProvider}" 
-                             accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.roomsCombo.accessibilityName')}" />
-            </mx:HBox>
-        </mx:HBox>
-        
-        <mx:HBox id="durationBox" width="100%" paddingTop="12">
-            <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
-            <common:AccessibleNumericStepper id="durationStepper" value="15" minimum="1" maximum="600" 
-                                             toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.durationStepper.accessibilityName')}"/>
-            <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
-        </mx:HBox>
 		
-        <mx:HBox id="recordBox" width="100%" paddingTop="12" visible="{recordingEnabled}">
-            <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>
-            <mx:CheckBox id="recordCheckbox"
-                         accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
-        </mx:HBox>
-		
-		<mx:HBox id="freeJoinBox" width="100%" paddingTop="12">
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoin')}" />
-			<mx:CheckBox id="freeJoinCheckbox" change="freeJoinCheckbox_changeHandler(event)"
-						 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoinCheckbox.accessibilityName')}"/>
-		</mx:HBox>
-
+		<mx:Form paddingTop="20" width="100%" verticalGap="12">
+			<mx:FormItem id="roomsBox" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')}" width="60%">
+				<mx:ComboBox id="roomsCombo" width="60%" change="{assignUsersForCreation()}" dataProvider="{roomsProvider}"
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.roomsCombo.accessibilityName')}" />
+			</mx:FormItem>
+			
+			<mx:FormItem id="durationBox" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" direction="horizontal">
+				<common:AccessibleNumericStepper id="durationStepper" value="15" minimum="1" maximum="600" 
+												 toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.durationStepper.accessibilityName')}"/>
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>	
+			</mx:FormItem>
+			
+			<mx:FormItem id="recordBox" visible="{recordingEnabled}" direction="horizontal">
+				<mx:CheckBox id="recordCheckbox"
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>	
+			</mx:FormItem>
+			
+			<mx:FormItem id="freeJoinBox" direction="horizontal">
+				<mx:CheckBox id="freeJoinCheckbox"
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoinCheckbox.accessibilityName')}"/>
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoin')}" />	
+			</mx:FormItem>
+		</mx:Form>
+        
         <mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
         
         <mx:HBox width="100%" horizontalAlign="right" verticalGap="15">
