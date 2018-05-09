@@ -71,7 +71,7 @@
              width="20"
              height="20"
              icon="{getStyle('iconJoin')}"
-             visible="{(breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently) || (data.joinFree)}"
+             visible="{(breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently) || (data.freeJoin)}"
              toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
              click="requestBreakoutJoinUrl(event)" />
   <mx:Button id="listenBtn"
