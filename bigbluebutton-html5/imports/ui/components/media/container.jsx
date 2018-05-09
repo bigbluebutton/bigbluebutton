@@ -20,12 +20,25 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
   },
+  chromeExtensionError: {
+    id: 'app.video.chromeExtensionError',
+    description: 'Error message for Chrome Extension not installed',
+  },
+  chromeExtensionErrorLink: {
+    id: 'app.video.chromeExtensionErrorLink',
+    description: 'Error message for Chrome Extension not installed',
+  },
 });
 
 class MediaContainer extends Component {
   componentWillMount() {
     const { willMount } = this.props;
     willMount && willMount();
+    document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -41,6 +54,21 @@ class MediaContainer extends Component {
         notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
       }
     }
+  }
+
+  installChromeExtension() {
+    const { intl } = this.props;
+
+    const CHROME_DEFAULT_EXTENSION_LINK = Meteor.settings.public.kurento.chromeDefaultExtensionLink;
+    const CHROME_CUSTOM_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+    const CHROME_EXTENSION_LINK = CHROME_CUSTOM_EXTENSION_LINK === 'LINK' ? CHROME_DEFAULT_EXTENSION_LINK : CHROME_CUSTOM_EXTENSION_LINK;
+
+    notify(<div>
+      {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
+      <a href={CHROME_EXTENSION_LINK} target="_blank">
+        {intl.formatMessage(intlMessages.chromeExtensionErrorLink)}
+      </a>
+    </div>, 'error', 'desktop');
   }
 
   render() {

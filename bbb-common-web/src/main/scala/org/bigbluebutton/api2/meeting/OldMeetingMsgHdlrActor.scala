@@ -58,6 +58,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
        msg.body.room.parentId,
        msg.body.room.name,
        msg.body.room.sequence,
+       msg.body.room.freeJoin,
        msg.body.room.voiceConfId,
        msg.body.room.viewerPassword,
        msg.body.room.moderatorPassword,

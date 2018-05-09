@@ -29,7 +29,7 @@ module.exports = class BaseManager {
     this._bbbGW.on(C.USER_CAM_BROADCAST_STARTED_2x, (streamUrl) => {
       Logger.info("[BaseManager] Server notifies that stream ", streamUrl, " is recorded");
       let stream = isRecordedStream(streamUrl);
-      this.setStreamAsRecorded(stream);      
+      this.setStreamAsRecorded(stream);
     });
   }
 
@@ -74,12 +74,12 @@ module.exports = class BaseManager {
     }
   }
 
-  _killConnectionSessions (connectionId, role) {
-    let keys = Object.keys(this._sessions);
+  _killConnectionSessions (connectionId) {
+    const keys = Object.keys(this._sessions);
     keys.forEach((sessionId) => {
       let session = this._sessions[sessionId];
       if(session && session.connectionId === connectionId) {
-        let killedSessionId = session.connectionId + session.id + "-" + role;
+        let killedSessionId = session.connectionId + session.id + "-" + session.role;
         this._stopSession(killedSessionId);
       }
     });

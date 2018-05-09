@@ -19,6 +19,7 @@ public class CreateMeetingRequestPayload {
     public final String createDate;
     public final Boolean isBreakout;
     public final Integer sequence;
+    public final Boolean freeJoin;
     public final Map<String, String> metadata;
     public final String guestPolicy;
 
@@ -28,7 +29,8 @@ public class CreateMeetingRequestPayload {
                                        Boolean autoStartRecording, Boolean allowStartStopRecording,
                                        Boolean webcamsOnlyForModerator, String moderatorPass,
                                        String viewerPass, Long createTime, String createDate,
-                                       Boolean isBreakout, Integer sequence, Map<String, String> metadata, String guestPolicy) {
+                                       Boolean isBreakout, Integer sequence, Boolean freeJoin,
+                                       Map<String, String> metadata, String guestPolicy) {
         this.id = id;
         this.externalId = externalId;
         this.parentId = parentId;
@@ -45,6 +47,7 @@ public class CreateMeetingRequestPayload {
         this.createDate = createDate;
         this.isBreakout = isBreakout;
         this.sequence = sequence;
+        this.freeJoin = freeJoin;
         this.metadata = metadata;
         this.guestPolicy = guestPolicy;
     }

@@ -39,7 +39,7 @@ module.exports = class VideoManager extends BaseManager {
     } else {
       Logger.warn("[VideoManager] Tried to set stream to recorded but ", id, " has no session!");
     }
-  }  
+  }
 
   async _onMessage (_message) {
     let message = _message;
@@ -129,7 +129,7 @@ module.exports = class VideoManager extends BaseManager {
 
       case 'close':
         Logger.info(this._logPrefix, "Closing sessions of connection", connectionId);
-        this._killConnectionSessions(connectionId, role);
+        this._killConnectionSessions(connectionId);
         break;
 
       default:

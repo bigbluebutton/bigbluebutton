@@ -56,6 +56,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
             [Bindable]
             private var recordingEnabled:Boolean;
+			
+			[Bindable]
+			private var freeJoin:Boolean;
             
             private static var assignment : Dictionary;
             
@@ -74,6 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 event.rooms = new Array();
                 var parentMeetingName:String = UsersUtil.getMeetingName();
                 var roomResource:String = ResourceUtil.getInstance().getString('bbb.users.breakout.room');
+				var freeJoin : Boolean = freeJoinCheckbox.selected;
                 for (var i:int = 0; i < (roomsCombo.selectedIndex + 2); i++) {
                     var users:Array = BreakoutList(roomsContainer.getChildAt(i)).users.source;
                     totalUsers += users.length;
@@ -81,12 +85,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     room.users = new Array();
                     room.sequence = i + 1;
                     room.name = parentMeetingName + " (" + roomResource + " - " + room.sequence.toString() + ")";
-                    for (var j:int = 0; j < users.length; j++) {
-                        room.users.push((User2x)(users[j]).intId);
-                    }
+					room.freeJoin = freeJoin;
+					if (!freeJoin) {
+	                    for (var j:int = 0; j < users.length; j++) {
+	                        room.users.push((User2x)(users[j]).intId);
+	                    }
+					}
                     event.rooms.push(room);
                 }
-                if (totalUsers > 0) {
+                if (totalUsers > 0 || freeJoin) {
                     event.durationInMinutes = durationStepper.value;
                     event.record = recordCheckbox.selected;
                     dispatcher.dispatchEvent(event);
@@ -170,6 +177,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 roomsCombo.selectedIndex = assignment['rooms'] - 2;
                 recordCheckbox.selected = assignment['record'];
                 durationStepper.value = assignment['duration'];
+				freeJoinCheckbox.selected = assignment['freeJoin'];
                 var user:User2x;
                 var currentUsers:ArrayCollection = UsersUtil.getUsers();
                 // Create breakout rooms boxes
@@ -179,18 +187,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     list.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r).toString();
                     list.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r).toString();
                 }
-                // Load user assignment from the previous action
-                var unassignedUsers:ArrayCollection = new ArrayCollection();
-                for (var u:int = 0; u < currentUsers.length; u++) {
-                    user = currentUsers.getItemAt(u) as User2x;
-                    if (assignment.hasOwnProperty(user.intId)) {
-                        BreakoutList(roomsContainer.getChildAt(assignment[user.intId])).users.addItem(User2x.copy(user));
-                    } else {
-                        unassignedUsers.addItem(User2x.copy(user));
-                    }
-                }
-                // Create not assigned users list
-                createUnassignedList(unassignedUsers);
+				// Load user assignment from the previous action
+				var unassignedUsers:ArrayCollection = new ArrayCollection();
+				for (var u:int = 0; u < currentUsers.length; u++) {
+					user = currentUsers.getItemAt(u) as User2x;
+					if (assignment.hasOwnProperty(user.intId)) {
+						BreakoutList(roomsContainer.getChildAt(assignment[user.intId])).users.addItem(User2x.copy(user));
+					} else {
+						unassignedUsers.addItem(User2x.copy(user));
+					}
+				}
+				// Create not assigned users list
+				createUnassignedList(unassignedUsers);
             }
             
             protected function assignUsersForInvitation():void {
@@ -239,13 +247,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 assignment['rooms'] = roomsCombo.selectedIndex + 2;
                 assignment['record'] = recordCheckbox.selected;
                 assignment['duration'] = durationStepper.value;
-                for (var r:int = 0; r < assignment['rooms']; r++) {
-                    var users:ArrayCollection = BreakoutList(roomsContainer.getChildAt(r)).users;
-                    for (var u:int = 0; u < users.length; u++) {
-                        // We store pairs { userID : roomNumber } to be easier to check later
-                        assignment[User2x(users[u]).intId] = r;
-                    }
-                }
+				assignment['freeJoin'] = freeJoinCheckbox.selected;
+				if (!freeJoin) {
+					for (var r:int = 0; r < assignment['rooms']; r++) {
+						var users:ArrayCollection = BreakoutList(roomsContainer.getChildAt(r)).users;
+						for (var u:int = 0; u < users.length; u++) {
+							// We store pairs { userID : roomNumber } to be easier to check later
+							assignment[User2x(users[u]).intId] = r;
+						}
+					}	
+				}
             }
             
             public function initCreateBreakoutRooms(mode:String, record:Boolean):void {
@@ -276,7 +287,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
 				PopUpManager.centerPopUp(this);
             }
-        ]]>
+			
+			protected function freeJoinCheckbox_changeHandler(event:Event):void
+			{
+				roomsContainer.enabled = !freeJoinCheckbox.selected;
+			}
+			
+		]]>
     </fx:Script>
     
     <mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center">
@@ -302,12 +319,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                                              toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.durationStepper.accessibilityName')}"/>
             <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
         </mx:HBox>
-        
+		
         <mx:HBox id="recordBox" width="100%" paddingTop="12" visible="{recordingEnabled}">
             <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>
             <mx:CheckBox id="recordCheckbox"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
         </mx:HBox>
+		
+		<mx:HBox id="freeJoinBox" width="100%" paddingTop="12">
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoin')}" />
+			<mx:CheckBox id="freeJoinCheckbox" change="freeJoinCheckbox_changeHandler(event)"
+						 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoinCheckbox.accessibilityName')}"/>
+		</mx:HBox>
 
         <mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
         

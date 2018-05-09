@@ -33,6 +33,8 @@ Kurento = function (
   // of multiple screens the total area shared becomes too large
   this.vid_max_width = 1920;
   this.vid_max_height = 1080;
+  this.width = window.screen.width;
+  this.height = window.screen.height;
 
   // TODO properly generate a uuid
   this.sessid = Math.random().toString();
@@ -136,6 +138,23 @@ Kurento.prototype.create = function (tag) {
   this.init();
 };
 
+Kurento.prototype.downscaleResolution = function (oldWidth, oldHeight) {
+  const factorWidth = this.vid_max_width / oldWidth;
+  const factorHeight = this.vid_max_height / oldHeight;
+  let width, height;
+
+  if (factorWidth < factorHeight) {
+    width = Math.trunc(oldWidth * factorWidth);
+    height = Math.trunc(oldHeight * factorWidth);
+  }
+  else {
+    width = Math.trunc(oldWidth * factorHeight);
+    height = Math.trunc(oldHeight * factorHeight);
+  }
+
+  return { width, height };
+};
+
 Kurento.prototype.init = function () {
   const self = this;
   if ('WebSocket' in window) {
@@ -194,10 +213,21 @@ Kurento.prototype.startResponse = function (message) {
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   const self = this;
+  let resolution;
+
   if (error) {
     console.log(`Kurento.prototype.onOfferPresenter Error ${error}`);
     this.onFail(error);
     return;
+  }
+
+  console.debug("Screenshare screen dimensions are", this.width, "x", this.height);
+
+  if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
+    resolution = this.downscaleResolution(this.width, this.height);
+    this.width = resolution.width;
+    this.height = resolution.height;
+    console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
   }
 
   const message = {
@@ -208,8 +238,8 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.caller_id_name,
     sdpOffer: offerSdp,
-    vh: self.vid_max_height,
-    vw: self.vid_max_width,
+    vh: this.height,
+    vw: this.width,
   };
 
   console.log(`onOfferPresenter sending to screenshare server => ${JSON.stringify(message, null, 2)}`);
@@ -491,7 +521,6 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
     extensionId, {
       getStream: true,
       sources: [
-        'window',
         'screen',
       ],
     },
