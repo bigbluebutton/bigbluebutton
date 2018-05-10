@@ -28,11 +28,11 @@ Kurento = function (
   this.voiceBridge = `${voiceBridge}-SCREENSHARE`;
   this.internalMeetingId = internalMeetingId;
 
-  // Limiting max resolution to 1080p
+  // Limiting max resolution to WQXGA
   // In FireFox we force full screen share and in the case
   // of multiple screens the total area shared becomes too large
-  this.vid_max_width = 1920;
-  this.vid_max_height = 1080;
+  this.vid_max_width = 2560;
+  this.vid_max_height = 1600;
   this.width = window.screen.width;
   this.height = window.screen.height;
 
@@ -213,21 +213,11 @@ Kurento.prototype.startResponse = function (message) {
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   const self = this;
-  let resolution;
 
   if (error) {
     console.log(`Kurento.prototype.onOfferPresenter Error ${error}`);
     this.onFail(error);
     return;
-  }
-
-  console.debug("Screenshare screen dimensions are", this.width, "x", this.height);
-
-  if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
-    resolution = this.downscaleResolution(this.width, this.height);
-    this.width = resolution.width;
-    this.height = resolution.height;
-    console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
   }
 
   const message = {
@@ -267,6 +257,15 @@ Kurento.prototype.startScreensharing = function () {
   };
 
   console.log(` Peer options => ${JSON.stringify(options, null, 2)}`);
+
+  let resolution;
+  console.debug("Screenshare screen dimensions are", this.width, "x", this.height);
+  if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
+    resolution = this.downscaleResolution(this.width, this.height);
+    this.width = resolution.width;
+    this.height = resolution.height;
+    console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
+  }
 
   this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
@@ -441,8 +440,8 @@ window.getScreenConstraints = function (sendSource, callback) {
   // Limiting FPS to a range of 5-10 (5 ideal)
   screenConstraints.video.frameRate = { ideal: 5, max: 10 };
 
-  screenConstraints.video.height = { max: this.vid_max_height };
-  screenConstraints.video.width = { max: this.vid_max_width };
+  screenConstraints.video.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
+  screenConstraints.video.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
 
   if (isChrome) {
     getChromeScreenConstraints((constraints) => {

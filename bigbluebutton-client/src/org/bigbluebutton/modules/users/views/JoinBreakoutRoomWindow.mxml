@@ -34,8 +34,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flash.net.navigateToURL;
 			
-			import mx.collections.ArrayCollection;
-			
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.model.LiveMeeting;
@@ -47,18 +45,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher = new Dispatcher();
 
 			private var joinURL:String;
+			
+			private var sequence:int;
 
 			public function setBreakoutRoomSettings(sequence:int, joinURL:String):void {
-				currentState = "normal";
-				sequenceLabel.text = sequence.toString();
+				this.sequence = sequence;
 				this.joinURL = joinURL;
+				if (!LiveMeeting.inst().breakoutRooms.haveFreeJoinRooms()) {
+					currentState = "normal";
+					sequenceLabel.text = sequence.toString();
+				}
+				else {
+					currentState = "freeJoin";
+					breakoutRoomsCombo.dataProvider = LiveMeeting.inst().breakoutRooms.breakoutRooms;
+					breakoutRoomsCombo.selectedIndex = sequence-1;
+				}
 			}
 			
-			public function setBeakoutRoomsData(breakoutRooms : ArrayCollection):void {
-				currentState = "freeJoin";
-				breakoutRoomsCombo.dataProvider = breakoutRooms;
-			}
-
 			protected function joinButtonClickHandler(event:MouseEvent):void {
 				if (LiveMeeting.inst().me.inVoiceConf) {
 					LiveMeeting.inst().me.breakoutEjectFromAudio = true;
@@ -68,14 +71,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				dispatcher.dispatchEvent(new StopBroadcastEvent());
 				if (currentState == "normal") {
-					navigateToURL(new URLRequest(this.joinURL), "_blank");
+					openBreakoutRoomInNewTab();
 				} else {
-					var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
-					e.breakoutMeetingId = breakoutRoomsCombo.selectedItem.meetingId as String;
-					e.userId = UsersUtil.getMyUserID();
-					dispatcher.dispatchEvent(e);
+					if (breakoutRoomsCombo.selectedItem.sequence == sequence) {
+						openBreakoutRoomInNewTab();
+					} else {
+						LiveMeeting.inst().breakoutRooms.joinRequestedByUser = true;
+						var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+						e.breakoutMeetingId = breakoutRoomsCombo.selectedItem.meetingId as String;
+						e.userId = UsersUtil.getMyUserID();
+						dispatcher.dispatchEvent(e);
+					}
 				}
 				PopUpUtil.removePopUp(this);
+			}
+			
+			private function openBreakoutRoomInNewTab():void {
+				navigateToURL(new URLRequest(this.joinURL), "_blank");
 			}
 			
 			private function onCloseClick():void {

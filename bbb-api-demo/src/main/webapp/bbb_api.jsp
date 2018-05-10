@@ -168,7 +168,9 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 
 public String getJoinURL(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml) {
     String isHTML5Client = "false";
-    return getJoinURLExtended(username, meetingID, record, welcome, metadata, xml, isHTML5Client);
+    String isModerator = "true";
+
+    return getJoinURLExtended(username, meetingID, record, welcome, metadata, xml, isHTML5Client, isModerator);
 }
 
 
@@ -183,13 +185,14 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 //  - metadata (passed through when record="true"
 //  - xml (used for pre-upload of slides)_
 //  - isHTML5Client ["true", "false"]
+//  - isModerator ["true", "false"]
 //
 // Returned
 //  - valid join URL using the username
 //
 //  Note this meeting will use username for meetingID
 
-public String getJoinURLExtended(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, String isHTML5Client) {
+public String getJoinURLExtended(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, String isHTML5Client, String isModerator) {
 
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
@@ -220,13 +223,17 @@ public String getJoinURLExtended(String username, String meetingID, String recor
 	//
 	// Note: We're hard-coding the password for moderator and attendee (viewer) for purposes of demo.
 	//
-
 	String create_parameters = "name=" + urlEncode(meetingID)
 		+ "&meetingID=" + urlEncode(meetingID) + welcome_param + voiceBridge_param
 		+ "&attendeePW=ap&moderatorPW=mp"
 		+ "&isBreakoutRoom=false"
 		+ "&record=" + record + getMetaData( metadata );
 
+
+	String password = "mp"; // Attempt to join as moderator by default
+	if ("false" == isModerator) {
+		password = "ap"; // default attendee password
+	}
 
 	// Attempt to create a meeting using meetingID
 	Document doc = null;
@@ -251,7 +258,7 @@ public String getJoinURLExtended(String username, String meetingID, String recor
 			+ "&fullName=" + urlEncode(username)
 
 		+ "&joinViaHtml5=" + isHTML5Client
-	 	+ "&password=mp";
+	 	+ "&password=" + password;
 
 		return base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);
