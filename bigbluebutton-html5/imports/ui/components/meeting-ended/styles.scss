@@ -51,9 +51,4 @@
   &::placeholder {
     text-align: center;
   }
-  &:disabled {
-    cursor: not-allowed;
-    background-color: $color-gray-lighter;
-    opacity: .5;
-  }
 }

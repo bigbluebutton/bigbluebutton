@@ -143,14 +143,13 @@ class MeetingEnded extends React.PureComponent {
                   total="5"
                   onRate={this.setSelectedStar}
                 />
-                <textarea
+                {!noRating ? (<textarea
                   rows="5"
                   id="feedbackComment"
-                  disabled={noRating}
                   className={styles.textarea}
                   placeholder={intl.formatMessage(intlMessage.textarea)}
                   aria-describedby="textareaDesc"
-                />
+                />) : null}
               </div>
             ) : null }
             <Button
