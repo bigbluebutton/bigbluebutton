@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function stopViewing():void {
+			LOGGER.debug("Received stop viewing command");
 			if (isViewing) viewWindow.stopViewing();
 		}
 
@@ -54,7 +55,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function handleViewWindowCloseEvent():void {
-			LOGGER.debug("ViewerWindowManager Received stop viewing command");
+			LOGGER.debug("Received close view window event");
 			closeWindow(viewWindow);
 			isViewing = false;
 		}
@@ -66,7 +67,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
-			LOGGER.debug("ViewerWindowManager::startViewing");
+			LOGGER.debug("startViewing");
 
 			viewWindow = new WebRTCDesktopViewWindow();
 			viewWindow.startVideo(rtmp, videoWidth, videoHeight);
