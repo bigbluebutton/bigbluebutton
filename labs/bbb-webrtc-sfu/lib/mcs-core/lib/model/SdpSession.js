@@ -15,8 +15,9 @@ const kurentoUrl = config.get('kurentoUrl');
 const Logger = require('../../../utils/Logger');
 
 module.exports = class SdpSession extends MediaSession {
-  constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint') {
-    super(emitter, room, type);
+  constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint', options) {
+    super(emitter, room, type, options);
+    Logger.info("[mcs-sdp-session] New session with options", options);
     // {SdpWrapper} SdpWrapper
     this._sdp;
     if (sdp && type) {

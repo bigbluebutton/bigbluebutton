@@ -17,6 +17,7 @@ to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
 webcam-force-h264: true
 screenshare-force-h264: true
+screenshareKeyframeInterval: 2
 
 recordScreenSharing: true
 recordWebcams: false

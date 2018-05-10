@@ -142,11 +142,11 @@ module.exports = class MediaController {
         switch (type) {
           case "RtpEndpoint":
           case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type);
+            session = user.addSdp(params.descriptor, type, params);
             answer = await user.startSession(session.id);
             break;
           case "URI":
-            session = user.addUri(params.descriptor, type);
+            session = user.addUri(params.descriptor, type, params);
 
             answer = await user.startSession(session.id);
             break;
@@ -197,7 +197,7 @@ module.exports = class MediaController {
         switch (type) {
           case "RtpEndpoint":
           case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type);
+            session = user.addSdp(params.descriptor, type, params);
 
             answer = await user.startSession(session.id);
             await sourceSession.connect(session._mediaElement);

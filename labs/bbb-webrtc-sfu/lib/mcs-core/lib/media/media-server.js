@@ -135,11 +135,15 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
 
-  async createMediaElement (roomId, type, options) {
+  async createMediaElement (roomId, type, options = {}) {
     options = options || {};
     try {
       const pipeline = await this._getMediaPipeline(roomId);
       const mediaElement = await this._createElement(pipeline, type, options);
+      if (typeof mediaElement.setKeyframeInterval === 'function' && options.keyframeInterval) {
+        Logger.debug("[mcs-media] Creating element with keyframe interval set to", options.keyframeInterval);
+        mediaElement.setKeyframeInterval(options.keyframeInterval);
+      }
       this._mediaPipelines[roomId].activeElements++;
       return Promise.resolve(mediaElement.id);
     }
