@@ -88,6 +88,7 @@ class MeetingEnded extends React.PureComponent {
       selected: starNumber,
     });
   }
+
   sendFeedback() {
     const {
       selected,
@@ -95,7 +96,6 @@ class MeetingEnded extends React.PureComponent {
 
     const {
       router,
-      userName,
     } = this.props;
 
     if (selected <= 0) {
@@ -106,12 +106,11 @@ class MeetingEnded extends React.PureComponent {
     const message = {
       rating: selected,
       userId: Auth.userID,
+      authToken: Auth.token,
       meetingId: Auth.meetingID,
       comment: MeetingEnded.getComment(),
-      userName,
     };
     const url = '/html5client/feedback';
-
     const options = {
       method: 'POST',
       body: JSON.stringify(message),

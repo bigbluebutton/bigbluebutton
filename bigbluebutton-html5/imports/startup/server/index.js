@@ -80,10 +80,16 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
     const {
       meetingId,
       userId,
+      authToken,
     } = body;
 
+    const user = Users.findOne({
+      meetingId,
+      userId,
+      connectionStatus: 'offline',
+      authToken,
+    });
 
-    const user = Users.findOne({ meetingId, userId });
     const feedback = {
       userName: user.name,
       ...body,
