@@ -21,16 +21,6 @@ module.exports = class BaseManager {
     this._additionalChanels = additionalChannels;
     this._logPrefix = logPrefix;
     this._iceQueues = {};
-
-    this._trackRecordedStream();
-  }
-
-  _trackRecordedStream () {
-    this._bbbGW.on(C.USER_CAM_BROADCAST_STARTED_2x, (streamUrl) => {
-      Logger.info("[BaseManager] Server notifies that stream ", streamUrl, " is recorded");
-      let stream = isRecordedStream(streamUrl);
-      this.setStreamAsRecorded(stream);
-    });
   }
 
   async start() {

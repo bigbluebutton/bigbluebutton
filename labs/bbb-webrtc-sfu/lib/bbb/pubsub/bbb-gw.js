@@ -91,11 +91,9 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
           payload[C.MEETING_ID_2x] = meetingId;
           this.emit(C.STOP_TRANSCODER_RESP_2x+meetingId, payload);
           break;
-        case C.USER_CAM_BROADCAST_STARTED_2x:
-          this.emit(C.USER_CAM_BROADCAST_STARTED_2x, payload[C.STREAM_URL]);
-          break; 
         case C.RECORDING_STATUS_REPLY_MESSAGE_2x:
-          this.emit(C.RECORDING_STATUS_REPLY_MESSAGE_2x, payload);
+          meetingId = header[C.MEETING_ID_2x];
+          this.emit(C.RECORDING_STATUS_REPLY_MESSAGE_2x+meetingId, payload);
           break;
 
         // SCREENSHARE

@@ -49,7 +49,7 @@ module.exports = class Screenshare extends EventEmitter {
     this.recording = {};
     this.isRecorded = false;
 
-    this._BigBlueButtonGW.on(C.RECORDING_STATUS_REPLY_MESSAGE_2x, (payload) => {
+    this._BigBlueButtonGW.on(C.RECORDING_STATUS_REPLY_MESSAGE_2x+meetingId, (payload) => {
       Logger.info("[Screenshare] RecordingStatusReply ", payload.recorded);
 
       if (payload.recorded) {
