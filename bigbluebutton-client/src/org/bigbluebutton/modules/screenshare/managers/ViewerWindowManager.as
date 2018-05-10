@@ -54,8 +54,10 @@ package org.bigbluebutton.modules.screenshare.managers {
         
         public function handleViewWindowCloseEvent():void {
             LOGGER.debug("ViewerWindowManager Received stop viewing command");
-            closeWindow(viewWindow);
-            isViewing = false;
+            if (viewWindow) {
+                closeWindow(viewWindow);
+                isViewing = false;
+            }
         }
         
         private function closeWindow(window:IBbbModuleWindow):void {
