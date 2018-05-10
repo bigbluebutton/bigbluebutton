@@ -275,8 +275,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     visible = true;
                 } else {
                     startButton.label = ResourceUtil.getInstance().getString('bbb.users.breakout.invite');
-                    roomsBox.visible = durationBox.visible = recordBox.visible =
-                    roomsBox.includeInLayout = durationBox.includeInLayout = recordBox.includeInLayout = false;
+                    roomsBox.visible = durationBox.visible = recordBox.visible = 
+                    roomsBox.includeInLayout = durationBox.includeInLayout = recordBox.includeInLayout =
+					freeJoinBox.visible = freeJoinBox.includeInLayout = false;
                     textArea.text = ResourceUtil.getInstance().getString('bbb.users.breakout.updateBreakoutRooms');
                     assignUsersForInvitation();
                     visible = true;
@@ -307,16 +308,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>	
 			</mx:FormItem>
 			
-			<mx:FormItem id="recordBox" visible="{recordingEnabled}" direction="horizontal">
-				<mx:CheckBox id="recordCheckbox"
-							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
-				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>	
-			</mx:FormItem>
-			
 			<mx:FormItem id="freeJoinBox" direction="horizontal">
 				<mx:CheckBox id="freeJoinCheckbox"
 							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoinCheckbox.accessibilityName')}"/>
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.freeJoin')}" />	
+			</mx:FormItem>
+			
+			<mx:FormItem id="recordBox" visible="{recordingEnabled}" includeInLayout="{recordingEnabled}" direction="horizontal">
+				<mx:CheckBox id="recordCheckbox"
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>	
 			</mx:FormItem>
 		</mx:Form>
         
