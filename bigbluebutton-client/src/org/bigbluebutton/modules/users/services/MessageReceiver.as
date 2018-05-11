@@ -756,9 +756,11 @@ package org.bigbluebutton.modules.users.services
 			logData.streamId = stream;
       LOGGER.info(JSON.stringify(logData));
       
-      LiveMeeting.inst().webcams.remove(stream);
+      var mediaStream: MediaStream = LiveMeeting.inst().webcams.remove(stream);
       
-      sendStreamStoppedEvent(userId, stream);
+			if (mediaStream != null) {
+      	sendStreamStoppedEvent(mediaStream.userId, stream);
+			}
     }
     
     private function sendStreamStoppedEvent(userId: String, streamId: String):void{
