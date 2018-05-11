@@ -75,6 +75,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.connectingEchoTest',
     description: 'Message for echo test connecting',
   },
+  audioNotSupported: {
+    id: 'app.audioModal.audioNotSupported',
+    description: 'message displayed when audio in not supported in the browser',
+  },
 });
 
 class AudioModal extends Component {
@@ -287,7 +291,7 @@ class AudioModal extends Component {
               onClick={this.handleJoinListenOnly}
             />
           : null}
-        </span> : <h2>Audio not supported in Microsoft Edge</h2>}
+        </span> : <h2>{intl.formatMessage(intlMessages.audioNotSupported)}</h2>}
       </span>
     );
   }

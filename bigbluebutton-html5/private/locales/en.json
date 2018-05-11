@@ -259,6 +259,7 @@
     "app.audioModal.helpText": "Did you give BigBlueButton permission to access your microphone? Note that a dialog should appear when you try to join audio, asking for your media device permissions, please accept that in order to join the audio conference. If that is not the case, try changing your microphone permissions in your browser's settings.",
     "app.audioModal.connecting": "Connecting",
     "app.audioModal.connectingEchoTest": "Connecting to echo test",
+    "app.audioModal.audioNotSupported": "Audio not supported in Microsoft Edge",
     "app.audioManager.joinedAudio": "You have joined the audio conference",
     "app.audioManager.joinedEcho": "You have joined the echo test",
     "app.audioManager.leftAudio": "You have left the audio conference",
