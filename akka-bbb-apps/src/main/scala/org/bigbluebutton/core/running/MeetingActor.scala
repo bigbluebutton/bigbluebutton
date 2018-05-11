@@ -121,6 +121,7 @@ class MeetingActor(
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
+    isBreakout = props.meetingProp.isBreakout,
     lastUserLeftOnInMs = None,
     durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
