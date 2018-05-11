@@ -1,5 +1,22 @@
 import { check } from 'meteor/check';
-import updateCursor from '../modifiers/updateCursor';
+import { CursorStreamer } from '/imports/api/cursor';
+
+let cursorQueue = [];
+let cursorRecieverIsRunning = false;
+
+const proccess = () => {
+  if (!Object.keys(cursorQueue).length) {
+    cursorRecieverIsRunning = false;
+    return;
+  }
+  cursorRecieverIsRunning = true;
+  Object.keys(cursorQueue).forEach(meetingId => {
+    CursorStreamer.emit('message', { meetingId, cursors: cursorQueue[meetingId] });
+  });
+  cursorQueue = {};
+
+  Meteor.setTimeout(proccess, 30);
+};
 
 export default function handleCursorUpdate({ header, body }, meetingId) {
   const userId = header.userId;
@@ -10,5 +27,10 @@ export default function handleCursorUpdate({ header, body }, meetingId) {
   check(x, Number);
   check(y, Number);
 
-  return updateCursor(meetingId, userId, x, y);
+  if(!cursorQueue.hasOwnProperty(meetingId)) {
+    cursorQueue[meetingId] = {};
+  }
+  // overwrite since we dont care about the other positions
+  cursorQueue[meetingId][userId] = { x, y };
+  if (!cursorRecieverIsRunning) proccess();
 }

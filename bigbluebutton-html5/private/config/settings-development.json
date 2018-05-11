@@ -201,7 +201,7 @@
 
     "whiteboard": {
       "annotations": {
-        "message_frequency": 50,
+        "message_frequency": 16,
         "status": {
           "start": "DRAW_START",
           "update": "DRAW_UPDATE",
@@ -366,7 +366,7 @@
 
 
     "log": {
-      "level": "info"
+      "level": "error"
     }
   }
 }

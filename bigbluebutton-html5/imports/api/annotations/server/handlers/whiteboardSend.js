@@ -1,6 +1,23 @@
 import { check } from 'meteor/check';
-
+import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotation from '../modifiers/addAnnotation';
+
+let annotationsQueue = {};
+let annotationsRecieverIsRunning = false;
+
+const proccess = () => {
+  if (!Object.keys(annotationsQueue).length) {
+    annotationsRecieverIsRunning = false;
+    return;
+  }
+  annotationsRecieverIsRunning = true;
+  Object.keys(annotationsQueue).forEach(meetingId => {
+    AnnotationsStreamer.emit('added', { meetingId, annotations: annotationsQueue[meetingId] });
+  });
+  annotationsQueue = {};
+
+  Meteor.setTimeout(proccess, 60);
+};
 
 export default function handleWhiteboardSend({ header, body }, meetingId) {
   const userId = header.userId;
@@ -10,8 +27,14 @@ export default function handleWhiteboardSend({ header, body }, meetingId) {
   check(annotation, Object);
 
   const whiteboardId = annotation.wbId;
-
   check(whiteboardId, String);
+
+  if(!annotationsQueue.hasOwnProperty(meetingId)) {
+    annotationsQueue[meetingId] = [];
+  }
+
+  annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation });
+  if (!annotationsRecieverIsRunning) proccess();
 
   return addAnnotation(meetingId, whiteboardId, userId, annotation);
 }

@@ -11,6 +11,9 @@ import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import IntlStartup from './intl';
 
+import Annotations from '/imports/api/annotations';
+import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
+
 const propTypes = {
   error: PropTypes.object,
   errorCode: PropTypes.number,
@@ -73,6 +76,8 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
+    // this.props.annotationsHandler.stop();
+
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
@@ -93,7 +98,7 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
-  'users', 'chat', 'cursor', 'meetings', 'polls', 'presentations', 'annotations',
+  'users', 'chat', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
 ];
 
@@ -120,9 +125,25 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
     Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
+  const annotationsHandler = Meteor.subscribe('annotations', credentials, {
+    onReady: () => {
+      Annotations.find({}, { reactive: false }).forEach(a => {
+        try {
+          AnnotationsLocal.insert(a)
+        } catch (e) {
+            // who cares.
+        }
+      });
+      annotationsHandler.stop();
+    },
+    ...subscriptionErrorHandler,
+  });
+
+  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
     locale,
-    subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
+    subscriptionsReady,
+    annotationsHandler,
   };
 })(Base));
 
