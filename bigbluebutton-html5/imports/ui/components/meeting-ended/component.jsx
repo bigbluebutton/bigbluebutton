@@ -82,6 +82,7 @@ class MeetingEnded extends React.PureComponent {
     };
     this.setSelectedStar = this.setSelectedStar.bind(this);
     this.sendFeedback = this.sendFeedback.bind(this);
+    this.shouldShowFeedback = Meteor.settings.public.app.askForFeedbackOnLogout;
   }
   setSelectedStar(starNumber) {
     this.setState({
@@ -124,7 +125,7 @@ class MeetingEnded extends React.PureComponent {
   }
 
   render() {
-    const { intl, code, shouldShowFeedback } = this.props;
+    const { intl, code } = this.props;
     const noRating = this.state.selected <= 0;
     return (
       <div className={styles.parent}>
@@ -132,11 +133,11 @@ class MeetingEnded extends React.PureComponent {
           <div className={styles.content}>
             <h1 className={styles.title}>{intl.formatMessage(intlMessage[code])}</h1>
             <div className={styles.text}>
-              {shouldShowFeedback
+              {this.shouldShowFeedback
                 ? intl.formatMessage(intlMessage.subtitle)
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
-            {shouldShowFeedback ? (
+            {this.shouldShowFeedback ? (
               <div className={styles.rating}>
                 <Rating
                   total="5"
