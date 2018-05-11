@@ -440,8 +440,8 @@ class WhiteboardToolbar extends Component {
               repeatCount="0"
               fill="freeze"
             />
-          </circle> :
-          <circle cx="50%" cy="50%" r={this.state.thicknessSelected.value} stroke="black" strokeWidth="1" fill={this.state.colorSelected.value} />
+          </circle> : 
+          <circle cx="50%" cy="50%" r={this.state.thicknessSelected.value} stroke="black" stroke-width="1" fill={this.state.colorSelected.value} />
         }
       </svg>
     );
@@ -481,19 +481,22 @@ class WhiteboardToolbar extends Component {
   renderColorItemIcon() {
     return (
       <svg className={styles.customSvgIcon}>
-        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
-          <animate
-            ref={(ref) => { this.colorListIconColor = ref; }}
-            attributeName="fill"
-            attributeType="XML"
-            from={this.state.prevColorSelected.value}
-            to={this.state.colorSelected.value}
-            begin="indefinite"
-            dur={TRANSITION_DURATION}
-            repeatCount="0"
-            fill="freeze"
-          />
-        </rect>
+        { !deviceInfo.browserType().isEdge ?
+          <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
+            <animate
+              ref={(ref) => { this.colorListIconColor = ref; }}
+              attributeName="fill"
+              attributeType="XML"
+              from={this.state.prevColorSelected.value}
+              to={this.state.colorSelected.value}
+              begin="indefinite"
+              dur={TRANSITION_DURATION}
+              repeatCount="0"
+              fill="freeze"
+            />
+          </rect> :
+          <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={this.state.colorSelected.value}/>
+        }
       </svg>
     );
   }
