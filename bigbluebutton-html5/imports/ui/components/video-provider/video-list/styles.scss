@@ -161,15 +161,22 @@
   }
 }
 
-.muted {
+.muted, .voice {
   display: inline-block;
   width: 1.25rem;
   height: 1.25rem;
   color: $color-white;
-  background-color: $color-danger;
   border-radius: 50%;
 
   &::before {
     font-size: 75%;
   }
+}
+
+.muted {
+  background-color: $color-danger;
+}
+
+.voice {
+  background-color: $color-success;
 }

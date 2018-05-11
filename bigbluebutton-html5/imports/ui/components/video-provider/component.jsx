@@ -116,11 +116,6 @@ class VideoProvider extends Component {
     this.visibility.onHidden(this.pauseViewers);
   }
 
-  shouldComponentUpdate({ users: nextUsers }, nextState) {
-    const { users } = this.props;
-    return !_.isEqual(this.state, nextState) || users.length !== nextUsers.length;
-  }
-
   componentWillUpdate({ users, userId }) {
     const usersSharingIds = users.map(u => u.id);
     const usersConnected = Object.keys(this.webRtcPeers);
