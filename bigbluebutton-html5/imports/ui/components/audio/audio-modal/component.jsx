@@ -287,7 +287,7 @@ class AudioModal extends Component {
               onClick={this.handleJoinListenOnly}
             />
           : null}
-        </span> : <h2>Audio Not supported in Edge</h2>}
+        </span> : <h2>Audio not supported in Microsoft Edge</h2>}
       </span>
     );
   }
@@ -377,11 +377,11 @@ class AudioModal extends Component {
               data-test="audioModalHeader"
               className={styles.header}
             >
-              {<h3 className={styles.title}>
-                { deviceInfo.browserType().isEdge ? (content ?
+              { <h3 className={styles.title}>
+                { !deviceInfo.browserType().isEdge ? (content ?
                   this.contents[content].title :
-                  intl.formatMessage(intlMessages.audioChoiceLabel)) : null}
-              </h3>}
+                  intl.formatMessage(intlMessages.audioChoiceLabel)) : null }
+              </h3> }
               <Button
                 data-test="modalBaseCloseButton"
                 className={styles.closeBtn}
