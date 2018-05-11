@@ -61,12 +61,14 @@ public class MessagePublisher {
 	}
 	*/
 	
-	public void startRotateLeftTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress) {
+	public void startRotateLeftTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress, String userId, String authToken) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(Constants.TRANSCODER_TYPE, Constants.TRANSCODE_ROTATE_LEFT);
 		params.put(Constants.LOCAL_IP_ADDRESS, ipAddress);
 		params.put(Constants.DESTINATION_IP_ADDRESS, ipAddress);
 		params.put(Constants.INPUT, streamName);
+		params.put(Constants.AUTH_TOKEN, authToken);
+		params.put(Constants.USER_ID, userId);
 		Map<String, Object> body = new HashMap<String, Object>();
 		body.put(Constants.TRANSCODER_ID, transcoderId);
 		body.put(Constants.PARAMS, params);
@@ -74,12 +76,14 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg);
 	}
 
-	public void startRotateRightTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress) {
+	public void startRotateRightTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress, String userId, String authToken) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(Constants.TRANSCODER_TYPE, Constants.TRANSCODE_ROTATE_RIGHT);
 		params.put(Constants.LOCAL_IP_ADDRESS, ipAddress);
 		params.put(Constants.DESTINATION_IP_ADDRESS, ipAddress);
 		params.put(Constants.INPUT, streamName);
+		params.put(Constants.AUTH_TOKEN, authToken);
+		params.put(Constants.USER_ID, userId);
 		Map<String, Object> body = new HashMap<String, Object>();
 		body.put(Constants.TRANSCODER_ID, transcoderId);
 		body.put(Constants.PARAMS, params);
@@ -87,12 +91,14 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg);
 	}
 
-	public void startRotateUpsideDownTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress) {
+	public void startRotateUpsideDownTranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress, String userId, String authToken) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(Constants.TRANSCODER_TYPE, Constants.TRANSCODE_ROTATE_UPSIDE_DOWN);
 		params.put(Constants.LOCAL_IP_ADDRESS, ipAddress);
 		params.put(Constants.DESTINATION_IP_ADDRESS, ipAddress);
 		params.put(Constants.INPUT, streamName);
+		params.put(Constants.AUTH_TOKEN, authToken);
+		params.put(Constants.USER_ID, userId);
 		Map<String, Object> body = new HashMap<String, Object>();
 		body.put(Constants.TRANSCODER_ID, transcoderId);
 		body.put(Constants.PARAMS, params);
@@ -100,13 +106,15 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, msg);
 	}
 
-	public void startH264ToH263TranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress) {
+	public void startH264ToH263TranscoderRequest(String meetingId, String transcoderId, String streamName, String ipAddress, String userId, String authToken) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(Constants.TRANSCODER_TYPE, Constants.TRANSCODE_H264_TO_H263);
 		params.put(Constants.MODULE, Constants.VIDEO);
 		params.put(Constants.LOCAL_IP_ADDRESS, ipAddress);
 		params.put(Constants.DESTINATION_IP_ADDRESS, ipAddress);
 		params.put(Constants.INPUT, streamName);
+		params.put(Constants.AUTH_TOKEN, authToken);
+		params.put(Constants.USER_ID, userId);
 		Map<String, Object> body = new HashMap<String, Object>();
 		body.put(Constants.TRANSCODER_ID, transcoderId);
 		body.put(Constants.PARAMS, params);

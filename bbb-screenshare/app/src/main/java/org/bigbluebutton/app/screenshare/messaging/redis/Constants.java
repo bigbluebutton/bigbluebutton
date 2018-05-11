@@ -1,4 +1,22 @@
-package org.bigbluebutton.red5.pubsub;
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+package org.bigbluebutton.app.screenshare.messaging.redis;
 
 public class Constants {
   public static final String LOCAL_IP_ADDRESS                = "local_ip_address";
@@ -9,14 +27,7 @@ public class Constants {
   public static final String TRANSCODER_TYPE                 = "transcoder_type";
   public static final String INPUT                           = "input";
   public static final String OUTPUT                          = "output";
-  public static final String TRANSCODE_RTP_TO_RTMP           = "transcode_rtp_to_rtmp";
-  public static final String TRANSCODE_RTMP_TO_RTP           = "transcode_rtmp_to_rtp";
-  public static final String TRANSCODE_FILE_TO_RTP           = "transcode_file_to_rtp";
-  public static final String TRANSCODE_FILE_TO_RTMP          = "transcode_file_to_rtmp";
   public static final String TRANSCODE_H264_TO_H263          = "transcode_h264_to_h263";
-  public static final String TRANSCODE_ROTATE_RIGHT          = "transcode_rotate_right";
-  public static final String TRANSCODE_ROTATE_LEFT           = "transcode_rotate_left";
-  public static final String TRANSCODE_ROTATE_UPSIDE_DOWN    = "transcode_rotate_upside_down";
   public static final String MODULE                          = "module";
   public static final String PROBE_RTMP                      = "probe_rtmp";
 
@@ -30,7 +41,7 @@ public class Constants {
   public static final String PARAMS                          = "params";
   public static final String TRANSCODER_ID                   = "transcoderId";
   public static final String MEETING_ID                      = "meetingId";
-  public static final String VIDEO                           = "video";
+  public static final String SCREENSHARE                     = "screenshare";
   public static final String AUTH_TOKEN                      = "authToken";
   public static final String USER_ID                         = "userId";
 }

@@ -18,7 +18,8 @@ public class H263Converter {
 
 	private static Logger log = Red5LoggerFactory.getLogger(H263Converter.class, "video");
 
-	public final static String H263PREFIX = "h263/";
+	public final static String H263PREFIX = "h263-";
+	private final String H263_ID = "H263-";
 
 	private String origin;
 	private Integer numListeners = 0;
@@ -28,6 +29,8 @@ public class H263Converter {
 	private String ipAddress;
 	private String meetingId;
 	private String userId;
+	private String authToken;
+	private String transcoderId;
 
 	/**
 	 * Creates a H263Converter from a given streamName. It is assumed
@@ -41,11 +44,13 @@ public class H263Converter {
 		this.origin = origin;
 		this.publisher = publisher;
 		this.publishing = false;
+		this.meetingId = getMeetingId();
+		this.userId = getUserId();
+		this.authToken = getAuthToken();
+		this.transcoderId = H263_ID + origin;
 
 		IConnection conn = Red5.getConnectionLocal();
 		this.ipAddress = conn.getHost();
-		this.meetingId = conn.getScope().getName();
-		this.userId = getUserId();
 	}
 
 	/**
@@ -53,7 +58,7 @@ public class H263Converter {
 	 */
 	private void startConverter() {
 		if (!publishing) {
-			publisher.startH264ToH263TranscoderRequest(meetingId, userId, origin, ipAddress);
+			publisher.startH264ToH263TranscoderRequest(meetingId, transcoderId, origin, ipAddress, userId, authToken);
 			publishing = true;
 		} else log.debug("No need to start transcoder, it is already running");
 	}
@@ -93,7 +98,7 @@ public class H263Converter {
 	public synchronized void stopConverter() {
 		if (publishing) {
 			this.numListeners = 0;
-			publisher.stopTranscoderRequest(meetingId, userId);
+			publisher.stopTranscoderRequest(meetingId, transcoderId);
 			publishing = false;
 			log.debug("Transcoder force-stopped");
 		} else log.debug("No need to stop transcoder, it already stopped");
@@ -103,5 +108,17 @@ public class H263Converter {
 		String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
 		if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
 		return userid;
+	}
+
+	private String getAuthToken() {
+		String authToken = (String) Red5.getConnectionLocal().getAttribute("AUTH_TOKEN");
+		if ((authToken == null) || ("".equals(authToken))) authToken = "unknown-authToken";
+		return authToken;
+	}
+
+	private String getMeetingId() {
+		String meetingId = (String) Red5.getConnectionLocal().getAttribute("MEETING_ID");
+		if ((meetingId == null) || ("".equals(meetingId))) meetingId = "unknown-meetingId";
+		return meetingId;
 	}
 }

@@ -35,4 +35,6 @@ public class Constants {
   public static final String TRANSCODER_ID                   = "transcoderId";
   public static final String MEETING_ID                      = "meetingId";
   public static final String VIDEO                           = "video";
+  public static final String AUTH_TOKEN                      = "authToken";
+  public static final String USER_ID                         = "userId";
 }

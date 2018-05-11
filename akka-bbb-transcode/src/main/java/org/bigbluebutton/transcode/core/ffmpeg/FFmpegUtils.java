@@ -18,11 +18,11 @@ public class FFmpegUtils {
     private static final String HIGH_QUALITY = "640x480";
 
     public static final String VIDEO_MODULE = "video";
-    public static final String DESKSHARE_MODULE = "deskShare";
+    public static final String SCREENSHARE_MODULE = "screenshare";
 
     public static final String ROTATE_RIGHT = "rotate_right";
     public static final String ROTATE_LEFT = "rotate_left";
-    public static final String ROTATE_UPSIDE_DOWN = "rotate_left/rotate_left";
+    public static final String ROTATE_UPSIDE_DOWN = "rotate_upside_down";
 
     public static final String H263PREFIX = "h263";
 
