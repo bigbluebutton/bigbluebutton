@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { styles } from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
 import ToolbarSubmenu from './toolbar-submenu/component';
@@ -125,13 +126,15 @@ class WhiteboardToolbar extends Component {
   }
 
   componentDidMount() {
-    if (this.state.annotationSelected.value !== 'text') {
-      // trigger initial animation on the thickness circle, otherwise it stays at 0
-      this.thicknessListIconColor.beginElement();
-      this.thicknessListIconRadius.beginElement();
-      this.colorListIconColor.beginElement();
-    } else {
-      this.colorListIconColor.beginElement();
+    if (!deviceInfo.browserType().isEdge) {
+      if (this.state.annotationSelected.value !== 'text') {
+        // trigger initial animation on the thickness circle, otherwise it stays at 0
+        this.thicknessListIconColor.beginElement();
+        this.thicknessListIconRadius.beginElement();
+        this.colorListIconColor.beginElement();
+      } else {
+        this.colorListIconColor.beginElement();
+      }
     }
   }
 
@@ -174,26 +177,27 @@ class WhiteboardToolbar extends Component {
      * 3. Switch from the Text tool to any other - trigger color and radius for thickness
      * 4. Trigger initial animation for the icons
     */
-
-    // 1st case
-    if (this.state.colorSelected.value !== prevState.colorSelected.value) {
-      // 1st case b)
-      if (this.state.annotationSelected.value !== 'text') {
+    if (!deviceInfo.browserType().isEdge) {
+      // 1st case
+      if (this.state.colorSelected.value !== prevState.colorSelected.value) {
+        // 1st case b)
+        if (this.state.annotationSelected.value !== 'text') {
+          this.thicknessListIconColor.beginElement();
+        }
+        // 1st case a)
+        this.colorListIconColor.beginElement();
+      // 2nd case
+      } else if (this.state.thicknessSelected.value !== prevState.thicknessSelected.value) {
+        this.thicknessListIconRadius.beginElement();
+        // 3rd case
+      } else if (this.state.annotationSelected.value !== 'text' &&
+            prevState.annotationSelected.value === 'text') {
+        this.thicknessListIconRadius.beginElement();
         this.thicknessListIconColor.beginElement();
       }
-      // 1st case a)
-      this.colorListIconColor.beginElement();
-    // 2nd case
-    } else if (this.state.thicknessSelected.value !== prevState.thicknessSelected.value) {
-      this.thicknessListIconRadius.beginElement();
-      // 3rd case
-    } else if (this.state.annotationSelected.value !== 'text' &&
-          prevState.annotationSelected.value === 'text') {
-      this.thicknessListIconRadius.beginElement();
-      this.thicknessListIconColor.beginElement();
-    }
 
-    // 4th case, initial animation is triggered in componentDidMount
+      // 4th case, initial animation is triggered in componentDidMount
+    }
   }
 
   // open a submenu
