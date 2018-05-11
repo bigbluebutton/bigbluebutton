@@ -78,7 +78,9 @@ class ShortcutHelpComponent extends Component {
   render() {
     const { intl } = this.props;
     const { isWindows, isLinux, isMac } = deviceInfo.osType();
-    const { isFirefox, isChrome, isIE } = deviceInfo.browserType();
+    const {
+      isFirefox, isChrome, isIE, isEdge,
+    } = deviceInfo.browserType();
     const shortcuts = Object.values(SHORTCUTS_CONFIG);
 
     let accessMod = null;
@@ -88,7 +90,7 @@ class ShortcutHelpComponent extends Component {
     }
 
     if (isWindows) {
-      accessMod = isIE ? 'Alt' : accessMod;
+      accessMod = isIE || isEdge ? 'Alt' : accessMod;
     }
 
     if (isWindows || isLinux) {
