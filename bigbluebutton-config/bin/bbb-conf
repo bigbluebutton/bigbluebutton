@@ -1602,7 +1602,7 @@ if [ $CHECK ]; then
                 echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento)"
                 echo "                        kurentoUrl: $KURENTO_URL"
                 echo "                         kurentoIp: $KURENTO_IP"
-                echo "                         kurentoIp: $KURENTO_LOCAL_IP"
+                echo "                    localIpAddress: $KURENTO_LOCAL_IP"
                 echo "               recordScreenSharing: $KURENTO_RECORD_SCREEN_SHARING"
                 echo "                     recordWebcams: $KURENTO_RECORD_WEBCAMS"
         fi
