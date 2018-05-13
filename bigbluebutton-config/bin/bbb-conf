@@ -1592,6 +1592,21 @@ if [ $CHECK ]; then
 		echo "                     playback host: $PLAYBACK_IP"
 	fi
 
+        if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
+                KURENTO_URL=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoUrl/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+                KURENTO_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoIp/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+                KURENTO_LOCAL_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/localIpAddress/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+                KURENTO_RECORD_SCREEN_SHARING=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordScreenSharing/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+                KURENTO_RECORD_WEBCAMS=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordWebcams/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+                echo
+                echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento)"
+                echo "                        kurentoUrl: $KURENTO_URL"
+                echo "                         kurentoIp: $KURENTO_IP"
+                echo "                         kurentoIp: $KURENTO_LOCAL_IP"
+                echo "               recordScreenSharing: $KURENTO_RECORD_SCREEN_SHARING"
+                echo "                     recordWebcams: $KURENTO_RECORD_WEBCAMS"
+        fi
+
 	check_state
 	echo
 
