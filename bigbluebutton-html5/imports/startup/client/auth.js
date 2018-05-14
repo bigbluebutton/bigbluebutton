@@ -33,7 +33,10 @@ export function joinRouteHandler(nextState, replace, callback) {
 
       setCustomLogoUrl(customLogoURL);
       const metakeys = metadata.length
-        ? metadata.reduce((acc, meta) => ({ ...acc, ...meta })) : {};
+        ? metadata.reduce((acc, meta) => {
+          const key = Object.keys(meta).shift();
+          return { ...acc, [key]: JSON.parse(meta[key]) };
+        }) : {};
       SessionStorage.setItem(METADATA_KEY, metakeys);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
