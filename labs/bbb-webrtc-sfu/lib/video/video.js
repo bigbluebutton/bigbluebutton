@@ -195,6 +195,12 @@ module.exports = class Video extends EventEmitter {
     this.sendStartShareEvent();
   }
 
+  async stopRecording() {
+    await this.mcs.stopRecording(this.userId, this.mediaId, this.recording.recordingId);
+    this.sendStopShareEvent();
+    this.recording = {};
+  }
+
   async start (sdpOffer, callback) {
     Logger.info("[video] Starting video instance for", this.streamName);
     let sdpAnswer;
@@ -262,6 +268,17 @@ module.exports = class Video extends EventEmitter {
       this.status = C.MEDIA_STARTED;
     }
 
+  }
+
+  async orientationChange () {
+    Logger.info("[video] Orientation change");
+    if (this.isRecorded) {
+      Logger.info("[video] Flipped the screen, restart recording");
+      await this.stopRecording();
+      await this.startRecording();
+    } else {
+      Logger.info("[video] Not recording do nothing");
+    }
   }
 
   sendStartShareEvent() {

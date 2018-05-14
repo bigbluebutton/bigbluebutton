@@ -286,6 +286,8 @@ module.exports = class MediaController {
       await sourceSession.connect(session._mediaElement);
 
       sourceSession.subscribedSessions.push(session.id);
+      this._mediaSessions[session.id] = session;
+
       return Promise.resolve(answer);
     }
     catch (err) {
@@ -296,6 +298,35 @@ module.exports = class MediaController {
       if (typeof err === 'undefined' && session) {
         session.sessionStarted();
       }
+    }
+  }
+
+  async stopRecording (userId, sourceId, recId) {
+    Logger.info("[mcs-controller] stopRecording ", recId);
+
+    const user = await this.getUserMCS(userId);
+
+    let answer;
+    let recSession = this._mediaSessions[recId];
+    let sourceSession = this._mediaSessions[sourceId];
+
+    if (!recSession) {
+      return Promise.reject(new Error("[mcs-controller] Recording session", recId, "was not found"));
+    }
+
+    if (!sourceSession) {
+      return Promise.reject(new Error("[mcs-controller] Media session", sourceId, "was not found"));
+    }
+
+    try {
+      answer = await user.stopSession(recSession.id);
+      user.unsubscribe(recSession.id);
+      this._mediaSessions[recId] = null;
+      return Promise.resolve(answer);
+    }
+    catch (err) {
+      err = this._handleError(err);
+      return Promise.reject(err);
     }
   }
 
