@@ -35,6 +35,8 @@ export function joinRouteHandler(nextState, replace, callback) {
       const metakeys = metadata.length
         ? metadata.reduce((acc, meta) => {
           const key = Object.keys(meta).shift();
+          /* this reducer tranform array of objects in a sigle object and
+           force the metadata a be boolean value */
           return { ...acc, [key]: JSON.parse(meta[key]) };
         }) : {};
       SessionStorage.setItem(METADATA_KEY, metakeys);
