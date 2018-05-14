@@ -611,21 +611,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
                 if (BrowserCheck.isFirefox()) {
                     if (browserPermissionHelper) {
-						if (Capabilities.os.indexOf("Mac") >= 0){
-							browserPermissionHelper.currentState = "firefoxMicMacOSX";
-						}
-						else {
+						if (Capabilities.os.indexOf("Windows") >= 0) {
 							browserPermissionHelper.currentState = "firefoxMic";
+						} else {
+							browserPermissionHelper.currentState = "firefoxMicMacOSX";
 						}
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 200;
                     }
                 } else if (BrowserCheck.isChrome()) {
                     if (browserPermissionHelper) {
-						if (Capabilities.os.indexOf("Mac") >= 0){
-							browserPermissionHelper.currentState = "chromeMicMacOSX";
-						} else {
+						if (Capabilities.os.indexOf("Windows") >= 0) {
 							browserPermissionHelper.currentState = "chromeMic";
+						} else {
+							browserPermissionHelper.currentState = "chromeMicMacOSX";
 						}
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 130;
