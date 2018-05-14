@@ -186,7 +186,7 @@ class AudioManager {
       this.muteHandle = query.observeChanges({
         changed: (id, fields) => {
           if (fields.muted === this.isMuted) return;
-          this.isMuted = fields.muted || false;
+          this.isMuted = fields.muted;
         },
       });
     }
