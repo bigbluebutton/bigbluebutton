@@ -18,6 +18,7 @@ const deviceInfo = {
       isChrome: !!window.chrome && !!window.chrome.webstore,
       isFirefox: typeof InstallTrigger !== 'undefined',
       isIE: 'ActiveXObject' in window,
+      isEdge: !document.documentMode && window.StyleMedia,
     };
   },
   osType() {
