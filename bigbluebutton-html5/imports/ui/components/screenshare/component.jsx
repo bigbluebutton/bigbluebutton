@@ -6,7 +6,7 @@ export default class ScreenshareComponent extends React.Component {
   constructor() {
     super();
     this.state = {
-      hideConnecting: false,
+      loaded: false,
     };
 
     this.hideConnectingIcon = this.hideConnectingIcon.bind(this);
@@ -24,12 +24,12 @@ export default class ScreenshareComponent extends React.Component {
     this.props.unshareScreen();
   }
   hideConnectingIcon() {
-    this.setState({ hideConnecting: true });
+    this.setState({ loaded: true });
   }
 
   render() {
     return (
-      [(<div className={styles.connecting} hidden={this.state.hideConnecting}/>),
+      [!this.state.loaded ? (<div className={styles.connecting} />) : null,
       (<video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline onLoadedData={this.hideConnectingIcon} />)]
     );
   }
