@@ -9,7 +9,7 @@ export default class ScreenshareComponent extends React.Component {
       loaded: false,
     };
 
-    this.hideConnectingIcon = this.hideConnectingIcon.bind(this);
+    this.onVideoLoad = this.onVideoLoad.bind(this);
   }
   componentDidMount() {
     this.props.presenterScreenshareHasStarted();
@@ -23,14 +23,14 @@ export default class ScreenshareComponent extends React.Component {
     this.props.presenterScreenshareHasEnded();
     this.props.unshareScreen();
   }
-  hideConnectingIcon() {
+  onVideoLoad() {
     this.setState({ loaded: true });
   }
 
   render() {
     return (
       [!this.state.loaded ? (<div className={styles.connecting} />) : null,
-      (<video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline onLoadedData={this.hideConnectingIcon} />)]
+        (<video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline onLoadedData={this.onVideoLoad} />)]
     );
   }
 }
