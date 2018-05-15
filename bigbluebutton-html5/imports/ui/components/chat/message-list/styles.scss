@@ -24,7 +24,7 @@ $padding: $md-padding-x;
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  margin-right: -$padding;
+  margin-right: -$sm-padding-x;
   padding-right: $padding;
   padding-top: 0;
   &:after {
