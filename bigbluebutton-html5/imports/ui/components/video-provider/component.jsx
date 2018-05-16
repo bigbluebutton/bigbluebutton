@@ -383,7 +383,6 @@ class VideoProvider extends Component {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
-        console.error(error);
         const errorMessage = intlMediaErrorsMessages[error.name]
         || intlMediaErrorsMessages.permissionError;
         that.notifyError(intl.formatMessage(errorMessage));
