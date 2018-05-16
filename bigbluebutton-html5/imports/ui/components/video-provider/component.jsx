@@ -32,6 +32,18 @@ const intlMessages = defineMessages({
     id: 'app.video.chromeExtensionErrorLink',
     description: 'Error message for Chrome Extension not installed',
   },
+  NotFoundError: {
+    id: 'app.video.notFoundError',
+    description: 'error message when can not get webcam video',
+  },
+  NotAllowedError: {
+    id: 'app.video.notAllowed',
+    description: 'error message when webcam had permission denied',
+  },
+  NotSupportedError: {
+    id: 'app.video.notSupportedError',
+    description: 'error message when origin do not have ssl valid',
+  },
 });
 
 const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
@@ -364,7 +376,8 @@ class VideoProvider extends Component {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
-        that.notifyError(intl.formatMessage(intlMessages.permissionError));
+        const errorMessage = intlMessages[error.name] || intlMessages.permissionError;
+        that.notifyError(intl.formatMessage(errorMessage));
         /* This notification error is displayed considering kurento-utils
          * returned the error 'The request is not allowed by the user agent
          * or the platform in the current context.', but there are other
