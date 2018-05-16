@@ -16,10 +16,6 @@ const intlMessages = defineMessages({
     id: 'app.video.iceCandidateError',
     description: 'Error message for ice candidate fail',
   },
-  permissionError: {
-    id: 'app.video.permissionError',
-    description: 'Error message for webcam permission',
-  },
   sharingError: {
     id: 'app.video.sharingError',
     description: 'Error on sharing webcam',
@@ -32,6 +28,13 @@ const intlMessages = defineMessages({
     id: 'app.video.chromeExtensionErrorLink',
     description: 'Error message for Chrome Extension not installed',
   },
+});
+
+const intlMediaErrorsMessages = defineMessages({
+  permissionError: {
+    id: 'app.video.permissionError',
+    description: 'Error message for webcam permission',
+  },
   NotFoundError: {
     id: 'app.video.notFoundError',
     description: 'error message when can not get webcam video',
@@ -42,6 +45,10 @@ const intlMessages = defineMessages({
   },
   NotSupportedError: {
     id: 'app.video.notSupportedError',
+    description: 'error message when origin do not have ssl valid',
+  },
+  NotReadableError: {
+    id: 'app.video.notReadableError',
     description: 'error message when origin do not have ssl valid',
   },
 });
@@ -376,7 +383,9 @@ class VideoProvider extends Component {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
-        const errorMessage = intlMessages[error.name] || intlMessages.permissionError;
+        console.error(error);
+        const errorMessage = intlMediaErrorsMessages[error.name]
+        || intlMediaErrorsMessages.permissionError;
         that.notifyError(intl.formatMessage(errorMessage));
         /* This notification error is displayed considering kurento-utils
          * returned the error 'The request is not allowed by the user agent
