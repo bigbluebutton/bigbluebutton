@@ -44,16 +44,20 @@ module BigBlueButton
 
     # Extract a page from a pdf file as a png image
     def self.extract_png_page_from_pdf(page_num, pdf_presentation, png_out, resize = '800x600')
+      # In order to handle portrait docs better, scale to a square based on
+      # the larger of height, width in the resize parameter.
+      scale = resize.split('x').map(&:to_i).max
       BigBlueButton.logger.info("Task: Extracting a page from pdf file as png image")
       temp_out = "#{File.dirname(png_out)}/temp-#{File.basename(png_out, '.png')}"
-      command = "pdftocairo -png -f #{page_num} -l #{page_num} -r 300 -singlefile #{pdf_presentation} #{temp_out}"
+      command = "pdftocairo -png -f #{page_num} -l #{page_num} -scale-to #{scale} -singlefile #{pdf_presentation} #{temp_out}"
       status = BigBlueButton.execute(command, false)
       temp_out += ".png"
       if status.success? and File.exist?(temp_out)
         # Resize to the requested size
-        command = "convert #{temp_out} -resize #{resize} -quality 90 +dither -depth 8 -colors 256 #{png_out}"
-        BigBlueButton.execute(command)
-      else
+        command = "convert #{temp_out} -resize #{scale}x#{scale} -quality 90 +dither -depth 8 -colors 256 #{png_out}"
+        status = BigBlueButton.execute(command, false)
+      end
+      if !status.success? or !File.exist?(png_out)
         # If page extraction failed, generate a blank white image
         command = "convert -size #{resize} xc:white -quality 90 +dither -depth 8 -colors 256 #{png_out}"
         BigBlueButton.execute(command)
@@ -69,8 +73,11 @@ module BigBlueButton
 
     # Convert an image to a png
     def self.convert_image_to_png(image, png_image, resize = '800x600')
+      # In order to handle portrait docs better, scale to a square based on
+      # the larger of height, width in the resize parameter.
+      scale = resize.split('x').map(&:to_i).max
       BigBlueButton.logger.info("Task: Converting image to .png")
-      command = "convert #{image} -resize #{resize} -background white -flatten #{png_image}"
+      command = "convert #{image} -resize #{scale}x#{scale} -background white -flatten #{png_image}"
       status = BigBlueButton.execute(command, false)
       if !status.success? or !File.exist?(png_image)
         # If image conversion failed, generate a blank white image

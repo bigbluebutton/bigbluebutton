@@ -179,7 +179,7 @@ if not FileTest.directory?(target_dir)
           text = {}
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
-              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
+              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
               t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
               text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
@@ -191,7 +191,7 @@ if not FileTest.directory?(target_dir)
       else
         ext = File.extname("#{images[0]}")
         BigBlueButton::Presentation.convert_image_to_png(
-          images[0], "#{target_pres_dir}/slide-1.png", '1600x1200')
+          images[0], "#{target_pres_dir}/slide-1.png", '1600x1600')
       end
 
       # Copy thumbnails from raw files
