@@ -160,7 +160,7 @@ public class SipPeer implements SipRegisterAgentListener {
                 ListenOnlyUser lou = GlobalCall.removeUser(clientId, destination);
                 if (lou != null) {
                 	log.info("User has disconnected from global audio, user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
-                	messagingService.userDisconnectedFromGlobalAudio(lou.voiceConf, lou.callerIdName);
+                	messagingService.userDisconnectedFromGlobalAudio(lou.voiceConf, lou.callerIdName, clientId);
                 }
                 ca.hangup();
 

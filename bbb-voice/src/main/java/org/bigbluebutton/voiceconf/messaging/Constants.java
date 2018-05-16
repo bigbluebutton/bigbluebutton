@@ -10,4 +10,5 @@ public class Constants {
   public static final String USER_ID                         = "userId";
   public static final String VOICE_CONF                      = "voiceConf";
   public static final String MESSAGE                         = "message";
+  public static final String CONNID = "connId";
 }

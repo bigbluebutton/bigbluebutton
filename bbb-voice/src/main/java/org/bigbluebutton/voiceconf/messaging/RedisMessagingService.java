@@ -52,32 +52,32 @@ public class RedisMessagingService implements IMessagingService {
 	}
 
 	@Override
-	public void userConnectedToGlobalAudio(String voiceConf, String callerIdName) {
+	public void userConnectedToGlobalAudio(String voiceConf, String callerIdName, String connId) {
 		
   	Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
     if (matcher.matches()) {			
 	    String userid = matcher.group(1).trim();
 	    String name = matcher.group(2).trim();
-			String json = new UserConnectedToGlobalAudio(voiceConf, userid, name).toJson();
+			String json = new UserConnectedToGlobalAudio(voiceConf, userid, name, connId).toJson();
 			sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
     } else {
     	log.warn("Invalid calleridname [{}] in userConnectedToGlobalAudio as it does not match pattern (.*)-bbbID-(.*)");
-			String json = new UserConnectedToGlobalAudio(voiceConf, callerIdName, callerIdName).toJson();
+			String json = new UserConnectedToGlobalAudio(voiceConf, callerIdName, callerIdName, connId).toJson();
 			sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
     }
 	}
 
 	@Override
-	public void userDisconnectedFromGlobalAudio(String voiceConf, String callerIdName) {
+	public void userDisconnectedFromGlobalAudio(String voiceConf, String callerIdName, String connId) {
 	  	Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
 	    if (matcher.matches()) {
 		    String userid = matcher.group(1).trim();
 		    String name = matcher.group(2).trim();
-				String json = new UserDisconnectedFromGlobalAudio(voiceConf, userid, name).toJson();
+				String json = new UserDisconnectedFromGlobalAudio(voiceConf, userid, name, connId).toJson();
 				sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
 	    } else {
 	    	log.warn("Invalid calleridname [{}] in userDisconnectedFromGlobalAudio as it does not match pattern (.*)-bbbID-(.*)");
-				String json = new UserDisconnectedFromGlobalAudio(voiceConf, callerIdName, callerIdName).toJson();
+				String json = new UserDisconnectedFromGlobalAudio(voiceConf, callerIdName, callerIdName, connId).toJson();
 				sender.send(MessagingConstants.TO_AKKA_APPS_CHANNEL, json);
 	    }
 	}

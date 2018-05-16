@@ -297,7 +297,7 @@ case class VoiceRecordingStoppedEvtMsgBody(meetingId: String, stream: String, ti
 object UserConnectedToGlobalAudioMsg { val NAME = "UserConnectedToGlobalAudioMsg" }
 case class UserConnectedToGlobalAudioMsg(header: BbbCoreVoiceConfHeader,
                                          body: UserConnectedToGlobalAudioMsgBody) extends VoiceStandardMsg
-case class UserConnectedToGlobalAudioMsgBody(userId: String, name: String)
+case class UserConnectedToGlobalAudioMsgBody(userId: String, name: String, connId: String)
 
  /**
   * Sent from bbb-voice when a user disconnects from "global audio"
@@ -305,4 +305,4 @@ case class UserConnectedToGlobalAudioMsgBody(userId: String, name: String)
 object UserDisconnectedFromGlobalAudioMsg { val NAME = "UserDisconnectedFromGlobalAudioMsg" }
 case class UserDisconnectedFromGlobalAudioMsg(header: BbbCoreVoiceConfHeader,
                                               body: UserDisconnectedFromGlobalAudioMsgBody) extends VoiceStandardMsg
-case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String)
+case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String, connId: String)

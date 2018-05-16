@@ -37,16 +37,12 @@ package org.bigbluebutton.core.managers
   import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.main.views.ReconnectionPopup;
+  import org.bigbluebutton.util.ConnUtil;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ReconnectionManager
   {
 	private static const LOGGER:ILogger = getClassLogger(ReconnectionManager);      
-
-    public static const BIGBLUEBUTTON_CONNECTION:String = "BIGBLUEBUTTON_CONNECTION";
-    public static const SIP_CONNECTION:String = "SIP_CONNECTION";
-    public static const VIDEO_CONNECTION:String = "VIDEO_CONNECTION";
-    public static const DESKSHARE_CONNECTION:String = "DESKSHARE_CONNECTION";
 
     private var _connections:Dictionary = new Dictionary();
     private var _reestablished:ArrayCollection = new ArrayCollection();
@@ -61,8 +57,8 @@ package org.bigbluebutton.core.managers
     }
     
     private function reconnect(e:TimerEvent = null):void {
-      if (_connections.hasOwnProperty(BIGBLUEBUTTON_CONNECTION)) {
-        reconnectHelper(BIGBLUEBUTTON_CONNECTION);
+      if (_connections.hasOwnProperty(ConnUtil.BIGBLUEBUTTON_CONNECTION)) {
+        reconnectHelper(ConnUtil.BIGBLUEBUTTON_CONNECTION);
       } else {
         for (var type:String in _connections) {
           reconnectHelper(type);
@@ -124,22 +120,6 @@ package org.bigbluebutton.core.managers
       return true;
     }
     
-    private function dispatchReconnectionSucceededEvent(type:String):void {
-      var map:Object = {
-        BIGBLUEBUTTON_CONNECTION: BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT,
-        SIP_CONNECTION: BBBEvent.RECONNECT_SIP_SUCCEEDED_EVENT,
-        VIDEO_CONNECTION: BBBEvent.RECONNECT_VIDEO_SUCCEEDED_EVENT,
-        DESKSHARE_CONNECTION: BBBEvent.RECONNECT_DESKSHARE_SUCCEEDED_EVENT
-      };
-      
-      if (map.hasOwnProperty(type)) {
-        LOGGER.debug("dispatchReconnectionSucceededEvent, type={0}", [type]);
-        _dispatcher.dispatchEvent(new BBBEvent(map[type]));
-      } else {
-		LOGGER.debug("dispatchReconnectionSucceededEvent, couldn't find a map value for type {0}", [type]);
-      }
-    }
-
     public function onConnectionAttemptSucceeded(type:String):void {
 	  var logData:Object = UsersUtil.initLogData();
 	  logData.connection = type;
@@ -147,9 +127,10 @@ package org.bigbluebutton.core.managers
 	  logData.logCode = "conn_mgr_reconnect_succeeded";
 	  LOGGER.info(JSON.stringify(logData));
 	  
-      dispatchReconnectionSucceededEvent(type);
+      ConnUtil.dispatchReconnectionSucceededEvent(type);
       delete _connections[type];
-      if (type == BIGBLUEBUTTON_CONNECTION) {
+			
+      if (type == ConnUtil.BIGBLUEBUTTON_CONNECTION) {
         reconnect();
       }
 
@@ -157,9 +138,7 @@ package org.bigbluebutton.core.managers
       if (connectionDictEmpty) {
         var msg:String = connectionReestablishedMessage();
 
-        _dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT, 
-          ResourceUtil.getInstance().getString('bbb.connection.reestablished'), 
-          msg, 'bbb.connection.reestablished'));
+        ConnUtil.connectionSuccessEvent(msg);
 
         _reconnectTimeout.reset();
 		PopUpUtil.removePopUp(ReconnectionPopup);
@@ -177,22 +156,7 @@ package org.bigbluebutton.core.managers
     private function connectionReestablishedMessage():String {
       var msg:String = "";
       for each (var conn:String in _reestablished) {
-        switch (conn) {
-          case BIGBLUEBUTTON_CONNECTION:
-            msg += ResourceUtil.getInstance().getString('bbb.connection.bigbluebutton');
-            break;
-          case SIP_CONNECTION:
-            msg += ResourceUtil.getInstance().getString('bbb.connection.sip');
-            break;
-          case VIDEO_CONNECTION:
-            msg += ResourceUtil.getInstance().getString('bbb.connection.video');
-            break;
-          case DESKSHARE_CONNECTION:
-            msg += ResourceUtil.getInstance().getString('bbb.connection.deskshare');
-            break;
-          default:
-            break;
-        }
+				msg += ConnUtil.connectionReestablishedMsg(conn)
         msg += " ";
       }
       _reestablished.removeAll();

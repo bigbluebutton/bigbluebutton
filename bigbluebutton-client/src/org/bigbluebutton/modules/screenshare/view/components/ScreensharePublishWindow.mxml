@@ -75,6 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+			import org.bigbluebutton.util.ConnUtil;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 		
       
@@ -172,7 +173,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       public function handleDisconnectedEvent(event:BBBEvent):void {
-          if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
+          if (event.payload.type == ConnUtil.DESKSHARE_CONNECTION) {
             closeWindow();
           }
       }

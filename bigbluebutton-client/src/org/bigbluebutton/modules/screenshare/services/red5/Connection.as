@@ -31,9 +31,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
     import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
-    import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.main.events.BBBEvent;
-    import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -290,7 +288,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 									LOGGER.info(JSON.stringify(logData));
 									
                     var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-                    attemptFailedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+                    attemptFailedEvent.payload.type = ConnUtil.DESKSHARE_CONNECTION;
                     dispatcher.dispatchEvent(attemptFailedEvent);
                 }
 								
@@ -311,7 +309,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 										LOGGER.info(JSON.stringify(logData));
 										
                     var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
-                    attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+                    attemptSucceeded.payload.type = ConnUtil.DESKSHARE_CONNECTION;
                     dispatcher.dispatchEvent(attemptSucceeded);
                 }
                 
@@ -337,7 +335,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                     reconnecting = true;
                     
                     var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
-                    disconnectedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+                    disconnectedEvent.payload.type = ConnUtil..DESKSHARE_CONNECTION;
                     disconnectedEvent.payload.callback = connect;
                     disconnectedEvent.payload.callbackParameters = [];
                     dispatcher.dispatchEvent(disconnectedEvent);
