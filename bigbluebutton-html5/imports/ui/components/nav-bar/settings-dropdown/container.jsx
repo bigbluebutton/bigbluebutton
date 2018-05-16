@@ -8,9 +8,11 @@ export default class SettingsDropdownContainer extends Component {
 
     this.state = {
       isFullScreen: false,
+      clicked: false,
     };
 
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
+    this.toggleClicked = this.toggleClicked.bind(this);
   }
 
   componentDidMount() {
@@ -46,16 +48,27 @@ export default class SettingsDropdownContainer extends Component {
     } else {
       this.setState({ isFullScreen: false });
     }
+    this.toggleClicked();
+  }
+
+  toggleClicked() {
+    if(!this.clicked){
+      this.setState({ clicked: true });
+    }else{
+      this.setState({ clicked: false });
+    }
   }
 
   render() {
     const handleToggleFullscreen = toggleFullScreen;
     const isFullScreen = this.state.isFullScreen;
+    const clicked = this.state.clicked;
 
     return (
       <SettingsDropdown
         handleToggleFullscreen={handleToggleFullscreen}
         isFullScreen={isFullScreen}
+        clicked={clicked}
       />
     );
   }
