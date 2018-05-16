@@ -70,14 +70,8 @@ package org.bigbluebutton.modules.phone.managers {
 		
     public function isConnected():Boolean {
       if (netConnection != null) {
-				if (!netConnection.connected) {
-					trace("SIP CONNECTION NOT CONNECTED#########################");
-				}
-				
         return netConnection.connected;
-      } else {
-				trace("SIP CONNECTION IS NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			}
+      } 
       return false;
     }
     
