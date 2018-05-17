@@ -52,6 +52,7 @@
 			offerWebRTC="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
+			chromeWin10Help="http://HOST/client/help/webrtc-screenshare-help.html"
 			baseTabIndex="201"
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
