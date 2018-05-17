@@ -10,7 +10,7 @@ const propTypes = {
 class ChatAudioNotification extends React.Component {
   constructor(props) {
     super(props);
-    this.audio = new Audio('/html5client/resources/sounds/notify.mp3');
+    this.audio = new Audio(`${Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
 
     this.handleAudioLoaded = this.handleAudioLoaded.bind(this);
     this.playAudio = this.playAudio.bind(this);

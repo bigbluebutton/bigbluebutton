@@ -41,6 +41,9 @@ package org.bigbluebutton.modules.screenshare.model {
 
 		[Bindable]
 		public var chromeExtensionKey:String = "";
+		
+		[Bindable]
+		public var chromeWin10Help:String = "";
 
 		[Bindable]
 		public var help:String = "";

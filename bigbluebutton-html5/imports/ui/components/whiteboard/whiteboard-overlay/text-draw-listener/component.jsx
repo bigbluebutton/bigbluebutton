@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from '../styles.scss';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
@@ -369,11 +368,17 @@ export default class TextDrawListener extends Component {
   }
 
   render() {
+    const baseName = Meteor.settings.public.app.basename;
+    const textDrawStyle = {
+      width: '100%',
+      height: '100%',
+      touchAction: 'none',
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/text.png'), default`,
+    };
     return (
       <div
         role="presentation"
-        className={styles.text}
-        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        style={textDrawStyle}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
       >
