@@ -102,7 +102,7 @@ class VideoListItemStats extends Component {
         <div>{ intl.formatMessage(intlMessages.packetsLostLabel) }: {stats.video.packetsLost}</div>
         <div>{ intl.formatMessage(intlMessages.lostPercentageLabel) }: {stats.video.lostPercentage}%</div>
         <div>{ intl.formatMessage(intlMessages.lostRecentPercentageLabel) }: {stats.video.lostRecentPercentage}%</div>
-        <div>{ intl.formatMessage(intlMessages.bitrateLabel) }: {stats.video.bitrate} bits/sec</div>
+        <div>{ intl.formatMessage(intlMessages.bitrateLabel) }: {stats.video.bitrate} kbits/sec</div>
         { stats.video.width ?
           ( <div>{ intl.formatMessage(intlMessages.dimensionsLabel) }: {stats.video.width}x{stats.video.height}</div> ) : (null) }
         { stats.video.decodeDelay ?
