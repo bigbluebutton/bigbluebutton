@@ -49,7 +49,11 @@ const intlMediaErrorsMessages = defineMessages({
   },
   NotReadableError: {
     id: 'app.video.notReadableError',
-    description: 'error message when origin do not have ssl valid',
+    description: 'error message When the webcam is being used by other software',
+  },
+  1000: {
+    id: 'app.video.mediaServerOffline',
+    description: 'error message when kurento is offline',
   },
 });
 
@@ -512,11 +516,11 @@ class VideoProvider extends Component {
 
   handleError(message) {
     const { intl } = this.props;
-    const userId = this.props.userId;
-
+    const { userId } = this.props;
     if (message.cameraId == userId) {
       this.unshareWebcam();
-      this.notifyError(intl.formatMessage(intlMessages.sharingError));
+      this.notifyError(intl.formatMessage(intlMediaErrorsMessages[message.message]
+        || intlMessages.sharingError));
     } else {
       this.stopWebRTCPeer(message.cameraId);
     }
