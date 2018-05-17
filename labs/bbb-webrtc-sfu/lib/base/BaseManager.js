@@ -10,6 +10,7 @@
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const isRecordedStream = require('../utils/Utils.js').isRecordedStream;
 
 module.exports = class BaseManager {
   constructor (connectionChannel, additionalChannels = [], logPrefix = C.BASE_MANAGER_PREFIX) {
@@ -19,6 +20,17 @@ module.exports = class BaseManager {
     this._connectionChannel = connectionChannel;
     this._additionalChanels = additionalChannels;
     this._logPrefix = logPrefix;
+    this._iceQueues = {};
+
+    this._trackRecordedStream();
+  }
+
+  _trackRecordedStream () {
+    this._bbbGW.on(C.USER_CAM_BROADCAST_STARTED_2x, (streamUrl) => {
+      Logger.info("[BaseManager] Server notifies that stream ", streamUrl, " is recorded");
+      let stream = isRecordedStream(streamUrl);
+      this.setStreamAsRecorded(stream);
+    });
   }
 
   async start() {
@@ -41,7 +53,39 @@ module.exports = class BaseManager {
     this._redisGateway.on(C.REDIS_MESSAGE, handler.bind(this));
   }
 
-  _stopSession(sessionId) {
+  _fetchSession (sessionId) {
+    return this._sessions[sessionId];
+  }
+
+  _fetchIceQueue (sessionId) {
+    if (!this._iceQueues[sessionId]) {
+      this._iceQueues[sessionId] = [];
+    }
+
+    return this._iceQueues[sessionId] ;
+  }
+
+  _flushIceQueue (session, queue) {
+    if (queue) {
+      let candidate;
+      while(candidate = queue.pop()) {
+        session.onIceCandidate(candidate);
+      }
+    }
+  }
+
+  _killConnectionSessions (connectionId) {
+    const keys = Object.keys(this._sessions);
+    keys.forEach((sessionId) => {
+      let session = this._sessions[sessionId];
+      if(session && session.connectionId === connectionId) {
+        let killedSessionId = session.connectionId + session.id + "-" + session.role;
+        this._stopSession(killedSessionId);
+      }
+    });
+  }
+
+  _stopSession (sessionId) {
     return new Promise(async (resolve, reject) => {
       Logger.info(this._logPrefix, 'Stopping session ' + sessionId);
       try {
@@ -56,12 +100,12 @@ module.exports = class BaseManager {
           }
           delete this._sessions[sessionId];
           this._logAvailableSessions();
-          resolve();
+          return resolve();
         }
       }
       catch (err) {
-        Logger.err(error);
-        resolve();
+        Logger.error(err);
+        return resolve();
       }
     });
   }

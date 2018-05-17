@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -101,6 +102,18 @@ public class MeetingService implements MessageListener {
 
   public void addUserSession(String token, UserSession user) {
     sessions.put(token, user);
+  }
+  
+  public String getTokenByUserId(String internalUserId) {
+      String result = null;
+      for (Entry<String, UserSession> e : sessions.entrySet()) {
+          String token = e.getKey();
+          UserSession userSession = e.getValue();
+          if (userSession.internalUserId.equals(internalUserId)) {
+              result = token;
+          }
+      }
+      return result;
   }
 
   public void registerUser(String meetingID, String internalUserId,
@@ -233,6 +246,7 @@ public class MeetingService implements MessageListener {
         Map<String, String> breakoutMetadata = new TreeMap<String, String>();
         breakoutMetadata.put("meetingId", m.getExternalId());
         breakoutMetadata.put("sequence", m.getSequence().toString());
+        breakoutMetadata.put("freeJoin", m.isFreeJoin().toString());
         breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
         storeService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
       }
@@ -243,6 +257,7 @@ public class MeetingService implements MessageListener {
     logData.put("externalMeetingId", m.getExternalId());
     if (m.isBreakout()) {
       logData.put("sequence", m.getSequence());
+      logData.put("freeJoin", m.isFreeJoin());
       logData.put("parentMeetingId", m.getParentMeetingId());
     }
     logData.put("name", m.getName());
@@ -264,7 +279,7 @@ public class MeetingService implements MessageListener {
       m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
       m.getModeratorPassword(), m.getViewerPassword(),
       m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
-      m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
+      m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
       m.getWelcomeMessage(), m.getModeratorOnlyMessage(), m.getDialNumber(), m.getMaxUsers(),
       m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
       m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
@@ -399,6 +414,7 @@ public class MeetingService implements MessageListener {
       params.put("parentMeetingID", message.parentMeetingId);
       params.put("isBreakout", "true");
       params.put("sequence", message.sequence.toString());
+      params.put("freeJoin", message.freeJoin.toString());
       params.put("attendeePW", message.viewerPassword);
       params.put("moderatorPW", message.moderatorPassword);
       params.put("voiceBridge", message.voiceConfId);
@@ -782,6 +798,12 @@ public class MeetingService implements MessageListener {
       User user = m.getUserById(message.userId);
       if (user != null) {
         user.setRole(message.role);
+        String sessionToken = getTokenByUserId(user.getInternalUserId());
+        if (sessionToken != null) {
+            UserSession userSession = getUserSession(sessionToken);
+            userSession.role = message.role;
+            sessions.replace(sessionToken, userSession);
+        }
         log.debug("Setting new role in meeting " + message.meetingId + " for participant:" + user.getFullname());
         return;
       }

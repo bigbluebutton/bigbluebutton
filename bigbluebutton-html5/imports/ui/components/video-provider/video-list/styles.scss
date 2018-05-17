@@ -71,7 +71,7 @@
 
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to { transform: rotate(-360deg); }
 }
 
 .connecting {
@@ -134,7 +134,7 @@
   color: $color-white;
   font-size: 80%;
   border-radius: 15px;
-  padding: 0 1rem 0 .5rem;
+  padding: 0 1rem 0 .5rem !important;
   max-width: 50%;
 
   &::after {
@@ -162,12 +162,11 @@
   }
 }
 
-.muted {
+.muted, .voice {
   display: inline-block;
   width: 1.25rem;
   height: 1.25rem;
   color: $color-white;
-  background-color: $color-danger;
   border-radius: 50%;
 
   &::before {
@@ -193,4 +192,11 @@
 
 .statsCloseButton:hover {
   cursor: pointer;
+
+.muted {
+  background-color: $color-danger;
+}
+
+.voice {
+  background-color: $color-success;
 }

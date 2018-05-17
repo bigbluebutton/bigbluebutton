@@ -819,6 +819,11 @@ mx|DataGrid {
 	fontWeight : bold;
 }
 
+.animatedDotsStyle {
+	fontSize  : 40;
+	textAlign : center;
+}
+
 /*
 //------------------------------
 //  Guest
@@ -1550,6 +1555,42 @@ mx|ScrollBar {
 
 /*
 //------------------------------
+//  ScreenshareSelectionWindow
+//------------------------------
+*/
+
+.screenshareSelectHintBoxStyle {
+	horizontalAlign : center;
+	paddingTop      : 7;
+	paddingBottom   : 7;
+	paddingLeft     : 5;
+	paddingRight    : 5;
+	verticalAlign   : middle;
+}
+
+.screenshareTypeTitle {
+	color      : #363B43;
+	fontSize   : 14;
+	fontWeight : normal;
+}
+
+.btnScreenshareSelectStyle {
+	borderAlphaUp       : 0;
+	borderAlphaOver     : 1;
+	borderAlphaDown     : 1;
+	borderAlphaDisabled : 0;
+	
+	fillColorUp         : #EFF5FA;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #1070D7;
+	
+	fontWeight          : bold;
+	borderThickness     : 5;
+	cornerRadius        : 70;
+}
+
+/*
+//------------------------------
 //  ScreenshareViewWindow
 //------------------------------
 */
@@ -1708,7 +1749,11 @@ mx|ToolTip {
 }
 
 .errorTip {
-	borderColor : #DE2721;
+	borderColor     : #DE2721;
+	fontSize        : 13;
+	backgroundAlpha : 0.9;
+	cornerRadius    : 3;
+	fontWeight      : normal;
 }
 
 /*

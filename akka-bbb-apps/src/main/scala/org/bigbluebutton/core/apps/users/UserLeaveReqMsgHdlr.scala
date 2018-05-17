@@ -19,9 +19,6 @@ trait UserLeaveReqMsgHdlr {
     } yield {
       log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-      // stop the webcams of a user leaving
-      handleUserBroadcastCamStopMsg(msg.body.userId)
-
       captionApp2x.handleUserLeavingMsg(msg.body.userId)
       stopAutoStartedRecording()
 

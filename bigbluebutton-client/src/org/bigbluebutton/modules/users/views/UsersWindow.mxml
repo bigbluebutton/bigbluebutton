@@ -66,6 +66,8 @@ $Id: $
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
 		
+		import flash.net.navigateToURL;
+		
 		import mx.binding.utils.BindingUtils;
 		import mx.collections.ArrayCollection;
 		import mx.controls.Menu;
@@ -421,7 +423,7 @@ $Id: $
         }
       }
       
-	  private function setRoomLocked(e:Event = null) {
+	  private function setRoomLocked(e:Event = null):void {
 		  var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
 		  roomLocked = (lockSettings.isAnythingLocked() || LiveMeeting.inst().meeting.webcamsOnlyForModerator) && (lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 	  }
@@ -467,12 +469,18 @@ $Id: $
 	  }
       
       private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
-        // We display only one alert
-        removeJoinWindow();
-		joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
-		joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
+		if (!LiveMeeting.inst().breakoutRooms.joinRequestedByUser) {
+			// We display only one alert
+			removeJoinWindow();
+			joinWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, JoinBreakoutRoomWindow, true) as JoinBreakoutRoomWindow;
+			joinWindow.setBreakoutRoomSettings(event.breakoutMeetingSequence, event.joinURL);
+		}
+		else {
+			LiveMeeting.inst().breakoutRooms.joinRequestedByUser = false;
+			navigateToURL(new URLRequest(event.joinURL), "_blank");
+		}
       }
-      
+		
       private function removeJoinWindow():void {
         if (joinWindow != null) {
           // @todo: any way using PopUpUtil ?

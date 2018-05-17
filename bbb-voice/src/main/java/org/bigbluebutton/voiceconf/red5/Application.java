@@ -85,7 +85,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
 
-		if(params.length != 4) {
+		if(params.length != 5) {
 			log.error("Invalid number of parameters. param length=" + params.length);
 			return false;
 		}
@@ -94,6 +94,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 		String userId = ((String) params[1]).toString();
 		String username = ((String) params[2]).toString();
 		String authToken = ((String) params[3]).toString();
+		String clientConnId = ((String) params[4]).toString();
 
 		if (StringUtils.isEmpty(meetingId)) {
 			log.error("Invalid meetingId parameter.");
@@ -122,6 +123,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 		Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
 		Red5.getConnectionLocal().setAttribute("USERID", userId);
 		Red5.getConnectionLocal().setAttribute("USERNAME", username);
+        Red5.getConnectionLocal().setAttribute("CLIENT_CONN_ID", clientConnId);
 
 		log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userId + "]", clientId);
 		log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
@@ -137,6 +139,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 		logData.put("meetingId", meetingId);
 		logData.put("connType", connType);
 		logData.put("connId", connId);
+        logData.put("clientConnId", clientConnId);
 		logData.put("userId", userId);
 		logData.put("username", userFullname);
 		logData.put("event", "user_joining_bbb_voice");
@@ -175,11 +178,13 @@ public class Application extends MultiThreadedApplicationAdapter {
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String userFullname = username;
 		String connId = Red5.getConnectionLocal().getSessionId();
+		String clientConnId = conn.getAttribute("CLIENT_CONN_ID").toString();
 
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", getMeetingId());
 		logData.put("connType", connType);
 		logData.put("connId", connId);
+        logData.put("clientConnId", clientConnId);
 		logData.put("userId", userId);
 		logData.put("username", userFullname);
 		logData.put("event", "user_leaving_bbb_voice");

@@ -120,9 +120,9 @@ module.exports = class MediaServer extends EventEmitter {
     });
   }
 
-  _createElement (pipeline, type) {
+  _createElement (pipeline, type, options) {
     return new Promise((resolve, reject) => {
-      pipeline.create(type, (error, mediaElement) => {
+      pipeline.create(type, options, (error, mediaElement) => {
         if (error) {
           error = this._handleError(error);
           return reject(error);
@@ -135,15 +135,66 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
 
-  async createMediaElement (roomId, type) {
+  async createMediaElement (roomId, type, options = {}) {
+    options = options || {};
     try {
       const pipeline = await this._getMediaPipeline(roomId);
-      const mediaElement = await this._createElement(pipeline, type);
+      const mediaElement = await this._createElement(pipeline, type, options);
+      if (typeof mediaElement.setKeyframeInterval === 'function' && options.keyframeInterval) {
+        Logger.debug("[mcs-media] Creating element with keyframe interval set to", options.keyframeInterval);
+        mediaElement.setKeyframeInterval(options.keyframeInterval);
+      }
       this._mediaPipelines[roomId].activeElements++;
       return Promise.resolve(mediaElement.id);
     }
     catch (err) {
       return Promise.reject(err);
+    }
+  }
+
+  async startRecording (sourceId) {
+    let source = this._mediaElements[sourceId];
+
+    if (source) {
+      return new Promise((resolve, reject) => {
+        try {
+          source.record((err) => {
+            if (err) {
+              return reject(this._handleError(err));
+            }
+            return resolve();
+          });
+        }
+        catch (err) {
+          return reject(this._handleError(err));
+        }
+      });
+    }
+    else {
+      return Promise.reject("[mcs-recording] startRecording error");
+    }
+  }
+
+  async _stopRecording (sourceId) {
+    let source = this._mediaElements[sourceId];
+
+    if (source) {
+      return new Promise((resolve, reject) => {
+        try {
+          source.stopAndWait((err) => {
+            if (err) {
+              return reject(this._handleError(err));
+            }
+            return resolve();
+          });
+        }
+        catch (err) {
+          return reject(this._handleError(err));
+        }
+      });
+    }
+    else {
+      return Promise.reject("[mcs-recording] stopRecording error");
     }
   }
 
@@ -195,12 +246,64 @@ module.exports = class MediaServer extends EventEmitter {
     }
   }
 
-  stop (room, elementId) {
-    return new Promise((resolve, reject) => {
+  async disconnect (sourceId, sinkId, type) {
+    let source = this._mediaElements[sourceId];
+    let sink = this._mediaElements[sinkId];
+
+    if (source && sink) {
+      return new Promise((resolve, reject) => {
+        switch (type) {
+          case 'ALL':
+            source.disconnect(sink, (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+            break;
+
+
+          case 'AUDIO':
+            source.disconnect(sink, 'AUDIO', (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+
+          case 'VIDEO':
+            source.disconnect(sink, (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+            break;
+
+          default:
+            return this._handleError("[mcs-media] Invalid connect type");
+        }
+      });
+    }
+    else {
+      let error = this._handleError("[mcs-media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+      return Promise.reject(error);
+    }
+  }
+
+  stop (room, type, elementId) {
+    return new Promise(async (resolve, reject) => {
       try {
         Logger.info("[mcs-media] Releasing endpoint", elementId, "from room", room);
         const mediaElement = this._mediaElements[elementId];
         const pipeline = this._mediaPipelines[room];
+
+        if (type === 'RecorderEndpoint') {
+          await this._stopRecording(elementId);
+        }
 
         if (mediaElement && typeof mediaElement.release === 'function') {
           mediaElement.release(async (error) => {
@@ -233,7 +336,6 @@ module.exports = class MediaServer extends EventEmitter {
       }
     });
   }
-
 
   addIceCandidate (elementId, candidate) {
     let mediaElement = this._mediaElements[elementId];
@@ -342,6 +444,9 @@ module.exports = class MediaServer extends EventEmitter {
         this.addMediaEventListener(C.EVENT.MEDIA_STATE.CHANGED, elementId);
         this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_IN, elementId);
         this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_OUT, elementId);
+        break;
+
+      case C.MEDIA_TYPE.RECORDING:
         break;
 
       default: return;

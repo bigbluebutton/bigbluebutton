@@ -10,6 +10,7 @@ export default function addMeeting(meeting) {
   check(meeting, {
     breakoutProps: {
       sequence: Number,
+      freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
     },

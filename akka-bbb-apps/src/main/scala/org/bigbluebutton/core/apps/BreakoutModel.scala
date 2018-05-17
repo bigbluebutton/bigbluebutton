@@ -9,10 +9,11 @@ object BreakoutModel {
     externalId:    String,
     name:          String,
     sequence:      Integer,
+    freeJoin:      Boolean,
     voiceConf:     String,
     assignedUsers: Vector[String]
   ): BreakoutRoom2x = {
-    new BreakoutRoom2x(id, externalId, name, parentId, sequence, voiceConf, assignedUsers, Vector(), Vector(), None, false)
+    new BreakoutRoom2x(id, externalId, name, parentId, sequence, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false)
   }
 
 }

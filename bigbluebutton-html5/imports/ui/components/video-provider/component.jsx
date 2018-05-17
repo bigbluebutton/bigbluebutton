@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
+import VisibilityEvent from '/imports/utils/visibilityEvent';
 import Toast from '/imports/ui/components/toast/component';
 import _ from 'lodash';
 
@@ -33,8 +34,8 @@ const intlMessages = defineMessages({
   },
 });
 
-const RECONNECT_WAIT_TIME = 5000;
 const CAMERA_SHARE_FAILED_WAIT_TIME = 10000;
+const PING_INTERVAL = 15000;
 
 class VideoProvider extends Component {
   constructor(props) {
@@ -50,6 +51,8 @@ class VideoProvider extends Component {
     this.ws = new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl);
     this.wsQueue = [];
 
+    this.visibility = new VisibilityEvent();
+
     this.reconnectWebcam = false;
     this.cameraTimeouts = {};
     this.webRtcPeers = {};
@@ -62,6 +65,40 @@ class VideoProvider extends Component {
 
     this.unshareWebcam = this.unshareWebcam.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
+
+    this.pauseViewers = this.pauseViewers.bind(this);
+    this.unpauseViewers = this.unpauseViewers.bind(this);
+  }
+
+  _sendPauseStream (id, role, state) {
+    this.sendMessage({
+      cameraId: id,
+      id: 'pause',
+      type: 'video',
+      role,
+      state,
+    });
+  }
+
+  pauseViewers () {
+    log("debug", "Calling pause in viewer streams");
+
+
+    Object.keys(this.webRtcPeers).forEach((id) => {
+      if (this.props.userId !== id) {
+        this._sendPauseStream(id, 'viewer', true);
+      }
+    });
+  }
+
+  unpauseViewers () {
+    log("debug", "Calling un-pause in viewer streams");
+
+    Object.keys(this.webRtcPeers).forEach((id) => {
+      if (id !== this.props.userId) {
+        this._sendPauseStream(id, 'viewer', false);
+      }
+    });
   }
 
   componentWillMount() {
@@ -75,13 +112,10 @@ class VideoProvider extends Component {
   componentDidMount() {
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
-
     this.ws.addEventListener('message', this.onWsMessage);
-  }
 
-  shouldComponentUpdate({ users: nextUsers }, nextState) {
-    const { users } = this.props;
-    return !_.isEqual(this.state, nextState) || users.length !== nextUsers.length;
+    this.visibility.onVisible(this.unpauseViewers);
+    this.visibility.onHidden(this.pauseViewers);
   }
 
   componentWillUpdate({ users, userId }) {
@@ -109,6 +143,8 @@ class VideoProvider extends Component {
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
 
+    this.visibility.removeEventListeners();
+
     // Unshare user webcam
     if (this.state.sharedWebcam) {
       this.unshareWebcam();
@@ -121,7 +157,7 @@ class VideoProvider extends Component {
 
     // Close websocket connection to prevent multiple reconnects from happening
     // Don't disonnect socket on unmount to prevent multiple reconnects
-    // this.ws.close();
+    this.ws.close();
   }
 
   onWsOpen() {
@@ -132,6 +168,8 @@ class VideoProvider extends Component {
       this.sendMessage(this.wsQueue.pop());
     }
 
+    this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL);
+
     this.setState({ socketOpen: true });
   }
 
@@ -139,8 +177,16 @@ class VideoProvider extends Component {
     log('debug', '------ Websocket connection closed.');
 
     this.stopWebRTCPeer(this.props.userId);
+    clearInterval(this.pingInterval);
 
     this.setState({ socketOpen: false });
+  }
+
+  ping() {
+    const message = {
+      id: 'ping'
+    };
+    this.sendMessage(message);
   }
 
   disconnected(id) {
@@ -171,6 +217,10 @@ class VideoProvider extends Component {
 
       case 'iceCandidate':
         this.handleIceCandidate(parsedMessage);
+        break;
+
+      case 'pong':
+        console.debug("Received pong from server");
         break;
 
       case 'error':
@@ -233,7 +283,6 @@ class VideoProvider extends Component {
       if (webRtcPeer.didSDPAnswered) {
         webRtcPeer.addIceCandidate(message.candidate, (err) => {
           if (err) {
-            this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
             return log('error', `Error adding candidate: ${err}`);
           }
         });
@@ -247,7 +296,7 @@ class VideoProvider extends Component {
 
   stopWebRTCPeer(id) {
     log('info', 'Stopping webcam', id);
-    const userId = this.props.userId
+    const userId = this.props.userId;
     const shareWebcam = id === userId;
 
     if (shareWebcam) {

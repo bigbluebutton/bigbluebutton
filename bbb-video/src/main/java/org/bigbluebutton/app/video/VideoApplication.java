@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
@@ -121,7 +122,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.info("BBB Video roomConnect");
 
-		if(params.length != 3) {
+		if(params.length != 4) {
 			log.error("Invalid number of parameters. param length=" + params.length);
 			return false;
 		}
@@ -129,7 +130,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		String meetingId = ((String) params[0]).toString();
 		String userId = ((String) params[1]).toString();
 		String authToken = ((String) params[2]).toString();
-
+      String clientConnId = ((String) params[3]).toString();
 
       if (StringUtils.isEmpty(meetingId)) {
           log.error("Invalid meetingId parameter.");
@@ -149,6 +150,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
 		Red5.getConnectionLocal().setAttribute("USERID", userId);
 	  	Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
+      Red5.getConnectionLocal().setAttribute("CLIENT_CONN_ID", clientConnId);
 
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -165,6 +167,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             logData.put("userId", userId);
             logData.put("connType", connType);
             logData.put("connId", sessionId);
+            logData.put("clientConnId", clientConnId);
             logData.put("clientId", clientId);
             logData.put("remoteAddress", remoteHost + ":" + remotePort);
             logData.put("event", "port_test_connection_bbb_video");
@@ -186,18 +189,21 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
             for (IConnection conn : conns) {
                 String connUserId = (String) conn.getAttribute("USERID");
+                String oldClientConnId = (String) conn.getAttribute("CLIENT_CONN_ID");
                 String connSessionId = conn.getSessionId();
                 String clientId = conn.getClient().getId();
                 String remoteHost = conn.getRemoteAddress();
                 int remotePort = conn.getRemotePort();
-                if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
+                if (oldClientConnId != null && connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
                     conn.removeAttribute("USERID");
+                    conn.removeAttribute("CLIENT_CONN_ID");
                     Map<String, Object> logData = new HashMap<String, Object>();
                     logData.put("meetingId", meetingId);
                     logData.put("userId", userId);
                     logData.put("oldConnId", connSessionId);
                     logData.put("newConnId", sessionId);
                     logData.put("clientId", clientId);
+                    logData.put("oldClientConnId", oldClientConnId);
                     logData.put("remoteAddress", remoteHost + ":" + remotePort);
                     logData.put("event", "removing_defunct_connection");
                     logData.put("description", "Removing defunct connection BBB Video.");
@@ -218,6 +224,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             logData.put("userId", userId);
             logData.put("connType", connType);
             logData.put("connId", sessionId);
+            logData.put("clientConnId", clientConnId);
             logData.put("clientId", clientId);
             logData.put("remoteAddress", remoteHost + ":" + remotePort);
             logData.put("event", "user_joining_bbb_video");
@@ -253,6 +260,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		if ((meetingId == null) || ("".equals(meetingId))) meetingId = "unknown-meetingid";
 		return meetingId;
 	}
+
+    private String getClientConnId() {
+        String clientConnId = (String) Red5.getConnectionLocal().getAttribute("CLIENT_CONN_ID");
+        if ((clientConnId == null) || ("".equals(clientConnId))) clientConnId = "unknown-clientConnId";
+        return clientConnId;
+    }
 	
   @Override
 	public void appDisconnect(IConnection conn) {
@@ -266,6 +279,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String connId = Red5.getConnectionLocal().getSessionId();
+		String clientConnId = getClientConnId();
 
       UserConnectionMapper.UserConnection uconn = userConnections.userDisconnected(connId);
       if (uconn != null) {
@@ -274,6 +288,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
           logData.put("userId", getUserId());
           logData.put("connType", connType);
           logData.put("connId", connId);
+          logData.put("clientConnId", clientConnId);
           logData.put("event", "removing_port_test_conn_bbb_video");
           logData.put("description", "Removing port test connection BBB Video.");
 
@@ -287,6 +302,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
           logData.put("userId", getUserId());
           logData.put("connType", connType);
           logData.put("connId", connId);
+          logData.put("clientConnId", clientConnId);
           logData.put("event", "user_leaving_bbb_video");
           logData.put("description", "User leaving BBB Video.");
 
@@ -375,6 +391,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String meetingId = conn.getScope().getName();
     	String streamId = stream.getPublishedName();
 
+			publisher.sendVideoStreamStartedMsg(meetingId, userId, streamId);
 
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
 			addH263PublishedStream(streamId);
@@ -423,6 +440,17 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   		String userId = getUserId();
   		String meetingId = conn.getScope().getName();
   		String streamId = stream.getPublishedName();
+
+			try {
+				// Need to extract usrId from streamId (medium-w_npxfdr8lssbq-1526051556133) as
+				// when connection is closed, userId info is gone. We are interested in the
+				// second portion of the streamId (ralam may 11, 2018)
+				String[] splitArray = streamId.split("-");
+				userId = splitArray[1];
+				publisher.sendVideoStreamStoppedMsg(meetingId, userId, streamId);
+			} catch (PatternSyntaxException ex) {
+				log.warn("Cannot split streamId " + streamId);
+			}
 
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
 			removeH263ConverterIfNeeded(streamId);

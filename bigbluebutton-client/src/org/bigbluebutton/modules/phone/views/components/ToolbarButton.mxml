@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            styleName="voiceConfDefaultButtonStyle" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
+	move="handleMove()"
 	creationComplete="onCreationComplete()"
 	height="30"
 	width="40"
@@ -41,25 +42,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>  
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.views.MainToolbar;
-      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-      import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
-      import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
-      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-      import org.bigbluebutton.modules.phone.models.PhoneOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.ToolTip;
+			import mx.managers.ToolTipManager;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+			import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(ToolbarButton);      
       
@@ -70,6 +74,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public const ACTIVE_STATE:Number = 1;
 			private var _currentState:Number = DEFAULT_STATE;
 			
+			private var notificationTimer:Timer;
+			private var notification:ToolTip;
+			
 			[Bindable] public var phoneOptions:PhoneOptions;
 			
 			private function startPhone():void {
@@ -77,12 +84,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
+				
+				hideNotification();
+				
 				LOGGER.debug("startPhone 2 enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				if (this.selected) {
 					joinAudio();
 				} else {
 					leaveAudio();
-				}				
+				}
 			}
 
 			private function get disableMyMic():Boolean {
@@ -134,6 +144,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
 
+				notificationTimer = new Timer(15000, 1); // 15 second timer
+				notificationTimer.addEventListener(TimerEvent.TIMER, hideNotification);
+				
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
 					if (phoneOptions.skipCheck || LiveMeeting.inst().me.disableMyMic) {
@@ -149,6 +162,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						LOGGER.debug("Sending Show Audio Selection command");
 						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 					}
+				} else {
+					showNotification();
 				}
 			}
 
@@ -161,7 +176,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         LOGGER.debug("onUserJoinedConference enabled=[{0}] selected=[{1}]", [enabled, selected]);
         _currentState = ACTIVE_STATE;
         this.styleName = "voiceConfActiveButtonStyle";
-        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	        
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
       }
       
       private function onUserJoinedListenOnlyConference():void {
@@ -241,6 +256,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         		this.styleName = "voiceConfDefaultButtonStyle";
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 				joinDefaultListenOnlyMode();
+				
+				if (event.closedWithoutJoin) {
+					showNotification();
+				}
 			}
 				
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
@@ -258,6 +277,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function joinVoiceFocusHead(e:BBBEvent):void{
 				this.setFocus();
+			}
+			
+			private function showNotification():void {
+				if (parent.visible) {
+					visible = includeInLayout = true;
+					
+					if (notificationTimer.running) notificationTimer.reset();
+					notificationTimer.start();
+					
+					if (!notification) {
+						notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString('bbb.toolbar.phone.callout.didntjoin'), 100, 100, "callOutTipBelow", this) as ToolTip;
+						handleMove();
+					}
+				}
+			}
+			
+			private function handleMove():void {
+				if (notification) {
+					var location:Point = localToGlobal(new Point(0,0));
+					notification.move(location.x - notification.width/2 + this.width/2, location.y + this.height + 10);
+				}
+			}
+			
+			private function hideNotification(e:Event=null):void {
+				if (notification) {
+					ToolTipManager.destroyToolTip(notification);
+					notification = null;
+				}
 			}
 		]]>
 	</fx:Script>

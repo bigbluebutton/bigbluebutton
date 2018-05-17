@@ -73,6 +73,7 @@
 			private var streamAvailable:Boolean = false;
 
 			private var video:Video;
+			private var connection:Connection;
 			private var ns:NetStream;
 			private var videoHolder:UIComponent = new UIComponent();
 			private var streamId:String;
@@ -82,28 +83,25 @@
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 40;
 
-			// The following code block is to deal with a bug in FLexLib
-			// with MDI windows not responding well to being maximized
-			private var savedWindowWidth:Number;
-			private var savedWindowHeight:Number;
-			private var savedX:Number;
-			private var savedY:Number;
-			private var isMaximized:Boolean = false;
-			private var connection:Connection;
-
 			[Bindable] private var dsOptions:ScreenshareOptions;
 
 			private function init():void{
 				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 			}
 
+			private function resizeVideoCanvas() : void {
+				videoCanvas.width = this.width - VIDEO_WIDTH_PADDING;
+				videoCanvas.height = this.height - VIDEO_HEIGHT_PADDING;
+			}
+			
 			private function onCreationComplete():void{
 				viewScreenshareStream();
 
+				resizeVideoCanvas();
+				
 				videoHolder.addChild(video);
 				videoCanvas.addChildAt(videoHolder, 0);
-				videoHolder.percentWidth = 100;
-				videoHolder.percentHeight = 100;
+
 				videoHolder.addEventListener(MouseEvent.MOUSE_OVER, videoHolder_mouseOverHanlder);
 				videoHolder.addEventListener(MouseEvent.MOUSE_OUT, videoHolder_mouseOutHanlder);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
@@ -116,7 +114,7 @@
 				logData.width = videoWidth;
 				logData.height = videoHeight;
 				logData.streamId = streamId;
-
+				logData.logCode = "screenshare_stream_info";
 				LOGGER.info(JSON.stringify(logData));
 			}
 
@@ -135,12 +133,13 @@
 			}
 
 			public function startVideo(connection:Connection):void {
-				var logData:Object = new Object();
-				logData.width = ScreenshareModel.getInstance().width;
+
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["screenshare"];
+				logData.width = ScreenshareModel.getInstance().width;;
 				logData.height = ScreenshareModel.getInstance().height;
 				logData.streamId = ScreenshareModel.getInstance().streamId;
-
-				JSLog.debug(LOG + "startVideo", logData);
+				logData.logCode = "screenshare_stream_info_received";
 
 				this.connection = connection;
 			}
@@ -155,7 +154,7 @@
         logData.width = videoWidth;
         logData.height = videoHeight;
         logData.streamId = streamId;
-
+				logData.logCode = "screenshare_view_stream";
         LOGGER.info(JSON.stringify(logData));
 
         ns = new NetStream(connection.getConnection());
@@ -185,7 +184,7 @@
         logData.tags = ["screenshare"];
         logData.width = info.width;
         logData.height = info.height;
-
+				logData.logCode = "screenshare_stream_metadata_received";
         LOGGER.info(JSON.stringify(logData));
       }
 
@@ -202,7 +201,7 @@
         LOGGER.debug("asyncerror " + e.toString());
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["screenshare"];
-        logData.message = "asyncerror";
+				logData.logCode = "screenshare_view_stream_async_error";
         LOGGER.info(JSON.stringify(logData));
 			}
 
@@ -213,11 +212,11 @@
 
 				switch(e.info.code){
   				case "NetStream.Play.Start":
-            logData.message = "NetStream.Publish.Start for broadcast stream " + streamId;
+            logData.logCode = "screenshare_play_stream_start";
             LOGGER.info(JSON.stringify(logData));
   					break;
   				case "NetStream.Play.UnpublishNotify":
-            logData.message = "NetStream.Play.UnpublishNotify for broadcast stream " + streamId;
+						logData.logCode = "screenshare_play_stream_stop";
             LOGGER.info(JSON.stringify(logData));
   					stopViewing();
   					break;
@@ -232,6 +231,8 @@
              * Resizes the desktop sharing video to fit to this window
              */
             private function fitToWindow():void {
+				resizeVideoCanvas();
+				
                 if (!streamAvailable)
                     return;
 
@@ -243,9 +244,6 @@
                 if (!btnActualSize.selected) {
                     fitVideoToWindow();
                 }
-
-				videoHolder.verticalCenter = 0;
-				videoHolder.horizontalCenter = 0;
             }
 
 			private function fitVideoToWindow():void {
@@ -258,6 +256,9 @@
 				videoHolder.width = video.width;
 				videoHolder.height = video.height;
 
+				videoHolder.verticalCenter = 0;
+				videoHolder.horizontalCenter = 0;
+				
 				videoCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
 				videoCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
 			}
@@ -267,6 +268,11 @@
 				videoHolder.width = videoWidth;
 				video.height = videoHeight;
 				videoHolder.height = videoHeight;
+				
+				videoHolder.verticalCenter = undefined;
+				videoHolder.horizontalCenter = undefined;
+				videoHolder.x = 0;
+				videoHolder.y = 0;
 			}
 
 			private function videoIsSmallerThanWindow():Boolean {
@@ -278,12 +284,9 @@
 			 */
 			private function fitToActualSize():void{
 				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
+					fitVideoToWindow();
 				} else {
-					video.width = videoWidth;
-					videoHolder.width = videoWidth;
-					video.height = videoHeight;
-					videoHolder.height = videoHeight;
+					fitWindowToVideo();
 				}
 				
 				videoCanvas.verticalScrollPolicy = ScrollPolicy.AUTO;
@@ -339,7 +342,7 @@
 						   tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
 	</fx:Declarations>
 
-	<mx:Canvas id="videoCanvas" width="100%" height="100%" />
+	<mx:Canvas id="videoCanvas" width="100" height="100"/>
 
 	<mx:Button id="btnActualSize"
 			   styleName="screenShareActualizeButton"

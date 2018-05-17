@@ -94,7 +94,7 @@ package org.bigbluebutton.modules.layout.model {
 			} else {
                 var logData:Object = UsersUtil.initLogData();
                 logData.tags = ["layout"];
-                logData.message = "There's no layout that fits the participants profile."; 
+                logData.logCode = "layout_not_found"; 
                 LOGGER.error(JSON.stringify(logData));
 
 				return null;

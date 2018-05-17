@@ -128,6 +128,13 @@ def check_deskshare_files(raw_dir, meeting_id)
     end
 end
 
+def check_recording_events(raw_dir, meeting_id)
+  duration = BigBlueButton::Events.get_recording_length("#{raw_dir}/#{meeting_id}/events.xml")
+  if duration == 0
+    raise Exception, "Duration of recorded portion of meeting is 0. You must edit the RecordStatusEvent events in #{raw_dir}/#{meeting_id}/events.xml before this meeting can be processed."
+  end
+end
+
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -150,6 +157,8 @@ begin
 	BigBlueButton.logger.info("Starting sanity check for recording #{meeting_id}.")
 	BigBlueButton.logger.info("Checking events.xml")
 	check_events_xml(raw_archive_dir,meeting_id)
+        BigBlueButton.logger.info("Checking recording events")
+        check_recording_events(raw_archive_dir, meeting_id)
 	BigBlueButton.logger.info("Checking audio")
 	check_audio_files(raw_archive_dir,meeting_id)
     BigBlueButton.logger.info("Checking webcam videos")

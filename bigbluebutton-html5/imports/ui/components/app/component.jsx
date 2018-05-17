@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
+import Resizable from 're-resizable';
 
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
@@ -109,7 +110,7 @@ class App extends Component {
   }
 
   renderUserList() {
-    const { intl } = this.props;
+    const { intl, chatIsOpen } = this.props;
     let { userList } = this.props;
     const { compactUserList } = this.state;
 
@@ -122,12 +123,24 @@ class App extends Component {
     });
 
     return (
-      <div
-        className={cx(styles.userList, userListStyle)}
-        aria-label={intl.formatMessage(intlMessages.userListLabel)}
+      <Resizable
+        minWidth="10%"
+        maxWidth="20%"
+        ref={(node) => { this.resizableUserList = node; }}
+        enable={{ right: true }}
+        className={styles.resizableUserList}
+        onResize={(e, direction, ref, d) => {
+          if (e.clientX - ref.offsetLeft <= 50) this.props.router.push('/');
+        }}
       >
-        {userList}
-      </div>
+        <div
+          className={cx(styles.userList, userListStyle)}
+          aria-label={intl.formatMessage(intlMessages.userListLabel)}
+          aria-hidden={chatIsOpen}
+        >
+          {userList}
+        </div>
+      </Resizable>
     );
   }
 
@@ -137,17 +150,28 @@ class App extends Component {
     if (!chat) return null;
 
     return (
-      <section
-        className={styles.chat}
-        aria-label={intl.formatMessage(intlMessages.chatLabel)}
+      <Resizable
+        defaultSize={{width: "22.5%"}}
+        minWidth="15%"
+        maxWidth="30%"
+        ref={(node) => { this.resizableChat = node; }}
+        className={styles.resizableChat}
+        enable={{ right: true }}
       >
-        {chat}
-      </section>
+        <section
+          className={styles.chat}
+          aria-label={intl.formatMessage(intlMessages.chatLabel)}
+        >
+          {chat}
+        </section>
+      </Resizable>
     );
   }
 
   renderMedia() {
-    const { media, intl } = this.props;
+    const {
+      media, intl, chatIsOpen, userlistIsOpen,
+    } = this.props;
 
     if (!media) return null;
 
@@ -155,6 +179,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
+        aria-hidden={userlistIsOpen || chatIsOpen}
       >
         {media}
         {this.renderClosedCaption()}
@@ -163,7 +188,9 @@ class App extends Component {
   }
 
   renderActionsBar() {
-    const { actionsbar, intl } = this.props;
+    const {
+      actionsbar, intl, userlistIsOpen, chatIsOpen,
+    } = this.props;
 
     if (!actionsbar) return null;
 
@@ -171,6 +198,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
+        aria-hidden={userlistIsOpen || chatIsOpen}
       >
         {actionsbar}
       </section>
@@ -178,7 +206,7 @@ class App extends Component {
   }
 
   render() {
-    const { params } = this.props;
+    const { params, userlistIsOpen, chatIsOpen } = this.props;
 
     return (
       <main className={styles.main}>
@@ -190,6 +218,7 @@ class App extends Component {
             {this.renderActionsBar()}
           </div>
           {this.renderUserList()}
+          {userlistIsOpen ? <div className={styles.userlistPad} /> : null}
           {this.renderChat()}
           {this.renderSidebar()}
         </section>

@@ -92,6 +92,7 @@ class VideoListItem extends Component {
             </DropdownContent>
           </Dropdown>
           { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
+          { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
         </div>
         { showStats ? <VideoListItemStats toggleStats={this.toggleStats} getStats={getStats} stopGettingStats={stopGettingStats} videoTag={this.videoTag} /> : null }
       </div>

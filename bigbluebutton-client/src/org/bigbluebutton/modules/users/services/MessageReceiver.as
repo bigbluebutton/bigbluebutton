@@ -305,8 +305,7 @@ package org.bigbluebutton.modules.users.services
     private function handleGetUsersMeetingRespMsg(msg: Object):void {
       var body: Object = msg.body as Object
       var users: Array = body.users as Array;
-      LOGGER.debug("Num USERs = " + users.length);
-      
+
       for (var i:int = 0; i < users.length; i++) {
         var user:Object = users[i] as Object;
         processUserJoinedMeetingMsg(user);
@@ -364,8 +363,6 @@ package org.bigbluebutton.modules.users.services
       user2x.presenter = presenter;
       user2x.avatar = avatar;
       
-      LOGGER.debug("USER JOINED = " + JSON.stringify(user2x));
-
       var oldUser: User2x = LiveMeeting.inst().users.getUser(intId);
       var wasPresenterBefore: Boolean = false;
       if (oldUser != null && oldUser.presenter) {
@@ -401,8 +398,7 @@ package org.bigbluebutton.modules.users.services
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {
       var body: Object = msg.body as Object;
       var users: Array = body.users as Array;
-      LOGGER.debug("Num USERs = " + users.length);
-      
+
       for (var i:int = 0; i < users.length; i++) {
         var user:Object = users[i] as Object;
         var intId: String = user.intId as String;
@@ -423,8 +419,7 @@ package org.bigbluebutton.modules.users.services
         vu.muted = muted;
         vu.talking = talking;
         vu.listenOnly = listenOnly;
-        
-        LOGGER.debug("USER = " + JSON.stringify(vu));
+				
         LiveMeeting.inst().voiceUsers.add(vu);
       }
     }
@@ -432,7 +427,6 @@ package org.bigbluebutton.modules.users.services
     private function handleGetWebcamStreamsMeetingRespMsg(msg:Object):void {
       var body: Object = msg.body as Object
       var streams: Array = body.streams as Array;
-      LOGGER.debug("Num streams = " + streams.length);
       
       for (var i:int = 0; i < streams.length; i++) {
         var stream:Object = streams[i] as Object;
@@ -451,7 +445,6 @@ package org.bigbluebutton.modules.users.services
           webcamStream.attributes = attributes;
           webcamStream.viewers = viewers;
 
-          LOGGER.debug("STREAM = " + JSON.stringify(webcamStream));
           LiveMeeting.inst().webcams.add(webcamStream);
         }
       }
@@ -496,8 +489,8 @@ package org.bigbluebutton.modules.users.services
       
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["users"];
-      logData.status = "user_ejected";
-      logData.message = "User ejected from meeting.";
+      logData.logCode = "received_user_ejected";
+			logData.userId = userId;
       LOGGER.debug(JSON.stringify(logData));
     }
     
@@ -523,7 +516,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handlePermissionsSettingsChanged(msg:Object):void {
-      LOGGER.debug("handlePermissionsSettingsChanged {0} \n", [JSON.stringify(msg.body)]);
       var body:Object = msg.body as Object;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(
@@ -538,8 +530,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleGetLockSettings(msg:Object):void {
-      LOGGER.debug("handleGetLockSettings {0} \n", [msg.body]);
-      
+   
       var body:Object = msg.body as Object;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(
@@ -554,7 +545,6 @@ package org.bigbluebutton.modules.users.services
     }
     
 	private function handleLockSettingsNotInitialized(msg:Object):void {
-		LOGGER.debug("handleLockSettingsNotInitialized received");
 		UsersUtil.lockSettingsNotInitialized();
 	}
 	
@@ -632,7 +622,6 @@ package org.bigbluebutton.modules.users.services
     }
 	
 	private function handleWebcamsOnlyForModeratorChanged(msg: Object):void {
-		LOGGER.debug("handleWebcamsOnlyForModeratorChanged {0} \n", [JSON.stringify(msg.body)]);
 		var body:Object = msg.body as Object;
 		var webcamsOnlyForModerator: Boolean = body.webcamsOnlyForModerator as Boolean;
 		sendWebcamsOnlyForModeratorChanged(webcamsOnlyForModerator);
@@ -733,8 +722,9 @@ package org.bigbluebutton.modules.users.services
       var streamId: String = msg.body.stream as String;
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["webcam"];
-      logData.message = "UserBroadcastCamStartedEvtMsg server message";
-      logData.user.webcamStream = streamId;
+      logData.logCode = "user_broadcasting_camera_start";
+			logData.userId = userId;
+      logData.streamId = streamId;
 
       if (isValidFlashWebcamStream(streamId)) {
 
@@ -761,13 +751,16 @@ package org.bigbluebutton.modules.users.services
       
       var logData:Object = UsersUtil.initLogData();
       logData.tags = ["webcam"];
-      logData.message = "UserBroadcastCamStoppedEvtMsg server message";
-      logData.user.webcamStream = stream;
+			logData.logCode = "user_broadcasting_camera_stop";
+			logData.userId = userId;
+			logData.streamId = stream;
       LOGGER.info(JSON.stringify(logData));
       
-      LiveMeeting.inst().webcams.remove(stream);
+      var mediaStream: MediaStream = LiveMeeting.inst().webcams.remove(stream);
       
-      sendStreamStoppedEvent(userId, stream);
+			if (mediaStream != null) {
+      	sendStreamStoppedEvent(mediaStream.userId, stream);
+			}
     }
     
     private function sendStreamStoppedEvent(userId: String, streamId: String):void{
@@ -783,6 +776,7 @@ package org.bigbluebutton.modules.users.services
         breakoutRoom.externalMeetingId = room.externalId as String;
         breakoutRoom.name = room.name as String;
         breakoutRoom.sequence = room.sequence as Number;
+		breakoutRoom.freeJoin = room.freeJoin as Boolean;
         LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
       }
       LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = msg.body.roomsReady as Boolean;
@@ -833,12 +827,14 @@ package org.bigbluebutton.modules.users.services
       var externalId: String = breakout.externalId as String;
       var name: String = breakout.name as String;
       var sequence: int = breakout.sequence as Number;
+      var freeJoin: Boolean = breakout.freeJoin as Boolean;
       
       var breakoutRoom : BreakoutRoom = new BreakoutRoom();
       breakoutRoom.meetingId = breakoutId;
       breakoutRoom.externalMeetingId = externalId;
       breakoutRoom.name = name;
       breakoutRoom.sequence = sequence;
+      breakoutRoom.freeJoin = freeJoin;
       LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
     }
     
@@ -901,7 +897,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleGuestAccessDenied(msg:Object):void {
-      LOGGER.debug("*** handleGuestAccessDenied " + msg.msg + " ****");
       var map:Object = JSON.parse(msg.msg);
       
       if (UsersUtil.getMyUserID() == map.userId) {

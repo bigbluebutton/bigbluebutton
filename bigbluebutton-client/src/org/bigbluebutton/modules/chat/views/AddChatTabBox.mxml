@@ -29,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<fx:Declarations>
   		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+		<mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="refreshRole" />
     <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" /> 
     <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent" />
 	</fx:Declarations>
@@ -49,10 +49,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.CoreEvent;
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.UserStatusChangedEvent;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
@@ -164,16 +164,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               refreshListStatus();
           }
 
-          private function refreshRole(e:ChangeMyRole):void {
+          private function refreshRole(e:Event):void {
             clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = clrBtnVisible = UsersUtil.amIModerator();
               refreshListStatus();
           }
 
           private function refreshListStatus():void {
             
+			handler.disableModeratorsFilter();
+			  
             if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-                      
-            usersList.enabled = ! LiveMeeting.inst().me.disableMyPrivateChat;
+            
+			if (LiveMeeting.inst().me.disableMyPrivateChat) {
+				handler.enableModeratorsFilter();
+			}
           }
             
           public function sendSaveEvent():void{

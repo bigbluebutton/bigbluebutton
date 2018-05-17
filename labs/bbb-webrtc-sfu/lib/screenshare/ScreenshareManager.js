@@ -23,75 +23,57 @@ module.exports = class ScreenshareManager extends BaseManager {
   _onMessage(message) {
     Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
 
-    let session;
-    let sessionId = message.voiceBridge;
-    let connectionId = message.connectionId;
-    let iceQueue;
+    const sessionId = message.voiceBridge;
+    const connectionId = message.connectionId;
+    const role = message.role;
+    const sdpOffer = message.sdpOffer
+    const callerName = message.callerName? message.callerName : 'default';
+    let iceQueue, session;
 
-    if(this._sessions[sessionId]) {
-      session = this._sessions[sessionId];
-    }
-
-    if (!this._iceQueues[sessionId] && message.voiceBridge) {
-      this._iceQueues[sessionId] = [];
-    }
-
-    if (this._iceQueues[sessionId]) {
-      iceQueue = this._iceQueues[sessionId] ;
-    }
-
+    session = this._fetchSession(sessionId);
+    iceQueue = this._fetchIceQueue(sessionId);
 
     switch (message.id) {
-
-      case 'presenter':
-
-        // Checking if there's already a Screenshare session started
-        // because we shouldn't overwrite it
-
-        if (!this._sessions[message.voiceBridge]) {
-          this._sessions[message.voiceBridge] = {}
-          this._sessions[message.voiceBridge] = session;
-        }
-
-        if(session) {
-          break;
-        }
-
-        session = new Screenshare(connectionId, this._bbbGW,
+      case 'start':
+        if (!session) {
+          session = new Screenshare(connectionId, this._bbbGW,
             sessionId, connectionId, message.vh, message.vw,
             message.internalMeetingId);
-
-        this._sessions[sessionId] = {}
-        this._sessions[sessionId] = session;
+          this._sessions[sessionId] = session;
+        }
 
         // starts presenter by sending sessionID, websocket and sdpoffer
-        session._startPresenter(sessionId, message.sdpOffer, (error, sdpAnswer) => {
+        //  async start (sessionId, connectionId, sdpOffer, callerName, role, callback) {
+        session.start(sessionId, connectionId, sdpOffer, callerName, role, (error, sdpAnswer) => {
           Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
           if (error) {
             this._bbbGW.publish(JSON.stringify({
-              connectionId: session._id,
-              id : 'presenterResponse',
+              connectionId: connectionId,
+              type: C.SCREENSHARE_APP,
+              role: role,
+              id : 'startResponse',
               response : 'rejected',
               message : error
             }), C.FROM_SCREENSHARE);
             return error;
           }
 
-          this._bbbGW.publish(JSON.stringify({
-            connectionId: session._id,
-            id : 'presenterResponse',
-            response : 'accepted',
-            sdpAnswer : sdpAnswer
-          }), C.FROM_SCREENSHARE);
-
           // Empty ice queue after starting session
           if (iceQueue) {
             let candidate;
             while(candidate = iceQueue.pop()) {
-              session.onIceCandidate(candidate);
+              session.onIceCandidate(candidate, role, callerName);
             }
           }
 
+          this._bbbGW.publish(JSON.stringify({
+            connectionId: connectionId,
+            type: C.SCREENSHARE_APP,
+            role: role,
+            id : 'startResponse',
+            response : 'accepted',
+            sdpAnswer : sdpAnswer
+          }), C.FROM_SCREENSHARE);
 
           session.once(C.MEDIA_SERVER_OFFLINE, (event) => {
             this._stopSession(sessionId);
@@ -99,29 +81,6 @@ module.exports = class ScreenshareManager extends BaseManager {
 
           Logger.info(this._logPrefix, "Sending presenterResponse to presenter", sessionId, "for connection", session._id);
         });
-        break;
-
-      case 'viewer':
-        if (message.sdpOffer && message.voiceBridge) {
-          if (session) {
-            Logger.info(this._logPrefix, "Starting screenshare viewer at", message.voiceBridge, " for viewer with connection ", message.connectionId);
-            session._startViewer(message.connectionId,
-                message.voiceBridge,
-                message.sdpOffer,
-                connectionId,
-                this._sessions[message.voiceBridge]._presenterEndpoint);
-            // Empty ice queue after starting session
-            if (iceQueue) {
-              let candidate;
-              while(candidate = iceQueue.pop()) {
-                session.onViewerIceCandidate(candidate);
-              }
-            }
-
-          } else {
-            // TODO ERROR HANDLING
-          }
-        }
         break;
 
       case 'stop':
@@ -135,29 +94,10 @@ module.exports = class ScreenshareManager extends BaseManager {
         break;
 
       case 'onIceCandidate':
-        if (session.constructor === Screenshare) {
-          session.onIceCandidate(message.candidate);
+        if (session && session.constructor === Screenshare) {
+          session.onIceCandidate(message.candidate, role, callerName);
         } else {
           Logger.info(this._logPrefix, "Queueing ice candidate for later in screenshare", message.voiceBridge);
-          if (!iceQueue) {
-            this._iceQueues[sessionId] = [];
-            iceQueue = this._iceQueues[sessionId];
-          }
-
-          iceQueue.push(message.candidate);
-        }
-        break;
-
-      case 'viewerIceCandidate':
-        if (session) {
-          session.onViewerIceCandidate(message.candidate, connectionId);
-        } else {
-          Logger.info(this._logPrefix, "Queueing ice candidate for later in screenshare", message.voiceBridge);
-          if (!iceQueue) {
-            this._iceQueues[sessionId] = [];
-            iceQueue = this._iceQueues[sessionId];
-          }
-
           iceQueue.push(message.candidate);
         }
         break;
@@ -165,13 +105,15 @@ module.exports = class ScreenshareManager extends BaseManager {
       case 'close':
         Logger.info(this._logPrefix, 'Connection ' + connectionId + ' closed');
 
-        if (message.role === 'presenter' && this._sessions[sessionId]) {
-          Logger.info(this._logPrefix, "Stopping presenter " + sessionId);
-          this._stopSession(sessionId);
-        }
-        if (message.role === 'viewer' && typeof session !== 'undefined') {
-          Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
-          session.stopViewer(message.connectionId);
+        if (session && session.constructor == Screenshare) {
+          if (role === C.SEND_ROLE && session) {
+            Logger.info(this._logPrefix, "Stopping presenter " + sessionId);
+            this._stopSession(sessionId);
+          }
+          if (role === C.RECV_ROLE && session) {
+            Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
+            session.stopViewer(message.connectionId);
+          }
         }
         break;
 

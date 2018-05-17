@@ -16,7 +16,29 @@ module.exports = class VideoManager extends BaseManager {
   constructor (connectionChannel, additionalChannels, logPrefix) {
     super(connectionChannel, additionalChannels, logPrefix);
     this.messageFactory(this._onMessage);
-    this._iceQueues = {};
+  }
+
+  _findByIdAndRole (id, role) {
+    let sesh = null;
+    let keys = Object.keys(this._sessions);
+    keys.forEach((sessionId) => {
+      let session = this._sessions[sessionId];
+      if (sessionId === (session.connectionId + id + '-' + role)) {
+        sesh = session;
+      }
+    });
+    return sesh;
+  }
+
+  setStreamAsRecorded (id) {
+    let video = this._findByIdAndRole(id, 'share');
+
+    if (video) {
+      Logger.info("[VideoManager] Setting ", id, " as recorded");
+      video.setStreamAsRecorded();
+    } else {
+      Logger.warn("[VideoManager] Tried to set stream to recorded but ", id, " has no session!");
+    }
   }
 
   async _onMessage (_message) {
@@ -29,8 +51,10 @@ module.exports = class VideoManager extends BaseManager {
     let shared = role === 'share' ? true : false;
     let iceQueue;
 
+    Logger.debug(this._logPrefix, 'Received message =>', message);
+
     if (!message.cameraId && message.id !== 'close') {
-      Logger.warn(this._logPrefix, 'Undefined message.cameraId for session', sessionId);
+      Logger.warn(this._logPrefix, 'Ignoring message with undefined.cameraId for session', sessionId);
       return;
     }
 
@@ -38,40 +62,20 @@ module.exports = class VideoManager extends BaseManager {
 
     sessionId = connectionId + cameraId;
 
-    if (!this._sessions[sessionId] && typeof message.cameraId !== 'undefined') {
-      this._sessions[sessionId] = {};
+    if (message.cameraId) {
+      video = this._fetchSession(sessionId);
+      iceQueue = this._fetchIceQueue(sessionId);
     }
-
-    if (!this._iceQueues[sessionId] && message.cameraId) {
-      this._iceQueues[sessionId] = [];
-    }
-
-    if (this._sessions[sessionId]) {
-      video = this._sessions[sessionId];
-    }
-
-    if (this._iceQueues[sessionId]) {
-      iceQueue = this._iceQueues[sessionId] ;
-    }
-
-
-    Logger.debug(this._logPrefix, 'Message =>', message);
 
     switch (message.id) {
       case 'start':
         Logger.info(this._logPrefix, 'Received message [' + message.id + '] from connection ' + sessionId);
 
-        video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
+        if (!video) {
+          video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
 
-        // Empty ice queue after starting video
-        if (iceQueue) {
-          let candidate;
-          while(candidate = iceQueue.pop()) {
-            video.onIceCandidate(candidate);
-          }
+          this._sessions[sessionId] = video;
         }
-
-        this._sessions[sessionId] = video;
 
         video.start(message.sdpOffer, (error, sdpAnswer) => {
           if (error) {
@@ -85,6 +89,9 @@ module.exports = class VideoManager extends BaseManager {
               message : error
             }), C.FROM_VIDEO);
           }
+
+          // Empty ice queue after starting video
+          this._flushIceQueue(video, iceQueue);
 
           video.once(C.MEDIA_SERVER_OFFLINE, async (event) => {
             this._stopSession(sessionId);
@@ -105,31 +112,24 @@ module.exports = class VideoManager extends BaseManager {
         this._stopSession(sessionId);
         break;
 
+      case 'pause':
+        if (video) {
+          video.pause(message.state);
+        }
+        break;
+
       case 'onIceCandidate':
-        if (video.constructor === Video) {
+        if (video && video.constructor === Video) {
           video.onIceCandidate(message.candidate);
         } else {
           Logger.info(this._logPrefix, "Queueing ice candidate for later in video", cameraId);
-          if (!iceQueue) {
-            this._iceQueues[sessionId] = [];
-            iceQueue = this._iceQueues[sessionId];
-          }
-
           iceQueue.push(message.candidate);
         }
         break;
 
       case 'close':
         Logger.info(this._logPrefix, "Closing sessions of connection", connectionId);
-
-        let keys = Object.keys(this._sessions);
-        for (var k in this._sessions) {
-          let session = this._sessions[k];
-          if(session && session.connectionId === connectionId) {
-            let killedSessionId = session.connectionId + session.id + "-" + role;
-            this._stopSession(killedSessionId);
-          }
-        }
+        this._killConnectionSessions(connectionId);
         break;
 
       default:

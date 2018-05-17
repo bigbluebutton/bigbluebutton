@@ -1,10 +1,12 @@
 import Auth from '/imports/ui/services/auth';
+import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
-import deviceType from '/imports/utils/deviceType';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
+const METADATA_KEY = 'metadata';
 
 export function joinRouteHandler(nextState, replace, callback) {
   const { sessionToken } = nextState.location.query;
@@ -19,16 +21,35 @@ export function joinRouteHandler(nextState, replace, callback) {
 
   fetch(url)
     .then(response => response.json())
-    .then((data) => {
+    .then(({ response }) => {
       const {
-        meetingID, internalUserID, authToken, logoutUrl, customLogoURL,
-      } = data.response;
+        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+      } = response;
+
+      if (returncode === 'FAILED') {
+        replace({ pathname: '/error/404' });
+        callback();
+      }
 
       setCustomLogoUrl(customLogoURL);
+      const metakeys = metadata.length
+        ? metadata.reduce((acc, meta) => {
+          const key = Object.keys(meta).shift();
+          /* this reducer transforms array of objects in a single object and
+           forces the metadata a be boolean value */
+          let value = meta[key];
+          try {
+            value = JSON.parse(meta[key]);
+          } catch (e) {
+            log('error', `Caught: ${e.message}`);
+          }
+          return { ...acc, [key]: value };
+        }) : {};
+      SessionStorage.setItem(METADATA_KEY, metakeys);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
-      const path = deviceType().isPhone ? '/' : '/users';
+      const path = deviceInfo.type().isPhone ? '/' : '/users';
 
       replace({ pathname: path });
 

@@ -36,7 +36,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr {
       val (internalId, externalId) = BreakoutRoomsUtil.createMeetingIds(liveMeeting.props.meetingProp.intId, i)
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
-      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, voiceConf, room.users)
+      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.freeJoin, voiceConf, room.users)
       rooms = rooms + (breakout.id -> breakout)
     }
 
@@ -45,6 +45,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr {
         breakout.id, breakout.name,
         liveMeeting.props.meetingProp.intId,
         breakout.sequence,
+        breakout.freeJoin,
         breakout.voiceConf,
         msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,

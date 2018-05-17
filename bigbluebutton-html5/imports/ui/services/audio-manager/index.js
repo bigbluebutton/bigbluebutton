@@ -37,11 +37,13 @@ class AudioManager {
     });
   }
 
-  init(userData, messages) {
+  init(userData) {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
     this.userData = userData;
-    this.messages = messages;
     this.initialized = true;
+  }
+  setAudioMessages(messages) {
+    this.messages = messages;
   }
 
   defineProperties(obj) {
@@ -237,6 +239,7 @@ class AudioManager {
       } else if (status === FAILED) {
         this.error = error;
         this.notify(this.messages.error[error], true);
+        makeCall('failed callStateCallback audio', response);
         console.error('Audio Error:', error, bridgeError);
         this.onAudioExit();
       }

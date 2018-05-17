@@ -4,6 +4,7 @@ import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import screenreaderTrap from 'makeup-screenreader-trap';
 import { styles } from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
@@ -68,6 +69,11 @@ class Dropdown extends Component {
     this.handleWindowClick = this.handleWindowClick.bind(this);
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
+  }
+
+
   componentDidUpdate(prevProps, prevState) {
     if (this.state.isOpen && !prevState.isOpen) {
       this.props.onShow();
@@ -94,6 +100,8 @@ class Dropdown extends Component {
 
   handleWindowClick(event) {
     const triggerElement = findDOMNode(this.trigger);
+
+    if (!triggerElement) return;
 
     if (!this.state.isOpen
       || triggerElement === event.target
@@ -145,6 +153,7 @@ class Dropdown extends Component {
         aria-relevant={otherProps['aria-relevant']}
         aria-haspopup={otherProps['aria-haspopup']}
         aria-label={otherProps['aria-label']}
+        ref={(node) => { this.dropdown = node; }}
         tabIndex={-1}
       >
         {trigger}

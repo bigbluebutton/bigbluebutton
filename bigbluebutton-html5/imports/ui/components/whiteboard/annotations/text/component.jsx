@@ -138,9 +138,11 @@ export default class TextDrawComponent extends Component {
 
   renderViewerTextShape(results) {
     const styles = TextDrawComponent.getViewerStyles(results);
+    const { isChrome, isEdge } = this.props.browserType;
 
     return (
       <g>
+        { isChrome || isEdge ? null :
         <clipPath id={this.props.annotation.id}>
           <rect
             x={results.x}
@@ -149,7 +151,7 @@ export default class TextDrawComponent extends Component {
             height={results.height}
           />
         </clipPath>
-
+        }
         <foreignObject
           clipPath={`url(#${this.props.annotation.id})`}
           x={results.x}

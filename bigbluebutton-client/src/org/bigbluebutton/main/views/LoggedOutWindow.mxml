@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
 			import flash.net.URLLoader;
 			import flash.net.URLRequest;
 			import flash.net.URLRequestMethod;
@@ -60,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var message:String;
 
 			private var urlLoader:URLLoader;
+			private var logoutReason:String;
 
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
@@ -73,12 +73,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					logData.meetingId = UsersUtil.getInternalMeetingID();
 					logData.rating = starRating.rating;
 					logData.comment = feedbackMsg.text;
+					logData.reason = logoutReason;
+					logData.extUserId = UsersUtil.getMyExternalUserID();
+					logData.role = UsersUtil.getMyRole();
+					logData.logCode = "user_feedback";
 					LOGGER.info(JSON.stringify(logData));
 				}
 
 				var logoutURL:String = BBB.getSignoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Log out url: " + logoutURL);
+				
 				request.method = URLRequestMethod.GET;
 				urlLoader = new URLLoader();
 				// If the redirect value is set to false handleComplete will be triggered
@@ -100,21 +104,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleRedirectError(e:IOErrorEvent):void {
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["logout"];
-				logData.message = "Log out redirection returned with error.";
+				logData.logCode = "logout_redirect_returned_error";
 				LOGGER.error(JSON.stringify(logData));
 				PopUpUtil.removePopUp(this);
 				exitApplication();
 			}
 
 			private function onUserLoggedOutWindowClose(e:Event):void {
-				LOGGER.debug("Closing UserLoggedOutWindow");
 				PopUpUtil.removePopUp(this);
 			}
 
 			public function setReason(reason:String):void {
+				logoutReason = reason;
+				
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["connection"];
-				logData.message = "User logged out.";
+				logData.logCode = "user_logged_out_reason_display";
 				logData.reason = reason;
 				LOGGER.info(JSON.stringify(logData));
 

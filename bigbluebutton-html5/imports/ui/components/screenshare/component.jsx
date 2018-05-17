@@ -1,6 +1,16 @@
 import React from 'react';
 
+import { styles } from './styles';
+
 export default class ScreenshareComponent extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      loaded: false,
+    };
+
+    this.onVideoLoad = this.onVideoLoad.bind(this);
+  }
   componentDidMount() {
     this.props.presenterScreenshareHasStarted();
   }
@@ -13,10 +23,14 @@ export default class ScreenshareComponent extends React.Component {
     this.props.presenterScreenshareHasEnded();
     this.props.unshareScreen();
   }
+  onVideoLoad() {
+    this.setState({ loaded: true });
+  }
 
   render() {
     return (
-      <video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline />
+      [!this.state.loaded ? (<div className={styles.connecting} />) : null,
+        (<video id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline onLoadedData={this.onVideoLoad} />)]
     );
   }
 }

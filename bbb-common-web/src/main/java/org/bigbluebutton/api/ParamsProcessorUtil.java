@@ -482,6 +482,7 @@ public class ParamsProcessorUtil {
         // Add extra parameters for breakout room
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get("sequence")));
+            meeting.setFreeJoin(Boolean.parseBoolean(params.get("freeJoin")));
             meeting.setParentMeetingId(parentMeetingId);
         }
 
