@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
 				implements="org.bigbluebutton.common.IKeyboardClose"
-				height="250"
+				width="600"
 				show="this.setFocus()"
 				initialize="init()"
 				layout="absolute"
@@ -43,12 +43,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.utils.WebRTCScreenshareUtility;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(ScreenshareSelectionWindow);
 			
+			private var screenshareOptions:ScreenshareOptions;
+			
 			private function init():void {
-				if ((Options.getOptions(ScreenshareOptions) as ScreenshareOptions).offerWebRTC) {
+				screenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+				
+				if (screenshareOptions.offerWebRTC) {
 					WebRTCScreenshareUtility.canIUseWebRTCOnThisBrowser(webRTCNotAvailableCallback, webRTCAvailableCallback, webRTCAvailableCallback);
 				} else {
 					LOGGER.debug("WebRTC disabled in options");
@@ -67,7 +72,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function webRTCAvailableCallback(reason:String):void {
 				LOGGER.debug("WebRTC available");
-				// don't do anything special for now
+				// have to also check for Chrome + Win 10 because it can be blurry
+				if (BrowserCheck.isChrome() && Capabilities.os == "Windows 10") {
+					webrtcProblemHintBox.visible = webrtcProblemHintBox.includeInLayout = true;
+					webrtcProblemHintLbl.htmlText = ResourceUtil.getInstance().getString('bbb.screenshareSelection.problemHintText2', [screenshareOptions.chromeWin10Help]);
+				}
 			}
 			
 			private function onWebrtcClick():void {
@@ -95,6 +104,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				PopUpUtil.removePopUp(this);
 			}
+			
+			private function onHelpLinkClicked(e:TextEvent):void{
+				if (ExternalInterface.available) {
+					ExternalInterface.call("chatLinkClicked", e.text);
+				}
+			}
 		]]>
 	</fx:Script>
 	
@@ -102,46 +117,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[windowTitle, closeButton, btnWebrtc, btnJava]}"/>
 	</fx:Declarations>
 	
-	<mx:VBox width="100%" height="100%" paddingBottom="20" paddingLeft="80" paddingRight="80" paddingTop="15" horizontalAlign="center">
+	<mx:VBox width="100%" height="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="15" horizontalAlign="center">
 		<common:AdvancedLabel id="windowTitle"
 							  text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.title')}"
 							  styleName="titleWindowStyle"
 							  maxWidth="{this.width - 40}" />
-		<mx:Box id="webrtcProblemHintBox" 
-				width="100%" height="56"
-				verticalScrollPolicy="off" horizontalScrollPolicy="off"
-				visible="false" includeInLayout="false"
-				styleName="webHintBoxStyle">
-			<mx:Text id="webrtcProblemHintLbl" width="100%" textAlign="center" styleName="audioBroswerHintTextStyle"/>
-		</mx:Box>
-		<mx:HBox width="100%" height="100%" styleName="screenshareSelectionsStyle" verticalAlign="middle">
-			<mx:VBox id="vboxWebrtc" width="50%" horizontalAlign="center" verticalAlign="middle">
+		<mx:HBox width="100%" height="100%" styleName="screenshareSelectionsStyle" verticalAlign="middle" horizontalAlign="center">
+			<mx:VBox id="vboxWebrtc" horizontalAlign="center" verticalAlign="middle" paddingLeft="20" paddingRight="20">
+				<mx:Button id="btnWebrtc" buttonMode="true" styleName="btnScreenshareSelectStyle" width="140" height="140"
+						   click="onWebrtcClick()"
+						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.webrtc.label2')}"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.label')}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}" />
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.webrtc.label1')}"
 						  styleName="screenshareTypeTitle" />
-				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.webrtc.label2')}"
-						  styleName="screenshareTypeSubtitle" />
-				<mx:Button id="btnWebrtc" styleName="screenshareSelectBtnStyle"
-						   click="onWebrtcClick()"
-						   minWidth="130"
-						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnSelect.label')}"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}" />
 			</mx:VBox>
-			<mx:VBox id="vboxJava" width="50%" horizontalAlign="center" verticalAlign="middle">
+			<mx:VBox id="vboxJava" horizontalAlign="center" verticalAlign="middle" paddingLeft="20" paddingRight="20">
+				<mx:Button id="btnJava" width="140" height="140" buttonMode="true" styleName="btnScreenshareSelectStyle"
+						   click="onJavaClick()"
+						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.java.label2')}"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.label')}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}" />
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.java.label1')}"
 						  styleName="screenshareTypeTitle" />
-				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.java.label2')}"
-						  styleName="screenshareTypeSubtitle" />
-				<mx:Button id="btnJava" styleName="screenshareSelectBtnStyle"
-						   click="onJavaClick()"
-						   minWidth="130"
-						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnSelect.label')}"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}" />
 			</mx:VBox>
 		</mx:HBox>
+		<mx:Box id="webrtcProblemHintBox"
+				width="100%"
+				verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				visible="false" includeInLayout="false"
+				styleName="screenshareSelectHintBoxStyle">
+			<mx:Text id="webrtcProblemHintLbl" width="100%" textAlign="center" styleName="screenshareSelectHintTextStyle" link="onHelpLinkClicked(event)"/>
+		</mx:Box>
 	</mx:VBox>
-	
 	<mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.cancel')}"
 			   right="10" top="15"
