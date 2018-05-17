@@ -37,7 +37,6 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;

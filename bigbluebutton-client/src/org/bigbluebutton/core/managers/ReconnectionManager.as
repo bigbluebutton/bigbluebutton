@@ -33,12 +33,10 @@ package org.bigbluebutton.core.managers
   import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.BBBEvent;
-  import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.main.views.ReconnectionPopup;
   import org.bigbluebutton.util.ConnUtil;
-  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ReconnectionManager
   {
@@ -60,9 +58,9 @@ package org.bigbluebutton.core.managers
       if (_connections.hasOwnProperty(ConnUtil.BIGBLUEBUTTON_CONNECTION)) {
         reconnectHelper(ConnUtil.BIGBLUEBUTTON_CONNECTION);
       } else {
-        for (var type:String in _connections) {
-          reconnectHelper(type);
-        }
+        //for (var type:String in _connections) {
+        //  reconnectHelper(type);
+        //}
       }
       if (!_reconnectTimeout.running)
         _reconnectTimeout.start();

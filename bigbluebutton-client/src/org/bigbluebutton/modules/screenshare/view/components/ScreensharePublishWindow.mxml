@@ -57,7 +57,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.ReconnectionManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
