@@ -124,7 +124,7 @@ class App extends Component {
 
     return (
       <Resizable
-        minWidth="10%"
+        minWidth="13%"
         maxWidth="20%"
         ref={(node) => { this.resizableUserList = node; }}
         enable={{ right: true }}
