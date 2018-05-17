@@ -33,7 +33,7 @@ module.exports = class Video extends EventEmitter {
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
 
-    this.bbbGW.on(C.RECORDING_STATUS_REPLY_MESSAGE_2x+this.meetingId, (payload) => {
+    this.bbbGW.once(C.RECORDING_STATUS_REPLY_MESSAGE_2x+this.meetingId, (payload) => {
       Logger.info("[Video] RecordingStatusReply userId:", payload.requestedBy, "recorded:", payload.recorded);
 
       if (payload.requestedBy === this.id && payload.recorded) {
@@ -122,7 +122,7 @@ module.exports = class Video extends EventEmitter {
           if (!this.notFlowingTimeout) {
             this.notFlowingTimeout = setTimeout(() => {
 
-              if (this.shouldRecord()) {
+              if (this.shared) {
                 this.sendPlayStop();
                 this.status = C.MEDIA_STOPPED;
                 clearTimeout(this.notFlowingTimeout);
@@ -248,7 +248,7 @@ module.exports = class Video extends EventEmitter {
     const sinkId = this.mediaId;
 
     if (!sourceId || !sinkId) {
-      Logger.err("[video] Source or sink is null.");
+      Logger.error("[video] Source or sink is null.");
       return;
     }
 
