@@ -40,6 +40,8 @@ export default function sendChat(credentials, message) {
   check(requesterToken, String);
   check(message, Object);
 
+  message.fromTime = Date.now(); // server time
+
   let eventName = 'SendPrivateMessagePubMsg';
 
   const parsedMessage = message;

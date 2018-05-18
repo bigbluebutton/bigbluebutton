@@ -1559,29 +1559,34 @@ mx|ScrollBar {
 //------------------------------
 */
 
-.screenshareTypeTitle {
-	color      : #363B43;
-	fontSize   : 14;
-	fontWeight : bold;
+.screenshareSelectHintBoxStyle {
+	horizontalAlign : center;
+	paddingTop      : 7;
+	paddingBottom   : 7;
+	paddingLeft     : 5;
+	paddingRight    : 5;
+	verticalAlign   : middle;
 }
 
-.screenshareTypeSubtitle {
+.screenshareTypeTitle {
 	color      : #363B43;
 	fontSize   : 14;
 	fontWeight : normal;
 }
 
-.screenshareSelectBtnStyle {
-	borderThickness       : 0;
-	color                 : #FFFFFF;
-	fillColorUp           : #1070D7;
-	fillColorOver         : #0A5EAC;
-	fillColorDown         : #1070D7;
-	textRollOverColor     : #FFFFFF;
-	textSelectedColor     : #FFFFFF;
-	fillColorSelectedUp   : #1070D7;
-	fillColorSelectedOver : #0A5EAC;
-	fillColorSelectedDown : #1070D7;
+.btnScreenshareSelectStyle {
+	borderAlphaUp       : 0;
+	borderAlphaOver     : 1;
+	borderAlphaDown     : 1;
+	borderAlphaDisabled : 0;
+	
+	fillColorUp         : #EFF5FA;
+	borderColorOver     : #1070D7;
+	borderColorDown     : #1070D7;
+	
+	fontWeight          : bold;
+	borderThickness     : 5;
+	cornerRadius        : 70;
 }
 
 /*

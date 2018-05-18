@@ -19,27 +19,21 @@
 package org.bigbluebutton.modules.screenshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
-	import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
-	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopPublishWindow;
 	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopViewWindow;
 
 	public class WebRTCViewerWindowManager {
 		private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
 
 		private var viewWindow:WebRTCDesktopViewWindow;
-		private var service:WebRTCDeskshareService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 
-		public function WebRTCViewerWindowManager(service:WebRTCDeskshareService) {
-			this.service = service;
+		public function WebRTCViewerWindowManager() {
 			globalDispatcher = new Dispatcher();
 		}
 

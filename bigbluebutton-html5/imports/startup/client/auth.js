@@ -35,9 +35,15 @@ export function joinRouteHandler(nextState, replace, callback) {
       const metakeys = metadata.length
         ? metadata.reduce((acc, meta) => {
           const key = Object.keys(meta).shift();
-          /* this reducer tranform array of objects in a sigle object and
-           force the metadata a be boolean value */
-          return { ...acc, [key]: JSON.parse(meta[key]) };
+          /* this reducer transforms array of objects in a single object and
+           forces the metadata a be boolean value */
+          let value = meta[key];
+          try {
+            value = JSON.parse(meta[key]);
+          } catch (e) {
+            log('error', `Caught: ${e.message}`);
+          }
+          return { ...acc, [key]: value };
         }) : {};
       SessionStorage.setItem(METADATA_KEY, metakeys);
 
