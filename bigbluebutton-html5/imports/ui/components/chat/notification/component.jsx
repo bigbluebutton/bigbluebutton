@@ -52,7 +52,6 @@ class ChatNotification extends Component {
       disableAudio,
       openChats,
     } = this.props;
-
     const unreadMessagesCount = openChats
       .map(chat => chat.unreadCounter)
       .reduce((a, b) => a + b, 0);
@@ -72,6 +71,7 @@ class ChatNotification extends Component {
           chatsNotify.map(({ id, name, unreadCounter }) =>
             (<ChatPushNotification
               key={id}
+              userId={id}
               name={name}
               count={unreadCounter}
               onOpen={() => {

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { Link } from 'react-router';
+import { styles } from '../../styles.scss';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -39,16 +41,15 @@ class ChatPushNotification extends React.Component {
       name,
       notify,
       onOpen,
+      userId,
     } = this.props;
-
     const message = intl.formatMessage(count > 1 ?
       intlMessages.appToastChatPlural :
       intlMessages.appToastChatSigular, {
       0: count,
       1: name,
     });
-
-    return notify(message, 'info', 'chat', { onOpen });
+    return notify((<Link className={styles.link} to={`/users/chat/${userId}`}>{message}</Link>), 'info', 'chat', { onOpen });
   }
 
   render() {
