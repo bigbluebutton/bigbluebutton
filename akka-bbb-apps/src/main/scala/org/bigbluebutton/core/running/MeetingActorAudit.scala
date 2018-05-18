@@ -18,7 +18,8 @@ object MeetingActorAudit {
   def props(
     props:    DefaultProps,
     eventBus: InternalEventBus,
-    outGW:    OutMsgRouter): Props =
+    outGW:    OutMsgRouter
+  ): Props =
     Props(classOf[MeetingActorAudit], props, eventBus, outGW)
 }
 
@@ -26,8 +27,9 @@ object MeetingActorAudit {
 // periodically sends messages to the meeting actor
 class MeetingActorAudit(
   val props:    DefaultProps,
-  val eventBus: InternalEventBus, val outGW: OutMsgRouter)
-  extends Actor with ActorLogging with SystemConfiguration with AuditHelpers {
+  val eventBus: InternalEventBus, val outGW: OutMsgRouter
+)
+    extends Actor with ActorLogging with SystemConfiguration with AuditHelpers {
 
   object AuditMonitorInternalMsg
 
@@ -52,7 +54,8 @@ class MeetingActorAudit(
     // This is a breakout room. Inform our parent meeting that we have been successfully created.
     eventBus.publish(BigBlueButtonEvent(
       props.breakoutProps.parentId,
-      BreakoutRoomCreatedInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)))
+      BreakoutRoomCreatedInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)
+    ))
 
   }
 
@@ -73,7 +76,8 @@ class MeetingActorAudit(
     // This is a breakout room. Update the main meeting with list of users in this breakout room.
     eventBus.publish(BigBlueButtonEvent(
       props.meetingProp.intId,
-      SendBreakoutUsersAuditInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)))
+      SendBreakoutUsersAuditInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)
+    ))
 
     // Trigger recording timer, only for meeting allowing recording
     if (props.recordProp.record) {

@@ -41,7 +41,8 @@ object MeetingActor {
     props:       DefaultProps,
     eventBus:    InternalEventBus,
     outGW:       OutMsgRouter,
-    liveMeeting: LiveMeeting): Props =
+    liveMeeting: LiveMeeting
+  ): Props =
     Props(classOf[MeetingActor], props, eventBus, outGW, liveMeeting)
 }
 
@@ -49,36 +50,37 @@ class MeetingActor(
   val props:       DefaultProps,
   val eventBus:    InternalEventBus,
   val outGW:       OutMsgRouter,
-  val liveMeeting: LiveMeeting)
-  extends BaseMeetingActor
-  with GuestsApp
-  with LayoutApp2x
-  with VoiceApp2x
-  with PollApp2x
-  with BreakoutApp2x
-  with UsersApp2x
-  with WhiteboardApp2x
+  val liveMeeting: LiveMeeting
+)
+    extends BaseMeetingActor
+    with GuestsApp
+    with LayoutApp2x
+    with VoiceApp2x
+    with PollApp2x
+    with BreakoutApp2x
+    with UsersApp2x
+    with WhiteboardApp2x
 
-  with PermisssionCheck
-  with UserBroadcastCamStartMsgHdlr
-  with UserJoinMeetingReqMsgHdlr
-  with UserJoinMeetingAfterReconnectReqMsgHdlr
-  with UserBroadcastCamStopMsgHdlr
-  with UserConnectedToGlobalAudioMsgHdlr
-  with UserDisconnectedFromGlobalAudioMsgHdlr
-  with MuteAllExceptPresentersCmdMsgHdlr
-  with MuteMeetingCmdMsgHdlr
-  with IsMeetingMutedReqMsgHdlr
-  with MuteUserCmdMsgHdlr
-  with EjectUserFromVoiceCmdMsgHdlr
-  with EndMeetingSysCmdMsgHdlr
-  with DestroyMeetingSysCmdMsgHdlr
-  with SendTimeRemainingUpdateHdlr
-  with SendBreakoutTimeRemainingMsgHdlr
-  with ChangeLockSettingsInMeetingCmdMsgHdlr
-  with ValidateConnAuthTokenSysMsgHdlr
-  with SyncGetMeetingInfoRespMsgHdlr
-  with ClientToServerLatencyTracerMsgHdlr {
+    with PermisssionCheck
+    with UserBroadcastCamStartMsgHdlr
+    with UserJoinMeetingReqMsgHdlr
+    with UserJoinMeetingAfterReconnectReqMsgHdlr
+    with UserBroadcastCamStopMsgHdlr
+    with UserConnectedToGlobalAudioMsgHdlr
+    with UserDisconnectedFromGlobalAudioMsgHdlr
+    with MuteAllExceptPresentersCmdMsgHdlr
+    with MuteMeetingCmdMsgHdlr
+    with IsMeetingMutedReqMsgHdlr
+    with MuteUserCmdMsgHdlr
+    with EjectUserFromVoiceCmdMsgHdlr
+    with EndMeetingSysCmdMsgHdlr
+    with DestroyMeetingSysCmdMsgHdlr
+    with SendTimeRemainingUpdateHdlr
+    with SendBreakoutTimeRemainingMsgHdlr
+    with ChangeLockSettingsInMeetingCmdMsgHdlr
+    with ValidateConnAuthTokenSysMsgHdlr
+    with SyncGetMeetingInfoRespMsgHdlr
+    with ClientToServerLatencyTracerMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -96,7 +98,8 @@ class MeetingActor(
    */
   var actorMonitor = context.actorOf(
     MeetingActorAudit.props(props, eventBus, outGW),
-    "actorMonitor-" + props.meetingProp.intId)
+    "actorMonitor-" + props.meetingProp.intId
+  )
 
   val presentationApp2x = new PresentationApp2x(liveMeeting, outGW)
   val screenshareApp2x = new ScreenshareApp2x(liveMeeting, outGW)
@@ -112,7 +115,8 @@ class MeetingActor(
     TimeUtil.minutesToMillis(props.durationProps.warnMinutesBeforeMax),
     lastActivityTimestampInMs = TimeUtil.timeNowInMs(),
     warningSent = false,
-    warningSentOnTimestampInMs = 0L)
+    warningSentOnTimestampInMs = 0L
+  )
 
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInMs(),
@@ -120,7 +124,8 @@ class MeetingActor(
     lastUserLeftOnInMs = None,
     durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
-    meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes))
+    meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
+  )
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0, previousDurationInMs = 0, currentDurationInMs = 0)
 
@@ -138,10 +143,10 @@ class MeetingActor(
   // Set webcamsOnlyForModerator property in case we didn't after meeting creation
   MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
-/*******************************************************************/
+  /*******************************************************************/
   //object FakeTestData extends FakeTestData
   //FakeTestData.createFakeUsers(liveMeeting)
-/*******************************************************************/
+  /*******************************************************************/
 
   def receive = {
     //=============================
@@ -179,9 +184,10 @@ class MeetingActor(
     // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
 
-    case msg: SendRecordingTimerInternalMsg    => handleSendRecordingTimerInternalMsg(msg)
+    case msg: SendRecordingTimerInternalMsg =>
+      state = handleSendRecordingTimerInternalMsg(msg, state)
 
-    case _                                     => // do nothing
+    case _ => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -205,8 +211,9 @@ class MeetingActor(
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
-      case m: SetRecordingStatusCmdMsg            => usersApp.handleSetRecordingStatusCmdMsg(m, state)
+      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: SetRecordingStatusCmdMsg =>
+        state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
       case m: GetWebcamsOnlyForModeratorReqMsg    => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
@@ -344,7 +351,8 @@ class MeetingActor(
     // request screenshare to end
     screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
       liveMeeting.props.voiceProp.voiceConf,
-      liveMeeting.props.screenshareProps.screenshareConf)
+      liveMeeting.props.screenshareProps.screenshareConf
+    )
 
   }
 
@@ -374,24 +382,8 @@ class MeetingActor(
     sendRttTraceTest()
   }
 
-  def handleSendRecordingTimerInternalMsg(msg: SendRecordingTimerInternalMsg) {
-    def buildUpdateReocrdingTimerEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-
-      log.debug("$$$$$$$ Meeting is recording {}", MeetingStatus2x.isRecording(liveMeeting.status))
-
-      var newDuration: Long = 0
-      if (MeetingStatus2x.isRecording(liveMeeting.status)) {
-        newDuration = TimeUtil.timeNowInMs()
-      }
-      log.debug("====== New duration {}", newDuration)
-
-      val tracker = state.recordingTracker.udpateCurrentDuration(newDuration)
-      state.update(tracker)
-
-      val recordingTime = TimeUtil.millisToSeconds(tracker.recordingDuration())
-
-      log.debug("##### Recorded seconds {}", recordingTime)
-
+  def handleSendRecordingTimerInternalMsg(msg: SendRecordingTimerInternalMsg, state: MeetingState2x): MeetingState2x = {
+    def buildUpdateReocrdingTimerEvtMsg(meetingId: String, recordingTime: Long): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
       val envelope = BbbCoreEnvelope(UpdateRecordingTimerEvtMsg.NAME, routing)
       val body = UpdateRecordingTimerEvtMsgBody(recordingTime)
@@ -403,8 +395,30 @@ class MeetingActor(
 
     log.debug("##### Sending UpdateReocrdingTimerEvtMsg")
 
-    val event = buildUpdateReocrdingTimerEvtMsg(liveMeeting.props.meetingProp.intId)
+    log.debug("$$$$$$$ Meeting is recording {}", MeetingStatus2x.isRecording(liveMeeting.status))
+
+    var newDuration: Long = 0
+    if (MeetingStatus2x.isRecording(liveMeeting.status)) {
+      newDuration = TimeUtil.timeNowInMs()
+    }
+    log.debug("====== New duration {}", newDuration)
+
+    println("update - before:  start=" + state.recordingTracker.startedOnInMs
+      + " previous=" + state.recordingTracker.previousDurationInMs
+      + " current=" + state.recordingTracker.currentDurationInMs)
+    val tracker = state.recordingTracker.udpateCurrentDuration(newDuration)
+    println("update - before:  start=" + tracker.startedOnInMs + " previous=" + tracker.previousDurationInMs + " current=" + tracker.currentDurationInMs)
+
+    val newState = state.update(tracker)
+
+    val recordingTime = TimeUtil.millisToSeconds(tracker.recordingDuration())
+
+    log.debug("##### Recorded seconds {}", recordingTime)
+
+    val event = buildUpdateReocrdingTimerEvtMsg(liveMeeting.props.meetingProp.intId, recordingTime)
     outGW.send(event)
+
+    newState
   }
 
   def sendRttTraceTest(): Unit = {

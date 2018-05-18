@@ -41,7 +41,8 @@ trait HandlerHelpers extends SystemConfiguration {
         emoji = "none",
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
-        avatar = regUser.avatarURL)
+        avatar = regUser.avatarURL
+      )
     }
 
     nu match {
@@ -81,7 +82,8 @@ trait HandlerHelpers extends SystemConfiguration {
 
       val event = buildRecordingStatusChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status))
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)
+      )
       outGW.send(event)
 
     }
@@ -105,7 +107,8 @@ trait HandlerHelpers extends SystemConfiguration {
 
       val event = buildRecordingStatusChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status))
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)
+      )
       outGW.send(event)
     }
   }
@@ -165,7 +168,8 @@ trait HandlerHelpers extends SystemConfiguration {
     if (liveMeeting.props.meetingProp.isBreakout) {
       eventBus.publish(BigBlueButtonEvent(
         liveMeeting.props.breakoutProps.parentId,
-        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)))
+        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)
+      ))
     }
   }
 
@@ -205,7 +209,8 @@ trait HandlerHelpers extends SystemConfiguration {
     if (liveMeeting.props.meetingProp.isBreakout) {
       eventBus.publish(BigBlueButtonEvent(
         liveMeeting.props.breakoutProps.parentId,
-        new BreakoutRoomEndedInternalMsg(meetingId)))
+        new BreakoutRoomEndedInternalMsg(meetingId)
+      ))
     }
 
     val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(meetingId, liveMeeting.props.voiceProp.voiceConf)
