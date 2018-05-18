@@ -21,17 +21,17 @@ package org.bigbluebutton.core {
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-	
+
 	import mx.controls.Alert;
 	import mx.controls.Label;
 	import mx.managers.PopUpManager;
-	
+
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {
 		public static var timers:Dictionary = new Dictionary(true);
 
-		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean=false):void {
+		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean = false):void {
 			var timer:Timer = getTimer(label.id, seconds);
 			var minuteWarningShown:Boolean = false;
 			var minuteAlert:Alert = null;
@@ -50,6 +50,21 @@ package org.bigbluebutton.core {
 					if (minuteAlert != null) {
 						PopUpManager.removePopUp(minuteAlert);
 					}
+				});
+			} else {
+				timer.stop();
+				timer.reset();
+			}
+			timer.start();
+		}
+
+		public static function setTimer(label:Label, seconds:int):void {
+			var timer:Timer = getTimer(label.id, seconds);
+			if (!timer.hasEventListener(TimerEvent.TIMER)) {
+				timer.addEventListener(TimerEvent.TIMER, function():void {
+					var elapsedSeconds:int = seconds + timer.currentCount;
+					var formattedTime:String = (Math.floor(elapsedSeconds / 60)) + ":" + (elapsedSeconds % 60 >= 10 ? "" : "0") + (elapsedSeconds % 60);
+					label.text = formattedTime;
 				});
 			} else {
 				timer.stop();

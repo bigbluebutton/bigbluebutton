@@ -99,6 +99,10 @@ object RecordingStatusChangedEvtMsg { val NAME = "RecordingStatusChangedEvtMsg" 
 case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: RecordingStatusChangedEvtMsgBody) extends BbbCoreMsg
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
 
+object UpdateRecordingTimerEvtMsg {val NAME = "UpdateRecordingTimerEvtMsg"}
+case class UpdateRecordingTimerEvtMsg(header: BbbClientMsgHeader, body: UpdateRecordingTimerEvtMsgBody) extends BbbCoreMsg
+case class UpdateRecordingTimerEvtMsgBody(time: Long)
+
 /**
   * Sent by user to update webcamsOnlyForModerator meeting property.
   */

@@ -52,6 +52,8 @@ package org.bigbluebutton.main.events {
 
 		public static const SETTINGS_CONFIRMED:String = "BBB_SETTINGS_CONFIRMED";
 		public static const SETTINGS_CANCELLED:String = "BBB_SETTINGS_CANCELLED";
+		
+		public static const OPEN_RECORD_WINDOW : String = "OPEN_RECORD_WINDOW";
 
 		public static const ACCEPT_ALL_WAITING_GUESTS:String = "BBB_ACCEPT_ALL_WAITING_GUESTS";
 		public static const DENY_ALL_WAITING_GUESTS:String = "BBB_DENY_ALL_WAITING_GUESTS";
