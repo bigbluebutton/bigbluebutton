@@ -110,6 +110,7 @@
 			baseTabIndex="501"
 			maxFileSize="30"
 			enableDownload="true"
+			disableFirefoxF60Upload="true"
 		/>
 
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION"
