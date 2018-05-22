@@ -581,7 +581,7 @@ class VideoProvider extends Component {
 
       callback(result);
     }, function(exception) {
-      logger.error("Promise rejected", exception.message);
+      console.error("customGetStats() Promise rejected:", exception.message);
       callback(null);
     });
   }
