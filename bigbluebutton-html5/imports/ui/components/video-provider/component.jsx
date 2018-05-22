@@ -16,10 +16,6 @@ const intlMessages = defineMessages({
     id: 'app.video.iceCandidateError',
     description: 'Error message for ice candidate fail',
   },
-  permissionError: {
-    id: 'app.video.permissionError',
-    description: 'Error message for webcam permission',
-  },
   sharingError: {
     id: 'app.video.sharingError',
     description: 'Error on sharing webcam',
@@ -31,6 +27,33 @@ const intlMessages = defineMessages({
   chromeExtensionErrorLink: {
     id: 'app.video.chromeExtensionErrorLink',
     description: 'Error message for Chrome Extension not installed',
+  },
+});
+
+const intlMediaErrorsMessages = defineMessages({
+  permissionError: {
+    id: 'app.video.permissionError',
+    description: 'Error message for webcam permission',
+  },
+  NotFoundError: {
+    id: 'app.video.notFoundError',
+    description: 'error message when can not get webcam video',
+  },
+  NotAllowedError: {
+    id: 'app.video.notAllowed',
+    description: 'error message when webcam had permission denied',
+  },
+  NotSupportedError: {
+    id: 'app.video.notSupportedError',
+    description: 'error message when origin do not have ssl valid',
+  },
+  NotReadableError: {
+    id: 'app.video.notReadableError',
+    description: 'error message When the webcam is being used by other software',
+  },
+  1000: {
+    id: 'app.video.mediaServerOffline',
+    description: 'error message when kurento is offline',
   },
 });
 
@@ -364,7 +387,9 @@ class VideoProvider extends Component {
       if (error) {
         log('error', ' WebRTC peerObj create error');
         log('error', error);
-        that.notifyError(intl.formatMessage(intlMessages.permissionError));
+        const errorMessage = intlMediaErrorsMessages[error.name]
+        || intlMediaErrorsMessages.permissionError;
+        that.notifyError(intl.formatMessage(errorMessage));
         /* This notification error is displayed considering kurento-utils
          * returned the error 'The request is not allowed by the user agent
          * or the platform in the current context.', but there are other
@@ -491,11 +516,11 @@ class VideoProvider extends Component {
 
   handleError(message) {
     const { intl } = this.props;
-    const userId = this.props.userId;
-
+    const { userId } = this.props;
     if (message.cameraId == userId) {
       this.unshareWebcam();
-      this.notifyError(intl.formatMessage(intlMessages.sharingError));
+      this.notifyError(intl.formatMessage(intlMediaErrorsMessages[message.message]
+        || intlMessages.sharingError));
     } else {
       this.stopWebRTCPeer(message.cameraId);
     }
