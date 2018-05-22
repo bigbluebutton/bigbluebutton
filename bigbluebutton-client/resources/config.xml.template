@@ -50,6 +50,7 @@
 			showButton="true"
 			enablePause="true"
 			offerWebRTC="false"
+			shareRegionDefault="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
 			chromeWin10Help="http://HOST/client/help/webrtc-screenshare-help.html"
