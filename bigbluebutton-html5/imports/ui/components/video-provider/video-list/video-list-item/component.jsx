@@ -20,6 +20,12 @@ class VideoListItem extends Component {
     this.props.onMount(this.videoTag);
   }
 
+  componentDidUpdate() {
+    if (this.videoTag && this.videoTag.paused) {
+      this.videoTag.play();
+    }
+  }
+
   render() {
     const { user, actions } = this.props;
 
