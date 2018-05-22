@@ -498,22 +498,26 @@ class VideoProvider extends Component {
 
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
-    const { peerConnection } = peer;
 
     const attachVideoStream = () => {
       const stream = isCurrent ? peer.getLocalStream() : peer.getRemoteStream();
       video.pause();
       video.srcObject = stream;
       video.load();
+
+      peer.attached = true;
     };
 
+
+    // If peer has started playing attach to tag, otherwise wait a while
     if (peer) {
-      if (peer.started === true) {
+      if (peer.started) {
         attachVideoStream();
-        return;
       }
 
-      peer.on('playStart', attachVideoStream);
+      // So we can start it later when we get a playStart
+      // or if we need to do a restart timeout
+      peer.videoTag = video;
     }
   }
 
@@ -526,16 +530,20 @@ class VideoProvider extends Component {
 
   handlePlayStart(message) {
     const id = message.cameraId;
-    log('info', 'Handle play start for camera', id);
-
     const peer = this.webRtcPeers[id];
 
-    // Clear camera shared timeout when camera succesfully starts
-    clearTimeout(this.cameraTimeouts[id]);
-    this.cameraTimeouts[id] = null;
+    log('info', 'Handle play start for camera', id);
 
-    peer.emit('playStart');
+    // Clear camera shared timeout when camera succesfully starts
+    clearTimeout(this.restartTimeout[id]);
+    delete this.restartTimeout[id];
+    delete this.restartTimer[id];
+
     peer.started = true;
+
+    if (!peer.attached) {
+      this.attachVideoStream(id, peer.videoTag);
+    }
 
     if (id === this.props.userId) {
       VideoService.sendUserShareWebcam(id);
