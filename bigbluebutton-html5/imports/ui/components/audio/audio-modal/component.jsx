@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { styles } from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
@@ -74,10 +73,6 @@ const intlMessages = defineMessages({
   connectingEchoTest: {
     id: 'app.audioModal.connectingEchoTest',
     description: 'Message for echo test connecting',
-  },
-  audioNotSupported: {
-    id: 'app.audioModal.audioNotSupported',
-    description: 'message displayed when audio in not supported in the browser',
   },
 });
 
@@ -270,28 +265,26 @@ class AudioModal extends Component {
 
     return (
       <span className={styles.audioOptions}>
-        {!deviceInfo.browserType().isEdge ? <span>
-          {!forceListenOnlyAttendee ?
-            <Button
-              className={styles.audioBtn}
-              label={intl.formatMessage(intlMessages.microphoneLabel)}
-              icon="unmute"
-              circle
-              size="jumbo"
-              onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
-            />
+        {!forceListenOnlyAttendee ?
+          <Button
+            className={styles.audioBtn}
+            label={intl.formatMessage(intlMessages.microphoneLabel)}
+            icon="unmute"
+            circle
+            size="jumbo"
+            onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
+          />
           : null}
-          {listenOnlyMode ?
-            <Button
-              className={styles.audioBtn}
-              label={intl.formatMessage(intlMessages.listenOnlyLabel)}
-              icon="listen"
-              circle
-              size="jumbo"
-              onClick={this.handleJoinListenOnly}
-            />
+        {listenOnlyMode ?
+          <Button
+            className={styles.audioBtn}
+            label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+            icon="listen"
+            circle
+            size="jumbo"
+            onClick={this.handleJoinListenOnly}
+          />
           : null}
-        </span> : <h2>{intl.formatMessage(intlMessages.audioNotSupported)}</h2>}
       </span>
     );
   }
@@ -381,11 +374,11 @@ class AudioModal extends Component {
               data-test="audioModalHeader"
               className={styles.header}
             >
-              { <h3 className={styles.title}>
-                { !deviceInfo.browserType().isEdge ? (content ?
+              <h3 className={styles.title}>
+                { content ?
                   this.contents[content].title :
-                  intl.formatMessage(intlMessages.audioChoiceLabel)) : null }
-              </h3> }
+                  intl.formatMessage(intlMessages.audioChoiceLabel)}
+              </h3>
               <Button
                 data-test="modalBaseCloseButton"
                 className={styles.closeBtn}
