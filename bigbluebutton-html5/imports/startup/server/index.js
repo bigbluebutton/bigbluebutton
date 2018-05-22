@@ -21,9 +21,9 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
+  const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
   const localeRegion = req.query.locale.split(/[-_]/g);
-  const localeList = [defaultLocale, localeRegion[0]];
+  const localeList = [fallback, localeRegion[0]];
 
   let normalizedLocale = localeRegion[0];
   let messages = {};
@@ -48,11 +48,11 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
+  const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
 
   let availableLocales = [];
 
-  const defaultLocaleFile = `${defaultLocale}.json`;
+  const defaultLocaleFile = `${fallback}.json`;
   const defaultLocalePath = `locales/${defaultLocaleFile}`;
   const localesPath = Assets.absoluteFilePath(defaultLocalePath).replace(defaultLocaleFile, '');
 
