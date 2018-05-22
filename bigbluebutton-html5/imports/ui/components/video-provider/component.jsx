@@ -191,12 +191,6 @@ class VideoProvider extends Component {
     this.sendMessage(message);
   }
 
-  disconnected(id) {
-    this.reconnectList.push(id);
-
-    log('debug', ` [camera] ${id} disconnected, will try re-subscribe later.`);
-  }
-
   onWsMessage(msg) {
     const { intl } = this.props;
     const parsedMessage = JSON.parse(msg.data);
@@ -237,7 +231,7 @@ class VideoProvider extends Component {
 
     if (this.connectedToMediaServer()) {
       const jsonMessage = JSON.stringify(message);
-      console.log(`Sending message: ${jsonMessage}`);
+      log('info', `Sending message: ${jsonMessage}`);
       ws.send(jsonMessage, (error) => {
         if (error) {
           console.error(`client: Websocket error "${error}" on message "${jsonMessage.id}"`);
@@ -257,22 +251,13 @@ class VideoProvider extends Component {
 
   startResponse(message) {
     const id = message.cameraId;
-    const webRtcPeer = this.webRtcPeers[id];
-
-    if (message.sdpAnswer == null || webRtcPeer == null) {
-      return log('debug', 'Null sdp answer or null webrtcpeer');
-    }
+    const peer = this.webRtcPeers[id];
 
     log('info', 'SDP answer received from server. Processing ...');
 
-    webRtcPeer.processAnswer(message.sdpAnswer, (error) => {
+    peer.processAnswer(message.sdpAnswer, (error) => {
       if (error) {
         return log('error', error);
-      }
-
-      if (message.cameraId == this.props.userId) {
-        log('info', 'camera id sendusershare ', id);
-        VideoService.sendUserShareWebcam(id);
       }
     });
   }
@@ -489,7 +474,8 @@ class VideoProvider extends Component {
     peer.emit('playStart');
     peer.started = true;
 
-    if (message.cameraId == this.props.userId) {
+    if (id === this.props.userId) {
+      VideoService.sendUserShareWebcam(id);
       VideoService.joinedVideo();
     }
   }
@@ -505,7 +491,7 @@ class VideoProvider extends Component {
       this.stopWebRTCPeer(message.cameraId);
     }
 
-    console.error(' Handle error --------------------->');
+    log('debug', 'Handle error --------------------->');
     log('debug', message.message);
   }
 
