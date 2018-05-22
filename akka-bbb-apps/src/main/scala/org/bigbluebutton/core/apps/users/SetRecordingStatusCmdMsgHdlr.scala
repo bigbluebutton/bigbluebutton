@@ -1,10 +1,12 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.domain.{ MeetingRecordingTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core.bus.BigBlueButtonEvent
+import org.bigbluebutton.core.api.SendRecordingTimerInternalMsg
 
 trait SetRecordingStatusCmdMsgHdlr {
   this: UsersApp =>
@@ -28,10 +30,7 @@ trait SetRecordingStatusCmdMsgHdlr {
     if (liveMeeting.props.recordProp.allowStartStopRecording &&
       MeetingStatus2x.isRecording(liveMeeting.status) != msg.body.recording) {
       if (msg.body.recording) {
-        log.debug("+++++++ Start timer {}", TimeUtil.timeNowInMs())
-
         MeetingStatus2x.recordingStarted(liveMeeting.status)
-
       } else {
         MeetingStatus2x.recordingStopped(liveMeeting.status)
       }
@@ -39,18 +38,16 @@ trait SetRecordingStatusCmdMsgHdlr {
       val event = buildRecordingStatusChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.setBy, msg.body.recording)
       outGW.send(event)
 
+      var newState = state
       if (MeetingStatus2x.isRecording(liveMeeting.status)) {
         val tracker = state.recordingTracker.startTimer(TimeUtil.timeNowInMs())
-        state.update(tracker)
+        newState = state.update(tracker)
       } else {
-        println("pause - before:  start=" + state.recordingTracker.startedOnInMs
-          + " previous=" + state.recordingTracker.previousDurationInMs
-          + " current=" + state.recordingTracker.currentDurationInMs)
         val tracker = state.recordingTracker.pauseTimer(TimeUtil.timeNowInMs())
-        println("pause - after: start=" + tracker.startedOnInMs + " previous=" + tracker.previousDurationInMs + " current=" + tracker.currentDurationInMs)
-        state.update(tracker)
+        newState = state.update(tracker)
       }
-
+      eventBus.publish(BigBlueButtonEvent(liveMeeting.props.meetingProp.intId, SendRecordingTimerInternalMsg(liveMeeting.props.meetingProp.intId)))
+      newState
     } else {
       state
     }

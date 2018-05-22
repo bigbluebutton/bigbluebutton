@@ -86,7 +86,8 @@
 			<mx:Button id="noButton" styleName="mainActionButton" click="close()" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.no')}" width="102"/>
 		</mx:HBox>
 
-		<mx:CheckBox id="clearRecordingsChecbox" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.clearCheckbox.label')}" />
+		<mx:CheckBox id="clearRecordingsChecbox" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.clearCheckbox.label')}"
+					 visible="{_recordingFlag}" includeInLayout="{_recordingFlag}"/>
 	</mx:VBox>
 
 	<mx:Button id="closeButton" click="close()" styleName="titleWindowCloseButton"

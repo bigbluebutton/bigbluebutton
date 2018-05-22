@@ -212,7 +212,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					recordingTimer.visible = false;
 				} else {
 					recordingTimer.visible = true;
-					TimerUtil.setTimer(recordingTimer, e.time);
+					TimerUtil.setTimer(recordingTimer, e.time, LiveMeeting.inst().meetingStatus.isRecording);
 				}
 			}
 
@@ -488,21 +488,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function focusLogoutButton(e:ShortcutEvent):void{
 				btnLogout.setFocus();
 			}
-      
-      private function onRecordingStatusChanged(event:BBBEvent):void {
-        meetingNameLbl.text = "";
-        
-        if (event.payload.recording) {
-          meetingNameLbl.text =  ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording')
-		}
-        
-        if (toolbarOptions.showMeetingName) {
-          var meetingTitle:String = LiveMeeting.inst().meeting.name;                   
-          if (meetingTitle != null) {
-            meetingNameLbl.text += " " + meetingTitle;
-          } 
-        }
-      }
+			
+			private function onRecordingStatusChanged(event:BBBEvent):void {
+
+				if (event.payload.recording) {
+					meetingNameLbl.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording')
+				} else {
+					meetingNameLbl.text = "";
+					TimerUtil.stopTimer(recordingTimer.id);
+				}
+
+				if (toolbarOptions.showMeetingName) {
+					var meetingTitle:String = LiveMeeting.inst().meeting.name;
+					if (meetingTitle != null) {
+						meetingNameLbl.text += " " + meetingTitle;
+					}
+				}
+			}
 
 			private function onNetStatsButtonClick(e:Event = null):void {
 				var d:Dispatcher = new Dispatcher();

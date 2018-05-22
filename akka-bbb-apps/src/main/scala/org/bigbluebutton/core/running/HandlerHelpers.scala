@@ -41,8 +41,7 @@ trait HandlerHelpers extends SystemConfiguration {
         emoji = "none",
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
-        avatar = regUser.avatarURL
-      )
+        avatar = regUser.avatarURL)
     }
 
     nu match {
@@ -51,24 +50,24 @@ trait HandlerHelpers extends SystemConfiguration {
 
         val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
         outGW.send(event)
-        startRecordingIfAutoStart2x(outGW, liveMeeting, state)
+        val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
         if (!Users2x.hasPresenter(liveMeeting.users2x)) {
           automaticallyAssignPresenter(outGW, liveMeeting)
         }
-        state.update(state.expiryTracker.setUserHasJoined())
+        newState.update(newState.expiryTracker.setUserHasJoined())
       case None =>
         state
     }
   }
 
-  def startRecordingIfAutoStart2x(outGW: OutMsgRouter, liveMeeting: LiveMeeting, state: MeetingState2x): Unit = {
+  def startRecordingIfAutoStart2x(outGW: OutMsgRouter, liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+    var newState = state
     if (liveMeeting.props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
 
       MeetingStatus2x.recordingStarted(liveMeeting.status)
 
       val tracker = state.recordingTracker.startTimer(TimeUtil.timeNowInMs())
-      state.update(tracker);
 
       def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
@@ -82,19 +81,22 @@ trait HandlerHelpers extends SystemConfiguration {
 
       val event = buildRecordingStatusChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status)
-      )
+        "system", MeetingStatus2x.isRecording(liveMeeting.status))
       outGW.send(event)
-
+      newState = state.update(tracker)
     }
+    newState
   }
 
-  def stopRecordingIfAutoStart2x(outGW: OutMsgRouter, liveMeeting: LiveMeeting, state: MeetingState2x): Unit = {
+  def stopRecordingIfAutoStart2x(outGW: OutMsgRouter, liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+    var newState = state
     if (liveMeeting.props.recordProp.record && MeetingStatus2x.isRecording(liveMeeting.status) &&
       liveMeeting.props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 0) {
 
       MeetingStatus2x.recordingStopped(liveMeeting.status)
 
+      val tracker = state.recordingTracker.pauseTimer(TimeUtil.timeNowInMs())
+
       def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
         val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
         val envelope = BbbCoreEnvelope(RecordingStatusChangedEvtMsg.NAME, routing)
@@ -107,10 +109,11 @@ trait HandlerHelpers extends SystemConfiguration {
 
       val event = buildRecordingStatusChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status)
-      )
+        "system", MeetingStatus2x.isRecording(liveMeeting.status))
       outGW.send(event)
+      newState = state.update(tracker)
     }
+    newState
   }
 
   def automaticallyAssignPresenter(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
@@ -168,8 +171,7 @@ trait HandlerHelpers extends SystemConfiguration {
     if (liveMeeting.props.meetingProp.isBreakout) {
       eventBus.publish(BigBlueButtonEvent(
         liveMeeting.props.breakoutProps.parentId,
-        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)
-      ))
+        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)))
     }
   }
 
@@ -209,8 +211,7 @@ trait HandlerHelpers extends SystemConfiguration {
     if (liveMeeting.props.meetingProp.isBreakout) {
       eventBus.publish(BigBlueButtonEvent(
         liveMeeting.props.breakoutProps.parentId,
-        new BreakoutRoomEndedInternalMsg(meetingId)
-      ))
+        new BreakoutRoomEndedInternalMsg(meetingId)))
     }
 
     val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(meetingId, liveMeeting.props.voiceProp.voiceConf)

@@ -102,11 +102,11 @@ case class MeetingRecordingTracker(
   }
 
   def pauseTimer(nowInMs: Long): MeetingRecordingTracker = {
-    copy(currentDurationInMs = 0, previousDurationInMs = previousDurationInMs + nowInMs - startedOnInMs)
+    copy(currentDurationInMs = 0L, previousDurationInMs = previousDurationInMs + nowInMs - startedOnInMs, startedOnInMs = 0L)
   }
 
   def stopTimer(nowInMs: Long): MeetingRecordingTracker = {
-    copy(startedOnInMs = 0, previousDurationInMs = 0, currentDurationInMs = 0)
+    copy(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
   }
 
   def udpateCurrentDuration(nowInMs: Long): MeetingRecordingTracker = {

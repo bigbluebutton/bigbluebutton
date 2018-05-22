@@ -19,6 +19,7 @@ class UsersApp(
     with LogoutAndEndMeetingCmdMsgHdlr
     with MeetingActivityResponseCmdMsgHdlr
     with SetRecordingStatusCmdMsgHdlr
+    with SendRecordingTimerInternalMsgHdlr
     with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
     with GetRecordingStatusReqMsgHdlr
     with GetWebcamsOnlyForModeratorReqMsgHdlr
