@@ -42,6 +42,7 @@
     "app.media.label": "Media",
     "app.media.screenshare.start": "Screenshare has started",
     "app.media.screenshare.end": "Screenshare has ended",
+    "app.media.screenshare.safariNotSupported": "Screenshare is currently not supported by Safari. Please, use Firefox or Google Chrome.",
     "app.meeting.ended": "This session has ended",
     "app.meeting.endedMessage": "You will be forwarded back to the home screen",
     "app.presentation.presentationToolbar.prevSlideLabel": "Previous slide",
