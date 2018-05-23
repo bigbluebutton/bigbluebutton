@@ -86,6 +86,10 @@ case class EndAndKickAllSysMsg(header: BbbCoreHeaderWithMeetingId,
                                       body: EndAndKickAllSysMsgBody) extends BbbCoreMsg
 case class EndAndKickAllSysMsgBody(meetingId: String)
 
+object RecordStatusResetSysMsg {val NAME = "RecordStatusResetSysMsg"}
+case class RecordStatusResetSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                      body: RecordStatusResetSysMsgBody) extends BbbCoreMsg
+case class RecordStatusResetSysMsgBody(recording: Boolean, setBy: String)
 
 object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg"}
   case class SyncGetMeetingInfoRespMsg(header: BbbCoreBaseHeader,
