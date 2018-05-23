@@ -200,14 +200,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ExternalInterface.addCallback("onFail", onFail);
 					
 					var voiceBridge:String = UsersUtil.getVoiceBridge();
-					var myName:String = UsersUtil.getMyUserID();
+					var myUserId:String = UsersUtil.getMyUserID();
 					var internalMeetingID:String = UsersUtil.getInternalMeetingID();
 					
 					ExternalInterface.call(
 						'kurentoShareScreen',
 						videoTag,
 						voiceBridge,
-						myName,
+						myUserId,
 						internalMeetingID,
 						"onFail",
 						dsOptions.chromeExtensionKey);
