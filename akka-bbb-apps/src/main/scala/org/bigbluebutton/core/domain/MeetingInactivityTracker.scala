@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.domain
 
-import org.bigbluebutton.core.util.TimeUtil
-
 case class MeetingInactivityTracker(
     val maxInactivityTimeoutInMs: Long,
     val warningBeforeMaxInMs:     Long,
@@ -91,5 +89,33 @@ case class MeetingExpiryTracker(
   def endMeetingTime(): Long = {
     startedOnInMs + durationInMs
   }
+}
+
+case class MeetingRecordingTracker(
+    startedOnInMs:        Long,
+    previousDurationInMs: Long,
+    currentDurationInMs:  Long
+) {
+
+  def startTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(startedOnInMs = nowInMs)
+  }
+
+  def pauseTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(currentDurationInMs = 0L, previousDurationInMs = previousDurationInMs + nowInMs - startedOnInMs, startedOnInMs = 0L)
+  }
+
+  def resetTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(startedOnInMs = nowInMs, previousDurationInMs = 0L, currentDurationInMs = 0L)
+  }
+
+  def udpateCurrentDuration(nowInMs: Long): MeetingRecordingTracker = {
+    copy(currentDurationInMs = nowInMs - startedOnInMs)
+  }
+
+  def recordingDuration(): Long = {
+    currentDurationInMs + previousDurationInMs
+  }
+
 }
 

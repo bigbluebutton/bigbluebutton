@@ -29,6 +29,8 @@ case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
  */
 case class SendTimeRemainingAuditInternalMsg(meetingId: String) extends InMessage
 
+case class SendRecordingTimerInternalMsg(meetingId: String) extends InMessage
+
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
 case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
 
