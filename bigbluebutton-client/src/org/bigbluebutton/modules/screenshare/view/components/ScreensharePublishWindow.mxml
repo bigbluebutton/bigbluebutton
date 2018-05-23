@@ -197,6 +197,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function handleScreenShareShareStoppedEvent(event:ShareStoppedEvent):void {
 				var logData:Object = UsersUtil.initLogData();
+				logData.reason = event.reason;
 				logData.session = ScreenshareModel.getInstance().session;
 				logData.streamId = ScreenshareModel.getInstance().streamId;
 				logData.tags = ["screenshare"];
