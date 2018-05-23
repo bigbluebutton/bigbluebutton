@@ -192,6 +192,12 @@ package org.bigbluebutton.main.model.users
 			}
 		}
 
+		public function recordAndClearPreviousMarkers(e:BBBEvent):void {
+			if (this.isModerator() && !e.payload.remote) {
+				sender.recordAndClearPreviousMarkers(UsersUtil.getMyUserID(), e.payload.recording);
+			}
+		}
+
 		public function userLoggedIn(e:UsersConnectionEvent):void {
       LOGGER.debug("In userLoggedIn - reconnecting and allowed to join");
 			if (reconnecting && ! LiveMeeting.inst().me.waitingForApproval) {

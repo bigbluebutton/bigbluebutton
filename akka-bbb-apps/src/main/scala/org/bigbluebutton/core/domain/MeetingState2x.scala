@@ -9,12 +9,14 @@ object MeetingState2x {
 case class MeetingState2x(
     breakout:          Option[BreakoutModel],
     inactivityTracker: MeetingInactivityTracker,
-    expiryTracker:     MeetingExpiryTracker
+    expiryTracker:     MeetingExpiryTracker,
+    recordingTracker:  MeetingRecordingTracker
 ) {
 
   def update(breakout: Option[BreakoutModel]) = copy(breakout = breakout)
   def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
   def update(inactivityTracker: MeetingInactivityTracker): MeetingState2x = copy(inactivityTracker = inactivityTracker)
+  def update(recordingTracker: MeetingRecordingTracker): MeetingState2x = copy(recordingTracker = recordingTracker)
 }
 
 object MeetingEndReason {
