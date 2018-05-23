@@ -35,6 +35,7 @@ case class MeetingInactivityTracker(
 case class MeetingExpiryTracker(
     startedOnInMs:                     Long,
     userHasJoined:                     Boolean,
+    isBreakout:                        Boolean,
     lastUserLeftOnInMs:                Option[Long],
     durationInMs:                      Long,
     meetingExpireIfNoUserJoinedInMs:   Long,
@@ -63,11 +64,11 @@ case class MeetingExpiryTracker(
   }
 
   def hasMeetingExpired(timestampInMs: Long): (Boolean, Option[String]) = {
-    if (hasMeetingExpiredNeverBeenJoined(timestampInMs)) {
+    if (hasMeetingExpiredNeverBeenJoined(timestampInMs) && !isBreakout) {
       (true, Some(MeetingEndReason.ENDED_WHEN_NOT_JOINED))
     } else if (meetingOverDuration(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_AFTER_EXCEEDING_DURATION))
-    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs)) {
+    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs) && !isBreakout) {
       (true, Some(MeetingEndReason.ENDED_WHEN_LAST_USER_LEFT))
     } else {
       (false, None)
