@@ -6,7 +6,7 @@
     <javaTest url="http://HOST/testjava.html"/>
     <porttest host="rtmp://HOST" application="video/portTest" timeout="10000"/>
     <bwMon server="rtmp://HOST" application="video/bwTest"/>
-    <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
+    <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" reconnWaitTime="2000"/>
     <language userSelectionEnabled="true" rtlEnabled="false"/>
     <skinning url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
     <branding logo="logos/logo.swf" copyright="&#169; 2018 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" showQuote="true"/>

@@ -30,11 +30,13 @@ package org.bigbluebutton.core.managers
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
+  import org.bigbluebutton.main.model.options.ApplicationOptions;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.main.views.ReconnectionPopup;
   import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -50,12 +52,14 @@ package org.bigbluebutton.core.managers
 
     private var _connections:Dictionary = new Dictionary();
     private var _reestablished:ArrayCollection = new ArrayCollection();
-    private var _reconnectTimer:Timer = new Timer(2000, 1);
+    private var _reconnectTimer:Timer = null;
     private var _reconnectTimeout:Timer = new Timer(15000, 1);
     private var _dispatcher:Dispatcher = new Dispatcher();
     private var _canceled:Boolean = false;
 
-    public function ReconnectionManager() {
+    public function onConfigLoaded():void {
+			var applicationOptions : ApplicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
+			_reconnectTimer = new Timer(applicationOptions.reconnWaitTime, 1);
       _reconnectTimer.addEventListener(TimerEvent.TIMER_COMPLETE, reconnect);
       _reconnectTimeout.addEventListener(TimerEvent.TIMER_COMPLETE, timeout);
     }
