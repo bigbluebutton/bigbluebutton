@@ -208,6 +208,8 @@ class MeetingActor(
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
+      case m: RecordAndClearPreviousMarkersCmdMsg =>
+        state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
       case m: GetWebcamsOnlyForModeratorReqMsg    => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)

@@ -15,12 +15,11 @@ object ReceivedJsonMsgHandlerActor {
 
 class ReceivedJsonMsgHandlerActor(
   val eventBus:               BbbMsgRouterEventBus,
-  val incomingJsonMessageBus: IncomingJsonMessageBus
-)
-    extends Actor with ActorLogging
-    with SystemConfiguration
-    with ReceivedJsonMsgDeserializer
-    with ReceivedMessageRouter {
+  val incomingJsonMessageBus: IncomingJsonMessageBus)
+  extends Actor with ActorLogging
+  with SystemConfiguration
+  with ReceivedJsonMsgDeserializer
+  with ReceivedMessageRouter {
 
   def receive = {
     case msg: ReceivedJsonMessage =>
@@ -238,6 +237,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>
         routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
+      case RecordAndClearPreviousMarkersCmdMsg.NAME =>
+        routeGenericMsg[RecordAndClearPreviousMarkersCmdMsg](envelope, jsonNode)
       case GetRecordingStatusReqMsg.NAME =>
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>

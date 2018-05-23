@@ -50,13 +50,17 @@
 					close();
 				}
 				
-				var event:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+				var event:BBBEvent;
+				if (_recordingFlag && clearRecordingsChecbox.selected) {
+					event = new BBBEvent(BBBEvent.RECORD_AND_CLEAR_PREVIOUS_MARKERS);
+				} else {
+					event = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+				}
 				event.payload.remote = false;
 				event.payload.recording = _recordingFlag;
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(event);
 				
-				this.enabled = false;
 				LOGGER.debug("Changing record status to {0}", [event.payload.recording]);
 				
 				if (!_recordingFlag && getLayoutOptions().logoutOnStopRecording) {

@@ -14,7 +14,7 @@ trait SendRecordingTimerInternalMsgHdlr {
   val outGW: OutMsgRouter
 
  def handleSendRecordingTimerInternalMsg(msg: SendRecordingTimerInternalMsg, state: MeetingState2x): MeetingState2x = {
-    def buildUpdateReocrdingTimerEvtMsg(meetingId: String, recordingTime: Long): BbbCommonEnvCoreMsg = {
+    def buildUpdateRecordingTimerEvtMsg(meetingId: String, recordingTime: Long): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
       val envelope = BbbCoreEnvelope(UpdateRecordingTimerEvtMsg.NAME, routing)
       val body = UpdateRecordingTimerEvtMsgBody(recordingTime)
@@ -33,7 +33,7 @@ trait SendRecordingTimerInternalMsgHdlr {
 
     val recordingTime = TimeUtil.millisToSeconds(tracker.recordingDuration())
 
-    val event = buildUpdateReocrdingTimerEvtMsg(liveMeeting.props.meetingProp.intId, recordingTime)
+    val event = buildUpdateRecordingTimerEvtMsg(liveMeeting.props.meetingProp.intId, recordingTime)
     outGW.send(event)
 
     state.update(tracker)
