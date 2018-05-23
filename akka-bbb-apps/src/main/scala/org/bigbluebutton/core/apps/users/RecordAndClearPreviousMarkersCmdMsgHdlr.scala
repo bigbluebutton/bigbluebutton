@@ -5,8 +5,6 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core.bus.BigBlueButtonEvent
-import org.bigbluebutton.core.api.SendRecordingTimerInternalMsg
 
 trait RecordAndClearPreviousMarkersCmdMsgHdlr {
   this: UsersApp =>

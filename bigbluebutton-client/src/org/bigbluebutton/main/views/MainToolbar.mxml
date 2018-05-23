@@ -47,6 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
 		<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
 		<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+		<mate:Listener type="{BBBEvent.RECORD_AND_CLEAR_PREVIOUS_MARKERS}" method="onRecordAndClearPreviousMarkersChanged" />
 		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
@@ -504,6 +505,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						meetingNameLbl.text += " " + meetingTitle;
 					}
 				}
+			}
+			
+			private function onRecordAndClearPreviousMarkersChanged(event:BBBEvent):void {
+				recordingTimer.visible = false;
 			}
 
 			private function onNetStatsButtonClick(e:Event = null):void {
