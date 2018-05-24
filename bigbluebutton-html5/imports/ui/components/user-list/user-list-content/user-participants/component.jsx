@@ -98,8 +98,8 @@ class UserParticipants extends Component {
     this.focusUserItem = this.focusUserItem.bind(this);
     this.changeState = this.changeState.bind(this);
     this.getUsers = this.getUsers.bind(this);
-    this.setMenuState = this.setMenuState.bind(this);
-    this.getMenuState = this.getMenuState.bind(this);
+    this.setDropdownOpenState = this.setDropdownOpenState.bind(this);
+    this.getDropdownOpenState = this.getDropdownOpenState.bind(this);
   }
 
   componentDidMount() {
@@ -110,7 +110,7 @@ class UserParticipants extends Component {
           event,
           this.props.users.length,
           this.changeState,
-          this.getMenuState,
+          this.getDropdownOpenState,
         ),
       );
     }
@@ -126,11 +126,11 @@ class UserParticipants extends Component {
     }
   }
 
-  setMenuState(state) {
+  setDropdownOpenState(state) {
     this.setState({ dropdownIsOpen: state });
   }
 
-  getMenuState() {
+  getDropdownOpenState() {
     return this.state.dropdownIsOpen;
   }
 
@@ -225,7 +225,7 @@ class UserParticipants extends Component {
             normalizeEmojiName={normalizeEmojiName}
             isMeetingLocked={isMeetingLocked}
             getScrollContainerRef={this.getScrollContainerRef}
-            setMenuState={this.setMenuState}
+            setDropdownOpenState={this.setDropdownOpenState}
           />
         </div>
       </CSSTransition>

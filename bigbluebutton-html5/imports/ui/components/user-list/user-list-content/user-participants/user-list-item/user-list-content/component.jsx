@@ -53,7 +53,7 @@ const propTypes = {
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
-  setMenuState: PropTypes.func.isRequired,
+  setDropdownOpenState: PropTypes.func.isRequired,
 };
 
 
@@ -111,7 +111,7 @@ class UserListContent extends Component {
     });
 
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
-    this.props.setMenuState(true);
+    this.props.setDropdownOpenState(true);
   }
 
   onActionsHide() {
@@ -123,8 +123,9 @@ class UserListContent extends Component {
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);
 
+    // setTimeout used to prevent race condition with state updates.
     setTimeout(() => {
-      this.props.setMenuState(false);
+      this.props.setDropdownOpenState(false);
     });
   }
 

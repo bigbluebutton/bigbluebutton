@@ -31,7 +31,7 @@ const propTypes = {
   isMeetingLocked: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
-  setMenuState: PropTypes.func.isRequired,
+  setDropdownOpenState: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -119,7 +119,7 @@ class UserListItem extends Component {
       meeting={meeting}
       isMeetingLocked={isMeetingLocked}
       getScrollContainerRef={getScrollContainerRef}
-      setMenuState={this.props.setMenuState}
+      setDropdownOpenState={this.props.setDropdownOpenState}
     />);
 
     return contents;
