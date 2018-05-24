@@ -124,9 +124,9 @@ class App extends Component {
 
     return (
       <Resizable
-        defaultSize={{width: "20%"}}
+        defaultSize= {{width: (window.innerWidth * 0.18) < 240 ? "18%" : 240}}
         minWidth="100"
-        maxWidth="300"
+        maxWidth="240"
         ref={(node) => { this.resizableUserList = node; }}
         enable={{ right: true }}
         className={styles.resizableUserList}
@@ -152,7 +152,7 @@ class App extends Component {
 
     return (
       <Resizable
-        defaultSize={{width: "22.5%"}}
+        defaultSize={{width: "25%"}}
         minWidth="15%"
         maxWidth="30%"
         ref={(node) => { this.resizableChat = node; }}
