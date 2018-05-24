@@ -118,15 +118,10 @@ class UserListContent extends Component {
     this.setState({
       isActionsOpen: false,
       dropdownVisible: false,
-    });
+    }, () => this.props.setDropdownOpenState(false));
 
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);
-
-    // setTimeout used to prevent race condition with state updates.
-    setTimeout(() => {
-      this.props.setDropdownOpenState(false);
-    });
   }
 
   getDropdownMenuParent() {
