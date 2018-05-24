@@ -154,4 +154,12 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       resp.toString
     }
   }
+
+  def getRecordingTextTracks(recordId: String):String = {
+    "TODO"
+  }
+
+  def putRecordingTextTrack(recordId: String, kind: String, lang: String, label: String, file: File):String = {
+    "TODO"
+  }
 }
