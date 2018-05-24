@@ -114,6 +114,12 @@ class App extends Component {
     let { userList } = this.props;
     const { compactUserList } = this.state;
 
+    //Variables for resizing user-list.
+    const USERLIST_MIX_WIDTH_PX = 100;
+    const USERLIST_MAX_WIDTH_PX = 240;
+    const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
+
+
     if (!userList) return null;
 
     const userListStyle = {};
@@ -124,9 +130,9 @@ class App extends Component {
 
     return (
       <Resizable
-        defaultSize= {{width: (window.innerWidth * 0.18) < 240 ? "18%" : 240}}
-        minWidth="100"
-        maxWidth="240"
+        defaultSize= {{ width: (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? USERLIST_DEFAULT_WIDTH_RELATIVE + "%" : USERLIST_MAX_WIDTH_PX }}
+        minWidth={USERLIST_MIX_WIDTH_PX}
+        maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
         enable={{ right: true }}
         className={styles.resizableUserList}
@@ -152,7 +158,7 @@ class App extends Component {
 
     return (
       <Resizable
-        defaultSize={{width: "25%"}}
+        defaultSize={{ width: "25%" }}
         minWidth="15%"
         maxWidth="30%"
         ref={(node) => { this.resizableChat = node; }}
