@@ -178,10 +178,10 @@
   background: rgba(0,0,0,0.85);
   padding: 15px;
   height: 100%;
-  color: #fff;
+  color: $color-white;
+  font-size: $font-size-small;
   border-radius: 5px;
   position: absolute;
-  font-size: 12px;
   z-index: 1;
   width: 100%;
 }

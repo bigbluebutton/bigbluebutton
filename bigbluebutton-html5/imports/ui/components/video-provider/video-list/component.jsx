@@ -11,6 +11,7 @@ const propTypes = {
   onMount: PropTypes.func.isRequired,
   getStats: PropTypes.func.isRequired,
   stopGettingStats: PropTypes.func.isRequired,
+  enableVideoStats: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -142,7 +143,7 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl, users, onMount, getStats, stopGettingStats
+      intl, users, onMount, getStats, stopGettingStats, enableVideoStats
     } = this.props;
     const { focusedId } = this.state;
 
@@ -177,6 +178,7 @@ class VideoList extends Component {
             stopGettingStats={() => {
               return stopGettingStats(user.id);
             }}
+            enableVideoStats={enableVideoStats}
           />
         </div>
       );

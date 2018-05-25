@@ -26,9 +26,11 @@ class VideoListItem extends Component {
 
     this.state = {
       showStats: false,
+      stats: {'video':{}},
     }
 
     this.toggleStats = this.toggleStats.bind(this);
+    this.setStats = this.setStats.bind(this);
   }
 
   componentDidMount() {
@@ -39,18 +41,24 @@ class VideoListItem extends Component {
     this.setState({showStats: !this.state.showStats});
   }
 
+  setStats(updatedStats) {
+    const { audio, video } = updatedStats;
+    this.setState({ stats: { ...this.state.stats, video, audio }})
+  }
+
   getAvailableActions() {
     const {
       intl,
       actions,
       user,
+      enableVideoStats,
     } = this.props;
 
     return _.compact([
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
       ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
-      (Meteor.settings.public.kurento.enableVideoStats ?
+      (enableVideoStats ?
         <DropdownListItem
           key={'list-item-stats-' + user.id}
           onClick={() => {this.toggleStats();}}
@@ -61,11 +69,11 @@ class VideoListItem extends Component {
   }
 
   render() {
-    const { showStats } = this.state;
+    const { showStats, stats } = this.state;
     const { user, getStats, stopGettingStats } = this.props;
 
     const availableActions = this.getAvailableActions();
-
+    
     return (
       <div className={cx({
         [styles.content]: true,
@@ -94,7 +102,7 @@ class VideoListItem extends Component {
           { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
           { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
         </div>
-        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} getStats={getStats} stopGettingStats={stopGettingStats} videoTag={this.videoTag} /> : null }
+        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} getStats={() => getStats(this.videoTag, this.setStats)} stats={stats} stopGettingStats={stopGettingStats} /> : null }
       </div>
     );
   }

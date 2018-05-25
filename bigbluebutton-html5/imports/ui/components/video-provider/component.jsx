@@ -68,6 +68,8 @@ class VideoProvider extends Component {
 
     this.pauseViewers = this.pauseViewers.bind(this);
     this.unpauseViewers = this.unpauseViewers.bind(this);
+
+    this.customGetStats = this.customGetStats.bind(this);
   }
 
   _sendPauseStream (id, role, state) {
@@ -470,14 +472,13 @@ class VideoProvider extends Component {
 
   customGetStats(peer, mediaStreamTrack, callback, interval) {
     const statsState = this.state.stats;
-    const that = this;
     let promise;
     try {
       promise = peer.getStats(mediaStreamTrack);
     } catch (e) {
       promise = Promise.reject(e);
     }
-    promise.then(function(results) {
+    promise.then((results) => {
       let videoInOrOutbound = {};
       results.forEach(function(res) {
         if (res.type == 'ssrc' || res.type == 'inbound-rtp' || res.type == 'outbound-rtp') {
@@ -530,7 +531,7 @@ class VideoProvider extends Component {
       while (videoStatsArray.length > 5) {// maximum interval to consider
         videoStatsArray.shift();
       }
-      that.setState({ stats: videoStatsArray });
+      this.setState({ stats: videoStatsArray });
 
       const firstVideoStats = videoStatsArray[0];
       const lastVideoStats = videoStatsArray[videoStatsArray.length - 1];
@@ -631,32 +632,32 @@ class VideoProvider extends Component {
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
 
-    if (peer) {
-      if (peer.started === true) {
-        if (peer.peerConnection.getLocalStreams().length > 0){
-          this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
-        } else if (peer.peerConnection.getRemoteStreams().length > 0){
-          this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
-        }
-        return;
-      }
+    const hasLocalStream = peer && peer.started === true && peer.peerConnection.getLocalStreams().length > 0;
+    const hasRemoteStream = peer && peer.started === true && peer.peerConnection.getRemoteStreams().length > 0;
+
+    if (hasLocalStream) {
+      this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
+    } else if (hasRemoteStream) {
+      this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
     }
+
+    return;
   }
 
   stopGettingStats(id) {
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
 
-    if (peer) {
-      if (peer.started === true) {
-        if (peer.peerConnection.getLocalStreams().length > 0){
-          this.monitorTrackStop(peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].id);
-        } else if (peer.peerConnection.getRemoteStreams().length > 0){
-          this.monitorTrackStop(peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0].id);
-        }
-        return;
-      }
+    const hasLocalStream = peer && peer.started === true && peer.peerConnection.getLocalStreams().length > 0;
+    const hasRemoteStream = peer && peer.started === true && peer.peerConnection.getRemoteStreams().length > 0;
+
+    if (hasLocalStream) {
+      this.monitorTrackStop(peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].id);
+    } else if (hasRemoteStream) {
+      this.monitorTrackStop(peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0].id);
     }
+    
+    return;
   }
 
   handlePlayStop(message) {
@@ -733,6 +734,7 @@ class VideoProvider extends Component {
         onMount={this.attachVideoStream.bind(this)}
         getStats={this.getStats.bind(this)}
         stopGettingStats={this.stopGettingStats.bind(this)}
+        enableVideoStats={this.props.enableVideoStats}
       />
     );
   }
