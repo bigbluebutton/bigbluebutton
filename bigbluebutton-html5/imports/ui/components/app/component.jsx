@@ -115,7 +115,7 @@ class App extends Component {
     const { compactUserList } = this.state;
 
     //Variables for resizing user-list.
-    const USERLIST_MIX_WIDTH_PX = 100;
+    const USERLIST_MIN_WIDTH_PX = 100;
     const USERLIST_MAX_WIDTH_PX = 240;
     const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
 
@@ -131,7 +131,7 @@ class App extends Component {
     return (
       <Resizable
         defaultSize= {{ width: (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? USERLIST_DEFAULT_WIDTH_RELATIVE + "%" : USERLIST_MAX_WIDTH_PX }}
-        minWidth={USERLIST_MIX_WIDTH_PX}
+        minWidth={USERLIST_MIN_WIDTH_PX}
         maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
         enable={{ right: true }}
