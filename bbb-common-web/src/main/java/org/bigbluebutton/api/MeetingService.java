@@ -18,6 +18,7 @@
 
 package org.bigbluebutton.api;
 
+import java.io.File;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,6 +70,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import scala.Option;
 
 public class MeetingService implements MessageListener {
   private static Logger log = LoggerFactory.getLogger(MeetingService.class);
@@ -340,9 +342,19 @@ public class MeetingService implements MessageListener {
     return null;
   }
 
+  public String getRecordingTextTracks(String recordId) {
+    return recordingService.getRecordingTextTracks(recordId);
+  }
+
+  public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label) {
+    return recordingService.putRecordingTextTrack(recordId, kind, lang, file, label);
+  }
+
   public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);
   }
+
+
 
   private int getDurationRecording(String playbackDuration, String end,
                                    String start) {

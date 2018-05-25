@@ -2,18 +2,28 @@ package org.bigbluebutton.api2.util
 
 import java.io.{File, FileOutputStream, IOException}
 import java.nio.channels.Channels
+import java.nio.charset.StandardCharsets
 import java.util
 
+import com.google.gson.Gson
 import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api2.RecordingServiceGW
-import org.bigbluebutton.api2.domain.{RecMeta, RecMetaResponse}
+import org.bigbluebutton.api2.domain._
 
 import scala.xml.{Elem, PrettyPrinter, XML}
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{Buffer, ListBuffer, Map}
 import scala.collection.Iterable
+import scala.collection.JavaConversions._
 
 class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
+
+  import java.io.IOException
+  import java.nio.charset.Charset
+  import java.nio.file.Files
+  import java.nio.file.Paths
+
+
 
   def loadMetadataXml(path: String): Option[Elem] = {
     try {
@@ -155,11 +165,57 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-  def getRecordingTextTracks(recordId: String):String = {
-    "TODO"
+  def readCaptionJsonFile(path: String, encoding: Charset): Option[String] = {
+    try {
+      val encoded = Files.readAllBytes(Paths.get(path))
+      Some(new String(encoded, encoding))
+    } catch {
+      case ioe: IOException =>
+        logger.info("Failed to load metadataxml {}", path)
+        None
+      case ex: Exception =>
+        logger.info("Exception while loading {}", path)
+        logger.info("Exception details: {}", ex.getMessage)
+        None
+    }
+
   }
 
-  def putRecordingTextTrack(recordId: String, kind: String, lang: String, label: String, file: File):String = {
-    "TODO"
+  def getRecordingTextTracks(recordId: String, file: util.ArrayList[File]):String = {
+    val track = Track("captions", "en-US", "English", "live", "https://example.com/XXX/en-US-live.vtt")
+    val track1 = Track("captions", "en-GB", "British English", "live", "https://example.com/XXX/en-GB-live.vtt")
+    val tarr = new util.ArrayList[Track]()
+    tarr.add(track)
+    tarr.add(track1)
+    val tracks = Tracks(tarr)
+    val result = GetRecTextTracksResult("SUCCESS", tracks)
+    val response = GetRecTextTracksResp(result)
+    val gson = new Gson()
+    val respText = gson.toJson(response)
+    println(result)
+
+    val resFailed = GetRecTextTracksResultFailed("FAILED", "noRecordings", "No recordings for " + recordId)
+    val respFailed = GetRecTextTracksRespFailed(resFailed)
+    val failedTxt = gson.toJson(respFailed)
+    println(failedTxt)
+
+    val captionJsonFile = file.get(0).getAbsolutePath + File.separatorChar + "captions.json"
+    println("Captions file " + captionJsonFile)
+
+    readCaptionJsonFile(captionJsonFile, StandardCharsets.UTF_8) match {
+      case Some(captions) => println("Captions: \n" + captions)
+        val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
+        val xtracks = Tracks(ctracks)
+        val result1 = GetRecTextTracksResult("SUCCESS", xtracks)
+        val response1 = GetRecTextTracksResp(result1)
+        val respText1 = gson.toJson(response1)
+        println(respText1)
+      case None => println("Captions file not found for " + recordId)
+    }
+    return respText
+  }
+
+  def putRecordingTextTrack(recordId: String, kind: String, lang: String, file: File, label: Option[String]):String = {
+    return "putRecordingTextTrack TODO"
   }
 }

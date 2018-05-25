@@ -27,11 +27,13 @@ class RecordingController {
             return
         }
 
+        String recordId = StringUtils.strip(params.recordID)
+
         // Do we agree on the checksum? If not, complain.
-        if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-            respondWithError("checksumError", "You did not pass the checksum security check.")
-            return
-        }
+        //if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+        //    respondWithError("checksumError", "You did not pass the checksum security check.")
+        //    return
+        //}
 
         /*
         ApiErrors errors = new ApiErrors()
@@ -59,6 +61,9 @@ class RecordingController {
         //    return
         //}
 */
+        String result = meetingService.getRecordingTextTracks(recordId)
+
+        println("************* RESULT = " + result)
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
             json {

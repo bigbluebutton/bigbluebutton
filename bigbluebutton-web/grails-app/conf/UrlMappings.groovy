@@ -73,6 +73,14 @@ class UrlMappings {
 			action = [GET:'updateRecordingsHandler', POST:'updateRecordingsHandler']
 		}
 
+		"/api/getRecordingTextTracks"(controller:"recording") {
+			action = [GET:'getRecordingTextTracks']
+		}
+
+		"/api/putRecordingTextTrack"(controller:"recording") {
+			action = [POST:'putRecordingTextTrack']
+		}
+
 		"/$controller/$action?/$id?(.${format})?"{
 			constraints {
 				// apply constraints here
