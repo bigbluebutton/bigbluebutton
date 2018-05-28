@@ -25,20 +25,19 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const browserLocale = req.query.locale.split(/[-_]/g);
 
   const localeList = [fallback];
-  let getAvailableLocales = fs.readdirSync('assets/app/locales');
+  const getAvailableLocales = fs.readdirSync('assets/app/locales');
   let regionDefault = null;
   const usableLocales = [];
 
-  getAvailableLocales = getAvailableLocales
+  getAvailableLocales
     .map(file => file.replace('.json', ''))
     .map(locale => (
       locale
-    ));
-
-  for (let i = 0; i < getAvailableLocales.length; i += 1) {
-    if (getAvailableLocales[i] === browserLocale[0]) regionDefault = getAvailableLocales[i];
-    if (getAvailableLocales[i].match(browserLocale[0])) usableLocales.push(getAvailableLocales[i]);
-  }
+    ))
+    .reduce((i, locale) => {
+      if (locale === browserLocale[0]) regionDefault = locale;
+      if (locale.match(browserLocale[0])) usableLocales.push(locale);
+    }, 0);
 
   if (regionDefault) localeList.push(regionDefault);
   if (!regionDefault && usableLocales[0]) localeList.push(usableLocales[0]);
