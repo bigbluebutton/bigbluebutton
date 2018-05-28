@@ -13,6 +13,7 @@
 @namespace skins "org.bigbluebutton.skins.*";
 @namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
 @namespace tabBarClasses "flexlib.controls.tabBarClasses.*";
+@namespace toast "org.bigbluebutton.common.toaster.message.*";
 
 /*
 //------------------------------
@@ -902,8 +903,8 @@ views|LoadingBar {
 }
 
 .loadingBarLabel {
-	color       : #8A9AA7;
-	fontWeight  : bold;
+	color      : #8A9AA7;
+	fontWeight : bold;
 }
 
 /*
@@ -1579,11 +1580,11 @@ mx|ScrollBar {
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;
 	borderAlphaDisabled : 0;
-	
+
 	fillColorUp         : #EFF5FA;
 	borderColorOver     : #1070D7;
 	borderColorDown     : #1070D7;
-	
+
 	fontWeight          : bold;
 	borderThickness     : 5;
 	cornerRadius        : 70;
@@ -1731,6 +1732,48 @@ mx|TitleWindow {
 	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
 	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
 	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
+}
+
+/*
+//------------------------------
+//  ToastMessageRenderer
+//------------------------------
+*/
+
+toast|ToastMessageRenderer {
+	backgroundColor            : #FFFFFF;
+	cornerRadius               : 4;
+	borderStyle                : none;
+	color                      : #4E5A66;
+	fontSize                   : 15;
+	dropShadowEnabled          : true;
+	shadowDirection            : center;
+	shadowDistance             : 0;
+
+	iconCornerRadius           : 20;
+	iconColor                  : #FFFFFF;
+	iconBackgroundColorDefault : #4E5A66;
+	iconBackgroundColorInfo    : #0F70D7;
+	iconBackgroundColorSuccess : #008081;
+	iconBackgroundColorError   : #DF2721;
+	iconBackgroundColorWarning : #800080;
+
+	iconClose                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Circle");
+
+	iconDefault                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Default");
+	iconInfo                   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Info");
+	iconSuccess                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Success");
+	iconError                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Error");
+	iconWarning                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Warning");
+}
+
+.toasterContainer {
+	horizontalGap : 6;
+	paddingTop    : 8;
+	paddingBottom : 16;
+	paddingLeft   : 12;
+	paddingRight  : 12;
+	verticalAlign : middle;
 }
 
 /*

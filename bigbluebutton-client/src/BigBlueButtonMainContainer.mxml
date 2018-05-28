@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   xmlns:userMap="org.bigbluebutton.modules.users.maps.*"
   xmlns:apimap="org.bigbluebutton.main.api.maps.*"
   xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
+  xmlns:toaster="org.bigbluebutton.common.toaster.*"
   xmlns:mate="http://mate.asfusion.com/"
   width="100%" height="100%"
   backgroundColor="white"
@@ -237,6 +238,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ShortcutEvent.FOCUS_AWAY_EVENT}" method="loseFocusFromApp" />
 	</fx:Declarations>
 
-	<views:MainApplicationShell id="mainShell"/>	
-  
+	<views:MainApplicationShell id="mainShell"/>
+	
+	<toaster:Toaster id="toasterContainer" width="100%" height="100%"/>
+
 </mx:Canvas>

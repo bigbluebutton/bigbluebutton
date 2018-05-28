@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<message:ToastMessageBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+						  xmlns:s="library://ns.adobe.com/flex/spark"
+						  xmlns:mx="library://ns.adobe.com/flex/mx"
+						  xmlns:message="org.bigbluebutton.common.toaster.message.*"
+						  height="75"
+						  minWidth="320"
+						  toolTip="{message}">
+
+	<mx:HBox styleName="toasterContainer"
+			 horizontalScrollPolicy="off"
+			 verticalScrollPolicy="off"
+			 verticalCenter="0">
+		<mx:Canvas id="iconCanvas"
+				   width="32"
+				   height="32"
+				   horizontalScrollPolicy="off"
+				   verticalScrollPolicy="off">
+			<!-- Circle background -->
+			<s:Group verticalCenter="0"
+					 horizontalCenter="0"
+					 width="32"
+					 height="32">
+				<s:Ellipse width="32"
+						   height="32"
+						   verticalCenter="0"
+						   horizontalCenter="0">
+					<s:fill>
+						<s:SolidColor color="{iconBackgroundColor}" />
+					</s:fill>
+				</s:Ellipse>
+			</s:Group>
+
+			<mx:Image id="iconImage"
+					  verticalCenter="0"
+					  horizontalCenter="0"
+					  source="{iconImageClass}" />
+		</mx:Canvas>
+		<mx:Text id="messageText"
+				 selectable="false"
+				 text="{message}"
+				 textAlign="center" />
+	</mx:HBox>
+
+	<mx:Image id="closeButton"
+			  top="10"
+			  right="10"
+			  width="14"
+			  height="14"
+			  source="{getStyle('iconClose')}" />
+
+	<mx:Canvas width="100%"
+			   height="8"
+			   backgroundColor="#E4ECF2"
+			   bottom="0" />
+
+</message:ToastMessageBase>
