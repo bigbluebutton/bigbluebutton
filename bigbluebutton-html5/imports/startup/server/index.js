@@ -22,16 +22,35 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
-  const localeRegion = req.query.locale.split(/[-_]/g);
-  const localeList = [fallback, localeRegion[0]];
+  const browserLocale = req.query.locale.split(/[-_]/g);
 
-  let normalizedLocale = localeRegion[0];
+  const localeList = [fallback];
+  let getAvailableLocales = fs.readdirSync('assets/app/locales');
+  let regionDefault = null;
+  const usableLocales = [];
+
+  getAvailableLocales = getAvailableLocales
+    .map(file => file.replace('.json', ''))
+    .map(locale => (
+      locale
+    ));
+
+  for (let i = 0; i < getAvailableLocales.length; i += 1) {
+    if (getAvailableLocales[i] === browserLocale[0]) regionDefault = getAvailableLocales[i];
+    if (getAvailableLocales[i].match(browserLocale[0])) usableLocales.push(getAvailableLocales[i]);
+  }
+
+  if (regionDefault) localeList.push(regionDefault);
+  if (!regionDefault && usableLocales[0]) localeList.push(usableLocales[0]);
+
+  let normalizedLocale;
   let messages = {};
 
-  if (localeRegion.length > 1) {
-    normalizedLocale = `${localeRegion[0]}_${localeRegion[1].toUpperCase()}`;
+  if (browserLocale.length > 1) {
+    normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
     localeList.push(normalizedLocale);
   }
+
   localeList.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
@@ -47,17 +66,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  const APP_CONFIG = Meteor.settings.public.app;
-  const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
-
   let availableLocales = [];
-
-  const defaultLocaleFile = `${fallback}.json`;
-  const defaultLocalePath = `locales/${defaultLocaleFile}`;
-  const localesPath = Assets.absoluteFilePath(defaultLocalePath).replace(defaultLocaleFile, '');
-
   try {
-    const getAvailableLocales = fs.readdirSync(localesPath);
+    const getAvailableLocales = fs.readdirSync('assets/app/locales');
     availableLocales = getAvailableLocales
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
