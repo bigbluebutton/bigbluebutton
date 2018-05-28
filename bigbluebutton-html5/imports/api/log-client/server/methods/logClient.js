@@ -1,19 +1,24 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-const logClient = (type, log, ...args) => {
-  const SERVER_CONN_ID = Object.keys(this.Meteor.default_server.sessions)[0];
+const logClient = function (type, log, ...args) {
+  const SERVER_CONN_ID = this.connection.id;
   const User = Users.findOne({ connectionId: SERVER_CONN_ID });
+  let logContents = Array(...args);
 
-  const userInfo = {
-    meetingId: User.meetingId,
-    userName: User.name,
-    intId: User.intId,
-    extId: User.extId,
-    authToken: User.authToken,
-  };
-
-  const logContents = Array(...args).concat(userInfo);
+  if (User !== undefined) {
+    const {
+      meetingId, name, intId, extId, authToken,
+    } = User;
+    const userInfo = {
+      meetingId,
+      userName: name,
+      intId,
+      extId,
+      authToken,
+    };
+    logContents = Array(...args).concat(userInfo);
+  }
 
   if (typeof log === 'string' || log instanceof String) {
     Logger.log(type, `CLIENT LOG: ${log}\n`, logContents);
