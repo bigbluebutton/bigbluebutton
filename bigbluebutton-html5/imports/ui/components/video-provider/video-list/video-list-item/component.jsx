@@ -28,7 +28,6 @@ class VideoListItem extends Component {
 
   render() {
     const { user, actions } = this.props;
-
     return (
       <div className={cx({
         [styles.content]: true,
@@ -51,7 +50,9 @@ class VideoListItem extends Component {
             <DropdownContent placement="top left">
               <DropdownList className={styles.dropdownList}>
                 {[
-                  <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
+                  <DropdownListTitle className={styles.hiddenDesktop} key="name">
+                    {user.name}
+                  </DropdownListTitle>,
                   <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
                   ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
                 ]}
@@ -59,6 +60,7 @@ class VideoListItem extends Component {
             </DropdownContent>
           </Dropdown>
           { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
+          { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
         </div>
       </div>
     );

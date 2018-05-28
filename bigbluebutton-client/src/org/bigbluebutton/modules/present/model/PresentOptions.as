@@ -38,6 +38,9 @@ package org.bigbluebutton.modules.present.model {
 
 		[Bindable]
 		public var enableDownload:Boolean = true;
+		
+		[Bindable]
+		public var disableFirefoxF60Upload:Boolean = true;
 
 		public function PresentOptions() {
 			name = "PresentModule";

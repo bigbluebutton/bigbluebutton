@@ -91,18 +91,36 @@ class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    const { intl, isFullScreen, mountModal } = this.props;
+    this.createMenu();
+  }
 
-    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-    let fullscreenIcon = 'fullscreen';
+  componentWillReceiveProps(nextProps) {
+    this.alterMenu(nextProps);
+  }
 
-    if (isFullScreen) {
-      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
-      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
-      fullscreenIcon = 'exit_fullscreen';
-    }
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
 
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
+  }
+
+  getListItems() {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
+    // thrown if the DropdownList receives a null value.
+    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
+  }
+
+  createMenu() {
+    const { intl, mountModal } = this.props;
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     this.menuItems = [
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -143,24 +161,38 @@ class SettingsDropdown extends Component {
     ];
   }
 
-  onActionsShow() {
-    this.setState({
-      isSettingOpen: true,
-    });
+  checkFullscreen(nextProps) {
+    const { intl, isFullScreen } = nextProps;
+
+    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullscreenIcon = 'fullscreen';
+
+    if (isFullScreen) {
+      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
+      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
+      fullscreenIcon = 'exit_fullscreen';
+    }
+    return {
+      fullscreenLabel,
+      fullscreenDesc,
+      fullscreenIcon,
+    };
   }
 
-  onActionsHide() {
-    this.setState({
-      isSettingOpen: false,
-    });
-  }
+  alterMenu(props) {
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
 
-  getListItems() {
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
-    // thrown if the DropdownList receives a null value.
-    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
+    const newFullScreenButton = (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon={fullscreenIcon}
+      label={fullscreenLabel}
+      description={fullscreenDesc}
+      onClick={this.props.handleToggleFullscreen}
+    />);
+    const result = this.menuItems.slice(1);
+    result.unshift(newFullScreenButton);
+    this.menuItems = result;
   }
 
   render() {

@@ -2,5 +2,6 @@
     "app.home.greeting": "Добре дошли, {name}! Вашата презентация ще започне всеки момент",
     "app.chat.submitLabel": "Изпрати",
     "app.chat.titlePublic": "Общ чат"
+
 }
 

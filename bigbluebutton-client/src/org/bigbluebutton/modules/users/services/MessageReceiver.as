@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
   import org.bigbluebutton.core.events.NewGuestWaitingEvent;
+  import org.bigbluebutton.core.events.UpdateRecordingTimerEvent;
   import org.bigbluebutton.core.events.UserEmojiChangedEvent;
   import org.bigbluebutton.core.events.UserStatusChangedEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
@@ -135,6 +136,9 @@ package org.bigbluebutton.modules.users.services
         case "UserEmojiChangedEvtMsg":
           handleEmojiStatusHand(message);
           break;
+		case "UpdateRecordingTimerEvtMsg":
+		  handleUpdateRecordingTimer(message);
+		  break;
         case "GetRecordingStatusRespMsg":
           handleGetRecordingStatusReply(message);
           break;
@@ -710,6 +714,11 @@ package org.bigbluebutton.modules.users.services
       }
       
     }
+	
+	private function handleUpdateRecordingTimer(msg:Object):void {
+		var e:UpdateRecordingTimerEvent = new UpdateRecordingTimerEvent(msg.body.time);
+		dispatcher.dispatchEvent(e);
+	}
     
     private function sendUserEmojiChangedEvent(userId: String, emoji: String):void{
       var dispatcher:Dispatcher = new Dispatcher();
@@ -756,9 +765,11 @@ package org.bigbluebutton.modules.users.services
 			logData.streamId = stream;
       LOGGER.info(JSON.stringify(logData));
       
-      LiveMeeting.inst().webcams.remove(stream);
+      var mediaStream: MediaStream = LiveMeeting.inst().webcams.remove(stream);
       
-      sendStreamStoppedEvent(userId, stream);
+			if (mediaStream != null) {
+      	sendStreamStoppedEvent(mediaStream.userId, stream);
+			}
     }
     
     private function sendStreamStoppedEvent(userId: String, streamId: String):void{

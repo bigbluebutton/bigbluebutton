@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				xmlns:common="org.bigbluebutton.common.*"
+				showCloseButton="false"
+				layout="absolute"
+				show="this.setFocus()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.net.navigateToURL;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(RecordWindow);
+			
+			[Bindable]
+			private var _recordingFlag : Boolean;
+			
+			private var layoutOptions:LayoutOptions = null;
+			
+			public function setRecordingFlag(recording : Boolean):void {
+				_recordingFlag = recording;
+			}
+			
+			private function getLayoutOptions() : LayoutOptions {
+				if (layoutOptions == null) {
+					layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
+				}
+				return layoutOptions;
+			}
+			
+			protected function yesButton_clickHandler(e:MouseEvent):void {
+				if (_recordingFlag == LiveMeeting.inst().meetingStatus.isRecording) {
+					// while the user was confirming the recording change, the 
+					// button state changed to the desired one (another user started
+					// or stopped to record), so we do nothing
+					close();
+				}
+				
+				var event:BBBEvent;
+				if (_recordingFlag && clearRecordingsChecbox.selected) {
+					event = new BBBEvent(BBBEvent.RECORD_AND_CLEAR_PREVIOUS_MARKERS);
+				} else {
+					event = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+				}
+				event.payload.remote = false;
+				event.payload.recording = _recordingFlag;
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(event);
+				
+				LOGGER.debug("Changing record status to {0}", [event.payload.recording]);
+				
+				if (!_recordingFlag && getLayoutOptions().logoutOnStopRecording) {
+					LOGGER.debug("Using 'logoutOnStopRecording' option to logout user after stopping recording");
+					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
+				}
+				
+				close();
+			}
+			
+			protected function close():void {
+				PopUpUtil.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" paddingBottom="25" paddingLeft="70" paddingRight="70" paddingTop="25"
+			 horizontalAlign="center" verticalGap="16">
+		<common:AdvancedLabel maxWidth="550"
+							  id="textArea"
+							  text="{_recordingFlag ? ResourceUtil.getInstance().getString('bbb.recordWindow.title.start') : ResourceUtil.getInstance().getString('bbb.recordWindow.title.stop')}"
+							  styleName="titleWindowStyle" />
+		
+		<mx:HBox horizontalAlign="center" width="100%">
+			<mx:Button id="yesButton" styleName="mainActionButton" click="yesButton_clickHandler(event)" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.yes')}" width="120"/>
+			<mx:Button id="noButton" styleName="mainActionButton" click="close()" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.no')}" width="102"/>
+		</mx:HBox>
+
+		<mx:CheckBox id="clearRecordingsChecbox" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.clearCheckbox.label')}"
+					 visible="{_recordingFlag}" includeInLayout="{_recordingFlag}"/>
+	</mx:VBox>
+
+	<mx:Button id="closeButton" click="close()" styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}"
+			   right="10" top="15"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}" />
+
+</mx:TitleWindow>

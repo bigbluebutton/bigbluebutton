@@ -51,6 +51,40 @@ public class MessagePublisher {
 		sender.send("to-akka-apps-redis-channel", json);
 	}
 
+	public void sendVideoStreamStartedMsg(String meetingId, String userId, String streamId) {
+		BbbClientMsgHeader header = new BbbClientMsgHeader("UserBroadcastCamStartMsg", meetingId, userId);
+		UserBroadcastCamStartMsgBody body = new UserBroadcastCamStartMsgBody(streamId);
+		UserBroadcastCamStartMsg msg = new UserBroadcastCamStartMsg(header, body);
+		Map<String, String> routing = buildRouting();
+		Map<String, Object> envelope = buildEnvelope("UserBroadcastCamStartMsg", routing);
+
+		Map<String, Object> fullmsg = new HashMap<String, Object>();
+		fullmsg.put("envelope", envelope);
+		fullmsg.put("core", msg);
+
+		Gson gson = new Gson();
+		String json = gson.toJson(fullmsg);
+
+		sender.send("to-akka-apps-redis-channel", json);
+	}
+
+	public void sendVideoStreamStoppedMsg(String meetingId, String userId, String streamId) {
+		BbbClientMsgHeader header = new BbbClientMsgHeader("UserBroadcastCamStopMsg", meetingId, userId);
+		UserBroadcastCamStopMsgBody body = new UserBroadcastCamStopMsgBody(streamId);
+		UserBroadcastCamStopMsg msg = new UserBroadcastCamStopMsg(header, body);
+		Map<String, String> routing = buildRouting();
+		Map<String, Object> envelope = buildEnvelope("UserBroadcastCamStopMsg", routing);
+
+		Map<String, Object> fullmsg = new HashMap<String, Object>();
+		fullmsg.put("envelope", envelope);
+		fullmsg.put("core", msg);
+
+		Gson gson = new Gson();
+		String json = gson.toJson(fullmsg);
+
+		sender.send("to-akka-apps-redis-channel", json);
+	}
+
 	// Polling
 	/*
 	public void userSharedWebcamMessage(String meetingId, String userId, String streamId) {

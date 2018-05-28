@@ -26,6 +26,8 @@ package org.bigbluebutton.main.model.options {
 
 		[Bindable]
 		public var host:String = "";
+		
+		public var reconnWaitTime:int = 2000;
 
 		public function ApplicationOptions() {
 			name = "application";

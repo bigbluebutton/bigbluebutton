@@ -44,14 +44,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.net.navigateToURL;
-			
 			import mx.controls.Alert;
-			import mx.events.CloseEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
@@ -65,74 +61,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private static const LOGGER:ILogger = getClassLogger(RecordButton);
 
-			private var recordingFlag:Boolean;
 			private var firstAudioJoin:Boolean = true;
 			private var layoutOptions:LayoutOptions = null;
-			private var _confirmationAlert:Alert = null;
 			
 			private function onCreationComplete():void {
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
 			}
 
-			private function hideConfirmationAlert():void {
-				if (_confirmationAlert != null) {
-					PopUpUtil.unlockPosition(_confirmationAlert);
-					_confirmationAlert = null;
-				}
-			}
-
-			private function showConfirmationAlert():void {
-				hideConfirmationAlert();
-
-				var message:String = recordingFlag? ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.message.start'): ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.message.stop');
-
-				// Confirm logout using built-in alert
-				_confirmationAlert = Alert.show(message, ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.title'), Alert.YES | Alert.NO, this, onCloseConfirmationDialog, null, Alert.YES);
-
-				PopUpUtil.lockPosition(_confirmationAlert, function():Point {
-					return new Point(parentApplication.width - 150 - _confirmationAlert.width, y + height + 5); 
-				});
-			}
-
 			private function confirmChangeRecordingStatus():void {
-				LOGGER.debug("Confirming recording status change!!!!");
-
-				// need to save the flag in case of any remote update on the recording status
-				recordingFlag = !this.selected;
-
-				showConfirmationAlert();
-			}
-
-			private function onCloseConfirmationDialog(e:CloseEvent):void {
-				// check to see if the YES button was pressed
-				if (e.detail==Alert.YES) {
-					 doChangeRecordingStatus();
-				}
-				
-				hideConfirmationAlert();
-			}
-
-			private function doChangeRecordingStatus():void {
-				if (recordingFlag == this.selected) {
-					// while the user was confirming the recording change, the 
-					// button state changed to the desired one (another user started
-					// or stopped to record), so we do nothing
-					return;
-				}
-
-				var event:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+				var event:BBBEvent = new BBBEvent(BBBEvent.OPEN_RECORD_WINDOW);
 				event.payload.remote = false;
-				event.payload.recording = recordingFlag;
+				event.payload.recording = !LiveMeeting.inst().meetingStatus.isRecording;
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(event);
-
-				this.enabled = false;
-				LOGGER.debug("RecordButton:doChangeRecordingStatus changing record status to {0}", [event.payload.recording]);
-				
-				if (!recordingFlag && getLayoutOptions().logoutOnStopRecording) {
-					LOGGER.debug("Using 'logoutOnStopRecording' option to logout user after stopping recording");
-					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
-				}
 			}
 
 			private function updateButton(recording:Boolean):void {
@@ -144,9 +85,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.enabled = UsersUtil.amIModerator() 
 						&& LiveMeeting.inst().meeting.allowStartStopRecording;
 				}
-
-				if (! this.enabled) {
-					hideConfirmationAlert();
+				
+				if (!this.enabled) {
+					PopUpUtil.removePopUp(RecordWindow);
 				}
 			}
 

@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.domain
 
-import org.bigbluebutton.core.util.TimeUtil
-
 case class MeetingInactivityTracker(
     val maxInactivityTimeoutInMs: Long,
     val warningBeforeMaxInMs:     Long,
@@ -37,6 +35,7 @@ case class MeetingInactivityTracker(
 case class MeetingExpiryTracker(
     startedOnInMs:                     Long,
     userHasJoined:                     Boolean,
+    isBreakout:                        Boolean,
     lastUserLeftOnInMs:                Option[Long],
     durationInMs:                      Long,
     meetingExpireIfNoUserJoinedInMs:   Long,
@@ -65,11 +64,11 @@ case class MeetingExpiryTracker(
   }
 
   def hasMeetingExpired(timestampInMs: Long): (Boolean, Option[String]) = {
-    if (hasMeetingExpiredNeverBeenJoined(timestampInMs)) {
+    if (hasMeetingExpiredNeverBeenJoined(timestampInMs) && !isBreakout) {
       (true, Some(MeetingEndReason.ENDED_WHEN_NOT_JOINED))
     } else if (meetingOverDuration(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_AFTER_EXCEEDING_DURATION))
-    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs)) {
+    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs) && !isBreakout) {
       (true, Some(MeetingEndReason.ENDED_WHEN_LAST_USER_LEFT))
     } else {
       (false, None)
@@ -91,5 +90,33 @@ case class MeetingExpiryTracker(
   def endMeetingTime(): Long = {
     startedOnInMs + durationInMs
   }
+}
+
+case class MeetingRecordingTracker(
+    startedOnInMs:        Long,
+    previousDurationInMs: Long,
+    currentDurationInMs:  Long
+) {
+
+  def startTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(startedOnInMs = nowInMs)
+  }
+
+  def pauseTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(currentDurationInMs = 0L, previousDurationInMs = previousDurationInMs + nowInMs - startedOnInMs, startedOnInMs = 0L)
+  }
+
+  def resetTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(startedOnInMs = nowInMs, previousDurationInMs = 0L, currentDurationInMs = 0L)
+  }
+
+  def udpateCurrentDuration(nowInMs: Long): MeetingRecordingTracker = {
+    copy(currentDurationInMs = nowInMs - startedOnInMs)
+  }
+
+  def recordingDuration(): Long = {
+    currentDurationInMs + previousDurationInMs
+  }
+
 }
 

@@ -93,11 +93,23 @@ case class SetRecordingStatusCmdMsg(header: BbbClientMsgHeader, body: SetRecordi
 case class SetRecordingStatusCmdMsgBody(recording: Boolean, setBy: String)
 
 /**
+  * Sent by user to start recording mark and ignore previsous marks
+  */
+object RecordAndClearPreviousMarkersCmdMsg { val NAME = "RecordAndClearPreviousMarkersCmdMsg" }
+case class RecordAndClearPreviousMarkersCmdMsg(header: BbbClientMsgHeader, body: RecordAndClearPreviousMarkersCmdMsgBody) extends StandardMsg
+case class RecordAndClearPreviousMarkersCmdMsgBody(recording: Boolean, setBy: String)
+
+
+/**
   * Sent to all users about start recording mark.
   */
 object RecordingStatusChangedEvtMsg { val NAME = "RecordingStatusChangedEvtMsg" }
 case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: RecordingStatusChangedEvtMsgBody) extends BbbCoreMsg
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
+
+object UpdateRecordingTimerEvtMsg {val NAME = "UpdateRecordingTimerEvtMsg"}
+case class UpdateRecordingTimerEvtMsg(header: BbbClientMsgHeader, body: UpdateRecordingTimerEvtMsgBody) extends BbbCoreMsg
+case class UpdateRecordingTimerEvtMsgBody(time: Long)
 
 /**
   * Sent by user to update webcamsOnlyForModerator meeting property.
