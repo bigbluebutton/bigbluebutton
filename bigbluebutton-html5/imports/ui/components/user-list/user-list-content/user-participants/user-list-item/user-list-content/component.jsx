@@ -199,6 +199,9 @@ class UserListContent extends Component {
     const userItemContentsStyle = {};
 
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
+    userItemContentsStyle[styles.dropdown] = true;
+    userItemContentsStyle[styles.userListItem] = !this.state.isActionsOpen;
+    userItemContentsStyle[styles.usertListItemWithMenu] = this.state.isActionsOpen;
 
     const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
@@ -263,13 +266,7 @@ class UserListContent extends Component {
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={
-          cx(
-            styles.dropdown,
-            userItemContentsStyle,
-            this.state.isActionsOpen ? styles.usertListItemWithMenu : styles.userListItem,
-          )
-        }
+        className={cx(userItemContentsStyle)}
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"
