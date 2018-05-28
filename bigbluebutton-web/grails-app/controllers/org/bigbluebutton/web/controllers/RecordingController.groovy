@@ -67,12 +67,7 @@ class RecordingController {
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
             json {
-                render(contentType: "application/json") {
-                    response = {
-                        returncode = "FAILED"
-                        message = "Failed to get recording text tracks."
-                    }
-                }
+                render(text: result, contentType: "application/json")
             }
         }
     }

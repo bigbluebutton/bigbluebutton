@@ -24,6 +24,8 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
   import java.nio.file.Paths
 
 
+  val SUCCESS = "SUCCESS"
+  val FAILED = "FAILED"
 
   def loadMetadataXml(path: String): Option[Elem] = {
     try {
@@ -171,7 +173,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       Some(new String(encoded, encoding))
     } catch {
       case ioe: IOException =>
-        logger.info("Failed to load metadataxml {}", path)
+        logger.info("Failed to load caption.json {}", path)
         None
       case ex: Exception =>
         logger.info("Exception while loading {}", path)
@@ -182,40 +184,41 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
   }
 
   def getRecordingTextTracks(recordId: String, file: util.ArrayList[File]):String = {
-    val track = Track("captions", "en-US", "English", "live", "https://example.com/XXX/en-US-live.vtt")
-    val track1 = Track("captions", "en-GB", "British English", "live", "https://example.com/XXX/en-GB-live.vtt")
-    val tarr = new util.ArrayList[Track]()
-    tarr.add(track)
-    tarr.add(track1)
-    val tracks = Tracks(tarr)
-    val result = GetRecTextTracksResult("SUCCESS", tracks)
-    val response = GetRecTextTracksResp(result)
     val gson = new Gson()
-    val respText = gson.toJson(response)
-    println(result)
 
-    val resFailed = GetRecTextTracksResultFailed("FAILED", "noRecordings", "No recordings for " + recordId)
-    val respFailed = GetRecTextTracksRespFailed(resFailed)
-    val failedTxt = gson.toJson(respFailed)
-    println(failedTxt)
+    var returnResponse:String = ""
 
-    val captionJsonFile = file.get(0).getAbsolutePath + File.separatorChar + "captions.json"
-    println("Captions file " + captionJsonFile)
-
-    readCaptionJsonFile(captionJsonFile, StandardCharsets.UTF_8) match {
-      case Some(captions) => println("Captions: \n" + captions)
-        val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
-        val xtracks = Tracks(ctracks)
-        val result1 = GetRecTextTracksResult("SUCCESS", xtracks)
-        val response1 = GetRecTextTracksResp(result1)
-        val respText1 = gson.toJson(response1)
-        println(respText1)
-      case None => println("Captions file not found for " + recordId)
+    if (file.isEmpty) {
+      val resFailed = GetRecTextTracksResultFailed(FAILED, "noRecordings", "No recordings for " + recordId)
+      val respFailed = GetRecTextTracksRespFailed(resFailed)
+      val failedTxt = gson.toJson(respFailed)
+      println(failedTxt)
+      returnResponse = failedTxt
+    } else {
+      val captionJsonFile = file.get(0).getAbsolutePath + File.separatorChar + "captions.json"
+      readCaptionJsonFile(captionJsonFile, StandardCharsets.UTF_8) match {
+        case Some(captions) => println("Captions: \n" + captions)
+          val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
+          val xtracks = Tracks(ctracks)
+          val result1 = GetRecTextTracksResult(SUCCESS, xtracks)
+          val response1 = GetRecTextTracksResp(result1)
+          val respText1 = gson.toJson(response1)
+          println(respText1)
+          returnResponse = respText1
+        case None => println("Captions file not found for " + recordId)
+          val resFailed = GetRecTextTracksResultFailed(FAILED, "noCaptionsFound", "No captions found for " + recordId)
+          val respFailed = GetRecTextTracksRespFailed(resFailed)
+          val failedTxt = gson.toJson(respFailed)
+          println(failedTxt)
+          returnResponse = failedTxt
+      }
     }
-    return respText
+
+
+    returnResponse
   }
 
   def putRecordingTextTrack(recordId: String, kind: String, lang: String, file: File, label: Option[String]):String = {
-    return "putRecordingTextTrack TODO"
+    "putRecordingTextTrack TODO"
   }
 }
