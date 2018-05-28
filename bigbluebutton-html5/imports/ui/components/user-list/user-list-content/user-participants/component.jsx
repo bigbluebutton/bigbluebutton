@@ -257,6 +257,7 @@ class UserParticipants extends Component {
             <TransitionGroup ref={(ref) => { this.refScrollItems = ref; }}>
               { this.getUsers() }
             </TransitionGroup>
+            <div className={styles.footer} />
           </div>
         </div>
       </div>
