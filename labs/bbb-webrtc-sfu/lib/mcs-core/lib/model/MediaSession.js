@@ -46,6 +46,7 @@ module.exports = class MediaSession {
           this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
         }
       });
+
       this._MediaServer.trackMediaState(this._mediaElement, this._type);
 
       this._MediaServer.on(C.ERROR.MEDIA_SERVER_OFFLINE, () => {
@@ -139,7 +140,7 @@ module.exports = class MediaSession {
   }
 
   _handleError (error) {
-    Logger.error("[mcs-media-session] SFU MediaSession received an error", error);
+    Logger.error("[mcs-media-session] SFU MediaSession received an error", error, error.stack);
     // Checking if the error needs to be wrapped into a JS Error instance
     if (!isError(error)) {
       error = new Error(error);
