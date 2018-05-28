@@ -23,6 +23,7 @@ let ScreenshareRTMPBroadcastStoppedEventMessage2x =
 let UserCamBroadcastStoppedEventMessage2x =
     require('./video/UserCamBroadcastStoppedEventMessage2x.js')(Constants);
 let WebRTCShareEvent = require('./video/WebRTCShareEvent.js')(Constants);
+let RecordingStatusRequestMessage2x = require('./recording/RecordingStatusRequestMessage2x.js')(Constants);
 
  /**
   * @classdesc
@@ -78,4 +79,11 @@ Messaging.prototype.generateWebRTCShareEvent =
   let stodrbem = new WebRTCShareEvent(name, meetingId, streamUrl);
   return stodrbem.payload;
 }
+
+Messaging.prototype.generateRecordingStatusRequestMessage =
+  function(meetingId, userId = '') {
+    let rsqm = new RecordingStatusRequestMessage2x(meetingId, userId);
+    return rsqm.toJson();
+}
+
 module.exports = new Messaging();
