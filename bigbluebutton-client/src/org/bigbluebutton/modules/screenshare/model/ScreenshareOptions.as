@@ -37,6 +37,9 @@ package org.bigbluebutton.modules.screenshare.model {
 		public var enablePause:Boolean = true;
 
 		[Bindable]
+		public var shareRegionDefault:Boolean = false;
+		
+		[Bindable]
 		public var chromeExtensionLink:String = "";
 
 		[Bindable]

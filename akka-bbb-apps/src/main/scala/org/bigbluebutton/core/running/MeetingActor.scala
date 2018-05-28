@@ -4,9 +4,8 @@ import java.io.{ PrintWriter, StringWriter }
 
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
-import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingRecordingTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
-//import java.util.concurrent.TimeUnit
 
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
@@ -121,13 +120,16 @@ class MeetingActor(
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
+    isBreakout = props.meetingProp.isBreakout,
     lastUserLeftOnInMs = None,
     durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
-  var state = new MeetingState2x(None, inactivityTracker, expiryTracker)
+  val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
+
+  var state = new MeetingState2x(None, inactivityTracker, expiryTracker, recordingTracker)
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
@@ -182,7 +184,10 @@ class MeetingActor(
     // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
 
-    case _                                     => // do nothing
+    case msg: SendRecordingTimerInternalMsg =>
+      state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
+
+    case _ => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -206,8 +211,11 @@ class MeetingActor(
       case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
       case m: MeetingActivityResponseCmdMsg =>
         state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
-      case m: SetRecordingStatusCmdMsg            => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: SetRecordingStatusCmdMsg =>
+        state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
+      case m: RecordAndClearPreviousMarkersCmdMsg =>
+        state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
       case m: GetWebcamsOnlyForModeratorReqMsg    => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
@@ -401,53 +409,4 @@ class MeetingActor(
 
   }
 
-  def startRecordingIfAutoStart() {
-    if (props.recordProp.record && !MeetingStatus2x.isRecording(liveMeeting.status) &&
-      props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 1) {
-
-      MeetingStatus2x.recordingStarted(liveMeeting.status)
-
-      def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-        val envelope = BbbCoreEnvelope(RecordingStatusChangedEvtMsg.NAME, routing)
-        val body = RecordingStatusChangedEvtMsgBody(recording, userId)
-        val header = BbbClientMsgHeader(RecordingStatusChangedEvtMsg.NAME, meetingId, userId)
-        val event = RecordingStatusChangedEvtMsg(header, body)
-
-        BbbCommonEnvCoreMsg(envelope, event)
-      }
-
-      val event = buildRecordingStatusChangedEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status)
-      )
-      outGW.send(event)
-
-    }
-  }
-
-  def stopAutoStartedRecording() {
-    if (props.recordProp.record && MeetingStatus2x.isRecording(liveMeeting.status) &&
-      props.recordProp.autoStartRecording && Users2x.numUsers(liveMeeting.users2x) == 0) {
-      log.info("Last web user left. Auto stopping recording. meetingId={}", props.meetingProp.intId)
-      MeetingStatus2x.recordingStopped(liveMeeting.status)
-
-      def buildRecordingStatusChangedEvtMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-        val envelope = BbbCoreEnvelope(RecordingStatusChangedEvtMsg.NAME, routing)
-        val body = RecordingStatusChangedEvtMsgBody(recording, userId)
-        val header = BbbClientMsgHeader(RecordingStatusChangedEvtMsg.NAME, meetingId, userId)
-        val event = RecordingStatusChangedEvtMsg(header, body)
-
-        BbbCommonEnvCoreMsg(envelope, event)
-      }
-
-      val event = buildRecordingStatusChangedEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status)
-      )
-      outGW.send(event)
-
-    }
-  }
 }

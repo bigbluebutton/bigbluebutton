@@ -238,6 +238,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>
         routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
+      case RecordAndClearPreviousMarkersCmdMsg.NAME =>
+        routeGenericMsg[RecordAndClearPreviousMarkersCmdMsg](envelope, jsonNode)
       case GetRecordingStatusReqMsg.NAME =>
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>

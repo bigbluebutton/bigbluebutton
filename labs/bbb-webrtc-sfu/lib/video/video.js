@@ -9,6 +9,7 @@ const Messaging = require('../bbb/messages/Messaging');
 const h264_sdp = require('../h264-sdp');
 const FORCE_H264 = config.get('webcam-force-h264');
 const EventEmitter = require('events').EventEmitter;
+const SHOULD_RECORD = config.get('recordWebcams');
 
 var sharedWebcams = {};
 
@@ -27,14 +28,18 @@ module.exports = class Video extends EventEmitter {
     this.iceQueue = null;
     this.status = C.MEDIA_STOPPED;
     this.recording = {};
-    this.streamRecorded = false;
+    this.isRecorded = false;
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
-  }
 
-  setStreamAsRecorded () {
-    this.streamRecorded = true;
+    this.bbbGW.once(C.RECORDING_STATUS_REPLY_MESSAGE_2x+this.meetingId, (payload) => {
+      Logger.info("[Video] RecordingStatusReply userId:", payload.requestedBy, "recorded:", payload.recorded);
+
+      if (payload.requestedBy === this.id && payload.recorded) {
+        this.isRecorded = true;
+      }
+    });
   }
 
   onIceCandidate (_candidate) {
@@ -175,8 +180,14 @@ module.exports = class Video extends EventEmitter {
     }), C.FROM_VIDEO);
   }
 
+  sendGetRecordingStatusRequestMessage() {
+    let req = Messaging.generateRecordingStatusRequestMessage(this.meetingId, this.id);
+
+    this.bbbGW.publish(req, C.TO_AKKA_APPS);
+  }
+
   shouldRecord () {
-    return this.streamRecorded && this.shared && config.get('recordWebcams');
+    return this.isRecorded && this.shared;
   }
 
   async startRecording() {
@@ -192,6 +203,11 @@ module.exports = class Video extends EventEmitter {
     // Force H264
     if (FORCE_H264) {
       sdpOffer = h264_sdp.transform(sdpOffer);
+    }
+
+    // Start the recording process
+    if (SHOULD_RECORD && this.shared) {
+      this.sendGetRecordingStatusRequestMessage();
     }
 
     try {
@@ -232,7 +248,7 @@ module.exports = class Video extends EventEmitter {
     const sinkId = this.mediaId;
 
     if (!sourceId || !sinkId) {
-      Logger.err("[video] Source or sink is null.");
+      Logger.error("[video] Source or sink is null.");
       return;
     }
 
