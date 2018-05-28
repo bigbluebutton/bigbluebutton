@@ -119,6 +119,8 @@ class App extends Component {
     const USERLIST_MAX_WIDTH_PX = 240;
     const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
 
+    //prevent the default width size of the userList to exceed the maxWidth
+    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? USERLIST_DEFAULT_WIDTH_RELATIVE + "%" : USERLIST_MAX_WIDTH_PX;
 
     if (!userList) return null;
 
@@ -130,7 +132,7 @@ class App extends Component {
 
     return (
       <Resizable
-        defaultSize= {{ width: (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? USERLIST_DEFAULT_WIDTH_RELATIVE + "%" : USERLIST_MAX_WIDTH_PX }}
+        defaultSize= {{ width: USERLIST_DEFAULT_WIDTH }}
         minWidth={USERLIST_MIN_WIDTH_PX}
         maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
