@@ -564,6 +564,14 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
+	  
+	  if (UsersUtil.amIModerator()) {
+		  if (recording) {
+			  Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.recording.started"), ToastType.DEFAULT);
+		  } else {
+			  Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.recording.stopped"), ToastType.DEFAULT);
+		  }
+	  }
       
       dispatcher.dispatchEvent(e);
     }
