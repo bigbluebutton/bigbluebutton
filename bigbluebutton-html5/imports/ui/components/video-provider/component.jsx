@@ -490,7 +490,7 @@ class VideoProvider extends Component {
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
 
-    const attachVideoStream = () => {
+    const attachVideoStreamHelper = () => {
       const stream = isCurrent ? peer.getLocalStream() : peer.getRemoteStream();
       video.pause();
       video.srcObject = stream;
@@ -503,7 +503,7 @@ class VideoProvider extends Component {
     // If peer has started playing attach to tag, otherwise wait a while
     if (peer) {
       if (peer.started) {
-        attachVideoStream();
+        attachVideoStreamHelper();
       }
 
       // So we can start it later when we get a playStart
