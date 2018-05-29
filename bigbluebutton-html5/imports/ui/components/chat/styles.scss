@@ -60,4 +60,19 @@ $icon-offset: -.4em;
 
 .link {
   text-decoration: none;
+  width: inherit;
+}
+
+.toastChatContent, .toastChatTitle {
+  width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toastChatTitle {
+  display: inline-block;
+}
+
+.toastMessages {
+  white-space: nowrap;
 }

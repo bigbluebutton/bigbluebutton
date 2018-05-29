@@ -2,28 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { Link } from 'react-router';
 import { styles } from '../../styles.scss';
 
 const propTypes = {
-  intl: intlShape.isRequired,
-  count: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
 };
-
-const intlMessages = defineMessages({
-  appToastChatSigular: {
-    id: 'app.toast.chat.singular',
-    description: 'when entry a message',
-  },
-  appToastChatPlural: {
-    id: 'app.toast.chat.plural',
-    description: 'when entry various message',
-  },
-});
 
 class ChatPushNotification extends React.Component {
   constructor(props) {
@@ -36,20 +21,14 @@ class ChatPushNotification extends React.Component {
 
   showNotify() {
     const {
-      intl,
-      count,
-      name,
       notify,
       onOpen,
-      userId,
+      chatId,
+      message,
+      content,
     } = this.props;
-    const message = intl.formatMessage(count > 1 ?
-      intlMessages.appToastChatPlural :
-      intlMessages.appToastChatSigular, {
-      0: count,
-      1: name,
-    });
-    return notify((<Link className={styles.link} to={`/users/chat/${userId}`}>{message}</Link>), 'info', 'chat', { onOpen });
+
+    return notify((<Link className={styles.link} to={`/users/chat/${chatId}`}>{message}<div>{content}</div></Link>), 'info', 'chat', { onOpen });
   }
 
   render() {
@@ -58,4 +37,4 @@ class ChatPushNotification extends React.Component {
 }
 ChatPushNotification.propTypes = propTypes;
 
-export default injectIntl(injectNotify(ChatPushNotification));
+export default injectNotify(ChatPushNotification);

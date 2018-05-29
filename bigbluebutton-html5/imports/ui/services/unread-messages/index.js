@@ -3,6 +3,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
 import Chats from '/imports/api/chat';
+import ChatService from '/imports/ui/components/chat/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;
@@ -11,7 +12,8 @@ const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 class UnreadMessagesTracker {
   constructor() {
     this._tracker = new Tracker.Dependency();
-    this._unreadChats = Storage.getItem('UNREAD_CHATS') || {};
+    this._unreadChats = Storage.getItem('UNREAD_CHATS') || { [PUBLIC_CHAT_USERID]: (new Date()).getTime() };
+    this.get = this.get.bind(this);
   }
 
   get(chatID) {
@@ -30,14 +32,13 @@ class UnreadMessagesTracker {
     return this._unreadChats[chatID];
   }
 
-  count(chatID) {
+  getUnreadMessages(chatID) {
     const filter = {
       fromTime: {
         $gt: this.get(chatID),
       },
       fromUserId: { $ne: Auth.userID },
     };
-
     // Minimongo does not support $eq. See https://github.com/meteor/meteor/issues/4142
     if (chatID === PUBLIC_CHAT_USERID) {
       filter.toUserId = { $not: { $ne: chatID } };
@@ -45,8 +46,14 @@ class UnreadMessagesTracker {
       filter.toUserId = { $not: { $ne: Auth.userID } };
       filter.fromUserId.$not = { $ne: chatID };
     }
+    const messages = Chats.find(filter).fetch();
+    return messages;
+  }
 
-    return Chats.find(filter).count();
+  count(chatID) {
+    const messages = this.getUnreadMessages(chatID);
+    const reducedAndMappedMessages = ChatService.reduceAndMapMessages(messages);
+    return reducedAndMappedMessages.length;
   }
 }
 

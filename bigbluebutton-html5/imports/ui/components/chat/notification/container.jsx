@@ -16,5 +16,6 @@ export default withTracker(() => {
     disableAudio: !AppSettings.chatAudioNotifications,
     disableNotify: !AppSettings.chatPushNotifications,
     openChats,
+    publicUserId: Meteor.settings.public.chat.public_userid,
   };
 })(ChatNotificationContainer);
