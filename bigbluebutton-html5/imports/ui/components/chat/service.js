@@ -246,7 +246,6 @@ const getNotified = (chat) => {
 };
 
 export default {
-  getUnreadMessages: UnreadMessages.getUnreadMessages,
   reduceAndMapMessages,
   getPublicMessages,
   getPrivateMessages,
