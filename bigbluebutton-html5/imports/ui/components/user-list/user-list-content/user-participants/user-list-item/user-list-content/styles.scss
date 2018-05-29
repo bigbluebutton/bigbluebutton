@@ -67,6 +67,10 @@
   outline: none;
 }
 
+.usertListItemWithMenu {
+  background-color: $list-item-bg-hover;
+}
+
 .userListItem {
 
   @extend %list-item;
