@@ -17,10 +17,14 @@
  *
  */
 package org.bigbluebutton.common.toaster.message {
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+
 	import mx.containers.Canvas;
 
 	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.common.toaster.container.IToastContainer;
+	import org.bigbluebutton.common.toaster.event.ToasterEvent;
 
 	/**
 	 * This class is a basic container implementation for your toast.
@@ -93,6 +97,28 @@ package org.bigbluebutton.common.toaster.message {
 			_markedForAddition = value;
 		}
 
+		// remainingTime
+		private var _remainingTime:uint;
+
+		[Bindable]
+		public function set displayTime(value:uint):void {
+			_remainingTime = value;
+			if (!_displayTimer) {
+				_displayTimer = new Timer(value, 1);
+				_displayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, displayTimerComplete);
+				_lastTimerStart = new Date().time;
+				_displayTimer.start();
+			}
+		}
+
+		public function get displayTime():uint {
+			return _remainingTime;
+		}
+
+		private var _displayTimer:Timer;
+
+		private var _lastTimerStart:Number;
+
 		public function get iconBackgroundColor():uint {
 			return getStyle('iconBackgroundColor' + StringUtils.capitalize(type));
 		}
@@ -105,7 +131,28 @@ package org.bigbluebutton.common.toaster.message {
 			return icon;
 		}
 
+		public function ToastMessageBase():void {
+			super();
+		}
+
+		public function pauseDisplay():void {
+			_displayTimer.stop();
+			_displayTimer.reset();
+			_remainingTime -= new Date().time - _lastTimerStart
+			_displayTimer.delay = _remainingTime;
+		}
+
+		public function resumeDisplay():void {
+			_lastTimerStart = new Date().time;
+			_displayTimer.start();
+		}
+
+		private function displayTimerComplete(e:TimerEvent):void {
+			dispatchEvent(new ToasterEvent(ToasterEvent.CLOSE));
+		}
+
 		public function close():void {
+			_displayTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, displayTimerComplete);
 			_container.closeToastMessage(this);
 		}
 

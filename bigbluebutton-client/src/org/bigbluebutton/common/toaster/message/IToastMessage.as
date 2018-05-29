@@ -17,9 +17,11 @@
  *
  */
 package org.bigbluebutton.common.toaster.message {
+	import mx.core.IUIComponent;
+
 	import org.bigbluebutton.common.toaster.container.IToastContainer;
 
-	public interface IToastMessage {
+	public interface IToastMessage extends IUIComponent {
 		function set container(value:IToastContainer):void;
 		function set message(value:String):void;
 		function get message():String;
@@ -31,5 +33,10 @@ package org.bigbluebutton.common.toaster.message {
 		function set markedForDeletion(value:Boolean):void;
 		function get markedForAddition():Boolean;
 		function set markedForAddition(value:Boolean):void;
+		function set displayTime(value:uint):void;
+		function get displayTime():uint;
+		function pauseDisplay():void;
+		function resumeDisplay():void;
+		function close():void;
 	}
 }

@@ -21,12 +21,12 @@ package org.bigbluebutton.common.toaster.effects {
 
 	import mx.effects.Effect;
 
-	import org.bigbluebutton.common.toaster.message.ToastMessageBase;
+	import org.bigbluebutton.common.toaster.message.IToastMessage;
 
 	public interface IToasterEffectDescriptor {
-		function getAddedEffect(toastMessage:ToastMessageBase):Effect;
-		function getMoveToStackTopEffect(toastMessage:ToastMessageBase, moveFrom:Point, moveTo:Point):Effect;
-		function getMoveToStackBottomEffect(toastMessage:ToastMessageBase, moveTo:Point):Effect;
-		function getRemovedEffect(toastMessage:ToastMessageBase, moveTo:Point):Effect;
+		function getAddedEffect(toastMessage:IToastMessage):Effect;
+		function getMoveToStackTopEffect(toastMessage:IToastMessage, moveFrom:Point, moveTo:Point):Effect;
+		function getMoveToStackBottomEffect(toastMessage:IToastMessage, moveTo:Point):Effect;
+		function getRemovedEffect(toastMessage:IToastMessage, moveTo:Point):Effect;
 	}
 }

@@ -18,11 +18,11 @@
  */
 package org.bigbluebutton.common.toaster.container {
 	import flash.events.IEventDispatcher;
-	
-	import org.bigbluebutton.common.toaster.message.ToastMessageBase;
+
+	import org.bigbluebutton.common.toaster.message.IToastMessage;
 
 	public interface IToastContainer extends IEventDispatcher {
-		function addToastMessage(toastMessage:ToastMessageBase):void;
-		function closeToastMessage(toastMessage:ToastMessageBase):void;
+		function addToastMessage(toastMessage:IToastMessage):void;
+		function closeToastMessage(toastMessage:IToastMessage):void;
 	}
 }

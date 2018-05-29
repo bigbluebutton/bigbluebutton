@@ -20,8 +20,15 @@ package org.bigbluebutton.common.toaster.event {
 	import flash.events.Event;
 
 	public class ToasterEvent extends Event {
+
+		public static const CLOSE:String = "CLOSE";
+
+		public static const MOUSE_OVER:String = "MOUSE_OVER";
+
+		public static const MOUSE_OUT:String = "MOUSE_OUT";
+
 		public function ToasterEvent(type:String) {
-			super(type);
+			super(type, true);
 		}
 
 	}

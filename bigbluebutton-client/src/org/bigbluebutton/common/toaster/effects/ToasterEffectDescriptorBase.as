@@ -25,14 +25,14 @@ package org.bigbluebutton.common.toaster.effects {
 	import mx.effects.Parallel;
 	import mx.effects.easing.Bounce;
 
-	import org.bigbluebutton.common.toaster.message.ToastMessageBase;
+	import org.bigbluebutton.common.toaster.message.IToastMessage;
 
 	public class ToasterEffectDescriptorBase implements IToasterEffectDescriptor {
 		private var _moveDuration:int = 750;
 
 		private var _fadeDuration:int = 750;
 
-		public function getAddedEffect(toastMessage:ToastMessageBase):Effect {
+		public function getAddedEffect(toastMessage:IToastMessage):Effect {
 			var fadeIn:Fade = new Fade(toastMessage);
 			fadeIn.alphaFrom = 0;
 			fadeIn.alphaTo = 1;
@@ -40,7 +40,7 @@ package org.bigbluebutton.common.toaster.effects {
 			return fadeIn;
 		}
 
-		public function getMoveToStackTopEffect(toastMessage:ToastMessageBase, moveFrom:Point, moveTo:Point):Effect {
+		public function getMoveToStackTopEffect(toastMessage:IToastMessage, moveFrom:Point, moveTo:Point):Effect {
 			var move:Move = new Move(toastMessage);
 			move.xFrom = moveFrom.x;
 			move.yFrom = moveFrom.y;
@@ -51,14 +51,14 @@ package org.bigbluebutton.common.toaster.effects {
 			return move;
 		}
 
-		public function getMoveToStackBottomEffect(toastMessage:ToastMessageBase, moveTo:Point):Effect {
+		public function getMoveToStackBottomEffect(toastMessage:IToastMessage, moveTo:Point):Effect {
 			var move:Move = new Move(toastMessage);
 			move.yTo = moveTo.y < 0 ? 0 : moveTo.y;
 			move.duration = _moveDuration;
 			return move;
 		}
 
-		public function getRemovedEffect(toastMessage:ToastMessageBase, moveTo:Point):Effect {
+		public function getRemovedEffect(toastMessage:IToastMessage, moveTo:Point):Effect {
 
 			var parallel:Parallel = new Parallel(toastMessage);
 			var move:Move = new Move(toastMessage);
