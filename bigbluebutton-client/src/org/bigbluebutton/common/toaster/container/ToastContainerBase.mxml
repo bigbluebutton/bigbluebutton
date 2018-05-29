@@ -146,7 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toastMessage.addEventListener(ToasterEvent.MOUSE_OVER, toasterMouseOverHandler)
 				toastMessage.addEventListener(ToasterEvent.MOUSE_OUT, toasterMouseOutHandler)
 				toastMessage.displayTime = DISPLAY_TIME;
-				Toaster.playSound();
+				// Toaster.playSound();
 			}
 
 			private function onAddedEffectEnd(event:EffectEvent):void {
