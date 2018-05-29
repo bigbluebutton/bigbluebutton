@@ -5,6 +5,7 @@
 						  xmlns:message="org.bigbluebutton.common.toaster.message.*"
 						  height="75"
 						  minWidth="320"
+						  filters="{[dropShadow]}"
 						  creationComplete="{progressBarAnimation.play()}"
 						  click="progressBarAnimation.pause(); dispatchEvent(new ToasterEvent(ToasterEvent.CLOSE))"
 						  mouseOver="progressBarAnimation.pause(); dispatchEvent(new ToasterEvent(ToasterEvent.MOUSE_OVER))"
@@ -23,6 +24,12 @@
 				   widthFrom="{this.width}"
 				   widthTo="0"
 				   target="{progressBar}" />
+		<mx:DropShadowFilter id="dropShadow"
+							 distance="4"
+							 angle="90"
+							 alpha=".22" 
+							 blurX="7"
+							 blurY="7" />
 	</fx:Declarations>
 
 	<mx:HBox styleName="toasterContainer"
@@ -72,7 +79,7 @@
 	<mx:Canvas id="progressBar"
 			   width="100%"
 			   height="8"
-			   backgroundColor="#E4ECF2"
+			   backgroundColor="{iconBackgroundColor}"
 			   bottom="0" />
 
 </message:ToastMessageBase>
