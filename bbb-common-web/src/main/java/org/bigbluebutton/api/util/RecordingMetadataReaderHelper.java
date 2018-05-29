@@ -20,8 +20,9 @@ public class RecordingMetadataReaderHelper {
     return recordingServiceGW.getRecordingTextTracks(recordId, recs);
   }
 
-  public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label) {
-    return recordingServiceGW.putRecordingTextTrack(recordId, kind, lang, file, Option.apply(label));
+  public String putRecordingTextTrack(String recordId, String kind, String lang, File file,
+                                      String label, ArrayList<File> recs, String origFilename) {
+    return recordingServiceGW.putRecordingTextTrack(recordId, kind, lang, file, label, recs);
   }
 
   public String getRecordings2x(ArrayList<RecordingMetadata> recs) {

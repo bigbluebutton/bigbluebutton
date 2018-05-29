@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
+import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
@@ -50,7 +51,7 @@ public class RecordingService {
     private String deletedDir = "/var/bigbluebutton/deleted";
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
-
+    private String captionsDir;
 
     public void startIngestAndProcessing(String meetingId) {
         String done = recordStatusDir + "/" + meetingId + ".done";
@@ -103,8 +104,12 @@ public class RecordingService {
         return recordingServiceHelper.getRecordingTextTracks(recordId, recs);
     }
 
-    public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label) {
-        return recordingServiceHelper.putRecordingTextTrack(recordId, kind, lang, file, label);
+    public String putRecordingTextTrack(UploadedTrack track, File file) {
+			ArrayList<File> recs = getAllRecordingsFor(track.recordId());
+			for (File id : recs) {
+				System.out.println("RECORDING FILE = " + id.getAbsolutePath());
+			}
+        return recordingServiceHelper.putRecordingTextTrack(track, file);
     }
 
     public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
@@ -303,6 +308,10 @@ public class RecordingService {
 
     public void setPublishedDir(String dir) {
         publishedDir = dir;
+    }
+
+    public void setCaptionsDir(String dir) {
+        captionsDir = dir;
     }
 
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {

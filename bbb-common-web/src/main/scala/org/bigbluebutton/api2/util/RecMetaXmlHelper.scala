@@ -1,6 +1,6 @@
 package org.bigbluebutton.api2.util
 
-import java.io.{File, FileOutputStream, IOException}
+import java.io.{File, FileOutputStream, FileWriter, IOException}
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.util
@@ -26,6 +26,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   val SUCCESS = "SUCCESS"
   val FAILED = "FAILED"
+  val CAPTIONS_FILE = "captions.json"
 
   def loadMetadataXml(path: String): Option[Elem] = {
     try {
@@ -180,22 +181,21 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         logger.info("Exception details: {}", ex.getMessage)
         None
     }
-
   }
 
-  def getRecordingTextTracks(recordId: String, file: util.ArrayList[File]):String = {
+  def getRecordingTextTracks(recordId: String, recs: util.ArrayList[File]):String = {
     val gson = new Gson()
 
     var returnResponse:String = ""
 
-    if (file.isEmpty) {
+    if (recs.isEmpty) {
       val resFailed = GetRecTextTracksResultFailed(FAILED, "noRecordings", "No recordings for " + recordId)
       val respFailed = GetRecTextTracksRespFailed(resFailed)
       val failedTxt = gson.toJson(respFailed)
       println(failedTxt)
       returnResponse = failedTxt
     } else {
-      val captionJsonFile = file.get(0).getAbsolutePath + File.separatorChar + "captions.json"
+      val captionJsonFile = recs.get(0).getAbsolutePath + File.separatorChar + CAPTIONS_FILE
       readCaptionJsonFile(captionJsonFile, StandardCharsets.UTF_8) match {
         case Some(captions) => println("Captions: \n" + captions)
           val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
@@ -214,11 +214,61 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       }
     }
 
-
     returnResponse
   }
 
-  def putRecordingTextTrack(recordId: String, kind: String, lang: String, file: File, label: Option[String]):String = {
+  def saveCaptionsFile(captionsDir:String, captionsTracks: String):Boolean = {
+    val path = captionsDir + File.separatorChar + CAPTIONS_FILE
+    val fileWriter = new FileWriter(path)
+    try {
+      fileWriter.write(captionsTracks)
+      true
+    } catch {
+      case ioe: IOException =>
+        logger.info("Failed to write caption.json {}", path)
+        false
+      case ex: Exception =>
+        logger.info("Exception while writing {}", path)
+        logger.info("Exception details: {}", ex.getMessage)
+        false
+    } finally {
+      fileWriter.flush()
+      fileWriter.close()
+    }
+  }
+
+	def saveTextTrackFile(recPath: String, trackFile: File, origFilename: String):Unit = {
+		def presFilename = trackFile.getOriginalFilename()
+
+	}
+
+  def updateCaptionsTracks(recordId: String, kind: String, lang: String, label: String,
+													 recs: util.ArrayList[File], origFilename: String): Boolean = {
+    val gson = new Gson()
+
+    val captionJsonFile = recs.get(0).getAbsolutePath + File.separatorChar + CAPTIONS_FILE
+    readCaptionJsonFile(captionJsonFile, StandardCharsets.UTF_8) match {
+      case Some(captions) => println("Captions: \n" + captions)
+        val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
+        val xtracks = Tracks(ctracks)
+				val newTrack = Track(kind, lang, label, source, href)
+				val updatedTracks = updateTracks(xtracks, newTrack)
+        true
+      case None => println("Captions file not found for " + recordId)
+        false
+    }
+  }
+
+	val CAPTIONS_DIR = "/var/bigbluebutton/captions"
+	val INBOX_DIR = CAPTIONS_DIR + File.pathSeparator + "inbox"
+	val STATUS_DIR = "/var/bigbluebutton/recording/status/captioned"
+
+  def putRecordingTextTrack(recordId: String, kind: String, lang: String, file: File, label: String, recs: util.ArrayList[File]):String = {
     "putRecordingTextTrack TODO"
+		val trackId = recordId + "-" + System.currentTimeMillis()
+		val tempTrackFilePath = INBOX_DIR + File.pathSeparator + trackId + "-track.txt"
+		val captionsFilePath = INBOX_DIR + File.pathSeparator + trackId + "-track.json"
+		val procTriggerPath = STATUS_DIR + File.pathSeparator + trackId + ".track"
+
   }
 }

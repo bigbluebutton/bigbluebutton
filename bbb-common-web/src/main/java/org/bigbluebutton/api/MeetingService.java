@@ -58,6 +58,7 @@ import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
+import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
@@ -346,8 +347,9 @@ public class MeetingService implements MessageListener {
     return recordingService.getRecordingTextTracks(recordId);
   }
 
-  public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label) {
-    return recordingService.putRecordingTextTrack(recordId, kind, lang, file, label);
+  public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label, String origFilename) {
+    UploadedTrack track = new UploadedTrack(recordId, kind, lang, Option.apply(label), origFilename, file)
+    return recordingService.putRecordingTextTrack(track);
   }
 
   public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {

@@ -107,16 +107,65 @@ class RecordingController {
 
     def putRecordingTextTrack = {
         log.debug CONTROLLER_NAME + "#putRecordingTextTrack"
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-            json {
-                render(contentType: "application/json") {
-                    response = {
-                        returncode = "FAILED"
-                        message = "Failed to put recording text tracks."
+
+        // BEGIN - backward compatibility
+        if (StringUtils.isEmpty(params.checksum)) {
+            respondWithError("paramError", "Missing param checksum.")
+            return
+        }
+
+        if (StringUtils.isEmpty(params.recordID)) {
+            respondWithError("paramError", "Missing param recordID.");
+            return
+        }
+
+        String recordId = StringUtils.strip(params.recordID)
+
+        if (StringUtils.isEmpty(params.kind)) {
+            respondWithError("paramError", "Missing param kind.");
+            return
+        }
+
+        String captionsKind = StringUtils.strip(params.recordID)
+
+        if (StringUtils.isEmpty(params.lang)) {
+            respondWithError("paramError", "Missing param lang.");
+            return
+        }
+
+        String captionsLang = StringUtils.strip(params.lang)
+        String captionsLabel = captionsLang
+
+        if (!StringUtils.isEmpty(params.label)) {
+            captionsLabel = StringUtils.strip(params.label)
+        }
+
+        def captionsFile = request.getFile('file')
+        if (captionsFile && !captionsFile.empty) {
+            def origFilename = captionsFile.getOriginalFilename()
+            String result = meetingService.putRecordingTextTrack(recordId, captionsKind,
+                    captionsLang, captionsFile, captionsLabel, origFilename)
+            println("************* RESULT = " + result)
+            response.addHeader("Cache-Control", "no-cache")
+            withFormat {
+                json {
+                    render(text: result, contentType: "application/json")
+                }
+            }
+        } else {
+            log.warn "Upload failed. File Empty."
+            response.addHeader("Cache-Control", "no-cache")
+            withFormat {
+                json {
+                    render(contentType: "application/json") {
+                        response = {
+                            returncode = "FAILED"
+                            message = "Failed to put recording text tracks."
+                        }
                     }
                 }
             }
         }
+
     }
 }
