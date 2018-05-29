@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.users.services
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.TimerUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
   import org.bigbluebutton.core.events.CoreEvent;
@@ -716,6 +717,12 @@ package org.bigbluebutton.modules.users.services
     }
 	
 	private function handleUpdateRecordingTimer(msg:Object):void {
+		if (msg.body.time > 0) {
+			TimerUtil.recordingTimeReceived = true;
+		} else {
+			TimerUtil.recordingTimeReceived = false;
+		}
+		
 		var e:UpdateRecordingTimerEvent = new UpdateRecordingTimerEvent(msg.body.time);
 		dispatcher.dispatchEvent(e);
 	}
