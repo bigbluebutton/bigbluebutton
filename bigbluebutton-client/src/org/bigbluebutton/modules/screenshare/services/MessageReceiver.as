@@ -22,6 +22,9 @@ package org.bigbluebutton.modules.screenshare.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.common.toaster.Toaster;
+  import org.bigbluebutton.common.toaster.message.ToastIcon;
+  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
   import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
   import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
@@ -31,6 +34,7 @@ package org.bigbluebutton.modules.screenshare.services
   import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
   import org.bigbluebutton.modules.screenshare.services.red5.Connection;
   import org.bigbluebutton.modules.screenshare.services.red5.IMessageListener;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -121,6 +125,7 @@ package org.bigbluebutton.modules.screenshare.services
         var shareStartedEvent: ShareStartedEvent = new ShareStartedEvent(map.streamId, map.width,
             map.height, map.url);
         dispatcher.dispatchEvent(shareStartedEvent); 
+		Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.screenShare.started"), ToastType.INFO, ToastIcon.DESKTOP);
       }
     }
 
