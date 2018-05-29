@@ -1765,6 +1765,9 @@ toast|ToastMessageRenderer {
 	iconSuccess                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Success");
 	iconError                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Error");
 	iconWarning                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Warning");
+	
+	iconAudio                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Audio");
+	iconDesktop                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Desktop");
 }
 
 .toasterContainer {
