@@ -447,6 +447,12 @@ module.exports = class MediaServer extends EventEmitter {
         break;
 
       case C.MEDIA_TYPE.RECORDING:
+        this.addMediaEventListener(C.EVENT.RECORDING.STOPPED, elementId);
+        this.addMediaEventListener(C.EVENT.RECORDING.PAUSED, elementId);
+        this.addMediaEventListener(C.EVENT.RECORDING.STARTED. elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.CHANGED, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_IN, elementId);
+        this.addMediaEventListener(C.EVENT.MEDIA_STATE.FLOW_OUT, elementId);
         break;
 
       default: return;

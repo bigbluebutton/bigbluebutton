@@ -39,6 +39,11 @@ exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
 exports.EVENT.SERVER_STATE = "ServerState"
 
+exports.EVENT.RECORDING = {};
+exports.EVENT.RECORDING.STOPPED = 'Stopped';
+exports.EVENT.RECORDING.STARTED = 'Started';
+exports.EVENT.RECORDING.PAUSED = 'Paused';
+
 // Error codes
 exports.ERROR = {};
 exports.ERROR.MEDIA_SERVER_OFFLINE = "1000";

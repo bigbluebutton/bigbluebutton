@@ -192,6 +192,8 @@ module.exports = class Video extends EventEmitter {
 
   async startRecording() {
     this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+
+    this.mcs.on('MediaEvent' + this.recording.recordingId, this.recordingState.bind(this));
     this.sendStartShareEvent();
   }
 
@@ -199,6 +201,10 @@ module.exports = class Video extends EventEmitter {
     await this.mcs.stopRecording(this.userId, this.mediaId, this.recording.recordingId);
     this.sendStopShareEvent();
     this.recording = {};
+  }
+
+  recordingState(msEvent) {
+    Logger.info('----------- [RECORDING] ' + msEvent.type + '[' + msEvent.state + ']' + ' for recording session', event.id, "for video", this.streamName);
   }
 
   async start (sdpOffer, callback) {

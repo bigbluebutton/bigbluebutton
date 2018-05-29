@@ -147,7 +147,7 @@ class VideoProvider extends Component {
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
 
-    window.addEventListener('orientationchange', this.orientationChange);
+    // window.addEventListener('orientationchange', this.orientationChange);
   }
 
   componentWillUpdate({ users, userId }) {
@@ -175,7 +175,7 @@ class VideoProvider extends Component {
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
 
-    window.removeEventListener('orientationchange', this.orientationChange);
+    // window.removeEventListener('orientationchange', this.orientationChange);
 
     this.visibility.removeEventListeners();
 
