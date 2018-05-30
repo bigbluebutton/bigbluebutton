@@ -25,20 +25,17 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
   const browserLocale = req.query.locale.split(/[-_]/g);
-
   const localeList = [fallback];
-  let regionDefault = null;
-  const usableLocales = [];
 
-  AVAILABLE_LOCALES
+  const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
     .map(locale => (
       locale
     ))
-    .reduce((i, locale) => {
-      if (locale === browserLocale[0]) regionDefault = locale;
-      if (locale.match(browserLocale[0])) usableLocales.push(locale);
-    }, 0);
+    .reduce((locales, locale) =>
+      (locale.match(browserLocale[0]) ? [...locales, locale] : locales), []);
+
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
 
   if (regionDefault) localeList.push(regionDefault);
   if (!regionDefault && usableLocales[0]) localeList.push(usableLocales[0]);
