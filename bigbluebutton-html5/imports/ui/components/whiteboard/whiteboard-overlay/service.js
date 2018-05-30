@@ -2,11 +2,9 @@ import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
 
-const DRAW_SETTINGS = 'drawSettings';
+import { sendAnnotation } from '/imports/ui/components/whiteboard/service';
 
-const sendAnnotation = (annotation) => {
-  makeCall('sendAnnotation', annotation);
-};
+const DRAW_SETTINGS = 'drawSettings';
 
 const getWhiteboardToolbarValues = () => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);

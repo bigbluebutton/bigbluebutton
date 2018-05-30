@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-const CURSOR_INTERVAL = 16;
-
 export default class PresentationOverlay extends Component {
   constructor(props) {
     super(props);
@@ -14,9 +12,6 @@ export default class PresentationOverlay extends Component {
     // last updated coordinates
     this.currentClientX = 0;
     this.currentClientY = 0;
-
-    // id of the setInterval()
-    this.intervalId = 0;
 
     // Mobile Firefox has a bug where e.preventDefault on touchstart doesn't prevent
     // onmousedown from triggering right after. Thus we have to track it manually.
@@ -93,8 +88,7 @@ export default class PresentationOverlay extends Component {
     this.currentClientX = clientX;
     this.currentClientY = clientY;
 
-    const intervalId = setInterval(this.checkCursor, CURSOR_INTERVAL);
-    this.intervalId = intervalId;
+    this.checkCursor();
   }
 
   handleTouchMove(event) {
@@ -106,10 +100,6 @@ export default class PresentationOverlay extends Component {
 
   handleTouchEnd(event) {
     event.preventDefault();
-
-    // touch ended, removing the interval
-    clearInterval(this.intervalId);
-    this.intervalId = 0;
 
     // resetting the touchStarted flag
     this.touchStarted = false;
@@ -126,10 +116,6 @@ export default class PresentationOverlay extends Component {
 
   handleTouchCancel(event) {
     event.preventDefault();
-
-    // touch was cancelled, removing the interval
-    clearInterval(this.intervalId);
-    this.intervalId = 0;
 
     // resetting the touchStarted flag
     this.touchStarted = false;
@@ -149,15 +135,9 @@ export default class PresentationOverlay extends Component {
       return;
     }
 
-    // for the case where you change settings in one of the lists (which are displayed on the slide)
-    // the mouse starts pointing to the slide right away and mouseEnter doesn't fire
-    // so we call it manually here
-    if (!this.intervalId) {
-      this.mouseEnterHandler();
-    }
-
     this.currentClientX = event.clientX;
     this.currentClientY = event.clientY;
+    this.checkCursor();
   }
 
   mouseEnterHandler() {
@@ -165,15 +145,10 @@ export default class PresentationOverlay extends Component {
       return;
     }
 
-    const intervalId = setInterval(this.checkCursor, CURSOR_INTERVAL);
-    this.intervalId = intervalId;
+    this.checkCursor();
   }
 
   mouseOutHandler() {
-    // mouse left the whiteboard, removing the interval
-    clearInterval(this.intervalId);
-    this.intervalId = 0;
-
     // setting the coords to negative values and send the last message (the cursor will disappear)
     this.currentClientX = -1;
     this.currentClientY = -1;

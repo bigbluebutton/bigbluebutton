@@ -15,7 +15,6 @@ const AnnotationGroupContainer = props => (
 export default withTracker((params) => {
   const { whiteboardId } = params;
   const annotationsInfo = AnnotationGroupService.getCurrentAnnotationsInfo(whiteboardId);
-
   return {
     annotationsInfo,
   };
