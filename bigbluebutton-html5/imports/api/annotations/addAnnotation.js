@@ -149,6 +149,4 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     default:
       return handleCommonAnnotation(meetingId, whiteboardId, userId, annotation);
   }
-
-  throw 'VISH';
 }

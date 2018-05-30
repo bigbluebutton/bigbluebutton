@@ -2,6 +2,8 @@ import { check } from 'meteor/check';
 import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotation from '../modifiers/addAnnotation';
 
+const ANNOTATION_PROCCESS_INTERVAL = 60;
+
 let annotationsQueue = {};
 let annotationsRecieverIsRunning = false;
 
@@ -16,7 +18,7 @@ const proccess = () => {
   });
   annotationsQueue = {};
 
-  Meteor.setTimeout(proccess, 60);
+  Meteor.setTimeout(proccess, ANNOTATION_PROCCESS_INTERVAL);
 };
 
 export default function handleWhiteboardSend({ header, body }, meetingId) {

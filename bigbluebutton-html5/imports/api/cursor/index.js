@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import Users from '/imports/api/users';
 
-const Cursor = new Mongo.Collection('cursor');
 const Streamer = new Meteor.Streamer('cursor', { retransmit: false, });
 
 if (Meteor.isServer) {
@@ -38,5 +37,4 @@ if (Meteor.isServer) {
   });
 }
 
-export default Cursor;
 export const CursorStreamer = Streamer;

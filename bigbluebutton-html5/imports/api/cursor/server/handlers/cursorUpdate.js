@@ -1,6 +1,8 @@
 import { check } from 'meteor/check';
 import { CursorStreamer } from '/imports/api/cursor';
 
+const CURSOR_PROCCESS_INTERVAL = 30;
+
 let cursorQueue = [];
 let cursorRecieverIsRunning = false;
 
@@ -15,7 +17,7 @@ const proccess = () => {
   });
   cursorQueue = {};
 
-  Meteor.setTimeout(proccess, 30);
+  Meteor.setTimeout(proccess, CURSOR_PROCCESS_INTERVAL);
 };
 
 export default function handleCursorUpdate({ header, body }, meetingId) {
