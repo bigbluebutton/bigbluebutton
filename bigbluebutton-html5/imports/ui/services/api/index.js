@@ -42,6 +42,7 @@ export function call(name, ...args) {
 }
 
 export function log(type = 'error', message, ...args) {
+  const { credentials } = Auth;
   const userInfo = window.navigator;
   const clientInfo = {
     language: userInfo.language,
@@ -57,6 +58,7 @@ export function log(type = 'error', message, ...args) {
 
   Meteor.call('logClient', type, messageOrStack, {
     clientInfo,
+    credentials,
     ...args,
   });
 }
