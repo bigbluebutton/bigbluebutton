@@ -47,7 +47,7 @@ package org.bigbluebutton.modules.chat.views
       // You have to use a loop because after you change the scroll position the scrollbar will reevaluate its size and the max value will likely change.
       var count:int = 0;
       while (count++ < 10){
-        if (verticalScrollPosition == maxVerticalScrollPosition) break;
+        if (verticalScrollAtMax) break;
         
         //You shouldnt need to invalidate these anymore
         //invalidateSize();
@@ -62,5 +62,9 @@ package org.bigbluebutton.modules.chat.views
         verticalScrollPosition = maxVerticalScrollPosition;
       }
     }
+	
+	public function get verticalScrollAtMax():Boolean {
+		return verticalScrollPosition == maxVerticalScrollPosition;
+	}
   }
 }
