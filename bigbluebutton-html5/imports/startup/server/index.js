@@ -5,6 +5,8 @@ import fs from 'fs';
 import Logger from './logger';
 import Redis from './redis';
 
+const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
@@ -25,11 +27,10 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const browserLocale = req.query.locale.split(/[-_]/g);
 
   const localeList = [fallback];
-  const getAvailableLocales = fs.readdirSync('assets/app/locales');
   let regionDefault = null;
   const usableLocales = [];
 
-  getAvailableLocales
+  AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
     .map(locale => (
       locale
@@ -65,10 +66,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  let availableLocales = [];
+  let locales = [];
   try {
-    const getAvailableLocales = fs.readdirSync('assets/app/locales');
-    availableLocales = getAvailableLocales
+    locales = AVAILABLE_LOCALES
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
       .map(locale => ({
@@ -81,7 +81,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(availableLocales));
+  res.end(JSON.stringify(locales));
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {
