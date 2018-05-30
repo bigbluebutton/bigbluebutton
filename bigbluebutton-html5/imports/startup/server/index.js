@@ -29,9 +29,6 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
   const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
-    .map(locale => (
-      locale
-    ))
     .reduce((locales, locale) =>
       (locale.match(browserLocale[0]) ? [...locales, locale] : locales), []);
 
