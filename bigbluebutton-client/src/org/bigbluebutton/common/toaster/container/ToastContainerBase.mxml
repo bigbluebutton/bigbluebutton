@@ -36,17 +36,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.EffectEvent;
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
-
-			import org.bigbluebutton.common.toaster.Toaster;
+			
 			import org.bigbluebutton.common.toaster.effects.IToasterEffectDescriptor;
 			import org.bigbluebutton.common.toaster.effects.ToasterEffectDescriptorBase;
 			import org.bigbluebutton.common.toaster.event.ToastEvent;
 			import org.bigbluebutton.common.toaster.event.ToasterEvent;
 			import org.bigbluebutton.common.toaster.message.IToastMessage;
 
-			private const YOFFSET:int = -80;
+			private const YOFFSET:int = 12;
 
-			private const XOFFSET:int = -80;
+			private const XOFFSET:int = -12;
 
 			private const DISPLAY_TIME:int = 5000;
 
@@ -166,9 +165,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var moveToPoint:Point = new Point();
 
 				moveFromPoint.y = globalPosition.y + totalHeightValue - toastMessage.height;
-				moveToPoint.y = globalPosition.y + totalHeightValue;
+				moveToPoint.y = globalPosition.y + totalHeightValue + YOFFSET;
 
-				x = globalPosition.x + _toastContainerParent.width - toastMessage.width;
+				x = globalPosition.x + _toastContainerParent.width - toastMessage.width + XOFFSET;
 
 				var moveEffect:Effect = _effectDescriptor.getMoveToStackTopEffect(toastMessage, moveFromPoint, moveToPoint);
 				moveEffect.play();

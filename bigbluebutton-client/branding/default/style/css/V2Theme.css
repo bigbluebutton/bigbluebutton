@@ -1746,9 +1746,6 @@ toast|ToastMessageRenderer {
 	borderStyle                : none;
 	color                      : #4E5A66;
 	fontSize                   : 15;
-	dropShadowEnabled          : true;
-	shadowDirection            : center;
-	shadowDistance             : 0;
 
 	iconCornerRadius           : 20;
 	iconColor                  : #FFFFFF;
