@@ -234,7 +234,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(vu.intId)) {
         LiveMeeting.inst().me.muted = vu.muted;
         LiveMeeting.inst().me.inVoiceConf = true;
-		Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
@@ -253,7 +253,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(intId)) {
         LiveMeeting.inst().me.muted = false;
         LiveMeeting.inst().me.inVoiceConf = false;
-		Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);

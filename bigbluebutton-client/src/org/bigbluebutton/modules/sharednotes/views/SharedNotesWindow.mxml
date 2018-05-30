@@ -335,10 +335,12 @@
 				var filename:String = title.replace(/\s+/g, '_').toLowerCase() + "_" + LiveMeeting.inst().meeting.name.replace(/\s+/g, '_').toLowerCase() + "_" + dtf.format(new Date()) + "." + extension;
 				var fileRef:FileReference = new FileReference();
 				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
-					Toaster.toast(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), ToastType.SUCCESS);
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), ToastType.SUCCESS);
 				});
 				fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
-					Toaster.toast(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), ToastType.ERROR);
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), "", Alert.OK);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), ToastType.ERROR);
 				});
 
 				var cr:String = String.fromCharCode(13);
