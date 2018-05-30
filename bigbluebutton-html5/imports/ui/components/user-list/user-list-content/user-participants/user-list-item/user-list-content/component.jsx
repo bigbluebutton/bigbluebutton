@@ -117,10 +117,15 @@ class UserListContent extends Component {
     this.setState({
       isActionsOpen: false,
       dropdownVisible: false,
-    }, () => this.props.setDropdownOpenState(false));
+    });
 
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);
+
+    // prevents User-item menu items from not being able to trigger.
+    setTimeout(() => {
+      this.props.setDropdownOpenState(false)
+    });
   }
 
   getDropdownMenuParent() {
