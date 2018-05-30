@@ -41,6 +41,8 @@ package org.bigbluebutton.modules.layout.managers
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
+  import org.bigbluebutton.common.toaster.Toaster;
+  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
@@ -140,10 +142,10 @@ package org.bigbluebutton.modules.layout.managers
 		public function saveLayoutsWindow():void{
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
-				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);
+				Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), ToastType.SUCCESS);
 			});
 			_fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
-				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), "", Alert.OK, _canvas);
+				Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), ToastType.ERROR);
 			});
 			_fileRef.save(_layoutModel.toString(), "layouts.xml");
 		}
@@ -155,9 +157,9 @@ package org.bigbluebutton.modules.layout.managers
 					_layoutModel.addLayouts(e.layouts);
 					applyLayout(_layoutModel.getDefaultLayout());
 					broadcastLayouts();
-					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), "", Alert.OK, _canvas);
+					Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), ToastType.SUCCESS);
 				} else
-					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), "", Alert.OK, _canvas);
+					Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), ToastType.ERROR);
 			});
 			loader.loadFromLocalFile();
 		}
@@ -318,7 +320,7 @@ package org.bigbluebutton.modules.layout.managers
 			var e:SyncLayoutEvent = new SyncLayoutEvent(_currentLayout);
 			_globalDispatcher.dispatchEvent(e);
 
-			Alert.show(ResourceUtil.getInstance().getString('bbb.layout.sync'), "", Alert.OK, _canvas);
+			Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.sync'), ToastType.SUCCESS);
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {

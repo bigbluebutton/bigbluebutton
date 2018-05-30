@@ -21,7 +21,7 @@ const fetchStunTurnServers = (sessionToken) => {
   };
 
   const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
-  return fetch(url)
+  return fetch(url, { credentials: 'same-origin' })
     .then(res => res.json())
     .then(handleStunTurnResponse)
     .then((response) => {

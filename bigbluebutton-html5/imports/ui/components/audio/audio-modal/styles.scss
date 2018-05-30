@@ -61,7 +61,22 @@
     }
   }
 }
+.warning{
+  text-align: center;
+  font-weight: $headings-font-weight;
+  font-size: 5rem;
+  white-space: normal;
+}
+.text{
+  margin: $line-height-computed;
+  text-align: center;
+}
 
+.main{
+  margin: $line-height-computed;
+  text-align: center;
+  font-size: $font-size-large;
+}
 .audioBtn {
   &:focus {
     outline: none !important;
