@@ -35,7 +35,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
 
   if (regionDefault) localeList.push(regionDefault);
-  if (!regionDefault && usableLocales[0]) localeList.push(usableLocales[0]);
+  if (!regionDefault && usableLocales.length) localeList.push(usableLocales[0]);
 
   let normalizedLocale;
   let messages = {};
