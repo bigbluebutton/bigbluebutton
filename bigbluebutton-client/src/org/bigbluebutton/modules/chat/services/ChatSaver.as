@@ -3,7 +3,7 @@ package org.bigbluebutton.modules.chat.services
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.net.FileReference;
-	
+	import mx.controls.Alert;
 	import org.bigbluebutton.common.toaster.Toaster;
 	import org.bigbluebutton.common.toaster.message.ToastType;
 	import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
@@ -22,10 +22,12 @@ package org.bigbluebutton.modules.chat.services
 			var fileRef:FileReference = new FileReference();
 
 			fileRef.addEventListener(Event.COMPLETE, function(evt:Event):void {
-				Toaster.toast(ResourceUtil.getInstance().getString('bbb.chat.save.complete'), ToastType.SUCCESS);
+				Alert.show(ResourceUtil.getInstance().getString('bbb.chat.save.complete'), "", Alert.OK);
+				//Toaster.toast(ResourceUtil.getInstance().getString('bbb.chat.save.complete'), ToastType.SUCCESS);
 			});
 			fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(evt:Event):void {
-				Toaster.toast(ResourceUtil.getInstance().getString('bbb.chat.save.ioerror'), ToastType.ERROR)
+				Alert.show(ResourceUtil.getInstance().getString('bbb.chat.save.ioerror'), "", Alert.OK);
+				//Toaster.toast(ResourceUtil.getInstance().getString('bbb.chat.save.ioerror'), ToastType.ERROR)
 			});
 
 			var cr:String = String.fromCharCode(13);
