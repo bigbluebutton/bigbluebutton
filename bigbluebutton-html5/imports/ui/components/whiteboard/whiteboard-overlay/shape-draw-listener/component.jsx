@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
-const MESSAGE_FREQUENCY = ANNOTATION_CONFIG.message_frequency;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
@@ -29,9 +28,6 @@ export default class ShapeDrawListener extends Component {
     this.isDrawing = false;
 
     this.currentStatus = undefined;
-
-    // id of the setInterval()
-    this.intervalId = 0;
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -90,7 +86,7 @@ export default class ShapeDrawListener extends Component {
     };
 
     // All the messages will be send on timer by sendCoordinates func
-    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_FREQUENCY);
+    this.sendCoordinates();
   }
 
   commonDrawMoveHandler(clientX, clientY) {
@@ -115,6 +111,7 @@ export default class ShapeDrawListener extends Component {
 
     // saving the last sent coordinate
     this.currentCoordinate = transformedSvgPoint;
+    this.sendCoordinates();
   }
 
   handleTouchStart(event) {
@@ -208,10 +205,6 @@ export default class ShapeDrawListener extends Component {
   }
 
   sendLastMessage() {
-    // last message, clearing the interval
-    clearInterval(this.intervalId);
-    this.intervalId = 0;
-
     if (this.isDrawing) {
       // make sure we are drawing and we have some coordinates sent for this shape before
       // to prevent sending DRAW_END on a random mouse click

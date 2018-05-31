@@ -41,6 +41,7 @@
 			enableSettingsButton="true"
 			enableGuestUI="false"
 			moderatorUnmute="true"
+			allowClearRecordingMarks="false"
 			baseTabIndex="301"
 		/>
 

@@ -6,6 +6,7 @@
 				xmlns:common="org.bigbluebutton.common.*"
 				showCloseButton="false"
 				layout="absolute"
+				creationComplete="creationCompleteHandler(event)"
 				show="this.setFocus()">
 	
 	<fx:Script>
@@ -13,6 +14,8 @@
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.net.navigateToURL;
+			
+			import mx.events.FlexEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -22,12 +25,16 @@
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(RecordWindow);
 			
 			[Bindable]
 			private var _recordingFlag : Boolean;
+			
+			[Bindable]
+			private var options:UsersOptions;
 			
 			private var layoutOptions:LayoutOptions = null;
 			
@@ -75,6 +82,10 @@
 				PopUpUtil.removePopUp(this);
 			}
 			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				options = Options.getOptions(UsersOptions) as UsersOptions;
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -91,7 +102,8 @@
 		</mx:HBox>
 
 		<mx:CheckBox id="clearRecordingsChecbox" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.clearCheckbox.label')}"
-					 visible="{_recordingFlag}" includeInLayout="{_recordingFlag}"/>
+					 visible="{_recordingFlag &amp;&amp; options.allowClearRecordingMarks}"
+					 includeInLayout="{_recordingFlag &amp;&amp; options.allowClearRecordingMarks}"/>
 	</mx:VBox>
 
 	<mx:Button id="closeButton" click="close()" styleName="titleWindowCloseButton"
