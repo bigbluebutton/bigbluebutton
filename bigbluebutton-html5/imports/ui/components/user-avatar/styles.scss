@@ -10,6 +10,7 @@ $user-indicator-presenter-bg: $color-primary;
 $user-indicator-voice-bg: $color-success;
 $user-indicator-muted-bg: $color-danger;
 $user-list-bg: $color-off-white;
+$user-color: currentColor; //picks the current color reference in the class
 
 .avatar {
   position: relative;
@@ -49,7 +50,19 @@ $user-list-bg: $color-off-white;
 }
 
 .talking {
-  box-shadow: 0 0 0 1px $user-list-bg, 0 0 0 6px;
+  animation: pulse 1s infinite ease-in;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 $user-color;
+  }
+  70% {
+    box-shadow: 0 0 0 0.5625rem transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 .moderator {
