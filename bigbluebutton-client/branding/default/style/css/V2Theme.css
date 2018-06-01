@@ -669,6 +669,22 @@ chat|ChatMessageRenderer {
 	fontWeight : bold;
 }
 
+.unreadMessagesBar {
+	backgroundColor            : #1070D7;
+	cornerRadius               : 4;
+	borderStyle                : none;
+	color                      : #FFFFFF;
+	fontSize                   : 13;	
+}
+
+.unreadMessagesBarText {
+	textAlign : center;
+	paddingBottom : 6;
+	paddingTop : 6;
+	paddingLeft : 12;
+	paddingRight : 12;
+}
+
 /*
 //------------------------------
 //  CheckBox
