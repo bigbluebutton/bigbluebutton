@@ -7,18 +7,25 @@ package org.bigbluebutton.modules.polling.views
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import mx.collections.ArrayCollection;
 	import mx.containers.Box;
 	import mx.containers.HBox;
 	import mx.containers.TitleWindow;
 	import mx.controls.Button;
+	import mx.controls.DataGrid;
 	import mx.controls.HRule;
 	import mx.controls.Label;
+	import mx.controls.dataGridClasses.DataGridColumn;
 	
 	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.common.AdvancedLabel;
 	import org.bigbluebutton.core.PopUpUtil;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.users.User2x;
+	import org.bigbluebutton.core.model.users.Users2x;
 	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
-	import org.bigbluebutton.modules.polling.events.PollVotedEvent;
+	import org.bigbluebutton.modules.polling.events.PollUpdatedEvent;
+	import org.bigbluebutton.modules.polling.events.PollVoteReceivedEvent;
 	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.model.SimpleAnswer;
@@ -27,21 +34,27 @@ package org.bigbluebutton.modules.polling.views
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class PollResultsModal extends TitleWindow {
-		private var _voteListener:Listener;
+		private var _updatePollListener:Listener;
 		private var _stopPollListener:Listener;
+		private var _voteReceivedListener:Listener;
 		
 		private var _respondersLabel:Label;
 		private var _respondersLabelDots:Label;
+		private var _voteGrid:DataGrid;
 		private var _pollGraphic:PollGraphic;
 		private var _publishBtn:Button;
 		private var _closeBtn:Button;
 		
 		private var _dotTimer:Timer;
 		
+		private var _pollInfo:SimplePoll;
+		
+		private var _voteArray:ArrayCollection;
+		
 		public function PollResultsModal() {
 			super();
 			
-			width = 400;
+			//width = 400;
 			showCloseButton = false;
 			layout = "vertical";
 			setStyle("horizontalAlign", "center");
@@ -67,13 +80,49 @@ package org.bigbluebutton.modules.polling.views
 			hrule.percentWidth = 100;
 			addChild(hrule);
 			
+			var resultsBox:HBox = new HBox();
+			resultsBox.percentWidth = 100;
+			resultsBox.setStyle("verticalAlign", "middle");
+			resultsBox.setStyle("horizontalGap", 18);
+			
+			_voteGrid = new DataGrid();
+			_voteGrid.width = 250;
+			_voteGrid.percentHeight = 100;
+			_voteGrid.styleName = "pollVotesDataGridStyle";
+			_voteGrid.dataProvider = _voteArray = new ArrayCollection();
+			var voteColumnArray:Array = [];
+			var voteColumn:DataGridColumn = new DataGridColumn();
+			voteColumn.dataField = "name";
+			voteColumn.headerText = ResourceUtil.getInstance().getString('bbb.polling.pollModal.voteGrid.userHeading');
+			voteColumnArray.push(voteColumn);
+			voteColumn = new DataGridColumn();
+			voteColumn.dataField = "key";
+			voteColumn.headerText = ResourceUtil.getInstance().getString('bbb.polling.pollModal.voteGrid.answerHeading');
+			voteColumnArray.push(voteColumn);
+			_voteGrid.columns = voteColumnArray;
+			resultsBox.addChild(_voteGrid);
+			
 			_pollGraphic = new PollGraphic();
 			_pollGraphic.data = null;
-			_pollGraphic.width = 300;
-			_pollGraphic.minWidth = 130;
-			addChild(_pollGraphic);
+			_pollGraphic.width = 250;
+			//_pollGraphic.minWidth = 130;
+			resultsBox.addChild(_pollGraphic);
+			
+			addChild(resultsBox);
+			
+			hrule = new HRule();
+			hrule.percentWidth = 100;
+			addChild(hrule);
+			
+			var botBox:HBox = new HBox();
+			botBox.percentWidth = 90;
+			botBox.setStyle("gap", 10);
+			botBox.setStyle("horizontalAlign", "right");
+			botBox.setStyle("verticalAlign", "middle");
 			
 			var respondersBox:HBox = new HBox();
+			respondersBox.percentWidth = 100;
+			respondersBox.setStyle("horizontalAlign", "left");
 			respondersBox.setStyle("horizontalGap", 0);
 			
 			_respondersLabel = new Label();
@@ -89,16 +138,7 @@ package org.bigbluebutton.modules.polling.views
 			_respondersLabelDots.text = "";
 			respondersBox.addChild(_respondersLabelDots);
 			
-			addChild(respondersBox);
-			
-			hrule = new HRule();
-			hrule.percentWidth = 100;
-			addChild(hrule);
-			
-			var botBox:HBox = new HBox();
-			botBox.percentWidth = 90;
-			botBox.setStyle("gap", 10);
-			botBox.setStyle("horizontalAlign", "right");
+			botBox.addChild(respondersBox);
 			
 			_publishBtn = new Button();
 			_publishBtn.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.label');
@@ -111,13 +151,17 @@ package org.bigbluebutton.modules.polling.views
 			botBox.addChild(_closeBtn);
 			addChild(botBox);
 			
-			_voteListener = new Listener();
-			_voteListener.type = PollVotedEvent.POLL_VOTED;
-			_voteListener.method = handlePollVotedEvent;
+			_updatePollListener = new Listener();
+			_updatePollListener.type = PollUpdatedEvent.POLL_UPDATED;
+			_updatePollListener.method = handlePollUpdatedEvent;
 			
 			_stopPollListener = new Listener();
 			_stopPollListener.type = PollStoppedEvent.POLL_STOPPED;
 			_stopPollListener.method = handlePollStoppedEvent;
+			
+			_voteReceivedListener = new Listener();
+			_voteReceivedListener.type = PollVoteReceivedEvent.POLL_VOTE_RECEIVED;
+			_voteReceivedListener.method = handlePollVoteReceivedEvent;
 			
 			_dotTimer = new Timer(200, 0);
 			_dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
@@ -125,6 +169,8 @@ package org.bigbluebutton.modules.polling.views
 		}
 		
 		public function setPoll(poll:SimplePoll):void {
+			_pollInfo = poll;
+			
 			var resultData:Array = new Array();
 			var answers:Array = poll.answers; 
 			for (var j:int = 0; j < answers.length; j++) {
@@ -140,16 +186,18 @@ package org.bigbluebutton.modules.polling.views
 			_pollGraphic.data = resultData;
 			_pollGraphic.height = ((23+10)*_pollGraphic.data.length+10);
 			_pollGraphic.minHeight = ((16+10)*_pollGraphic.data.length+10);
+			
+			var users:ArrayCollection = UsersUtil.getUsers();
+			var myUserId:String = UsersUtil.getMyUserID();
+			for each (var user:User2x in users) {
+				if (user.intId != myUserId) {
+					_voteArray.addItem({userId: user.intId, name: user.name, key: ""});
+				}
+			}
+			_voteArray.refresh();
 		}
 		
-		private function handlePollVotedEvent(e:PollVotedEvent):void {
-			if (_dotTimer && _dotTimer.running) {
-				_dotTimer.stop();
-				_dotTimer = null;
-			}
-			_respondersLabelDots.visible = false;
-			_respondersLabelDots.includeInLayout = false;
-			
+		private function handlePollUpdatedEvent(e:PollUpdatedEvent):void {
 			var resultData:Array = new Array();
 			var answers:Array = e.result.answers; 
 			for (var j:int = 0; j < answers.length; j++) {
@@ -165,14 +213,47 @@ package org.bigbluebutton.modules.polling.views
 			
 			_pollGraphic.data = resultData;
 			if (e.result.numResponders != e.result.numRespondents) {
-				_respondersLabel.text = e.result.numResponders + "/" + e.result.numRespondents;
+				_respondersLabel.text = ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.novotes')+ " ("+ e.result.numResponders + "/" + e.result.numRespondents + ")";
 			} else {
 				_respondersLabel.text = ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.finished');
+				
+				if (_dotTimer && _dotTimer.running) {
+					_dotTimer.stop();
+					_dotTimer = null;
+				}
+				_respondersLabelDots.visible = false;
+				_respondersLabelDots.includeInLayout = false;
 			}
 		}
 		
 		private function handlePollStoppedEvent(e:PollStoppedEvent):void {
 			close();
+		}
+		
+		private function handlePollVoteReceivedEvent(e:PollVoteReceivedEvent):void {
+			var user:User2x = UsersUtil.getUser(e.userId);
+			if (user && _pollInfo && _pollInfo.id == e.pollId) {
+				var a:SimpleAnswer = _pollInfo.answers[e.answerId] as SimpleAnswer;
+				var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.' + a.key);
+				
+				if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
+					localizedKey = a.key;
+				}
+				
+				var foundRow:Object;
+				for each (var row:Object in _voteArray) {
+					if (row.userId == user.intId) {
+						foundRow = row;
+						break;
+					}
+				}
+				if (foundRow) {
+					foundRow.key = localizedKey;
+				} else {
+					_voteArray.addItem({userId: user.intId, name: user.name, key: localizedKey});
+				}
+				_voteArray.refresh();
+			}
 		}
 		
 		private function handlePublishClick(e:MouseEvent):void {
@@ -188,13 +269,22 @@ package org.bigbluebutton.modules.polling.views
 		}
 		
 		private function close():void {
-			_voteListener.type = null;
-			_voteListener.method = null;
-			_voteListener = null;
+			if (_dotTimer && _dotTimer.running) {
+				_dotTimer.stop();
+				_dotTimer = null;
+			}
+			
+			_updatePollListener.type = null;
+			_updatePollListener.method = null;
+			_updatePollListener = null;
 			
 			_stopPollListener.type = null;
 			_stopPollListener.method = null;
 			_stopPollListener = null;
+			
+			_voteReceivedListener.type = null;
+			_voteReceivedListener.method = null;
+			_voteReceivedListener = null;
 			
 			PopUpUtil.removePopUp(this);
 		}

@@ -1489,6 +1489,18 @@ poll|PollResultsModal {
 	fontWeight : bold;
 }
 
+.pollVotesDataGridStyle {
+	backgroundColor       : #FFFFFF;
+	borderStyle           : solid;
+	rollOverColor         : #F3F3F3;
+	textRollOverColor     : #3F3F41;
+	textSelectedColor     : #3F3F41;
+	alternatingItemColors : #FFFFFF, #FFFFFF;
+	headerColors          : #FFFFFF, #FFFFFF;
+	dropShadowEnabled     : false;
+	verticalSeparatorSkin : ClassReference("mx.skins.halo.DataGridHeaderSeparator");
+}
+
 /*
 //------------------------------
 //  ProgressBar
