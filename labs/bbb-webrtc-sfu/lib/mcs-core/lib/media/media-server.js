@@ -403,30 +403,30 @@ module.exports = class MediaServer extends EventEmitter {
     let mediaElement = this._mediaElements[elementId];
 
     if (mediaElement) {
-      endpoint.setMinVideoRecvBandwidth(min);
-      endpoint.setMaxVideoRecvBandwidth(max);
+      mediaElement.setMinVideoRecvBandwidth(min);
+      mediaElement.setMaxVideoRecvBandwidth(max);
     } else {
       return ("[mcs-media] There is no element " + elementId);
     }
   }
 
-  setOutputBandwidth (endpoint, min, max) {
+  setOutputBandwidth (elementId, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
     if (mediaElement) {
-      endpoint.setMinVideoSendBandwidth(min);
-      endpoint.setMaxVideoSendBandwidth(max);
+      mediaElement.setMinVideoSendBandwidth(min);
+      mediaElement.setMaxVideoSendBandwidth(max);
     } else {
       return ("[mcs-media] There is no element " + elementId );
     }
   }
 
-  setOutputBitrate (endpoint, min, max) {
+  setOutputBitrate (elementId, min, max) {
     let mediaElement = this._mediaElements[elementId];
 
     if (mediaElement) {
-      endpoint.setMinOutputBitrate(min);
-      endpoint.setMaxOutputBitrate(max);
+      mediaElement.setMinOutputBitrate(min);
+      mediaElement.setMaxOutputBitrate(max);
     } else {
       return ("[mcs-media] There is no element " + elementId);
     }

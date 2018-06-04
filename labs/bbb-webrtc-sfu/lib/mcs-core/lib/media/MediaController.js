@@ -193,7 +193,7 @@ module.exports = class MediaController {
             session.sessionStarted();
             Logger.info("[mcs-controller] Updated", source.id,  "subscribers list to", source.subscribedSessions);
             break;
-          default: 
+          default:
             return reject(new Error("[mcs-controller] Invalid media type"));
         }
       }

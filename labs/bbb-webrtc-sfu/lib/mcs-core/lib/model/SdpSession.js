@@ -12,6 +12,7 @@ const MediaServer = require('../media/media-server');
 const MediaSession = require('./MediaSession');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
+const kurentoIp = config.get('kurentoIp');
 const Logger = require('../../../utils/Logger');
 
 module.exports = class SdpSession extends MediaSession {
@@ -35,6 +36,7 @@ module.exports = class SdpSession extends MediaSession {
         const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp());
 
         if (this._type != 'WebRtcEndpoint') {
+          this._sdp.replaceServerIpv4(kurentoIp);
           return resolve(answer);
         }
 

@@ -58,14 +58,14 @@ module.exports = class Screenshare extends EventEmitter {
     });
   }
 
-  onIceCandidate (candidate, role, callerName) {
+  async onIceCandidate (candidate, role, callerName) {
     Logger.debug("[screenshare] onIceCandidate", role, callerName, candidate);
     switch (role) {
       case C.SEND_ROLE:
         if (this._presenterEndpoint) {
           try {
-            this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
-            this.mcs.addIceCandidate(this._presenterEndpoint, candidate);
+            await this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
+            await this.mcs.addIceCandidate(this._presenterEndpoint, candidate);
           } catch (err) {
             Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
           }
@@ -77,8 +77,8 @@ module.exports = class Screenshare extends EventEmitter {
         let endpoint = this._viewersEndpoint[callerName];
         if (endpoint) {
           try {
-            this.flushCandidatesQueue(endpoint, this._viewersCandidatesQueue[callerName]);
-            this.mcs.addIceCandidate(endpoint, candidate);
+            await this.flushCandidatesQueue(endpoint, this._viewersCandidatesQueue[callerName]);
+            await this.mcs.addIceCandidate(endpoint, candidate);
           } catch (err) {
             Logger.error("[screenshare] Viewer ICE candidate could not be added to media controller.", err);
           }
@@ -94,19 +94,22 @@ module.exports = class Screenshare extends EventEmitter {
   }
 
   flushCandidatesQueue (mediaId, queue) {
-    Logger.debug("[screenshare] flushCandidatesQueue", queue);
-    if (mediaId) {
-      try {
-        while(queue.length) {
-          let candidate = queue.shift();
+    return new Promise((resolve, reject) => {
+      Logger.debug("[screenshare] flushCandidatesQueue", queue);
+      if (mediaId) {
+        let iceProcedures = queue.map((candidate) => {
           this.mcs.addIceCandidate(mediaId, candidate);
-        }
-      } catch (err) {
-        Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
+        });
+
+        return Promise.all(iceProcedures).then(() => {
+          queue = [];
+          resolve();
+        }).catch((err) => {
+          Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
+          reject();
+        });
       }
-    } else {
-      Logger.error("[screenshare] No mediaId");
-    }
+    });
   }
 
   mediaStateRtp (event) {
@@ -236,7 +239,7 @@ module.exports = class Screenshare extends EventEmitter {
         this._presenterEndpoint = retSource.sessionId;
         sharedScreens[this._voiceBridge] = this._presenterEndpoint;
         let presenterSdpAnswer = retSource.answer;
-        this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
+        await this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
 
         this.mcs.on('MediaEvent' + this._presenterEndpoint, (event) => {
           this.mediaStateWebRtc(event, this._id)
@@ -290,7 +293,7 @@ module.exports = class Screenshare extends EventEmitter {
 
       this._viewersEndpoint[callerName] = retSource.sessionId;
       sdpAnswer = retSource.answer;
-      this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
+      await this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
 
       this.mcs.on('MediaEvent' + this._viewersEndpoint[callerName], (event) => {
         this.mediaStateWebRtc(event, connectionId);
