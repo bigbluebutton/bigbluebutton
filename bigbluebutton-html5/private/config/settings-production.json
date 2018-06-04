@@ -9,7 +9,7 @@
       "listenOnlyMode": true,
       "forceListenOnly": false,
       "skipCheck": false,
-      "clientTitle": "BBB - HTML5 Client",
+      "clientTitle": "BigBlueButton",
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
       "copyright": "©2018 BigBlueButton Inc.",

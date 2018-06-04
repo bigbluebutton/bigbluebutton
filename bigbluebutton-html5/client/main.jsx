@@ -13,6 +13,4 @@ Meteor.startup(() => {
   window.addEventListener('error', (e) => {
     log('error', e);
   });
-
-  document.title = Meteor.settings.public.app.clientTitle;
 });
