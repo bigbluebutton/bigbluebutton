@@ -155,13 +155,26 @@ class App extends Component {
   }
 
   renderUserListResizable() {
+    const { userList } = this.props;
+
+    if (!userList) return null;
+
     return (
       <Resizable
         minWidth="10%"
         maxWidth="20%"
         ref={(node) => { this.resizableUserList = node; }}
-        enable={{ right: true }}
         className={styles.resizableUserList}
+        enable={{
+ top: false,
+right: true,
+bottom: false,
+left: false,
+topRight: false,
+          bottomRight: false,
+bottomLeft: false,
+topLeft: false,
+}}
         onResize={(e, direction, ref) => {
           if (e.clientX - ref.offsetLeft <= 50) this.props.router.push('/');
         }}
@@ -198,7 +211,16 @@ class App extends Component {
         maxWidth="30%"
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{ right: false }}
+        enable={{
+ top: false,
+right: true,
+bottom: false,
+left: false,
+topRight: false,
+          bottomRight: false,
+bottomLeft: false,
+topLeft: false,
+}}
       >
         {this.renderChat()}
       </Resizable>
