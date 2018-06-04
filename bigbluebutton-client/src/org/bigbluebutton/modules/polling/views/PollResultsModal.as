@@ -8,6 +8,8 @@ package org.bigbluebutton.modules.polling.views
 	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
 	import mx.containers.Box;
 	import mx.containers.HBox;
 	import mx.containers.TitleWindow;
@@ -85,18 +87,26 @@ package org.bigbluebutton.modules.polling.views
 			resultsBox.setStyle("verticalAlign", "middle");
 			resultsBox.setStyle("horizontalGap", 24);
 			
+			_voteArray = new ArrayCollection();
+			_voteArray.sort = new Sort();
+			var sortField:SortField = new SortField("key");
+			sortField.compareFunction = voteSortFunction;
+			_voteArray.sort.fields = [sortField];
+			
 			_voteGrid = new DataGrid();
 			_voteGrid.percentWidth = 50;
 			_voteGrid.percentHeight = 100;
 			_voteGrid.styleName = "pollVotesDataGridStyle";
-			_voteGrid.dataProvider = _voteArray = new ArrayCollection();
+			_voteGrid.dataProvider = _voteArray;
 			var voteColumnArray:Array = [];
 			var voteColumn:DataGridColumn = new DataGridColumn();
 			voteColumn.dataField = "name";
+			voteColumn.sortCompareFunction = nameSortFunction;
 			voteColumn.headerText = ResourceUtil.getInstance().getString('bbb.polling.pollModal.voteGrid.userHeading');
 			voteColumnArray.push(voteColumn);
 			voteColumn = new DataGridColumn();
 			voteColumn.dataField = "key";
+			voteColumn.sortCompareFunction = voteSortFunction;
 			voteColumn.headerText = ResourceUtil.getInstance().getString('bbb.polling.pollModal.voteGrid.answerHeading');
 			voteColumnArray.push(voteColumn);
 			_voteGrid.columns = voteColumnArray;
@@ -295,6 +305,40 @@ package org.bigbluebutton.modules.polling.views
 			} else {
 				_respondersLabelDots.text += ".";
 			}
+		}
+		
+		private function nameSortFunction(a:Object, b:Object, fields:Array = null):int {
+			if (a.name > b.name) return 1;
+			if (a.name < b.name) return -1;
+			
+			if (a.key == "" && b.key == "") {}
+			else if (a.key == "") return 1;
+			else if (b.key == "") return -1;
+			
+			if (a.key > b.key) return 1;
+			if (a.key < b.key) return -1;
+			
+			if (a.userId > b.userId) return 1;
+			if (a.userId < b.userId) return -1;
+			
+			return 0;
+		}
+		
+		private function voteSortFunction(a:Object, b:Object, fields:Array = null):int {
+			if (a.key == "" && b.key == "") {}
+			else if (a.key == "") return 1;
+			else if (b.key == "") return -1;
+			
+			if (a.key > b.key) return 1;
+			if (a.key < b.key) return -1;
+			
+			if (a.name > b.name) return 1;
+			if (a.name < b.name) return -1;
+			
+			if (a.userId > b.userId) return 1;
+			if (a.userId < b.userId) return -1;
+			
+			return 0;
 		}
 	}
 }
