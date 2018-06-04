@@ -140,7 +140,7 @@ module.exports = class MediaSession {
   }
 
   _handleError (error) {
-    Logger.error("[mcs-media-session] SFU MediaSession received an error", error, error.stack);
+    Logger.trace("[mcs-media-session] SFU MediaSession received an error", error, error.stack);
     // Checking if the error needs to be wrapped into a JS Error instance
     if (!isError(error)) {
       error = new Error(error);

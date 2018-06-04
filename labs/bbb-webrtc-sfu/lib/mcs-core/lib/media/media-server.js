@@ -537,7 +537,7 @@ module.exports = class MediaServer extends EventEmitter {
       error = new Error(error);
     }
 
-    Logger.error('[mcs-media] Media Server returned an', error, error.stack);
+    Logger.trace('[mcs-media] Media Server returned an', error, error.stack);
     return error;
   }
 };

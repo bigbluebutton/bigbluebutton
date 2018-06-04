@@ -218,7 +218,7 @@ module.exports = class SfuUser extends User {
   }
 
   _handleError (error) {
-    Logger.error("[mcs-sfu-user] SFU User received error", error, error.stack);
+    Logger.trace("[mcs-sfu-user] SFU User received error", error, error.stack);
     // Checking if the error needs to be wrapped into a JS Error instance
     if (!isError(error)) {
       error = new Error(error);
