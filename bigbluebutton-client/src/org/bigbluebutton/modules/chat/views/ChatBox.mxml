@@ -360,9 +360,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		// @todo : scromm if
 		//			1 - I am the send of the last message
 		//			2 - If the scroll bar is at the bottom most
-		  if (UsersUtil.isMe(userID) || chatMessagesList.verticalScrollAtMax) {
+		  if (UsersUtil.isMe(userID) || (chatMessagesList.verticalScrollAtMax)) {
 	        if (scrollTimer != null) scrollTimer.start();
-		  } else {
+		  } else if (!scrollTimer.running) {
 			  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = true;
 		  }
       }
