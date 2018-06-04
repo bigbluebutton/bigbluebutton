@@ -1,4 +1,5 @@
 import React from 'react';
+import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import Meetings from '/imports/api/meetings';
@@ -9,8 +10,9 @@ import ChatService from '../chat/service';
 import Service from './service';
 import NavBar from './component';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const PUBLIC_CONFIG = Meteor.settings.public;
+const PUBLIC_CHAT_KEY = PUBLIC_CONFIG.chat.public_id;
+const CLIENT_TITLE = PUBLIC_CONFIG.app.clientTitle;
 
 const NavBarContainer = ({ children, ...props }) => (
   <NavBar {...props}>
@@ -30,6 +32,7 @@ export default withRouter(withTracker(({ location, router }) => {
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
     meetingRecorded = meetingObject.recordProp;
+    document.title = `${CLIENT_TITLE} - ${meetingTitle}`;
   }
 
   const checkUnreadMessages = () => {
