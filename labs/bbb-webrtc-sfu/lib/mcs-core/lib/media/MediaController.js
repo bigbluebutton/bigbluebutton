@@ -140,7 +140,7 @@ module.exports = class MediaController {
           case C.MEDIA_TYPE.RTP:
           case C.MEDIA_TYPE.WEBRTC:
           case C.MEDIA_TYPE.URI:
-            const { session, answer } = await user.publish(params.descriptor, type);
+            const { session, answer } = await user.publish(params.descriptor, type, params);
             this.addMediaSession(session);
             resolve({ answer, sessionId: session.id });
             session.sessionStarted();
@@ -186,7 +186,7 @@ module.exports = class MediaController {
           case C.MEDIA_TYPE.RTP:
           case C.MEDIA_TYPE.WEBRTC:
           case C.MEDIA_TYPE.URI:
-            const  { session, answer } = await user.subscribe(params.descriptor, type, source);
+            const  { session, answer } = await user.subscribe(params.descriptor, type, source, params);
             this.addMediaSession(session);
             source.subscribedSessions.push(session.id);
             resolve({answer, sessionId: session.id});

@@ -15,18 +15,18 @@ export default class VisibilityEvent {
     this._onHiddenTimeout = null;
   }
 
-  onVisible (f) {
+  onVisible (onVisibleCallback) {
     this._onVisible = () => {
       if (!this._isHidden()) {
-        f();
+        onVisibleCallback();
       }
     };
   }
 
-  onHidden(f) {
+  onHidden(onHiddenCallback) {
     this._onHidden = () => {
       if (this._isHidden()) {
-        f();
+        onHiddenCallback();
         this._onHiddenTimeout = null;
       }
     };

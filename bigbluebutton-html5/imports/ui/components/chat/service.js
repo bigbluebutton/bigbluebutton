@@ -152,7 +152,6 @@ const sendMessage = (receiverID, message) => {
     fromTimezoneOffset: (new Date()).getTimezoneOffset(),
     toUsername: receiver.name,
     toUserId: receiver.id,
-    fromTime: Date.now(),
     fromColor: 0,
   };
 

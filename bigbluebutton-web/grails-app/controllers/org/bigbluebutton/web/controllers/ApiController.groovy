@@ -1292,13 +1292,17 @@ class ApiController {
     UserSession us = null;
     Meeting meeting = null;
 
-    if (meetingService.getUserSession(sessionToken) == null)
+    if (!session[sessionToken]) {
       reject = true;
-    else {
-      us = meetingService.getUserSession(sessionToken);
-      meeting = meetingService.getMeeting(us.meetingID);
-      if (meeting == null || meeting.isForciblyEnded()) {
-        reject = true
+    } else {
+      if (meetingService.getUserSession(sessionToken) == null) {
+        reject = true;
+      } else {
+        us = meetingService.getUserSession(sessionToken)
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+        }
       }
     }
 
@@ -1416,13 +1420,17 @@ class ApiController {
       println("Session token = [" + sessionToken + "]")
     }
 
-    if (meetingService.getUserSession(sessionToken) == null)
+    if (!session[sessionToken]) {
       reject = true;
-    else {
-      us = meetingService.getUserSession(sessionToken);
-      meeting = meetingService.getMeeting(us.meetingID);
-      if (meeting == null || meeting.isForciblyEnded()) {
-        reject = true
+    } else {
+      if (meetingService.getUserSession(session[sessionToken]) == null)
+        reject = true;
+      else {
+        us = meetingService.getUserSession(session[sessionToken]);
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+        }
       }
     }
 

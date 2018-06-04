@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SettingsDropdown from './component';
-import Service from './service';
+import { toggleFullScreen } from './service';
 
 export default class SettingsDropdownContainer extends Component {
   constructor(props) {
@@ -49,7 +49,7 @@ export default class SettingsDropdownContainer extends Component {
   }
 
   render() {
-    const handleToggleFullscreen = Service.toggleFullScreen;
+    const handleToggleFullscreen = toggleFullScreen;
     const isFullScreen = this.state.isFullScreen;
 
     return (

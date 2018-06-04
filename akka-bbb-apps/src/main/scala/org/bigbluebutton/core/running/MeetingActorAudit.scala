@@ -78,6 +78,11 @@ class MeetingActorAudit(
       props.meetingProp.intId,
       SendBreakoutUsersAuditInternalMsg(props.breakoutProps.parentId, props.meetingProp.intId)
     ))
+
+    // Trigger recording timer, only for meeting allowing recording
+    if (props.recordProp.record) {
+      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendRecordingTimerInternalMsg(props.meetingProp.intId)))
+    }
   }
 
 }

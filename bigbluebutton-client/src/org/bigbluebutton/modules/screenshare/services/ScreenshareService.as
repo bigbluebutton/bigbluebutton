@@ -72,6 +72,8 @@ package org.bigbluebutton.modules.screenshare.services {
         public function checkIfPresenterIsSharingScreen():void {
             LOGGER.debug("check if presenter is sharing screen");
             sender.isScreenSharing(UsersUtil.getInternalMeetingID());
+						// Send a query if webrtc screenshare is being used. (ralam may 17, 2017);
+						sender.queryForScreenshare();
         }
         
         public function requestShareToken():void {

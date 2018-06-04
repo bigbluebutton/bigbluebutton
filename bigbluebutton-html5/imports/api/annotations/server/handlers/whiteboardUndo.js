@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 
+import { AnnotationsStreamer } from '/imports/api/annotations';
 import removeAnnotation from '../modifiers/removeAnnotation';
 
 export default function handleWhiteboardUndo({ body }, meetingId) {
@@ -9,5 +10,6 @@ export default function handleWhiteboardUndo({ body }, meetingId) {
   check(whiteboardId, String);
   check(shapeId, String);
 
+  AnnotationsStreamer.emit('removed', { meetingId, whiteboardId, shapeId });
   return removeAnnotation(meetingId, whiteboardId, shapeId);
 }

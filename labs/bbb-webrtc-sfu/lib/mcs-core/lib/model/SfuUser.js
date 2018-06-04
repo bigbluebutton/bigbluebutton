@@ -54,10 +54,9 @@ module.exports = class SfuUser extends User {
       return session;
   }
 
-  // TODO switch from type to children SdpSessions
-  addSdp (sdp, type) {
-    const session = new SdpSession(this.emitter, sdp, this.roomId, type);
-
+  addSdp (sdp, type, options) {
+    // TODO switch from type to children SdpSessions (WebRTC|SDP)
+    let session = new SdpSession(this.emitter, sdp, this.roomId, type, options);
     session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
       if (sessId === session.id) {
         Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
@@ -112,10 +111,10 @@ module.exports = class SfuUser extends User {
     });
   }
 
-  subscribe (sdp, type, source) {
+  subscribe (sdp, type, source, params) {
     return new Promise(async (resolve, reject) => {
       try {
-        const session = this.addSdp(sdp, type);
+        const session = this.addSdp(sdp, type, params);
         const answer = await this.startSession(session.id);
         await source.connect(session._mediaElement);
         resolve({ session, answer });
@@ -126,10 +125,10 @@ module.exports = class SfuUser extends User {
     });
   }
 
-  publish (sdp, type) {
+  publish (sdp, type, params) {
     return new Promise(async (resolve, reject) => {
       try {
-        const session = this.addSdp(sdp, type);
+        const session = this.addSdp(sdp, type, params);
         const answer = await this.startSession(session.id);
         resolve({ session, answer });
       }

@@ -63,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.screenshare.events.WebRTCViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 			import org.bigbluebutton.util.ConnUtil;
@@ -421,7 +421,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function closeWindow():void {
-				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
+				dispatchEvent(new WebRTCViewWindowEvent(WebRTCViewWindowEvent.CLOSE));
 			}
 
 			override protected function resourcesChanged():void{

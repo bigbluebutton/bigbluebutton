@@ -18,6 +18,7 @@ const deviceInfo = {
       isChrome: !!window.chrome && !!window.chrome.webstore,
       isFirefox: typeof InstallTrigger !== 'undefined',
       isIE: 'ActiveXObject' in window,
+      isEdge: !document.documentMode && window.StyleMedia,
     };
   },
   osType() {
@@ -26,6 +27,7 @@ const deviceInfo = {
       isWindows: window.navigator.userAgent.indexOf('Windows') !== -1,
       isMac: window.navigator.userAgent.indexOf('Mac') !== -1,
       isLinux: window.navigator.userAgent.indexOf('Linux') !== -1,
+      isIOSChrome: navigator.userAgent.match('CriOS'),
     };
   },
 

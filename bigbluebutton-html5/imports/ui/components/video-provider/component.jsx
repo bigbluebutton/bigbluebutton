@@ -16,10 +16,6 @@ const intlMessages = defineMessages({
     id: 'app.video.iceCandidateError',
     description: 'Error message for ice candidate fail',
   },
-  permissionError: {
-    id: 'app.video.permissionError',
-    description: 'Error message for webcam permission',
-  },
   sharingError: {
     id: 'app.video.sharingError',
     description: 'Error on sharing webcam',
@@ -142,11 +138,6 @@ class VideoProvider extends Component {
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
-  }
-
-  shouldComponentUpdate({ users: nextUsers }, nextState) {
-    const { users } = this.props;
-    return !_.isEqual(this.state, nextState) || users.length !== nextUsers.length;
   }
 
   componentWillUpdate({ users, userId }) {
@@ -499,7 +490,7 @@ class VideoProvider extends Component {
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
 
-    const attachVideoStream = () => {
+    const attachVideoStreamHelper = () => {
       const stream = isCurrent ? peer.getLocalStream() : peer.getRemoteStream();
       video.pause();
       video.srcObject = stream;
@@ -512,7 +503,7 @@ class VideoProvider extends Component {
     // If peer has started playing attach to tag, otherwise wait a while
     if (peer) {
       if (peer.started) {
-        attachVideoStream();
+        attachVideoStreamHelper();
       }
 
       // So we can start it later when we get a playStart
@@ -553,11 +544,11 @@ class VideoProvider extends Component {
 
   handleError(message) {
     const { intl } = this.props;
-    const userId = this.props.userId;
-
+    const { userId } = this.props;
     if (message.cameraId == userId) {
       this.unshareWebcam();
-      this.notifyError(intl.formatMessage(intlMessages.sharingError));
+      this.notifyError(intl.formatMessage(intlMediaErrorsMessages[message.message]
+        || intlMessages.sharingError));
     } else {
       this.stopWebRTCPeer(message.cameraId);
     }

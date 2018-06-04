@@ -84,12 +84,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
+				
+				hideNotification();
+				
 				LOGGER.debug("startPhone 2 enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				if (this.selected) {
 					joinAudio();
 				} else {
 					leaveAudio();
-				}				
+				}
 			}
 
 			private function get disableMyMic():Boolean {
@@ -174,16 +177,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         _currentState = ACTIVE_STATE;
         this.styleName = "voiceConfActiveButtonStyle";
         this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
-        
-        hideNotification();
       }
       
       private function onUserJoinedListenOnlyConference():void {
         LOGGER.debug("onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
 
         resetButtonState();
-        
-        hideNotification();
       }
 
       private function onUserLeftConference():void {
