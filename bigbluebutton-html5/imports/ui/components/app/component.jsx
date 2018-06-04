@@ -170,7 +170,7 @@ class App extends Component {
           bottomRight: false, bottomLeft: false, topLeft: false }}
         onResize={(e, direction, ref) => {
           const { compactUserList } = this.state;
-          const shouldBeCompact = (e.clientX - ref.offsetLeft) <= USERLIST_COMPACT_WIDTH;
+          const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
           if (compactUserList === shouldBeCompact) return;
           this.setState({ compactUserList: shouldBeCompact });
         }}

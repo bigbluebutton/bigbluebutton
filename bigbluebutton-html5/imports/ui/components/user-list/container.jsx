@@ -24,7 +24,7 @@ const propTypes = {
   roving: PropTypes.func.isRequired,
 };
 
-const UserListContainer = (props) => <UserList {...props} />;
+const UserListContainer = props => <UserList {...props} />;
 
 UserListContainer.propTypes = propTypes;
 
