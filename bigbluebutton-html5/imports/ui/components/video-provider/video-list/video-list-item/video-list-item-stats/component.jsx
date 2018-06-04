@@ -8,9 +8,7 @@ import { styles } from '../../styles';
 
 const propTypes = {
   toggleStats: PropTypes.func.isRequired,
-  getStats: PropTypes.func.isRequired,
   stats: PropTypes.object.isRequired,
-  stopGettingStats: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -59,16 +57,6 @@ class VideoListItemStats extends Component {
   constructor(props) {
     super(props);
 
-  }
-
-  componentDidMount(){
-    const { getStats } = this.props;
-    getStats();
-  }
- 
-  componentWillUnmount() {
-    const { stopGettingStats } = this.props;
-    stopGettingStats();
   }
 
   render() {

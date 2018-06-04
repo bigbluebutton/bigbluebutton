@@ -38,6 +38,13 @@ class VideoListItem extends Component {
   }
 
   toggleStats() {
+    const { getStats, stopGettingStats } = this.props;
+    if (this.state.showStats) {
+      stopGettingStats();
+    } else {
+      getStats(this.videoTag, this.setStats);
+    }
+
     this.setState({showStats: !this.state.showStats});
   }
 
@@ -70,7 +77,7 @@ class VideoListItem extends Component {
 
   render() {
     const { showStats, stats } = this.state;
-    const { user, getStats, stopGettingStats } = this.props;
+    const { user } = this.props;
 
     const availableActions = this.getAvailableActions();
     
@@ -102,7 +109,7 @@ class VideoListItem extends Component {
           { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
           { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
         </div>
-        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} getStats={() => getStats(this.videoTag, this.setStats)} stats={stats} stopGettingStats={stopGettingStats} /> : null }
+        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null }
       </div>
     );
   }
