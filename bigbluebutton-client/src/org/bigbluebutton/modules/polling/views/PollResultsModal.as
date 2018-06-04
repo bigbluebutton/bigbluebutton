@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.polling.views
 		public function PollResultsModal() {
 			super();
 			
-			//width = 400;
+			width = 550;
 			showCloseButton = false;
 			layout = "vertical";
 			setStyle("horizontalAlign", "center");
@@ -66,27 +66,27 @@ package org.bigbluebutton.modules.polling.views
 			addChild(modalTitle);
 			
 			var hintBox : Box = new Box();
-			hintBox.percentWidth = 100;
+			hintBox.percentWidth = 90;
 			hintBox.styleName = "pollHintBoxStyle";
 			addChild(hintBox);
 			
 			var hintText : AdvancedLabel = new AdvancedLabel();
-			hintText.percentWidth = 100;
+			hintText.percentWidth = 90;
 			hintText.styleName = "pollHintTextStyle";
 			hintText.text = ResourceUtil.getInstance().getString('bbb.polling.pollModal.hint');
 			hintBox.addChild(hintText);
 
 			var hrule:HRule = new HRule();
-			hrule.percentWidth = 100;
+			hrule.percentWidth = 90;
 			addChild(hrule);
 			
 			var resultsBox:HBox = new HBox();
-			resultsBox.percentWidth = 100;
+			resultsBox.percentWidth = 90;
 			resultsBox.setStyle("verticalAlign", "middle");
-			resultsBox.setStyle("horizontalGap", 18);
+			resultsBox.setStyle("horizontalGap", 24);
 			
 			_voteGrid = new DataGrid();
-			_voteGrid.width = 250;
+			_voteGrid.percentWidth = 50;
 			_voteGrid.percentHeight = 100;
 			_voteGrid.styleName = "pollVotesDataGridStyle";
 			_voteGrid.dataProvider = _voteArray = new ArrayCollection();
@@ -104,14 +104,14 @@ package org.bigbluebutton.modules.polling.views
 			
 			_pollGraphic = new PollGraphic();
 			_pollGraphic.data = null;
-			_pollGraphic.width = 250;
+			_pollGraphic.percentWidth = 50;
 			//_pollGraphic.minWidth = 130;
 			resultsBox.addChild(_pollGraphic);
 			
 			addChild(resultsBox);
 			
 			hrule = new HRule();
-			hrule.percentWidth = 100;
+			hrule.percentWidth = 90;
 			addChild(hrule);
 			
 			var botBox:HBox = new HBox();
