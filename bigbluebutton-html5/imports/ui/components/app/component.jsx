@@ -14,6 +14,7 @@ import ChatNotificationContainer from '../chat/notification/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+const USERLIST_COMPACT_WIDTH = 50;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -89,7 +90,7 @@ class App extends Component {
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
-    if (enableResize === shouldEnableResize) return;
+    if(enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
   }
@@ -165,18 +166,13 @@ class App extends Component {
         maxWidth="20%"
         ref={(node) => { this.resizableUserList = node; }}
         className={styles.resizableUserList}
-        enable={{
- top: false,
-right: true,
-bottom: false,
-left: false,
-topRight: false,
-          bottomRight: false,
-bottomLeft: false,
-topLeft: false,
-}}
+        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
+          bottomRight: false, bottomLeft: false, topLeft: false }}
         onResize={(e, direction, ref) => {
-          if (e.clientX - ref.offsetLeft <= 50) this.props.router.push('/');
+          const { compactUserList } = this.state;
+          const shouldBeCompact = (e.clientX - ref.offsetLeft) <= USERLIST_COMPACT_WIDTH;
+          if (compactUserList === shouldBeCompact) return;
+          this.setState({ compactUserList: shouldBeCompact });
         }}
       >
         {this.renderUserList()}
@@ -206,21 +202,13 @@ topLeft: false,
 
     return (
       <Resizable
-        defaultSize={{ width: '22.5%' }}
+        defaultSize={{width: "22.5%"}}
         minWidth="15%"
         maxWidth="30%"
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{
- top: false,
-right: true,
-bottom: false,
-left: false,
-topRight: false,
-          bottomRight: false,
-bottomLeft: false,
-topLeft: false,
-}}
+        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
+          bottomRight: false, bottomLeft: false, topLeft: false }}
       >
         {this.renderChat()}
       </Resizable>
@@ -293,4 +281,5 @@ topLeft: false,
 
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
+
 export default injectIntl(App);
