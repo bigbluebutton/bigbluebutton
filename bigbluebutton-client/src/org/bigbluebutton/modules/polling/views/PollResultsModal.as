@@ -18,13 +18,13 @@ package org.bigbluebutton.modules.polling.views
 	import mx.controls.HRule;
 	import mx.controls.Label;
 	import mx.controls.dataGridClasses.DataGridColumn;
+	import mx.events.FlexEvent;
 	
 	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.common.AdvancedLabel;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.model.users.User2x;
-	import org.bigbluebutton.core.model.users.Users2x;
 	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 	import org.bigbluebutton.modules.polling.events.PollUpdatedEvent;
 	import org.bigbluebutton.modules.polling.events.PollVoteReceivedEvent;
@@ -55,6 +55,8 @@ package org.bigbluebutton.modules.polling.views
 		
 		public function PollResultsModal() {
 			super();
+			
+			addEventListener(FlexEvent.SHOW, showEventHandler);
 			
 			width = 550;
 			showCloseButton = false;
@@ -205,6 +207,10 @@ package org.bigbluebutton.modules.polling.views
 				}
 			}
 			_voteArray.refresh();
+		}
+		
+		private function showEventHandler(e:FlexEvent):void {
+			this.setFocus();
 		}
 		
 		private function handlePollUpdatedEvent(e:PollUpdatedEvent):void {
