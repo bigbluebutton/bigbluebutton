@@ -114,13 +114,13 @@ class App extends Component {
     let { userList } = this.props;
     const { compactUserList } = this.state;
 
-    //Variables for resizing user-list.
+    // Variables for resizing user-list.
     const USERLIST_MIN_WIDTH_PX = 100;
     const USERLIST_MAX_WIDTH_PX = 240;
     const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
 
-    //prevent the default width size of the userList to exceed the maxWidth
-    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? USERLIST_DEFAULT_WIDTH_RELATIVE + "%" : USERLIST_MAX_WIDTH_PX;
+    // prevent the default width size of the userList to exceed the maxWidth
+    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
 
     if (!userList) return null;
 
@@ -132,7 +132,7 @@ class App extends Component {
 
     return (
       <Resizable
-        defaultSize= {{ width: USERLIST_DEFAULT_WIDTH }}
+        defaultSize={{ width: USERLIST_DEFAULT_WIDTH }}
         minWidth={USERLIST_MIN_WIDTH_PX}
         maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
@@ -156,13 +156,21 @@ class App extends Component {
   renderChat() {
     const { chat, intl } = this.props;
 
+    // Variables for resizing chat.
+    const CHAT_MIN_WIDTH_PX = 180;
+    const CHAT_MAX_WIDTH_PX = 310;
+    const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
+
+    // prevent the default width size of the chat to exceed the maxWidth
+    const CHAT_DEFAULT_WIDTH = (window.innerWidth * (CHAT_DEFAULT_WIDTH_RELATIVE / 100.0)) < CHAT_MAX_WIDTH_PX ? `${CHAT_DEFAULT_WIDTH_RELATIVE}%` : CHAT_MAX_WIDTH_PX;
+
     if (!chat) return null;
 
     return (
       <Resizable
-        defaultSize={{ width: "25%" }}
-        minWidth="15%"
-        maxWidth="30%"
+        defaultSize={{ width: CHAT_DEFAULT_WIDTH }}
+        minWidth={CHAT_MIN_WIDTH_PX}
+        maxWidth={CHAT_MAX_WIDTH_PX}
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
         enable={{ right: true }}
