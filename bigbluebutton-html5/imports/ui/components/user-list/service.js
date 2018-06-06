@@ -320,7 +320,7 @@ const toggleVoice = (userId) => { userId === Auth.userID ? makeCall('toggleSelfV
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const roving = (event, itemCount, changeState) => {
-  if (document.activeElement.firstChild.getAttribute('aria-expanded') === 'true') {
+  if (document.activeElement.getAttribute('data-isopen') === 'true') {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
