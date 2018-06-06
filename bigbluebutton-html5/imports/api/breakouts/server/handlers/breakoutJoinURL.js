@@ -4,12 +4,12 @@ import Breakouts from '/imports/api/breakouts';
 
 export default function handleBreakoutJoinURL({ body }) {
   const {
-    noRedirectJoinURL,
+    redirectToHtml5JoinURL,
     userId,
     breakoutId,
   } = body;
 
-  check(noRedirectJoinURL, String);
+  check(redirectToHtml5JoinURL, String);
 
   const selector = {
     breakoutId,
@@ -20,7 +20,7 @@ export default function handleBreakoutJoinURL({ body }) {
       users: userId,
     },
     $set: {
-      noRedirectJoinURL,
+      redirectToHtml5JoinURL,
     },
   };
 

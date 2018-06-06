@@ -4,7 +4,7 @@ const getBreakouts = () => Breakouts.find().fetch();
 
 const getBreakoutJoinURL = breakout =>
   // experimental
-  breakout.noRedirectJoinURL;
+  breakout.redirectToHtml5JoinURL;
 export default {
   getBreakouts,
   getBreakoutJoinURL,
