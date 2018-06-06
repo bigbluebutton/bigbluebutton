@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.common2.msgs.ChatMessageVO
-import org.bigbluebutton.core.models.{ DirectChats, PublicChats }
-
 import scala.collection.mutable.ArrayBuffer
 
 object ChatModel {
@@ -20,9 +18,5 @@ object ChatModel {
 }
 
 class ChatModel {
-
-  //val directChats = new DirectChats
-  //val publicChats = new PublicChats
-
   private val messages = new ArrayBuffer[ChatMessageVO]()
 }

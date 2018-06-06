@@ -2,7 +2,7 @@ name := "bbb-common-web"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.0.2-SNAPSHOT"
 
 scalaVersion  := "2.12.2"
 
@@ -74,7 +74,7 @@ libraryDependencies += "org.libreoffice" % "juh" % "5.3.2"
 libraryDependencies += "org.libreoffice" % "jurt" % "5.3.2"
 
 
-libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.15"
+libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.17"
 
 libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.5"
 

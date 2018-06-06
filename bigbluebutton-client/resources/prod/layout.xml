@@ -3,8 +3,9 @@
   <layout name="bbb.layout.name.defaultlayout" default="true">
     <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" />
     <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
-    <window name="PresentationWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
+    <window name="PresentationWindow0" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow1" width="0.42125" height="0.571428571428571" x="0.3709375" y="0.014285714285714" />
     <window name="SharedNotesWindow" hidden="true" />
     <window name="BroadcastWindow" hidden="true" />
     <window name="CaptionWindow" hidden="true" />
@@ -12,9 +13,9 @@
   <layout name="bbb.layout.name.closedcaption">
     <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" />
     <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
-    <window name="PresentationWindow" width="0.5575" height="0.539560439560439" x="0.205625" y="0.014285714285714" />
+    <window name="PresentationWindow0" width="0.5575" height="0.539560439560439" x="0.205625" y="0.014285714285714" />
     <window name="CaptionWindow" width="0.5575" height="0.409769917582418" x="0.205625" y="0.575944368131867" />
-    <window name="ChatWindow" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
     <window name="SharedNotesWindow" hidden="true" />
     <window name="BroadcastWindow" hidden="true" />
   </layout>
@@ -22,23 +23,23 @@
     <window name="VideoDock" width="1" height="1" x="0" y="0" order="0"/>
     <window name="SharedNotesWindow" hidden="true" />
     <window name="BroadcastWindow" hidden="true" />
-    <window name="ChatWindow" hidden="true"  />
-    <window name="PresentationWindow" hidden="true"  />
+    <window name="ChatWindow0" hidden="true"  />
+    <window name="PresentationWindow0" hidden="true"  />
     <window name="UsersWindow" hidden="true" />
     <window name="CaptionWindow" hidden="true"  />
   </layout>
   <layout name="bbb.layout.name.webcamsfocus">
     <window name="VideoDock" width="0.649206313314037" height="0.971428571428571" x="0.0078125" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.014285714285714" />
-    <window name="PresentationWindow" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.507142857142857" />
+    <window name="ChatWindow0" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.014285714285714" />
+    <window name="PresentationWindow0" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.507142857142857" />
     <window name="CaptionWindow" hidden="true"  />
     <window name="BroadcastWindow" hidden="true" />
     <window name="UsersWindow" hidden="true"  />
     <window name="SharedNotesWindow" hidden="true" />
   </layout>
   <layout name="bbb.layout.name.presentfocus">
-    <window name="PresentationWindow" width="0.649206313314037" height="0.971428571428571" x="0.0078125" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.014285714285714" />
+    <window name="PresentationWindow0" width="0.649206313314037" height="0.971428571428571" x="0.0078125" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.014285714285714" />
     <window name="VideoDock" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.507142857142857" />
     <window name="CaptionWindow" hidden="true" />
     <window name="SharedNotesWindow" hidden="true" />
@@ -46,8 +47,8 @@
     <window name="UsersWindow" hidden="true" />
   </layout>
   <layout name="bbb.layout.name.presentandusers">
-    <window name="PresentationWindow" width="0.649206313314037" height="0.971428571428571" x="0.0078125" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.014285714285714" />
+    <window name="PresentationWindow0" width="0.649206313314037" height="0.971428571428571" x="0.0078125" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.014285714285714" />
     <window name="UsersWindow" width="0.335168686685963" height="0.478571428571429" x="0.664831313314037" y="0.507142857142857" />
     <window name="CaptionWindow" hidden="true" />
     <window name="SharedNotesWindow" hidden="true" />
@@ -56,8 +57,8 @@
   </layout>
   <layout name="bbb.layout.name.lectureassistant">
     <window name="UsersWindow" width="0.19" height="0.971428571428571" x="0.0078125" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
-    <window name="PresentationWindow" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
+    <window name="PresentationWindow0" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" />
     <window name="VideoDock" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.507142857142857" />
     <window name="SharedNotesWindow" hidden="true" />
     <window name="BroadcastWindow" hidden="true" />
@@ -66,25 +67,25 @@
   <layout name="bbb.layout.name.lecture">
     <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" order="3"/>
     <window name="SharedNotesWindow" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" order="4"/>
-    <window name="PresentationWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" order="2"/>
+    <window name="PresentationWindow0" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" order="2"/>
     <window name="VideoDock" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.507142857142857" order="0"/>
     <window name="BroadcastWindow" hidden="true"/>
     <window name="CaptionWindow" hidden="true"/>
   </layout>
   <layout name="bbb.layout.name.lecture" role="presenter">
-    <window name="PresentationWindow" maximized="true" />
+    <window name="PresentationWindow0" maximized="true" />
     <window name="SharedNotesWindow" hidden="true" />
     <window name="BroadcastWindow" hidden="true"/>
-    <window name="ChatWindow" hidden="true" />
+    <window name="ChatWindow0" hidden="true" />
     <window name="UsersWindow" hidden="true" />
     <window name="VideoDock" hidden="true" />
     <window name="CaptionWindow" hidden="true" />
   </layout>
   <layout name="bbb.layout.name.lecture" role="moderator">
     <window name="UsersWindow" width="0.19" height="0.971428571428571" x="0.0078125" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
-    <window name="PresentationWindow" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
+    <window name="PresentationWindow0" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.014285714285714" />
     <window name="VideoDock" width="0.22125" height="0.478571428571429" x="0.7709375" y="0.507142857142857" />
     <window name="SharedNotesWindow" hidden="true" />
     <window name="BroadcastWindow" hidden="true" />
@@ -93,10 +94,52 @@
   <layout name="bbb.layout.name.sharednotes">
     <window name="UsersWindow" width="0.19" height="0.611428571428572" x="0.0078125" y="0.014285714285714" order="3"/>
     <window name="SharedNotesWindow" width="0.19" height="0.337901785714285" x="0.0078125" y="0.647812500000000" order="4"/>
-    <window name="PresentationWindow" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
-    <window name="ChatWindow" width="0.22125" height="0.611428571428572" x="0.7709375" y="0.014285714285714" order="2"/>
+    <window name="PresentationWindow0" width="0.5575" height="0.971428571428571" x="0.205625" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.22125" height="0.611428571428572" x="0.7709375" y="0.014285714285714" order="2"/>
     <window name="VideoDock" width="0.22125" height="0.337901785714285" x="0.7709375" y="0.647812500000000" order="0"/>
     <window name="BroadcastWindow" hidden="true"/>
     <window name="CaptionWindow" hidden="true"/>
+  </layout>
+  <layout name="bbb.layout.name.presentation2x1" default="true">
+    <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" />
+    <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
+    <window name="PresentationWindow0" width="0.274843750000000" height="0.971428571428571" x="0.205625000000000" y="0.014285714285714" />
+    <window name="PresentationWindow1" width="0.274843750000000" height="0.971428571428571" x="0.488281250000000" y="0.014285714285714" />
+    <window name="ChatWindow0" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow1" width="0.42125" height="0.571428571428571" x="0.3709375" y="0.014285714285714" />
+    <window name="SharedNotesWindow" hidden="true" />
+    <window name="BroadcastWindow" hidden="true" />
+    <window name="CaptionWindow" hidden="true" />
+  </layout>
+  <layout name="bbb.layout.name.presentation2x2" default="true">
+    <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" />
+    <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
+    <window name="PresentationWindow0" width="0.274843750000000" height="0.478571428571429" x="0.205625000000000" y="0.014285714285714" />
+    <window name="PresentationWindow1" width="0.274843750000000" height="0.478571428571429" x="0.488281250000000" y="0.014285714285714" />
+    <window name="PresentationWindow2" width="0.274843750000000" height="0.478571428571429" x="0.205625000000000" y="0.507142857142857" />
+    <window name="PresentationWindow3" width="0.274843750000000" height="0.478571428571429" x="0.488281250000000" y="0.507142857142857" />
+    <window name="ChatWindow0" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow1" width="0.42125" height="0.571428571428571" x="0.3709375" y="0.014285714285714" />
+    <window name="SharedNotesWindow" hidden="true" />
+    <window name="BroadcastWindow" hidden="true" />
+    <window name="CaptionWindow" hidden="true" />
+  </layout>
+  <layout name="bbb.layout.name.presentation3x3" default="true">
+    <window name="UsersWindow" width="0.19" height="0.645714285714286" x="0.0078125" y="0.014285714285714" />
+    <window name="VideoDock" width="0.19" height="0.303616071428571" x="0.0078125" y="0.682098214285714" />
+    <window name="PresentationWindow0" width="0.180625000000000" height="0.314285714285714" x="0.205625000000000" y="0.014285714285714" />
+    <window name="PresentationWindow1" width="0.180625000000000" height="0.314285714285714" x="0.394062500000000" y="0.014285714285714" />
+    <window name="PresentationWindow2" width="0.180625000000000" height="0.314285714285714" x="0.582500000000000" y="0.014285714285714" />
+    <window name="PresentationWindow3" width="0.180625000000000" height="0.314285714285714" x="0.205625000000000" y="0.342857142857143" />
+    <window name="PresentationWindow4" width="0.180625000000000" height="0.314285714285714" x="0.394062500000000" y="0.342857142857143" />
+    <window name="PresentationWindow5" width="0.180625000000000" height="0.314285714285714" x="0.582500000000000" y="0.342857142857143" />
+    <window name="PresentationWindow6" width="0.180625000000000" height="0.314285714285714" x="0.205625000000000" y="0.671428571428571" />
+    <window name="PresentationWindow7" width="0.180625000000000" height="0.314285714285714" x="0.394062500000000" y="0.671428571428571" />
+    <window name="PresentationWindow8" width="0.180625000000000" height="0.314285714285714" x="0.582500000000000" y="0.671428571428571" />
+    <window name="ChatWindow0" width="0.22125" height="0.971428571428571" x="0.7709375" y="0.014285714285714" />
+    <window name="ChatWindow1" width="0.42125" height="0.571428571428571" x="0.3709375" y="0.014285714285714" />
+    <window name="SharedNotesWindow" hidden="true" />
+    <window name="BroadcastWindow" hidden="true" />
+    <window name="CaptionWindow" hidden="true" />
   </layout>
 </layouts>

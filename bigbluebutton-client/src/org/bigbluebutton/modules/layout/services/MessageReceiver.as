@@ -37,6 +37,8 @@ package org.bigbluebutton.modules.layout.services {
 				case "BroadcastLayoutEvtMsg":
 					handleBroadcastLayoutEvtMsg(message);
 					break;
+				default:
+					break;
 					/*
 				case "getCurrentLayoutResponse":
 					handleGetCurrentLayoutResponse(message);

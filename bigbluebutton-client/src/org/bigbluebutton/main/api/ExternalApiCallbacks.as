@@ -91,7 +91,6 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("stopShareCameraRequest", handleStopShareCameraRequest);
         ExternalInterface.addCallback("switchLayout", handleSwitchLayoutRequest);
         ExternalInterface.addCallback("sendPublicChatRequest", handleSendPublicChatRequest);  
-        ExternalInterface.addCallback("sendPrivateChatRequest", handleSendPrivateChatRequest); 
         ExternalInterface.addCallback("lockLayout", handleSendLockLayoutRequest);
         ExternalInterface.addCallback("displayPresentationRequest", handleDisplayPresentationRequest);
         ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
@@ -118,17 +117,17 @@ package org.bigbluebutton.main.api
     }
 
     private function handleQueryListsOfPresentationsRequest():void {    
-      _dispatcher.dispatchEvent(new GetListOfPresentationsRequest());
+      _dispatcher.dispatchEvent(new GetListOfPresentationsRequest("UNKNOWN"));
     }
         
     private function handleDisplayPresentationRequest(presentationID:String):void {
-      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY, "DEFAULT_PRESENTATION_POD");
       readyEvent.presentationName = presentationID;
       _dispatcher.dispatchEvent(readyEvent);
     }
     
     private function handleDeletePresentationRequest(presentationID:String):void {
-      var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
+      var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT, "unknown");
       rEvent.presentationName = presentationID;
       _dispatcher.dispatchEvent(rEvent);
     }
@@ -297,7 +296,6 @@ package org.bigbluebutton.main.api
       
       var now:Date = new Date();
       payload.fromTime = now.getTime();
-      payload.fromTimezoneOffset = now.getTimezoneOffset();
       
       payload.message = message;
       
@@ -310,35 +308,6 @@ package org.bigbluebutton.main.api
       
       _dispatcher.dispatchEvent(chatEvent);
     }
-    
-    /**
-     * Request to send a private chat
-     *  fromUserID - the external user id for the sender
-     *  fontColor  - the color of the font to display the message
-     *  localeLang - the 2-char locale code (e.g. en) for the sender
-     *  message    - the message to send
-     *  toUserID   - the external user id of the receiver
-     */
-    private function handleSendPrivateChatRequest(fontColor:String, localeLang:String, message:String, toUserID:String):void {
-      var chatEvent:CoreEvent = new CoreEvent(EventConstants.SEND_PRIVATE_CHAT_REQ);      
-      var payload:Object = new Object();      
-      payload.fromColor = fontColor;
-      payload.fromLang = localeLang;
-      
-      var now:Date = new Date();
-      payload.fromTime = now.getTime();
-      payload.fromTimezoneOffset = now.getTimezoneOffset();
-      
-      payload.message = message;
-      payload.fromUserID = UsersUtil.getMyUserID();
-      payload.fromUsername = UsersUtil.getUserName(payload.fromUserID);
-      payload.toUserID = toUserID;
-      payload.toUsername = UsersUtil.getUserName(payload.toUserID);
-      
-      chatEvent.message = payload;
-      
-      _dispatcher.dispatchEvent(chatEvent);
-    }      
 
     private function handleSwitchLayoutRequest(newLayout:String):void {
       var layoutEvent:CoreEvent = new CoreEvent(EventConstants.SWITCH_LAYOUT_REQ);

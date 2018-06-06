@@ -48,7 +48,7 @@ case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, que
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean)
 
 case class UserVO(id: String, externalId: String, name: String, role: String,
-                  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emojiStatus: String,
+                  guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
                   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
                   phoneUser: Boolean, voiceUser: VoiceUserVO, listenOnly: Boolean, avatarURL: String,
                   joinedWeb: Boolean)

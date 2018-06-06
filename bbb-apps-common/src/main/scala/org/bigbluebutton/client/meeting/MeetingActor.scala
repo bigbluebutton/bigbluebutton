@@ -31,7 +31,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   }
 
   def handleConnectMsg(msg: ConnectMsg): Unit = {
-    log.debug("**** MeetingActor handleConnectMsg " + msg.connInfo.meetingId)
+    //log.debug("**** MeetingActor handleConnectMsg " + msg.connInfo.meetingId)
     UsersManager.findWithId(userMgr, msg.connInfo.userId) match {
       case Some(m) => m.actorRef forward(msg)
       case None =>
@@ -42,7 +42,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   }
 
   def handleDisconnectMsg(msg: DisconnectMsg): Unit = {
-    log.debug("**** MeetingActor handleDisconnectMsg " + msg.connInfo.meetingId)
+    //log.debug("**** MeetingActor handleDisconnectMsg " + msg.connInfo.meetingId)
     for {
       m <- UsersManager.findWithId(userMgr, msg.connInfo.userId)
     } yield {
@@ -51,7 +51,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
-    log.debug("**** MeetingActor handleMsgFromClient " + msg.json)
+    //log.debug("**** MeetingActor handleMsgFromClient " + msg.json)
     for {
       m <- UsersManager.findWithId(userMgr, msg.connInfo.userId)
     } yield {
@@ -60,7 +60,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** MeetingActor handleBbbServerMsg " + msg.envelope.name)
+    //log.debug("**** MeetingActor handleBbbServerMsg " + msg.envelope.name)
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {
@@ -69,7 +69,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   }
 
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** MeetingActor handleServerMsg " + msg.envelope.name)
+    //log.debug("**** MeetingActor handleServerMsg " + msg.envelope.name)
     msgType match {
       case MessageTypes.DIRECT => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
@@ -78,18 +78,18 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
   }
 
   private def forwardToUser(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** MeetingActor forwardToUser " + msg.envelope.name)
+    //log.debug("**** MeetingActor forwardToUser " + msg.envelope.name)
     for {
       userId <- msg.envelope.routing.get("userId")
       m <- UsersManager.findWithId(userMgr, userId)
     } yield {
-      log.debug("**** MeetingActor forwardToUser " + m.userId)
+      //log.debug("**** MeetingActor forwardToUser " + m.userId)
       m.actorRef forward(msg)
     }
   }
 
   def handleDirectMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** MeetingActor handleDirectMessage " + msg.envelope.name)
+    //log.debug("**** MeetingActor handleDirectMessage " + msg.envelope.name)
     // In case we want to handle specific messages. We can do it here.
     forwardToUser(msg)
   }

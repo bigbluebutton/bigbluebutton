@@ -170,6 +170,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function getPrefferedPosition():String{
         return MainCanvas.DESKTOP_SHARING_PUBLISH;
       }
+      
+      public function getName():String {
+        return "ScreensharePublishWindow";
+      }
 
       public function handleDisconnectedEvent(event:BBBEvent):void {
           if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
@@ -414,6 +418,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           case "NetStream.Play.Start":
             LOGGER.debug("Netstatus: " + e.info.code);
             globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
+			break;
+		  default:
+			  break;
         }
       }
 
@@ -627,7 +634,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Spacer width="100%" />
       <mx:HBox id="shareTypeBox" visible="false" verticalAlign="middle">
         <mx:Label styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.shareTypeLabel.text')}" />
-        <mx:ComboBox id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
+        <common:ComboBox2 id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
       </mx:HBox>
     <mx:Spacer width="80%" />
 	<mx:Button id="pauseBtn" visible="false" includeInLayout="false" click="pauseSharing()" toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" />

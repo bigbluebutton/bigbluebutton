@@ -62,7 +62,7 @@
       };
 
       //swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
-      var flashvars = {};
+      var flashvars = {"origin":window.location.origin};
       var params = {};
       params.quality = "high";
       params.bgcolor = "#FFFFFF";
@@ -79,7 +79,7 @@
       } else {
         params.wmode = "window";
       }
-      params.allowscriptaccess = "true";
+      params.allowscriptaccess = "always";
       params.seamlesstabbing = "true";
       var attributes = {};
       attributes.id = "BigBlueButton";
@@ -98,7 +98,7 @@
         var fillContent = function(){
           var content = document.getElementById("content");
           if (content) {
-            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="allowfullscreeninteractive" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="allowfullscreeninteractive" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="always"><param name="seamlesstabbing" value="true"><param name="FlashVars" value="origin='+window.location.origin+'"/></object>';
           }
         };
       } else {

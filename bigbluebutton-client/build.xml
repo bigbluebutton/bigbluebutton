@@ -287,7 +287,9 @@
 				<default-background-color>0xFFFFFF</default-background-color>
 				<source-path path-element="@{themeDir}" />
 				<source-path path-element="@{flex}/frameworks" />
+				<source-path path-element="@{app}/locale/{locale}" />
 				<show-unused-type-selector-warnings>false</show-unused-type-selector-warnings>
+				<allow-source-path-overlap>true</allow-source-path-overlap>
 
 				<theme dir="@{flex}/frameworks/themes/Halo">
 					<include name="halo.swc" />
@@ -421,6 +423,7 @@
 			<fileset dir="${PROD_RESOURCES_DIR}/help" />
 		</copy>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true" />
+		<copy file="${PROD_RESOURCES_DIR}/guest-wait.html" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/ScreenshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true" />
 		<copy file="${PROD_RESOURCES_DIR}/get_flash_player.gif" todir="${OUTPUT_DIR}" overwrite="true" />
@@ -510,6 +513,4 @@
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-screenshare-standalone,
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" description="Build BBB client without locales" />
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales" />
-
-	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
 </project>

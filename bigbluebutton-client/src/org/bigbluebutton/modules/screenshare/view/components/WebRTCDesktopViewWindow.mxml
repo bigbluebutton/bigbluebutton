@@ -58,9 +58,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
+			
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.ReconnectionManager;
 			import org.bigbluebutton.main.events.BBBEvent;
+			
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewWindowEvent;
@@ -168,7 +170,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
-				
 					if (useRTMPS) {
 						nc.proxyType = ConnUtil.PROXY_NONE;
 						tunnelProtocol = ConnUtil.RTMPS;
@@ -245,7 +246,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.Closed":
-						trace(LOG + "Deskshare connection closed.");
+						LOGGER.debug(LOG + "Deskshare connection closed.");
 						ce.status = WebRTCConnectionEvent.CLOSED;
 						break;
 
@@ -335,6 +336,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
+			}
+			
+			public function getName():String {
+				return "ScreenshareViewWindow";
 			}
 
 			/**

@@ -5,22 +5,29 @@ import org.bigbluebutton.core.api.EndBreakoutRoomInternalMsg
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait EndAllBreakoutRoomsMsgHdlr {
+trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
 
   def handleEndAllBreakoutRoomsMsg(msg: EndAllBreakoutRoomsMsg, state: MeetingState2x): MeetingState2x = {
-
-    for {
-      model <- state.breakout
-    } yield {
-      model.rooms.values.foreach { room =>
-        eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id)))
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to end breakout rooms for meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+      state
+    } else {
+      for {
+        model <- state.breakout
+      } yield {
+        model.rooms.values.foreach { room =>
+          eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id)))
+        }
       }
-    }
 
-    state.update(None)
+      state.update(None)
+    }
   }
 }

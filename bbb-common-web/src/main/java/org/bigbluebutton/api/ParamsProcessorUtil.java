@@ -71,6 +71,7 @@ public class ParamsProcessorUtil {
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
     private String defaultClientUrl;
+    private String defaultGuestWaitURL;
     private String html5ClientUrl;
     private Boolean moderatorsJoinViaHTML5Client;
     private Boolean attendeesJoinViaHTML5Client;
@@ -86,7 +87,10 @@ public class ParamsProcessorUtil {
 
     private String defaultConfigXML = null;
 
+    private Long maxPresentationFileUpload = 30000000L; // 30MB
+
     private Integer maxInactivityTimeoutMinutes = 120;
+    private Integer clientLogoutTimerInMinutes = 0;
 		private Integer warnMinutesBeforeMax = 5;
 		private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 		private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -352,11 +356,12 @@ public class ParamsProcessorUtil {
         boolean record = processRecordMeeting(params.get("record"));
         int maxUsers = processMaxUser(params.get("maxParticipants"));
         int meetingDuration = processMeetingDuration(params.get("duration"));
-        int logoutTimer = processMeetingDuration(params.get("logoutTimer"));
-
-        // Hardcode to zero as we don't use this feature in 2.0.x (ralam dec 18, 2017)
-		logoutTimer = 0;
-
+        int logoutTimer = processLogoutTimer(params.get("logoutTimer"));
+        
+        // Banner parameters
+        String bannerText = params.get("bannerText");
+        String bannerColor = params.get("bannerColor");
+        
         // set is breakout room property
         boolean isBreakout = false;
         if (!StringUtils.isEmpty(params.get("isBreakout"))) {
@@ -452,6 +457,7 @@ public class ParamsProcessorUtil {
                 .withViewerPass(viewerPass).withRecording(record)
                 .withDuration(meetingDuration).withLogoutUrl(logoutUrl)
                 .withLogoutTimer(logoutTimer)
+                .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(defaultAvatarURL)
@@ -513,6 +519,10 @@ public class ParamsProcessorUtil {
 	public String getDefaultClientUrl() {
 		return defaultClientUrl;
 	}
+
+	public String getDefaultGuestWaitURL() {
+		return defaultGuestWaitURL;
+        }
 
 	public String getHTML5ClientUrl() {
 		return html5ClientUrl;
@@ -665,8 +675,20 @@ public class ParamsProcessorUtil {
     }   
     
     return mDuration;
-  } 
-  	
+  }
+
+	public int processLogoutTimer(String logoutTimer) {
+		int mDuration = clientLogoutTimerInMinutes;
+
+		try {
+			mDuration = Integer.parseInt(logoutTimer);
+		} catch(Exception ex) {
+			mDuration = clientLogoutTimerInMinutes;
+		}
+
+		return mDuration;
+	}
+
 	public boolean isTestMeeting(String telVoice) {	
 		return ((! StringUtils.isEmpty(telVoice)) && 
 				(! StringUtils.isEmpty(testVoiceBridge)) && 
@@ -687,8 +709,15 @@ public class ParamsProcessorUtil {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;
 		}
-        
-		String cs = DigestUtils.shaHex(meetingID + configXML + securitySalt);
+
+		log.info("CONFIGXML CHECKSUM=" + checksum + " length=" + checksum.length());
+
+		String data = meetingID + configXML + securitySalt;
+		String cs = DigestUtils.sha1Hex(data);
+		if (checksum.length() == 64) {
+			cs = DigestUtils.sha256Hex(data);
+			log.info("CONFIGXML SHA256 " + cs);
+		}
 
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
@@ -713,8 +742,14 @@ public class ParamsProcessorUtil {
 		    queryString = queryString.replace("checksum=" + checksum, "");
 		}
 
-		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
+		log.info("CHECKSUM=" + checksum + " length=" + checksum.length());
 
+		String data = apiCall + queryString + securitySalt;
+		String cs = DigestUtils.sha1Hex(data);
+		if (checksum.length() == 64) {
+			cs = DigestUtils.sha256Hex(data);
+			log.info("SHA256 " + cs);
+		}
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
@@ -844,6 +879,10 @@ public class ParamsProcessorUtil {
 		this.defaultClientUrl = defaultClientUrl;
 	}
 
+	public void setDefaultGuestWaitURL(String url) {
+		this.defaultGuestWaitURL = url;
+        }
+
 	public void setHtml5ClientUrl(String html5ClientUrl) {
 		this.html5ClientUrl = html5ClientUrl;
 	}
@@ -888,6 +927,10 @@ public class ParamsProcessorUtil {
 		maxInactivityTimeoutMinutes = value;
 	}
 
+	public void setClientLogoutTimerInMinutes(Integer value) {
+		clientLogoutTimerInMinutes = value;
+	}
+
 	public void setWarnMinutesBeforeMax(Integer value) {
 		warnMinutesBeforeMax = value;
 	}
@@ -911,6 +954,14 @@ public class ParamsProcessorUtil {
 
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
 		meetingExpireIfNoUserJoinedInMinutes = value;
+	}
+
+	public void setMaxPresentationFileUpload(Long maxFileSize) {
+		maxPresentationFileUpload = maxFileSize;
+	}
+
+	public Long getMaxPresentationFileUpload() {
+		return maxPresentationFileUpload;
 	}
 
 	public void setMuteOnStart(Boolean mute) {

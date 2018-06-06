@@ -129,7 +129,7 @@ if not FileTest.directory?(target_dir)
     end
 
     participants = recording.at_xpath("participants")
-    participants.content = BigBlueButton::Events.get_num_participants("#{target_dir}/events.xml")
+    participants.content = BigBlueButton::Events.get_num_participants(@doc)
 
     ## Remove empty meta
     metadata.search('//recording/meta').each do |meta|

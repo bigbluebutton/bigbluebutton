@@ -70,6 +70,12 @@ case class MeetingDestroyedEvtMsg(header: BbbCoreBaseHeader,
                                 body: MeetingDestroyedEvtMsgBody) extends BbbCoreMsg
 case class MeetingDestroyedEvtMsgBody(meetingId: String)
 
+/**
+  * System server side message to eject user from meeting.
+  */
+object EjectUserFromMeetingSysMsg { val NAME = "EjectUserFromMeetingSysMsg" }
+case class EjectUserFromMeetingSysMsg(header: BbbClientMsgHeader, body: EjectUserFromMeetingSysMsgBody) extends StandardMsg
+case class EjectUserFromMeetingSysMsgBody(userId: String, ejectedBy: String)
 
 object DisconnectAllClientsSysMsg { val NAME = "DisconnectAllClientsSysMsg"}
 case class DisconnectAllClientsSysMsg(header: BbbCoreHeaderWithMeetingId,
@@ -79,7 +85,7 @@ case class DisconnectAllClientsSysMsgBody(meetingId: String, reason: String)
 object DisconnectClientSysMsg { val NAME = "DisconnectClientSysMsg"}
 case class DisconnectClientSysMsg(header: BbbCoreHeaderWithMeetingId,
                                   body: DisconnectClientSysMsgBody) extends BbbCoreMsg
-case class DisconnectClientSysMsgBody(meetingId: String, userId: String, reason: String)
+case class DisconnectClientSysMsgBody(meetingId: String, userId: String, ejectedBy: String, reason: String)
 
 object EndAndKickAllSysMsg { val NAME = "EndAndKickAllSysMsg"}
 case class EndAndKickAllSysMsg(header: BbbCoreHeaderWithMeetingId,
@@ -123,6 +129,12 @@ object CheckAlivePongSysMsg { val NAME = "CheckAlivePongSysMsg" }
 case class CheckAlivePongSysMsg(header: BbbCoreBaseHeader,
                                 body: CheckAlivePongSysMsgBody) extends BbbCoreMsg
 case class CheckAlivePongSysMsgBody(system: String, timestamp: Long)
+
+
+object RecordingChapterBreakSysMsg { val NAME = "RecordingChapterBreakSysMsg" }
+case class RecordingChapterBreakSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                body: RecordingChapterBreakSysMsgBody) extends BbbCoreMsg
+case class RecordingChapterBreakSysMsgBody(meetingId: String, timestamp: Long)
 
 object ValidateConnAuthTokenSysMsg { val NAME = "ValidateConnAuthTokenSysMsg" }
 case class ValidateConnAuthTokenSysMsg(header: BbbCoreBaseHeader,

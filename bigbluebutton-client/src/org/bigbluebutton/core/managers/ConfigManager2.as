@@ -26,9 +26,6 @@ package org.bigbluebutton.core.managers {
     import flash.net.URLVariables;
     import flash.utils.Dictionary;
     
-    import mx.core.FlexGlobals;
-    import mx.utils.URLUtil;
-    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.common.LogUtil;
@@ -55,7 +52,7 @@ package org.bigbluebutton.core.managers {
             urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 
             var date:Date = new Date();
-            var localeReqURL:String = buildRequestURL();
+            var localeReqURL:String = BBB.getBaseURL() + "/" + CONFIG_XML;;
             trace("::loadConfig [{0}]", [localeReqURL]);
 
             trace(localeReqURL + " session=[" + sessionToken + "]");
@@ -65,13 +62,6 @@ package org.bigbluebutton.core.managers {
             request.data = reqVars;
 
             urlLoader.load(request);
-        }
-
-        private function buildRequestURL():String {
-            var swfURL:String = FlexGlobals.topLevelApplication.url;
-            var protocol:String = URLUtil.getProtocol(swfURL);
-            var serverName:String = URLUtil.getServerNameWithPort(swfURL);
-            return protocol + "://" + serverName + "/" + CONFIG_XML;
         }
 
         private function handleComplete(e:Event):void {

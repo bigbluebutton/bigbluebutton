@@ -22,24 +22,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<fx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-      
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.modules.present.business.PresentProxy;
-      import org.bigbluebutton.modules.present.commands.ChangePageCommand;
-      import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
-      import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
-      import org.bigbluebutton.modules.present.commands.GoToPageCommand;
-      import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
-      import org.bigbluebutton.modules.present.commands.UploadFileCommand;
-      import org.bigbluebutton.modules.present.events.DownloadEvent;
-      import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
-      import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-      import org.bigbluebutton.modules.present.events.PresenterCommands;
-      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.modules.present.managers.PresentManager;
-      import org.bigbluebutton.modules.present.services.PageLoaderService;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.modules.present.business.PresentProxy;
+			import org.bigbluebutton.modules.present.commands.ChangePageCommand;
+			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
+			import org.bigbluebutton.modules.present.commands.UploadFileCommand;
+			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.events.ExportEvent;
+			import org.bigbluebutton.modules.present.events.GetAllPodsRespEvent;
+			import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
+			import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
+			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+			import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
+			import org.bigbluebutton.modules.present.events.PresentationUploadTokenFail;
+			import org.bigbluebutton.modules.present.events.PresentationUploadTokenPass;
+			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
+			import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+			import org.bigbluebutton.modules.present.events.SetPresentationDownloadableEvent;
+			import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.modules.present.managers.PresentManager;
+			import org.bigbluebutton.modules.present.services.PageLoaderService;
 		]]>
 	</fx:Script>
 	
@@ -51,8 +61,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 			<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
-      <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
-	    <MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
+			<MethodInvoker generator="{PresentProxy}" method="getPresentationPodsInfo" />
+			<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
 		</EventHandlers>
 		
 		<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
@@ -60,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 	
 		<EventHandlers type="{DownloadEvent.OPEN_DOWNLOAD_WINDOW}" >
-			<MethodInvoker generator="{PresentManager}" method="handleOpenDownloadWindow" />
+			<MethodInvoker generator="{PresentManager}" method="handleOpenDownloadWindow" arguments="{event}"/>
 		</EventHandlers>
 	
 		<EventHandlers type="{DownloadEvent.CLOSE_DOWNLOAD_WINDOW}" >
@@ -72,7 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 		
 		<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-			<MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+			<MethodInvoker generator="{PresentProxy}" method="getPresentationPodsInfo" />
 		</EventHandlers>
 		
 		<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
@@ -82,11 +92,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
 			<MethodInvoker generator="{PresentManager}" method="handleCloseUploadWindow" />
 		</EventHandlers>
-			
-		<EventHandlers type="{UploadFileCommand.UPLOAD_FILE}">
-			<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
+		
+		<EventHandlers type="{ExportEvent.OPEN_EXPORT_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleOpenExportWindow" arguments="{event}"/>
 		</EventHandlers>
 		
+		<EventHandlers type="{ExportEvent.CLOSE_EXPORT_WINDOW}" >
+			<MethodInvoker generator="{PresentManager}" method="handleCloseExportWindow" />
+		</EventHandlers>
+			
+		<EventHandlers type="{UploadFileCommand.UPLOAD_FILE}">
+			<MethodInvoker generator="{PresentProxy}" method="requestUploadToken" arguments="{event}" />
+		</EventHandlers>
+
+
+		<EventHandlers type="{PresentationUploadTokenPass.PRESENTATION_UPLOAD_TOKEN_PASS}">
+			<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{PresentationUploadTokenFail.PRESENTATION_UPLOAD_TOKEN_FAIL}">
+			<MethodInvoker generator="{PresentProxy}" method="cancelUpload" arguments="{event}" />
+		</EventHandlers>
+
 		<EventHandlers type="{PresenterCommands.GOTO_SLIDE}" >
 			<MethodInvoker generator="{PresentProxy}" method="gotoSlide" arguments="{event}" />
 		</EventHandlers>
@@ -100,7 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 	
 	  <EventHandlers type="{GetListOfPresentationsRequest.GET_LIST_OF_PRESENTATIONS}" >
-	    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" />
+	    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" arguments="{event}" />
 	  </EventHandlers>
 		
 		<EventHandlers type="{PresenterCommands.RESIZE}" >
@@ -113,6 +140,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
 			<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
+		</EventHandlers>
+		
+		<EventHandlers type="{SetPresentationDownloadableEvent.SET_DOWNLOADABLE}">
+			<MethodInvoker generator="{PresentProxy}" method="setPresentationDownloadable" arguments="{event}" />
 		</EventHandlers>
 		
 	  <EventHandlers type="{ChangePresentationCommand.CHANGE_PRESENTATION}">
@@ -130,5 +161,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{GoToNextPageCommand.GO_TO_NEXT_PAGE}">
 	    <MethodInvoker generator="{PresentProxy}" method="handleGoToNextPageCommand" arguments="{event}" />
 	  </EventHandlers>
+
+		<EventHandlers type="{NewPresentationPodCreated.PRESENTATION_NEW_POD_CREATED}" >
+			<MethodInvoker generator="{PresentManager}" method="handleAddPresentationPod" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD}" >
+			<MethodInvoker generator="{PresentProxy}" method="handleRequestNewPresentationPod" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{RequestClosePresentationPodEvent.REQUEST_CLOSE_PRES_POD}" >
+			<MethodInvoker generator="{PresentProxy}" method="handleRequestClosePresentationPod" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{PresentationPodRemoved.PRESENTATION_POD_REMOVED}" >
+			<MethodInvoker generator="{PresentManager}" method="handlePresentationPodRemoved" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{GetAllPodsRespEvent.GET_ALL_PODS_RESP}" >
+			<MethodInvoker generator="{PresentManager}" method="handleGetAllPodsRespEvent" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{SetPresenterInPodReqEvent.SET_PRESENTER_IN_POD_REQ}" >
+			<MethodInvoker generator="{PresentProxy}" method="handleSetPresenterInPodReqEvent" arguments="{event}" />
+		</EventHandlers>
+
 	</fx:Declarations>
 </EventMap>

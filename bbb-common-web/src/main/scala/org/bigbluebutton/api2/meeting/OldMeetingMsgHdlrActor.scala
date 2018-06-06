@@ -1,5 +1,7 @@
 package org.bigbluebutton.api2.meeting
 
+import java.util
+
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
@@ -36,8 +38,21 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStartedEvtMsg => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
+      case m: PresentationUploadTokenSysPubMsg => handlePresentationUploadTokenSysPubMsg(m)
+      case m: GuestsWaitingApprovedEvtMsg => handleGuestsWaitingApprovedEvtMsg(m)
+      case m: GuestPolicyChangedEvtMsg => handleGuestPolicyChangedEvtMsg(m)
+      case m: RecordingChapterBreakSysMsg => handleRecordingChapterBreakSysMsg(m)
+
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
+  }
+
+  def handleGuestPolicyChangedEvtMsg(msg: GuestPolicyChangedEvtMsg): Unit = {
+    olgMsgGW.handle(new GuestPolicyChanged(msg.header.meetingId, msg.body.policy))
+  }
+
+  def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
+    olgMsgGW.handle(new RecordChapterBreak(msg.body.meetingId, msg.body.timestamp))
   }
 
   def handleMeetingCreatedEvtMsg(msg: MeetingCreatedEvtMsg): Unit = {
@@ -76,7 +91,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     olgMsgGW.handle(new UserJoined(msg.header.meetingId, msg.body.intId,
-      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest, msg.body.waitingForAcceptance))
+      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest,
+      msg.body.guestStatus))
 
   }
 
@@ -120,5 +136,14 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     olgMsgGW.handle(new UserRoleChanged(msg.header.meetingId, msg.body.userId, msg.body.role))
   }
 
+  def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
+   olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename))
+  }
 
+  def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {
+    val u: util.ArrayList[GuestsStatus] = new util.ArrayList[GuestsStatus]()
+    msg.body.guests.foreach(g => u.add(new GuestsStatus(g.guest, g.status)))
+    val m = new GuestStatusChangedEventMsg(msg.header.meetingId, u)
+    olgMsgGW.handle(m)
+  }
 }

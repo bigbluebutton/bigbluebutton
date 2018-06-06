@@ -39,8 +39,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 	  <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
 	  <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
-	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
-	  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
 	  <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
 	</fx:Declarations>
 	<fx:Script>
@@ -54,38 +52,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageLocalCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PageChangedEvent;
 			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PagePositionBroadcaster;
 			import org.bigbluebutton.modules.present.model.Presentation;
-			import org.bigbluebutton.modules.present.model.PresentationModel;
+			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+
 			private static const LOGGER:ILogger = getClassLogger(SlideView);      
       
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 			
-			private var whiteboardCanvas:WhiteboardCanvas;
+			private var whiteboardOverlay:IWhiteboardOverlay;
 										
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
 			[Bindable]
-			private var slideModel:SlideViewModel = new SlideViewModel();
+			public var slideModel:SlideViewModel = new SlideViewModel();
+
+
+			public var podId:String;
+			public var currentPresenterInPod: String;
+
+      		private var pageCache:ArrayCollection = new ArrayCollection();
 			
-      private var pageCache:ArrayCollection = new ArrayCollection();
-			
-			private var pagePositionBroadcaster:PagePositionBroadcaster = new PagePositionBroadcaster();
+			private var pagePositionBroadcaster:PagePositionBroadcaster;
       
 			private function onCreationComplete():void {
 				//slideLoader.width = this.width;
@@ -107,34 +107,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				});
 				t.start();
 				*/
+
+        		pagePositionBroadcaster = new PagePositionBroadcaster(podId);
         
-        if (UsersUtil.amIPresenter()) {
-          becomePresenter();
-        } else {
-          becomeViewer();
-        }
+				if (amITheCurrentPodPresenter()) {
+					becomePresenter(amITheCurrentPodPresenter(), this.currentPresenterInPod);
+				} else {
+					becomeViewer(amITheCurrentPodPresenter(), this.currentPresenterInPod);
+				}
 			}
-						
-			public function setSlides():void {
-        var pres: Presentation = PresentationModel.getInstance().getCurrentPresentation();
-        if (pres != null) {
-          pageCache = pres.getPages();
-          /* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
-          var dataSortField:SortField = new SortField();
-          dataSortField.name = "num";
-          dataSortField.numeric = true;
-          
-          /* Create the Sort object and add the SortField object created earlier to the array of fields to sort on. */
-          var numericDataSort:Sort = new Sort();
-          numericDataSort.fields = [dataSortField];
-          
-          /* Set the ArrayCollection object's sort property to our custom sort, and refresh the ArrayCollection. */
-          pageCache.sort = numericDataSort;
-          pageCache.refresh();
-          thumbnailView.dataProvider = pageCache;
-        }				
+
+			public function setSlides(_podId: String):void {
+				if (_podId != this.podId) {
+					return;
+				}
+
+				var pres: Presentation = PresentationPodManager.getInstance().getPod(_podId).getCurrentPresentation();
+				if (pres != null) {
+					pageCache = pres.getPages();
+					/* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
+					var dataSortField:SortField = new SortField();
+					dataSortField.name = "num";
+					dataSortField.numeric = true;
+
+					/* Create the Sort object and add the SortField object created earlier to the array of fields to sort on. */
+					var numericDataSort:Sort = new Sort();
+					numericDataSort.fields = [dataSortField];
+
+					/* Set the ArrayCollection object's sort property to our custom sort, and refresh the ArrayCollection. */
+					pageCache.sort = numericDataSort;
+					pageCache.refresh();
+					thumbnailView.dataProvider = pageCache;
+				}
 			}
-			
+
       public function setSelectedSlide(slideNum:int):void {
         if (slideNum > pageCache.length) {
           LOGGER.debug("Page num [{0}] > numPages[{1}]", [slideNum, pageCache.length]);
@@ -151,7 +157,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function changeSlide():void {
 				var data:Page = thumbnailView.selectedItem as Page;
 				LOGGER.debug("Change page from thumbnail. Selected page [{0}]", [data.id]);
-				dispatchEvent(new GoToPageCommand(data.id));
+
+				dispatchEvent(new GoToPageLocalCommand(data.id));
 				thumbnailView.visible = false;
 			}
 			
@@ -196,27 +203,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stage.removeEventListener(MouseEvent.MOUSE_UP, endDrag);
 			}
 						
-			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
+			public function onParentResized(_podId: String, parentWidth:Number, parentHeight:Number):void {
 				if (slideModel == null || noSlideContentLoaded()) return;
-				
+
+				if (_podId != this.podId) {
+					return;
+				}
+
 				slideModel.parentChange(parentWidth, parentHeight);
 				
-				if (UsersUtil.amIPresenter()) {
+				if (amITheCurrentPodPresenter()) {
 					slideModel.adjustSlideAfterParentResized();
 					slideModel.onMove(0, 0); // fake a move to reset some values
 					slideModel.displayPresenterView();
 					slideModel.printViewedRegion();
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
-				} else {          
-          var page:Page = PresentationModel.getInstance().getCurrentPage();
-          if (page != null) {
-            LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
-            positionPage(page);
-          }
-				}				
+				} else {
+					var page:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
+					if (page != null) {
+						LOGGER.debug("Parent window has resized. Reposition page [{0}]", [page.id]);
+						positionPage(page);
+					}
+				}
 			}
-											
+
 			/**
 			 * Fit the slide inside the loader.
 			 */			
@@ -250,7 +261,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function onZoomSlide(zoom:Number):void {
-				if (slideLoader.content == null) return;
+				if (slideLoader.content == null) {
+          LOGGER.debug("Not zooming. slideLoader.content == null");
+          return;
+        }
 				zoomSlide(zoom, (((slideLoader.content.width/2)*SlideViewModel.HUNDRED_PERCENT)/zoom), (((slideLoader.content.height/2)*SlideViewModel.HUNDRED_PERCENT)/zoom));
 			}
 			
@@ -273,31 +287,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 									
 			private function notifyOthersOfZoomEvent():void {
-				pagePositionBroadcaster.broadcastPosition(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+				if (this.podId == null) {
+					return;
+				}
+
+				pagePositionBroadcaster.broadcastPosition(slideModel.viewedRegionX, 
+          slideModel.viewedRegionY, 
+          slideModel.viewedRegionW, 
+          slideModel.viewedRegionH);
 			}
 			
 			private function presenterIsZoomingOut(delta:Number):Boolean {
 				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
 			}
-				
+
 			/**
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handlePageChangedEvent(e:PageChangedEvent):void {
-        LOGGER.debug("Got a page changed event for page [{0}]", [e.pageId]);
-        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-        if (page != null) {
-          if (! UsersUtil.amIPresenter()) {
-            // if we are presenter, we don't need to reposition our view of the page
-            positionPage(page);
-          }  
-        }       
+        LOGGER.debug("Got a page changed event for pod=" + e.podId + " page=" + e.pageId);
+				if (e.podId != this.podId) {
+          LOGGER.debug("Not handling page as this.podId=" + this.podId);
+					return;
+				}
+
+				LOGGER.debug("Got a page changed event for page [{0}]", [e.pageId]);
+				var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
+				if (page != null) {
+					if (! amITheCurrentPodPresenter()) {
+						// if we are presenter, we don't need to reposition our view of the page
+						positionPage(page);
+					}
+				}
 			}
-			
+
       private function positionPage(page:Page):void {
+        LOGGER.debug("Got Positioning page [{0}]", [page.id]);
         if (page != null && page.swfData != null) {   
-          LOGGER.debug("Positioning page [{0}]", [page.id]);
+          LOGGER.debug("Handling Positioning page [{0}]", [page.id]);
           slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.calculateViewportNeededForRegion(page.widthRatio, page.heightRatio);
           slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
@@ -312,61 +340,58 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
-        LOGGER.debug("Got a page loaded event for page [{0}]", [e.pageId]);
-        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-        if (page != null) {
-          setSelectedSlide(page.num);
-          slideLoader.source = page.swfData;
-          LOGGER.debug("Displaying page [{0}]", [e.pageId]);
-//          positionPage(page);
-          if (whiteboardCanvas != null) {
-            whiteboardCanvas.displayWhiteboardById(page.id);
-          }
-          
-          //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
-          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-        }
-			}
-			
-      private function becomeViewer():void {
-        removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-        this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        
-        pagePositionBroadcaster.reset();
-        
-        endDrag();
-      }
-      
-			/**
-			 * Handle the event where this presenter becomes a viewer because another attendee became presenter.
-			 */			
-			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
-        becomeViewer();
-			}
-			
-      private function becomePresenter():void {
-        // need to calculate slide zoom percantage left by a previous presenter
-        /**
-          * We use width for the calculation because of fit-to-width mode. If you change between 
-          * presenters rapidly the presentation drifts upwards slightly. - Chad
-          */
-        zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
+        LOGGER.debug("Got a page loaded event for pod=" + e.podId + " page=" + e.pageId);
+				if (e.podId != this.podId) {
+          LOGGER.debug("Not handling page as this.podId=" + this.podId);
+					return;
+				}
 
-        addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-        this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        notifyOthersOfZoomEvent();
-      }
-      
-			/**
-			 * Makes the attendee the presenter.
-			 */
-			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void {
-        becomePresenter();
+				LOGGER.debug("Got a page loaded event for page [{0}]", [e.pageId]);
+				var page:Page = PresentationPodManager.getInstance().getPod(e.podId).getPage(e.pageId);
+				if (page != null) {
+					setSelectedSlide(page.num);
+					slideLoader.source = page.swfData;
+					LOGGER.debug("Displaying page [{0}]", [e.pageId]);
+					//positionPage(page);
+					if (whiteboardOverlay != null) {
+						whiteboardOverlay.displayWhiteboardById(page.id);
+					}
+
+					//slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+					slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") +
+							page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+					slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") +
+							page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+				}
+			}
+
+			private function amITheCurrentPodPresenter(): Boolean {
+				return UsersUtil.getMyUserID() == this.currentPresenterInPod;
 			}
 			
+			public function becomeViewer(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
+
+				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+				this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				
+				pagePositionBroadcaster.reset();
+				
+				endDrag();
+			}
+			
+			public function becomePresenter(amIThePresenterInThePod:Boolean, currentPresenterInPod: String):void {
+				// need to calculate slide zoom percentage left by a previous presenter
+				/**
+				  * We use width for the calculation because of fit-to-width mode. If you change between 
+				  * presenters rapidly the presentation drifts upwards slightly. - Chad
+				  */
+				zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
+
+				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+				this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				notifyOthersOfZoomEvent();
+			}
+
 			private function noSlideContentLoaded():Boolean {
 				return slideLoader.content == null
 			}
@@ -379,11 +404,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
+
         		LOGGER.debug("Page has been loaded by swfLoader.");
-				slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);									
-				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
+				slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);
+				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);
 			}
-					
+
 			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
 				var dispEvent:DisplaySlideEvent = new DisplaySlideEvent(DisplaySlideEvent.DISPLAY_SLIDE_EVENT);
 				dispEvent.slideWidth = slideRealWidth;
@@ -391,22 +417,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(dispEvent);
 			}
 			
-			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{
-				whiteboardCanvas = overlay;
-				
-				var currPage:Page = PresentationModel.getInstance().getCurrentPage();
-				if (currPage != null) {
-					whiteboardCanvas.displayWhiteboardById(currPage.id);
+			public function acceptOverlayCanvas(_podId: String, overlay:IWhiteboardOverlay):void{
+				if (_podId != this.podId || PresentationPodManager.getInstance().getPod(_podId) == null) {
+					return;
 				}
-				
-				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
+
+				whiteboardOverlay = overlay;
+
+				var currPage:Page = PresentationPodManager.getInstance().getPod(_podId).getCurrentPage();
+				if (currPage != null) {
+					whiteboardOverlay.displayWhiteboardById(currPage.id);
+				}
+
+				this.addChildAt((whiteboardOverlay as DisplayObject), this.getChildIndex(thumbnailView));
 				fitSlideToLoader();
-				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+				(whiteboardOverlay as IEventDispatcher).addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
 			}
 			
 			public function removeOverlayCanvas():void {
-				whiteboardCanvas = null;
+				whiteboardOverlay = null;
 			}
 			
 			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
@@ -414,16 +444,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void{
-				if (whiteboardCanvas != null) {
-					whiteboardCanvas.moveCanvas(x * SlideCalcUtil.MYSTERY_NUM, y * SlideCalcUtil.MYSTERY_NUM);
+				if (whiteboardOverlay != null) {
+					whiteboardOverlay.moveCanvas(x * SlideCalcUtil.MYSTERY_NUM, y * SlideCalcUtil.MYSTERY_NUM);
 				}
 			}
 			
 			public function zoomCanvas(width:Number, height:Number):void{
 				moveCanvas(slideLoader.x, slideLoader.y);
-				if (whiteboardCanvas != null) {
+				if (whiteboardOverlay != null) {
 					//LogUtil.debug("Zooming Canvas " + width + " " + height);
-					whiteboardCanvas.zoomCanvas(width, height);
+					whiteboardOverlay.zoomCanvas(width, height);
 				}
 			}
 			

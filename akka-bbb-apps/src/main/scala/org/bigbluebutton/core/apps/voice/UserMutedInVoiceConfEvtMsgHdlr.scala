@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 
 trait UserMutedInVoiceConfEvtMsgHdlr {
   this: BaseMeetingActor =>

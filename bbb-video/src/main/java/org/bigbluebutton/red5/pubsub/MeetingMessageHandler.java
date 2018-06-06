@@ -4,12 +4,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bigbluebutton.app.video.ConnectionInvokerService;
+import org.bigbluebutton.app.video.MeetingManager;
+import org.bigbluebutton.red5.pubsub.message.RecordChapterBreakMessage;
 import org.bigbluebutton.red5.pubsub.message.ValidateConnTokenRespMsg;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 public class MeetingMessageHandler implements MessageHandler {
     private static Logger log = Red5LoggerFactory.getLogger(MeetingMessageHandler.class, "video");
+
 
     private final String HEADER = "header";
     private final String NAME = "name";
@@ -28,6 +31,7 @@ public class MeetingMessageHandler implements MessageHandler {
     private final String RecordingChapterBreakSysMsg = "RecordingChapterBreakSysMsg";
     private final String ValidateConnAuthTokenSysRespMsg = "ValidateConnAuthTokenSysRespMsg";
 
+    private MeetingManager meetingManager;
     private ConnectionInvokerService connInvokerService;
 
     public void handleMessage(String pattern, String channel, String message) {
@@ -45,13 +49,21 @@ public class MeetingMessageHandler implements MessageHandler {
     }
 
     private void handle(String name, JsonObject body) {
-        if (ValidateConnAuthTokenSysRespMsg.equals(name)) {
+        if (RecordingChapterBreakSysMsg.equals(name)) {
+            if (body.has(MEETING_ID) && body.has(TIMESTAMP)) {
+                String meetingId = body.get(MEETING_ID).getAsString();
+                Long timestamp = body.get(TIMESTAMP).getAsLong();
+                RecordChapterBreakMessage chBreak = new RecordChapterBreakMessage(meetingId, timestamp);
+                meetingManager.stopStartAllRecordings(meetingId);
+            }
+        } else if (ValidateConnAuthTokenSysRespMsg.equals(name)) {
             Gson gson = new Gson();
             String logStr = gson.toJson(body);
 
             log.debug("HANDLE: {}", logStr);
             if (body.has(MEETING_ID) && body.has(USERID)
                     && body.has(AUTHZED) && body.has(CONN) && body.has(APP)) {
+
                 String meetingId = body.get(MEETING_ID).getAsString();
                 String userId = body.get(USERID).getAsString();
                 Boolean authzed = body.get(AUTHZED).getAsBoolean();
@@ -67,6 +79,10 @@ public class MeetingMessageHandler implements MessageHandler {
                 log.debug("INVALID MSG FORMAT: {}", logStr);
             }
         }
+    }
+
+    public void setMeetingManager(MeetingManager mgr) {
+        this.meetingManager = mgr;
     }
 
     public void setConnInvokerService(ConnectionInvokerService connInvokerService) {

@@ -19,10 +19,12 @@
 package org.bigbluebutton.core {
 
 	import flash.system.Capabilities;
-
+	
 	import mx.core.FlexGlobals;
 	import mx.utils.URLUtil;
-
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.VideoProfileManager;
@@ -31,6 +33,9 @@ package org.bigbluebutton.core {
 	import org.bigbluebutton.util.QueryStringParameters;
 
 	public class BBB {
+		
+		private static const LOGGER:ILogger = getClassLogger(BBB);      
+
 		private static var configManager:ConfigManager2 = null;
 
 		private static var connectionManager:ConnectionManager = null;
@@ -97,15 +102,9 @@ package org.bigbluebutton.core {
 			var pattern:RegExp = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/;
 			var result:Object = pattern.exec(versionString);
 			if (result != null) {
-				//	trace("input: " + result.input);
-				//	trace("platform: " + result[1]);
-				//	trace("majorVersion: " + result[2]);
-				//	trace("minorVersion: " + result[3]);    
-				//	trace("buildNumber: " + result[4]);
-				//	trace("internalBuildNumber: " + result[5]);
 				return Number(result[2] + "." + result[3]);
 			} else {
-				//	trace("Unable to match RegExp.");
+				LOGGER.warn("Unable to match RegExp.");
 				return 0;
 			}
 		}
@@ -128,9 +127,7 @@ package org.bigbluebutton.core {
 		}
 
 		public static function getBaseURL():String {
-			var protocol:String = URLUtil.getProtocol(FlexGlobals.topLevelApplication.url);
-			var serverName:String = URLUtil.getServerNameWithPort(FlexGlobals.topLevelApplication.url);
-			return protocol + "://" + serverName;
+			return FlexGlobals.topLevelApplication.loaderInfo.parameters.origin
 		}
 	}
 }

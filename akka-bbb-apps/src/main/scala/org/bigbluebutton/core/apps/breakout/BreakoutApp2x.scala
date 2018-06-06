@@ -42,7 +42,7 @@ object BreakoutRoomsUtil {
   //checksum() -- Return a checksum based on SHA-1 digest
   //
   def checksum(s: String): String = {
-    DigestUtils.sha1Hex(s);
+    DigestUtils.sha256Hex(s);
   }
 
   def calculateChecksum(apiCall: String, baseString: String, sharedSecret: String): String = {

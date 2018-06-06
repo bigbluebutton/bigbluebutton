@@ -46,8 +46,10 @@
         rtmp = testRTMP;
         
         netConnection = new NetConnection();
+
 				netConnection.proxyType = "best";
 				netConnection.objectEncoding = ObjectEncoding.AMF3;
+        netConnection.client = this;
         
         netConnection.addEventListener(NetStatusEvent.NET_STATUS, connectionHandler);
         var connStr:String = (rtmp ? "rtmp:" : "rtmpt:") + "//" + server + "/" + application;

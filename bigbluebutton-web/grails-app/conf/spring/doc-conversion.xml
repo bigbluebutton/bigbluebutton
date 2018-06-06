@@ -70,6 +70,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
     </bean>
 
+    <bean id="pngCreator" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
+        <property name="blankPng" value="${BLANK_PNG}"/>
+        <property name="slideWidth" value="${pngSlideWidth}"/>
+    </bean>
+
     <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp"/>
 
     <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
@@ -84,6 +89,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="counterService" ref="pageCounterService"/>
         <property name="pageConverter" ref="pdf2SwfPageConverter"/>
         <property name="thumbnailCreator" ref="thumbCreator"/>
+        <property name="pngCreator" ref="pngCreator"/>
         <property name="textFileCreator" ref="textFileCreator"/>
         <property name="svgImageCreator" ref="svgImageCreator"/>
         <property name="blankSlide" value="${BLANK_SLIDE}"/>
@@ -91,6 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
         <property name="svgImagesRequired" value="${svgImagesRequired}"/>
+        <property name="generatePngs" value="${generatePngs}"/>
     </bean>
 
     <bean id="imageToSwfSlidesGenerationService"

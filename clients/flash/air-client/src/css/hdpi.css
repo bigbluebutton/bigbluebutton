@@ -2,33 +2,35 @@
 
 @namespace main "org.bigbluebutton.air.main.views.*";
 
-@namespace mainviews "org.bigbluebutton.lib.main.views.*";
-
-@namespace skins "org.bigbluebutton.lib.main.views.skins.*";
+@namespace skins "org.bigbluebutton.air.main.views.skins.*";
 
 @namespace views "org.bigbluebutton.air.common.views.*";
 
-@namespace libChat "org.bigbluebutton.lib.chat.views.*";
+@namespace chat "org.bigbluebutton.air.chat.views.*";
 
-@namespace users "org.bigbluebutton.lib.user.views.*";
+@namespace user "org.bigbluebutton.air.user.views.*";
 
-@namespace settings "org.bigbluebutton.lib.settings.views.*";
+@namespace settings "org.bigbluebutton.air.settings.views.*";
 
-@namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
+@namespace settingsAudio "org.bigbluebutton.air.settings.views.audio.*";
 
-@namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
+@namespace settingsChat "org.bigbluebutton.air.settings.views.chat.*";
 
-@namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
+@namespace settingsLock "org.bigbluebutton.air.settings.views.lock.*";
 
-@namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
+@namespace settingsCamera "org.bigbluebutton.air.settings.views.camera.*";
+
+@namespace voice "org.bigbluebutton.air.voice.views.*";
+
+@namespace poll "org.bigbluebutton.air.poll.views.*";
 
 @media (application-dpi: 240) {
-    main|LoadingScreen {
-        fontSize: 25.50;
+    main|MainView {
+        pollPadding: 13.50;
     }
 
-    main|TopToolbarAIR {
-        height: 60.00;
+    main|LoadingScreen {
+        fontSize: 25.50;
     }
 
     views|NoTabView {
@@ -36,39 +38,46 @@
     }
 
     main|MainView {
-        menuHeight: 120.00;
+        menuHeight: 82.50;
     }
 
-    mainviews|MenuButtonsBase {
-        bottom: 26.25;
-        top: 10.50;
+    main|MenuButtons {
         gap: 33.75;
     }
 
     skins|MenuButtonSkin {
-        fontSize: 18.00;
-        iconSize: 27.00;
-        labelPadding: 9.00;
+        iconSize: 30.00;
     }
 
-    libChat|NewMessagesIndicator {
+    chat|NewMessagesIndicator {
         cornerRadius: 19.50;
         labelPadding: 22.50;
     }
 
-    libChat|ChatItemRenderer {
-        padding: 22.50;
-        fontSize: 25.50;
-        nameFontSize: 25.50;
-        timeFontSize: 18.00;
+    chat|ChatItemRenderer {
+        padding: 10.50;
+        gap: 6.00;
+        leftIndent: 33.00;
+        fontSize: 23.00;
+        nameFontSize: 23.00;
+        timeFontSize: 21.00;
     }
 
-    settings|SettingsViewBase, camera|CameraSettingsViewBase {
+    settings|SettingsViewBase, settingsCamera|CameraSettingsViewBase {
         groupsPadding: 30.00;
     }
 
-    audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
+    settingsAudio|AudioSettingsViewBase, settingsChat|ChatSettingsViewBase, settingsLock|LockSettingsViewBase, voice|EchoTestViewBase {
         padding: 22.50;
+    }
+
+    main|ExitView, main|DisconnectView, main|UserInactivityPopUp {
+        gap: 22.50;
+        padding: 22.50;
+    }
+
+    user|UserDetailsView {
+        groupsPadding: 15.00;
     }
 
     settings|SettingsItemRenderer {
@@ -77,21 +86,44 @@
         padding: 24.00;
     }
 
-    camera|CameraProfileItemRenderer {
+    settingsCamera|CameraProfileItemRenderer {
         fontSize: 25.50;
         padding: 24.00;
     }
 
-    libChat|ChatViewBase {
+    chat|ChatViewBase {
         inputPadding: 19.50;
     }
 
-    users|UserItemRenderer {
+    user|UserItemRenderer {
         iconSize: 33.00;
+    }
+
+    voice|EchoTestViewBase {
+        padding: 22.50;
+    }
+
+    voice|JoinAudioView {
+        gap: 42.00;
     }
 
     s|ToggleSwitch {
         fontSize: 18.00;
+    }
+
+    main|EmojiCallout {
+        minListWidth: 165.00;
+        fontSize: 16.50;
+    }
+
+    main|MobilePopUp {
+        cornerRadius: 6.00;
+        fontSize: 16.50;
+        padding: 9.00;
+    }
+
+    .mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+        cornerRadius: 6.00;
     }
 
     .icon {
@@ -99,11 +131,11 @@
     }
 
     .sendButton {
-        borderWeight: 1.50;
-        diameter: 30.00;
+        diameter: 48.00;
+        fontSize: 22.00;
     }
 
-    .titleLabel {
+    .titleGroup {
         fontSize: 25.50;
         left: 67.50;
         right: 67.50;
@@ -111,6 +143,8 @@
 
     .topButton {
         fontSize: 33.00;
+        height: 57.00;
+        width: 57.00;
     }
 
     .saveButton {
@@ -118,11 +152,11 @@
     }
 
     .topLeftButton {
-        left: 22.50;
+        left: 0;
     }
 
     .topRightButton {
-        right: 22.50;
+        right: 0;
     }
 
     .actionButton {
@@ -159,6 +193,12 @@
 
     .chatIcon, .settingsIcon {
         fontSize: 33.00;
+        width: 33.00;
+        height: 33.00;
+    }
+
+    .recordIcon {
+        fontSize: 25.50;
     }
 
     .chatRoomItem {
@@ -166,9 +206,19 @@
         padding: 22.50;
     }
 
-    .sendButton {
-        fontSize: 15.00;
-        borderWeight: 1.50;
-        cornerRadius: 3.00;
+    .echoTestLabel {
+        padding: 24.00;
+    }
+
+    .audioHelpLabel {
+        fontSize: 27.00;
+    }
+
+    .audioButtonLabel {
+        fontSize: 21.00;
+    }
+
+    .audioButtonStyle {
+        iconSize: 66.00;
     }
 }

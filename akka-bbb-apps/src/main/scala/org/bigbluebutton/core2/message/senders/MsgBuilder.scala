@@ -16,12 +16,12 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildGuestApprovedEvtMsg(meetingId: String, userId: String, approved: Boolean, approvedBy: String): BbbCommonEnvCoreMsg = {
+  def buildGuestApprovedEvtMsg(meetingId: String, userId: String, status: String, approvedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(GuestApprovedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GuestApprovedEvtMsg.NAME, meetingId, userId)
 
-    val body = GuestApprovedEvtMsgBody(approved, approvedBy)
+    val body = GuestApprovedEvtMsgBody(status, approvedBy)
     val event = GuestApprovedEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
@@ -44,7 +44,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(GetGuestsWaitingApprovalRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(GetGuestsWaitingApprovalRespMsg.NAME, meetingId, userId)
 
-    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role))
+    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.authenticated))
     val body = GetGuestsWaitingApprovalRespMsgBody(guestsWaiting)
     val event = GetGuestsWaitingApprovalRespMsg(header, body)
 
@@ -56,7 +56,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(GuestsWaitingForApprovalEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GuestsWaitingForApprovalEvtMsg.NAME, meetingId, userId)
 
-    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role))
+    val guestsWaiting = guests.map(g => GuestWaitingVO(g.intId, g.name, g.role, g.guest, g.authenticated))
     val body = GuestsWaitingForApprovalEvtMsgBody(guestsWaiting)
     val event = GuestsWaitingForApprovalEvtMsg(header, body)
 
@@ -176,21 +176,23 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildUserEjectedFromMeetingEvtMsg(meetingId: String, userId: String, ejectedBy: String): BbbCommonEnvCoreMsg = {
+  def buildUserEjectedFromMeetingEvtMsg(meetingId: String, userId: String,
+                                        ejectedBy: String, reason: String,
+                                        reasonCode: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserEjectedFromMeetingEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(UserEjectedFromMeetingEvtMsg.NAME, meetingId, userId)
-    val body = UserEjectedFromMeetingEvtMsgBody(userId, ejectedBy)
+    val body = UserEjectedFromMeetingEvtMsgBody(userId, ejectedBy, reason, reasonCode)
     val event = UserEjectedFromMeetingEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildDisconnectClientSysMsg(meetingId: String, userId: String, reason: String): BbbCommonEnvCoreMsg = {
+  def buildDisconnectClientSysMsg(meetingId: String, userId: String, ejectedBy: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
     val envelope = BbbCoreEnvelope(DisconnectClientSysMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(DisconnectClientSysMsg.NAME, meetingId)
-    val body = DisconnectClientSysMsgBody(meetingId, userId, reason)
+    val body = DisconnectClientSysMsgBody(meetingId, userId, ejectedBy, reason)
     val event = DisconnectClientSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
@@ -254,6 +256,34 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(StopMeetingTranscodersSysCmdMsg.NAME, meetingId)
     val event = StopMeetingTranscodersSysCmdMsg(header, body)
 
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRecordingChapterBreakSysMsg(meetingId: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(RecordingChapterBreakSysMsg.NAME, routing)
+    val body = RecordingChapterBreakSysMsgBody(meetingId, timestamp)
+    val header = BbbCoreHeaderWithMeetingId(RecordingChapterBreakSysMsg.NAME, meetingId)
+    val event = RecordingChapterBreakSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStartRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String, stream: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StartRecordingVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(StartRecordingVoiceConfSysMsg.NAME, meetingId)
+    val body = StartRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
+    val event = StartRecordingVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStopRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String, stream: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StopRecordingVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(StopRecordingVoiceConfSysMsg.NAME, meetingId)
+    val body = StopRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
+    val event = StopRecordingVoiceConfSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }

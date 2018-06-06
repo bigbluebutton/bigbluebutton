@@ -1,0 +1,65 @@
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 styleName="participantIcon">
+
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.air.user.models.UserRole;
+			
+			override protected function updateDisplayList(w:Number, h:Number):void {
+				super.updateDisplayList(w, h);
+				
+				circle.width = circle.height = getStyle("diameter");
+				rectangle.width = rectangle.height = getStyle("diameter");
+				
+				borderStroke.color = getStyle("circleColor");
+				borderStroke.weight = getStyle("circleStroke");
+			}
+			
+			public function setInitials(initials:String):void {
+				firstLetters.styleName = "";
+				firstLetters.text = initials;
+			}
+			
+			public function setEmoji(emoji:String):void {
+				firstLetters.styleName = "icon icon-" + emoji;
+				firstLetters.text = firstLetters.getStyle("icon");
+			}
+			
+			public function setRole(role:String):void {
+				if (role == UserRole.MODERATOR) {
+					rectangle.visible = true;
+					circle.visible = false;
+				} else {
+					rectangle.visible = false;
+					circle.visible = true;
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<s:SolidColorStroke id="borderStroke" />
+	</fx:Declarations>
+
+	<s:Label id="firstLetters"
+			 paddingTop="0"
+			 paddingLeft="0"
+			 paddingBottom="0"
+			 paddingRight="0"
+			 verticalCenter="0"
+			 horizontalCenter="0" />
+	<s:Ellipse id="circle"
+			   visible="false"
+			   verticalCenter="0"
+			   horizontalCenter="0">
+		<s:stroke>{borderStroke}</s:stroke>
+	</s:Ellipse>
+	<s:Rect id="rectangle"
+			visible="false"
+			verticalCenter="0"
+			horizontalCenter="0">
+		<s:stroke>{borderStroke}</s:stroke>
+	</s:Rect>
+</s:Group>

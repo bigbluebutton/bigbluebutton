@@ -18,6 +18,8 @@ public class ESLEventListener implements IEslEventListener {
     private static final String STOP_TALKING_EVENT = "stop-talking";
     private static final String START_RECORDING_EVENT = "start-recording";
     private static final String STOP_RECORDING_EVENT = "stop-recording";
+    private static final String CONFERENCE_CREATED_EVENT = "conference-create";
+    private static final String CONFERENCE_DESTROYED_EVENT = "conference-destroy";
 
     private static final String SCREENSHARE_CONFERENCE_NAME_SUFFIX = "-SCREENSHARE";
 
@@ -119,19 +121,24 @@ public class ESLEventListener implements IEslEventListener {
 
     @Override
     public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
-        Integer memberId = this.getMemberIdFromEvent(event);
-        VoiceUserTalkingEvent pt;
-        
         if (action == null) {
             return;
         }
 
         if (action.equals(START_TALKING_EVENT)) {
-            pt = new VoiceUserTalkingEvent(memberId.toString(), confName, true);
+            Integer memberId = this.getMemberIdFromEvent(event);
+            VoiceUserTalkingEvent pt = new VoiceUserTalkingEvent(memberId.toString(), confName, true);
             conferenceEventListener.handleConferenceEvent(pt);          
         } else if (action.equals(STOP_TALKING_EVENT)) {
-            pt = new VoiceUserTalkingEvent(memberId.toString(), confName, false);
+            Integer memberId = this.getMemberIdFromEvent(event);
+            VoiceUserTalkingEvent pt = new VoiceUserTalkingEvent(memberId.toString(), confName, false);
             conferenceEventListener.handleConferenceEvent(pt);          
+        } else if (action.equals(CONFERENCE_CREATED_EVENT)) {
+            VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, true);
+            conferenceEventListener.handleConferenceEvent(pt);
+        } else if (action.equals(CONFERENCE_DESTROYED_EVENT)) {
+            VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, false);
+            conferenceEventListener.handleConferenceEvent(pt);
         } else {
             System.out.println("Unknown conference Action [" + action + "]");
         }

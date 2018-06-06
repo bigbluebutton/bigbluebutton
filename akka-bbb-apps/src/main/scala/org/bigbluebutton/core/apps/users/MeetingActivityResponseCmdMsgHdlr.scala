@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.domain.{ MeetingInactivityTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait MeetingActivityResponseCmdMsgHdlr {

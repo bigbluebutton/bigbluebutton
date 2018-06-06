@@ -28,19 +28,36 @@ def sanity_archived_meetings(recording_dir)
 
   FileUtils.mkdir_p("#{recording_dir}/status/sanity")
   archived_done_files.each do |archived_done|
-    match = /([^\/]*).done$/.match(archived_done)
-    meeting_id = match[1]
+    archived_done_base = File.basename(archived_done, '.done')
+    meeting_id = nil
+    break_timestamp = nil
 
-    sanity_done = "#{recording_dir}/status/sanity/#{meeting_id}.done"
+    if match = /^([0-9a-f]+-[0-9]+)$/.match(archived_done_base)
+      meeting_id = match[1]
+    elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(archived_done_base)
+      meeting_id = match[1]
+      break_timestamp = match[2]
+    else
+      BigBlueButton.logger.warn("Archive done file for #{archived_done_base} has invalid format")
+      next
+    end
+
+    sanity_done = "#{recording_dir}/status/sanity/#{archived_done_base}.done"
     next if File.exists?(sanity_done)
 
-    sanity_fail = "#{recording_dir}/status/sanity/#{meeting_id}.fail"
+    sanity_fail = "#{recording_dir}/status/sanity/#{archived_done_base}.fail"
     next if File.exists?(sanity_fail)
 
+    # TODO: define redis messages for recording segments...
     BigBlueButton.redis_publisher.put_sanity_started(meeting_id)
 
     step_start_time = BigBlueButton.monotonic_clock
-    ret = BigBlueButton.exec_ret("ruby", "sanity/sanity.rb", "-m", meeting_id)
+    if !break_timestamp.nil?
+      ret = BigBlueButton.exec_ret('ruby', 'sanity/sanity.rb',
+                                   '-m', meeting_id, '-b', break_timestamp)
+    else
+      ret = BigBlueButton.exec_ret('ruby', 'sanity/sanity.rb', '-m', meeting_id)
+    end
     step_stop_time = BigBlueButton.monotonic_clock
     step_time = step_stop_time - step_start_time
 

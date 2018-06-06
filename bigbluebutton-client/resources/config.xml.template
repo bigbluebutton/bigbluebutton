@@ -1,13 +1,15 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion suppressWarning="false">0.9.0</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
     <porttest host="rtmp://HOST" application="video/portTest" timeout="10000"/>
     <bwMon server="rtmp://HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" reconnWaitTime="2000"/>
-    <language userSelectionEnabled="true" rtlEnabled="false"/>
+    <language userSelectionEnabled="true"
+     		  rtlEnabled="false"
+    		  localesConfig="http://HOST/client/conf/locales.xml"
+    		  localesDirectory="http://HOST/client/locale/"/>
     <skinning url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
     <branding logo="logos/logo.swf" copyright="&#169; 2018 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" showQuote="true"/>
     <shortcutKeys showButton="true" />
@@ -25,23 +27,26 @@
 		<modules>
 
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="UsersModule"	
-			privateEnabled="true"  
+			uri="rtmp://HOST/bigbluebutton"
+			dependsOn="UsersModule"
+			privateEnabled="true"
+			groupEnabled="true"
 			fontSize="14"
 			baseTabIndex="801"
 			colorPickerIsVisible="false"
 			maxMessageLength="1024"
+			maxNumWindows="9"
 		/>
 
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
+			uri="rtmp://HOST/bigbluebutton"
 			allowKickUser="true"
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
 			enableGuestUI="false"
 			moderatorUnmute="true"
 			allowClearRecordingMarks="false"
+			guestSoftMode="false"
 			baseTabIndex="301"
 		/>
 
@@ -60,7 +65,7 @@
 		/>
 
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION"
-			uri="rtmp://HOST/sip" 
+			uri="rtmp://HOST/sip"
 			dependsOn="UsersModule"
 			autoJoin="true"
 			listenOnlyMode="true"
@@ -79,6 +84,7 @@
 			uri="rtmp://HOST/video"
 			dependsOn="UsersModule"
 			baseTabIndex="401"
+			videoProfilesConfig="http://HOST/client/conf/profiles.xml"
 			autoStart="false"
 			skipCamSettingsCheck="false"
 			showButton="true"
@@ -91,21 +97,21 @@
 		/>
 
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
+			uri="rtmp://HOST/bigbluebutton"
 			dependsOn="PresentModule"
 			baseTabIndex="601"
 			keepToolbarVisible="false"
 		/>
 
 		<module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
+			uri="rtmp://HOST/bigbluebutton"
 			dependsOn="PresentModule"
 		/>
 
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
+			uri="rtmp://HOST/bigbluebutton"
 			dependsOn="UsersModule"
-			host="http://HOST" 
+			host="http://HOST"
 			showPresentWindow="true"
 			showWindowControls="true"
 			openExternalFileUploadDialog="false"
@@ -116,7 +122,7 @@
 		/>
 
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
+			uri="rtmp://HOST/bigbluebutton"
 			dependsOn="UsersModule"
 			maxPasteLength="1024"
 			baseTabIndex="701"

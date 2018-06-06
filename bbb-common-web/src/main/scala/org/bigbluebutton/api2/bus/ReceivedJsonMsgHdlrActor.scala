@@ -87,7 +87,14 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[UserRoleChangedEvtMsg](envelope, jsonNode)
       case CreateBreakoutRoomSysCmdMsg.NAME =>
         route[CreateBreakoutRoomSysCmdMsg](envelope, jsonNode)
-
+      case PresentationUploadTokenSysPubMsg.NAME =>
+        route[PresentationUploadTokenSysPubMsg](envelope, jsonNode)
+      case GuestsWaitingApprovedEvtMsg.NAME =>
+        route[GuestsWaitingApprovedEvtMsg](envelope, jsonNode)
+      case GuestPolicyChangedEvtMsg.NAME =>
+        route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
+      case RecordingChapterBreakSysMsg.NAME =>
+        route[RecordingChapterBreakSysMsg](envelope, jsonNode)
       case _ =>
         //log.debug("************ Cannot route envelope name " + envelope.name)
       // do nothing

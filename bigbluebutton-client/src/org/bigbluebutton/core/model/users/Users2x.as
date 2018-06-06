@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.model.users
 {
-  import mx.collections.ArrayCollection;
-  
+  import mx.collections.ArrayCollection; 
   import org.as3commons.lang.ArrayUtils;
   import org.as3commons.lang.StringUtils;
   
@@ -9,7 +8,8 @@ package org.bigbluebutton.core.model.users
   {
     
     private var _users:ArrayCollection = new ArrayCollection();
-    
+    private var _presenterGroup:ArrayCollection = new ArrayCollection();
+
     public function getUsers(): ArrayCollection {
       return new ArrayCollection(_users.toArray());
     }
@@ -33,7 +33,7 @@ package org.bigbluebutton.core.model.users
         user = _users.getItemAt(i) as User2x;
         
         if (user.intId == userId) {
-          return {index:i, user:user};;
+          return {index:i, user:user};
         }
       }
       
@@ -128,6 +128,40 @@ package org.bigbluebutton.core.model.users
       }
       
       return temp;
+    }
+
+
+    public function getPresenterGroup(): ArrayCollection {
+			var temp: Array = new Array();
+			for (var i:int = 0; i < _users.length; i++) {
+				var user:User2x = _users.getItemAt(i) as User2x;
+					temp.push(user.intId);
+			}
+			
+			return new ArrayCollection(temp);
+    }
+
+    public function addToPresenterGroup(userId: String):void {
+      _presenterGroup.addItem(userId);
+    }
+
+    public function removeFromPresenterGroup(userId: String): void {
+      for (var i:int = 0; i < _presenterGroup.length; i++) {
+        if (_presenterGroup.getItemAt(i) == userId) {
+          _presenterGroup.removeItemAt(i);
+          return;
+        }
+      }
+    }
+
+    public function isUserInPresentationGroup(userId: String): Boolean {
+      for (var i:int = 0; i < _presenterGroup.length; i++) {
+        if (_presenterGroup.getItemAt(i) == userId) {
+          return true;
+        }
+      }
+
+      return false;
     }
     
     public function isAnyUserLocked(): Boolean {

@@ -36,7 +36,9 @@ package org.bigbluebutton.core.services {
 
 		public function loadSkins():void {
 			var skinOptions:SkinningOptions = Options.getOptions(SkinningOptions) as SkinningOptions;
-			var skinToLoad:String = StringUtils.remove(".css.swf", StringUtils.substringAfterLast(skinOptions.url, "/"));
+
+			var skinNamePattern:RegExp = /\.css\.swf(\??.*)/;
+			var skinToLoad:String = StringUtils.substringAfterLast(skinOptions.url, "/").replace(skinNamePattern, "");
 			if (!StringUtils.isEmpty(skinOptions.url) && skinToLoad != loadedSkin) {
 				LOGGER.info("Loading new skin {}", [skinToLoad]);
 				myStyleManager = StyleManager.getStyleManager(null);

@@ -1,5 +1,6 @@
 package org.bigbluebutton.red5.pubsub;
 
+
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import java.util.concurrent.BlockingQueue;
@@ -36,7 +37,7 @@ public class ReceivedMessageHandler {
                             ReceivedMessage msg = receivedMessages.take();
                             processMessage(msg);
                         } catch (InterruptedException e) {
-                            log.warn("Error while taking received org.bigbluebutton.red5.pubsub.message from queue.");
+                            log.warn("Error while taking received message from queue.");
                         }
                     }
                 }

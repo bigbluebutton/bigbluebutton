@@ -6,15 +6,13 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 	import mx.events.FlexMouseEvent;
 	import mx.resources.ResourceManager;
 	
-	import spark.components.SkinnablePopUpContainer;
-	
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.models.UserList;
-	import org.bigbluebutton.lib.video.models.UserStreamName;
+	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.user.models.User2x;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
+	
+	import spark.components.SkinnablePopUpContainer;
 	
 	public class SelectStreamPopUpMediator extends Mediator {
 		
@@ -163,7 +161,7 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 			return userStreamNames;
 		}
 		
-		private function userChangeHandler(user:User, property:int):void {
+		private function userChangeHandler(user:User2x, property:int):void {
 			if (property == UserList.HAS_STREAM) {
 				var userStreamNames:Array = getUserStreamNamesByUserID(user.userID);
 				for each (var userStreamName:UserStreamName in userStreamNames) {

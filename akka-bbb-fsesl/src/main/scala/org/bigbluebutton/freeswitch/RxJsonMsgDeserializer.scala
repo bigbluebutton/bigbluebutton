@@ -149,7 +149,7 @@ trait RxJsonMsgDeserializer {
     for {
       m <- deserialize(jsonNode)
     } yield {
-      fsApp.startRecording(m.body.voiceConf, m.body.meetingId)
+      fsApp.startRecording(m.body.voiceConf, m.body.meetingId, m.body.stream)
     }
   }
 

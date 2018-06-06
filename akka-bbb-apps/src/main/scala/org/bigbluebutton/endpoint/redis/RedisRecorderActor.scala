@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.StringOps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.record.events._
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 
 object RedisRecorderActor {
   def props(system: ActorSystem): Props = Props(classOf[RedisRecorderActor], system)
@@ -47,7 +48,7 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       // Chat
-      case m: SendPublicMessageEvtMsg               => handleSendPublicMessageEvtMsg(m)
+      case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
       case m: ClearPublicChatHistoryEvtMsg          => handleClearPublicChatHistoryEvtMsg(m)
 
       // Presentation
@@ -55,7 +56,11 @@ class RedisRecorderActor(val system: ActorSystem)
       case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
       case m: ResizeAndMovePageEvtMsg               => handleResizeAndMovePageEvtMsg(m)
       case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
+      case m: SetPresentationDownloadableEvtMsg     => handleSetPresentationDownloadableEvtMsg(m)
       case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
+      case m: CreateNewPresentationPodEvtMsg        => handleCreateNewPresentationPodEvtMsg(m)
+      case m: RemovePresentationPodEvtMsg           => handleRemovePresentationPodEvtMsg(m)
+      case m: SetPresenterInPodRespMsg              => handleSetPresenterInPodRespMsg(m)
 
       // Whiteboard
       case m: SendWhiteboardAnnotationEvtMsg        => handleSendWhiteboardAnnotationEvtMsg(m)
@@ -93,6 +98,9 @@ class RedisRecorderActor(val system: ActorSystem)
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
 
+      // Recording
+      case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
+
       // Poll
       case m: PollStartedEvtMsg                     => handlePollStartedEvtMsg(m)
       case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
@@ -103,15 +111,17 @@ class RedisRecorderActor(val system: ActorSystem)
     }
   }
 
-  private def handleSendPublicMessageEvtMsg(msg: SendPublicMessageEvtMsg) {
-    val ev = new PublicChatRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setSender(msg.body.message.fromUsername)
-    ev.setSenderId(msg.body.message.fromUserId)
-    ev.setMessage(msg.body.message.message)
-    ev.setColor(msg.body.message.fromColor)
+  private def handleGroupChatMessageBroadcastEvtMsg(msg: GroupChatMessageBroadcastEvtMsg) {
+    if (msg.body.chatId == GroupChatApp.MAIN_PUBLIC_CHAT) {
+      val ev = new PublicChatRecordEvent()
+      ev.setMeetingId(msg.header.meetingId)
+      ev.setSender(msg.body.msg.sender.name)
+      ev.setSenderId(msg.body.msg.sender.id)
+      ev.setMessage(msg.body.msg.message)
+      ev.setColor(msg.body.msg.color)
 
-    record(msg.header.meetingId, ev.toMap)
+      record(msg.header.meetingId, ev.toMap)
+    }
   }
 
   private def handleClearPublicChatHistoryEvtMsg(msg: ClearPublicChatHistoryEvtMsg) {
@@ -124,19 +134,22 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
     val ev = new ConversionCompletedPresentationRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentation.id)
     ev.setOriginalFilename(msg.body.presentation.name)
 
     record(msg.header.meetingId, ev.toMap)
 
     if (msg.body.presentation.current) {
-      recordSharePresentationEvent(msg.header.meetingId, msg.body.presentation.id)
+      recordSharePresentationEvent(msg.header.meetingId, msg.body.podId, msg.body.presentation.id)
     }
   }
 
   private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {
     val ev = new GotoSlideRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+    ev.setPresentationName(msg.body.presentationId)
     ev.setSlide(getPageNum(msg.body.pageId))
     ev.setId(msg.body.pageId)
 
@@ -146,6 +159,8 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
     val ev = new ResizeAndMoveSlideRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+    ev.setPresentationName(msg.body.presentationId)
     ev.setId(msg.body.pageId)
     ev.setXOffset(msg.body.xOffset)
     ev.setYOffset(msg.body.yOffset)
@@ -158,18 +173,56 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handleRemovePresentationEvtMsg(msg: RemovePresentationEvtMsg) {
     val ev = new RemovePresentationRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
 
     record(msg.header.meetingId, ev.toMap)
   }
 
-  private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
-    recordSharePresentationEvent(msg.header.meetingId, msg.body.presentationId)
+  private def handleSetPresentationDownloadableEvtMsg(msg: SetPresentationDownloadableEvtMsg) {
+    val ev = new SetPresentationDownloadable()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+    ev.setPresentationName(msg.body.presentationId)
+    ev.setDownloadable(msg.body.downloadable)
+
+    record(msg.header.meetingId, ev.toMap)
   }
 
-  private def recordSharePresentationEvent(meetingId: String, presentationId: String) {
+  private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
+    recordSharePresentationEvent(msg.header.meetingId, msg.body.podId, msg.body.presentationId)
+  }
+
+  private def handleCreateNewPresentationPodEvtMsg(msg: CreateNewPresentationPodEvtMsg) {
+    val ev = new CreatePresentationPodRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+    ev.setCurrentPresenter(msg.body.currentPresenterId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleRemovePresentationPodEvtMsg(msg: RemovePresentationPodEvtMsg) {
+    val ev = new RemovePresentationPodRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleSetPresenterInPodRespMsg(msg: SetPresenterInPodRespMsg) {
+    val ev = new SetPresenterInPodRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+    ev.setNextPresenterId(msg.body.nextPresenterId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def recordSharePresentationEvent(meetingId: String, podId: String, presentationId: String) {
     val ev = new SharePresentationRecordEvent()
     ev.setMeetingId(meetingId)
+    ev.setPodId(podId)
     ev.setPresentationName(presentationId)
     ev.setShare(true)
 
@@ -218,6 +271,9 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handleSendCursorPositionEvtMsg(msg: SendCursorPositionEvtMsg) {
     val ev = new WhiteboardCursorMoveRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setWhiteboardId(msg.body.whiteboardId)
     ev.setUserId(msg.header.userId)
     ev.setXPercent(msg.body.xPercent)
     ev.setYPercent(msg.body.yPercent)
@@ -420,6 +476,14 @@ class RedisRecorderActor(val system: ActorSystem)
   private def handleEndAndKickAllSysMsg(msg: EndAndKickAllSysMsg): Unit = {
     val ev = new EndAndKickAllRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap)
+  }
+
+  private def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
+    val ev = new RecordChapterBreakRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setChapterBreakTimestamp(msg.body.timestamp)
 
     record(msg.header.meetingId, ev.toMap)
   }

@@ -21,13 +21,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:ApplicationControlBar xmlns:mx="library://ns.adobe.com/flex/mx" 
-    xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mate="http://mate.asfusion.com/"
-	xmlns:common="org.bigbluebutton.common.*"
-	xmlns:views="org.bigbluebutton.main.views.*"
-	xmlns:components="org.bigbluebutton.modules.phone.views.components.*"
-	enabled="true" visible="{showToolbar}"
-	initialize="init()">   
+													xmlns:fx="http://ns.adobe.com/mxml/2009"
+													xmlns:mate="http://mate.asfusion.com/"
+													xmlns:common="org.bigbluebutton.common.*"
+													xmlns:views="org.bigbluebutton.main.views.*"
+													xmlns:components="org.bigbluebutton.modules.phone.views.components.*"
+													enabled="true" visible="{showToolbar}"
+													initialize="init()">
 	
 	<fx:Declarations>
 		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
 		<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 		<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
-		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
 		<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
 		<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
@@ -44,14 +43,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 		<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
 		<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
-		<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
-		<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
 		<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 		<mate:Listener type="{BBBEvent.RECORD_AND_CLEAR_PREVIOUS_MARKERS}" method="onRecordAndClearPreviousMarkersChanged" />
 		<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 		<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
-    	<mate:Listener type="{MeetingTimeRemainingEvent.TIME_REMAINING}" method="handleRemainingTimeUpdate" />
+		<mate:Listener type="{MeetingTimeRemainingEvent.TIME_REMAINING}" method="handleRemainingTimeUpdate" />
 		<mate:Listener type="{UpdateRecordingTimerEvent.UPDATE_TIMER}" method="handleUpdateRecordingTimer" />
 	</fx:Declarations>
 	<fx:Script>
@@ -65,7 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.ToolTipEvent;
-			import mx.managers.PopUpManager;
 			
 			import flashx.textLayout.formats.Direction;
 			
@@ -73,7 +69,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
@@ -85,7 +80,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.model.Config;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigLoadedEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
@@ -110,14 +104,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
-			[Bindable] private var showGuestSettingsButton:Boolean = false;
 			[Bindable] private var showRecordButton:Boolean = false;
-			[Bindable] public var toolbarOptions:LayoutOptions;
+			[Bindable] private var toolbarOptions:LayoutOptions;
 			[Bindable] private var brandingOptions:BrandingOptions;
 			[Bindable] private var usersOptions:UsersOptions;
 
 			[Bindable] private var numButtons:int;
-      
+			
 			[Bindable] private var _bandwidthConsumedUp:String = "-";
 			[Bindable] private var _bandwidthConsumedDown:String = "-";
 			private var _updateBandwidthTimer:Timer = new Timer(1000);
@@ -133,21 +126,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var xml:XML;
 			private var settingsComponents:Array = new Array();
-			private var settingsPopup:BBBSettings = null;
 			
 			private function init():void{
-				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
+				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				
 				numButtons = 0;
-                
-                // Accessibility isn't active till a few second after the client starts to load so we need a delay
-                var timer:Timer = new Timer(3000, 1);
-                timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
-                timer.start();
+				
+				// Accessibility isn't active till a few second after the client starts to load so we need a delay
+				var timer:Timer = new Timer(3000, 1);
+				timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
+				timer.start();
 
 				BindingUtils.bindSetter(refreshModeratorButtonsVisibility, LiveMeeting.inst().meeting, "recorded");
+				
+				initConfig();
 			}
 
 			private function checkAccessiblity(e:TimerEvent):void {
@@ -159,29 +153,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-      private function onQuickLinkClicked(window:String):void {
-        var dispatcher:Dispatcher = new Dispatcher();
-        switch(window) {
-          case "users":
-            dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_USERS_WINDOW));
-            break;
-          case "webcams":
-            dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_VIDEO_WINDOW));
-            break;
-          case "presentation":
-            dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_PRESENTATION_WINDOW));
-            break;
-          case "chat":
-            dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_WINDOW));
-            break;
-		  case "caption":
-			  dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CAPTION_WINDOW));
-			  break;
-		  case "sharedNotes":
-			  dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW));
-			  break;
-         }
-       }
+			private function onQuickLinkClicked(window:String):void {
+				var dispatcher:Dispatcher = new Dispatcher();
+				switch(window) {
+					case "users":
+						dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_USERS_WINDOW));
+						break;
+					case "webcams":
+						dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_VIDEO_WINDOW));
+						break;
+					case "presentation":
+						dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_PRESENTATION_WINDOW));
+						break;
+					case "chat":
+						dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_WINDOW));
+						break;
+					case "caption":
+						dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CAPTION_WINDOW));
+						break;
+					case "sharedNotes":
+						dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW));
+						break;
+				}
+			}
 
 			public function displayToolbar():void{
 				if (toolbarOptions.showToolbar) {
@@ -199,7 +193,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					initBandwidthToolTip();
 				}
 			}
-			
+
 			private function handleRemainingTimeUpdate(e:MeetingTimeRemainingEvent):void {
 				// Display timer only if there is less than 30 minutes remaining
 				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
@@ -233,11 +227,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				initBreakoutRibbon();
 				
-				if (LiveMeeting.inst().me.logoutTimer > 0 ) {
-					idleLogoutButton.startTimer(LiveMeeting.inst().me.logoutTimer);
+				if (LiveMeeting.inst().meeting.logoutTimer > 0 ) {
+					idleLogoutButton.startTimer(LiveMeeting.inst().meeting.logoutTimer);
 				} else {
 					rightBox.removeChild(idleLogoutButton);
 				}
+	
+				initBanner();
 
 				logFlashPlayerCapabilities();
 				logBrowserInfo();
@@ -255,7 +251,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				logData.logCode = "browser_info";
 				LOGGER.info(JSON.stringify(logData));
 			}
-			
+	
+			private function initBanner() : void {
+				if (!StringUtils.isEmpty(LiveMeeting.inst().meeting.bannerText)) {
+					banner.visible = banner.includeInLayout = true;
+					banner.setStyle("backgroundColor", uint("0x" + LiveMeeting.inst().meeting.bannerColor.substr(1))); 
+					bannerLabel.text = LiveMeeting.inst().meeting.bannerText;
+				}
+			}
+	
 			private function initBreakoutRibbon() : void {
 				if (UsersUtil.isBreakout()) {
 					breakoutRibbon.visible = breakoutRibbon.includeInLayout = true;
@@ -264,57 +268,55 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					breakoutLabel.text = ResourceUtil.getInstance().getString("bbb.users.breakout.youareinroom", [sequence]);
 				}
 			}
-
-      private function refreshModeratorButtonsVisibility(e:*):void {
-          showGuestSettingsButton = UsersUtil.amIModerator() && usersOptions.enableGuestUI;
-
-          showRecordButton = LiveMeeting.inst().meeting.recorded;
-      }
-
-      private function getFlashPlayerCapabilities():Object {
-          var caps:Object = new Object();
-          caps.avHardwareDisable = Capabilities.avHardwareDisable;
-          caps.hasAccessibility = Capabilities.hasAccessibility;
-          caps.hasAudio = Capabilities.hasAudio;
-          caps.hasAudioEncoder = Capabilities.hasAudioEncoder;
-          caps.hasEmbeddedVideo = Capabilities.hasEmbeddedVideo;
-          caps.hasIME = Capabilities.hasIME;
-          caps.hasMP3 = Capabilities.hasMP3;
-          caps.hasPrinting = Capabilities.hasPrinting;
-          caps.hasScreenBroadcast = Capabilities.hasScreenBroadcast;
-          caps.hasScreenPlayback = Capabilities.hasScreenPlayback;
-          caps.hasStreamingAudio = Capabilities.hasStreamingAudio;
-          caps.hasStreamingVideo = Capabilities.hasStreamingVideo;
-          caps.hasTLS = Capabilities.hasTLS;
-          caps.hasVideoEncoder = Capabilities.hasVideoEncoder;
-          caps.isDebugger = Capabilities.isDebugger;
-          caps.isEmbeddedInAcrobat = Capabilities.isEmbeddedInAcrobat;
-          caps.language = Capabilities.language;
-          caps.localFileReadDisable = Capabilities.localFileReadDisable;
-          caps.manufacturer = Capabilities.manufacturer;
-          caps.maxLevelIDC = Capabilities.maxLevelIDC;
-          caps.os = Capabilities.os;
-          caps.pixelAspectRatio = Capabilities.pixelAspectRatio;
-          caps.playerType = Capabilities.playerType;
-          caps.screenColor = Capabilities.screenColor;
-          caps.screenDPI = Capabilities.screenDPI;
-          caps.screenResolutionX = Capabilities.screenResolutionX;
-          caps.screenResolutionY = Capabilities.screenResolutionY;
-          //caps.serverString = Capabilities.serverString;
-          caps.touchscreenType = Capabilities.touchscreenType;
-          caps.version = Capabilities.version;
-          return caps;
-     }
-
-     private function logFlashPlayerCapabilities():void {
-         var logData:Object = UsersUtil.initLogData();
-         logData.tags = ["initialization"];
-         logData.capabilities = getFlashPlayerCapabilities();
-         logData.logCode = "flash_player_capabilities";
-         LOGGER.info(JSON.stringify(logData));
-     }
-
-            
+			
+			private function refreshModeratorButtonsVisibility(e:*):void {
+				showRecordButton = LiveMeeting.inst().meeting.recorded && UsersUtil.amIModerator();
+			}
+			
+			private function getFlashPlayerCapabilities():Object {
+				var caps:Object = new Object();
+				caps.avHardwareDisable = Capabilities.avHardwareDisable;
+				caps.hasAccessibility = Capabilities.hasAccessibility;
+				caps.hasAudio = Capabilities.hasAudio;
+				caps.hasAudioEncoder = Capabilities.hasAudioEncoder;
+				caps.hasEmbeddedVideo = Capabilities.hasEmbeddedVideo;
+				caps.hasIME = Capabilities.hasIME;
+				caps.hasMP3 = Capabilities.hasMP3;
+				caps.hasPrinting = Capabilities.hasPrinting;
+				caps.hasScreenBroadcast = Capabilities.hasScreenBroadcast;
+				caps.hasScreenPlayback = Capabilities.hasScreenPlayback;
+				caps.hasStreamingAudio = Capabilities.hasStreamingAudio;
+				caps.hasStreamingVideo = Capabilities.hasStreamingVideo;
+				caps.hasTLS = Capabilities.hasTLS;
+				caps.hasVideoEncoder = Capabilities.hasVideoEncoder;
+				caps.isDebugger = Capabilities.isDebugger;
+				caps.isEmbeddedInAcrobat = Capabilities.isEmbeddedInAcrobat;
+				caps.language = Capabilities.language;
+				caps.localFileReadDisable = Capabilities.localFileReadDisable;
+				caps.manufacturer = Capabilities.manufacturer;
+				caps.maxLevelIDC = Capabilities.maxLevelIDC;
+				caps.os = Capabilities.os;
+				caps.pixelAspectRatio = Capabilities.pixelAspectRatio;
+				caps.playerType = Capabilities.playerType;
+				caps.screenColor = Capabilities.screenColor;
+				caps.screenDPI = Capabilities.screenDPI;
+				caps.screenResolutionX = Capabilities.screenResolutionX;
+				caps.screenResolutionY = Capabilities.screenResolutionY;
+				//caps.serverString = Capabilities.serverString;
+				caps.touchscreenType = Capabilities.touchscreenType;
+				caps.version = Capabilities.version;
+				return caps;
+			}
+			
+			private function logFlashPlayerCapabilities():void {
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["initialization"];
+				logData.capabilities = getFlashPlayerCapabilities();
+				logData.logCode = "flash_player_capabilities";
+				LOGGER.info(JSON.stringify(logData));
+			}
+			
+			
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
 				btn.id = name;
@@ -403,7 +405,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						addedBtnsDeskShare.addChild(event.button as UIComponent);
 					}
 					else if (event.module == "Microphone"){
-						addedBtnsMicrophone.addChild(event.button as UIComponent);
+						addedPhoneMicrophone.addChild(event.button as UIComponent);
+					}
+					else if (event.module == "MuteMicrophone"){
+						addedMuteMicrophone.addChild(event.button as UIComponent);
 					}
 					else if (event.module == "Webcam"){
 						addedBtnsWebcam.addChild(event.button as UIComponent);
@@ -417,13 +422,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
 				if (addedBtnsDeskShare.contains(event.button as UIComponent))
 					addedBtnsDeskShare.removeChild(event.button as UIComponent);
-				if (addedBtnsMicrophone.contains(event.button as UIComponent))
-					addedBtnsMicrophone.removeChild(event.button as UIComponent);
+				if (addedPhoneMicrophone.contains(event.button as UIComponent))
+					addedPhoneMicrophone.removeChild(event.button as UIComponent);
+				if (addedMuteMicrophone.contains(event.button as UIComponent))
+					addedMuteMicrophone.removeChild(event.button as UIComponent);
 				if (addedBtnsWebcam.contains(event.button as UIComponent))
 					addedBtnsWebcam.removeChild(event.button as UIComponent);
 			}
 			
-			private function handleConfigLoadedEvent(e:ConfigLoadedEvent):void{
+			private function initConfig():void{
 				var config:Config = BBB.getConfigManager().config;
 				var shortcutKeysOptions : ShortcutKeysOptions = Options.getOptions(ShortcutKeysOptions) as ShortcutKeysOptions;
 				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = shortcutKeysOptions.showButton;
@@ -551,20 +558,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				logoSperatator.visible = logo.includeInLayout = false;
 			}
 
-			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
-				settingsComponents.push(e.component);
-			}
-
-			private function removeSettingsComponent(e:SettingsComponentEvent = null):void {
-				throw("Not implemented");
-			}
-
-			private function onSettingsButtonClick():void {
-				settingsPopup = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BBBSettings, true) as BBBSettings;
-				settingsPopup.pushComponents(settingsComponents);
-				PopUpManager.centerPopUp(settingsPopup);
-			}
-
 			private function refreshRole(e:ChangeMyRole):void {
 				refreshModeratorButtonsVisibility(null);
 			}
@@ -579,6 +572,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:VBox id="mainBox" styleName="toolbarMainBox" width="100%" height="100%" horizontalScrollPolicy="off">
 		<!-- Breakout room  Ribbon-->
+		<mx:HBox id="banner" visible="false" includeInLayout="false" styleName="bannerStyle" width="100%" height="30">
+			<mx:Label id="bannerLabel" width="100%" textAlign="center"/>
+		</mx:HBox>
 		<mx:HBox id="breakoutRibbon" width="100%" height="30"
 				 styleName="breakoutRoomRibbon"
 				 visible="false" includeInLayout="false" >
@@ -589,14 +585,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timerForRoom.toolTip')}"/>
 		</mx:HBox>
 		<!-- Top bar -->
-		<mx:HBox id="topBox" width="100%" height="{MainApplicationShell.DEFAULT_TOOLBAR_HEIGHT}" verticalAlign="middle" horizontalScrollPolicy="off" styleName="topBoxStyle">
-			<mx:HBox id="titleBox" width="40%" height="100%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
+		<mx:HBox id="topBox" width="100%" verticalAlign="middle" height="50" horizontalScrollPolicy="off" styleName="topBoxStyle">
+			<mx:HBox id="titleBox" width="40%" horizontalAlign="left" verticalAlign="middle" horizontalScrollPolicy="off">
 				<mx:Image id="logo" right="20" maxHeight="35" ioError="hideLogo()" />
 				<mx:VRule id="logoSperatator" styleName="toolbarSeparator" height="10" />
 				<mx:Label id="meetingNameLbl" minWidth="1" maxWidth="{titleBox.width - logo.width - 20}" styleName="meetingNameLabelStyle" truncateToFit="true"/>
 			</mx:HBox>
-			<mx:HBox id="actionBox" width="30%" height="100%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
-				<mx:HBox id="addedBtnsMicrophone" />
+			<mx:HBox id="actionBox" width="30%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
+				<mx:HBox id="addedMuteMicrophone" />
+				<mx:HBox id="addedPhoneMicrophone" />
 				<mx:HBox id="addedBtnsWebcam" />
 				<mx:HBox id="addedBtnsDeskShare" />
 			</mx:HBox>
@@ -605,15 +602,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 				<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 				
-				<mx:Button
-					id="bbbSettings"
-					visible="{showGuestSettingsButton}"
-					includeInLayout="{showGuestSettingsButton}"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
-					click="onSettingsButtonClick()"
-					styleName="settingsButtonStyle"
-					height="30"
-					/>
 				<!--
 				<mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 				-->

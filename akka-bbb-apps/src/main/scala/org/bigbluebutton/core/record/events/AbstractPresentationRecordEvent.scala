@@ -20,5 +20,15 @@
 package org.bigbluebutton.core.record.events
 
 trait AbstractPresentationRecordEvent extends RecordEvent {
+  import AbstractPresentationRecordEvent._
+
   setModule("PRESENTATION")
+
+  def setPodId(id: String) {
+    eventMap.put(POD_ID, id)
+  }
+}
+
+object AbstractPresentationRecordEvent {
+  protected final val POD_ID = "podId"
 }

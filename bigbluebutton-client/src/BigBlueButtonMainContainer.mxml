@@ -43,21 +43,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.managers.HistoryManager;
 		import mx.managers.IDragManager;
 		import mx.managers.ToolTipManager;
-		import mx.utils.URLUtil;
 		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.events.LocaleChangeEvent;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.KeyboardUtil;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
+		import org.bigbluebutton.main.events.ConfigLoadedEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.ShortcutOptions;
+		import org.bigbluebutton.main.views.MainApplicationShell;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		private static const LOGGER:ILogger = getClassLogger(BigBlueButtonMainContainer);      
 
-		private var langResources:ResourceUtil = null;
-      
       private var globalModifier:String;
       /**
        * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
@@ -75,8 +75,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	  protected function init():void {
         setupTooltips();
-        setupAPI();
-        BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
       
@@ -108,25 +106,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var api:ExternalApiCallbacks;
       
       private function setupAPI():void {
-        langResources = ResourceUtil.getInstance();
         api = new ExternalApiCallbacks();
-        Security.allowDomain(determineHTMLURL());
-		LOGGER.debug("Security.allowDomain({0});", [determineHTMLURL()]);
-      }
-      
-      private function determineHTMLURL():String {
-        var serverName:String = "*";
-        if(ExternalInterface.available) {
-          try {
-            var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
-            serverName = URLUtil.getServerName(htmlURL);
-            LOGGER.debug("HTML URL [{0}]", [htmlURL]);
-          } catch(s:Error) {
-            LOGGER.debug("Cannot determine HTML URL");
-          }
-        }
-        
-        return serverName;
+        Security.allowDomain("*");
+        LOGGER.debug("Security.allowDomain({0});", ["*"]);
       }
 		
 	  /**
@@ -145,7 +127,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        */
       
 		private function onAddedToStage():void {
-			hotkeyCapture();
 			queryForSessionToken();
 		}
 		
@@ -218,6 +199,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
         }
       }
+		
+	 private function handleConfigLoaded(e:ConfigLoadedEvent):void {
+		 setupAPI();
+		 ResourceUtil.getInstance().initialize();
+	 }
+		
+		private function handleLocaleInit(e:LocaleChangeEvent):void {
+			BBB.initVideoProfileManager();
+			hotkeyCapture();
+			
+			var mainShell : MainApplicationShell = new MainApplicationShell();
+			mainShell.id = "mainShell";
+			this.addChild(mainShell);
+		}
       
       // Moves page focus outside and past the Flash content
       private function loseFocusFromApp(e:Event):void {
@@ -236,10 +231,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<maps:ApplicationEventMap />
 		
 		<mate:Listener type="{ShortcutEvent.FOCUS_AWAY_EVENT}" method="loseFocusFromApp" />
+		
+		<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}"  method="handleConfigLoaded"/>
+		
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_INIT}"  method="handleLocaleInit"/>
 	</fx:Declarations>
 
 	<views:MainApplicationShell id="mainShell"/>
 <!--	
 	<toaster:Toaster id="toasterContainer" width="100%" height="100%"/>
 -->
+
 </mx:Canvas>

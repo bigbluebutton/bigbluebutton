@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:common="org.bigbluebutton.common.*" 
+				xmlns:mate="http://mate.asfusion.com/"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				initialize="init()"
+				show="this.setFocus()"
+				layout="vertical"
+				horizontalAlign="center"
+				showCloseButton="false"
+				minWidth="480">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IKeyboardClose;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.model.GuestPolicy;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(GuestSettingsWindow);
+			
+			public function init():void {
+				guestManagement.selectedValue = LiveMeeting.inst().guestsWaiting.getGuestPolicy();
+			}
+			
+			private function onOkClicked(e:Event = null):void {
+				var event:BBBEvent = new BBBEvent(BBBEvent.BROADCAST_GUEST_POLICY);
+				event.payload['guestPolicy'] = guestManagement.selectedValue;
+				dispatchEvent(event);
+				LOGGER.debug("Sending guest policy update to server");
+				close();
+			}
+			
+			private function close():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.guests.management.title')}"
+						  styleName="titleWindowStyle"
+						  width="{this.width - 40}" />
+	
+	<mx:RadioButtonGroup id="guestManagement"/>
+
+	<mx:HBox horizontalGap="30"
+			 width="100%">
+		<mx:VBox width="50%">
+			<mx:RadioButton groupName="guestManagement"
+							id="askModerator"
+							width="100%"
+							label="{ResourceUtil.getInstance().getString('bbb.guests.askModerator')}"
+							value="{GuestPolicy.ASK_MODERATOR}"
+							/>
+			<mx:RadioButton groupName="guestManagement"
+							id="AlwaysDeny"
+							width="100%"
+							label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysDeny')}"
+							value="{GuestPolicy.ALWAYS_DENY}"
+							/>
+		</mx:VBox>
+		<mx:VBox width="50%">
+			<mx:RadioButton groupName="guestManagement"
+							id="alwaysAccept"
+							width="100%"
+							label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysAccept')}"
+							value="{GuestPolicy.ALWAYS_ACCEPT}"
+							/>
+			<mx:RadioButton groupName="guestManagement"
+							id="alwaysAcceptAuth"
+							width="100%"
+							label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysAcceptAuth')}"
+							value="{GuestPolicy.ALWAYS_ACCEPT_AUTH}"
+							/>
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" paddingTop="20" horizontalAlign="right">
+		<mx:Button id="okBtn" styleName="mainActionButton" label="{ResourceUtil.getInstance().getString('bbb.guest.settings.ok')}" click="onOkClicked()"/>
+		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.guest.settings.cancel')}" click="close()"/>
+	</mx:HBox>
+</mx:TitleWindow>

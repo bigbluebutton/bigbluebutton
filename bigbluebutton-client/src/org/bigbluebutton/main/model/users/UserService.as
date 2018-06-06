@@ -55,11 +55,11 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.modules.users.services.MessageSender;
 
 	public class UserService {
-		private static const LOGGER:ILogger = getClassLogger(UserService);
+		private static const LOGGER:ILogger = getClassLogger(UserService);      
     
 		private var joinService:JoinService;
 		private var applicationURI:String;
-		private var hostURI:String;		
+		private var hostURI:String;
 		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
 		private var reconnecting:Boolean = false;
@@ -80,7 +80,9 @@ package org.bigbluebutton.main.model.users
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();
+			sender.queryForGuestsWaiting();
 			sender.getLockSettings();
+			sender.getRoomMuteState();
 
 			if (!LiveMeeting.inst().meeting.isBreakout) {
 				sender.queryForBreakoutRooms(LiveMeeting.inst().meeting.internalId);
@@ -106,7 +108,6 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().me.authToken = result.authToken;
         LiveMeeting.inst().me.layout = result.defaultLayout;
 		LiveMeeting.inst().me.logoutURL = result.logoutUrl;
-		LiveMeeting.inst().me.logoutTimer = result.logoutTimer;
         LiveMeeting.inst().me.role = result.role;
         LiveMeeting.inst().me.welcome = result.welcome;
         LiveMeeting.inst().me.avatarURL = result.avatarURL;
@@ -129,6 +130,11 @@ package org.bigbluebutton.main.model.users
         LiveMeeting.inst().meeting.modOnlyMessage = result.modOnlyMessage;
         LiveMeeting.inst().meeting.allowStartStopRecording = result.allowStartStopRecording;
         LiveMeeting.inst().meeting.metadata = result.metadata;
+		LiveMeeting.inst().meeting.logoutTimer = result.logoutTimer;
+
+		LiveMeeting.inst().meeting.bannerColor = result.bannerColor;
+		LiveMeeting.inst().meeting.bannerText = result.bannerText;
+
         LiveMeeting.inst().meeting.muteOnStart = result.muteOnStart;
 				LiveMeeting.inst().meetingStatus.isMeetingMuted = result.muteOnStart;
         LiveMeeting.inst().meeting.customLogo = result.customLogo;
@@ -180,6 +186,10 @@ package org.bigbluebutton.main.model.users
 
 		public function activityResponse():void {
 			sender.activityResponse();
+		}
+		
+		public function userInactivityAuditResponse():void {
+			sender.userInactivityAuditResponse();
 		}
 		
 		private function queryForRecordingStatus():void {
@@ -251,14 +261,14 @@ package org.bigbluebutton.main.model.users
 			sender.createBreakoutRooms(LiveMeeting.inst().meeting.internalId, e.rooms, e.durationInMinutes, e.record);
 		}
 
-		public function responseToGuest(e:ResponseModeratorEvent):void {
-			sender.responseToGuest(e.userid, e.resp);
+		public function handleApproveGuestAccess(e: ResponseModeratorEvent):void {
+			sender.approveGuestAccess(e.userIds, e.allow);
 		}
-		
+
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
 			sender.requestBreakoutJoinUrl(LiveMeeting.inst().meeting.internalId, e.breakoutMeetingId, e.userId);
 		}
-		
+
 		public function listenInOnBreakout(e:BreakoutRoomEvent):void {
 			if (e.listen) {
 				sender.listenInOnBreakout(LiveMeeting.inst().meeting.internalId, 
@@ -287,7 +297,7 @@ package org.bigbluebutton.main.model.users
 				reconnecting = true;
 			}
 		}
-		
+
 		/**
 		 * Assign a new presenter 
 		 * @param e
@@ -302,49 +312,49 @@ package org.bigbluebutton.main.model.users
     public function muteUnmuteUser(command:VoiceConfEvent):void {
       sender.muteUnmuteUser(command.userid, command.mute);
     }
-    
+
     public function muteAllUsers(command:VoiceConfEvent):void {
       sender.muteAllUsers(true);
     }
-    
+
     public function unmuteAllUsers(command:VoiceConfEvent):void{
       sender.muteAllUsers(false);
     }
-       
+
     public function muteAllUsersExceptPresenter(command:VoiceConfEvent):void {	
       sender.muteAllUsersExceptPresenter(true);
     }
-        
+
     public function ejectUser(command:VoiceConfEvent):void {
       if (this.isModerator()) sender.ejectUserFromVoice(command.userid);
     }
-    
+
     //Lock events
     public function lockAllUsers(command:LockControlEvent):void {
       sender.setAllUsersLock(true);
     }
-    
+
     public function unlockAllUsers(command:LockControlEvent):void {
       sender.setAllUsersLock(false);
     }
-    
+
     public function lockAlmostAllUsers(command:LockControlEvent):void {
       var pres:Array = LiveMeeting.inst().users.getPresenters();
       sender.setAllUsersLock(true, pres);
     }
-    
+
     public function lockUser(command:LockControlEvent):void {
       sender.setUserLock(command.internalUserID, true);
     }
-    
+
     public function unlockUser(command:LockControlEvent):void {
       sender.setUserLock(command.internalUserID, false);
     }
-    
-    public function saveLockSettings(command:LockControlEvent):void {	
+
+    public function saveLockSettings(command:LockControlEvent):void {
       sender.saveLockSettings(command.payload);
     }
-		
+
 	public function updateWebcamsOnlyForModerator(command:SetWebcamsOnlyForModeratorEvent):void {
 		sender.updateWebcamsOnlyForModerator(command.webcamsOnlyForModerator, UsersUtil.getMyUserID());
 	}

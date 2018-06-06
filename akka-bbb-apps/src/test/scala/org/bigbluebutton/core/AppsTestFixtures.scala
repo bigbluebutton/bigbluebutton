@@ -40,8 +40,6 @@ trait AppsTestFixtures {
   val screenshareProps = ScreenshareProps("TODO", "TODO", "TODO")
   val breakoutProps = BreakoutProps(parentMeetingId, sequence, Vector())
 
-  val meetingModel = new MeetingModel()
-
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
   val durationProps = DurationProps(
@@ -66,7 +64,6 @@ trait AppsTestFixtures {
     usersProp, metadataProp, screenshareProps)
 
   val chatModel = new ChatModel()
-  val layoutModel = new LayoutModel()
   val layouts = new Layouts()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
@@ -82,11 +79,8 @@ trait AppsTestFixtures {
   val guestsWaiting = new GuestsWaiting
   val deskshareModel = new ScreenshareModel
 
-  // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
-
   def newLiveMeeting(): LiveMeeting = {
     val chatModel = new ChatModel()
-    val layoutModel = new LayoutModel()
     val layouts = new Layouts()
     val wbModel = new WhiteboardModel()
     val presModel = new PresentationModel()
@@ -102,11 +96,9 @@ trait AppsTestFixtures {
     val guestsWaiting = new GuestsWaiting
     val deskshareModel = new ScreenshareModel
 
-    // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
-
     // We extract the meeting handlers into this class so it is
     // easy to test.
-    new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layoutModel, layouts,
+    new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layouts,
       registeredUsers, polls2x, wbModel, presModel, captionModel,
       notesModel, webcams, voiceUsers, users2x, guestsWaiting)
   }

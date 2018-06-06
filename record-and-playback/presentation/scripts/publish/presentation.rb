@@ -1119,9 +1119,9 @@ def processChatMessages
   end
 end
 
-def processDeskshareEvents
+def processDeskshareEvents(events)
   BigBlueButton.logger.info("Processing deskshare events")
-  deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events("#{$process_dir}/events.xml")
+  deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events(events)
 
   $deskshare_xml = Nokogiri::XML::Builder.new do |xml|
     $xml = xml
@@ -1240,21 +1240,23 @@ begin
 
         processing_time = File.read("#{$process_dir}/processing_time")
 
+        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+
         # Retrieve record events and calculate total recording duration.
         $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-          BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
+          BigBlueButton::Events.get_start_and_stop_rec_events(@doc))
 
-        recording_time = BigBlueButton::Events.get_recording_length("#{$process_dir}/events.xml")
+        recording_time = BigBlueButton::Events.get_recording_length(@doc)
 
         # presentation_url = "/slides/" + $meeting_id + "/presentation"
-        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
 
         $meeting_start = @doc.xpath("//event")[0][:timestamp]
         $meeting_end = @doc.xpath("//event").last()[:timestamp]
 
-        $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
-        $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
-        $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 2, 0, 0)
+        $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare(
+                        @doc, 0, 9, 0)
+        $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
+                        @doc, 2, 0, 0)
         BigBlueButton.logger.info("Creating metadata.xml")
 
         # Get the real-time start and end timestamp

@@ -38,13 +38,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}">
+	title="{windowTitle}">
 	
 	<fx:Declarations>
 		<mate:Dispatcher id="globalDispatcher" />
 		<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
-		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
-		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
 		<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
 		<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 		<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
@@ -61,6 +59,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
 		<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
 		<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
+		<mate:Listener type="{GoToPageLocalCommand.GO_TO_PAGE_LOCAL}" method="handleGoToPageLocalCommand" />
+		<mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserAddedToPresenterGroupEvent" />
+		<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserRemovedFromPresenterGroupEvent" />
+		<mate:Listener type="{SetPresenterInPodRespEvent.SET_PRESENTER_IN_POD_RESP}" method="handleSetPresenterInPodRespEvent" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+		<mate:Listener type="{EventConstants.PRESENTATION_PODS_COUNT_UPDATE}" method="updatesOnPresentationPods" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -68,27 +72,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.geom.Point;
 			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Button;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
+			import mx.utils.StringUtil;
 			
 			import flashx.textLayout.formats.Direction;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
+			import org.as3commons.lang.ArrayUtils;
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
@@ -98,29 +111,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.views.PollChoicesModal;
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPageLocalCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.events.ExportEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.RequestClosePresentationPodEvent;
+			import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
+			import org.bigbluebutton.modules.present.events.SetPresenterInPodReqEvent;
+			import org.bigbluebutton.modules.present.events.SetPresenterInPodRespEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PresentOptions;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
+			import org.bigbluebutton.modules.present.model.PresentationPodManager;
 			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-             		
+
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
-      		public static const TITLE:String = "Presentation";
-			
 			[Bindable] 
       		private var thumbY:Number;
-			public var uploadWindow:FileUploadWindow = null;
+//			public var uploadWindow:FileUploadWindow = null;
 			
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
@@ -136,7 +154,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// Init to the size of the window.
 			private var currentSlideWidth:Number = DEFAULT_WINDOW_WIDTH;
 			private var currentSlideHeight:Number = DEFAULT_WINDOW_HEIGHT;
-									
+			
 			private var mouseDown:Boolean = false;
 
 			private static const PRESENTATION_NAME_MAX_LENGTH:Number = 20;
@@ -149,17 +167,182 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
+
+			private var windowId:String;
+			
+			[Bindable] private var podId: String = "";
+			[Bindable] private var currentPresenterInPod: String = "";
+			[Bindable] private var currentPresenterUsername: String = "";
+			
+			[Bindable]
+			private var listOfPodControls:Array = [];
+
+			private var downloadMenuData:Array;
+			private var downloadMenu:Menu;
 			
 			[Embed(source="../../../polling/sounds/Poll.mp3")] 
 			private var noticeSoundClass:Class;
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
-			private var whiteboardOverlay:WhiteboardCanvas = null;
+			private var whiteboardOverlay:IWhiteboardOverlay = null;
+
+			[Bindable]
+			private var podDropdownVisible:Boolean = false;
 			
+			[Bindable('titleChanged')]
+			private function get windowTitle():String {
+				if (StringUtils.isEmpty(podId)) {
+					return "";
+				}
+				var podIndex:int = PresentationPodManager.getInstance().getPodSequence(podId);
+				var currentTitle : String = ResourceUtil.getInstance().getString('bbb.presentation.title');
+				if (!StringUtils.isEmpty(currentPresenterUsername) && StringUtils.isEmpty(currentPresentation)) {
+					currentTitle = podIndex + " - ["+ currentPresenterUsername +"] " + currentTitle;
+				} else if (StringUtils.isEmpty(currentPresenterUsername) && !StringUtils.isEmpty(currentPresentation)) {
+					currentTitle = podIndex + " - "+ currentTitle + ": " + currentPresentation;
+				} else if (!StringUtils.isEmpty(currentPresenterUsername) && !StringUtils.isEmpty(currentPresentation)) {
+					currentTitle = podIndex + " - ["+ currentPresenterUsername +"] " + currentTitle + ": " + currentPresentation;
+				} else {
+					currentTitle = podIndex + " - " + currentTitle;
+				}
+				return currentTitle;
+			}
+
 			private function init():void{
 				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
+				
+				showControls = presentOptions.showWindowControls;
 			}
-			
+
+			private function amITheCurrentPodPresenter(): Boolean {
+				return UsersUtil.getMyUserID() == this.currentPresenterInPod;
+			}
+
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				podDropdownVisible = (e.role == Role.MODERATOR);
+			}
+
+			private function handleUserAddedToPresenterGroupEvent(event: UserJoinedEvent): void {
+				populatePodDropdown();
+				
+			}
+
+			private function handleUserRemovedFromPresenterGroupEvent(event: UserLeftEvent): void {
+				populatePodDropdown();
+			}
+
+			private function populatePodDropdown():void {
+				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+				dispatchEvent(new Event('titleChanged'));
+				
+				listOfPodControls = [];
+				listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'), type: "action", handler: newPresentationWindowHandler});
+				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
+					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'), type: "action", handler: closePresentationWindowHandler});
+				}
+				var presGroup:Array = ArrayUtils.getUniqueValues(UsersUtil.getPresenterGroup().source);
+				if (presGroup.length > 0 || !StringUtils.isEmpty(currentPresenterUsername)) {
+					listOfPodControls.push({type: "separator", label: StringUtil.repeat("─", Math.floor(ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen').length / 2) + 2)});
+					listOfPodControls.push({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.itemrenderer.presenter'), type: "title", styleName: "podItemTitle"});
+					for (var j:int = 0; j < presGroup.length; j++) {
+						var nextPresenterId:String = presGroup[j] as String;
+						var userName:String = UsersUtil.getUserName(nextPresenterId);
+						var myUser:Boolean = LiveMeeting.inst().me.id == nextPresenterId;
+						if (nextPresenterId == this.currentPresenterInPod) {
+							userName = "✓  " + userName;
+						}
+						if (myUser) {
+							userName += ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')'
+						}
+						if (!StringUtils.isEmpty(UsersUtil.getUserName(nextPresenterId))) { // avoid duplication
+							listOfPodControls.push({label: userName, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: myUser ? "podCurrentUser" : ""});
+						}
+					}
+				}
+			}
+
+			private function podsSelectableFunction(item:*):Boolean {
+				return item.type == "user" || item.type == "action";
+			}
+
+			public function onPodCreated(podId: String, presenterId: String):void {
+				this.podId = podId;
+				this.currentPresenterInPod = presenterId;
+				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+				dispatchEvent(new Event('titleChanged'));
+
+				if (UsersUtil.amIModerator()) {
+					this.podDropdownVisible = true;
+				}
+
+				populatePodDropdown();
+
+				// make me currentPodPresenter
+				if ((StringUtils.isEmpty(this.currentPresenterInPod) || StringUtils.isEmpty(this.currentPresenterUsername)) && UsersUtil.amIModerator()) {
+					setPresenterInPodHelper(UsersUtil.getMyUserID());
+				}
+			}
+
+			public function setWindowId(windowId:String):void {
+				this.windowId = windowId;
+			}
+
+			public function getPodId(): String { return this.podId; }
+
+			private function onPresentationPodControlsChange(e:Event):void {
+				if(presentationPodControls.selectedItem != null && presentationPodControls.selectedItem.hasOwnProperty('handler')) {
+					presentationPodControls.selectedItem.handler();
+					presentationPodControls.selectedIndex = -1;
+				}
+			}
+
+			private function newPresentationWindowHandler(): void {
+				localDispatcher.dispatchEvent(new RequestNewPresentationPodEvent());
+			}
+
+			private function closePresentationWindowHandler(): void {
+				var event:RequestClosePresentationPodEvent = new RequestClosePresentationPodEvent(RequestClosePresentationPodEvent.REQUEST_CLOSE_PRES_POD);
+				event.requesterId = UsersUtil.getMyUserID();
+				event.podId = this.podId;
+				localDispatcher.dispatchEvent(event);
+			}
+
+			private function requestPodPresenterChange(): void {
+				if (presentationPodControls.selectedItem == null || presentationPodControls.selectedItem.data == null) {
+					return;
+				}
+
+				var nextPresenterId: String = presentationPodControls.selectedItem.data as String;
+				setPresenterInPodHelper(nextPresenterId);
+			}
+
+			private function setPresenterInPodHelper(nextPresenterId: String): void {
+				localDispatcher.dispatchEvent(new SetPresenterInPodReqEvent(this.podId, nextPresenterId));
+			}
+
+			private function handleSetPresenterInPodRespEvent(event: SetPresenterInPodRespEvent): void {
+				if (event.podId != this.podId) {
+					return;
+				}
+				
+				this.currentPresenterInPod = event.nextPresenterId;
+				this.currentPresenterUsername = UsersUtil.getUserName(this.currentPresenterInPod);
+				dispatchEvent(new Event('titleChanged'));
+
+				if (amITheCurrentPodPresenter()) {
+					becomePresenter();
+				} else {
+					becomeViewer();
+				}
+				
+				//send new presenter to the whiteboard canvas
+				if (whiteboardOverlay != null) {
+					whiteboardOverlay.presenterChange(amITheCurrentPodPresenter(), currentPresenterInPod);
+				}
+				
+				populatePodDropdown();
+			}
+
 			private function onCreationComplete():void{
 				//check for the polling module in config.xml
 				var vxml:XML = BBB.getConfigForModule("PollingModule");
@@ -175,20 +358,57 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				titleBarOverlay.tabIndex = presentOptions.baseTabIndex;
 				
 				hotkeyCapture();
-                
-        //Necessary now because of module loading race conditions
-        var t:Timer = new Timer(2000, 1);
-        t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
-        t.start();
-        
-        if (UsersUtil.amIPresenter()) {
-          becomePresenter();
-        } else {
-          becomeViewer();
-        }
-        
-        setPollMenuData();
-      }
+
+				//Necessary now because of module loading race conditions
+				var t:Timer = new Timer(2000, 1);
+				t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
+				t.start();
+
+				if (amITheCurrentPodPresenter()) {
+					becomePresenter();
+				} else {
+					becomeViewer();
+				}
+				setPollMenuData();
+				
+      		}
+			
+			private function populatePresenterGroupDropDown():void {
+				listOfPodControls.addItem({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen'), type: "action", handler: newPresentationWindowHandler});
+				
+				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
+					listOfPodControls.addItem({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.closePresentationWindowOpen'), type: "action", handler: closePresentationWindowHandler});
+				}
+				
+				listOfPodControls.addItem({type: "separator", label: StringUtil.repeat("─", Math.floor(ResourceUtil.getInstance().getString('bbb.presentation.multipod.controls.newPresentationWindowOpen').length / 2) + 2)});
+				listOfPodControls.addItem({label: ResourceUtil.getInstance().getString('bbb.presentation.multipod.itemrenderer.presenter'), type: "title", styleName: "podItemTitle"});
+				
+				var presGroup:Array = ArrayUtils.getUniqueValues(UsersUtil.getPresenterGroup().source);
+					for (var j:int = 0; j < presGroup.length; j++) {
+						var nextPresenterId:String = presGroup[j] as String;
+						var userName:String = UsersUtil.getUserName(nextPresenterId);
+						var myUser:Boolean = LiveMeeting.inst().me.id == nextPresenterId;
+						if (nextPresenterId == this.currentPresenterInPod) {
+							userName = "✓  " + userName;
+						}
+						if (myUser) {
+							userName += ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')'
+						}
+						if (!StringUtils.isEmpty(UsersUtil.getUserName(nextPresenterId))) { // avoid duplication
+							listOfPodControls.addItem({label: userName, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: myUser ? "podCurrentUser" : ""});
+						}
+					}
+					
+					
+					// Add Fake presenters to test limits of dropdown
+					/**
+					for (var jk:int = 0; jk < 100; jk++) {
+						var tempUsername: String = "FOO " + jk;
+						var tempPresId: String = "foo_" + jk;
+						listOfPodControls.addItem({label: tempUsername, type: "user", handler: requestPodPresenterChange, data: nextPresenterId, styleName: false ? "podCurrentUser" : ""});
+					}
+					 * **/
+			}
 			
 			private function requestWhiteboardCanvas(event:TimerEvent):void {
 				LOGGER.debug("Sending event to add whiteboard canvas.");
@@ -230,9 +450,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleKeyDown(e:KeyboardEvent) :void {
 				var modifier:String = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
-				  
+				
 				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
-				                          
+				
 				if (keyCombos[keyPress]) {
 				    //globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				    localDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
@@ -251,7 +471,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				else{
 					this.restore();
-				}				
+				}
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void{
@@ -282,25 +502,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
 			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
-				slideView.onParentResized(parentWidth, parentHeight);
+				slideView.onParentResized(this.podId, parentWidth, parentHeight);
 			}
 			
-			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {		
-        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
-        if (curPage != null) {
-          displaySlideNumber(curPage.num);
-          currentSlideWidth = event.slideWidth;
-          currentSlideHeight = event.slideHeight;		
-          fitSlideToWindowMaintainingAspectRatio();          
-        }			
+			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {
+        LOGGER.debug("Got a DisplaySlideEvent pod=" + podId);
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					var curPage:Page = presentationModel.getCurrentPage();
+					if (curPage != null) {
+            LOGGER.debug("Got a DisplaySlideEvent pod=" + podId + " current page=" + curPage.num);
+						displaySlideNumber(curPage.num);
+						currentSlideWidth = event.slideWidth;
+						currentSlideHeight = event.slideHeight;
+						fitSlideToWindowMaintainingAspectRatio();
+					}
+				}
 			}
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
 			}
-						
+			
+			public function getName():String {
+				return windowId;
+			}
+			
 			private function onSliderZoom():void {
-				if (UsersUtil.amIPresenter()) {
+				if (amITheCurrentPodPresenter()) {
 					slideView.onZoomSlide(zoomSlider.value);
 				}
 			}
@@ -308,66 +537,80 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onResetZoom():void {
 				slideView.onZoomSlide(100);
 			}
-
-      private function handleBecomePresenter(e:MadePresenterEvent):void{
-        becomePresenter();
-      }
       
-			private function becomePresenter():void{
+			private function becomePresenter():void {
+				slideView.becomePresenter(amITheCurrentPodPresenter(), this.currentPresenterInPod);
 				setupPresenter(true);
 				addContextMenuItems();
 			}
-			
-      private function handleBecomeViewer(e:MadePresenterEvent):void{
-        becomeViewer();
-      }
-      
-			private function becomeViewer():void{
+
+			// Intercept command from SlideView, add podId and forward the command to PresentProxy
+			// on its way out to server
+			private function handleGoToPageLocalCommand(cmd: GoToPageLocalCommand): void {
+				dispatchEvent(new GoToPageCommand(podId, cmd.pageId));
+			}
+
+			private function becomeViewer():void {
 				setupPresenter(false);
-				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, this.podId));
 				this.customContextMenuItems = new Array();
+				slideView.becomeViewer(amITheCurrentPodPresenter(), this.currentPresenterInPod);
 				if (slideView.thumbnailView.visible)
 					showThumbnails();
 			}
-						
+			
 			private function setupPresenter(isPresenter:Boolean):void {
 				uploadPres.visible = isPresenter;
-				downloadPres.visible = !isPresenter;
 
-				var page:Page = PresentationModel.getInstance().getCurrentPage();
-				if (page != null) {
-					displaySlideNumber(page.num);		
-				}
-				displaySlideNavigationControls(isPresenter, !!page);
-				
-				setControlBarState("presenter");
-			}
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					var page:Page = presentationModel.getCurrentPage();
+					if (page != null) {
+						displaySlideNumber(page.num);
+					}
+					setControlBarState("presenter");
 			
-            private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
-				currentPresentation = PresentationModel.getInstance().getCurrentPresentationName();
+					displaySlideNavigationControls(isPresenter, !!page);
+				}
+			}
 
-                slideView.setSlides();
-                slideView.visible = true;
-                var page : Page = PresentationModel.getInstance().getCurrentPage();
-                if (page != null) {
-                    displaySlideNumber(page.num); 
-                }
+			private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
+				if (podId != e.podId) {
+					return;
+				}
 
-                if (UsersUtil.amIPresenter()) {
-                    displaySlideNavigationControls(true, !!page);
-                }
-                else {
-                    displaySlideNavigationControls(false, !!page)
-                }
-                onResetZoom();
-                updateDownloadBtn();
-            }
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					currentPresentation = presentationModel.getCurrentPresentationName();
+
+					slideView.setSlides(podId);
+					slideView.visible = true;
+					var page : Page = presentationModel.getCurrentPage();
+					if (page != null) {
+						displaySlideNumber(page.num);
+					}
+
+					if (amITheCurrentPodPresenter()) {
+						displaySlideNavigationControls(true, !!page);
+					}
+					else {
+						displaySlideNavigationControls(false, !!page)
+					}
+					onResetZoom();
+					updateDownloadBtn();
+					dispatchEvent(new Event('titleChanged'));
+				}
+			}
 
 			
 			private function displaySlideNavigationControls(isPresenter:Boolean, activePresentation:Boolean):void {
-				var showButtons:Boolean = isPresenter && activePresentation;
+				var showButtons:Boolean = (UsersUtil.getMyUserID() == this.currentPresenterInPod) && activePresentation;
+				// var showButtons:Boolean = (isPresenter || UsersUtil.getMyUserID() == this.currentPresenterInPod) && activePresentation;
 				
-				pollStartBtn.visible = showButtons;
+				if (this.podId == PresentationPodManager.DEFAULT_POD_ID) { // only allow polling from the default pod
+					pollStartBtn.visible = showButtons;
+				}
+				
 				quickPollBtn.visible = showButtons;
 				navigationControls.visible = showButtons;
 				zoomControls.visible = showButtons;
@@ -385,12 +628,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var previousButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip'));
 				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { goToPreviousSlide(); });
 				contextMenuItems.push(previousButton);
-								
+				
 				this.customContextMenuItems = contextMenuItems;
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
-				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
+				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND, 
+          this.podId);
 					shareEvent.presentationName = presentationName;
 					dispatchEvent(shareEvent);
 			}
@@ -399,6 +643,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var styleNameExt : String = "";
 				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
 					styleNameExt = "RTL";
+				}
+
+				// Base case when there is no presentation file in the presentation window
+				if (backButton == null || forwardButton == null) {
+					return;
 				}
 
 				// We use mouseEnabled here instead of enabled because the tab position gets lost when going through 
@@ -410,24 +659,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					backButton.mouseEnabled = false;
 					backButton.styleName = "presentationBackButtonDisabledStyle" + styleNameExt;
 				}
-				
-				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
-					forwardButton.mouseEnabled = true;
-					forwardButton.styleName = "presentationForwardButtonStyle" + styleNameExt;
-				} else {
-					forwardButton.mouseEnabled = false;
-					forwardButton.styleName = "presentationForwardButtonDisabledStyle" + styleNameExt;
+
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					if (pageNumber < presentationModel.getNumberOfPages()) {
+						forwardButton.mouseEnabled = true;
+						forwardButton.styleName = "presentationForwardButtonStyle" + styleNameExt;
+					} else {
+						forwardButton.mouseEnabled = false;
+						forwardButton.styleName = "presentationForwardButtonDisabledStyle" + styleNameExt;
+					}
 				}
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
         		disableSlideNavigationButtons(currentSlide);
-				btnSlideNum.label = "" + currentSlide + '/' + PresentationModel.getInstance().getNumberOfPages();
-				btnSlideNum.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.accessibilityName', [currentSlide, PresentationModel.getInstance().getNumberOfPages()])
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					btnSlideNum.label = "" + currentSlide + '/' + presentationModel.getNumberOfPages();
+					btnSlideNum.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.accessibilityName',
+							[currentSlide, presentationModel.getNumberOfPages()])
+				}
 			}
-			
       
 			private function clearPresentation(e:UploadEvent):void{
+				if (e.podId != this.podId) {
+					return;
+				}
 				slideView.visible = false;
 				slideView.slideLoader.source = null; 
 				slideView.setSelectedSlide(0);
@@ -438,20 +696,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				navigationControls.visible = false;
 				zoomControls.visible = false;
-
-				// Change the title of the window.
-				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
 			}
 			
 			private function goToPreviousSlide():void {
-				if (PresentationModel.getInstance().getCurrentPage().num > 1) {
-					dispatchEvent(new GoToPrevPageCommand());
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null && presentationModel.getCurrentPage().num > 1) {
+					dispatchEvent(new GoToPrevPageCommand(podId));
 				}
 			}
 			
 			private function goToNextSlide():void {
-				if (PresentationModel.getInstance().getCurrentPage().num < PresentationModel.getInstance().getNumberOfPages()) {
-					dispatchEvent(new GoToNextPageCommand());
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null && presentationModel.getCurrentPage().num < presentationModel.getNumberOfPages()) {
+					dispatchEvent(new GoToNextPageCommand(podId));
 				}
 			}
 			
@@ -466,8 +723,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function addWhiteboardCanvasToSlideView():void{
         if(whiteboardOverlay != null) {
           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
-          slideView.acceptOverlayCanvas(whiteboardOverlay);
-		}
+          slideView.acceptOverlayCanvas(this.podId, whiteboardOverlay);
+          
+          whiteboardOverlay.presenterChange(amITheCurrentPodPresenter(), currentPresenterInPod);
+        }
       }
 			
 			override protected function resourcesChanged():void{
@@ -497,6 +756,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.customContextMenuItems = new Array();
 				}
 				
+				populatePodDropdown();
+				
 				setPollMenuData();
 				
 				updateStyles();
@@ -523,7 +784,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function remoteUpload(e:ShortcutEvent):void{
 				if (uploadPres.visible){
 					uploadPres.setFocus();
-					openUploadWindow();
+					openUploadWindow(podId);
 				}
 			}
 			
@@ -563,27 +824,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onDownloadButtonClicked():void {
-				openDownloadWindow();
+				setDownloadMenuData();
+				openDownloadMenu();
 			}
 
 			private function openDownloadWindow():void {
 				var event:DownloadEvent = new DownloadEvent(DownloadEvent.OPEN_DOWNLOAD_WINDOW);
+				event.podId = podId;
 				dispatchEvent(event);
 			}
-			
-			private function onUploadButtonClicked():void {
-				openUploadWindow();	
+
+			private function openExportWindow(firstPage:int, numberOfPages:int):void {
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				var event:ExportEvent = new ExportEvent(ExportEvent.OPEN_EXPORT_WINDOW);
+				event.firstPage = firstPage;
+				event.numberOfPages = numberOfPages;
+				event.slidesUrl = StringUtils.substringBeforeLast(presentationModel.getCurrentPage().swfUri, "/") + "/";
+				event.slideModel = slideView.slideModel;
+				event.presentationModel = presentationModel;
+				event.whiteboardCanvas = whiteboardOverlay;
+				dispatchEvent(event);
 			}
 
-			private function openUploadWindow():void {
+			private function onUploadButtonClicked():void {
+				openUploadWindow(podId);
+			}
+
+			private function openUploadWindow(_podId: String):void {
 				if (presentOptions.openExternalFileUploadDialog) {
-					var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW);
+					var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW, this.podId);
 					fileEvent.maxFileSize = presentOptions.maxFileSize;
 					var gDispatcher:Dispatcher = new Dispatcher();
 					gDispatcher.dispatchEvent(fileEvent);
 				} else {
-					var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
+					var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW, this.podId);
 					event.maxFileSize = presentOptions.maxFileSize;
+					event.podId = _podId;
 					dispatchEvent(event);
 				}
 			}
@@ -605,9 +881,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPollOption.label")});
 			}
 
+			private function setDownloadMenuData():void {
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				var resourceUtil:ResourceUtil = ResourceUtil.getInstance();
+				downloadMenuData = [];
+				downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.slideWithAnnotations"), data: "slide_annotation"});
+				if (presentationModel.getCurrentPresentation().downloadable) {
+					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentationWithAnnotations"), data: "presentation_annotation"});
+				}
+				if (presentationModel.getDownloadablePresentations().length > 0) {
+					downloadMenuData.push({label: resourceUtil.getString("bbb.presentation.downloadMenu.presentations"), data: "presentations"});
+				}
+			}
+
 			private function updateStyles():void {
-				if (PresentationModel.getInstance().getCurrentPage()) {
-					disableSlideNavigationButtons(PresentationModel.getInstance().getCurrentPage().num);
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null && presentationModel.getCurrentPage()) {
+					disableSlideNavigationButtons(presentationModel.getCurrentPage().num);
 				}
 			}
 
@@ -635,6 +925,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			}
 
+			public function openDownloadMenu():void {
+				if (downloadMenu) {
+					downloadMenu.removeEventListener(MenuEvent.ITEM_CLICK, downloadMenuClickHandler);
+					downloadMenu.removeEventListener(MenuEvent.MENU_SHOW, downloadMenuShowHandler);
+					downloadMenu.hide();
+				}
+
+				downloadMenu = Menu.createMenu(null, downloadMenuData, true);
+				downloadMenu.addEventListener(MenuEvent.ITEM_CLICK, downloadMenuClickHandler);
+				downloadMenu.addEventListener(MenuEvent.MENU_SHOW, downloadMenuShowHandler);
+				downloadMenu.variableRowHeight = false;
+				var pollXY:Point = downloadPres.localToGlobal(new Point(downloadPres.width + 2, downloadPres.height - downloadMenu.height));
+				downloadMenu.show();
+			}
+
+
             private function sendStartCustomPollEvent(pollType:String):void {
                 // Let's reset the page to display full size so we can display the result
                 // on the bottom right-corner.
@@ -649,7 +955,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// on the bottom right-corner.
 				onResetZoom();
 				var dispatcher:Dispatcher = new Dispatcher();
-				dispatchEvent(new StartPollEvent(pollType));				
+				dispatchEvent(new StartPollEvent(pollType));
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
@@ -694,10 +1000,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.x = pollXY.x;
 				pollMenu.y = pollXY.y;
 			}
-			
+
+			private function downloadMenuClickHandler(e:MenuEvent):void {
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (e.item.data == "slide_annotation") {
+					openExportWindow(presentationModel.getCurrentPage().num, 1);
+				} else if (e.item.data == "presentation_annotation") {
+					openExportWindow(1, presentationModel.getNumberOfPages());
+				} else if (e.item.data == "presentations") {
+					openDownloadWindow();
+				}
+			}
+
+
+			private function downloadMenuShowHandler(e:MenuEvent):void {
+				downloadMenu.setFocus();
+				var downloadXY:Point = downloadPres.localToGlobal(new Point(downloadPres.width + 2, downloadPres.height - downloadMenu.height));
+				downloadMenu.x = downloadXY.x;
+				downloadMenu.y = downloadXY.y;
+			}
+
 			private function pollStartedHandler(e:PollStartedEvent):void {
+				if (this.podId != PresentationPodManager.DEFAULT_POD_ID) {
+					return;
+				}
 				// the event for this doesn't exist yet
-				if (UsersUtil.amIPresenter()) {
+				if (amITheCurrentPodPresenter()) {
 					// display the results view
 					var pollResultsPopUp : PollResultsModal = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, PollResultsModal, true) as PollResultsModal;
 					if (pollResultsPopUp) {
@@ -750,8 +1078,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					zoomControls.visible = zoomControls.includeInLayout= false;
 					pollVoteBox.visible = pollVoteBox.includeInLayout = true;
 					
-				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
-					pollStartBtn.visible = true;
+				} else if (state == "presenter" && amITheCurrentPodPresenter()) {
+					if (this.podId == PresentationPodManager.DEFAULT_POD_ID) { // only allow polling from the default pod
+						pollStartBtn.visible = true;
+					}
 
 					fileAndPollControls.visible = fileAndPollControls.includeInLayout= true;
 					navigationControls.visible = navigationControls.includeInLayout= true;
@@ -778,8 +1108,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function pollShowResultHandler(e:PollShowResultEvent):void {
 				setControlBarState("presenter");
 			}
+			
+			private function updatesOnPresentationPods(e: Event):void {
+				dispatchEvent(new Event('titleChanged'));
+			}
 
 			private function handleUpdateDownloadableFilesEvent(e:RemovePresentationEvent):void {
+				if (e.podId == null || e.podId != this.podId) {
+					return;
+				}
 				updateDownloadBtn();
 			}
 
@@ -793,31 +1130,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 
-				var downloadablePresentations:ArrayCollection = PresentationModel.getInstance().getDownloadablePresentations();
-				if (presentOptions.enableDownload && downloadablePresentations.length > 0 && !UsersUtil.amIPresenter()) {
-					LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-					downloadPres.visible = true;
-				} else {
-					LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
-					downloadPres.visible = false;
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(podId);
+				if (presentationModel != null) {
+					var downloadablePresentations:ArrayCollection = presentationModel.getDownloadablePresentations();
+					if (presentOptions.enableDownload && (downloadablePresentations.length > 0 || presentationModel.getCurrentPresentation())) {
+						LOGGER.debug("Enabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
+						downloadPres.visible = true;
+					} else {
+						LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [downloadablePresentations.length]);
+						downloadPres.visible = false;
+					}
 				}
 			}
 
-			public function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void {
+			public function receiveToolbars(wt:IWhiteboardToolbar, wtt:IWhiteboardToolbar):void {
 				var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
-				addUIEvent.component = wt;
+				addUIEvent.component = wt as UIComponent;
 				globalDispatcher.dispatchEvent(addUIEvent);
 				wt.positionToolbar(this);
 				
 				var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
-				addTextToolbarEvent.component = wtt;
+				addTextToolbarEvent.component = wtt as UIComponent;
 				globalDispatcher.dispatchEvent(addTextToolbarEvent);
 				wtt.positionToolbar(this);
 			}
-			
-			public function receiveCanvas(wc:WhiteboardCanvas):void {
+
+			public function receiveCanvas(wc:IWhiteboardOverlay):void {
 				whiteboardOverlay = wc;
-				
+
 				addWhiteboardCanvasToSlideView();
 			}
 		]]>
@@ -832,7 +1172,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Declarations>
 
 	<mx:Canvas width="100%" height="100%" styleName="slideViewBackground" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-		<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
+		<views:SlideView id="slideView" podId="{this.podId}" currentPresenterInPod="{this.currentPresenterInPod}" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false"/>
 	</mx:Canvas>
 
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="top" styleName="presentationWindowControlsStyle" paddingTop="6" paddingBottom="6">
@@ -849,6 +1189,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<poll:QuickPollButton id="quickPollBtn" height="30"
 								  click="quickPollClicked(event)"
 								  includeInLayout="{quickPollBtn.visible}" />
+
+			<views:UnselectableItemsComboBox id="presentationPodControls"
+											 visible="{podDropdownVisible}"
+											 includeInLayout="{podDropdownVisible}"
+						 					 selectableFunction="podsSelectableFunction"
+						 					 dataProvider = "{listOfPodControls}" height="30"
+											 selectedIndex="-1"
+											 rowCount="10"
+											 prompt="{StringUtils.isEmpty(this.currentPresenterUsername) ? ResourceUtil.getInstance().getString('bbb.presentation.multipod.selectPresenter') : this.currentPresenterUsername}"
+						 					 itemRenderer="org.bigbluebutton.modules.present.ui.views.PresentationPodControlItemRenderer"
+						 					 change="onPresentationPodControlsChange(event)" />
+
 			<mx:Button id="downloadPres" visible="false"
 					   includeInLayout="{downloadPres.visible}" height="30"
 					   styleName="presentationDownloadButtonStyle"

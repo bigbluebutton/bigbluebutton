@@ -1,41 +1,34 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.{ GuestApprovedVO, GuestsWaitingApprovedMsg }
-import org.bigbluebutton.core.models.{ GuestsWaiting, RegisteredUsers, Roles, Users2x }
+import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers {
+trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementTrait {
   this: BaseMeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
   def handleGuestsWaitingApprovedMsg(msg: GuestsWaitingApprovedMsg): Unit = {
-    msg.body.guests foreach { g =>
-      approveOrRejectGuest(g, msg.body.approvedBy)
-    }
-
-    notifyModeratorsOfGuestsApproval(msg.body.guests, msg.body.approvedBy)
-  }
-
-  def approveOrRejectGuest(guest: GuestApprovedVO, approvedBy: String): Unit = {
-    for {
-      // Remove guest from waiting list
-      g <- GuestsWaiting.remove(liveMeeting.guestsWaiting, guest.guest)
-      u <- RegisteredUsers.findWithUserId(g.intId, liveMeeting.registeredUsers)
-    } yield {
-      if (guest.approved) {
-        RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, false)
-        // send message to user that he has been approved
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to approve or deny guests in meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+    } else {
+      msg.body.guests foreach { g =>
+        for {
+          // Remove guest from waiting list
+          _ <- GuestsWaiting.remove(liveMeeting.guestsWaiting, g.guest)
+        } yield {
+          UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, msg.body.approvedBy)
+        }
       }
-      val event = MsgBuilder.buildGuestApprovedEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        g.intId, guest.approved, approvedBy
-      )
 
-      outGW.send(event)
-
+      notifyModeratorsOfGuestsApproval(msg.body.guests, msg.body.approvedBy)
     }
   }
 

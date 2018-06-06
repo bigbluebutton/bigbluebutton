@@ -2,7 +2,6 @@ package org.bigbluebutton.api2;
 
 
 import org.bigbluebutton.api.messaging.converters.messages.*;
-import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.messages.IDocConversionMsg;
 
 import java.util.Map;
@@ -23,7 +22,10 @@ public interface IBbbWebApiGWApp {
                      Boolean muteOnStart);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed);
+                    String externUserID, String authToken, String avatarURL,
+                    Boolean guest, Boolean authed, String guestStatus);
+  void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,
+                    String externUserID);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);
@@ -31,6 +33,5 @@ public interface IBbbWebApiGWApp {
   void publishRecording(PublishRecordingMessage msg);
   void unpublishRecording(UnpublishRecordingMessage msg);
   void deleteRecording(DeleteRecordingMessage msg);
-  void sendStunTurnInfoReply(SendStunTurnInfoReplyMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
 }

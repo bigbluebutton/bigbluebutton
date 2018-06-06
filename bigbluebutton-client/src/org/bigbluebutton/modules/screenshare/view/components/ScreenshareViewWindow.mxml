@@ -226,6 +226,10 @@
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
+			
+			public function getName():String {
+				return "ScreenshareViewWindow";
+			}
 
             /**
              * Resizes the desktop sharing video to fit to this window

@@ -60,6 +60,9 @@ $Id: $
     <mate:Listener type="{StreamStoppedEvent.STREAM_STOPPED}" method="handleStreamStoppedEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleMadeViewerEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleMadePresenterEvent" />
+	<mate:Listener type="{NewGuestWaitingEvent.NEW_GUEST_WAITING}" method="handleNewWaitingGuest" />
+	<mate:Listener type="{GuestWaitingApprovedEvent.GUEST_WAITING_APPROVED}" method="handleGuestWaitingApproved" />
+
 
   </fx:Declarations>
   <fx:Script>
@@ -93,7 +96,9 @@ $Id: $
 		import org.bigbluebutton.core.events.BreakoutRoomsListUpdatedEvent;
 		import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
 		import org.bigbluebutton.core.events.CoreEvent;
+		import org.bigbluebutton.core.events.GuestWaitingApprovedEvent;
 		import org.bigbluebutton.core.events.LockControlEvent;
+		import org.bigbluebutton.core.events.NewGuestWaitingEvent;
 		import org.bigbluebutton.core.events.UserEmojiChangedEvent;
 		import org.bigbluebutton.core.events.UserStatusChangedEvent;
 		import org.bigbluebutton.core.events.VoiceConfEvent;
@@ -116,7 +121,9 @@ $Id: $
 		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 		import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 		import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+		import org.bigbluebutton.main.views.GuestSettingsWindow;
 		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.main.views.PendingGuestsWindow;
 		import org.bigbluebutton.main.views.WellPositionedMenu;
 		import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 		import org.bigbluebutton.modules.users.events.UsersRollEvent;
@@ -212,7 +219,7 @@ $Id: $
       private function handleUserLeftEvent(event: UserLeftEvent): void {
         handler.handleUserLeftEvent(event.userID);  
       }
-      
+
       private function handleStoppedViewingWebcamEvent(event: StoppedViewingWebcamEvent): void {
         handler.handleStoppedViewingWebcamEvent(event);  
       }
@@ -240,11 +247,19 @@ $Id: $
       private function onChangeMyRole(e:ChangeMyRole):void {
         refreshRole(e.role == Role.MODERATOR);
       }
-      
+		
+	  private function handleNewWaitingGuest(e:NewGuestWaitingEvent):void {
+		  refreshGuestButton();
+	  }
+		
+	  private function handleGuestWaitingApproved(e:GuestWaitingApprovedEvent):void {
+		  refreshGuestButton();
+	  }
+		
       private function onCreationComplete():void {
         dispatcher = new Dispatcher();
         
-        handler.populateAllUsers(usersGrid)
+        handler.populateAllUsers(usersGrid);
         users = handler.users;
         
         breakoutRoomsList = LiveMeeting.inst().breakoutRooms.breakoutRooms;
@@ -278,6 +293,8 @@ $Id: $
         
         stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
         usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
+		
+		refreshGuestButton();
         
         addContextMenuItems();
       }
@@ -288,12 +305,18 @@ $Id: $
         settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
         
         changeButtons(UsersUtil.amIPresenter());
+		
+		refreshGuestButton();
         
         if (paramsMenu) paramsMenu.hide();
       }
       
       public function getPrefferedPosition():String {
         return MainCanvas.TOP_LEFT;
+      }
+      
+      public function getName():String {
+        return "UsersWindow";
       }
       
       private function addContextMenuItems():void {
@@ -381,20 +404,18 @@ $Id: $
         moodMenu.btn = emojiStatusBtn;
         moodMenu.show();
       }
-      
+		
       private function openSettings():void {
         paramsMenuData = [];
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: getStyle('iconClearStatus'), handler: resetEmojiStatuses});
         
-		if (partOptions.moderatorUnmute == true) {
-	      if (!roomMuted) {
-	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
-	        var presenter:User2x = UsersUtil.getPresenter();
-	        if (presenter != null)
-	          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
-	      } else
-	        paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
-		}
+        if (!roomMuted) {
+          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: getStyle('iconAudioMuted'), handler: muteAll});
+          var presenter:User2x = UsersUtil.getPresenter();
+          if (presenter != null)
+            paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + presenter.name, icon: getStyle('iconAudioMuted'), handler: muteAlmostAll});
+        } else
+          paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: getStyle('iconAudio'), handler: muteAll});
         
         paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: getStyle('iconLock'), handler: lockSettings});
         if (breakoutOptions.enabled && amIModerator && !UsersUtil.isBreakout()) {
@@ -404,6 +425,9 @@ $Id: $
             paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.sendBreakoutRoomsInvitations'), handler: sendBreakoutRoomsInvitations});
           }
         }
+		if (partOptions.enableGuestUI) {
+			paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.guestSettings'), handler: guestSettings});
+		}
         
         // make sure the previous menu is closed before opening a new one
         // This could be improved to include a flag that tells if the menu is open,
@@ -438,6 +462,10 @@ $Id: $
         event.record = breakoutOptions.record;
         dispatcher.dispatchEvent(event);
       }
+	  
+	  private function guestSettings():void {
+		  PopUpUtil.createModalPopUp(this.parent, GuestSettingsWindow, true) as GuestSettingsWindow;
+	  }
       
       private function sendBreakoutRoomsInvitations():void {
         var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);
@@ -713,13 +741,39 @@ $Id: $
         }
         return names.join("\n");
       }
-    ]]>
+
+		private function refreshGuestButton():void {
+			var waitingGusers:int = LiveMeeting.inst().guestsWaiting.getGuests().length;
+
+			// do not show the guest window if the user isn't moderator or if he's waiting for acceptance
+			if (waitingGusers == 0 || !UsersUtil.amIModerator() || UsersUtil.amIWaitingForAcceptance() && partOptions.enableGuestUI) {
+				guestBox.visible = guestBox.includeInLayout = false;
+				guestButton.label = "";
+			} else {
+				guestBox.visible = guestBox.includeInLayout = true;
+				guestButton.label = ResourceUtil.getInstance().getString("bbb.users.waitingBtn.label", [waitingGusers]);
+			}
+		}
+
+		protected function guestButtonClickHandler(event:MouseEvent):void {
+			var guestWindow:PendingGuestsWindow = PopUpUtil.createModalPopUp(parentApplication as DisplayObject, PendingGuestsWindow, false) as PendingGuestsWindow;
+			PopUpUtil.lockPosition(guestWindow, function():Point {
+				return new Point(parentApplication.screen.width - guestWindow.width - 20, 20);
+			});
+		}
+	]]>
   </fx:Script>
   
   <fx:Declarations>
     <mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
   </fx:Declarations>
-  
+
+  <mx:VBox id="guestBox" styleName="guestBoxStyle" visible="false" includeInLayout="false" width="100%">
+	  <mx:Button id="guestButton" width="100%" styleName="guestButton" height="30"
+				 click="guestButtonClickHandler(event)"/>
+	  <mx:HRule width="100%"/>  
+  </mx:VBox>
+
   <views:BBBDataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
                      dragEnabled="false" width="100%" height="100%" draggableColumns="false" styleName="usersGridStyle"
                      itemRollOver="onItemRollOver(event)"
@@ -772,7 +826,7 @@ $Id: $
                click="endAllBreakoutRoomsHandler(event)" width="100%"/>
   </mx:VBox>
 	
-  <mx:HRule width="100%" />
+  <mx:HRule width="95%" />
   
   <mx:ControlBar width="100%" horizontalAlign="right">
 	<mx:VBox>

@@ -52,6 +52,7 @@ package org.bigbluebutton.modules.whiteboard
     private var width:Number;
     private var height:Number;
 	private var presenterId:String;
+	private var multiUser:Boolean = false;
 	
 	public function setDependencies(whiteboardCanvas:WhiteboardCanvas, whiteboardModel:WhiteboardModel):void {
 		wbCanvas = whiteboardCanvas;
@@ -124,10 +125,14 @@ package org.bigbluebutton.modules.whiteboard
           }
         }
       } else {
-        for each (gobj in _annotationsMap){
-          removeGraphic(gobj.id);
-        }
+        _annotationsMap = new Object();
+        wbCanvas.removeAllGraphics();
       }
+    }
+    
+    public function clearCursors():void {
+      _cursors = new Object();
+      wbCanvas.removeAllCursors();
     }
     
     public function undoAnnotation(annotation:Annotation):void {
@@ -146,6 +151,7 @@ package org.bigbluebutton.modules.whiteboard
       
       //LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
       clearBoard();
+      clearCursors();
       
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
       //LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
@@ -153,32 +159,36 @@ package org.bigbluebutton.modules.whiteboard
         createGraphic(annotations[i], true);
       }
     }
+	
+	public function multiUserChange(multiUser:Boolean):void {
+		this.multiUser = multiUser;
+		
+		for each(var cursor:WhiteboardCursor in _cursors) {
+			cursor.updateMultiUser(multiUser);
+		}
+	}
     
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
-      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
-      
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
 				if (userName) {
 					var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, 
-            xPercent, yPercent, shapeFactory.parentWidth, 
-            shapeFactory.parentHeight, presenterId == userId, showName);
+							xPercent, yPercent, shapeFactory.parentWidth, 
+							shapeFactory.parentHeight, presenterId == userId, multiUser);
 					wbCanvas.addCursor(newCursor);
 					
 					_cursors[userId] = newCursor;
 				}
 			} else {
-				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent, showName);
+				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent);
 			}
 		}
 		
 		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			this.presenterId = presenterId;
-			
-      
-      var showName: Boolean = LiveMeeting.inst().whiteboardModel.multiUser;
-			for(var j:String in _cursors) {
-				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId, showName);
+
+			for each(var cursor:WhiteboardCursor in _cursors) {
+				cursor.updatePresenter(presenterId);
 			}
 		}
 		

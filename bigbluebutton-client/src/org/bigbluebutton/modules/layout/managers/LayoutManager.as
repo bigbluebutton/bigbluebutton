@@ -59,6 +59,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
+  import org.bigbluebutton.modules.layout.model.LayoutModuleOptions;
   import org.bigbluebutton.modules.layout.views.CustomLayoutNameWindow;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -96,8 +97,9 @@ package org.bigbluebutton.modules.layout.managers
      *  combo is created first. We use two booleans to sync it and only dispatch 
      *  the layouts to populate the list when both are created.
      */
-		public function loadServerLayouts(layoutUrl:String):void {
-			//trace(LOG + " loading server layouts from " + layoutUrl);
+		public function loadServerLayouts():void {
+			var options : LayoutModuleOptions = Options.getOptions(LayoutModuleOptions) as LayoutModuleOptions;
+			
 			var loader:LayoutLoader = new LayoutLoader();
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
@@ -106,19 +108,18 @@ package org.bigbluebutton.modules.layout.managers
 					broadcastLayouts();
 					_serverLayoutsLoaded = true;
 
-					//trace(LOG + " layouts loaded successfully");
 				} else {
-					LOGGER.debug("layouts not loaded ({0})", [e.error.message]);
+					LOGGER.warn("layouts not loaded ({0})", [e.error.message]);
 				}
 			});
-			loader.loadFromUrl(layoutUrl);
+			loader.loadFromUrl(options.layoutConfig);
 		}
 
-    private function broadcastLayouts():void {
-      var layoutsReady:LayoutsReadyEvent = new LayoutsReadyEvent();
-      _globalDispatcher.dispatchEvent(layoutsReady);
-    }
-		
+		private function broadcastLayouts():void {
+			var layoutsReady:LayoutsReadyEvent = new LayoutsReadyEvent();
+			_globalDispatcher.dispatchEvent(layoutsReady);
+		}
+
 		public function saveLayoutsToFile():void {
 			if (!_currentLayout.currentLayout) {
 				var alertSaveCurrentLayToFile:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.layout.addCurrentToFileWindow.text'),
@@ -405,6 +406,7 @@ package org.bigbluebutton.modules.layout.managers
 
 		private function checkPermissionsOverAllWindows():void {
 			if (UsersUtil.amIModerator()) return;
+			if (_canvas == null || _canvas.windowManager == null) return;
 			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
 				checkPermissionsOverWindow(window);
 			}

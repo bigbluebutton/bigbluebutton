@@ -28,6 +28,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	import mx.utils.ObjectUtil;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -46,7 +47,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.util.ConnUtil;
-	
+
     public class NetConnectionDelegate {
         private static const LOGGER:ILogger = getClassLogger(NetConnectionDelegate);
 
@@ -111,7 +112,7 @@ package org.bigbluebutton.main.model.users
                 _messageListeners[notify].onMessage(messageName, message);
               }
             } catch(error:Error) {
-              LOGGER.error("Exception dispatched by a MessageListener, error: " + error.message);
+              LOGGER.error("Exception dispatched by a MessageListener, error: " + error.message + ", while trying to process " + ObjectUtil.toString(message));
             }
           } else {
             LOGGER.debug("Message name is undefined");
@@ -149,6 +150,7 @@ package org.bigbluebutton.main.model.users
               }
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
             }
       
             if (reconnecting) {
@@ -162,8 +164,10 @@ package org.bigbluebutton.main.model.users
             messageName != "UpdateBreakoutUsersEvtMsg" &&
             messageName != "BreakoutRoomsTimeRemainingUpdateEvtMsg" &&
             messageName != "UserTalkingVoiceEvtMsg" &&
+            messageName != "DoLatencyTracerMsg" &&
+            messageName != "ServerToClientLatencyTracerMsg" &&
             messageName != "MeetingTimeRemainingUpdateEvtMsg") {
-//            LOGGER.debug("onMessageFromServer2x - " + msg);
+            LOGGER.debug("onMessageFromServer2x - " + msg);
           }
             
             var map:Object = JSON.parse(msg);  
@@ -309,6 +313,7 @@ package org.bigbluebutton.main.model.users
               LiveMeeting.inst().me.authTokenValid = true;
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
             }
 
             if (reconnecting) {
@@ -334,6 +339,7 @@ package org.bigbluebutton.main.model.users
 //              LiveMeeting.inst().me.authTokenValid = true;
             } else {
                 dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
             }
       
             if (reconnecting) {
@@ -410,6 +416,7 @@ package org.bigbluebutton.main.model.users
                 
             try {
                 var appURL:String = _applicationOptions.uri;
+
 								var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
 								var result:Array = pattern.exec(appURL);
 
@@ -417,7 +424,6 @@ package org.bigbluebutton.main.model.users
 								
 								if (BBB.initConnectionManager().isTunnelling) {
 									var tunnelProtocol: String = ConnUtil.RTMPT;
-								
 									if (useRTMPS) {
 										_netConnection.proxyType = ConnUtil.PROXY_NONE;
 										tunnelProtocol = ConnUtil.RTMPS;
@@ -431,7 +437,6 @@ package org.bigbluebutton.main.model.users
 										_netConnection.proxyType = ConnUtil.PROXY_BEST;
 										nativeProtocol = ConnUtil.RTMPS;
 									}
-								
 									bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
 									//LOGGER.debug("BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
 								
@@ -682,26 +687,26 @@ package org.bigbluebutton.main.model.users
             }
         }
 
-        private function sendUserLoggedOutEvent():void{
-            var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
-            dispatcher.dispatchEvent(e);
-        }
-
-        private function sendGuestUserKickedOutEvent():void {
-            var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.MODERATOR_DENIED_ME);
-            dispatcher.dispatchEvent(e);
-        }
-
-        public function onBWCheck(... rest):Number { 
-            return 0; 
-        } 
-        
-        public function onBWDone(... rest):void { 
-            var p_bw:Number; 
-            if (rest.length > 0) p_bw = rest[0]; 
-            // your application should do something here 
-            // when the bandwidth check is complete 
-            LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
-        }
-    }
+				private function sendUserLoggedOutEvent():void{
+					var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
+					dispatcher.dispatchEvent(e);
+				}
+				
+				private function sendGuestUserKickedOutEvent():void {
+					var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.MODERATOR_DENIED_ME);
+					dispatcher.dispatchEvent(e);
+				}
+				
+				public function onBWCheck(... rest):Number { 
+					return 0; 
+				} 
+				
+				public function onBWDone(... rest):void { 
+					var p_bw:Number; 
+					if (rest.length > 0) p_bw = rest[0]; 
+					// your application should do something here 
+					// when the bandwidth check is complete 
+					LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
+				}
+		}
 }

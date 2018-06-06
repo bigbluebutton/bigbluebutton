@@ -114,13 +114,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         reInitialize();
         
         mic = Microphone.getMicrophone(comboMicList.selectedIndex);
-        LOGGER.debug("Changing microphone. mic.index[{0}] name=[{1}]", [mic.index, mic.name]);
-        mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler)
-        nsStream.attachAudio(mic);  
-				
-        startMicLevelListener();
-        
-        audioMicLevelDetected = 0;     
+				if (mic != null) {
+					echoTestButton.enabled = true;
+					LOGGER.debug("Changing microphone. mic.index[{0}] name=[{1}]", [mic.index, mic.name]);
+					mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler)
+					nsStream.attachAudio(mic);  
+					
+					startMicLevelListener();
+					
+					audioMicLevelDetected = 0;  
+				} else {
+					echoTestButton.enabled = false;
+				}
 			}
       
       private function micStatusEventHandler(event:StatusEvent):void {

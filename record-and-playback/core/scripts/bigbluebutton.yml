@@ -1,4 +1,4 @@
-bbb_version: '2.0.0'
+bbb_version: '2.1.0'
 raw_audio_src: /var/freeswitch/meetings
 raw_video_src: /usr/share/red5/webapps/video/streams
 kurento_video_src: /var/kurento/recordings
@@ -15,7 +15,7 @@ redis_port: 6379
 log_dir: /var/log/bigbluebutton
 recording_dir: /var/bigbluebutton/recording
 published_dir: /var/bigbluebutton/published
-playback_host: 10.0.3.203
+playback_host: 127.0.0.1
 playback_protocol: http
 
 # For DEVELOPMENT
@@ -24,4 +24,4 @@ playback_protocol: http
 #log_dir: /home/ubuntu/temp/log
 #recording_dir: /home/ubuntu/temp/recording
 #published_dir: /home/ubuntu/temp/published
-#playback_host: 192.168.22.137
+#playback_host: 127.0.0.1

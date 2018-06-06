@@ -14,6 +14,7 @@
 @namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
 @namespace tabBarClasses "flexlib.controls.tabBarClasses.*";
 @namespace toast "org.bigbluebutton.common.toaster.message.*";
+@namespace common "org.bigbluebutton.common.*";
 
 /*
 //------------------------------
@@ -158,6 +159,13 @@ phonecomponents|MuteMeButton {
 	horizontalAlign : center;
 }
 
+.bannerStyle {
+	color           : #FFFFFF;
+	fontSize        : 16;
+	verticalAlign   : middle;
+	horizontalAlign : center;
+}
+
 .topBoxStyle {
 	paddingTop    : 0;
 	paddingBottom : 0;
@@ -197,10 +205,6 @@ phonecomponents|MuteMeButton {
 
 .logoutButtonStyleRTL {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Logout_RTL");
-}
-
-.settingsButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
 .webcamDefaultButtonStyle, .webcamOnButtonStyle, .webcamOffButtonStyle, .webcamOverButtonStyle,
@@ -254,7 +258,7 @@ phonecomponents|MuteMeButton {
 	iconColorDown   : #FFFFFF;
 }
 
-.mainActionButton, .cameraDisplaySettingsWindowStartBtn {
+.mainActionButton, .cameraDisplaySettingsWindowStartBtn, .guestButton {
 	borderThickness   : 0;
 	color             : #FFFFFF;
 	fillColorUp       : #1070D7;
@@ -464,6 +468,7 @@ users|JoinBreakoutRoomWindow {
 users|RoomActionsRenderer {
 	paddingLeft     : 5;
 	paddingRight    : 5;
+	verticalAlign   : middle;
 	iconTransfer    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transfer");
 	iconTransferred : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Transferred");
 	iconJoin        : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Join");
@@ -581,7 +586,7 @@ views|ClientStatusItemRenderer {
 //------------------------------
 */
 
-chat|AddChatTabBox {
+chat|ChatOptionsTab {
 	verticalGap  : 20;
 	paddingLeft  : 20;
 	paddingRight : 20;
@@ -658,6 +663,20 @@ chat|ChatMessageRenderer {
 	borderStyle    : none;
 	rollOverColor  : #FFFFFF;
 	selectionColor : #CED4DB;
+}
+
+chat|ChatMessageRenderer {
+	color : #4E5A66;
+}
+
+.chatMessageName {
+	color     : #696969;
+	textAlign : left;
+}
+
+.chatMessageTime {
+	color     : #696969;
+	textAlign : right;
 }
 
 .chatMessageHeader {
@@ -780,6 +799,10 @@ mx|ComboBox {
 	skin                : ClassReference("org.bigbluebutton.skins.ComboBoxSkin");
 }
 
+common|ComboBox2 {
+	closePopUpOnStyleUpdate : false;
+}
+
 /*
 //------------------------------
 //  DataGrid
@@ -843,12 +866,50 @@ mx|DataGrid {
 
 /*
 //------------------------------
+//  FileDownloadWindow
+//------------------------------
+*/
+
+presentation|DownloadPresentationRenderer {
+	verticalAlign : middle;
+}
+
+/*
+//------------------------------
+//  FileExportWindow
+//------------------------------
+*/
+
+presentation|FileExportWindow {
+	verticalGap : 12;
+}
+
+.fileExportUploadProgressBar {
+	trackHeight : 14;
+}
+
+.fileExportResultError {
+	color : #DE2721;
+}
+
+/*
+//------------------------------
 //  Guest
 //------------------------------
 */
 
-views|BBBSettings {
+views|GuestSettingsWindow {
 	headerHeight : 0;
+}
+
+views|GuestItemRenderer {
+	verticalAlign : middle;
+}
+
+.guestListStyle {
+	borderStyle    : none;
+	rollOverColor  : #FFFFFF;
+	selectionColor : #FFFFFF;
 }
 
 .allowButtonStyle {
@@ -887,16 +948,13 @@ views|BBBSettings {
 //------------------------------
 */
 
-layout|AddButton {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Circle_Add");
+layout|LayoutsCombo {
+	color         : #5E6C73;
+	disabledColor : #5E6C73;
 }
 
-layout|SaveButton {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Download_Template");
-}
-
-layout|LoadButton {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Upload_Template");
+.gearLayoutButtonStyle {
+	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Settings");
 }
 
 .broadcastLayoutButtonStyle {
@@ -1266,10 +1324,6 @@ mx|Panel {
 //------------------------------
 */
 
-.presentationUploadDownloadButtonStyle {
-	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save_File");
-}
-
 .presentationWindowControlsStyle {
 	paddingBottom     : 5;
 	paddingTop        : 3;
@@ -1451,6 +1505,14 @@ mx|Panel {
 
 .slideViewBackground {
 	backgroundColor : #E2E8ED;
+}
+
+.podItemTitle {
+	fontWeight : bold;
+}
+
+.podCurrentUser {
+	color : #1070D7;
 }
 
 /*
@@ -1708,7 +1770,12 @@ flexlib|SuperTabNavigator {
 .highlightedTabStyle {
 	color                   : #DF2721;
 	iconColor               : #DF2721;
+	fillColorUp             : #E8EFF3;
+	fillColorOver           : #CDD4DB;
+	fillColorDown           : #ACB2B7;
+	fillColorDisabled       : #F0F2F6;
 	iconVisible             : true;
+	skin                    : ClassReference("org.bigbluebutton.skins.TabSkin");
 	tabCloseButtonStyleName : "tabCloseButton";
 }
 
@@ -1829,6 +1896,7 @@ users|UsersWindow {
 	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
 	iconClearStatus : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ClearStatus");
 	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Rooms");
+	horizontalAlign : center;
 }
 
 users|StatusItemRenderer {
@@ -1867,8 +1935,9 @@ users|MediaItemRenderer {
 }
 
 users|NameItemRenderer {
-	fontSize  : 12;
-	textAlign : left;
+	fontSize      : 12;
+	textAlign     : left;
+	verticalAlign : middle;
 }
 
 .nameRenderer {
@@ -1883,6 +1952,13 @@ users|NameItemRenderer {
 
 .usersGridStyle {
 	borderStyle : none;
+}
+
+.guestBoxStyle {
+	paddingLeft   : 8;
+	paddingRight  : 8;
+	paddingTop    : 6;
+	paddingBottom : 4;
 }
 
 users|EmojiGrid {

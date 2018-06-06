@@ -24,12 +24,11 @@ package org.bigbluebutton.main.model
 	import flash.net.ObjectEncoding;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.util.ConnUtil;
-	
+
 	[Bindable]
 	/**
 	 * Test RTMP port.

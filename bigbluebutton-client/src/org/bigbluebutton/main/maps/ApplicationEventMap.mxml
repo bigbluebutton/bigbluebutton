@@ -32,7 +32,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 			<ObjectBuilder generator="{ReconnectionManager}" cache="global" />
 			<ObjectBuilder generator="{StreamMonitor}" cache="global" />
-      <ObjectBuilder generator="{UserService}" cache="global" />
+			<ObjectBuilder generator="{UserService}" cache="global" />
+			<ObjectBuilder generator="{LogoutManager}" cache="global" />
 		</EventHandlers>
 		
 		<EventHandlers type="{LoadConfigCommand.LOAD_CONFIG_COMMAND}" >
@@ -68,7 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{SkinningService}" method="loadSkins"/>
 			<MethodInvoker generator="{ReconnectionManager}" method="onConfigLoaded"/>
 		</EventHandlers>
-	
+		
 		<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
 			<MethodInvoker generator="{ModulesProxy}" method="startLayoutModule" />
 		</EventHandlers>
@@ -100,27 +101,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
       <MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
     </EventHandlers>
+		
+		<!-- Events leading to user logout -->
+		
+		<EventHandlers type="{MeetingNotFoundEvent.MEETING_NOT_FOUND}" >
+			<MethodInvoker generator="{LogoutManager}" method="handleMeetingNotFoundEvent" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.CONNECTION_FAILED}" >
+			<MethodInvoker generator="{LogoutManager}" method="connectionFailedHandler" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}" >
+			<MethodInvoker generator="{LogoutManager}" method="connectionFailedHandler" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.UNKNOWN_REASON}" >
+			<MethodInvoker generator="{LogoutManager}" method="connectionFailedHandler" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.CONNECTION_REJECTED}" >
+			<MethodInvoker generator="{LogoutManager}" method="connectionFailedHandler" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.USER_LOGGED_OUT}" >
+			<MethodInvoker generator="{LogoutManager}" method="connectionFailedHandler" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" >
+			<MethodInvoker generator="{LogoutManager}" method="connectionFailedHandler" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" >
+			<MethodInvoker generator="{LogoutManager}" method="connectionFailedHandler" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" >
+			<MethodInvoker generator="{LogoutManager}" method="handleInvalidAuthToken" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{ExitApplicationEvent.EXIT_APPLICATION}" >
+			<MethodInvoker generator="{LogoutManager}" method="handleExitApplicationEvent" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{LogoutEvent.SIGN_OUT}" >
+			<MethodInvoker generator="{LogoutManager}" method="handleSignOut" arguments="{event}"/>
+		</EventHandlers>
+		
+		<EventHandlers type="{LogoutEvent.LOGOUT_ON_STOP_RECORDING}" >
+			<MethodInvoker generator="{LogoutManager}" method="handleLogoutOnStopRecording" arguments="{event}"/>
+		</EventHandlers>
+		
 	</fx:Declarations>
 
-  
 	<fx:Script>
 	<![CDATA[
-    import mx.events.FlexEvent;
-    
-    import org.bigbluebutton.core.managers.ReconnectionManager;
-    import org.bigbluebutton.core.services.SkinningService;
-    import org.bigbluebutton.core.services.StreamMonitor;
-    import org.bigbluebutton.main.events.BBBEvent;
-    import org.bigbluebutton.main.events.ConfigLoadedEvent;
-    import org.bigbluebutton.main.events.LoadConfigCommand;
-    import org.bigbluebutton.main.events.LogoutEvent;
-    import org.bigbluebutton.main.events.ModuleLoadEvent;
-    import org.bigbluebutton.main.events.PortTestEvent;
-    import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-    import org.bigbluebutton.main.model.modules.ModulesProxy;
-    import org.bigbluebutton.main.model.users.UserService;
-    import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-    import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+		import mx.events.FlexEvent;
+		
+		import org.bigbluebutton.core.managers.LogoutManager;
+		import org.bigbluebutton.core.managers.ReconnectionManager;
+		import org.bigbluebutton.core.services.SkinningService;
+		import org.bigbluebutton.core.services.StreamMonitor;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.ConfigLoadedEvent;
+		import org.bigbluebutton.main.events.ExitApplicationEvent;
+		import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+		import org.bigbluebutton.main.events.LoadConfigCommand;
+		import org.bigbluebutton.main.events.LogoutEvent;
+		import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+		import org.bigbluebutton.main.events.ModuleLoadEvent;
+		import org.bigbluebutton.main.events.PortTestEvent;
+		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+		import org.bigbluebutton.main.model.modules.ModulesProxy;
+		import org.bigbluebutton.main.model.users.UserService;
+		import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 		
 	]]>
 	</fx:Script>
@@ -130,7 +185,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <!-- _________________________________________________________________________________________ -->
     
 	<fx:Declarations>
+		<!-- Sample
 	    <mx:HTTPService id="configService" url="conf/config.xml" resultFormat="e4x" />
-		<mx:HTTPService id="joinService" url="conf/joinResultMock.xml" resultFormat="e4x" />	
+		<mx:HTTPService id="joinService" url="conf/joinResultMock.xml" resultFormat="e4x" />
+		-->
 	</fx:Declarations>
 </EventMap>

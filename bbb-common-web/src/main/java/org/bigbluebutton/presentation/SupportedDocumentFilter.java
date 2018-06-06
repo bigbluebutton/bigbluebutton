@@ -64,7 +64,7 @@ public class SupportedDocumentFilter {
     }
 
     if (gw != null) {
-      OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getMeetingId(),
+      OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
         pres.getName(), "notUsedYet", "notUsedYet",
         pres.isDownloadable(), msgKey);

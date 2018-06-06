@@ -20,7 +20,6 @@
 package org.bigbluebutton.presentation;
 
 import com.google.gson.Gson;
-import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
@@ -44,6 +43,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
 
     Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("podId", pres.getPodId());
     logData.put("meetingId", pres.getMeetingId());
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());
@@ -79,6 +79,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     }
 
     logData = new HashMap<String, Object>();
+    logData.put("podId", pres.getPodId());
     logData.put("meetingId", pres.getMeetingId());
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());

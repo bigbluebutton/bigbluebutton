@@ -7,8 +7,9 @@ package org.bigbluebutton.modules.polling.service
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.modules.chat.ChatConstants;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+  import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.modules.chat.model.ChatModel;
+  import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
@@ -43,10 +44,11 @@ package org.bigbluebutton.modules.polling.service
         ans.push(new SimpleAnswer(Number(String(a.id)), a.key));
       }
 
-      model.setCurrentPoll(new SimplePoll(pollId, ans));
-      dispatcher.dispatchEvent(new PollStartedEvent(new SimplePoll(pollId, ans)));
+      var simplePollInstance:SimplePoll = new SimplePoll(pollId, ans);
+      model.setCurrentPoll(simplePollInstance);
+      dispatcher.dispatchEvent(new PollStartedEvent(simplePollInstance));
     }
-    
+
     public function handlePollStoppedMesage(msg:Object):void {
       dispatcher.dispatchEvent(new PollStoppedEvent());
     }
@@ -89,14 +91,12 @@ package org.bigbluebutton.modules.polling.service
         pollResultMessage.fromUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.fromColor = "86187";
         pollResultMessage.fromTime = new Date().getTime();
-        pollResultMessage.fromTimezoneOffset = new Date().getTimezoneOffset();
-        pollResultMessage.toUserId = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
-        pollResultMessage.toUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.message = accessibleAnswers;
 
-        var pollResultMessageEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-        pollResultMessageEvent.message = pollResultMessage;
-        dispatcher.dispatchEvent(pollResultMessageEvent);
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(ChatModel.MAIN_PUBLIC_CHAT);
+        if (groupChat != null) {
+          groupChat.addMessage(pollResultMessage);
+        }
       }
     }
     
