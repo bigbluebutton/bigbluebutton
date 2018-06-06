@@ -6,7 +6,7 @@
     <javaTest url="http://HOST/testjava.html"/>
     <porttest host="rtmp://HOST" application="video/portTest" timeout="10000"/>
     <bwMon server="rtmp://HOST" application="video/bwTest"/>
-    <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
+    <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" reconnWaitTime="2000"/>
     <language userSelectionEnabled="true" rtlEnabled="false"/>
     <skinning url="http://HOST/client/branding/css/V2Theme.css.swf?v=VERSION" />
     <branding logo="logos/logo.swf" copyright="&#169; 2018 &lt;u&gt;&lt;a href=&quot;http://HOST/home.html&quot; target=&quot;_blank&quot;&gt;BigBlueButton Inc.&lt;/a&gt;&lt;/u&gt; (build {0})" background="" toolbarColor="" showQuote="true"/>
@@ -41,6 +41,7 @@
 			enableSettingsButton="true"
 			enableGuestUI="false"
 			moderatorUnmute="true"
+			allowClearRecordingMarks="false"
 			baseTabIndex="301"
 		/>
 
@@ -50,6 +51,7 @@
 			showButton="true"
 			enablePause="true"
 			offerWebRTC="false"
+			shareRegionDefault="false"
 			chromeExtensionLink=""
 			chromeExtensionKey=""
 			chromeWin10Help="http://HOST/client/help/webrtc-screenshare-help.html"
@@ -110,6 +112,7 @@
 			baseTabIndex="501"
 			maxFileSize="30"
 			enableDownload="true"
+			disableFirefoxF60Upload="true"
 		/>
 
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION"

@@ -19,7 +19,7 @@ export function joinRouteHandler(nextState, replace, callback) {
   // use enter api to get params for the client
   const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
 
-  fetch(url)
+  fetch(url, { credentials: 'same-origin' })
     .then(response => response.json())
     .then(({ response }) => {
       const {

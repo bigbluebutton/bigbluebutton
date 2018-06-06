@@ -33,7 +33,6 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.main.events.BBBEvent;
-    import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;

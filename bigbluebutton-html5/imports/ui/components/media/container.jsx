@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
   },
+  screenshareSafariNotSupportedError: {
+    id: 'app.media.screenshare.safariNotSupported',
+    description: 'Error message for screenshare not supported on Safari',
+  },
   chromeExtensionError: {
     id: 'app.video.chromeExtensionError',
     description: 'Error message for Chrome Extension not installed',
@@ -35,10 +39,12 @@ class MediaContainer extends Component {
     const { willMount } = this.props;
     willMount && willMount();
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
+    document.addEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
   }
 
   componentWillUnmount() {
     document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
+    document.removeEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -70,6 +76,11 @@ class MediaContainer extends Component {
       </a>
     </div>, 'error', 'desktop');
   }
+
+  safariScreenshareNotSupported() {
+    const { intl } = this.props;
+    notify(intl.formatMessage(intlMessages.screenshareSafariNotSupportedError), 'error', 'desktop');
+  }  
 
   render() {
     return <Media {...this.props} />;

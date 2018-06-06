@@ -480,11 +480,16 @@ window.getScreenConstraints = function (sendSource, callback) {
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
   } else if (isSafari) {
+    // At this time (version 11.1), Safari doesn't support screenshare.
+    document.dispatchEvent(new Event('safariScreenshareNotSupported'));
+    return;
+    
+    /*
     screenConstraints.video.mediaSource = 'screen';
-
     console.log('getScreenConstraints for Safari returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
+    */
   }
 };
 

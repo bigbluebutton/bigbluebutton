@@ -1,5 +1,7 @@
 import { log } from '/imports/ui/services/api';
 
+const VISIBILITY_TIMEOUT = 5000;
+
 export default class VisibilityEvent {
 
   constructor () {
@@ -9,14 +11,25 @@ export default class VisibilityEvent {
     this._handleVisibilityChange = this._handleVisibilityChange.bind(this);
 
     this._registerVisibilityEvent();
+
+    this._onHiddenTimeout = null;
   }
 
-  onVisible (f) {
-    this._onVisible = f;
+  onVisible (onVisibleCallback) {
+    this._onVisible = () => {
+      if (!this._isHidden()) {
+        onVisibleCallback();
+      }
+    };
   }
 
-  onHidden(f) {
-    this._onHidden = f;
+  onHidden(onHiddenCallback) {
+    this._onHidden = () => {
+      if (this._isHidden()) {
+        onHiddenCallback();
+        this._onHiddenTimeout = null;
+      }
+    };
   }
 
   removeEventListeners() {
@@ -28,11 +41,18 @@ export default class VisibilityEvent {
 
     if (!this._isHidden()) {
       if (this._onVisible) {
-        this._onVisible();
+        if (this._onHiddenTimeout) {
+          clearTimeout(this._onHiddenTimeout);
+          this._onHiddenTimeout = null;
+        } else {
+          this._onVisible();
+        }
       }
     } else {
       if (this._onHidden) {
-        this._onHidden();
+        if (!this._onHiddenTimeout) {
+          this._onHiddenTimeout = setTimeout(this._onHidden.bind(this), VISIBILITY_TIMEOUT);
+        }
       }
     }
   }

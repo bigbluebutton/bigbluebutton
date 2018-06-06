@@ -32,7 +32,9 @@ const propTypes = {
 class EchoTest extends Component {
   constructor(props) {
     super(props);
-
+    this.state = {
+      disabled: false,
+    };
     this.handleYes = props.handleYes.bind(this);
     this.handleNo = props.handleNo.bind(this);
   }
@@ -41,7 +43,9 @@ class EchoTest extends Component {
     const {
       intl,
     } = this.props;
-
+    const disableYesButtonClicked = callback => () => {
+      this.setState({ disabled: true }, callback);
+    };
     return (
       <span className={styles.echoTest}>
         <Button
@@ -49,10 +53,11 @@ class EchoTest extends Component {
           label={intl.formatMessage(intlMessages.confirmLabel)}
           aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
           icon="thumbs_up"
+          disabled={this.state.disabled}
           circle
           color="success"
           size="jumbo"
-          onClick={this.handleYes}
+          onClick={disableYesButtonClicked(this.handleYes)}
         />
         <Button
           className={styles.button}
