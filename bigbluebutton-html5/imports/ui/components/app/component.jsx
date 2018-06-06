@@ -90,7 +90,7 @@ class App extends Component {
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
-    if(enableResize === shouldEnableResize) return;
+    if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
   }
@@ -136,14 +136,6 @@ class App extends Component {
     let { userList } = this.props;
     const { compactUserList } = this.state;
 
-    // Variables for resizing user-list.
-    const USERLIST_MIN_WIDTH_PX = 100;
-    const USERLIST_MAX_WIDTH_PX = 240;
-    const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
-
-    // prevent the default width size of the userList to exceed the maxWidth
-    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
-
     if (!userList) return null;
 
     const userListStyle = {};
@@ -166,6 +158,14 @@ class App extends Component {
   renderUserListResizable() {
     const { userList } = this.props;
 
+    // Variables for resizing user-list.
+    const USERLIST_MIN_WIDTH_PX = 100;
+    const USERLIST_MAX_WIDTH_PX = 240;
+    const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
+
+    // prevent the default width size of the userList to exceed the maxWidth
+    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
+
     if (!userList) return null;
 
     return (
@@ -175,8 +175,16 @@ class App extends Component {
         maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
         className={styles.resizableUserList}
-        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
-          bottomRight: false, bottomLeft: false, topLeft: false }}
+        enable={{
+ top: false,
+right: true,
+bottom: false,
+left: false,
+topRight: false,
+          bottomRight: false,
+bottomLeft: false,
+topLeft: false,
+}}
         onResize={(e, direction, ref) => {
           const { compactUserList } = this.state;
           const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
@@ -191,14 +199,6 @@ class App extends Component {
 
   renderChat() {
     const { chat, intl } = this.props;
-
-    // Variables for resizing chat.
-    const CHAT_MIN_WIDTH_PX = 180;
-    const CHAT_MAX_WIDTH_PX = 310;
-    const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
-
-    // prevent the default width size of the chat to exceed the maxWidth
-    const CHAT_DEFAULT_WIDTH = (window.innerWidth * (CHAT_DEFAULT_WIDTH_RELATIVE / 100.0)) < CHAT_MAX_WIDTH_PX ? `${CHAT_DEFAULT_WIDTH_RELATIVE}%` : CHAT_MAX_WIDTH_PX;
 
     if (!chat) return null;
 
@@ -215,6 +215,14 @@ class App extends Component {
   renderChatResizable() {
     const { chat } = this.props;
 
+    // Variables for resizing chat.
+    const CHAT_MIN_WIDTH_PX = 180;
+    const CHAT_MAX_WIDTH_PX = 310;
+    const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
+
+    // prevent the default width size of the chat to exceed the maxWidth
+    const CHAT_DEFAULT_WIDTH = (window.innerWidth * (CHAT_DEFAULT_WIDTH_RELATIVE / 100.0)) < CHAT_MAX_WIDTH_PX ? `${CHAT_DEFAULT_WIDTH_RELATIVE}%` : CHAT_MAX_WIDTH_PX;
+
     if (!chat) return null;
 
     return (
@@ -224,8 +232,16 @@ class App extends Component {
         maxWidth={CHAT_MAX_WIDTH_PX}
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
-          bottomRight: false, bottomLeft: false, topLeft: false }}
+        enable={{
+ top: false,
+right: true,
+bottom: false,
+left: false,
+topRight: false,
+          bottomRight: false,
+bottomLeft: false,
+topLeft: false,
+}}
       >
         {this.renderChat()}
       </Resizable>
