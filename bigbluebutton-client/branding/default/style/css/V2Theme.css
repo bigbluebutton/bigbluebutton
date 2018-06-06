@@ -1792,6 +1792,7 @@ users|UsersWindow {
 	iconSettings    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Settings");
 	iconClearStatus : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_ClearStatus");
 	iconRooms       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Rooms");
+	iconSaveNames   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Save");
 	horizontalAlign : center;
 }
 
