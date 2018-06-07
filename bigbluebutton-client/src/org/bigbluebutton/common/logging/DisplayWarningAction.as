@@ -20,15 +20,23 @@ package org.bigbluebutton.common.logging {
 	import com.adobe.crypto.SHA256;
 	import com.asfusion.mate.events.Dispatcher;
 
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.main.events.ClientStatusEvent;
+	import org.bigbluebutton.main.model.options.LoggingOptions;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class DisplayWarningAction implements GlobalExceptionHandlerAction {
 
 		private var dispatcher:Dispatcher = new Dispatcher();
 
+		private var loggingOptions:LoggingOptions;
+
+		public function DisplayWarningAction():void {
+			loggingOptions = Options.getOptions(LoggingOptions) as LoggingOptions;
+		}
+
 		public function handle(error:Object):void {
-			if (error is Error) {
+			if (loggingOptions.reportErrorsInUI && error is Error) {
 				var errorObj:Error = error as Error;
 				var errorId:String = SHA256.hash(errorObj.getStackTrace()).substr(0, 8);
 				var fullMessage:String = "Error ID : " + errorObj.errorID + "\nUnique ID : " + errorId + "\nMessage : " + errorObj.message + "\n" + errorObj.getStackTrace();
