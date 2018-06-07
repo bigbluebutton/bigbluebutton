@@ -297,7 +297,7 @@
 								muteImg.source = getStyle("iconAudio");
 							}
 						}
-
+					}
 
 					if (data.locked && !data.presenter && ls.isAnythingLocked() || (!data.presenter && webcamsOnlyForModerator)) {
 						if (data.muted == rolledOverMute)

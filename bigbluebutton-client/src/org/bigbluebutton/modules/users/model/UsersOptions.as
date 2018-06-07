@@ -38,9 +38,6 @@ package org.bigbluebutton.modules.users.model {
 		public var enableGuestUI:Boolean = false;
 
 		[Bindable]
-		public var enableGuestUI:Boolean = false;
-		
-		[Bindable]
 		public var allowClearRecordingMarks:Boolean = false;
 
 		public var guestSoftMode:Boolean = false;

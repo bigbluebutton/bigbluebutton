@@ -793,6 +793,7 @@ package org.bigbluebutton.modules.users.services
          },
 		 JSON.stringify(message)
        );
+		}
 
 
     private function removeGuestsWaiting(userIds: Array): void {

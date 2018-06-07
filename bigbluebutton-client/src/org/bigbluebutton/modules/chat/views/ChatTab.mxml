@@ -49,86 +49,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
-<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import flash.events.TextEvent;
-		
-		import mx.binding.utils.BindingUtils;
-		import mx.events.ScrollEvent;
-		
-		import flashx.textLayout.formats.Direction;
-		
-		import org.as3commons.lang.StringUtils;
-		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.common.Role;
-		import org.bigbluebutton.core.Options;
-		import org.bigbluebutton.core.UsersUtil;
-		import org.bigbluebutton.core.events.LockControlEvent;
-		import org.bigbluebutton.core.events.UserStatusChangedEvent;
-		import org.bigbluebutton.core.model.LiveMeeting;
-		import org.bigbluebutton.main.events.BBBEvent;
-		import org.bigbluebutton.main.events.ShortcutEvent;
-		import org.bigbluebutton.main.events.UserJoinedEvent;
-		import org.bigbluebutton.main.events.UserLeftEvent;
-		import org.bigbluebutton.modules.chat.ChatUtil;
-		import org.bigbluebutton.modules.chat.events.ChatEvent;
-		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-		import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-		import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-		import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-		import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-		import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-		import org.bigbluebutton.modules.chat.model.ChatConversation;
-		import org.bigbluebutton.modules.chat.model.ChatOptions;
-		import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-		import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.TextEvent;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.ScrollEvent;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.UserStatusChangedEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.modules.chat.ChatUtil;
+			import org.bigbluebutton.modules.chat.events.ChatEvent;
+			import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+			import org.bigbluebutton.modules.chat.model.ChatConversation;
+			import org.bigbluebutton.modules.chat.model.ChatModel;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.chat.model.GroupChat;
+			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      private static const LOGGER:ILogger = getClassLogger(ChatBox);      
-      
-      public var publicChat:Boolean = false;
-=======
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.TextEvent;
-      
-      import mx.binding.utils.BindingUtils;
-      
-      import flashx.textLayout.formats.Direction;
-      
-      import org.as3commons.lang.StringUtils;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.modules.chat.ChatUtil;
-      import org.bigbluebutton.modules.chat.events.ChatEvent;
-      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-      import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
-      import org.bigbluebutton.modules.chat.model.ChatConversation;
-      import org.bigbluebutton.modules.chat.model.ChatModel;
-      import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.chat.model.GroupChat;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-      import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ChatTab);      
->>>>>>> b312b35859b5ff0c3fd16e8d05bc7d168f895442:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
+
       public var chatWithUserID:String;
       public var chatWithUsername:String
       public var chatId: String = null;
@@ -291,7 +252,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
 				if (chat != null) {
 					chatMessages.processChatHistory(chat.messages.source);
-					scrollToEndOfMessage();
+					scrollToEndOfMessage("no-scroll");
 				}
 			}
 			
@@ -354,28 +315,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
-        if (publicChat) {
-          chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage(event.message.fromUserId);
-        }
-      }
-      
-      private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
-        if (publicChat && event.history != null) {
-          chatMessages.processChatHistory(event.history);
-          scrollToEndOfMessage("no-scroll");
-=======
         if (chatId == event.chatId && chatMessages != null) {
           chatMessages.newChatMessage(event.msg);
-          scrollToEndOfMessage();
+					scrollToEndOfMessage(event.msg.fromUserId);
         }
       }
       
       private function handleReceivedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (chatId == event.chatId) {
 					displayChatHistory();
->>>>>>> b312b35859b5ff0c3fd16e8d05bc7d168f895442:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
+					scrollToEndOfMessage("no-scroll");
         }
       }
       
@@ -386,48 +335,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
-        var message:ChatMessageVO = event.message;
-        
-        if (!publicChat && 
-          ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
-            (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
-          chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage(message.fromUserId);
-        }        
-=======
         if (chatId == event.chatId) {
           displayChatHistory();
+					scrollToEndOfMessage(event.senderId);
         }       
->>>>>>> b312b35859b5ff0c3fd16e8d05bc7d168f895442:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
       }
       
       public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
         handlePrivateChatMessageEvent(event);
       }
       
-<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
-      public function displayHowToCloseMessage():void {
-        var modifier:String = ExternalInterface.call("determineModifier");
-        var keyCombo:String = modifier + String.fromCharCode(int(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate')));
-        
-        var msg:ChatMessageVO = new ChatMessageVO();
-        msg.fromUserId = SPACE;
-        msg.fromUsername = SPACE;
-        msg.fromColor = "0";
-        msg.fromTime = new Date().getTime();
-        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        msg.toUserId = SPACE;
-        msg.toUsername = SPACE;
-        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
-        
-        chatMessages.newChatMessage(msg);
-      }
-      
       public function scrollToEndOfMessage(userID:String):void {
-=======
-      public function scrollToEndOfMessage():void {
->>>>>>> b312b35859b5ff0c3fd16e8d05bc7d168f895442:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
         /**
          * Trigger to force the scrollbar to show the last message.
          */	
@@ -657,13 +575,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function applyLockSettings():void {
+				if (publicChat) {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
-<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
         } else {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat || LiveMeeting.inst().users.getUser(chatWithUserID).role == Role.MODERATOR;
         }
-=======
->>>>>>> b312b35859b5ff0c3fd16e8d05bc7d168f895442:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
       }
       
       private function refreshRole(e:Event):void {
@@ -722,25 +638,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
       <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
-<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
-                         itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer"
-						 verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
-=======
                          itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" 
                          verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
->>>>>>> b312b35859b5ff0c3fd16e8d05bc7d168f895442:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
                          dataProvider="{chatMessages.messages}"
                          styleName="chatMessageListStyle"
 						 scroll="chatMessagesList_scrollHandler(event)"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
-<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
 		<mx:Canvas id="unreadMessagesBar" visible="false" includeInLayout="false" filters="{[unreadMessagesBoxShadow]}"
 				   width="100%" bottom="0" styleName="unreadMessagesBar" click="scrollToBottom()">
 			<mx:Text width="{unreadMessagesBar.width - 32}" verticalCenter="0" horizontalCenter="0"
 					 styleName="unreadMessagesBarText" text="{ResourceUtil.getInstance().getString('bbb.chat.unreadMessages')}"/> 
 		</mx:Canvas>
-=======
->>>>>>> b312b35859b5ff0c3fd16e8d05bc7d168f895442:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
     </mx:Canvas>
   </mx:VBox>
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"

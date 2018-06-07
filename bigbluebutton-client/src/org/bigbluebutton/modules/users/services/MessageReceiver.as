@@ -949,20 +949,8 @@ package org.bigbluebutton.modules.users.services
       var policy: String = body.policy as String;
       
       LiveMeeting.inst().guestsWaiting.setGuestPolicy(policy);
-
-      var policyEvent:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
-      policyEvent.payload['guestPolicy'] = policyEvent;
-      dispatcher.dispatchEvent(policyEvent);
     }
     
-    public function handleGuestAccessDenied(msg:Object):void {
-      var map:Object = JSON.parse(msg.msg);
-      
-      if (UsersUtil.getMyUserID() == map.userId) {
-        dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
-      }
-    }
-
     public function handleUserRoleChangedEvtMsg(msg:Object):void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
