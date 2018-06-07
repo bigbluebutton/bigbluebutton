@@ -232,16 +232,8 @@ topLeft: false,
         maxWidth={CHAT_MAX_WIDTH_PX}
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{
- top: false,
-right: true,
-bottom: false,
-left: false,
-topRight: false,
-          bottomRight: false,
-bottomLeft: false,
-topLeft: false,
-}}
+        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
+           bottomRight: false, bottomLeft: false, topLeft: false, }}
       >
         {this.renderChat()}
       </Resizable>
