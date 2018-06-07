@@ -8,7 +8,6 @@ export default function handleBreakoutJoinURL({ body }) {
     userId,
     breakoutId,
   } = body;
-  console.error(body);
 
   check(redirectToHtml5JoinURL, String);
 
