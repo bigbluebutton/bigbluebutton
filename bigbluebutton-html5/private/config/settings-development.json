@@ -9,12 +9,14 @@
       "listenOnlyMode": true,
       "forceListenOnly": false,
       "skipCheck": false,
+      "clientTitle": "BBB - HTML5 Client",
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
       "copyright": "©2018 BigBlueButton Inc.",
       "html5ClientBuild": "HTML5_CLIENT_VERSION",
       "lockOnJoin": true,
       "basename": "/html5client",
+      "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
           "chatAudioNotifications": false,
@@ -201,7 +203,6 @@
 
     "whiteboard": {
       "annotations": {
-        "message_frequency": 50,
         "status": {
           "start": "DRAW_START",
           "update": "DRAW_UPDATE",

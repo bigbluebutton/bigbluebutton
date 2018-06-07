@@ -18,7 +18,7 @@ export default class KurentoScreenshareBridge {
     window.kurentoWatchVideo(
       'screenshareVideo',
       BridgeService.getConferenceBridge(),
-      getUsername(),
+      getUserId(),
       getMeetingId(),
       null,
       null,
@@ -33,7 +33,7 @@ export default class KurentoScreenshareBridge {
     window.kurentoShareScreen(
       'screenshareVideo',
       BridgeService.getConferenceBridge(),
-      getUsername(),
+      getUserId(),
       getMeetingId(),
       null,
       CHROME_EXTENSION_KEY,

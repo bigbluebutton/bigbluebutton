@@ -11,6 +11,15 @@ $user-indicator-voice-bg: $color-success;
 $user-indicator-muted-bg: $color-danger;
 $user-list-bg: $color-off-white;
 
+//used to center indicator icon in Chrome / Firefox
+$indicator-padding: .425rem;
+
+//used to center indicator icon in Edge
+$indicator-padding-right: 1.2em;
+$indicator-padding-left: 0.175em;
+$indicator-padding-top: 0.7em;
+$indicator-padding-bottom: 0.6em;
+
 .avatar {
   position: relative;
   width: 100%;
@@ -49,7 +58,7 @@ $user-list-bg: $color-off-white;
 }
 
 .talking {
-  box-shadow: 0 0 0 1px $user-list-bg, 0 0 0 3px;
+  box-shadow: 0 0 0 1px $user-list-bg, 0 0 0 6px;
 }
 
 .moderator {
@@ -66,7 +75,7 @@ $user-list-bg: $color-off-white;
     right: auto;
     border-radius: 5px;
     background-color: $user-indicator-presenter-bg;
-    padding: .425rem;
+    padding: $indicator-padding;
   }
 }
 
@@ -75,6 +84,10 @@ $user-list-bg: $color-off-white;
     content: "\00a0\e931\00a0";
     background-color: $user-indicator-voice-bg;
     opacity: 1;
+    width: 1.375rem;
+    height: 1.375rem;
+    top: 1.375rem;
+    left: 1.375rem;
   }
 }
 
@@ -83,6 +96,9 @@ $user-list-bg: $color-off-white;
     content: "\00a0\e932\00a0";
     background-color: $user-indicator-muted-bg;
     opacity: 1;
+    height: 1rem;
+    width: 1rem;
+    padding: $indicator-padding;
   }
 }
 
@@ -90,6 +106,15 @@ $user-list-bg: $color-off-white;
   &:after {
     content: "\00a0\e90c\00a0";
     opacity: 1;
+  }
+}
+
+.listenOnly, .muted, .voice, .presenter {
+  :global(.browser-edge) &:before {
+    padding-top: $indicator-padding-top;
+    padding-bottom: $indicator-padding-bottom;
+    padding-left: $indicator-padding-left;
+    padding-right: $indicator-padding-right;
   }
 }
 

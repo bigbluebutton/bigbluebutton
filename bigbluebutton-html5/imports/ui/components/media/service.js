@@ -53,7 +53,7 @@ export const shouldEnableSwapLayout = () => {
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
-  const metaAutoSwapLayout = SessionStorage.getItem('meta_html5autoswaplayout') || false;
+  const metaAutoSwapLayout = SessionStorage.getItem('metadata').html5autoswaplayout || false;
   return metaAutoSwapLayout || (swapLayout.value && shouldEnableSwapLayout());
 };
 

@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import flash.events.TextEvent;
 		
 		import mx.binding.utils.BindingUtils;
+		import mx.events.ScrollEvent;
 		
 		import flashx.textLayout.formats.Direction;
 		
@@ -248,7 +249,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!publicChat && event.userID == chatWithUserID) {
           displayUserHasLeftMessage();
           txtMsgArea.enabled = false;
-          scrollToEndOfMessage();
+          scrollToEndOfMessage(event.userID);
         }
       }
       
@@ -263,7 +264,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!publicChat && event.userID == chatWithUserID) {
           displayUserHasJoinedMessage();
           txtMsgArea.enabled = true;
-          scrollToEndOfMessage();
+          scrollToEndOfMessage(event.userID);
         }
       }
       
@@ -304,14 +305,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
           chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage();
+          scrollToEndOfMessage(event.message.fromUserId);
         }
       }
       
       private function handleRecievedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (publicChat && event.history != null) {
           chatMessages.processChatHistory(event.history);
-          scrollToEndOfMessage();
+          scrollToEndOfMessage("no-scroll");
         }
       }
       
@@ -327,7 +328,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
             (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
           chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage();
+          scrollToEndOfMessage(message.fromUserId);
         }        
       }
       
@@ -352,11 +353,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         chatMessages.newChatMessage(msg);
       }
       
-      public function scrollToEndOfMessage():void {
+      public function scrollToEndOfMessage(userID:String):void {
         /**
          * Trigger to force the scrollbar to show the last message.
          */	
-        if (scrollTimer != null) scrollTimer.start();
+		// @todo : scromm if
+		//			1 - I am the send of the last message
+		//			2 - If the scroll bar is at the bottom most
+		  if (UsersUtil.isMe(userID) || (chatMessagesList.verticalScrollAtMax)) {
+	        if (scrollTimer != null) scrollTimer.start();
+		  } else if (!scrollTimer.running) {
+			  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = true;
+		  }
       }
       
       
@@ -369,6 +377,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        */
       private function scrollToBottom():void {
         chatMessagesList.scrollToBottom();
+		unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = false;
       }
       
       private function onScrollTimer(event:TimerEvent):void {
@@ -601,7 +610,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function get messageCanBeSent() : Boolean {
         return StringUtils.trim(txtMsgArea.text).length <= chatOptions.maxMessageLength;
       }
-      
+
+	  protected function chatMessagesList_scrollHandler(event:ScrollEvent):void {
+		if (chatMessagesList.verticalScrollAtMax) {
+		  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = false;
+		}
+	  }
+	
       protected function txtMsgAreaChangeHandler(event:Event):void
       {
         if (!messageCanBeSent) {
@@ -636,22 +651,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //          chatToolbar.publicChat = false;
 //        }
       }
-    ]]>
+		
+	]]>
     
   </fx:Script>
   
   <fx:Declarations>
     <common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
+	  
+	<mx:DropShadowFilter id="unreadMessagesBoxShadow" distance="3" angle="-90" alpha=".25" blurX="3" blurY="3" />
   </fx:Declarations>
   
   <mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
       <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
-                         itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
+                         itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer"
+						 verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
                          dataProvider="{chatMessages.messages}"
                          styleName="chatMessageListStyle"
+						 scroll="chatMessagesList_scrollHandler(event)"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
-      <!--chat:ChatToolbar id="chatToolbar" /-->
+		<mx:Canvas id="unreadMessagesBar" visible="false" includeInLayout="false" filters="{[unreadMessagesBoxShadow]}"
+				   width="100%" bottom="0" styleName="unreadMessagesBar" click="scrollToBottom()">
+			<mx:Text width="{unreadMessagesBar.width - 32}" verticalCenter="0" horizontalCenter="0"
+					 styleName="unreadMessagesBarText" text="{ResourceUtil.getInstance().getString('bbb.chat.unreadMessages')}"/> 
+		</mx:Canvas>
     </mx:Canvas>
   </mx:VBox>
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"

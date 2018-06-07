@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
@@ -390,6 +391,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String meetingId = conn.getScope().getName();
     	String streamId = stream.getPublishedName();
 
+			publisher.sendVideoStreamStartedMsg(meetingId, userId, streamId);
 
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
 			addH263PublishedStream(streamId);
@@ -438,6 +440,17 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   		String userId = getUserId();
   		String meetingId = conn.getScope().getName();
   		String streamId = stream.getPublishedName();
+
+			try {
+				// Need to extract usrId from streamId (medium-w_npxfdr8lssbq-1526051556133) as
+				// when connection is closed, userId info is gone. We are interested in the
+				// second portion of the streamId (ralam may 11, 2018)
+				String[] splitArray = streamId.split("-");
+				userId = splitArray[1];
+				publisher.sendVideoStreamStoppedMsg(meetingId, userId, streamId);
+			} catch (PatternSyntaxException ex) {
+				log.warn("Cannot split streamId " + streamId);
+			}
 
 			Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
 			removeH263ConverterIfNeeded(streamId);

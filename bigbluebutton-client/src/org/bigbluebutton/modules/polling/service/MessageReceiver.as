@@ -54,6 +54,9 @@ package org.bigbluebutton.modules.polling.service
         case "PollUpdatedEvtMsg":
           processor.handlePollUpdatedMessage(message);
           break;
+        case "UserRespondedToPollRespMsg":
+          processor.handleUserRespondedToPollRespMsg(message);
+          break;
       }
     }
   }

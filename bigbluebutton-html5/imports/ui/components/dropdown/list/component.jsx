@@ -63,7 +63,13 @@ export default class DropdownList extends Component {
   handleItemKeyDown(event, callback) {
     const { getDropdownMenuParent } = this.props;
     const { focusedIndex } = this.state;
+
     let nextFocusedIndex = focusedIndex > 0 ? focusedIndex : 0;
+
+    if (focusedIndex === false) {
+      nextFocusedIndex = this.menuRefs.indexOf(document.activeElement);
+    }
+
     const isHorizontal = this.props.horizontal;
     const navigationKeys = {
       previous: KEY_CODES[`ARROW_${isHorizontal ? 'LEFT' : 'UP'}`],

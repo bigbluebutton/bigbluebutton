@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import RenderInBrowser from 'react-render-in-browser';
+import browser from 'browser-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { styles } from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
 import ToolbarSubmenu from './toolbar-submenu/component';
@@ -59,6 +60,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const noop = () => {};
+const runExceptInEdge = fn => (browser().name === 'edge' ? noop : fn);
+
 class WhiteboardToolbar extends Component {
   constructor() {
     super();
@@ -98,6 +102,8 @@ class WhiteboardToolbar extends Component {
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.componentDidMount = runExceptInEdge(this.componentDidMount);
+    this.componentDidUpdate = runExceptInEdge(this.componentDidUpdate);
   }
 
   componentWillMount() {
@@ -126,15 +132,13 @@ class WhiteboardToolbar extends Component {
   }
 
   componentDidMount() {
-    if (!deviceInfo.browserType().isEdge) {
-      if (this.state.annotationSelected.value !== 'text') {
-        // trigger initial animation on the thickness circle, otherwise it stays at 0
-        this.thicknessListIconColor.beginElement();
-        this.thicknessListIconRadius.beginElement();
-        this.colorListIconColor.beginElement();
-      } else {
-        this.colorListIconColor.beginElement();
-      }
+    if (this.state.annotationSelected.value !== 'text') {
+      // trigger initial animation on the thickness circle, otherwise it stays at 0
+      this.thicknessListIconColor.beginElement();
+      this.thicknessListIconRadius.beginElement();
+      this.colorListIconColor.beginElement();
+    } else {
+      this.colorListIconColor.beginElement();
     }
   }
 
@@ -177,7 +181,6 @@ class WhiteboardToolbar extends Component {
      * 3. Switch from the Text tool to any other - trigger color and radius for thickness
      * 4. Trigger initial animation for the icons
     */
-    if (!deviceInfo.browserType().isEdge) {
       // 1st case
       if (this.state.colorSelected.value !== prevState.colorSelected.value) {
         // 1st case b)
@@ -186,18 +189,16 @@ class WhiteboardToolbar extends Component {
         }
         // 1st case a)
         this.colorListIconColor.beginElement();
-      // 2nd case
-      } else if (this.state.thicknessSelected.value !== prevState.thicknessSelected.value) {
-        this.thicknessListIconRadius.beginElement();
-        // 3rd case
-      } else if (this.state.annotationSelected.value !== 'text' &&
-            prevState.annotationSelected.value === 'text') {
-        this.thicknessListIconRadius.beginElement();
-        this.thicknessListIconColor.beginElement();
-      }
-
-      // 4th case, initial animation is triggered in componentDidMount
+    // 2nd case
+    } else if (this.state.thicknessSelected.value !== prevState.thicknessSelected.value) {
+      this.thicknessListIconRadius.beginElement();
+    // 3rd case
+    } else if (this.state.annotationSelected.value !== 'text' &&
+        prevState.annotationSelected.value === 'text') {
+      this.thicknessListIconRadius.beginElement();
+      this.thicknessListIconColor.beginElement();
     }
+    // 4th case, initial animation is triggered in componentDidMount
   }
 
   // open a submenu
@@ -410,7 +411,10 @@ class WhiteboardToolbar extends Component {
   renderThicknessItemIcon() {
     return (
       <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-        { !deviceInfo.browserType().isEdge ?
+        <RenderInBrowser only edge>
+          <circle cx="50%" cy="50%" r={this.state.thicknessSelected.value} stroke="black" strokeWidth="1" fill={this.state.colorSelected.value} />
+        </RenderInBrowser>
+        <RenderInBrowser except edge>
           <circle
             shapeRendering="geometricPrecision"
             cx="50%"
@@ -440,9 +444,8 @@ class WhiteboardToolbar extends Component {
               repeatCount="0"
               fill="freeze"
             />
-          </circle> : 
-          <circle cx="50%" cy="50%" r={this.state.thicknessSelected.value} stroke="black" stroke-width="1" fill={this.state.colorSelected.value} />
-        }
+          </circle>
+        </RenderInBrowser>
       </svg>
     );
   }
@@ -481,7 +484,10 @@ class WhiteboardToolbar extends Component {
   renderColorItemIcon() {
     return (
       <svg className={styles.customSvgIcon}>
-        { !deviceInfo.browserType().isEdge ?
+        <RenderInBrowser only edge>
+          <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={this.state.colorSelected.value} />
+        </RenderInBrowser>
+        <RenderInBrowser except edge>
           <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
             <animate
               ref={(ref) => { this.colorListIconColor = ref; }}
@@ -494,9 +500,8 @@ class WhiteboardToolbar extends Component {
               repeatCount="0"
               fill="freeze"
             />
-          </rect> :
-          <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={this.state.colorSelected.value}/>
-        }
+          </rect>
+        </RenderInBrowser>
       </svg>
     );
   }

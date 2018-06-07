@@ -85,14 +85,8 @@ class ShortcutHelpComponent extends Component {
 
     let accessMod = null;
 
-    if (isMac) {
-      accessMod = 'Control + Alt';
-    }
-
-    if (isWindows) {
-      accessMod = isIE || isEdge ? 'Alt' : accessMod;
-    }
-
+    if (isMac) accessMod = 'Control + Alt';
+    if (isWindows) accessMod = isIE || isEdge ? 'Alt' : accessMod;
     if (isWindows || isLinux) {
       accessMod = isFirefox ? 'Alt + Shift' : accessMod;
       accessMod = isChrome ? 'Alt' : accessMod;

@@ -21,17 +21,19 @@ package org.bigbluebutton.core {
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-	
+
 	import mx.controls.Alert;
 	import mx.controls.Label;
 	import mx.managers.PopUpManager;
-	
+
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {
-		public static var timers:Dictionary = new Dictionary(true);
+		private static var timers:Dictionary = new Dictionary(true);
 
-		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean=false):void {
+		private static var times:Dictionary = new Dictionary(true);
+
+		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean = false):void {
 			var timer:Timer = getTimer(label.id, seconds);
 			var minuteWarningShown:Boolean = false;
 			var minuteAlert:Alert = null;
@@ -56,6 +58,23 @@ package org.bigbluebutton.core {
 				timer.reset();
 			}
 			timer.start();
+		}
+
+		public static function setTimer(label:Label, seconds:int, running:Boolean):void {
+			var timer:Timer = getTimer(label.id, seconds);
+			if (!timer.hasEventListener(TimerEvent.TIMER)) {
+				timer.addEventListener(TimerEvent.TIMER, function():void {
+					var elapsedSeconds:int = times[timer] + timer.currentCount;
+					var formattedTime:String = (Math.floor(elapsedSeconds / 60)) + ":" + (elapsedSeconds % 60 >= 10 ? "" : "0") + (elapsedSeconds % 60);
+					label.text = formattedTime;
+				});
+			}
+			times[timer] = seconds - timer.currentCount;
+			if (running) {
+				timer.start();
+			} else {
+				timer.stop();
+			}
 		}
 
 		public static function getTimer(name:String, defaultRepeatCount:Number):Timer {

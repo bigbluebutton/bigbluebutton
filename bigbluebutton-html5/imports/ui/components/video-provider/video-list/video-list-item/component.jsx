@@ -20,6 +20,25 @@ class VideoListItem extends Component {
     this.props.onMount(this.videoTag);
   }
 
+  componentDidUpdate() {
+    const playElement = (elem) => {
+      if (elem.paused) {
+        var p = elem.play();
+        if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
+          // Catch exception when playing video
+          p.catch(function(e) {});
+        }
+      }
+    };
+
+    // This is here to prevent the videos from freezing when they're
+    // moved around the dom by react, e.g., when  changing the user status
+    // see https://bugs.chromium.org/p/chromium/issues/detail?id=382879
+    if (this.videoTag) {
+      playElement(this.videoTag);
+    }
+  }
+
   render() {
     const { user, actions } = this.props;
     return (

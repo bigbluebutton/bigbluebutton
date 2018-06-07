@@ -1,4 +1,4 @@
-import Cursor from '/imports/api/cursor';
+import Cursor from '/imports/ui/components/cursor/service';
 import Users from '/imports/api/users';
 
 const getCurrentCursor = (cursorId) => {
