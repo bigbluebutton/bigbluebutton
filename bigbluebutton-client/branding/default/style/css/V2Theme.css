@@ -570,6 +570,14 @@ views|ClientStatusItemRenderer {
 	paddingTop : 0;
 }
 
+.statusCopyStyle {
+	paddingBottom : 6;
+	paddingLeft   : 6;
+	paddingRight  : 6;
+	paddingTop    : 6;
+	fontSize      : 12;
+}
+
 .statusTimeStyle {
 	fontSize   : 10;
 	paddingTop : 0;
@@ -670,19 +678,19 @@ chat|ChatMessageRenderer {
 }
 
 .unreadMessagesBar {
-	backgroundColor            : #1070D7;
-	cornerRadius               : 4;
-	borderStyle                : none;
-	color                      : #FFFFFF;
-	fontSize                   : 13;	
+	backgroundColor : #1070D7;
+	cornerRadius    : 4;
+	borderStyle     : none;
+	color           : #FFFFFF;
+	fontSize        : 13;
 }
 
 .unreadMessagesBarText {
-	textAlign : center;
+	textAlign     : center;
 	paddingBottom : 6;
-	paddingTop : 6;
-	paddingLeft : 12;
-	paddingRight : 12;
+	paddingTop    : 6;
+	paddingLeft   : 12;
+	paddingRight  : 12;
 }
 
 /*
@@ -1790,7 +1798,7 @@ toast|ToastMessageRenderer {
 	iconSuccess                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Success");
 	iconError                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Error");
 	iconWarning                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Warning");
-	
+
 	iconAudio                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Audio");
 	iconDesktop                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Desktop");
 }
