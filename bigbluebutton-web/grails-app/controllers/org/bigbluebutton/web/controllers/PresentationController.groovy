@@ -93,7 +93,7 @@ class PresentationController {
       def filenameExt = FilenameUtils.getExtension(presFilename);
       String presentationDir = presentationService.getPresentationDir()
       def presId = Util.generatePresentationId(presFilename)
-      File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId) 
+      File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
       
       if (uploadDir != null) {
          def newFilename = Util.createNewFilename(presId, filenameExt)
@@ -102,18 +102,6 @@ class PresentationController {
          
          def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
          def podId = params.pod_id
-         log.debug "@AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..." + podId
-
-         if(isDownloadable) {
-           log.debug "@Creating download directory..."
-           File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
-           if (downloadDir != null) {
-             def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-             def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
-             def downloadableFile = new File( downloadDir.absolutePath + File.separatorChar + downloadableFileName )
-             downloadableFile << pres.newInputStream()
-           }
-         }
 
          def presentationBaseUrl = presentationService.presentationBaseUrl
          UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
@@ -276,16 +264,18 @@ class PresentationController {
   }
   
   def downloadFile = {
-    def presentationName = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-    println "Controller: Download request for $presentationName"
+    def presId = params.presId
+    def presFilename = params.presFilename
+    def meetingId = params.meetingId
+
+    log.debug "Controller: Download request for $presFilename"
+    String presentationDir = presentationService.getPresentationDir()
 
     InputStream is = null;
     try {
-      def pres = presentationService.getFile(conf, rm, presentationName)
+      def pres = meetingService.getDownloadablePresentationFile(meetingId, presId, presFilename)
       if (pres.exists()) {
-        println "Controller: Sending pdf reply for $presentationName"
+        log.debug "Controller: Sending pdf reply for $presFilename"
 
         def bytes = pres.readBytes()
         def responseName = pres.getName();
@@ -293,10 +283,10 @@ class PresentationController {
         response.addHeader("Cache-Control", "no-cache")
         response.outputStream << bytes;
       } else {
-        println "$pres does not exist."
+        log.warn "$pres does not exist."
       }
     } catch (IOException e) {
-      println("Error reading file.\n" + e.getMessage());
+      log.error("Error reading file.\n" + e.getMessage());
     }
 
     return null;

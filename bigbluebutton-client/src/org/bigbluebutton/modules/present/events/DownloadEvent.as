@@ -25,7 +25,8 @@ package org.bigbluebutton.modules.present.events
 		public static const CLOSE_DOWNLOAD_WINDOW:String = "CLOSE_DOWNLOAD_WINDOW";
 		public static const DOWNLOAD_PRESENTATION:String = "DOWNLOAD_PRESENTATION";
 
-		public var fileNameToDownload:String;
+		public var presFilename:String;
+		public var presId:String;
 		public var podId:String;
 
 		public function DownloadEvent(type:String) {
