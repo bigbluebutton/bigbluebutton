@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import RenderInBrowser from 'react-render-in-browser';
+import browser from 'browser-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
@@ -58,6 +60,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const noop = () => {};
+const runExceptInEdge = fn => (browser().name === 'edge' ? noop : fn);
+
 class WhiteboardToolbar extends Component {
   constructor() {
     super();
@@ -97,6 +102,8 @@ class WhiteboardToolbar extends Component {
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.componentDidMount = runExceptInEdge(this.componentDidMount);
+    this.componentDidUpdate = runExceptInEdge(this.componentDidUpdate);
   }
 
   componentWillMount() {
@@ -406,36 +413,41 @@ class WhiteboardToolbar extends Component {
   renderThicknessItemIcon() {
     return (
       <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-        <circle
-          shapeRendering="geometricPrecision"
-          cx="50%"
-          cy="50%"
-          stroke="black"
-          strokeWidth="1"
-        >
-          <animate
-            ref={(ref) => { this.thicknessListIconColor = ref; }}
-            attributeName="fill"
-            attributeType="XML"
-            from={this.state.prevColorSelected.value}
-            to={this.state.colorSelected.value}
-            begin="indefinite"
-            dur={TRANSITION_DURATION}
-            repeatCount="0"
-            fill="freeze"
-          />
-          <animate
-            ref={(ref) => { this.thicknessListIconRadius = ref; }}
-            attributeName="r"
-            attributeType="XML"
-            from={this.state.prevThicknessSelected.value}
-            to={this.state.thicknessSelected.value}
-            begin="indefinite"
-            dur={TRANSITION_DURATION}
-            repeatCount="0"
-            fill="freeze"
-          />
-        </circle>
+        <RenderInBrowser only edge>
+          <circle cx="50%" cy="50%" r={this.state.thicknessSelected.value} stroke="black" strokeWidth="1" fill={this.state.colorSelected.value} />
+        </RenderInBrowser>
+        <RenderInBrowser except edge>
+          <circle
+            shapeRendering="geometricPrecision"
+            cx="50%"
+            cy="50%"
+            stroke="black"
+            strokeWidth="1"
+          >
+            <animate
+              ref={(ref) => { this.thicknessListIconColor = ref; }}
+              attributeName="fill"
+              attributeType="XML"
+              from={this.state.prevColorSelected.value}
+              to={this.state.colorSelected.value}
+              begin="indefinite"
+              dur={TRANSITION_DURATION}
+              repeatCount="0"
+              fill="freeze"
+            />
+            <animate
+              ref={(ref) => { this.thicknessListIconRadius = ref; }}
+              attributeName="r"
+              attributeType="XML"
+              from={this.state.prevThicknessSelected.value}
+              to={this.state.thicknessSelected.value}
+              begin="indefinite"
+              dur={TRANSITION_DURATION}
+              repeatCount="0"
+              fill="freeze"
+            />
+          </circle>
+        </RenderInBrowser>
       </svg>
     );
   }
@@ -474,19 +486,24 @@ class WhiteboardToolbar extends Component {
   renderColorItemIcon() {
     return (
       <svg className={styles.customSvgIcon}>
-        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
-          <animate
-            ref={(ref) => { this.colorListIconColor = ref; }}
-            attributeName="fill"
-            attributeType="XML"
-            from={this.state.prevColorSelected.value}
-            to={this.state.colorSelected.value}
-            begin="indefinite"
-            dur={TRANSITION_DURATION}
-            repeatCount="0"
-            fill="freeze"
-          />
-        </rect>
+        <RenderInBrowser only edge>
+          <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={this.state.colorSelected.value} />
+        </RenderInBrowser>
+        <RenderInBrowser except edge>
+          <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
+            <animate
+              ref={(ref) => { this.colorListIconColor = ref; }}
+              attributeName="fill"
+              attributeType="XML"
+              from={this.state.prevColorSelected.value}
+              to={this.state.colorSelected.value}
+              begin="indefinite"
+              dur={TRANSITION_DURATION}
+              repeatCount="0"
+              fill="freeze"
+            />
+          </rect>
+        </RenderInBrowser>
       </svg>
     );
   }

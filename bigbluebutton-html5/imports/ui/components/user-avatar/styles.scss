@@ -96,6 +96,9 @@ $indicator-padding-bottom: 0.6em;
     content: "\00a0\e932\00a0";
     background-color: $user-indicator-muted-bg;
     opacity: 1;
+    height: 1rem;
+    width: 1rem;
+    padding: $indicator-padding;
   }
 }
 
@@ -106,7 +109,7 @@ $indicator-padding-bottom: 0.6em;
   }
 }
 
-.listenOnly .muted .voice .presenter {
+.listenOnly, .muted, .voice, .presenter {
   :global(.browser-edge) &:before {
     padding-top: $indicator-padding-top;
     padding-bottom: $indicator-padding-bottom;
