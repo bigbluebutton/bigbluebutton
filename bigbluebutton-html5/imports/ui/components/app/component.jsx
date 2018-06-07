@@ -5,7 +5,7 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
 import Resizable from 're-resizable';
-
+import browser from 'browser-detect';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -79,6 +79,11 @@ class App extends Component {
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
 
+    const BROWSER_RESULTS = browser();
+    const body = document.getElementsByTagName('body')[0];
+    body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+    body.classList.add(`os-${BROWSER_RESULTS.os.split(' ')[0].toLowerCase()}`);
+
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
   }
@@ -90,7 +95,7 @@ class App extends Component {
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
-    if(enableResize === shouldEnableResize) return;
+    if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
   }
@@ -166,8 +171,16 @@ class App extends Component {
         maxWidth="20%"
         ref={(node) => { this.resizableUserList = node; }}
         className={styles.resizableUserList}
-        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
-          bottomRight: false, bottomLeft: false, topLeft: false }}
+        enable={{
+ top: false,
+right: true,
+bottom: false,
+left: false,
+topRight: false,
+          bottomRight: false,
+bottomLeft: false,
+topLeft: false,
+}}
         onResize={(e, direction, ref) => {
           const { compactUserList } = this.state;
           const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
@@ -202,13 +215,21 @@ class App extends Component {
 
     return (
       <Resizable
-        defaultSize={{width: "22.5%"}}
+        defaultSize={{ width: '22.5%' }}
         minWidth="15%"
         maxWidth="30%"
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
-          bottomRight: false, bottomLeft: false, topLeft: false }}
+        enable={{
+ top: false,
+right: true,
+bottom: false,
+left: false,
+topRight: false,
+          bottomRight: false,
+bottomLeft: false,
+topLeft: false,
+}}
       >
         {this.renderChat()}
       </Resizable>
