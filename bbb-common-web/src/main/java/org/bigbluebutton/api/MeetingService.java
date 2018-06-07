@@ -18,6 +18,7 @@
 
 package org.bigbluebutton.api;
 
+import java.io.File;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -856,6 +857,8 @@ public class MeetingService implements MessageListener {
           processGuestPolicyChanged((GuestPolicyChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
+        } else if (message instanceof MakePresentationDownloadableMsg) {
+          processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         }
       }
     };
@@ -872,6 +875,14 @@ public class MeetingService implements MessageListener {
 
   public void processRecordingChapterBreak(RecordChapterBreak msg) {
     recordingService.kickOffRecordingChapterBreak(msg.meetingId, msg.timestamp);
+  }
+
+  private void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg) {
+    recordingService.processMakePresentationDownloadableMsg(msg);
+  }
+
+  public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
+    return recordingService.getDownloadablePresentationFile(meetingId, presId, presFilename);
   }
 
   public void start() {

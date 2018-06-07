@@ -13,7 +13,8 @@
 
 			private function downloadPresentation():void {
 				var downloadEvent:DownloadEvent = new DownloadEvent(DownloadEvent.DOWNLOAD_PRESENTATION);
-				downloadEvent.fileNameToDownload = data.id as String;
+				downloadEvent.presId = data.id as String;
+				downloadEvent.presFilename = data.name as String;
 				globalDispatch.dispatchEvent(downloadEvent);
 			}
 		]]>
