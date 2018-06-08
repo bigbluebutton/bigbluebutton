@@ -19,17 +19,14 @@
 
 package org.bigbluebutton.modules.screenshare.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
+	import flash.utils.Timer;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
 	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopPublishWindow;
 
 	public class WebRTCPublishWindowManager {
@@ -37,7 +34,6 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		private var shareWindow:WebRTCDesktopPublishWindow;
 		private var globalDispatcher:Dispatcher;
-		private var service:WebRTCDeskshareService;
 		private var buttonShownOnToolbar:Boolean = false;
 
 		// Timer to auto-publish webcam. We need this timer to delay
@@ -46,10 +42,9 @@ package org.bigbluebutton.modules.screenshare.managers
 		// won't be able to view the webcam.
 		private var autoPublishTimer:Timer;
 
-		public function WebRTCPublishWindowManager(service:WebRTCDeskshareService) {
+		public function WebRTCPublishWindowManager() {
 			LOGGER.debug("PublishWindowManager init");
 			globalDispatcher = new Dispatcher();
-			this.service = service;
 		}
 
 		public function stopSharing():void {

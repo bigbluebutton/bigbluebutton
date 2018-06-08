@@ -9,6 +9,7 @@ const Messaging = require('../bbb/messages/Messaging');
 const h264_sdp = require('../h264-sdp');
 const FORCE_H264 = config.get('webcam-force-h264');
 const EventEmitter = require('events').EventEmitter;
+const SHOULD_RECORD = config.get('recordWebcams');
 
 var sharedWebcams = {};
 
@@ -21,20 +22,24 @@ module.exports = class Video extends EventEmitter {
     this.connectionId = _connectionId;
     this.meetingId = _meetingId;
     this.shared = _shared;
-    this.role = this.shared? 'share' : 'view'
+    this.role = this.shared? 'share' : 'viewer'
     this.streamName = this.connectionId + this.id + "-" + this.role;
     this.mediaId = null;
     this.iceQueue = null;
     this.status = C.MEDIA_STOPPED;
     this.recording = {};
-    this.streamRecorded = false;
+    this.isRecorded = false;
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
-  }
 
-  setStreamAsRecorded () {
-    this.streamRecorded = true;
+    this.bbbGW.once(C.RECORDING_STATUS_REPLY_MESSAGE_2x+this.meetingId, (payload) => {
+      Logger.info("[Video] RecordingStatusReply userId:", payload.requestedBy, "recorded:", payload.recorded);
+
+      if (payload.requestedBy === this.id && payload.recorded) {
+        this.isRecorded = true;
+      }
+    });
   }
 
   onIceCandidate (_candidate) {
@@ -112,7 +117,7 @@ module.exports = class Video extends EventEmitter {
       case "MediaFlowInStateChange":
         Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.streamName);
 
-        if (msEvent.state === 'NOT_FLOWING') {
+        if (msEvent.state === 'NOT_FLOWING' && this.status !== C.MEDIA_PAUSED) {
           Logger.warn("[video] Setting up a timeout for", this.streamName);
           if (!this.notFlowingTimeout) {
             this.notFlowingTimeout = setTimeout(() => {
@@ -132,7 +137,7 @@ module.exports = class Video extends EventEmitter {
             clearTimeout(this.notFlowingTimeout);
             delete this.notFlowingTimeout;
           }
-          if (this.status != C.MEDIA_STARTED) {
+          if (this.status !== C.MEDIA_STARTED) {
 
             // Record the video stream if it's the original being shared
             if (this.shouldRecord()) {
@@ -175,8 +180,14 @@ module.exports = class Video extends EventEmitter {
     }), C.FROM_VIDEO);
   }
 
+  sendGetRecordingStatusRequestMessage() {
+    let req = Messaging.generateRecordingStatusRequestMessage(this.meetingId, this.id);
+
+    this.bbbGW.publish(req, C.TO_AKKA_APPS);
+  }
+
   shouldRecord () {
-    return this.streamRecorded && this.shared && config.get('recordWebcams');
+    return this.isRecorded && this.shared;
   }
 
   async startRecording() {
@@ -192,6 +203,11 @@ module.exports = class Video extends EventEmitter {
     // Force H264
     if (FORCE_H264) {
       sdpOffer = h264_sdp.transform(sdpOffer);
+    }
+
+    // Start the recording process
+    if (SHOULD_RECORD && this.shared) {
+      this.sendGetRecordingStatusRequestMessage();
     }
 
     try {
@@ -226,6 +242,27 @@ module.exports = class Video extends EventEmitter {
       }
     }
   };
+
+  async pause (state) {
+    const sourceId = sharedWebcams[this.id];
+    const sinkId = this.mediaId;
+
+    if (!sourceId || !sinkId) {
+      Logger.error("[video] Source or sink is null.");
+      return;
+    }
+
+    // We want to pause the stream
+    if (state && (this.status !== C.MEDIA_STARTING || this.status !== C.MEDIA_PAUSED)) {
+      await this.mcs.disconnect(sourceId, sinkId, 'VIDEO');
+      this.status = C.MEDIA_PAUSED;
+    }
+    else if (!state && this.status === C.MEDIA_PAUSED) { //un-pause
+      await this.mcs.connect(sourceId, sinkId, 'VIDEO');
+      this.status = C.MEDIA_STARTED;
+    }
+
+  }
 
   sendStartShareEvent() {
     let shareCamEvent = Messaging.generateWebRTCShareEvent('StartWebRTCShareEvent', this.meetingId, this.recording.filename);

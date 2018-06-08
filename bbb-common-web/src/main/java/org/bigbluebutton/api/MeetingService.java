@@ -246,6 +246,7 @@ public class MeetingService implements MessageListener {
         Map<String, String> breakoutMetadata = new TreeMap<String, String>();
         breakoutMetadata.put("meetingId", m.getExternalId());
         breakoutMetadata.put("sequence", m.getSequence().toString());
+        breakoutMetadata.put("freeJoin", m.isFreeJoin().toString());
         breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
         storeService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
       }
@@ -256,6 +257,7 @@ public class MeetingService implements MessageListener {
     logData.put("externalMeetingId", m.getExternalId());
     if (m.isBreakout()) {
       logData.put("sequence", m.getSequence());
+      logData.put("freeJoin", m.isFreeJoin());
       logData.put("parentMeetingId", m.getParentMeetingId());
     }
     logData.put("name", m.getName());
@@ -277,7 +279,7 @@ public class MeetingService implements MessageListener {
       m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
       m.getModeratorPassword(), m.getViewerPassword(),
       m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
-      m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
+      m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
       m.getWelcomeMessage(), m.getModeratorOnlyMessage(), m.getDialNumber(), m.getMaxUsers(),
       m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
       m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
@@ -412,6 +414,7 @@ public class MeetingService implements MessageListener {
       params.put("parentMeetingID", message.parentMeetingId);
       params.put("isBreakout", "true");
       params.put("sequence", message.sequence.toString());
+      params.put("freeJoin", message.freeJoin.toString());
       params.put("attendeePW", message.viewerPassword);
       params.put("moderatorPW", message.moderatorPassword);
       params.put("voiceBridge", message.voiceConfId);

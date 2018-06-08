@@ -54,7 +54,6 @@ export function log(type = 'error', message, ...args) {
   };
 
   const messageOrStack = message.stack || message.message || message.toString();
-
   console.debug(`CLIENT LOG (${type.toUpperCase()}): `, messageOrStack, ...args);
 
   Meteor.call('logClient', type, messageOrStack, {

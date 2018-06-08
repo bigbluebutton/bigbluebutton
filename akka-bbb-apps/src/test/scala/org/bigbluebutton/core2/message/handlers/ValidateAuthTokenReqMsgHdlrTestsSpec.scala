@@ -42,6 +42,7 @@ class ValidateAuthTokenReqMsgHdlrTestsSpec extends TestKit(ActorSystem(
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInSeconds(),
     userHasJoined = false,
+    isBreakout = false,
     lastUserLeftOnInMs = None,
     durationInMs = 120,
     meetingExpireIfNoUserJoinedInMs = 5,

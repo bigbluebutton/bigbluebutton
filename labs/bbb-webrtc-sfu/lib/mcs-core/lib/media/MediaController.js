@@ -142,11 +142,11 @@ module.exports = class MediaController {
         switch (type) {
           case "RtpEndpoint":
           case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type);
+            session = user.addSdp(params.descriptor, type, params);
             answer = await user.startSession(session.id);
             break;
           case "URI":
-            session = user.addUri(params.descriptor, type);
+            session = user.addUri(params.descriptor, type, params);
 
             answer = await user.startSession(session.id);
             break;
@@ -197,7 +197,7 @@ module.exports = class MediaController {
         switch (type) {
           case "RtpEndpoint":
           case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type);
+            session = user.addSdp(params.descriptor, type, params);
 
             answer = await user.startSession(session.id);
             await sourceSession.connect(session._mediaElement);
@@ -297,6 +297,50 @@ module.exports = class MediaController {
         session.sessionStarted();
       }
     }
+  }
+
+  async connect (sourceId, sinkId, type) {
+    Logger.info("[mcs-controller] Connect", sourceId, "to", sinkId, "with type", type);
+
+    let session;
+    let sourceSession = this._mediaSessions[sourceId];
+    let sinkSession = this._mediaSessions[sinkId];
+
+    if (!sourceSession || !sinkSession) {
+      return Promise.reject("[mcs-controller] One of the sessions for connections wasn't found");
+    }
+
+    try {
+      await sourceSession.connect(sinkSession._mediaElement, type);
+    }
+    catch (err) {
+      Logger.error("[mcs-controller] Subscribe failed with an error", err);
+      return Promise.reject(err);
+    }
+
+    return Promise.resolve();
+  }
+
+  async disconnect (sourceId, sinkId, type) {
+    Logger.info("[mcs-controller] Disconnect", sourceId, "to", sinkId, "with type", type);
+
+    let session;
+    let sourceSession = this._mediaSessions[sourceId];
+    let sinkSession = this._mediaSessions[sinkId];
+
+    if (!sourceSession || !sinkSession) {
+      return Promise.reject("[mcs-controller] One of the sessions for connections wasn't found");
+    }
+
+    try {
+      await sourceSession.disconnect(sinkSession._mediaElement, type);
+    }
+    catch (err) {
+      Logger.error("[mcs-controller] Subscribe failed with an error", err);
+      return Promise.reject(err);
+    }
+
+    return Promise.resolve();
   }
 
   async addIceCandidate (mediaId, candidate) {

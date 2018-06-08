@@ -24,6 +24,9 @@ package org.bigbluebutton.modules.users.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.common.toaster.Toaster;
+  import org.bigbluebutton.common.toaster.message.ToastIcon;
+  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
@@ -31,6 +34,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.MeetingTimeRemainingEvent;
   import org.bigbluebutton.core.events.NewGuestWaitingEvent;
+  import org.bigbluebutton.core.events.UpdateRecordingTimerEvent;
   import org.bigbluebutton.core.events.UserEmojiChangedEvent;
   import org.bigbluebutton.core.events.UserStatusChangedEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
@@ -54,6 +58,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -135,6 +140,9 @@ package org.bigbluebutton.modules.users.services
         case "UserEmojiChangedEvtMsg":
           handleEmojiStatusHand(message);
           break;
+		case "UpdateRecordingTimerEvtMsg":
+		  handleUpdateRecordingTimer(message);
+		  break;
         case "GetRecordingStatusRespMsg":
           handleGetRecordingStatusReply(message);
           break;
@@ -226,6 +234,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(vu.intId)) {
         LiveMeeting.inst().me.muted = vu.muted;
         LiveMeeting.inst().me.inVoiceConf = true;
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
@@ -244,6 +253,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(intId)) {
         LiveMeeting.inst().me.muted = false;
         LiveMeeting.inst().me.inVoiceConf = false;
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
@@ -554,7 +564,7 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
-      
+	  
       dispatcher.dispatchEvent(e);
     }
 	
@@ -710,6 +720,11 @@ package org.bigbluebutton.modules.users.services
       }
       
     }
+	
+	private function handleUpdateRecordingTimer(msg:Object):void {
+		var e:UpdateRecordingTimerEvent = new UpdateRecordingTimerEvent(msg.body.time);
+		dispatcher.dispatchEvent(e);
+	}
     
     private function sendUserEmojiChangedEvent(userId: String, emoji: String):void{
       var dispatcher:Dispatcher = new Dispatcher();
@@ -756,9 +771,11 @@ package org.bigbluebutton.modules.users.services
 			logData.streamId = stream;
       LOGGER.info(JSON.stringify(logData));
       
-      LiveMeeting.inst().webcams.remove(stream);
+      var mediaStream: MediaStream = LiveMeeting.inst().webcams.remove(stream);
       
-      sendStreamStoppedEvent(userId, stream);
+			if (mediaStream != null) {
+      	sendStreamStoppedEvent(mediaStream.userId, stream);
+			}
     }
     
     private function sendStreamStoppedEvent(userId: String, streamId: String):void{
@@ -774,6 +791,7 @@ package org.bigbluebutton.modules.users.services
         breakoutRoom.externalMeetingId = room.externalId as String;
         breakoutRoom.name = room.name as String;
         breakoutRoom.sequence = room.sequence as Number;
+		breakoutRoom.freeJoin = room.freeJoin as Boolean;
         LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
       }
       LiveMeeting.inst().breakoutRooms.breakoutRoomsReady = msg.body.roomsReady as Boolean;
@@ -824,12 +842,14 @@ package org.bigbluebutton.modules.users.services
       var externalId: String = breakout.externalId as String;
       var name: String = breakout.name as String;
       var sequence: int = breakout.sequence as Number;
+      var freeJoin: Boolean = breakout.freeJoin as Boolean;
       
       var breakoutRoom : BreakoutRoom = new BreakoutRoom();
       breakoutRoom.meetingId = breakoutId;
       breakoutRoom.externalMeetingId = externalId;
       breakoutRoom.name = name;
       breakoutRoom.sequence = sequence;
+      breakoutRoom.freeJoin = freeJoin;
       LiveMeeting.inst().breakoutRooms.addBreakoutRoom(breakoutRoom);
     }
     

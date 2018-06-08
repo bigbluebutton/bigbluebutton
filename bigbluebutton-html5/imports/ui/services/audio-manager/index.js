@@ -239,6 +239,7 @@ class AudioManager {
       } else if (status === FAILED) {
         this.error = error;
         this.notify(this.messages.error[error], true);
+        makeCall('failed callStateCallback audio', response);
         console.error('Audio Error:', error, bridgeError);
         this.onAudioExit();
       }

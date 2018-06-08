@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from '../styles.scss';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
-const MESSAGE_FREQUENCY = ANNOTATION_CONFIG.message_frequency;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
@@ -15,9 +13,6 @@ export default class PencilDrawListener extends Component {
     // to track the status of drawing
     this.isDrawing = false;
     this.points = [];
-
-    // id of the setInterval()
-    this.intervalId = 0;
 
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
@@ -62,9 +57,6 @@ export default class PencilDrawListener extends Component {
     // sending the first message
     const _points = [transformedSvgPoint.x, transformedSvgPoint.y];
     this.handleDrawPencil(_points, DRAW_START, generateNewShapeId());
-
-    // All the DRAW_UPDATE messages will be send on timer by sendCoordinates func
-    this.intervalId = setInterval(this.sendCoordinates, MESSAGE_FREQUENCY);
   }
 
   commonDrawMoveHandler(clientX, clientY) {
@@ -87,6 +79,8 @@ export default class PencilDrawListener extends Component {
       // saving the coordinate to the array
       this.points.push(transformedSvgPoint.x);
       this.points.push(transformedSvgPoint.y);
+
+      this.sendCoordinates();
     }
   }
 
@@ -186,10 +180,6 @@ export default class PencilDrawListener extends Component {
   }
 
   sendLastMessage() {
-    // last message, clearing the interval
-    clearInterval(this.intervalId);
-    this.intervalId = 0;
-
     if (this.isDrawing) {
       const { getCurrentShapeId } = this.props.actions;
       const { physicalSlideWidth, physicalSlideHeight } = this.props;
@@ -218,12 +208,18 @@ export default class PencilDrawListener extends Component {
   }
 
   render() {
+    const baseName = Meteor.settings.public.app.basename;
+    const pencilDrawStyle = {
+      width: '100%',
+      height: '100%',
+      touchAction: 'none',
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/pencil.png') 2 22, default`,
+    };
     return (
       <div
         onTouchStart={this.handleTouchStart}
         role="presentation"
-        className={styles.pencil}
-        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        style={pencilDrawStyle}
         onMouseDown={this.mouseDownHandler}
       />
     );

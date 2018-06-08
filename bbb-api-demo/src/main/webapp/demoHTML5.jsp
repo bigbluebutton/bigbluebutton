@@ -88,39 +88,22 @@ if (request.getParameterMap().isEmpty()) {
 <%
 } else if (request.getParameter("action").equals("create")) {
 
-	//
-	// Got an action=create
-	//
-
 	String username = request.getParameter("username");
 
 	// set defaults and overwrite them if custom values exist
 	String meetingname = "Demo Meeting";
 	if (request.getParameter("meetingname") != null) {
-		meetingname =  request.getParameter("meetingname");
+		meetingname = request.getParameter("meetingname");
 	}
 
-	String defaultModeratorPassword = "mp";
-	String defaultAttendeePassword = "ap";
-	String defaultPassword = defaultAttendeePassword;
-
-	boolean isModerator = false;
+	Boolean isModerator = new Boolean(false);
+	Boolean isHTML5 = new Boolean(true);
+	Boolean isRecorded = new Boolean(true);
 	if (request.getParameter("isModerator") != null) {
 		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
-		defaultPassword = defaultModeratorPassword;
 	}
 
-	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
-	String html5url = ip + "/html5client/join";
-
-	String meetingId = createMeeting( meetingname, null, defaultModeratorPassword, "Welcome moderator! (moderator only message)", defaultAttendeePassword, null, null );
-
-	// Check if we have an existing meeting
-	if( meetingId.startsWith("Error ")) {
-		meetingId = meetingname;
-	}
-
-	String joinURL = getJoinMeetingURL(username, meetingId, defaultPassword, html5url);
+	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, null, null, isHTML5.toString(), isModerator.toString());
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>

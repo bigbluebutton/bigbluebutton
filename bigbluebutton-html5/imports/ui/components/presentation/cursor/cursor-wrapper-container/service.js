@@ -1,6 +1,7 @@
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import Auth from '/imports/ui/services/auth';
-import Cursor from '/imports/api/cursor';
+import Cursor from '/imports/ui/components/cursor/service';
+
 import Users from '/imports/api/users';
 
 const getMultiUserStatus = () => {

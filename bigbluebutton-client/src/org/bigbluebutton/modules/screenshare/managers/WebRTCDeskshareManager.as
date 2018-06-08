@@ -18,28 +18,19 @@
 */
 package org.bigbluebutton.modules.screenshare.managers
 {
-	import com.asfusion.mate.actions.builders.serviceClasses.Request;
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.external.ExternalInterface;
-	
-	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 	import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
 	import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 	import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
-	import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
-	import org.bigbluebutton.modules.screenshare.utils.WebRTCScreenshareUtility;
 
 	public class WebRTCDeskshareManager {
 		private static const LOGGER:ILogger = getClassLogger(WebRTCDeskshareManager);
@@ -48,7 +39,6 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var viewWindowManager:WebRTCViewerWindowManager;
 		private var toolbarButtonManager:ToolbarButtonManager;
 		private var module:ScreenshareModule;
-		private var service:WebRTCDeskshareService;
 		private var globalDispatcher:Dispatcher;
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
@@ -57,17 +47,15 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		public function WebRTCDeskshareManager() {
 			LOGGER.debug("WebRTCDeskshareManager::WebRTCDeskshareManager");
-			service = new WebRTCDeskshareService();
 			globalDispatcher = new Dispatcher();
-			publishWindowManager = new WebRTCPublishWindowManager(service);
-			viewWindowManager = new WebRTCViewerWindowManager(service);
+			publishWindowManager = new WebRTCPublishWindowManager();
+			viewWindowManager = new WebRTCViewerWindowManager();
 			options = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 		}
 
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
 			LOGGER.debug("WebRTC Screenshare Module starting");
 			this.module = module;
-			service.handleStartModuleEvent(module);
 		}
 
 		public function handleStopModuleEvent():void {
@@ -75,7 +63,6 @@ package org.bigbluebutton.modules.screenshare.managers
 
 			publishWindowManager.stopSharing();
 			viewWindowManager.stopViewing();
-			service.disconnect();
 		}
 
 		/*presenter stopped their program stream*/

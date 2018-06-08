@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { throttle } from 'lodash';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
+import Resizable from 're-resizable';
 
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
@@ -10,6 +12,9 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
 import { styles } from './styles';
+
+const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+const USERLIST_COMPACT_WIDTH = 50;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -60,8 +65,11 @@ class App extends Component {
     super();
 
     this.state = {
-      compactUserList: false, // TODO: Change this on userlist resize (?)
+      compactUserList: false,
+      enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
     };
+
+    this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
   }
 
   componentDidMount() {
@@ -70,6 +78,21 @@ class App extends Component {
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+
+    this.handleWindowResize();
+    window.addEventListener('resize', this.handleWindowResize, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleWindowResize, false);
+  }
+
+  handleWindowResize() {
+    const { enableResize } = this.state;
+    const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
+    if(enableResize === shouldEnableResize) return;
+
+    this.setState({ enableResize: shouldEnableResize });
   }
 
   renderNavBar() {
@@ -132,6 +155,31 @@ class App extends Component {
     );
   }
 
+  renderUserListResizable() {
+    const { userList } = this.props;
+
+    if (!userList) return null;
+
+    return (
+      <Resizable
+        minWidth="10%"
+        maxWidth="20%"
+        ref={(node) => { this.resizableUserList = node; }}
+        className={styles.resizableUserList}
+        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
+          bottomRight: false, bottomLeft: false, topLeft: false }}
+        onResize={(e, direction, ref) => {
+          const { compactUserList } = this.state;
+          const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
+          if (compactUserList === shouldBeCompact) return;
+          this.setState({ compactUserList: shouldBeCompact });
+        }}
+      >
+        {this.renderUserList()}
+      </Resizable>
+    );
+  }
+
   renderChat() {
     const { chat, intl } = this.props;
 
@@ -147,8 +195,30 @@ class App extends Component {
     );
   }
 
+  renderChatResizable() {
+    const { chat } = this.props;
+
+    if (!chat) return null;
+
+    return (
+      <Resizable
+        defaultSize={{width: "22.5%"}}
+        minWidth="15%"
+        maxWidth="30%"
+        ref={(node) => { this.resizableChat = node; }}
+        className={styles.resizableChat}
+        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
+          bottomRight: false, bottomLeft: false, topLeft: false }}
+      >
+        {this.renderChat()}
+      </Resizable>
+    );
+  }
+
   renderMedia() {
-    const { media, intl, chatIsOpen, userlistIsOpen } = this.props;
+    const {
+      media, intl, chatIsOpen, userlistIsOpen,
+    } = this.props;
 
     if (!media) return null;
 
@@ -165,7 +235,9 @@ class App extends Component {
   }
 
   renderActionsBar() {
-    const { actionsbar, intl, userlistIsOpen, chatIsOpen } = this.props;
+    const {
+      actionsbar, intl, userlistIsOpen, chatIsOpen,
+    } = this.props;
 
     if (!actionsbar) return null;
 
@@ -181,7 +253,8 @@ class App extends Component {
   }
 
   render() {
-    const { params } = this.props;
+    const { params, userlistIsOpen } = this.props;
+    const { enableResize } = this.state;
 
     return (
       <main className={styles.main}>
@@ -192,8 +265,9 @@ class App extends Component {
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
-          {this.renderUserList()}
-          {this.renderChat()}
+          {enableResize ? this.renderUserListResizable() : this.renderUserList()}
+          {userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
+          {enableResize ? this.renderChatResizable() : this.renderChat()}
           {this.renderSidebar()}
         </section>
         <ModalContainer />
@@ -207,4 +281,5 @@ class App extends Component {
 
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
+
 export default injectIntl(App);

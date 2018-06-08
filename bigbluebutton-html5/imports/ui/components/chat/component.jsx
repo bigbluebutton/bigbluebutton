@@ -23,6 +23,10 @@ const intlMessages = defineMessages({
   },
 });
 
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const HIDE_CHAT_AK = SHORTCUTS_CONFIG.hidePrivateChat.accesskey;
+const CLOSE_CHAT_AK = SHORTCUTS_CONFIG.closePrivateChat.accesskey;
+
 const Chat = (props) => {
   const {
     chatID,
@@ -54,7 +58,7 @@ const Chat = (props) => {
             to="/users"
             role="button"
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            accessKey="h"
+            accessKey={HIDE_CHAT_AK}
           >
             <Icon iconName="left_arrow" /> {title}
           </Link>
@@ -74,7 +78,7 @@ const Chat = (props) => {
                 onClick={() => actions.handleClosePrivateChat(chatID)}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                accessKey="g"
+                accessKey={CLOSE_CHAT_AK}
               />
             </Link> :
             <ChatDropdown />

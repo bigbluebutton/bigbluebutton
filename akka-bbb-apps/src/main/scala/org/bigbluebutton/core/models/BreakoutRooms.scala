@@ -9,9 +9,9 @@ object BreakoutRooms {
   def breakoutRoomsdurationInMinutes(status: BreakoutRooms) = status.breakoutRoomsdurationInMinutes
   def breakoutRoomsdurationInMinutes(status: BreakoutRooms, duration: Int) = status.breakoutRoomsdurationInMinutes = duration
 
-  def newBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, voiceConfId: String,
-                      assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
-    val brvo = new BreakoutRoomVO(id, externalMeetingId, name, parentRoomId, sequence, voiceConfId, assignedUsers, Vector())
+  def newBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, freeJoin: Boolean,
+                      voiceConfId: String, assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
+    val brvo = new BreakoutRoomVO(id, externalMeetingId, name, parentRoomId, sequence, freeJoin, voiceConfId, assignedUsers, Vector())
     breakoutRooms.add(brvo)
     Some(brvo)
   }

@@ -135,11 +135,15 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
 
-  async createMediaElement (roomId, type, options) {
+  async createMediaElement (roomId, type, options = {}) {
     options = options || {};
     try {
       const pipeline = await this._getMediaPipeline(roomId);
       const mediaElement = await this._createElement(pipeline, type, options);
+      if (typeof mediaElement.setKeyframeInterval === 'function' && options.keyframeInterval) {
+        Logger.debug("[mcs-media] Creating element with keyframe interval set to", options.keyframeInterval);
+        mediaElement.setKeyframeInterval(options.keyframeInterval);
+      }
       this._mediaPipelines[roomId].activeElements++;
       return Promise.resolve(mediaElement.id);
     }
@@ -223,6 +227,54 @@ module.exports = class MediaServer extends EventEmitter {
 
           case 'VIDEO':
             source.connect(sink, (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+            break;
+
+          default:
+            return this._handleError("[mcs-media] Invalid connect type");
+        }
+      });
+    }
+    else {
+      let error = this._handleError("[mcs-media] Failed to connect " + type + ": " + sourceId + " to " + sinkId);
+      return Promise.reject(error);
+    }
+  }
+
+  async disconnect (sourceId, sinkId, type) {
+    let source = this._mediaElements[sourceId];
+    let sink = this._mediaElements[sinkId];
+
+    if (source && sink) {
+      return new Promise((resolve, reject) => {
+        switch (type) {
+          case 'ALL':
+            source.disconnect(sink, (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+            break;
+
+
+          case 'AUDIO':
+            source.disconnect(sink, 'AUDIO', (error) => {
+              if (error) {
+                error = this._handleError(error);
+                return reject(error);
+              }
+              return resolve();
+            });
+
+          case 'VIDEO':
+            source.disconnect(sink, (error) => {
               if (error) {
                 error = this._handleError(error);
                 return reject(error);

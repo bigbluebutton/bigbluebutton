@@ -65,6 +65,7 @@
   <#if meeting.isBreakout()>
      <parentMeetingID>${meeting.getParentMeetingId()}</parentMeetingID>
      <sequence>${meeting.getSequence()}</sequence>
+     <freeJoin>${meeting.isFreeJoin()?c}</freeJoin>
   </#if>
 
   <#list meeting.getBreakoutRooms()>

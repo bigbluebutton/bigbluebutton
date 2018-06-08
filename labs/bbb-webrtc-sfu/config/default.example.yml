@@ -15,10 +15,12 @@ to-video: "to-video-sfu"
 from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
+from-akka: "from-akka-apps-redis-channel"
 webcam-force-h264: true
 screenshare-force-h264: true
+screenshareKeyframeInterval: 2
 
-recordScreenSharing: false
+recordScreenSharing: true
 recordWebcams: false
 recordingBasePath: "file:///var/kurento"
 

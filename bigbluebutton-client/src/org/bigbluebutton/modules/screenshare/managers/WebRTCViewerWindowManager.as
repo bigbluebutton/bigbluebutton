@@ -19,31 +19,26 @@
 package org.bigbluebutton.modules.screenshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
-	import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
-	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopPublishWindow;
 	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopViewWindow;
 
 	public class WebRTCViewerWindowManager {
 		private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
 
 		private var viewWindow:WebRTCDesktopViewWindow;
-		private var service:WebRTCDeskshareService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 
-		public function WebRTCViewerWindowManager(service:WebRTCDeskshareService) {
-			this.service = service;
+		public function WebRTCViewerWindowManager() {
 			globalDispatcher = new Dispatcher();
 		}
 
 		public function stopViewing():void {
+			LOGGER.debug("Received stop viewing command");
 			if (isViewing) viewWindow.stopViewing();
 		}
 
@@ -54,7 +49,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function handleViewWindowCloseEvent():void {
-			LOGGER.debug("ViewerWindowManager Received stop viewing command");
+			LOGGER.debug("Received close view window event");
 			closeWindow(viewWindow);
 			isViewing = false;
 		}
@@ -66,7 +61,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
-			LOGGER.debug("ViewerWindowManager::startViewing");
+			LOGGER.debug("startViewing");
 
 			viewWindow = new WebRTCDesktopViewWindow();
 			viewWindow.startVideo(rtmp, videoWidth, videoHeight);

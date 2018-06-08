@@ -1,6 +1,7 @@
 package org.bigbluebutton.api2.domain
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
 import java.util.Map
 
 import scala.xml.{Elem, NodeSeq}
@@ -53,8 +54,9 @@ object RecMeta {
       val breakoutElem = breakoutNode(0) // convert from Node to Elem
       val parentId = breakoutElem.attribute("parentMeetingId").getOrElse("unknown").toString
       val sequence = breakoutElem.attribute("sequence").getOrElse("0").toString
+      val freeJoin = breakoutElem.attribute("freeJoin").getOrElse("false").toString
       val meetingId = breakoutElem.attribute("meetingId").getOrElse("unknown").toString
-      Some(RecMetaBreakout(parentId, sequence.toInt, meetingId))
+      Some(RecMetaBreakout(parentId, sequence.toInt, freeJoin.toBoolean, meetingId))
     }
   }
 
@@ -368,25 +370,137 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
 
     <playback>{buffer}</playback>
   }
+
+  // Merged playback formats when responding to get recordings API call
+  def toFormatXml(): Elem = {
+    val buffer = new scala.xml.NodeBuffer
+    val formatElem = <type>{format}</type>
+    val urlElem = <url>{link}</url>
+    val processTimeElem = <processingTime>{processingTime}</processingTime>
+    val lengthElem = <length>{duration / 60000}</length>
+
+    buffer += formatElem
+    buffer += urlElem
+    buffer += processTimeElem
+    buffer += lengthElem
+
+    extensions foreach {ext =>
+      ext.head.child foreach {child =>
+        buffer += child
+      }
+    }
+    <format>{buffer}</format>
+  }
 }
 
 
 case class RecMetaImage(width: String, height: String, alt: String, link: String)
 
-case class RecMetaBreakout(parentId: String, sequence: Int, meetingId: String) {
+case class RecMetaBreakout(parentId: String, sequence: Int, freeJoin: Boolean, meetingId: String) {
   def toXml(): Elem = {
     val buffer = new scala.xml.NodeBuffer
 
     val parentIdElem = <parentId>{parentId}</parentId>
     val sequenceElem =  <sequence>{sequence}</sequence>
+    val freeJoinElem =  <freeJoin>{freeJoin}</freeJoin>
 
     buffer += parentIdElem
     buffer += sequenceElem
+    buffer += freeJoinElem
 
     <breakout>{buffer}</breakout>
   }
 
   def toMetadataXml(): Elem = {
       <breakout parentMeetingId={parentId} sequence={sequence.toString} meetingId={meetingId}/>
+  }
+}
+
+// A simple mask to merge multiple playback formats of the same recording
+case class RecMetaResponse(
+    id: String,
+    meetingId: String,
+    internalMeetingId: Option[String],
+    meetingName: String,
+    state: String,
+    published: Boolean,
+    startTime: Long,
+    endTime: Long,
+    participants: Int,
+    rawSize: Long,
+    isBreakout: Boolean,
+    meeting: Option[RecMetaMeeting],
+    meta: Option[collection.immutable.Map[String, String]],
+    playbacks: ListBuffer[RecMetaPlayback],
+    breakout: Option[RecMetaBreakout],
+    breakoutRooms: Vector[String]) {
+
+  // Link a new playback if it exists
+  def updateRecMeta(r: RecMeta): RecMetaResponse = {
+    r.playback match {
+      case Some(p) => this.playbacks += p
+      case None =>
+    }
+    this
+  }
+
+  def toXml(): Elem = {
+    def metaToElem(map: scala.collection.immutable.Map[String, String]): Elem = {
+      val buffer = new scala.xml.NodeBuffer
+      map.foreach {case (key, value) =>
+        // Need to escape value otherwise loadString would choke.
+        val m = "<" + key + ">" + xml.Utility.escape(value) + "</" + key + ">"
+        buffer += scala.xml.XML.loadString(m)
+      }
+      <metadata>{buffer}</metadata>
+    }
+
+    def breakoutRoomsToElem(rooms: Vector[String]): Elem = {
+      val buffer = new scala.xml.NodeBuffer
+      rooms foreach(r => buffer += <breakoutRoom>{r}</breakoutRoom>)
+      <breakoutRooms>{buffer}</breakoutRooms>
+    }
+
+    val recordIdElem = <recordID>{id}</recordID>
+    val meetingIdElem = <meetingID>{meetingId}</meetingID>
+    val meetingNameElem = <name>{meetingName}</name>
+
+    val internalId = internalMeetingId match {
+      case Some(intId) => Some(<internalMeetingID>{intId}</internalMeetingID>)
+      case None => None
+    }
+
+    val isBreakoutElem = <isBreakout>{isBreakout}</isBreakout>
+    val publishedElem = <published>{published}</published>
+    val stateElem =  <state>{state}</state>
+    val startTimeElem =  <startTime>{startTime}</startTime>
+    val endTimeElem = <endTime>{endTime}</endTime>
+    val participantsElem = <participants>{participants}</participants>
+
+    val buffer = new scala.xml.NodeBuffer
+    buffer += recordIdElem
+    buffer += meetingIdElem
+    internalId foreach(intId => buffer += intId)
+    buffer += meetingNameElem
+    buffer += isBreakoutElem
+    buffer += publishedElem
+    buffer += stateElem
+    buffer += startTimeElem
+    buffer += endTimeElem
+    buffer += participantsElem
+
+    meta foreach (m => buffer += metaToElem(m))
+    breakout foreach (b => buffer += b.toXml())
+    if (breakoutRooms.nonEmpty) {
+      buffer += breakoutRoomsToElem(breakoutRooms)
+    }
+
+    // Iterate over all formats before include the playback tag
+    val formats = new scala.xml.NodeBuffer
+    playbacks foreach(p => formats += p.toFormatXml())
+    val playbackElem = <playback>{formats}</playback>
+    buffer += playbackElem
+
+    <recording>{buffer}</recording>
   }
 }

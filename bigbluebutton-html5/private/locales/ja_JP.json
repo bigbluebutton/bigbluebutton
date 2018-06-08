@@ -113,7 +113,6 @@
     "app.actionsBar.actionsDropdown.presentationDesc": "プレゼンテーションをアップロード",
     "app.actionsBar.actionsDropdown.initPollDesc": "投票を初期化",
     "app.actionsBar.actionsDropdown.desktopShareDesc": "他の人と画面を共有する",
-    "app.actionsBar.emojiMenu.statusTriggerLabel": "ステータス",
     "app.actionsBar.emojiMenu.awayLabel": "不在",
     "app.actionsBar.emojiMenu.awayDesc": "スタータスを「不在」にする",
     "app.actionsBar.emojiMenu.confusedLabel": "わけがわからない",

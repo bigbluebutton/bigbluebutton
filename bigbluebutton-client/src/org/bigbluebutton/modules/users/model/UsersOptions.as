@@ -39,6 +39,9 @@ package org.bigbluebutton.modules.users.model {
 
 		[Bindable]
 		public var enableGuestUI:Boolean = false;
+		
+		[Bindable]
+		public var allowClearRecordingMarks:Boolean = false;
 
 		public function UsersOptions() {
 			name = "UsersModule";

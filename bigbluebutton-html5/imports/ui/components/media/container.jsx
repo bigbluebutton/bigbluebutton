@@ -20,12 +20,31 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
   },
+  screenshareSafariNotSupportedError: {
+    id: 'app.media.screenshare.safariNotSupported',
+    description: 'Error message for screenshare not supported on Safari',
+  },
+  chromeExtensionError: {
+    id: 'app.video.chromeExtensionError',
+    description: 'Error message for Chrome Extension not installed',
+  },
+  chromeExtensionErrorLink: {
+    id: 'app.video.chromeExtensionErrorLink',
+    description: 'Error message for Chrome Extension not installed',
+  },
 });
 
 class MediaContainer extends Component {
   componentWillMount() {
     const { willMount } = this.props;
     willMount && willMount();
+    document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
+    document.addEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
+    document.removeEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -43,6 +62,26 @@ class MediaContainer extends Component {
     }
   }
 
+  installChromeExtension() {
+    const { intl } = this.props;
+
+    const CHROME_DEFAULT_EXTENSION_LINK = Meteor.settings.public.kurento.chromeDefaultExtensionLink;
+    const CHROME_CUSTOM_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+    const CHROME_EXTENSION_LINK = CHROME_CUSTOM_EXTENSION_LINK === 'LINK' ? CHROME_DEFAULT_EXTENSION_LINK : CHROME_CUSTOM_EXTENSION_LINK;
+
+    notify(<div>
+      {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
+      <a href={CHROME_EXTENSION_LINK} target="_blank">
+        {intl.formatMessage(intlMessages.chromeExtensionErrorLink)}
+      </a>
+    </div>, 'error', 'desktop');
+  }
+
+  safariScreenshareNotSupported() {
+    const { intl } = this.props;
+    notify(intl.formatMessage(intlMessages.screenshareSafariNotSupportedError), 'error', 'desktop');
+  }  
+
   render() {
     return <Media {...this.props} />;
   }
@@ -52,8 +91,7 @@ export default withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
-  const hidePresentation = SessionStorage.getItem('meta_html5hidepresentation') || false;
-
+  const hidePresentation = SessionStorage.getItem('metadata').html5hidepresentation || false;
   const data = {
     children: <DefaultContent />,
   };
@@ -82,8 +120,8 @@ export default withTracker(() => {
     data.hideOverlay = hidePresentation;
   }
 
-  const enableVideo = Meteor.settings.public.kurento.enableVideo;
-  const autoShareWebcam = SessionStorage.getItem('meta_html5autosharewebcam') || false;
+  const { enableVideo } = Meteor.settings.public.kurento;
+  const autoShareWebcam = SessionStorage.getItem('metadata').html5autosharewebcam || false;
 
   if (enableVideo && autoShareWebcam) {
     data.willMount = VideoService.joinVideo;

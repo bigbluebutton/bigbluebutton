@@ -101,6 +101,8 @@ class Dropdown extends Component {
   handleWindowClick(event) {
     const triggerElement = findDOMNode(this.trigger);
 
+    if (!triggerElement) return;
+
     if (!this.state.isOpen
       || triggerElement === event.target
       || triggerElement.contains(event.target)) {
@@ -151,6 +153,7 @@ class Dropdown extends Component {
         aria-relevant={otherProps['aria-relevant']}
         aria-haspopup={otherProps['aria-haspopup']}
         aria-label={otherProps['aria-label']}
+        data-isopen={this.state.isOpen}
         ref={(node) => { this.dropdown = node; }}
         tabIndex={-1}
       >
