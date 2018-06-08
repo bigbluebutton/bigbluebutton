@@ -11,7 +11,7 @@ const logClient = function (type, log, ...args) {
       meetingId, name, intId, extId, authToken,
     } = User;
     const userInfo = {
-      meetingId,
+      'meetingId(server)': meetingId,
       userName: name,
       intId,
       extId,
