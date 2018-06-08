@@ -168,6 +168,17 @@ class App extends Component {
 
     if (!userList) return null;
 
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
     return (
       <Resizable
         defaultSize={{ width: USERLIST_DEFAULT_WIDTH }}
@@ -175,16 +186,7 @@ class App extends Component {
         maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
         className={styles.resizableUserList}
-        enable={{
- top: false,
-right: true,
-bottom: false,
-left: false,
-topRight: false,
-          bottomRight: false,
-bottomLeft: false,
-topLeft: false,
-}}
+        enable={resizableEnableOptions}
         onResize={(e, direction, ref) => {
           const { compactUserList } = this.state;
           const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
@@ -225,6 +227,17 @@ topLeft: false,
 
     if (!chat) return null;
 
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
     return (
       <Resizable
         defaultSize={{ width: CHAT_DEFAULT_WIDTH }}
@@ -232,16 +245,7 @@ topLeft: false,
         maxWidth={CHAT_MAX_WIDTH_PX}
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{
- top: false,
-right: true,
-bottom: false,
-left: false,
-topRight: false,
-           bottomRight: false,
-bottomLeft: false,
-topLeft: false,
-}}
+        enable={resizableEnableOptions}
       >
         {this.renderChat()}
       </Resizable>
