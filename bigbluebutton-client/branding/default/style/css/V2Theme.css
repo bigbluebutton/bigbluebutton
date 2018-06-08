@@ -332,6 +332,10 @@ phonecomponents|MuteMeButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
+.recordingTimerStyle {
+	fontSize : 14;
+}
+
 .muteMeDefaultButtonStyle {
 	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
