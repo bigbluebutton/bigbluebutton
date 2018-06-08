@@ -90,7 +90,7 @@ class App extends Component {
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
-    if(enableResize === shouldEnableResize) return;
+    if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
   }
@@ -158,16 +158,35 @@ class App extends Component {
   renderUserListResizable() {
     const { userList } = this.props;
 
+    // Variables for resizing user-list.
+    const USERLIST_MIN_WIDTH_PX = 100;
+    const USERLIST_MAX_WIDTH_PX = 240;
+    const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
+
+    // decide whether using pixel or percentage unit as a default width for userList
+    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
+
     if (!userList) return null;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
 
     return (
       <Resizable
-        minWidth="10%"
-        maxWidth="20%"
+        defaultSize={{ width: USERLIST_DEFAULT_WIDTH }}
+        minWidth={USERLIST_MIN_WIDTH_PX}
+        maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
         className={styles.resizableUserList}
-        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
-          bottomRight: false, bottomLeft: false, topLeft: false }}
+        enable={resizableEnableOptions}
         onResize={(e, direction, ref) => {
           const { compactUserList } = this.state;
           const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
@@ -198,17 +217,35 @@ class App extends Component {
   renderChatResizable() {
     const { chat } = this.props;
 
+    // Variables for resizing chat.
+    const CHAT_MIN_WIDTH_PX = 180;
+    const CHAT_MAX_WIDTH_PX = 310;
+    const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
+
+    // decide whether using pixel or percentage unit as a default width for chat
+    const CHAT_DEFAULT_WIDTH = (window.innerWidth * (CHAT_DEFAULT_WIDTH_RELATIVE / 100.0)) < CHAT_MAX_WIDTH_PX ? `${CHAT_DEFAULT_WIDTH_RELATIVE}%` : CHAT_MAX_WIDTH_PX;
+
     if (!chat) return null;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
 
     return (
       <Resizable
-        defaultSize={{width: "22.5%"}}
-        minWidth="15%"
-        maxWidth="30%"
+        defaultSize={{ width: CHAT_DEFAULT_WIDTH }}
+        minWidth={CHAT_MIN_WIDTH_PX}
+        maxWidth={CHAT_MAX_WIDTH_PX}
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{ top: false, right: true, bottom: false, left: false, topRight: false,
-          bottomRight: false, bottomLeft: false, topLeft: false }}
+        enable={resizableEnableOptions}
       >
         {this.renderChat()}
       </Resizable>
