@@ -167,7 +167,7 @@ package org.bigbluebutton.main.model.users
             messageName != "DoLatencyTracerMsg" &&
             messageName != "ServerToClientLatencyTracerMsg" &&
             messageName != "MeetingTimeRemainingUpdateEvtMsg") {
-            LOGGER.debug("onMessageFromServer2x - " + msg);
+            //LOGGER.debug("onMessageFromServer2x - " + msg);
           }
             
             var map:Object = JSON.parse(msg);  

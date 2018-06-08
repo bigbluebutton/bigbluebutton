@@ -237,7 +237,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_INIT}"  method="handleLocaleInit"/>
 	</fx:Declarations>
 
-	<views:MainApplicationShell id="mainShell"/>
 <!--	
 	<toaster:Toaster id="toasterContainer" width="100%" height="100%"/>
 -->
