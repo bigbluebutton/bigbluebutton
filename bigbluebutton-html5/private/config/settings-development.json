@@ -22,7 +22,7 @@
           "chatAudioNotifications": false,
           "chatPushNotifications": false,
           "fontSize": "16px",
-          "locale": "en"
+          "fallbackLocale": "en"
         },
         "audio": {
           "inputDeviceId": "undefined",

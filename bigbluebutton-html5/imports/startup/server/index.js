@@ -5,6 +5,8 @@ import fs from 'fs';
 import Logger from './logger';
 import Redis from './redis';
 
+const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
@@ -21,17 +23,28 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
-  const localeRegion = req.query.locale.split(/[-_]/g);
-  const localeList = [defaultLocale, localeRegion[0]];
+  const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
+  const browserLocale = req.query.locale.split(/[-_]/g);
+  const localeList = [fallback];
 
-  let normalizedLocale = localeRegion[0];
+  const usableLocales = AVAILABLE_LOCALES
+    .map(file => file.replace('.json', ''))
+    .reduce((locales, locale) =>
+      (locale.match(browserLocale[0]) ? [...locales, locale] : locales), []);
+
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+
+  if (regionDefault) localeList.push(regionDefault);
+  if (!regionDefault && usableLocales.length) localeList.push(usableLocales[0]);
+
+  let normalizedLocale;
   let messages = {};
 
-  if (localeRegion.length > 1) {
-    normalizedLocale = `${localeRegion[0]}_${localeRegion[1].toUpperCase()}`;
+  if (browserLocale.length > 1) {
+    normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
     localeList.push(normalizedLocale);
   }
+
   localeList.forEach((locale) => {
     try {
       const data = Assets.getText(`locales/${locale}.json`);
@@ -47,18 +60,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
-  const APP_CONFIG = Meteor.settings.public.app;
-  const defaultLocale = APP_CONFIG.defaultSettings.application.locale;
-
-  let availableLocales = [];
-
-  const defaultLocaleFile = `${defaultLocale}.json`;
-  const defaultLocalePath = `locales/${defaultLocaleFile}`;
-  const localesPath = Assets.absoluteFilePath(defaultLocalePath).replace(defaultLocaleFile, '');
-
+  let locales = [];
   try {
-    const getAvailableLocales = fs.readdirSync(localesPath);
-    availableLocales = getAvailableLocales
+    locales = AVAILABLE_LOCALES
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
       .map(locale => ({
@@ -71,7 +75,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(availableLocales));
+  res.end(JSON.stringify(locales));
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {
