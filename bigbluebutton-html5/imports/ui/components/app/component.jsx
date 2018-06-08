@@ -163,7 +163,7 @@ class App extends Component {
     const USERLIST_MAX_WIDTH_PX = 240;
     const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
 
-    // prevent the default width size of the userList to exceed the maxWidth
+    // decide whether using pixel or percentage unit as a default width for userList
     const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
 
     if (!userList) return null;
@@ -220,7 +220,7 @@ topLeft: false,
     const CHAT_MAX_WIDTH_PX = 310;
     const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
 
-    // prevent the default width size of the chat to exceed the maxWidth
+    // decide whether using pixel or percentage unit as a default width for chat
     const CHAT_DEFAULT_WIDTH = (window.innerWidth * (CHAT_DEFAULT_WIDTH_RELATIVE / 100.0)) < CHAT_MAX_WIDTH_PX ? `${CHAT_DEFAULT_WIDTH_RELATIVE}%` : CHAT_MAX_WIDTH_PX;
 
     if (!chat) return null;
