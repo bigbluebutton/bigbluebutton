@@ -68,6 +68,7 @@ class VideoProvider extends Component {
     this.state = {
       sharedWebcam: false,
       socketOpen: false,
+      stats: [],
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
@@ -79,6 +80,7 @@ class VideoProvider extends Component {
     this.restartTimeout = {};
     this.restartTimer = {};
     this.webRtcPeers = {};
+    this.monitoredTracks = {};
 
     this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
@@ -90,6 +92,8 @@ class VideoProvider extends Component {
 
     this.pauseViewers = this.pauseViewers.bind(this);
     this.unpauseViewers = this.unpauseViewers.bind(this);
+
+    this.customGetStats = this.customGetStats.bind(this);
   }
 
   _sendPauseStream (id, role, state) {
@@ -173,6 +177,7 @@ class VideoProvider extends Component {
     }
 
     Object.keys(this.webRtcPeers).forEach((id) => {
+      this.stopGettingStats(id);
       this.stopWebRTCPeer(id);
     });
 
@@ -512,6 +517,196 @@ class VideoProvider extends Component {
     }
   }
 
+  customGetStats(peer, mediaStreamTrack, callback, interval) {
+    const statsState = this.state.stats;
+    let promise;
+    try {
+      promise = peer.getStats(mediaStreamTrack);
+    } catch (e) {
+      promise = Promise.reject(e);
+    }
+    promise.then((results) => {
+      let videoInOrOutbound = {};
+      results.forEach(function(res) {
+        if (res.type == 'ssrc' || res.type == 'inbound-rtp' || res.type == 'outbound-rtp') {
+          res.packetsSent = parseInt(res.packetsSent);
+          res.packetsLost = parseInt(res.packetsLost) || 0;
+          res.packetsReceived = parseInt(res.packetsReceived);
+
+          if ((isNaN(res.packetsSent) && res.packetsReceived == 0)
+            || (res.type == 'outbound-rtp' && res.isRemote)) {
+            return; // Discard local video receiving
+          }
+
+          if (res.googFrameWidthReceived) {
+            res.width = parseInt(res.googFrameWidthReceived);
+            res.height = parseInt(res.googFrameHeightReceived);
+          } else if (res.googFrameWidthSent) {
+            res.width = parseInt(res.googFrameWidthSent);
+            res.height = parseInt(res.googFrameHeightSent);
+          }
+
+          // Extra fields available on Chrome
+          if (res.googCodecName) res.codec = res.googCodecName;
+          if (res.googDecodeMs) res.decodeDelay = res.googDecodeMs;
+          if (res.googEncodeUsagePercent) res.encodeUsagePercent = res.googEncodeUsagePercent;
+          if (res.googRtt) res.rtt = res.googRtt;
+          if (res.googCurrentDelayMs) res.currentDelay = res.googCurrentDelayMs;
+
+          videoInOrOutbound = res;
+        }
+      });
+
+      const videoStats = {
+        timestamp: videoInOrOutbound.timestamp,
+        bytesReceived: videoInOrOutbound.bytesReceived,
+        bytesSent: videoInOrOutbound.bytesSent,
+        packetsReceived: videoInOrOutbound.packetsReceived,
+        packetsLost: videoInOrOutbound.packetsLost,
+        packetsSent: videoInOrOutbound.packetsSent,
+        decodeDelay: videoInOrOutbound.decodeDelay,
+        codec: videoInOrOutbound.codec,
+        height: videoInOrOutbound.height,
+        width: videoInOrOutbound.width,
+        encodeUsagePercent: videoInOrOutbound.encodeUsagePercent,
+        rtt: videoInOrOutbound.rtt,
+        currentDelay: videoInOrOutbound.currentDelay,
+      };
+
+      let videoStatsArray = statsState;
+      videoStatsArray.push(videoStats);
+      while (videoStatsArray.length > 5) {// maximum interval to consider
+        videoStatsArray.shift();
+      }
+      this.setState({ stats: videoStatsArray });
+
+      const firstVideoStats = videoStatsArray[0];
+      const lastVideoStats = videoStatsArray[videoStatsArray.length - 1];
+
+      const videoIntervalPacketsLost = lastVideoStats.packetsLost - firstVideoStats.packetsLost;
+      const videoIntervalPacketsReceived = lastVideoStats.packetsReceived - firstVideoStats.packetsReceived;
+      const videoIntervalPacketsSent = lastVideoStats.packetsSent - firstVideoStats.packetsSent;
+      const videoIntervalBytesReceived = lastVideoStats.bytesReceived - firstVideoStats.bytesReceived;
+      const videoIntervalBytesSent = lastVideoStats.bytesSent - firstVideoStats.bytesSent;
+
+      const videoReceivedInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
+      const videoSentInterval = lastVideoStats.timestamp - firstVideoStats.timestamp;
+
+      const videoKbitsReceivedPerSecond = videoIntervalBytesReceived * 8 / videoReceivedInterval;
+      const videoKbitsSentPerSecond = videoIntervalBytesSent * 8 / videoSentInterval;
+      const videoPacketDuration = videoIntervalPacketsSent / videoSentInterval * 1000;
+
+      let videoLostPercentage, videoLostRecentPercentage, videoBitrate;
+      if (videoStats.packetsReceived > 0) { // Remote video
+        videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsReceived) * 100) || 0).toFixed(1);
+        videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
+        videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsReceived) * 100) || 0).toFixed(1);
+      } else {
+        videoLostPercentage = ((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsSent) * 100) || 0).toFixed(1);
+        videoBitrate = Math.floor(videoKbitsSentPerSecond || 0);
+        videoLostRecentPercentage = ((videoIntervalPacketsLost / (videoIntervalPacketsLost + videoIntervalPacketsSent) * 100) || 0).toFixed(1);
+      }
+
+      const result = {
+        video: {
+          bytesReceived: videoStats.bytesReceived,
+          bytesSent: videoStats.bytesSent,
+          packetsLost: videoStats.packetsLost,
+          packetsReceived: videoStats.packetsReceived,
+          packetsSent: videoStats.packetsSent,
+          bitrate: videoBitrate,
+          lostPercentage: videoLostPercentage,
+          lostRecentPercentage: videoLostRecentPercentage,
+          height: videoStats.height,
+          width: videoStats.width,
+          codec: videoStats.codec,
+          decodeDelay: videoStats.decodeDelay,
+          encodeUsagePercent: videoStats.encodeUsagePercent,
+          rtt: videoStats.rtt,
+          currentDelay: videoStats.currentDelay,
+        }
+      };
+
+      callback(result);
+    }, function(exception) {
+      console.error("customGetStats() Promise rejected:", exception.message);
+      callback(null);
+    });
+  }
+
+  monitorTrackStart(peer, track, local, callback){
+    const that = this;
+    console.log("Starting stats monitoring on", track.id);
+    const getStatsInterval = 2000;
+
+    const callGetStats = () => {
+      that.customGetStats(
+        peer,
+        track,
+        function(results) {
+          if (results == null || peer.signalingState == "closed") {
+            that.monitorTrackStop(track.id);
+          } else {
+            callback(results);
+          }
+        },
+        getStatsInterval
+      )
+    };
+
+    if (!this.monitoredTracks[track.id]) {
+      callGetStats();
+      this.monitoredTracks[track.id] = setInterval(
+        callGetStats,
+        getStatsInterval,
+      );
+    } else {
+      console.log("Already monitoring this track");
+    }
+  }
+
+  monitorTrackStop(trackId){
+    if (this.monitoredTracks[trackId]) {
+      clearInterval(this.monitoredTracks[trackId]);
+      delete this.monitoredTracks[trackId];
+      console.log("Track " + trackId + " removed");
+    } else {
+      console.log("Track " + trackId + " is not monitored");
+    }
+  }
+
+  getStats(id, video, callback) {
+    const isCurrent = id === this.props.userId;
+    const peer = this.webRtcPeers[id];
+
+    const hasLocalStream = peer && peer.started === true && peer.peerConnection.getLocalStreams().length > 0;
+    const hasRemoteStream = peer && peer.started === true && peer.peerConnection.getRemoteStreams().length > 0;
+
+    if (hasLocalStream) {
+      this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
+    } else if (hasRemoteStream) {
+      this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
+    }
+
+    return;
+  }
+
+  stopGettingStats(id) {
+    const isCurrent = id === this.props.userId;
+    const peer = this.webRtcPeers[id];
+
+    const hasLocalStream = peer && peer.started === true && peer.peerConnection.getLocalStreams().length > 0;
+    const hasRemoteStream = peer && peer.started === true && peer.peerConnection.getRemoteStreams().length > 0;
+
+    if (hasLocalStream) {
+      this.monitorTrackStop(peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].id);
+    } else if (hasRemoteStream) {
+      this.monitorTrackStop(peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0].id);
+    }
+
+    return;
+  }
+
   handlePlayStop(message) {
     const id = message.cameraId;
 
@@ -589,6 +784,9 @@ class VideoProvider extends Component {
       <VideoList
         users={this.props.users}
         onMount={this.attachVideoStream.bind(this)}
+        getStats={this.getStats.bind(this)}
+        stopGettingStats={this.stopGettingStats.bind(this)}
+        enableVideoStats={this.props.enableVideoStats}
       />
     );
   }
