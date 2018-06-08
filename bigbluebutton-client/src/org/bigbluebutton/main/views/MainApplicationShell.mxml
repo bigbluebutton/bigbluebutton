@@ -898,7 +898,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   visible="{_showToolbar}"
 					   includeInLayout="{showToolbarOpt}"
 					   verticalAlign="middle" 
-					   toolbarOptions="{layoutOptions}" 
 					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->
