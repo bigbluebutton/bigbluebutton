@@ -138,14 +138,7 @@ class SettingsDropdown extends Component {
   componentDidMount() {
     // checks if the users entered fullscreen mode through the browser
     // and if so alters the menu to have the exit fullscreen button disabled
-    window.addEventListener('resize', () => {
-      if (window.screen.width === window.innerWidth &&
-        window.screen.height === window.innerHeight) {
-        this.alterMenu(null);
-      } else {
-        this.alterMenu(this.props);
-      }
-    });
+    window.addEventListener('resize', this.f11Fullscreen);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -155,15 +148,18 @@ class SettingsDropdown extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', () => {
-      if (window.screen.width === window.innerWidth &&
-        window.screen.height === window.innerHeight) {
-        this.alterMenu(null);
-      } else {
-        this.alterMenu(this.props);
-      }
-    });
+    window.removeEventListener('resize', this.f11Fullscreen);
   }
+
+  f11Fullscreen = () => {
+    if (window.screen.width === window.innerWidth &&
+      window.screen.height === window.innerHeight) {
+      this.alterMenu(null);
+    } else {
+      this.alterMenu(this.props);
+    }
+  }
+
   onActionsShow() {
     this.setState({
       isSettingOpen: true,
