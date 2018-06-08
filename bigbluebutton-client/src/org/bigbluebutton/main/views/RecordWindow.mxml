@@ -98,7 +98,7 @@
 		
 		<mx:HBox horizontalAlign="center" width="100%">
 			<mx:Button id="yesButton" styleName="mainActionButton" click="yesButton_clickHandler(event)" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.yes')}" width="120"/>
-			<mx:Button id="noButton" styleName="mainActionButton" click="close()" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.no')}" width="102"/>
+			<mx:Button id="noButton" click="close()" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.no')}" width="102"/>
 		</mx:HBox>
 
 		<mx:CheckBox id="clearRecordingsChecbox" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.clearCheckbox.label')}"
