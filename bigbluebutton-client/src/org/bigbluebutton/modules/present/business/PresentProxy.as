@@ -198,8 +198,9 @@ package org.bigbluebutton.modules.present.business
 		 *
 		 */
 		public function startDownload(e:DownloadEvent):void {
-			var presentationName:String = e.fileNameToDownload;
-			var downloadUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName + "/download";
+			var presFilename:String = e.presFilename;
+			var presId:String = e.presId
+			var downloadUri:String = host + "/bigbluebutton/presentation/download/" + room + "/" + presId + "/" + presFilename;
 			LOGGER.debug("PresentationApplication::downloadPresentation()... " + downloadUri);
 			var req:URLRequest = new URLRequest(downloadUri);
 			navigateToURL(req,"_blank");

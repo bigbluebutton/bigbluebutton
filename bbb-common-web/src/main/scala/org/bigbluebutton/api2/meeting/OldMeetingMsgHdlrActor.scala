@@ -42,7 +42,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: GuestsWaitingApprovedEvtMsg => handleGuestsWaitingApprovedEvtMsg(m)
       case m: GuestPolicyChangedEvtMsg => handleGuestPolicyChangedEvtMsg(m)
       case m: RecordingChapterBreakSysMsg => handleRecordingChapterBreakSysMsg(m)
-
+      case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -146,4 +146,14 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     val m = new GuestStatusChangedEventMsg(msg.header.meetingId, u)
     olgMsgGW.handle(m)
   }
+
+  def handleSetPresentationDownloadableEvtMsg(msg: SetPresentationDownloadableEvtMsg): Unit = {
+    val meetingId = msg.header.meetingId
+    val presId = msg.body.presentationId
+    val downloadable = msg.body.downloadable
+    val presFilename = msg.body.presFilename
+    val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable)
+    olgMsgGW.handle(m)
+  }
+
 }

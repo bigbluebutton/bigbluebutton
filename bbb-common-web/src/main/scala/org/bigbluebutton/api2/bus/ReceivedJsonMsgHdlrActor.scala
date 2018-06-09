@@ -95,6 +95,8 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
       case RecordingChapterBreakSysMsg.NAME =>
         route[RecordingChapterBreakSysMsg](envelope, jsonNode)
+      case SetPresentationDownloadableEvtMsg.NAME =>
+        route[SetPresentationDownloadableEvtMsg](envelope, jsonNode)
       case _ =>
         //log.debug("************ Cannot route envelope name " + envelope.name)
       // do nothing

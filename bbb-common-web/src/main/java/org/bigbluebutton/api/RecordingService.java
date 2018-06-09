@@ -36,6 +36,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,41 @@ public class RecordingService {
     private String deletedDir = "/var/bigbluebutton/deleted";
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
+    private String presentationBaseDir;
+
+    private void copyPresentationFile(File presFile, File dlownloadableFile) {
+        try {
+            FileUtils.copyFile(presFile, dlownloadableFile);
+        } catch (IOException ex) {
+            log.error("Failed to copy file: " + ex);
+        }
+    }
+
+    public void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg) {
+        File presDir = Util.getPresentationDir(presentationBaseDir, msg.meetingId, msg.presId);
+        File downloadableFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presFilename);
+
+        if (presDir != null) {
+            if (msg.downloadable) {
+                File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presId + ".pdf");
+                copyPresentationFile(presFile, downloadableFile);
+            } else {
+                if (downloadableFile.exists()) {
+                    if(downloadableFile.delete()) {
+                        log.info("File deleted. {}", downloadableFile.getAbsolutePath());
+                    } else {
+                        log.warn("Failed to delete. {}", downloadableFile.getAbsolutePath());
+                    }
+                }
+            }
+        }
+    }
+
+    public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
+        File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
+        File downloadableFile = new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
+        return downloadableFile;
+    }
 
     public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {
         String done = recordStatusDir + "/" + meetingId + "-" + timestamp + ".done";
@@ -285,6 +321,10 @@ public class RecordingService {
 
     public void setUnpublishedDir(String dir) {
         unpublishedDir = dir;
+    }
+
+    public void setPresentationBaseDir(String dir) {
+        presentationBaseDir = dir;
     }
 
     public void setPublishedDir(String dir) {

@@ -73,6 +73,7 @@ $Id: $
 		
 		import mx.binding.utils.BindingUtils;
 		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
 		import mx.controls.Menu;
 		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.controls.listClasses.IListItemRenderer;
@@ -331,13 +332,29 @@ $Id: $
       
       private function exportUsersItemHandler(e:ContextMenuEvent):void {
         if (e.target.caption == ResourceUtil.getInstance().getString("bbb.users.usersGrid.contextmenu.exportusers")) {
-          var userNames:String = "";
-          var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\r");
-          for (var i:int = 0; i < users.length; i++) {
-            userNames += users[i].name + returnStr;
-          }
-          System.setClipboard(userNames);
+          exportUserNamesToFile();
         }
+      }
+      
+      private function exportUserNamesToFile():void {
+        var userNames:String = "";
+        var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\r");
+        if (users.length > 0) {
+          userNames = users[0].name;
+          for (var i:int = 1; i < users.length; i++) {
+            userNames += returnStr + users[i].name;
+          }
+        }
+        
+        var fileRef:FileReference = new FileReference();
+        
+        fileRef.addEventListener(Event.COMPLETE, function(evt:Event):void {
+          Alert.show(ResourceUtil.getInstance().getString('bbb.users.userExport.complete'), "", Alert.OK);
+        });
+        fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(evt:Event):void {
+          Alert.show(ResourceUtil.getInstance().getString('bbb.users.userExport.error'), "", Alert.OK);
+        });
+        fileRef.save(userNames, "roster.txt");
       }
       
       private function updateNumberofUsers(numUsers:int):void {
@@ -428,6 +445,8 @@ $Id: $
 		if (partOptions.enableGuestUI) {
 			paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.guestSettings'), handler: guestSettings});
 		}
+		
+		paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.userExport'), icon: getStyle('iconSaveNames'), handler: exportUserNamesToFile});
         
         // make sure the previous menu is closed before opening a new one
         // This could be improved to include a flag that tells if the menu is open,

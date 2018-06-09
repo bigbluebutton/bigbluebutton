@@ -129,7 +129,7 @@ case class RemovePresentationEvtMsgBody(podId: String, presentationId: String)
 
 object SetPresentationDownloadableEvtMsg { val NAME = "SetPresentationDownloadableEvtMsg"}
 case class SetPresentationDownloadableEvtMsg(header: BbbClientMsgHeader, body: SetPresentationDownloadableEvtMsgBody) extends BbbCoreMsg
-case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: String, downloadable: Boolean)
+case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: String, downloadable: Boolean, presFilename: String)
 
 object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg"}
 case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg

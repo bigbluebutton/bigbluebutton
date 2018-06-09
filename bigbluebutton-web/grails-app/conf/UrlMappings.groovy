@@ -49,7 +49,7 @@ class UrlMappings {
 			action = [GET:'showTextfile']
 		}
 
-		"/presentation/$conference/$room/$presentation_name/download"(controller:"presentation") {
+		"/presentation/download/$meetingId/$presId/$presFilename"(controller:"presentation") {
 			action = [GET:'downloadFile']
 		}
       
