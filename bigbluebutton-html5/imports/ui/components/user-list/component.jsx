@@ -40,15 +40,6 @@ const defaultProps = {
 class UserList extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      compact: this.props.compact,
-    };
-
-    this.handleToggleCompactView = this.handleToggleCompactView.bind(this);
-  }
-
-  handleToggleCompactView() {
-    this.setState({ compact: !this.state.compact });
   }
 
   render() {

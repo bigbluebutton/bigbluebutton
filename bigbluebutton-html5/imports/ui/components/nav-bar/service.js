@@ -10,11 +10,7 @@ const getBreakoutJoinURL = (breakout) => {
     const user = breakout.users.find(u => u.userId === currentUserId);
 
     if (user) {
-      const { urlParams } = user;
-      return [
-        window.origin,
-        `html5client/join?sessionToken=${urlParams.sessionToken}`,
-      ].join('/');
+      return user.redirectToHtml5JoinURL;
     }
   }
   return '';

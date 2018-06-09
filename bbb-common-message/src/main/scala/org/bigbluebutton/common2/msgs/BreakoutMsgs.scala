@@ -8,7 +8,7 @@ package org.bigbluebutton.common2.msgs
   object BreakoutRoomJoinURLEvtMsg { val NAME = "BreakoutRoomJoinURLEvtMsg" }
   case class BreakoutRoomJoinURLEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomJoinURLEvtMsgBody) extends BbbCoreMsg
   case class BreakoutRoomJoinURLEvtMsgBody(parentId: String, breakoutId: String, externalId: String,
-                                           userId: String, redirectJoinURL: String, noRedirectJoinURL: String)
+                                           userId: String, redirectJoinURL: String, redirectToHtml5JoinURL: String)
 
   // Outgoing messages
   object BreakoutRoomsListEvtMsg { val NAME = "BreakoutRoomsListEvtMsg" }
@@ -69,7 +69,7 @@ package org.bigbluebutton.common2.msgs
 object RequestBreakoutJoinURLRespMsg { val NAME = "RequestBreakoutJoinURLRespMsg" }
 case class RequestBreakoutJoinURLRespMsg(header: BbbClientMsgHeader, body: RequestBreakoutJoinURLRespMsgBody) extends BbbCoreMsg
 case class RequestBreakoutJoinURLRespMsgBody(parentId: String, breakoutId: String,
-                                             userId: String, redirectJoinURL: String, noRedirectJoinURL: String)
+                                             userId: String, redirectJoinURL: String, redirectToHtml5JoinURL: String)
 
 
   object TransferUserToMeetingEvtMsg { val NAME = "TransferUserToMeetingEvtMsg" }

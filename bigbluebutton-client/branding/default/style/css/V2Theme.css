@@ -336,6 +336,10 @@ phonecomponents|MuteMeButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
+.recordingTimerStyle {
+	fontSize : 14;
+}
+
 .muteMeDefaultButtonStyle {
 	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
@@ -1549,6 +1553,18 @@ poll|PollResultsModal {
 .pollHintTextStyle {
 	textAlign  : center;
 	fontWeight : bold;
+}
+
+.pollVotesDataGridStyle {
+	backgroundColor       : #FFFFFF;
+	borderStyle           : solid;
+	rollOverColor         : #F3F3F3;
+	textRollOverColor     : #3F3F41;
+	textSelectedColor     : #3F3F41;
+	alternatingItemColors : #FFFFFF, #FFFFFF;
+	headerColors          : #FFFFFF, #FFFFFF;
+	dropShadowEnabled     : false;
+	verticalSeparatorSkin : ClassReference("mx.skins.halo.DataGridHeaderSeparator");
 }
 
 /*

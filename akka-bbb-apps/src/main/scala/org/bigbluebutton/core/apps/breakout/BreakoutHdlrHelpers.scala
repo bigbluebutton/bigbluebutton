@@ -17,37 +17,37 @@ trait BreakoutHdlrHelpers extends SystemConfiguration {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
-      (redirectParams, noRedirectParams) = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
+      (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
         externalMeetingId, liveMeeting.props.password.moderatorPass)
       // We generate a first url with redirect -> true
       redirectBaseString = BreakoutRoomsUtil.createBaseString(redirectParams)
       redirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectBaseString,
         BreakoutRoomsUtil.calculateChecksum(apiCall, redirectBaseString, bbbWebSharedSecret))
-      // We generate a second url with redirect -> false
-      noRedirectBaseString = BreakoutRoomsUtil.createBaseString(noRedirectParams)
-      noRedirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, noRedirectBaseString,
-        BreakoutRoomsUtil.calculateChecksum(apiCall, noRedirectBaseString, bbbWebSharedSecret))
+      // We generate a second url with redirect -> true and joinViaHtml5 -> true
+      redirectToHtml5BaseString = BreakoutRoomsUtil.createBaseString(redirectToHtml5Params)
+      redirectToHtml5JoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectToHtml5BaseString,
+        BreakoutRoomsUtil.calculateChecksum(apiCall, redirectToHtml5BaseString, bbbWebSharedSecret))
     } yield {
       sendJoinURLMsg(liveMeeting.props.meetingProp.intId, breakoutId, externalMeetingId,
-        userId, redirectJoinURL, noRedirectJoinURL)
+        userId, redirectJoinURL, redirectToHtml5JoinURL)
     }
   }
 
   def sendJoinURLMsg(meetingId: String, breakoutId: String, externalId: String,
-                     userId: String, redirectJoinURL: String, noRedirectJoinURL: String): Unit = {
+                     userId: String, redirectJoinURL: String, redirectToHtml5JoinURL: String): Unit = {
     def build(meetingId: String, breakoutId: String,
-              userId: String, redirectJoinURL: String, noRedirectJoinURL: String): BbbCommonEnvCoreMsg = {
+              userId: String, redirectJoinURL: String, redirectToHtml5JoinURL: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(BreakoutRoomJoinURLEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(BreakoutRoomJoinURLEvtMsg.NAME, meetingId, userId)
 
       val body = BreakoutRoomJoinURLEvtMsgBody(meetingId, breakoutId, externalId,
-        userId, redirectJoinURL, noRedirectJoinURL)
+        userId, redirectJoinURL, redirectToHtml5JoinURL)
       val event = BreakoutRoomJoinURLEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val msgEvent = build(meetingId, breakoutId, userId, redirectJoinURL, noRedirectJoinURL)
+    val msgEvent = build(meetingId, breakoutId, userId, redirectJoinURL, redirectToHtml5JoinURL)
     outGW.send(msgEvent)
 
   }

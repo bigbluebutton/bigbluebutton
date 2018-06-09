@@ -9,7 +9,7 @@
       "listenOnlyMode": true,
       "forceListenOnly": false,
       "skipCheck": false,
-      "clientTitle": "BBB - HTML5 Client",
+      "clientTitle": "BigBlueButton",
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
       "copyright": "©2018 BigBlueButton Inc.",
@@ -22,7 +22,7 @@
           "chatAudioNotifications": false,
           "chatPushNotifications": false,
           "fontSize": "16px",
-          "locale": "en"
+          "fallbackLocale": "en"
         },
         "audio": {
           "inputDeviceId": "undefined",
@@ -77,7 +77,8 @@
       "chromeExtensionKey": "KEY",
       "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
-      "enableVideo": false
+      "enableVideo": false,
+      "enableVideoStats": false
     },
 
     "acl": {

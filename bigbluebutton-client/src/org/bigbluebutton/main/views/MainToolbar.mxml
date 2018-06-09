@@ -469,6 +469,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnLogout.styleName = "logoutButtonStyle" + styleNameExt;
 				
 				initBreakoutRibbon();
+				updateMeetingNameLabel();
 			}
 
 			private function openSettings(e:Event = null):void{
@@ -498,14 +499,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onRecordingStatusChanged(event:BBBEvent):void {
-
-				if (event.payload.recording) {
+				updateMeetingNameLabel();
+			}
+			
+			private function updateMeetingNameLabel():void {
+				if (LiveMeeting.inst().meetingStatus.isRecording) {
 					meetingNameLbl.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording')
 				} else {
 					meetingNameLbl.text = "";
 					TimerUtil.stopTimer(recordingTimer.id);
 				}
-
+				
 				if (toolbarOptions.showMeetingName) {
 					var meetingTitle:String = LiveMeeting.inst().meeting.name;
 					if (meetingTitle != null) {
@@ -598,7 +602,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:HBox id="addedBtnsDeskShare" />
 			</mx:HBox>
 			<mx:HBox id="rightBox" width="40%" height="100%" horizontalAlign="right" verticalAlign="middle" horizontalScrollPolicy="off">
-				<mx:Label id="recordingTimer" visible="false" includeInLayout="{recordingTimer.visible}"/>
+				<mx:Label id="recordingTimer" visible="false" includeInLayout="{recordingTimer.visible}" styleName="recordingTimerStyle"/>
 				<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 				<views:WebRTCAudioStatus id="webRTCAudioStatus" height="30"/>
 				
