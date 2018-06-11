@@ -173,7 +173,7 @@ export default injectIntl(withTracker(({ intl }) => {
         clearInterval(timeRemainingInterval);
         data.message = intl.formatMessage(intlMessages.breakoutWillClose);
       }
-    } else if (!timeRemaining && currentBreakout) {
+    } else if (currentBreakout) {
       data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
     }
   }
