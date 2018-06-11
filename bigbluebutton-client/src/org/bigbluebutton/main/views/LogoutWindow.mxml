@@ -50,11 +50,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onCreationComplete():void {
         cancelButton.setFocus();
         endMeetingButton.visible = endMeetingButton.includeInLayout = UsersUtil.amIModerator() && !UsersUtil.isBreakout();
-		if (endMeetingButton.visible) {
-			endMeetingButton.styleName = "mainActionButton";
-		} else {
-			confimButton.styleName = "mainActionButton";
-		}
       }
 
       private function endMeetingClickHandler():void {
@@ -88,8 +83,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Text text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.message')}" />
     </mx:Box>
     <mx:HBox width="100%" horizontalAlign="center">
+      <mx:Button id="confimButton" styleName="mainActionButton" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" click="confirmButtonClickHandler()" />
       <mx:Button id="endMeetingButton" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.endMeeting')}" click="endMeetingClickHandler()" />
-      <mx:Button id="confimButton" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" click="confirmButtonClickHandler()" />
       <mx:Button id="cancelButton" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}" click="cancelButtonClickHandler()" />
    </mx:HBox>
 </mx:TitleWindow>
