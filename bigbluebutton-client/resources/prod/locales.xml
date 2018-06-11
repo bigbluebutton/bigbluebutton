@@ -22,7 +22,7 @@
 	<locale code="ff_SN" name="Fula" native="Fulfulde"/>
 	<locale code="de_DE" name="German" native="Deutsch"/>
 	<locale code="el_GR" name="Greek" native="Ελληνικά"/>
-	<locale code="ht" name="Hebrew" native="Kreyòl ayisyen"/>  
+	<locale code="ht" name="Haitian Creole" native="Kreyòl ayisyen"/>  
 	<locale code="he_IL" name="Hebrew" native="עִבְרִית" direction="rtl"/>  
 	<locale code="hu_HU" name="Hungarian" native="Magyar"/>
 	<locale code="id_ID" name="Indonesian" native="Indonesia"/>
