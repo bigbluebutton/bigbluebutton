@@ -5,6 +5,7 @@ import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import RenderInBrowser from 'react-render-in-browser';
 import browser from 'browser-detect';
+import { noop } from 'lodash';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
@@ -60,7 +61,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const noop = () => {};
 const runExceptInEdge = fn => (browser().name === 'edge' ? noop : fn);
 
 class WhiteboardToolbar extends Component {
@@ -181,14 +181,14 @@ class WhiteboardToolbar extends Component {
      * 3. Switch from the Text tool to any other - trigger color and radius for thickness
      * 4. Trigger initial animation for the icons
     */
-      // 1st case
-      if (this.state.colorSelected.value !== prevState.colorSelected.value) {
-        // 1st case b)
-        if (this.state.annotationSelected.value !== 'text') {
-          this.thicknessListIconColor.beginElement();
-        }
-        // 1st case a)
-        this.colorListIconColor.beginElement();
+    // 1st case
+    if (this.state.colorSelected.value !== prevState.colorSelected.value) {
+      // 1st case b)
+      if (this.state.annotationSelected.value !== 'text') {
+        this.thicknessListIconColor.beginElement();
+      }
+      // 1st case a)
+      this.colorListIconColor.beginElement();
     // 2nd case
     } else if (this.state.thicknessSelected.value !== prevState.thicknessSelected.value) {
       this.thicknessListIconRadius.beginElement();
