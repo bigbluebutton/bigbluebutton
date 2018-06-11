@@ -4,7 +4,8 @@ import { check } from 'meteor/check';
 import flat from 'flat';
 
 export default function handleBreakoutRoomStarted({ body }, meetingId) {
-  const DEFAULT_TIME_REMAINING = 15 * 60; // 15 minutes default breakout time
+  // 0 seconds default breakout time, forces use of real expiration time
+  const DEFAULT_TIME_REMAINING = 0;
 
   const {
     parentMeetingId,
