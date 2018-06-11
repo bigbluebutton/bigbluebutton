@@ -93,7 +93,6 @@ const changeDocumentTitle = (sec) => {
 };
 
 const setTimeRemaining = (sec = 0) => {
-  console.error(`~~ sec=${sec}   timeRemaining=${timeRemaining}`);
   if (sec !== timeRemaining) {
     timeRemaining = sec;
     changeDocumentTitle(sec);
