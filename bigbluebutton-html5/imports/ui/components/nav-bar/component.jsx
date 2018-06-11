@@ -79,10 +79,6 @@ class NavBar extends Component {
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
-  componendDidMount() {
-    document.title = this.props.presentationTitle;
-  }
-
   handleToggleUserList() {
     this.props.toggleUserList();
   }

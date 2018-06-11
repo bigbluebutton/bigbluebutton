@@ -24,6 +24,9 @@ package org.bigbluebutton.modules.users.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.common.toaster.Toaster;
+  import org.bigbluebutton.common.toaster.message.ToastIcon;
+  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.TimerUtil;
@@ -56,6 +59,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -231,6 +235,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(vu.intId)) {
         LiveMeeting.inst().me.muted = vu.muted;
         LiveMeeting.inst().me.inVoiceConf = true;
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
@@ -249,6 +254,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(intId)) {
         LiveMeeting.inst().me.muted = false;
         LiveMeeting.inst().me.inVoiceConf = false;
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
@@ -559,7 +565,7 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
-      
+	  
       dispatcher.dispatchEvent(e);
     }
 	

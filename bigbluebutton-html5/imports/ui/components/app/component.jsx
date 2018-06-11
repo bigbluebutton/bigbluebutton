@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { throttle } from 'lodash';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
@@ -11,6 +12,9 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
 import { styles } from './styles';
+
+const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+const USERLIST_COMPACT_WIDTH = 50;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -61,8 +65,11 @@ class App extends Component {
     super();
 
     this.state = {
-      compactUserList: false, // TODO: Change this on userlist resize (?)
+      compactUserList: false,
+      enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
     };
+
+    this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
   }
 
   componentDidMount() {
@@ -71,6 +78,21 @@ class App extends Component {
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+
+    this.handleWindowResize();
+    window.addEventListener('resize', this.handleWindowResize, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleWindowResize, false);
+  }
+
+  handleWindowResize() {
+    const { enableResize } = this.state;
+    const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
+    if (enableResize === shouldEnableResize) return;
+
+    this.setState({ enableResize: shouldEnableResize });
   }
 
   renderNavBar() {
@@ -123,23 +145,56 @@ class App extends Component {
     });
 
     return (
+      <div
+        className={cx(styles.userList, userListStyle)}
+        aria-label={intl.formatMessage(intlMessages.userListLabel)}
+        aria-hidden={chatIsOpen}
+      >
+        {userList}
+      </div>
+    );
+  }
+
+  renderUserListResizable() {
+    const { userList } = this.props;
+
+    // Variables for resizing user-list.
+    const USERLIST_MIN_WIDTH_PX = 100;
+    const USERLIST_MAX_WIDTH_PX = 240;
+    const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
+
+    // decide whether using pixel or percentage unit as a default width for userList
+    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
+
+    if (!userList) return null;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (
       <Resizable
-        minWidth="10%"
-        maxWidth="20%"
+        defaultSize={{ width: USERLIST_DEFAULT_WIDTH }}
+        minWidth={USERLIST_MIN_WIDTH_PX}
+        maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
-        enable={{ right: true }}
         className={styles.resizableUserList}
-        onResize={(e, direction, ref, d) => {
-          if (e.clientX - ref.offsetLeft <= 50) this.props.router.push('/');
+        enable={resizableEnableOptions}
+        onResize={(e, direction, ref) => {
+          const { compactUserList } = this.state;
+          const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
+          if (compactUserList === shouldBeCompact) return;
+          this.setState({ compactUserList: shouldBeCompact });
         }}
       >
-        <div
-          className={cx(styles.userList, userListStyle)}
-          aria-label={intl.formatMessage(intlMessages.userListLabel)}
-          aria-hidden={chatIsOpen}
-        >
-          {userList}
-        </div>
+        {this.renderUserList()}
       </Resizable>
     );
   }
@@ -150,20 +205,49 @@ class App extends Component {
     if (!chat) return null;
 
     return (
+      <section
+        className={styles.chat}
+        aria-label={intl.formatMessage(intlMessages.chatLabel)}
+      >
+        {chat}
+      </section>
+    );
+  }
+
+  renderChatResizable() {
+    const { chat } = this.props;
+
+    // Variables for resizing chat.
+    const CHAT_MIN_WIDTH_PX = 180;
+    const CHAT_MAX_WIDTH_PX = 310;
+    const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
+
+    // decide whether using pixel or percentage unit as a default width for chat
+    const CHAT_DEFAULT_WIDTH = (window.innerWidth * (CHAT_DEFAULT_WIDTH_RELATIVE / 100.0)) < CHAT_MAX_WIDTH_PX ? `${CHAT_DEFAULT_WIDTH_RELATIVE}%` : CHAT_MAX_WIDTH_PX;
+
+    if (!chat) return null;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (
       <Resizable
-        defaultSize={{width: "22.5%"}}
-        minWidth="15%"
-        maxWidth="30%"
+        defaultSize={{ width: CHAT_DEFAULT_WIDTH }}
+        minWidth={CHAT_MIN_WIDTH_PX}
+        maxWidth={CHAT_MAX_WIDTH_PX}
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
-        enable={{ right: true }}
+        enable={resizableEnableOptions}
       >
-        <section
-          className={styles.chat}
-          aria-label={intl.formatMessage(intlMessages.chatLabel)}
-        >
-          {chat}
-        </section>
+        {this.renderChat()}
       </Resizable>
     );
   }
@@ -206,7 +290,8 @@ class App extends Component {
   }
 
   render() {
-    const { params, userlistIsOpen, chatIsOpen } = this.props;
+    const { params, userlistIsOpen } = this.props;
+    const { enableResize } = this.state;
 
     return (
       <main className={styles.main}>
@@ -217,9 +302,9 @@ class App extends Component {
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
-          {this.renderUserList()}
-          {userlistIsOpen ? <div className={styles.userlistPad} /> : null}
-          {this.renderChat()}
+          {enableResize ? this.renderUserListResizable() : this.renderUserList()}
+          {userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
+          {enableResize ? this.renderChatResizable() : this.renderChat()}
           {this.renderSidebar()}
         </section>
         <ModalContainer />
@@ -233,4 +318,5 @@ class App extends Component {
 
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
+
 export default injectIntl(App);

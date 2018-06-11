@@ -13,6 +13,7 @@
 @namespace skins "org.bigbluebutton.skins.*";
 @namespace phonecomponents "org.bigbluebutton.modules.phone.views.components.*";
 @namespace tabBarClasses "flexlib.controls.tabBarClasses.*";
+@namespace toast "org.bigbluebutton.common.toaster.message.*";
 
 /*
 //------------------------------
@@ -331,6 +332,10 @@ phonecomponents|MuteMeButton {
 	icon : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Record_On");
 }
 
+.recordingTimerStyle {
+	fontSize : 14;
+}
+
 .muteMeDefaultButtonStyle {
 	iconAudio : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Microphone");
 }
@@ -373,6 +378,7 @@ mx|Alert {
 	borderColor       : #FFFFFF;
 	backgroundColor   : #FFFFFF;
 	borderAlpha       : 1;
+	backgroundAlpha   : 1;
 	dropShadowEnabled : false;
 	color             : #6C6C6C;
 	titleStyleName    : "alertTitleStyle";
@@ -485,13 +491,6 @@ users|RoomActionsRenderer {
 	paddingBottom   : 20;
 }
 
-.breakoutTipBox {
-	backgroundColor : #CDD4DB;
-	paddingLeft     : 10;
-	paddingRight    : 10;
-	horizontalAlign : center;
-}
-
 .breakoutRoomsBox {
 	paddingTop      : 12;
 	horizontalAlign : center;
@@ -567,6 +566,14 @@ views|ClientStatusItemRenderer {
 .statusMessageStyle {
 	fontSize   : 12;
 	paddingTop : 0;
+}
+
+.statusCopyStyle {
+	paddingBottom : 6;
+	paddingLeft   : 6;
+	paddingRight  : 6;
+	paddingTop    : 6;
+	fontSize      : 12;
 }
 
 .statusTimeStyle {
@@ -666,6 +673,22 @@ chat|ChatMessageRenderer {
 .chatMessageHeaderModerator {
 	color      : #808080;
 	fontWeight : bold;
+}
+
+.unreadMessagesBar {
+	backgroundColor : #1070D7;
+	cornerRadius    : 4;
+	borderStyle     : none;
+	color           : #FFFFFF;
+	fontSize        : 13;
+}
+
+.unreadMessagesBarText {
+	textAlign     : center;
+	paddingBottom : 6;
+	paddingTop    : 6;
+	paddingLeft   : 12;
+	paddingRight  : 12;
 }
 
 /*
@@ -844,6 +867,17 @@ views|BBBSettings {
 
 /*
 //------------------------------
+//  Item InactivityWarningWindow
+//------------------------------
+*/
+
+views|InactivityWarningWindow {
+	fontSize     : 14;
+	headerHeight : 0;
+}
+
+/*
+//------------------------------
 //  Item renderers
 //------------------------------
 */
@@ -902,8 +936,8 @@ views|LoadingBar {
 }
 
 .loadingBarLabel {
-	color       : #8A9AA7;
-	fontWeight  : bold;
+	color      : #8A9AA7;
+	fontWeight : bold;
 }
 
 /*
@@ -913,7 +947,7 @@ views|LoadingBar {
 */
 
 views|LogoutWindow, views|LoggedOutWindow {
-	headerHeight              : 32;
+	headerHeight              : 0;
 	horizontalAlign           : center;
 	paddingBottom             : 8;
 	paddingLeft               : 8;
@@ -1146,14 +1180,8 @@ flexlib|MDIWindow {
 //------------------------------
 */
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .permissionSettingsTextStyle, .inactivityWarningTextStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .permissionSettingsTextStyle {
 	fontSize : 14;
-}
-
-.inactivityWarningWindowCancelButtonStyle {
-	color             : #CDD4DB;
-	textRollOverColor : #CDD4DB;
-	textSelectedColor : #CDD4DB;
 }
 
 /*
@@ -1414,7 +1442,7 @@ mx|Panel {
 	textDecoration  : underline;
 }
 
-.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle, .lockSettingsHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle, .lockSettingsHintBoxStyle, .breakoutTipBox, .pollingTipBox {
 	backgroundColor : #CDD4DB;
 	horizontalAlign : center;
 	paddingTop      : 8;
@@ -1470,6 +1498,18 @@ poll|PollResultsModal {
 .pollHintTextStyle {
 	textAlign  : center;
 	fontWeight : bold;
+}
+
+.pollVotesDataGridStyle {
+	backgroundColor       : #FFFFFF;
+	borderStyle           : solid;
+	rollOverColor         : #F3F3F3;
+	textRollOverColor     : #3F3F41;
+	textSelectedColor     : #3F3F41;
+	alternatingItemColors : #FFFFFF, #FFFFFF;
+	headerColors          : #FFFFFF, #FFFFFF;
+	dropShadowEnabled     : false;
+	verticalSeparatorSkin : ClassReference("mx.skins.halo.DataGridHeaderSeparator");
 }
 
 /*
@@ -1537,6 +1577,11 @@ views|ReconnectionPopup {
 	iconRefresh : Embed(source="assets/swf/refreshing.swf");
 }
 
+.reconnectionTitleWindowStyle {
+	textAlign : center;
+	fontSize  : 16;
+}
+
 /*
 //------------------------------
 //  Scrollbar
@@ -1579,11 +1624,11 @@ mx|ScrollBar {
 	borderAlphaOver     : 1;
 	borderAlphaDown     : 1;
 	borderAlphaDisabled : 0;
-	
+
 	fillColorUp         : #EFF5FA;
 	borderColorOver     : #1070D7;
 	borderColorDown     : #1070D7;
-	
+
 	fontWeight          : bold;
 	borderThickness     : 5;
 	cornerRadius        : 70;
@@ -1731,6 +1776,48 @@ mx|TitleWindow {
 	downSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Down");
 	overSkin     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Over");
 	upSkin       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Button_Up");
+}
+
+/*
+//------------------------------
+//  ToastMessageRenderer
+//------------------------------
+*/
+
+toast|ToastMessageRenderer {
+	backgroundColor            : #FFFFFF;
+	cornerRadius               : 4;
+	borderStyle                : none;
+	color                      : #4E5A66;
+	fontSize                   : 15;
+
+	iconCornerRadius           : 20;
+	iconColor                  : #FFFFFF;
+	iconBackgroundColorDefault : #4E5A66;
+	iconBackgroundColorInfo    : #0F70D7;
+	iconBackgroundColorSuccess : #008081;
+	iconBackgroundColorError   : #DF2721;
+	iconBackgroundColorWarning : #800080;
+
+	iconClose                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Circle");
+
+	iconDefault                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Default");
+	iconInfo                   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Info");
+	iconSuccess                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Success");
+	iconError                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Error");
+	iconWarning                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Warning");
+
+	iconAudio                  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Audio");
+	iconDesktop                : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Notification_Desktop");
+}
+
+.toasterContainer {
+	horizontalGap : 6;
+	paddingTop    : 8;
+	paddingBottom : 16;
+	paddingLeft   : 12;
+	paddingRight  : 12;
+	verticalAlign : middle;
 }
 
 /*

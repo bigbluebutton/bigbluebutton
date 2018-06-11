@@ -112,6 +112,7 @@
   justify-content: center;
   align-items: center;
   height: 1.25rem;
+  z-index: 2;
 }
 
 .dropdown {
@@ -171,6 +172,26 @@
   &::before {
     font-size: 75%;
   }
+}
+
+.webRTCStats {
+  background: rgba(0,0,0,0.85);
+  padding: 15px;
+  height: 100%;
+  color: $color-white;
+  font-size: $font-size-small;
+  border-radius: 5px;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+}
+
+.statsCloseButton {
+  float: right;
+}
+
+.statsCloseButton:hover {
+  cursor: pointer;
 }
 
 .muted {
