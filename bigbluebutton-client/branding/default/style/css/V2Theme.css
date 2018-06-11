@@ -568,6 +568,14 @@ views|ClientStatusItemRenderer {
 	paddingTop : 0;
 }
 
+.statusCopyStyle {
+	paddingBottom : 6;
+	paddingLeft   : 6;
+	paddingRight  : 6;
+	paddingTop    : 6;
+	fontSize      : 12;
+}
+
 .statusTimeStyle {
 	fontSize   : 10;
 	paddingTop : 0;
