@@ -84,15 +84,18 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
     },
   });
 
-  // forcelly logged out when the meeting is ended
+  // forcefully log out when the meeting ends
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
-      if (isMeetingBreakout) return;
-      router.push(`/ended/${410}`);
+      if (isMeetingBreakout) {
+        Auth.clearCredentials().then(window.close);
+      } else {
+        router.push(`/ended/${410}`);
+      }
     },
   });
 
-  // Close the widow when the current breakout room ends
+  // Close the window when the current breakout room ends
   Breakouts.find({ breakoutId: Auth.meetingID }).observeChanges({
     removed() {
       Auth.clearCredentials().then(window.close);
