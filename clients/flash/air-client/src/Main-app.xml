@@ -15,7 +15,7 @@
 
 	<!-- A universally unique application identifier. Must be unique across all AIR applications.
 	Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-	<id>com.bigbluebutton.AIRClient</id>
+	<id>com.bigbluebutton.Main</id>
 
 	<!-- Used as the filename for the application. Required. -->
 	<filename>BigBlueButton</filename>
@@ -72,7 +72,7 @@
 
 		<!-- Whether the user can resize the window. Optional. Default true. -->
 		<!-- <resizable></resizable> -->
-
+ 
 		<!-- The window's initial width in pixels. Optional. -->
 		<!-- <width></width> -->
 
@@ -385,5 +385,6 @@
 	<extensions>
         <extensionID>com.freshplanet.AirCapabilities</extensionID>
         <extensionID>com.juankpro.ane.LocalNotification</extensionID>
+    <extensionID>org.bigbluebutton.BBBRtmpPlayer</extensionID>
     </extensions>
 </application>
