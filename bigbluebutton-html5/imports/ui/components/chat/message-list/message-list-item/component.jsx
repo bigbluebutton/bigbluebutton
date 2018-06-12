@@ -54,11 +54,11 @@ export default class MessageListItem extends Component {
   }
 
   componentDidMount() {
-    const { getScrollAreaRef } = this.props;
+    const { scrollArea } = this.props;
 
-    if (getScrollAreaRef && getScrollAreaRef()) {
+    if (scrollArea) {
       eventsToBeBound.forEach(
-        (e) => { getScrollAreaRef().addEventListener(e, this.handleMessageInViewport, false); },
+        (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
       );
     }
 
@@ -66,11 +66,11 @@ export default class MessageListItem extends Component {
   }
 
   componentWillUnmount() {
-    const { getScrollAreaRef } = this.props;
+    const { scrollArea } = this.props;
 
-    if (getScrollAreaRef && getScrollAreaRef()) {
+    if (scrollArea) {
       eventsToBeBound.forEach(
-        (e) => { getScrollAreaRef().removeEventListener(e, this.handleMessageInViewport, false); },
+        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
       );
     }
   }
@@ -91,8 +91,7 @@ export default class MessageListItem extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if((!this.props.getScrollAreaRef || !this.props.getScrollAreaRef()) &&
-      (nextProps.getScrollAreaRef && nextProps.getScrollAreaRef())) return true;
+    if(!this.props.scrollArea && nextProps.scrollArea) return true;
     else return !nextState.preventRender && nextState.pendingChanges;
   }
 
@@ -125,8 +124,7 @@ export default class MessageListItem extends Component {
     const {
       user,
       messages,
-      time,
-      getScrollAreaRef
+      time
     } = this.props;
 
     const dateTime = new Date(time);
@@ -167,7 +165,7 @@ export default class MessageListItem extends Component {
                   chatAreaId={this.props.chatAreaId}
                   lastReadMessageTime={this.props.lastReadMessageTime}
                   handleReadMessage={this.props.handleReadMessage}
-                  getScrollAreaRef={this.props.getScrollAreaRef}
+                  scrollArea={this.props.scrollArea}
                 />
               ))}
             </div>

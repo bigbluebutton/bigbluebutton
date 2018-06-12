@@ -31,7 +31,6 @@ class MessageList extends Component {
     this.handleScrollChange = _.debounce(this.handleScrollChange.bind(this), 150);
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
 
-    this.getScrollAreaRef = this.getScrollAreaRef.bind(this);
     this.state = {};
   }
 
@@ -40,7 +39,7 @@ class MessageList extends Component {
     const { scrollArea } = this;
 
     this.setState({
-      getScrollAreaRef: this.getScrollAreaRef
+      scrollArea: this.scrollArea
     });
 
     this.scrollTo(this.props.scrollPosition);
@@ -61,7 +60,7 @@ class MessageList extends Component {
       partnerIsLoggedOut,
     } = this.props;
 
-    if(!this.state.getScrollAreaRef && nextState.getScrollAreaRef) return true;
+    if(!this.state.scrollArea && nextState.scrollArea) return true;
 
     const switchingCorrespondent = chatId !== nextProps.chatId;
     const hasNewUnreadMessages = hasUnreadMessages !== nextProps.hasUnreadMessages;
@@ -164,10 +163,6 @@ class MessageList extends Component {
     return null;
   }
 
-  getScrollAreaRef() {
-    return this.scrollArea;
-  }
-
   render() {
     const { messages, intl } = this.props;
     const isEmpty = messages.length === 0;
@@ -193,7 +188,7 @@ class MessageList extends Component {
               time={message.time}
               chatAreaId={this.props.id}
               lastReadMessageTime={this.props.lastReadMessageTime}
-              getScrollAreaRef={this.state.getScrollAreaRef}
+              scrollArea={this.state.scrollArea}
             />
           ))}
         </div>

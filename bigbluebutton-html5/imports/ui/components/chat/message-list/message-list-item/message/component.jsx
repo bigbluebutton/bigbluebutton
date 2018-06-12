@@ -41,13 +41,13 @@ export default class MessageListItem extends Component {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
         const node = this.text;
-        const { getScrollAreaRef } = this.props;
+        const { scrollArea } = this.props;
 
         if (isElementInViewport(node)) {
           this.props.handleReadMessage(this.props.time);
-          if(getScrollAreaRef && getScrollAreaRef()) {
+          if(scrollArea) {
             eventsToBeBound.forEach(
-              e => getScrollAreaRef().removeEventListener(e, this.handleMessageInViewport),
+              e => scrollArea.removeEventListener(e, this.handleMessageInViewport),
             );
           }
         }
@@ -67,13 +67,13 @@ export default class MessageListItem extends Component {
     }
 
     const node = this.text;
-    const { getScrollAreaRef } = this.props;
+    const { scrollArea } = this.props;
 
     if (isElementInViewport(node)) { // no need to listen, the message is already in viewport
       this.props.handleReadMessage(this.props.time);
-    } else if (getScrollAreaRef && getScrollAreaRef()) {
+    } else if (scrollArea) {
       eventsToBeBound.forEach(
-        (e) => { getScrollAreaRef().addEventListener(e, this.handleMessageInViewport, false); },
+        (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
       );
     }
   }  
@@ -87,11 +87,11 @@ export default class MessageListItem extends Component {
       return;
     }
 
-    const { getScrollAreaRef } = this.props;
+    const { scrollArea } = this.props;
 
-    if (getScrollAreaRef && getScrollAreaRef()) {
+    if (scrollArea) {
       eventsToBeBound.forEach(
-        (e) => { getScrollAreaRef().removeEventListener(e, this.handleMessageInViewport, false); },
+        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
       );
     }
   }
