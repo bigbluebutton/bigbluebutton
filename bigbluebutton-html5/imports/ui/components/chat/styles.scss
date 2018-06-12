@@ -2,6 +2,39 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 $icon-offset: -.4em;
+$background-active: darken($color-white, 5%);
+
+@mixin lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: $color-white) {
+  display: block;
+	box-orient: vertical;
+  position: relative;
+  word-break: break-word;
+
+	overflow: hidden;
+  line-height: $lineHeight;
+  max-height: $lineHeight * $lineCount;
+
+  &:before {
+      content: '...';
+      width: 10%;
+      height: $lineHeight;
+      text-align: right;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0), $bgColor 75%);
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    width: 1em;
+    height: $lineHeight;
+    margin-top: 0.2em;
+    background-color: $bgColor;
+  }
+}
 
 .chat {
   background-color: #fff;
@@ -62,16 +95,23 @@ $icon-offset: -.4em;
   text-decoration: none;
 }
 
-.toastChatContent, .toastChatTitle {
-  width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.pushMessageContent {
+  margin-left: 2rem;
+  margin-right: 2rem;
+  margin-top: 1.4rem;
+  margin-bottom: .4rem;
 }
 
-.toastChatTitle {
-  display: inline-block;
+.userNameMessage {
+  margin: 0;
+  font-size: 80%;
+  color: $color-gray-dark;
+  font-weight: bold;
+  @include lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: $color-white);
 }
 
-.toastMessages {
-  white-space: nowrap;
+.contentMessage {
+  margin-top: .2rem;
+  font-size: 80%;
+  @include lineClamp($lineHeight: $font-size-small, $lineCount: 10, $bgColor: $color-white);
 }

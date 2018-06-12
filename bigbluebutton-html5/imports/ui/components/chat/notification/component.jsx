@@ -15,16 +15,12 @@ const propTypes = {
 };
 
 const intlMessages = defineMessages({
-  appToastChatSigular: {
-    id: 'app.toast.chat.singular',
-    description: 'when entry a message',
-  },
-  appToastChatPlural: {
-    id: 'app.toast.chat.plural',
-    description: 'when entry various message',
-  },
   appToastChatPublic: {
     id: 'app.toast.chat.public',
+    description: 'when entry various message',
+  },
+  appToastChatPrivate: {
+    id: 'app.toast.chat.private',
     description: 'when entry various message',
   },
   appToastChatSystem: {
@@ -47,7 +43,6 @@ class ChatNotification extends Component {
       notified: Service.getNotified(PRIVATE_KEY),
       publicNotified: Service.getNotified(PUBLIC_KEY),
     };
-    this.mapContent = this.mapContent.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -83,17 +78,34 @@ class ChatNotification extends Component {
     });
   }
 
-  mapContent(message) {
+  mapContentText(message) {
     const {
       intl,
     } = this.props;
     const contentMessage = message
-      .map(content => (
-        <div className={styles.toastChatContent} key={_.uniqueId('chat-push-')}>
-          {content.text === 'PUBLIC_CHAT_CLEAR' ?
-          intl.formatMessage(intlMessages.publicChatClear) : content.text}
-        </div>));
+      .map((content) => {
+        if (content.text === 'PUBLIC_CHAT_CLEAR') return intl.formatMessage(intlMessages.publicChatClear);
+        /* this code is to remove html tags that come in the server's messangens */
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content.text;
+        const textWithoutTag = tempDiv.innerText;
+        return textWithoutTag;
+      });
     return contentMessage;
+  }
+
+  createMessage(name, message) {
+    return (
+      <div className={styles.pushMessageContent}>
+        <h3 className={styles.userNameMessage}>{name}</h3>
+        <div className={styles.contentMessage}>
+          {
+            this.mapContentText(message)
+            .reduce((acc, text) => [...acc, (<br />), text], []).splice(1)
+          }
+        </div>
+      </div>
+    );
   }
 
   notifyPrivateChat() {
@@ -118,34 +130,35 @@ class ChatNotification extends Component {
         name,
         unreadCounter,
         id,
-        message: intl.formatMessage(unreadCounter > 1 ?
-          intlMessages.appToastChatPlural :
-          intlMessages.appToastChatSigular, {
-          0: unreadCounter,
-          1: name,
-        }),
+        message: intl.formatMessage(intlMessages.appToastChatPrivate),
       }));
 
     return (
       <span>
         {
-        chatsNotify.map(({ id, unreadCounter, message }) => {
-          const getChatmessages = UnreadMessages.getUnreadMessages(id);
-          const reduceMessages = Service.reduceAndMapMessages(getChatmessages);
+        chatsNotify.map(({ id, message, name }) => {
+          const getChatmessages = UnreadMessages.getUnreadMessages(id)
+          .filter(({ fromTime, fromUserId }) => fromTime > (this.state.notified[fromUserId] || 0));
+
+          const reduceMessages = Service
+            .reduceAndMapMessages(getChatmessages);
+
+          if (!reduceMessages.length) return null;
+
           const flatMessages = _.flatten(reduceMessages
-            .map(msg => this.mapContent(msg.content)));
-          const limitingMessages = flatMessages.slice(-4);
+            .map(msg => this.createMessage(name, msg.content)));
+          const limitingMessages = flatMessages;
 
           return (<ChatPushNotification
             key={id}
             chatId={id}
             content={limitingMessages}
-            message={<span className={styles.toastChatTitle}>{message}</span>}
+            message={<span >{message}</span>}
             onOpen={() => {
               this.setState(({ notified }) => ({
                 notified: {
                   ...notified,
-                  [id]: unreadCounter,
+                  [id]: new Date().getTime(),
                 },
               }), () => {
                 Service.setNotified(PRIVATE_KEY, this.state.notified);
@@ -176,7 +189,7 @@ class ChatNotification extends Component {
         },
       }))
       .filter(({ sender, time }) =>
-        (time > (this.state.publicNotified[sender.name] || 0))
+        (time > (this.state.publicNotified[sender.id] || 0))
          && !disableNotify && Service.hasUnreadMessages(publicUserId));
     return (
       <span>
@@ -187,17 +200,17 @@ class ChatNotification extends Component {
               chatId={PUBLIC_KEY}
               name={sender.name}
               message={
-                <span className={styles.toastChatTitle}>
-                  { intl.formatMessage(intlMessages.appToastChatPublic, { 0: sender.name }) }
+                <span >
+                  { intl.formatMessage(intlMessages.appToastChatPublic) }
                 </span>
               }
-              content={this.mapContent(content).slice(-4)}
+              content={this.createMessage(sender.name, content)}
               onOpen={() => {
                 this.setState(({ notified, publicNotified }) => ({
                   ...notified,
                   publicNotified: {
                     ...publicNotified,
-                    [sender.name]: time,
+                    [sender.id]: time,
                   },
                 }), () => {
                   Service.setNotified(PUBLIC_KEY, this.state.publicNotified);

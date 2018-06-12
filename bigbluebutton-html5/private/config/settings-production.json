@@ -137,7 +137,7 @@
     "chat": {
       "min_message_length": 1,
       "max_message_length": 5000,
-      "grouping_messages_window": 60000,
+      "grouping_messages_window": 10000,
       "type_system": "SYSTEM_MESSAGE",
       "type_public": "PUBLIC_CHAT",
       "type_private": "PRIVATE_CHAT",
