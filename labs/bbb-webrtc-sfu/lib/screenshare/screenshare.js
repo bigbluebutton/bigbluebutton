@@ -59,14 +59,14 @@ module.exports = class Screenshare extends EventEmitter {
     });
   }
 
-  onIceCandidate (candidate, role, callerName) {
+  async onIceCandidate (candidate, role, callerName) {
     Logger.debug("[screenshare] onIceCandidate", role, callerName, candidate);
     switch (role) {
       case C.SEND_ROLE:
         if (this._presenterEndpoint) {
           try {
-            this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
-            this.mcs.addIceCandidate(this._presenterEndpoint, candidate);
+            await this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
+            await this.mcs.addIceCandidate(this._presenterEndpoint, candidate);
           } catch (err) {
             Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
           }
@@ -78,8 +78,8 @@ module.exports = class Screenshare extends EventEmitter {
         let endpoint = this._viewersEndpoint[callerName];
         if (endpoint) {
           try {
-            this.flushCandidatesQueue(endpoint, this._viewersCandidatesQueue[callerName]);
-            this.mcs.addIceCandidate(endpoint, candidate);
+            await this.flushCandidatesQueue(endpoint, this._viewersCandidatesQueue[callerName]);
+            await this.mcs.addIceCandidate(endpoint, candidate);
           } catch (err) {
             Logger.error("[screenshare] Viewer ICE candidate could not be added to media controller.", err);
           }
@@ -95,19 +95,22 @@ module.exports = class Screenshare extends EventEmitter {
   }
 
   flushCandidatesQueue (mediaId, queue) {
-    Logger.debug("[screenshare] flushCandidatesQueue", queue);
-    if (mediaId) {
-      try {
-        while(queue.length) {
-          let candidate = queue.shift();
+    return new Promise((resolve, reject) => {
+      Logger.debug("[screenshare] flushCandidatesQueue", queue);
+      if (mediaId) {
+        let iceProcedures = queue.map((candidate) => {
           this.mcs.addIceCandidate(mediaId, candidate);
-        }
-      } catch (err) {
-        Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
+        });
+
+        return Promise.all(iceProcedures).then(() => {
+          queue = [];
+          resolve();
+        }).catch((err) => {
+          Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
+          reject();
+        });
       }
-    } else {
-      Logger.error("[screenshare] No mediaId");
-    }
+    });
   }
 
   mediaStateRtp (event) {
@@ -201,43 +204,62 @@ module.exports = class Screenshare extends EventEmitter {
     this._BigBlueButtonGW.publish(req, C.TO_AKKA_APPS);
   }
 
-  async start (sessionId, connectionId, sdpOffer, callerName, role, callback) {
-    // Force H264 on Firefox and Chrome
-    if (FORCE_H264) {
-      sdpOffer = h264_sdp.transform(sdpOffer);
-    }
-
-    // Start the recording process
-    if (SHOULD_RECORD && role === C.SEND_ROLE) {
-      this.sendGetRecordingStatusRequestMessage(callerName);
-    }
-
-    Logger.info("[screenshare] Starting session", this._voiceBridge + '-' + role);
-    if (!this.userId) {
-      try {
-        this.userId = await this.mcs.join(this._meetingId, 'SFU', {});
-        Logger.info("[screenshare] MCS Join for", this._id, "returned", this.userId);
-
+  start (sessionId, connectionId, sdpOffer, callerName, role) {
+    return new Promise(async (resolve, reject) => {
+      // Force H264 on Firefox and Chrome
+      if (FORCE_H264) {
+        sdpOffer = h264_sdp.transform(sdpOffer);
       }
-      catch (error) {
-        Logger.error("[screenshare] MCS Join returned error =>", error);
-        return callback(error);
+
+      // Start the recording process
+      if (SHOULD_RECORD && role === C.SEND_ROLE) {
+        this.sendGetRecordingStatusRequestMessage(callerName);
       }
-    }
 
-    if (role === C.RECV_ROLE) {
-      this._startViewer(connectionId, this._voiceBridge, sdpOffer, callerName, this._presenterEndpoint, callback)
-      return;
-    }
+      Logger.info("[screenshare] Starting session", this._voiceBridge + '-' + role);
+      if (!this.userId) {
+        try {
+          this.userId = await this.mcs.join(this._meetingId, 'SFU', {});
+          Logger.info("[screenshare] MCS Join for", this._id, "returned", this.userId);
 
-    if (role === C.SEND_ROLE) {
+        }
+        catch (error) {
+          Logger.error("[screenshare] MCS Join returned error =>", error);
+          return reject (error);
+        }
+      }
+
+      if (role === C.RECV_ROLE) {
+        try {
+          const sdpAnswer = await this._startViewer(connectionId, this._voiceBridge, sdpOffer, callerName, this._presenterEndpoint)
+          return resolve(sdpAnswer);
+        }
+        catch (err) {
+          return reject(err);
+        }
+      }
+
+      if (role === C.SEND_ROLE) {
+        try {
+          const sdpAnswer = await this._startPresenter(sdpOffer);
+          return resolve(sdpAnswer);
+        }
+        catch (err) {
+          return reject(err);
+        }
+      }
+    });
+  }
+
+  _startPresenter (sdpOffer) {
+    return new Promise(async (resolve, reject) => {
       try {
         const retSource = await this.mcs.publish(this.userId, this._meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this._presenterEndpoint = retSource.sessionId;
         sharedScreens[this._voiceBridge] = this._presenterEndpoint;
         let presenterSdpAnswer = retSource.answer;
-        this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
+        await this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
 
         this.mcs.on('MediaEvent' + this._presenterEndpoint, (event) => {
           this.mediaStateWebRtc(event, this._id)
@@ -261,57 +283,48 @@ module.exports = class Screenshare extends EventEmitter {
 
         Logger.info("[screenshare] MCS subscribe for user", this.userId, "returned", this._ffmpegEndpoint);
 
-        return callback(null, presenterSdpAnswer);
-
+        return resolve(presenterSdpAnswer);
       }
       catch (err) {
         Logger.error("[screenshare] MCS publish returned error =>", err);
-        return callback(err);
+        return reject(err);
       }
       finally {
         this.mcs.once('ServerState' + this._presenterEndpoint, this.serverState.bind(this));
       }
-    }
+    });
   }
 
-  async _startViewer(connectionId, voiceBridge, sdpOffer, callerName, presenterEndpoint, callback) {
-    Logger.info("[screenshare] Starting viewer", callerName, "for voiceBridge", this._voiceBridge);
-    // TODO refactor the callback handling
-    let _callback = function(){};
-    let sdpAnswer;
+  _startViewer(connectionId, voiceBridge, sdpOffer, callerName, presenterEndpoint) {
+    return new Promise(async (resolve, reject) => {
+      Logger.info("[screenshare] Starting viewer", callerName, "for voiceBridge", this._voiceBridge);
+      let sdpAnswer;
 
-    if (FORCE_H264) {
-      sdpOffer = h264_sdp.transform(sdpOffer);
-    }
+      if (FORCE_H264) {
+        sdpOffer = h264_sdp.transform(sdpOffer);
+      }
 
-    this._viewersCandidatesQueue[callerName] = [];
+      this._viewersCandidatesQueue[callerName] = [];
 
-    try {
-      const retSource = await this.mcs.subscribe(this.userId, sharedScreens[voiceBridge], 'WebRtcEndpoint', {descriptor: sdpOffer});
+      try {
+        const retSource = await this.mcs.subscribe(this.userId, sharedScreens[voiceBridge], 'WebRtcEndpoint', {descriptor: sdpOffer});
 
-      this._viewersEndpoint[callerName] = retSource.sessionId;
-      sdpAnswer = retSource.answer;
-      this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
+        this._viewersEndpoint[callerName] = retSource.sessionId;
+        sdpAnswer = retSource.answer;
+        await this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
 
-      this.mcs.on('MediaEvent' + this._viewersEndpoint[callerName], (event) => {
-        this.mediaStateWebRtc(event, connectionId);
-      });
+        this.mcs.on('MediaEvent' + this._viewersEndpoint[callerName], (event) => {
+          this.mediaStateWebRtc(event, connectionId);
+        });
 
-      this._BigBlueButtonGW.publish(JSON.stringify({
-        connectionId: connectionId,
-        id: "startResponse",
-        type: C.SCREENSHARE_APP,
-        role: C.RECV_ROLE,
-        sdpAnswer: sdpAnswer,
-        response: "accepted"
-      }), C.FROM_SCREENSHARE);
-
-      Logger.info("[screenshare] MCS subscribe returned for user", this.userId, "returned", this._viewersEndpoint[callerName], "at callername", callerName);
-    }
-    catch (err) {
-      Logger.error("[screenshare] MCS publish returned error =>", err);
-      return _callback(err);
-    }
+        Logger.info("[screenshare] MCS subscribe returned for user", this.userId, "returned", this._viewersEndpoint[callerName], "at callername", callerName);
+        return resolve(sdpAnswer);
+      }
+      catch (err) {
+        Logger.error("[screenshare] MCS publish returned error =>", err);
+        return reject(err);
+      }
+    });
   }
 
   stop () {
