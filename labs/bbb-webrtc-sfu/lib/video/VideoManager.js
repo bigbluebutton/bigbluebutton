@@ -112,11 +112,6 @@ module.exports = class VideoManager extends BaseManager {
         this._stopSession(sessionId);
         break;
 
-      case 'orientationChange':
-        if (video) {
-          video.orientationChange();
-        }
-
       case 'pause':
         if (video) {
           video.pause(message.state);

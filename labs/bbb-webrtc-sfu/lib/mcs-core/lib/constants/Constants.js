@@ -24,6 +24,7 @@ exports.MEDIA_TYPE = {}
 exports.MEDIA_TYPE.WEBRTC = "WebRtcEndpoint"
 exports.MEDIA_TYPE.RTP= "RtpEndpoint"
 exports.MEDIA_TYPE.URI = "PlayerEndpoint"
+exports.MEDIA_TYPE.RECORDING = "RecorderEndpoint";
 
 // Media server state changes
 exports.EVENT = {}
