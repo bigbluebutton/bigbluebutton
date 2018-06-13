@@ -396,8 +396,8 @@ module BigBlueButton
 
             tmp_total_area = 0
             area.each do |video|
-              video_width = videoinfo[video[:filename]][:width]
-              video_height = videoinfo[video[:filename]][:height]
+              video_width = videoinfo[video[:filename]][:aspect_ratio].numerator
+              video_height = videoinfo[video[:filename]][:aspect_ratio].denominator
               scale_width, scale_height = aspect_scale(video_width, video_height, tmp_tile_width, tmp_tile_height)
               tmp_total_area += scale_width * scale_height
             end
@@ -421,9 +421,9 @@ module BigBlueButton
           area.each do |video|
             this_videoinfo = videoinfo[video[:filename]]
             BigBlueButton.logger.debug "    tile location (#{tile_x}, #{tile_y})"
-            video_width = this_videoinfo[:width]
-            video_height = this_videoinfo[:height]
-            BigBlueButton.logger.debug "      original size: #{video_width}x#{video_height}"
+            video_width = this_videoinfo[:aspect_ratio].numerator
+            video_height = this_videoinfo[:aspect_ratio].denominator
+            BigBlueButton.logger.debug "      original aspect: #{video_width}x#{video_height}"
 
             scale_width, scale_height = aspect_scale(video_width, video_height, tile_width, tile_height)
             BigBlueButton.logger.debug "      scaled size: #{scale_width}x#{scale_height}"
