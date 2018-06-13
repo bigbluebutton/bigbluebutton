@@ -6,11 +6,11 @@ $background-active: darken($color-white, 5%);
 
 @mixin lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: $color-white) {
   display: block;
-	box-orient: vertical;
+  box-orient: vertical;
   position: relative;
   word-break: break-word;
 
-	overflow: hidden;
+  overflow: hidden;
   line-height: $lineHeight;
   max-height: $lineHeight * $lineCount;
 
