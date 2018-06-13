@@ -52,7 +52,6 @@ const propTypes = {
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
-  setDropdownOpenState: PropTypes.func.isRequired,
 };
 
 
@@ -110,7 +109,6 @@ class UserListContent extends Component {
     });
 
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
-    this.props.setDropdownOpenState(true);
   }
 
   onActionsHide() {
@@ -121,11 +119,6 @@ class UserListContent extends Component {
 
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);
-
-    // prevents User-item menu items from not being able to trigger.
-    setTimeout(() => {
-      this.props.setDropdownOpenState(false)
-    });
   }
 
   getDropdownMenuParent() {

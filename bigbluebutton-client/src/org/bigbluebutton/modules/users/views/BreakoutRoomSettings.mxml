@@ -323,7 +323,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         <mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
         
-        <mx:HBox width="100%" horizontalAlign="right" verticalGap="15">
+        <mx:HBox width="100%" horizontalAlign="right" horizontalGap="15">
             <mx:Button id="startButton"
 					   styleName="mainActionButton"
                        click="this.mode == 'create' ? createBreakoutRooms() : inviteUsersToBreakoutRooms()"/>

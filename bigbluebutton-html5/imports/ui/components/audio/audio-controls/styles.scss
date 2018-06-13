@@ -31,8 +31,19 @@
   }
 
   &.glow {
-    span:first-child{
-      box-shadow: 0 0 0 1px #ffffff, 0 0 0 1px;
-    }
+    animation: pulse 1s infinite ease-in;
+    border-radius: 50%;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 white;
+  }
+  70% {
+    box-shadow: 0 0 0 0.5625rem transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
   }
 }

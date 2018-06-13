@@ -22,6 +22,7 @@
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
@@ -40,6 +41,7 @@
 			
 			public function setRecordingFlag(recording : Boolean):void {
 				_recordingFlag = recording;
+				dispatchEvent(new Event("titleMessageChange"));
 			}
 			
 			private function getLayoutOptions() : LayoutOptions {
@@ -78,14 +80,30 @@
 				close();
 			}
 			
+			[Bindable("titleMessageChange")]
+			public function get titleMessage():String {
+				if (_recordingFlag) {
+					if (!TimerUtil.recordingTimeReceived || (TimerUtil.recordingTimeReceived && clearRecordingsChecbox.selected)) {
+						return ResourceUtil.getInstance().getString('bbb.recordWindow.title.start');
+					} else {
+						return ResourceUtil.getInstance().getString('bbb.recordWindow.title.resume');
+					}
+				}
+				return ResourceUtil.getInstance().getString('bbb.recordWindow.title.stop');
+			}
+			
 			protected function close():void {
 				PopUpUtil.removePopUp(this);
 			}
-			
+
+			protected function clearRecordingsChecbox_changeHandler(event:Event):void {
+				dispatchEvent(new Event("titleMessageChange"));
+			}
+
 			protected function creationCompleteHandler(event:FlexEvent):void {
 				options = Options.getOptions(UsersOptions) as UsersOptions;
 			}
-			
+
 		]]>
 	</fx:Script>
 	
@@ -93,15 +111,16 @@
 			 horizontalAlign="center" verticalGap="16">
 		<common:AdvancedLabel maxWidth="550"
 							  id="textArea"
-							  text="{_recordingFlag ? ResourceUtil.getInstance().getString('bbb.recordWindow.title.start') : ResourceUtil.getInstance().getString('bbb.recordWindow.title.stop')}"
+							  text="{titleMessage}"
 							  styleName="titleWindowStyle" />
 		
 		<mx:HBox horizontalAlign="center" width="100%">
 			<mx:Button id="yesButton" styleName="mainActionButton" click="yesButton_clickHandler(event)" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.yes')}" width="120"/>
-			<mx:Button id="noButton" styleName="mainActionButton" click="close()" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.no')}" width="102"/>
+			<mx:Button id="noButton" click="close()" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.confirm.no')}" width="102"/>
 		</mx:HBox>
 
 		<mx:CheckBox id="clearRecordingsChecbox" label="{ResourceUtil.getInstance().getString('bbb.recordWindow.clearCheckbox.label')}"
+					 change="clearRecordingsChecbox_changeHandler(event)"
 					 visible="{_recordingFlag &amp;&amp; options.allowClearRecordingMarks}"
 					 includeInLayout="{_recordingFlag &amp;&amp; options.allowClearRecordingMarks}"/>
 	</mx:VBox>
