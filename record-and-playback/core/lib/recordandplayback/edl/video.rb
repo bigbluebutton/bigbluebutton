@@ -197,7 +197,7 @@ module BigBlueButton
             BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
             if info[:video][:deskshare_timestamp_bug]
               BigBlueButton.logger.debug("    has early 1.1 deskshare timestamp bug")
-            elsif info[:format][:format_name] == 'flv' and info[:start_time] > Rational(1,1000)
+            elsif info[:format][:format_name] == 'flv' and info[:start_time] > 1
               BigBlueButton.logger.debug("    has large start time, needs remuxing")
               remux_flv_videos << videofile
             end
