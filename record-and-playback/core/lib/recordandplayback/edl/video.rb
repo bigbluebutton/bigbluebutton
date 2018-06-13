@@ -287,14 +287,18 @@ module BigBlueButton
 
           info[:width] = info[:video][:width].to_i
           info[:height] = info[:video][:height].to_i
-
           return {} if info[:width] == 0 or info[:height] == 0
-          return {} if info[:video][:display_aspect_ratio] == '0:0'
 
-          info[:aspect_ratio] = Rational(*(info[:video][:display_aspect_ratio].split(':')))
-          if info[:aspect_ratio] == 0
-            info[:aspect_ratio] = Rational(info[:width], info[:height])
+          info[:sample_aspect_ratio] = Rational(1, 1)
+          if !info[:video][:sample_aspect_ratio].nil? and
+              info[:video][:sample_aspect_ratio] != 'N/A'
+            aspect_x, aspect_y = info[:video][:sample_aspect_ratio].split(':')
+            if aspect_x != 0 and aspect_y != 0
+              info[:sample_aspect_ratio] = Rational(aspect_x, aspect_y)
+            end
           end
+
+          info[:aspect_ratio] = Rational(info[:width], info[:height]) * info[:sample_aspect_ratio]
 
           if info[:format][:format_name] == 'flv' and info[:video][:codec_name] == 'h264'
             info[:video][:deskshare_timestamp_bug] = self.check_deskshare_timestamp_bug(filename)
