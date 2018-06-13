@@ -1,31 +1,26 @@
-package org.bigbluebutton.air.common.views
-{
-	import mx.core.UIComponent;
-	
+package org.bigbluebutton.air.common.views {
 	import spark.components.Image;
 	
 	import org.bigbluebutton.BBBRtmpPlayer;
 	import org.bigbluebutton.BBBRtmpPlayerEvent;
-
-	public class IOSVideoView extends UIComponent {
-		
-		protected var _image:Image;
+	
+	public class IOSVideoView extends VideoBaseView {
 		
 		protected var player:BBBRtmpPlayer;
 		
-		protected var originalVideoWidth:Number;
-		
-		protected var originalVideoHeight:Number;
+		private function get image():Image {
+			return videoComp as Image;
+		}
 		
 		public function startStream(uri:String, streamName:String, imgWidth:Number, imgHeight:Number, meetingId:String, authToken:String, externalUserId:String):void {
 			
-			if(player) {
+			if (player) {
 				close();
 			}
-
-			_image = new Image();
-			if (numChildren == 0 ) {
-				addChild(_image);	
+			
+			videoComp = new Image();
+			if (numChildren == 0) {
+				addChild(videoComp);
 			}
 			
 			this.originalVideoWidth = imgWidth;
@@ -48,7 +43,7 @@ package org.bigbluebutton.air.common.views
 		}
 		
 		private function onNewImage(e:BBBRtmpPlayerEvent):void {
-			_image.source = player.getLastImage();
+			image.source = player.getLastImage();
 		}
 		
 		private function onConnectionFailed(e:BBBRtmpPlayerEvent):void {
@@ -56,17 +51,17 @@ package org.bigbluebutton.air.common.views
 		}
 		
 		private function onDisconnected(e:BBBRtmpPlayerEvent):void {
-			close();	
+			close();
 		}
 		
 		public function close():void {
 			player.removeEventListener(BBBRtmpPlayerEvent.NEW_IMAGE, onNewImage);
 			player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
 			player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
-			if (getChildAt(0) == _image) {
-				removeChild(_image);
+			if (getChildAt(0) == image) {
+				removeChild(image);
 			}
-			_image = null;
+			videoComp = null;
 			player = null;
 		}
 		
@@ -78,88 +73,37 @@ package org.bigbluebutton.air.common.views
 			}
 		}
 		
-		public function resizeForPortrait():void {
-			// if we have device where screen width less than screen height e.g. phone
-			if (width < height) {
-				// make the video width full width of the screen 
-				_image.width = width;
-				// calculate height based on a video width, it order to keep the same aspect ratio
-				_image.height = (_image.width / originalVideoWidth) * originalVideoHeight;
-				// if calculated height appeared to be bigger than screen height, recalculuate the video size based on width
-				if (height < _image.height) {
-					// make the video height full height of the screen
-					_image.height = height;
-					// calculate width based on a video height, it order to keep the same aspect ratio
-					_image.width = ((originalVideoWidth * _image.height) / originalVideoHeight);
-				}
-			} // if we have device where screen height less than screen width e.g. tablet
-			else {
-				// make the video height full height of the screen
-				_image.height = height;
-				// calculate width based on a video height, it order to keep the same aspect ratio
-				_image.width = ((originalVideoWidth * _image.height) / originalVideoHeight);
-				// if calculated width appeared to be bigger than screen width, recalculuate the video size based on height
-				if (width < _image.width) {
-					// make the video width full width of the screen 
-					_image.width = width;
-					// calculate height based on a video width, it order to keep the same aspect ratio
-					_image.height = (_image.width / originalVideoWidth) * originalVideoHeight;
-				}
-			}
-			
-			_image.x = width - _image.width;
-			_image.y = height - _image.height;
-		}
-		
-		public function resizeForLandscape():void {
-			if (height < width) {
-				_image.height = width;
-				_image.width = ((originalVideoWidth * _image.height) / originalVideoHeight);
-				if (width < _image.width) {
-					_image.width = height;
-					_image.height = (_image.width / originalVideoWidth) * originalVideoHeight;
-				}
-			} else {
-				_image.width = height;
-				_image.height = (_image.width / originalVideoWidth) * originalVideoHeight;
-				if (height < _image.height) {
-					_image.height = width;
-					_image.width = ((originalVideoWidth * _image.height) / originalVideoHeight);
-				}
-			}
-		}
-		
 		public function rotateVideo(rotation:Number):void {
-			if (_image && stage.contains(_image)) {
-				removeChild(_image);
+			if (image && stage.contains(image)) {
+				removeChild(image);
 			}
-			_image = new Image();
+			videoComp = new Image();
 			switch (rotation) {
 				case 0:
 					resizeForPortrait();
-					_image.x = width / 2 - _image.width / 2;
-					_image.y = height / 2 - _image.height / 2; // + topMenuBarHeight;
+					image.x = width / 2 - image.width / 2;
+					image.y = height / 2 - image.height / 2; // + topMenuBarHeight;
 					break;
 				case -90:
 					resizeForLandscape();
-					_image.x = (width / 2) - (_image.height / 2);
-					_image.y = (height / 2) + (_image.width / 2); // + topMenuBarHeight;
+					image.x = (width / 2) - (image.height / 2);
+					image.y = (height / 2) + (image.width / 2); // + topMenuBarHeight;
 					break;
 				case 90:
 					resizeForLandscape();
-					_image.x = (width / 2) + (_image.height / 2);
-					_image.y = (height / 2) - (_image.width / 2); // + topMenuBarHeight;
+					image.x = (width / 2) + (image.height / 2);
+					image.y = (height / 2) - (image.width / 2); // + topMenuBarHeight;
 					break;
 				case 180:
 					resizeForPortrait();
-					_image.x = width / 2 + _image.width / 2;
-					_image.y = (height / 2) + (_image.height / 2); // + topMenuBarHeight
+					image.x = width / 2 + image.width / 2;
+					image.y = (height / 2) + (image.height / 2); // + topMenuBarHeight
 					break;
 				default:
 					break;
 			}
-			_image.rotation = rotation;
-			addChild(_image);
-		}	
+			image.rotation = rotation;
+			addChild(image);
+		}
 	}
 }
