@@ -17,15 +17,15 @@ package org.bigbluebutton.air.common.views
 		
 		protected var originalVideoHeight:Number;
 		
-		public function IOSVideoView():void {
-			_image = new Image();
-			addChild(_image);
-		}
-		
 		public function startStream(uri:String, streamName:String, imgWidth:Number, imgHeight:Number, meetingId:String, authToken:String, externalUserId:String):void {
 			
 			if(player) {
 				close();
+			}
+
+			_image = new Image();
+			if (numChildren == 0 ) {
+				addChild(_image);	
 			}
 			
 			this.originalVideoWidth = imgWidth;
@@ -41,7 +41,6 @@ package org.bigbluebutton.air.common.views
 			player.addEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
 			
 			player.play();
-			
 		}
 		
 		private function onConnecting(e:BBBRtmpPlayerEvent):void {
@@ -64,7 +63,11 @@ package org.bigbluebutton.air.common.views
 			player.removeEventListener(BBBRtmpPlayerEvent.NEW_IMAGE, onNewImage);
 			player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
 			player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
-			_image = new Image();
+			if (getChildAt(0) == _image) {
+				removeChild(_image);
+			}
+			_image = null;
+			player = null;
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
