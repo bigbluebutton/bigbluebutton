@@ -5,7 +5,7 @@ const getCurrentCursor = (cursorId) => {
   const cursor = Cursor.findOne({ _id: cursorId });
   if (cursor) {
     const { userId } = cursor;
-    const user = Users.findOne({ userId });
+    const user = Users.findOne({ userId, connectionStatus: 'online' });
     if (user) {
       cursor.userName = user.name;
       return cursor;
