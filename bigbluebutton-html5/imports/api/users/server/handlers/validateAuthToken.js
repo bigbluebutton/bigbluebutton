@@ -44,6 +44,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   const selector = {
     meetingId,
     userId,
+    clientType: 'HTML5',
   };
 
   const User = Users.findOne(selector);
