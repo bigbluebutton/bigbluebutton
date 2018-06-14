@@ -4,20 +4,20 @@ import Users from '/imports/api/users';
 const logClient = function (type, log, ...args) {
   const SERVER_CONN_ID = this.connection.id;
   const User = Users.findOne({ connectionId: SERVER_CONN_ID });
-  let logContents = Array(...args);
+  const logContents = { ...args };
 
-  if (User !== undefined) {
+  if (User) {
     const {
       meetingId, name, intId, extId, authToken,
     } = User;
-    const userInfo = {
-      'meetingId(server)': meetingId,
+    const serverInfo = {
+      meetingId,
       userName: name,
-      intId,
-      extId,
+      userIntId: intId,
+      userExtId: extId,
       authToken,
     };
-    logContents = Array(...args).concat(userInfo);
+    logContents.serverInfo = serverInfo;
   }
 
   if (typeof log === 'string' || log instanceof String) {
