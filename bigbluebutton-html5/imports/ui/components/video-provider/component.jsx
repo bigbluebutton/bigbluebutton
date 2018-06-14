@@ -281,7 +281,7 @@ class VideoProvider extends Component {
 
     peer.processAnswer(message.sdpAnswer, (error) => {
       if (error) {
-        return log('error', error);
+        return log('error', JSON.stringify(error));
       }
     });
   }
@@ -452,7 +452,7 @@ class VideoProvider extends Component {
     const { intl } = this.props;
 
     log('error', ' WebRTC peerObj create error');
-    log('error', error);
+    log('error', JSON.stringify(error));
     const errorMessage = intlMediaErrorsMessages[error.name]
       || intlMediaErrorsMessages.permissionError;
     this.notifyError(intl.formatMessage(errorMessage));
@@ -463,7 +463,7 @@ class VideoProvider extends Component {
 
     this.stopWebRTCPeer(id);
 
-    return log('error', error);
+    return log('error', JSON.stringify(errorMessage));
   }
 
   _getOnIceCandidateCallback(id, shareWebcam) {
