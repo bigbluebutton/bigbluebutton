@@ -23,7 +23,7 @@ export default function userLeaving(credentials, userId, connectionId) {
   const User = Users.findOne(selector);
 
   if (!User) {
-    throw new Meteor.Error('user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
+    Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
   }
 
   // If the current user connection is not the same that triggered the leave we skip
