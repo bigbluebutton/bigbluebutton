@@ -6,6 +6,9 @@ import { Link } from 'react-router';
 import cx from 'classnames';
 import { styles } from '../../styles.scss';
 
+const NOTIFICATION_INTERVAL = 2000;
+const NOTIFICATION_LIFETIME = 4000;
+
 const propTypes = {
   notify: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
@@ -22,7 +25,7 @@ class ChatPushNotification extends React.Component {
 
   constructor(props) {
     super(props);
-    this.showNotify = _.debounce(this.showNotify.bind(this), 5000);
+    this.showNotify = _.debounce(this.showNotify.bind(this), NOTIFICATION_INTERVAL);
 
     this.componentDidMount = this.showNotify;
     this.componentDidUpdate = this.showNotify;
@@ -37,7 +40,7 @@ class ChatPushNotification extends React.Component {
       content,
     } = this.props;
 
-    return notify(ChatPushNotification.link(message, chatId), 'info', 'chat', { onOpen, autoClose: 2000 }, ChatPushNotification.link(content, chatId), true);
+    return notify(ChatPushNotification.link(message, chatId), 'info', 'chat', { onOpen, autoClose: NOTIFICATION_LIFETIME }, ChatPushNotification.link(content, chatId), true);
   }
 
   render() {
