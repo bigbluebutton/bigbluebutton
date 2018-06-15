@@ -3,7 +3,6 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
 
 export default function userLeaving(credentials, userId, connectionId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -16,9 +15,6 @@ export default function userLeaving(credentials, userId, connectionId) {
   check(requesterUserId, String);
   check(userId, String);
 
-  const meeting = Meetings.findOne({ meetingId });
-  if (!meeting) return false;
-
   const selector = {
     meetingId,
     userId,
@@ -27,7 +23,7 @@ export default function userLeaving(credentials, userId, connectionId) {
   const user = Users.findOne(selector);
 
   if (!user) {
-    throw new Meteor.Error('user-not-found', `Could not find ${userId} in ${meetingId}: cannot complete userLeaving`);
+    Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
   }
 
   // If the current user connection is not the same that triggered the leave we skip
