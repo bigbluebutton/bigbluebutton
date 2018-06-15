@@ -1,0 +1,102 @@
+version: '2'
+
+services:
+#  nginx-dhp:
+#    image: nginx-dhp
+#    volumes:
+#      - config-nginx-dhp:/data
+
+#  nginx-ssl:
+#    image: certbot/certbot
+#    ports:
+#      - 80:80
+#    volumes:
+#      - config-nginx-ssl:/etc/letsencrypt
+#    command: certonly --non-interactive --register-unsafely-without-email --agree-tos --expand --domain ${SERVER_DOMAIN} --standalone
+
+#  mongo:
+#    image: mongo:3.4
+#    restart: unless-stopped
+
+  redis:
+    image: redis
+    restart: unless-stopped
+    volumes:
+      - recordings-redis:/data
+
+  bbb-webhooks:
+    image: bbb-webhooks
+    restart: unless-stopped
+    links:
+      - redis
+    environment:
+      REDIS_HOST: redis
+
+#  coturn:
+#    image: kurento/coturn
+#    restart: unless-stopped
+#    network_mode: host
+
+#  kurento:
+#    image: kurento
+#    restart: unless-stopped
+#    network_mode: host
+
+#  bbb-apps-akka:
+#    image: bbb-apps-akka
+#    restart: unless-stopped
+#    links:
+#      - redis
+#    environment:
+#      JAVA_OPTS: -Dredis.host=redis
+
+#  bbb-web:
+#    image: bbb-web
+#    restart: unless-stopped
+#    links:
+#      - redis
+#    volumes:
+#      - recordings-storage:/var/bigbluebutton
+#    environment:
+#      SERVER_DOMAIN: ${SERVER_DOMAIN}
+#      SHARED_SECRET: ${SHARED_SECRET}
+
+#  greenlight-env:
+#    image: bigbluebutton/greenlight
+#    volumes:
+#      - config-greenlight:/data
+#    command: rake secret > /data/env
+
+  greenlight:
+    image: bigbluebutton/greenlight
+    restart: unless-stopped
+    volumes:
+      - db-greenlight:/usr/src/app/db/production
+
+  nginx:
+    image: nginx
+    restart: unless-stopped
+    links:
+      - bbb-webhooks
+      - bbb-web
+      - bbb-html5
+      - bbb-webrtc-sfu
+      - greenlight
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - config-nginx-ssl:/etc/letsencrypt
+      - config-nginx-dhp/dhp-2048.pem:/etc/nginx/ssl/dhp-2048.pem
+    
+
+
+docker run --rm --name nginx --link bbb-webhooks --link bbb-web --link bbb-html5 --link bbb-webrtc-sfu --link greenlight -p 80:80 -p 443:443 -v ~/certs:/etc/letsencrypt -v $(pwd)/dhp-2048.pem:/etc/nginx/ssl/dhp-2048.pem -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf -v $(pwd)/bigbluebutton-client/resources/config.xml.template:/var/www/bigbluebutton/client/conf/config.xml -d nginx
+
+volumes:
+  config-nginx-dhp:
+  config-nginx-ssl:
+  config-greenlight:
+  recordings-redis:
+  recordings-storage:
+  db-greenlight:

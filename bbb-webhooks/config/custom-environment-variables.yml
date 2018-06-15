@@ -1,0 +1,4 @@
+config:
+  redis:
+    host: REDIS_HOST
+
