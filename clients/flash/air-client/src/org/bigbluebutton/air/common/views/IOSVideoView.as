@@ -31,11 +31,11 @@ package org.bigbluebutton.air.common.views
 			this.originalVideoWidth = imgWidth;
 			this.originalVideoHeight = imgHeight;
 			
-			var url:String = uri + "/" + streamName + " live=1 conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken;
+			var url:String = uri + "/" + streamName + " conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken;
 			
 			player = new BBBRtmpPlayer(url);
-			
-			player.addEventListener(BBBRtmpPlayerEvent.NEW_IMAGE, onNewImage);
+
+			player.addEventListener(BBBRtmpPlayerEvent.CONNECTED, onConnected);
 			player.addEventListener(BBBRtmpPlayerEvent.CONNECTING, onConnecting);
 			player.addEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
 			player.addEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
@@ -44,12 +44,12 @@ package org.bigbluebutton.air.common.views
 			
 		}
 		
+		private function onConnected(e:BBBRtmpPlayerEvent):void {
+			_image.source = player.getBmpData();
+		}
+
 		private function onConnecting(e:BBBRtmpPlayerEvent):void {
 			trace("EVENT: " + e.type + " MESSAGE: " + e.getMessage());
-		}
-		
-		private function onNewImage(e:BBBRtmpPlayerEvent):void {
-			_image.source = player.getLastImage();
 		}
 		
 		private function onConnectionFailed(e:BBBRtmpPlayerEvent):void {
@@ -61,7 +61,7 @@ package org.bigbluebutton.air.common.views
 		}
 		
 		public function close():void {
-			player.removeEventListener(BBBRtmpPlayerEvent.NEW_IMAGE, onNewImage);
+			player.removeEventListener(BBBRtmpPlayerEvent.CONNECTED, onConnected);
 			player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
 			player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
 			_image = new Image();
@@ -74,7 +74,7 @@ package org.bigbluebutton.air.common.views
 				resizeForPortrait();
 			}
 		}
-		
+		0
 		public function resizeForPortrait():void {
 			// if we have device where screen width less than screen height e.g. phone
 			if (width < height) {
