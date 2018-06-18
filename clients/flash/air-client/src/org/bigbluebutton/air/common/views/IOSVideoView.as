@@ -74,7 +74,7 @@ package org.bigbluebutton.air.common.views
 				resizeForPortrait();
 			}
 		}
-		0
+
 		public function resizeForPortrait():void {
 			// if we have device where screen width less than screen height e.g. phone
 			if (width < height) {
