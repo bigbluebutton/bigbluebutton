@@ -91,36 +91,9 @@ class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    this.createMenu();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.alterMenu(nextProps);
-  }
-
-  onActionsShow() {
-    this.setState({
-      isSettingOpen: true,
-    });
-  }
-
-  onActionsHide() {
-    this.setState({
-      isSettingOpen: false,
-    });
-  }
-
-  getListItems() {
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
-    // thrown if the DropdownList receives a null value.
-    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
-  }
-
-  createMenu() {
     const { intl, mountModal } = this.props;
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
+
     this.menuItems = [
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -161,6 +134,52 @@ class SettingsDropdown extends Component {
     ];
   }
 
+
+  componentDidMount() {
+    // checks if the users entered fullscreen mode through the browser
+    // and if so alters the menu to have the exit fullscreen button disabled
+    window.addEventListener('resize', this.f11Fullscreen);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.clicked) {
+      this.alterMenu(nextProps);
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.f11Fullscreen);
+  }
+
+  f11Fullscreen = () => {
+    if (window.screen.width === window.innerWidth &&
+      window.screen.height === window.innerHeight) {
+      this.alterMenu(null);
+    } else {
+      this.alterMenu(this.props);
+    }
+  }
+
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
+  }
+
+  getListItems() {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
+    // thrown if the DropdownList receives a null value.
+    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
+  }
+
   checkFullscreen(nextProps) {
     const { intl, isFullScreen } = nextProps;
 
@@ -181,15 +200,26 @@ class SettingsDropdown extends Component {
   }
 
   alterMenu(props) {
-    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
-
-    const newFullScreenButton = (<DropdownListItem
-      key={_.uniqueId('list-item-')}
-      icon={fullscreenIcon}
-      label={fullscreenLabel}
-      description={fullscreenDesc}
-      onClick={this.props.handleToggleFullscreen}
-    />);
+    let newFullScreenButton;
+    if (props == null) {
+      newFullScreenButton = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="exit_fullscreen"
+        label="Exit fullscreen"
+        description="error fullscreen"
+        style={{ pointerEvents: 'none' }}
+      />);
+    } else {
+      const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
+      newFullScreenButton = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon={fullscreenIcon}
+        label={fullscreenLabel}
+        description={fullscreenDesc}
+        onClick={this.props.handleToggleFullscreen}
+      />);
+      this.props.toggleClicked;
+    }
     const result = this.menuItems.slice(1);
     result.unshift(newFullScreenButton);
     this.menuItems = result;
