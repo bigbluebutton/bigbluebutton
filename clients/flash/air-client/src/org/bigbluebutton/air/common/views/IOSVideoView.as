@@ -26,7 +26,7 @@ package org.bigbluebutton.air.common.views {
 			this.originalVideoWidth = imgWidth;
 			this.originalVideoHeight = imgHeight;
 			
-			var url:String = uri + "/" + streamName + " conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken;
+			var url:String = uri + "/" + streamName + " live=1 conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken;
 			
 			player = new BBBRtmpPlayer(url);
 
