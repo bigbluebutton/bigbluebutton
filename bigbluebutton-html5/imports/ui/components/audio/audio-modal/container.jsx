@@ -8,7 +8,11 @@ const AudioModalContainer = props => <AudioModal {...props} />;
 
 const APP_CONFIG = Meteor.settings.public.app;
 
-const { listenOnlyMode, forceListenOnly, skipCheck } = APP_CONFIG;
+const { listenOnlyMode, forceListenOnly } = APP_CONFIG;
+
+// we always skip Echo test on mobile, regardless of the config
+const skipCheck = window.matchMedia('only screen and (max-width: 40em)').matches ?
+  true : APP_CONFIG.skipCheck;
 
 export default withModalMounter(withTracker(({ mountModal }) =>
   ({
