@@ -87,48 +87,11 @@ class SettingsDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
-    this.getListItems = this.getListItems.bind(this);
   }
 
   componentWillMount() {
-    this.createMenu();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.alterMenu(nextProps);
-  }
-
-  onActionsShow() {
-    this.setState({
-      isSettingOpen: true,
-    });
-  }
-
-  onActionsHide() {
-    this.setState({
-      isSettingOpen: false,
-    });
-  }
-
-  getListItems() {
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
-    // thrown if the DropdownList receives a null value.
-    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
-  }
-
-  createMenu() {
     const { intl, mountModal } = this.props;
-    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     this.menuItems = [
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon={fullscreenIcon}
-        label={fullscreenLabel}
-        description={fullscreenDesc}
-        onClick={this.props.handleToggleFullscreen}
-      />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="settings"
@@ -159,6 +122,37 @@ class SettingsDropdown extends Component {
         onClick={() => mountModal(<LogoutConfirmationContainer />)}
       />),
     ];
+    // Adds Fullscreen button if user is on Android.
+    if (/android/i.test(navigator.userAgent)) {
+      const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
+      const newFullScreenButton = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon={fullscreenIcon}
+        label={fullscreenLabel}
+        description={fullscreenDesc}
+        onClick={this.props.handleToggleFullscreen}
+      />);
+      this.menuItems.unshift(newFullScreenButton);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // Alters fullscreen button's label
+    if (/android/i.test(navigator.userAgent)) {
+      this.alterMenu(nextProps);
+    }
+  }
+
+  onActionsShow() {
+    this.setState({
+      isSettingOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isSettingOpen: false,
+    });
   }
 
   checkFullscreen(nextProps) {
@@ -190,9 +184,8 @@ class SettingsDropdown extends Component {
       description={fullscreenDesc}
       onClick={this.props.handleToggleFullscreen}
     />);
-    const result = this.menuItems.slice(1);
-    result.unshift(newFullScreenButton);
-    this.menuItems = result;
+    this.menuItems = this.menuItems.slice(1);
+    this.menuItems.unshift(newFullScreenButton);
   }
 
   render() {
@@ -222,7 +215,7 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             {
-              this.getListItems()
+              this.menuItems
             }
           </DropdownList>
         </DropdownContent>
