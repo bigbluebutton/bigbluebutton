@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioModal from './component';
 import Service from '../service';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
 
@@ -11,8 +12,7 @@ const APP_CONFIG = Meteor.settings.public.app;
 const { listenOnlyMode, forceListenOnly } = APP_CONFIG;
 
 // we always skip Echo test on mobile, regardless of the config
-const skipCheck = window.matchMedia('only screen and (max-width: 40em)').matches ?
-  true : APP_CONFIG.skipCheck;
+const skipCheck = deviceInfo.type().isMobile || APP_CONFIG.skipCheck;
 
 export default withModalMounter(withTracker(({ mountModal }) =>
   ({
