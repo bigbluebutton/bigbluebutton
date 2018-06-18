@@ -36,10 +36,11 @@ export function joinRouteHandler(nextState, replace, callback) {
         ? metadata.reduce((acc, meta) => {
           const key = Object.keys(meta).shift();
 
-          const html5MetaRegExp = /^html5/;
-          if (!html5MetaRegExp.test(key)) {
-            // only handle meta parameters starting with 'html5'
-            return { ...acc };
+          const handledHTML5Parameters = [
+            'html5autoswaplayout', 'html5autosharewebcam', 'html5hidepresentation',
+          ];
+          if (handledHTML5Parameters.indexOf(key) === -1) {
+            return acc;
           }
 
           /* this reducer transforms array of objects in a single object and
