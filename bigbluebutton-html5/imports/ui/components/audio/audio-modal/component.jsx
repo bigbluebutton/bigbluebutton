@@ -399,12 +399,12 @@ class AudioModal extends Component {
               data-test="audioModalHeader"
               className={styles.header}
             >{
-                isIOSChrome ?
-                  <h3 className={styles.title}>
-                    {content ?
+                isIOSChrome ? null :
+                <h3 className={styles.title}>
+                  {content ?
                   this.contents[content].title :
                   intl.formatMessage(intlMessages.audioChoiceLabel)}
-                  </h3> : <h3 className={styles.title} />
+                </h3>
             }
               <Button
                 data-test="modalBaseCloseButton"
