@@ -10,9 +10,11 @@ package org.bigbluebutton.air.screenshare.views {
 	import flash.media.VideoStatus;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.system.Capabilities;
 	
 	import spark.components.Group;
 	
+	import org.bigbluebutton.air.common.views.IOSVideoView;
 	import org.bigbluebutton.air.main.views.RectCoverView;
 	
 	public class ScreenshareDock extends Group {
@@ -31,7 +33,16 @@ package org.bigbluebutton.air.screenshare.views {
 		private var _topRect:RectCoverView;
 		private var _bottomRect:RectCoverView;
 		
-		public function ScreenshareDock():void {	}
+		private var _iosScrenshareView:IOSScreenshareView;
+		
+		public function ScreenshareDock():void {	
+			if (Capabilities.version.indexOf("IOS") >= 0) {
+				_iosScrenshareView = new IOSScreenshareView();
+				_iosScrenshareView.percentWidth = 100;
+				_iosScrenshareView.percentHeight = 100;
+				addElement(_iosScrenshareView);
+			}
+		}
 		
 		private function onStageVideoState(event:StageVideoAvailabilityEvent):void {
 			var available:Boolean = (event.availability == StageVideoAvailability.AVAILABLE);
@@ -167,21 +178,25 @@ package org.bigbluebutton.air.screenshare.views {
 			
 		}
 			
-		public function viewStream(conn:NetConnection, streamId:String, width:int, height:int):void {
+		public function startStream(conn:NetConnection, streamId:String, width:int, height:int, meetingId:String, authToken:String, externalUserId:String):void {
 			//trace("************ ScreenshareView: viewing of screenshare streamId=" + streamId + " w=" + width + " h=" + height);
 			_conn = conn;
 			_streamId = streamId;
 			_origVidWidth = width;
 			_origVidHeight = height;
-						
-			if (stage == null) {
-				//trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
+			
+			if (Capabilities.version.indexOf("IOS") >= 0) {
+				_iosScrenshareView.startStream(conn.uri, streamId, width, height, meetingId, authToken, externalUserId);
 			} else {
-				stage.addEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
+				if (stage == null) {
+					//trace("************ ScreenshareView: STAGE IS NULL!!!!!!!!");
+				} else {
+					stage.addEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoState);
+				}
 			}
 		}
 		
-		public function streamStopped(session:String, reason:String):void {
+		public function stopStream(session:String, reason:String):void {
 			if (_screenshareRunningListener != null) {
 				_screenshareRunningListener(_usingStageVideo, false);
 			}

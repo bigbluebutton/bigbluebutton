@@ -55,9 +55,12 @@ package org.bigbluebutton.air.common.views {
 		}
 		
 		public function close():void {
-			player.removeEventListener(BBBRtmpPlayerEvent.CONNECTED, onConnected);
-			player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
-			player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
+			if (player) {
+				player.removeEventListener(BBBRtmpPlayerEvent.CONNECTED, onConnected);
+				player.removeEventListener(BBBRtmpPlayerEvent.CONNECTING, onConnecting);
+				player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
+				player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
+			}
 			if (getChildAt(0) == image) {
 				removeChild(image);
 			}
