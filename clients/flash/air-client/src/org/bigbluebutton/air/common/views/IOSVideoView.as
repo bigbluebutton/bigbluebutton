@@ -61,7 +61,7 @@ package org.bigbluebutton.air.common.views {
 				player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
 				player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
 			}
-			if (getChildAt(0) == image) {
+			if (numChildren > 0 && getChildAt(0) == image) {
 				removeChild(image);
 			}
 			videoComp = null;
