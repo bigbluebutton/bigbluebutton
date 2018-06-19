@@ -16,10 +16,12 @@ const logClient = function (type, log, ...args) {
     args[0].validUser = 'notFound';
   }
 
+  const topic = typeof logContents[0] == 'Object' ? logContents[0].topic : null;
+
   if (typeof log === 'string' || log instanceof String) {
-    Logger.log(type, `CLIENT LOG: ${log}`, logContents);
+    Logger.log(type, `${topic || 'CLIENT'} LOG: ${log}\n`, logContents);
   } else {
-    Logger.log(type, `CLIENT LOG: ${JSON.stringify(log)}`, logContents);
+    Logger.log(type, `${topic || 'CLIENT'} LOG: ${JSON.stringify(log)}\n`, logContents);
   }
 };
 
