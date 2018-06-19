@@ -164,6 +164,7 @@ class AudioManager {
     if (!this.isConnected) return Promise.resolve();
 
     this.isHangingUp = true;
+    this.isEchoTest = false;
     return this.bridge.exitAudio();
   }
 
@@ -205,6 +206,7 @@ class AudioManager {
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
+    this.isListenOnly = false;
 
     if (this.inputStream) {
       window.defaultInputStream.forEach(track => track.stop());
