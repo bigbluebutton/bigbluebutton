@@ -24,7 +24,7 @@ recordScreenSharing: true
 recordWebcams: false
 recordingBasePath: "file:///var/kurento"
 
-recordingMediaProfile: 'MP4_VIDEO_ONLY'
+recordingMediaProfile: 'MKV_VIDEO_ONLY'
 recordingFormat: 'mkv'
 
 redisExpireTime: 1209600 # 14 days as per the akka keys
