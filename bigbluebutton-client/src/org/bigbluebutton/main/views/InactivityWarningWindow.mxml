@@ -20,16 +20,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:mate="http://mate.asfusion.com/"
+		xmlns:common="org.bigbluebutton.common.*"
 		verticalScrollPolicy="off"
 		horizontalScrollPolicy="off"
 		horizontalAlign="center"
 		width="500"
-		height="120"
 		styleName="inactivityWarningTextStyle"
-		title="{ResourceUtil.getInstance().getString('bbb.inactivityWarning.title')}"
 		creationComplete="onCreationComplete()">
 
 	<fx:Declarations>
@@ -97,7 +96,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	]]>
 	</fx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center" verticalAlign="middle">
+		
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.inactivityWarning.title')}"
+							  styleName="titleWindowStyle"
+							  width="{this.width - 40}" />
+		
 		<mx:Text id="warningMessage" selectable="false" text="{ResourceUtil.getInstance().getString('bbb.inactivityWarning.message')}" styleName="inactivityWarningTextStyle"/>
-		<mx:Button id="cancelButton" click="cancelButtonClicked()" visible="false" styleName="inactivityWarningWindowCancelButtonStyle"/>
+		<mx:Button id="cancelButton" click="cancelButtonClicked()" visible="false" styleName="mainActionButton"/>
 	</mx:VBox>
-</mx:Panel>
+</mx:TitleWindow>

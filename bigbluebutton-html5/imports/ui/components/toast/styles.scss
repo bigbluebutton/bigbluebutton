@@ -27,6 +27,15 @@ $background-active: darken($color-white, 5%);
   }
 }
 
+.toastContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.smallToastContainer {
+  margin: -.35rem;
+}
+
 .icon {
   align-self: flex-start;
   margin-bottom: auto;
@@ -46,12 +55,38 @@ $background-active: darken($color-white, 5%);
   }
 }
 
+.smallIcon {
+  width: 1.2rem;
+  height: 1.2rem;
+  > i {
+    font-size: 70%;
+  }
+}
+
+.separator { 
+  height: 1px;
+  width: 99%;
+  position: absolute;
+  margin-left: -.5em;
+  background-color: $color-gray-lighter;
+  margin-top: $line-height-computed * .5;
+  margin-bottom: $line-height-computed * .5;
+  @include mq($small-only) {
+    position: relative;
+    margin-left: auto;
+  }
+}
+
 .message {
   margin-top: auto;
   margin-bottom: auto;
   font-size: $font-size-small;
   max-height: 15vh;
   overflow: auto;
+}
+
+.smallMessage {
+  font-size: 80%;
 }
 
 .default {
@@ -122,18 +157,17 @@ $background-active: darken($color-white, 5%);
   outline: none;
   border: none;
   cursor: pointer;
-  opacity: .3;
+  opacity: .5;
   transition: .3s ease;
   font-size: .35rem;
   color: $color-gray-dark;
-  border: 1px solid;
-  border-radius: 50%;
   padding: .4rem;
   line-height: 0;
   position: absolute;
   top: $md-padding-y;
   right: $md-padding-y;
-
+  font-size: 70%;
+  top: $lg-padding-y;
   &:before {
     margin-left: -.2rem;
   }
@@ -175,4 +209,5 @@ $background-active: darken($color-white, 5%);
   z-index: 9999;
   animation: track-progress linear 1;
   background-color: $color-gray-lighter;
+  border-radius: $border-radius;
 }

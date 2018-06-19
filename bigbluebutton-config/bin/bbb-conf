@@ -32,7 +32,7 @@
 #   2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions   
 #   2010-04-02 FFD  Updated for 0.64   
 #   2010-06-21 SEB  Cleaned up some code / Updated for 0.70
-#   2010-06-25 SEB  Added ability to change the security salt
+#   2010-06-25 SEB  Added ability to change the security secret
 #   2010-06-30 SEB  Added some extra error checking
 #   2010-07-06 SEB  Added more error checking and report messages
 #   2010-09-15 FFD  Updates for 0.71-dev
@@ -866,7 +866,7 @@ check_configuration() {
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then	
 		#
-		# Make sure the salt for the API matches the server
+		# Make sure the shared secret for the API matches the server
 		#
 		SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 		SECRET_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
@@ -917,7 +917,7 @@ check_configuration() {
                 BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SECRET" != "$BBB_SECRET" ]; then
-			echo "# Warning: LTI shared secret (salt) mismatch:"
+			echo "# Warning: LTI shared secret mismatch:"
 			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties                      = $LTI_SECRET"
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SECRET"
 			echo 
@@ -1565,12 +1565,12 @@ if [ $CHECK ]; then
 		echo "                               url: $BBB_WEB_URL"
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
-		echo
-		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties (LTI integration)"
-		echo "                           api url: $LTI_URL"
-	fi
+#	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+#		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
+#		echo
+#		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties (LTI integration)"
+#		echo "                           api url: $LTI_URL"
+#	fi
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
 		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
@@ -1605,6 +1605,8 @@ if [ $CHECK ]; then
                 echo "                    localIpAddress: $KURENTO_LOCAL_IP"
                 echo "               recordScreenSharing: $KURENTO_RECORD_SCREEN_SHARING"
                 echo "                     recordWebcams: $KURENTO_RECORD_WEBCAMS"
+                echo "                              Node: $(node -v)"
+                echo "                           mongoDB: $(/usr/bin/mongod --version | grep "db version" | sed 's/db version //g')"
         fi
 
 	check_state

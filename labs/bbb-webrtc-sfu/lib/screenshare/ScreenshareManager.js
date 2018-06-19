@@ -20,7 +20,7 @@ module.exports = class ScreenshareManager extends BaseManager {
     this._iceQueues = {};
   }
 
-  _onMessage(message) {
+  async _onMessage(message) {
     Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
 
     const sessionId = message.voiceBridge;
@@ -42,21 +42,10 @@ module.exports = class ScreenshareManager extends BaseManager {
           this._sessions[sessionId] = session;
         }
 
-        // starts presenter by sending sessionID, websocket and sdpoffer
-        //  async start (sessionId, connectionId, sdpOffer, callerName, role, callback) {
-        session.start(sessionId, connectionId, sdpOffer, callerName, role, (error, sdpAnswer) => {
-          Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
-          if (error) {
-            this._bbbGW.publish(JSON.stringify({
-              connectionId: connectionId,
-              type: C.SCREENSHARE_APP,
-              role: role,
-              id : 'startResponse',
-              response : 'rejected',
-              message : error
-            }), C.FROM_SCREENSHARE);
-            return error;
-          }
+        // starts screenshare peer with role by sending sessionID, websocket and sdpoffer
+        try {
+          const sdpAnswer = await session.start(sessionId, connectionId, sdpOffer, callerName, role)
+          Logger.info(this._logPrefix, "Started peer", sessionId, " for connection", connectionId);
 
           // Empty ice queue after starting session
           if (iceQueue) {
@@ -79,8 +68,19 @@ module.exports = class ScreenshareManager extends BaseManager {
             this._stopSession(sessionId);
           });
 
-          Logger.info(this._logPrefix, "Sending presenterResponse to presenter", sessionId, "for connection", session._id);
-        });
+          Logger.info(this._logPrefix, "Sending startResponse to peer", sessionId, "for connection", session._id);
+        }
+        catch (err) {
+          Logger.error(this._logPrefix, err);
+          this._bbbGW.publish(JSON.stringify({
+            connectionId: connectionId,
+            type: C.SCREENSHARE_APP,
+            role: role,
+            id : 'startResponse',
+            response : 'rejected',
+            message : error
+          }), C.FROM_SCREENSHARE);
+        }
         break;
 
       case 'stop':

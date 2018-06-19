@@ -123,7 +123,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// All of the code around the "firefox60" state is just a temporary stop gap to mitigate a regression 
 			// in file uploading in Firefox 60+
 			if (presentOptions.disableFirefoxF60Upload && Capabilities.os.indexOf("Windows") != -1 &&
-				BrowserCheck.isFirefox() && BrowserCheck.browserMajorVersion >= "60" && BrowserCheck.isWin64()) {
+				BrowserCheck.isFirefox() && BrowserCheck.browserFullVersion == "60.0" && BrowserCheck.isWin64()) {
 				currentState = "firefox60";
 			}
 		}
