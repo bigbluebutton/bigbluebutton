@@ -160,8 +160,8 @@ module.exports = class MCSApiStub extends EventEmitter {
 
   async addIceCandidate (mediaId, candidate) {
     try {
-      const ack = await this._mediaController.addIceCandidate(mediaId, candidate);
-      return Promise.resolve(ack);
+      await this._mediaController.addIceCandidate(mediaId, candidate);
+      return Promise.resolve();
     }
     catch (err) {
       Logger.error("[MCSApi] addIceCandidate ", err);

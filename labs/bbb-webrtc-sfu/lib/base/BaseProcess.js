@@ -28,15 +28,22 @@ module.exports = class BaseProcess {
   async stop () {
     try {
       this.runningState = "STOPPING";
-      await this.manager.stopAll();
-      Logger.info(this.logPrefix, "Exiting process with code 0");
-      process.exit();
+      Promise.race([this.manager.stopAll(), this._failOver()]).then(() => {
+        Logger.info(this.logPrefix, "Exiting process with code 0");
+        process.exit();
+      });
     }
     catch (err) {
       Logger.error(this.logPrefix, err);
       Logger.info(this.logPrefix, "Exiting process with code 1");
       process.exit(1);
     }
+  }
+
+  _failOver () {
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, 5000);
+    });
   }
 
   handleException (error) {

@@ -42,11 +42,15 @@ module.exports = class Video extends EventEmitter {
     });
   }
 
-  onIceCandidate (_candidate) {
+  _randomTimeout (low, high) {
+    return parseInt(Math.random() * (high - low) + low);
+  }
+
+  async onIceCandidate (_candidate) {
     if (this.mediaId) {
       try {
-        this.flushCandidatesQueue();
-        this.mcs.addIceCandidate(this.mediaId, _candidate);
+        await this.flushCandidatesQueue();
+        await this.mcs.addIceCandidate(this.mediaId, _candidate);
       }
       catch (err)   {
         Logger.error("[video] ICE candidate could not be added to media controller.", err);
@@ -57,18 +61,22 @@ module.exports = class Video extends EventEmitter {
     }
   };
 
-  flushCandidatesQueue () {
-    if (this.mediaId) {
-      try {
-        while(this.candidatesQueue.length) {
-          let candidate = this.candidatesQueue.shift();
+  async flushCandidatesQueue () {
+    return new Promise((resolve, reject) => {
+      if (this.mediaId) {
+        let iceProcedures = this.candidatesQueue.map((candidate) => {
           this.mcs.addIceCandidate(this.mediaId, candidate);
-        }
+        });
+
+        return Promise.all(iceProcedures).then(() => {
+          this.candidatesQueue = [];
+          resolve();
+        }).catch((err) => {
+          Logger.error("[video] ICE candidate could not be added to media controller.", err);
+          reject();
+        });
       }
-      catch (err) {
-        Logger.error("[video] ICE candidate could not be added to media controller.", err);
-      }
-    }
+    });
   }
 
   serverState (event) {
@@ -128,7 +136,7 @@ module.exports = class Video extends EventEmitter {
                 clearTimeout(this.notFlowingTimeout);
                 delete this.notFlowingTimeout;
               }
-            }, config.get('mediaFlowTimeoutDuration'));
+            }, config.get('mediaFlowTimeoutDuration') + this._randomTimeout(-2000, 2000));
           }
         }
         else if (msEvent.state === 'FLOWING') {
@@ -191,14 +199,18 @@ module.exports = class Video extends EventEmitter {
   }
 
   async startRecording() {
-    this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
-    this.sendStartShareEvent();
+    try {
+      this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+      this.sendStartShareEvent();
+    }
+    catch (err) {
+      Logger.error("[video] Error on start recording with message", err);
+    }
   }
 
-  async start (sdpOffer, callback) {
+  start (sdpOffer) {
+    return new Promise(async (resolve, reject) => {
     Logger.info("[video] Starting video instance for", this.streamName);
-    let sdpAnswer;
-    let ret;
 
     // Force H264
     if (FORCE_H264) {
@@ -213,55 +225,65 @@ module.exports = class Video extends EventEmitter {
     try {
       this.userId = await this.mcs.join(this.meetingId, 'SFU', {});
       Logger.info("[video] MCS join for", this.streamName, "returned", this.userId);
-
-      if (this.shared) {
-        ret = await this.mcs.publish(this.userId, this.meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
-
-        this.mediaId = ret.sessionId;
-
-        sharedWebcams[this.id] = this.mediaId;
-      }
-      else if (sharedWebcams[this.id]) {
-        ret  = await this.mcs.subscribe(this.userId, sharedWebcams[this.id], 'WebRtcEndpoint', {descriptor: sdpOffer});
-        this.mediaId = ret.sessionId;
-      }
+      const sdpAnswer = await this._addMCSMedia(C.WEBRTC, sdpOffer);
+      this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
+      this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
+      this.status = C.MEDIA_STARTING;
+      await this.flushCandidatesQueue();
+      Logger.info("[video] MCS call for user", this.userId, "returned", this.mediaId);
+      return resolve(sdpAnswer);
     }
     catch (err) {
       Logger.error("[video] MCS returned error => " + err);
-      return callback(err);
+      return reject(err);
     }
-    finally {
-      if (ret) {
-        this.status = C.MEDIA_STARTING;
-        sdpAnswer = ret.answer;
-        this.flushCandidatesQueue();
-        this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
-        this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
-        Logger.info("[video] MCS call for user", this.userId, "returned", this.mediaId);
-        return callback(null, sdpAnswer);
+    });
+  }
+
+  _addMCSMedia (type, descriptor) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (this.shared) {
+          let { answer, sessionId } = await this.mcs.publish(this.userId, this.meetingId, type, { descriptor });
+          this.mediaId = sessionId;
+          sharedWebcams[this.id] = this.mediaId;
+          return resolve(answer);
+        }
+        else if (sharedWebcams[this.id]) {
+          let { answer, sessionId } = await this.mcs.subscribe(this.userId, sharedWebcams[this.id], C.WEBRTC, { descriptor });
+          this.mediaId = sessionId;
+          return resolve(answer);
+        }
       }
-    }
-  };
+      catch (err) {
+        return reject(err);
+      }
+    });
+  }
 
   async pause (state) {
     const sourceId = sharedWebcams[this.id];
     const sinkId = this.mediaId;
 
-    if (!sourceId || !sinkId) {
+    if (sourceId == null || sinkId == null) {
       Logger.error("[video] Source or sink is null.");
       return;
     }
 
     // We want to pause the stream
-    if (state && (this.status !== C.MEDIA_STARTING || this.status !== C.MEDIA_PAUSED)) {
-      await this.mcs.disconnect(sourceId, sinkId, 'VIDEO');
-      this.status = C.MEDIA_PAUSED;
+    try {
+      if (state && (this.status !== C.MEDIA_STARTING || this.status !== C.MEDIA_PAUSED)) {
+        await this.mcs.disconnect(sourceId, sinkId, 'VIDEO');
+        this.status = C.MEDIA_PAUSED;
+      }
+      else if (!state && this.status === C.MEDIA_PAUSED) { //un-pause
+        await this.mcs.connect(sourceId, sinkId, 'VIDEO');
+        this.status = C.MEDIA_STARTED;
+      }
     }
-    else if (!state && this.status === C.MEDIA_PAUSED) { //un-pause
-      await this.mcs.connect(sourceId, sinkId, 'VIDEO');
-      this.status = C.MEDIA_STARTED;
+    catch (err) {
+      Logger.error("[video] MCS returned error on pause procedure with message", err);
     }
-
   }
 
   sendStartShareEvent() {

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import VoiceUsers from '/imports/api/voice-users';
 import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
@@ -14,9 +15,20 @@ const fetchStunTurnServers = (sessionToken) => {
     if (!stunServers && !turnServers) {
       return { error: 404, stun: [], turn: [] };
     }
+
+    const turnReply = [];
+    _.each(turnServers, (turnEntry) => {
+      const { password, url, username } = turnEntry;
+      turnReply.push({
+        urls: url,
+        password,
+        username,
+      });
+    });
+
     return {
       stun: stunServers.map(server => server.url),
-      turn: turnServers.map(server => server.url),
+      turn: turnReply,
     };
   };
 
