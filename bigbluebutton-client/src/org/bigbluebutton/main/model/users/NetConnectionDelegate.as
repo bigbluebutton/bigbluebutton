@@ -78,6 +78,8 @@ package org.bigbluebutton.main.model.users
 		
 		private var _applicationOptions : ApplicationOptions;
         
+	private var useRTMP:Boolean = true;
+
         public function NetConnectionDelegate():void {
             dispatcher = new Dispatcher();
             _netConnection = new NetConnection();
@@ -88,6 +90,7 @@ package org.bigbluebutton.main.model.users
             _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
             _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			_applicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
+		useRTMP = _applicationOptions.msgBusRed5;
         }
 
         
@@ -454,7 +457,6 @@ package org.bigbluebutton.main.model.users
             }
         }
 				
-				private var useRTMP:Boolean = false;
 				
 				public function connect():void {
 					if (useRTMP) {
