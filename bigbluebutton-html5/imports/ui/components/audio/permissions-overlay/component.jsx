@@ -35,8 +35,8 @@ class PermissionsOverlay extends Component {
         left: '100px',
       },
       'Microsoft Edge': {
-        bottom: '100px',
-        left: '100px',
+        top: '38em',
+        left: '38em',
       },
     };
 
