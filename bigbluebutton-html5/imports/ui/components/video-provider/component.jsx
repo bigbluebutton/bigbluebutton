@@ -137,8 +137,6 @@ class VideoProvider extends Component {
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
-
-    // window.addEventListener('orientationchange', this.orientationChange);
   }
 
   componentWillUpdate({ users, userId }) {
