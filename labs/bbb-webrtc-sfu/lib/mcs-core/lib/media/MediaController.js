@@ -43,10 +43,9 @@ module.exports = class MediaController {
     try {
       let session;
       const room = await this.createRoomMCS(roomId);
-      this._rooms[roomId] = room;
       const user = await this.createUserMCS(roomId, type, params);
       room.setUser(user.id);
-      this._users[user.id] = user;
+
       if (params.sdp) {
         session = user.addSdp(params.sdp);
       }
@@ -131,8 +130,6 @@ module.exports = class MediaController {
     return new Promise(async (resolve, reject) => {
       Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId);
       Logger.debug("[mcs-controler] Publish descriptor is", params.descriptor);
-      let session;
-      let answer;
 
       try {
         const user = await this.getUserMCS(userId);
@@ -140,40 +137,33 @@ module.exports = class MediaController {
         Logger.info("[mcs-controller] Fetched user", user.id);
 
         switch (type) {
-          case "RtpEndpoint":
-          case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type, params);
-            answer = await user.startSession(session.id);
-            break;
-          case "URI":
-            session = user.addUri(params.descriptor, type, params);
-
-            answer = await user.startSession(session.id);
+          case C.MEDIA_TYPE.RTP:
+          case C.MEDIA_TYPE.WEBRTC:
+          case C.MEDIA_TYPE.URI:
+            const { session, answer } = await user.publish(params.descriptor, type, params);
+            this.addMediaSession(session);
+            resolve({ answer, sessionId: session.id });
+            session.sessionStarted();
             break;
 
-          default: return reject(new Error("[mcs-controller] Invalid media type"));
+          default:
+            return reject(this._handleError("[mcs-controller] Invalid media type", type));
         }
-
-        if (typeof this._mediaSessions[session.id] == 'undefined' ||
-          !this._mediaSessions[session.id]) {
-          this._mediaSessions[session.id] = {};
-        }
-
-        this._mediaSessions[session.id] = session;
-        let sessionId = session.id;
-
-        resolve({answer, sessionId});
       }
       catch (err) {
         err = this._handleError(err);
         reject(err);
       }
-      finally {
-        if (typeof err === 'undefined' && session) {
-          session.sessionStarted();
-        }
-      }
     });
+  }
+
+  addMediaSession (session) {
+    if (typeof this._mediaSessions[session.id] == 'undefined' ||
+        !this._mediaSessions[session.id]) {
+      this._mediaSessions[session.id] = {};
+    }
+
+    this._mediaSessions[session.id] = session;
   }
 
   subscribe (userId, sourceId, type, params) {
@@ -181,12 +171,10 @@ module.exports = class MediaController {
       Logger.info("[mcs-controller] Subscribe from user", userId, "to source", sourceId);
       Logger.debug("[mcs-controler] Subscribe descriptor is", params.descriptor);
 
-      let session;
-      let answer;
-      const sourceSession = this._mediaSessions[sourceId];
+      const source = this._mediaSessions[sourceId];
 
-      if (typeof sourceSession === 'undefined') {
-        return Promise.reject(new Error("[mcs-controller] Media session", sourceId, "was not found"));
+      if (typeof source === 'undefined') {
+        return reject(this._handleError("[mcs-controller] Media session", sourceId, "was not found"));
       }
 
       try {
@@ -195,43 +183,23 @@ module.exports = class MediaController {
         Logger.info("[mcs-controller] Fetched user", user.id);
 
         switch (type) {
-          case "RtpEndpoint":
-          case "WebRtcEndpoint":
-            session = user.addSdp(params.descriptor, type, params);
-
-            answer = await user.startSession(session.id);
-            await sourceSession.connect(session._mediaElement);
-            sourceSession.subscribedSessions.push(session.id);
-            Logger.info("[mcs-controller] Updated", sourceSession.id,  "subscribers list to", sourceSession.subscribedSessions);
+          case C.MEDIA_TYPE.RTP:
+          case C.MEDIA_TYPE.WEBRTC:
+          case C.MEDIA_TYPE.URI:
+            const  { session, answer } = await user.subscribe(params.descriptor, type, source, params);
+            this.addMediaSession(session);
+            source.subscribedSessions.push(session.id);
+            resolve({answer, sessionId: session.id});
+            session.sessionStarted();
+            Logger.info("[mcs-controller] Updated", source.id,  "subscribers list to", source.subscribedSessions);
             break;
-          case "URI":
-            session = user.addUri(params.descriptor, type);
-            answer = await user.startSession(session.id);
-            await sourceSession.connect(session._mediaElement);
-
-            break;
-
-          default: return reject(new Error("[mcs-controller] Invalid media type"));
+          default:
+            return reject(new Error("[mcs-controller] Invalid media type"));
         }
-
-        if (typeof this._mediaSessions[session.id] == 'undefined' ||
-          !this._mediaSessions[session.id]) {
-          this._mediaSessions[session.id] = {};
-        }
-
-        this._mediaSessions[session.id] = session;
-        const sessionId = session.id;
-
-        resolve({answer, sessionId});
       }
       catch (err) {
         err = this._handleError(err);
         reject(err);
-      }
-      finally {
-        if (typeof err === 'undefined' && session) {
-          session.sessionStarted();
-        }
       }
     });
   }
@@ -268,12 +236,10 @@ module.exports = class MediaController {
 
   async startRecording (userId, sourceId, recordingName) {
     Logger.info("[mcs-controller] startRecording ", sourceId);
-
     const user = await this.getUserMCS(userId);
-
     let session;
     let answer;
-    let sourceSession = this._mediaSessions[sourceId];
+    const sourceSession = this._mediaSessions[sourceId];
 
     if (typeof sourceSession === 'undefined') {
       return Promise.reject(new Error("[mcs-controller] Media session", sourceId, "was not found"));
@@ -302,91 +268,94 @@ module.exports = class MediaController {
   }
 
   async stopRecording (userId, sourceId, recId) {
-    Logger.info("[mcs-controller] stopRecording ", recId);
+    return new Promise(async (resolve, reject) => {
+      Logger.info("[mcs-controller] stopRecording ", recId);
 
-    const user = await this.getUserMCS(userId);
+      const user = await this.getUserMCS(userId);
 
-    let answer;
-    let recSession = this._mediaSessions[recId];
-    let sourceSession = this._mediaSessions[sourceId];
+      let answer;
+      let recSession = this._mediaSessions[recId];
+      let sourceSession = this._mediaSessions[sourceId];
 
-    if (!recSession) {
-      return Promise.reject(new Error("[mcs-controller] Recording session", recId, "was not found"));
-    }
+      if (!recSession) {
+        return reject(new Error("[mcs-controller] Recording session", recId, "was not found"));
+      }
 
-    if (!sourceSession) {
-      return Promise.reject(new Error("[mcs-controller] Media session", sourceId, "was not found"));
-    }
+      if (!sourceSession) {
+        return reject(new Error("[mcs-controller] Media session", sourceId, "was not found"));
+      }
 
-    try {
-      answer = await user.stopSession(recSession.id);
-      user.unsubscribe(recSession.id);
-      this._mediaSessions[recId] = null;
-      return Promise.resolve(answer);
-    }
-    catch (err) {
-      err = this._handleError(err);
-      return Promise.reject(err);
-    }
+      try {
+        answer = await user.stopSession(recSession.id);
+        user.unsubscribe(recSession.id);
+        this._mediaSessions[recId] = null;
+        return resolve(answer);
+      }
+      catch (err) {
+        err = this._handleError(err);
+        return reject(err);
+      }
+    });
   }
 
-  async connect (sourceId, sinkId, type) {
-    Logger.info("[mcs-controller] Connect", sourceId, "to", sinkId, "with type", type);
+  connect (sourceId, sinkId, type) {
+    return new Promise(async (resolve, reject) => {
+      Logger.info("[mcs-controller] Connect", sourceId, "to", sinkId, "with type", type);
 
-    let session;
-    let sourceSession = this._mediaSessions[sourceId];
-    let sinkSession = this._mediaSessions[sinkId];
+      let session;
+      const sourceSession = this._mediaSessions[sourceId];
+      const sinkSession = this._mediaSessions[sinkId];
 
-    if (!sourceSession || !sinkSession) {
-      return Promise.reject("[mcs-controller] One of the sessions for connections wasn't found");
-    }
+      if (!sourceSession || !sinkSession) {
+        return reject(this._handleError("[mcs-controller] One of the sessions for connections wasn't found"));
+      }
 
-    try {
-      await sourceSession.connect(sinkSession._mediaElement, type);
-    }
-    catch (err) {
-      Logger.error("[mcs-controller] Subscribe failed with an error", err);
-      return Promise.reject(err);
-    }
-
-    return Promise.resolve();
+      try {
+        await sourceSession.connect(sinkSession._mediaElement, type);
+        return resolve();
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 
-  async disconnect (sourceId, sinkId, type) {
-    Logger.info("[mcs-controller] Disconnect", sourceId, "to", sinkId, "with type", type);
+  disconnect (sourceId, sinkId, type) {
+    return new Promise(async (resolve, reject) => {
+      Logger.info("[mcs-controller] Disconnect", sourceId, "to", sinkId, "with type", type);
 
-    let session;
-    let sourceSession = this._mediaSessions[sourceId];
-    let sinkSession = this._mediaSessions[sinkId];
+      let session;
+      const sourceSession = this._mediaSessions[sourceId];
+      const sinkSession = this._mediaSessions[sinkId];
 
-    if (!sourceSession || !sinkSession) {
-      return Promise.reject("[mcs-controller] One of the sessions for connections wasn't found");
-    }
+      if (!sourceSession || !sinkSession) {
+        return reject(this._handleError("[mcs-controller] One of the sessions for connections wasn't found"));
+      }
 
-    try {
-      await sourceSession.disconnect(sinkSession._mediaElement, type);
-    }
-    catch (err) {
-      Logger.error("[mcs-controller] Subscribe failed with an error", err);
-      return Promise.reject(err);
-    }
-
-    return Promise.resolve();
+      try {
+        await sourceSession.disconnect(sinkSession._mediaElement, type);
+        return resolve();
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 
-  async addIceCandidate (mediaId, candidate) {
+  addIceCandidate (mediaId, candidate) {
     const session = this._mediaSessions[mediaId];
-    if (!session) {
-      return Promise.reject(new Error("[mcs-controller] Media session " + mediaId + " was not found"));
-    }
-    try {
-      const ack = await session.addIceCandidate(candidate);
-      return Promise.resolve(ack);
-    }
-    catch (err) {
-      err = this._handleError(err);
-      return Promise.reject(err);
-    }
+    return new Promise(async (resolve, reject) => {
+      if (!session) {
+        return reject(this._handleError("[mcs-controller] Media session " + mediaId + " was not found"));
+      }
+      try {
+        await session.addIceCandidate(candidate);
+        return resolve();
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 
   /**
@@ -394,15 +363,13 @@ module.exports = class MediaController {
    * @param {String} roomId
    */
   async createRoomMCS (roomId)  {
-    let self = this;
-
     Logger.info("[mcs-controller] Creating new room with ID", roomId);
 
-    if(!self._rooms[roomId]) {
-      self._rooms[roomId] = new Room(roomId);
+    if (!this._rooms[roomId]) {
+      this._rooms[roomId] = new Room(roomId);
     }
 
-    return Promise.resolve(self._rooms[roomId]);
+    return Promise.resolve(this._rooms[roomId]);
   }
 
   /**
@@ -410,7 +377,6 @@ module.exports = class MediaController {
    * @param {String} roomId
    */
   createUserMCS (roomId, type, params)  {
-    let self = this;
     let user;
     Logger.info("[mcs-controller] Creating a new", type, "user at room", roomId);
 
@@ -425,8 +391,8 @@ module.exports = class MediaController {
         Logger.warn("[mcs-controller] Unrecognized user type");
     }
 
-    if(!self._users[user.id]) {
-      self._users[user.id] = user;
+    if(!this._users[user.id]) {
+      this._users[user.id] = user;
     }
 
     return Promise.resolve(user);
@@ -437,7 +403,7 @@ module.exports = class MediaController {
   }
 
   _handleError (error) {
-    Logger.error("[mcs-controller] Controller received error", error);
+    Logger.trace("[mcs-controller] Controller received error", error, error.stack);
     // Checking if the error needs to be wrapped into a JS Error instance
     if (!isError(error)) {
       error = new Error(error);

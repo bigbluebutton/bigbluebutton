@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.common {
+package org.bigbluebutton.common.logging {
 
 	import org.as3commons.logging.api.LOGGER_FACTORY;
 	import org.as3commons.logging.setup.LevelTargetSetup;

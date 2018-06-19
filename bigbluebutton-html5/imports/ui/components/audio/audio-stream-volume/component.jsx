@@ -29,7 +29,6 @@ class AudioStreamVolume extends Component {
     this.handleError = this.handleError.bind(this);
 
     this.state = {
-      instant: 0,
       slow: 0,
     };
   }
@@ -42,7 +41,6 @@ class AudioStreamVolume extends Component {
     if (prevProps.deviceId !== this.props.deviceId) {
       this.closeAudioContext().then(() => {
         this.setState({
-          instant: 0,
           slow: 0,
         });
         this.createAudioContext();
@@ -104,12 +102,13 @@ class AudioStreamVolume extends Component {
   }
 
   handleError(error) {
-    log('error', error);
+    log('error', JSON.stringify(error));
   }
 
   render() {
-    const { low, optimum, high, deviceId, ...props } = this.props;
-    const { instant, slow } = this.state;
+    const {
+      low, optimum, high, ...props
+    } = this.props;
 
     return (
       <meter

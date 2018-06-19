@@ -47,7 +47,7 @@
     > input:checked {
       & ~ label {
         &:before {
-          content: '\e951';
+          content: '\e952';
           color: $color-primary;
         }
       }

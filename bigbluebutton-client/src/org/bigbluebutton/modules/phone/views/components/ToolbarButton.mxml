@@ -280,7 +280,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showNotification():void {
-				if (parent.visible) {
+				if (parent && parent.visible) {
 					visible = includeInLayout = true;
 					
 					if (notificationTimer.running) notificationTimer.reset();

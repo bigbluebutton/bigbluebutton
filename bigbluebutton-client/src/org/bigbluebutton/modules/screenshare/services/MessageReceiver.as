@@ -125,7 +125,7 @@ package org.bigbluebutton.modules.screenshare.services
         var shareStartedEvent: ShareStartedEvent = new ShareStartedEvent(map.streamId, map.width,
             map.height, map.url);
         dispatcher.dispatchEvent(shareStartedEvent); 
-		Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.screenShare.started"), ToastType.INFO, ToastIcon.DESKTOP);
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.screenShare.started"), ToastType.INFO, ToastIcon.DESKTOP);
       }
     }
 

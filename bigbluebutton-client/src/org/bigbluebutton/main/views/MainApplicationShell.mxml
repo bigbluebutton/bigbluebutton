@@ -853,8 +853,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 			
 			private function handleOpenRecordWindowEvent(e:BBBEvent):void {
-				var popUp:RecordWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, RecordWindow, true) as RecordWindow;
+				var popUp:RecordWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, RecordWindow, false) as RecordWindow;
 				popUp.setRecordingFlag(e.payload.recording);
+				PopUpUtil.lockPosition(popUp, function():Point {
+					return new Point(parentApplication.width - 150 - popUp.width, y + toolbar.height); 
+				});
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void{
@@ -895,7 +898,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   visible="{_showToolbar}"
 					   includeInLayout="{showToolbarOpt}"
 					   verticalAlign="middle" 
-					   toolbarOptions="{layoutOptions}" 
 					   updateComplete="updateToolbarHeight()"/>
 				
 	<!-- MainCanvas height has to be forced or it will never show and the application will not continue loading -->

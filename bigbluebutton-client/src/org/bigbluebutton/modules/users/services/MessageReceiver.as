@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.TimerUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
   import org.bigbluebutton.core.events.CoreEvent;
@@ -234,7 +235,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(vu.intId)) {
         LiveMeeting.inst().me.muted = vu.muted;
         LiveMeeting.inst().me.inVoiceConf = true;
-		Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
@@ -253,7 +254,7 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(intId)) {
         LiveMeeting.inst().me.muted = false;
         LiveMeeting.inst().me.inVoiceConf = false;
-		Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
+		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
@@ -722,6 +723,12 @@ package org.bigbluebutton.modules.users.services
     }
 	
 	private function handleUpdateRecordingTimer(msg:Object):void {
+		if (msg.body.time > 0) {
+			TimerUtil.recordingTimeReceived = true;
+		} else {
+			TimerUtil.recordingTimeReceived = false;
+		}
+		
 		var e:UpdateRecordingTimerEvent = new UpdateRecordingTimerEvent(msg.body.time);
 		dispatcher.dispatchEvent(e);
 	}

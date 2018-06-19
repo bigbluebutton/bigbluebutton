@@ -77,18 +77,8 @@ module.exports = class VideoManager extends BaseManager {
           this._sessions[sessionId] = video;
         }
 
-        video.start(message.sdpOffer, (error, sdpAnswer) => {
-          if (error) {
-            return this._bbbGW.publish(JSON.stringify({
-              connectionId: connectionId,
-              type: 'video',
-              role: role,
-              id : 'error',
-              response : 'rejected',
-              cameraId : message.cameraId,
-              message : error
-            }), C.FROM_VIDEO);
-          }
+        try {
+          const sdpAnswer = await video.start(message.sdpOffer);
 
           // Empty ice queue after starting video
           this._flushIceQueue(video, iceQueue);
@@ -105,7 +95,18 @@ module.exports = class VideoManager extends BaseManager {
             cameraId: message.cameraId,
             sdpAnswer : sdpAnswer
           }), C.FROM_VIDEO);
-        });
+        }
+        catch (err) {
+          return this._bbbGW.publish(JSON.stringify({
+            connectionId: connectionId,
+            type: 'video',
+            role: role,
+            id : 'error',
+            response : 'rejected',
+            cameraId : message.cameraId,
+            message :err 
+          }), C.FROM_VIDEO);
+        }
         break;
 
       case 'stop':

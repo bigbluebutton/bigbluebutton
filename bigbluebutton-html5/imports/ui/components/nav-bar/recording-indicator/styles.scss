@@ -55,3 +55,7 @@
   @extend %baseIndicatorLabel;
   color: $color-gray;
 }
+
+.recordState {
+  display: flex;
+}

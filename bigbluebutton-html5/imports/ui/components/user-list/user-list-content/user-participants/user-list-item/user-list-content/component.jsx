@@ -52,7 +52,6 @@ const propTypes = {
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
-  setDropdownOpenState: PropTypes.func.isRequired,
 };
 
 
@@ -110,14 +109,13 @@ class UserListContent extends Component {
     });
 
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
-    this.props.setDropdownOpenState(true);
   }
 
   onActionsHide() {
     this.setState({
       isActionsOpen: false,
       dropdownVisible: false,
-    }, () => this.props.setDropdownOpenState(false));
+    });
 
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);

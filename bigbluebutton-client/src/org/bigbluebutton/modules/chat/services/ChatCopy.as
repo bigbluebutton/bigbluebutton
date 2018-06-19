@@ -7,13 +7,15 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
   import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.util.i18n.ResourceUtil;
-
+	import mx.controls.Alert;
+	
   public class ChatCopy
   {
     public function copyAllText(e:ChatCopyEvent):void {
       var chat:ChatConversation = e.chatMessages;
       System.setClipboard(chat.getAllMessageAsString());
-	  Toaster.toast(ResourceUtil.getInstance().getString('bbb.chat.copy.complete'), ToastType.SUCCESS);
+			Alert.show(ResourceUtil.getInstance().getString('bbb.chat.copy.complete'), "", Alert.OK);
+	  //Toaster.toast(ResourceUtil.getInstance().getString('bbb.chat.copy.complete'), ToastType.SUCCESS);
     }
   }
 }
