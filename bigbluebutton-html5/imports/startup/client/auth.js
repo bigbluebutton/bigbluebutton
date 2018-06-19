@@ -3,6 +3,7 @@ import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
+import logger from '/imports/startup/client/logger';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -15,6 +16,9 @@ export function joinRouteHandler(nextState, replace, callback) {
     replace({ pathname: '/error/404' });
     callback();
   }
+  
+  // Old credentials stored in memory were being used when browsers was refreshed
+  Auth.clearCredentials();
 
   // use enter api to get params for the client
   const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
@@ -24,6 +28,8 @@ export function joinRouteHandler(nextState, replace, callback) {
     .then(({ response }) => {
       const {
         returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+        externUserID, fullname, confname,
+
       } = response;
 
       if (returncode === 'FAILED') {
@@ -55,13 +61,32 @@ export function joinRouteHandler(nextState, replace, callback) {
         }) : {};
       SessionStorage.setItem(METADATA_KEY, metakeys);
 
-      Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
+      Auth.set(
+        meetingID, internalUserID, authToken, logoutUrl,
+        sessionToken, fullname, externUserID, confname,
+      );
 
       const path = deviceInfo.type().isPhone ? '/' : '/users';
+      const userInfo = window.navigator;
+
+      // Browser information is sent once on startup
+      // Sent here instead of Meteor.startup, as the
+      // user might not be validiated by then, thus user's data
+      // would not be sent with this information
+      const clientInfo = {
+        language: userInfo.language,
+        userAgent: userInfo.userAgent,
+        screenSize: { width: window.screen.width, height: window.screen.height },
+        windowSize: { width: window.innerWidth, height: window.innerHeight },
+        bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+        location: window.location.href,
+      };
 
       replace({ pathname: path });
 
       callback();
+
+      logger.info(JSON.stringify(clientInfo));
     });
 }
 

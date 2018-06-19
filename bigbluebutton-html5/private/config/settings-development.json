@@ -336,6 +336,12 @@
           }
         ]
       }
+      
+    },
+    "log": {
+      "level":"info",
+      "target": ["server"],
+      "url":""
     }
   },
 
