@@ -10,6 +10,7 @@ const deviceInfo = {
 
     return {
       isPhone: smallSide <= MAX_PHONE_SHORT_SIDE,
+      isMobile: window.matchMedia('only screen and (max-width: 40em)').matches,
     };
   },
   browserType() {
@@ -35,4 +36,3 @@ const deviceInfo = {
 
 
 export default deviceInfo;
-
