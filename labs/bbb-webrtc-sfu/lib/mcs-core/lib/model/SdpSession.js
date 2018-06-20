@@ -12,6 +12,7 @@ const MediaServer = require('../media/media-server');
 const MediaSession = require('./MediaSession');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
+const kurentoIp = config.get('kurentoIp');
 const Logger = require('../../../utils/Logger');
 
 module.exports = class SdpSession extends MediaSession {
@@ -30,30 +31,34 @@ module.exports = class SdpSession extends MediaSession {
     await this._sdp.processSdp();
   }
 
-  async process () {
-    try {
-      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp());
+  process () {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp());
 
-      if (this._type === 'WebRtcEndpoint') {
-        this._MediaServer.gatherCandidates(this._mediaElement);
+        if (this._type != 'WebRtcEndpoint') {
+          this._sdp.replaceServerIpv4(kurentoIp);
+          return resolve(answer);
+        }
+
+        await this._MediaServer.gatherCandidates(this._mediaElement);
+        resolve(answer);
       }
-
-      return Promise.resolve(answer);
-    }
-    catch (err) {
-      err = this._handleError(err);
-      return Promise.reject(err);
-    }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 
-  async addIceCandidate (candidate) {
-    try {
-      await this._MediaServer.addIceCandidate(this._mediaElement, candidate);
-      Promise.resolve();
-    }
-    catch (err) {
-      err = this._handleError(err);
-      Promise.reject(err);
-    }
+  addIceCandidate (candidate) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this._MediaServer.addIceCandidate(this._mediaElement, candidate);
+        resolve();
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 }

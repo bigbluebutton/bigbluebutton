@@ -2,8 +2,8 @@
 // Uses the first meeting started after the application runs and will list all
 // events, but only the first time they happen.
 
-redis = require("redis");
-
+const redis = require("redis");
+const config = require('../config.js');
 var target_meeting = null;
 var events_printed = [];
 var subscriber = redis.createClient();
@@ -15,32 +15,25 @@ subscriber.on("psubscribe", function(channel, count) {
 subscriber.on("pmessage", function(pattern, channel, message) {
   try {
     message = JSON.parse(message);
-    if (message !== null && message !== undefined && message.header !== undefined) {
+    if (message.hasOwnProperty('envelope')) {
 
-      var message_meeting_id = message.payload.meeting_id;
-      var message_name = message.header.name;
+      var message_name = message.envelope.name;
 
-      if (message_name === "meeting_created_message") {
-        if (target_meeting === null) {
-          target_meeting = message_meeting_id;
-        }
+      if (!containsOrAdd(events_printed, message_name)) {
+        console.log("\n###", message_name, "\n");
+        console.log(message);
+        console.log("\n");
       }
-
-      if (target_meeting !== null && target_meeting === message_meeting_id) {
-        if (!containsOrAdd(events_printed, message_name)) {
-          console.log("\n###", message_name, "\n");
-          console.log(message);
-          console.log("\n");
-        }
-      }
-
     }
   } catch(e) {
     console.log("error processing the message", message, ":", e);
   }
 });
 
-subscriber.psubscribe("bigbluebutton:*");
+for (let k in config.hooks.channels) {
+  const channel = config.hooks.channels[k];
+  subscriber.psubscribe(channel);
+}
 
 var containsOrAdd = function(list, value) {
   for (i = 0; i <= list.length-1; i++) {

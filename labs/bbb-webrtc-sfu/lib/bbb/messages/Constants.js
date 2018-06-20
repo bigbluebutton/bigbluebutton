@@ -9,7 +9,7 @@ const config = require('config');
   function Constants () {
     return {
         // Media elements
-        WebRTC: "WebRtcEndpoint",
+        WEBRTC: "WebRtcEndpoint",
         RTP: "RtpEndpoint",
         AUDIO: "AUDIO",
         VIDEO: "VIDEO",

@@ -48,7 +48,7 @@ module.exports = class BaseManager {
   }
 
   _fetchIceQueue (sessionId) {
-    if (!this._iceQueues[sessionId]) {
+    if (this._iceQueues[sessionId] == null) {
       this._iceQueues[sessionId] = [];
     }
 
@@ -79,7 +79,7 @@ module.exports = class BaseManager {
     return new Promise(async (resolve, reject) => {
       Logger.info(this._logPrefix, 'Stopping session ' + sessionId);
       try {
-        if (!this._sessions || !sessionId) {
+        if (this._sessions == null|| sessionId == null) {
           return resolve();
         }
 
@@ -104,7 +104,7 @@ module.exports = class BaseManager {
     return new Promise(async (resolve, reject) => {
       try {
         Logger.info(this._logPrefix, 'Stopping everything! ');
-        if (!this._sessions) {
+        if (this._sessions == null) {
           return resolve;
         }
 
