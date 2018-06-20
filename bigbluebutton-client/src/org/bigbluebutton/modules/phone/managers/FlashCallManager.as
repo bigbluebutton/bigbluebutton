@@ -404,6 +404,7 @@
         case IN_CONFERENCE:
 		  LOGGER.debug("Reconnected while transmiting mic. Automatic retransmission not implemented.");
           state = INITED;
+					callIntoVoiceConference();
           break;
 
         default:

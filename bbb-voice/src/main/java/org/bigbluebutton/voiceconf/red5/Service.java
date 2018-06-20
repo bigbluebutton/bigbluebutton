@@ -56,7 +56,7 @@ public class Service {
 	}
 
 	public Boolean call(String peerId, String callerName, String destination) {
-    	String clientId = Red5.getConnectionLocal().getClient().getId();
+    	String clientId = getClientId();
     	String userid = getUserId();
     	String username = getUsername();		
     	log.debug("{} is requesting to join into the conference {}", username + "[uid=" + userid + "][clientid=" + clientId + "]", destination);
@@ -73,10 +73,10 @@ public class Service {
 	}
 
 	public Boolean hangup(String peerId) {
-    	String clientId = Red5.getConnectionLocal().getClient().getId();
+		String connId = getClientId();
     	String userid = getUserId();
     	String username = getUsername();		
-    	log.debug("{} is requesting to hang up from the conference.", username + "[uid=" + userid + "][clientid=" + clientId + "]");
+    	log.debug("{} is requesting to hang up from the conference.", username + "[uid=" + userid + "][clientid=" + connId + "]");
 		try {
 			sipPeerManager.hangup(peerId, getClientId());
 			return true;
@@ -87,8 +87,7 @@ public class Service {
 	}
 
 	private String getClientId() {
-		IConnection conn = Red5.getConnectionLocal();
-		return conn.getClient().getId();
+		return Red5.getConnectionLocal().getSessionId();
 	}
 	
 	public void setCallExtensionPattern(String callExtensionPattern) {

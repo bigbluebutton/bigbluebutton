@@ -116,7 +116,6 @@ public class Application extends MultiThreadedApplicationAdapter {
 			return false;
 		}
 
-		String clientId = Red5.getConnectionLocal().getClient().getId();
 		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
 		int remotePort = Red5.getConnectionLocal().getRemotePort();
 
@@ -125,12 +124,12 @@ public class Application extends MultiThreadedApplicationAdapter {
 		Red5.getConnectionLocal().setAttribute("USERNAME", username);
         Red5.getConnectionLocal().setAttribute("CLIENT_CONN_ID", clientConnId);
 
-		log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userId + "]", clientId);
-		log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
-
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String userFullname = username;
 		String connId = Red5.getConnectionLocal().getSessionId();
+
+		log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userId + "]", connId);
+		log.info("[clientid={}] connected from {}.", connId, remoteHost + ":" + remotePort);
 
 		log.info("BBB Voice validateConnAuthToken");
 		messagingService.validateConnAuthToken(meetingId, userId, authToken, connId);
@@ -150,7 +149,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 
 		log.info("User joining bbb-voice: data={}", logStr);
 
-		clientConnManager.createClient(clientId, userId, username, (IServiceCapableConnection) Red5.getConnectionLocal());
+		clientConnManager.createClient(connId, userId, username, (IServiceCapableConnection) Red5.getConnectionLocal());
 		return super.appConnect(conn, params);
 	}
 
@@ -166,19 +165,19 @@ public class Application extends MultiThreadedApplicationAdapter {
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		String clientId = Red5.getConnectionLocal().getClient().getId();
 		String userId = getUserId();
 		String username = getUsername();
 
 		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
 		int remotePort = Red5.getConnectionLocal().getRemotePort();
-		log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
-		log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userId + "]", clientId);
 
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String userFullname = username;
 		String connId = Red5.getConnectionLocal().getSessionId();
 		String clientConnId = conn.getAttribute("CLIENT_CONN_ID").toString();
+
+		log.info("[clientid={}] disconnnected from {}.", connId, remoteHost + ":" + remotePort);
+		log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userId + "]", connId);
 
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", getMeetingId());
@@ -195,14 +194,14 @@ public class Application extends MultiThreadedApplicationAdapter {
 
 		log.info("User leaving bbb-voice: data={}", logStr);
 
-		clientConnManager.removeClient(clientId);
+		clientConnManager.removeClient(connId);
 
 		String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
 
 		if (peerId != null) {
 				try {
-					log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userId + "]", clientId);
-					sipPeerManager.hangup(peerId, clientId);
+					log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userId + "]", connId);
+					sipPeerManager.hangup(peerId, connId);
 				} catch (PeerNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -213,17 +212,17 @@ public class Application extends MultiThreadedApplicationAdapter {
     
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
-    	String clientId = Red5.getConnectionLocal().getClient().getId();
     	String userid = getUserId();
     	String username = getUsername();
-    	
-    	log.debug("{} has started publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
+			String connId = Red5.getConnectionLocal().getSessionId();
+
+    	log.debug("{} has started publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + connId + "]", stream.getPublishedName());
     	System.out.println("streamPublishStart: " + stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {
         	super.streamPublishStart(stream);
-	    	sipPeerManager.startTalkStream(peerId, clientId, stream, conn.getScope());
+	    	sipPeerManager.startTalkStream(peerId, connId, stream, conn.getScope());
 //	    	recordStream(stream);
         }
     }
@@ -247,15 +246,15 @@ public class Application extends MultiThreadedApplicationAdapter {
     
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
-    	String clientId = Red5.getConnectionLocal().getClient().getId();
+			String connId = Red5.getConnectionLocal().getSessionId();
     	String userid = getUserId();
     	String username = getUsername();
     	
-    	log.debug("{} has stopped publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
+    	log.debug("{} has stopped publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + connId + "]", stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {	    	
-	    	sipPeerManager.stopTalkStream(peerId, clientId, stream, conn.getScope());
+	    	sipPeerManager.stopTalkStream(peerId, connId, stream, conn.getScope());
 	    	super.streamBroadcastClose(stream);
         }
     }

@@ -24,18 +24,19 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.media.H264Level;
 	import flash.media.H264Profile;
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.utils.Timer;
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
@@ -58,6 +59,8 @@ package org.bigbluebutton.modules.videoconf.business
 
 		private var videoConnUrl: String;
 		private var numNetworkChangeCount:int = 0;
+		
+		private var connectionTimer:Timer;
 		
 		private function parseOptions():void {
 			videoOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
@@ -144,6 +147,18 @@ package org.bigbluebutton.modules.videoconf.business
 			LOGGER.error(JSON.stringify(logData));
 		}
 		
+		private function performAutoReconnectSequence():void {
+			// Need to trigger using a timer as we can't just connect
+			// directly from the netstatus event. (ralam may 15, 2018)
+			connectionTimer = new Timer(1000, 1);
+			connectionTimer.addEventListener(TimerEvent.TIMER, autoReconnect);
+			connectionTimer.start();
+		}
+		
+		private function autoReconnect(e:TimerEvent) : void {
+			connect();
+		}
+		
 		private function onConnectedToVideoApp():void{
 			dispatcher.dispatchEvent(new ConnectedEvent(reconnecting));
 			if (reconnecting) {
@@ -157,9 +172,8 @@ package org.bigbluebutton.modules.videoconf.business
 				logData.logCode = "connection_reconnect_attempt_succeeded";
 				LOGGER.info(JSON.stringify(logData));
 				
-				var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
-				attemptSucceeded.payload.type = ReconnectionManager.VIDEO_CONNECTION;
-				dispatcher.dispatchEvent(attemptSucceeded);
+				var connMsg:String = ConnUtil.connectionReestablishedMsg(ConnUtil.VIDEO_CONNECTION);
+				ConnUtil.connectionSuccessEvent(connMsg);
 			}
 		}
     
@@ -199,12 +213,8 @@ package org.bigbluebutton.modules.videoconf.business
 						
 						logData.logCode = "connection_reconnect_attempt";
 						LOGGER.info(JSON.stringify(logData));
-						
-						var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
-						disconnectedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
-						disconnectedEvent.payload.callback = connect;
-						disconnectedEvent.payload.callbackParameters = [];
-						dispatcher.dispatchEvent(disconnectedEvent);
+												
+						performAutoReconnectSequence();
 					}
 					break;
 					
@@ -217,7 +227,7 @@ package org.bigbluebutton.modules.videoconf.business
 						LOGGER.info(JSON.stringify(logData));
 						
 						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-						attemptFailedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						attemptFailedEvent.payload.type = ConnUtil.VIDEO_CONNECTION;
 						dispatcher.dispatchEvent(attemptFailedEvent);
 					}
 										

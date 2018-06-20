@@ -270,7 +270,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         callState = CallState.UA_ONCALL;
         notifyListenersOnCallConnected("", globalAudioStreamName);
         log.info("User is has connected to global audio, user=[" + callerIdName + "] voiceConf = [" + voiceConf + "]");
-        messagingService.userConnectedToGlobalAudio(voiceConf, callerIdName);
+        messagingService.userConnectedToGlobalAudio(voiceConf, callerIdName, clientId);
         
     }
     

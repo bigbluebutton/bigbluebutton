@@ -18,7 +18,7 @@ trait UserConnectedToGlobalAudioMsgHdlr {
       val envelope = BbbCoreEnvelope(UserJoinedVoiceConfToClientEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserJoinedVoiceConfToClientEvtMsg.NAME, props.meetingProp.intId, vu.intId)
 
-      val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.intId,
+      val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.voiceUserId,
         callingWith = vu.callingWith, callerName = vu.callerName,
         callerNum = vu.callerNum, muted = true, talking = false, listenOnly = true)
       val event = UserJoinedVoiceConfToClientEvtMsg(header, body)
@@ -30,7 +30,7 @@ trait UserConnectedToGlobalAudioMsgHdlr {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
 
-      val vu = VoiceUserState(intId = user.intId, voiceUserId = user.intId, callingWith = "flash", callerName = user.name,
+      val vu = VoiceUserState(intId = user.intId, voiceUserId = msg.body.connId, callingWith = "flash", callerName = user.name,
         callerNum = user.name, muted = true, talking = false, listenOnly = true)
       VoiceUsers.add(liveMeeting.voiceUsers, vu)
 

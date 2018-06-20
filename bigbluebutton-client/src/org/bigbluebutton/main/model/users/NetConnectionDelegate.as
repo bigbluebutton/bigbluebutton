@@ -19,6 +19,7 @@
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -28,6 +29,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -360,7 +362,7 @@ package org.bigbluebutton.main.model.users
 					LOGGER.info(JSON.stringify(logData));
 					
             var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
-            attemptSucceeded.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+            attemptSucceeded.payload.type = ConnUtil.BIGBLUEBUTTON_CONNECTION;
             dispatcher.dispatchEvent(attemptSucceeded);
         }
 
@@ -641,7 +643,7 @@ package org.bigbluebutton.main.model.users
 									LOGGER.info(JSON.stringify(logData));
 									
                     var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-                    attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                    attemptFailedEvent.payload.type = ConnUtil.BIGBLUEBUTTON_CONNECTION;
                     dispatcher.dispatchEvent(attemptFailedEvent);
                 } else {
                     reconnecting = true;
@@ -653,7 +655,7 @@ package org.bigbluebutton.main.model.users
 										LOGGER.info(JSON.stringify(logData));
 										
                     var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
-                    disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                    disconnectedEvent.payload.type = ConnUtil.BIGBLUEBUTTON_CONNECTION;
                     disconnectedEvent.payload.callback = connect;
                     disconnectedEvent.payload.callbackParameters = new Array();
                     dispatcher.dispatchEvent(disconnectedEvent);
