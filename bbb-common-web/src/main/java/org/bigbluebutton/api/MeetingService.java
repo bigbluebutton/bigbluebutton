@@ -62,6 +62,8 @@ import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
+import org.bigbluebutton.web.services.callback.CallbackUrlService;
+import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.StunTurnService;
 import org.bigbluebutton.web.services.turn.TurnEntry;
@@ -89,6 +91,7 @@ public class MeetingService implements MessageListener {
   private RegisteredUserCleanupTimerTask registeredUserCleaner;
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
+  private CallbackUrlService callbackUrlService;
 
   private ParamsProcessorUtil paramsProcessorUtil;
   private PresentationUrlDownloadService presDownloadService;
@@ -561,7 +564,14 @@ public class MeetingService implements MessageListener {
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.info("Meeting destroyed: data={}", logStr);
+      log.info("Meeting ended: data={}", logStr);
+
+      String END_CALLBACK_URL = "endCallbackUrl".toLowerCase();
+      Map<String, String> metadata = m.getMetadata();
+      if (metadata.containsKey(END_CALLBACK_URL)) {
+        String callbackUrl = metadata.get(END_CALLBACK_URL);
+        callbackUrlService.handleMessage(new MeetingEndedEvent(callbackUrl));
+      }
 
       processRemoveEndedMeeting(message);
 
@@ -895,6 +905,10 @@ public class MeetingService implements MessageListener {
 
   public void setRedisStorageService(RedisStorageService mess) {
     storeService = mess;
+  }
+
+  public void setCallbackUrlService(CallbackUrlService service) {
+    callbackUrlService = service;
   }
 
   public void setGw(IBbbWebApiGWApp gw) {
