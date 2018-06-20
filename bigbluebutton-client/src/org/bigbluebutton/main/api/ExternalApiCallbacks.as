@@ -37,6 +37,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.VoiceConfEvent;
+  import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -108,6 +109,9 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
         ExternalInterface.addCallback("getSessionToken", handleGetSessionToken);
         ExternalInterface.addCallback("webRTCMonitorUpdate", handleWebRTCMonitorUpdate);
+		
+		ExternalInterface.addCallback("onMessageFromDS", handleOnMessageFromDS);
+		ExternalInterface.addCallback("connectedToVertx", handleOnConnectedToVertx);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -425,5 +429,19 @@ package org.bigbluebutton.main.api
       e.payload.results = results;
       _dispatcher.dispatchEvent(e);
     }
+	
+	private function handleOnMessageFromDS(msg: Object):void {
+		trace("FROM VERTX");
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.onMessageFromDS(msg);
+	}	
+	
+	private function handleOnConnectedToVertx():void {
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.connectedToVertx();
+	}		
+	
+	
+	
   }
 }

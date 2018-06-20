@@ -24,11 +24,14 @@ package org.bigbluebutton.main.model.users
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import mx.utils.ObjectUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -75,6 +78,8 @@ package org.bigbluebutton.main.model.users
 		
 		private var _applicationOptions : ApplicationOptions;
         
+	private var useRTMP:Boolean = true;
+
         public function NetConnectionDelegate():void {
             dispatcher = new Dispatcher();
             _netConnection = new NetConnection();
@@ -85,6 +90,7 @@ package org.bigbluebutton.main.model.users
             _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
             _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			_applicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
+		useRTMP = _applicationOptions.msgBusRed5;
         }
 
         
@@ -206,6 +212,38 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
         }
 
+				private function validateTokenVertx():void {
+					var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
+					var intUserId: String = LiveMeeting.inst().me.id;
+					var authToken: String = LiveMeeting.inst().me.authToken;
+					
+					var header: MsgFromClientHdr = new MsgFromClientHdr("ValidateAuthTokenReqMsg");
+					
+					var body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(intUserId,
+						authToken);
+					
+					var message: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(body);
+					
+					sendMessage2x(
+						// result - On successful result
+						function(result:Object):void { 
+							
+						},
+						// status - On error occurred
+						function(status:Object):void {
+							LOGGER.error("Error occurred:");
+							for (var x:Object in status) {
+								LOGGER.error(x + " : " + status[x]);
+							} 
+						},
+						message
+					); //_netConnection.call    
+					
+					_validateTokenTimer = new Timer(10000, 1);
+					_validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
+					_validateTokenTimer.start();
+				}
+				
         private function validateToken2x():void {
           var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
           var intUserId: String = LiveMeeting.inst().me.id;
@@ -229,7 +267,7 @@ package org.bigbluebutton.main.model.users
                         LOGGER.error(x + " : " + status[x]);
                     } 
                 },
-                JSON.stringify(message)
+                message
             ); //_netConnection.call      
             
             _validateTokenTimer = new Timer(10000, 1);
@@ -238,27 +276,37 @@ package org.bigbluebutton.main.model.users
         }
 
         public function sendMessage2x(onSuccess:Function, onFailure:Function, json:Object):void {
-
-            var service: String = "onMessageFromClient";
-
-            var responder:Responder =   new Responder(
-                function(result:Object):void { // On successful result
-                    onSuccess("Successfully sent [" + service + "]."); 
-                },
-                function(status:Object):void { // status - On error occurred
-                    var errorReason:String = "Failed to send [" + service + "]:\n"; 
-                    for (var x:Object in status) { 
-                        errorReason += "\t" + x + " : " + status[x]; 
-                    } 
-                }
-            );
-
-            if (json == null) {
-                _netConnection.call(service, responder);
-            } else {
-                _netConnection.call(service, responder, json);
-            }
+					if (useRTMP) {
+						sendMessageToRed5(onSuccess, onFailure, json);
+					} else {
+						if (connected2Vertx) {
+							sendToVertx(json);
+						}	
+					}		
         }
+								
+				private function sendMessageToRed5(onSuccess:Function, onFailure:Function, json:Object):void {
+					var service: String = "onMessageFromClient";
+					
+					var responder:Responder =   new Responder(
+						function(result:Object):void { // On successful result
+							onSuccess("Successfully sent [" + service + "]."); 
+						},
+						function(status:Object):void { // status - On error occurred
+							var errorReason:String = "Failed to send [" + service + "]:\n"; 
+							for (var x:Object in status) { 
+								errorReason += "\t" + x + " : " + status[x]; 
+							} 
+						}
+					);
+					
+					if (json == null) {
+						_netConnection.call(service, responder);
+					} else {
+						_netConnection.call(service, responder, JSON.stringify(json));
+					}
+				}
+				
 
 
         private function validateToken():void {
@@ -408,8 +456,64 @@ package org.bigbluebutton.main.model.users
                 _netConnection.call(service, responder, message);
             }
         }
+				
+				
+				public function connect():void {
+					if (useRTMP) {
+						connectRTMP();
+					} else {
+						connectToVertx(LiveMeeting.inst().me.authToken);
+					}
+				}
 
-        public function connect():void {
+				private function connectMessage():void {
+					var message:Object = {
+						header: {name: "HandshakeMessage", 
+							meetingId: UsersUtil.getInternalMeetingID(), 
+							userId: UsersUtil.getMyUserID()},
+						body: {token: LiveMeeting.inst().me.authToken}
+					};
+					
+					sendToVertx(message);
+				}
+				
+				private function connectToVertx(authToken:String):void {
+					if (ExternalInterface.available) {
+						ExternalInterface.call("BBB.sendAuthToken", authToken);
+					}
+				}
+				
+				public function onMessageFromDS(msg: Object): void {
+					//trace("*** From DS: " + JSON.stringify(msg));
+					var header: Object = msg.header as Object;
+					
+					var name:String = header.name as String;
+					if (name == "HandshakeReplyMessage") {
+						validateTokenVertx();
+					} else {
+						onMessageFromServer2x(header.name as String, JSON.stringify(msg));
+					}
+				}
+				
+				private var connected2Vertx:Boolean = false;
+				
+				public function connectedToVertx(): void {
+					//trace("*** From DS: connectedToVertx");
+					connected2Vertx = true;
+					connectMessage();
+				}
+				
+				private function sendToVertx(json:Object):void {
+					if (ExternalInterface.available) {
+						//trace("SENDING TO VERTX");
+						//var jsonstr:String = JSON.stringify(json);
+						ExternalInterface.call("BBB.sendToDeepstream", json);
+					}
+				}
+				
+				
+				
+        public function connectRTMP():void {
             var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
 						var connId:String = ConnUtil.generateConnId();
 						BBB.initConnectionManager().appsConnId = connId;
@@ -495,7 +599,7 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
             
             if (connectAttemptCount <= maxConnectAttempt) {
-                connect();
+                connectRTMP();
             } else {
                 sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_ATTEMPT_TIMEDOUT);
             }
@@ -659,7 +763,7 @@ package org.bigbluebutton.main.model.users
 										
                     var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
                     disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
-                    disconnectedEvent.payload.callback = connect;
+                    disconnectedEvent.payload.callback = connectRTMP;
                     disconnectedEvent.payload.callbackParameters = new Array();
                     dispatcher.dispatchEvent(disconnectedEvent);
                 }

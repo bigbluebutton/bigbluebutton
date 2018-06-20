@@ -56,7 +56,7 @@ package org.bigbluebutton.modules.users.services
             logData.tags = ["apps"];
             logData.logCode = "error_sending_query_users";
             LOGGER.info(JSON.stringify(logData));
-        }, JSON.stringify(message)
+        }, message
       );
     }
 
@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.users.services
             logData.tags = ["apps"];
             logData.message = "Error occurred querying guests waiting.";
             LOGGER.info(JSON.stringify(logData));
-        }, JSON.stringify(message)
+        }, message
       );
     }
 
@@ -92,7 +92,7 @@ package org.bigbluebutton.modules.users.services
         logData.tags = ["apps"];
 				logData.logCode = "error_sending_join_meeting";
         LOGGER.info(JSON.stringify(logData));
-      }, JSON.stringify(message));
+      }, message);
     }
 
     public function joinMeetingAfterReconnect(): void {
@@ -112,7 +112,7 @@ package org.bigbluebutton.modules.users.services
           logData.tags = ["apps"];
           logData.logCode = "error_sending_join_after_reconnect";
           LOGGER.info(JSON.stringify(logData));
-      }, JSON.stringify(message));
+      }, message);
     }
 
     public function assignPresenter(newPresenterUserId:String, newPresenterName:String, assignedBy:String):void {
@@ -128,7 +128,7 @@ package org.bigbluebutton.modules.users.services
         logData.tags = ["apps"];
         logData.logCode = "error_sending_assign_presenter";
         LOGGER.info(JSON.stringify(logData));
-      }, JSON.stringify(message));
+      }, message);
     }
 
     public function emojiStatus(userID:String, emoji:String):void {
@@ -146,7 +146,7 @@ package org.bigbluebutton.modules.users.services
                 logData.logCode = "error_sending_change_emoji";
                 LOGGER.info(JSON.stringify(logData));
             },
-          JSON.stringify(message)
+          message
         );
 		}
 
@@ -161,7 +161,7 @@ package org.bigbluebutton.modules.users.services
 				logData.tags = ["apps"];
 				logData.logCode = "error_sending_create_breakout";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 
 		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
@@ -175,7 +175,7 @@ package org.bigbluebutton.modules.users.services
 				logData.tags = ["apps"];
 				logData.logCode = "error_sending_request_breakout_url";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 		
 		public function listenInOnBreakout(fromMeetingId:String, toMeetingId:String, userId:String):void {
@@ -192,7 +192,7 @@ package org.bigbluebutton.modules.users.services
 				logData.tags = ["apps"];
 				logData.logCode = "error_sending_listen_on_breakout";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 
 		public function endAllBreakoutRooms(meetingId:String):void {
@@ -206,7 +206,7 @@ package org.bigbluebutton.modules.users.services
 				logData.tags = ["apps"];
 				logData.logCode = "error_sending_end_breakout";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 
 		public function addStream(userID:String, streamName:String):void {
@@ -222,7 +222,7 @@ package org.bigbluebutton.modules.users.services
 				logData.streamId = streamName;
 				logData.logCode = "error_sending_cam_broadcast_start";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 
 		public function removeStream(userID:String, streamName:String):void {
@@ -247,7 +247,7 @@ package org.bigbluebutton.modules.users.services
 				logData.userId = userID;
 				logData.logCode = "error_sending_cam_broadcast_stop";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
     
     public function logoutEndMeeting(userID:String):void {
@@ -267,7 +267,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_logout_end_meeting";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -288,7 +288,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_get_recording_status";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       ); //_netConnection.call
 	}
 
@@ -303,7 +303,7 @@ package org.bigbluebutton.modules.users.services
 				logData.tags = ["apps"];
 				logData.logCode = "error_sending_get_breakout_rooms";
 				LOGGER.info(JSON.stringify(logData));
-			}, JSON.stringify(message));
+			}, message);
 		}
 
     public function activityResponse():void {
@@ -323,7 +323,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_meeting_activity_response";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       ); //_netConnection.call
     }
 		
@@ -365,7 +365,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_change_recording_status";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       ); //_netConnection.call
     }
 
@@ -407,7 +407,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_mute_all_users";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       ); 
     }
     
@@ -428,7 +428,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_mute_all_except_presenter";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       ); 
     }
     
@@ -449,7 +449,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_mute_user";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );
      }
 
@@ -470,7 +470,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_eject_user_from_voice";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );    
     }
 
@@ -487,7 +487,7 @@ package org.bigbluebutton.modules.users.services
         logData.tags = ["apps"];
 				logData.logCode = "error_sending_eject_user_from_meeting";
         LOGGER.info(JSON.stringify(logData));
-      }, JSON.stringify(message));
+      }, message);
     }
 
     public function addUserToPresenterGroup(userID:String):void {
@@ -503,7 +503,7 @@ package org.bigbluebutton.modules.users.services
         logData.tags = ["apps"];
         logData.message = "Error occurred adding a user to presenter group.";
         LOGGER.info(JSON.stringify(logData));
-      }, JSON.stringify(message));
+      }, message);
     }
 
     public function removeUserFromPresenterGroup(userID:String):void {
@@ -519,7 +519,7 @@ package org.bigbluebutton.modules.users.services
         logData.tags = ["apps"];
         logData.message = "Error occurred removing a user from presenter group.";
         LOGGER.info(JSON.stringify(logData));
-      }, JSON.stringify(message));
+      }, message);
     }
 
     public function handleRequestPresenterGroupEvent():void {
@@ -532,7 +532,7 @@ package org.bigbluebutton.modules.users.services
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error(status); },
-          JSON.stringify(message)
+          message
       );
     }
 
@@ -553,7 +553,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_meeting_mute_state";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       ); 
     }    
 
@@ -577,7 +577,7 @@ package org.bigbluebutton.modules.users.services
 					logData.logCode = "error_sending_lock_users_in_meeting";
           LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -601,7 +601,7 @@ package org.bigbluebutton.modules.users.services
 					logData.logCode = "error_sending_lock_user_in_meeting";
           LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -623,7 +623,7 @@ package org.bigbluebutton.modules.users.services
 					logData.logCode = "error_sending_get_lock_settings";
           LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );   
     }
     
@@ -653,7 +653,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_save_lock_settings";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );      
     }
 	
@@ -675,7 +675,7 @@ package org.bigbluebutton.modules.users.services
 				logData.logCode = "error_sending_webcams_only_for_moderators";
 				LOGGER.info(JSON.stringify(logData));
 			},
-			JSON.stringify(message)
+			message
 		);
 	}
 
@@ -697,7 +697,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_change_user_role";
                 LOGGER.info(JSON.stringify(logData));
         },
-        JSON.stringify(message)
+        message
       );
     }
 	
@@ -719,7 +719,7 @@ package org.bigbluebutton.modules.users.services
 				logData.logCode = "error_sending_get_webcams_only_for_moderator";
 				LOGGER.info(JSON.stringify(logData));
 			},
-			JSON.stringify(message)
+			message
 		);
 	}
 
@@ -742,7 +742,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_get_guest_policy";
                 LOGGER.info(JSON.stringify(logData));
          },
-         JSON.stringify(message)
+         message
        );
     }
 
@@ -765,7 +765,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_set_guest_policy";
                 LOGGER.info(JSON.stringify(logData));
          },
-         JSON.stringify(message)
+         message
        );
     }
 
@@ -828,7 +828,7 @@ package org.bigbluebutton.modules.users.services
 				logData.logCode = "error_sending_guest_waiting_approved";
 				LOGGER.info(JSON.stringify(logData));
 			},
-			JSON.stringify(message)
+			message
 		);
     }
   }

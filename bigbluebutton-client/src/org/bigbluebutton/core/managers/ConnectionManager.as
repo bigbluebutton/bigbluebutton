@@ -141,5 +141,13 @@ package org.bigbluebutton.core.managers {
             connDelegate.guestDisconnect();
         }
 
+		public function onMessageFromDS(msg: Object): void {
+			connDelegate.onMessageFromDS(msg);
+		}
+
+		public function connectedToVertx(): void {
+			connDelegate.connectedToVertx();
+		}
+		
     }
 }
