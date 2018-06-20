@@ -22,9 +22,12 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.net.ObjectEncoding;
+	import flash.utils.Timer;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -58,6 +61,7 @@ package org.bigbluebutton.modules.phone.managers {
 		private var dispatcher:Dispatcher;
 		
 		private var numNetworkChangeCount:int = 0;
+		private var connectionTimer:Timer;
 		
 		public function ConnectionManager():void {
 			dispatcher = new Dispatcher();
@@ -66,7 +70,7 @@ package org.bigbluebutton.modules.phone.managers {
     public function isConnected():Boolean {
       if (netConnection != null) {
         return netConnection.connected;
-      }
+      } 
       return false;
     }
     
@@ -83,7 +87,7 @@ package org.bigbluebutton.modules.phone.managers {
     }
     
 		public function connect():void {				
-			if (!reconnecting || amIListenOnly) {
+
 				closedByUser = false;
 				
 				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
@@ -129,10 +133,6 @@ package org.bigbluebutton.modules.phone.managers {
 				var authToken: String = LiveMeeting.inst().me.authToken;
 				netConnection.connect(uri, meetingId, externUserId, username, authToken, 
 					BBB.initConnectionManager().voiceConnId);
-			}
-			if (reconnecting && !amIListenOnly) {
-				handleConnectionSuccess();
-			}
 		}
 
 		public function disconnect(requestByUser:Boolean):void {
@@ -142,11 +142,22 @@ package org.bigbluebutton.modules.phone.managers {
       }			
 		}
 		
+		private function performAutoReconnectSequence():void {
+			// Need to trigger using a timer as we can't just connect
+			// directly from the netstatus event. (ralam may 15, 2018)
+			connectionTimer = new Timer(1000, 1);
+			connectionTimer.addEventListener(TimerEvent.TIMER, autoReconnect);
+			connectionTimer.start();
+		}
+		
+		private function autoReconnect(e:TimerEvent) : void {
+			connect();
+		}
+		
     private function handleConnectionSuccess():void {
       if (reconnecting) {
-        var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
-        attemptSucceeded.payload.type = ReconnectionManager.SIP_CONNECTION;
-        dispatcher.dispatchEvent(attemptSucceeded);
+				var connMsg:String = ConnUtil.connectionReestablishedMsg(ConnUtil.SIP_CONNECTION);
+				ConnUtil.connectionSuccessEvent(connMsg);
       }
       dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));
       reconnecting = false;
@@ -154,9 +165,9 @@ package org.bigbluebutton.modules.phone.managers {
 
     private function handleConnectionFailed():void {
       if (reconnecting) {
-        var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-        attemptFailedEvent.payload.type = ReconnectionManager.SIP_CONNECTION;
-        dispatcher.dispatchEvent(attemptFailedEvent);
+				var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+				attemptFailedEvent.payload.type = ConnUtil.SIP_CONNECTION;
+				dispatcher.dispatchEvent(attemptFailedEvent);
       }
       dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED, reconnecting));
     }
@@ -165,11 +176,7 @@ package org.bigbluebutton.modules.phone.managers {
       if (!closedByUser) {
         reconnecting = true;
 
-        var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
-        disconnectedEvent.payload.type = ReconnectionManager.SIP_CONNECTION;
-        disconnectedEvent.payload.callback = connect;
-        disconnectedEvent.payload.callbackParameters = [];
-        dispatcher.dispatchEvent(disconnectedEvent);
+				performAutoReconnectSequence();
 
         dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED, reconnecting));
       }

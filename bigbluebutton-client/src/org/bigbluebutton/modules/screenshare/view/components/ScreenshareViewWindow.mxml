@@ -45,26 +45,27 @@
 
     <fx:Script>
         <![CDATA[
-			import mx.core.ScrollPolicy;
-			import mx.core.UIComponent;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.ReconnectionManager;
-			import org.bigbluebutton.main.api.JSLog;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
-			import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-			import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+					import mx.core.ScrollPolicy;
+					import mx.core.UIComponent;
+					
+					import flexlib.mdi.events.MDIWindowEvent;
+					
+					import org.as3commons.logging.api.ILogger;
+					import org.as3commons.logging.api.getClassLogger;
+					import org.bigbluebutton.common.events.LocaleChangeEvent;
+					import org.bigbluebutton.core.Options;
+					import org.bigbluebutton.core.UsersUtil;
+					import org.bigbluebutton.core.managers.ReconnectionManager;
+					import org.bigbluebutton.main.api.JSLog;
+					import org.bigbluebutton.main.events.BBBEvent;
+					import org.bigbluebutton.main.views.MainCanvas;
+					import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+					import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
+					import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
+					import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+					import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+					import org.bigbluebutton.util.ConnUtil;
+					import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 
             private static const LOG:String = "SC::ScreenshareViewWIndow - ";
@@ -334,7 +335,7 @@
 			}
 
             public function handleDisconnectedEvent(event:BBBEvent):void {
-                if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
+                if (event.payload.type == ConnUtil.DESKSHARE_CONNECTION) {
                     closeWindow();
                 }
             }

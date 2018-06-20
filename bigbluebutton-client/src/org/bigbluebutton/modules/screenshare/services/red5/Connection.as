@@ -38,6 +38,8 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 	
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 	import org.bigbluebutton.util.ConnUtil;
+	import flash.utils.Timer;
+        import flash.events.TimerEvent;
 		
 	public class Connection {
 		private static const LOGGER:ILogger = getClassLogger(Connection);
@@ -54,6 +56,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 
 				private var ssAppUrl: String = null;
 				private var numNetworkChangeCount:int = 0;
+				private var connectionTimer:Timer;
 				
 			public function connect():void {
 				netConnection = new NetConnection();
@@ -273,6 +276,18 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
         }
         
+				private function performAutoReconnectSequence():void {
+					// Need to trigger using a timer as we can't just connect
+					// directly from the netstatus event. (ralam may 15, 2018)
+					connectionTimer = new Timer(1000, 1);
+					connectionTimer.addEventListener(TimerEvent.TIMER, autoReconnect);
+					connectionTimer.start();
+				}
+				
+				private function autoReconnect(e:TimerEvent) : void {
+					connect();
+				}
+				
         private function netStatusHandler(event:NetStatusEvent):void {
 						var logData:Object = UsersUtil.initLogData();
 						logData.tags = ["screenshare", "flash"];
@@ -291,7 +306,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 									LOGGER.info(JSON.stringify(logData));
 									
                     var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-                    attemptFailedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+                    attemptFailedEvent.payload.type = ConnUtil.DESKSHARE_CONNECTION;
                     dispatcher.dispatchEvent(attemptFailedEvent);
                 }
 								
@@ -311,9 +326,8 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 										logData.logCode = "connection_reconnect_attempt_succeeded";
 										LOGGER.info(JSON.stringify(logData));
 										
-                    var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
-                    attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
-                    dispatcher.dispatchEvent(attemptSucceeded);
+										var connMsg:String = ConnUtil.connectionReestablishedMsg(ConnUtil.DESKSHARE_CONNECTION);
+										ConnUtil.connectionSuccessEvent(connMsg);
                 }
                 
                 sendUserIdToServer();
@@ -336,12 +350,11 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 							
                 if (!logoutOnUserCommand) {
                     reconnecting = true;
-                    
-                    var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
-                    disconnectedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
-                    disconnectedEvent.payload.callback = connect;
-                    disconnectedEvent.payload.callbackParameters = [];
-                    dispatcher.dispatchEvent(disconnectedEvent);
+										
+										var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+										disconnectedEvent.payload.type = ConnUtil.DESKSHARE_CONNECTION;
+
+										performAutoReconnectSequence();
                 }
                 ce = new ConnectionEvent(ConnectionEvent.CLOSED);
                 break;

@@ -19,7 +19,7 @@ trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
       val envelope = BbbCoreEnvelope(UserLeftVoiceConfToClientEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserLeftVoiceConfToClientEvtMsg.NAME, liveMeeting.props.meetingProp.intId, vu.intId)
 
-      val body = UserLeftVoiceConfToClientEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.intId)
+      val body = UserLeftVoiceConfToClientEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.voiceUserId)
 
       val event = UserLeftVoiceConfToClientEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
