@@ -30,6 +30,7 @@ class AudioManager {
       isHangingUp: false,
       isListenOnly: false,
       isEchoTest: false,
+      isTalking: false,
       isWaitingPermissions: false,
       error: null,
       outputDeviceId: null,
@@ -186,8 +187,17 @@ class AudioManager {
       const query = VoiceUsers.find({ intId: Auth.userID });
       this.muteHandle = query.observeChanges({
         changed: (id, fields) => {
-          if (fields.muted === this.isMuted) return;
-          this.isMuted = fields.muted;
+          if (fields.muted !== undefined && fields.muted !== this.isMuted) {
+            this.isMuted = fields.muted;
+          }
+
+          if (fields.talking !== undefined && fields.talking !== this.isTalking) {
+            this.isTalking = fields.talking;
+          }
+
+          if (this.isMuted) {
+            this.isTalking = false;
+          }
         },
       });
     }
@@ -258,6 +268,11 @@ class AudioManager {
       new window.webkitAudioContext();
 
     return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
+  }
+
+  isUsingAudio() {
+    return this.isConnected || this.isConnecting ||
+      this.isHangingUp || this.isEchoTest;
   }
 
   setDefaultInputDevice() {

@@ -24,7 +24,7 @@ export default withModalMounter(withTracker(({ mountModal }) =>
         }
         reject(() => {
           Service.exitAudio();
-        })
+        });
       });
 
       return call.then(() => {
