@@ -24,6 +24,7 @@ exports.MEDIA_TYPE = {}
 exports.MEDIA_TYPE.WEBRTC = "WebRtcEndpoint"
 exports.MEDIA_TYPE.RTP= "RtpEndpoint"
 exports.MEDIA_TYPE.URI = "PlayerEndpoint"
+exports.MEDIA_TYPE.RECORDING = "RecorderEndpoint";
 
 // Media server state changes
 exports.EVENT = {}
@@ -38,6 +39,11 @@ exports.EVENT.MEDIA_STATE.FLOW_IN = "MediaFlowInStateChange"
 exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
 exports.EVENT.SERVER_STATE = "ServerState"
+
+exports.EVENT.RECORDING = {};
+exports.EVENT.RECORDING.STOPPED = 'Stopped';
+exports.EVENT.RECORDING.STARTED = 'Started';
+exports.EVENT.RECORDING.PAUSED = 'Paused';
 
 // Error codes
 exports.ERROR = {};

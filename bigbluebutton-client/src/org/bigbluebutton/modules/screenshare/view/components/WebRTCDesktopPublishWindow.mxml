@@ -401,7 +401,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				btnClosePublish.enabled = true;
 				
-				connectingDots.startAnimation();
+				connectingProgress.startAnimation();
 				videoHolder.includeInLayout = videoHolder.visible = false;
 			}
 			
@@ -459,7 +459,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (info.hasOwnProperty("encoder")) {
 					// The encoder is sent to the client when the stream has actually started sending data. We can use 
 					// it to know when the video is actually playing
-					connectingDots.endAnimation();
+					connectingProgress.endAnimation();
 					videoHolder.includeInLayout = videoHolder.visible = true;
 					
 					if (info.hasOwnProperty("width")) {
@@ -538,7 +538,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
 		<mx:HBox width="100%" height="90%" id="mainElement" verticalAlign="middle" horizontalAlign="center">
-			<ss:AnimatedDots id="connectingDots" styleName="animatedDotsStyle" />
+			<ss:AnimatedProgressBar id="connectingProgress" width="260" visible="false" 
+									horizontalCenter="0" verticalCenter="0" 
+									label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTC.starting')}"/>
 		</mx:HBox>
 		<mx:HBox includeIn="dispFullRegionControlBar" width="100%" horizontalAlign="center">
 			<mx:Button id="btnClosePublish"

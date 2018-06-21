@@ -51,7 +51,12 @@ module BigBlueButton
                       audio_edl, events, start_time, end_time)
       BigBlueButton::EDL::Audio.dump(audio_edl)
 
-      @audio_file = BigBlueButton::EDL::Audio.render(audio_edl, "#{audio_dir}/recording")
+      target_dir = File.dirname(file_basename)
+      audio_dir = "#{archive_dir}/audio"
+      events_xml = "#{archive_dir}/events.xml"
+
+      @audio_file = BigBlueButton::EDL::Audio.render(
+        audio_edl, File.join(target_dir, 'recording'))
 
       ogg_format = {
         :extension => 'ogg',
