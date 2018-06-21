@@ -1,3 +1,25 @@
+@mixin arrowIconStyle() {
+  &:after {
+    top: -50px;
+    left: -20px;
+    font-size: 20px;
+    -webkit-animation: bounce 2s infinite;
+    animation: bounce 2s infinite;
+    display: block;
+    font-family: 'bbb-icons';
+    content: "\E906";
+    position: relative;
+  }
+
+  :global(.browser-edge) &:after {
+    top: -50px;
+    left: -15.5em;
+    font-size: 20px;
+    -webkit-animation: bounceRotate 2s infinite;
+    animation: bounceRotate 2s infinite;
+  }
+}
+
 .overlay {
   position: fixed;
   z-index: 1002;
@@ -25,17 +47,7 @@
     opacity: .6;
   }
 
-  &:after {
-    display: block;
-    font-family: 'bbb-icons';
-    content: "\E906";
-    position: relative;
-    top: -50px;
-    left: -20px;
-    font-size: 20px;
-    -webkit-animation: bounce 2s infinite;
-    animation: bounce 2s infinite;
-  }
+  @include arrowIconStyle();
 }
 
 @-webkit-keyframes bounce {
@@ -77,6 +89,21 @@
 	60% {
     -ms-transform: translateY(5px);
     transform: translateY(5px);
+  }
+}
+
+@keyframes bounceRotate {
+  0%, 20%, 50%, 80%, 100% {
+    -ms-transform: translateY(0) rotate(180deg);
+    transform: translateY(0) rotate(180deg);
+  }
+	40% {
+    -ms-transform: translateY(10px) rotate(180deg);
+    transform: translateY(10px) rotate(180deg);
+  }
+	60% {
+    -ms-transform: translateY(5px) rotate(180deg);
+    transform: translateY(5px) rotate(180deg);
   }
 }
 
