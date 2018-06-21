@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import browser from 'browser-detect';
 import Modal from '/imports/ui/components/modal/simple/component';
-import deviceInfo from '/imports/utils/deviceInfo';
 import _ from 'lodash';
 import { styles } from './styles';
 
@@ -77,23 +77,24 @@ const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
 class ShortcutHelpComponent extends Component {
   render() {
     const { intl } = this.props;
-    const { isWindows, isLinux, isMac } = deviceInfo.osType();
-    const { isFirefox, isChrome, isIE } = deviceInfo.browserType();
     const shortcuts = Object.values(SHORTCUTS_CONFIG);
+    const { name } = browser();
 
     let accessMod = null;
 
-    if (isMac) {
-      accessMod = 'Control + Alt';
-    }
-
-    if (isWindows) {
-      accessMod = isIE ? 'Alt' : accessMod;
-    }
-
-    if (isWindows || isLinux) {
-      accessMod = isFirefox ? 'Alt + Shift' : accessMod;
-      accessMod = isChrome ? 'Alt' : accessMod;
+    switch (name) {
+      case 'chrome':
+      case 'edge':
+        accessMod = 'Alt';
+        break;
+      case 'firefox':
+        accessMod = 'Alt + Shift';
+        break;
+      case 'safari':
+      case 'crios':
+      case 'fxios':
+        accessMod = 'Control + Alt';
+        break;
     }
 
     return (
