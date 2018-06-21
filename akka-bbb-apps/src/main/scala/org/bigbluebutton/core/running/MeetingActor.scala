@@ -212,64 +212,72 @@ class MeetingActor(
     case _                                       => // do nothing
   }
 
-  private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
+  private def updateInactivityTracker(state: MeetingState2x): MeetingState2x = {
     val tracker = state.inactivityTracker.updateLastActivityTimestamp(TimeUtil.timeNowInMs())
-    state = state.update(tracker)
+    state.update(tracker)
+  }
+
+  private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg => handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg                 => handleEndMeeting(m, state)
 
       // Users
-      case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
-      case m: UserJoinMeetingReqMsg => state = handleUserJoinMeetingReqMsg(m, state)
+      case m: ValidateAuthTokenReqMsg             => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
+      case m: UserJoinMeetingReqMsg               => state = handleUserJoinMeetingReqMsg(m, state)
       case m: UserJoinMeetingAfterReconnectReqMsg => state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
-      case m: UserLeaveReqMsg => state = handleUserLeaveReqMsg(m, state)
-      case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
-      case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: MeetingActivityResponseCmdMsg => state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
-      case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
-      case m: GetWebcamsOnlyForModeratorReqMsg => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
+      case m: UserLeaveReqMsg                     => state = handleUserLeaveReqMsg(m, state)
+      case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
+      case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: MeetingActivityResponseCmdMsg =>
+        state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
+        state = updateInactivityTracker(state)
+      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: SetRecordingStatusCmdMsg            => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: GetWebcamsOnlyForModeratorReqMsg    => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
-      case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
-      case m: ChangeUserEmojiCmdMsg => handleChangeUserEmojiCmdMsg(m)
+      case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
       // Client requested to eject user
-      case m: EjectUserFromMeetingCmdMsg => usersApp.handleEjectUserFromMeetingCmdMsg(m)
+      case m: EjectUserFromMeetingCmdMsg          => usersApp.handleEjectUserFromMeetingCmdMsg(m)
       // Another part of system (e.g. bbb-apps) requested to eject user.
-      case m: EjectUserFromMeetingSysMsg => usersApp.handleEjectUserFromMeetingSysMsg(m)
-      case m: GetUsersMeetingReqMsg => usersApp.handleGetUsersMeetingReqMsg(m)
-      case m: ChangeUserRoleCmdMsg => usersApp.handleChangeUserRoleCmdMsg(m)
+      case m: EjectUserFromMeetingSysMsg          => usersApp.handleEjectUserFromMeetingSysMsg(m)
+      case m: GetUsersMeetingReqMsg               => usersApp.handleGetUsersMeetingReqMsg(m)
+      case m: ChangeUserRoleCmdMsg                => usersApp.handleChangeUserRoleCmdMsg(m)
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ClearWhiteboardPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: UndoWhiteboardPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ModifyWhiteboardAccessPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendCursorPositionPubMsg            => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ClearWhiteboardPubMsg               => wbApp.handle(m, liveMeeting, msgBus)
+      case m: UndoWhiteboardPubMsg                => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWhiteboardAccessPubMsg        => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardAnnotationPubMsg      => wbApp.handle(m, liveMeeting, msgBus)
+      case m: GetWhiteboardAnnotationsReqMsg      => wbApp.handle(m, liveMeeting, msgBus)
 
-      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
+      case m: ClientToServerLatencyTracerMsg      => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
-      case m: StartPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: StartCustomPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: StopPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: ShowPollResultReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: GetCurrentPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: RespondToPollReqMsg => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StartPollReqMsg                     => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: StartCustomPollReqMsg               => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: StopPollReqMsg                      => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: ShowPollResultReqMsg                => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: GetCurrentPollReqMsg                => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: RespondToPollReqMsg                 => pollApp.handle(m, liveMeeting, msgBus)
 
       // Breakout
-      case m: BreakoutRoomsListMsg => state = handleBreakoutRoomsListMsg(m, state)
-      case m: CreateBreakoutRoomsCmdMsg => state = handleCreateBreakoutRoomsCmdMsg(m, state)
-      case m: EndAllBreakoutRoomsMsg => state = handleEndAllBreakoutRoomsMsg(m, state)
-      case m: RequestBreakoutJoinURLReqMsg => state = handleRequestBreakoutJoinURLReqMsg(m, state)
-      case m: TransferUserToMeetingRequestMsg => state = handleTransferUserToMeetingRequestMsg(m, state)
+      case m: BreakoutRoomsListMsg                => state = handleBreakoutRoomsListMsg(m, state)
+      case m: CreateBreakoutRoomsCmdMsg           => state = handleCreateBreakoutRoomsCmdMsg(m, state)
+      case m: EndAllBreakoutRoomsMsg              => state = handleEndAllBreakoutRoomsMsg(m, state)
+      case m: RequestBreakoutJoinURLReqMsg        => state = handleRequestBreakoutJoinURLReqMsg(m, state)
+      case m: TransferUserToMeetingRequestMsg     => state = handleTransferUserToMeetingRequestMsg(m, state)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
-      case m: UserTalkingInVoiceConfEvtMsg => handleUserTalkingInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg             => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg          => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserTalkingInVoiceConfEvtMsg =>
+        state = updateInactivityTracker(state)
+        handleUserTalkingInVoiceConfEvtMsg(m)
+
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
       case m: MuteUserCmdMsg => usersApp.handleMuteUserCmdMsg(m)
       case m: MuteAllExceptPresentersCmdMsg => handleMuteAllExceptPresentersCmdMsg(m)
@@ -517,6 +525,7 @@ class MeetingActor(
 
   def processUserInactivityAudit(): Unit = {
     val now = TimeUtil.timeNowInMs()
+    println("userInactivityAuditTimer=" + userInactivityAuditTimer)
     val auditTimerMs = TimeUtil.minutesToMillis(userInactivityAuditTimer)
     if (now - lastUserInactivitySentOn > auditTimerMs) {
       lastUserInactivitySentOn = now

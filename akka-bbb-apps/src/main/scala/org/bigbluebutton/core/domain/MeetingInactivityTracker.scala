@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.domain
 
+import org.bigbluebutton.core.util.TimeUtil
+
 case class MeetingInactivityTracker(
     val maxInactivityTimeoutInMs: Long,
     val warningBeforeMaxInMs:     Long,
@@ -20,6 +22,14 @@ case class MeetingInactivityTracker(
   }
 
   def hasRecentActivity(nowInMs: Long): Boolean = {
+
+    val left = nowInMs - lastActivityTimestampInMs
+    val right = maxInactivityTimeoutInMs - warningBeforeMaxInMs
+    println("********************* now=" + TimeUtil.millisToMinutes(nowInMs) +
+      " lastAct=" + TimeUtil.millisToMinutes(lastActivityTimestampInMs) + " **********")
+    println("********************* maxInact=" + TimeUtil.millisToMinutes(maxInactivityTimeoutInMs) +
+      " warning=" + TimeUtil.millisToMinutes(warningBeforeMaxInMs) + " ************")
+    println("********************* " + left + " < " + right + " ***********")
     nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
   }
 
