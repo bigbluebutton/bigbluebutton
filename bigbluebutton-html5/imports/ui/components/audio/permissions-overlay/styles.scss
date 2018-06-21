@@ -20,6 +20,25 @@
   }
 }
 
+@mixin positionHint() {
+  :global(.browser-edge) & {
+    left: 50%;
+    bottom: 10%;
+  }
+  :global(.browser-firefox) & {
+    top: 210px;
+    left: 605px;
+  }
+  :global(.browser-chrome) & {
+    top: 145px;
+    left: 380px;
+  }
+  :global(.browser-safari) & {
+    top: 145px;
+    left: 380px;
+  }
+}
+
 .overlay {
   position: fixed;
   z-index: 1002;
@@ -32,6 +51,8 @@
 }
 
 .hint {
+  @include positionHint();
+
   position: absolute;
   color: #fff;
   font-size: 16px;
