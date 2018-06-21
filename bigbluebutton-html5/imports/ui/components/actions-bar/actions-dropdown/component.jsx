@@ -96,7 +96,7 @@ class ActionsDropdown extends Component {
 
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile ||
-  BROWSER_RESULTS.os.includes('Android'); // mobile flag doesn't always work
+      BROWSER_RESULTS.os.includes('Android'); // mobile flag doesn't always work
 
     return _.compact([
       (isUserPresenter ?
