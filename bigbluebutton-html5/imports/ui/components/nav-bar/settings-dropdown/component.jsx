@@ -3,7 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import { detect } from 'detect-browser';
+
 
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
@@ -92,7 +92,7 @@ class SettingsDropdown extends Component {
 
   componentWillMount() {
     const { intl, mountModal } = this.props;
-    const browser = detect();
+
     this.menuItems = [
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -126,7 +126,7 @@ class SettingsDropdown extends Component {
     ];
     // Adds Fullscreen button if user is on Android.
 
-    if (browser.os === 'Android OS') {
+    if (this.props.isAndroid) {
       const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
       const newFullScreenButton = (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -140,9 +140,8 @@ class SettingsDropdown extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const browser = detect();
     // Alters fullscreen button's label
-    if (browser.os === 'Android OS') {
+    if (this.props.isAndroid) {
       this.alterMenu(nextProps);
     }
   }
