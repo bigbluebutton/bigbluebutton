@@ -179,9 +179,23 @@ module.exports = class Screenshare extends EventEmitter {
     }
   }
 
+  recordingState(event) {
+    const msEvent = event.event;
+    Logger.info('[Recording]', msEvent.type, '[', msEvent.state, ']', 'for recording session', event.id, 'for screenshare', this.streamName);
+  }
+
   async startRecording() {
-    this.recording = await this.mcs.startRecording(this.userId, this._presenterEndpoint, this._voiceBridge);
-    this.sendStartShareEvent();
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.recording = await this.mcs.startRecording(this.userId, this._presenterEndpoint, this._voiceBridge);
+        this.mcs.on('MediaEvent' + this.recording.recordingId, this.recordingState.bind(this));
+        this.sendStartShareEvent();
+        resolve(this.recording);
+      } catch (err) {
+        Logger.error("[screenshare] Error on start recording with message", err);
+        reject(err);
+      }
+    });
   }
 
   sendStartShareEvent () {
