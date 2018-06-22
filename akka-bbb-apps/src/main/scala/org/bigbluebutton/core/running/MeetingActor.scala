@@ -9,7 +9,7 @@ import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
 import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
-import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingState2x }
+import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingRecordingTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
@@ -128,18 +128,22 @@ class MeetingActor(
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
+    isBreakout = props.meetingProp.isBreakout,
     lastUserLeftOnInMs = None,
     durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
   )
 
+  val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
+
   var state = new MeetingState2x(
     new GroupChats(Map.empty),
     new PresentationPodManager(Map.empty),
     None,
     inactivityTracker,
-    expiryTracker
+    expiryTracker,
+    recordingTracker
   )
 
   var lastRttTestSentOn = System.currentTimeMillis()
@@ -209,7 +213,10 @@ class MeetingActor(
     // Screenshare
     case msg: DeskShareGetDeskShareInfoRequest   => handleDeskShareGetDeskShareInfoRequest(msg)
 
-    case _                                       => // do nothing
+    case msg: SendRecordingTimerInternalMsg =>
+      state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
+
+    case _ => // do nothing
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -217,19 +224,23 @@ class MeetingActor(
     state = state.update(tracker)
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg => handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg                 => handleEndMeeting(m, state)
 
       // Users
-      case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
-      case m: UserJoinMeetingReqMsg => state = handleUserJoinMeetingReqMsg(m, state)
+      case m: ValidateAuthTokenReqMsg             => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
+      case m: UserJoinMeetingReqMsg               => state = handleUserJoinMeetingReqMsg(m, state)
       case m: UserJoinMeetingAfterReconnectReqMsg => state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
-      case m: UserLeaveReqMsg => state = handleUserLeaveReqMsg(m, state)
-      case m: UserBroadcastCamStartMsg => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg => handleUserBroadcastCamStopMsg(m)
-      case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: MeetingActivityResponseCmdMsg => state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
+      case m: UserLeaveReqMsg                     => state = handleUserLeaveReqMsg(m, state)
+      case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
+      case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: MeetingActivityResponseCmdMsg =>
+        state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
-      case m: SetRecordingStatusCmdMsg => usersApp.handleSetRecordingStatusCmdMsg(m)
+      case m: SetRecordingStatusCmdMsg =>
+        state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
+      case m: RecordAndClearPreviousMarkersCmdMsg =>
+        state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
       case m: GetWebcamsOnlyForModeratorReqMsg => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)

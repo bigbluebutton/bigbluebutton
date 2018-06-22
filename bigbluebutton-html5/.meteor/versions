@@ -71,6 +71,7 @@ reactive-dict@1.2.0
 reactive-var@1.0.11
 reload@1.1.11
 retry@1.0.9
+rocketchat:streamer@0.6.2
 routepolicy@1.0.12
 session@1.1.7
 shell-server@0.3.1

@@ -36,29 +36,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.net.URLLoader;
+			import flash.net.URLRequest;
+			import flash.net.URLRequestMethod;
+			
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.events.ExitApplicationEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
-
-
 
 			private static const LOGGER:ILogger = getClassLogger(LoggedOutWindow);
 
 			[Bindable]
 			private var message:String;
 
+			private var urlLoader:URLLoader;
+			private var logoutReason:String;
+			
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
@@ -71,21 +76,53 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					logData.meetingId = UsersUtil.getInternalMeetingID();
 					logData.rating = starRating.rating;
 					logData.comment = feedbackMsg.text;
+					logData.reason = logoutReason;
+					logData.extUserId = UsersUtil.getMyExternalUserID();
+					logData.role = UsersUtil.getMyRole();
+					logData.logCode = "user_feedback";
 					LOGGER.info(JSON.stringify(logData));
 				}
+
+				var logoutURL:String = BBB.getSignoutURL();
+				var request:URLRequest = new URLRequest(logoutURL);
+				
+				request.method = URLRequestMethod.GET;
+				urlLoader = new URLLoader();
+				// If the redirect value is set to false handleComplete will be triggered
+				urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+				urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleRedirectError);
+				urlLoader.load(request);
+			}
+
+			private function exitApplication():void {
 				var d:Dispatcher = new Dispatcher();
-				d.dispatchEvent(new LogoutEvent(LogoutEvent.SIGN_OUT));
+				d.dispatchEvent(new ExitApplicationEvent(ExitApplicationEvent.EXIT_APPLICATION));
+			}
+
+			private function handleComplete(e:Event):void {
+				PopUpUtil.removePopUp(this);
+				exitApplication();
+			}
+
+			private function handleRedirectError(e:IOErrorEvent):void {
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["logout"];
+				logData.logCode = "logout_redirect_returned_error";
+				LOGGER.error(JSON.stringify(logData));
+				PopUpUtil.removePopUp(this);
+				exitApplication();
 			}
 
 			private function onUserLoggedOutWindowClose(e:Event):void {
-				LOGGER.debug("Closing UserLoggedOutWindow");
 				PopUpUtil.removePopUp(this);
 			}
 
 			public function setReason(reason:String):void {
+				logoutReason = reason;
+				
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["connection"];
-				logData.message = "User logged out.";
+				logData.logCode = "user_logged_out_reason_display";
 				logData.reason = reason;
 				LOGGER.info(JSON.stringify(logData));
 

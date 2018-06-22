@@ -186,7 +186,6 @@ class ReceivedJsonMsgHandlerActor(
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
       case ClientToServerLatencyTracerMsg.NAME =>
-        log.info("-- trace --" + jsonNode.toString)
         routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
 
       // Presentation
@@ -266,6 +265,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>
         routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
+      case RecordAndClearPreviousMarkersCmdMsg.NAME =>
+        routeGenericMsg[RecordAndClearPreviousMarkersCmdMsg](envelope, jsonNode)
       case GetRecordingStatusReqMsg.NAME =>
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>

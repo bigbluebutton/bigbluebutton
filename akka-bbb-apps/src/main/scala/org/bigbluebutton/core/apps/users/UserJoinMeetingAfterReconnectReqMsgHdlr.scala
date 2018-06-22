@@ -19,18 +19,6 @@ trait UserJoinMeetingAfterReconnectReqMsgHdlr extends HandlerHelpers with Breako
       updateParentMeetingWithUsers()
     }
 
-    /*
-     * *
-     * // recover voice user
-     * for {
-     * vu <- VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, msg.body.userId)
-     * } yield {
-     * handleUserJoinedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, vu.intId, vu.voiceUserId, vu.callingWith, vu.callerName, vu.callerNum, vu.muted, vu.talking)
-     * }
-     *
-     * newState
-     */
-
     newState
   }
 

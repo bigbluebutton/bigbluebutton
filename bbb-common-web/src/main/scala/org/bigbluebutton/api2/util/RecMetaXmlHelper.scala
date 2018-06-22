@@ -6,10 +6,12 @@ import java.util
 
 import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api2.RecordingServiceGW
-import org.bigbluebutton.api2.domain.RecMeta
+import org.bigbluebutton.api2.domain.{RecMeta, RecMetaResponse}
 
 import scala.xml.{Elem, PrettyPrinter, XML}
 import scala.collection.JavaConverters._
+import scala.collection.mutable.{Buffer, ListBuffer, Map}
+import scala.collection.Iterable
 
 class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
@@ -79,7 +81,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   def getRecordings2x(recs: util.ArrayList[RecordingMetadata]): String = {
 
-    def toXml(rec: RecMeta): Option[Elem] = {
+    def toXml(rec: RecMetaResponse): Option[Elem] = {
       try {
         Some(rec.toXml())
       } catch {
@@ -88,6 +90,44 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
           logger.info("Exception details: {}", ex.fillInStackTrace())
           None
       }
+    }
+
+    // Translate a RecMeta to a RecMetaResponse
+    def createRecMetaResponse(recMeta: RecMeta): RecMetaResponse = {
+      val recMetaResponse = new RecMetaResponse(
+          recMeta.id,
+          recMeta.meetingId,
+          recMeta.internalMeetingId,
+          recMeta.meetingName,
+          recMeta.state,
+          recMeta.published,
+          recMeta.startTime,
+          recMeta.endTime,
+          recMeta.participants,
+          recMeta.rawSize,
+          recMeta.isBreakout,
+          recMeta.meeting,
+          recMeta.meta,
+          recMeta.playback match {
+            case Some(p) => ListBuffer(p)
+            case None => ListBuffer()
+          },
+          recMeta.breakout,
+          recMeta.breakoutRooms
+      )
+      recMetaResponse
+    }
+
+    // Group up recordings with the same id
+    def mergeRecMeta(recMeta: Buffer[RecMeta]): Iterable[RecMetaResponse] = {
+      val resp = Map[String, RecMetaResponse]()
+      recMeta foreach { rm =>
+        resp(rm.id) = resp.get(rm.id) match {
+          case Some(recMetaResponse) => recMetaResponse.updateRecMeta(rm)
+          case None => createRecMetaResponse(rm)
+        }
+      }
+      resp.values
     }
 
     val recMeta = recs.asScala map(r => r.getRecMeta)
@@ -102,7 +142,8 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       resp.toString
     } else {
       val buffer = new scala.xml.NodeBuffer
-      recMeta foreach { rm =>
+      val recMetaResponse = mergeRecMeta(recMeta)
+      recMetaResponse foreach { rm =>
         toXml(rm) foreach (r => buffer += r)
       }
       val resp =

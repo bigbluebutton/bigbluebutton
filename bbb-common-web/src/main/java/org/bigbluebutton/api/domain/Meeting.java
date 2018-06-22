@@ -35,7 +35,8 @@ public class Meeting {
 	private String intMeetingId;
 	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
-	private Integer duration = 0;	 
+	private Boolean freeJoin = false;
+    private Integer duration = 0;	 
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -215,6 +216,14 @@ public class Meeting {
         return sequence;
     }
 
+    public Boolean isFreeJoin() {
+        return freeJoin;
+    }
+
+    public void setFreeJoin(Boolean freeJoin) {
+        this.freeJoin = freeJoin;
+    }
+	
 	public Integer getDuration() {
 		return duration;
 	}

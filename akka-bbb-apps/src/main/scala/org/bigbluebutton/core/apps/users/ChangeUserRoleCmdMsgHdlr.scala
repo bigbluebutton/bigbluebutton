@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Roles, Users2x }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
@@ -20,6 +20,15 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
       for {
         uvo <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       } yield {
+
+        val userRole = if (uvo.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
+        for {
+          // Update guest from waiting list
+          u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
+        } yield {
+          RegisteredUsers.updateUserRole(liveMeeting.registeredUsers, u, userRole)
+        }
+
         if (msg.body.role == Roles.MODERATOR_ROLE && !uvo.guest) {
           // Promote non-guest users.
           Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)

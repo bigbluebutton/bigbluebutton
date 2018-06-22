@@ -13,7 +13,8 @@ case class MeetingState2x(
     presentationPodManager: PresentationPodManager,
     breakout:               Option[BreakoutModel],
     inactivityTracker:      MeetingInactivityTracker,
-    expiryTracker:          MeetingExpiryTracker
+    expiryTracker:          MeetingExpiryTracker,
+    recordingTracker:       MeetingRecordingTracker
 ) {
 
   def update(groupChats: GroupChats): MeetingState2x = copy(groupChats = groupChats)
@@ -21,6 +22,7 @@ case class MeetingState2x(
   def update(breakout: Option[BreakoutModel]): MeetingState2x = copy(breakout = breakout)
   def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
   def update(inactivityTracker: MeetingInactivityTracker): MeetingState2x = copy(inactivityTracker = inactivityTracker)
+  def update(recordingTracker: MeetingRecordingTracker): MeetingState2x = copy(recordingTracker = recordingTracker)
 }
 
 object MeetingEndReason {

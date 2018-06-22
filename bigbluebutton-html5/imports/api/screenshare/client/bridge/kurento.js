@@ -2,28 +2,23 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 
-const CHROME_EXTENSION_KEY = Meteor.settings.public.kurento.chromeExtensionKey;
+const CHROME_DEFAULT_EXTENSION_KEY = Meteor.settings.public.kurento.chromeDefaultExtensionKey;
+const CHROME_CUSTOM_EXTENSION_KEY = Meteor.settings.public.kurento.chromeExtensionKey;
 
-const getUserId = () => {
-  const userID = Auth.userID;
-  return userID;
-}
+const CHROME_EXTENSION_KEY = CHROME_CUSTOM_EXTENSION_KEY === 'KEY' ? CHROME_DEFAULT_EXTENSION_KEY : CHROME_CUSTOM_EXTENSION_KEY;
 
-const getMeetingId = () => {
-  const meetingID = Auth.meetingID;
-  return meetingID;
-}
+const getUserId = () => Auth.userID;
 
-const getUsername = () => {
-  return Users.findOne({ userId: getUserId() }).name;
-}
+const getMeetingId = () => Auth.meetingID;
+
+const getUsername = () => Users.findOne({ userId: getUserId() }).name;
 
 export default class KurentoScreenshareBridge {
   kurentoWatchVideo() {
     window.kurentoWatchVideo(
       'screenshareVideo',
       BridgeService.getConferenceBridge(),
-      getUsername(),
+      getUserId(),
       getMeetingId(),
       null,
       null,
@@ -38,7 +33,7 @@ export default class KurentoScreenshareBridge {
     window.kurentoShareScreen(
       'screenshareVideo',
       BridgeService.getConferenceBridge(),
-      getUsername(),
+      getUserId(),
       getMeetingId(),
       null,
       CHROME_EXTENSION_KEY,

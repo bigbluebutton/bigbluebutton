@@ -10,6 +10,7 @@ $user-indicator-presenter-bg: $color-primary;
 $user-indicator-voice-bg: $color-success;
 $user-indicator-muted-bg: $color-danger;
 $user-list-bg: $color-off-white;
+$user-color: currentColor; //picks the current color reference in the class
 
 .avatar {
   position: relative;
@@ -49,7 +50,19 @@ $user-list-bg: $color-off-white;
 }
 
 .talking {
-  box-shadow: 0 0 0 1px $user-list-bg, 0 0 0 3px;
+  animation: pulse 1s infinite ease-in;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 $user-color;
+  }
+  70% {
+    box-shadow: 0 0 0 0.5625rem transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 .moderator {
@@ -75,6 +88,10 @@ $user-list-bg: $color-off-white;
     content: "\00a0\e931\00a0";
     background-color: $user-indicator-voice-bg;
     opacity: 1;
+    width: 1.375rem;
+    height: 1.375rem;
+    top: 1.375rem;
+    left: 1.375rem;
   }
 }
 
@@ -90,6 +107,7 @@ $user-list-bg: $color-off-white;
   &:after {
     content: "\00a0\e90c\00a0";
     opacity: 1;
+    
   }
 }
 

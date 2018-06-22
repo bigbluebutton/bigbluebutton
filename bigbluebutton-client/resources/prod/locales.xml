@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
 <locales>
+	<!-- Native locales names https://www.omniglot.com/language/names.htm -->
 	<locale code="ar" name="Arabic" native="العربيّة" direction="rtl"/>
 	<locale code="az_AZ" name="Azerbaijani" native="Azərbaycan"/>
 	<locale code="eu_EU" name="Basque" native="Euskara"/>
@@ -21,6 +22,7 @@
 	<locale code="ff_SN" name="Fula" native="Fulfulde"/>
 	<locale code="de_DE" name="German" native="Deutsch"/>
 	<locale code="el_GR" name="Greek" native="Ελληνικά"/>
+	<locale code="ht" name="Haitian Creole" native="Kreyòl ayisyen"/>  
 	<locale code="he_IL" name="Hebrew" native="עִבְרִית" direction="rtl"/>  
 	<locale code="hu_HU" name="Hungarian" native="Magyar"/>
 	<locale code="id_ID" name="Indonesian" native="Indonesia"/>

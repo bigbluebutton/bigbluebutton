@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -35,11 +36,8 @@ trait UserLeaveReqMsgHdlr {
     } yield {
       log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-      // stop the webcams of a user leaving
-      handleUserBroadcastCamStopMsg(msg.body.userId)
-
       captionApp2x.handleUserLeavingMsg(msg.body.userId, liveMeeting, msgBus)
-      stopAutoStartedRecording()
+      stopRecordingIfAutoStart2x(outGW, liveMeeting, state)
 
       // send a user left event for the clients to update
       val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)

@@ -64,6 +64,8 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.common.toaster.Toaster;
+			import org.bigbluebutton.common.toaster.message.ToastType;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
@@ -79,6 +81,11 @@
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			
+			
+			
+			
 			
 			
 			
@@ -329,9 +336,11 @@
 				var fileRef:FileReference = new FileReference();
 				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), ToastType.SUCCESS);
 				});
 				fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), "", Alert.OK);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.ioerror'), ToastType.ERROR);
 				});
 
 				var cr:String = String.fromCharCode(13);

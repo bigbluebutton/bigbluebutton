@@ -44,48 +44,52 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
     <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
     <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-    <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+    <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="refreshRole" />
   </fx:Declarations>
   
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.TextEvent;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.ScrollEvent;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.UserStatusChangedEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.modules.chat.ChatUtil;
+			import org.bigbluebutton.modules.chat.events.ChatEvent;
+			import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+			import org.bigbluebutton.modules.chat.model.ChatConversation;
+			import org.bigbluebutton.modules.chat.model.ChatModel;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.chat.model.GroupChat;
+			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      import flash.events.TextEvent;
-      
-      import mx.binding.utils.BindingUtils;
-      
-      import flashx.textLayout.formats.Direction;
-      
-      import org.as3commons.lang.StringUtils;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.Options;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-      import org.bigbluebutton.modules.chat.ChatUtil;
-      import org.bigbluebutton.modules.chat.events.ChatEvent;
-      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-      import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
-      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
-      import org.bigbluebutton.modules.chat.model.ChatConversation;
-      import org.bigbluebutton.modules.chat.model.ChatModel;
-      import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.chat.model.GroupChat;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-      import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ChatTab);      
+
       public var chatWithUserID:String;
       public var chatWithUsername:String
       public var chatId: String = null;
@@ -248,7 +252,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
 				if (chat != null) {
 					chatMessages.processChatHistory(chat.messages.source);
-					scrollToEndOfMessage();
+					scrollToEndOfMessage("no-scroll");
 				}
 			}
 			
@@ -257,7 +261,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (gc != null && gc.id == chatId) {
           displayUserHasLeftMessage();
           txtMsgArea.enabled = false;
-          scrollToEndOfMessage();
+          scrollToEndOfMessage(event.userID);
         }
       }
       
@@ -273,7 +277,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           // Handle user joining so that the user can start to talk if the person rejoins
           displayUserHasJoinedMessage();
           txtMsgArea.enabled = true;
-          scrollToEndOfMessage();
+          scrollToEndOfMessage(event.userID);
         }
       }
       
@@ -313,13 +317,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (chatId == event.chatId && chatMessages != null) {
           chatMessages.newChatMessage(event.msg);
-          scrollToEndOfMessage();
+					scrollToEndOfMessage(event.msg.fromUserId);
         }
       }
       
       private function handleReceivedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (chatId == event.chatId) {
 					displayChatHistory();
+					scrollToEndOfMessage("no-scroll");
         }
       }
       
@@ -332,6 +337,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         if (chatId == event.chatId) {
           displayChatHistory();
+					scrollToEndOfMessage(event.senderId);
         }       
       }
       
@@ -339,11 +345,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         handlePrivateChatMessageEvent(event);
       }
       
-      public function scrollToEndOfMessage():void {
+      public function scrollToEndOfMessage(userID:String):void {
         /**
          * Trigger to force the scrollbar to show the last message.
          */	
-        if (scrollTimer != null) scrollTimer.start();
+		// @todo : scromm if
+		//			1 - I am the send of the last message
+		//			2 - If the scroll bar is at the bottom most
+		  if (UsersUtil.isMe(userID) || (chatMessagesList.verticalScrollAtMax)) {
+	        if (scrollTimer != null) scrollTimer.start();
+		  } else if (!scrollTimer.running) {
+			  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = true;
+		  }
       }
       
       
@@ -356,6 +369,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        */
       private function scrollToBottom():void {
         chatMessagesList.scrollToBottom();
+		unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = false;
       }
       
       private function onScrollTimer(event:TimerEvent):void {
@@ -561,17 +575,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function applyLockSettings():void {
+				if (publicChat) {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
+        } else {
+          txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat || LiveMeeting.inst().users.getUser(chatWithUserID).role == Role.MODERATOR;
+        }
       }
       
-      private function refreshRole(e:ChangeMyRole):void {
+      private function refreshRole(e:Event):void {
         applyLockSettings();
       }
       
       private function get messageCanBeSent() : Boolean {
         return StringUtils.trim(txtMsgArea.text).length <= chatOptions.maxMessageLength;
       }
-      
+
+	  protected function chatMessagesList_scrollHandler(event:ScrollEvent):void {
+		if (chatMessagesList.verticalScrollAtMax) {
+		  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = false;
+		}
+	  }
+	
       protected function txtMsgAreaChangeHandler(event:Event):void
       {
         if (!messageCanBeSent) {
@@ -600,12 +624,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         const paddingWidth:int = 5;
         
       }
-    ]]>
+		
+	]]>
     
   </fx:Script>
   
   <fx:Declarations>
     <common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
+	  
+	<mx:DropShadowFilter id="unreadMessagesBoxShadow" distance="3" angle="-90" alpha=".25" blurX="3" blurY="3" />
   </fx:Declarations>
   
   <mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
@@ -615,7 +642,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
                          dataProvider="{chatMessages.messages}"
                          styleName="chatMessageListStyle"
+						 scroll="chatMessagesList_scrollHandler(event)"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
+		<mx:Canvas id="unreadMessagesBar" visible="false" includeInLayout="false" filters="{[unreadMessagesBoxShadow]}"
+				   width="100%" bottom="0" styleName="unreadMessagesBar" click="scrollToBottom()">
+			<mx:Text width="{unreadMessagesBar.width - 32}" verticalCenter="0" horizontalCenter="0"
+					 styleName="unreadMessagesBarText" text="{ResourceUtil.getInstance().getString('bbb.chat.unreadMessages')}"/> 
+		</mx:Canvas>
     </mx:Canvas>
   </mx:VBox>
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"

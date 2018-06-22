@@ -56,10 +56,11 @@ object BreakoutRoomsUtil {
       "userID" -> urlEncode(userId),
       "isBreakout" -> urlEncode(isBreakout.toString()),
       "meetingID" -> urlEncode(breakoutMeetingId),
-      "password" -> urlEncode(password)
+      "password" -> urlEncode(password),
+      "redirect" -> urlEncode("true")
     )
 
-    (params + ("redirect" -> urlEncode("true")), params + ("redirect" -> urlEncode("false")))
+    (params, params + ("joinViaHtml5" -> urlEncode("true")))
   }
 
   def sortParams(params: collection.immutable.Map[String, String]): SortedSet[String] = {

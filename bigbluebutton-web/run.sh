@@ -1,2 +1,2 @@
-grails -Dserver.port=8888 run-war
+grails -Dserver.port=8989 run-war
 

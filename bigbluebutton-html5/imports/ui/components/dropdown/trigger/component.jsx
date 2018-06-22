@@ -45,6 +45,7 @@ export default class DropdownTrigger extends Component {
     delete remainingProps.dropdownToggle;
     delete remainingProps.dropdownShow;
     delete remainingProps.dropdownHide;
+    delete remainingProps.dropdownIsOpen;
 
     const {
       children,
@@ -58,8 +59,8 @@ export default class DropdownTrigger extends Component {
       ...restProps,
       onClick: this.handleClick,
       onKeyDown: this.handleKeyDown,
-      'aria-haspopup': true,
       className: cx(children.props.className, className),
+      'aria-expanded': this.props.dropdownIsOpen,
     });
 
     return TriggerComponentBounded;

@@ -19,17 +19,14 @@
 
 package org.bigbluebutton.modules.screenshare.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
+	import flash.utils.Timer;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.modules.screenshare.services.WebRTCDeskshareService;
 	import org.bigbluebutton.modules.screenshare.view.components.WebRTCDesktopPublishWindow;
 
 	public class WebRTCPublishWindowManager {
@@ -37,7 +34,6 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		private var shareWindow:WebRTCDesktopPublishWindow;
 		private var globalDispatcher:Dispatcher;
-		private var service:WebRTCDeskshareService;
 		private var buttonShownOnToolbar:Boolean = false;
 
 		// Timer to auto-publish webcam. We need this timer to delay
@@ -46,10 +42,9 @@ package org.bigbluebutton.modules.screenshare.managers
 		// won't be able to view the webcam.
 		private var autoPublishTimer:Timer;
 
-		public function WebRTCPublishWindowManager(service:WebRTCDeskshareService) {
+		public function WebRTCPublishWindowManager() {
 			LOGGER.debug("PublishWindowManager init");
 			globalDispatcher = new Dispatcher();
-			this.service = service;
 		}
 
 		public function stopSharing():void {
@@ -64,7 +59,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			closeWindow(shareWindow);
 		}
 
-		public function openWindow(window:IBbbModuleWindow = null):void {
+		private function openWindow(window:IBbbModuleWindow = null):void {
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 
 			if (window == null) {
@@ -85,17 +80,16 @@ package org.bigbluebutton.modules.screenshare.managers
 			shareWindow = null;
 		}
 
+		public function startSharing():void {
+			openWindow();
+		}
+		
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
 			/* re use window object that is used to display installaion instructions */
 			/* the window is first created for the instructions prompting the user to
 			install the extension. this way after the extension is installed and the user
 			retries when the video stream comes in it re uses the window element instead of
 			making a second window and preventing the first from being removed */
-			if (shareWindow == null) {
-				shareWindow = new WebRTCDesktopPublishWindow();
-				shareWindow.visible = true;
-				openWindow(shareWindow);
-			}
 
 			shareWindow.startVideo(rtmp, videoWidth, videoHeight);
 		}

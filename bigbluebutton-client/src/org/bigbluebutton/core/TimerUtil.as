@@ -21,17 +21,19 @@ package org.bigbluebutton.core {
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-	
+
 	import mx.controls.Alert;
 	import mx.controls.Label;
 	import mx.managers.PopUpManager;
-	
+
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {
-		public static var timers:Dictionary = new Dictionary(true);
+		private static var timers:Dictionary = new Dictionary(true);
 
-		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean=false):void {
+		private static var times:Dictionary = new Dictionary(true);
+
+		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean = false):void {
 			var timer:Timer = getTimer(label.id, seconds);
 			var minuteWarningShown:Boolean = false;
 			var minuteAlert:Alert = null;
@@ -58,6 +60,28 @@ package org.bigbluebutton.core {
 			timer.start();
 		}
 
+		public static function setTimer(label:Label, seconds:int, running:Boolean):void {
+			var timer:Timer = getTimer(label.id, seconds);
+			if (!timer.hasEventListener(TimerEvent.TIMER)) {
+				timer.addEventListener(TimerEvent.TIMER, function():void {
+					updateLabel(timer, label);
+				});
+			}
+			times[timer] = seconds - timer.currentCount;
+			updateLabel(timer, label);
+			if (running) {
+				timer.start();
+			} else {
+				timer.stop();
+			}
+		}
+
+		private static function updateLabel(timer:Timer, label:Label):void {
+			var elapsedSeconds:int = times[timer] + timer.currentCount;
+			var formattedTime:String = (Math.floor(elapsedSeconds / 60)) + ":" + (elapsedSeconds % 60 >= 10 ? "" : "0") + (elapsedSeconds % 60);
+			label.text = formattedTime;
+		}
+
 		public static function getTimer(name:String, defaultRepeatCount:Number):Timer {
 			if (timers[name] == undefined) {
 				timers[name] = new Timer(1000, defaultRepeatCount);
@@ -71,5 +95,16 @@ package org.bigbluebutton.core {
 				timers[name].stop();
 			}
 		}
+
+		private static var _recordingTimeReceived:Boolean
+
+		public static function get recordingTimeReceived():Boolean {
+			return _recordingTimeReceived;
+		}
+
+		public static function set recordingTimeReceived(value:Boolean):void {
+			_recordingTimeReceived = value;
+		}
+
 	}
 }
