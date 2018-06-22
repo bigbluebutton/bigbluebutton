@@ -91,7 +91,7 @@ class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    const { intl, mountModal } = this.props;
+    const { intl, mountModal, isAndroid } = this.props;
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
 
     this.menuItems = [(<DropdownListItem
@@ -133,8 +133,8 @@ class SettingsDropdown extends Component {
     ];
 
     // Removes fullscreen button if not on Android
-    if (!this.props.isAndroid) {
-      this.menuItems = this.menuItems.slice(1);
+    if (!isAndroid) {
+      this.menuItems.shift();
     }
   }
 
