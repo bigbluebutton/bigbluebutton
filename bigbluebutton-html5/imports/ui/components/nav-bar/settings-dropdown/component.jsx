@@ -92,8 +92,15 @@ class SettingsDropdown extends Component {
 
   componentWillMount() {
     const { intl, mountModal } = this.props;
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
 
-    this.menuItems = [
+    this.menuItems = [(<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon={fullscreenIcon}
+      label={fullscreenLabel}
+      description={fullscreenDesc}
+      onClick={this.props.handleToggleFullscreen}
+    />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="settings"
@@ -124,18 +131,10 @@ class SettingsDropdown extends Component {
         onClick={() => mountModal(<LogoutConfirmationContainer />)}
       />),
     ];
-    // Adds Fullscreen button if user is on Android.
 
-    if (this.props.isAndroid) {
-      const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
-      const newFullScreenButton = (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon={fullscreenIcon}
-        label={fullscreenLabel}
-        description={fullscreenDesc}
-        onClick={this.props.handleToggleFullscreen}
-      />);
-      this.menuItems.unshift(newFullScreenButton);
+    // Removes fullscreen button if not on Android
+    if (!this.props.isAndroid) {
+      this.menuItems = this.menuItems.slice(1);
     }
   }
 
