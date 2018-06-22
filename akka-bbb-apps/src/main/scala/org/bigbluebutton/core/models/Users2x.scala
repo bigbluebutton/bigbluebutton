@@ -75,6 +75,16 @@ object Users2x {
     }
   }
 
+  def setUserClientType(users: Users2x, intId: String, clientType: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.clientType).setTo(clientType)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def setUserLocked(users: Users2x, intId: String, locked: Boolean): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -152,7 +162,7 @@ class Users2x {
 
 case class UserState(intId: String, extId: String, name: String, role: String,
                      guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
-                     presenter: Boolean, avatar: String)
+                     presenter: Boolean, avatar: String, clientType: String)
 
 case class UserIdAndName(id: String, name: String)
 

@@ -84,6 +84,8 @@ class ReceivedJsonMsgHandlerActor(
       // Users
       case GetUsersMeetingReqMsg.NAME =>
         routeGenericMsg[GetUsersMeetingReqMsg](envelope, jsonNode)
+      case SetUserClientTypeCmdMsg.NAME =>
+        routeGenericMsg[SetUserClientTypeCmdMsg](envelope, jsonNode)
       // Poll
       case StartCustomPollReqMsg.NAME =>
         routeGenericMsg[StartCustomPollReqMsg](envelope, jsonNode)

@@ -36,6 +36,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStartedEvtMsg => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
+      case m: SetUserClientTypeEvtMsg => handleSetUserClientTypeEvtMsg(m)
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -82,6 +83,10 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handlePresenterUnassignedEvtMsg(msg: PresenterUnassignedEvtMsg): Unit = {
     olgMsgGW.handle(new UserStatusChanged(msg.header.meetingId, msg.body.intId, "presenter", "false"))
+  }
+
+  def handleSetUserClientTypeEvtMsg(msg: SetUserClientTypeEvtMsg): Unit = {
+    olgMsgGW.handle(new SetUserClientType(msg.header.meetingId, msg.body.userId, msg.body.clientType))
   }
 
   def handlePresenterAssignedEvtMsg(msg: PresenterAssignedEvtMsg): Unit = {

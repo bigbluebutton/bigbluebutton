@@ -56,6 +56,7 @@ import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.SetUserClientType;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
@@ -589,7 +590,7 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance);
+        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance, "unknown");
       m.userJoined(user);
 
       Map<String, Object> logData = new HashMap<String, Object>();
@@ -604,6 +605,7 @@ public class MeetingService implements MessageListener {
       logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
       logData.put("event", "user_joined_message");
       logData.put("description", "User joined the meeting.");
+      logData.put("clientType", "unknown");
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
@@ -739,7 +741,7 @@ public class MeetingService implements MessageListener {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
           User vuser = new User(message.userId, message.userId,
-                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false);
+                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false, "dial-in");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);
         }
@@ -796,6 +798,18 @@ public class MeetingService implements MessageListener {
       User user = m.getUserById(message.userId);
       if (user != null) {
         user.removeStream(message.stream);
+        return;
+      }
+      return;
+    }
+  }
+
+  public void processSetUserClientType(SetUserClientType message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      User user = m.getUserById(message.userId);
+      if (user != null) {
+        user.setClientType(message.clientType);
         return;
       }
       return;
@@ -860,6 +874,8 @@ public class MeetingService implements MessageListener {
           processStunTurnInfoRequested((StunTurnInfoRequested) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
+        } else if (message instanceof SetUserClientType) {
+          processSetUserClientType((SetUserClientType) message);
         }
       }
     };

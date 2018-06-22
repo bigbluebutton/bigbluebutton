@@ -321,3 +321,13 @@ case class GetVoiceUsersMeetingRespMsgBody(users: Vector[VoiceConfUser])
 case class VoiceConfUser(intId: String, voiceUserId: String, callingWith: String, callerName: String,
                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
 
+
+/* Sent to akka-apps to inform about the type of client the user is joining through */
+object SetUserClientTypeCmdMsg { val NAME = "SetUserClientTypeCmdMsg" }
+case class SetUserClientTypeCmdMsg(header: BbbClientMsgHeader, body: SetUserClientTypeCmdMsgBody) extends StandardMsg
+case class SetUserClientTypeCmdMsgBody(userId: String, clientType: String)
+
+/* Sent  by akka-apps to clients and bbb-web */
+object SetUserClientTypeEvtMsg { val NAME = "SetUserClientTypeEvtMsg" }
+case class SetUserClientTypeEvtMsg(header: BbbClientMsgHeader, body: SetUserClientTypeEvtMsgBody) extends BbbCoreMsg
+case class SetUserClientTypeEvtMsgBody(userId: String, clientType: String)
