@@ -1187,20 +1187,24 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
 	case "$FFMPEG_VERSION" in
-	2.8.*)
-		# This is the current supported version; OK.
-		;;
-	'')
-		echo "# Warning: No ffmpeg version was found on the system"
-		echo "#          Recording processing will not function"
-		echo
-		;;
-	*)
-		echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not supported"
-		echo "#          Recording processing may not function correctly"
-		echo
-		;;
-	esac
+        4.0.*)
+                # This is the current supported version; OK.
+                ;;
+        '')
+                echo "# Warning: No ffmpeg version was found on the system"
+                echo "#          Recording processing will not function"
+                echo
+                ;;
+        *)
+                echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not recommended."
+                echo "# Recommend you update to the 4.0.x version of ffmpeg.  To upgrade, do the following"
+                echo "#"
+                echo "#        sudo add-apt-repository ppa:jonathonf/ffmpeg-4"
+                echo "#        sudo apt-get update"
+                echo "#"
+                echo
+                ;;
+        esac
 
 
 	if [ -f /usr/share/red5/log/sip.log ]; then
@@ -1607,6 +1611,7 @@ if [ $CHECK ]; then
                 echo "                     recordWebcams: $KURENTO_RECORD_WEBCAMS"
                 echo "                              Node: $(node -v)"
                 echo "                           mongoDB: $(/usr/bin/mongod --version | grep "db version" | sed 's/db version //g')"
+                echo "                            ffmpeg: $(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)"
         fi
 
 	check_state
