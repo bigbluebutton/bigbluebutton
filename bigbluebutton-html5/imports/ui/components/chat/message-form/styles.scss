@@ -62,6 +62,10 @@
   border: 1px solid $color-gray-lighter;
   box-shadow: 0 0 0 2px $color-gray-lighter;
 
+  @include mq($small-only) {
+    font-size: 16px;
+  }
+
   &:disabled,
   &[disabled] {
     cursor: not-allowed;
