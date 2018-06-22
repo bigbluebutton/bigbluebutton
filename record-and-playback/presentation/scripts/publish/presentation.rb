@@ -130,6 +130,12 @@ def svg_render_shape_pencil(g, slide, shape)
   g['shape'] = "pencil#{shape[:shape_unique_id]}"
 
   doc = g.document
+
+  if shape[:data_points].length < 2
+    BigBlueButton.logger.warn("Pencil #{shape[:shape_unique_id]} doesn't have enough points")
+    return
+  end
+
   if shape[:data_points].length == 2
     BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing single point")
     g['style'] = "stroke:none;fill:##{shape[:color]};visibility:hidden"
