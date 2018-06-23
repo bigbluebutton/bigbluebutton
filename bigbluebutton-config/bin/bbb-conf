@@ -1201,7 +1201,7 @@ check_state() {
                 echo "#"
                 echo "#        sudo add-apt-repository ppa:jonathonf/ffmpeg-4"
                 echo "#        sudo apt-get update"
-                echo "#        sudo apt-get upgrade"
+                echo "#        sudo apt-get dist-upgrade"
                 echo "#"
                 echo
                 ;;
