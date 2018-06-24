@@ -1606,7 +1606,7 @@ if [ $CHECK ]; then
 		echo
 		echo "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)"
 		echo "                     playback host: $PLAYBACK_IP"
-                echo "                            ffmpeg: $(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')
+                echo "                            ffmpeg: $(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')"
 	fi
 
         if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
