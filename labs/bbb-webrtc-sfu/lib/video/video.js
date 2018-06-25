@@ -199,17 +199,34 @@ module.exports = class Video extends EventEmitter {
   }
 
   async startRecording() {
-    try {
-      this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
-      this.sendStartShareEvent();
-    }
-    catch (err) {
-      Logger.error("[video] Error on start recording with message", err);
-    }
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+        this.mcs.on('MediaEvent' + this.recording.recordingId, this.recordingState.bind(this));
+        this.sendStartShareEvent();
+        resolve(this.recording);
+      }
+      catch (err) {
+        Logger.error("[video] Error on start recording with message", err);
+        reject(err);
+      }
+    });
+  }
+
+  async stopRecording() {
+    await this.mcs.stopRecording(this.userId, this.mediaId, this.recording.recordingId);
+    this.sendStopShareEvent();
+    this.recording = {};
+  }
+
+  recordingState(event) {
+    const msEvent = event.event;
+    Logger.info('[Recording]', msEvent.type, '[', msEvent.state, ']', 'for recording session', event.id, 'for video', this.streamName);
   }
 
   start (sdpOffer) {
     return new Promise(async (resolve, reject) => {
+
     Logger.info("[video] Starting video instance for", this.streamName);
 
     // Force H264

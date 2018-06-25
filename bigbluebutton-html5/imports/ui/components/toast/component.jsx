@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
-
+import cx from 'classnames';
 import Icon from '../icon/component';
 import { styles } from './styles';
 
@@ -23,12 +23,36 @@ const defaultIcons = {
   [toast.TYPE.DEFAULT]: 'about',
 };
 
-const Toast = ({ icon, type, message }) => (
-  <div className={styles[type]} role="alert">
-    <div className={styles.icon}><Icon iconName={icon || defaultIcons[type]} /></div>
-    <div className={styles.message}>
-      <span>{message}</span>
+const Toast = ({
+  icon,
+  type,
+  message,
+  content,
+  small,
+}) => (
+  <div 
+    className={cx(styles.toastContainer, small ? styles.smallToastContainer : null)} 
+    role="alert"
+  >
+    <div className={styles[type]}>
+      <div className={cx(styles.icon, small ? styles.smallIcon : null)}>
+        <Icon iconName={icon || defaultIcons[type]} />
+      </div>
+      <div className={cx(styles.message, small ? styles.smallMessage : null)}>
+        <span>{message}</span>
+      </div>
     </div>
+    {
+      content ? (
+        <div>
+          <div className={styles.separator} />
+          <div>
+            {content}
+          </div>
+        </div>
+      )
+      : null
+    }
   </div>
 );
 

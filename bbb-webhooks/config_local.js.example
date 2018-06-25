@@ -1,0 +1,29 @@
+// Local configuration file
+
+const config = {};
+
+// Shared secret of your BigBlueButton server.
+config.bbb = {};
+config.bbb.sharedSecret = "mysharedsecret";
+// Whether to use Auth2.0 or not, Auth2.0 sends the sharedSecret whithin an Authorization header as a bearer
+config.bbb.auth2_0 = false
+
+// The port in which the API server will run.
+config.server = {};
+config.server.port = 3005;
+
+// Callbacks will be triggered for all the events in this list and only for these events.
+//config.hooks = {};
+//config.hooks.channels = {
+//  mainChannel: 'from-akka-apps-redis-channel',
+//  rapChannel: 'bigbluebutton:from-rap',
+//  chatChannel: 'from-akka-apps-chat-redis-channel'
+//}
+
+// IP where permanent hook will post data (more than 1 URL means more than 1 permanent hook)
+//config.hooks.permanentURLs = ["request.catcher.url", "another.request.catcher.url"]
+
+// Allow global hook to receive all events with raw data
+//config.hooks.getRaw = false;
+
+module.exports = config;

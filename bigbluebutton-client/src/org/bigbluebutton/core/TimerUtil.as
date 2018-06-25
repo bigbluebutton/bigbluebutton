@@ -21,11 +21,11 @@ package org.bigbluebutton.core {
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-
+	
 	import mx.controls.Alert;
 	import mx.controls.Label;
 	import mx.managers.PopUpManager;
-
+	
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {
@@ -43,7 +43,14 @@ package org.bigbluebutton.core {
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
 					label.text = formattedTime;
 					if (remainingSeconds < 60 && showMinuteWarning && !minuteWarningShown) {
-						minuteAlert = Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.closewarning.text'));
+						// Check the label which timer is firing and display message accordingly.
+						var warnText: String = 'bbb.users.breakout.closewarning.text';
+						if (label.id == "breakoutTimeLabel") {
+							warnText = 'bbb.users.breakout.closewarning.text';
+						} else if (label.id == 'timeRemaining') {
+							warnText = 'bbb.users.meeting.closewarning.text';
+						}
+						minuteAlert = Alert.show(ResourceUtil.getInstance().getString(warnText));
 						minuteWarningShown = true;
 					}
 				});
