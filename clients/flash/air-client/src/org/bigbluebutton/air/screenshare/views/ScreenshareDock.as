@@ -14,7 +14,6 @@ package org.bigbluebutton.air.screenshare.views {
 	
 	import spark.components.Group;
 	
-	import org.bigbluebutton.air.common.views.IOSVideoView;
 	import org.bigbluebutton.air.main.views.RectCoverView;
 	
 	public class ScreenshareDock extends Group {
@@ -301,6 +300,10 @@ package org.bigbluebutton.air.screenshare.views {
 				// Clean up listener
 				_sv.removeEventListener(StageVideoEvent.RENDER_STATE, stageVideoStateChange);
 				_sv = null;
+			}
+			
+			if (Capabilities.version.indexOf("IOS") >= 0) {
+				_iosScrenshareView.close();
 			}
 		
 			_ns = null;
