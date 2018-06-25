@@ -1984,7 +1984,7 @@ if [ $CLEAN ]; then
 	fi
 
 	if [ -d /var/log/bbb-webrtc-sfu ]; then
-		rm -f /var/log/bbb-webrtc-sf/*
+		rm -f /var/log/bbb-webrtc-sfu/*
 	fi
 
 	start_bigbluebutton
