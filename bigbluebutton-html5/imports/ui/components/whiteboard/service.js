@@ -66,7 +66,7 @@ function handleRemovedAnnotation({
   }
 
   if (shapeId) {
-    query.id = shapeId;
+    query.id = { $in: [shapeId, `${shapeId}-fake`] };
   }
 
   Annotations.remove(query);
