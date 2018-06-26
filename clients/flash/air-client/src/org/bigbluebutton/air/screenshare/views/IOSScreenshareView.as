@@ -1,9 +1,12 @@
 package org.bigbluebutton.air.screenshare.views {
 	import flash.display.DisplayObject;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	import mx.core.UIComponent;
 	
 	import spark.components.Image;
+	import spark.components.ProgressBar;
 	
 	import org.bigbluebutton.BBBRtmpPlayer;
 	import org.bigbluebutton.BBBRtmpPlayerEvent;
@@ -17,6 +20,16 @@ package org.bigbluebutton.air.screenshare.views {
 		protected var originalVideoWidth:Number;
 		
 		protected var originalVideoHeight:Number;
+		
+		private var _waitingBar : ProgressBar;
+		
+		private var _waitingTimer : Timer;
+		
+		private const WAITING_SECONDS : int = 15;
+		
+		private function waitingTimerProgressHandler(e:TimerEvent):void {
+			_waitingBar.totalProgress = (_waitingTimer.currentCount / WAITING_SECONDS) * 100;
+		}
 		
 		public function resizeForPortrait():void {
 			// if we have device where screen width less than screen height e.g. phone
@@ -57,14 +70,14 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		public function startStream(uri:String, streamName:String, imgWidth:Number, imgHeight:Number, meetingId:String, authToken:String, externalUserId:String):void {
 			
+			showProgressBar();
+			
 			if (player) {
 				close();
 			}
 			
 			videoComp = new Image();
-			if (numChildren == 0) {
-				addChild(videoComp);
-			}
+			addChild(videoComp);
 			
 			this.originalVideoWidth = imgWidth;
 			this.originalVideoHeight = imgHeight;
@@ -81,8 +94,31 @@ package org.bigbluebutton.air.screenshare.views {
 			player.play();
 		}
 		
+		private function showProgressBar() : void {
+			_waitingBar = new ProgressBar();
+			_waitingBar.totalProgress = 0;
+			_waitingBar.percentWidth = 80;
+			_waitingBar.height = 40;
+			_waitingBar.bottom = 20;
+			_waitingBar.horizontalCenter = 0;
+			_waitingBar.verticalCenter = 0;
+			_waitingBar.styleName = "micLevelProgressBar";
+			
+			addChild(_waitingBar);
+			
+			_waitingTimer = new Timer(1000, WAITING_SECONDS);
+			_waitingTimer.addEventListener(TimerEvent.TIMER, waitingTimerProgressHandler);
+			_waitingTimer.start();
+		}
+		
 		private function onConnected(e:BBBRtmpPlayerEvent):void {
-			image.source = player.getBmpData();
+			trace("EVENT: " + e.type + " MESSAGE: " + e.getMessage());
+			if (_waitingBar && _waitingBar.parent == this) {
+				removeChild(_waitingBar);
+			}
+			if (image) {
+				image.source = player.getBmpData();
+			}
 		}
 		
 		private function onConnecting(e:BBBRtmpPlayerEvent):void {
@@ -90,23 +126,27 @@ package org.bigbluebutton.air.screenshare.views {
 		}
 		
 		private function onConnectionFailed(e:BBBRtmpPlayerEvent):void {
+			trace("EVENT: " + e.type + " MESSAGE: " + e.getMessage());
 			close();
 		}
 		
 		private function onDisconnected(e:BBBRtmpPlayerEvent):void {
+			trace("EVENT: " + e.type + " MESSAGE: " + e.getMessage());
 			close();
 		}
 		
 		public function close():void {
-			player.addEventListener(BBBRtmpPlayerEvent.CONNECTED, onConnected);
-			player.addEventListener(BBBRtmpPlayerEvent.CONNECTING, onConnecting);
-			player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
-			player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
-			if (getChildAt(0) == image) {
-				removeChild(image);
+			if (player) {
+				player.addEventListener(BBBRtmpPlayerEvent.CONNECTED, onConnected);
+				player.addEventListener(BBBRtmpPlayerEvent.CONNECTING, onConnecting);
+				player.removeEventListener(BBBRtmpPlayerEvent.CONNECTION_FAILED, onConnectionFailed);
+				player.removeEventListener(BBBRtmpPlayerEvent.DISCONNECTED, onDisconnected);
+				if (image && image.parent == this) {
+					removeChild(image);
+				}
+				videoComp = null;
+				player = null;	
 			}
-			videoComp = null;
-			player = null;
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
