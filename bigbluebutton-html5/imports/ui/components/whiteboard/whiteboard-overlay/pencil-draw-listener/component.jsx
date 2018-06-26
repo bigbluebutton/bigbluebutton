@@ -102,6 +102,7 @@ export default class PencilDrawListener extends Component {
   }
 
   handleTouchMove(event) {
+    event.preventDefault();
     const { clientX, clientY } = event.changedTouches[0];
     this.commonDrawMoveHandler(clientX, clientY);
   }
