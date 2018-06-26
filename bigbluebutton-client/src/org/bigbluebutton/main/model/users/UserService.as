@@ -168,6 +168,10 @@ package org.bigbluebutton.main.model.users
 		}
 	}
 
+	public function setUserClientType():void {
+		sender.setUserClientType();
+	}
+
     public function logoutUser():void {
       disconnect(true);
     }

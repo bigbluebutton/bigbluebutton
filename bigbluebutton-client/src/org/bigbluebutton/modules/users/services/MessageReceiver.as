@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+  import org.bigbluebutton.main.model.users.events.SetUserClientTypeEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -404,6 +405,11 @@ package org.bigbluebutton.modules.users.services
         LiveMeeting.inst().me.locked = locked;
         UsersUtil.applyLockSettings();
       }
+
+      var setUserClientTypeEvent:SetUserClientTypeEvent = new SetUserClientTypeEvent(SetUserClientTypeEvent.SET_USER_CLIENT_TYPE);
+      setUserClientTypeEvent.userID = intId;
+      setUserClientTypeEvent.clientType = "FLASH";
+      dispatcher.dispatchEvent(setUserClientTypeEvent);
     }
     
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {
