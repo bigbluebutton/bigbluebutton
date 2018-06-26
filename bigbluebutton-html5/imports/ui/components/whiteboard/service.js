@@ -131,6 +131,9 @@ const proccessAnnotationsQueue = () => {
 };
 
 export function sendAnnotation(annotation) {
+  // Prevent sending annotations while disconnected
+  if (!Meteor.status().connected) return;
+
   annotationsQueue.push(annotation);
   if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 
