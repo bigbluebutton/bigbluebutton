@@ -1,14 +1,9 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
-import { isEqual, isArray } from 'lodash';
+import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
-const Logger = {
-  info: console.log,
-  error: console.error,
-};
 
 function handleAddedAnnotation({
   meetingId, whiteboardId, userId, annotation,
@@ -83,23 +78,25 @@ AnnotationsStreamer.on('added', ({ annotations }) => {
   annotations.forEach(annotation => handleAddedAnnotation(annotation));
 });
 
-function increase_brightness(hex, percent) {
-  hex = parseInt(hex, 10).toString(16).padStart(6, 0);
+function increaseBrightness(realHex, percent) {
+  let hex = parseInt(realHex, 10).toString(16).padStart(6, 0);
   // strip the leading # if it's there
   hex = hex.replace(/^\s*#|\s*$/g, '');
 
   // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-  if (hex.length == 3) {
+  if (hex.length === 3) {
     hex = hex.replace(/(.)/g, '$1$1');
   }
 
-  let r = parseInt(hex.substr(0, 2), 16),
-    g = parseInt(hex.substr(2, 2), 16),
-    b = parseInt(hex.substr(4, 2), 16);
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
 
-  return parseInt(((0 | (1 << 8) + r + (256 - r) * percent / 100).toString(16)).substr(1) +
-     ((0 | (1 << 8) + g + (256 - g) * percent / 100).toString(16)).substr(1) +
-     ((0 | (1 << 8) + b + (256 - b) * percent / 100).toString(16)).substr(1), 16);
+  /* eslint-disable no-bitwise, no-mixed-operators */
+  return parseInt(((0 | (1 << 8) + r + ((256 - r) * percent) / 100).toString(16)).substr(1) +
+     ((0 | (1 << 8) + g + ((256 - g) * percent) / 100).toString(16)).substr(1) +
+     ((0 | (1 << 8) + b + ((256 - b) * percent) / 100).toString(16)).substr(1), 16);
+  /* eslint-enable no-bitwise, no-mixed-operators */
 }
 
 let annotationsQueue = [];
@@ -124,7 +121,8 @@ const proccessAnnotationsQueue = () => {
   AnnotationsStreamer.emit('publish', { credentials: Auth.credentials, payload: annotationsQueue });
   annotationsQueue = [];
   // ask tiago
-  const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
+  const delayPerc =
+    Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
   const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
   const delayTime = annotationsBufferTimeMin + (delayDelta * delayPerc);
   setTimeout(proccessAnnotationsQueue, delayTime);
@@ -149,11 +147,12 @@ export function sendAnnotation(annotation) {
       position: Number.MAX_SAFE_INTEGER,
       annotationInfo: {
         ...annotation.annotationInfo,
-        color: increase_brightness(annotation.annotationInfo.color, 40),
+        color: increaseBrightness(annotation.annotationInfo.color, 40),
       },
     },
   );
-  return Annotations.upsert(queryFake.selector, queryFake.modifier);
+
+  Annotations.upsert(queryFake.selector, queryFake.modifier);
 }
 
 export default Annotations;
