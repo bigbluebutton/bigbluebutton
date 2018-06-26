@@ -38,7 +38,7 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
     const USER_CONFIG = Meteor.settings.public.user;
     const ROLE_VIEWER = USER_CONFIG.role_viewer;
 
-    const modifier = {
+    const modifier = { // web (Users) representation of dial-in user
       $set: {
         meetingId,
         connectionStatus: 'online',
@@ -56,7 +56,7 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
         presenter: false,
         locked: false, // TODO
         avatar: '',
-        clientType: 'dial-in__1',
+        clientType: 'dial-in-user',
       },
     };
 

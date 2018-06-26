@@ -604,7 +604,7 @@ public class MeetingService implements MessageListener {
       logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
       logData.put("event", "user_joined_message");
       logData.put("description", "User joined the meeting.");
-      logData.put("clientType", "unknown");
+      logData.put("clientType", user.getClientType());
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
@@ -740,7 +740,7 @@ public class MeetingService implements MessageListener {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
           User vuser = new User(message.userId, message.userId,
-                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false, "dial-in");
+                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false, "DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);
         }

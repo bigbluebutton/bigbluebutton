@@ -88,7 +88,6 @@ export default function addUser(meetingId, user) {
     listenOnly: false,
     voiceConf: '',
     joined: false,
-    clientType: 'dial-in__2',
   });
 
   const cb = (err, numChanged) => {
