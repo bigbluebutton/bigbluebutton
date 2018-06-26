@@ -54,7 +54,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-  import org.bigbluebutton.main.model.users.events.SetUserClientTypeEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -361,7 +360,8 @@ package org.bigbluebutton.modules.users.services
       var locked: Boolean = user.locked as Boolean;
       var presenter: Boolean = user.presenter as Boolean;
       var avatar: String = user.avatar as String;
-      
+      // var clientType: String = user.clientType as String;
+
       var user2x: User2x = new User2x();
       user2x.intId = intId;
       user2x.extId = extId;
@@ -406,10 +406,6 @@ package org.bigbluebutton.modules.users.services
         UsersUtil.applyLockSettings();
       }
 
-      var setUserClientTypeEvent:SetUserClientTypeEvent = new SetUserClientTypeEvent(SetUserClientTypeEvent.SET_USER_CLIENT_TYPE);
-      setUserClientTypeEvent.userID = intId;
-      setUserClientTypeEvent.clientType = "FLASH";
-      dispatcher.dispatchEvent(setUserClientTypeEvent);
     }
     
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {

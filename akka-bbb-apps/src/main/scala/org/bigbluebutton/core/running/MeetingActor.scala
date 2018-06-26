@@ -223,7 +223,6 @@ class MeetingActor(
       case m: EjectUserFromMeetingCmdMsg          => usersApp.handleEjectUserFromMeetingCmdMsg(m)
       case m: GetUsersMeetingReqMsg               => usersApp.handleGetUsersMeetingReqMsg(m)
       case m: ChangeUserRoleCmdMsg                => usersApp.handleChangeUserRoleCmdMsg(m)
-      case m: SetUserClientTypeCmdMsg             => usersApp.handleSetUserClientTypeCmdMsg(m)
 
       // Whiteboard
       case m: SendCursorPositionPubMsg            => handleSendCursorPositionPubMsg(m)

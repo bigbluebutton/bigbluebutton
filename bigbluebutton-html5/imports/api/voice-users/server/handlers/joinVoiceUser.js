@@ -56,6 +56,7 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
         presenter: false,
         locked: false, // TODO
         avatar: '',
+        clientType: 'dial-in__1',
       },
     };
 

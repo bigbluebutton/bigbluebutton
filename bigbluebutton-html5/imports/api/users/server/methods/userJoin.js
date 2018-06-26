@@ -17,6 +17,7 @@ export default function userJoin(meetingId, userId, authToken) {
   const payload = {
     userId,
     authToken,
+    clientType: 'HTML5',
   };
 
   Logger.info(`User='${userId}' is joining meeting='${meetingId}' authToken='${authToken}' pt2`);

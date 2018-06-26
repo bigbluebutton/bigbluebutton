@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.users.services
     public function joinMeeting(): void {
       var message:Object = {
         header: {name: "UserJoinMeetingReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken, clientType: "FLASH"}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.users.services
 
       var message:Object = {
         header: {name: "UserJoinMeetingAfterReconnectReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken, clientType: "FLASH"}
       };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -230,27 +230,6 @@ package org.bigbluebutton.modules.users.services
 				LOGGER.info(JSON.stringify(logData));
 			}, JSON.stringify(message));
 		}
-
-    public function setUserClientType():void {
-      var message:Object = {
-        header: {name: "SetUserClientTypeCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
-          userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID(), clientType: "FLASH"}
-      };
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage2x(
-        function(result:String):void { // On successful result
-        },
-        function(status:String):void { // status - On error occurred
-                var logData:Object = UsersUtil.initLogData();
-                logData.tags = ["apps"];
-                logData.logCode = "error_sending_set_user_client_type";
-                LOGGER.info(JSON.stringify(logData));
-        },
-        JSON.stringify(message)
-      );
-    }
     
     public function logoutEndMeeting(userID:String):void {
       var message:Object = {

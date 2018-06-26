@@ -56,7 +56,6 @@ import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
-import org.bigbluebutton.api.messaging.messages.SetUserClientType;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
@@ -590,7 +589,7 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance, "unknown");
+        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance, message.clientType);
       m.userJoined(user);
 
       Map<String, Object> logData = new HashMap<String, Object>();
@@ -804,18 +803,6 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public void processSetUserClientType(SetUserClientType message) {
-    Meeting m = getMeeting(message.meetingId);
-    if (m != null) {
-      User user = m.getUserById(message.userId);
-      if (user != null) {
-        user.setClientType(message.clientType);
-        return;
-      }
-      return;
-    }
-  }
-
   private void userRoleChanged(UserRoleChanged message) {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
@@ -874,8 +861,6 @@ public class MeetingService implements MessageListener {
           processStunTurnInfoRequested((StunTurnInfoRequested) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
-        } else if (message instanceof SetUserClientType) {
-          processSetUserClientType((SetUserClientType) message);
         }
       }
     };

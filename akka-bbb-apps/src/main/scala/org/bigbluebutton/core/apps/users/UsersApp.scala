@@ -13,7 +13,6 @@ class UsersApp(
 
     extends ValidateAuthTokenReqMsgHdlr
     with GetUsersMeetingReqMsgHdlr
-    with SetUserClientTypeCmdMsgHdlr
     with RegisterUserReqMsgHdlr
     with ChangeUserRoleCmdMsgHdlr
     with SyncGetUsersMeetingRespMsgHdlr

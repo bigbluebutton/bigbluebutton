@@ -163,8 +163,4 @@ public class User {
 		return this.clientType;
 	}
 
-	public void setClientType(String clientType) {
-		this.clientType = clientType;
-	}
-
 }

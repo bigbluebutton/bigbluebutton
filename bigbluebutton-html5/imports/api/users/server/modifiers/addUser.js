@@ -8,23 +8,6 @@ import flat from 'flat';
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
-import RedisPubSub from '/imports/startup/server/redis';
-
-const setClientTypeAsHTML5 = (meetingId, userId) => {
-  const REDIS_CONFIG = Meteor.settings.private.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'SetUserClientTypeCmdMsg';
-  const REQUESTER_ID = 'nodeJSapp';
-  const CLIENT_TYPE_HTML5 = 'HTML5';
-
-  const payload = {
-    clientType: CLIENT_TYPE_HTML5,
-    userId,
-  };
-
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, REQUESTER_ID, payload);
-};
-
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
   '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',
@@ -46,6 +29,7 @@ export default function addUser(meetingId, user) {
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    clientType: String,
   });
 
   const userId = user.intId;
@@ -63,19 +47,17 @@ export default function addUser(meetingId, user) {
   const APP_CONFIG = Meteor.settings.public.app;
   const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
 
+  // override moderator status of html5 client users, depending on a system flag
   const dummyUser = Users.findOne(selector);
   let userRole = user.role;
 
   if (
     dummyUser &&
-    dummyUser.clientType === 'HTML5') {
-    // confirm with BBB that this user is logged in via HTML5
-    setClientTypeAsHTML5(meetingId, userId);
-
-    // override moderator status of html5 client users, depending on a system flag
-    if (userRole === ROLE_MODERATOR && !ALLOW_HTML5_MODERATOR) {
-      userRole = ROLE_VIEWER;
-    }
+    dummyUser.clientType === 'HTML5' &&
+    userRole === ROLE_MODERATOR &&
+    !ALLOW_HTML5_MODERATOR
+  ) {
+    userRole = ROLE_VIEWER;
   }
 
   /* While the akka-apps dont generate a color we just pick one
@@ -106,6 +88,7 @@ export default function addUser(meetingId, user) {
     listenOnly: false,
     voiceConf: '',
     joined: false,
+    clientType: 'dial-in__2',
   });
 
   const cb = (err, numChanged) => {

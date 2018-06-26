@@ -62,7 +62,7 @@ case class UserJoinedMeetingEvtMsg(header: BbbClientMsgHeader,
                                    body: UserJoinedMeetingEvtMsgBody) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
                                        guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
-                                       presenter: Boolean, locked: Boolean, avatar: String)
+                                       presenter: Boolean, locked: Boolean, avatar: String, clientType: String)
 
 /**
   * Sent by client to get all users in a meeting.
@@ -265,14 +265,14 @@ case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
-case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String)
 
 /**
   * Sent from Flash client to rejoin meeting after reconnection
   */
 object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterReconnectReqMsg" }
 case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
-case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String)
+case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
 
 
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
@@ -299,7 +299,7 @@ case class GetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetUsersMeet
 case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])
 case class WebUser(intId: String, extId: String, name: String, role: String,
                    guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
-                   presenter: Boolean, avatar: String)
+                   presenter: Boolean, avatar: String, clientType: String)
 
 object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg"}
 case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg
@@ -321,13 +321,3 @@ case class GetVoiceUsersMeetingRespMsgBody(users: Vector[VoiceConfUser])
 case class VoiceConfUser(intId: String, voiceUserId: String, callingWith: String, callerName: String,
                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
 
-
-/* Sent to akka-apps to inform about the type of client the user is joining through */
-object SetUserClientTypeCmdMsg { val NAME = "SetUserClientTypeCmdMsg" }
-case class SetUserClientTypeCmdMsg(header: BbbClientMsgHeader, body: SetUserClientTypeCmdMsgBody) extends StandardMsg
-case class SetUserClientTypeCmdMsgBody(userId: String, clientType: String)
-
-/* Sent  by akka-apps to clients and bbb-web */
-object SetUserClientTypeEvtMsg { val NAME = "SetUserClientTypeEvtMsg" }
-case class SetUserClientTypeEvtMsg(header: BbbClientMsgHeader, body: SetUserClientTypeEvtMsgBody) extends BbbCoreMsg
-case class SetUserClientTypeEvtMsgBody(userId: String, clientType: String)
