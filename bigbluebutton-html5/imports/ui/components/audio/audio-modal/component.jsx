@@ -356,7 +356,6 @@ class AudioModal extends Component {
         handleBack={this.handleGoToAudioOptions}
         handleRetry={this.handleRetryGoToEchoTest}
         joinEchoTest={this.joinEchoTest}
-        exitAudio={this.exitAudio}
         changeInputDevice={this.changeInputDevice}
         changeOutputDevice={this.changeOutputDevice}
         isConnecting={isConnecting}

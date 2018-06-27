@@ -10,6 +10,7 @@ import Meetings from '/imports/api/meetings';
 
 import Icon from '../icon/component';
 import { styles } from './styles';
+import AudioService from '../audio/service';
 
 const intlMessages = defineMessages({
 
@@ -41,7 +42,9 @@ class ToastContainer extends React.Component {
 export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
   Breakouts.find().observeChanges({
     removed() {
-      notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
+      if (!AudioService.isUsingAudio()) {
+        notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
+      }
     },
   });
 

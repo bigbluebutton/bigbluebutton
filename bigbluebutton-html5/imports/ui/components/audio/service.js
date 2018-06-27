@@ -2,7 +2,6 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
-import VoiceUsers from '/imports/api/voice-users';
 
 const init = (messages) => {
   AudioManager.setAudioMessages(messages);
@@ -30,9 +29,6 @@ const init = (messages) => {
   AudioManager.init(userData);
 };
 
-const isVoiceUserTalking = () =>
-  VoiceUsers.findOne({ intId: Auth.userID }).talking;
-
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -44,8 +40,9 @@ export default {
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
   changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
   isConnected: () => AudioManager.isConnected,
-  isTalking: () => isVoiceUserTalking(),
+  isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
+  isUsingAudio: () => AudioManager.isUsingAudio(),
   isWaitingPermissions: () => AudioManager.isWaitingPermissions,
   isMuted: () => AudioManager.isMuted,
   isConnecting: () => AudioManager.isConnecting,
