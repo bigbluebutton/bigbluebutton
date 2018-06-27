@@ -24,6 +24,7 @@ exports.MEDIA_TYPE = {}
 exports.MEDIA_TYPE.WEBRTC = "WebRtcEndpoint"
 exports.MEDIA_TYPE.RTP= "RtpEndpoint"
 exports.MEDIA_TYPE.URI = "PlayerEndpoint"
+exports.MEDIA_TYPE.RECORDING = "RecorderEndpoint";
 
 // Media server state changes
 exports.EVENT = {}
@@ -39,13 +40,20 @@ exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
 exports.EVENT.SERVER_STATE = "ServerState"
 
+exports.EVENT.RECORDING = {};
+exports.EVENT.RECORDING.STOPPED = 'Stopped';
+exports.EVENT.RECORDING.STARTED = 'Started';
+exports.EVENT.RECORDING.PAUSED = 'Paused';
+
 // Error codes
 exports.ERROR = {};
-exports.ERROR.MEDIA_SERVER_OFFLINE = "1000";
-exports.ERROR.MEDIA_SERVER_ERROR = "1001";
-exports.ERROR.USER_NOT_FOUND = "1100";
-exports.ERROR.MEDIA_NOT_FOUND = "1101";
-exports.ERROR.INVALID_SDP = "1102";
+exports.ERROR.CONNECTION_ERROR = "CONNECTION_ERROR";
+exports.ERROR.MEDIA_SERVER_OFFLINE = "MEDIA_SERVER_OFFLINE";
+exports.ERROR.MEDIA_SERVER_ERROR = "MEDIA_SERVER_ERROR";
+exports.ERROR.ROOM_NOT_FOUND = "ROOM_NOT_FOUND";
+exports.ERROR.USER_NOT_FOUND = "USER_NOT_FOUND";
+exports.ERROR.MEDIA_NOT_FOUND = "MEDIA_NOT_FOUND";
+exports.ERROR.SDP_ERROR = "SDP_ERROR";
 
 // Freeswitch Adapter
 exports.FREESWITCH = {};

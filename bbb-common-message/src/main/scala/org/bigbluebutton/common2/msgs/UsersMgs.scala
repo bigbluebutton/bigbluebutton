@@ -62,7 +62,7 @@ case class UserJoinedMeetingEvtMsg(header: BbbClientMsgHeader,
                                    body: UserJoinedMeetingEvtMsgBody) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
                                        guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String,
-                                       presenter: Boolean, locked: Boolean, avatar: String)
+                                       presenter: Boolean, locked: Boolean, avatar: String, clientType: String)
 
 /**
   * Sent by client to get all users in a meeting.
@@ -83,7 +83,7 @@ case class GetRecordingStatusReqMsgBody(requestedBy: String)
   */
 object GetRecordingStatusRespMsg { val NAME = "GetRecordingStatusRespMsg" }
 case class GetRecordingStatusRespMsg(header: BbbClientMsgHeader, body: GetRecordingStatusRespMsgBody) extends BbbCoreMsg
-case class GetRecordingStatusRespMsgBody(recording: Boolean, requestedBy: String)
+case class GetRecordingStatusRespMsgBody(recorded: Boolean, recording: Boolean, requestedBy: String)
 
 /**
   * Sent by user to start recording mark.
@@ -93,11 +93,23 @@ case class SetRecordingStatusCmdMsg(header: BbbClientMsgHeader, body: SetRecordi
 case class SetRecordingStatusCmdMsgBody(recording: Boolean, setBy: String)
 
 /**
+  * Sent by user to start recording mark and ignore previsous marks
+  */
+object RecordAndClearPreviousMarkersCmdMsg { val NAME = "RecordAndClearPreviousMarkersCmdMsg" }
+case class RecordAndClearPreviousMarkersCmdMsg(header: BbbClientMsgHeader, body: RecordAndClearPreviousMarkersCmdMsgBody) extends StandardMsg
+case class RecordAndClearPreviousMarkersCmdMsgBody(recording: Boolean, setBy: String)
+
+
+/**
   * Sent to all users about start recording mark.
   */
 object RecordingStatusChangedEvtMsg { val NAME = "RecordingStatusChangedEvtMsg" }
 case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: RecordingStatusChangedEvtMsgBody) extends BbbCoreMsg
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
+
+object UpdateRecordingTimerEvtMsg {val NAME = "UpdateRecordingTimerEvtMsg"}
+case class UpdateRecordingTimerEvtMsg(header: BbbClientMsgHeader, body: UpdateRecordingTimerEvtMsgBody) extends BbbCoreMsg
+case class UpdateRecordingTimerEvtMsgBody(time: Long)
 
 /**
   * Sent by user to update webcamsOnlyForModerator meeting property.
@@ -253,14 +265,14 @@ case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
-case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String)
 
 /**
   * Sent from Flash client to rejoin meeting after reconnection
   */
 object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterReconnectReqMsg" }
 case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
-case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String)
+case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
 
 
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
@@ -287,7 +299,7 @@ case class GetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetUsersMeet
 case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])
 case class WebUser(intId: String, extId: String, name: String, role: String,
                    guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emoji: String, locked: Boolean,
-                   presenter: Boolean, avatar: String)
+                   presenter: Boolean, avatar: String, clientType: String)
 
 object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg"}
 case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg

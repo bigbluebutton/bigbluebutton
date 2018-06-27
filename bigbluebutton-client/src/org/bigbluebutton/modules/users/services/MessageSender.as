@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.users.services
     public function joinMeeting(): void {
       var message:Object = {
         header: {name: "UserJoinMeetingReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken, clientType: "FLASH"}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.users.services
 
       var message:Object = {
         header: {name: "UserJoinMeetingAfterReconnectReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken, clientType: "FLASH"}
       };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -328,6 +328,27 @@ package org.bigbluebutton.modules.users.services
         JSON.stringify(message)
       ); //_netConnection.call
     }
+
+	public function recordAndClearPreviousMarkers(userID:String, recording:Boolean):void {
+		var message:Object = {
+			header: {name: "RecordAndClearPreviousMarkersCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+				userId: UsersUtil.getMyUserID()},
+			body: {recording: recording, setBy: userID}
+		};
+
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage2x(
+			function(result:String):void { // On successful result
+			},
+			function(status:String):void { // status - On error occurred
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["apps"];
+				logData.logCode = "error_sending_change_recording_status";
+				LOGGER.info(JSON.stringify(logData));
+			},
+			JSON.stringify(message)
+		); //_netConnection.call
+	}
 
     public function muteAllUsers(mute:Boolean):void {
       var message:Object = {

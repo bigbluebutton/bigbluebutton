@@ -168,12 +168,12 @@ class UserParticipants extends Component {
       },
       mute: {
         label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: (user) => toggleVoice(user.id),
+        handler: user => toggleVoice(user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: (user) => toggleVoice(user.id),
+        handler: user => toggleVoice(user.id),
         icon: 'audio_on',
       },
       promote: {
@@ -257,6 +257,7 @@ class UserParticipants extends Component {
             <TransitionGroup ref={(ref) => { this.refScrollItems = ref; }}>
               { this.getUsers() }
             </TransitionGroup>
+            <div className={styles.footer} />
           </div>
         </div>
       </div>

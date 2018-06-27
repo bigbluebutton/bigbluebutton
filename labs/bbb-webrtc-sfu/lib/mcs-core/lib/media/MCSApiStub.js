@@ -110,13 +110,35 @@ module.exports = class MCSApiStub extends EventEmitter {
     }
   }
 
-  async stopRecording(mediaId) {
+  async stopRecording(userId, sourceId, recId) {
     try {
-      let answer = await this._mediaController.stopRecording(mediaId);
+      let answer = await this._mediaController.stopRecording(userId, sourceId, recId);
       return Promise.resolve(answer);
     }
     catch (err) {
       Logger.error("[MCSApi] stopRecording ", err);
+      return Promise.reject(err);
+    }
+  }
+
+  async connect (source, sink, type) {
+    try {
+      await this._mediaController.connect(source, sink, type);
+      return Promise.resolve();
+    }
+    catch (err) {
+      Logger.error(err);
+      return Promise.reject(err);
+    }
+  }
+
+  async disconnect (source, sink, type) {
+    try {
+      await this._mediaController.disconnect(source, sink, type);
+      return Promise.resolve();
+    }
+    catch (err) {
+      Logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -138,8 +160,8 @@ module.exports = class MCSApiStub extends EventEmitter {
 
   async addIceCandidate (mediaId, candidate) {
     try {
-      const ack = await this._mediaController.addIceCandidate(mediaId, candidate);
-      return Promise.resolve(ack);
+      await this._mediaController.addIceCandidate(mediaId, candidate);
+      return Promise.resolve();
     }
     catch (err) {
       Logger.error("[MCSApi] addIceCandidate ", err);

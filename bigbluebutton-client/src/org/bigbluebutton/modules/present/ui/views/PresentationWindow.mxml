@@ -444,13 +444,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function goToPreviousSlide():void {
-				if (PresentationModel.getInstance().getCurrentPage().num > 1) {
+				var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+				if (curPage != null && curPage.num > 1) {
 					dispatchEvent(new GoToPrevPageCommand());
 				}
 			}
 			
 			private function goToNextSlide():void {
-				if (PresentationModel.getInstance().getCurrentPage().num < PresentationModel.getInstance().getNumberOfPages()) {
+				var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+				if (curPage != null && curPage.num < PresentationModel.getInstance().getNumberOfPages()) {
 					dispatchEvent(new GoToNextPageCommand());
 				}
 			}

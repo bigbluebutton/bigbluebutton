@@ -33,14 +33,13 @@ Kurento = function (
   this.voiceBridge = `${voiceBridge}-SCREENSHARE`;
   this.internalMeetingId = internalMeetingId;
 
-  this.userId = userId;
-  this.userName = userName;
-
-  // Limiting max resolution to 1080p
+  // Limiting max resolution to WQXGA
   // In FireFox we force full screen share and in the case
   // of multiple screens the total area shared becomes too large
-  this.vid_max_width = 1920;
-  this.vid_max_height = 1080;
+  this.vid_max_width = 2560;
+  this.vid_max_height = 1600;
+  this.width = window.screen.width;
+  this.height = window.screen.height;
 
   // TODO properly generate a uuid
   this.sessid = Math.random().toString();
@@ -171,6 +170,23 @@ Kurento.prototype.create = function (tag) {
   this.init();
 };
 
+Kurento.prototype.downscaleResolution = function (oldWidth, oldHeight) {
+  const factorWidth = this.vid_max_width / oldWidth;
+  const factorHeight = this.vid_max_height / oldHeight;
+  let width, height;
+
+  if (factorWidth < factorHeight) {
+    width = Math.trunc(oldWidth * factorWidth);
+    height = Math.trunc(oldHeight * factorWidth);
+  }
+  else {
+    width = Math.trunc(oldWidth * factorHeight);
+    height = Math.trunc(oldHeight * factorHeight);
+  }
+
+  return { width, height };
+};
+
 Kurento.prototype.init = function () {
   const self = this;
   if ('WebSocket' in window) {
@@ -247,6 +263,7 @@ Kurento.prototype.startResponse = function (message) {
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   const self = this;
+
   if (error) {
     console.log(`Kurento.prototype.onOfferPresenter Error ${error}`);
     this.onFail(error);
@@ -261,8 +278,8 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.caller_id_name,
     sdpOffer: offerSdp,
-    vh: self.vid_max_height,
-    vw: self.vid_max_width,
+    vh: this.height,
+    vw: this.width,
   };
 
   console.log(`onOfferPresenter sending to screenshare server => ${JSON.stringify(message, null, 2)}`);
@@ -290,6 +307,15 @@ Kurento.prototype.startScreensharing = function () {
   };
 
   console.log(` Peer options => ${JSON.stringify(options, null, 2)}`);
+
+  let resolution;
+  console.debug("Screenshare screen dimensions are", this.width, "x", this.height);
+  if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
+    resolution = this.downscaleResolution(this.width, this.height);
+    this.width = resolution.width;
+    this.height = resolution.height;
+    console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
+  }
 
   this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
@@ -530,8 +556,8 @@ window.getScreenConstraints = function (sendSource, callback) {
   // Limiting FPS to a range of 5-10 (5 ideal)
   screenConstraints.video.frameRate = { ideal: 5, max: 10 };
 
-  screenConstraints.video.height = { max: this.vid_max_height };
-  screenConstraints.video.width = { max: this.vid_max_width };
+  screenConstraints.video.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
+  screenConstraints.video.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
 
   if (isChrome) {
     getChromeScreenConstraints((constraints) => {
@@ -570,11 +596,16 @@ window.getScreenConstraints = function (sendSource, callback) {
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
   } else if (isSafari) {
-    screenConstraints.video.mediaSource = 'screen';
+    // At this time (version 11.1), Safari doesn't support screenshare.
+    document.dispatchEvent(new Event('safariScreenshareNotSupported'));
+    return;
 
+    /*
+    screenConstraints.video.mediaSource = 'screen';
     console.log('getScreenConstraints for Safari returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
+    */
   }
 };
 
@@ -620,7 +651,6 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
     extensionId, {
       getStream: true,
       sources: [
-        'window',
         'screen',
       ],
     },

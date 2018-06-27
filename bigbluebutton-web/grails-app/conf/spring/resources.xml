@@ -43,10 +43,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
+        <property name="callbackUrlService" ref="callbackUrlService"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
         <constructor-arg index="0" ref="redisMessageHandler"/>
+    </bean>
+
+    <bean id="callbackUrlService" class="org.bigbluebutton.web.services.callback.CallbackUrlService"
+          init-method="start" destroy-method="stop">
     </bean>
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">

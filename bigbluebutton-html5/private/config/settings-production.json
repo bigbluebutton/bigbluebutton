@@ -9,18 +9,20 @@
       "listenOnlyMode": true,
       "forceListenOnly": false,
       "skipCheck": false,
+      "clientTitle": "BigBlueButton",
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
       "copyright": "©2018 BigBlueButton Inc.",
       "html5ClientBuild": "HTML5_CLIENT_VERSION",
       "lockOnJoin": true,
       "basename": "/html5client",
+      "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
           "chatAudioNotifications": false,
-          "chatPushNotifications": false,
+          "chatPushNotifications": true,
           "fontSize": "16px",
-          "locale": "en"
+          "fallbackLocale": "en"
         },
         "audio": {
           "inputDeviceId": "undefined",
@@ -47,6 +49,18 @@
           "layout": false
         }
       },
+      "shortcuts": {
+        "openOptions": {"accesskey": "O", "descId": "openOptions"},
+        "toggleUserList": {"accesskey": "U", "descId": "toggleUserList"},
+        "toggleMute": {"accesskey": "M", "descId": "toggleMute"},
+        "joinAudio": {"accesskey": "J", "descId": "joinAudio"},
+        "leaveAudio": {"accesskey": "L", "descId": "leaveAudio"},
+        "togglePublicChat": {"accesskey": "P", "descId": "togglePublicChat"},
+        "hidePrivateChat": {"accesskey": "H", "descId": "hidePrivateChat"},
+        "closePrivateChat": {"accesskey": "G", "descId": "closePrivateChat"},
+        "openActions": {"accesskey": "A", "descId": "openActions"},
+        "openStatus": {"accesskey": "S", "descId": "openStatus"}
+      },
       "branding": {
         "displayBrandingArea": false
       },
@@ -64,6 +78,7 @@
       "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
       "enableVideo": false,
+      "enableVideoStats": false,
       "enableListenOnly": false
     },
 
@@ -125,7 +140,7 @@
     "chat": {
       "min_message_length": 1,
       "max_message_length": 5000,
-      "grouping_messages_window": 60000,
+      "grouping_messages_window": 10000,
       "type_system": "SYSTEM_MESSAGE",
       "type_public": "PUBLIC_CHAT",
       "type_private": "PRIVATE_CHAT",
@@ -190,7 +205,6 @@
 
     "whiteboard": {
       "annotations": {
-        "message_frequency": 50,
         "status": {
           "start": "DRAW_START",
           "update": "DRAW_UPDATE",

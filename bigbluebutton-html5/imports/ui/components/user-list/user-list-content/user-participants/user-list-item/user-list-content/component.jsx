@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -197,7 +196,9 @@ class UserListContent extends Component {
     const userItemContentsStyle = {};
 
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
-    userItemContentsStyle[styles.active] = isActionsOpen;
+    userItemContentsStyle[styles.dropdown] = true;
+    userItemContentsStyle[styles.userListItem] = !this.state.isActionsOpen;
+    userItemContentsStyle[styles.usertListItemWithMenu] = this.state.isActionsOpen;
 
     const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
@@ -217,7 +218,7 @@ class UserListContent extends Component {
 
     const contents = (
       <div
-        className={!actions.length ? cx(styles.userListItem, userItemContentsStyle) : null}
+        className={!actions.length ? styles.userListItem : null}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -262,7 +263,7 @@ class UserListContent extends Component {
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={cx(styles.dropdown, styles.userListItem, userItemContentsStyle)}
+        className={userItemContentsStyle}
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"

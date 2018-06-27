@@ -30,28 +30,33 @@ module.exports = class SfuUser extends User {
     }
   }
 
+  // TODO switch from type to children UriSessions (RTSP|HTTP|etc)
   async addUri (uri, type) {
-    // TODO switch from type to children UriSessions (RTSP|HTTP|etc)
-    let session = new UriSession(uri, type);
+      const session = new UriSession(uri, type);
+      this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
-    if (typeof this._mediaSessions[session.id] == 'undefined' ||
-        !this._mediaSessions[session.id]) {
-      this._mediaSessions[session.id] = {};
-    }
-    this._mediaSessions[session.id] = session;
-    try {
-      await this.startSession(session.id);
-      Promise.resolve(session.id);
-    }
-    catch (err) {
-      err = this.handleError(err);
-      Promise.reject(err);
-    }
+      session.emitter.once(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
+        if (sessId === session.id) {
+          Logger.info("[mcs-sfu-user] URI session stopped.");
+          this._mediaSessions[sessId] = null;
+        }
+      });
+
+      if (typeof this._mediaSessions[session.id] == 'undefined' ||
+          !this._mediaSessions[session.id]) {
+        this._mediaSessions[session.id] = {};
+      }
+
+      this._mediaSessions[session.id] = session;
+
+      Logger.info("[mcs-sfu-user] Added new URI session", session.id, "to user", this.id);
+
+      return session;
   }
 
-  addSdp (sdp, type, adapter = C.STRING.KURENTO, name = C.STRING.DEFAULT_NAME) {
+  addSdp (sdp, type, options) {
     // TODO switch from type to children SdpSessions (WebRTC|SDP)
-    let session = new SdpSession(this.emitter, sdp, this.roomId, type, adapter, name);
+    const session = new SdpSession(this.emitter, sdp, this.roomId, type, options);
     session.emitter.on(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
       if (sessId === session.id) {
         Logger.info("[mcs-sfu-user] Session ", sessId, "stopped, cleaning it...");
@@ -64,13 +69,14 @@ module.exports = class SfuUser extends User {
       this._mediaSessions[session.id] = {};
     }
     this._mediaSessions[session.id] = session;
+
     Logger.info("[mcs-sfu-user] Added new SDP session", session.id, "to user", this.id);
 
     return session;
   }
 
   addRecording (recordingName) {
-    let session = new RecordingSession(this.emitter, this.roomId, recordingName);
+    const session = new RecordingSession(this.emitter, this.roomId, recordingName);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
     session.emitter.once(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {
@@ -91,101 +97,106 @@ module.exports = class SfuUser extends User {
   }
 
 
-  async startSession (sessionId) {
-    let session = this._mediaSessions[sessionId];
-
-    try {
-      const mediaElement = await session.start();
-      const answer = await session.process();
-      return Promise.resolve(answer);
-    }
-    catch (err) {
-      err = this.handleError(err);
-      return Promise.reject(err);
-    }
-  }
-
-  async subscribe (sdp, type,  mediaId) {
-    try {
-      const session = await this.addSdp(sdp, type);
-      await this.startSession(session.id);
-      await this.connect(session.id, mediaId);
-      Promise.resolve(session);
-    }
-    catch (err) {
-      err = this.handleError(err);
-      Promise.reject(err);
-    }
-  }
-
-  async publish (sdp, mediaId) {
-    let session = await this.addSdp(sdp);
-    try {
-      await this.startSession(session.id);
-      Promise.resolve();
-    }
-    catch (err) {
-      err = this.handleError(err);
-      Promise.reject(err);
-    }
-  }
-
-  async unsubscribe (mediaId) {
-    try {
-      Logger.debug("[SfuUser] Unsubscribing from session", mediaId);
-      await this.stopSession(mediaId);
-      Promise.resolve(mediaId);
-    }
-    catch (err) {
-      err = this.handleError(err);
-      Promise.reject(err);
-    }
-  }
-
-  async unpublish (mediaId) {
-    try {
-      await this.stopSession(mediaId);
-      Promise.resolve();
-    }
-    catch (err) {
-      err = this.handleError(err);
-      Promise.reject(err);
-    }
-  }
-
-  async stopSession (sessionId) {
-    Logger.info("[mcs-sfu-user] Stopping session => " + sessionId);
-    let session = this._mediaSessions[sessionId];
-
-    try {
-      if (session) {
-        await session.stop();
-        delete this._mediaSessions[sessionId];
-      }
-      return Promise.resolve();
-    }
-    catch (err) {
-      err = this.handleError(err);
-      Promise.reject(err);
-    }
-  }
-
-  async connect (sourceId, sinkId) {
-    let session = this._mediaSessions[sourceId];
-    if(session) {
+  startSession (sessionId) {
+    const session = this._mediaSessions[sessionId];
+    return new Promise(async (resolve, reject) => {
       try {
-        Logger.info("[mcs-sfu-user] Connecting sessions " + sourceId + "=>" + sinkId);
-        await session.connect(sinkId);
-        return Promise.resolve();
+        const mediaElement = await session.start();
+        const answer = await session.process();
+        resolve(answer);
       }
       catch (err) {
-        err = this.handleError(err);
-        return Promise.reject(err);
+        return reject(this._handleError(err));
       }
-    }
-    else {
-      return Promise.reject(new Error("[mcs-sfu-user] Source session " + sourceId + " not found"));
-    }
+    });
+  }
+
+  subscribe (sdp, type, source, params) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const session = this.addSdp(sdp, type, params);
+        const answer = await this.startSession(session.id);
+        await source.connect(session._mediaElement);
+        resolve({ session, answer });
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
+  }
+
+  publish (sdp, type, params) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const session = this.addSdp(sdp, type, params);
+        const answer = await this.startSession(session.id);
+        resolve({ session, answer });
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
+  }
+
+  unsubscribe (mediaId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.stopSession(mediaId);
+        resolve(mediaId);
+      }
+      catch (err) {
+        reject(this._handleError(err));
+      }
+    });
+  }
+
+  unpublish (mediaId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.stopSession(mediaId);
+        resolve(mediaId);
+      }
+      catch (err) {
+        reject(this._handleError(err));
+      }
+    });
+  }
+
+  stopSession (sessionId) {
+    const session = this._mediaSessions[sessionId];
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (session) {
+          Logger.info("[mcs-sfu-user] Stopping session => " + sessionId);
+          await session.stop();
+          delete this._mediaSessions[sessionId];
+        }
+
+        return resolve();
+      }
+      catch (err) {
+        reject(this._handleError(err));
+      }
+    });
+  }
+
+  connect (sourceId, sinkId) {
+    const session = this._mediaSessions[sourceId];
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (session == null) {
+          return reject(this._handleError("[mcs-sfu-user] Source session " + sourceId + " not found"));
+        }
+        Logger.info("[mcs-sfu-user] Connecting sessions " + sourceId + "=>" + sinkId);
+        await session.connect(sinkId);
+        return resolve();
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 
   async leave () {
@@ -201,13 +212,13 @@ module.exports = class SfuUser extends User {
       return Promise.all(stopProcedures);
     }
     catch (err) {
-      err = this.handleError(err);
+      err = this._handleError(err);
       Promise.reject(err);
     }
   }
 
-  handleError (error) {
-    Logger.error("[mcs-sfu-user] SFU User received error", error);
+  _handleError (error) {
+    Logger.trace("[mcs-sfu-user] SFU User received error", error, error.stack);
     // Checking if the error needs to be wrapped into a JS Error instance
     if (!isError(error)) {
       error = new Error(error);

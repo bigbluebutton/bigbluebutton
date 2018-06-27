@@ -25,7 +25,7 @@ formats:
       - [ '-pass', '1',
           # Video
           '-c:v', 'libvpx-vp9',
-          '-crf', '32', '-b:v', '1024', '-minrate', '512', '-maxrate', '1485',
+          '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
           '-quality', 'good', '-speed', '4', '-g', '240',
           '-tile-columns', '2', '-threads', '8',
           # Disable audio in first pass
@@ -35,7 +35,7 @@ formats:
       - [ '-pass', '2',
           # Video
           '-c:v', 'libvpx-vp9',
-          '-crf', '32', '-b:v', '1024', '-minrate', '512', '-maxrate', '1485',
+          '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
           '-quality', 'good', '-speed', '2', '-g', '240',
           '-tile-columns', '2', '-threads', '8',
           # Audio
@@ -45,7 +45,7 @@ formats:
           '-f', 'webm' ]
 # Single-pass encoding - faster, lower quality
       # - [ '-c:v', 'libvpx-vp9',
-      #     '-crf', '32', '-b:v', '1024', '-minrate', '512', '-maxrate', '1485',
+      #     '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
       #     '-quality', 'good', '-speed', '4', '-g', '240',
       #     '-tile-columns', '2', '-threads', '8',
       #     '-c:a', 'libopus',

@@ -41,7 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
 		<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-		<mate:Listener type="{WebRTCPublishWindowChangeState.DISPLAY_VIDEO_LOADING}" method="displayLoadingScreen" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -68,7 +67,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-			import org.bigbluebutton.modules.screenshare.events.WebRTCPublishWindowChangeState;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
@@ -94,10 +92,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var ns:NetStream;
 			[Bindable] private var videoHolder:UIComponent;
 			private var stream:String;
-			private var videoHeight:Number;
-			private var videoWidth:Number;
-			private var captureHeight:Number = Capabilities.screenResolutionY;
-			private var captureWidth:Number = Capabilities.screenResolutionX;
+			private var streamHeight:Number = 100;
+			private var streamWidth:Number = 100;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 
 			[Bindable] private var dsOptions:ScreenshareOptions;
@@ -129,10 +125,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			private function displayLoadingScreen(e:Event):void {
-				setCurrentState("displayLoadingScreen");
-			}
-
 			private function onInstallButtonClicked():void {
 				navigateToURL(new URLRequest(dsOptions.chromeExtensionLink), "_blank");
 				displayRetry();
@@ -142,7 +134,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var onSuccess:Function = function(exists:Boolean):void {
 				  ExternalInterface.addCallback("onSuccess", null);
 				  if (exists) {
-				    globalDispatcher.dispatchEvent(new RequestToStartSharing(true));
+				    // try to reset the window state when the extension is installed
+				    LOGGER.debug('Screenshare extension installed, trying to publish again');
+				    setCurrentState('dispFullRegionControlBar');
+				    init();
 				  } else {
 				    displayFail();
 				  }
@@ -205,14 +200,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ExternalInterface.addCallback("onFail", onFail);
 					
 					var voiceBridge:String = UsersUtil.getVoiceBridge();
-					var myName:String = UsersUtil.getMyUsername();
+					var myUserId:String = UsersUtil.getMyUserID();
 					var internalMeetingID:String = UsersUtil.getInternalMeetingID();
 					
 					ExternalInterface.call(
 						'kurentoShareScreen',
 						videoTag,
 						voiceBridge,
-						myName,
+						myUserId,
 						internalMeetingID,
 						"onFail",
 						dsOptions.chromeExtensionKey);
@@ -282,7 +277,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stopSharing();
 			}
 
-			// TODO make this function private and trigger it via message
 			public function startVideo(rtmp:String, videoWidth:Number, videoHeight:Number):void {
 				setCurrentState("dispFullRegionControlBar");
 				var myArray :Array = rtmp.split('/');
@@ -292,7 +286,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				JSLog.warn("WebRTCDesktopPublishWindow::startVideo meetingurl= ",meetingUrl);
 				JSLog.warn("WebRTCDesktopPublishWindow::startVideo stream=", stream);
-
 
 				connection = new NetConnection();
 				
@@ -330,6 +323,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 				connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 				connection.connect(ssAppUrl);
+				
+				// start stream width/height at potential (but probably wrong) values
+				// NOTE: The width and height here are probably wrong for the WebRTC stream. Accurate 
+				// values will be in the meta data
+				streamWidth = videoWidth;
+				streamHeight = videoHeight;
 			}
 
 			private function netStatusHandler(event:NetStatusEvent):void {
@@ -343,7 +342,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 					case "NetConnection.Connect.Success":
 						ce.status = WebRTCConnectionEvent.SUCCESS;
-						startPreviewStream(stream, videoWidth, videoHeight);
+						startPreviewStream(stream);
 						break;
 
 					case "NetConnection.Connect.Rejected":
@@ -374,37 +373,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("ERROR WebRTCDesktopPublishWindow::securityErrorHandler ");
 			}
 
-			private function startPreviewStream(streamName:String, capWidth:Number, capHeight:Number):void{
+			private function startPreviewStream(streamName:String):void{
 				streaming = true;
 
 				videoHolder = new UIComponent();
 
-				var vidW:Number = captureWidth;
-				var vidH:Number = captureHeight;
-
-				// Don't scale if capture dimension is smaller than window.
-				if((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight < this.height - VID_HEIGHT_PAD)){
-					vidW = this.width - VID_WIDTH_PAD;
-					vidH = (captureHeight / captureWidth) * vidW;
-				}
-				else if( ((captureWidth < this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD))
-				|| ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) ){
-					vidH = this.height - VID_HEIGHT_PAD;
-					vidW = (captureWidth / captureHeight) * vidH;
-				}
-				else{
-					vidW = captureWidth;
-					vidH = captureHeight;
-				}
-
-				LOGGER.debug("webrtcDeskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
-				video = new Video(vidW, vidH);
-				video.width = vidW;
-				video.height = vidH;
-				videoHolder.width = vidW;
-				videoHolder.height = vidH;
-				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
-				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
+				LOGGER.debug("Starting WebrtcDeskshare preview");
+				video = new Video();
 
 				videoHolder.addChild(video);
 				mainContainer.addChildAt(videoHolder, 0);
@@ -422,14 +397,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				btnClosePublish.enabled = true;
 				
-				connectingDots.startAnimation();
+				connectingProgress.startAnimation();
 				videoHolder.includeInLayout = videoHolder.visible = false;
+			}
+			
+			private function resizePreviewVideo():void {
+				var availableWidth:Number = this.width - VID_WIDTH_PAD;
+				var availableHeight:Number = this.height - VID_HEIGHT_PAD;
+				var vidW:Number, vidH:Number;
+				
+				// With the preview stream the height will almost always be the limiter so try that first
+				vidH = availableHeight;
+				vidW = (streamWidth / streamHeight) * vidH;
+				
+				if (vidW > availableWidth) { // if attempted width ended up being too large
+					vidW = availableWidth;
+					vidH = (streamHeight / streamWidth) * vidW;
+				}
+				
+				video.width = vidW;
+				video.height = vidH;
+				videoHolder.width = vidW;
+				videoHolder.height = vidH;
+				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
+				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
 			}
 
 			private function stopStream():void{
 				streaming = false;
-				captureHeight = Capabilities.screenResolutionY;
-				captureWidth = Capabilities.screenResolutionX;
+				
 				if (ns != null) {
 					ns.close();
 				}
@@ -459,8 +455,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (info.hasOwnProperty("encoder")) {
 					// The encoder is sent to the client when the stream has actually started sending data. We can use 
 					// it to know when the video is actually playing
-					connectingDots.endAnimation();
+					connectingProgress.endAnimation();
 					videoHolder.includeInLayout = videoHolder.visible = true;
+					
+					if (info.hasOwnProperty("width")) {
+						streamWidth = info.width;
+					}
+					if (info.hasOwnProperty("height")) {
+						streamHeight = info.height;
+					}
+					
+					resizePreviewVideo();
 				}
 			}
 
@@ -525,12 +530,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:State name="displayInstall" />
 		<mx:State name="displayRetry" />
 		<mx:State name="displayFail" />
-		<mx:State name="displayLoadingScreen" />
 	</dspub:states>
 
 	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
 		<mx:HBox width="100%" height="90%" id="mainElement" verticalAlign="middle" horizontalAlign="center">
-			<ss:AnimatedDots id="connectingDots" styleName="animatedDotsStyle" />
+			<ss:AnimatedProgressBar id="connectingProgress" width="260" visible="false" 
+									horizontalCenter="0" verticalCenter="0" 
+									label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTC.starting')}"/>
 		</mx:HBox>
 		<mx:HBox includeIn="dispFullRegionControlBar" width="100%" horizontalAlign="center">
 			<mx:Button id="btnClosePublish"
@@ -569,11 +575,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 			<mx:HBox width="100%" height="100%" horizontalAlign="center">
 				<mx:Text id="incognitoLbl" width="100%" visible="false" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCPrivateBrowsingWarning.label')}" />
-			</mx:HBox>
-		</mx:VBox>
-		<mx:VBox includeIn="displayLoadingScreen" width="100%" height="100%" horizontalAlign="center">
-			<mx:HBox width="100%" height="100%" horizontalAlign="center">
-				<mx:Text fontSize="16" width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCVideoLoading.label')}" />
 			</mx:HBox>
 		</mx:VBox>
 	</mx:VBox>

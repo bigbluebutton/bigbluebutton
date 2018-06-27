@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-const CURSOR_INTERVAL = 50;
+const CURSOR_INTERVAL = 16;
 
 export default class PresentationOverlay extends Component {
   constructor(props) {
@@ -36,7 +36,6 @@ export default class PresentationOverlay extends Component {
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
     this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
   }
-
   // transforms the coordinate from window coordinate system
   // to the main svg coordinate system
   getTransformedSvgPoint(clientX, clientY) {

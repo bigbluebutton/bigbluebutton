@@ -187,13 +187,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
-
+				var logData:Object = UsersUtil.initLogData();
+				logData.session = ScreenshareModel.getInstance().session;
+				logData.streamId = ScreenshareModel.getInstance().streamId;
+				logData.tags = ["screenshare"];
+				logData.logCode = "screenshare_request_success";
+				LOGGER.warn(JSON.stringify(logData));
       }
 
       private function handleScreenShareShareStoppedEvent(event:ShareStoppedEvent):void {
 				var logData:Object = UsersUtil.initLogData();
-				logData.streamId = stream;
 				logData.reason = event.reason;
+				logData.session = ScreenshareModel.getInstance().session;
+				logData.streamId = ScreenshareModel.getInstance().streamId;
 				logData.tags = ["screenshare"];
 				logData.logCode = "screenshare_end_reason";
 				LOGGER.warn(JSON.stringify(logData));
@@ -235,7 +241,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             if (paused) {
 							var logData:Object = UsersUtil.initLogData();
 							logData.tags = ["screenshare"];
-							logData.streamId = stream;
+							logData.session = ScreenshareModel.getInstance().session;
+							logData.streamId = ScreenshareModel.getInstance().streamId;
 							logData.logCode = "screenshare_paused";
 							LOGGER.warn(JSON.stringify(logData));
 							
@@ -267,7 +274,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["screenshare"];
-				logData.streamId = stream;
+				logData.session = ScreenshareModel.getInstance().session;
+				logData.streamId = ScreenshareModel.getInstance().streamId;
 				logData.logCode = "screenshare_start_sharing";
 				logData.token = authToken;
 				LOGGER.warn(JSON.stringify(logData));
@@ -453,6 +461,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         shareTypeProvider = [ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.fullScreen'),
                              ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.region')];
+				
+				var options:ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+				
+				if (options.shareRegionDefault) {
+					shareTypeProvider = [ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.region'),
+						ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.fullScreen')];
+				}
 
         setHelpText();
       }
@@ -530,7 +545,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function onStartButtonClick():void {
-        shareScreen(shareTypeCombo.selectedIndex == 0);
+				var options:ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+				if (options.shareRegionDefault) {
+					// Region is first option in dropdown.
+					shareScreen(shareTypeCombo.selectedIndex != 0);
+				} else {
+					// Fullscreen is first option in dropdown.
+					shareScreen(shareTypeCombo.selectedIndex == 0);
+				}
       }
 
       private function switchView(showHelp:Boolean):void {

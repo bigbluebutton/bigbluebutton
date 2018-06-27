@@ -84,12 +84,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
+				
+				hideNotification();
+				
 				LOGGER.debug("startPhone 2 enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				if (this.selected) {
 					joinAudio();
 				} else {
 					leaveAudio();
-				}				
+				}
 			}
 
 			private function get disableMyMic():Boolean {
@@ -141,7 +144,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
 
-				notificationTimer = new Timer(30000, 1); // 30 second timer
+				notificationTimer = new Timer(15000, 1); // 15 second timer
 				notificationTimer.addEventListener(TimerEvent.TIMER, hideNotification);
 				
 				// when the button is added to the stage display the audio selection window if auto join is true
@@ -174,16 +177,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         _currentState = ACTIVE_STATE;
         this.styleName = "voiceConfActiveButtonStyle";
         this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
-        
-        hideNotification();
       }
       
       private function onUserJoinedListenOnlyConference():void {
         LOGGER.debug("onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
 
         resetButtonState();
-        
-        hideNotification();
       }
 
       private function onUserLeftConference():void {
@@ -281,14 +280,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showNotification():void {
-				if (parent.visible) {
+				if (parent && parent.visible) {
 					visible = includeInLayout = true;
 					
 					if (notificationTimer.running) notificationTimer.reset();
 					notificationTimer.start();
 					
 					if (!notification) {
-						notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString('bbb.toolbar.phone.callout.didntjoin'), 100, 100, "errorTipBelow", this) as ToolTip;
+						notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString('bbb.toolbar.phone.callout.didntjoin'), 100, 100, "callOutTipBelow", this) as ToolTip;
 						handleMove();
 					}
 				}
@@ -297,7 +296,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleMove():void {
 				if (notification) {
 					var location:Point = localToGlobal(new Point(0,0));
-					notification.move(location.x - notification.width/2 + this.width/2, location.y + this.height);
+					notification.move(location.x - notification.width/2 + this.width/2, location.y + this.height + 10);
 				}
 			}
 			

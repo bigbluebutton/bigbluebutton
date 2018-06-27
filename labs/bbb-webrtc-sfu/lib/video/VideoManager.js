@@ -39,7 +39,7 @@ module.exports = class VideoManager extends BaseManager {
     } else {
       Logger.warn("[VideoManager] Tried to set stream to recorded but ", id, " has no session!");
     }
-  }  
+  }
 
   async _onMessage (_message) {
     let message = _message;
@@ -77,18 +77,8 @@ module.exports = class VideoManager extends BaseManager {
           this._sessions[sessionId] = video;
         }
 
-        video.start(message.sdpOffer, (error, sdpAnswer) => {
-          if (error) {
-            return this._bbbGW.publish(JSON.stringify({
-              connectionId: connectionId,
-              type: 'video',
-              role: role,
-              id : 'error',
-              response : 'rejected',
-              cameraId : message.cameraId,
-              message : error
-            }), C.FROM_VIDEO);
-          }
+        try {
+          const sdpAnswer = await video.start(message.sdpOffer);
 
           // Empty ice queue after starting video
           this._flushIceQueue(video, iceQueue);
@@ -105,11 +95,28 @@ module.exports = class VideoManager extends BaseManager {
             cameraId: message.cameraId,
             sdpAnswer : sdpAnswer
           }), C.FROM_VIDEO);
-        });
+        }
+        catch (err) {
+          return this._bbbGW.publish(JSON.stringify({
+            connectionId: connectionId,
+            type: 'video',
+            role: role,
+            id : 'error',
+            response : 'rejected',
+            cameraId : message.cameraId,
+            message :err 
+          }), C.FROM_VIDEO);
+        }
         break;
 
       case 'stop':
         this._stopSession(sessionId);
+        break;
+
+      case 'pause':
+        if (video) {
+          video.pause(message.state);
+        }
         break;
 
       case 'onIceCandidate':
@@ -123,7 +130,7 @@ module.exports = class VideoManager extends BaseManager {
 
       case 'close':
         Logger.info(this._logPrefix, "Closing sessions of connection", connectionId);
-        this._killConnectionSessions(connectionId, role);
+        this._killConnectionSessions(connectionId);
         break;
 
       default:

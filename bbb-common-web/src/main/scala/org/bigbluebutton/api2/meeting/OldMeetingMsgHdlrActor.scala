@@ -58,6 +58,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
        msg.body.room.parentId,
        msg.body.room.name,
        msg.body.room.sequence,
+       msg.body.room.freeJoin,
        msg.body.room.voiceConfId,
        msg.body.room.viewerPassword,
        msg.body.room.moderatorPassword,
@@ -75,7 +76,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     olgMsgGW.handle(new UserJoined(msg.header.meetingId, msg.body.intId,
-      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest, msg.body.waitingForAcceptance))
+      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest,
+      msg.body.waitingForAcceptance, msg.body.clientType))
 
   }
 

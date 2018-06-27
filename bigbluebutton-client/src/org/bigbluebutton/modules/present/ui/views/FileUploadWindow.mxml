@@ -55,6 +55,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
 		import flash.utils.setTimeout;
 		
+		import flashx.textLayout.formats.Direction;
+		
 		import mx.collections.ArrayCollection;
 		import mx.controls.listClasses.IListItemRenderer;
 		import mx.core.mx_internal;
@@ -62,8 +64,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
 		import mx.utils.StringUtil;
-		
-		import flashx.textLayout.formats.Direction;
 		
 		import org.as3commons.lang.StringUtils;
 		import org.as3commons.logging.api.ILogger;
@@ -92,6 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.model.PresentOptions;
 		import org.bigbluebutton.modules.present.model.Presentation;
 		import org.bigbluebutton.modules.present.model.PresentationModel;
+		import org.bigbluebutton.util.browser.BrowserCheck;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		use namespace mx_internal;
@@ -116,7 +117,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			updateStyles();
 			
 			// For an unknown reason this popup cannot be centred directly using PopUpUtil
-			PopUpManager.centerPopUp(this)
+			PopUpManager.centerPopUp(this);
+			
+			// All of the code around the "firefox60" state is just a temporary stop gap to mitigate a regression 
+			// in file uploading in Firefox 60+
+			if (presentOptions.disableFirefoxF60Upload && Capabilities.os.indexOf("Windows") != -1 &&
+				BrowserCheck.isFirefox() && BrowserCheck.browserFullVersion == "60.0" && BrowserCheck.isWin64()) {
+				currentState = "firefox60";
+			}
 		}
 		
 		private function updateStyles() : void {
@@ -380,6 +388,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:State name="normal" />
 		<mx:State name="uploading" />
 		<mx:State name="error" />
+		<mx:State name="firefox60" />
 	</mx:states>
 	
 
@@ -405,12 +414,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  enabled="false"/>
     </mx:HBox>
 
-    <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="false" excludeFrom="error"
+    <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="false" excludeFrom="error, firefox60"
 				 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"
 				 paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}"/>
 	  
     <mx:VBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" verticalAlign="middle"
-			 includeInLayout="true" visible="false" excludeFrom="error">
+			 includeInLayout="true" visible="false" excludeFrom="error, firefox60">
 	  <mx:Text id="progressBarLabel" styleName="presentationUploadProgressBarLabel"
 			   visible="{progressBar.visible}" width="100%" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" />
       <mx:ProgressBar id="progressBar" mode="manual"
@@ -423,6 +432,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				  label="{ResourceUtil.getInstance().getString('bbb.fileupload.retry')}" click="retryButtonClikcHandler(event)"/>
 	</mx:VBox>
 
+	  <!-- ** Temporary warning due to file upload regression in Firefox 60+ ** -->
+	  <mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5" includeIn="firefox60">
+		  <mx:Box width="100%" height="100%" styleName="presentationUploadFileFormatHintBoxStyle">
+			  <mx:Text width="100%" id="firefox60WarnLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.firefox60Warning.temp')}" styleName="presentationUploadFileFormatHintTextStyle"/>
+		  </mx:Box>
+	  </mx:Box>
+	  <!-- ******************************************************************** -->
+	  
     <mx:List id="uploadedFilesList" rowCount="{presentationNamesAC.length > 3 ? Math.min(6, presentationNamesAC.length) : 3}" width="100%" styleName="presentationFilesList"
              itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
 		     itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)"

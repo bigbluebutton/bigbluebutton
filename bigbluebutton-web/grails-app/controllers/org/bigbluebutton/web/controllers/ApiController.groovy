@@ -1292,13 +1292,17 @@ class ApiController {
     UserSession us = null;
     Meeting meeting = null;
 
-    if (meetingService.getUserSession(sessionToken) == null)
+    if (!session[sessionToken]) {
       reject = true;
-    else {
-      us = meetingService.getUserSession(sessionToken);
-      meeting = meetingService.getMeeting(us.meetingID);
-      if (meeting == null || meeting.isForciblyEnded()) {
-        reject = true
+    } else {
+      if (meetingService.getUserSession(sessionToken) == null) {
+        reject = true;
+      } else {
+        us = meetingService.getUserSession(sessionToken)
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+        }
       }
     }
 
@@ -1416,13 +1420,17 @@ class ApiController {
       println("Session token = [" + sessionToken + "]")
     }
 
-    if (meetingService.getUserSession(sessionToken) == null)
+    if (!session[sessionToken]) {
       reject = true;
-    else {
-      us = meetingService.getUserSession(sessionToken);
-      meeting = meetingService.getMeeting(us.meetingID);
-      if (meeting == null || meeting.isForciblyEnded()) {
-        reject = true
+    } else {
+      if (meetingService.getUserSession(session[sessionToken]) == null)
+        reject = true;
+      else {
+        us = meetingService.getUserSession(session[sessionToken]);
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+        }
       }
     }
 
@@ -1932,7 +1940,8 @@ class ApiController {
             internalMeetingID(meeting.getInternalId())
             if (meeting.isBreakout()) {
                 parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
-                sequence(meeting.getSequence())
+                sequence() { mkp.yield(meeting.getSequence()) }
+                freeJoin() { mkp.yield(meeting.isFreeJoin()) }
             }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
@@ -1965,6 +1974,7 @@ class ApiController {
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")
                   hasVideo("${att.hasVideo()}")
+                  clientType() { mkp.yield("${att.clientType}") }
                   videoStreams() {
                     att.getStreams().each { s ->
                       streamName("${s}")

@@ -63,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.screenshare.events.WebRTCViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 			import org.bigbluebutton.util.ConnUtil;
@@ -79,8 +79,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoHolder:UIComponent = new UIComponent();
 			private var stream:String;
 			private var streamID:String;
-			private var videoHeight:Number;
-			private var videoWidth:Number;
+			private var streamHeight:Number;
+			private var streamWidth:Number;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopViewWindow);
 
@@ -112,14 +112,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				
 				resourcesChanged();
-				
-				var logData:Object = UsersUtil.initLogData();
-				logData.tags = ["screenshare"];
-				logData.width = videoWidth;
-				logData.height = videoHeight;
-				logData.streamId = streamID;
-				
-				LOGGER.info(JSON.stringify(logData));
 			}
 
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -137,17 +129,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function startVideo(rtmp:String, width:Number, height:Number):void{
-				var videoURL:String;
-
-				// split rtmp extract the streamId
-				this.videoWidth = width;
-				this.videoHeight = height;
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["screenshare"];
+				logData.width = width;
+				logData.height = height;
+				logData.streamId = streamID;
+				
+				LOGGER.info(JSON.stringify(logData) + " ** Dimensions are probably not correct **");
+				
+				// start stream width/height at potential (but probably wrong) values
+				// NOTE: The width and height here are probably wrong for the WebRTC stream. Accurate 
+				// values will be in the meta data
+				streamWidth = width;
+				streamHeight = height;
 
 				var myArray :Array = rtmp.split('/');
 				// myArray.forEach ( function ( item:*, i:int, arr:Array) : void { JSLog.debug("^^^^" + i +"aa=" + item, logData); } );
 
 				streamID = myArray[5]; // Grab the streamID from the end of the rtmp string
-				videoURL = rtmp.substring(0, rtmp.lastIndexOf('/'));
+				var videoURL:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
 
 				connect(videoURL);
 			}
@@ -197,7 +197,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function connectionSuccessHandler():void{
-				LOGGER.debug("SUCCESS  DesktopViewWindow::connectionSuccessHandler   SUCCESS" + videoHeight + videoWidth + streamID);
+				LOGGER.debug("SUCCESS  DesktopViewWindow::connectionSuccessHandler   SUCCESS [streamId: " + streamID + "]");
 				if (ns) {
 					ns.removeEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 					ns.removeEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -212,8 +212,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 
-				video.width = videoWidth;
-				video.height = videoHeight;
+				video.width = streamWidth;
+				video.height = streamHeight;
 
 				video.attachNetStream(ns);
 				
@@ -308,6 +308,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					// The encoder is sent to the client when the stream has actually started sending data. We can use 
 					// it to know when the video is actually playing
 					connectingDots.endAnimation();
+					
+					if (info.hasOwnProperty("width")) {
+						streamWidth = info.width;
+					}
+					if (info.hasOwnProperty("height")) {
+						streamHeight = info.height;
+					}
+					
+					// force a video size recalculation once we know actual source size
+					fitToWindow();
 				}
 			}
 
@@ -349,7 +359,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function fitVideoToWindow():void {
 				var maxWidth:Number = videoCanvas.width;//this.width - VIDEO_WIDTH_PADDING;
 				var maxHeight:Number = videoCanvas.height;//this.height - VIDEO_HEIGHT_PADDING;
-				var aspectRatio:Number = videoWidth / videoHeight;
+				var aspectRatio:Number = streamWidth / streamHeight;
 				var newVidWidth:Number, newVidHeight:Number;
 				
 				newVidWidth = maxWidth;
@@ -369,10 +379,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function fitWindowToVideo():void {
-				video.width = videoWidth;
-				videoHolder.width = videoWidth;
-				video.height = videoHeight;
-				videoHolder.height = videoHeight;
+				video.width = streamWidth;
+				videoHolder.width = streamWidth;
+				video.height = streamHeight;
+				videoHolder.height = streamHeight;
 				
 				videoHolder.verticalCenter = undefined;
 				videoHolder.horizontalCenter = undefined;
@@ -381,7 +391,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function videoIsSmallerThanWindow():Boolean {
-				return (videoHeight < this.height) && (videoWidth < this.width);
+				return (streamHeight < this.height) && (streamWidth < this.width);
 			}
 			
 			/**
@@ -411,7 +421,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function closeWindow():void {
-				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
+				dispatchEvent(new WebRTCViewWindowEvent(WebRTCViewWindowEvent.CLOSE));
 			}
 
 			override protected function resourcesChanged():void{

@@ -14,7 +14,7 @@ public interface IPublisherService {
                        Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
                        String moderatorPass, String viewerPass, Long createTime,
                        String createDate, Boolean isBreakout, Integer sequence,
-                       Map<String, String> metadata, String guestPolicy);
+                       Boolean freeJoin, Map<String, String> metadata, String guestPolicy);
     void endMeeting(String meetingId);
     void send(String channel, String message);
     void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,

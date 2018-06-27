@@ -192,6 +192,12 @@ package org.bigbluebutton.main.model.users
 			}
 		}
 
+		public function recordAndClearPreviousMarkers(e:BBBEvent):void {
+			if (this.isModerator() && !e.payload.remote) {
+				sender.recordAndClearPreviousMarkers(UsersUtil.getMyUserID(), e.payload.recording);
+			}
+		}
+
 		public function userLoggedIn(e:UsersConnectionEvent):void {
       LOGGER.debug("In userLoggedIn - reconnecting and allowed to join");
 			if (reconnecting && ! LiveMeeting.inst().me.waitingForApproval) {
@@ -221,11 +227,19 @@ package org.bigbluebutton.main.model.users
 		}
 				
 		public function addStream(e:BroadcastStartedEvent):void {
-      sender.addStream(e.userid, e.stream);
+			// Do not do anything. We are having the server (red5 bbb-video)
+			// send the start stream event. This way, we are sure that the event
+			// is dispatched even if we loose message path if connection is
+			// disconnected (ralam may 11, 2018)
+      //sender.addStream(e.userid, e.stream);
 		}
 		
 		public function removeStream(e:BroadcastStoppedEvent):void {
-      sender.removeStream(e.userid, e.stream);
+			// Do not do anything. We are having the server (red5 bbb-video)
+			// send the stop stream event. This way, we are sure that the event
+			// is dispatched even if we loose message path if connection is
+			// disconnected (ralam may 11, 2018)
+      //sender.removeStream(e.userid, e.stream);
 		}
 		
 		public function emojiStatus(e:EmojiStatusEvent):void {

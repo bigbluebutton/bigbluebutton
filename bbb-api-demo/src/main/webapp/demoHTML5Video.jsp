@@ -71,13 +71,7 @@ if (request.getParameterMap().isEmpty()) {
 
 <%
 } else if (request.getParameter("action").equals("create")) {
-
-	//
-	// Got an action=create
-	//
-
 	String username = request.getParameter("username");
-
 	String meetingname = "Video Chat Meeting";
 
 	//metadata
@@ -87,7 +81,11 @@ if (request.getParameterMap().isEmpty()) {
 	metadata.put("html5autosharewebcam", "true");
 	metadata.put("html5hidepresentation", "true");
 
-	String joinURL = getJoinURLExtended(username, meetingname, "false", null, metadata, null, "true");
+	Boolean isModerator = new Boolean(true);
+	Boolean isHTML5 = new Boolean(true);
+	Boolean isRecorded = new Boolean(true);
+
+	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, metadata, null, isHTML5.toString(), isModerator.toString());
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>

@@ -104,6 +104,7 @@ package org.bigbluebutton.modules.caption.views {
 			claimButton.height = 22; 
 			claimButton.visible = false;
 			claimButton.includeInLayout = false;
+			claimButton.styleName = "mainActionButton";
 			claimButton.tabIndex = startIndex+1;
 			claimButton.addEventListener(MouseEvent.CLICK, onClaimButtonClick);
 			addChild(claimButton);

@@ -54,6 +54,18 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.audioChoiceLabel',
     description: 'Join audio modal title',
   },
+  iOSError: {
+    id: 'app.audioModal.iOSBrowser',
+    description: 'Audio/Video Not supported warning',
+  },
+  iOSErrorDescription: {
+    id: 'app.audioModal.iOSErrorDescription',
+    description: 'Audio/Video not supported description',
+  },
+  iOSErrorRecommendation: {
+    id: 'app.audioModal.iOSErrorRecommendation',
+    description: 'Audio/Video recommended action',
+  },
   echoTestTitle: {
     id: 'app.audioModal.echoTestTitle',
     description: 'Title for the echo test',
@@ -274,7 +286,7 @@ class AudioModal extends Component {
             size="jumbo"
             onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
           />
-        : null}
+          : null}
         {listenOnlyMode ?
           <Button
             className={styles.audioBtn}
@@ -284,7 +296,7 @@ class AudioModal extends Component {
             size="jumbo"
             onClick={this.handleJoinListenOnly}
           />
-        : null}
+          : null}
       </span>
     );
   }
@@ -293,17 +305,28 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       intl,
+      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
 
+    if (isIOSChrome) {
+      return (
+        <div>
+          <div className={styles.warning}>!</div>
+          <h4 className={styles.main}>{intl.formatMessage(intlMessages.iOSError)}</h4>
+          <div className={styles.text}>{intl.formatMessage(intlMessages.iOSErrorDescription)}</div>
+          <div className={styles.text}>{intl.formatMessage(intlMessages.iOSErrorRecommendation)}
+          </div>
+        </div>);
+    }
     if (this.skipAudioOptions()) {
       return (
         <span className={styles.connecting} role="alert">
-          { !isEchoTest ?
-            intl.formatMessage(intlMessages.connecting) :
-            intl.formatMessage(intlMessages.connectingEchoTest)
-          }
+          {!isEchoTest ?
+              intl.formatMessage(intlMessages.connecting) :
+              intl.formatMessage(intlMessages.connectingEchoTest)
+            }
         </span>
       );
     }
@@ -357,28 +380,32 @@ class AudioModal extends Component {
     const {
       intl,
       showPermissionsOvelay,
+      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
 
     return (
       <span>
-        { showPermissionsOvelay ? <PermissionsOverlay /> : null}
+        {showPermissionsOvelay ? <PermissionsOverlay /> : null}
         <ModalBase
           overlayClassName={styles.overlay}
           className={styles.modal}
           onRequestClose={this.closeModal}
         >
-          { !this.skipAudioOptions() ?
+          {!this.skipAudioOptions() ?
+
             <header
               data-test="audioModalHeader"
               className={styles.header}
-            >
-              <h3 className={styles.title}>
-                { content ?
+            >{
+                isIOSChrome ? null :
+                <h3 className={styles.title}>
+                  {content ?
                   this.contents[content].title :
                   intl.formatMessage(intlMessages.audioChoiceLabel)}
-              </h3>
+                </h3>
+            }
               <Button
                 data-test="modalBaseCloseButton"
                 className={styles.closeBtn}
@@ -392,7 +419,7 @@ class AudioModal extends Component {
             : null
           }
           <div className={styles.content}>
-            { this.renderContent() }
+            {this.renderContent()}
           </div>
         </ModalBase>
       </span>

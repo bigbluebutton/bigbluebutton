@@ -202,7 +202,6 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(UserLeftMeetingEvtMsg.NAME, meetingId, userId)
     val body = UserLeftMeetingEvtMsgBody(userId)
     val event = UserLeftMeetingEvtMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

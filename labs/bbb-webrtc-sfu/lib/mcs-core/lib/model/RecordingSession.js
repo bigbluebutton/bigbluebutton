@@ -12,7 +12,7 @@ module.exports = class RecordingSession extends MediaSession {
   constructor(emitter, room, recordingName) {
     let uri = RecordingSession.getRecordingPath(room, 'medium', recordingName);
     let options = {
-      mediaProfile: 'MP4_VIDEO_ONLY',
+      mediaProfile: config.get('recordingMediaProfile'),
       uri: uri,
       stopOnEndOfStream: true
     };
@@ -22,7 +22,7 @@ module.exports = class RecordingSession extends MediaSession {
   }
 
   static getRecordingPath (room, profile, recordingName) {
-    const format = 'mkv';
+    const format = config.get('recordingFormat');
     const basePath = config.get('recordingBasePath');
     const timestamp = (new Date()).getTime();
 

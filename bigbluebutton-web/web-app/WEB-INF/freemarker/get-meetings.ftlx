@@ -39,6 +39,7 @@
               <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
               <hasJoinedVoice>${att.isVoiceJoined()?c}</hasJoinedVoice>
               <hasVideo>${att.hasVideo()?c}</hasVideo>
+              <clientType>${att.getClientType()}</clientType>
               <#if meeting.getUserCustomData(att.getExternalUserId())??>
                   <#assign ucd = meetingDetail.meeting.getUserCustomData(att.getExternalUserId())>
                   <customdata>
@@ -62,6 +63,7 @@
         <#if meetingDetail.meeting.isBreakout()>
            <parentMeetingID>${meetingDetail.meeting.getParentMeetingId()}</parentMeetingID>
            <sequence>${meetingDetail.meeting.getSequence()}</sequence>
+           <freeJoin>${meetingDetail.meeting.isFreeJoin()?c}</freeJoin>
         </#if>
 
         <#list meetingDetail.meeting.getBreakoutRooms()>

@@ -57,6 +57,7 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
     let header;
     let payload;
     let msg = (typeof message !== 'object')?JSON.parse(message):message;
+    let meetingId;
 
     // Trying to parse both message types, 1x and 2x
     if (msg.header) {
@@ -72,29 +73,35 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
       switch (header.name) {
         // interoperability with 1.1
         case C.START_TRANSCODER_REPLY:
-          this.emit(C.START_TRANSCODER_REPLY, payload);
+          meetingId = payload[C.MEETING_ID];
+          this.emit(C.START_TRANSCODER_REPLY+meetingId, payload);
           break;
         case C.STOP_TRANSCODER_REPLY:
-          this.emit(C.STOP_TRANSCODER_REPLY, payload);
+          meetingId = payload[C.MEETING_ID];
+          this.emit(C.STOP_TRANSCODER_REPLY+meetingId, payload);
           break;
         case C.DICONNECT_ALL_USERS:
           this.emit(C.DICONNECT_ALL_USERS, payload);
           break;
           // 2x messages
         case C.START_TRANSCODER_RESP_2x:
-          payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
-          this.emit(C.START_TRANSCODER_RESP_2x, payload);
+          meetingId = header[C.MEETING_ID_2x];
+          payload[C.MEETING_ID_2x] = meetingId;
+          this.emit(C.START_TRANSCODER_RESP_2x+meetingId, payload);
           break;
         case C.STOP_TRANSCODER_RESP_2x:
-          payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
-          this.emit(C.STOP_TRANSCODER_RESP_2x, payload);
+          meetingId = header[C.MEETING_ID_2x];
+          payload[C.MEETING_ID_2x] = meetingId;
+          this.emit(C.STOP_TRANSCODER_RESP_2x+meetingId, payload);
           break;
         case C.USER_CAM_BROADCAST_STARTED_2x:
           this.emit(C.USER_CAM_BROADCAST_STARTED_2x, payload[C.STREAM_URL]);
           break;
-        // SCREENSHARE
+        case C.RECORDING_STATUS_REPLY_MESSAGE_2x:
+          meetingId = header[C.MEETING_ID_2x];
+          this.emit(C.RECORDING_STATUS_REPLY_MESSAGE_2x+meetingId, payload);
+          break;
         case C.DICONNECT_ALL_USERS_2x:
-          // TODO: Check if this is correct for BBB 2.x
           payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
           this.emit(C.DICONNECT_ALL_USERS_2x, payload);
           break;
@@ -136,6 +143,15 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
         Logger.info('Recording key will expire in', EXPIRE_TIME, 'seconds', err);
       });
     });
+  }
+
+  async isChannelAvailable (channel) {
+    const channels = await this.publisher.getChannels();
+    return channels.includes(channel);
+  }
+
+  getChannels () {
+    return this.publisher.getChannels();
   }
 
   setEventEmitter (emitter) {

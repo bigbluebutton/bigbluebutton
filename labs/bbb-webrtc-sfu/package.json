@@ -6,17 +6,16 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "joi": "^13.0.2",
-    "kurento-client": "git+https://github.com/Kurento/kurento-client-js.git#master",
-    "moment": "^2.19.3",
-    "redis": "^2.8.0",
-    "sdp-transform": "^2.3.0",
+    "config": "^1.30.0",
+    "js-yaml": "^3.11.0",
+    "kurento-client": "git+https://github.com/mconf/kurento-client-js.git#mconf",
+    "moment": "^2.22.1",
     "readable-id": "^1.0.0",
-    "ws": "^3.3.2",
-    "config": "^1.26.1",
-    "js-yaml": "^3.8.3",
-    "winston": "^2.4.0",
+    "redis": "^2.8.0",
+    "sdp-transform": "^2.4.1",
+    "winston": "^2.4.2",
     "winston-daily-rotate-file": "^1.7.2",
+    "ws": "^3.3.3",
     "sip.js": "0.7.5"
   },
   "optionalDependencies": {}

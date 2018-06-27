@@ -9,7 +9,7 @@ const config = require('config');
   function Constants () {
     return {
         // Media elements
-        WebRTC: "WebRtcEndpoint",
+        WEBRTC: "WebRtcEndpoint",
         RTP: "RtpEndpoint",
         AUDIO: "AUDIO",
         VIDEO: "VIDEO",
@@ -39,11 +39,15 @@ const config = require('config');
         FROM_AUDIO: config.get('from-audio'),
         TO_AUDIO: config.get('to-audio'),
         TO_AKKA_APPS: config.get('to-akka'),
+        FROM_AKKA_APPS: config.get('from-akka'),
 
         // RedisWrapper events
         REDIS_MESSAGE : "redis_message",
         WEBSOCKET_MESAGE: "ws_message",
         GATEWAY_MESSAGE: "gateway_message",
+
+        RECORDING_STATUS_REQUEST_MESSAGE_2x: "GetRecordingStatusReqMsg",
+        RECORDING_STATUS_REPLY_MESSAGE_2x: "GetRecordingStatusRespMsg",
 
         // Message identifiers 1x
         START_TRANSCODER_REQUEST: "start_transcoder_request_message",
@@ -68,7 +72,6 @@ const config = require('config');
         // TODO: Check if this is the correct message in BBB 2.x
         DICONNECT_ALL_USERS_2x: "DisconnectAllClientsSysMsg",
 
-        USER_CAM_BROADCAST_STARTED_2x: "UserBroadcastCamStartMsg",
         USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
 
         STREAM_IS_RECORDED: "StreamIsRecordedMsg",
@@ -87,6 +90,9 @@ const config = require('config');
         USER_ID_2x : "userId",
         TRANSCODER_ID_2x : "transcoderId",
         MEETING_ID_2x: "meetingId",
+
+        // Akka Apps 2x
+        REQUESTED_BY: "requestedBy",
 
         //  Screenshare 2x
         CONFERENCE_NAME: "voiceConf",
@@ -166,7 +172,8 @@ const config = require('config');
 
         MEDIA_STARTED: 'MEDIA_STARTED',
         MEDIA_STOPPED: 'MEDIA_STOPPED',
-        MEDIA_STARTING: 'MEDIA_STARTING'
+        MEDIA_STARTING: 'MEDIA_STARTING',
+        MEDIA_PAUSED: 'MEDIA_PAUSE'
     }
 }
 

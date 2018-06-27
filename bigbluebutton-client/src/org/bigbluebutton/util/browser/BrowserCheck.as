@@ -19,7 +19,7 @@
 
 package org.bigbluebutton.util.browser {
 	import flash.external.ExternalInterface;
-
+	
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
@@ -71,6 +71,11 @@ package org.bigbluebutton.util.browser {
 
 		public static function isPuffin46AndAbove():Boolean {
 			return browserName.toLowerCase() == "puffin" && String(_fullVersion).substr(0, 3) >= "4.6";
+		}
+		
+		public static function isWin64():Boolean {
+			var platform:String = ExternalInterface.call("window.navigator.platform.toString");
+			return StringUtils.equals(platform, "Win64");
 		}
 
 		private static function getBrowserInfo():void {

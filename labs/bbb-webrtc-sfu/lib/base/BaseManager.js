@@ -21,16 +21,6 @@ module.exports = class BaseManager {
     this._additionalChanels = additionalChannels;
     this._logPrefix = logPrefix;
     this._iceQueues = {};
-
-    this._trackRecordedStream();
-  }
-
-  _trackRecordedStream () {
-    this._bbbGW.on(C.USER_CAM_BROADCAST_STARTED_2x, (streamUrl) => {
-      Logger.info("[BaseManager] Server notifies that stream ", streamUrl, " is recorded");
-      let stream = isRecordedStream(streamUrl);
-      this.setStreamAsRecorded(stream);      
-    });
   }
 
   async start() {
@@ -58,7 +48,7 @@ module.exports = class BaseManager {
   }
 
   _fetchIceQueue (sessionId) {
-    if (!this._iceQueues[sessionId]) {
+    if (this._iceQueues[sessionId] == null) {
       this._iceQueues[sessionId] = [];
     }
 
@@ -74,12 +64,12 @@ module.exports = class BaseManager {
     }
   }
 
-  _killConnectionSessions (connectionId, role) {
-    let keys = Object.keys(this._sessions);
+  _killConnectionSessions (connectionId) {
+    const keys = Object.keys(this._sessions);
     keys.forEach((sessionId) => {
       let session = this._sessions[sessionId];
       if(session && session.connectionId === connectionId) {
-        let killedSessionId = session.connectionId + session.id + "-" + role;
+        let killedSessionId = session.connectionId + session.id + "-" + session.role;
         this._stopSession(killedSessionId);
       }
     });
@@ -89,7 +79,7 @@ module.exports = class BaseManager {
     return new Promise(async (resolve, reject) => {
       Logger.info(this._logPrefix, 'Stopping session ' + sessionId);
       try {
-        if (!this._sessions || !sessionId) {
+        if (this._sessions == null|| sessionId == null) {
           return resolve();
         }
 
@@ -114,7 +104,7 @@ module.exports = class BaseManager {
     return new Promise(async (resolve, reject) => {
       try {
         Logger.info(this._logPrefix, 'Stopping everything! ');
-        if (!this._sessions) {
+        if (this._sessions == null) {
           return resolve;
         }
 

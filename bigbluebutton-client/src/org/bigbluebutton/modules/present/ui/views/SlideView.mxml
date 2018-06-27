@@ -60,7 +60,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PageChangedEvent;
 			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PagePositionBroadcaster;
 			import org.bigbluebutton.modules.present.model.Presentation;
