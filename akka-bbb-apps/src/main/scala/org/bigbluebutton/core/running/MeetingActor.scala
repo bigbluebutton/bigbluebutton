@@ -525,7 +525,6 @@ class MeetingActor(
 
   def processUserInactivityAudit(): Unit = {
     val now = TimeUtil.timeNowInMs()
-    println("userInactivityAuditTimer=" + userInactivityAuditTimer)
     val auditTimerMs = TimeUtil.minutesToMillis(userInactivityAuditTimer)
     if (now - lastUserInactivitySentOn > auditTimerMs) {
       lastUserInactivitySentOn = now

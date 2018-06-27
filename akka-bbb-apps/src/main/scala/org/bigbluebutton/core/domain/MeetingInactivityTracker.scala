@@ -25,11 +25,6 @@ case class MeetingInactivityTracker(
 
     val left = nowInMs - lastActivityTimestampInMs
     val right = maxInactivityTimeoutInMs - warningBeforeMaxInMs
-    println("********************* now=" + TimeUtil.millisToMinutes(nowInMs) +
-      " lastAct=" + TimeUtil.millisToMinutes(lastActivityTimestampInMs) + " **********")
-    println("********************* maxInact=" + TimeUtil.millisToMinutes(maxInactivityTimeoutInMs) +
-      " warning=" + TimeUtil.millisToMinutes(warningBeforeMaxInMs) + " ************")
-    println("********************* " + left + " < " + right + " ***********")
     nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
   }
 

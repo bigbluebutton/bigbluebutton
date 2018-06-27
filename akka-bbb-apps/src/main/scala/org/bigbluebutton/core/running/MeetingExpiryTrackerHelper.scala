@@ -44,7 +44,6 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
         (state, Some(expireReason))
       } else {
         if (!state.inactivityTracker.warningSent) {
-          println("*********** SENDING INACTIVITY WARNING ******************")
           val timeLeftSeconds = TimeUtil.millisToSeconds(state.inactivityTracker.timeLeftInMs(nowInMs))
           val event = buildMeetingInactivityWarningEvtMsg(liveMeeting.props.meetingProp.intId, timeLeftSeconds)
           outGW.send(event)
@@ -55,7 +54,6 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
         }
       }
     } else {
-      println("**************** MEETING HAS ACTIVITY *************")
       (state, None)
     }
   }
