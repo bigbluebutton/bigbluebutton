@@ -54,15 +54,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// If you remove this some of the chat messages will fail to render
 				validateNow();
 				
-				var sameSender:Boolean = data.sameLastSender();
-				var sameTime:Boolean = data.sameLastTime();
-				var isMod:Boolean = data.isModerator();
+				if (data != null) {
+					var sameSender:Boolean = data.sameLastSender();
+					var sameTime:Boolean = data.sameLastTime();
+					var isMod:Boolean = data.isModerator();
+					
+					hbHeader.visible = hbHeader.includeInLayout = !sameSender || !sameTime;
+					lblName.visible = !sameSender;
+					lblName.styleName = (isMod ? 'chatMessageHeaderModerator' : '');
+					moderatorIcon.visible = lblName.visible && isMod;
+					lblTime.visible = !sameSender || !sameTime;
+				}
 				
-				hbHeader.visible = hbHeader.includeInLayout = !sameSender || !sameTime;
-				lblName.visible = !sameSender;
-				lblName.styleName = (isMod ? 'chatMessageHeaderModerator' : '');
-				moderatorIcon.visible = lblName.visible && isMod;
-				lblTime.visible = !sameSender || !sameTime;
 			}
 		]]>
 	</fx:Script>
