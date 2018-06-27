@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.users.services
     public function joinMeeting(): void {
       var message:Object = {
         header: {name: "UserJoinMeetingReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken, clientType: "FLASH"}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.users.services
 
       var message:Object = {
         header: {name: "UserJoinMeetingAfterReconnectReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken}
+        body: {userId: UsersUtil.getMyUserID(), authToken: LiveMeeting.inst().me.authToken, clientType: "FLASH"}
       };
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
