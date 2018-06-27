@@ -76,6 +76,20 @@ export default class SIPBridge extends BaseAudioBridge {
       [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
       [causes.INVALID_TARGET]: this.baseErrorCodes.INVALID_TARGET,
       [causes.CONNECTION_ERROR]: this.baseErrorCodes.CONNECTION_ERROR,
+      [causes.WEBRTC_NOT_SUPPORTED]: this.baseErrorCodes.WEBRTC_NOT_SUPPORTED,
+    };
+    this.webRtcError = {
+      1001: '1001',
+      1002: '1002',
+      1003: '1003',
+      1004: '1004',
+      1005: '1005',
+      1006: '1006',
+      1007: '1007',
+      1008: '1008',
+      1009: '1009',
+      1010: '1010',
+      1011: '1011',
     };
   }
 
@@ -229,19 +243,22 @@ export default class SIPBridge extends BaseAudioBridge {
         resolve(userAgent);
       };
 
-      const handleUserAgentDisconnection = () => {
+      const handleUserAgentDisconnection = (event) => {
         userAgent.stop();
         userAgent = null;
+        const { lastTransportError } = event.transport;
+        const errorCode = lastTransportError.code;
+        const error = this.webRtcError[errorCode] || this.baseErrorCodes.CONNECTION_ERROR;
         this.callback({
           status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.CONNECTION_ERROR,
+          error,
           bridgeError: 'User Agent Disconnected',
         });
         reject(this.baseErrorCodes.CONNECTION_ERROR);
       };
 
       userAgent.on('connected', handleUserAgentConnection);
-      userAgent.on('disconnected', handleUserAgentDisconnection);
+      userAgent.on('disconnected', handleUserAgentDisconnection); 
 
       userAgent.start();
     });
@@ -316,7 +333,7 @@ export default class SIPBridge extends BaseAudioBridge {
         connectionTerminatedEvents.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
         this.callback({
           status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.CONNECTION_ERROR,
+          error: this.baseErrorCodes.ICE_NEGOCIATION_FAILED,
           bridgeError: peer,
         });
       };

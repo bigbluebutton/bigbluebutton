@@ -8,6 +8,8 @@ export default class BaseAudioBridge {
       REQUEST_TIMEOUT: 'REQUEST_TIMEOUT',
       GENERIC_ERROR: 'GENERIC_ERROR',
       MEDIA_ERROR: 'MEDIA_ERROR',
+      WEBRTC_NOT_SUPPORTED: 'WEBRTC_NOT_SUPPORTED',
+      ICE_NEGOCIATION_FAILED: 'ICE_NEGOCIATION_FAILED',
     };
 
     this.baseCallStates = {
