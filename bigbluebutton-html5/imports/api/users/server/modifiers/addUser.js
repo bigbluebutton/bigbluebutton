@@ -29,6 +29,7 @@ export default function addUser(meetingId, user) {
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    clientType: String,
   });
 
   const userId = user.intId;
