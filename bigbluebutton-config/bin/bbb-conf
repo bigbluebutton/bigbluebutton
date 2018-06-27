@@ -1210,6 +1210,7 @@ check_state() {
                 echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not recommended."
                 echo "# Recommend you update to the 4.0.x version of ffmpeg.  To upgrade, do the following"
                 echo "#"
+                echo "#        sudo apt-get install software-properties-common"
                 echo "#        sudo add-apt-repository ppa:jonathonf/ffmpeg-4"
                 echo "#        sudo apt-get update"
                 echo "#        sudo apt-get dist-upgrade"
