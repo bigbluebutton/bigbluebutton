@@ -71,6 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function tick(e:TimerEvent):void {
 			if (duration > 0) {
 				cancelButton.label = genCancelButtonLabel(duration);
+				warningMessage.text =  genWarningMessageText(duration);
 				duration--;
 			} else {
 				tickTimer.stop();
@@ -80,8 +81,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		}
 
+		private function genWarningMessageText(timeLeft:Number):String {
+			return ResourceUtil.getInstance().getString('bbb.inactivityWarning.message', [timeLeft.toString()]);
+		}
+		
 		private function genCancelButtonLabel(timeLeft:Number):String {
-			return cancelButtonLabel + " (" + timeLeft.toString() + ")";
+			return cancelButtonLabel; // + " (" + timeLeft.toString() + ")";
 		}
 
 		private function meetingIsActiveFeedback(e:BBBEvent):void {
@@ -97,7 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	]]>
 	</fx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center" verticalAlign="middle">
-		<mx:Text id="warningMessage" selectable="false" text="{ResourceUtil.getInstance().getString('bbb.inactivityWarning.message')}" styleName="inactivityWarningTextStyle"/>
+		<mx:Text id="warningMessage" selectable="false" text="{}" styleName="inactivityWarningTextStyle"/>
 		<mx:Button id="cancelButton" click="cancelButtonClicked()" visible="false" styleName="inactivityWarningWindowCancelButtonStyle"/>
 	</mx:VBox>
 </mx:Panel>
