@@ -650,8 +650,8 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.avatarURL, message.guest,
-              message.guestStatus);
+        message.name, message.role, message.avatarURL, message.guest, message.guestStatus,
+              message.clientType);
       m.userJoined(user);
       m.setGuestStatusWithId(user.getInternalUserId(), message.guestStatus);
       UserSession userSession = getUserSessionWithUserId(user.getInternalUserId());
@@ -671,6 +671,7 @@ public class MeetingService implements MessageListener {
       logData.put("guestStatus", user.getGuestStatus());
       logData.put("event", "user_joined_message");
       logData.put("description", "User joined the meeting.");
+      logData.put("clientType", user.getClientType());
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
@@ -761,8 +762,14 @@ public class MeetingService implements MessageListener {
       } else {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
-          User vuser = new User(message.userId, message.userId,
-                  message.name, "DIAL-IN-USER", "no-avatar-url", true, "VOICE-USER");
+          User vuser = new User(message.userId,
+									message.userId,
+									message.name,
+									"DIAL-IN-USER",
+									"no-avatar-url",
+									true,
+									GuestPolicy.ALLOW,
+									"DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);
         }

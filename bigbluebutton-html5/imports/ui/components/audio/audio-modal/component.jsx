@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
-
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -307,11 +305,12 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       intl,
+      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
 
-    if (deviceInfo.osType().isIOSChrome) {
+    if (isIOSChrome) {
       return (
         <div>
           <div className={styles.warning}>!</div>
@@ -357,7 +356,6 @@ class AudioModal extends Component {
         handleBack={this.handleGoToAudioOptions}
         handleRetry={this.handleRetryGoToEchoTest}
         joinEchoTest={this.joinEchoTest}
-        exitAudio={this.exitAudio}
         changeInputDevice={this.changeInputDevice}
         changeOutputDevice={this.changeOutputDevice}
         isConnecting={isConnecting}
@@ -381,6 +379,7 @@ class AudioModal extends Component {
     const {
       intl,
       showPermissionsOvelay,
+      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
@@ -399,16 +398,13 @@ class AudioModal extends Component {
               data-test="audioModalHeader"
               className={styles.header}
             >{
-              (!deviceInfo.osType().isIOSChrome ?
+                isIOSChrome ? null :
                 <h3 className={styles.title}>
                   {content ?
                   this.contents[content].title :
                   intl.formatMessage(intlMessages.audioChoiceLabel)}
-                </h3> : <h3 className={styles.title} />
-              )
+                </h3>
             }
-
-
               <Button
                 data-test="modalBaseCloseButton"
                 className={styles.closeBtn}

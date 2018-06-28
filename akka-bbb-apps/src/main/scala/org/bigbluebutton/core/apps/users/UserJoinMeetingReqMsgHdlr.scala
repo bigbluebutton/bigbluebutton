@@ -13,7 +13,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers with BreakoutHdlrHelpers 
   val outGW: OutMsgRouter
 
   def handleUserJoinMeetingReqMsg(msg: UserJoinMeetingReqMsg, state: MeetingState2x): MeetingState2x = {
-    val newState = userJoinMeeting(outGW, msg.body.authToken, liveMeeting, state)
+    val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, liveMeeting, state)
 
     if (liveMeeting.props.meetingProp.isBreakout) {
       updateParentMeetingWithUsers()

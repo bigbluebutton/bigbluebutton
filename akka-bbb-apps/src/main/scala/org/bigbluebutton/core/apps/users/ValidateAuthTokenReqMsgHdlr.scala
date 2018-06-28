@@ -66,7 +66,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     val webUsers = users.map { u =>
       WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
         guest = u.guest, authed = u.authed, guestStatus = u.guestStatus, emoji = u.emoji,
-        locked = u.locked, presenter = u.presenter, avatar = u.avatar)
+        locked = u.locked, presenter = u.presenter, avatar = u.avatar, clientType = u.clientType)
     }
 
     val event = MsgBuilder.buildGetUsersMeetingRespMsg(meetingId, requesterId, webUsers)

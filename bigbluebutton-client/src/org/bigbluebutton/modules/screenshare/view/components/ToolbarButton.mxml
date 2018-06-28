@@ -42,7 +42,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.views.MainToolbar;
-		import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 		import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
 		import org.bigbluebutton.modules.screenshare.events.ScreenshareSelectionWindowEvent;
 		import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;

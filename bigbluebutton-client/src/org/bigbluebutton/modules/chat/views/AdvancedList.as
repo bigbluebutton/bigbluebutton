@@ -19,9 +19,12 @@
 package org.bigbluebutton.modules.chat.views
 {
   import flash.display.Sprite;
+  import flash.events.Event;
   
   import mx.controls.List;
   import mx.controls.listClasses.IListItemRenderer;
+  import mx.events.CollectionEvent;
+  import mx.events.CollectionEventKind;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -65,6 +68,20 @@ package org.bigbluebutton.modules.chat.views
 	
 	public function get verticalScrollAtMax():Boolean {
 		return verticalScrollPosition == maxVerticalScrollPosition;
+	}
+	
+	override protected function collectionChangeHandler(event:Event):void {
+		var previousVScroll:Number = verticalScrollPosition;
+		
+		super.collectionChangeHandler(event);
+		
+		if (event is CollectionEvent) {
+			var cEvent:CollectionEvent = CollectionEvent(event);
+			
+			if (cEvent.kind == CollectionEventKind.REFRESH) {
+				verticalScrollPosition = previousVScroll;
+			}
+		}
 	}
   }
 }

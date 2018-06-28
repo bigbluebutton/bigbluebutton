@@ -5,7 +5,7 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
 import cx from 'classnames';
 import Resizable from 're-resizable';
-
+import browser from 'browser-detect';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -78,6 +78,11 @@ class App extends Component {
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+
+    const BROWSER_RESULTS = browser();
+    const body = document.getElementsByTagName('body')[0];
+    body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+    body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
