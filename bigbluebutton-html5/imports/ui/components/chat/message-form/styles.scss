@@ -56,15 +56,11 @@
   resize: none;
   transition: none;
   border-radius: $border-radius;
-  font-size: $font-size-base * .90;
+  font-size: $font-size-base;
   min-height: 2.5rem;
   max-height: 10rem;
   border: 1px solid $color-gray-lighter;
   box-shadow: 0 0 0 2px $color-gray-lighter;
-
-  @include mq($small-only) {
-    font-size: 16px;
-  }
 
   &:disabled,
   &[disabled] {
