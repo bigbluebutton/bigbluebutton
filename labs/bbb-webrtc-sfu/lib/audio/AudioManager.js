@@ -65,9 +65,7 @@ module.exports = class AudioManager extends BaseManager {
           session = new Audio(this._bbbGW, connectionId, voiceBridge);
         }
 
-        this._meetings[message.internalMeetingId] = {};
         this._meetings[message.internalMeetingId] = sessionId;
-        this._sessions[sessionId] = {}
         this._sessions[sessionId] = session;
 
         // starts audio session by sending sessionID, websocket and sdpoffer

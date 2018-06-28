@@ -10,7 +10,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       userId,
       username,
       voiceBridge,
-      internalMeetingID,
+      meetingId,
     } = userData;
 
     this.user = {
@@ -18,7 +18,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       name: username,
     };
 
-    this.internalMeetingID = voiceBridge;
+    this.internalMeetingID = meetingId;
     this.voiceBridge = voiceBridge;
   }
 
