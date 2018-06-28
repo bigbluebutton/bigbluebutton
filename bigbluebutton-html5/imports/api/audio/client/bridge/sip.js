@@ -333,7 +333,7 @@ export default class SIPBridge extends BaseAudioBridge {
         connectionTerminatedEvents.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
         this.callback({
           status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.ICE_NEGOCIATION_FAILED,
+          error: this.baseErrorCodes.ICE_NEGOTIATION_FAILED,
           bridgeError: peer,
         });
       };

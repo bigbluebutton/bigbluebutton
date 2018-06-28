@@ -2,10 +2,10 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
+import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
-import _ from 'lodash';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -84,14 +84,11 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
     },
   });
 
-  const webRtcError =  _.range(1, 12)
-    .reduce((acc, value) => {
-      const key = 1000 + value;
-      return {
-        ...acc,
-        [key]: intl.formatMessage({ id: `app.audioNotification.audioFailedError${key}`}),
-      };
-    }, {});
+  const webRtcError = _.range(1001, 1012)
+    .reduce((acc, value) => ({
+      ...acc,
+      [value]: intl.formatMessage({ id: `app.audioNotification.audioFailedError${value}` }),
+    }), {});
 
   const messages = {
     info: {
@@ -106,7 +103,7 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
       MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
       WEBRTC_NOT_SUPPORTED: intl.formatMessage(intlMessages.BrowserNotSupported),
-      ICE_NEGOCIATION_FAILED: intl.formatMessage(intlMessages.iceNegociationError),
+      ICE_NEGOTIATION_FAILED: intl.formatMessage(intlMessages.iceNegociationError),
       ...webRtcError,
     },
   };
