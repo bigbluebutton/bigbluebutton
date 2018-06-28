@@ -44,7 +44,7 @@ const intlMessages = defineMessages({
     id: 'app.audioNotification.audioFailedError1003',
     description: 'browser not supported error messsage',
   },
-  iceNegociationError: {
+  iceNegotiationError: {
     id: 'app.audioNotification.audioFailedError1007',
     description: 'ice negociation error messsage',
   },
@@ -103,7 +103,7 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
       MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
       WEBRTC_NOT_SUPPORTED: intl.formatMessage(intlMessages.BrowserNotSupported),
-      ICE_NEGOTIATION_FAILED: intl.formatMessage(intlMessages.iceNegociationError),
+      ICE_NEGOTIATION_FAILED: intl.formatMessage(intlMessages.iceNegotiationError),
       ...webRtcError,
     },
   };
