@@ -14,13 +14,12 @@ const PING_INTERVAL = 15000;
 Kurento = function (
   tag,
   voiceBridge,
-  conferenceUsername,
+  userId,
   internalMeetingId,
   onFail = null,
   chromeExtension = null,
-  streamId = null,
-  userId = null,
   userName = null,
+  caleeName = null,
   onSuccess = null
 ) {
 
@@ -32,6 +31,10 @@ Kurento = function (
 
   this.voiceBridge = `${voiceBridge}-SCREENSHARE`;
   this.internalMeetingId = internalMeetingId;
+
+  this.userId = userId;
+  this.userName = userName;
+  this.caleeName = caleeName;
 
   // Limiting max resolution to WQXGA
   // In FireFox we force full screen share and in the case
@@ -46,8 +49,7 @@ Kurento = function (
 
   this.renderTag = 'remote-media';
 
-  this.caller_id_name = conferenceUsername;
-  this.caller_id_number = conferenceUsername;
+  this.userId = userId;
 
   this.kurentoPort = 'bbb-webrtc-sfu';
   this.hostName = window.location.hostname;
@@ -276,7 +278,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     role: SEND_ROLE,
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
-    callerName: self.caller_id_name,
+    callerName: self.userId,
     sdpOffer: offerSdp,
     vh: this.height,
     vw: this.width,
@@ -348,7 +350,7 @@ Kurento.prototype.onIceCandidate = function (candidate, role) {
     type: SFU_APP,
     voiceBridge: self.voiceBridge,
     candidate,
-    callerName: self.caller_id_name,
+    callerName: self.userId,
   };
 
   this.sendMessage(message);
@@ -397,7 +399,7 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     role: RECV_ROLE,
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
-    callerName: self.caller_id_name,
+    callerName: self.userId,
     sdpOffer: offerSdp,
   };
 
@@ -446,11 +448,10 @@ Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
 
   var message = {
     id : 'iceCandidate',
-    role: 'viewer',
     type: 'audio',
+    role: 'viewer',
     voiceBridge: self.voiceBridge,
     candidate : candidate,
-    callerName: self.caller_id_name
   }
   this.sendMessage(message);
 };
@@ -467,7 +468,7 @@ Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
     type: 'audio',
     role: 'viewer',
     voiceBridge: self.voiceBridge,
-    callerName : self.caller_id_name,
+    caleeName: self.caleeName,
     sdpOffer : offerSdp,
     userId: self.userId,
     userName: self.userName,

@@ -44,13 +44,12 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       window.kurentoJoinAudio(
         MEDIA_TAG,
         this.voiceBridge,
-        `GLOBAL_AUDIO_${this.voiceBridge}`,
+        this.user.userId,
         this.internalMeetingID,
         onFail,
         null,
-        null,
-        this.user.userId,
         this.user.name,
+        `GLOBAL_AUDIO_${this.voiceBridge}`,
         onSuccess,
       );
     });

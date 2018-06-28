@@ -146,7 +146,7 @@ module.exports = class Audio {
     }
   }
 
-  async start (sessionId, connectionId, sdpOffer, callerName, userId, userName, callback) {
+  async start (sessionId, connectionId, sdpOffer, caleeName, userId, userName, callback) {
     Logger.info("[audio] Starting audio instance for", this.id);
     let sdpAnswer;
 
@@ -162,7 +162,7 @@ module.exports = class Audio {
         const ret = await this.mcs.publish(this.userId,
             this.voiceBridge,
             'RtpEndpoint',
-            {descriptor: sdpOffer, adapter: 'Freeswitch', name: callerName});
+            {descriptor: sdpOffer, adapter: 'Freeswitch', name: caleeName});
 
         this.sourceAudio = ret.sessionId;
         this.mcs.on('MediaEvent' + this.sourceAudio, this.mediaState.bind(this));
