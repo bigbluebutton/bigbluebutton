@@ -184,39 +184,30 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-  def getRecordingTextTracks(recordId: String, recs: util.ArrayList[File]):String = {
-    val gson = new Gson()
+	def getRecordingTextTracks(recordId: String, recs: util.ArrayList[File]):String = {
+		val gson = new Gson()
+		var returnResponse:String = ""
+		val captionsFilePath = CAPTIONS_DIR + File.separatorChar + recordId + File.separatorChar + CAPTIONS_FILE
 
-    var returnResponse:String = ""
+		readCaptionJsonFile(captionsFilePath, StandardCharsets.UTF_8) match {
+			case Some(captions) => println("Captions: \n" + captions)
+				val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
+				val xtracks = Tracks(ctracks)
+				val result1 = GetRecTextTracksResult(SUCCESS, xtracks)
+				val response1 = GetRecTextTracksResp(result1)
+				val respText1 = gson.toJson(response1)
+				println(respText1)
+				returnResponse = respText1
+			case None => println("Captions file not found for " + recordId)
+				val resFailed = GetRecTextTracksResultFailed(FAILED, "noCaptionsFound", "No captions found for " + recordId)
+				val respFailed = GetRecTextTracksRespFailed(resFailed)
+				val failedTxt = gson.toJson(respFailed)
+				println(failedTxt)
+				returnResponse = failedTxt
+		}
 
-    if (recs.isEmpty) {
-      val resFailed = GetRecTextTracksResultFailed(FAILED, "noRecordings", "No recordings for " + recordId)
-      val respFailed = GetRecTextTracksRespFailed(resFailed)
-      val failedTxt = gson.toJson(respFailed)
-      println(failedTxt)
-      returnResponse = failedTxt
-    } else {
-      val captionJsonFile = recs.get(0).getAbsolutePath + File.separatorChar + CAPTIONS_FILE
-      readCaptionJsonFile(captionJsonFile, StandardCharsets.UTF_8) match {
-        case Some(captions) => println("Captions: \n" + captions)
-          val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
-          val xtracks = Tracks(ctracks)
-          val result1 = GetRecTextTracksResult(SUCCESS, xtracks)
-          val response1 = GetRecTextTracksResp(result1)
-          val respText1 = gson.toJson(response1)
-          println(respText1)
-          returnResponse = respText1
-        case None => println("Captions file not found for " + recordId)
-          val resFailed = GetRecTextTracksResultFailed(FAILED, "noCaptionsFound", "No captions found for " + recordId)
-          val respFailed = GetRecTextTracksRespFailed(resFailed)
-          val failedTxt = gson.toJson(respFailed)
-          println(failedTxt)
-          returnResponse = failedTxt
-      }
-    }
-
-    returnResponse
-  }
+		returnResponse
+	}
 
   def saveCaptionsFile(captionsDir:String, captionsTracks: String):Boolean = {
     val path = captionsDir + File.separatorChar + CAPTIONS_FILE
