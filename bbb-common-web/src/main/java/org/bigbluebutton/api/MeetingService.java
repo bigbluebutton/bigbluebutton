@@ -41,6 +41,7 @@ import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
+import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
@@ -52,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import scala.Option;
 
 public class MeetingService implements MessageListener {
   private static Logger log = LoggerFactory.getLogger(MeetingService.class);
@@ -378,9 +380,20 @@ public class MeetingService implements MessageListener {
     return null;
   }
 
+  public String getRecordingTextTracks(String recordId) {
+    return recordingService.getRecordingTextTracks(recordId);
+  }
+
+  public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label, String origFilename) {
+    UploadedTrack track = new UploadedTrack(recordId, kind, lang, label, origFilename, file);
+    return recordingService.putRecordingTextTrack(track);
+  }
+
   public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);
   }
+
+
 
   private int getDurationRecording(String playbackDuration, String end,
                                    String start) {

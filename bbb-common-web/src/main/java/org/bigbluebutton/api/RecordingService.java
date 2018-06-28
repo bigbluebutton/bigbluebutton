@@ -38,6 +38,7 @@ import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
+import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,7 @@ public class RecordingService {
     private String deletedDir = "/var/bigbluebutton/deleted";
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
+    private String captionsDir;
     private String presentationBaseDir;
 
     private void copyPresentationFile(File presFile, File dlownloadableFile) {
@@ -146,6 +148,18 @@ public class RecordingService {
         return recs;
     }
 
+    public String getRecordingTextTracks(String recordId) {
+        ArrayList<File> recs = getAllRecordingsFor(recordId);
+        for (File id : recs) {
+            System.out.println("RECORDING FILE = " + id.getAbsolutePath());
+        }
+        return recordingServiceHelper.getRecordingTextTracks(recordId, recs);
+    }
+
+    public String putRecordingTextTrack(UploadedTrack track) {
+        return recordingServiceHelper.putRecordingTextTrack(track);
+    }
+
     public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
         List<RecordingMetadata> recsList = getRecordingsMetadata(idList, states);
         ArrayList<RecordingMetadata> recs = filterRecordingsByMetadata(recsList, metadataFilters);
@@ -196,6 +210,21 @@ public class RecordingService {
                 resultRecordings.add(entry);
         }
         return resultRecordings;
+    }
+
+    private ArrayList<File> getAllRecordingsFor(String recordId) {
+        String[] format = getPlaybackFormats(publishedDir);
+        ArrayList<File> ids = new ArrayList<File>();
+
+        for (int i = 0; i < format.length; i++) {
+            List<File> recordings = getDirectories(publishedDir + File.separatorChar + format[i]);
+            for (int f = 0; f < recordings.size(); f++) {
+                if (recordId.equals(recordings.get(f).getName()))
+                    ids.add(recordings.get(f));
+            }
+        }
+
+        return ids;
     }
 
     public boolean existAnyRecording(List<String> idList) {
@@ -306,10 +335,12 @@ public class RecordingService {
     }
 
     private static String[] getPlaybackFormats(String path) {
+        System.out.println("Getting playback formats at " + path);
         List<File> dirs = getDirectories(path);
         String[] formats = new String[dirs.size()];
 
         for (int i = 0; i < dirs.size(); i++) {
+            System.out.println("Playback format = " + dirs.get(i).getName());
             formats[i] = dirs.get(i).getName();
         }
         return formats;
@@ -329,6 +360,10 @@ public class RecordingService {
 
     public void setPublishedDir(String dir) {
         publishedDir = dir;
+    }
+
+    public void setCaptionsDir(String dir) {
+        captionsDir = dir;
     }
 
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {
