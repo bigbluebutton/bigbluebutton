@@ -1,9 +1,15 @@
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
+
+function clearFakeAnnotations() {
+  Annotations.remove({ id: /-fake/g });
+}
 
 function handleAddedAnnotation({
   meetingId, whiteboardId, userId, annotation,
@@ -154,5 +160,16 @@ export function sendAnnotation(annotation) {
 
   Annotations.upsert(queryFake.selector, queryFake.modifier);
 }
+
+WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
+  changed: clearFakeAnnotations,
+});
+
+Users.find({ userId: Auth.userID }).observeChanges({
+  changed(id, { presenter }) {
+    console.log(presenter);
+    if (presenter === false) clearFakeAnnotations();
+  },
+});
 
 export default Annotations;
