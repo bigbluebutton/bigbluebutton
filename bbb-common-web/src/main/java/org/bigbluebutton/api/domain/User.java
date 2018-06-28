@@ -36,12 +36,17 @@ public class User {
 	private String  guestStatus;
 	private Boolean listeningOnly = false;
 	private Boolean voiceJoined = false;
+	private String clientType;
 	private List<String> streams;
-	
+
 	public User(String internalUserId,
-				String externalUserId, String fullname,
-				String role, String avatarURL,
-				Boolean guest, String  guestStatus) {
+							String externalUserId,
+							String fullname,
+							String role,
+							String avatarURL,
+							Boolean guest,
+							String  guestStatus,
+							String clientType) {
 		this.internalUserId = internalUserId;
 		this.externalUserId = externalUserId;
 		this.fullname = fullname;
@@ -51,6 +56,7 @@ public class User {
 		this.guestStatus = guestStatus;
 		this.status = new ConcurrentHashMap<String, String>();
 		this.streams = Collections.synchronizedList(new ArrayList<String>());
+		this.clientType = clientType;
 	}
 
 	public String getInternalUserId() {
@@ -158,4 +164,9 @@ public class User {
 	public void setVoiceJoined(Boolean voiceJoined) {
 		this.voiceJoined = voiceJoined;
 	}
+
+	public String getClientType() {
+		return this.clientType;
+	}
+
 }

@@ -67,8 +67,9 @@ object UserJoinedMeetingEvtMsg {
 case class UserJoinedMeetingEvtMsg(header: BbbClientMsgHeader,
                                    body: UserJoinedMeetingEvtMsgBody) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
-                                       guest: Boolean, authed: Boolean, guestStatus: String, emoji: String,
-                                       presenter: Boolean, locked: Boolean, avatar: String)
+                                       guest: Boolean, authed: Boolean, guestStatus: String, 
+                                       emoji: String,
+                                       presenter: Boolean, locked: Boolean, avatar: String, clientType: String)
 
 /**
   * Sent by client to get all users in a meeting.
@@ -271,14 +272,14 @@ case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
-case class UserJoinMeetingReqMsgBody(userId: String, authToken: String)
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String)
 
 /**
   * Sent from Flash client to rejoin meeting after reconnection
   */
 object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterReconnectReqMsg" }
 case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
-case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String)
+case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
 
 /**
   * Sent from bbb-apps when user disconnects from Red5.
@@ -306,8 +307,9 @@ object GetUsersMeetingRespMsg {
 case class GetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetUsersMeetingRespMsgBody) extends BbbCoreMsg
 case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])
 case class WebUser(intId: String, extId: String, name: String, role: String,
-                   guest: Boolean, authed: Boolean, guestStatus: String, emoji: String, locked: Boolean,
-                   presenter: Boolean, avatar: String)
+                   guest: Boolean, authed: Boolean, guestStatus: String,
+                   emoji: String, locked: Boolean,
+                   presenter: Boolean, avatar: String, clientType: String)
 
 object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg"}
 case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg

@@ -2132,6 +2132,7 @@ class ApiController {
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")
                   hasVideo("${att.hasVideo()}")
+                  clientType() { mkp.yield("${att.clientType}") }
                   videoStreams() {
                     att.getStreams().each { s ->
                       streamName("${s}")

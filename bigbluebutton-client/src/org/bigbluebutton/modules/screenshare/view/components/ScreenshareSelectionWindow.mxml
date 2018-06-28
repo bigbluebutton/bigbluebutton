@@ -122,6 +122,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							  text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.title')}"
 							  styleName="titleWindowStyle"
 							  maxWidth="{this.width - 40}" />
+		
+		<mx:Box id="webrtcProblemHintBox"
+				width="100%"
+				verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				visible="false" includeInLayout="false"
+				styleName="screenshareSelectHintBoxStyle">
+			<mx:Text id="webrtcProblemHintLbl" width="100%" textAlign="center" link="onHelpLinkClicked(event)"/>
+		</mx:Box>
+		
 		<mx:HBox width="100%" height="100%" styleName="screenshareSelectionsStyle" verticalAlign="middle" horizontalAlign="center">
 			<mx:VBox id="vboxWebrtc" horizontalAlign="center" verticalAlign="middle" paddingLeft="20" paddingRight="20">
 				<mx:Button id="btnWebrtc" buttonMode="true" styleName="btnScreenshareSelectStyle" width="140" height="140"
@@ -142,13 +151,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						  styleName="screenshareTypeTitle" />
 			</mx:VBox>
 		</mx:HBox>
-		<mx:Box id="webrtcProblemHintBox"
-				width="100%"
-				verticalScrollPolicy="off" horizontalScrollPolicy="off"
-				visible="false" includeInLayout="false"
-				styleName="screenshareSelectHintBoxStyle">
-			<mx:Text id="webrtcProblemHintLbl" width="100%" textAlign="center" styleName="screenshareSelectHintTextStyle" link="onHelpLinkClicked(event)"/>
-		</mx:Box>
 	</mx:VBox>
 	<mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.cancel')}"

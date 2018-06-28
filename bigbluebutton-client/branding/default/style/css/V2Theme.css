@@ -1496,7 +1496,7 @@ mx|Panel {
 	textDecoration  : underline;
 }
 
-.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle, .lockSettingsHintBoxStyle, .breakoutTipBox, .pollingTipBox {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle, .lockSettingsHintBoxStyle, .breakoutTipBox, .pollingTipBox, .screenshareSelectHintBoxStyle {
 	backgroundColor : #CDD4DB;
 	horizontalAlign : center;
 	paddingTop      : 8;
@@ -1665,15 +1665,6 @@ mx|ScrollBar {
 //  ScreenshareSelectionWindow
 //------------------------------
 */
-
-.screenshareSelectHintBoxStyle {
-	horizontalAlign : center;
-	paddingTop      : 7;
-	paddingBottom   : 7;
-	paddingLeft     : 5;
-	paddingRight    : 5;
-	verticalAlign   : middle;
-}
 
 .screenshareTypeTitle {
 	color      : #363B43;

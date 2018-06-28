@@ -89,7 +89,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       
       private static const LOGGER:ILogger = getClassLogger(ChatTab);      
-
+      
       public var chatWithUserID:String;
       public var chatWithUsername:String
       public var chatId: String = null;
@@ -259,9 +259,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleUserLeftEvent(event:UserLeftEvent):void {
         var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
         if (gc != null && gc.id == chatId) {
-          displayUserHasLeftMessage();
+          addMessageAndScrollToEnd(createUserHasLeftMessage(), event.userID);
           txtMsgArea.enabled = false;
-          scrollToEndOfMessage(event.userID);
         }
       }
       
@@ -274,14 +273,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleUserJoinedEvent(event:UserJoinedEvent):void {
         var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
         if (gc != null && gc.id == chatId) {
-          // Handle user joining so that the user can start to talk if the person rejoins
-          displayUserHasJoinedMessage();
+          addMessageAndScrollToEnd(createUserHasJoinedMessage(), event.userID);
           txtMsgArea.enabled = true;
-          scrollToEndOfMessage(event.userID);
         }
       }
       
-      private function displayUserHasLeftMessage():void {
+      private var SPACE:String = " ";
+      private function createUserHasLeftMessage():ChatMessageVO {
         var msg:ChatMessageVO = new ChatMessageVO();
         msg.fromUserId = ChatModel.USER_LEFT_MSG;
         msg.fromUsername = ChatModel.SPACE;
@@ -289,13 +287,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromTime = new Date().getTime();
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
-        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-        if (groupChat != null) {
-           chatMessages.newChatMessage(msg);
-        }
+        return msg;
       }
       
-      private function displayUserHasJoinedMessage():void {
+      private function createUserHasJoinedMessage():ChatMessageVO {
         var msg:ChatMessageVO = new ChatMessageVO();
         msg.fromUserId = ChatModel.USER_JOINED_MSG;
         msg.fromUsername = ChatModel.SPACE;
@@ -303,10 +298,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromTime = new Date().getTime();
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
-        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-        if (groupChat != null) {
-           chatMessages.newChatMessage(msg);
-        }
+        return msg;
       }
       
       public function focusToTextMessageArea():void {
@@ -316,8 +308,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (chatId == event.chatId && chatMessages != null) {
-          chatMessages.newChatMessage(event.msg);
-					scrollToEndOfMessage(event.msg.fromUserId);
+          addMessageAndScrollToEnd(event.msg, event.msg.fromUserId);
         }
       }
       
@@ -336,23 +327,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         if (chatId == event.chatId) {
-          displayChatHistory();
-					scrollToEndOfMessage(event.senderId);
-        }       
+         // addMessageAndScrollToEnd(event.msg, event.msg.fromUserId);
+        }        
       }
       
-      public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
+     public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
         handlePrivateChatMessageEvent(event);
       }
       
-      public function scrollToEndOfMessage(userID:String):void {
+      public function addMessageAndScrollToEnd(message:ChatMessageVO, userId:String):void {
+        // Have to check if the vScroll is max before adding the new message
+        var vScrollMax:Boolean = chatMessagesList.verticalScrollAtMax;
+        chatMessages.newChatMessage(message);
+        scrollToEndOfMessage(userId, vScrollMax);
+      }
+      
+      public function scrollToEndOfMessage(userID:String, precheckedVScroll:Boolean=false):void {
         /**
          * Trigger to force the scrollbar to show the last message.
          */	
 		// @todo : scromm if
 		//			1 - I am the send of the last message
 		//			2 - If the scroll bar is at the bottom most
-		  if (UsersUtil.isMe(userID) || (chatMessagesList.verticalScrollAtMax)) {
+		  if (UsersUtil.isMe(userID) || precheckedVScroll || (chatMessagesList.verticalScrollAtMax)) {
 	        if (scrollTimer != null) scrollTimer.start();
 		  } else if (!scrollTimer.running) {
 			  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = true;

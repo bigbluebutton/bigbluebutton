@@ -29,6 +29,7 @@
       "need to investigate"
     ],
     "babel-runtime": "~6.26.0",
+    "browser-detect": "^0.2.27",
     "classnames": "~2.2.5",
     "clipboard": "~1.7.1",
     "core-js": "~2.5.3",
@@ -52,6 +53,7 @@
     "react-dropzone": "~4.2.1",
     "react-intl": "~2.4.0",
     "react-modal": "~3.0.4",
+    "react-render-in-browser": "^1.0.0",
     "react-router": "~3.0.2",
     "react-tabs": "~2.1.0",
     "react-toastify": "~2.1.2",
