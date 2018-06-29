@@ -149,11 +149,7 @@ public class RecordingService {
     }
 
     public String getRecordingTextTracks(String recordId) {
-        ArrayList<File> recs = getAllRecordingsFor(recordId);
-        for (File id : recs) {
-            System.out.println("RECORDING FILE = " + id.getAbsolutePath());
-        }
-        return recordingServiceHelper.getRecordingTextTracks(recordId, recs);
+        return recordingServiceHelper.getRecordingTextTracks(recordId, captionsDir);
     }
 
     public String putRecordingTextTrack(UploadedTrack track) {
@@ -638,4 +634,8 @@ public class RecordingService {
 
         return baseDir;
     }
+
+		public String getCaptionTrackInboxDir() {
+			return captionsDir + File.separatorChar + "inbox";
+		}
 }

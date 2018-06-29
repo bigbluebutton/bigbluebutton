@@ -17,8 +17,8 @@ public class RecordingMetadataReaderHelper {
 
   private RecordingServiceGW recordingServiceGW;
 
-  public String getRecordingTextTracks(String recordId, ArrayList<File> recs) {
-    return recordingServiceGW.getRecordingTextTracks(recordId, recs);
+  public String getRecordingTextTracks(String recordId, String captionsDir) {
+    return recordingServiceGW.getRecordingTextTracks(recordId, captionsDir);
   }
 
   public String putRecordingTextTrack(UploadedTrack track) {

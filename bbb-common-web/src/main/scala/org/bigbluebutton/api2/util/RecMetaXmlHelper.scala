@@ -184,25 +184,25 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-	def getRecordingTextTracks(recordId: String, recs: util.ArrayList[File]):String = {
+	def getRecordingTextTracks(recordId: String, captionsDir: String):String = {
 		val gson = new Gson()
 		var returnResponse:String = ""
-		val captionsFilePath = CAPTIONS_DIR + File.separatorChar + recordId + File.separatorChar + CAPTIONS_FILE
+		val captionsFilePath = captionsDir + File.separatorChar + recordId + File.separatorChar + CAPTIONS_FILE
 
 		readCaptionJsonFile(captionsFilePath, StandardCharsets.UTF_8) match {
-			case Some(captions) => println("Captions: \n" + captions)
+			case Some(captions) =>
 				val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
 				val xtracks = Tracks(ctracks)
 				val result1 = GetRecTextTracksResult(SUCCESS, xtracks)
 				val response1 = GetRecTextTracksResp(result1)
 				val respText1 = gson.toJson(response1)
-				println(respText1)
+
 				returnResponse = respText1
-			case None => println("Captions file not found for " + recordId)
+			case None =>
 				val resFailed = GetRecTextTracksResultFailed(FAILED, "noCaptionsFound", "No captions found for " + recordId)
 				val respFailed = GetRecTextTracksRespFailed(resFailed)
 				val failedTxt = gson.toJson(respFailed)
-				println(failedTxt)
+
 				returnResponse = failedTxt
 		}
 
@@ -229,9 +229,6 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-	val CAPTIONS_DIR = "/var/bigbluebutton/captions"
-	val INBOX_DIR = CAPTIONS_DIR + File.pathSeparator + "inbox"
-	val STATUS_DIR = "/var/bigbluebutton/recording/status/captioned"
 
 	def saveTrackInfoFile(trackInfoJson:String, trackInfoFilePath: String):Boolean = {
 		var result = false
@@ -256,12 +253,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 	}
 
 	def putRecordingTextTrack(track: UploadedTrack):String = {
-		val trackId = track.recordId + "-" + System.currentTimeMillis()
-		val tempTrackFilePath = INBOX_DIR + File.pathSeparator + trackId + "-track.txt"
-		val trackInfoFilePath = INBOX_DIR + File.pathSeparator + trackId + "-track.json"
-		val procTriggerPath = STATUS_DIR + File.pathSeparator + trackId + ".track"
-
-		FileUtils.copyFile(track.track, new File(tempTrackFilePath))
+		val trackInfoFilePath = track.inboxDir + File.separatorChar + track.trackId + "-track.json"
 
 		val trackInfo = new UploadedTrackInfo(recordId = track.recordId,
 			kind = track.kind,
@@ -275,15 +267,15 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 		if (success) {
 			val result = PutRecTextTrackResult(SUCCESS,
 				track.recordId,
-				key = "upload_text_track_success",
-				msg = "Text track uploaded successfully")
+				messageKey = "upload_text_track_success",
+				message = "Text track uploaded successfully")
 			val resp = PutRecTextTrackResp(result)
 			gson.toJson(resp)
 		} else {
 			val result = PutRecTextTrackResult(FAILED,
 				track.recordId,
-				key = "upload_text_track_failed",
-				msg = "Text track upload failed.")
+				messageKey = "upload_text_track_failed",
+				message = "Text track upload failed.")
 			val resp = PutRecTextTrackResp(result)
 			gson.toJson(resp)
 		}

@@ -13,7 +13,7 @@ class RecordingController {
 
     def getRecordingTextTracks = {
 
-        String API_CALL = "publishRecordings"
+        String API_CALL = "getRecordingTextTracks"
         log.debug CONTROLLER_NAME + "#${API_CALL}"
 
         // BEGIN - backward compatibility
@@ -22,12 +22,12 @@ class RecordingController {
             return
         }
 
-        if (StringUtils.isEmpty(params.recordId)) {
+        if (StringUtils.isEmpty(params.recordID)) {
             respondWithError("paramError", "Missing param recordID.");
             return
         }
 
-        String recordId = StringUtils.strip(params.recordId)
+        String recordId = StringUtils.strip(params.recordID)
 
         // Do we agree on the checksum? If not, complain.
         //if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
@@ -35,35 +35,8 @@ class RecordingController {
         //    return
         //}
 
-        /*
-        ApiErrors errors = new ApiErrors()
-
-        // Do we have a checksum? If none, complain.
-        if (StringUtils.isEmpty(params.checksum)) {
-            errors.missingParamError("checksum");
-        }
-
-        // Do we have a recording id? If none, complain.
-        String recordId = params.recordID
-        if (StringUtils.isEmpty(recordId)) {
-            errors.missingParamError("recordID");
-        }
-
-        if (errors.hasErrors()) {
-            respondWithErrors(errors)
-            return
-        }
-
-        // Do we agree on the checksum? If not, complain.
-        //if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-        //    errors.checksumError()
-        //    respondWithErrors(errors)
-        //    return
-        //}
-*/
         String result = meetingService.getRecordingTextTracks(recordId)
 
-        println("************* RESULT = " + result)
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
             json {
@@ -79,26 +52,8 @@ class RecordingController {
                 render(contentType: "application/json") {
                     response () {
                         returncode = "FAILED"
-                        key = errorKey
-                        msg = errorMessage
-                    }
-                }
-            }
-        }
-    }
-
-    private void respondWithErrors(reqErrors) {
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-            json {
-                render(contentType: "application/json") {
-                    response () {
-                        returncode = "FAILED"
-                        errors = array {
-                            for (b in reqErrors.getErrors()) {
-                                error key: b[0], msg:  b[1]
-                            }
-                        }
+                        messageKey = errorKey
+                        messsage = errorMessage
                     }
                 }
             }
@@ -114,12 +69,12 @@ class RecordingController {
             return
         }
 
-        if (StringUtils.isEmpty(params.recordId)) {
+        if (StringUtils.isEmpty(params.recordID)) {
             respondWithError("paramError", "Missing param recordID.");
             return
         }
 
-        String recordId = StringUtils.strip(params.recordId)
+        String recordId = StringUtils.strip(params.recordID)
 
         if (StringUtils.isEmpty(params.kind)) {
             respondWithError("paramError", "Missing param kind.");
@@ -140,12 +95,18 @@ class RecordingController {
             captionsLabel = StringUtils.strip(params.label)
         }
 
-        def captionsFile = request.getFile('file')
-        if (captionsFile && !captionsFile.empty) {
-            def origFilename = captionsFile.getOriginalFilename()
+        def uploadedCaptionsFile = request.getFile('file')
+        if (uploadedCaptionsFile && !uploadedCaptionsFile.empty) {
+            def origFilename = uploadedCaptionsFile.getOriginalFilename()
+            def trackId = recordId + "-" + System.currentTimeMillis()
+            def captionsFilePath = meetingService.getCaptionTrackInboxDir() + File.separatorChar + trackId + "-track.txt"
+            def captionsFile = new File(captionsFilePath)
+
+            uploadedCaptionsFile.transferTo(captionsFile)
+
             String result = meetingService.putRecordingTextTrack(recordId, captionsKind,
-                    captionsLang, captionsFile, captionsLabel, origFilename)
-            println("************* RESULT = " + result)
+                    captionsLang, captionsFile, captionsLabel, origFilename, trackId)
+
             response.addHeader("Cache-Control", "no-cache")
             withFormat {
                 json {
@@ -160,7 +121,8 @@ class RecordingController {
                     render(contentType: "application/json") {
                         response = {
                             returncode = "FAILED"
-                            message = "Failed to put recording text tracks."
+                            messageKey = "empty_uploaded_text_track"
+                            message = "Empty uploaded text track."
                         }
                     }
                 }

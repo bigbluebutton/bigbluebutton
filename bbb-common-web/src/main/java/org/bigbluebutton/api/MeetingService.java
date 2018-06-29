@@ -384,10 +384,28 @@ public class MeetingService implements MessageListener {
     return recordingService.getRecordingTextTracks(recordId);
   }
 
-  public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label, String origFilename) {
-    UploadedTrack track = new UploadedTrack(recordId, kind, lang, label, origFilename, file);
+  public String putRecordingTextTrack(String recordId,
+																			String kind,
+																			String lang,
+																			File file,
+																			String label,
+																			String origFilename,
+																			String trackId) {
+
+			UploadedTrack track = new UploadedTrack(recordId,
+						kind,
+						lang,
+						label,
+						origFilename,
+						file,
+						trackId,
+						getCaptionTrackInboxDir());
     return recordingService.putRecordingTextTrack(track);
   }
+
+  public String getCaptionTrackInboxDir() {
+  	return recordingService.getCaptionTrackInboxDir();
+	}
 
   public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);
