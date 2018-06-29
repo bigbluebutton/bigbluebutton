@@ -11,6 +11,7 @@ const cp = require('child_process');
 const Logger = require('./utils/Logger');
 const SCREENSHARE_PATH = './lib/screenshare/ScreenshareProcess';
 const VIDEO_PATH = './lib/video/VideoProcess.js';
+const AUDIO_PATH = './lib/audio/AudioProcess.js';
 
 module.exports = class ProcessManager {
   constructor() {
@@ -18,17 +19,20 @@ module.exports = class ProcessManager {
     this.videoPid;
     this.screenshareProcess;
     this.videoProcess;
+    this.audioProcess;
     this.processes = {};
     this.runningState = "RUNNING";
   }
 
   async start () {
     let screenshareProcess = this.startProcess(SCREENSHARE_PATH);
-
     let videoProcess = this.startProcess(VIDEO_PATH);
+    let audioProcess = this.startProcess(AUDIO_PATH);
+
 
     this.processes[screenshareProcess.pid] = screenshareProcess;
     this.processes[videoProcess.pid] = videoProcess;
+    this.processes[audioProcess.pid] = audioProcess;
 
     process.on('SIGTERM', async () => {
       await this.finishChildProcesses();

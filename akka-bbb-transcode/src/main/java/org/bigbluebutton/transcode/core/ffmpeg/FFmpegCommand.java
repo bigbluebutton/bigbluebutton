@@ -29,6 +29,8 @@ public class FFmpegCommand {
     private int frameRate;
     private String frameSize;
 
+    private String protocolWhitelist;
+
     public FFmpegCommand() {
         this.args = new HashMap();
         this.x264Params = new HashMap();
@@ -80,6 +82,11 @@ public class FFmpegCommand {
         if(probeSize != null && !probeSize.isEmpty()) {
             comm.add("-probesize");
             comm.add(probeSize);
+        }
+
+        if(protocolWhitelist != null && !protocolWhitelist.isEmpty()) {
+            comm.add("-protocol_whitelist");
+            comm.add(protocolWhitelist);
         }
 
         buildRtmpInput();
@@ -321,6 +328,14 @@ public class FFmpegCommand {
 
    public void setFrameSize(String value){
        this.frameSize = value;
+   }
+
+   /**
+    * Sets protocol elements to be whitelisted
+    * @param whitelist
+    */
+   public void setProtocolWhitelist(String whitelist) {
+     this.protocolWhitelist = whitelist;
    }
 
    /**

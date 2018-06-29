@@ -53,18 +53,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function dataChangeHandler(event:FlexEvent):void {
 				// If you remove this some of the chat messages will fail to render
 				validateNow();
+				
+				if (data != null) {
+					var sameSender:Boolean = data.sameLastSender();
+					var sameTime:Boolean = data.sameLastTime();
+					var isMod:Boolean = data.isModerator();
+					
+					hbHeader.visible = hbHeader.includeInLayout = !sameSender || !sameTime;
+					lblName.visible = !sameSender;
+					lblName.styleName = (isMod ? 'chatMessageHeaderModerator' : '');
+					moderatorIcon.visible = lblName.visible && isMod;
+					lblTime.visible = !sameSender || !sameTime;
+				}
+				
 			}
 		]]>
 	</fx:Script>
 	
   <mx:Canvas width="100%" id="hbHeader" styleName="chatMessageHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off"
-			 visible="{lblName.visible || lblTime.visible}" includeInLayout="{lblName.visible || lblTime.visible}">
-    <mx:Label id="lblName" text="{data.name}" visible="{!data.sameLastSender}"
-			  verticalCenter="0" textAlign="left" left="0" maxWidth="{this.width - lblTime.width - moderatorIcon.width - 22}"
-			  styleName="{data.isModerator ? 'chatMessageHeaderModerator' : ''}"/>
-	<mx:Image id="moderatorIcon" visible="{lblName.visible &amp;&amp; data.isModerator}"
+			 visible="false" includeInLayout="false">
+    <mx:Label id="lblName" text="{data.name}" visible="false"
+			  verticalCenter="0" textAlign="left" left="0" maxWidth="{this.width - lblTime.width - moderatorIcon.width - 22}" />
+	<mx:Image id="moderatorIcon" visible="false"
 			  source="{getStyle('moderatorIcon')}" x="{lblName.width + 4}" verticalCenter="0"/>
-    <mx:Text id="lblTime" visible="{data.differentLastSenderAndTime}" htmlText="{data.time}" textAlign="right"
+    <mx:Text id="lblTime" visible="true" htmlText="{data.time}" textAlign="right"
 			 verticalCenter="0"
              right="4" />
   </mx:Canvas>

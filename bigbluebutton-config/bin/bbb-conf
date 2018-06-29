@@ -707,9 +707,12 @@ if [ $SECRET ]; then
 	need_root
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SECRET
 
-	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-		sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
-	fi
+        if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
+                sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
+        fi
+        if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.js ]; then
+                sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.js
+        fi
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js ]; then
 		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
@@ -891,26 +894,34 @@ check_configuration() {
 	BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
-	if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-		WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
-		
-		if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
-			echo "# Warning: Webhooks API Shared Secret mismatch: "
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SECRET"
-			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee                       = $WEBHOOKS_SECRET"
-			echo
-		fi
-		
-		WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
-		WEBHOOKS_APP_PORT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.server.port[ =]*' | cut -d '=' -f2 | xargs)
+        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
+                if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.js ]; then
+                  WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.js | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
+                  WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config_local.js
+                fi
+                if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
+                  WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
+                  WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
+                fi
 
-		if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
-			echo "# Warning: Webhooks port mismatch: "
-			echo "#  /etc/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
-			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee = $WEBHOOKS_APP_PORT"
-			echo
-		fi
-	fi
+                if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
+                        echo "# Warning: Webhooks API Shared Secret mismatch: "
+                        echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SECRET"
+                        echo "#  $WEBHOOKS_CONF                       = $WEBHOOKS_SECRET"
+                        echo
+                fi
+
+                WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+                WEBHOOKS_APP_PORT=$(cat $WEBHOOKS_CONF | grep config.server.port | sed "s/.*config.server.port[ =\"]*//g" | sed 's/[;\"]*//g')
+
+                if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
+                        echo "# Warning: Webhooks port mismatch: "
+                        echo "#  /etc/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+                        echo "#  $WEBHOOKS_CONF = $WEBHOOKS_APP_PORT"
+                        echo
+                fi
+        fi
+
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
                 LTI_SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
@@ -1185,22 +1196,28 @@ check_state() {
 	#
 	# Check if ffmpeg is installed, and whether it is a supported version
 	#
-	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
+	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')
 	case "$FFMPEG_VERSION" in
-	2.8.*)
-		# This is the current supported version; OK.
-		;;
-	'')
-		echo "# Warning: No ffmpeg version was found on the system"
-		echo "#          Recording processing will not function"
-		echo
-		;;
-	*)
-		echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not supported"
-		echo "#          Recording processing may not function correctly"
-		echo
-		;;
-	esac
+        4.0.*)
+                # This is the current supported version; OK.
+                ;;
+        '')
+                echo "# Warning: No ffmpeg version was found on the system"
+                echo "#          Recording processing will not function"
+                echo
+                ;;
+        *)
+                echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not recommended."
+                echo "# Recommend you update to the 4.0.x version of ffmpeg.  To upgrade, do the following"
+                echo "#"
+                echo "#        sudo apt-get install software-properties-common"
+                echo "#        sudo add-apt-repository ppa:jonathonf/ffmpeg-4"
+                echo "#        sudo apt-get update"
+                echo "#        sudo apt-get dist-upgrade"
+                echo "#"
+                echo
+                ;;
+        esac
 
 
 	if [ -f /usr/share/red5/log/sip.log ]; then
@@ -1590,6 +1607,7 @@ if [ $CHECK ]; then
 		echo
 		echo "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)"
 		echo "                     playback host: $PLAYBACK_IP"
+                echo "                            ffmpeg: $(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')"
 	fi
 
         if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
@@ -1964,6 +1982,10 @@ if [ $CLEAN ]; then
 
 	if [ -d /var/log/bbb-transcode-akka ]; then
 		rm -f /var/log/bbb-transcode-akka/*
+	fi
+
+	if [ -d /var/log/bbb-webrtc-sfu ]; then
+		rm -f /var/log/bbb-webrtc-sfu/*
 	fi
 
 	start_bigbluebutton

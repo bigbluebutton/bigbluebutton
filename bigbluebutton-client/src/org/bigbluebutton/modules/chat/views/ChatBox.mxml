@@ -52,10 +52,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		import flash.events.TextEvent;
 		
+		import flashx.textLayout.formats.Direction;
+		
 		import mx.binding.utils.BindingUtils;
 		import mx.events.ScrollEvent;
-		
-		import flashx.textLayout.formats.Direction;
 		
 		import org.as3commons.lang.StringUtils;
 		import org.as3commons.logging.api.ILogger;
@@ -80,6 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 		import org.bigbluebutton.modules.chat.model.ChatConversation;
+		import org.bigbluebutton.modules.chat.model.ChatMessage;
 		import org.bigbluebutton.modules.chat.model.ChatOptions;
 		import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 		import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
@@ -247,9 +248,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleUserLeftEvent(event:UserLeftEvent):void {
         // Handle user leaving so that the user won't be talking to someone not there.
         if (!publicChat && event.userID == chatWithUserID) {
-          displayUserHasLeftMessage();
+          addMessageAndScrollToEnd(createUserHasLeftMessage(), event.userID);
           txtMsgArea.enabled = false;
-          scrollToEndOfMessage(event.userID);
         }
       }
       
@@ -262,14 +262,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleUserJoinedEvent(event:UserJoinedEvent):void {
         // Handle user joining so that the user can start to talk if the person rejoins
         if (!publicChat && event.userID == chatWithUserID) {
-          displayUserHasJoinedMessage();
+          addMessageAndScrollToEnd(createUserHasJoinedMessage(), event.userID);
           txtMsgArea.enabled = true;
-          scrollToEndOfMessage(event.userID);
         }
       }
       
       private var SPACE:String = " ";
-      private function displayUserHasLeftMessage():void {
+      private function createUserHasLeftMessage():ChatMessageVO {
         var msg:ChatMessageVO = new ChatMessageVO();
         msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
@@ -280,10 +279,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        return msg;
       }
       
-      private function displayUserHasJoinedMessage():void {
+      private function createUserHasJoinedMessage():ChatMessageVO {
         var msg:ChatMessageVO = new ChatMessageVO();
         msg.fromUserId = SPACE;
         msg.fromUsername = SPACE;
@@ -294,7 +293,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.toUsername = SPACE;
         msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
         
-        chatMessages.newChatMessage(msg);
+        return msg;
       }
       
       public function focusToTextMessageArea():void {
@@ -304,8 +303,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
-          chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage(event.message.fromUserId);
+          addMessageAndScrollToEnd(event.message, event.message.fromUserId);
         }
       }
       
@@ -327,8 +325,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!publicChat && 
           ( (message.fromUserId == chatWithUserID && UsersUtil.isMe(message.toUserId)) ||
             (message.toUserId == chatWithUserID && UsersUtil.isMe(message.fromUserId)) )) {
-          chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage(message.fromUserId);
+          addMessageAndScrollToEnd(event.message, event.message.fromUserId);
         }        
       }
       
@@ -353,14 +350,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         chatMessages.newChatMessage(msg);
       }
       
-      public function scrollToEndOfMessage(userID:String):void {
+      public function addMessageAndScrollToEnd(message:ChatMessageVO, userId:String):void {
+        // Have to check if the vScroll is max before adding the new message
+        var vScrollMax:Boolean = chatMessagesList.verticalScrollAtMax;
+        chatMessages.newChatMessage(message);
+        scrollToEndOfMessage(userId, vScrollMax);
+      }
+      
+      public function scrollToEndOfMessage(userID:String, precheckedVScroll:Boolean=false):void {
         /**
          * Trigger to force the scrollbar to show the last message.
          */	
 		// @todo : scromm if
 		//			1 - I am the send of the last message
 		//			2 - If the scroll bar is at the bottom most
-		  if (UsersUtil.isMe(userID) || (chatMessagesList.verticalScrollAtMax)) {
+		  if (UsersUtil.isMe(userID) || precheckedVScroll || (chatMessagesList.verticalScrollAtMax)) {
 	        if (scrollTimer != null) scrollTimer.start();
 		  } else if (!scrollTimer.running) {
 			  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = true;

@@ -89,7 +89,7 @@ module.exports = class MediaController {
     }
   }
 
-  publishnsubscribe (userId, sourceId, sdp, params) {
+  publishnsubscribe (userId, sourceId, sdp, params = {}) {
     return new Promise(async (resolve, reject) => {
       Logger.info("[mcs-controller] PublishAndSubscribe from user", userId, "to source", sourceId);
       Logger.debug("[mcs-controler] PublishAndSubscribe descriptor is", params.descriptor);
@@ -126,7 +126,7 @@ module.exports = class MediaController {
     });
   }
 
-  publish (userId, roomId, type, params) {
+  publish (userId, roomId, type, params = {}) {
     return new Promise(async (resolve, reject) => {
       Logger.info("[mcs-controller] Publish from user", userId, "to room", roomId);
       Logger.debug("[mcs-controler] Publish descriptor is", params.descriptor);
@@ -166,7 +166,7 @@ module.exports = class MediaController {
     this._mediaSessions[session.id] = session;
   }
 
-  subscribe (userId, sourceId, type, params) {
+  subscribe (userId, sourceId, type, params = {}) {
     return new Promise(async (resolve, reject) => {
       Logger.info("[mcs-controller] Subscribe from user", userId, "to source", sourceId);
       Logger.debug("[mcs-controler] Subscribe descriptor is", params.descriptor);
@@ -382,7 +382,7 @@ module.exports = class MediaController {
 
     switch (type) {
       case C.USERS.SFU:
-        user  = new SfuUser(roomId, type, this.emitter, params.userAgentString, params.sdp);
+        user  = new SfuUser(roomId, type, this.emitter, params.userAgentString, params.descriptor);
         break;
       case C.USERS.MCU:
         Logger.warn("[mcs-controller] createUserMCS MCU TODO");

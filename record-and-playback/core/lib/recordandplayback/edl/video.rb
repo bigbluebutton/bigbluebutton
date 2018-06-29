@@ -293,6 +293,8 @@ module BigBlueButton
           if !info[:video][:sample_aspect_ratio].nil? and
               info[:video][:sample_aspect_ratio] != 'N/A'
             aspect_x, aspect_y = info[:video][:sample_aspect_ratio].split(':')
+            aspect_x = aspect_x.to_i
+            aspect_y = aspect_y.to_i
             if aspect_x != 0 and aspect_y != 0
               info[:sample_aspect_ratio] = Rational(aspect_x, aspect_y)
             end
