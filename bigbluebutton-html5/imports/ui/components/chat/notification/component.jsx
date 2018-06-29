@@ -122,7 +122,7 @@ class ChatNotification extends Component {
         unreadCounter > 0 &&
         unreadCounter !== this.state.notified[id] &&
         !disableNotify && id !== PUBLIC_KEY &&
-        (!chatIsOpen || currentChatID === 'public'))
+        (!chatIsOpen || id !== currentChatID))
       .map(({
         id,
         name,
@@ -196,7 +196,7 @@ class ChatNotification extends Component {
       .filter(({ sender, time }) =>
         (time > (this.state.publicNotified[sender.id] || 0))
          && !disableNotify && Service.hasUnreadMessages(publicUserId)
-         && (!chatIsOpen || currentChatID !== 'public'));
+         && (!chatIsOpen || currentChatID !== PUBLIC_KEY));
     return (
       <span>
         {
