@@ -109,6 +109,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const { credentials, loggedIn } = Auth;
 
   if (!loggedIn) {
+    console.log('cai aqui');
     return {
       locale,
       subscriptionsReady: false,
@@ -127,6 +128,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
+      AnnotationsLocal.remove({});
       Annotations.find({}, { reactive: false }).forEach(a => {
         try {
           AnnotationsLocal.insert(a)
