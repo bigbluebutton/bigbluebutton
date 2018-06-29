@@ -109,7 +109,6 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const { credentials, loggedIn } = Auth;
 
   if (!loggedIn) {
-    console.log('cai aqui');
     return {
       locale,
       subscriptionsReady: false,
