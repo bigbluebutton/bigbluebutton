@@ -189,6 +189,8 @@ export default class PresentationOverlay extends Component {
         y="0"
         width={this.props.slideWidth}
         height={this.props.slideHeight}
+        // maximun value of z-index to prevent other things from overlapping
+        style={{ zIndex: 2 ** 31 - 1 }}
       >
         <div
           onTouchStart={this.handleTouchStart}
