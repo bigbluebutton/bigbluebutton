@@ -103,6 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingStatusDir" value="${recordStatusDir}"/>
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>
+        <property name="captionsDir" value="${captionsDir}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
         <property name="presentationBaseDir" value="${presentationDir}"/>
     </bean>

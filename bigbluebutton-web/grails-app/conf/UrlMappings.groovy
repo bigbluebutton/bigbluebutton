@@ -78,7 +78,15 @@ class UrlMappings {
 		}
 
 		"/api/guestWait"(controller:"api") {
-			action = [GET:'guestWaitHandler']
+			action = [GET: 'guestWaitHandler']
+		}
+
+		"/api/getRecordingTextTracks"(controller:"recording") {
+			action = [GET:'getRecordingTextTracks']
+		}
+
+		"/api/putRecordingTextTrack"(controller:"recording") {
+			action = [POST:'putRecordingTextTrack']
 		}
 
 		"/$controller/$action?/$id?(.${format})?"{
