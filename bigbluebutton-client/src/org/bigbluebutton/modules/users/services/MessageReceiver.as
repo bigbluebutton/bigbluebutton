@@ -938,6 +938,9 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(userId)) {
         LiveMeeting.inst().me.role = role;
         dispatcher.dispatchEvent(new ChangeMyRole(role));
+        
+        // need to fake a new lock settings so that the lock state gets revalidated
+        UsersUtil.applyLockSettings();
       }
 
       dispatcher.dispatchEvent(new UserStatusChangedEvent(userId));
