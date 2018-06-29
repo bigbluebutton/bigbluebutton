@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import browser from 'browser-detect';
 import SettingsDropdown from './component';
 import { toggleFullScreen } from './service';
 
@@ -51,11 +52,14 @@ export default class SettingsDropdownContainer extends Component {
   render() {
     const handleToggleFullscreen = toggleFullScreen;
     const isFullScreen = this.state.isFullScreen;
+    const result = browser();
+    const isAndroid = result.os.includes('Android');
 
     return (
       <SettingsDropdown
         handleToggleFullscreen={handleToggleFullscreen}
         isFullScreen={isFullScreen}
+        isAndroid={isAndroid}
       />
     );
   }

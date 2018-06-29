@@ -79,6 +79,10 @@ module.exports = class ConnectionManager {
       screenshare.on(C.REDIS_MESSAGE, emitFunk);
       video.on(C.REDIS_MESSAGE, emitFunk);
 
+      audio.on(C.REDIS_MESSAGE, (data) => {
+        this._emitter.emit('response', data);
+      });
+
       Logger.info('[ConnectionManager] Successfully subscribed to processes redis channels');
     }
     catch (err) {
