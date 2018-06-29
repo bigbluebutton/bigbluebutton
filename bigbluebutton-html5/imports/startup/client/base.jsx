@@ -128,11 +128,11 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
       AnnotationsLocal.remove({});
-      Annotations.find({}, { reactive: false }).forEach(a => {
+      Annotations.find({}, { reactive: false }).forEach((a) => {
         try {
-          AnnotationsLocal.insert(a)
+          AnnotationsLocal.insert(a);
         } catch (e) {
-            // who cares.
+          // who cares.
         }
       });
       annotationsHandler.stop();
