@@ -192,8 +192,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 		readCaptionJsonFile(captionsFilePath, StandardCharsets.UTF_8) match {
 			case Some(captions) =>
 				val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
-				val xtracks = Tracks(ctracks)
-				val result1 = GetRecTextTracksResult(SUCCESS, xtracks)
+				val result1 = GetRecTextTracksResult(SUCCESS, ctracks)
 				val response1 = GetRecTextTracksResp(result1)
 				val respText1 = gson.toJson(response1)
 
