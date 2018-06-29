@@ -17,11 +17,20 @@ case class UploadedTrackInfo(recordId: String,
 														 lang: String,
 														 label: String,
 														 origFilename: String)
-case class Track(kind: String, lang: String, label: String, source: String, href: String)
-case class Tracks(tracks: util.ArrayList[Track])
-case class GetRecTextTracksResult(returncode: String, tracks: Tracks)
+case class Track(kind: String,
+								 lang: String,
+								 label: String,
+								 source: String,
+								 href: String)
+case class GetRecTextTracksResult(returncode: String,
+																	tracks: util.ArrayList[Track])
 case class GetRecTextTracksResp(response: GetRecTextTracksResult)
-case class GetRecTextTracksResultFailed(returncode: String, messageKey: String, message: String)
+case class GetRecTextTracksResultFailed(returncode: String,
+																				messageKey: String,
+																				message: String)
 case class GetRecTextTracksRespFailed(response: GetRecTextTracksResultFailed)
-case class PutRecTextTrackResult(returncode: String, recordId: String, messageKey: String, message: String)
+case class PutRecTextTrackResult(returncode: String,
+																 recordId: String,
+																 messageKey: String,
+																 message: String)
 case class PutRecTextTrackResp(response: PutRecTextTrackResult)
