@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:common="org.bigbluebutton.air.common.views.*"
+				xmlns:views="org.bigbluebutton.air.chat.views.*"
+				width="100%"
+				styleName="chatRoomItem">
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="selected" />
+	</s:states>
+
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.air.chat.models.GroupChat;
+			import org.bigbluebutton.air.user.utils.UserUtils;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				publicChatIcon.text = publicChatIcon.getStyle("icon");
+				
+				containerGroup.padding = getStyle("padding");
+				title.setStyle("paddingLeft", getStyle("padding"));
+				title.setStyle("paddingRight", getStyle("padding"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					title.text = obj.name;
+					if (obj.isPublic == true) {
+						publicChatIcon.visible = publicChatIcon.includeInLayout = true;
+						participantIcon.visible = participantIcon.includeInLayout = false;
+					} else {
+						participantIcon.setInitials(UserUtils.getInitials(obj.name));
+						participantIcon.visible = participantIcon.includeInLayout = true;
+						participantIcon.setRole(obj.partnerRole);
+						publicChatIcon.visible = publicChatIcon.includeInLayout = false;
+					}
+					newMessages.label = String(obj.newMessages);
+					newMessages.visible = obj.newMessages > 0;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup id="containerGroup"
+			  width="100%"
+			  verticalAlign="middle"
+			  horizontalAlign="center">
+		<s:Label id="publicChatIcon"
+				 visible="false"
+				 includeInLayout="false"
+				 styleName="icon-group-chat chatIcon" />
+		<common:ParticipantIcon id="participantIcon" />
+		<s:Label id="title"
+				 width="100%"
+				 styleName="contentFontSize" />
+		<views:NewMessagesIndicator id="newMessages"
+									styleName="newMessagesIndicator" />
+	</s:HGroup>
+</s:ItemRenderer>

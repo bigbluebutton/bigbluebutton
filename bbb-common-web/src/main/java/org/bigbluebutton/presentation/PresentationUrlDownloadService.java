@@ -58,9 +58,10 @@ public class PresentationUrlDownloadService {
 
     }
 
-    public void processUploadedFile(String meetingId, String presId,
+    public void processUploadedFile(String podId, String meetingId, String presId,
             String filename, File presFile, Boolean current) {
-        UploadedPresentation uploadedPres = new UploadedPresentation(meetingId,
+        // TODO add podId
+        UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId,
                 presId, filename, presentationBaseURL, current);
         uploadedPres.setUploadedFile(presFile);
         processUploadedPresentation(uploadedPres);
@@ -143,7 +144,8 @@ public class PresentationUrlDownloadService {
             }
         }
 
-        processUploadedFile(destinationMeetingId, presId, "default-"
+        // Hardcode pre-uploaded presentation for breakout room to the default presentation window
+        processUploadedFile("DEFAULT_PRESENTATION_POD", destinationMeetingId, presId, "default-"
                 + presentationSlide.toString() + "." + filenameExt,
                 newPresentation, true);
     }

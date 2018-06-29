@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		public function modifyAccess(e:WhiteboardAccessEvent):void {
 			var message:Object = {
 				header: {name: "ModifyWhiteboardAccessPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-				body: {multiUser: e.multiUser}
+				body: {whiteboardId: e.whiteboardId, multiUser: e.multiUser}
 			};
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -43,24 +43,7 @@ package org.bigbluebutton.modules.whiteboard.services
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status);
 				},
-				JSON.stringify(message)
-			);
-		}
-		
-		public function getWhiteboardAccess():void {
-			var message:Object = {
-				header: {name: "GetWhiteboardAccessReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-				body: {requesterId: UsersUtil.getMyUserID()}
-			};
-			
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage2x(
-				function(result:String):void { // On successful result
-				},
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				},
-				JSON.stringify(message)
+				message
 			);
 		}
 		
@@ -81,7 +64,7 @@ package org.bigbluebutton.modules.whiteboard.services
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status);
 				},
-				JSON.stringify(message)
+				message
 			);
 		}
 		
@@ -102,7 +85,7 @@ package org.bigbluebutton.modules.whiteboard.services
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status);
 				},
-				JSON.stringify(message)
+				message
 			);
 		}
 		
@@ -119,7 +102,7 @@ package org.bigbluebutton.modules.whiteboard.services
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status);
 				},
-				JSON.stringify(message)
+				message
 			);
 		}
 		
@@ -150,7 +133,7 @@ package org.bigbluebutton.modules.whiteboard.services
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status);
 				},
-				JSON.stringify(message)
+				message
 			);
 		}
 		
@@ -160,10 +143,10 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * @param yPercent
 		 * 
 		 */
-		public function sendCursorPosition(xPercent:Number, yPercent:Number):void {
+		public function sendCursorPosition(whiteboardId: String, xPercent:Number, yPercent:Number):void {
 			var message:Object = {
 				header: {name: "SendCursorPositionPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-				body: {xPercent: xPercent, yPercent: yPercent}
+				body: {whiteboardId: whiteboardId, xPercent: xPercent, yPercent: yPercent}
 			};
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -174,7 +157,7 @@ package org.bigbluebutton.modules.whiteboard.services
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status);
 				},
-				JSON.stringify(message)
+				message
 			);
       
 		}
@@ -199,7 +182,7 @@ package org.bigbluebutton.modules.whiteboard.services
         function(status:String):void { // status - On error occurred
           //LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
   }

@@ -40,6 +40,11 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
     registeredUsers, polls2x, wbModel, presModel, captionModel,
     notesModel, webcams, voiceUsers, users2x, guestsWaiting)
 
+  GuestsWaiting.setGuestPolicy(
+    liveMeeting.guestsWaiting,
+    GuestPolicy(props.usersProp.guestPolicy, SystemUser.ID)
+  )
+
   val outMsgRouter = new OutMsgRouter(props.recordProp.record, outGW)
 
   val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outMsgRouter, liveMeeting), props.meetingProp.intId)

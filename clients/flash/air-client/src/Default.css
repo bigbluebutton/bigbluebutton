@@ -1,71 +1,116 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
-@namespace libChat "org.bigbluebutton.lib.chat.views.*";
+@namespace chat "org.bigbluebutton.air.chat.views.*";
 @namespace main "org.bigbluebutton.air.main.views.*";
-@namespace participants "org.bigbluebutton.lib.participants.views.*";
-@namespace users "org.bigbluebutton.lib.user.views.*";
-@namespace settings "org.bigbluebutton.lib.settings.views.*";
-@namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
-@namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
-@namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
-@namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
+@namespace participants "org.bigbluebutton.air.participants.views.*";
+@namespace user "org.bigbluebutton.air.user.views.*";
+@namespace settings "org.bigbluebutton.air.settings.views.*";
+@namespace settingsAudio "org.bigbluebutton.air.settings.views.audio.*";
+@namespace settingsChat "org.bigbluebutton.air.settings.views.chat.*";
+@namespace settingsLock "org.bigbluebutton.air.settings.views.lock.*";
+@namespace settingsCamera "org.bigbluebutton.air.settings.views.camera.*";
+@namespace ex "http://flex.apache.org/experimental/ns";
+@namespace supportClasses "spark.skins.mobile.supportClasses.*";
 
-@font-face { 
-	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+@font-face {
+	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : normal;
 	fontWeight : normal;
 	embedAsCFF : true;
 }
 
-@font-face { 
-	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf");
+@font-face {
+	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : normal;
 	fontWeight : bold;
 	embedAsCFF : true;
 }
 
-@font-face { 
-	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
+@font-face {
+	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : italic;
 	fontWeight : normal;
 	embedAsCFF : true;
 }
 
-@font-face { 
-	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+@font-face {
+	src        : url("../assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
 	fontFamily : SourceSansPro;
 	fontStyle  : normal;
 	fontWeight : heavy;
 	embedAsCFF : true;
 }
 
-@font-face { 
-	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+@font-face {
+	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
 	fontFamily : SourceSansProMX;
 	fontStyle  : normal;
 	fontWeight : normal;
 	embedAsCFF : false;
 }
 
+@font-face {
+	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf");
+	fontFamily : SourceSansProMX;
+	fontStyle  : normal;
+	fontWeight : bold;
+	embedAsCFF : false;
+}
+
+@font-face {
+	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
+	fontFamily : SourceSansProMX;
+	fontStyle  : italic;
+	fontWeight : normal;
+	embedAsCFF : false;
+}
+
+@font-face {
+	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+	fontFamily : SourceSansProMX;
+	fontStyle  : normal;
+	fontWeight : heavy;
+	embedAsCFF : false;
+}
 
 /* Shared styles */
 
 global {
-	font-family : SourceSansPro;
+	font-family               : SourceSansPro;
+	color                     : PropertyReference("bbbBlack");
+	modalTransparencyBlur     : 0;
+	modalTransparency         : 0.5;
+	modalTransparencyColor    : black;
+	modalTransparencyDuration : 250;
 }
 
 /* Classes */
 
 s|Application {
-	backgroundColor : PropertyReference("bbbBlack");	
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+s|Button {
+	fontFamily 				: SourceSansPro;
+	color                   : PropertyReference("white");
+	backgroundColor         : PropertyReference("bbbBlue");
+	borderVisible           : false;
+	selectedBackgroundColor : PropertyReference("blue500");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.ActionButtonSkin");
+}
+
+s|Callout
+{
+	skinClass: ClassReference("spark.skins.ios7.CalloutSkin");
+	backgroundColor : #FFFFFF;
 }
 
 /* Loading screen */
 main|LoadingScreen {
-	color           : PropertyReference("white");	
+	color           : PropertyReference("white");
 	backgroundColor : PropertyReference("bbbBlack");
 	textAlign       : center;
 }
@@ -73,46 +118,117 @@ main|LoadingScreen {
 /* Main view */
 
 main|MainView {
-	backgroundColor : PropertyReference("bbbBlack");	
-}
-
-main|TopToolbarAIR {
 	backgroundColor : PropertyReference("bbbBlack");
 }
 
-participants|ParticipantsViewBase, users|UsersViewBase {
-	backgroundColor : PropertyReference("grey100");
-	color : PropertyReference("blue900");
+main|RectCoverView {
+	backgroundColor : PropertyReference("bbbBlack");
 }
 
-settings|SettingsViewBase, audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, camera|CameraSettingsViewBase {
+main|MenuButtons {
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+.no-background {
+	backgroundAlpha: 0;
+}
+
+
+main|TopToolbarBase {
+	textAlign : center;
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+participants|ParticipantsViewBase {
+	backgroundColor : PropertyReference("white");
+	color           : PropertyReference("blue900");
+}
+
+settings|SettingsViewBase, settingsAudio|AudioSettingsViewBase, settingsChat|ChatSettingsViewBase, settingsLock|LockSettingsViewBase, settingsCamera|CameraSettingsViewBase {
 	color            : PropertyReference("grey700");
 	headerBackground : PropertyReference("blue500");
 	separatorColor   : PropertyReference("grey200");
 }
 
-participants|ParticipantsViewBase s|List{
+participants|ParticipantsViewBase s|List {
 	contentBackgroundColor : PropertyReference("white");
 }
 
-libChat|ChatViewBase {
+user|UserDetailsView {
+	color            : PropertyReference("grey700");
+	headerBackground : PropertyReference("blue500");
+	separatorColor   : PropertyReference("grey200");
+}
+
+chat|ChatViewBase {
 	inputBackgroundColor : PropertyReference("grey100");
 	inputBorderColor     : PropertyReference("grey300");
+}
+
+ex|ProgressBar {
+	skinClass            : ClassReference("org.bigbluebutton.air.common.views.skins.ProgressBarSkin");
+	fontFamily           : SourceSansProMX;
+	trackBackgroundColor : PropertyReference("grey100");
+	barColor             : PropertyReference("bbbBlue");
+	percentColor         : PropertyReference("white");
 }
 
 s|ToggleSwitch {
 	accentColor : PropertyReference("green500");
 	color       : PropertyReference("white");
+	fontFamily  : SourceSansProMX;
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileToggleSwitchSkin");
 }
 
 s|HSlider {
-	skinClass   : ClassReference("spark.skins.ios7.HSliderSkin");
+	skinClass : ClassReference("spark.skins.ios7.HSliderSkin");
 }
 
 s|CheckBox {
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileCheckBoxSkin");
+	fontFamily  : SourceSansProMX;
 	chromeColor : PropertyReference("white");
+}
+
+main|EmojiItemRenderer {
+	iconFont      : BBBIcons;
+	iconColor     : PropertyReference("grey700");
+	color         : PropertyReference("grey700");
+	selectedColor : PropertyReference("bbbBlue");
+}
+
+main|MobilePopUp {
+	separatorColor : PropertyReference("grey300");
+	skinClass      : ClassReference("org.bigbluebutton.air.main.views.skins.MobilePopUpSkin");
+}
+
+.mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+	fontFamily 				: SourceSansPro;
+	color                   : PropertyReference("bbbBlue");
+	backgroundColor         : PropertyReference("white");
+	borderVisible           : false;
+	selectedBackgroundColor : PropertyReference("grey100");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.MobilePopUpButtonSkin");
+}
+
+.mobilePopUpUniqueButton {
+	position : "unique";
+}
+
+.mobilePopUpFirstButton {
+	position : "first";
+}
+
+.mobilePopUpMiddleButton {
+	position : "middle";
+}
+
+.mobilePopUpLastButton {
+	position : "last";
+}
+
+.statusList {
+	contentBackgroundAlpha : 0;
 }
 
 .sectionTitle {
@@ -128,20 +244,20 @@ s|CheckBox {
 	color : PropertyReference("grey700");
 }
 
-libChat|NewMessagesIndicator {
+chat|NewMessagesIndicator {
 	backgroundColor : PropertyReference("bbbRed");
 	backgroundAlpha : 1;
 	color           : PropertyReference("white");
-	skinClass       : ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
+	skinClass       : ClassReference("org.bigbluebutton.air.chat.views.skins.NewMessagesIndicatorSkin");
 }
 
-libChat|ChatItemRenderer {
-	color     : PropertyReference("grey700");
+chat|ChatItemRenderer {
+	color     : PropertyReference("bbbDarkGrey");
 	nameColor : PropertyReference("blue900");
 }
 
-users|UserItemRenderer {
-	color    : PropertyReference("grey700");
+user|UserItemRenderer {
+	color : PropertyReference("grey700");
 }
 
 settings|SettingsItemRenderer {
@@ -153,14 +269,19 @@ settings|SettingsItemRenderer {
 	backgroundColor : PropertyReference("white");
 }
 
-.titleLabel {
+.titleGroup {
 	color : PropertyReference("white");
 }
 
 .topButton, .chatIcon, .settingsIcon {
 	iconColor  : PropertyReference("white");
 	fontFamily : BBBIcons;
-	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
+	skinClass  : ClassReference("org.bigbluebutton.air.main.views.skins.TopButtonSkin");
+}
+
+.recordIcon {
+	color      : PropertyReference("bbbRed");
+	fontFamily : BBBIcons;
 }
 
 .actionButton {
@@ -168,31 +289,37 @@ settings|SettingsItemRenderer {
 	cornerRadius            : 5;
 	backgroundColor         : PropertyReference("blue500");
 	borderColor             : PropertyReference("white");
+	fontFamily              : SourceSansPro;
 	selectedBackgroundColor : PropertyReference("blue900");
-	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.ActionButtonSkin");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.ActionButtonSkin");
 }
 
 .saveButton {
 	color      : PropertyReference("white");
+	fontFamily : SourceSansPro;
 	fontWeight : normal;
-	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.SaveButtonSkin");
+	skinClass  : ClassReference("org.bigbluebutton.air.main.views.skins.SaveButtonSkin");
 }
 
 .settingsIcon {
-	iconColor  : PropertyReference("grey700");
+	iconColor : PropertyReference("grey700");
 }
 
 .chatIcon {
 	color : PropertyReference("grey700");
 }
 
-.menuButton {
+.menuButton, .menuButtonRed {
+	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
-	selectedBackgroundColor : PropertyReference("bbbGrey");
-	color                   : PropertyReference("white");
-	iconFont				: BBBIcons;
-	iconColor    	    	: PropertyReference("white");
-	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
+	selectedBackgroundColor : PropertyReference("darkBlue");
+	iconFont                : BBBIcons;
+	iconColor               : PropertyReference("white");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.MenuButtonSkin");
+}
+
+.menuButtonRed {
+	backgroundColor : PropertyReference("bbbRed");
 }
 
 .participantIcon {
@@ -206,16 +333,16 @@ settings|SettingsItemRenderer {
 }
 
 .sendButton {
-	color       : PropertyReference("blue500");
+	color       : PropertyReference("bbbWhite");
 	fontFamily  : BBBIcons;
-	borderColor : PropertyReference("blue500");
-	skinClass   : ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
+	backgroundColor : PropertyReference("bbbBlue");
+	skinClass   : ClassReference("org.bigbluebutton.air.chat.views.skins.SendButtonSkin");
 }
 
 .messageInput {
 	fontFamily             : SourceSansProMX;
 	contentBackgroundAlpha : 0;
-	skinClass              : ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");
+	/*skinClass              : ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");*/
 }
 
 .content {
@@ -224,4 +351,27 @@ settings|SettingsItemRenderer {
 
 .leaveLabel {
 	color : PropertyReference("blue500");
+}
+
+.micLevelProgressBar {
+	showLabel : false;
+}
+
+.echoTestLabel {
+	textAlign : center;
+}
+
+.userDetailsButton {
+	color : PropertyReference("white");
+}
+
+.audioButtonStyle {
+	borderAlphaUp       : 0;
+	borderAlphaOver     : 1;
+	borderAlphaDown     : 1;
+	borderAlphaDisabled : 0;
+	
+	fillColorUp         : PropertyReference("blue500");
+	borderColorOver     : PropertyReference("grey700");
+	borderColorDown     : PropertyReference("grey700");
 }

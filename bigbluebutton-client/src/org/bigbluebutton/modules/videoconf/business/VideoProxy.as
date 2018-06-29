@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.videoconf.business
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -29,7 +28,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	
+	import flash.net.ObjectEncoding;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -49,13 +48,11 @@ package org.bigbluebutton.modules.videoconf.business
 		private static const LOGGER:ILogger = getClassLogger(VideoProxy);
 		
 		public var videoOptions:VideoConfOptions;
-		
 		private var nc:NetConnection;
 		private var camerasPublishing:Object = new Object();
 		private var reconnect:Boolean = false;
 		private var reconnecting:Boolean = false;
 		private var dispatcher:Dispatcher = new Dispatcher();
-
 		private var videoConnUrl: String;
 		private var numNetworkChangeCount:int = 0;
 		
@@ -68,7 +65,6 @@ package org.bigbluebutton.modules.videoconf.business
 		{
 			parseOptions();			
 			nc = new NetConnection();
-
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<application xmlns="http://ns.adobe.com/air/application/23.0">
+<application xmlns="http://ns.adobe.com/air/application/29.0">
 
 <!-- Adobe AIR Application Descriptor File Template.
 
@@ -15,7 +15,7 @@
 
 	<!-- A universally unique application identifier. Must be unique across all AIR applications.
 	Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-	<id>Main</id>
+	<id>com.bigbluebutton.AIRClient</id>
 
 	<!-- Used as the filename for the application. Required. -->
 	<filename>BigBlueButton</filename>
@@ -50,7 +50,7 @@
 	<initialWindow>
 		<!-- The main SWF or HTML file of the application. Required. -->
 		<!-- Note: In Flash Builder, the SWF reference is set automatically. -->
-		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
+		<content>Main.swf</content>
 		
 		<!-- The title of the main window. Optional. -->
 		<!-- <title></title> -->
@@ -105,7 +105,7 @@
 
         <!-- The render mode for the app (either auto, cpu, gpu, or direct). Optional. Default auto -->
 
-        <!-- <renderMode></renderMode> -->
+         <renderMode>direct</renderMode>
 
         <!-- Whether the default direct mode rendering context allocates storage for depth and stencil buffers.  Optional.  Default false. -->
         <!-- <depthAndStencil></depthAndStencil> -->
@@ -277,7 +277,8 @@
 
 
 	<android>
-		<colorDepth>16bit</colorDepth>
+		<colorDepth>32bit</colorDepth>
+	    <containsVideo>true</containsVideo>
 		<manifestAdditions>
 			<![CDATA[
 			<manifest android:installLocation="auto">
@@ -316,8 +317,16 @@
 					        <category android:name="android.intent.category.BROWSABLE" />
 					        <!-- <data android:scheme="http" android:host="bbb.mobi" android:pathPattern=".*" />-->
 					        <data android:scheme="bigbluebutton" />
+					        <data android:scheme="bigbluebuttons" />
 					    </intent-filter>
 					    <!-- End Test for URL scheme -->
+					    
+					    <intent-filter>
+					        <action android:name="android.intent.action.VIEW" />
+					        <category android:name="android.intent.category.DEFAULT" />
+					        <category android:name="android.intent.category.BROWSABLE" />
+					        <data android:scheme="bigbluebuttons" />
+					    </intent-filter>
 					</activity>
 					<service android:name="com.juankpro.ane.localnotif.LocalNotificationIntentService"/>
                     <receiver android:name="com.juankpro.ane.localnotif.AlarmIntentService" />
@@ -333,6 +342,9 @@
 		</manifestAdditions>
 	</android>
 	<iPhone>
+
+		<assetsCar>Assets.car</assetsCar>
+
 		<InfoAdditions>
 			<![CDATA[
 			<key>UIDeviceFamily</key>
@@ -340,13 +352,23 @@
 				<string>1</string>
 				<string>2</string>
 			</array>
-	 
+			
+			<key>NSCameraUsageDescription</key>
+            <string>Share your webcam to join video conference</string>
+			
+            <key>NSMicrophoneUsageDescription</key>
+            <string>Share your microphone to join audio conference</string>
+			
+			<key>CFBundleIconName</key>
+			<string>AppIcon</string>
+
 			<key>CFBundleURLTypes</key>
 			<array>
 				<dict>
 					<key>CFBundleURLSchemes</key>
 					<array>
 						<string>bigbluebutton</string>
+						<string>bigbluebuttons</string>
 					</array>
 					<key>CFBundleURLName</key>
 					<string>org.bigbluebutton</string>

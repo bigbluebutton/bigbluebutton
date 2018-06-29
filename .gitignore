@@ -26,6 +26,7 @@ bigbluebutton-web/.classpath
 bigbluebutton-web/.project
 akka-bbb-apps/akka-bbb-apps*.log
 bigbluebutton-html5/log/development.log
+bigbluebutton-client/.actionScriptProperties
 bigbluebutton-web/target-eclipse*
 record-and-playback/.loadpath
 clients/flash/**/build

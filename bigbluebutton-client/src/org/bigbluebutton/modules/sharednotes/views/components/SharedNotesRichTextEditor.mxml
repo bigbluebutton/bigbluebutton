@@ -194,7 +194,7 @@
  @playerversion AIR 1.1
  @productversion Flex 3
  -->
- <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
+ <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"  xmlns:common="org.bigbluebutton.common.*" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
     <fx:Metadata>
         <![CDATA[
         /**
@@ -948,7 +948,7 @@
         lastCaretIndex = textArea.getTextField().caretIndex;
         invalidateToolBarFlag = false;
     }
-    private function setComboSelection(combo:ComboBox,val:String):void
+    private function setComboSelection(combo:ComboBox2,val:String):void
     {
         var length:uint = combo.dataProvider.length;
 
@@ -1287,13 +1287,13 @@
         <mx:ToolBar id="toolbar"
                 width="100%"
                 horizontalGap="7">
-            <mx:ComboBox id="fontFamilyCombo"
+            <common:ComboBox2 id="fontFamilyCombo"
                 editable="true"
                 creationComplete="getTextStyles();lastCaretIndex = -1;"
                 dataProvider = "{fontFamilyArray}"
                 close="setTextStyles('font');"
                 enter="setTextStyles('font');"/>
-            <mx:ComboBox id="fontSizeCombo"
+            <common:ComboBox2 id="fontSizeCombo"
                 editable="true"
                 paddingLeft="2" paddingRight="2"
                 dataProvider = "{fontSizeArray}"

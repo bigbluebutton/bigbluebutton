@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-	compile 'org.bigbluebutton:bbb-common-web:0.0.1-SNAPSHOT'
+	compile 'org.bigbluebutton:bbb-common-web:0.0.2-SNAPSHOT'
 
 
   // XML creation speedup

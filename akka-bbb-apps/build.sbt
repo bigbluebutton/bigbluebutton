@@ -6,7 +6,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.2"
 
-scalaVersion  := "2.12.2"
+scalaVersion := "2.12.2"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -38,8 +38,8 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-val akkaVersion  = "2.5.1"
-val scalaTestV  = "2.2.6"
+val akkaVersion       = "2.5.1"
+val scalaTestVersion  = "3.0.1"
 
 libraryDependencies ++= {
   Seq(
@@ -53,15 +53,15 @@ libraryDependencies ++= {
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
 // https://mvnrepository.com/artifact/org.scala-lang/scala-library
-libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-library" % scalaVersion.value
 // https://mvnrepository.com/artifact/org.scala-lang/scala-compiler
-libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
 
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.12
-libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % "2.5.1"
+libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % akkaVersion
 
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-slf4j_2.12
-libraryDependencies += "com.typesafe.akka" % "akka-slf4j_2.12" % "2.5.1"
+libraryDependencies += "com.typesafe.akka" % "akka-slf4j_2.12" % akkaVersion
 
 // https://mvnrepository.com/artifact/com.github.etaty/rediscala_2.12
 libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
@@ -76,17 +76,16 @@ libraryDependencies += "org.parboiled" % "parboiled-scala_2.12" % "1.1.8"
 libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
 
 
-
 // For generating test reports
 libraryDependencies += "org.pegdown" % "pegdown" % "1.6.0" % "test"
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.12
-libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.1" % "test"
+libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.12" % akkaVersion % "test"
 
 // https://mvnrepository.com/artifact/org.scalactic/scalactic_2.12
 libraryDependencies += "org.scalactic" % "scalactic_2.12" % "3.0.3" % "test"
 
 // https://mvnrepository.com/artifact/org.scalatest/scalatest_2.12
-libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.3" % "test"
+libraryDependencies += "org.scalatest" % "scalatest_2.12" % scalaTestVersion % "test"
 
 libraryDependencies += "org.mockito" % "mockito-core" % "2.7.22" % "test"
 

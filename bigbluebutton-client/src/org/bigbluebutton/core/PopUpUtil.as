@@ -133,15 +133,17 @@ package org.bigbluebutton.core {
 		}
 
 		public static function lockPosition(popUp:*, positionFunction:Function = null):void {
-			var resizeHandler:Function = function():void {
-				if (positionFunction != null) {
-					var newPosition:Point = positionFunction.apply();
-					popUp.move(newPosition.x, newPosition.y);
-				}
-			};
-			popUp.addEventListener(FlexEvent.CREATION_COMPLETE, resizeHandler);
-			Application(FlexGlobals.topLevelApplication).addEventListener(ResizeEvent.RESIZE, resizeHandler);
-			lockedPositions[getQualifiedClassName(popUp)] = resizeHandler;
+			if (lockedPositions[getQualifiedClassName(popUp)] == undefined) {
+				var resizeHandler:Function = function():void {
+					if (positionFunction != null) {
+						var newPosition:Point = positionFunction.apply();
+						popUp.move(newPosition.x, newPosition.y);
+					}
+				};
+				popUp.addEventListener(FlexEvent.CREATION_COMPLETE, resizeHandler);
+				Application(FlexGlobals.topLevelApplication).addEventListener(ResizeEvent.RESIZE, resizeHandler);
+				lockedPositions[getQualifiedClassName(popUp)] = resizeHandler;
+			}
 		}
 
 		public static function unlockPosition(popUp:*):void {

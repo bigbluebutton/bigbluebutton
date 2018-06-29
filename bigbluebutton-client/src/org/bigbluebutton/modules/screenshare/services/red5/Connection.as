@@ -18,40 +18,42 @@
  */
 
 package org.bigbluebutton.modules.screenshare.services.red5 {
-    import com.asfusion.mate.events.Dispatcher;
-    
-    import flash.events.NetStatusEvent;
-    import flash.events.SecurityErrorEvent;
-    import flash.net.NetConnection;
-    import flash.net.ObjectEncoding;
-    import flash.net.Responder;
-    
-    import org.as3commons.logging.api.ILogger;
-    import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.core.BBB;
-    import org.bigbluebutton.core.Options;
-    import org.bigbluebutton.core.UsersUtil;
-    import org.bigbluebutton.core.managers.ReconnectionManager;
-    import org.bigbluebutton.main.events.BBBEvent;
-    import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-    import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-    import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-    import org.bigbluebutton.util.ConnUtil;
+	import com.asfusion.mate.events.Dispatcher;
+	import flash.events.NetStatusEvent;
+	import flash.events.SecurityErrorEvent;
+	import flash.net.NetConnection;
+	import flash.net.ObjectEncoding;
+	import flash.net.Responder;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+	import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
+	
+	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+	import org.bigbluebutton.util.ConnUtil;
 		
-    public class Connection {
-        private static const LOGGER:ILogger = getClassLogger(Connection);
-        
-        private var netConnection:NetConnection;
-        private var responder:Responder;
-        private var width:Number;
-        private var height:Number;
-        
-        private var dispatcher:Dispatcher = new Dispatcher();
-        private var _messageListeners:Array = new Array();
-        private var logoutOnUserCommand:Boolean = false;
-        private var reconnecting:Boolean = false;
-				private var numNetworkChangeCount:int = 0;
+	public class Connection {
+		private static const LOGGER:ILogger = getClassLogger(Connection);
+		
+		private var netConnection:NetConnection;
+		private var responder:Responder;
+		private var width:Number;
+		private var height:Number;
+		
+		private var dispatcher:Dispatcher = new Dispatcher();
+		private var _messageListeners:Array = new Array();
+		private var logoutOnUserCommand:Boolean = false;
+		private var reconnecting:Boolean = false;
+
 				private var ssAppUrl: String = null;
+				private var numNetworkChangeCount:int = 0;
 				
 			public function connect():void {
 				netConnection = new NetConnection();
@@ -240,7 +242,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                // LOGGER.error(status);
             }, message);
         }
-        
+
         public function onBWCheck(... rest):Number {
             return 0;
         }

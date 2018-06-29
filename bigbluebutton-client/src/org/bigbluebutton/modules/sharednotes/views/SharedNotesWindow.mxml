@@ -552,6 +552,10 @@
 			public function getPrefferedPosition():String {
 				return MainCanvas.POPUP;
 			}
+			
+			public function getName():String {
+				return "SharedNotesWindow";
+			}
 
 			override protected function resourcesChanged():void {
 				super.resourcesChanged();

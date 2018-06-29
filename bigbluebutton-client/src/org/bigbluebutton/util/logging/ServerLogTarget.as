@@ -24,7 +24,6 @@ package org.bigbluebutton.util.logging
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.URLVariables;
 	import flash.utils.Timer;
 
 	import org.as3commons.lang.ArrayUtils;

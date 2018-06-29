@@ -19,18 +19,14 @@
 package org.bigbluebutton.red5;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.client.IClientInGW;
 import org.bigbluebutton.client.ConnInfo;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
-import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
@@ -45,11 +41,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
 
 	private ConnectionInvokerService connInvokerService;
-	private MessagePublisher red5InGW;
 	private IClientInGW clientInGW;
 	private Integer maxMessageLength = 1024;
 
-	private final String APP = "BBB";
 	private final String CONN = "RED5-";
 	
 	@Override
@@ -319,17 +313,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		String token = bbbSession.getAuthToken();
 		return new ConnInfo(meetingId, userId, token, connId, sessionId);
 	}
-	
-	private BigBlueButtonSession getBbbSession() {
-		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}
 
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
 		this.connInvokerService = connInvokerService;
-	}
-	
-	public void setRed5Publisher(MessagePublisher red5InGW) {
-		this.red5InGW = red5InGW;
 	}
 
 	public void setClientInGW(IClientInGW clientInGW) {

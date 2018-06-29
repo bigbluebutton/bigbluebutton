@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var time:String;
 		[Bindable] public var lastTime:String;
 		[Bindable] public var text:String;
+		[Bindable] public var differentLastSenderAndTime:Boolean;
 
 	    // Stores the time (millis) when the sender sent the message.
 	    public var fromTime:Number;

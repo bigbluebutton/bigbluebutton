@@ -1,16 +1,14 @@
 package org.bigbluebutton.core.apps.screenshare
 
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.bus.MessageBus
 
 trait GetScreenshareStatusReqMsgHdlr {
   this: ScreenshareApp2x =>
 
-  // val liveMeeting: LiveMeeting
-  val outGW: OutMsgRouter
-
-  def handleGetScreenshareStatusReqMsg(msg: GetScreenshareStatusReqMsg) {
+  def handle(msg: GetScreenshareStatusReqMsg, liveMeeting: LiveMeeting, bus: MessageBus) {
 
     def broadcastEvent(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
 
@@ -42,7 +40,7 @@ trait GetScreenshareStatusReqMsgHdlr {
     if (ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
 
       val msgEvent = broadcastEvent(liveMeeting.props.meetingProp.intId, msg.body.requestedBy)
-      outGW.send(msgEvent)
+      bus.outGW.send(msgEvent)
     }
   }
 }

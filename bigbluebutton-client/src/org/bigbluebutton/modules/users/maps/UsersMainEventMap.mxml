@@ -105,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
 	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
 	  </EventHandlers>
-	  
+
 	  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
 	    <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
 	  </EventHandlers>
@@ -117,6 +117,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
 	    <MethodInvoker generator="{UserService}" method="activityResponse" />
 	  </EventHandlers>
+		
+		<EventHandlers type="{BBBEvent.USER_INACTIVITY_AUDIT_RESPONSE_EVENT}">
+			<MethodInvoker generator="{UserService}" method="userInactivityAuditResponse" />
+		</EventHandlers>
 
     <EventHandlers type="{TokenValidEvent.TOKEN_VALID_EVENT}" >
       <MethodInvoker generator="{UserService}" method="tokenValidEventHandler" arguments="{event}" />
@@ -201,14 +205,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    <MethodInvoker generator="{UserService}" method="guestDisconnect" />
 	    <MethodInvoker generator="{UserService}" method="logoutUser" />
 	  </EventHandlers>
-	
-	  <EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
-	    <MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
-	    <!-- MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" /-->
-	  </EventHandlers>
-	
-	  <EventHandlers type="{ResponseModeratorEvent.RESPONSE_ALL}" >
-	    <MethodInvoker generator="{UserService}" method="responseToAllGuest" arguments="{event}" />
+		
+	  <EventHandlers type="{ResponseModeratorEvent.ALLOW_GUESTS}" >
+	    <MethodInvoker generator="{UserService}" method="handleApproveGuestAccess" arguments="{event}" />
 	  </EventHandlers>
 	
 	  <EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >

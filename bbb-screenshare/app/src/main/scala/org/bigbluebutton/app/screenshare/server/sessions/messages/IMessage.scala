@@ -50,3 +50,5 @@ case class MeetingEnded(meetingId: String)
 case class MeetingCreated(meetingId: String, record: Boolean)
 
 case class ClientPongMessage(meetingId: String, userId: String, streamId: String, timestamp: Long)
+
+case class RecordingChapterBreak(meetingId: String, timestamp: Long)

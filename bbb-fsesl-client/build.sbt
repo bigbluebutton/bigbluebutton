@@ -6,7 +6,7 @@ description := "BigBlueButton custom FS-ESL client built on top of FS-ESL Java l
 
 organization := "org.bigbluebutton"
 
-version := "0.0.5"
+version := "0.0.6"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -59,6 +59,13 @@ publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.
 publishMavenStyle := true
 
 publishArtifact in Test := false
+
+// http://www.scala-sbt.org/release/docs/Artifacts.html
+// disable publishing the main API jar
+publishArtifact in (Compile, packageDoc) := false
+
+// disable publishing the main sources jar
+publishArtifact in (Compile, packageSrc) := false
 
 pomIncludeRepository := { _ => false }
 

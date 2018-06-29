@@ -18,14 +18,20 @@
 */
 package org.bigbluebutton.app.video;
 
-
 import java.util.Map;
-
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Protocol;
 
 public class EventRecordingService {
+	private static Logger log = Red5LoggerFactory.getLogger(EventRecordingService.class, "video");
+
 	private static final String COLON = ":";
-	
+
+	private JedisPool redisPool;
 	private final String  host;
 	private final int port;
 	private final int keyExpiry;
@@ -36,19 +42,37 @@ public class EventRecordingService {
 		this.keyExpiry = keyExpiry;
 	}
 	
-	public void record(String meetingId, Map<String, String> event) {		
-		Jedis jedis = new Jedis(host, port);
-		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		String key = "recording:" + meetingId + COLON + msgid;
-		jedis.hmset(key, event);
-		/**
-		 * We set the key to expire after 14 days as we are still
-		 * recording the event into redis even if the meeting is not
-		 * recorded. (ralam sept 23, 2015) 
-		 */
-		jedis.expire(key, keyExpiry);
-		key = "meeting:" + meetingId + COLON + "recordings";
-		jedis.rpush(key, msgid.toString());	
-		jedis.expire(key, keyExpiry);
+	public void record(String meetingId, Map<String, String> event) {
+		Jedis jedis = redisPool.getResource();
+		try {
+			Long msgid = jedis.incr("global:nextRecordedMsgId");
+			String key = "recording:" + meetingId + COLON + msgid;
+			jedis.hmset(key, event);
+			/**
+			 * We set the key to expire after 14 days as we are still
+			 * recording the event into redis even if the meeting is not
+			 * recorded. (ralam sept 23, 2015)
+			 */
+			jedis.expire(key, keyExpiry);
+			key = "meeting:" + meetingId + COLON + "recordings";
+			jedis.rpush(key, msgid.toString());
+			jedis.expire(key, keyExpiry);
+		} catch (Exception e) {
+			log.warn("Cannot record the info meeting:" + meetingId, e);
+		} finally {
+			jedis.close();
+		}
+
+	}
+
+	public void stop() {
+
+	}
+
+	public void start() {
+		// Set the name of this client to be able to distinguish when doing
+		// CLIENT LIST on redis-cli
+		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+			Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
 	}
 }

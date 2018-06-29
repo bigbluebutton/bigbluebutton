@@ -74,6 +74,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return MainCanvas.BOTTOM_LEFT;
 			}
 			
+			public function getName():String {
+				return "VideoDock";
+			}
+			
 			private function hotkeyCapture():void {
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing

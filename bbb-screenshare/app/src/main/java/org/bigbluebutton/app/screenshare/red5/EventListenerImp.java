@@ -6,11 +6,13 @@ import org.bigbluebutton.app.screenshare.events.*;
 import com.google.gson.Gson;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.bigbluebutton.app.screenshare.MeetingManager;
 
 public class EventListenerImp implements IEventListener {
   private static Logger log = Red5LoggerFactory.getLogger(EventListenerImp.class, "screenshare");
   private ConnectionInvokerService sender;
-  
+  private MeetingManager meetingManager;
+
   @Override
   public void handleMessage(IEvent event) {
     if (event instanceof ScreenShareStartedEvent) {
@@ -27,6 +29,9 @@ public class EventListenerImp implements IEventListener {
         sendIsScreenSharingResponse((IsScreenSharingResponse) event);
     } else if (event instanceof ScreenShareClientPing) {
       sendScreenShareClientPing((ScreenShareClientPing) event);
+    } else if (event instanceof RecordChapterBreakMessage) {
+      RecordChapterBreakMessage rcbm = (RecordChapterBreakMessage) event;
+      meetingManager.stopStartAllRecordings(rcbm.meetingId);
     } else if (event instanceof UnauthorizedBroadcastStreamEvent) {
       sendUnauthorizedBroadcastStreamEvent((UnauthorizedBroadcastStreamEvent) event);
     }
@@ -213,7 +218,10 @@ public class EventListenerImp implements IEventListener {
 
 
   }
-  
+
+  public void setMeetingManager(MeetingManager meetingManager) {
+    this.meetingManager = meetingManager;
+  }
 
   public void setMessageSender(ConnectionInvokerService sender) {
     this.sender = sender;

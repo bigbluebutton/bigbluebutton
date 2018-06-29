@@ -168,16 +168,16 @@ package org.bigbluebutton.main.model.modules
 				unresolvedDependancies.addItem(dependancies[i]);
 			}
 		}
-		
-		public function loadConfigAttributes(protocol:String):void{
-      var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
-      var userName: String = LiveMeeting.inst().me.name;
-      var role: String = LiveMeeting.inst().me.role;
-      var intUserId: String = LiveMeeting.inst().me.id;
-      var voiceConf: String = LiveMeeting.inst().meeting.voiceConf;
-      var welcome: String = LiveMeeting.inst().me.welcome;
-      var extUserId: String = LiveMeeting.inst().me.externalId;
- 
+
+		public function loadConfigAttributes(protocol:String):void {
+			var intMeetingId:String = LiveMeeting.inst().meeting.internalId;
+			var userName:String = LiveMeeting.inst().me.name;
+			var role:String = LiveMeeting.inst().me.role;
+			var intUserId:String = LiveMeeting.inst().me.id;
+			var voiceConf:String = LiveMeeting.inst().meeting.voiceConf;
+			var welcome:String = LiveMeeting.inst().me.welcome;
+			var extUserId:String = LiveMeeting.inst().me.externalId;
+
 			addAttribute("conference", intMeetingId);
 			addAttribute("username", userName);
 			addAttribute("userrole", role);

@@ -18,14 +18,11 @@ package org.bigbluebutton.modules.sharednotes.views
 	{
 		private static const LOGGER:ILogger = getClassLogger(AdditionalSharedNotesWindow);
 
-		private var _windowName:String;
-
 		public function AdditionalSharedNotesWindow(n:String) {
 			super();
 
 			LOGGER.debug("AdditionalSharedNotesWindow: in-constructor additional notes " + n);
 			_noteId = n;
-			_windowName = "AdditionalSharedNotesWindow_" + noteId;
 
 			options = Options.getOptions(SharedNotesOptions) as SharedNotesOptions;
 
@@ -34,8 +31,8 @@ package org.bigbluebutton.modules.sharednotes.views
 			height = 240;
 		}
 
-		public function get windowName():String {
-			return this._windowName;
+		override public function getName():String {
+			return "AdditionalSharedNotesWindow_" + noteId;
 		}
 
 		public function set noteName(name:String):void {

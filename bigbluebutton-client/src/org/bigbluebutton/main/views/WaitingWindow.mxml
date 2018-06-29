@@ -31,7 +31,6 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public function removeWindow():void {
-				PopUpUtil.unlockPosition(this);
 				PopUpUtil.removePopUp(this);
 			}
 		]]>

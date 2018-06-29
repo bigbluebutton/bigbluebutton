@@ -81,6 +81,9 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserBroadcastCamStopMsg => logMessage(msg)
       case m: UserBroadcastCamStoppedEvtMsg => logMessage(msg)
       case m: UserBroadcastCamStartedEvtMsg => logMessage(msg)
+      case m: EjectUserFromMeetingSysMsg => logMessage(msg)
+
+      case m: ChangeUserRoleCmdMsg => logMessage(msg)
 
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
@@ -89,12 +92,34 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
+      case m: SetPresentationDownloadablePubMsg => logMessage(msg)
+      case m: SetPresentationDownloadableEvtMsg => logMessage(msg)
+
+      // Group Chats
+      case m: SendGroupChatMessageMsg => logMessage(msg)
+      case m: GroupChatMessageBroadcastEvtMsg => logMessage(msg)
+      case m: GetGroupChatMsgsReqMsg => logMessage(msg)
+      case m: GetGroupChatMsgsRespMsg => logMessage(msg)
+      case m: CreateGroupChatReqMsg => logMessage(msg)
+      case m: GroupChatCreatedEvtMsg => logMessage(msg)
+      case m: GetGroupChatsReqMsg => logMessage(msg)
+      case m: GetGroupChatsRespMsg => logMessage(msg)
+
+      // Guest Management
+      case m: GuestsWaitingApprovedMsg => logMessage(msg)
+      case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
+      case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
+      case m: SetGuestPolicyCmdMsg => logMessage(msg)
+      case m: GuestPolicyChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
       case m: ValidateConnAuthTokenSysMsg => traceMessage(msg)
       case m: ValidateConnAuthTokenSysRespMsg => traceMessage(msg)
+
+      // Recording
+      case m: RecordingChapterBreakSysMsg => logMessage(msg)
 
       case _ => // ignore message
     }

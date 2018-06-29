@@ -71,9 +71,10 @@ package org.bigbluebutton.modules.present.business
 		 * @param file - The FileReference class of the file we wish to send
 		 * 
 		 */		
-		public function upload(presentationName:String, file:FileReference, downloadable:Boolean):void {
+		public function upload(podId: String, presentationName:String, file:FileReference, downloadable:Boolean):void {
 			sendVars.presentation_name = presentationName;
 			sendVars.is_downloadable = downloadable;
+			sendVars.pod_id = podId;
 			var fileToUpload : FileReference = new FileReference();
 			fileToUpload = file;
 			

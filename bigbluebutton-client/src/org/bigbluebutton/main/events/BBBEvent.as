@@ -59,7 +59,6 @@ package org.bigbluebutton.main.events {
 		public static const ACCEPT_ALL_WAITING_GUESTS:String = "BBB_ACCEPT_ALL_WAITING_GUESTS";
 		public static const DENY_ALL_WAITING_GUESTS:String = "BBB_DENY_ALL_WAITING_GUESTS";
 		public static const BROADCAST_GUEST_POLICY:String = "BBB_BROADCAST_GUEST_POLICY";
-		public static const RETRIEVE_GUEST_POLICY:String = "BBB_RETRIEVE_GUEST_POLICY";
 		public static const MODERATOR_ALLOWED_ME_TO_JOIN:String = "MODERATOR_ALLOWED_ME_TO_JOIN";
 		public static const WAITING_FOR_MODERATOR_ACCEPTANCE:String = "WAITING_FOR_MODERATOR_ACCEPTANCE";
 		public static const ADD_GUEST_TO_LIST:String = "ADD_GUEST_TO_LIST";
@@ -76,6 +75,9 @@ package org.bigbluebutton.main.events {
 
 		public static const CANCEL_RECONNECTION_EVENT:String = "CANCEL_RECONNECTION_EVENT";
 		public static const WEBRTC_MONITOR_UPDATE_EVENT:String = "WEBRTC_MONITOR_UPDATE_EVENT";
+		
+		public static const USER_INACTIVITY_AUDIT_EVENT:String = "user_inactivity_audit_event";
+		public static const USER_INACTIVITY_AUDIT_RESPONSE_EVENT:String = "user_inactivity_audit_response_event";
 
 		public var message:String;
 		public var payload:Object = new Object();

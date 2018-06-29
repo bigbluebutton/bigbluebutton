@@ -38,7 +38,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function getPrefferedPosition():String{
         var options:NotesOptions = new NotesOptions();
         return options.position;
-      } 
+      }
+      
+      public function getName():String {
+        return "NotesWindow";
+      }
       
       private function onCreationComplete():void {
         this.title = ResourceUtil.getInstance().getString("bbb.notes.title");

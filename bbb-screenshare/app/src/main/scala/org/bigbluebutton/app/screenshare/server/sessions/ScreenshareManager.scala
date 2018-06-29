@@ -21,8 +21,9 @@ package org.bigbluebutton.app.screenshare.server.sessions
 import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.StopSession
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, ScreenShareRequestTokenFailedResponse, UnauthorizedBroadcastStreamEvent}
+import org.bigbluebutton.app.screenshare.events._
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 
 object ScreenshareManager {
@@ -57,9 +58,14 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     case msg: MeetingEnded             => handleMeetingHasEnded(msg)
     case msg: MeetingCreated              => handleMeetingCreated(msg)
     case msg: ClientPongMessage           => handleClientPongMessage(msg)
+    case msg: RecordingChapterBreak       => handleRecordingChapterBreak(msg)
     case msg: AuthorizeBroadcastStreamMessage => handleAuthorizeBroadcastStreamMessage(msg)
 
     case msg: Any => log.warning("Unknown message " + msg)
+  }
+
+  private def handleRecordingChapterBreak(msg: RecordingChapterBreak): Unit = {
+    bus.send(new RecordChapterBreakMessage(msg.meetingId, msg.timestamp))
   }
 
   private def handleClientPongMessage(msg: ClientPongMessage) {

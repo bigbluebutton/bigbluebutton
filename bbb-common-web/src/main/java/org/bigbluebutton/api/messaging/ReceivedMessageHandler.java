@@ -1,13 +1,11 @@
 package org.bigbluebutton.api.messaging;
 
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.bigbluebutton.api.IReceivedOldMessageHandler;
 import org.bigbluebutton.api.messaging.messages.IMessage;
-import org.bigbluebutton.api2.bus.OldMessageReceivedGW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

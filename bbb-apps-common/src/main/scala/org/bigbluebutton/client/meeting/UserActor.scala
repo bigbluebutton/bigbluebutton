@@ -24,12 +24,13 @@ class UserActor(val userId: String,
   extends Actor with ActorLogging with SystemConfiguration {
 
   private val conns = new Connections
+  private var authorized = false
 
   def receive = {
 
     case msg: ConnectMsg => handleConnectMsg(msg)
     case msg: DisconnectMsg => handleDisconnectMsg(msg)
-    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
+    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg, true)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
     case _ => log.debug("***** UserActor cannot handle msg ")
   }
@@ -51,6 +52,7 @@ class UserActor(val userId: String,
         val m = createConnection(msg.connInfo.connId, msg.connInfo.sessionId, true)
         log.debug("**** UserActor create connection " + m.connId)
         Connections.add(conns, m)
+        authorized = false
     }
   }
 
@@ -66,7 +68,7 @@ class UserActor(val userId: String,
     if (Connections.noMoreConnections(conns)) {
       val json = buildUserLeavingMessage(msg.connInfo)
       val msgFromClient = MsgFromClientMsg(msg.connInfo, json)
-      handleMsgFromClientMsg(msgFromClient)
+      handleMsgFromClientMsg(msgFromClient, false)
     }
   }
 
@@ -77,10 +79,20 @@ class UserActor(val userId: String,
     JsonUtil.toJson(event)
   }
 
+  private def buildEjectUserFromMeetingSysMsg(meetingId: String, userId: String): String = {
+    val header = BbbClientMsgHeader(EjectUserFromMeetingSysMsg.NAME, meetingId, userId)
+    val body = EjectUserFromMeetingSysMsgBody(userId, "bbb-apps")
+    val event = EjectUserFromMeetingSysMsg(header, body)
+    JsonUtil.toJson(event)
+  }
 
-  def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
+  private def sendEjectUserFromMeetingToAkkaApps(connInfo: ConnInfo, meetingId: String, userId: String): Unit = {
+    val json = buildEjectUserFromMeetingSysMsg(meetingId, userId)
+    val msgFromClient = MsgFromClientMsg(connInfo, json)
+    handleMsgFromClientMsg(msgFromClient, false)
+  }
 
-
+  def handleMsgFromClientMsg(msg: MsgFromClientMsg, applyWhitelist: Boolean):Unit = {
     def convertToJsonNode(json: String): Option[JsonNode] = {
       JsonUtil.toJsonNode(json) match {
         case Success(jsonNode) => Some(jsonNode)
@@ -94,27 +106,44 @@ class UserActor(val userId: String,
     val (result, error) = Deserializer.toBbbCoreMessageFromClient(msg.json)
     result match {
       case Some(msgFromClient) =>
-        val routing = Routing.addMsgFromClientRouting(msgFromClient.header.meetingId, msgFromClient.header.userId)
-        val envelope = new BbbCoreEnvelope(msgFromClient.header.name, routing)
-
-        if (msgFromClient.header.name == "ClientToServerLatencyTracerMsg") {
-          log.info("-- trace -- " + msg.json)
+        if (applyWhitelist && !AllowedMessageNames.MESSAGES.contains(msgFromClient.header.name)) {
+          // If the message that the client sends isn't allowed disconnect them.
+          log.error("User (" + userId + ") tried to send a non-whitelisted message with name=[" + msgFromClient.header.name + "] attempting to disconnect them")
+          for {
+            conn <- Connections.findActiveConnection(conns)
+          } yield {
+            msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+            // Tell Akka apps to eject user from meeting.
+            sendEjectUserFromMeetingToAkkaApps(msg.connInfo, meetingId, userId)
+          }
+        } else {
+          // Override the meetingId and userId on the message from client. This
+          // will prevent spoofing of messages. (ralam oct 30, 2017)
+          val newHeader = BbbClientMsgHeader(msgFromClient.header.name, meetingId, userId)
+          val msgClient = msgFromClient.copy(header = newHeader)
+          
+          val routing = Routing.addMsgFromClientRouting(msgClient.header.meetingId, msgClient.header.userId)
+          val envelope = new BbbCoreEnvelope(msgClient.header.name, routing)
+  
+          if (msgClient.header.name == "ClientToServerLatencyTracerMsg") {
+            log.info("-- trace -- " + msg.json)
+          }
+  
+          val json = JsonUtil.toJson(msgClient)
+          for {
+            jsonNode <- convertToJsonNode(json)
+          } yield {
+            val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
+            msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+          }
         }
-
-        for {
-          jsonNode <- convertToJsonNode(msg.json)
-        } yield {
-          val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
-          msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
-        }
-
       case None =>
         log.error("Failed to convert message with error: " + error)
     }
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** UserActor handleBbbServerMsg " + msg)
+    //log.debug("**** UserActor handleBbbServerMsg " + msg)
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {
@@ -123,7 +152,7 @@ class UserActor(val userId: String,
   }
 
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("**** UserActor handleServerMsg " + msg)
+   // log.debug("**** UserActor handleServerMsg " + msg)
     msgType match {
       case MessageTypes.DIRECT => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
@@ -132,11 +161,24 @@ class UserActor(val userId: String,
   }
 
   private def forwardToUser(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("UserActor forwardToUser. Forwarding to connection. " + msg)
+    //println("UserActor forwardToUser. Forwarding to connection. " + msg)
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {
-      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
+      msg.envelope.name match {
+        case ValidateAuthTokenRespMsg.NAME =>
+          val core = msg.core.asInstanceOf[JsonNode]
+          val body = core.get("body")
+          val valid = body.get("valid")
+          if (valid.asBoolean) {
+             authorized = true
+          }
+        case _ => // let it pass through
+      }
+      if (authorized) {
+        msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
+      }
+
     }
   }
 
@@ -157,6 +199,7 @@ class UserActor(val userId: String,
       msg.envelope.name match {
         case DisconnectClientSysMsg.NAME =>
           msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DisconnectClientMsg(meetingId, conn.connId)))
+        case _ => log.warning("Unhandled system messsage " + msg)
       }
     }
   }

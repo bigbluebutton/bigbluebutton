@@ -17,6 +17,9 @@ package org.bigbluebutton.core.model
     public var webcamsOnlyForModerator:Boolean = false;
     public var metadata:Object = null;
     public var muteOnStart:Boolean = false;
+	public var logoutTimer:int=0;
+	public var bannerColor:String = "";
+	public var bannerText:String = "";
     public var customLogo:String = "";
     public var customCopyright:String = "";
   }

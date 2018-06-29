@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.chat.services
 {
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.IEventDispatcher;
   import flash.external.ExternalInterface;
   
@@ -25,109 +27,73 @@ package org.bigbluebutton.modules.chat.services
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+  import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+  import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
+  import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+  import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.util.i18n.ResourceUtil;
-
+  
   public class ChatMessageService
   {
-	private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
+    private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var dispatcher:IEventDispatcher;
+    private var globalDispatcher:Dispatcher = new Dispatcher();
     
-    public function sendPublicMessageFromApi(message:Object):void
+    public function sendPublicMessageFromApi(event:SendGroupChatMessageEvent):void
     {
+      //sendPublicMessage(event.chatId, msgVO);
+    }
+    
+    public function sendPublicMessage(event:SendGroupChatMessageEvent):void {
       LOGGER.debug("sendPublicMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.fromUserId = message.fromUserID;
-      msgVO.fromUsername = message.fromUsername;
-      msgVO.fromColor = message.fromColor;
-      msgVO.fromTime = message.fromTime;
-      msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
-
-      msgVO.message = message.message;
+      msgVO.fromUserId = event.chatMessage.fromUserId;
+      msgVO.fromUsername = event.chatMessage.fromUsername;
+      msgVO.fromColor = event.chatMessage.fromColor;
       
-      sendPublicMessage(msgVO);
-    }    
-    
-    public function sendPrivateMessageFromApi(message:Object):void
-    {
-	  LOGGER.debug("sendPrivateMessageFromApi");
-      var msgVO:ChatMessageVO = new ChatMessageVO();
-      msgVO.fromUserId = message.fromUserID;
-      msgVO.fromUsername = message.fromUsername;
-      msgVO.fromColor = message.fromColor;
-      msgVO.fromTime = message.fromTime;
-      msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
-      
-      msgVO.toUserId = message.toUserID;
-      msgVO.toUsername = message.toUsername;
-      
-      msgVO.message = message.message;
-      
-      sendPrivateMessage(msgVO);
-
+      msgVO.message = event.chatMessage.message;
+      sender.sendPublicMessage(event.chatId, msgVO);
     }
     
-    public function sendPublicMessage(message:ChatMessageVO):void {
-      sender.sendPublicMessage(message);
+    public function handleCreateGCReqEvent(event:CreateGroupChatReqEvent):void {
+      // Right now we only support one-to-one private chats)
+      if (event.access == GroupChat.PRIVATE && event.users.length > 0) {
+        var chatWith: String = event.users[0] as String;
+        var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(chatWith)
+        if (gc != null) {
+          // Already chatting with this user. Open the chat box.
+          globalDispatcher.dispatchEvent(new OpenChatBoxEvent(gc.id));
+        } else {
+          // Not chatting yet with this user.
+          sender.createGroupChat(event.name, event.access, event.users);
+        }
+      } else {
+        sender.createGroupChat(event.name, event.access, event.users);
+      }
     }
     
-    public function sendPrivateMessage(message:ChatMessageVO):void {
-      sender.sendPrivateMessage(message);
+    public function getGroupChats():void {
+      sender.getGroupChats();
     }
     
-    public function getPublicChatMessages():void {
-      sender.getPublicChatMessages();
+    public function getGroupChatHistoryMessages(chatId: String):void {
+      sender.getGroupChatMsgHistory(chatId);
     }
-
+    
+    public function handleReceivedGroupChatsEvent():void {
+      var gcIds: Array = LiveMeeting.inst().chats.getGroupChatIds();
+      for (var i:int = 0; i < gcIds.length; i++) {
+        var gcId: String = gcIds[i];
+        sender.getGroupChatMsgHistory(gcId);
+      }
+    }
+    
     public function clearPublicChatMessages():void {
       sender.clearPublicChatMessages();
-    }
-    
-    private static const SPACE:String = " ";
-    
-    public function sendWelcomeMessage():void {
-	  LOGGER.debug("sendWelcomeMessage");
-      var welcome:String = LiveMeeting.inst().me.welcome;
-      if (welcome != "") {
-        var welcomeMsg:ChatMessageVO = new ChatMessageVO();
-        welcomeMsg.fromUserId = SPACE;
-        welcomeMsg.fromUsername = SPACE;
-        welcomeMsg.fromColor = "86187";
-        welcomeMsg.fromTime = new Date().getTime();
-        welcomeMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-        welcomeMsg.toUserId = SPACE;
-        welcomeMsg.toUsername = SPACE;
-        welcomeMsg.message = welcome;
-        
-        var welcomeMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-        welcomeMsgEvent.message = welcomeMsg;
-        dispatcher.dispatchEvent(welcomeMsgEvent);
-        
-        //Say that client is ready when sending the welcome message
-        ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
-      }	
-      
-      if (UsersUtil.amIModerator()) {
-        if (LiveMeeting.inst().meeting.modOnlyMessage != null) {
-          var moderatorOnlyMsg:ChatMessageVO = new ChatMessageVO();
-          moderatorOnlyMsg.fromUserId = SPACE;
-          moderatorOnlyMsg.fromUsername = SPACE;
-          moderatorOnlyMsg.fromColor = "86187";
-          moderatorOnlyMsg.fromTime = new Date().getTime();
-          moderatorOnlyMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
-          moderatorOnlyMsg.toUserId = SPACE;
-          moderatorOnlyMsg.toUsername = SPACE;
-          moderatorOnlyMsg.message = LiveMeeting.inst().meeting.modOnlyMessage;
-          
-          var moderatorOnlyMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-          moderatorOnlyMsgEvent.message = moderatorOnlyMsg;
-          dispatcher.dispatchEvent(moderatorOnlyMsgEvent);
-        }
-      }
     }
   }
 }

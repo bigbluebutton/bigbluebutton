@@ -35,13 +35,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import flash.net.URLLoader;
 			import flash.net.URLRequest;
 			import flash.net.URLRequestMethod;
-
+			
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
-
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
@@ -49,6 +50,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.ExitApplicationEvent;
+			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -60,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var urlLoader:URLLoader;
 			private var logoutReason:String;
-
+			
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
@@ -151,14 +154,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						message = ResourceUtil.getInstance().getString('bbb.logout.unknown');
 						break;
 					case ConnectionFailedEvent.USER_EJECTED_FROM_MEETING:
-						message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
+						var reasonCode: String = UsersUtil.getEjectReason();
+						if (reasonCode == "duplicate_user_in_meeting_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.duplicateUserEjectReason');
+						} else if (reasonCode == "not_enough_permission_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.permissionEjectReason');
+						} else if (reasonCode == "user_requested_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
+						} else if (reasonCode == "validate_token_failed_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.validateTokenFailedEjectReason');
+						} else if (reasonCode == "user_inactivity_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.userInactivityEjectReason');
+						}
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						break;
+					case MeetingNotFoundEvent.MEETING_NOT_FOUND:
+						message = ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound');
+						break; 
+					case InvalidAuthTokenEvent.INVALID_AUTH_TOKEN:
+						message = ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken')
+						break;  
 				}
 				if (message && UsersUtil.isBreakout()) {
-					message += "\n" + ResourceUtil.getInstance().getString('bbb.logour.breakoutRoomClose');
+					message += "\n" + ResourceUtil.getInstance().getString('bbb.logout.breakoutRoomClose');
 				}
 			}
 

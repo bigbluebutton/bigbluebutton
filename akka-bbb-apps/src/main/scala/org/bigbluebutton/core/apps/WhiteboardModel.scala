@@ -11,8 +11,6 @@ import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 class WhiteboardModel {
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
-  private var _multiUser = false
-
   private def saveWhiteboard(wb: Whiteboard) {
     _whiteboards += wb.id -> wb
   }
@@ -26,7 +24,7 @@ class WhiteboardModel {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(wbId, 0, new HashMap[String, List[AnnotationVO]]())
+    new Whiteboard(wbId, false, System.currentTimeMillis(), 0, new HashMap[String, List[AnnotationVO]]())
   }
 
   private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {
@@ -39,7 +37,7 @@ class WhiteboardModel {
     val rtnAnnotation = cleansePointsInAnnotation(annotation).copy(position = wb.annotationCount)
     val newAnnotationsMap = wb.annotationsMap + (userId -> (rtnAnnotation :: usersAnnotations))
 
-    val newWb = new Whiteboard(wb.id, wb.annotationCount + 1, newAnnotationsMap)
+    val newWb = wb.copy(annotationCount = wb.annotationCount + 1, annotationsMap = newAnnotationsMap)
     //println("Adding annotation to page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
     saveWhiteboard(newWb)
 
@@ -165,7 +163,7 @@ class WhiteboardModel {
     if (hasWhiteboard(wbId)) {
       val wb = getWhiteboard(wbId)
 
-      if (_multiUser) {
+      if (wb.multiUser) {
         if (wb.annotationsMap.contains(userId)) {
           val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
           saveWhiteboard(newWb)
@@ -186,7 +184,7 @@ class WhiteboardModel {
     var last: Option[AnnotationVO] = None
     val wb = getWhiteboard(wbId)
 
-    if (_multiUser) {
+    if (wb.multiUser) {
       val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
       //not empty and head id equals annotation id
@@ -215,13 +213,15 @@ class WhiteboardModel {
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 
-  def modifyWhiteboardAccess(multiUser: Boolean) {
-    _multiUser = multiUser
+  def modifyWhiteboardAccess(wbId: String, multiUser: Boolean) {
+    val wb = getWhiteboard(wbId)
+    val newWb = wb.copy(multiUser = multiUser, changedModeOn = System.currentTimeMillis())
+    saveWhiteboard(newWb)
   }
 
-  def getWhiteboardAccess(): Boolean = {
-    _multiUser
-  }
+  def getWhiteboardAccess(wbId: String): Boolean = getWhiteboard(wbId).multiUser
+
+  def getChangedModeOn(wbId: String): Long = getWhiteboard(wbId).changedModeOn
 
   def cleansePointsInAnnotation(ann: AnnotationVO): AnnotationVO = {
     var updatedAnnotationInfo = ann.annotationInfo

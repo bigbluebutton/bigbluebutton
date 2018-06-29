@@ -1,20 +1,31 @@
 package org.bigbluebutton.air.main {
 	
-	import org.bigbluebutton.air.main.commands.ConnectingFailedCommandAIR;
-	import org.bigbluebutton.air.main.commands.JoinMeetingCommandAIR;
+	import org.bigbluebutton.air.main.commands.ConnectingFailedCommand;
+	import org.bigbluebutton.air.main.commands.ConnectingFailedSignal;
+	import org.bigbluebutton.air.main.commands.JoinMeetingCommand;
+	import org.bigbluebutton.air.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.air.main.commands.NavigateToCommand;
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
+	import org.bigbluebutton.air.main.views.BannerView;
+	import org.bigbluebutton.air.main.views.BannerViewMediator;
+	import org.bigbluebutton.air.main.views.DisconnectView;
+	import org.bigbluebutton.air.main.views.DisconnectViewMediator;
+	import org.bigbluebutton.air.main.views.EmojiCallout;
+	import org.bigbluebutton.air.main.views.EmojiCalloutMediator;
+	import org.bigbluebutton.air.main.views.ExitView;
+	import org.bigbluebutton.air.main.views.ExitViewMediator;
 	import org.bigbluebutton.air.main.views.LoadingScreen;
 	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
+	import org.bigbluebutton.air.main.views.MainView;
+	import org.bigbluebutton.air.main.views.MainViewMediator;
+	import org.bigbluebutton.air.main.views.MenuButtons;
+	import org.bigbluebutton.air.main.views.MenuButtonsMediator;
 	import org.bigbluebutton.air.main.views.PagesNavigatorView;
 	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.air.main.views.TopToolbarMediatorAIR;
-	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
-	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
-	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
-	import org.bigbluebutton.lib.main.views.MenuButtonsMediatorBase;
-	import org.bigbluebutton.lib.main.views.TopToolbarBase;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
+	import org.bigbluebutton.air.main.views.TopToolbarMediator;
+	import org.bigbluebutton.air.main.views.UserInactivityPopUp;
+	import org.bigbluebutton.air.main.views.UserInactivityPopUpMediator;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -42,26 +53,26 @@ package org.bigbluebutton.air.main {
 			   mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
 			   mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
 			   mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
-			   mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
-			   mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
-			   mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
-			   mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
 			   mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
-			   mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
-			   mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
 			 */
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
 			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);
-			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);
-			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorBase);
+			mediatorMap.map(BannerView).toMediator(BannerViewMediator);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase)).toMediator(TopToolbarMediator);
+			mediatorMap.map(MenuButtons).toMediator(MenuButtonsMediator);
+			mediatorMap.map(EmojiCallout).toMediator(EmojiCalloutMediator);
+			mediatorMap.map(ExitView).toMediator(ExitViewMediator);
+			mediatorMap.map(DisconnectView).toMediator(DisconnectViewMediator);
+			mediatorMap.map(MainView).toMediator(MainViewMediator);
+			mediatorMap.map(UserInactivityPopUp).toMediator(UserInactivityPopUpMediator);
 		}
 		
 		/**
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommandAIR);
-			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandAIR);
+			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommand);
+			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommand);
 			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
 		}
 	}

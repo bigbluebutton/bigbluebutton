@@ -266,7 +266,6 @@ package org.bigbluebutton.main.api
       payload.fromColor = event.message.fromColor;
       payload.fromLang = event.message.fromLang;
       payload.fromTime = event.message.fromTime;      
-      payload.fromTimezoneOffset = event.message.fromTimezoneOffset;
       payload.message = event.message.message;
       
       payload.fromUserID = event.message.fromUserID;
@@ -281,8 +280,7 @@ package org.bigbluebutton.main.api
       payload.fromUsername = event.message.fromUsername;
       payload.fromColor = event.message.fromColor;
       payload.fromLang = event.message.fromLang;
-      payload.fromTime = event.message.fromTime;    
-      payload.fromTimezoneOffset = event.message.fromTimezoneOffset;
+      payload.fromTime = event.message.fromTime;
       payload.toUsername = event.message.toUsername;
       payload.message = event.message.message;
       
@@ -377,6 +375,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.CONVERT_SUCCESS;
       payload.presentationName = event.presName;
       payload.presentationId = event.presId;
+      payload.podId = event.podId;
       broadcastEvent(payload);
     }
 

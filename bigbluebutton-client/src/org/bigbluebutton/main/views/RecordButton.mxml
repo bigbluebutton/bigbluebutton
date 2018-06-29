@@ -109,16 +109,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function showRecordingNotification():void {
 				if (firstAudioJoin && this.visible && !this.selected 
-						&& getLayoutOptions().showRecordingNotification
-						&& UsersUtil.amIModerator()
-						&& LiveMeeting.inst().meeting.allowStartStopRecording
-						&& this.enabled) {
+					&& getLayoutOptions().showRecordingNotification
+					&& UsersUtil.amIModerator()
+					&& LiveMeeting.inst().meeting.allowStartStopRecording
+					&& this.enabled) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn.notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn.notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn.notification.title"), Alert.OK, this);
 					// we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially
 					alert.setStyle("modalTransparencyDuration", 250);
 					alert.titleIcon = getStyle('iconRecordReminder');
 					
-          // Reach out to MainAppShell to set position of alert window.
+					// Reach out to MainAppShell to set position of alert window.
 					var newX:Number = this.parent.parent.width * 0.65;
 					var newY:Number = this.y + this.height + 5;
 					

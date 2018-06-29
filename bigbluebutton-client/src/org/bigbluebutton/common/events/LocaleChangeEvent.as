@@ -24,6 +24,8 @@ package org.bigbluebutton.common.events
 	{
 		public static const LOCALE_CHANGED:String = "LOCALE_CHANGED_EVENT";
 		
+		public static const LOCALE_INIT:String = "LOCALE_INIT";
+		
 		public function LocaleChangeEvent(type:String)
 		{
 			super(type, true, false);

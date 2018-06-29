@@ -33,18 +33,12 @@ package org.bigbluebutton.modules.polling.views
 
 		private const sx:int = 0;
 		private const sy:int = 0;
-		//private const h:uint = 100;
-		//private const w:uint = 280;
 		private const bgFill:uint = 0xFFFFFF;
 		private const colFill:uint = 0x333333;
 		private const vPaddingPercent:Number = 0.25;
 		private const hPaddingPercent:Number = 0.1;
 		private const labelWidthPercent:Number = 0.3;
 		
-		private var sampledata:Array = [{a:"A", v:3}, 
-									{a:"B", v:1},
-									{a:"C", v:5},
-									{a:"D", v:8}];
 		private var _data:Array;
 		private var _textFields:Array;
 		
@@ -53,8 +47,6 @@ package org.bigbluebutton.modules.polling.views
 			hasFocusableChildren = false;
 			_textFields = new Array();
 			data = null;
-			// temp setter for testing purposes
-			//data = sampledata;
 		}
 		
 		public function set data(d:Array):void {

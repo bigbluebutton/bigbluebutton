@@ -55,6 +55,10 @@ Notes.mxml is the main view of the SharedNotes application
 				return MainCanvas.POPUP;
 			}
 			
+			public function getName():String {
+				return "ExampleChatWindow";
+			}
+			
 		]]>
 	</fx:Script>
 	

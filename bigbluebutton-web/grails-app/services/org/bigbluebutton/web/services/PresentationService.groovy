@@ -109,6 +109,14 @@ class PresentationService {
 		new File(thumbFile)
 	}
 
+	def showPng = {conf, room, presentationName, page ->
+		def pngFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
+				"pngs" + File.separatorChar + "slide-${page}.png"
+		log.debug "showing $pngFile"
+
+		new File(pngFile)
+	}
+
 	def showTextfile = {conf, room, presentationName, textfile ->
 		def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
 					"textfiles" + File.separatorChar + "slide-${textfile}.txt"
@@ -143,7 +151,8 @@ class PresentationService {
 		if (presDir.exists()) {
 			File pres = new File(presDir.getAbsolutePath() + File.separatorChar + testUploadedPresentation)
 			if (pres.exists()) {
-				UploadedPresentation uploadedPres = new UploadedPresentation(testConferenceMock, testRoomMock, testPresentationName);
+				// TODO add podId
+				UploadedPresentation uploadedPres = new UploadedPresentation("B", testConferenceMock, testRoomMock, testPresentationName);
 				uploadedPres.setUploadedFile(pres);
 				// Run conversion on another thread.
 				new Timer().runAfter(1000) 
@@ -159,15 +168,6 @@ class PresentationService {
 		
 	}
 
-	def getFile = {conf, room, presentationName ->
-		println "download request for $presentationName"
-		def fileDirectory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-"download")
-		//list the files of the download directory ; it must have only 1 file to download
-		def list = fileDirectory.listFiles()
-		//new File(pdfFile)
-		list[0]
-	}
 }
 
 /*** Helper classes **/
