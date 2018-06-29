@@ -78,7 +78,8 @@
       "chromeExtensionLink": "LINK",
       "enableScreensharing": false,
       "enableVideo": false,
-      "enableVideoStats": false
+      "enableVideoStats": false,
+      "enableListenOnly": false
     },
 
     "acl": {
