@@ -39,10 +39,14 @@ const defaultProps = {
 
 class UserListItem extends Component {
   static createAction(action, ...options) {
+    let icon = action.icon;
+    if (action.icon === 'audio_on') icon = 'unmute';
+    if (action.icon === 'audio_off') icon = 'mute';
+
     return (
       <UserAction
         key={_.uniqueId('action-item-')}
-        icon={action.icon}
+        icon={icon}
         label={action.label(...options)}
         handler={action.handler}
         options={[...options]}
