@@ -4,6 +4,7 @@ package org.bigbluebutton.air.screenshare.views {
 	import flash.utils.Timer;
 	
 	import mx.core.UIComponent;
+	import mx.formatters.DateFormatter;
 	
 	import spark.components.Image;
 	import spark.components.ProgressBar;
@@ -22,14 +23,51 @@ package org.bigbluebutton.air.screenshare.views {
 		protected var originalVideoHeight:Number;
 		
 		private var _waitingBar : ProgressBar;
-		
+
 		private var _waitingTimer : Timer;
 		
 		private const WAITING_SECONDS : int = 15;
 		
+		protected var dateFormat:DateFormatter = new DateFormatter("Y-MM-DD J:NN:SS:QQ");
+
 		private function waitingTimerProgressHandler(e:TimerEvent):void {
-			_waitingBar.totalProgress = (_waitingTimer.currentCount / WAITING_SECONDS) * 100;
+			trace("PROGRESS " + _waitingTimer.currentCount);
+			_waitingBar.currentProgress = _waitingTimer.currentCount;
 		}
+
+		public function resizeForProgressBar():void {
+			// if we have device where screen width less than screen height e.g. phone
+			if (width < height) {
+				// make the video width full width of the screen 
+				_waitingBar.width = width;
+				// calculate height based on a video width, it order to keep the same aspect ratio
+				_waitingBar.height = (_waitingBar.width / originalVideoWidth) * originalVideoHeight;
+				// if calculated height appeared to be bigger than screen height, recalculuate the video size based on width
+				if (height < _waitingBar.height) {
+					// make the video height full height of the screen
+					_waitingBar.height = height;
+					// calculate width based on a video height, it order to keep the same aspect ratio
+					_waitingBar.width = ((originalVideoWidth * _waitingBar.height) / originalVideoHeight);
+				}
+			} // if we have device where screen height less than screen width e.g. tablet
+			else {
+				// make the video height full height of the screen
+				_waitingBar.height = height;
+				// calculate width based on a video height, it order to keep the same aspect ratio
+				_waitingBar.width = ((originalVideoWidth * _waitingBar.height) / originalVideoHeight);
+				// if calculated width appeared to be bigger than screen width, recalculuate the video size based on height
+				if (width < _waitingBar.width) {
+					// make the video width full width of the screen 
+					_waitingBar.width = width;
+					// calculate height based on a video width, it order to keep the same aspect ratio
+					_waitingBar.height = (_waitingBar.width / originalVideoWidth) * originalVideoHeight;
+				}
+			}
+			
+			_waitingBar.x = width - _waitingBar.width;
+			_waitingBar.y = height - _waitingBar.height;
+		}
+
 		
 		public function resizeForPortrait():void {
 			// if we have device where screen width less than screen height e.g. phone
@@ -70,8 +108,24 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		public function startStream(uri:String, streamName:String, imgWidth:Number, imgHeight:Number, meetingId:String, authToken:String, externalUserId:String):void {
 			
-			showProgressBar();
 			
+			_waitingBar = new ProgressBar();
+			
+			_waitingBar.width = imgWidth;
+			_waitingBar.height = imgWidth;
+			
+			_waitingBar.currentProgress = 0;
+			_waitingBar.totalProgress = WAITING_SECONDS;
+			_waitingBar.percentWidth = 80;
+			_waitingBar.percentHeight = 100;
+			_waitingBar.bottom = 20;
+			_waitingBar.styleName = "micLevelProgressBar";
+			
+			addChild(_waitingBar);
+			
+			_waitingTimer = new Timer(1000, WAITING_SECONDS);
+			_waitingTimer.addEventListener(TimerEvent.TIMER, waitingTimerProgressHandler);
+
 			if (player) {
 				close();
 			}
@@ -94,11 +148,12 @@ package org.bigbluebutton.air.screenshare.views {
 			player.play();
 		}
 		
-		private function showProgressBar() : void {
+/*		private function showProgressBar() : void {
 			_waitingBar = new ProgressBar();
-			_waitingBar.totalProgress = 0;
+			_waitingBar.currentProgress = 0;
+			_waitingBar.totalProgress = 100;
 			_waitingBar.percentWidth = 80;
-			_waitingBar.height = 40;
+			_waitingBar.percentHeight = 100;
 			_waitingBar.bottom = 20;
 			_waitingBar.horizontalCenter = 0;
 			_waitingBar.verticalCenter = 0;
@@ -110,10 +165,12 @@ package org.bigbluebutton.air.screenshare.views {
 			_waitingTimer.addEventListener(TimerEvent.TIMER, waitingTimerProgressHandler);
 			_waitingTimer.start();
 		}
-		
+*/		
 		private function onConnected(e:BBBRtmpPlayerEvent):void {
-			trace("EVENT: " + e.type + " MESSAGE: " + e.getMessage());
+			trace(dateFormat.format(new Date()) + " EVENT: " + e.type + " MESSAGE: " + e.getMessage());
 			if (_waitingBar && _waitingBar.parent == this) {
+				_waitingTimer.removeEventListener(TimerEvent.TIMER, waitingTimerProgressHandler);
+				_waitingBar.currentProgress = WAITING_SECONDS;
 				removeChild(_waitingBar);
 			}
 			if (image) {
@@ -122,7 +179,8 @@ package org.bigbluebutton.air.screenshare.views {
 		}
 		
 		private function onConnecting(e:BBBRtmpPlayerEvent):void {
-			trace("EVENT: " + e.type + " MESSAGE: " + e.getMessage());
+			trace(dateFormat.format(new Date()) + " EVENT: " + e.type + " MESSAGE: " + e.getMessage());
+			_waitingTimer.start();
 		}
 		
 		private function onConnectionFailed(e:BBBRtmpPlayerEvent):void {
@@ -151,6 +209,10 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
+			
+			if (_waitingBar) {
+				resizeForProgressBar();
+			}
 			
 			if (player) {
 				resizeForPortrait();

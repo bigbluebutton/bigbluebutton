@@ -1,4 +1,6 @@
 package org.bigbluebutton.air.common.views {
+	import mx.formatters.DateFormatter;
+	
 	import spark.components.Image;
 	
 	import org.bigbluebutton.BBBRtmpPlayer;
@@ -7,6 +9,7 @@ package org.bigbluebutton.air.common.views {
 	public class IOSVideoView extends VideoBaseView {
 		
 		protected var player:BBBRtmpPlayer;
+		protected var dateFormat:DateFormatter = new DateFormatter("Y-MM-DD J:NN:SS:QQ");
 		
 		private function get image():Image {
 			return videoComp as Image;
@@ -39,11 +42,12 @@ package org.bigbluebutton.air.common.views {
 		}
 		
 		private function onConnected(e:BBBRtmpPlayerEvent):void {
+			trace(dateFormat.format(new Date()) +  " EVENT: " + e.type + " MESSAGE: " + e.getMessage());
 			image.source = player.getBmpData();
 		}
 
 		private function onConnecting(e:BBBRtmpPlayerEvent):void {
-			trace("EVENT: " + e.type + " MESSAGE: " + e.getMessage());
+			trace(dateFormat.format(new Date()) +  " EVENT: " + e.type + " MESSAGE: " + e.getMessage());
 		}
 
 		private function onConnectionFailed(e:BBBRtmpPlayerEvent):void {
