@@ -7,23 +7,31 @@
 
 const C = require('../constants/Constants');
 const rid = require('readable-id');
-const MediaServer = require('../media/media-server');
+const Kurento = require('../adapters/kurento');
+const Freeswitch = require('../adapters/freeswitch/freeswitch');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const Logger = require('../../../utils/Logger');
 const isError = require('../utils/util').isError;
 
 module.exports = class MediaSession {
-  constructor(emitter, room, type, options = {}) {
+  constructor (
+    emitter,
+    room,
+    type = 'WebRtcEndpoint',
+    options = {}
+  ) {
     this.id = rid();
     this.room = room;
     this.emitter = emitter;
     this._status = C.STATUS.STOPPED;
     this._type = type;
-    this._MediaServer = new MediaServer(kurentoUrl);
     this._mediaElement;
     this.subscribedSessions = [];
     this._options = options;
+    this._adapter = options.adapter? options.adapter : C.STRING.KURENTO;
+    this._name = options.name? options.name : C.STRING.DEFAULT_NAME;
+    this._MediaServer = MediaSession.getAdapter(this._adapter);
     this.eventQueue = [];
   }
 
@@ -137,6 +145,23 @@ module.exports = class MediaSession {
       let event = this.eventQueue.shift();
       this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
     }
+  }
+
+  static getAdapter (adapter) {
+    let obj = null;
+
+    Logger.info("[SdpSession] Session is using the", adapter, "adapter");
+
+    switch (adapter) {
+      case C.STRING.KURENTO:
+        obj = new Kurento(kurentoUrl);
+        break;
+      case C.STRING.FREESWITCH:
+        obj = new Freeswitch();
+        break;
+      default: Logger.warn("[SdpSession] Invalid adapter", this.adapter); }
+
+    return obj;
   }
 
   _handleError (error) {
