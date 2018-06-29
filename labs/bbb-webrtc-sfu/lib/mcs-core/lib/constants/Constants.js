@@ -55,6 +55,10 @@ exports.ERROR.USER_NOT_FOUND = "USER_NOT_FOUND";
 exports.ERROR.MEDIA_NOT_FOUND = "MEDIA_NOT_FOUND";
 exports.ERROR.SDP_ERROR = "SDP_ERROR";
 
+// Freeswitch Adapter
+exports.FREESWITCH = {};
+exports.FREESWITCH.GLOBAL_AUDIO_PREFIX = "GLOBAL_AUDIO_";
+
 // RTP params
 exports.SDP = {};
 exports.SDP.PARAMS = "params"
@@ -73,6 +77,11 @@ exports.SDP.FRAME_RATE = "frame_rate"
 
 // Strings
 exports.STRING = {}
+exports.STRING.KURENTO = "Kurento"
+exports.STRING.FREESWITCH = "Freeswitch"
+exports.STRING.USER_AGENT = "MediaController"
+exports.STRING.DEFAULT_NAME = "default"
+exports.STRING.SIP_USER_AGENT = "SIP.js 0.7.8"
 exports.STRING.ANONYMOUS = "ANONYMOUS"
 exports.STRING.FS_USER_AGENT_STRING = "Freeswitch_User_Agent"
 exports.STRING.XML_MEDIA_FAST_UPDATE = '<?xml version=\"1.0\" encoding=\"utf-8\" ?>' +

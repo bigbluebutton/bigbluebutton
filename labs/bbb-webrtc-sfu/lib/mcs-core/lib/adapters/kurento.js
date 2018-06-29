@@ -543,6 +543,7 @@ module.exports = class MediaServer extends EventEmitter {
     }
 
     Logger.trace('[mcs-media] Media Server returned an', error, error.stack);
+
     return error;
   }
 };

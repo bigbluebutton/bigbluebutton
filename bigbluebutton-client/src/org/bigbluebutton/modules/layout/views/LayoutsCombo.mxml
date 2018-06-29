@@ -40,7 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.collections.ArrayCollection;
-			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -98,6 +97,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				invalidateDisplayList();
 			}
 
+=======
+      
+      private function populateComboBox():void {
+        layoutNames = new ArrayCollection();
+        var layouts:Array = LayoutModel.getInstance().getLayoutNames();
+        
+        var idx:int = 0, currentLayoutIndex:int = -1;
+        for each (var lay:Object in layouts) {
+          var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
+          if (StringUtils.isEmpty(translatedName) || translatedName == "undefined") translatedName = lay.name;
+          var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout };
+          layoutNames.addItem(item);
+          if (lay.currentLayout) {
+            currentLayoutIndex = idx;
+          }
+          idx++;
+        }
+        dataProvider = layoutNames;
+        selectedIndex = currentLayoutIndex;
+        invalidateDisplayList();        
+      }
+						
+>>>>>>> upstream/v2.0.x-release
 			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
 				lockSettingsChanged(null);
 				populateComboBox();
