@@ -97,6 +97,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 
 			[Bindable] private var dsOptions:ScreenshareOptions;
+			
+			[Embed(source="../../assets/sounds/ScreenshareOff.mp3")]
+			private var noticeSoundClass:Class;
+			private var noticeSound:Sound = new noticeSoundClass() as Sound;
+			private var soundPlayed:Boolean = false;
 
 			private function displayInstall():void {
 				setCurrentState("displayInstall");
@@ -115,9 +120,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (ExternalInterface.available) {
 					var isIncognito:Function = function(args:Object):void {
 						incognitoLbl.visible = true;
+						ExternalInterface.addCallback("isIncognito", null);
+						ExternalInterface.addCallback("isNotIncognito", null);
 					};
 
-					var isNotIncognito:Function = function(args:Object):void {};
+					var isNotIncognito:Function = function(args:Object):void {
+						ExternalInterface.addCallback("isIncognito", null);
+						ExternalInterface.addCallback("isNotIncognito", null);
+					};
 
 					ExternalInterface.addCallback("isIncognito", isIncognito);
 					ExternalInterface.addCallback("isNotIncognito", isNotIncognito);
@@ -145,6 +155,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ExternalInterface.addCallback("onSuccess", onSuccess);
 				ExternalInterface.call("checkChromeExtInstalled", "onSuccess", dsOptions.chromeExtensionKey);
 			}
+			
+			
 
 			private function init():void {
 				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
@@ -244,24 +256,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			public function resetWidthAndHeight():void{/* do nothing */}
 
-			public function initWindow(connection:NetConnection, uri:String, useTLS:Boolean , room:String):void {
-				this.connection = connection;
-				this.uri = uri;
-				this.useTLS = useTLS;
-				this.room = room;
-			}
-
-			public function shareScreen(fullScreen:Boolean):void {
-				LOGGER.debug("Calling shareScreen");
-				startSharing(connection, uri, useTLS , room, fullScreen);
-			}
-
-			private function startSharing(connection:NetConnection, uri:String , useTLS:Boolean , room:String, fullScreen:Boolean):void {
-				var captureX:Number = 0;
-				var captureY:Number = 0;
-
-			}
-
 			public function stopSharing():void{
 				if (streaming) {
 					stopStream();
@@ -269,7 +263,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(streamEvent);
 				}
 				streaming = false;
-				closeWindow();
+				//closeWindow();
 			}
 
 			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
@@ -423,11 +417,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
 			}
 
-			private function stopStream():void{
+			private function stopStream():void {
 				streaming = false;
 				
 				if (ns != null) {
 					ns.close();
+				}
+				if (connection != null) {
+					connection.close();
 				}
 			}
 
@@ -475,9 +472,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function closeWindow():void {
+				// Have to remove the callback so we can garbage collect
+				ExternalInterface.addCallback("onFail", null);
+				
 				// LOGGER.debug("Calling stopApplet in closeWindow()");
 				dispatchEvent(new WebRTCShareWindowEvent(WebRTCShareWindowEvent.CLOSE));
-        globalDispatcher.dispatchEvent(new DeskshareToolbarEvent(DeskshareToolbarEvent.STOP));
+				globalDispatcher.dispatchEvent(new DeskshareToolbarEvent(DeskshareToolbarEvent.STOP));
+				
+				if (!soundPlayed) {
+					trace("playing from webrtc publish window");
+					var tSC:SoundChannel = noticeSound.play(0, 0, new SoundTransform(0.25));
+					soundPlayed = true;
+				}
 			}
 
 			/*
