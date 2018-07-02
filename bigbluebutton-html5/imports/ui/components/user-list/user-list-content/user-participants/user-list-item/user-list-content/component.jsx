@@ -287,16 +287,7 @@ class UserListContent extends Component {
             onActionsHide={this.onActionsHide}
           >
             {
-              [
-                (
-                  <DropdownListTitle
-                    description={intl.formatMessage(messages.menuTitleContext)}
-                    key={this.title}
-                  >
-                    {user.name}
-                  </DropdownListTitle>),
-                (<DropdownListSeparator key={this.seperator} />),
-              ].concat(actions)
+              [].concat(actions)
             }
           </DropdownList>
         </DropdownContent>
