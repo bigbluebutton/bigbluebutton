@@ -9,6 +9,7 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
+const CONNECTION_TERMINATED_EVENTS = ['iceConnectionFailed', 'iceConnectionClosed'];
 
 const fetchStunTurnServers = (sessionToken) => {
   const handleStunTurnResponse = ({ stunServers, turnServers }) => {
@@ -168,6 +169,10 @@ export default class SIPBridge extends BaseAudioBridge {
     return new Promise((resolve, reject) => {
       let hangupRetries = 0;
       let hangup = false;
+      const { mediaHandler } = this.currentSession;
+
+      // Removing termination events to avoid triggering an error
+      CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.off(e));
       const tryHangup = () => {
         this.currentSession.bye();
         hangupRetries += 1;
@@ -311,16 +316,15 @@ export default class SIPBridge extends BaseAudioBridge {
       };
       currentSession.on('terminated', handleSessionTerminated);
 
-      const connectionTerminatedEvents = ['iceConnectionFailed', 'iceConnectionClosed'];
       const handleConnectionTerminated = (peer) => {
-        connectionTerminatedEvents.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
+        CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
         this.callback({
           status: this.baseCallStates.failed,
           error: this.baseErrorCodes.CONNECTION_ERROR,
           bridgeError: peer,
         });
       };
-      connectionTerminatedEvents.forEach(e => mediaHandler.on(e, handleConnectionTerminated));
+      CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.on(e, handleConnectionTerminated));
 
       this.currentSession = currentSession;
     });
