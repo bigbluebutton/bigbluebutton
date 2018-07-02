@@ -263,6 +263,7 @@ class AudioManager {
         this.notify(this.messages.error[error], true);
         makeCall('failed callStateCallback audio', response);
         console.error('Audio Error:', error, bridgeError);
+        this.exitAudio();
         this.onAudioExit();
       }
     });

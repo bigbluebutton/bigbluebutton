@@ -311,7 +311,7 @@ export default class SIPBridge extends BaseAudioBridge {
       };
       currentSession.on('terminated', handleSessionTerminated);
 
-      const connectionTerminatedEvents = ['iceConnectionFailed', 'iceConnectionDisconnected'];
+      const connectionTerminatedEvents = ['iceConnectionFailed', 'iceConnectionClosed'];
       const handleConnectionTerminated = (peer) => {
         connectionTerminatedEvents.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
         this.callback({
