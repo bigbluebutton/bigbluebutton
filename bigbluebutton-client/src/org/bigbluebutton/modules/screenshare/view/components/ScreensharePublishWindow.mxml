@@ -107,6 +107,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       [Bindable]
       private var shareTypeProvider:Array;
+      
+      [Embed(source="../../assets/sounds/ScreenshareOff.mp3")]
+      private var noticeSoundClass:Class;
+      private var noticeSound:Sound = new noticeSoundClass() as Sound;
+      private var soundPlayed:Boolean = false;
 
       private function init():void {
         dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
@@ -431,6 +436,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function closeWindow():void {
         dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));
+        
+        if (!soundPlayed) {
+          trace("playing from java publish window");
+          var tSC:SoundChannel = noticeSound.play(0, 0, new SoundTransform(0.25));
+          soundPlayed = true;
+        }
       }
 
       private function restartJava():void {
