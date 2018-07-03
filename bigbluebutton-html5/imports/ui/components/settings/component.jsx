@@ -210,6 +210,7 @@ class Settings extends Component {
       intl,
       router,
       location,
+      mountModal,
     } = this.props;
 
     return (
@@ -218,11 +219,11 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(this.state.current);
-            this.props.router.push(location.pathname);
+            router.push(location.pathname);
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
-            this.props.mountModal(null);
+            mountModal(null);
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
@@ -230,7 +231,7 @@ class Settings extends Component {
         dismiss={{
           callback: () => {
             Settings.setHtmlFontSize(this.state.saved.application.fontSize);
-            this.props.mountModal(null);
+            mountModal(null);
           },
           label: intl.formatMessage(intlMessages.CancelLabel),
           description: intl.formatMessage(intlMessages.CancelLabelDesc),
