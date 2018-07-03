@@ -2,6 +2,8 @@ package org.bigbluebutton.core2
 
 import java.util.concurrent.TimeUnit
 
+import org.bigbluebutton.core.util.TimeUtil
+
 case class Permissions(
   disableCam:             Boolean = false,
   disableMic:             Boolean = false,
@@ -44,6 +46,13 @@ object MeetingStatus2x {
   def recordingStarted(status: MeetingStatus2x) = status.recording = true
   def recordingStopped(status: MeetingStatus2x) = status.recording = false
   def isRecording(status: MeetingStatus2x): Boolean = status.recording
+
+  def authUserHadJoined(status: MeetingStatus2x) = status.authedUserHasJoined = true
+  def hasAuthedUserJoined(status: MeetingStatus2x): Boolean = status.authedUserHasJoined
+
+  def setLastAuthedUserLeftOn(status: MeetingStatus2x) = status.lastAuthedUserLeftOn = TimeUtil.timeNowInMs()
+  def getLastAuthedUserLeftOn(status: MeetingStatus2x): Long = status.lastAuthedUserLeftOn
+  def resetLastAuthedUserLeftOn(status: MeetingStatus2x) = status.lastAuthedUserLeftOn = 0L
 
   def voiceRecordingStart(status2x: MeetingStatus2x, stream: String): VoiceRecordingStream = {
     val vrs = new VoiceRecordingStream(stream, recording = false, createdOn = System.currentTimeMillis, ackedOn = None, stoppedOn = None)
@@ -115,6 +124,8 @@ class MeetingStatus2x {
 
   private var webcamsOnlyForModerator = false
 
+  private var authedUserHasJoined = false
+  private var lastAuthedUserLeftOn = 0L
 }
 
 case class VoiceRecordingStream(stream: String, recording: Boolean, createdOn: Long, ackedOn: Option[Long], stoppedOn: Option[Long])

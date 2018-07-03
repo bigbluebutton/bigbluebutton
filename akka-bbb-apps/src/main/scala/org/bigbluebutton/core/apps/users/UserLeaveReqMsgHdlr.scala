@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.common2.domain.MeetingStatus
 import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
@@ -7,6 +8,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserLeaveReqMsgHdlr {
@@ -35,6 +37,11 @@ trait UserLeaveReqMsgHdlr {
       u <- Users2x.remove(liveMeeting.users2x, msg.body.userId)
     } yield {
       log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
+      val authedUsers = Users2x.findAllAuthedUsers(liveMeeting.users2x)
+      if (u.authed && authedUsers.isEmpty) {
+        MeetingStatus2x.setLastAuthedUserLeftOn(liveMeeting.status)
+      }
 
       captionApp2x.handleUserLeavingMsg(msg.body.userId, liveMeeting, msgBus)
       stopRecordingIfAutoStart2x(outGW, liveMeeting, state)
