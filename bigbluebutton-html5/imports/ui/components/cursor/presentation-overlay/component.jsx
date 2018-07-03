@@ -92,6 +92,7 @@ export default class PresentationOverlay extends Component {
   }
 
   handleTouchMove(event) {
+    event.preventDefault();
     const { clientX, clientY } = event.changedTouches[0];
 
     this.currentClientX = clientX;
