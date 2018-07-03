@@ -8,24 +8,6 @@ import clearUserSystemMessages from '/imports/api/chat/server/modifiers/clearUse
 
 import userJoin from '../methods/userJoin';
 
-const addWelcomeChatMessage = (meetingId, userId) => {
-  const CHAT_CONFIG = Meteor.settings.public.chat;
-
-  const Meeting = Meetings.findOne({ meetingId });
-
-  const message = {
-    message: Meeting.welcomeProp.welcomeMsg,
-    fromColor: '0x3399FF',
-    toUserId: userId,
-    toUsername: CHAT_CONFIG.type_system,
-    fromUserId: CHAT_CONFIG.type_system,
-    fromUsername: '',
-    fromTime: (new Date()).getTime(),
-  };
-
-  addChat(meetingId, message);
-};
-
 const clearOtherSessions = (sessionUserId, current = false) => {
   const serverSessions = Meteor.server.sessions;
   Object.keys(serverSessions)
@@ -73,7 +55,6 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     if (numChanged) {
       if (valid) {
         clearUserSystemMessages(meetingId, userId);
-        addWelcomeChatMessage(meetingId, userId);
 
         const sessionUserId = `${meetingId}-${userId}`;
         const currentConnectionId = User.connectionId ? User.connectionId : false;
