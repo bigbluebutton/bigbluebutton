@@ -171,7 +171,7 @@ class AudioManager {
   exitAudio() {
     if (!this.isConnected) return Promise.resolve();
 
-    const bridge  = USE_KURENTO? this.listenOnlyBridge : this.bridge;
+    const bridge  = (USE_KURENTO && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
 
     this.isHangingUp = true;
     this.isEchoTest = false;
