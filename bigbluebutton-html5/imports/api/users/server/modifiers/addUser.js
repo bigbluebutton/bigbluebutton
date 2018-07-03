@@ -10,6 +10,7 @@ import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
 import Meetings from '/imports/api/meetings';
 import addChat from '/imports/api/chat/server/modifiers/addChat';
+import clearUserSystemMessages from '/imports/api/chat/server/modifiers/clearUserSystemMessages';
 
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
@@ -113,6 +114,8 @@ export default function addUser(meetingId, user) {
     if (err) {
       return Logger.error(`Adding user to collection: ${err}`);
     }
+
+    clearUserSystemMessages(meetingId, userId);
 
     const Meeting = Meetings.findOne({ meetingId });
     addWelcomingChatMessage(

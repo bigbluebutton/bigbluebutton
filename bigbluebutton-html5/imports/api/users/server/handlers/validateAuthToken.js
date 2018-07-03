@@ -2,8 +2,6 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-import clearUserSystemMessages from '/imports/api/chat/server/modifiers/clearUserSystemMessages';
-
 import userJoin from '../methods/userJoin';
 
 const clearOtherSessions = (sessionUserId, current = false) => {
@@ -52,8 +50,6 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
     if (numChanged) {
       if (valid) {
-        clearUserSystemMessages(meetingId, userId);
-
         const sessionUserId = `${meetingId}-${userId}`;
         const currentConnectionId = User.connectionId ? User.connectionId : false;
         clearOtherSessions(sessionUserId, currentConnectionId);
