@@ -88,6 +88,7 @@ class UserParticipants extends Component {
 
     this.state = {
       index: -1,
+      isStatusMenuOpen: false,
     };
 
     this.userRefs = [];
@@ -142,7 +143,9 @@ class UserParticipants extends Component {
       setEmojiStatus,
       removeUser,
       toggleVoice,
+      handleEmojiChange,
     } = this.props;
+
 
     const userActions =
     {
@@ -213,6 +216,7 @@ class UserParticipants extends Component {
             normalizeEmojiName={normalizeEmojiName}
             isMeetingLocked={isMeetingLocked}
             getScrollContainerRef={this.getScrollContainerRef}
+            handleEmojiChange={handleEmojiChange}
           />
         </div>
       </CSSTransition>

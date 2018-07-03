@@ -280,7 +280,6 @@ class UserListContent extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}
         >
-
           <DropdownList
             ref={(ref) => { this.list = ref; }}
             getDropdownMenuParent={this.getDropdownMenuParent}

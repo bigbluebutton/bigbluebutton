@@ -65,6 +65,7 @@ class UserContent extends Component {
           normalizeEmojiName={this.props.normalizeEmojiName}
           isMeetingLocked={this.props.isMeetingLocked}
           roving={this.props.roving}
+          handleEmojiChange={this.props.handleEmojiChange}
         />
       </div>
     );

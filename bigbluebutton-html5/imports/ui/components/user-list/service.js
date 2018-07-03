@@ -262,6 +262,8 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
       && user.isModerator
       && !isDialInUser;
 
+  const allowedToChangeStatus = user.isCurrent;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -271,6 +273,7 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
+    allowedToChangeStatus,
   };
 };
 

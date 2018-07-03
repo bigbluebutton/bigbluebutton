@@ -54,6 +54,14 @@ class UserListItem extends Component {
     );
   }
 
+  constructor() {
+    super();
+
+    this.state = {
+      emojisOpen: false,
+    };
+  }
+
   getUsersActions() {
     const {
       currentUser,
@@ -62,11 +70,13 @@ class UserListItem extends Component {
       router,
       isBreakoutRoom,
       getAvailableActions,
+      handleEmojiChange,
     } = this.props;
 
     const {
       openChat,
       clearStatus,
+      setStatus,
       setPresenter,
       remove,
       mute,
@@ -86,9 +96,39 @@ class UserListItem extends Component {
       allowedToSetPresenter,
       allowedToPromote,
       allowedToDemote,
+      allowedToChangeStatus,
     } = actions;
 
+
+    const confused = {
+      icon: 'confused',
+      label: () => 'Confused',
+      handler: () => { alert('working confused'); return handleEmojiChange('confused'); },
+    };
+
+
+    if (this.state.emojisOpen) {
+      return _.compact([
+        (allowedToChangeStatus && this.state.emojisOpen ? <div
+          key={_.uniqueId('action-item-')}
+          onClick={() => {
+            this.setState({ emojisOpen: false });
+          }}
+        >Back
+                                                          </div> : null),
+        (UserListItem.createAction(confused, user)),
+        (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
+      ]);
+    }
+
     return _.compact([
+      (allowedToChangeStatus && !this.state.emojisOpen ? <div
+        key={_.uniqueId('action-item-')}
+        onClick={() => {
+          this.setState({ emojisOpen: true });
+        }}
+      >Set Status
+                                                         </div> : null),
       (allowedToChatPrivately ? UserListItem.createAction(openChat, router, user) : null),
       (allowedToMuteAudio ? UserListItem.createAction(mute, user) : null),
       (allowedToUnmuteAudio ? UserListItem.createAction(unmute, user) : null),
@@ -113,6 +153,8 @@ class UserListItem extends Component {
 
     const actions = this.getUsersActions();
 
+    console.log(actions);
+
     const contents = (<UserListContent
       compact={compact}
       user={user}
@@ -122,6 +164,7 @@ class UserListItem extends Component {
       meeting={meeting}
       isMeetingLocked={isMeetingLocked}
       getScrollContainerRef={getScrollContainerRef}
+      emojisOpen={this.state.emojisOpen}
     />);
 
     return contents;
