@@ -35,6 +35,14 @@ export function joinRouteHandler(nextState, replace, callback) {
       const metakeys = metadata.length
         ? metadata.reduce((acc, meta) => {
           const key = Object.keys(meta).shift();
+
+          const handledHTML5Parameters = [
+            'html5autoswaplayout', 'html5autosharewebcam', 'html5hidepresentation',
+          ];
+          if (handledHTML5Parameters.indexOf(key) === -1) {
+            return acc;
+          }
+
           /* this reducer transforms array of objects in a single object and
            forces the metadata a be boolean value */
           let value = meta[key];

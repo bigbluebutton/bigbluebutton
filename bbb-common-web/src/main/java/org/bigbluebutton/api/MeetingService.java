@@ -62,6 +62,8 @@ import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
+import org.bigbluebutton.web.services.callback.CallbackUrlService;
+import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.StunTurnService;
 import org.bigbluebutton.web.services.turn.TurnEntry;
@@ -89,6 +91,7 @@ public class MeetingService implements MessageListener {
   private RegisteredUserCleanupTimerTask registeredUserCleaner;
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
+  private CallbackUrlService callbackUrlService;
 
   private ParamsProcessorUtil paramsProcessorUtil;
   private PresentationUrlDownloadService presDownloadService;
@@ -561,7 +564,14 @@ public class MeetingService implements MessageListener {
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.info("Meeting destroyed: data={}", logStr);
+      log.info("Meeting ended: data={}", logStr);
+
+      String END_CALLBACK_URL = "endCallbackUrl".toLowerCase();
+      Map<String, String> metadata = m.getMetadata();
+      if (metadata.containsKey(END_CALLBACK_URL)) {
+        String callbackUrl = metadata.get(END_CALLBACK_URL);
+        callbackUrlService.handleMessage(new MeetingEndedEvent(callbackUrl));
+      }
 
       processRemoveEndedMeeting(message);
 
@@ -579,7 +589,7 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance);
+        message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance, message.clientType);
       m.userJoined(user);
 
       Map<String, Object> logData = new HashMap<String, Object>();
@@ -594,6 +604,7 @@ public class MeetingService implements MessageListener {
       logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
       logData.put("event", "user_joined_message");
       logData.put("description", "User joined the meeting.");
+      logData.put("clientType", user.getClientType());
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
@@ -729,7 +740,7 @@ public class MeetingService implements MessageListener {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
           User vuser = new User(message.userId, message.userId,
-                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false);
+                  message.name, "DIAL-IN-USER", "no-avatar-url", true, false, "DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);
         }
@@ -895,6 +906,10 @@ public class MeetingService implements MessageListener {
 
   public void setRedisStorageService(RedisStorageService mess) {
     storeService = mess;
+  }
+
+  public void setCallbackUrlService(CallbackUrlService service) {
+    callbackUrlService = service;
   }
 
   public void setGw(IBbbWebApiGWApp gw) {

@@ -36,7 +36,6 @@ export default class PresentationOverlay extends Component {
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
     this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
   }
-
   // transforms the coordinate from window coordinate system
   // to the main svg coordinate system
   getTransformedSvgPoint(clientX, clientY) {

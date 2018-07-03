@@ -16,6 +16,7 @@ from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
 from-akka: "from-akka-apps-redis-channel"
+common-message-version: "2.x"
 webcam-force-h264: true
 screenshare-force-h264: true
 screenshareKeyframeInterval: 2
@@ -24,7 +25,14 @@ recordScreenSharing: true
 recordWebcams: false
 recordingBasePath: "file:///var/kurento"
 
+recordingMediaProfile: 'MKV_VIDEO_ONLY'
+recordingFormat: 'mkv'
+
 redisExpireTime: 1209600 # 14 days as per the akka keys
+
+freeswitch:
+    ip: ''
+    port: '5066'
 
 log:
     filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'

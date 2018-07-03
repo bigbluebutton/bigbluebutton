@@ -7,7 +7,7 @@ const RecordingIndicator = ({
   if (!record) return null;
 
   return (
-    <div>
+    <div className={styles.recordState}>
       <div className={recording ? styles.recordIndicator : styles.notRecording} />
       <span className={recording ? styles.recordingLabel : styles.notRecordingLabel}>{title}</span>
     </div>

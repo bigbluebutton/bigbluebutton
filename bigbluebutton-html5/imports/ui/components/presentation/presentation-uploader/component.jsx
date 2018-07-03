@@ -348,7 +348,7 @@ class PresentationUploader extends Component {
 
     if (!item.upload.done && !item.upload.error) {
       return intl.formatMessage(intlMessages.uploadProcess, {
-        progress: Math.floor(item.upload.progress).toString(),
+        0: Math.floor(item.upload.progress).toString(),
       });
     }
 
@@ -365,8 +365,8 @@ class PresentationUploader extends Component {
     if (!item.conversion.done && !item.conversion.error) {
       if (item.conversion.pagesCompleted < item.conversion.numPages) {
         return intl.formatMessage(intlMessages.conversionProcessingSlides, {
-          current: item.conversion.pagesCompleted,
-          total: item.conversion.numPages,
+          0: item.conversion.pagesCompleted,
+          1: item.conversion.numPages,
         });
       }
 

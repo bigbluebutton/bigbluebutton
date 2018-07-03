@@ -51,12 +51,11 @@ package org.bigbluebutton.modules.screenshare.managers
 			if (shareWindow != null) shareWindow.stopSharing();
 		}
 
-		private function autopublishTimerHandler(event:TimerEvent):void {
-			shareWindow.shareScreen(true);
-		}
-
 		public function handleShareWindowCloseEvent():void {
-			closeWindow(shareWindow);
+			if (shareWindow) {
+				closeWindow(shareWindow);
+				shareWindow = null;
+			}
 		}
 
 		private function openWindow(window:IBbbModuleWindow = null):void {
@@ -77,7 +76,6 @@ package org.bigbluebutton.modules.screenshare.managers
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
-			shareWindow = null;
 		}
 
 		public function startSharing():void {

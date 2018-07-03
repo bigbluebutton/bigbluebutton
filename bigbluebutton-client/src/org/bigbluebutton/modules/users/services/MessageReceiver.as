@@ -360,7 +360,8 @@ package org.bigbluebutton.modules.users.services
       var locked: Boolean = user.locked as Boolean;
       var presenter: Boolean = user.presenter as Boolean;
       var avatar: String = user.avatar as String;
-      
+      // var clientType: String = user.clientType as String;
+
       var user2x: User2x = new User2x();
       user2x.intId = intId;
       user2x.extId = extId;
@@ -404,6 +405,7 @@ package org.bigbluebutton.modules.users.services
         LiveMeeting.inst().me.locked = locked;
         UsersUtil.applyLockSettings();
       }
+
     }
     
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {
@@ -936,6 +938,9 @@ package org.bigbluebutton.modules.users.services
       if (UsersUtil.isMe(userId)) {
         LiveMeeting.inst().me.role = role;
         dispatcher.dispatchEvent(new ChangeMyRole(role));
+        
+        // need to fake a new lock settings so that the lock state gets revalidated
+        UsersUtil.applyLockSettings();
       }
 
       dispatcher.dispatchEvent(new UserStatusChangedEvent(userId));

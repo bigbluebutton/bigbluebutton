@@ -205,6 +205,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!timeRemaining.visible && e.timeLeftInSec <= 1800) {
 					timeRemaining.visible = true;
 				}
+				// The label.id is used to determine message to display. So make sure
+				// you change in the TimerUtil if you change the label.
 				TimerUtil.setCountDownTimer(timeRemaining, e.timeLeftInSec, true);
 			}
 			

@@ -37,22 +37,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<fx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.collections.ArrayCollection;
-      
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-      import org.bigbluebutton.core.model.LiveMeeting;
-      import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
-      import org.bigbluebutton.modules.layout.model.LayoutModel;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
+			import org.bigbluebutton.modules.layout.model.LayoutModel;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(LayoutsCombo);      
       
@@ -74,13 +75,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function populateComboBox():void {
-        layoutNames = new ArrayCollection();         
+        layoutNames = new ArrayCollection();
         var layouts:Array = LayoutModel.getInstance().getLayoutNames();
         
         var idx:int = 0, currentLayoutIndex:int = -1;
         for each (var lay:Object in layouts) {
           var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
-          if (translatedName == "undefined") translatedName = lay.name;
+          if (StringUtils.isEmpty(translatedName) || translatedName == "undefined") translatedName = lay.name;
           var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout };
           layoutNames.addItem(item);
           if (lay.currentLayout) {

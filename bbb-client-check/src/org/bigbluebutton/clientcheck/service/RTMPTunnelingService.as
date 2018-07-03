@@ -43,6 +43,7 @@ package org.bigbluebutton.clientcheck.service
 		private static var RECORD_MOCK:Boolean=false;
 		private static var EXTERNAL_USER_ID_MOCK:String="123456";
 		private static var INTERNAL_USER_ID_MOCK:String="654321";
+		private static var CLIENT_CONN_ID:String="client-conn-id";
 		private static var LOCK_ON_MOCK:Boolean=true;
 
 		public function init():void
@@ -60,7 +61,7 @@ package org.bigbluebutton.clientcheck.service
 						// sip has a different way of connecting to the red5 server, need to fake connection data.
 						if (systemConfiguration.rtmpApps[i].applicationUri.indexOf("sip") > 0)
 						{
-							_netConnection.connect(systemConfiguration.rtmpApps[i].applicationUri, ROOM_MOCK, EXTERNAL_USER_ID_MOCK, USER_NAME_MOCK, INTERNAL_USER_ID_MOCK);
+							_netConnection.connect(systemConfiguration.rtmpApps[i].applicationUri, ROOM_MOCK, EXTERNAL_USER_ID_MOCK, USER_NAME_MOCK, INTERNAL_USER_ID_MOCK, CLIENT_CONN_ID);
 							continue;
 						}
 						else
