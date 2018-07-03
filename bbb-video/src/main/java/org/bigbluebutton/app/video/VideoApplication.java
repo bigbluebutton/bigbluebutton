@@ -124,8 +124,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		public boolean roomConnect(IConnection connection, Object[] params) {
 			log.info("BBB Video roomConnect");
 
-			if(params.length != 4) {
-				log.error("Invalid number of parameters. param length=" + params.length);
+			final int REQUIRED_PARAMS = 4;
+
+			if(params.length != REQUIRED_PARAMS) {
+				log.error("Invalid number of parameters. Provided parameters={}. Required parameters={}", params.length, REQUIRED_PARAMS);
 				return false;
 			}
 
