@@ -171,7 +171,7 @@ class AudioManager {
   exitAudio() {
     if (!this.isConnected) return Promise.resolve();
 
-    const bridge  = USE_KURENTO? this.listenOnlyBridge : this.bridge;
+    const bridge  = (USE_KURENTO && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
 
     this.isHangingUp = true;
     this.isEchoTest = false;
@@ -260,9 +260,10 @@ class AudioManager {
         this.onAudioExit();
       } else if (status === FAILED) {
         this.error = error;
-        this.notify(this.messages.error[error], true);
+        this.notify(this.messages.error[error] || this.messages.error.GENERIC_ERROR, true);
         makeCall('failed callStateCallback audio', response);
         console.error('Audio Error:', error, bridgeError);
+        this.exitAudio();
         this.onAudioExit();
       }
     });

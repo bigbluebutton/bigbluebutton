@@ -8,11 +8,32 @@ import flat from 'flat';
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
+import Meetings from '/imports/api/meetings';
+import addChat from '/imports/api/chat/server/modifiers/addChat';
+import clearUserSystemMessages from '/imports/api/chat/server/modifiers/clearUserSystemMessages';
+
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
   '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',
   '#0d47a1', '#0277bd', '#01579b',
 ];
+
+// add some default welcoming message to the chat (welcome / mod only)
+const addWelcomingChatMessage = (messageText, meetingId, userId) => {
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+
+  const message = {
+    message: messageText,
+    fromColor: '0x3399FF',
+    toUserId: userId,
+    toUsername: CHAT_CONFIG.type_system,
+    fromUserId: CHAT_CONFIG.type_system,
+    fromUsername: '',
+    fromTime: (new Date()).getTime(),
+  };
+
+  addChat(meetingId, message);
+};
 
 export default function addUser(meetingId, user) {
   check(meetingId, String);
@@ -95,12 +116,26 @@ export default function addUser(meetingId, user) {
       return Logger.error(`Adding user to collection: ${err}`);
     }
 
+    clearUserSystemMessages(meetingId, userId);
+
+    const Meeting = Meetings.findOne({ meetingId });
+    addWelcomingChatMessage(
+      Meeting.welcomeProp.welcomeMsg,
+      meetingId, userId,
+    );
+
     if (user.presenter) {
       changeRole(ROLE_PRESENTER, true, userId, meetingId);
     }
 
     if (userRole === ROLE_MODERATOR) {
       changeRole(ROLE_MODERATOR, true, userId, meetingId);
+      if (Meeting.welcomeProp.modOnlyMessage) {
+        addWelcomingChatMessage(
+          Meeting.welcomeProp.modOnlyMessage,
+          meetingId, userId,
+        );
+      }
     }
 
     const { insertedId } = numChanged;
