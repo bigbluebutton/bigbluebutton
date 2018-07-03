@@ -115,8 +115,10 @@ export default function addUser(meetingId, user) {
     }
 
     const Meeting = Meetings.findOne({ meetingId });
-    addWelcomingChatMessage(Meeting.welcomeProp.welcomeMsg,
-      meetingId, userId);
+    addWelcomingChatMessage(
+      Meeting.welcomeProp.welcomeMsg,
+      meetingId, userId,
+    );
 
     if (user.presenter) {
       changeRole(ROLE_PRESENTER, true, userId, meetingId);
@@ -124,9 +126,11 @@ export default function addUser(meetingId, user) {
 
     if (userRole === ROLE_MODERATOR) {
       changeRole(ROLE_MODERATOR, true, userId, meetingId);
-      if(Meeting.welcomeProp.welcomeMsg) {
-        addWelcomingChatMessage(Meeting.welcomeProp.modOnlyMessage,
-          meetingId, userId);
+      if (Meeting.welcomeProp.modOnlyMessage) {
+        addWelcomingChatMessage(
+          Meeting.welcomeProp.modOnlyMessage,
+          meetingId, userId,
+        );
       }
     }
 
