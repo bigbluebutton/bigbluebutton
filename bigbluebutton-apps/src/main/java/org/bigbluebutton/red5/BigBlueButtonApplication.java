@@ -133,8 +133,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 
-		if(params.length != 11) {
-			log.error("Invalid number of parameters. param length=" + params.length);
+		final int REQUIRED_PARAMS = 11;
+
+		if(params.length != REQUIRED_PARAMS) {
+			log.error("Invalid number of parameters. Provided parameters={}. Required parameters={}", params.length, REQUIRED_PARAMS);
 			return false;
 		}
 
