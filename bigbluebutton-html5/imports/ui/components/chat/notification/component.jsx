@@ -117,17 +117,18 @@ class ChatNotification extends Component {
       currentChatID,
     } = this.props;
 
+    if (disableNotify) return;
+
+    const hasUnread = unreadCounter => unreadCounter > 0;
+    const isPrivate = id => id !== PUBLIC_KEY;
+    const isNotNotified = (id, unreadCounter) => unreadCounter !== this.state.notified[id];
+    const chatClosed = id => !chatIsOpen || id !== currentChatID;
+
     const chatsNotify = openChats
-      .filter(({ unreadCounter }) =>
-        unreadCounter > 0)
-      .filter(({ id, unreadCounter }) =>
-        unreadCounter !== this.state.notified[id])
-      .filter(() =>
-        !disableNotify)
-      .filter(({ id }) =>
-        id !== PUBLIC_KEY)
-      .filter(({ id }) =>
-        !chatIsOpen || id !== currentChatID)
+      .filter(({ unreadCounter }) => hasUnread(unreadCounter))
+      .filter(({ id, unreadCounter }) => isNotNotified(id, unreadCounter))
+      .filter(({ id }) => isPrivate(id))
+      .filter(({ id }) => chatClosed(id))
       .map(({
         id,
         name,
@@ -190,6 +191,13 @@ class ChatNotification extends Component {
 
     const publicUnread = UnreadMessages.getUnreadMessages(publicUserId);
     const publicUnreadReduced = Service.reduceAndMapMessages(publicUnread);
+
+    if (disableNotify) return;
+    if (!Service.hasUnreadMessages(publicUserId)) return;
+    if (chatIsOpen && currentChatID === PUBLIC_KEY) return;
+
+    const setIntervalTime = (sender, time) => time > (this.state.publicNotified[sender.id] || 0);
+
     const chatsNotify = publicUnreadReduced
       .map(msg => ({
         ...msg,
@@ -198,14 +206,7 @@ class ChatNotification extends Component {
           ...msg.sender,
         },
       }))
-      .filter(({ sender, time }) =>
-        time > (this.state.publicNotified[sender.id] || 0))
-      .filter(() =>
-        !disableNotify)
-      .filter(() =>
-        Service.hasUnreadMessages(publicUserId))
-      .filter(() =>
-        !chatIsOpen || currentChatID !== PUBLIC_KEY);
+      .filter(({ sender, time }) => setIntervalTime(sender, time));
     return (
       <span>
         {
