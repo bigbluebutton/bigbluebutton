@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { injectIntl } from 'react-intl';
 import _ from 'lodash';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import UserListContent from './user-list-content/component';
 import UserAction from './user-action/component';
 
@@ -116,6 +117,7 @@ class UserListItem extends Component {
           }}
         >Back
                                                           </div> : null),
+        (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
         (UserListItem.createAction(confused, user)),
         (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
       ]);
