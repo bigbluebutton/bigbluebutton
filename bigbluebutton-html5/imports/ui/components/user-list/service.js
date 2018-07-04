@@ -158,14 +158,29 @@ const userFindSorting = {
   userId: 1,
 };
 
+// move the current user to the top of the users list
+const moveCurrentUserToTop = (users) => {
+  let currUser;
+  for (const user of users) {
+    if (user.isCurrent) {
+      // remove user, save it, break loop
+      currUser = users.splice(users.indexOf(user), 1)[0];
+      break;
+    }
+  }
+  if (currUser) users.unshift(currUser); // add at the beginning
+  return users;
+};
+
 const getUsers = () => {
   const users = Users
     .find({ connectionStatus: 'online' }, userFindSorting)
     .fetch();
 
-  return users
+  // note: after the sorting is done, we move current user to the top
+  return moveCurrentUserToTop(users
     .map(mapUser)
-    .sort(sortUsers);
+    .sort(sortUsers));
 };
 
 const getOpenChats = (chatID) => {

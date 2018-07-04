@@ -133,6 +133,7 @@ export default class ShapeDrawListener extends Component {
   }
 
   handleTouchMove(event) {
+    event.preventDefault();
     const { clientX, clientY } = event.changedTouches[0];
     this.commonDrawMoveHandler(clientX, clientY);
   }
@@ -284,6 +285,7 @@ export default class ShapeDrawListener extends Component {
       width: '100%',
       height: '100%',
       touchAction: 'none',
+      zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/${tool !== 'rectangle' ? tool : 'square'}.png'), default`,
     };
     return (

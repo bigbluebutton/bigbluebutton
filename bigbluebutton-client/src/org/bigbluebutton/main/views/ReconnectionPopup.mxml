@@ -29,6 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				horizontalAlign="center"
 				layout="absolute"
 				width="350"
+				show="this.setFocus()"
 				creationComplete="onCreationComplete()">
 
   <fx:Script>

@@ -193,11 +193,12 @@
 				muteImg.filters = null;
 
 				var ls:LockSettingsVO = UsersUtil.getLockSettings();
+				var amIMod:Boolean = UsersUtil.amIModerator();
 				
 				if (data != null) {
 					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
 
-					if ( !data.inVoiceConf || ( options.moderatorUnmute == false && UsersUtil.amIModerator() && !UsersUtil.isMe(data.userId) ) ) {
+					if ( !data.inVoiceConf || ( options.moderatorUnmute == false && amIMod && !UsersUtil.isMe(data.userId) ) ) {
 						muteImg.visible = false;
 						muteImg.includeInLayout = false;
 						muteBtn.visible = false;
@@ -209,7 +210,7 @@
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = false;
-						} else if (data.locked && ls.getDisableMic()) {
+						} else if (!amIMod && data.locked && ls.getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;

@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
+import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
@@ -38,6 +39,14 @@ const intlMessages = defineMessages({
   mediaError: {
     id: 'app.audioManager.mediaError',
     description: 'Media error message',
+  },
+  BrowserNotSupported: {
+    id: 'app.audioNotification.audioFailedError1003',
+    description: 'browser not supported error messsage',
+  },
+  iceNegotiationError: {
+    id: 'app.audioNotification.audioFailedError1007',
+    description: 'ice negociation error messsage',
   },
 });
 
@@ -81,6 +90,12 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
     },
   });
 
+  const webRtcError = _.range(1001, 1012)
+    .reduce((acc, value) => ({
+      ...acc,
+      [value]: intl.formatMessage({ id: `app.audioNotification.audioFailedError${value}` }),
+    }), {});
+
   const messages = {
     info: {
       JOINED_AUDIO: intl.formatMessage(intlMessages.joinedAudio),
@@ -93,6 +108,9 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       REQUEST_TIMEOUT: intl.formatMessage(intlMessages.requestTimeout),
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
       MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
+      WEBRTC_NOT_SUPPORTED: intl.formatMessage(intlMessages.BrowserNotSupported),
+      ICE_NEGOTIATION_FAILED: intl.formatMessage(intlMessages.iceNegotiationError),
+      ...webRtcError,
     },
   };
 

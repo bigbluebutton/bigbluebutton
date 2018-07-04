@@ -26,6 +26,7 @@ test -x /var/bigbluebutton || exit 0
 history=5
 unrecorded_days=14
 published_days=14
+log_history=28
 
 #
 # Delete presentations older than N days
@@ -33,35 +34,42 @@ published_days=14
 find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' +
 
 #
-# Delete webcam streams in red5 older than N days
+# Delete streams in red5 older than N days
 #
-find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -name "*.flv.ser" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -name "*.flv.info" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -name "*.meta" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -type d -empty -mtime +$history -exec rmdir '{}' +
+for webapp in video screenshare video-broadcast; do
+	webapp_dir=/usr/share/red5/webapps/$webapp/streams
+	if [[ -d $webapp_dir ]]; then
+		find $webapp_dir -name "*.flv" -mtime +$history -delete
+		find $webapp_dir -name "*.flv.ser" -mtime +$history -delete
+		find $webapp_dir -name "*.flv.info" -mtime +$history -delete
+		find $webapp_dir -name "*.flv.meta" -mtime +$history -delete
+		find $webapp_dir -type d -empty -mtime +$history -exec rmdir '{}' +
+	fi
+done
 
 #
-# Delete webrtc deskshare streams in red5 older than N days
+# Delete streams in kurento older than N days
 #
-if [[ -d /usr/share/red5/webapps/video-broadcast/streams ]]; then
-	find /usr/share/red5/webapps/video-broadcast/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
-fi
-
-#
-# Delete desktop sharing streams in red5 older than N days
-#
-find /usr/share/red5/webapps/screenshare/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
+for app in recording screenshare; do
+	app_dir=/var/kurento/$app
+	if [[ -d $app_dir ]]; then
+		find $app_dir -name "*.mkv" -mtime +$history -delete
+		find $app_dir -type d -empty -mtime +$history -exec rmdir '{}' +
+	fi
+done
 
 #
 # Delete FreeSWITCH wav recordings older than N days
 #
-find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' +
+find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -delete
 
 #
-# Delete FreeSWITCH log files and CDR
+# Delete old/rotated log files
 #
-find /opt/freeswitch/var/log/freeswitch/ -name "*.xml" -type f -mtime +$history -exec rm '{}' +
+find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
+find /var/log/red5 -type f -mtime +$log_history -delete
+find /var/log/tomcat7 -type f -mtime +$log_history -delete
+find /var/log/bigbluebutton -type f -mtime +$log_history -delete
 
 #
 # Delete raw files of recordings without recording marks older than N days

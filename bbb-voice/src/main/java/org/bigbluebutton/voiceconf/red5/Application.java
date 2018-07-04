@@ -86,7 +86,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 	public boolean appConnect(IConnection conn, Object[] params) {
 
 		if(params.length != 5) {
-			log.error("Invalid number of parameters. param length=" + params.length);
+			log.error("Invalid number of parameters. Provided parameters={} .Required parameters=5", params.length);
 			return false;
 		}
 
