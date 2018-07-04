@@ -94,12 +94,10 @@ const sortUsersByPhoneUser = (a, b) => {
 
 // current user's name is always on top
 const sortUsersByCurrent = (a, b) => {
-  if (a.isCurrent && b.isCurrent) {
-    return 0;
-  } else if (a.isCurrent) {
-    return -1;
-  } else if (b.isCurrent) {
+  if (a.isCurrent) {
     return 1;
+  } else if (b.isCurrent) {
+    return -1;
   }
 
   return 0;
