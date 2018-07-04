@@ -128,9 +128,10 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   @extend %full-page;
 
   order: 2;
-
+  height: 100%;
   @include mq($small-only) {
     z-index: 3;
+    height: auto;
     top: $navbar-height;
   }
 
