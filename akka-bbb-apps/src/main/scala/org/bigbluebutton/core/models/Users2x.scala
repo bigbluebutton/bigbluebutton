@@ -110,6 +110,10 @@ object Users2x {
     users.toVector.find(u => u.role == Roles.MODERATOR_ROLE)
   }
 
+  def findAllAuthedUsers(users: Users2x): Vector[UserState] = {
+    users.toVector.find(u => u.authed).toVector
+  }
+
   def addUserToPresenterGroup(users: Users2x, userIdToAdd: String): Boolean = {
     users.updatePresenterGroup(users.presenterGroup.filterNot(_ == userIdToAdd).:+(userIdToAdd)) // ensure no repetition
     users.presenterGroup.contains(userIdToAdd)

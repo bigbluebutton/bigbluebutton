@@ -249,12 +249,18 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
+    Boolean authenticated = false;
+
     Boolean guest = false;
     if (!StringUtils.isEmpty(params.guest)) {
       guest = Boolean.parseBoolean(params.guest)
+    } else {
+      // guest param has not been passed. Make user as
+      // authenticated by default. (ralam july 3, 2018)
+      authenticated = true
     }
 
-    Boolean authenticated = false;
+
     if (!StringUtils.isEmpty(params.auth)) {
       authenticated = Boolean.parseBoolean(params.auth)
     }

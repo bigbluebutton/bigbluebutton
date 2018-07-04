@@ -58,6 +58,16 @@ trait HandlerHelpers extends SystemConfiguration {
           UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
         }
 
+        if (newUser.authed) {
+          if (!MeetingStatus2x.hasAuthedUserJoined(liveMeeting.status)) {
+            MeetingStatus2x.authUserHadJoined(liveMeeting.status)
+          }
+
+          if (MeetingStatus2x.getLastAuthedUserLeftOn(liveMeeting.status) > 0) {
+            MeetingStatus2x.resetLastAuthedUserLeftOn(liveMeeting.status)
+          }
+        }
+
         newState.update(newState.expiryTracker.setUserHasJoined())
       case None =>
         state

@@ -9,7 +9,7 @@ import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
 import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
-import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingRecordingTracker, MeetingState2x }
+import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
@@ -434,6 +434,8 @@ class MeetingActor(
     setRecordingChapterBreak()
 
     processUserInactivityAudit()
+
+    checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
   }
 
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
@@ -475,6 +477,26 @@ class MeetingActor(
       outGW.send(event)
     }
 
+  }
+
+  private def checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting: LiveMeeting): Unit = {
+    val authUserJoined = MeetingStatus2x.hasAuthedUserJoined(liveMeeting.status)
+
+    if (endMeetingWhenNoMoreAuthedUsers &&
+      !liveMeeting.props.meetingProp.isBreakout &&
+      authUserJoined) {
+      val lastAuthedUserLeftLimitMs = TimeUtil.timeNowInMs() - MeetingStatus2x.getLastAuthedUserLeftOn(liveMeeting.status)
+      if (lastAuthedUserLeftLimitMs > TimeUtil.minutesToMillis(endMeetingWhenNoMoreAuthedUsersAfterMinutes)) {
+        val authedUsers = Users2x.findAllAuthedUsers(liveMeeting.users2x)
+
+        if (authedUsers.isEmpty) {
+          sendEndMeetingDueToExpiry(
+            MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER,
+            eventBus, outGW, liveMeeting
+          )
+        }
+      }
+    }
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
