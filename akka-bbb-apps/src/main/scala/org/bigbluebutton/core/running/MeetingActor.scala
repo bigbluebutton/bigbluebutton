@@ -148,18 +148,19 @@ class MeetingActor(
 
   var lastRttTestSentOn = System.currentTimeMillis()
 
-  // Create a default publish group chat
-  state = GroupChatApp.createDefaultPublicGroupChat(GroupChatApp.MAIN_PUBLIC_CHAT, state)
-  //state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+  // Create a default public group chat
+  state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
 
-  // Create a default publish group chat
+  //state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
+  // Create a default public group chat **DEPRECATED, NOT GOING TO WORK ANYMORE**
   //state = GroupChatApp.createDefaultPublicGroupChat("TEST_GROUP_CHAT", state)
   //state = GroupChatApp.genTestChatMsgHistory("TEST_GROUP_CHAT", state, BbbSystemConst.SYSTEM_USER, liveMeeting)
 
   log.debug("NUM GROUP CHATS = " + state.groupChats.findAllPublicChats().length)
 
   // Create a default Presentation Pod
-  state = PresentationPodsApp.createDefaultPresentationPod(state)
+  state = presentationPodsApp.handleCreateDefaultPresentationPod(state, liveMeeting, msgBus)
+
   log.debug("NUM Presentation Pods = " + state.presentationPodManager.getNumberOfPods())
 
   // Initialize if the meeting is muted on start
@@ -384,7 +385,9 @@ class MeetingActor(
     // sync all presentations
     presentationPodsApp.handleSyncGetPresentationPods(state, liveMeeting, msgBus)
 
-    // TODO send all chat
+    // sync all group chats and group chat messages
+    groupChatApp.handleSyncGetGroupChatsInfo(state, liveMeeting, msgBus)
+
     // TODO send all lock settings
     // TODO send all screen sharing info
   }

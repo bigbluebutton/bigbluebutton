@@ -286,4 +286,15 @@ object MsgBuilder {
     val event = StopRecordingVoiceConfSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildCreateNewPresentationPodEvtMsg(meetingId: String, currentPresenterId: String, podId: String, userId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(CreateNewPresentationPodEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, userId)
+
+    val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
+    val event = CreateNewPresentationPodEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }
