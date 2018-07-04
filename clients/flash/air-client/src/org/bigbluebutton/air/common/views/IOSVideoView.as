@@ -5,11 +5,14 @@ package org.bigbluebutton.air.common.views {
 	
 	import org.bigbluebutton.BBBRtmpPlayer;
 	import org.bigbluebutton.BBBRtmpPlayerEvent;
+	import org.bigbluebutton.air.util.ConnUtil;
 	
 	public class IOSVideoView extends VideoBaseView {
 		
 		protected var player:BBBRtmpPlayer;
 		protected var dateFormat:DateFormatter = new DateFormatter("Y-MM-DD J:NN:SS:QQ");
+		
+		private var _connectionId : String;
 		
 		private function get image():Image {
 			return videoComp as Image;
@@ -29,7 +32,9 @@ package org.bigbluebutton.air.common.views {
 			this.originalVideoWidth = imgWidth;
 			this.originalVideoHeight = imgHeight;
 			
-			var url:String = uri + "/" + streamName + " live=1 conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken;
+			_connectionId = ConnUtil.generateConnId();
+			
+			var url:String = uri + "/" + streamName + " live=1 conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken + " conn=S:" + _connectionId;
 			
 			player = new BBBRtmpPlayer(url);
 

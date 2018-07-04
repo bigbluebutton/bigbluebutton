@@ -11,6 +11,7 @@ package org.bigbluebutton.air.screenshare.views {
 	
 	import org.bigbluebutton.BBBRtmpPlayer;
 	import org.bigbluebutton.BBBRtmpPlayerEvent;
+	import org.bigbluebutton.air.util.ConnUtil;
 	
 	// FIXME : Work in progress class, needs behave like Android screensahring display
 	public class IOSScreenshareView extends UIComponent {
@@ -25,6 +26,8 @@ package org.bigbluebutton.air.screenshare.views {
 		private var _waitingBar : ProgressBar;
 
 		private var _waitingTimer : Timer;
+		
+		private var _connectionId : String;
 		
 		private const WAITING_SECONDS : int = 15;
 		
@@ -136,7 +139,9 @@ package org.bigbluebutton.air.screenshare.views {
 			this.originalVideoWidth = imgWidth;
 			this.originalVideoHeight = imgHeight;
 			
-			var url:String = uri + "/" + streamName + " live=1 conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken;
+			_connectionId = ConnUtil.generateConnId();
+			
+			var url:String = uri + "/" + streamName + " live=1 conn=S:" + meetingId + " conn=S:" + externalUserId + " conn=S:" + authToken + " conn=S:" + _connectionId;
 			
 			player = new BBBRtmpPlayer(url);
 			
