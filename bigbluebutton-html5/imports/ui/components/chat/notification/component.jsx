@@ -196,7 +196,8 @@ class ChatNotification extends Component {
     if (!Service.hasUnreadMessages(publicUserId)) return;
     if (chatIsOpen && currentChatID === PUBLIC_KEY) return;
 
-    const setIntervalTime = (sender, time) => time > (this.state.publicNotified[sender.id] || 0);
+    const checkIfBeenNotified = (sender, time) =>
+      time > (this.state.publicNotified[sender.id] || 0);
 
     const chatsNotify = publicUnreadReduced
       .map(msg => ({
@@ -206,7 +207,7 @@ class ChatNotification extends Component {
           ...msg.sender,
         },
       }))
-      .filter(({ sender, time }) => setIntervalTime(sender, time));
+      .filter(({ sender, time }) => checkIfBeenNotified(sender, time));
     return (
       <span>
         {
