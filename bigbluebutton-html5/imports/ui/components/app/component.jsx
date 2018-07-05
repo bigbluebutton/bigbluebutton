@@ -295,7 +295,7 @@ class App extends Component {
   }
 
   render() {
-    const { params, userlistIsOpen, chatIsOpen } = this.props;
+    const { params, userlistIsOpen } = this.props;
     const { enableResize } = this.state;
 
     return (
@@ -315,7 +315,7 @@ class App extends Component {
         <ModalContainer />
         <AudioContainer />
         <ToastContainer />
-        <ChatNotificationContainer currentChatID={params.chatID} chatIsOpen={chatIsOpen} />
+        <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );
   }
