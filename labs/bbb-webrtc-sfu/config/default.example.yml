@@ -19,6 +19,7 @@ from-akka: "from-akka-apps-redis-channel"
 common-message-version: "2.x"
 webcam-force-h264: true
 screenshare-force-h264: true
+screenshare-preferred-h264-profile: "42e01f"
 screenshareKeyframeInterval: 2
 
 recordScreenSharing: true
