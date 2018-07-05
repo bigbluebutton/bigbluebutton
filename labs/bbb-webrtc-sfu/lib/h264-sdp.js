@@ -5,13 +5,13 @@
  * the default format.
  */
 
-var sdpTransform = require('sdp-transform');
+const sdpTransform = require('sdp-transform');
 
-exports.transform = function(sdp) {
+exports.transform = function(sdp, preferredProfile = null) {
 
-  var mediaIndex = 0;
-  var res = sdpTransform.parse(sdp);
-  var validPayloads;
+  let mediaIndex = 0;
+  let res = sdpTransform.parse(sdp);
+  let validPayloads;
 
   if (res.media[0].type === 'audio') {
     // Audio
@@ -33,9 +33,15 @@ exports.transform = function(sdp) {
   }
 
   // Video
+  const availablePayloads = res.media[mediaIndex].rtp.map(elem => {
+    return elem.payload;
+  });
+
   res.media[mediaIndex].rtp = res.media[mediaIndex].rtp.filter(function(elem) {
     return elem.codec === 'H264';
   });
+
+  preferProfile(res.media[mediaIndex], preferredProfile);
 
   validPayloads = res.media[mediaIndex].rtp.map(function(elem) {
     return elem.payload;
@@ -49,8 +55,26 @@ exports.transform = function(sdp) {
     return validPayloads.indexOf(elem.payload) >= 0;
   });
 
+
   res.media[mediaIndex].payloads = validPayloads.join(' ');
 
   return sdpTransform.write(res);
 };
 
+const preferProfile = function (mediaLine, profileToFilter) {
+  if (profileToFilter == null) {
+    return;
+  }
+
+  const profileRegex = /(?:profile\-level\-id\=)([\d\w]*)/i;
+  const validProfilePayloads = mediaLine.fmtp.filter(e => {
+    let profileSpec = profileRegex.exec(e.config);
+    return profileSpec && profileSpec[1] && profileSpec[1] === profileToFilter;
+  }).map(e => e.payload);
+
+  if (validProfilePayloads.length > 0) {
+    mediaLine.rtp = mediaLine.rtp.filter(e => {
+      return validProfilePayloads.includes(e.payload);
+    });
+  }
+};
