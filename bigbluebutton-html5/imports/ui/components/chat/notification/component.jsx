@@ -113,7 +113,6 @@ class ChatNotification extends Component {
       disableNotify,
       openChats,
       intl,
-      chatIsOpen,
       currentChatID,
     } = this.props;
 
@@ -122,7 +121,7 @@ class ChatNotification extends Component {
     const hasUnread = ({ unreadCounter }) => unreadCounter > 0;
     const isNotNotified = ({ id, unreadCounter }) => unreadCounter !== this.state.notified[id];
     const isPrivate = ({ id }) => id !== PUBLIC_KEY;
-    const chatClosed = ({ id }) => !chatIsOpen || id !== currentChatID;
+    const chatClosed = ({ id }) => id !== currentChatID;
 
     const chatsNotify = openChats
       .filter(hasUnread)
