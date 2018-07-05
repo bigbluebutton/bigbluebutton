@@ -86,17 +86,19 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
     }
   }
 
-  &[aria-hidden="false"] {
-    display: block;
-  }
-
-  &[aria-hidden="true"] {
-    display: none;
-  }
-
   @include mq($medium-up) {
     flex: 5;
     order: 2;
+  }
+
+  @include mq($small-only) {
+    &[aria-hidden="false"] {
+      display: block;
+    }
+  
+    &[aria-hidden="true"] {
+      display: none;
+    }
   }
 }
 
