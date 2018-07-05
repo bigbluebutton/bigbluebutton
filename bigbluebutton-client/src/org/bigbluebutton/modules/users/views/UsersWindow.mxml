@@ -447,12 +447,16 @@ $Id: $
       }
       
       private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void {
+				// The label.id is used to determine message to display. So make sure
+				// you change in the TimerUtil if you change the label.
         TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
       }
       
       private function breakoutRoomsListChangeListener(event:CollectionEvent):void {
         if (breakoutRoomsList.length == 0) {
           breakoutTimeLabel.text = "...";
+					// The label.id is used to determine message to display. So make sure
+					// you change in the TimerUtil if you change the label.
           TimerUtil.stopTimer(breakoutTimeLabel.id);
           // All breakout rooms were close we don't need to display the join URL alert anymore
           removeJoinWindow();

@@ -56,6 +56,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             LOGGER.debug("ViewerWindowManager Received stop viewing command");
             if (viewWindow) {
                 closeWindow(viewWindow);
+                viewWindow = null;
                 isViewing = false;
             }
         }

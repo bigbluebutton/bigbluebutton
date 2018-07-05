@@ -21,7 +21,7 @@ trait SyncGetUsersMeetingRespMsgHdlr {
     val webUsers = users.map { u =>
       WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
         guest = u.guest, authed = u.authed, waitingForAcceptance = u.waitingForAcceptance, emoji = u.emoji,
-        locked = u.locked, presenter = u.presenter, avatar = u.avatar)
+        locked = u.locked, presenter = u.presenter, avatar = u.avatar, clientType = u.clientType)
     }
 
     val body = SyncGetUsersMeetingRespMsgBody(webUsers)

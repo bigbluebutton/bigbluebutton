@@ -112,7 +112,6 @@ class VideoProvider extends Component {
   pauseViewers() {
     this.logger('debug', 'Calling pause in viewer streams');
 
-
     Object.keys(this.webRtcPeers).forEach((id) => {
       if (this.props.userId !== id && this.webRtcPeers[id].started) {
         this._sendPauseStream(id, 'viewer', true);

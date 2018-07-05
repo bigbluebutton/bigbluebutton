@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.chat.model {
 	import org.as3commons.lang.StringUtils;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.users.User2x;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatMessage {
@@ -43,16 +44,17 @@ package org.bigbluebutton.modules.chat.model {
 	    [Bindable] public var senderTime:String;
 	    */
 		
-		public function get differentLastSenderAndTime():Boolean {
-			return !(lastTime == time) || !sameLastSender;
+		public function sameLastTime():Boolean {
+			return lastTime == time;
 		}
 		
-		public function get sameLastSender() : Boolean {
+		public function sameLastSender():Boolean {
 			return StringUtils.trimToEmpty(senderId) == StringUtils.trimToEmpty(lastSenderId);
 		}
 		
-		public function get isModerator():Boolean {
-			return UsersUtil.getUser(senderId) && UsersUtil.getUser(senderId).role == Role.MODERATOR
+		public function isModerator():Boolean {
+			var user:User2x = UsersUtil.getUser(senderId);
+			return user && user.role == Role.MODERATOR
 		}
 		
 		public function toString() : String {

@@ -1,6 +1,5 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import deviceInfo from '/imports/utils/deviceInfo';
 import TextShapeService from './service';
 import TextDrawComponent from './component';
 
@@ -21,6 +20,5 @@ export default withTracker((params) => {
     isActive,
     setTextShapeValue: TextShapeService.setTextShapeValue,
     resetTextShapeActiveId: TextShapeService.resetTextShapeActiveId,
-    browserType: deviceInfo.browserType(),
   };
 })(TextDrawContainer);

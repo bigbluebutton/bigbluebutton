@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
+import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
@@ -21,23 +22,31 @@ const intlMessages = defineMessages({
   },
   genericError: {
     id: 'app.audioManager.genericError',
-    description: 'Generic error messsage',
+    description: 'Generic error message',
   },
   connectionError: {
     id: 'app.audioManager.connectionError',
-    description: 'Connection error messsage',
+    description: 'Connection error message',
   },
   requestTimeout: {
     id: 'app.audioManager.requestTimeout',
-    description: 'Request timeout error messsage',
+    description: 'Request timeout error message',
   },
   invalidTarget: {
     id: 'app.audioManager.invalidTarget',
-    description: 'Invalid target error messsage',
+    description: 'Invalid target error message',
   },
   mediaError: {
     id: 'app.audioManager.mediaError',
-    description: 'Media error messsage',
+    description: 'Media error message',
+  },
+  BrowserNotSupported: {
+    id: 'app.audioNotification.audioFailedError1003',
+    description: 'browser not supported error messsage',
+  },
+  iceNegotiationError: {
+    id: 'app.audioNotification.audioFailedError1007',
+    description: 'ice negociation error messsage',
   },
 });
 
@@ -71,9 +80,21 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
 
   Breakouts.find().observeChanges({
     removed() {
+      // if the user joined a breakout room, the main room's audio was
+      // programmatically dropped to avoid interference. On breakout end,
+      // offer to rejoin main room audio only if the user is not in audio already
+      if (Service.isUsingAudio()) {
+        return;
+      }
       setTimeout(() => openAudioModal(), 0);
     },
   });
+
+  const webRtcError = _.range(1001, 1012)
+    .reduce((acc, value) => ({
+      ...acc,
+      [value]: intl.formatMessage({ id: `app.audioNotification.audioFailedError${value}` }),
+    }), {});
 
   const messages = {
     info: {
@@ -87,6 +108,9 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       REQUEST_TIMEOUT: intl.formatMessage(intlMessages.requestTimeout),
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
       MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
+      WEBRTC_NOT_SUPPORTED: intl.formatMessage(intlMessages.BrowserNotSupported),
+      ICE_NEGOTIATION_FAILED: intl.formatMessage(intlMessages.iceNegotiationError),
+      ...webRtcError,
     },
   };
 

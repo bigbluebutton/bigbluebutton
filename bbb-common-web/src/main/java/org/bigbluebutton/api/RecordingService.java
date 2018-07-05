@@ -477,11 +477,10 @@ public class RecordingService {
         for (String recordID : recordIDs) {
             for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
                 List<File> recs = getRecordingsForPath(recordID, entry.getValue());
-                // Lookup the target recording
-                Map<String,File> recsIndexed = indexRecordings(recs);
-                if ( recsIndexed.containsKey(recordID) ) {
-                    File recFile = recsIndexed.get(recordID);
-                    File metadataXml = recordingServiceHelper.getMetadataXmlLocation(recFile.getPath());
+
+                // Go through all recordings of all formats
+                for (File rec : recs) {
+                    File metadataXml = recordingServiceHelper.getMetadataXmlLocation(rec.getPath());
                     updateRecordingMetadata(metadataXml, metaParams, metadataXml);
                 }
             }

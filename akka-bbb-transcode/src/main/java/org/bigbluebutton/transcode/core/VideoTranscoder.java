@@ -303,7 +303,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                 ffmpeg = new FFmpegCommand();
                 ffmpeg.setFFmpegPath(FFMPEG_PATH);
                 ffmpeg.setInput(input);
-
+                ffmpeg.setProtocolWhitelist("file,udp,rtp");
                 ffmpeg.setLoglevel("quiet");
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.addRtmpOutputConnectionParameter(meetingId);
@@ -570,7 +570,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
         if(currentFFmpegRestartNumber == MAX_RESTARTINGS_NUMBER) {
            long timeInterval = System.currentTimeMillis() - lastFFmpegRestartTime;
            if(timeInterval <= MIN_RESTART_TIME) {
-              System.out.println("  > Max number of ffmpeg restartings reached in " + timeInterval + " miliseconds for " + transcoderId + "'s Video Transcoder." + 
+              System.out.println("  > Max number of ffmpeg restartings reached in " + timeInterval + " miliseconds for " + transcoderId + "'s Video Transcoder." +
                         " Not restating it anymore.");
               return true;
            }

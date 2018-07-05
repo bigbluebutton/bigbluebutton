@@ -51,6 +51,7 @@
   flex: 1;
   display: flex;
   flex-flow: column;
+  overflow-x: hidden;
   width: calc(100% - 1.7rem);
 }
 

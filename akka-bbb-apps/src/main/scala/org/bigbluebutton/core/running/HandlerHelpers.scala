@@ -25,7 +25,7 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(event)
   }
 
-  def userJoinMeeting(outGW: OutMsgRouter, authToken: String,
+  def userJoinMeeting(outGW: OutMsgRouter, authToken: String, clientType: String,
                       liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
@@ -41,7 +41,8 @@ trait HandlerHelpers extends SystemConfiguration {
         emoji = "none",
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
-        avatar = regUser.avatarURL
+        avatar = regUser.avatarURL,
+        clientType = clientType
       )
     }
 
