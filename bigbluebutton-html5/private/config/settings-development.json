@@ -20,7 +20,7 @@
       "defaultSettings": {
         "application": {
           "chatAudioNotifications": false,
-          "chatPushNotifications": true,
+          "chatPushNotifications": false,
           "fontSize": "16px",
           "fallbackLocale": "en"
         },
