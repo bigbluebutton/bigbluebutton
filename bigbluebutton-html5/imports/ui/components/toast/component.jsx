@@ -30,8 +30,8 @@ const Toast = ({
   content,
   small,
 }) => (
-  <div 
-    className={cx(styles.toastContainer, small ? styles.smallToastContainer : null)} 
+  <div
+    className={cx(styles.toastContainer, small ? styles.smallToastContainer : null)}
     role="alert"
   >
     <div className={styles[type]}>
@@ -44,9 +44,9 @@ const Toast = ({
     </div>
     {
       content ? (
-        <div>
+        <div className={styles.backgroundColorInherit}>
           <div className={styles.separator} />
-          <div>
+          <div className={styles.backgroundColorInherit}>
             {content}
           </div>
         </div>

@@ -33,6 +33,7 @@ $background-active: darken($color-white, 5%);
 }
 
 .smallToastContainer {
+  background-color: inherit;  
   margin: -.35rem;
 }
 
@@ -150,6 +151,7 @@ $background-active: darken($color-white, 5%);
 .body {
   margin: auto 0;
   flex: 1;
+  background-color: inherit;
 }
 
 .close {
@@ -198,6 +200,9 @@ $background-active: darken($color-white, 5%);
   100% {
     width: 0;
   }
+}
+.backgroundColorInherit  {
+  background-color: inherit;
 }
 
 .progress {
