@@ -27,8 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -54,9 +54,14 @@ import org.slf4j.LoggerFactory;
 public class ParamsProcessorUtil {
     private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
 
-    private final String URLDECODER_SEPARATOR=",";
-    private final String FILTERDECODER_SEPARATOR_ELEMENTS=":";
-    private final String FILTERDECODER_SEPARATOR_OPERATORS="\\|";
+    private static final String URLDECODER_SEPARATOR=",";
+    private static final String FILTERDECODER_SEPARATOR_ELEMENTS=":";
+    private static final String FILTERDECODER_SEPARATOR_OPERATORS="\\|";
+    
+    private static final String SERVER_URL = "%%SERVERURL%%";
+    private static final String DIAL_NUM = "%%DIALNUM%%";
+    private static final String CONF_NUM = "%%CONFNUM%%";
+    private static final String CONF_NAME = "%%CONFNAME%%";
 
     private String apiVersion;
     private boolean serviceEnabled = false;
@@ -98,16 +103,13 @@ public class ParamsProcessorUtil {
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
-        String SERVER_URL = "%%SERVERURL%%";
-        String DIAL_NUM = "%%DIALNUM%%";
-        String CONF_NUM = "%%CONFNUM%%";
-        String CONF_NAME = "%%CONFNAME%%";
-        ArrayList<String> keywordList = new ArrayList<String>();
-        keywordList.add(DIAL_NUM);keywordList.add(CONF_NUM);keywordList.add(CONF_NAME);keywordList.add(SERVER_URL);
+        ArrayList<String> keywordList = new ArrayList<>();
+        keywordList.add(DIAL_NUM);
+        keywordList.add(CONF_NUM);
+        keywordList.add(CONF_NAME);
+        keywordList.add(SERVER_URL);
 
-        Iterator<String> itr = keywordList.iterator();
-        while(itr.hasNext()) {
-            String keyword = (String) itr.next();
+        for (String keyword : keywordList) {
             if (keyword.equals(DIAL_NUM)) {
                 welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
             } else if (keyword.equals(CONF_NUM)) {
@@ -123,22 +125,22 @@ public class ParamsProcessorUtil {
 
     public void processRequiredCreateParams(Map<String, String> params, ApiErrors errors) {
         // Do we have a checksum? If not, complain.
-        if (StringUtils.isEmpty(params.get("checksum"))) {
-            errors.missingParamError("checksum");
+        if (StringUtils.isEmpty(params.get(ApiParams.CHECKSUM))) {
+            errors.missingParamError(ApiParams.CHECKSUM);
         }
 
         // Do we have a meeting id? If not, complain.
-        if(!StringUtils.isEmpty(params.get("meetingID"))) {
-        	  String meetingId = StringUtils.strip(params.get("meetingID"));
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ID))) {
+            String meetingId = StringUtils.strip(params.get(ApiParams.MEETING_ID));
             if (StringUtils.isEmpty(meetingId)) {
-                errors.missingParamError("meetingID");
+                errors.missingParamError(ApiParams.MEETING_ID);
             } else {
-            	if (! ParamsUtil.isValidMeetingId(meetingId)) {
-								errors.addError(new String[] {"invalidFormat", "Meeting id contains invalid characters."});
-							}
-						}
+                if (!ParamsUtil.isValidMeetingId(meetingId)) {
+                    errors.addError(new String[] { "invalidFormat", "Meeting id contains invalid characters." });
+                }
+            }
         } else {
-            errors.missingParamError("meetingID");
+            errors.missingParamError(ApiParams.MEETING_ID);
         }
     }
 
@@ -218,68 +220,68 @@ public class ParamsProcessorUtil {
 	}
 	
 	public Map<String, Object> processUpdateCreateParams(Map<String, String> params) {
-		Map<String, Object> newParams = new HashMap<String, Object>();
+		Map<String, Object> newParams = new HashMap<>();
 		    
 	    // Do we have a meeting name? If not, complain.
-	    String meetingName = params.get("name");
+	    String meetingName = params.get(ApiParams.NAME);
 	    if (! StringUtils.isEmpty(meetingName) ) {
-	    	newParams.put("name", meetingName);
+	    	newParams.put(ApiParams.NAME, meetingName);
 	    }
 	    	    
-	    String viewerPass = params.get("attendeePW");
+	    String viewerPass = params.get(ApiParams.ATTENDEE_PW);
 	    if (! StringUtils.isEmpty(viewerPass) ) {
-	    	newParams.put("attendeePW", viewerPass);
+	    	newParams.put(ApiParams.ATTENDEE_PW, viewerPass);
 	    }
 	    
-	    String modPass = params.get("moderatorPW"); 
+	    String modPass = params.get(ApiParams.MODERATOR_PW); 
 	    if (! StringUtils.isEmpty(modPass) ) {
-	    	newParams.put("moderatorPW", modPass);
+	    	newParams.put(ApiParams.MODERATOR_PW, modPass);
 	    }
 	    
-	    String telVoice = params.get("voiceBridge");
+	    String telVoice = params.get(ApiParams.VOICE_BRIDGE);
 	    if (! StringUtils.isEmpty(telVoice) ) {
-	    	newParams.put("voiceBridge", telVoice);
+	    	newParams.put(ApiParams.VOICE_BRIDGE, telVoice);
 	    }	    
 	    
-	    String webVoice = params.get("webVoice");
+	    String webVoice = params.get(ApiParams.WEB_VOICE);
 	    if (! StringUtils.isEmpty(webVoice)) {
-	    	newParams.put("webVoice", webVoice);
+	    	newParams.put(ApiParams.WEB_VOICE, webVoice);
 	    }
 	    
-	    String dialNumber = params.get("dialNumber");
+	    String dialNumber = params.get(ApiParams.DIAL_NUMBER);
 	    if (! StringUtils.isEmpty(dialNumber)) {
-	    	newParams.put("dialNumber", dialNumber);
+	    	newParams.put(ApiParams.DIAL_NUMBER, dialNumber);
 	    }	    
 	    
-	    String logoutUrl = params.get("logoutURL"); 
+	    String logoutUrl = params.get(ApiParams.LOGOUT_URL); 
 	    if (! StringUtils.isEmpty(logoutUrl)) {
-	    	newParams.put("logoutURL", logoutUrl);
+	    	newParams.put(ApiParams.LOGOUT_URL, logoutUrl);
 	    }	
 	    
-	    String record = params.get("record");
+	    String record = params.get(ApiParams.RECORD);
 	    if (! StringUtils.isEmpty(record)) {
-	    	newParams.put("record", record);
+	    	newParams.put(ApiParams.RECORD, record);
 	    }	
 	    
-	    String maxUsers = params.get("maxParticipants");
+	    String maxUsers = params.get(ApiParams.MAX_PARTICIPANTS);
 	    if (! StringUtils.isEmpty(maxUsers)) {
-	    	newParams.put("maxParticipants", maxUsers);
+	    	newParams.put(ApiParams.MAX_PARTICIPANTS, maxUsers);
 	    }	
 	    
-	    String meetingDuration = params.get("duration");
+	    String meetingDuration = params.get(ApiParams.DURATION);
 	    if (! StringUtils.isEmpty(meetingDuration)) {
-	    	newParams.put("duration", meetingDuration);
+	    	newParams.put(ApiParams.DURATION, meetingDuration);
 	    }
 	    
-	    String welcomeMessage = params.get("welcome");
+	    String welcomeMessage = params.get(ApiParams.WELCOME);
 	    if (! StringUtils.isEmpty(welcomeMessage)) {
-	    	newParams.put("welcome", welcomeMessage);
+	    	newParams.put(ApiParams.WELCOME, welcomeMessage);
 	    }
 	    	    	    
 	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
-	    Map<String, String> meetingInfo = new HashMap<String, String>();
+	    Map<String, String> meetingInfo = new HashMap<>();
 	    for (String key: params.keySet()) {
-	    	if (key.contains("meta")){
+	    	if (key.contains(ApiParams.META)){
 	    		String[] meta = key.split("_");
 			    if(meta.length == 2){
 			    	meetingInfo.put(meta[1], params.get(key));
@@ -287,9 +289,9 @@ public class ParamsProcessorUtil {
 			}   
 	    }
 
-	    if (! meetingInfo.isEmpty()) {
-	    	newParams.put("metadata", meetingInfo);
-	    }
+        if (!meetingInfo.isEmpty()) {
+            newParams.put("metadata", meetingInfo);
+        }
 	    
 	    return newParams;
 	}
@@ -307,69 +309,70 @@ public class ParamsProcessorUtil {
 		return StringUtils.removeStart(param, "meta_");
 	}
 	
-	public static Map<String, String> processMetaParam(Map<String, String> params) {
-    Map<String, String> metas = new HashMap<String, String>();
-    for (String key: params.keySet()) {
-    	if (isMetaValid(key)){
-    		// Need to lowercase to maintain backward compatibility with 0.81
-    		String metaName = removeMetaString(key).toLowerCase();
-    		metas.put(metaName, params.get(key));
-		  }   
+    public static Map<String, String> processMetaParam(Map<String, String> params) {
+        Map<String, String> metas = new HashMap<>();
+        for (String key : params.keySet()) {
+            if (isMetaValid(key)) {
+                // Need to lowercase to maintain backward compatibility with
+                // 0.81
+                String metaName = removeMetaString(key).toLowerCase();
+                metas.put(metaName, params.get(key));
+            }
+        }
+
+        return metas;
     }
-    
-    return metas;
-	}
 	
     public Meeting processCreateParams(Map<String, String> params) {
 
-        String meetingName = params.get("name");
+        String meetingName = params.get(ApiParams.NAME);
         if (meetingName == null) {
             meetingName = "";
         }
 
         meetingName = ParamsUtil.stripControlChars(meetingName);
 
-        String externalMeetingId = params.get("meetingID");
+        String externalMeetingId = params.get(ApiParams.MEETING_ID);
 
-        String viewerPass = processPassword(params.get("attendeePW"));
-        String modPass = processPassword(params.get("moderatorPW"));
+        String viewerPass = processPassword(params.get(ApiParams.ATTENDEE_PW));
+        String modPass = processPassword(params.get(ApiParams.MODERATOR_PW));
 
         // Get the digits for voice conference for users joining through the
         // phone.
         // If none is provided, generate one.
-        String telVoice = processTelVoice(params.get("voiceBridge"));
+        String telVoice = processTelVoice(params.get(ApiParams.VOICE_BRIDGE));
 
         // Get the voice conference digits/chars for users joing through VOIP on
         // the client.
         // If none is provided, make it the same as the telVoice. If one has
         // been provided,
         // we expect that the users will be joined in the same voice conference.
-        String webVoice = params.get("webVoice");
+        String webVoice = params.get(ApiParams.WEB_VOICE);
         if (StringUtils.isEmpty(webVoice)) {
             webVoice = telVoice;
         }
 
         // Get all the other relevant parameters and generate defaults if none
         // has been provided.
-        String dialNumber = processDialNumber(params.get("dialNumber"));
-        String logoutUrl = processLogoutUrl(params.get("logoutURL"));
-        boolean record = processRecordMeeting(params.get("record"));
-        int maxUsers = processMaxUser(params.get("maxParticipants"));
-        int meetingDuration = processMeetingDuration(params.get("duration"));
-        int logoutTimer = processLogoutTimer(params.get("logoutTimer"));
+        String dialNumber = processDialNumber(params.get(ApiParams.DIAL_NUMBER));
+        String logoutUrl = processLogoutUrl(params.get(ApiParams.LOGOUT_URL));
+        boolean record = processRecordMeeting(params.get(ApiParams.RECORD));
+        int maxUsers = processMaxUser(params.get(ApiParams.MAX_PARTICIPANTS));
+        int meetingDuration = processMeetingDuration(params.get(ApiParams.DURATION));
+        int logoutTimer = processLogoutTimer(params.get(ApiParams.LOGOUT_TIMER));
         
         // Banner parameters
-        String bannerText = params.get("bannerText");
-        String bannerColor = params.get("bannerColor");
+        String bannerText = params.get(ApiParams.BANNER_TEXT);
+        String bannerColor = params.get(ApiParams.BANNER_COLOR);
         
         // set is breakout room property
         boolean isBreakout = false;
-        if (!StringUtils.isEmpty(params.get("isBreakout"))) {
-            isBreakout = new Boolean(params.get("isBreakout"));
+        if (!StringUtils.isEmpty(params.get(ApiParams.IS_BREAKOUT))) {
+            isBreakout = Boolean.valueOf(params.get(ApiParams.IS_BREAKOUT));
         }
 
         String welcomeMessageTemplate = processWelcomeMessage(
-                params.get("welcome"), isBreakout);
+                params.get(ApiParams.WELCOME), isBreakout);
         String welcomeMessage = substituteKeywords(welcomeMessageTemplate,
                 dialNumber, telVoice, meetingName);
 
@@ -382,10 +385,10 @@ public class ParamsProcessorUtil {
         }
 
         boolean autoStartRec = autoStartRecording;
-        if (!StringUtils.isEmpty(params.get("autoStartRecording"))) {
+        if (!StringUtils.isEmpty(params.get(ApiParams.AUTO_START_RECORDING))) {
             try {
                 autoStartRec = Boolean.parseBoolean(params
-                        .get("autoStartRecording"));
+                        .get(ApiParams.AUTO_START_RECORDING));
             } catch (Exception ex) {
                 log.warn("Invalid param [autoStartRecording] for meeting=[{}]",
                         internalMeetingId);
@@ -393,10 +396,10 @@ public class ParamsProcessorUtil {
         }
 
         boolean allowStartStoptRec = allowStartStopRecording;
-        if (!StringUtils.isEmpty(params.get("allowStartStopRecording"))) {
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_START_STOP_RECORDING))) {
             try {
                 allowStartStoptRec = Boolean.parseBoolean(params
-                        .get("allowStartStopRecording"));
+                        .get(ApiParams.ALLOW_START_STOP_RECORDING));
             } catch (Exception ex) {
                 log.warn(
                         "Invalid param [allowStartStopRecording] for meeting=[{}]",
@@ -405,10 +408,10 @@ public class ParamsProcessorUtil {
         }
 
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
-        if (!StringUtils.isEmpty(params.get("webcamsOnlyForModerator"))) {
+        if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
                 webcamsOnlyForMod = Boolean.parseBoolean(params
-                        .get("webcamsOnlyForModerator"));
+                        .get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR));
             } catch (Exception ex) {
                 log.warn(
                         "Invalid param [webcamsOnlyForModerator] for meeting=[{}]",
@@ -417,37 +420,33 @@ public class ParamsProcessorUtil {
         }
 
         String guestPolicy = defaultGuestPolicy;
-        if (!StringUtils.isEmpty(params.get("guestPolicy"))) {
-        	guestPolicy = params.get("guestPolicy");
+        if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
+        	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		}
         
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
-        Map<String, String> meetingInfo = new HashMap<String, String>();
-        meetingInfo = processMetaParam(params);
+        Map<String, String> meetingInfo = processMetaParam(params);
 
         // Create a unique internal id by appending the current time. This way,
         // the 3rd-party
         // app can reuse the external meeting id.
         long createTime = System.currentTimeMillis();
-        internalMeetingId = internalMeetingId.concat("-").concat(
-                new Long(createTime).toString());
+        internalMeetingId = internalMeetingId + "-" + Long.toString(createTime);
 
         // If this create meeting request is for a breakout room, we just used
         // we need to generate a unique internal and external id and keep
         // tracks of the parent meeting id
-        String parentMeetingId = new String();
+        String parentMeetingId = "";
         if (isBreakout) {
-            internalMeetingId = params.get("meetingID");
-            parentMeetingId = params.get("parentMeetingID");
+            internalMeetingId = params.get(ApiParams.MEETING_ID);
+            parentMeetingId = params.get(ApiParams.PARENT_MEETING_ID);
             // We rebuild the the external meeting using the has of the parent
             // meeting, the shared timestamp and the sequence number
-            String timeStamp = StringUtils.substringAfter(internalMeetingId,
-                    "-");
-            String externalHash = DigestUtils.shaHex(parentMeetingId
-                    .concat("-").concat(timeStamp.toString()).concat("-")
-                    .concat(params.get("sequence")));
-            externalMeetingId = externalHash.concat("-").concat(timeStamp);
+            String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");
+            String externalHash = DigestUtils
+                    .sha1Hex((parentMeetingId + "-" + timeStamp + "-" + params.get("sequence")));
+            externalMeetingId = externalHash + "-" + timeStamp;
         }
 
         // Create the meeting with all passed in parameters.
@@ -473,10 +472,10 @@ public class ParamsProcessorUtil {
         String configXML = getDefaultConfigXML();
         meeting.storeConfig(true, configXML);
 
-        if (!StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
+        if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
             String moderatorOnlyMessageTemplate = params.get("moderatorOnlyMessage");
-			String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
-					dialNumber, telVoice, meetingName);
+            String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
+                    dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
@@ -554,7 +553,7 @@ public class ParamsProcessorUtil {
 
 				@Override
 				public String handleResponse(
-						final HttpResponse response) throws ClientProtocolException, IOException {
+						final HttpResponse response) throws IOException {
 					int status = response.getStatusLine().getStatusCode();
 					if (status >= 200 && status < 300) {
 						HttpEntity entity = response.getEntity();
@@ -585,7 +584,7 @@ public class ParamsProcessorUtil {
 	}
 	
 	public String getDefaultLogoutUrl() {
-		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || defaultLogoutUrl.equalsIgnoreCase("default")) {          
+		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
      		return defaultServerUrl;
      	} else {
      		return defaultLogoutUrl;
@@ -603,7 +602,7 @@ public class ParamsProcessorUtil {
     }
 
 	public String convertToInternalMeetingId(String extMeetingId) {
-		return DigestUtils.shaHex(extMeetingId);
+		return DigestUtils.sha1Hex(extMeetingId);
 	}
 	
 	public String processPassword(String pass) {
@@ -624,7 +623,7 @@ public class ParamsProcessorUtil {
 	
 	public String processLogoutUrl(String logoutUrl) {
 		if (StringUtils.isEmpty(logoutUrl)) {
-	        if ((StringUtils.isEmpty(defaultLogoutUrl)) || defaultLogoutUrl.equalsIgnoreCase("default")) {          
+	        if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
         		return defaultServerUrl;
         	} else {
         		return defaultLogoutUrl;
@@ -710,16 +709,16 @@ public class ParamsProcessorUtil {
 			return true;
 		}
 
-		log.info("CONFIGXML CHECKSUM=" + checksum + " length=" + checksum.length());
+		log.info("CONFIGXML CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = meetingID + configXML + securitySalt;
 		String cs = DigestUtils.sha1Hex(data);
 		if (checksum.length() == 64) {
 			cs = DigestUtils.sha256Hex(data);
-			log.info("CONFIGXML SHA256 " + cs);
+			log.info("CONFIGXML SHA256 {}", cs);
 		}
 
-		if (cs == null || cs.equals(checksum) == false) {
+		if (cs == null || !cs.equals(checksum)) {
 			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
 			return false;
 		}
@@ -742,13 +741,13 @@ public class ParamsProcessorUtil {
 		    queryString = queryString.replace("checksum=" + checksum, "");
 		}
 
-		log.info("CHECKSUM=" + checksum + " length=" + checksum.length());
+		log.info("CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = apiCall + queryString + securitySalt;
 		String cs = DigestUtils.sha1Hex(data);
 		if (checksum.length() == 64) {
 			cs = DigestUtils.sha256Hex(data);
-			log.info("SHA256 " + cs);
+			log.info("SHA256 {}", cs);
 		}
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("query string after checksum removed: [{}]", queryString);
@@ -765,15 +764,15 @@ public class ParamsProcessorUtil {
 			return true;
 		}
 
-		StringBuffer csbuf = new StringBuffer();
+		StringBuilder csbuf = new StringBuilder();
 		csbuf.append(apiCall);
  
-		SortedSet<String> keys = new TreeSet<String>(params.keySet());
+		SortedSet<String> keys = new TreeSet<>(params.keySet());
  
 		boolean first = true;
 		String checksum = null;
 		for (String key: keys) {
-			if (key.equals("checksum")) {
+			if (ApiParams.CHECKSUM.equals(key)) {
 				// Don't include the "checksum" parameter in the checksum
 				checksum = params.get(key)[0];
 				continue;
@@ -797,7 +796,7 @@ public class ParamsProcessorUtil {
 */				try {       
 					// we need to re-encode the values because Grails unencoded it
 					// when it received the 'POST'ed data. Might not need to do in a GET request.
-					encResult = URLEncoder.encode(value, "UTF-8");  
+					encResult = URLEncoder.encode(value, StandardCharsets.UTF_8.name());  
 				} catch (UnsupportedEncodingException e) {       
 					encResult = value;     
 				} 					
@@ -808,10 +807,10 @@ public class ParamsProcessorUtil {
 		csbuf.append(securitySalt);
 
 		String baseString = csbuf.toString();				
-		String cs = DigestUtils.shaHex(baseString);
+		String cs = DigestUtils.sha1Hex(baseString);
 		
-		if (cs == null || cs.equals(checksum) == false) {
-			log.info("POST basestring = [" + baseString + "]");
+		if (cs == null || !cs.equals(checksum)) {
+			log.info("POST basestring = {}", baseString);
 			log.info("checksumError: failed checksum. our checksum: [{}], client: [{}]", cs, checksum);
 			return false;
 		}
@@ -973,10 +972,10 @@ public class ParamsProcessorUtil {
 	}
 
 
-	public ArrayList<String> decodeIds(String encodeid) {
-		ArrayList<String> ids=new ArrayList<String>();
+	public List<String> decodeIds(String encodeid) {
+		ArrayList<String> ids=new ArrayList<>();
 		try {
-			ids.addAll(Arrays.asList(URLDecoder.decode(encodeid,"UTF-8").split(URLDECODER_SEPARATOR)));
+			ids.addAll(Arrays.asList(URLDecoder.decode(encodeid, StandardCharsets.UTF_8.name()).split(URLDECODER_SEPARATOR)));
 		} catch (UnsupportedEncodingException e) {
 			log.error("Couldn't decode the IDs");
 		}
@@ -984,38 +983,38 @@ public class ParamsProcessorUtil {
 		return ids;
 	}
 
-	public ArrayList<String> convertToInternalMeetingId(ArrayList<String> extMeetingIds) {
-		ArrayList<String> internalMeetingIds=new ArrayList<String>();
-		for(String extid : extMeetingIds){
-			internalMeetingIds.add(convertToInternalMeetingId(extid));
-		}
-		return internalMeetingIds;
-	}
+    public List<String> convertToInternalMeetingId(List<String> extMeetingIds) {
+        ArrayList<String> internalMeetingIds = new ArrayList<>();
+        for (String extid : extMeetingIds) {
+            internalMeetingIds.add(convertToInternalMeetingId(extid));
+        }
+        return internalMeetingIds;
+    }
 	
-	public Map<String,String> getUserCustomData(Map<String,String> params) {
-		Map<String,String> resp = new HashMap<String, String>();
+    public Map<String, String> getUserCustomData(Map<String, String> params) {
+        Map<String, String> resp = new HashMap<>();
 
-		for (String key: params.keySet()) {
-	    	if (key.contains("userdata")&&key.indexOf("userdata")==0){
-	    		String[] userdata = key.split("-");
-			    if(userdata.length == 2){
-			    	log.debug("Got user custom data {} = {}", key, params.get(key));
-			    	resp.put(userdata[1], params.get(key));
-			    }
-			}   
-	    }
+        for (String key : params.keySet()) {
+            if (key.contains("userdata") && key.indexOf("userdata") == 0) {
+                String[] userdata = key.split("-");
+                if (userdata.length == 2) {
+                    log.debug("Got user custom data {} = {}", key, params.get(key));
+                    resp.put(userdata[1], params.get(key));
+                }
+            }
+        }
 
-		return resp;
-	}
+        return resp;
+    }
 
 	public Map<String, Map<String, Object>> decodeFilters(String encodedFilters) {
-        Map<String, Map<String, Object>> filters = new LinkedHashMap<String, Map<String, Object>>();
+        Map<String, Map<String, Object>> filters = new LinkedHashMap<>();
 
         try {
             String[] sFilters = encodedFilters.split(URLDECODER_SEPARATOR);
             for( String sFilter: sFilters) {
                 String[] filterElements = sFilter.split(FILTERDECODER_SEPARATOR_ELEMENTS, 3);
-                Map<String, Object> filter = new LinkedHashMap<String, Object>();
+                Map<String, Object> filter = new LinkedHashMap<>();
                 filter.put("op", filterElements[1]);
                 String[] fValues = filterElements[2].split(FILTERDECODER_SEPARATOR_OPERATORS);
                 filter.put("values", fValues );

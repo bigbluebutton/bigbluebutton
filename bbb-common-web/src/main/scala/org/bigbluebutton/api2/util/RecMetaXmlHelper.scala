@@ -32,7 +32,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
   def loadMetadataXml(path: String): Option[Elem] = {
     try {
       //val xml = XML.loadFile(path)
-      val xml = XML.load(new java.io.InputStreamReader(new java.io.FileInputStream(path), "UTF-8"))
+      val xml = XML.load(new java.io.InputStreamReader(new java.io.FileInputStream(path), StandardCharsets.UTF_8.name()))
       Some(xml)
     } catch {
       case ioe: IOException =>
@@ -47,7 +47,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   def saveRecordingMetadata(xml: File, metadata: RecordingMetadata): Unit = {
     try {
-      val Encoding = "UTF-8"
+      val Encoding = StandardCharsets.UTF_8.name()
       val pp = new PrettyPrinter(80, 2)
       val fos = new FileOutputStream(xml.getAbsolutePath)
       val writer = Channels.newWriter(fos.getChannel(), Encoding)

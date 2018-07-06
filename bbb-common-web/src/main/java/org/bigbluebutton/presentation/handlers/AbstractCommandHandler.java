@@ -36,8 +36,8 @@ public abstract class AbstractCommandHandler extends
 
   protected NuProcess nuProcess;
   protected int exitCode;
-  final protected StringBuilder stdoutBuilder = new StringBuilder();
-  final protected StringBuilder stderrBuilder = new StringBuilder();
+  protected final StringBuilder stdoutBuilder = new StringBuilder();
+  protected final StringBuilder stderrBuilder = new StringBuilder();
 
   @Override
   public void onPreStart(NuProcess nuProcess) {

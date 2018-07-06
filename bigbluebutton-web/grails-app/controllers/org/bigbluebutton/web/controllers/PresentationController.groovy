@@ -103,6 +103,18 @@ class PresentationController {
          
          def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
          def podId = params.pod_id
+         log.debug "@Default presentation pod" + podId
+
+         if(isDownloadable) {
+           log.debug "@Creating download directory..."
+           File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
+           if (downloadDir != null) {
+             def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+             def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
+             def downloadableFile = new File( downloadDir.absolutePath + File.separatorChar + downloadableFileName )
+             downloadableFile << pres.newInputStream()
+           }
+         }
 
         log.debug("processing file upload " + presFilename)
          def presentationBaseUrl = presentationService.presentationBaseUrl

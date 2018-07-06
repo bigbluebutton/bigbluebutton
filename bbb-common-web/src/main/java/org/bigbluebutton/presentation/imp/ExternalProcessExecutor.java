@@ -21,6 +21,7 @@ package org.bigbluebutton.presentation.imp;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,7 @@ public class ExternalProcessExecutor {
             }
 
         } catch(Exception e) {
-        	log.info("TIMEDOUT excuting : " + COMMAND);
+        	log.info("TIMEDOUT excuting : {}", COMMAND);
             p.destroy();
         } finally {
             timer.cancel();     // If the process returns within the timeout period, we have to stop the interrupter

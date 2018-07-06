@@ -1,10 +1,12 @@
 package org.bigbluebutton.api2;
 
-import org.bigbluebutton.api.domain.RecordingMetadata;
-import org.bigbluebutton.api2.domain.UploadedTrack;
-import scala.Option;
 import java.io.File;
 import java.util.ArrayList;
+
+import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api2.domain.UploadedTrack;
+
+import scala.Option;
 
 public interface RecordingServiceGW {
 

@@ -1,13 +1,14 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
+
 import org.apache.commons.codec.digest.DigestUtils;
 
 public final class Util {
 	
 	public static String generatePresentationId(String name) {
 		long timestamp = System.currentTimeMillis();		
-		return DigestUtils.shaHex(name) + "-" + timestamp;
+		return DigestUtils.sha1Hex(name) + "-" + timestamp;
 	}
 	
     public static String createNewFilename(String presId, String fileExt) {
