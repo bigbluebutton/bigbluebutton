@@ -11,6 +11,7 @@ import '/imports/api/presentations/server';
 import '/imports/api/slides/server';
 import '/imports/api/breakouts/server';
 import '/imports/api/chat/server';
+import '/imports/api/group-chat/server';
 import '/imports/api/screenshare/server';
 import '/imports/api/voice-users/server';
 import '/imports/api/whiteboard-multi-user/server';
