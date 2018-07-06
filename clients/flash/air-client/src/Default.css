@@ -375,3 +375,8 @@ settings|SettingsItemRenderer {
 	borderColorOver     : PropertyReference("grey700");
 	borderColorDown     : PropertyReference("grey700");
 }
+
+.startingScreensharingLabel {
+	color     : PropertyReference("bbbBlack");
+	textAlign : center;
+}

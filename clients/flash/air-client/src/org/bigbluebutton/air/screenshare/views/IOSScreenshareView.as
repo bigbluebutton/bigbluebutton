@@ -7,6 +7,7 @@ package org.bigbluebutton.air.screenshare.views {
 	import mx.formatters.DateFormatter;
 	
 	import spark.components.Image;
+	import spark.components.Label;
 	import spark.components.ProgressBar;
 	
 	import org.bigbluebutton.BBBRtmpPlayer;
@@ -23,21 +24,23 @@ package org.bigbluebutton.air.screenshare.views {
 		
 		protected var originalVideoHeight:Number;
 		
-		private var _waitingBar : ProgressBar;
-
-		private var _waitingTimer : Timer;
+		private var _waitingBar:ProgressBar;
 		
-		private var _connectionId : String;
+		private var _waitingTimer:Timer;
 		
-		private const WAITING_SECONDS : int = 15;
+		private var _connectionId:String;
+		
+		private var _startingLabel:Label;
+		
+		private const WAITING_SECONDS:int = 15;
 		
 		protected var dateFormat:DateFormatter = new DateFormatter("Y-MM-DD J:NN:SS:QQ");
-
+		
 		private function waitingTimerProgressHandler(e:TimerEvent):void {
 			trace("PROGRESS " + _waitingTimer.currentCount);
 			_waitingBar.currentProgress = _waitingTimer.currentCount;
 		}
-
+		
 		public function resizeForProgressBar():void {
 			// if we have device where screen width less than screen height e.g. phone
 			if (width < height) {
@@ -67,10 +70,13 @@ package org.bigbluebutton.air.screenshare.views {
 				}
 			}
 			
-			_waitingBar.x = width - _waitingBar.width;
+			_startingLabel.x = _waitingBar.x = width - _waitingBar.width;
 			_waitingBar.y = height - _waitingBar.height;
+			
+			_startingLabel.y = _waitingBar.y + (_waitingBar.height * 0.5);
+			_startingLabel.width = _waitingBar.width;
+			_startingLabel.height = _waitingBar.height;
 		}
-
 		
 		public function resizeForPortrait():void {
 			// if we have device where screen width less than screen height e.g. phone
@@ -110,8 +116,6 @@ package org.bigbluebutton.air.screenshare.views {
 		}
 		
 		public function startStream(uri:String, streamName:String, imgWidth:Number, imgHeight:Number, meetingId:String, authToken:String, externalUserId:String):void {
-			
-			
 			_waitingBar = new ProgressBar();
 			
 			_waitingBar.width = imgWidth;
@@ -124,11 +128,18 @@ package org.bigbluebutton.air.screenshare.views {
 			_waitingBar.bottom = 20;
 			_waitingBar.styleName = "micLevelProgressBar";
 			
+			_startingLabel = new Label();
+			
+			_startingLabel.horizontalCenter = 0;
+			_startingLabel.text = "Starting screen sharing";
+			_startingLabel.styleName = "startingScreensharingLabel";
+			
 			addChild(_waitingBar);
+			addChild(_startingLabel);
 			
 			_waitingTimer = new Timer(1000, WAITING_SECONDS);
 			_waitingTimer.addEventListener(TimerEvent.TIMER, waitingTimerProgressHandler);
-
+			
 			if (player) {
 				close();
 			}
@@ -153,30 +164,15 @@ package org.bigbluebutton.air.screenshare.views {
 			player.play();
 		}
 		
-/*		private function showProgressBar() : void {
-			_waitingBar = new ProgressBar();
-			_waitingBar.currentProgress = 0;
-			_waitingBar.totalProgress = 100;
-			_waitingBar.percentWidth = 80;
-			_waitingBar.percentHeight = 100;
-			_waitingBar.bottom = 20;
-			_waitingBar.horizontalCenter = 0;
-			_waitingBar.verticalCenter = 0;
-			_waitingBar.styleName = "micLevelProgressBar";
-			
-			addChild(_waitingBar);
-			
-			_waitingTimer = new Timer(1000, WAITING_SECONDS);
-			_waitingTimer.addEventListener(TimerEvent.TIMER, waitingTimerProgressHandler);
-			_waitingTimer.start();
-		}
-*/		
 		private function onConnected(e:BBBRtmpPlayerEvent):void {
 			trace(dateFormat.format(new Date()) + " EVENT: " + e.type + " MESSAGE: " + e.getMessage());
 			if (_waitingBar && _waitingBar.parent == this) {
 				_waitingTimer.removeEventListener(TimerEvent.TIMER, waitingTimerProgressHandler);
 				_waitingBar.currentProgress = WAITING_SECONDS;
 				removeChild(_waitingBar);
+			}
+			if (_startingLabel && _startingLabel.parent == this) {
+				removeChild(_startingLabel);
 			}
 			if (image) {
 				image.source = player.getBmpData();
@@ -208,7 +204,7 @@ package org.bigbluebutton.air.screenshare.views {
 					removeChild(image);
 				}
 				videoComp = null;
-				player = null;	
+				player = null;
 			}
 		}
 		
