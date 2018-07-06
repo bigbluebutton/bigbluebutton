@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import AudioService from '../audio/service';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   title: {
@@ -11,6 +12,10 @@ const intlMessages = defineMessages({
   },
   message: {
     id: 'app.breakoutJoinConfirmation.message',
+    description: 'Join breakout confim message',
+  },
+  freeJoinMessage: {
+    id: 'app.breakoutJoinConfirmation.freeJoinMessage',
     description: 'Join breakout confim message',
   },
   confirmLabel: {
@@ -35,24 +40,53 @@ class BreakoutJoinConfirmation extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      selectValue: props.breakout.breakoutId,
+    };
+
     this.handleJoinBreakoutConfirmation = this.handleJoinBreakoutConfirmation.bind(this);
+    this.renderSelectMeeting = this.renderSelectMeeting.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
   handleJoinBreakoutConfirmation() {
     const {
-      breakoutURL,
+      getURL,
       mountModal,
+      breakoutURL,
+      isFreeJoin,
     } = this.props;
-
+    const url = isFreeJoin ? getURL(this.state.selectValue) : breakoutURL;
     // leave main room's audio when joining a breakout room
     AudioService.exitAudio();
 
-    window.open(breakoutURL);
+    window.open(url);
     mountModal(null);
+  }
+  handleSelectChange(e) {
+    const { value } = e.target;
+    this.setState({ selectValue: value });
+    this.props.requestJoinURL(value);
+  }
+
+  renderSelectMeeting() {
+    const { breakouts, intl } = this.props;
+    return (
+      <div className={styles.selectParent}>
+        {`${intl.formatMessage(intlMessages.freeJoinMessage)}`}
+        <select
+          className={styles.select}
+          value={this.state.selectValue}
+          onChange={this.handleSelectChange}
+        >
+          {breakouts.map(({ name, breakoutId }) => (<option key={breakoutId} value={breakoutId} >{name}</option>))}
+        </select>
+      </div>
+    );
   }
 
   render() {
-    const { intl, breakoutName } = this.props;
+    const { intl, breakoutName, isFreeJoin } = this.props;
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
@@ -66,7 +100,7 @@ class BreakoutJoinConfirmation extends Component {
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
       >
-        {`${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
+        { isFreeJoin ? this.renderSelectMeeting() : `${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
       </Modal>
     );
   }
