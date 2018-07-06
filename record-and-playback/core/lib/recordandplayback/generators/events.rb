@@ -37,7 +37,7 @@ module BigBlueButton
          #removing "_N" at the end of userId
          userId.gsub(/_\d*$/, "")
 
-         participant_ids.add(userId)
+         participants_ids.add(userId)
       end
       return participants_ids.length
     end
