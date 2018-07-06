@@ -19,11 +19,13 @@
 
 package org.bigbluebutton.web.services;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.bigbluebutton.api.domain.Poll;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class RedisStorageService implements IStorageService{
 	JedisPool jedisPool;

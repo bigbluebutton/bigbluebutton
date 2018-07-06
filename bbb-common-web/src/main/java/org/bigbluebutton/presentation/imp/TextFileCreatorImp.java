@@ -27,12 +27,13 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
@@ -68,7 +69,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     String COMMAND = "";
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-      dest = textfilesDir.getAbsolutePath() + File.separator + "slide-1.txt";
+      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-1.txt";
       String text = "No text could be retrieved for the slide";
 
       File file = new File(dest);
@@ -89,7 +90,7 @@ public class TextFileCreatorImp implements TextFileCreator {
       }
 
     } else {
-      dest = textfilesDir.getAbsolutePath() + File.separator + "slide-";
+      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-";
       // sudo apt-get install xpdf-utils
       for (int i = 1; i <= pres.getNumberOfPages(); i++) {
         COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + i + " -l " + i
@@ -106,7 +107,7 @@ public class TextFileCreatorImp implements TextFileCreator {
 
           Gson gson = new Gson();
           String logStr = gson.toJson(logData);
-          log.warn("-- analytics -- " + logStr);
+          log.warn("-- analytics -- {}", logStr);
 
           break;
         }
@@ -124,8 +125,8 @@ public class TextFileCreatorImp implements TextFileCreator {
 
   private void cleanDirectory(File directory) {
     File[] files = directory.listFiles();
-    for (int i = 0; i < files.length; i++) {
-      files[i].delete();
+    for (File file : files) {
+      file.delete();
     }
   }
 

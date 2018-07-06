@@ -1,10 +1,10 @@
 package org.bigbluebutton.api2;
 
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.RecordingMetadata;
-
 import java.util.List;
 import java.util.Map;
+
+import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.domain.RecordingMetadata;
 
 public interface IRecordingService {
   List<RecordingMetadata> getRecordingsMetadata(List<String> idList, List<String> states);

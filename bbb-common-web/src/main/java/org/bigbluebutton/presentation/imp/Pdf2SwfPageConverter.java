@@ -63,8 +63,8 @@ public class Pdf2SwfPageConverter implements PageConverter {
     // feature like the pipe
     NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList("timeout",
         convTimeout, "/bin/sh", "-c",
-        SWFTOOLS_DIR + File.separator + "pdf2swf" + " -vv " + AVM2SWF + " -F "
-            + fontsDir + " -p " + String.valueOf(page) + " " + source + " -o "
+        SWFTOOLS_DIR + File.separatorChar + "pdf2swf" + " -vv " + AVM2SWF + " -F "
+            + fontsDir + " -p " + Integer.toString(page) + " " + source + " -o "
             + dest
             + " | egrep  'shape id|Updating font|Drawing' | sed 's/  / /g' | cut -d' ' -f 1-3  | sort | uniq -cw 15"));
 
@@ -105,7 +105,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
         destFile.delete();
       }
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -119,7 +119,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.warn("-- analytics -- " + logStr);
+      log.warn("-- analytics -- {}", logStr);
 
       File tempPng = null;
       String basePresentationame = FilenameUtils.getBaseName(presentation.getName());
@@ -127,14 +127,14 @@ public class Pdf2SwfPageConverter implements PageConverter {
         tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
       } catch (IOException ioException) {
         // We should never fall into this if the server is correctly configured
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("message", "Unable to create temporary files");
         gson = new Gson();
         logStr = gson.toJson(logData);
-        log.error("-- analytics -- " + logStr);
+        log.error("-- analytics -- {}", logStr);
       }
 
       long pdfStart = System.currentTimeMillis();
@@ -166,7 +166,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       source = tempPng.getAbsolutePath();
       NuProcessBuilder pbSwf = new NuProcessBuilder(
           Arrays.asList("timeout", convTimeout,
-              SWFTOOLS_DIR + File.separator + "png2swf", "-o", dest, source));
+              SWFTOOLS_DIR + File.separatorChar + "png2swf", "-o", dest, source));
       Png2SwfPageConverterHandler pSwfHandler = new Png2SwfPageConverterHandler();
       pbSwf.setProcessListener(pSwfHandler);
       NuProcess processSwf = pbSwf.start();
@@ -187,7 +187,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       long convertEnd = System.currentTimeMillis();
 
-      logData = new HashMap<String, Object>();
+      logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -195,12 +195,12 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
       logData.put("message", "Problem page conversion overall duration.");
       logStr = gson.toJson(logData);
-      log.info("-- analytics -- " + logStr);
+      log.info("-- analytics -- {}", logStr);
 
       if (doneSwf && destFile.exists()) {
         return true;
       } else {
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
@@ -208,7 +208,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
         logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
         logData.put("message", "Failed to convert: " + destFile + " does not exist.");
         logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
 
         return false;
       }

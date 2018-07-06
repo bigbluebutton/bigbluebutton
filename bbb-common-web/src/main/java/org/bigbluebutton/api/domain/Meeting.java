@@ -19,11 +19,16 @@
 
 package org.bigbluebutton.api.domain;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.commons.lang3.RandomStringUtils;
 
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class Meeting {
 
@@ -68,7 +73,7 @@ public class Meeting {
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
-	private final List<String> breakoutRooms = new ArrayList<String>();
+	private final List<String> breakoutRooms = new ArrayList<>();
 	private String customLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
@@ -105,12 +110,12 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
 
-        userCustomData = new HashMap<String, Object>();
+        userCustomData = new HashMap<>();
 
-        users = new ConcurrentHashMap<String, User>();
-        registeredUsers = new ConcurrentHashMap<String, RegisteredUser>();
+        users = new ConcurrentHashMap<>();
+        registeredUsers = new ConcurrentHashMap<>();
 
-        configs = new ConcurrentHashMap<String, Config>();
+        configs = new ConcurrentHashMap<>();
     }
 
 	public void addBreakoutRoom(String meetingId) {
@@ -408,8 +413,7 @@ public class Meeting {
 	}
 
 	public User userLeft(String userid){
-		User u = (User) users.remove(userid);	
-		return u;
+		return (User) users.remove(userid);	
 	}
 
 	public User getUserById(String id){
@@ -418,7 +422,7 @@ public class Meeting {
 
 	public User getUserWithExternalId(String externalUserId) {
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u = users.get(key);
 			if (u.getExternalUserId().equals(externalUserId)) {
 				return u;
 			}
@@ -433,7 +437,7 @@ public class Meeting {
 	public int getNumModerators(){
 		int sum = 0;
 		for (String key : users.keySet()) {
-		    User u =  (User) users.get(key);
+		    User u =  users.get(key);
 		    if (u.isModerator()) sum++;
 		}
 		return sum;
@@ -446,7 +450,7 @@ public class Meeting {
 	public int getNumListenOnly() {
 		int sum = 0;
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u =  users.get(key);
 			if (u.isListeningOnly()) sum++;
 		}
 		return sum;
@@ -455,7 +459,7 @@ public class Meeting {
 	public int getNumVoiceJoined() {
 		int sum = 0;
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u =  users.get(key);
 			if (u.isVoiceJoined()) sum++;
 		}
 		return sum;
@@ -464,7 +468,7 @@ public class Meeting {
 	public int getNumVideos() {
 		int sum = 0;
 		for (String key : users.keySet()) {
-			User u =  (User) users.get(key);
+			User u =  users.get(key);
 			sum += u.getStreams().size();
 		}
 		return sum;
@@ -512,7 +516,19 @@ public class Meeting {
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
 
-	/***
+	public void userRegistered(RegisteredUser user) {
+        this.registeredUsers.put(user.userId, user);
+    }
+
+    public RegisteredUser userUnregistered(String userid) {
+		return this.registeredUsers.remove(userid);
+    }
+
+    public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
+        return registeredUsers;
+    }
+
+    /***
 	 * Meeting Builder
 	 *
 	 */
@@ -662,18 +678,5 @@ public class Meeting {
     	public Meeting build() {
     		return new Meeting(this);
     	}
-    }
-
-    public void userRegistered(RegisteredUser user) {
-        this.registeredUsers.put(user.userId, user);
-    }
-
-    public RegisteredUser userUnregistered(String userid) {
-		RegisteredUser r = (RegisteredUser) this.registeredUsers.remove(userid);
-        return r;
-    }
-
-    public ConcurrentMap<String, RegisteredUser> getRegisteredUsers() {
-        return registeredUsers;
     }
 }
