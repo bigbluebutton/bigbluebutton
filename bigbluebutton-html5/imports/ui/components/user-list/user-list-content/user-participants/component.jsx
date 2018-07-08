@@ -145,7 +145,6 @@ class UserParticipants extends Component {
       handleEmojiChange,
     } = this.props;
 
-
     const userActions =
     {
       openChat: {

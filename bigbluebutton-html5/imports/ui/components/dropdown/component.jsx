@@ -74,22 +74,22 @@ class Dropdown extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.menuShouldClose) {
-      return this.props.shouldCloseToggle();
-    }
+    const {
+      userDropdownOpen,
+      closeUserDropdown,
+      showEmojiMenu,
+      onShow,
+      onHide,
+    } = this.props;
 
-    if (this.props.emojisOpen && !prevProps.emojisOpen
-        || !this.props.emojisOpen && prevProps.emojisOpen) {
-      this.handleShow();
-    }
+    if (userDropdownOpen) return closeUserDropdown();
 
-    if (this.state.isOpen && !prevState.isOpen) {
-      this.props.onShow();
-    }
+    const emojisToggled = showEmojiMenu && !prevProps.showEmojiMenu || !showEmojiMenu && prevProps.showEmojiMenu;
+    if (emojisToggled) this.handleShow();
 
-    if (!this.state.isOpen && prevState.isOpen) {
-      this.props.onHide();
-    }
+    if (this.state.isOpen && !prevState.isOpen) onShow();
+
+    if (!this.state.isOpen && prevState.isOpen) onHide();
   }
 
   handleShow() {

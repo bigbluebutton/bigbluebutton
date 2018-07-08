@@ -95,24 +95,17 @@ class UserListContent extends Component {
   onActionsShow() {
     const dropdown = this.getDropdownMenuParent();
     const scrollContainer = this.props.getScrollContainerRef();
+    const dropdownTrigger = dropdown.children[0];
+    const list = findDOMNode(this.list);
+    const children = [].slice.call(list.children);
+    children.find(child => child.getAttribute('role') === 'menuitem').focus();
 
-    if (dropdown === null) this.setState({ isActionsOpen: true, dropdownVisible: false });
-
-    if (dropdown) {
-      const scrollContainer = this.props.getScrollContainerRef();
-      const dropdownTrigger = dropdown.children[0];
-
-      const list = findDOMNode(this.list);
-      const children = [].slice.call(list.children);
-      children.find(child => child.getAttribute('role') === 'menuitem').focus();
-
-      this.setState({
-        isActionsOpen: true,
-        dropdownVisible: false,
-        dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
-        dropdownDirection: 'top',
-      });
-    }
+    this.setState({
+      isActionsOpen: true,
+      dropdownVisible: false,
+      dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
+      dropdownDirection: 'top',
+    });
 
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
@@ -263,9 +256,9 @@ class UserListContent extends Component {
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
         closeEmojiMenu={this.props.closeEmojiMenu}
-        menuShouldClose={this.props.menuShouldClose}
-        shouldCloseToggle={this.props.shouldCloseToggle}
-        emojisOpen={this.props.emojisOpen}
+        userDropdownOpen={this.props.userDropdownOpen}
+        closeUserDropdown={this.props.closeUserDropdown}
+        showEmojiMenu={this.props.showEmojiMenu}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}

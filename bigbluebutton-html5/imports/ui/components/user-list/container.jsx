@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Meetings from '/imports/api/meetings';
-import Servicea from '/imports/ui/components/actions-bar/service';
+import EmojiService from '/imports/ui/components/actions-bar/service';
 import Service from './service';
 import UserList from './component';
-
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
@@ -48,5 +47,5 @@ export default withTracker(({ chatID, compact }) => ({
   roving: Service.roving,
   CustomLogoUrl: Service.getCustomLogoUrl(),
   compact,
-  handleEmojiChange: Servicea.setEmoji,
+  handleEmojiChange: EmojiService.setEmoji,
 }))(UserListContainer);
