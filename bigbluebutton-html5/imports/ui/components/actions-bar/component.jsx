@@ -57,7 +57,6 @@ class ActionsBar extends React.PureComponent {
               handleCloseVideo={handleExitVideo}
             />
             : null}
-          <EmojiSelect options={emojiList} selected={emojiSelected} onChange={handleEmojiChange} />
         </div>
       </div>
     );

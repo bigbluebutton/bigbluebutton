@@ -88,7 +88,6 @@ class UserParticipants extends Component {
 
     this.state = {
       index: -1,
-      isStatusMenuOpen: false,
     };
 
     this.userRefs = [];
@@ -224,9 +223,7 @@ class UserParticipants extends Component {
   }
 
   focusUserItem(index) {
-    if (!this.userRefs[index]) {
-      return;
-    }
+    if (!this.userRefs[index]) return;
 
     this.userRefs[index].firstChild.focus();
   }

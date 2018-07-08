@@ -95,18 +95,24 @@ class UserListContent extends Component {
   onActionsShow() {
     const dropdown = this.getDropdownMenuParent();
     const scrollContainer = this.props.getScrollContainerRef();
-    const dropdownTrigger = dropdown.children[0];
 
-    const list = findDOMNode(this.list);
-    const children = [].slice.call(list.children);
-    children.find(child => child.getAttribute('role') === 'menuitem').focus();
+    if (dropdown === null) this.setState({ isActionsOpen: true, dropdownVisible: false });
 
-    this.setState({
-      isActionsOpen: true,
-      dropdownVisible: false,
-      dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
-      dropdownDirection: 'top',
-    });
+    if (dropdown) {
+      const scrollContainer = this.props.getScrollContainerRef();
+      const dropdownTrigger = dropdown.children[0];
+
+      const list = findDOMNode(this.list);
+      const children = [].slice.call(list.children);
+      children.find(child => child.getAttribute('role') === 'menuitem').focus();
+
+      this.setState({
+        isActionsOpen: true,
+        dropdownVisible: false,
+        dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
+        dropdownDirection: 'top',
+      });
+    }
 
     scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
@@ -126,9 +132,7 @@ class UserListContent extends Component {
   }
 
   handleScroll() {
-    this.setState({
-      isActionsOpen: false,
-    });
+    this.setState({ isActionsOpen: false });
   }
 
   /**
@@ -253,13 +257,15 @@ class UserListContent extends Component {
       </div>
     );
 
-    if (!actions.length) {
-      return contents;
-    }
+    if (!actions.length) return contents;
 
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
+        closeEmojiMenu={this.props.closeEmojiMenu}
+        menuShouldClose={this.props.menuShouldClose}
+        shouldCloseToggle={this.props.shouldCloseToggle}
+        emojisOpen={this.props.emojisOpen}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}

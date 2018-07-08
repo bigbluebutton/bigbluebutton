@@ -60,7 +60,19 @@ class UserListItem extends Component {
 
     this.state = {
       emojisOpen: false,
+      menuShouldClose: false,
     };
+
+    this.closeEmojiMenu = this.closeEmojiMenu.bind(this);
+    this.shouldCloseToggle = this.shouldCloseToggle.bind(this);
+  }
+
+  shouldCloseToggle() {
+    this.setState({ menuShouldClose: false });
+  }
+
+  closeEmojiMenu() {
+    this.setState({ emojisOpen: false });
   }
 
   getUsersActions() {
@@ -100,41 +112,121 @@ class UserListItem extends Component {
       allowedToChangeStatus,
     } = actions;
 
+    const setstatus = {
+      icon: 'right_arrow',
+      label: () => 'Set Status',
+      handler: () => this.setState({ emojisOpen: true }),
+    };
+
+    const back = {
+      icon: 'left_arrow',
+      label: () => 'Back',
+      handler: () => this.setState({ emojisOpen: false }),
+    };
+
+    const away = {
+      icon: 'time',
+      label: () => 'Away',
+      handler: () => {
+        handleEmojiChange('away');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
+
+    const raisehand = {
+      icon: 'hand',
+      label: () => 'Raise',
+      handler: () => {
+        handleEmojiChange('hand');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
+
+    const neutral = {
+      icon: 'undecided',
+      label: () => 'Undecided',
+      handler: () => {
+        handleEmojiChange('undecided');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
 
     const confused = {
       icon: 'confused',
       label: () => 'Confused',
-      handler: () => { alert('working confused'); return handleEmojiChange('confused'); },
+      handler: () => {
+        handleEmojiChange('confused');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
     };
 
+    const sad = {
+      icon: 'sad',
+      label: () => 'Sad',
+      handler: () => {
+        handleEmojiChange('sad');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
+
+    const happy = {
+      icon: 'happy',
+      label: () => 'Happy',
+      handler: () => {
+        handleEmojiChange('happy');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
+
+    const applause = {
+      icon: 'applause',
+      label: () => 'Applause',
+      handler: () => {
+        handleEmojiChange('applause');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
+
+    const thumbsUp = {
+      icon: 'thumbs_up',
+      label: () => 'Thumbs Up',
+      handler: () => {
+        handleEmojiChange('thumbs_up');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
+
+    const thumbsDown = {
+      icon: 'thumbs_down',
+      label: () => 'Thumbs Down',
+      handler: () => {
+        handleEmojiChange('thumbs_down');
+        this.setState({ emojisOpen: false, menuShouldClose: true });
+      },
+    };
 
     if (this.state.emojisOpen) {
       return _.compact([
-        (allowedToChangeStatus && this.state.emojisOpen ? <div
-          key={_.uniqueId('action-item-')}
-          onClick={() => {
-            this.setState({ emojisOpen: false });
-          }}
-        >Back
-                                                          </div> : null),
+        (allowedToChangeStatus ? UserListItem.createAction(back, user) : null),
         (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
+        (UserListItem.createAction(away, user)),
+        (UserListItem.createAction(raisehand, user)),
+        (UserListItem.createAction(neutral, user)),
         (UserListItem.createAction(confused, user)),
-        (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
+        (UserListItem.createAction(sad, user)),
+        (UserListItem.createAction(happy, user)),
+        (UserListItem.createAction(applause, user)),
+        (UserListItem.createAction(thumbsUp, user)),
+        (UserListItem.createAction(thumbsDown, user)),
       ]);
     }
 
     return _.compact([
-      (allowedToChangeStatus && !this.state.emojisOpen ? <div
-        key={_.uniqueId('action-item-')}
-        onClick={() => {
-          this.setState({ emojisOpen: true });
-        }}
-      >Set Status
-                                                         </div> : null),
+      (allowedToChangeStatus ? UserListItem.createAction(setstatus, user) : null),
       (allowedToChatPrivately ? UserListItem.createAction(openChat, router, user) : null),
       (allowedToMuteAudio ? UserListItem.createAction(mute, user) : null),
       (allowedToUnmuteAudio ? UserListItem.createAction(unmute, user) : null),
-      (allowedToResetStatus ? UserListItem.createAction(clearStatus, user) : null),
+      (allowedToResetStatus && user.emoji.status !== 'none' ? UserListItem.createAction(clearStatus, user) : null),
       (allowedToSetPresenter ? UserListItem.createAction(setPresenter, user) : null),
       (allowedToRemove ? UserListItem.createAction(remove, user) : null),
       (allowedToPromote ? UserListItem.createAction(promote, user) : null),
@@ -155,8 +247,6 @@ class UserListItem extends Component {
 
     const actions = this.getUsersActions();
 
-    console.log(actions);
-
     const contents = (<UserListContent
       compact={compact}
       user={user}
@@ -167,6 +257,9 @@ class UserListItem extends Component {
       isMeetingLocked={isMeetingLocked}
       getScrollContainerRef={getScrollContainerRef}
       emojisOpen={this.state.emojisOpen}
+      menuShouldClose={this.state.menuShouldClose}
+      shouldCloseToggle={this.shouldCloseToggle}
+      closeEmojiMenu={this.closeEmojiMenu}
     />);
 
     return contents;

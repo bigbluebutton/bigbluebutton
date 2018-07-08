@@ -73,8 +73,16 @@ class Dropdown extends Component {
     return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
   }
 
-
   componentDidUpdate(prevProps, prevState) {
+    if (this.props.menuShouldClose) {
+      return this.props.shouldCloseToggle();
+    }
+
+    if (this.props.emojisOpen && !prevProps.emojisOpen
+        || !this.props.emojisOpen && prevProps.emojisOpen) {
+      this.handleShow();
+    }
+
     if (this.state.isOpen && !prevState.isOpen) {
       this.props.onShow();
     }
@@ -92,10 +100,7 @@ class Dropdown extends Component {
   }
 
   handleHide() {
-    this.setState({ isOpen: false }, () => {
-      const { removeEventListener } = window;
-      removeEventListener('click', this.handleWindowClick, true);
-    });
+    this.setState({ isOpen: false });
   }
 
   handleWindowClick(event) {
