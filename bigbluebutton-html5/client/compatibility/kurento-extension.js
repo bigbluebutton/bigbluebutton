@@ -16,11 +16,9 @@ Kurento = function (
   voiceBridge,
   userId,
   internalMeetingId,
-  onFail = null,
-  chromeExtension = null,
-  userName = null,
-  caleeName = null,
-  onSuccess = null
+  onFail,
+  onSuccess,
+  options = {},
 ) {
 
   this.ws = null;
@@ -29,12 +27,29 @@ Kurento = function (
   this.webRtcPeer = null;
   this.mediaCallback = null;
 
-  this.voiceBridge = `${voiceBridge}-SCREENSHARE`;
+  this.renderTag = tag;
+  this.voiceBridge = voiceBridge;
+  this.userId = userId;
   this.internalMeetingId = internalMeetingId;
 
-  this.userId = userId;
-  this.userName = userName;
-  this.caleeName = caleeName;
+  // Optional parameters are: userName, caleeName, chromeExtension, wsUrl, iceServers,
+  // chromeScreenshareSources, firefoxScreenshareSource
+
+  Object.assign(this, options);
+
+  if (this.wsUrl == null) {
+    this.defaultPath = 'bbb-webrtc-sfu';
+    this.hostName = window.location.hostname;
+    this.wsUrl = `wss://${this.hostName}/${this.defaultPath}`;
+  }
+
+  if (this.chromeScreenshareSources == null) {
+    this.chromeScreenshareSources = ["screen", "window"];
+  }
+
+  if (this.firefoxScreenshareSource == null) {
+    this.firefoxScreenshareSource = "window";
+  }
 
   // Limiting max resolution to WQXGA
   // In FireFox we force full screen share and in the case
@@ -44,24 +59,11 @@ Kurento = function (
   this.width = window.screen.width;
   this.height = window.screen.height;
 
-  // TODO properly generate a uuid
-  this.sessid = Math.random().toString();
-
-  this.renderTag = 'remote-media';
 
   this.userId = userId;
 
-  this.kurentoPort = 'bbb-webrtc-sfu';
-  this.hostName = window.location.hostname;
-  this.socketUrl = `wss://${this.hostName}/${this.kurentoPort}`;
   this.pingInterval = null;
 
-  this.iceServers = null;
-
-  if (chromeExtension != null) {
-    this.chromeExtension = chromeExtension;
-    window.chromeExtension = chromeExtension;
-  }
 
   if (onFail != null) {
     this.onFail = Kurento.normalizeCallback(onFail);
@@ -160,6 +162,18 @@ KurentoManager.prototype.joinWatchVideo = function (tag) {
   this.kurentoVideo.setWatchVideo(tag);
 };
 
+KurentoManager.prototype.getFirefoxScreenshareSource = function () {
+  return this.kurentoScreenshare.firefoxScreenshareSource;
+}
+
+KurentoManager.prototype.getChromeScreenshareSources = function () {
+  return this.kurentoScreenshare.chromeScreenshareSources;
+}
+
+KurentoManager.prototype.getChromeExtensionKey = function () {
+  return this.kurentoScreenshare.chromeExtension;
+}
+
 
 Kurento.prototype.setScreensharing = function (tag) {
   this.mediaCallback = this.startScreensharing.bind(this);
@@ -168,7 +182,6 @@ Kurento.prototype.setScreensharing = function (tag) {
 
 Kurento.prototype.create = function (tag) {
   this.setRenderTag(tag);
-  this.iceServers = true;
   this.init();
 };
 
@@ -193,7 +206,7 @@ Kurento.prototype.init = function () {
   const self = this;
   if ('WebSocket' in window) {
     console.log('this browser supports websockets');
-    this.ws = new WebSocket(this.socketUrl);
+    this.ws = new WebSocket(this.wsUrl);
 
     this.ws.onmessage = this.onWSMessage.bind(this);
     this.ws.onclose = (close) => {
@@ -288,9 +301,10 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   this.sendMessage(message);
 };
 
+
 Kurento.prototype.startScreensharing = function () {
   if (window.chrome) {
-    if (!this.chromeExtension) {
+    if (this.chromeExtension == null) {
       this.logError({
         status: 'failed',
         message: 'Missing Chrome Extension key',
@@ -318,6 +332,8 @@ Kurento.prototype.startScreensharing = function () {
     this.height = resolution.height;
     console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
   }
+
+  this.addIceServers(this.iceServers, options);
 
   this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
@@ -377,6 +393,8 @@ Kurento.prototype.viewer = function () {
       }
     }
 
+    this.addIceServers(this.iceServers, options);
+
     self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (error) {
       if (error) {
         return self.onFail(error);
@@ -431,6 +449,8 @@ Kurento.prototype.listenOnly = function () {
         video:false
       }
     }
+
+    this.addIceServers(this.iceServers, options);
 
     self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
       if(error) {
@@ -497,6 +517,14 @@ Kurento.prototype.resumeTrack = function (message) {
   }
 }
 
+Kurento.prototype.addIceServers = function (iceServers, options) {
+  console.debug("Adding iceServers", iceServers);
+  if (iceServers && iceServers.length > 0) {
+    options.configuration = {};
+    options.configuration.iceServers = iceServers;
+  }
+};
+
 Kurento.prototype.stop = function () {
   // if (this.webRtcPeer) {
   //  var message = {
@@ -560,8 +588,24 @@ window.getScreenConstraints = function (sendSource, callback) {
   screenConstraints.video.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
   screenConstraints.video.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
 
+  const getChromeScreenConstraints = function (extensionKey) {
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage(
+        extensionKey,
+        {
+          getStream: true,
+          sources: kurentoManager.getChromeScreenshareSources(),
+        },
+        (response) => {
+          resolve(response);
+        },
+      );
+    });
+  };
+
   if (isChrome) {
-    getChromeScreenConstraints((constraints) => {
+    const extensionKey = kurentoManager.getChromeExtensionKey();
+    getChromeScreenConstraints(extensionKey).then((constraints) => {
       if (!constraints) {
         document.dispatchEvent(new Event('installChromeExtension'));
         return;
@@ -587,26 +631,22 @@ window.getScreenConstraints = function (sendSource, callback) {
       ];
 
       console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
-      // now invoking native getUserMedia API
-      callback(null, screenConstraints);
-    }, chromeExtension);
-  } else if (isFirefox) {
-    screenConstraints.video.mediaSource = 'screen';
+      return callback(null, screenConstraints);
+    });
+  }
+
+  if (isFirefox) {
+    const firefoxScreenshareSource = kurentoManager.getFirefoxScreenshareSource();
+    screenConstraints.video.mediaSource = firefoxScreenshareSource;
 
     console.log('getScreenConstraints for Firefox returns => ', screenConstraints);
-    // now invoking native getUserMedia API
-    callback(null, screenConstraints);
-  } else if (isSafari) {
+    return callback(null, screenConstraints);
+  }
+
+  if (isSafari) {
     // At this time (version 11.1), Safari doesn't support screenshare.
     document.dispatchEvent(new Event('safariScreenshareNotSupported'));
     return;
-
-    /*
-    screenConstraints.video.mediaSource = 'screen';
-    console.log('getScreenConstraints for Safari returns => ', screenConstraints);
-    // now invoking native getUserMedia API
-    callback(null, screenConstraints);
-    */
   }
 };
 
@@ -647,20 +687,6 @@ window.kurentoExitAudio = function () {
   window.kurentoManager.exitAudio();
 };
 
-window.getChromeScreenConstraints = function (callback, extensionId) {
-  chrome.runtime.sendMessage(
-    extensionId, {
-      getStream: true,
-      sources: [
-        'screen',
-      ],
-    },
-    (response) => {
-      console.log(response);
-      callback(response);
-    },
-  );
-};
 
 // a function to check whether the browser (Chrome only) is in an isIncognito
 // session. Requires 1 mandatory callback that only gets called if the browser
