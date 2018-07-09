@@ -100,7 +100,10 @@ class Dropdown extends Component {
   }
 
   handleHide() {
-    this.setState({ isOpen: false });
+    this.setState({ isOpen: false }, () => {
+      const { removeEventListener } = window;
+      removeEventListener('click', this.handleWindowClick, true);
+    });
   }
 
   handleWindowClick(event) {
