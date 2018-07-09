@@ -14,7 +14,6 @@ class ActionsBar extends React.PureComponent {
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
-      handleEmojiChange,
       isUserModerator,
       recordSettingsList,
       toggleRecording,

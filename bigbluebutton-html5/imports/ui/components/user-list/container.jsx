@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Meetings from '/imports/api/meetings';
-import EmojiService from '/imports/ui/components/actions-bar/service';
 import Service from './service';
 import UserList from './component';
 
@@ -47,5 +46,5 @@ export default withTracker(({ chatID, compact }) => ({
   roving: Service.roving,
   CustomLogoUrl: Service.getCustomLogoUrl(),
   compact,
-  handleEmojiChange: EmojiService.setEmoji,
+  handleEmojiChange: Service.setEmojiStatus,
 }))(UserListContainer);

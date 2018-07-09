@@ -321,7 +321,10 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none'); };
+const setEmojiStatus = (s) => {
+  const status = s === Auth.userID ? 'none' : s;
+  makeCall('setEmojiStatus', Auth.userID, status);
+};
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
