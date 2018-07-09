@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
 import { styles } from './styles.scss';
-import EmojiSelect from './emoji-select/component';
 import ActionsDropdown from './actions-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-menu/container';
@@ -15,8 +14,6 @@ class ActionsBar extends React.PureComponent {
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
-      emojiList,
-      emojiSelected,
       handleEmojiChange,
       isUserModerator,
       recordSettingsList,
