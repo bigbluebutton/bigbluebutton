@@ -236,6 +236,7 @@
     "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect",
     "app.audioNotification.mediaFailedMessage": "getUserMicMedia failed, Only secure origins are allowed",
     "app.audioNotification.closeLabel": "Close",
+    "app.audioNotificaion.reconnectingAsListenOnly": "Audio has been locked for moderators only, you are being connected as listen only",
     "app.breakoutJoinConfirmation.title": "Join Breakout Room",
     "app.breakoutJoinConfirmation.message": "Do you want to join",
     "app.breakoutJoinConfirmation.confirmLabel": "Join",
