@@ -84,7 +84,7 @@ class Dropdown extends Component {
 
     if (userDropdownOpen) return closeUserDropdown();
 
-    const emojisToggled = showEmojiMenu && !prevProps.showEmojiMenu || !showEmojiMenu && prevProps.showEmojiMenu;
+    const emojisToggled = (showEmojiMenu && !prevProps.showEmojiMenu) || (!showEmojiMenu && prevProps.showEmojiMenu);
     if (emojisToggled) this.handleShow();
 
     if (this.state.isOpen && !prevState.isOpen) onShow();
