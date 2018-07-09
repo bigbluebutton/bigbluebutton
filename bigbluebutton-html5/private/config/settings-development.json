@@ -78,10 +78,10 @@
       "chromeExtensionLink": "LINK",
       "chromeScreenshareSources": ["window", "screen"],
       "firefoxScreenshareSource": "window",
-      "enableScreensharing": true,
-      "enableVideo": true,
-      "enableVideoStats": true,
-      "enableListenOnly": true
+      "enableScreensharing": false,
+      "enableVideo": false,
+      "enableVideoStats": false,
+      "enableListenOnly": false
     },
 
     "acl": {
