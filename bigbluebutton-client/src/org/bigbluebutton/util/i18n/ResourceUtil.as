@@ -20,9 +20,11 @@ package org.bigbluebutton.util.i18n
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.errors.IOError;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
+	import flash.events.IOErrorEvent;
 	import flash.external.ExternalInterface;
 	import flash.globalization.Collator;
 	import flash.globalization.CollatorMode;
@@ -52,6 +54,9 @@ package org.bigbluebutton.util.i18n
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		private static var MASTER_LOCALE:String;
 		private static var DEFAULT_LOCALE_IDENTIFIER:String = "default";
+
+		[Embed(source = "../../../../../resources/prod/locales.xml", mimeType = "application/octet-stream")]
+		private const DEFAULT_CONFIG:Class;
 		
 		[Bindable] public var locales:Array = new Array();
 		
@@ -80,14 +85,25 @@ package org.bigbluebutton.util.i18n
 			
 			var _urlLoader:URLLoader = new URLLoader();     
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			_urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleIOError);
       
       		var localeReqURL:String = languageOptions.localesConfig + "?a=" + date.time;
 			_urlLoader.load(new URLRequest(localeReqURL));
 		}
 		
+		private function handleIOError(event:IOErrorEvent):void {
+			LOGGER.debug("locale.xml not loaded. Using default fallback configuration");
+			parseConfiguration(new XML(new DEFAULT_CONFIG()));
+		}
+		
 		private function handleComplete(e:Event):void{
-			parse(new XML(e.target.data));		
-									
+			LOGGER.debug("locale.xml loaded with success");
+			parseConfiguration(new XML(e.target.data));
+		}
+		
+		private function parseConfiguration(xmlConfig:XML):void{
+			parse(xmlConfig);		
+			
 			preferredLocale = getDefaultLocale();
 			LOGGER.debug("Setting preferred locale=" + preferredLocale);
 			// Improve language detection
