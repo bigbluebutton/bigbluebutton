@@ -79,11 +79,6 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
   }
 
-  def send(channel: String, json: String): Unit = {
-    //log.debug("Sending message {}", json)
-    jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, new JsonMsgToSendToAkkaApps(channel, json)))
-  }
-
   def shutdown(): Unit = {
     system.terminate()
   }

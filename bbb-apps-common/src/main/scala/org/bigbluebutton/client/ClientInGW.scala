@@ -15,8 +15,4 @@ class ClientInGW(val clientGWApp: ClientGWApplication) extends IClientInGW {
   def handleMsgFromClient(connInfo: ConnInfo, json: String): Unit = {
     clientGWApp.handleMsgFromClient(connInfo, json)
   }
-
-  def send(channel: String, json: String): Unit = {
-      clientGWApp.send(channel, json)
-  }
 }
