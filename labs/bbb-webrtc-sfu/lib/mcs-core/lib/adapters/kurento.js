@@ -25,17 +25,21 @@ module.exports = class MediaServer extends EventEmitter {
     return instance;
   }
 
-  async init () {
-    try {
-      if (!this._mediaServer) {
-        this._mediaServer = await this._getMediaServerClient(this._serverUri);
-        Logger.info("[mcs-media] Retrieved media server client => " + this._mediaServer);
-        this._monitorConnectionState();
+  init () {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!this._mediaServer) {
+          this._mediaServer = await this._getMediaServerClient(this._serverUri);
+          Logger.info("[mcs-media] Retrieved media server client => " + this._mediaServer);
+          this._monitorConnectionState();
+          resolve();
+        }
       }
-    }
-    catch (err) {
-      this._handleError(err);
-    }
+      catch (err) {
+        this._handleError(err);
+        reject(err);
+      }
+    });
   }
 
   _getMediaServerClient (serverUri) {
