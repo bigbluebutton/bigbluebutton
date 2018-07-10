@@ -1335,7 +1335,7 @@ begin
 
         processPresentation(package_dir)
 
-        processDeskshareEvents()
+        processDeskshareEvents(@doc)
 
         # Write slides.xml to file
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
