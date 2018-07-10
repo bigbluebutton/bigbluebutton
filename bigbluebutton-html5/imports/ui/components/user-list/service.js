@@ -322,8 +322,25 @@ const isMeetingLocked = (id) => {
 };
 
 const setEmojiStatus = (s) => {
-  const status = s === Auth.userID ? 'none' : s;
-  makeCall('setEmojiStatus', Auth.userID, status);
+  switch (s) {
+    case Auth.userId:
+      makeCall('setEmojiStatus', Auth.userID, 'none');
+      break;
+    case 'away':
+    case 'hand':
+    case 'undecided':
+    case 'confused':
+    case 'sad':
+    case 'happy':
+    case 'applause':
+    case 'thumbs_up':
+    case 'thumbs_down':
+      makeCall('setEmojiStatus', Auth.userID, s);
+      break;
+    default:
+      makeCall('setEmojiStatus', s, 'none');
+      break;
+  }
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
