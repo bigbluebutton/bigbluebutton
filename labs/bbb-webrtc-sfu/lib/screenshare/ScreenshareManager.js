@@ -70,8 +70,8 @@ module.exports = class ScreenshareManager extends BaseManager {
 
           Logger.info(this._logPrefix, "Sending startResponse to peer", sessionId, "for connection", session._id);
         }
-        catch (err) {
-          Logger.error(this._logPrefix, err);
+        catch (error) {
+          Logger.error(this._logPrefix, error);
           this._bbbGW.publish(JSON.stringify({
             connectionId: connectionId,
             type: C.SCREENSHARE_APP,
@@ -119,7 +119,7 @@ module.exports = class ScreenshareManager extends BaseManager {
 
       default:
         this._bbbGW.publish(JSON.stringify({
-          connectionId: session._id? session._id : 'none',
+          connectionId: (session && session._id) ? session._id : 'none',
           id : 'error',
           message: 'Invalid message ' + message
         }), C.FROM_SCREENSHARE);
