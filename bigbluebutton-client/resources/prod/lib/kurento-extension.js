@@ -29,7 +29,7 @@ Kurento = function (
   this.webRtcPeer = null;
   this.mediaCallback = null;
 
-  this.voiceBridge = `${voiceBridge}-SCREENSHARE`;
+  this.voiceBridge = voiceBridge;
   this.internalMeetingId = internalMeetingId;
 
   this.userId = userId;
