@@ -32,11 +32,13 @@ module.exports = class MediaServer extends EventEmitter {
           this._mediaServer = await this._getMediaServerClient(this._serverUri);
           Logger.info("[mcs-media] Retrieved media server client => " + this._mediaServer);
           this._monitorConnectionState();
-          resolve();
+          return resolve();
         }
+        resolve();
       }
       catch (err) {
         this._handleError(err);
+        this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
         reject(err);
       }
     });
