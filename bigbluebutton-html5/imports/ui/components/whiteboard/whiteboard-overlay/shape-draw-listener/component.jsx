@@ -285,9 +285,9 @@ export default class ShapeDrawListener extends Component {
   }
 
   contextMenu(event) {
-    this.funcName = 'contextMenu';
     // disable showing context-menu when right click
     event.preventDefault();
+    return this;
   }
 
   render() {

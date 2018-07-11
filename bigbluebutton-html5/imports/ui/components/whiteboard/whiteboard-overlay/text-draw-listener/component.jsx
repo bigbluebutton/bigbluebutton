@@ -374,9 +374,9 @@ export default class TextDrawListener extends Component {
   }
 
   contextMenu(event) {
-    this.funcName = 'contextMenu';
     // disable showing context-menu when right click
     event.preventDefault();
+    return this;
   }
 
   render() {
