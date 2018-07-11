@@ -69,9 +69,10 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
   const currentUser = Users.findOne({ userId: Auth.userID });
   const isMeetingBreakout = meetingIsBreakout();
 
-  if (!currentUser.approved) {
-    baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
-  }
+  // TODO re-enable to show loading screen while waiting for guest approval
+  // if (!currentUser.approved) {
+  //   baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
+  // }
 
   // Check if user is removed out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
