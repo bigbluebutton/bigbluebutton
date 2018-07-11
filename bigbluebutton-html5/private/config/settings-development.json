@@ -338,11 +338,11 @@
       }
       
     },
-    "log": {
-      "level":"info",
-      "target": ["server"],
-      "url":""
-    }
+    "log": [
+      { "target": "server", "level": "info" },
+      { "target": "console", "level": "info" },
+      { "target": "external", "level": "info", "externalURL": "/html5client/users", "method": "PUT" }
+    ]
   },
 
   "private": {

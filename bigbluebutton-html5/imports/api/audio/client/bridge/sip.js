@@ -2,6 +2,7 @@ import _ from 'lodash';
 import VoiceUsers from '/imports/api/voice-users';
 import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
+import logger from '/imports/startup/client/logger';
 
 const MEDIA = Meteor.settings.public.media;
 const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
@@ -414,7 +415,7 @@ export default class SIPBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        console.error(err);
+        logger.error(err);
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

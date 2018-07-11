@@ -5,6 +5,7 @@ import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
 import cx from 'classnames';
 import _ from 'lodash';
+import logger from '/imports/startup/client/logger';
 
 import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
@@ -203,7 +204,7 @@ class PresentationUploader extends Component {
       .catch((error) => {
         notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
 
-        console.error(error);
+        logger.error(error);
 
         this.setState({
           disableActions: false,

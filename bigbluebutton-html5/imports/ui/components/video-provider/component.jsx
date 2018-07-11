@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
+import logger from '/imports/startup/client/logger';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
@@ -252,7 +253,7 @@ class VideoProvider extends Component {
       log('info', `Sending message: ${jsonMessage}`);
       ws.send(jsonMessage, (error) => {
         if (error) {
-          console.error(`client: Websocket error "${error}" on message "${jsonMessage.id}"`);
+          logger.error(`client: Websocket error "${error}" on message "${jsonMessage.id}"`);
         }
       });
     } else {

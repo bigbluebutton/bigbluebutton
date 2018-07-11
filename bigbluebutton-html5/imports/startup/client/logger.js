@@ -5,12 +5,15 @@ import { ConsoleFormattedStream } from '@browser-bunyan/console-formatted-stream
 import { ServerStream } from '@browser-bunyan/server-stream';
 import { nameFromLevel } from '@browser-bunyan/levels';
 
-// The logger accepts "console","server", and "url" as targets
-// Multiple targets can be set as an array in the settings under public.log.target
-// Set the desired log levels to be sent under public.log.level
+// The logger accepts "console","server", and "external" as targets
+// Multiple targets can be set as an array in the settings under public.log
+// To add more targets use the format { "target": "server", "level": "info" },
+// and add it to the public.log array
 // The accepted levels are "debug", "info", "warn", "error"
-// If sending to a url, provide the end-point on public.log.url
-// Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
+// To send to URL, use the format { "target": "external", "level": "info",
+// "externalURL": "", "method": "PUT" }
+// externalURL is the end-point that logs will be sent to
+// To Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 
 const LOG_CONFIG = Meteor.settings.public.log || {};
 const loggerStreams = []; // Stores the targets streams
@@ -38,28 +41,32 @@ class MeteorStream {
 }
 
 // Checks to see which targets have been chosen
-if (LOG_CONFIG.target.includes('console')) {
-  loggerStreams.unshift({
-    level: LOG_CONFIG.level, // sends logs that are this level and higher
-    stream: new ConsoleFormattedStream(),
-  });
-}
+for (i in LOG_CONFIG) {
+  switch (LOG_CONFIG[i].target) {
+    case 'external':
+      loggerStreams.unshift({
+        level: LOG_CONFIG[i].level,
+        stream: new ServerLoggerStream({
+          url: LOG_CONFIG[i].externalURL,
+          method: LOG_CONFIG[i].method,
+        }),
+      });
+      break;
 
-if (LOG_CONFIG.target.includes('server')) {
-  loggerStreams.unshift({
-    level: LOG_CONFIG.level,
-    stream: new MeteorStream(),
-  });
-}
+    case 'console':
+      loggerStreams.unshift({
+        level: LOG_CONFIG[i].level, // sends logs that are this level and higher
+        stream: new ConsoleFormattedStream(),
+      });
+      break;
 
-if (LOG_CONFIG.target.includes('url')) {
-  loggerStreams.unshift({
-    level: LOG_CONFIG.level,
-    stream: new ServerLoggerStream({
-      url: LOG_CONFIG.url,
-      method: 'PUT',
-    }),
-  });
+    case 'server':
+      loggerStreams.unshift({
+        level: LOG_CONFIG[i].level,
+        stream: new MeteorStream(),
+      });
+      break;
+  }
 }
 
 // Creates the logger with the array of streams of the chosen targets

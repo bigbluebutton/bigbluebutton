@@ -17,4 +17,3 @@ Meteor.startup(() => {
     logger.error(message);
   });
 });
-
