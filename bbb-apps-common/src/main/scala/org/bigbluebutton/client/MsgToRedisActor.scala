@@ -4,6 +4,7 @@ import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.client.endpoint.redis.MessageSender
+import org.bigbluebutton.common2.msgs.LookUpUserReqMsg
 
 object MsgToRedisActor {
   def props(msgSender: MessageSender): Props =
@@ -19,7 +20,11 @@ class MsgToRedisActor(msgSender: MessageSender)
 
   def handle(msg: BbbCommonEnvJsNodeMsg): Unit = {
     val json = JsonUtil.toJson(msg)
-    msgSender.send(toAkkaAppsRedisChannel, json)
+    
+    msg.envelope.name match {
+      case LookUpUserReqMsg.NAME => msgSender.send(toThirdPartyRedisChannel, json)
+      case _ => msgSender.send(toAkkaAppsRedisChannel, json)
+    }
   }
 
 }

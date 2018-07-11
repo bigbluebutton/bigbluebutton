@@ -489,6 +489,22 @@ package org.bigbluebutton.modules.users.services
         LOGGER.info(JSON.stringify(logData));
       }, message);
     }
+	
+	public function lookUpUser(externalUserId:String):void {
+		var message:Object = {
+			header: {name: "LookUpUserReqMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
+			body: {externalUserId: externalUserId}
+		};
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage2x(function(result:String):void { // On successful result
+		}, function(status:String):void { // status - On error occurred
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["apps"];
+			logData.logCode = "error_sending_look_up_user";
+			LOGGER.info(JSON.stringify(logData));
+		}, message);
+	}
 
     public function addUserToPresenterGroup(userID:String):void {
       var message:Object = {

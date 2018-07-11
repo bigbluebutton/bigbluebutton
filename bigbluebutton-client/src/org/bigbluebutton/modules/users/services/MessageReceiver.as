@@ -22,6 +22,9 @@ package org.bigbluebutton.modules.users.services
   
   import flash.utils.setTimeout;
   
+  import mx.controls.Alert;
+  import mx.utils.ObjectUtil;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.toaster.Toaster;
@@ -29,6 +32,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.TimerUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.BreakoutRoomsUsersListUpdatedEvent;
@@ -55,6 +59,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+  import org.bigbluebutton.main.model.users.events.LookUpUserResultEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -141,6 +146,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "UserEmojiChangedEvtMsg":
           handleEmojiStatusHand(message);
+          break;
+        case "LookUpUserRespMsg":
+          handleLookUpUserRespMsg(message);
           break;
 		case "UpdateRecordingTimerEvtMsg":
 		  handleUpdateRecordingTimer(message);
@@ -768,6 +776,17 @@ package org.bigbluebutton.modules.users.services
       }
       
     }
+	
+	private function handleLookUpUserRespMsg(msg:Object):void {
+		// This message is coming from outside so checks need to be more thorough
+		var body:Object = msg.body as Object;
+		if (body) {
+			var userInfo:Array = body.userInfo as Array;
+			if (userInfo) {
+				dispatcher.dispatchEvent(new LookUpUserResultEvent(userInfo));
+			}
+		}
+	}
 	
 	private function handleUpdateRecordingTimer(msg:Object):void {
 		if (msg.body.time > 0) {

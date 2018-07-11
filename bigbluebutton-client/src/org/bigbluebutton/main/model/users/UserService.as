@@ -35,6 +35,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
+	import org.bigbluebutton.core.model.users.User2x;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
@@ -48,6 +49,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
+	import org.bigbluebutton.main.model.users.events.LookUpUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -358,5 +360,12 @@ package org.bigbluebutton.main.model.users
 	public function updateWebcamsOnlyForModerator(command:SetWebcamsOnlyForModeratorEvent):void {
 		sender.updateWebcamsOnlyForModerator(command.webcamsOnlyForModerator, UsersUtil.getMyUserID());
 	}
+	
+    public function lookUpUser(command:LookUpUserEvent):void {
+      var user:User2x = UsersUtil.getUser(command.userId);
+      if (user) {
+        sender.lookUpUser(user.extId);
+	  }
+    }
 	}
 }

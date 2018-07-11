@@ -55,7 +55,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
 		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
 		<mate:Listener type="{ScreenshareSelectionWindowEvent.SHOW_WINDOW}" method="handleShowScreenshareSelection" />
-	  
+		<mate:Listener type="{LookUpUserResultEvent.SHOW_WINDOW}" method="handleShowLookUpUserResult" />
+		
 		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 		<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
@@ -89,14 +90,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.TextEvent;
 			import flash.utils.setTimeout;
 			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
-			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -135,6 +136,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.options.LanguageOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.LookUpUserResultEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
@@ -145,6 +147,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareSelectionWindow;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
+			import org.bigbluebutton.modules.users.views.UserLookUpWindow;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -578,6 +581,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleShowScreenshareSelection(event:ScreenshareSelectionWindowEvent):void {
 				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, ScreenshareSelectionWindow, true);
+			}
+			
+			private function handleShowLookUpUserResult(event:LookUpUserResultEvent):void {
+				var popup:UserLookUpWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, UserLookUpWindow, true) as UserLookUpWindow;
+				popup.setUserInfo(event.userInfo);
 			}
 			
 			private function showbrowserPermissionHelper() : void {
