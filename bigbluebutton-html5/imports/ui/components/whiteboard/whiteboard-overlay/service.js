@@ -49,6 +49,10 @@ const setTextShapeActiveId = (id) => {
 
 const getCurrentUserId = () => Auth.userID;
 
+const undoAnnotation = (whiteboardId) => {
+  makeCall('undoAnnotation', whiteboardId);
+};
+
 
 export default {
   sendAnnotation,
@@ -56,4 +60,5 @@ export default {
   setTextShapeActiveId,
   resetTextShapeSession,
   getCurrentUserId,
+  undoAnnotation,
 };

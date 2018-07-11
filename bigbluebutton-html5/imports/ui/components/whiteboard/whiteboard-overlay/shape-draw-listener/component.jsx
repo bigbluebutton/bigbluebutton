@@ -39,6 +39,7 @@ export default class ShapeDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
+    this.contextMenu = this.contextMenu.bind(this);
   }
 
   componentDidMount() {
@@ -148,17 +149,22 @@ export default class ShapeDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
-    // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
-    // but the browser didn't catch it. So check it here.
-    if (this.isDrawing) {
-      return this.sendLastMessage();
+    if (event.button === 0) {
+      // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
+      // but the browser didn't catch it. So check it here.
+      if (this.isDrawing) {
+        return this.sendLastMessage();
+      }
+
+      window.addEventListener('mouseup', this.handleMouseUp);
+      window.addEventListener('mousemove', this.handleMouseMove, true);
+
+      const { clientX, clientY } = event;
+      return this.commonDrawStartHandler(clientX, clientY);
+    } else if (event.button === 2) {
+      this.props.actions.undoAnnotation(this.props.whiteboardId);
     }
-
-    window.addEventListener('mouseup', this.handleMouseUp);
-    window.addEventListener('mousemove', this.handleMouseMove, true);
-
-    const { clientX, clientY } = event;
-    return this.commonDrawStartHandler(clientX, clientY);
+    return null;
   }
 
   // main mouse move handler
@@ -278,6 +284,12 @@ export default class ShapeDrawListener extends Component {
     sendAnnotation(annotation);
   }
 
+  contextMenu(event) {
+    this.funcName = 'contextMenu';
+    // disable showing context-menu when right click
+    event.preventDefault();
+  }
+
   render() {
     const { tool } = this.props.drawSettings;
     const baseName = Meteor.settings.public.app.basename;
@@ -294,6 +306,7 @@ export default class ShapeDrawListener extends Component {
         role="presentation"
         style={shapeDrawStyle}
         onMouseDown={this.handleMouseDown}
+        onContextMenu={this.contextMenu}
       />
     );
   }

@@ -55,6 +55,7 @@ export default class TextDrawListener extends Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.checkTextAreaFocus = this.checkTextAreaFocus.bind(this);
+    this.contextMenu = this.contextMenu.bind(this);
   }
 
   componentDidMount() {
@@ -172,22 +173,26 @@ export default class TextDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
-    if (this.hasBeenTouchedRecently) {
-      return;
-    }
+    if (event.button === 0) {
+      if (this.hasBeenTouchedRecently) {
+        return;
+      }
 
-    // if our current drawing state is not drawing the box and not writing the text
-    if (!this.state.isDrawing && !this.state.isWritingText) {
-      window.addEventListener('mouseup', this.handleMouseUp);
-      window.addEventListener('mousemove', this.handleMouseMove, true);
+      // if our current drawing state is not drawing the box and not writing the text
+      if (!this.state.isDrawing && !this.state.isWritingText) {
+        window.addEventListener('mouseup', this.handleMouseUp);
+        window.addEventListener('mousemove', this.handleMouseMove, true);
 
-      const { clientX, clientY } = event;
-      this.commonDrawStartHandler(clientX, clientY);
+        const { clientX, clientY } = event;
+        this.commonDrawStartHandler(clientX, clientY);
 
-    // second case is when a user finished writing the text and publishes the final result
-    } else {
-      // publishing the final shape and resetting the state
-      this.sendLastMessage();
+      // second case is when a user finished writing the text and publishes the final result
+      } else {
+        // publishing the final shape and resetting the state
+        this.sendLastMessage();
+      }
+    } else if (event.button === 2) {
+      this.props.actions.undoAnnotation(this.props.whiteboardId);
     }
   }
 
@@ -368,6 +373,12 @@ export default class TextDrawListener extends Component {
     sendAnnotation(annotation);
   }
 
+  contextMenu(event) {
+    this.funcName = 'contextMenu';
+    // disable showing context-menu when right click
+    event.preventDefault();
+  }
+
   render() {
     const baseName = Meteor.settings.public.app.basename;
     const textDrawStyle = {
@@ -383,6 +394,7 @@ export default class TextDrawListener extends Component {
         style={textDrawStyle}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
+        onContextMenu={this.contextMenu}
       >
         {this.state.isDrawing ?
           <svg

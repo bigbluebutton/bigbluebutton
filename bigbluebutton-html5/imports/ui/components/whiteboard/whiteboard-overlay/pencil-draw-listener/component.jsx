@@ -24,6 +24,7 @@ export default class PencilDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
+    this.contextMenu = this.contextMenu.bind(this);
   }
 
   componentDidMount() {
@@ -117,17 +118,21 @@ export default class PencilDrawListener extends Component {
 
   // main mouse down handler
   mouseDownHandler(event) {
-    if (!this.isDrawing) {
-      window.addEventListener('mouseup', this.mouseUpHandler);
-      window.addEventListener('mousemove', this.mouseMoveHandler, true);
+    if (event.button === 0) {
+      if (!this.isDrawing) {
+        window.addEventListener('mouseup', this.mouseUpHandler);
+        window.addEventListener('mousemove', this.mouseMoveHandler, true);
 
-      const { clientX, clientY } = event;
-      this.commonDrawStartHandler(clientX, clientY);
+        const { clientX, clientY } = event;
+        this.commonDrawStartHandler(clientX, clientY);
 
-    // if you switch to a different window using Alt+Tab while mouse is down and release it
-    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-    } else {
-      this.sendLastMessage();
+      // if you switch to a different window using Alt+Tab while mouse is down and release it
+      // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+      } else {
+        this.sendLastMessage();
+      }
+    } else if (event.button === 2) {
+      this.props.actions.undoAnnotation(this.props.whiteboardId);
     }
   }
 
@@ -208,6 +213,12 @@ export default class PencilDrawListener extends Component {
     window.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
+  contextMenu(event) {
+    this.funcName = 'contextMenu';
+    // disable showing context-menu when right click
+    event.preventDefault();
+  }
+
   render() {
     const baseName = Meteor.settings.public.app.basename;
     const pencilDrawStyle = {
@@ -223,6 +234,7 @@ export default class PencilDrawListener extends Component {
         role="presentation"
         style={pencilDrawStyle}
         onMouseDown={this.mouseDownHandler}
+        onContextMenu={this.contextMenu}
       />
     );
   }
