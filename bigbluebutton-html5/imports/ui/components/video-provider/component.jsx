@@ -231,7 +231,6 @@ class VideoProvider extends Component {
         break;
 
       case 'pong':
-        console.debug('Received pong from server');
         break;
 
       case 'error':
@@ -270,11 +269,15 @@ class VideoProvider extends Component {
 
     log('info', 'SDP answer received from server. Processing ...');
 
-    peer.processAnswer(message.sdpAnswer, (error) => {
-      if (error) {
-        return log('error', JSON.stringify(error));
-      }
-    });
+    if (peer) {
+      peer.processAnswer(message.sdpAnswer, (error) => {
+        if (error) {
+          return log('error', JSON.stringify(error));
+        }
+      });
+    } else {
+      log('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...');
+    }
   }
 
   handleIceCandidate(message) {
@@ -291,7 +294,7 @@ class VideoProvider extends Component {
         webRtcPeer.iceQueue.push(message.candidate);
       }
     } else {
-      log('error', ' [ICE] Message arrived after the peer was already thrown out, discarding it...');
+      log('warn', '[iceCandidate] Message arrived after the peer was already thrown out, discarding it...');
     }
   }
 
@@ -325,7 +328,7 @@ class VideoProvider extends Component {
       webRtcPeer.dispose();
       delete this.webRtcPeers[id];
     } else {
-      log('info', 'No WebRTC peer to stop (not an error)');
+      log('warn', 'No WebRTC peer to stop (not an error)');
     }
   }
 
@@ -494,6 +497,7 @@ class VideoProvider extends Component {
     const video = this.videoTags[id];
     if (video == null) {
       log('warn', 'Peer', id, 'has not been started yet');
+      return;
     }
 
     if (video.srcObject) {
@@ -734,22 +738,26 @@ class VideoProvider extends Component {
     const peer = this.webRtcPeers[id];
     const videoTag = this.videoTags[id];
 
-    log('info', 'Handle play start for camera', id);
+    if (peer) {
+      log('info', 'Handle play start for camera', id);
 
-    // Clear camera shared timeout when camera succesfully starts
-    clearTimeout(this.restartTimeout[id]);
-    delete this.restartTimeout[id];
-    delete this.restartTimer[id];
+      // Clear camera shared timeout when camera succesfully starts
+      clearTimeout(this.restartTimeout[id]);
+      delete this.restartTimeout[id];
+      delete this.restartTimer[id];
 
-    peer.started = true;
+      peer.started = true;
 
-    if (!peer.attached) {
-      this.attachVideoStream(id);
-    }
+      if (!peer.attached) {
+        this.attachVideoStream(id);
+      }
 
-    if (id === this.props.userId) {
-      VideoService.sendUserShareWebcam(id);
-      VideoService.joinedVideo();
+      if (id === this.props.userId) {
+        VideoService.sendUserShareWebcam(id);
+        VideoService.joinedVideo();
+      }
+    } else {
+      log('warn', '[playStart] Message arrived after the peer was already thrown out, discarding it...');
     }
   }
 
