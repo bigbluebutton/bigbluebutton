@@ -47,6 +47,7 @@
 			moderatorUnmute="true"
 			allowClearRecordingMarks="false"
 			guestSoftMode="false"
+			allowUserLookup="false"
 			baseTabIndex="301"
 		/>
 

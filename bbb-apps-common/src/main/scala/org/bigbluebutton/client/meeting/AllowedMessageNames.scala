@@ -107,6 +107,9 @@ object AllowedMessageNames {
       BreakoutRoomsListMsg.NAME,
 
         // System
-      ClientToServerLatencyTracerMsg.NAME
+      ClientToServerLatencyTracerMsg.NAME,
+      
+      // Third-party Message
+      LookUpUserReqMsg.NAME
   )
 }

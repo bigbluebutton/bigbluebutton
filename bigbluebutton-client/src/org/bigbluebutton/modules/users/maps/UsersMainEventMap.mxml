@@ -43,8 +43,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
+			import org.bigbluebutton.main.model.users.events.LookUpUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			<!--TODO: Move guest events to user events? -->
+			
+			// TODO: Move guest events to user events?
 
 
 		]]>
@@ -104,6 +106,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	  <EventHandlers type="{KickUserEvent.KICK_USER}" >
 	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
+	  </EventHandlers>
+	  
+	  <EventHandlers type="{LookUpUserEvent.LOOK_UP_USER}" >
+	    <MethodInvoker generator="{UserService}" method="lookUpUser" arguments="{event}" />
 	  </EventHandlers>
 
 	  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">

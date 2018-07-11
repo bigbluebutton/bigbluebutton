@@ -1948,6 +1948,7 @@ users|MediaItemRenderer {
 	iconDemote      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Demote");
 	iconPromote     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Promote");
 	iconEject       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Eject");
+	iconUserLookUp  : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Moderator");
 	glowFilterColor : #1070D7;
 	verticalAlign   : middle;
 	horizontalGap   : 2;
