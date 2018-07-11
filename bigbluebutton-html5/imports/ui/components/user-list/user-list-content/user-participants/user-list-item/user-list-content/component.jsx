@@ -81,6 +81,23 @@ class UserListContent extends Component {
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick() {
+    if (this.props.showEmojiMenu) {
+      this.props.emojiSelected();
+    }
+  }
+
+  componentDidMount() {
+    const triggerElement = findDOMNode(this.trigger);
+    triggerElement.addEventListener('click', this.handleClick, true);
+  }
+
+  componentWillUnmount() {
+    const triggerElement = findDOMNode(this.trigger);
+    triggerElement.removeEventListener('click', this.handleWindowClick, true);
   }
 
   componentWillMount() {
@@ -216,6 +233,7 @@ class UserListContent extends Component {
     const contents = (
       <div
         className={!actions.length ? styles.userListItem : null}
+        ref={node => this.trigger = node}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -259,6 +277,7 @@ class UserListContent extends Component {
         userDropdownOpen={this.props.userDropdownOpen}
         closeUserDropdown={this.props.closeUserDropdown}
         showEmojiMenu={this.props.showEmojiMenu}
+        emojiSelected={this.props.emojiSelected}
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}

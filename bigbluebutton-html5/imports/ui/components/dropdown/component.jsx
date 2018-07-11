@@ -67,13 +67,14 @@ class Dropdown extends Component {
     this.handleHide = this.handleHide.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
+    this.componentDidUpdate = this.componentDidUpdate.bind(this);
   }
 
   componentWillUpdate(nextProps, nextState) {
     return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState, event) {
     const {
       userDropdownOpen,
       closeUserDropdown,
@@ -81,6 +82,15 @@ class Dropdown extends Component {
       onShow,
       onHide,
     } = this.props;
+
+    if (event) {
+      const menuContent = findDOMNode(this.content);
+
+      if (!menuContent.contains(event.target)) {
+        this.props.emojiSelected();
+        this.handleHide();
+      }
+    }
 
     if (userDropdownOpen) return closeUserDropdown();
 
@@ -99,11 +109,13 @@ class Dropdown extends Component {
     });
   }
 
-  handleHide() {
+  handleHide(event) {
     this.setState({ isOpen: false }, () => {
       const { removeEventListener } = window;
       removeEventListener('click', this.handleWindowClick, true);
     });
+
+    this.componentDidUpdate(this.props, this.state, event);
   }
 
   handleWindowClick(event) {
@@ -117,7 +129,7 @@ class Dropdown extends Component {
       return;
     }
 
-    this.handleHide();
+    this.handleHide(event);
   }
 
   handleToggle() {

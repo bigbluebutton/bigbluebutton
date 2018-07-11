@@ -1,0 +1,7 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.emojiSelected {
+    span, i {
+      color: $color-primary;
+    }
+  }

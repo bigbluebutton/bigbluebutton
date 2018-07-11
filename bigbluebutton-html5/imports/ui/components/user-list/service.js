@@ -322,25 +322,11 @@ const isMeetingLocked = (id) => {
 };
 
 const setEmojiStatus = (s) => {
-  switch (s) {
-    case Auth.userId:
-      makeCall('setEmojiStatus', Auth.userID, 'none');
-      break;
-    case 'away':
-    case 'hand':
-    case 'undecided':
-    case 'confused':
-    case 'sad':
-    case 'happy':
-    case 'applause':
-    case 'thumbs_up':
-    case 'thumbs_down':
-      makeCall('setEmojiStatus', Auth.userID, s);
-      break;
-    default:
-      makeCall('setEmojiStatus', s, 'none');
-      break;
-  }
+  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(s));
+
+  return statusAvailable
+    ? makeCall('setEmojiStatus', Auth.userID, s)
+    : makeCall('setEmojiStatus', s, 'none');
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
@@ -432,4 +418,6 @@ export default {
   roving,
   setCustomLogoUrl,
   getCustomLogoUrl,
+  getEmojiList: () => EMOJI_STATUSES,
+  getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
 };
