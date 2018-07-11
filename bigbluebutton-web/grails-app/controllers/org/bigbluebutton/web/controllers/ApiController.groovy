@@ -67,8 +67,6 @@ class ApiController {
   private static final String RESP_CODE_FAILED = 'FAILED'
   private static final String ROLE_MODERATOR = "MODERATOR";
   private static final String ROLE_ATTENDEE = "VIEWER";
-  private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
-  private static final String API_VERSION = '0.81'
   private static final String REDIRECT_RESPONSE = true
 
   MeetingService meetingService;
@@ -77,8 +75,6 @@ class ApiController {
   ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
-
-
 
   /* general methods */
   def index = {
@@ -93,24 +89,6 @@ class ApiController {
           }
         }
       }
-    }
-  }
-
-  /***********************************
-   * BREAKOUT TEST (API)
-   ***********************************/
-  def breakout = {
-    if(!StringUtils.isEmpty(params.meetingId)) {
-      String meetingId = StringUtils.strip(params.meetingId);
-      println("MeetingId = " + meetingId)
-    } else {
-      println("Missing meetingId")
-      return
-    }
-
-    if (StringUtils.isEmpty(params.password)) {
-      println("Missing password")
-      return
     }
   }
 
@@ -281,8 +259,7 @@ class ApiController {
       if (StringUtils.isEmpty(params.meetingID)) {
         errors.missingParamError("meetingID");
       }
-    }
-    else {
+    } else {
       errors.missingParamError("meetingID");
     }
     String externalMeetingId = params.meetingID
@@ -325,7 +302,7 @@ class ApiController {
     if (params.createTime != null) {
       long createTime = 0;
       try{
-        createTime=Long.parseLong(params.createTime);
+        createTime = Long.parseLong(params.createTime);
       } catch(Exception e){
         log.warn("could not parse createTime param");
         createTime = -1;
@@ -373,16 +350,12 @@ class ApiController {
       return;
     }
 
-    String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
-
-    boolean redirectImm = parseBoolean(params.redirectImmediately)
-
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
     // For users joining using the phone, we will prepend "v_" so it will be easier
     // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
     String internalUserID = "w_" + RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
-    String authToken =  RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
     String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
 
@@ -477,20 +450,20 @@ class ApiController {
 
     // Register user into the meeting.
     meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
-            us.authToken, us.avatarURL, us.guest, us.authed)
+        us.authToken, us.avatarURL, us.guest, us.authed)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored
     int maxUsers = meeting.getMaxUsers();
     if (maxUsers > 0 && meeting.getRegisteredUsers().size() >= maxUsers) {
-        // BEGIN - backward compatibility
-        invalid("maxParticipantsReached","The number of participants allowed for this meeting has been reached.", REDIRECT_RESPONSE);
-        return
-        // END - backward compatibility
+      // BEGIN - backward compatibility
+      invalid("maxParticipantsReached", "The number of participants allowed for this meeting has been reached.", REDIRECT_RESPONSE);
+      return
+      // END - backward compatibility
 
-        errors.maxParticipantsReached();
-        respondWithErrors(errors, REDIRECT_RESPONSE);
-        return;
+      errors.maxParticipantsReached();
+      respondWithErrors(errors, REDIRECT_RESPONSE);
+      return;
     }
 
     // Mark user as registered
@@ -1190,36 +1163,35 @@ class ApiController {
     }
   }
 
-    def getDefaultConfigXML = {
+  def getDefaultConfigXML = {
 
-        String API_CALL = "getDefaultConfigXML"
-        ApiErrors errors = new ApiErrors();
+    String API_CALL = "getDefaultConfigXML"
+    ApiErrors errors = new ApiErrors();
 
-        // BEGIN - backward compatibility
-        if (StringUtils.isEmpty(params.checksum)) {
-            invalid("checksumError", "You did not pass the checksum security check")
-            return
-        }
-
-        if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-            invalid("checksumError", "You did not pass the checksum security check")
-            return
-        }
-        // END - backward compatibility
-
-
-        // Do we agree on the checksum? If not, complain.
-        if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-            errors.checksumError()
-            respondWithErrors(errors)
-            return
-        }
-
-        String defConfigXML = paramsProcessorUtil.getDefaultConfigXML();
-
-        response.addHeader("Cache-Control", "no-cache")
-        render text: defConfigXML, contentType: 'text/xml'
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
     }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    // END - backward compatibility
+
+    // Do we agree on the checksum? If not, complain.
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
+
+    String defConfigXML = paramsProcessorUtil.getDefaultConfigXML();
+
+    response.addHeader("Cache-Control", "no-cache")
+    render text: defConfigXML, contentType: 'text/xml'
+  }
 
   def configXML = {
     String API_CALL = 'configXML'
@@ -1237,10 +1209,10 @@ class ApiController {
       sessionToken = StringUtils.strip(params.sessionToken)
       log.info("Getting ConfigXml for SessionToken = " + sessionToken)
       if (!session[sessionToken]) {
-          reject = true
+        reject = true
       } else {
-          us = meetingService.getUserSession(sessionToken);
-          if (us == null) reject = true
+        us = meetingService.getUserSession(sessionToken);
+        if (us == null) reject = true
       }
     }
 
@@ -1486,7 +1458,6 @@ class ApiController {
     }
   }
 
-
   /*************************************************
    * SIGNOUT API
    *************************************************/
@@ -1545,7 +1516,7 @@ class ApiController {
       return
     }
 
-    log.debug  request.getQueryString()
+    log.debug request.getQueryString()
 
     // Do we agree on the checksum? If not, complain.
     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
@@ -1556,7 +1527,7 @@ class ApiController {
 
     List<String> externalMeetingIds = new ArrayList<String>();
     if (!StringUtils.isEmpty(params.meetingID)) {
-      externalMeetingIds=paramsProcessorUtil.decodeIds(params.meetingID);
+      externalMeetingIds = paramsProcessorUtil.decodeIds(params.meetingID);
     }
 
     ArrayList<String> internalRecordIds = new ArrayList<String>()
@@ -1570,7 +1541,7 @@ class ApiController {
     }
 
     // Everything is good so far.
-    if ( internalRecordIds.size() == 0 && externalMeetingIds.size() > 0 ) {
+    if (internalRecordIds.size() == 0 && externalMeetingIds.size() > 0) {
       // No recordIDs, process the request based on meetingID(s)
       // Translate the external meeting ids to internal meeting ids (which is the seed for the recordIDs).
       internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
@@ -1614,7 +1585,7 @@ class ApiController {
       return
     }
 
-    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
     }
@@ -1644,7 +1615,7 @@ class ApiController {
     }
 
     // Do we agree on the checksum? If not, complain.
-    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       errors.checksumError()
       respondWithErrors(errors)
       return
@@ -1652,7 +1623,7 @@ class ApiController {
 
     ArrayList<String> recordIdList = new ArrayList<String>();
     if (!StringUtils.isEmpty(recordId)) {
-      recordIdList=paramsProcessorUtil.decodeIds(recordId);
+      recordIdList = paramsProcessorUtil.decodeIds(recordId);
     }
 
     if (!meetingService.existsAnyRecording(recordIdList)) {
@@ -1694,7 +1665,7 @@ class ApiController {
       return
     }
 
-    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
     }
@@ -1719,7 +1690,7 @@ class ApiController {
     }
 
     // Do we agree on the checksum? If not, complain.
-    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       errors.checksumError()
       respondWithErrors(errors)
       return
@@ -1727,7 +1698,7 @@ class ApiController {
 
     List<String> recordIdList = new ArrayList<String>();
     if (!StringUtils.isEmpty(recordId)) {
-      recordIdList=paramsProcessorUtil.decodeIds(recordId);
+      recordIdList = paramsProcessorUtil.decodeIds(recordId);
     }
 
     if (!meetingService.existsAnyRecording(recordIdList)) {
@@ -1753,81 +1724,81 @@ class ApiController {
   /******************************************************
    * UPDATE_RECORDINGS API
    ******************************************************/
-   def updateRecordingsHandler = {
-     String API_CALL = "updateRecordings"
-     log.debug CONTROLLER_NAME + "#${API_CALL}"
+  def updateRecordingsHandler = {
+    String API_CALL = "updateRecordings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-     // BEGIN - backward compatibility
-     if (StringUtils.isEmpty(params.checksum)) {
-       invalid("checksumError", "You did not pass the checksum security check")
-       return
-     }
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
 
-     if (StringUtils.isEmpty(params.recordID)) {
-       invalid("missingParamRecordID", "You must specify a recordID.");
-       return
-     }
+    if (StringUtils.isEmpty(params.recordID)) {
+      invalid("missingParamRecordID", "You must specify a recordID.");
+      return
+    }
 
-     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-       invalid("checksumError", "You did not pass the checksum security check")
-       return
-     }
-     // END - backward compatibility
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    // END - backward compatibility
 
-     ApiErrors errors = new ApiErrors()
+    ApiErrors errors = new ApiErrors()
 
-     // Do we have a checksum? If none, complain.
-     if (StringUtils.isEmpty(params.checksum)) {
-       errors.missingParamError("checksum");
-     }
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+    }
 
-     // Do we have a recording id? If none, complain.
-     String recordId = params.recordID
-     if (StringUtils.isEmpty(recordId)) {
-       errors.missingParamError("recordID");
-     }
+    // Do we have a recording id? If none, complain.
+    String recordId = params.recordID
+    if (StringUtils.isEmpty(recordId)) {
+      errors.missingParamError("recordID");
+    }
 
-     if (errors.hasErrors()) {
-       respondWithErrors(errors)
-       return
-     }
+    if (errors.hasErrors()) {
+      respondWithErrors(errors)
+      return
+    }
 
-     // Do we agree on the checksum? If not, complain.
-     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-       errors.checksumError()
-       respondWithErrors(errors)
-       return
-     }
+    // Do we agree on the checksum? If not, complain.
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
 
-     List<String> recordIdList = new ArrayList<String>();
-     if (!StringUtils.isEmpty(recordId)) {
-       recordIdList=paramsProcessorUtil.decodeIds(recordId);
-     }
+    List<String> recordIdList = new ArrayList<String>();
+    if (!StringUtils.isEmpty(recordId)) {
+      recordIdList = paramsProcessorUtil.decodeIds(recordId);
+    }
 
-     if (!meetingService.existsAnyRecording(recordIdList)) {
-       // BEGIN - backward compatibility
-       invalid("notFound", "We could not find recordings");
-       return;
-       // END - backward compatibility
-     }
+    if (!meetingService.existsAnyRecording(recordIdList)) {
+      // BEGIN - backward compatibility
+      invalid("notFound", "We could not find recordings");
+      return;
+      // END - backward compatibility
+    }
 
-     //Execute code specific for this call
-     Map<String, String> metaParams = ParamsProcessorUtil.processMetaParam(params)
-     if ( !metaParams.empty ) {
-         //Proceed with the update
-         meetingService.updateRecordings(recordIdList, metaParams);
-     }
-     withFormat {
-       xml {
-         render(contentType:"text/xml") {
-           response() {
-             returncode(RESP_CODE_SUCCESS)
-             updated(true)
-           }
-         }
-       }
-     }
-   }
+    //Execute code specific for this call
+    Map<String, String> metaParams = ParamsProcessorUtil.processMetaParam(params)
+    if (!metaParams.empty) {
+      //Proceed with the update
+      meetingService.updateRecordings(recordIdList, metaParams);
+    }
+    withFormat {
+      xml {
+        render(contentType: "text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            updated(true)
+          }
+        }
+      }
+    }
+  }
 
   def uploadDocuments(conf) {
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
@@ -1837,7 +1808,7 @@ class ApiController {
 
     if (requestBody == null) {
       downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-              true /* default presentation */ );
+          true /* default presentation */);
     } else {
       log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
@@ -1853,7 +1824,7 @@ class ApiController {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                      conf.getInternalId(), true /* default presentation */);
+                  conf.getInternalId(), true /* default presentation */);
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
@@ -1939,9 +1910,9 @@ class ApiController {
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
             if (meeting.isBreakout()) {
-                parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
-                sequence() { mkp.yield(meeting.getSequence()) }
-                freeJoin() { mkp.yield(meeting.isFreeJoin()) }
+              parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+              sequence() { mkp.yield(meeting.getSequence()) }
+              freeJoin() { mkp.yield(meeting.isFreeJoin()) }
             }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
@@ -2016,7 +1987,7 @@ class ApiController {
             moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             createTime(meeting.getCreateTime())
             voiceBridge() { mkp.yield(meeting.getTelVoice()) }
-            dialNumber()  { mkp.yield(meeting.getDialNumber()) }
+            dialNumber() { mkp.yield(meeting.getDialNumber()) }
             createDate(formatPrettyDate(meeting.getCreateTime()))
             hasUserJoined(meeting.hasUserJoined())
             duration(meeting.duration)
@@ -2029,87 +2000,87 @@ class ApiController {
     }
   }
 
-  private void respondWithErrors(errorList, redirectResponse=false) {
+  private void respondWithErrors(errorList, redirectResponse = false) {
     log.debug CONTROLLER_NAME + "#invalid"
     if (redirectResponse) {
-        ArrayList<Object> errors = new ArrayList<Object>();
-        errorList.getErrors().each { error ->
-            Map<String,String> errorMap = new LinkedHashMap<String,String>()
-            errorMap.put("key", error[0])
-            errorMap.put("message", error[1])
-            errors.add(errorMap)
-        }
+      ArrayList<Object> errors = new ArrayList<Object>();
+      errorList.getErrors().each { error ->
+        Map<String, String> errorMap = new LinkedHashMap<String, String>()
+        errorMap.put("key", error[0])
+        errorMap.put("message", error[1])
+        errors.add(errorMap)
+      }
 
-        JSONArray errorsJSONArray = new JSONArray(errors);
-        log.debug errorsJSONArray
+      JSONArray errorsJSONArray = new JSONArray(errors);
+      log.debug errorsJSONArray
 
-        respondWithRedirect(errorsJSONArray)
+      respondWithRedirect(errorsJSONArray)
     } else {
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          xml {
-            render(contentType:"text/xml") {
-              response() {
-                returncode(RESP_CODE_FAILED)
-                errors() {
-                  ArrayList errs = errorList.getErrors();
-                  Iterator itr = errs.iterator();
-                  while (itr.hasNext()){
-                    String[] er = (String[]) itr.next();
-                    log.debug CONTROLLER_NAME + "#invalid" + er[0]
-                    error(key: er[0], message: er[1])
-                  }
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType: "text/xml") {
+            response() {
+              returncode(RESP_CODE_FAILED)
+              errors() {
+                ArrayList errs = errorList.getErrors();
+                Iterator itr = errs.iterator();
+                while (itr.hasNext()) {
+                  String[] er = (String[]) itr.next();
+                  log.debug CONTROLLER_NAME + "#invalid" + er[0]
+                  error(key: er[0], message: er[1])
                 }
               }
             }
           }
-          json {
-            log.debug "Rendering as json"
-            render(contentType:"text/json") {
-              returncode(RESP_CODE_FAILED)
-              messageKey(key)
-              message(msg)
-            }
+        }
+        json {
+          log.debug "Rendering as json"
+          render(contentType: "text/json") {
+            returncode(RESP_CODE_FAILED)
+            messageKey(key)
+            message(msg)
           }
         }
+      }
     }
   }
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
-  private void invalid(key, msg, redirectResponse=false) {
+  private void invalid(key, msg, redirectResponse = false) {
     // Note: This xml scheme will be DEPRECATED.
     log.debug CONTROLLER_NAME + "#invalid " + msg
     if (redirectResponse) {
-        ArrayList<Object> errors = new ArrayList<Object>();
-        Map<String,String> errorMap = new LinkedHashMap<String,String>()
-        errorMap.put("key", key)
-        errorMap.put("message", msg)
-        errors.add(errorMap)
+      ArrayList<Object> errors = new ArrayList<Object>();
+      Map<String, String> errorMap = new LinkedHashMap<String, String>()
+      errorMap.put("key", key)
+      errorMap.put("message", msg)
+      errors.add(errorMap)
 
-        JSONArray errorsJSONArray = new JSONArray(errors);
-        log.debug errorsJSONArray
+      JSONArray errorsJSONArray = new JSONArray(errors);
+      log.debug errorsJSONArray
 
-        respondWithRedirect(errorsJSONArray)
+      respondWithRedirect(errorsJSONArray)
     } else {
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          xml {
-            render(contentType:"text/xml") {
-              response() {
-                returncode(RESP_CODE_FAILED)
-                messageKey(key)
-                message(msg)
-              }
-            }
-          }
-          json {
-            log.debug "Rendering as json"
-            render(contentType:"text/json") {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType: "text/xml") {
+            response() {
               returncode(RESP_CODE_FAILED)
               messageKey(key)
               message(msg)
             }
           }
         }
+        json {
+          log.debug "Rendering as json"
+          render(contentType: "text/json") {
+            returncode(RESP_CODE_FAILED)
+            messageKey(key)
+            message(msg)
+          }
+        }
+      }
     }
   }
 
@@ -2118,19 +2089,19 @@ class ApiController {
     URI oldUri = URI.create(logoutUrl)
 
     if (!StringUtils.isEmpty(params.logoutURL)) {
-        try {
-            oldUri = URI.create(params.logoutURL)
-        } catch ( Exception e ) {
-            // Do nothing, the variable oldUri was already initialized
-        }
+      try {
+        oldUri = URI.create(params.logoutURL)
+      } catch (Exception e) {
+        // Do nothing, the variable oldUri was already initialized
+      }
     }
 
     String newQuery = oldUri.getQuery();
 
     if (newQuery == null) {
-        newQuery = "errors="
+      newQuery = "errors="
     } else {
-        newQuery += "&" + "errors="
+      newQuery += "&" + "errors="
     }
     newQuery += errorsJSONArray
 
