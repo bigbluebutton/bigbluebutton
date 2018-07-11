@@ -56,8 +56,6 @@ Kurento = function (
   this.socketUrl = `wss://${this.hostName}/${this.kurentoPort}`;
   this.pingInterval = null;
 
-  this.iceServers = null;
-
   if (chromeExtension != null) {
     this.chromeExtension = chromeExtension;
     window.chromeExtension = chromeExtension;
@@ -160,6 +158,48 @@ KurentoManager.prototype.joinWatchVideo = function (tag) {
   this.kurentoVideo.setWatchVideo(tag);
 };
 
+Kurento.prototype.fetchStunTurnServer = function (callback) {
+  let iceServers = [];
+  const handleFetchError = function (response) {
+    console.error("[screenshare] Could not fetch stun/turn servers, using default");
+    callback(iceServers);
+  }
+
+  BBB.getSessionToken(function(sessionToken) {
+    $.ajax({
+      dataType: 'json',
+      url: '/bigbluebutton/api/stuns',
+      data: {sessionToken:sessionToken}
+    }).done(function(data) {
+      if (data.response && data.response.returncode === 'FAILED') {
+        return handleFetchError(data);
+      }
+
+      let stuns = data['stunServers'].map(function (s) {
+        return { urls : s.url };
+      });
+
+      let turns = data['turnServers'].map(function (t) {
+        return { urls: t.url, username: t.username, credential: t.password };
+      });
+      iceServers = stuns.concat(turns);
+      return callback(iceServers);
+    }).fail(function(data, textStatus, errorThrown) {
+      return handleFetchError(data);
+    });
+  });
+}
+
+Kurento.prototype.addIceServers = function (callback) {
+  let configuration;
+  this.fetchStunTurnServer(function (iceServers) {
+    if (iceServers && iceServers.length > 0) {
+      configuration = {};
+      configuration.iceServers = iceServers;
+    }
+    return callback(configuration);
+  });
+};
 
 Kurento.prototype.setScreensharing = function (tag) {
   this.mediaCallback = this.startScreensharing.bind(this);
@@ -168,7 +208,6 @@ Kurento.prototype.setScreensharing = function (tag) {
 
 Kurento.prototype.create = function (tag) {
   this.setRenderTag(tag);
-  this.iceServers = true;
   this.init();
 };
 
@@ -308,35 +347,42 @@ Kurento.prototype.startScreensharing = function () {
     sendSource: 'desktop',
   };
 
-  console.log(` Peer options => ${JSON.stringify(options, null, 2)}`);
-
-  let resolution;
-  console.debug("Screenshare screen dimensions are", this.width, "x", this.height);
-  if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
-    resolution = this.downscaleResolution(this.width, this.height);
-    this.width = resolution.width;
-    this.height = resolution.height;
-    console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
-  }
-
-  this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
-    if (error) {
-      console.log(`WebRtcPeerSendonly constructor error ${JSON.stringify(error, null, 2)}`);
-      this.onFail(error);
-      return kurentoManager.exitScreenShare();
+  this.addIceServers((configuration) => {
+    if (configuration) {
+      options.configuration = configuration;
     }
 
-    this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
-    console.log(`Generated peer offer w/ options ${JSON.stringify(options)}`);
+    console.log(` Peer options => ${JSON.stringify(options, null, 2)}`);
 
-    const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
-    localStream.getVideoTracks()[0].onended = function () {
-      return kurentoManager.exitScreenShare();
-    };
+    let resolution;
+    console.debug("Screenshare screen dimensions are", this.width, "x", this.height);
+    if (this.width > this.vid_max_width || this.height > this.vid_max_height) {
+      resolution = this.downscaleResolution(this.width, this.height);
+      this.width = resolution.width;
+      this.height = resolution.height;
+      console.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
+    }
 
-    localStream.getVideoTracks()[0].oninactive = function () {
-      return kurentoManager.exitScreenShare();
-    };
+
+    this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
+      if (error) {
+        console.log(`WebRtcPeerSendonly constructor error ${JSON.stringify(error, null, 2)}`);
+        //this.onFail(error);
+        return kurentoManager.exitScreenShare();
+      }
+
+      this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
+      console.log(`Generated peer offer w/ options ${JSON.stringify(options)}`);
+
+      const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
+      localStream.getVideoTracks()[0].onended = function () {
+        return kurentoManager.exitScreenShare();
+      };
+
+      localStream.getVideoTracks()[0].oninactive = function () {
+        return kurentoManager.exitScreenShare();
+      };
+    });
   });
 };
 
@@ -423,21 +469,27 @@ Kurento.prototype.setAudio = function (tag) {
 Kurento.prototype.listenOnly = function () {
   var self = this;
   if (!this.webRtcPeer) {
-    var options = {
-      remoteVideo: document.getElementById(this.renderTag),
-      onicecandidate : this.onListenOnlyIceCandidate.bind(this),
-      mediaConstraints: {
-        audio:true,
-        video:false
-      }
-    }
-
-    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
-      if(error) {
-        return self.onFail(PEER_ERROR);
+    this.addIceServers((configuration) => {
+      let options = {
+        remoteVideo: document.getElementById(this.renderTag),
+        onicecandidate : this.onListenOnlyIceCandidate.bind(this),
+        mediaConstraints: {
+          audio:true,
+          video:false
+        }
       }
 
-      this.generateOffer(self.onOfferListenOnly.bind(self));
+      if (configuration) {
+        options.configuration = configuration;
+      }
+
+      self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
+        if(error) {
+          return self.onFail(PEER_ERROR);
+        }
+
+        this.generateOffer(self.onOfferListenOnly.bind(self));
+      });
     });
   }
 };
@@ -525,7 +577,7 @@ Kurento.prototype.ping = function () {
 
 Kurento.prototype.sendMessage = function (message) {
   const jsonMessage = JSON.stringify(message);
-  console.log(`Sending message: ${jsonMessage}`);
+  console.debug(`Sending message: ${jsonMessage}`);
   this.ws.send(jsonMessage);
 };
 
@@ -591,7 +643,7 @@ window.getScreenConstraints = function (sendSource, callback) {
       callback(null, screenConstraints);
     }, chromeExtension);
   } else if (isFirefox) {
-    screenConstraints.video.mediaSource = 'screen';
+    screenConstraints.video.mediaSource = 'window';
 
     console.log('getScreenConstraints for Firefox returns => ', screenConstraints);
     // now invoking native getUserMedia API
@@ -648,6 +700,7 @@ window.getChromeScreenConstraints = function (callback, extensionId) {
       getStream: true,
       sources: [
         'screen',
+        'window',
       ],
     },
     (response) => {
