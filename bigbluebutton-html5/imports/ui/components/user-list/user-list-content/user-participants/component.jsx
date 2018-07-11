@@ -169,12 +169,12 @@ class UserParticipants extends Component {
       mute: {
         label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
         handler: user => toggleVoice(user.id),
-        icon: 'audio_off',
+        icon: 'mute',
       },
       unmute: {
         label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
         handler: user => toggleVoice(user.id),
-        icon: 'audio_on',
+        icon: 'unmute',
       },
       promote: {
         label: user => intl.formatMessage(intlMessages.PromoteUserLabel, { 0: user.name }),
