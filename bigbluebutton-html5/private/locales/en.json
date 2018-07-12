@@ -242,6 +242,7 @@
     "app.breakoutJoinConfirmation.confirmDesc": "Join you to the Breakout Room",
     "app.breakoutJoinConfirmation.dismissLabel": "Cancel",
     "app.breakoutJoinConfirmation.dismissDesc": "Closes and rejects Joining the Breakout Room",
+    "app.breakoutJoinConfirmation.freeJoinMessage": "Choose a Breakout Room to join",
     "app.breakoutTimeRemainingMessage": "Breakout Room time remaining: {0}",
     "app.breakoutWillCloseMessage": "Time ended. Breakout Room will close soon",
     "app.calculatingBreakoutTimeRemaining": "Calculating remaining time...",
