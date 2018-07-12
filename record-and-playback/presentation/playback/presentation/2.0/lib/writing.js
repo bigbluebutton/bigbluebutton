@@ -65,7 +65,7 @@ var timestampToIdKeys = [];
 var mainShapeIds = {};
 var currentImage = null;
 var currentImageId = "image0";
-var shapesArray = {};
+var shapesArray = [];
 var timestampToId = {};
 var shapesSVGContent = null;
 var slideAspectValues = {};
@@ -385,7 +385,6 @@ function runPopcorn() {
         lastFrameTime = currentTime;
         // Get the time and round to 1 decimal place
         var t = currentTime.toFixed(1);
-        let currentShapes = getShapesAtTime(t);
 
         // Create an object referencing the main versions of all the shapes
         var current_shapes = Object.create(mainShapeIds);
@@ -703,9 +702,9 @@ function processShapesSVG(response) {
   shapesSVGContent = response.responseXML;
 
   // Getting all the event tags
-  let shapeelement = response.responseXML.getElementsByTagName("svg")[0];
+  let shapeelement = shapesSVGContent.getElementsByTagName("svg")[0];
   // Get an array of the elements for each "shape" in the drawing
-  let shapesArray = response.responseXML.querySelectorAll('g[class="shape"]');
+  shapesArray = shapesSVGContent.querySelectorAll('g[class="shape"]');
 
   // To assist in finding the version of a shape shown at a particular time
   // (while being drawn, during updates), provide a lookup from time to id
