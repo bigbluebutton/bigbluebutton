@@ -303,9 +303,7 @@ class UserListContent extends Component {
             getDropdownMenuParent={this.getDropdownMenuParent}
             onActionsHide={this.onActionsHide}
           >
-            {
-              [].concat(actions)
-            }
+            {actions}
           </DropdownList>
         </DropdownContent>
       </Dropdown>

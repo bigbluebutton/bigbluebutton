@@ -8,6 +8,7 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 import UserListContent from './user-list-content/component';
 import UserAction from './user-action/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
 
 const propTypes = {
@@ -138,7 +139,7 @@ class UserListItem extends Component {
 
     const emojiMenuControls = {
       setstatus: {
-        icon: 'right_arrow',
+        icon: 'user',
         label: () => intl.formatMessage(intlMessages.statusTriggerLabel),
         handler: () => this.setState({ showEmojiMenu: true }),
       },

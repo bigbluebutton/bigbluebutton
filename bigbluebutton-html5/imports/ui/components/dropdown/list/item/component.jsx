@@ -58,6 +58,9 @@ export default class DropdownListItem extends Component {
           children || this.renderDefault()
         }
         {
+          label === 'Set Status' ? <Icon iconName="right_arrow" key="icon" className={styles.moreIcon} /> : null
+        }
+        {
           label ?
             (<span id={this.labelID} key="labelledby" hidden>{label}</span>)
             : null

@@ -106,6 +106,7 @@
       border-radius: 0.2rem;
     }
 
+    .moreIcon,
     .itemIcon,
     .itemLabel {
       color: inherit;
@@ -117,10 +118,16 @@
   }
 }
 
+.moreIcon,
 .itemIcon {
   margin-right: ($line-height-computed / 2);
   color: $color-text;
   flex: 0 0;
+}
+
+.moreIcon {
+  margin-right: -$indicator-padding-left;
+  margin-left: $sm-padding-x;
 }
 
 .itemLabel {
