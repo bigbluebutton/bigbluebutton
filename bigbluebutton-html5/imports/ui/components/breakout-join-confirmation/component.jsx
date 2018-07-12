@@ -63,6 +63,7 @@ class BreakoutJoinConfirmation extends Component {
     window.open(url);
     mountModal(null);
   }
+
   handleSelectChange(e) {
     const { value } = e.target;
     this.setState({ selectValue: value });
