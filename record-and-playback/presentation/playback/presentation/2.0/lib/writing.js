@@ -60,7 +60,9 @@ var cursorReady = false;
 var deskshareXMLReady = false;
 
 // Shapes
-var mainShapesId = [];
+var timestampToId = {};
+var timestampToIdKeys = [];
+var mainShapeIds = {};
 var currentImage = null;
 var currentImageId = "image0";
 var shapesArray = {};
@@ -69,7 +71,7 @@ var shapesSVGContent = null;
 var slideAspectValues = {};
 var currentSlideAspect = 0;
 var imageAtTime = {};
-var slidePlainText = {};
+var slidePlainText = {}; //holds slide plain text for retrieval
 
 // Cursor
 var cursorShownAt = 0;
@@ -77,7 +79,6 @@ var cursorValues = {};
 
 // Panzoom
 var vboxValues = {};
-var viewBoxes = {};
 
 // Deskshare
 var deskshareEvents = [];
@@ -334,7 +335,7 @@ function hideLoadingMessage() {
 };
 
 // Find the key in the timestampToId object of the last entry at or before the provided timestamp
-var timestampToIdLookup = function(t) {
+function timestampToIdLookup(t) {
   "use strict";
   t = (t * 10) | 0; // keys are in deciseconds as integers
   var minIndex = 0;
@@ -355,6 +356,20 @@ var timestampToIdLookup = function(t) {
     }
   }
   return timestampToIdKeys[maxIndex];
+}
+
+function get_shapes_in_time(t, shapes) {
+  "use strict";
+  var timestampToIdIndex = timestampToIdLookup(t);
+  var shapes_in_time = timestampToId[timestampToIdIndex];
+  if (shapes_in_time != undefined) {
+    var shape = null;
+    for (var i = 0; i < shapes_in_time.length; i++) {
+      var s = shapes_in_time[i];
+      shapes[s.shape] = s.id;
+    }
+  }
+  return shapes;
 }
 
 function runPopcorn() {
@@ -442,7 +457,7 @@ function runPopcorn() {
           var imageHeight = parseFloat(image.getAttribute("height"));
           setViewBox(t);
           setSlideAspect(t, imageWidth, imageHeight);
-          currentCursorVal = getCursorAtTime(t);
+          let currentCursorVal = getCursorAtTime(t);
           if (currentCursorVal != null && currentCursorVal != undefined && !$('#slide').hasClass('no-background')) {
             var cursorX = parseFloat(currentCursorVal[0]);
             var cursorY = parseFloat(currentCursorVal[1]);
@@ -635,7 +650,7 @@ function processPanzoomsXML(response) {
   logger.info("==Processing panzooms.xml");
   let panelements = response.responseXML.getElementsByTagName("recording");
   let panZoomArray = panelements[0].getElementsByTagName("event");
-  viewBoxes = response.responseXML.getElementsByTagName("viewBox");
+  let viewBoxes = response.responseXML.getElementsByTagName("viewBox");
   let pzlen = panZoomArray.length;
   let secondVal;
   for (var k = 0;k < pzlen; k++) {
@@ -695,9 +710,6 @@ function processShapesSVG(response) {
   // To assist in finding the version of a shape shown at a particular time
   // (while being drawn, during updates), provide a lookup from time to id
   // Also save the id of the last version of each shape as its main id
-  var timestampToId = {};
-  var timestampToIdKeys = [];
-  var mainShapeIds = {};
   for (var j = 0; j < shapesArray.length; j++) {
     shape = shapesArray[j];
     var id = shape.getAttribute('id');
@@ -799,7 +811,7 @@ function processTextJSON(response) {
   let shapeElements = shapesSVGContent.getElementsByTagName("svg");
   let images = shapeElements[0].getElementsByClassName("slide");
   for (var m = 0; m < images.length; m++) {
-    len = images[m].getAttribute("in").split(" ").length;
+    let len = images[m].getAttribute("in").split(" ").length;
     for (var n = 0; n < len; n++) {
       imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
     }
@@ -827,7 +839,7 @@ function processTextFallback() {
   let images = shapeElements[0].getElementsByClassName("slide");
 
   for (var m = 0; m < images.length; m++) {
-    len = images[m].getAttribute("in").split(" ").length;
+    let len = images[m].getAttribute("in").split(" ").length;
     for (var n = 0; n < len; n++) {
       imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
     }
