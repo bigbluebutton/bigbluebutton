@@ -17,7 +17,7 @@ const Logger = require('../../../utils/Logger');
 module.exports = class SdpSession extends MediaSession {
   constructor(
     emitter,
-    sdp = null,
+    offer = null,
     room,
     type = 'WebRtcEndpoint',
     options
@@ -25,27 +25,36 @@ module.exports = class SdpSession extends MediaSession {
     super(emitter, room, type, options);
     Logger.info("[mcs-sdp-session] New session with options", options);
     // {SdpWrapper} SdpWrapper
-    this._sdp;
-    if (sdp && type) {
-      this.setSdp(sdp, type);
+    this._offer;
+    this._answer;
+
+    if (offer) {
+      this.setOffer(offer);
     }
   }
 
-  async setSdp (sdp, type) {
-    this._sdp = new SdpWrapper(sdp, type);
-    await this._sdp.processSdp();
+  setOffer (offer) {
+    this._offer = new SdpWrapper(offer, this._type);
+  }
+
+  setAnswer (answer) {
+    this._answer = new SdpWrapper(answer, this._type);
   }
 
   process () {
     return new Promise(async (resolve, reject) => {
       try {
         const answer = await this._MediaServer.processOffer(this._mediaElement,
-          this._sdp.getPlainSdp(),
+          this._offer.plainSdp,
           { name: this._name }
         );
 
+        this.setAnswer(answer);
+        Logger.error("AAA", this._checkAnswerCodecAvailability());
+        console.log(this._answer.jsonSdp);
+
         if (this._type !== 'WebRtcEndpoint') {
-          this._sdp.replaceServerIpv4(kurentoIp);
+          this._offer.replaceServerIpv4(kurentoIp);
           return resolve(answer);
         }
 
@@ -68,5 +77,10 @@ module.exports = class SdpSession extends MediaSession {
         return reject(this._handleError(err));
       }
     });
+  }
+
+    _checkAnswerCodecAvailability() {
+    return (this._offer.hasAvailableVideoCodec() === this._answer.hasAvailableVideoCodec()) &&
+      (this._offer.hasAvailableAudioCodec() === this._answer.hasAvailableAudioCodec());
   }
 }
