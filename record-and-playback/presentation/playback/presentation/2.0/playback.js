@@ -598,12 +598,12 @@ function loadBranding() {
   if (metadata.length > 0) {
     metadata = metadata[0];
 
-    let logoCandidates = metadata.getElementsByTagName("mconf-live-playback-logo-url");
+    let logoCandidates = metadata.getElementsByTagName("playback-logo-url");
     if (logoCandidates.length > 0) {
       logo = logoCandidates[0].textContent;
     }
 
-    let copyrightCandidates = metadata.getElementsByTagName("mconf-live-playback-copyright");
+    let copyrightCandidates = metadata.getElementsByTagName("playback-copyright");
     if (copyrightCandidates.length > 0) {
       copyright = copyrightCandidates[0].textContent;
     }
