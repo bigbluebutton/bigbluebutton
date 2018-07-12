@@ -35,7 +35,8 @@ const audioLocked = () => {
   const User = mapUser(Users.findOne({ userId }));
 
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const audioLock = Meeting.lockSettingsProp.disableMic;
+  const lockSetting = Meeting.lockSettingProps;
+  const audioLock = lockSetting ? lockSetting.disableMic : false;
 
   return audioLock && User.isLocked;
 };
