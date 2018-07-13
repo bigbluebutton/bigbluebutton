@@ -93,6 +93,7 @@ $background-active: darken($color-white, 5%);
 
 .link {
   text-decoration: none;
+  background-color: inherit;
 }
 
 .pushMessageContent {
@@ -100,6 +101,7 @@ $background-active: darken($color-white, 5%);
   margin-right: 2rem;
   margin-top: 1.4rem;
   margin-bottom: .4rem;
+  background-color: inherit;
 }
 
 .userNameMessage {
@@ -107,11 +109,13 @@ $background-active: darken($color-white, 5%);
   font-size: 80%;
   color: $color-gray-dark;
   font-weight: bold;
-  @include lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: $color-white);
+  background-color: inherit;
+  @include lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: inherit);
 }
 
 .contentMessage {
   margin-top: .2rem;
   font-size: 80%;
-  @include lineClamp($lineHeight: $font-size-small, $lineCount: 10, $bgColor: $color-white);
+  background-color: inherit;
+  @include lineClamp($lineHeight: $font-size-small, $lineCount: 10, $bgColor: inherit);
 }

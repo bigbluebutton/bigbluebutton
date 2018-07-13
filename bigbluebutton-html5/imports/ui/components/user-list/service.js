@@ -92,8 +92,23 @@ const sortUsersByPhoneUser = (a, b) => {
   return 0;
 };
 
+// current user's name is always on top
+const sortUsersByCurrent = (a, b) => {
+  if (a.isCurrent) {
+    return -1;
+  } else if (b.isCurrent) {
+    return 1;
+  }
+
+  return 0;
+};
+
 const sortUsers = (a, b) => {
-  let sort = sortUsersByModerator(a, b);
+  let sort = sortUsersByCurrent(a, b);
+
+  if (sort === 0) {
+    sort = sortUsersByModerator(a, b);
+  }
 
   if (sort === 0) {
     sort = sortUsersByEmoji(a, b);

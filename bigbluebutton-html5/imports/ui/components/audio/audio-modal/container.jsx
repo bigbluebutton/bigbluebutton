@@ -53,6 +53,7 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     showPermissionsOvelay: Service.isWaitingPermissions(),
     listenOnlyMode,
     skipCheck,
+    audioLocked: Service.audioLocked(),
     joinFullAudioImmediately: !listenOnlyMode && skipCheck,
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
     forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),

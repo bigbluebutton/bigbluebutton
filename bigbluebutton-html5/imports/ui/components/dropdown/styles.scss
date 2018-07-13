@@ -230,6 +230,11 @@ $dropdown-caret-height: 8px;
 .top-left {
   @extend %down-caret;
   @extend %horz-right-caret;
+  min-width: 11.5rem;
+
+  @include mq($small-only) {
+    width: auto;
+  }
 }
 
 .top-right {
@@ -250,6 +255,11 @@ $dropdown-caret-height: 8px;
 .bottom-right {
   @extend %up-caret;
   @extend %horz-left-caret;
+  min-width: 9rem;
+
+  @include mq($small-only) {
+    width: auto;
+  }
 }
 
 .left {

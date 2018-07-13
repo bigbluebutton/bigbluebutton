@@ -10,5 +10,6 @@ export default withTracker(() => ({
   meetingId: VideoService.meetingId(),
   users: VideoService.getAllUsersVideo(),
   userId: VideoService.userId(),
+  sessionToken: VideoService.sessionToken(),
   enableVideoStats: Meteor.settings.public.kurento.enableVideoStats,
 }))(VideoProviderContainer);

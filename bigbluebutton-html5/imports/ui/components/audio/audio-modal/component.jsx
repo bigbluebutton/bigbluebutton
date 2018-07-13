@@ -273,6 +273,7 @@ class AudioModal extends Component {
       listenOnlyMode,
       forceListenOnlyAttendee,
       skipCheck,
+      audioLocked,
     } = this.props;
 
     return (
@@ -284,6 +285,7 @@ class AudioModal extends Component {
             icon="unmute"
             circle
             size="jumbo"
+            disabled={audioLocked}
             onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
           />
           : null}

@@ -350,5 +350,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			   width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"
 			   selected="{multiUser}"
 			   styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser')}" /> 
+			   toolTip="{!multiUser ? ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser.start') : ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser.stop')}" />
 </mx:VBox>
