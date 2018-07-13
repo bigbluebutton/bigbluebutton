@@ -13,7 +13,7 @@ import { nameFromLevel } from '@browser-bunyan/levels';
 // To send to URL, use the format { "target": "external", "level": "info",
 // "externalURL": "", "method": "PUT" }
 // externalURL is the end-point that logs will be sent to
-// To Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
+// Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 
 const LOG_CONFIG = Meteor.settings.public.log || {};
 const loggerStreams = []; // Stores the targets streams
