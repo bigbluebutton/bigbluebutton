@@ -39,7 +39,7 @@ export default class ShapeDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
-    this.contextMenu = this.contextMenu.bind(this);
+    this.contextMenuHandler = this.contextMenuHandler.bind(this);
   }
 
   componentDidMount() {
@@ -284,7 +284,7 @@ export default class ShapeDrawListener extends Component {
     sendAnnotation(annotation);
   }
 
-  contextMenu(event) {
+  contextMenuHandler(event) {
     // disable showing context-menu when right click
     event.preventDefault();
     return this;
@@ -306,7 +306,7 @@ export default class ShapeDrawListener extends Component {
         role="presentation"
         style={shapeDrawStyle}
         onMouseDown={this.handleMouseDown}
-        onContextMenu={this.contextMenu}
+        onContextMenu={this.contextMenuHandler}
       />
     );
   }

@@ -55,7 +55,7 @@ export default class TextDrawListener extends Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.checkTextAreaFocus = this.checkTextAreaFocus.bind(this);
-    this.contextMenu = this.contextMenu.bind(this);
+    this.contextMenuHandler = this.contextMenuHandler.bind(this);
   }
 
   componentDidMount() {
@@ -373,7 +373,7 @@ export default class TextDrawListener extends Component {
     sendAnnotation(annotation);
   }
 
-  contextMenu(event) {
+  contextMenuHandler(event) {
     // disable showing context-menu when right click
     event.preventDefault();
     return this;
@@ -394,7 +394,7 @@ export default class TextDrawListener extends Component {
         style={textDrawStyle}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
-        onContextMenu={this.contextMenu}
+        onContextMenu={this.contextMenuHandler}
       >
         {this.state.isDrawing ?
           <svg

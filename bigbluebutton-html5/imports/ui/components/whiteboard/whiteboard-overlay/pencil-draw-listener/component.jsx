@@ -24,7 +24,7 @@ export default class PencilDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
-    this.contextMenu = this.contextMenu.bind(this);
+    this.contextMenuHandler = this.contextMenuHandler.bind(this);
   }
 
   componentDidMount() {
@@ -213,7 +213,7 @@ export default class PencilDrawListener extends Component {
     window.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
-  contextMenu(event) {
+  contextMenuHandler(event) {
     // disable showing context-menu when right click
     event.preventDefault();
     return this;
@@ -234,7 +234,7 @@ export default class PencilDrawListener extends Component {
         role="presentation"
         style={pencilDrawStyle}
         onMouseDown={this.mouseDownHandler}
-        onContextMenu={this.contextMenu}
+        onContextMenu={this.contextMenuHandler}
       />
     );
   }
