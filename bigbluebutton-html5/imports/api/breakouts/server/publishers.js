@@ -12,12 +12,18 @@ function breakouts(credentials) {
   Logger.info(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
 
   const selector = {
-    $or: [{
-      parentMeetingId: meetingId,
-      'users.userId': requesterUserId,
-    }, {
-      breakoutId: meetingId,
-    },
+    $or: [
+      {
+        parentMeetingId: meetingId,
+        freeJoin: true,
+      },
+      {
+        parentMeetingId: meetingId,
+        'users.userId': requesterUserId,
+      },
+      {
+        breakoutId: meetingId,
+      },
     ],
   };
 

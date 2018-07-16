@@ -17,6 +17,7 @@ RedisPubSub.on('ValidateAuthTokenRespMsg', handleValidateAuthToken);
 RedisPubSub.on('UserEmojiChangedEvtMsg', handleEmojiStatus);
 RedisPubSub.on('SyncGetUsersMeetingRespMsg', handleGetUsers);
 RedisPubSub.on('GuestsWaitingForApprovalEvtMsg', handleGuestsWaitingForApproval);
-RedisPubSub.on('GuestApprovedEvtMsg', handleGuestApproved);
+RedisPubSub.on('GuestsWaitingApprovedEvtMsg', handleGuestApproved);
 RedisPubSub.on('UserEjectedFromMeetingEvtMsg', handleUserEjected);
 RedisPubSub.on('UserRoleChangedEvtMsg', handleChangeRole);
+

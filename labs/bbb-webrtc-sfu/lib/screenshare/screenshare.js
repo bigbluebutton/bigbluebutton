@@ -18,6 +18,7 @@ const config = require('config');
 const kurentoIp = config.get('kurentoIp');
 const localIpAddress = config.get('localIpAddress');
 const FORCE_H264 = config.get('screenshare-force-h264');
+const PREFERRED_H264_PROFILE = config.get('screenshare-preferred-h264-profile');
 const EventEmitter = require('events').EventEmitter;
 const Logger = require('../utils/Logger');
 const SHOULD_RECORD = config.get('recordScreenSharing');
@@ -220,9 +221,9 @@ module.exports = class Screenshare extends EventEmitter {
 
   start (sessionId, connectionId, sdpOffer, callerName, role) {
     return new Promise(async (resolve, reject) => {
-      // Force H264 on Firefox and Chrome
+      // Forces H264 with a possible preferred profile
       if (FORCE_H264) {
-        sdpOffer = h264_sdp.transform(sdpOffer);
+        sdpOffer = h264_sdp.transform(sdpOffer, PREFERRED_H264_PROFILE);
       }
 
       // Start the recording process
@@ -313,10 +314,6 @@ module.exports = class Screenshare extends EventEmitter {
     return new Promise(async (resolve, reject) => {
       Logger.info("[screenshare] Starting viewer", callerName, "for voiceBridge", this._voiceBridge);
       let sdpAnswer;
-
-      if (FORCE_H264) {
-        sdpOffer = h264_sdp.transform(sdpOffer);
-      }
 
       this._viewersCandidatesQueue[callerName] = [];
 
