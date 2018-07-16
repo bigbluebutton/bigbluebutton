@@ -15,7 +15,6 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
 .navbar {
   position: relative;
   text-align: center;
-  z-index: 10;
 
   font-size: 1.5rem;
   padding: $bars-padding;
@@ -103,7 +102,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   order: 1;
 
   @include mq($small-only) {
-    padding-top: $navbar-height;
+    top: $navbar-height;
   }
 
   @include mq($medium-up) {
@@ -130,10 +129,10 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
 
   order: 2;
   height: 100%;
-
   @include mq($small-only) {
     z-index: 3;
-    padding-top: $navbar-height;
+    height: auto;
+    top: $navbar-height;
   }
 
   @include mq($medium-up) {

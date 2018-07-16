@@ -4,6 +4,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
+import { notify } from '/imports/ui/services/notification';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 
@@ -48,6 +49,10 @@ const intlMessages = defineMessages({
     id: 'app.audioNotification.audioFailedError1007',
     description: 'ice negociation error messsage',
   },
+  reconectingAsListener: {
+    id: 'app.audioNotificaion.reconnectingAsListenOnly',
+    description: 'ice negociation error messsage',
+  },
 });
 
 
@@ -77,6 +82,11 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
     null,
     <AudioModalContainer />,
   );
+  if (Service.audioLocked() && Service.isConnected() && !Service.isListenOnly()) {
+    Service.exitAudio();
+    notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+    Service.joinListenOnly();
+  }
 
   Breakouts.find().observeChanges({
     removed() {

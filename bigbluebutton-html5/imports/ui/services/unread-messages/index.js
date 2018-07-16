@@ -11,7 +11,7 @@ const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 class UnreadMessagesTracker {
   constructor() {
     this._tracker = new Tracker.Dependency();
-    this._unreadChats = Storage.getItem('UNREAD_CHATS') || { [PUBLIC_CHAT_USERID]: (new Date()).getTime() };
+    this._unreadChats = { ...Storage.getItem('UNREAD_CHATS'), [PUBLIC_CHAT_USERID]: (new Date()).getTime() };
     this.get = this.get.bind(this);
   }
 

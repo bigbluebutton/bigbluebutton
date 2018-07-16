@@ -2,49 +2,14 @@ import _ from 'lodash';
 import VoiceUsers from '/imports/api/voice-users';
 import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
+import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
 const MEDIA = Meteor.settings.public.media;
-const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
 const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const CONNECTION_TERMINATED_EVENTS = ['iceConnectionFailed', 'iceConnectionClosed'];
-
-const fetchStunTurnServers = (sessionToken) => {
-  const handleStunTurnResponse = ({ stunServers, turnServers }) => {
-    if (!stunServers && !turnServers) {
-      return { error: 404, stun: [], turn: [] };
-    }
-
-    const turnReply = [];
-    _.each(turnServers, (turnEntry) => {
-      const { password, url, username } = turnEntry;
-      turnReply.push({
-        urls: url,
-        password,
-        username,
-      });
-    });
-
-    return {
-      stun: stunServers.map(server => server.url),
-      turn: turnReply,
-    };
-  };
-
-  const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
-  return fetch(url, { credentials: 'same-origin' })
-    .then(res => res.json())
-    .then(handleStunTurnResponse)
-    .then((response) => {
-      if (response.error) {
-        return Promise.reject('Could not fetch the stuns/turns servers!');
-      }
-      return response;
-    });
-};
-
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -263,7 +228,7 @@ export default class SIPBridge extends BaseAudioBridge {
       };
 
       userAgent.on('connected', handleUserAgentConnection);
-      userAgent.on('disconnected', handleUserAgentDisconnection); 
+      userAgent.on('disconnected', handleUserAgentDisconnection);
 
       userAgent.start();
     });

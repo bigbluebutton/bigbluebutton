@@ -1788,11 +1788,14 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
 
         #
-        # Update configuration for BigBlueButton client (and perserve hostname for chromeExtensionLink if exists)
+        # Update configuration for BigBlueButton client (and preserve hostname for chromeExtensionLink if exists)
         #
 
         echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-        sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
+        sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g" \
+	        /var/www/bigbluebutton/client/conf/config.xml
+	chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
+
         if ! echo "$chromeExtensionLinkURL" | grep -q '""'; then
           sudo sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \
                 /var/www/bigbluebutton/client/conf/config.xml
