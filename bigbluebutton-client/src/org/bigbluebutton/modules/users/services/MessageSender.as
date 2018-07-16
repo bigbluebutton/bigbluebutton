@@ -344,7 +344,7 @@ package org.bigbluebutton.modules.users.services
 					logData.message = "Error occured activity response.";
 					LOGGER.info(JSON.stringify(logData));
 				},
-				JSON.stringify(message)
+				message
 			); //_netConnection.call
 		}
 
@@ -386,7 +386,7 @@ package org.bigbluebutton.modules.users.services
 				logData.logCode = "error_sending_change_recording_status";
 				LOGGER.info(JSON.stringify(logData));
 			},
-			JSON.stringify(message)
+			message
 		); //_netConnection.call
 	}
 
@@ -807,7 +807,7 @@ package org.bigbluebutton.modules.users.services
 								logData.logCode = "error_sending_guest_waiting_approved";
                 LOGGER.info(JSON.stringify(logData));
          },
-		 JSON.stringify(message)
+		 message
        );
 		}
 
