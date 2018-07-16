@@ -418,7 +418,7 @@ package org.bigbluebutton.modules.users.services
       var extId: String = user.extId as String;
       var name: String = user.name as String;
       var role: String = user.role as String;
-      var guest: Boolean = user.role as Boolean;
+      var guest: Boolean = user.guest as Boolean;
       var authed: Boolean = user.authed as Boolean;
       var waitingForAcceptance: Boolean = user.waitingForAcceptance as Boolean;
       var emoji: String = user.emoji as String;
