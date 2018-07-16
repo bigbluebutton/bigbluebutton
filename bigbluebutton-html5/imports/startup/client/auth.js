@@ -17,7 +17,7 @@ export function joinRouteHandler(nextState, replace, callback) {
     callback();
   }
   
-  // Old credentials stored in memory were being used when browsers was refreshed
+  // Old credentials stored in memory were being used when joining a new meeting
   Auth.clearCredentials();
 
   // use enter api to get params for the client
