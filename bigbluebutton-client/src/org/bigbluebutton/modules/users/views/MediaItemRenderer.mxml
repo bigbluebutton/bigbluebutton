@@ -206,14 +206,13 @@
 				if (data != null) {
 					settingsBtn.visible = rolledOver && !UsersUtil.isBreakout() && (amIMod || options.allowUserLookup);
 
-					if ( !data.inVoiceConf || ( options.moderatorUnmute == false && amIMod && !UsersUtil.isMe(data.userId) ) ) {
+					if (!data.inVoiceConf) {
 						muteImg.visible = false;
 						muteImg.includeInLayout = false;
 						muteBtn.visible = false;
 						muteBtn.includeInLayout = true;
 					} else {
 						if (data.listenOnly) {
-							muteImg.source = getStyle("iconSound");
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -231,7 +230,7 @@
 							}
 						} else {
 							// can no longer unmute others
-							var showMuteBtn:Boolean = rolledOver && (!data.muted || data.me);
+							var showMuteBtn:Boolean = rolledOver && (data.me || (amIMod && !data.muted));
 							muteImg.visible = !showMuteBtn;
 							muteImg.includeInLayout = !showMuteBtn;
 							muteBtn.visible = showMuteBtn;
