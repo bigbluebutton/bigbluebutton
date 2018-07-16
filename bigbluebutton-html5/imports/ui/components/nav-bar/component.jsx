@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
 import Icon from '/imports/ui/components/icon/component';
-import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
+import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -58,9 +58,9 @@ const defaultProps = {
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
 const TOGGLE_USERLIST_AK = SHORTCUTS_CONFIG.toggleUserList.accesskey;
 
-const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
+const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) =>
   mountModal(<BreakoutJoinConfirmation
-    breakoutURL={breakoutURL}
+    breakout={breakout}
     breakoutName={breakoutName}
   />);
 
@@ -83,6 +83,9 @@ class NavBar extends Component {
     this.props.toggleUserList();
   }
 
+  shouldComponentUpdate(nextProps) {
+    return nextProps.breakouts.length !== this.props.breakouts.length;
+  }
   componentDidUpdate(oldProps) {
     const {
       breakouts,
@@ -102,10 +105,8 @@ class NavBar extends Component {
         return;
       }
 
-      const breakoutURL = getBreakoutJoinURL(breakout);
-
       if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
-        this.inviteUserToBreakout(breakout, breakoutURL);
+        this.inviteUserToBreakout(breakout);
       }
     });
 
@@ -114,13 +115,13 @@ class NavBar extends Component {
     }
   }
 
-  inviteUserToBreakout(breakout, breakoutURL) {
+  inviteUserToBreakout(breakout) {
     const {
       mountModal,
     } = this.props;
 
     this.setState({ didSendBreakoutInvite: true }, () => {
-      openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name, mountModal);
+      openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
     });
   }
 
@@ -136,6 +137,7 @@ class NavBar extends Component {
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
     }
+    const breakoutItems = breakouts.map(breakout => this.renderBreakoutItem(breakout));
 
     return (
       <Dropdown isOpen={this.state.isActionsOpen}>
@@ -148,7 +150,7 @@ class NavBar extends Component {
           placement="bottom"
         >
           <DropdownList>
-            {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
+            {breakoutItems}
           </DropdownList>
         </DropdownContent>
       </Dropdown>
@@ -157,19 +159,17 @@ class NavBar extends Component {
 
   renderBreakoutItem(breakout) {
     const {
-      getBreakoutJoinURL,
       mountModal,
     } = this.props;
 
     const breakoutName = breakout.name;
-    const breakoutURL = getBreakoutJoinURL(breakout);
 
     return (
       <DropdownListItem
         className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName, mountModal)}
+        onClick={openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)}
       />
     );
   }

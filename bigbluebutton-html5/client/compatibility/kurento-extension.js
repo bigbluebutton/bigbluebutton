@@ -136,11 +136,11 @@ KurentoManager.prototype.exitAudio = function () {
       this.kurentoAudio.ws.close();
     }
 
-    this.kurentoAudio.dispose();
-    this.kurentoAudio = null;
-  }
+    if (this.kurentoAudio.pingInterval) {
+      clearInterval(this.kurentoAudio.pingInterval);
+    }
 
-  if (this.kurentoAudio) {
+    this.kurentoAudio.dispose();
     this.kurentoAudio = null;
   }
 };
