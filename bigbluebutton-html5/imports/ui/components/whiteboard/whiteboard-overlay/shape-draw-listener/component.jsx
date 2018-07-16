@@ -162,7 +162,9 @@ export default class ShapeDrawListener extends Component {
       const { clientX, clientY } = event;
       return this.commonDrawStartHandler(clientX, clientY);
     } else if (event.button === 2) {
-      this.props.actions.undoAnnotation(this.props.whiteboardId);
+      if (!this.isDrawing) {
+        this.props.actions.undoAnnotation(this.props.whiteboardId);
+      }
     }
     return null;
   }

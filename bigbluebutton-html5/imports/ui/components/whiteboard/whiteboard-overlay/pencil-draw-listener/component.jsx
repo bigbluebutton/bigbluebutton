@@ -132,7 +132,9 @@ export default class PencilDrawListener extends Component {
         this.sendLastMessage();
       }
     } else if (event.button === 2) {
-      this.props.actions.undoAnnotation(this.props.whiteboardId);
+      if (!this.isDrawing) {
+        this.props.actions.undoAnnotation(this.props.whiteboardId);
+      }
     }
   }
 

@@ -192,7 +192,9 @@ export default class TextDrawListener extends Component {
         this.sendLastMessage();
       }
     } else if (event.button === 2) {
-      this.props.actions.undoAnnotation(this.props.whiteboardId);
+      if (!this.state.isDrawing) {
+        this.props.actions.undoAnnotation(this.props.whiteboardId);
+      }
     }
   }
 
