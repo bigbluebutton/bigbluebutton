@@ -44,7 +44,6 @@
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
 			enableGuestUI="false"
-			moderatorUnmute="true"
 			allowClearRecordingMarks="false"
 			guestSoftMode="false"
 			allowUserLookup="false"
