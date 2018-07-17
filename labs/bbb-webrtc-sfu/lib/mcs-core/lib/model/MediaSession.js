@@ -7,7 +7,7 @@
 
 const C = require('../constants/Constants');
 const rid = require('readable-id');
-const Kurento = require('../adapters/kurento');
+const Kurento = require('../adapters/kurento/kurento');
 const Freeswitch = require('../adapters/freeswitch/freeswitch');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
@@ -98,7 +98,6 @@ module.exports = class MediaSession {
     }
   }
 
-  // TODO handle connection type
   async connect (sinkId, type = 'ALL') {
     try {
       Logger.info("[mcs-media-session] Connecting " + this._mediaElement + " => " + sinkId);
@@ -150,7 +149,7 @@ module.exports = class MediaSession {
   static getAdapter (adapter) {
     let obj = null;
 
-    Logger.info("[SdpSession] Session is using the", adapter, "adapter");
+    Logger.info("[mcs-media-session] Session is using the", adapter, "adapter");
 
     switch (adapter) {
       case C.STRING.KURENTO:
@@ -159,18 +158,40 @@ module.exports = class MediaSession {
       case C.STRING.FREESWITCH:
         obj = new Freeswitch();
         break;
-      default: Logger.warn("[SdpSession] Invalid adapter", this.adapter); }
+      default: Logger.warn("[mcs-media-session] Invalid adapter", this.adapter); }
 
     return obj;
   }
 
   _handleError (error) {
-    Logger.trace("[mcs-media-session] SFU MediaSession received an error", error, error.stack);
-    // Checking if the error needs to be wrapped into a JS Error instance
-    if (!isError(error)) {
-      error = new Error(error);
+    let { message, code, stack, data, details } = error;
+
+    if (code == null) {
+      ({ code, message } = C.ERROR.MEDIA_GENERIC_ERROR);
     }
+    else {
+      ({ code, message } = error);
+    }
+
+    if (!isError(error)) {
+      error = new Error(message);
+    }
+
+    error.code = code;
+    error.message = message;
+    error.stack = stack
+
+    if (details) {
+      error.details = details;
+    }
+    else {
+      error.details = message;
+    }
+
+
+    Logger.trace("[mcs-media-session] SFU MediaSession received an error", error.code, error.message); Logger.trace(error.stack);
     this._status = C.STATUS.STOPPED;
+
     return error;
   }
 }

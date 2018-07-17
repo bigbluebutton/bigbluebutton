@@ -1,11 +1,12 @@
 'use strict'
 
-const C = require('../constants/Constants.js');
+const C = require('../../constants/Constants.js');
 const config = require('config');
 const mediaServerClient = require('kurento-client');
 const EventEmitter = require('events').EventEmitter;
-const Logger = require('../../../utils/Logger');
-const isError = require('../utils/util').isError;
+const Logger = require('../../../../utils/Logger');
+const isError = require('../../utils/util').isError;
+const ERRORS = require('./errors.js');
 
 let instance = null;
 
@@ -109,7 +110,7 @@ module.exports = class MediaServer extends EventEmitter {
         }
         this._mediaServer.create('MediaPipeline', (error, pipeline) => {
           if (error) {
-            reject(this._handleError(error));
+            return reject(this._handleError(error));
           }
           this._mediaPipelines[roomId] = pipeline;
           pipeline.activeElements = 0;
@@ -542,14 +543,41 @@ module.exports = class MediaServer extends EventEmitter {
     delete this._mediaServer;
   }
 
-  _handleError(error) {
-    // Checking if the error needs to be wrapped into a JS Error instance
-    if (!isError(error)) {
-      error = new Error(error);
+  _handleError(err) {
+    let { message, code, stack, data, reason } = err;
+    const error = ERRORS[code]? ERRORS[code].error : null;
+
+    console.log("BYE", error);
+    if (error == null) {
+      switch (message) {
+        case "Request has timed out":
+          ({ code, reason }  = C.ERROR.MEDIA_SERVER_REQUEST_TIMEOUT);
+        break;
+
+        case "Connection error":
+          ({ code, reason } = C.ERROR.CONNECTION_ERROR);
+        break;
+
+        default:
+          ({ code, reason } = C.ERROR.MEDIA_SERVER_GENERIC_ERROR);
+      }
+    }
+    else {
+      ({ code, reason } = error);
     }
 
-    Logger.trace('[mcs-media] Media Server returned an', error, error.stack);
+    // Checking if the error needs to be wrapped into a JS Error instance
+    if (!isError(err)) {
+      err = new Error(reason);
+    }
 
-    return error;
+    err.code = code;
+    err.message = reason;
+    err.details = message;
+    err.stack = stack
+
+    Logger.debug('[mcs-media] Media Server returned an', err.code, err.message, err.stack);
+    Logger.trace(err.stack);
+    return err;
   }
 };

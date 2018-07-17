@@ -50,8 +50,11 @@ module.exports = class SdpSession extends MediaSession {
         );
 
         this.setAnswer(answer);
-        Logger.error("AAA", this._checkAnswerCodecAvailability());
-        console.log(this._answer.jsonSdp);
+
+        // Checks if the media server was able to find a compatible media line
+        if (!this._hasAvailableCodec()) {
+          return reject(this._handleError(C.ERROR.MEDIA_NO_AVAILABLE_CODEC.code));
+        }
 
         if (this._type !== 'WebRtcEndpoint') {
           this._offer.replaceServerIpv4(kurentoIp);
@@ -79,7 +82,7 @@ module.exports = class SdpSession extends MediaSession {
     });
   }
 
-    _checkAnswerCodecAvailability() {
+    _hasAvailableCodec () {
     return (this._offer.hasAvailableVideoCodec() === this._answer.hasAvailableVideoCodec()) &&
       (this._offer.hasAvailableAudioCodec() === this._answer.hasAvailableAudioCodec());
   }
