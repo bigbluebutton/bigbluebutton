@@ -20,7 +20,7 @@
       "defaultSettings": {
         "application": {
           "chatAudioNotifications": false,
-          "chatPushNotifications": true,
+          "chatPushNotifications": false,
           "fontSize": "16px",
           "fallbackLocale": "en"
         },
@@ -76,6 +76,8 @@
       "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeExtensionKey": "KEY",
       "chromeExtensionLink": "LINK",
+      "chromeScreenshareSources": ["window", "screen"],
+      "firefoxScreenshareSource": "window",
       "enableScreensharing": false,
       "enableVideo": false,
       "enableVideoStats": false,
@@ -283,6 +285,9 @@
           },
           {
             "value": 2
+          },
+          {
+            "value": 1
           }
         ],
         "font_sizes": [

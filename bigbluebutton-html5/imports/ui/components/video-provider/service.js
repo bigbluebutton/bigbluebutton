@@ -122,6 +122,10 @@ class VideoService {
     return Auth.meetingID;
   }
 
+  sessionToken() {
+    return Auth.sessionToken;
+  }
+
   isConnected() {
     return this.isConnected;
   }
@@ -152,4 +156,5 @@ export default {
   userName: () => videoService.userName(),
   meetingId: () => videoService.meetingId(),
   getAllUsersVideo: () => videoService.getAllUsersVideo(),
+  sessionToken: () => videoService.sessionToken(),
 };

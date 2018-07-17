@@ -11,5 +11,6 @@ export default withTracker(() => ({
   users: VideoService.getAllUsersVideo(),
   userId: VideoService.userId(),
   userName: VideoService.userName(),
+  sessionToken: VideoService.sessionToken(),
   enableVideoStats: Meteor.settings.public.kurento.enableVideoStats,
 }))(VideoProviderContainer);

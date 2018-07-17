@@ -50,7 +50,7 @@ module.exports = class AudioManager extends BaseManager {
     Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
     let session;
 
-    let sessionId = message.voiceBridge.split('-')[0];
+    let sessionId = message.voiceBridge;
     let voiceBridge = sessionId;
     let connectionId = message.connectionId;
 

@@ -3,9 +3,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
-
 import VideoService from './service';
 import VideoList from './video-list/component';
+import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
 const intlMessages = defineMessages({
   iceCandidateError: {
@@ -62,7 +62,6 @@ class VideoProvider extends Component {
     super(props);
 
     this.state = {
-      sharedWebcam: false,
       socketOpen: false,
       stats: [],
     };
@@ -77,6 +76,8 @@ class VideoProvider extends Component {
     this.restartTimer = {};
     this.webRtcPeers = {};
     this.monitoredTracks = {};
+    this.videoTags = {};
+    this.sharedWebcam = false;
 
     this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
@@ -171,7 +172,7 @@ class VideoProvider extends Component {
     this.visibility.removeEventListeners();
 
     // Unshare user webcam
-    if (this.state.sharedWebcam) {
+    if (this.sharedWebcam) {
       this.unshareWebcam();
     }
 
@@ -275,11 +276,15 @@ class VideoProvider extends Component {
 
     this.logger('debug', 'SDP answer received from server. Processing ...', {cameraId: id, sdpAnswer: message.sdpAnswer});
 
-    peer.processAnswer(message.sdpAnswer, (error) => {
-      if (error) {
-        return this.logger('debug', JSON.stringify(error), {cameraId: id});
-      }
-    });
+    if (peer) {
+      peer.processAnswer(message.sdpAnswer, (error) => {
+        if (error) {
+          return this.logger('debug', JSON.stringify(error), {cameraId: id});
+        }
+      });
+    } else {
+      this.logger('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...', {cameraId: id});
+    }
   }
 
   handleIceCandidate(message) {
@@ -298,7 +303,7 @@ class VideoProvider extends Component {
         webRtcPeer.iceQueue.push(message.candidate);
       }
     } else {
-      this.logger('error', ' [ICE] Message arrived after the peer was already thrown out, discarding it...', {cameraId: message.cameraId});
+      this.logger('warn', ' [ICE] Message arrived after the peer was already thrown out, discarding it...', {cameraId: message.cameraId});
     }
   }
 
@@ -332,76 +337,89 @@ class VideoProvider extends Component {
       webRtcPeer.dispose();
       delete this.webRtcPeers[id];
     } else {
-      this.logger('info', 'No WebRTC peer to stop (not an error)', {cameraId: id});
+      this.logger('warn', 'No WebRTC peer to stop (not an error)', {cameraId: id});
     }
   }
 
-  createWebRTCPeer(id, shareWebcam) {
-    const { meetingId } = this.props;
+  async createWebRTCPeer(id, shareWebcam) {
+    const { meetingId, sessionToken } = this.props;
+    let iceServers = [];
 
-    const videoConstraints = {
-      width: {
-        min: 320,
-        max: 640,
-      },
-      height: {
-        min: 180,
-        max: 480,
-      },
-    };
+    try {
+      iceServers = await fetchWebRTCMappedStunTurnServers(sessionToken);
+    } catch (error) {
+      log('error', 'Video provider failed to fetch ice servers, using default');
+    } finally {
+      const videoConstraints = {
+        width: {
+          min: 320,
+          max: 640,
+        },
+        height: {
+          min: 180,
+          max: 480,
+        },
+      };
 
-    if (!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
-      videoConstraints.frameRate = { min: 5, ideal: 10 };
-    }
-
-    const options = {
-      mediaConstraints: {
-        audio: false,
-        video: videoConstraints,
-      },
-      onicecandidate: this._getOnIceCandidateCallback(id, shareWebcam),
-    };
-
-    let WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-
-    if (shareWebcam) {
-      WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
-    }
-
-    this.webRtcPeers[id] = new WebRtcPeerObj(options, (error) => {
-      const peer = this.webRtcPeers[id];
-
-      peer.started = false;
-      peer.attached = false;
-      peer.didSDPAnswered = false;
-      peer.iceQueue = [];
-
-      if (error) {
-        return this._webRTCOnError(error, id, shareWebcam);
+      if (!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
+        videoConstraints.frameRate = { min: 5, ideal: 10 };
       }
 
-      peer.generateOffer((errorGenOffer, offerSdp) => {
-        if (errorGenOffer) {
-          return this._webRTCOnError(errorGenOffer, id, shareWebcam);
+      const options = {
+        mediaConstraints: {
+          audio: false,
+          video: videoConstraints,
+        },
+        onicecandidate: this._getOnIceCandidateCallback(id, shareWebcam),
+      };
+
+      if (iceServers.length > 0) {
+        options.configuration = {};
+        options.configuration.iceServers = iceServers;
+      }
+
+      let WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
+
+      if (shareWebcam) {
+        WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
+        this.shareWebcam();
+      }
+
+      this.webRtcPeers[id] = new WebRtcPeerObj(options, (error) => {
+        const peer = this.webRtcPeers[id];
+
+        peer.started = false;
+        peer.attached = false;
+        peer.didSDPAnswered = false;
+        peer.iceQueue = [];
+
+        if (error) {
+          return this._webRTCOnError(error, id, shareWebcam);
         }
 
-        this.logger('debug', `Invoking SDP offer callback function ${location.host}`, {cameraId: id, offerSdp});
+        peer.generateOffer((errorGenOffer, offerSdp) => {
+          if (errorGenOffer) {
+            return this._webRTCOnError(errorGenOffer, id, shareWebcam);
+          }
 
-        const message = {
-          type: 'video',
-          role: shareWebcam ? 'share' : 'viewer',
-          id: 'start',
-          sdpOffer: offerSdp,
-          cameraId: id,
-          meetingId,
-        };
-        this.sendMessage(message);
+          this.logger('debug', `Invoking SDP offer callback function ${location.host}`, {cameraId: id, offerSdp});
 
-        this._processIceQueue(peer, id);
+          const message = {
+            type: 'video',
+            role: shareWebcam ? 'share' : 'viewer',
+            id: 'start',
+            sdpOffer: offerSdp,
+            cameraId: id,
+            meetingId,
+          };
+          this.sendMessage(message);
 
-        peer.didSDPAnswered = true;
+          this._processIceQueue(peer, id);
+
+          peer.didSDPAnswered = true;
+        });
       });
-    });
+    }
   }
 
   _getWebRTCStartTimeout(id, shareWebcam, peer) {
@@ -421,7 +439,7 @@ class VideoProvider extends Component {
         this.createWebRTCPeer(id, shareWebcam);
 
         // We reattach the peer for a real video restart
-        this.attachVideoStream(id, tag);
+        this.attachVideoStream(id);
 
         // Increment reconnect interval
         this.restartTimer[id] = Math.min(2 * this.restartTimer[id], MAX_CAMERA_SHARE_FAILED_WAIT_TIME);
@@ -486,8 +504,17 @@ class VideoProvider extends Component {
     };
   }
 
-  attachVideoStream(id, video) {
-    if (video.srcObject) return; // Skip if the stream is already attached
+  attachVideoStream(id) {
+    const video = this.videoTags[id];
+    if (video == null) {
+      log('warn', 'Peer', id, 'has not been started yet');
+      return;
+    }
+
+    if (video.srcObject) {
+      delete this.videoTags[id];
+      return; // Skip if the stream is already attached
+    }
 
     const isCurrent = id === this.props.userId;
     const peer = this.webRtcPeers[id];
@@ -499,6 +526,7 @@ class VideoProvider extends Component {
       video.load();
 
       peer.attached = true;
+      delete this.videoTags[id];
     };
 
 
@@ -511,6 +539,15 @@ class VideoProvider extends Component {
       // So we can start it later when we get a playStart
       // or if we need to do a restart timeout
       peer.videoTag = video;
+    }
+  }
+
+  createVideoTag(id, video) {
+    const peer = this.webRtcPeers[id];
+    this.videoTags[id] = video;
+
+    if (peer) {
+      this.attachVideoStream(id);
     }
   }
 
@@ -710,23 +747,28 @@ class VideoProvider extends Component {
   handlePlayStart(message) {
     const id = message.cameraId;
     const peer = this.webRtcPeers[id];
+    const videoTag = this.videoTags[id];
 
-    this.logger('info', 'Handle play start for camera', {cameraId: id});
+    if (peer) {
+      this.logger('info', 'Handle play start for camera', {cameraId: id});
 
-    // Clear camera shared timeout when camera succesfully starts
-    clearTimeout(this.restartTimeout[id]);
-    delete this.restartTimeout[id];
-    delete this.restartTimer[id];
+      // Clear camera shared timeout when camera succesfully starts
+      clearTimeout(this.restartTimeout[id]);
+      delete this.restartTimeout[id];
+      delete this.restartTimer[id];
 
-    peer.started = true;
+      peer.started = true;
 
-    if (!peer.attached) {
-      this.attachVideoStream(id, peer.videoTag);
-    }
+      if (!peer.attached) {
+        this.attachVideoStream(id);
+      }
 
-    if (id === this.props.userId) {
-      VideoService.sendUserShareWebcam(id);
-      VideoService.joinedVideo();
+      if (id === this.props.userId) {
+        VideoService.sendUserShareWebcam(id);
+        VideoService.joinedVideo();
+      }
+    } else {
+      log('warn', '[playStart] Message arrived after the peer was already thrown out, discarding it...');
     }
   }
 
@@ -753,7 +795,7 @@ class VideoProvider extends Component {
 
     if (this.connectedToMediaServer()) {
       this.logger('info', 'Sharing webcam');
-      this.setState({ sharedWebcam: true });
+      this.sharedWebcam = true;
       VideoService.joiningVideo();
     } else {
       this.logger('debug', 'Error on sharing webcam');
@@ -766,7 +808,7 @@ class VideoProvider extends Component {
 
     VideoService.sendUserUnshareWebcam(this.props.userId);
     VideoService.exitedVideo();
-    this.setState({ sharedWebcam: false });
+    this.sharedWebcam = false;
   }
 
   render() {
@@ -775,7 +817,7 @@ class VideoProvider extends Component {
     return (
       <VideoList
         users={this.props.users}
-        onMount={this.attachVideoStream.bind(this)}
+        onMount={this.createVideoTag.bind(this)}
         getStats={this.getStats.bind(this)}
         stopGettingStats={this.stopGettingStats.bind(this)}
         enableVideoStats={this.props.enableVideoStats}
