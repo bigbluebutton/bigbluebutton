@@ -324,11 +324,11 @@ public class Meeting {
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
 		if (GuestPolicy.ALWAYS_ACCEPT.equals(guestPolicy)) {
-    	return GuestPolicy.ALLOW;
+			return GuestPolicy.ALLOW;
 		} else if (GuestPolicy.ALWAYS_DENY.equals(guestPolicy)) {
-    	return GuestPolicy.DENY;
+			return GuestPolicy.DENY;
 		} else if (GuestPolicy.ASK_MODERATOR.equals(guestPolicy)) {
-			if (guest || authned) {
+			if (!ROLE_MODERATOR.equals(role) && (guest)) {
 				return GuestPolicy.WAIT ;
 			}
 			return GuestPolicy.ALLOW;
