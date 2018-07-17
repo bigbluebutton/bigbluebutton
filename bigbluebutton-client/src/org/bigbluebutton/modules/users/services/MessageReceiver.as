@@ -59,6 +59,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+  import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
   import org.bigbluebutton.main.model.users.events.LookUpUserResultEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
@@ -571,6 +572,14 @@ package org.bigbluebutton.modules.users.services
       logData.logCode = "received_user_ejected";
 			logData.userId = userId;
       LOGGER.debug(JSON.stringify(logData));
+			
+			// Let the logout happen when receiving the user ejected message instead
+			// of when the connection is closed in NetConnectionDelegate. 
+			// Firefox and IE isn't closing the connection when using RTMPS
+			// which doesn't trigger this event. (ralam july 17, 2018)			
+			var reason:String = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
+			var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+			dispatcher.dispatchEvent(cfe);
     }
     
     private function handleUserLocked(msg:Object):void {

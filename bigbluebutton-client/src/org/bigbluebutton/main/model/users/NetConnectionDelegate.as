@@ -776,9 +776,12 @@ package org.bigbluebutton.main.model.users
 										LOGGER.info(JSON.stringify(logData));
 
                     LOGGER.info(JSON.stringify(logData));
-                    reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
-                    var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-                    dispatcher.dispatchEvent(cfe);
+										// Let the logout happen when receiving the user ejected message instead
+										// of here. Firefox and IE isn't closing the connection when using RTMPS
+										// which doesn't trigger this event. (ralam july 17, 2018)
+                 //   reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
+                 //   var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                 //   dispatcher.dispatchEvent(cfe);
                 } else {
 										logData.reason = reason;
 										logData.app = "apps";
