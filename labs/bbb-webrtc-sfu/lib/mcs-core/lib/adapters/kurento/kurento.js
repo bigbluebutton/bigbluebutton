@@ -37,10 +37,9 @@ module.exports = class MediaServer extends EventEmitter {
         }
         resolve();
       }
-      catch (err) {
-        this._handleError(err);
+      catch (error) {
         this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
-        reject(err);
+        reject(this._handleError(error));
       }
     });
   }
@@ -49,8 +48,7 @@ module.exports = class MediaServer extends EventEmitter {
     return new Promise((resolve, reject) =>  {
       mediaServerClient(serverUri, {failAfter: 1}, (error, client) => {
         if (error) {
-          error = this._handleError(error);
-          return reject(error);
+          return reject(this._handleError(error));
         }
         resolve(client);
       });
@@ -131,16 +129,15 @@ module.exports = class MediaServer extends EventEmitter {
         if (pipeline && typeof pipeline.release === 'function') {
           pipeline.release((error) => {
             if (error) {
-              error = this._handleError(error);
-              return reject(error);
+              return reject(this._handleError(error));
             }
             delete this._mediaPipelines[room];
             return resolve()
           });
         }
       }
-      catch (err) {
-        return reject(this._handleError(err));
+      catch (error) {
+        return reject(this._handleError(error));
       }
     });
   }
@@ -150,8 +147,7 @@ module.exports = class MediaServer extends EventEmitter {
       try {
         pipeline.create(type, options, (error, mediaElement) => {
           if (error) {
-            error = this._handleError(error);
-            return reject(error);
+            return reject(this._handleError(error));
           }
           Logger.info("[mcs-media] Created [" + type + "] media element: " + mediaElement.id);
           this._mediaElements[mediaElement.id] = mediaElement;
@@ -187,7 +183,7 @@ module.exports = class MediaServer extends EventEmitter {
     const source = this._mediaElements[sourceId];
     return new Promise((resolve, reject) => {
       if (source == null) {
-        return reject(this._handleError("[mcs-recording] startRecording error"));
+        return reject(this._handleError(ERRORS[40101]));
       }
       try {
         source.record((err) => {
@@ -208,7 +204,7 @@ module.exports = class MediaServer extends EventEmitter {
 
     return new Promise((resolve, reject) => {
       if (source == null) {
-        return reject(this._handleError("[mcs-recording] stopRecording error"));
+        return reject(this._handleError(ERRORS[40101]));
       }
       try {
         source.stopAndWait((err) => {
@@ -230,15 +226,14 @@ module.exports = class MediaServer extends EventEmitter {
 
     return new Promise((resolve, reject) => {
       if (source == null || sink == null) {
-        return reject(this._handleError("[mcs-media] Failed to connect " + type + ": " + sourceId + " to " + sinkId));
+        return reject(this._handleError(ERRORS[40101]));
       }
       try {
         switch (type) {
           case 'ALL':
             source.connect(sink, (error) => {
               if (error) {
-                error = this._handleError(error);
-                return reject(error);
+                return reject(this._handleError(error));
               }
               return resolve();
             });
@@ -248,8 +243,7 @@ module.exports = class MediaServer extends EventEmitter {
           case 'AUDIO':
             source.connect(sink, 'AUDIO', (error) => {
               if (error) {
-                error = this._handleError(error);
-                return reject(error);
+                return reject(this._handleError(error));
               }
               return resolve();
             });
@@ -257,19 +251,18 @@ module.exports = class MediaServer extends EventEmitter {
           case 'VIDEO':
             source.connect(sink, (error) => {
               if (error) {
-                error = this._handleError(error);
-                return reject(error);
+                return reject(this._handleError(error));
               }
               return resolve();
             });
             break;
 
           default:
-            return reject(this._handleError("[mcs-media] Invalid connect type"));
+            return reject(this._handleError(ERRORS[40107]));
         }
       }
-      catch (err) {
-        return reject(this._handleError(err));
+      catch (error) {
+        return reject(this._handleError(error));
       }
     });
   }
@@ -280,7 +273,7 @@ module.exports = class MediaServer extends EventEmitter {
 
     return new Promise((resolve, reject) => {
       if (source == null || sink == null) {
-        return reject(this._handleError("[mcs-media] Failed to disconnect " + type + ": " + sourceId + " to " + sinkId));
+        return reject(this._handleError(ERRORS[40101]));
       }
       try {
         switch (type) {
@@ -311,11 +304,11 @@ module.exports = class MediaServer extends EventEmitter {
             break;
 
           default:
-            return reject(this._handleError("[mcs-media] Invalid disconnect type"));
+            return reject(this._handleError(ERRORS[40107]));
         }
       }
-      catch (err) {
-        return reject(this._handleError(err));
+      catch (error) {
+        return reject(this._handleError(error));
       }
     });
   }
@@ -369,20 +362,18 @@ module.exports = class MediaServer extends EventEmitter {
         if (mediaElement  && candidate) {
           mediaElement.addIceCandidate(candidate, (error) => {
             if (error) {
-              error = this._handleError(error);
-              return reject(error);
+              return reject(this._handleError(error));
             }
             Logger.debug("[mcs-media] Added ICE candidate for => " + elementId);
             return resolve();
           });
         }
         else {
-          return reject("Candidate could not be parsed or media element does not exist");
+          return reject(this._handleError(ERRORS[40101]));
         }
       }
-      catch (err) {
-        err = this._handleError(err);
-        reject(err);
+      catch (error) {
+        return reject(this._handleError(error));
       }
     });
   }
@@ -394,7 +385,7 @@ module.exports = class MediaServer extends EventEmitter {
     return new Promise((resolve, reject) => {
       try {
         if (mediaElement == null) {
-          return reject("[mcs-media] There is no element " + elementId);
+          return reject(this._handleError(ERRORS[40101]));
         }
         mediaElement.gatherCandidates((error) => {
           if (error) {
@@ -457,7 +448,7 @@ module.exports = class MediaServer extends EventEmitter {
           });
         }
         else {
-          return reject(this._handleError("[mcs-media] There is no element " + elementId));
+          return reject(this._handleError(ERRORS[40101]));
         }
       }
       catch (err) {
@@ -544,39 +535,44 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   _handleError(err) {
-    let { message, code, stack, data, reason } = err;
+    let { message: oldMessage , code, stack } = err;
+    let message;
+
+    if (code && code >= C.ERROR.MIN_CODE && code <= C.ERROR.MAX_CODE) {
+      return err;
+    }
+
     const error = ERRORS[code]? ERRORS[code].error : null;
 
-    console.log("BYE", error);
     if (error == null) {
-      switch (message) {
+      switch (oldMessage) {
         case "Request has timed out":
-          ({ code, reason }  = C.ERROR.MEDIA_SERVER_REQUEST_TIMEOUT);
+          ({ code, message }  = C.ERROR.MEDIA_SERVER_REQUEST_TIMEOUT);
         break;
 
         case "Connection error":
-          ({ code, reason } = C.ERROR.CONNECTION_ERROR);
+          ({ code, message } = C.ERROR.CONNECTION_ERROR);
         break;
 
         default:
-          ({ code, reason } = C.ERROR.MEDIA_SERVER_GENERIC_ERROR);
+          ({ code, message } = C.ERROR.MEDIA_SERVER_GENERIC_ERROR);
       }
     }
     else {
-      ({ code, reason } = error);
+      ({ code, message } = error);
     }
 
     // Checking if the error needs to be wrapped into a JS Error instance
     if (!isError(err)) {
-      err = new Error(reason);
+      err = new Error(message);
     }
 
     err.code = code;
-    err.message = reason;
-    err.details = message;
+    err.message = message;
+    err.details = oldMessage;
     err.stack = stack
 
-    Logger.debug('[mcs-media] Media Server returned an', err.code, err.message, err.stack);
+    Logger.debug('[mcs-media] Media Server returned an', err.code, err.message);
     Logger.trace(err.stack);
     return err;
   }

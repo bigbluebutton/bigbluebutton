@@ -24,55 +24,50 @@ module.exports = class MCSApiStub extends EventEmitter {
   async join (room, type, params) {
     try {
       const answer = await this._mediaController.join(room, type, params);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error("[MCSApi] join ", err);
-      Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'join', { room, type, params}));
     }
   }
 
-  async leave (roomId, userId) {
+  async leave (room, user) {
     try {
-      const answer = await this._mediaController.leave(roomId, userId);
-      return Promise.resolve(answer);
+      const answer = await this._mediaController.leave(room, user);
+      return (answer);
     }
-    catch (err) {
-      Logger.error("[MCSApi] leave ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'leave', { room, user }));
     }
   }
 
   async publishnsubscribe (user, sourceId, sdp, params) {
     try {
       const answer = await this._mediaController.publishnsubscribe(user, sourceId, sdp, params);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error("[MCSApi] publishnsubscribe ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'publishnsubscribe', { user, sourceId, sdp, params }));
     }
   }
 
   async publish (user, room,  type, params) {
     try {
       const answer = await this._mediaController.publish(user, room, type, params);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error("[MCSApi] publish ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'publish', { user, room, type, params }));
     }
   }
 
   async unpublish (user, mediaId) {
     try {
       await this._mediaController.unpublish(mediaId);
-      return Promise.resolve();
+      return ;
     }
-    catch (err) {
-      Logger.error("[MCSApi] unpublish ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'unpublish', { user, mediaId }));
     }
   }
 
@@ -80,66 +75,60 @@ module.exports = class MCSApiStub extends EventEmitter {
     try {
       const answer = await this._mediaController.subscribe(user, sourceId, type, params);
 
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error("[MCSApi] subscribe ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'subscribe', { user, sourceId, type, params }));
     }
   }
 
   async unsubscribe (user, mediaId) {
     try {
       await this._mediaController.unsubscribe(user, mediaId);
-      return Promise.resolve();
+      return ;
     }
-    catch (err) {
-      Logger.error("[MCSApi] unsubscribe ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'unsubscribe', { user, mediaId }));
     }
   }
 
   async startRecording(userId, mediaId, recordingName) {
     try {
       const answer = await this._mediaController.startRecording(userId, mediaId, recordingName);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error("[MCSApi] startRecording ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'startRecording', { userId, mediaId, recordingName }));
     }
   }
 
   async stopRecording(userId, sourceId, recId) {
     try {
       let answer = await this._mediaController.stopRecording(userId, sourceId, recId);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error("[MCSApi] stopRecording ", err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'stopRecording', { userId, sourceId, recId }));
     }
   }
 
   async connect (source, sink, type) {
     try {
       await this._mediaController.connect(source, sink, type);
-      return Promise.resolve();
+      return ;
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'connect', { source, sink, type }));
     }
   }
 
   async disconnect (source, sink, type) {
     try {
       await this._mediaController.disconnect(source, sink, type);
-      return Promise.resolve();
+      return ;
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'disconnect', { source, sink, type }));
     }
   }
 
@@ -150,26 +139,32 @@ module.exports = class MCSApiStub extends EventEmitter {
         this.emitter.emit(eventTag, event);
       });
 
-      return Promise.resolve(eventTag);
+      return (eventTag);
     }
-    catch (err) {
-      Logger.error("[MCSApi] onEvent ", err);
-      return Promise.reject();
+    catch (error) {
+      throw (this._handleError(error, 'onEvent', { eventName, mediaId }));
     }
   }
 
   async addIceCandidate (mediaId, candidate) {
     try {
       await this._mediaController.addIceCandidate(mediaId, candidate);
-      return Promise.resolve();
+      return ;
     }
-    catch (err) {
-      Logger.error("[MCSApi] addIceCandidate ", err);
-      Promise.reject();
+    catch (error) {
+      throw (this._handleError(error, 'addIceCandidate', { mediaId, candidate }));
     }
   }
 
   setStrategy (strategy) {
     // TODO
+  }
+
+  _handleError (error, operation, params) {
+    const { code, message, details } = error;
+    const response = { type: 'error', code, message, details, operation, params};
+    Logger.error("[mcs-api] Reject operation", response.operation, "with", { error: response });
+
+    return response;
   }
 }

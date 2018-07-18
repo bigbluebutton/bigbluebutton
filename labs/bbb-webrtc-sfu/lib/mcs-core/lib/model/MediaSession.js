@@ -12,7 +12,8 @@ const Freeswitch = require('../adapters/freeswitch/freeswitch');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const Logger = require('../../../utils/Logger');
-const isError = require('../utils/util').isError;
+const { handleError } = require('../utils/util');
+const LOG_PREFIX = "[mcs-media-session]";
 
 module.exports = class MediaSession {
   constructor (
@@ -164,34 +165,7 @@ module.exports = class MediaSession {
   }
 
   _handleError (error) {
-    let { message, code, stack, data, details } = error;
-
-    if (code == null) {
-      ({ code, message } = C.ERROR.MEDIA_GENERIC_ERROR);
-    }
-    else {
-      ({ code, message } = error);
-    }
-
-    if (!isError(error)) {
-      error = new Error(message);
-    }
-
-    error.code = code;
-    error.message = message;
-    error.stack = stack
-
-    if (details) {
-      error.details = details;
-    }
-    else {
-      error.details = message;
-    }
-
-
-    Logger.trace("[mcs-media-session] SFU MediaSession received an error", error.code, error.message); Logger.trace(error.stack);
     this._status = C.STATUS.STOPPED;
-
-    return error;
+    return handleError(LOG_PREFIX, error);
   }
 }

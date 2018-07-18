@@ -251,7 +251,7 @@ module.exports = class Video extends EventEmitter {
       return resolve(sdpAnswer);
     }
     catch (err) {
-      Logger.error("[video] MCS returned error => " + err);
+      Logger.error("[video] MCS returned error => ", err);
       return reject(err);
     }
     });

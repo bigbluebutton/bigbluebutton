@@ -6,7 +6,8 @@ const Logger = require('../../../utils/Logger');
 // Model
 const SfuUser = require('../model/SfuUser');
 const Room = require('../model/Room.js');
-const isError = require('../utils/util').isError;
+const { handleError } = require('../utils/util');
+const LOG_PREFIX = "[mcs-controller]";
 
 /* PUBLIC ELEMENTS */
 
@@ -366,34 +367,6 @@ module.exports = class MediaController {
   }
 
   _handleError (error) {
-    let { message, code, stack, data, details } = error;
-
-    if (code == null) {
-      ({ code, message } = C.ERROR.MEDIA_GENERIC_ERROR);
-    }
-    else {
-      ({ code, message } = error);
-    }
-
-    if (!isError(error)) {
-      error = new Error(message);
-    }
-
-    error.code = code;
-    error.message = message;
-    error.stack = stack
-
-    if (details) {
-      error.details = details;
-    }
-    else {
-      error.details = message;
-    }
-
-
-    Logger.trace("[mcs-controller ] Controller received an error", error.code, error.message);
-    Logger.trace(error.stack);
-
-    return error;
+    return handleError(LOG_PREFIX, error);
   }
 }
