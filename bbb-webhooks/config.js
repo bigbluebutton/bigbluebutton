@@ -29,7 +29,7 @@ if (!config.hooks.permanentURLs) { config.hooks.permanentURLs = []; }
 // How many messages will be enqueued to be processed at the same time
 if (config.hooks.queueSize  == null) { config.hooks.queueSize = 10000; }
 // Allow permanent hooks to receive raw message, which is the message straight from BBB
-if (config.hooks.defaultGetRaw  == null) { config.hooks.defaultGetRaw = false; }
+if (config.hooks.getRaw  == null) { config.hooks.getRaw = true; }
 // If set to higher than 1, will send events on the format:
 // "event=[{event1},{event2}],timestamp=000" or "[{event1},{event2}]" (based on using auth2_0 or not)
 // when there are more than 1 event on the queue at the moment of processing the queue.

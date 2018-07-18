@@ -23,7 +23,7 @@ config.server.port = 3005;
 // IP where permanent hook will post data (more than 1 URL means more than 1 permanent hook)
 //config.hooks.permanentURLs = [ { url: "request.catcher.url", getRaw: false }, { url: "another.request.catcher.url", getRaw: true } ]
 
-// Determine default behaviour when getRaw isn't defined while registering the hook
-//config.hooks.defaultGetRaw = false;
+// Allow global hook to receive all events with raw data
+//config.hooks.getRaw = false;
 
 module.exports = config;

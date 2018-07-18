@@ -52,7 +52,7 @@ module.exports = class WebServer {
     if (getRaw){
       getRaw = JSON.parse(getRaw.toLowerCase());
     } else {
-      getRaw = config.hooks.defaultGetRaw;
+      getRaw = false;
     }
 
     if (callbackURL == null) {

@@ -142,7 +142,7 @@ module.exports = class WebHooks {
     });
 
     const sendRaw = hooks.some(hook => { return hook.getRaw });
-    if (sendRaw) {
+    if (sendRaw && config.hooks.getRaw) {
       this._processRaw(raw);
     }
   }
