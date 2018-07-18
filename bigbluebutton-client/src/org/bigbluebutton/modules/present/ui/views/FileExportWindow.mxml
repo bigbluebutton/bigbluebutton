@@ -226,7 +226,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						dispatchEvent(new Event('pdfComplete'));
 					}
 				});
-				var url:URLRequest = new URLRequest(slidesUrl + _currentPage);
+				
+				var slideURI:String = slidesUrl + _currentPage;
+				var pngURI:String =  slideURI.replace(/\/slide\//g, "/png/");
+				var url:URLRequest = new URLRequest(pngURI);
+				
 				pageLoader.load(url);
 			}
 
