@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
@@ -68,7 +69,9 @@ public class RecordingService {
 
         if (presDir != null) {
             if (msg.downloadable) {
-                File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presId + ".pdf");
+                String fileExt = FilenameUtils.getExtension(msg.presFilename);
+                File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presId + "." + fileExt);
+                log.info("Make file downloadable. " + downloadableFile.getAbsolutePath());
                 copyPresentationFile(presFile, downloadableFile);
             } else {
                 if (downloadableFile.exists()) {
@@ -83,8 +86,12 @@ public class RecordingService {
     }
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
+    	log.info("Find downloadable presentation for meetingId=" + meetingId + " presId=" + presId + " filename=" + presFilename);
+
         File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
+
         File downloadableFile = new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
+        log.info("Found downloadable presentation file " + downloadableFile.getAbsolutePath());
         return downloadableFile;
     }
 
