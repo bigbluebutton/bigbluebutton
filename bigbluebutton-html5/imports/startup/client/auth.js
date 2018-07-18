@@ -7,6 +7,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
 const METADATA_KEY = 'metadata';
+const CUSTOM_DATA_KEY = 'customdata';
 
 export function joinRouteHandler(nextState, replace, callback) {
   const { sessionToken } = nextState.location.query;
@@ -23,7 +24,7 @@ export function joinRouteHandler(nextState, replace, callback) {
     .then(response => response.json())
     .then(({ response }) => {
       const {
-        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata, customdata
       } = response;
 
       if (returncode === 'FAILED') {
@@ -32,6 +33,7 @@ export function joinRouteHandler(nextState, replace, callback) {
       }
 
       setCustomLogoUrl(customLogoURL);
+
       const metakeys = metadata.length
         ? metadata.reduce((acc, meta) => {
           const key = Object.keys(meta).shift();
@@ -52,8 +54,31 @@ export function joinRouteHandler(nextState, replace, callback) {
             log('error', `Caught: ${e.message}`);
           }
           return { ...acc, [key]: value };
-        }) : {};
+        }, {}) : {};
+
+      const customData = customdata.length
+        ? customdata.reduce((acc, data) => {
+          const key = Object.keys(data).shift();
+
+          const handledHTML5Parameters = [
+            'html5recordingbot'
+          ];
+          if (handledHTML5Parameters.indexOf(key) === -1) {
+            return acc;
+          }
+
+          let value = data[key];
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            log('error', `Caught: ${e.message}`);
+          }
+
+          return { ...acc, [key]: value};
+        }, {}) : {};
+
       SessionStorage.setItem(METADATA_KEY, metakeys);
+      SessionStorage.setItem(CUSTOM_DATA_KEY, customData);
 
       Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
 
