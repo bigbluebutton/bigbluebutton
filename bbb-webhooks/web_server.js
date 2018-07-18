@@ -49,10 +49,11 @@ module.exports = class WebServer {
     const callbackURL = urlObj.query["callbackURL"];
     const meetingID = urlObj.query["meetingID"];
     let getRaw = urlObj.query["getRaw"];
-    if(getRaw){
+    if (getRaw){
       getRaw = JSON.parse(getRaw.toLowerCase());
+    } else {
+      getRaw = config.hooks.defaultGetRaw;
     }
-    else getRaw = false
 
     if (callbackURL == null) {
       respondWithXML(res, config.api.responses.missingParamCallbackURL);
@@ -73,7 +74,7 @@ module.exports = class WebServer {
   // Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
   createPermanents(callback) {
     for (let i = 0; i < config.hooks.permanentURLs.length; i++) {
-      Hook.addSubscription(config.hooks.permanentURLs[i], null, config.hooks.getRaw, function(error, hook) {
+      Hook.addSubscription(config.hooks.permanentURLs[i].url, null, config.hooks.permanentURLs[i].getRaw, function(error, hook) {
         if (error != null) { // there probably won't be any errors here
           Logger.info("[WebServer] duplicated permanent hook", error);
         } else if (hook != null) {

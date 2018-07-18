@@ -6,7 +6,7 @@ const config = {};
 config.bbb = {};
 config.bbb.sharedSecret = "mysharedsecret";
 // Whether to use Auth2.0 or not, Auth2.0 sends the sharedSecret whithin an Authorization header as a bearer
-config.bbb.auth2_0 = false
+config.bbb.auth2_0 = false;
 
 // The port in which the API server will run.
 config.server = {};
@@ -21,9 +21,9 @@ config.server.port = 3005;
 //}
 
 // IP where permanent hook will post data (more than 1 URL means more than 1 permanent hook)
-//config.hooks.permanentURLs = ["request.catcher.url", "another.request.catcher.url"]
+//config.hooks.permanentURLs = [ { url: "request.catcher.url", getRaw: false }, { url: "another.request.catcher.url", getRaw: true } ]
 
-// Allow global hook to receive all events with raw data
-//config.hooks.getRaw = false;
+// Determine default behaviour when getRaw isn't defined while registering the hook
+//config.hooks.defaultGetRaw = false;
 
 module.exports = config;
