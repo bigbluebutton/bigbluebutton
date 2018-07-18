@@ -6,6 +6,7 @@
  */
 
 const C = require('../constants/Constants');
+const Logger = require('../../../utils/Logger');
 
 exports.isError = (error) => {
   return error && error.stack && error.message && typeof error.stack === 'string'
@@ -14,7 +15,6 @@ exports.isError = (error) => {
 
 exports.handleError = (logPrefix, error) => {
   let { message, code, stack, data, details } = error;
-
   if (code && code >= C.ERROR.MIN_CODE && code <= C.ERROR.MAX_CODE) {
     return error;
   }
@@ -26,7 +26,7 @@ exports.handleError = (logPrefix, error) => {
     ({ code, message } = error);
   }
 
-  if (!isError(error)) {
+  if (!this.isError(error)) {
     error = new Error(message);
   }
 

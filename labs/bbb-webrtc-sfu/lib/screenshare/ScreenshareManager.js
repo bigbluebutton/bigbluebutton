@@ -27,7 +27,7 @@ module.exports = class ScreenshareManager extends BaseManager {
     const connectionId = message.connectionId;
     const role = message.role;
     const sdpOffer = message.sdpOffer
-    const callerName = message.callerName? message.callerName : 'default';
+    const callerName = message.callerName;
     let iceQueue, session;
 
     session = this._fetchSession(sessionId);

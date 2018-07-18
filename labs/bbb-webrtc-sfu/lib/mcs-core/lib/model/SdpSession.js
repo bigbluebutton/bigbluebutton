@@ -53,7 +53,7 @@ module.exports = class SdpSession extends MediaSession {
 
         // Checks if the media server was able to find a compatible media line
         if (!this._hasAvailableCodec()) {
-          return reject(this._handleError(C.ERROR.MEDIA_NO_AVAILABLE_CODEC.code));
+          return reject(this._handleError(C.ERROR.MEDIA_NO_AVAILABLE_CODEC));
         }
 
         if (this._type !== 'WebRtcEndpoint') {

@@ -31,16 +31,18 @@ var sharedScreens = {};
 var rtpEndpoints = {};
 
 module.exports = class Screenshare extends BaseProvider {
-  constructor(id, bbbgw, voiceBridge, caller = 'caller', vh, vw, meetingId) {
+  constructor(id, bbbgw, voiceBridge, userId, vh, vw, meetingId) {
     super();
+    this.sfuApp = "screenshare";
     this.mcs = new MCSApi();
+    this.mcsUserId;
+    this.userId = userId;
     this._id = id;
     this._BigBlueButtonGW = bbbgw;
     this._presenterEndpoint = null;
     this._ffmpegEndpoint = null;
     this._voiceBridge = voiceBridge;
     this._meetingId = meetingId;
-    this._caller = caller;
     this._streamUrl = "";
     this._vw = vw;
     this._vh = vh;
@@ -61,8 +63,8 @@ module.exports = class Screenshare extends BaseProvider {
     });
   }
 
-  async onIceCandidate (candidate, role, callerName) {
-    Logger.debug("[screenshare] onIceCandidate", role, callerName, candidate);
+  async onIceCandidate (candidate, role, userId) {
+    Logger.debug(LOG_PREFIX, "onIceCandidate", role, userId, candidate);
     switch (role) {
       case C.SEND_ROLE:
         if (this._presenterEndpoint) {
@@ -70,37 +72,35 @@ module.exports = class Screenshare extends BaseProvider {
             await this.flushCandidatesQueue(this._presenterEndpoint, this._presenterCandidatesQueue);
             await this.mcs.addIceCandidate(this._presenterEndpoint, candidate);
           } catch (err) {
-            this._handleError(LOG_PREFIX, err);
-            Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
+            this._handleError(LOG_PREFIX, err, role, userId);
           }
         } else {
-          Logger.debug("[screenshare] Pushing ICE candidate to presenter queue");
+          Logger.debug(LOG_PREFIX, "Pushing ICE candidate to presenter queue");
           this._presenterCandidatesQueue.push(candidate);
         }
       case C.RECV_ROLE:
-        let endpoint = this._viewersEndpoint[callerName];
+        let endpoint = this._viewersEndpoint[userId];
         if (endpoint) {
           try {
-            await this.flushCandidatesQueue(endpoint, this._viewersCandidatesQueue[callerName]);
+            await this.flushCandidatesQueue(endpoint, this._viewersCandidatesQueue[userId]);
             await this.mcs.addIceCandidate(endpoint, candidate);
           } catch (err) {
-            this._handleError(LOG_PREFIX, err);
-            Logger.error("[screenshare] Viewer ICE candidate could not be added to media controller.", err);
+            this._handleError(LOG_PREFIX, err, role, userId);
           }
         } else {
-          this._viewersCandidatesQueue[callerName] = [];
-          Logger.debug("[screenshare] Pushing ICE candidate to viewer queue", callerName);
-          this._viewersCandidatesQueue[callerName].push(candidate);
+          this._viewersCandidatesQueue[userId] = [];
+          Logger.debug(LOG_PREFIX, "Pushing ICE candidate to viewer queue", userId);
+          this._viewersCandidatesQueue[userId].push(candidate);
         }
         break;
       default:
-        Logger.warn("[screenshare] Unknown role", role);
+        Logger.warn(LOG_PREFIX, "Unknown role", role);
       }
   }
 
   flushCandidatesQueue (mediaId, queue) {
     return new Promise((resolve, reject) => {
-      Logger.debug("[screenshare] flushCandidatesQueue", queue);
+      Logger.debug(LOG_PREFIX, "flushCandidatesQueue", queue);
       if (mediaId) {
         let iceProcedures = queue.map((candidate) => {
           this.mcs.addIceCandidate(mediaId, candidate);
@@ -110,9 +110,8 @@ module.exports = class Screenshare extends BaseProvider {
           queue = [];
           resolve();
         }).catch((err) => {
-          this._handleError(LOG_PREFIX, err);
-          Logger.error("[screenshare] ICE candidate could not be added to media controller.", err);
-          reject();
+          Logger.error(LOG_PREFIX, "ICE candidate could not be added to media controller.", err);
+          reject(err);
         });
       }
     });
@@ -139,7 +138,7 @@ module.exports = class Screenshare extends BaseProvider {
         }
         break;
 
-      default: Logger.warn("[screenshare] Unrecognized event", event);
+      default: Logger.warn(LOG_PREFIX, "Unrecognized event", event);
     }
   }
 
@@ -149,7 +148,7 @@ module.exports = class Screenshare extends BaseProvider {
     switch (event.eventTag) {
       case "OnIceCandidate":
         let candidate = msEvent.candidate;
-        Logger.debug('[screenshare] Received ICE candidate from mcs-core for media session', event.id, '=>', candidate, "for connection", id);
+        Logger.debug(LOG_PREFIX, 'Received ICE candidate from mcs-core for media session', event.id, '=>', candidate, "for connection", id);
 
         this._BigBlueButtonGW.publish(JSON.stringify({
           connectionId: id,
@@ -169,7 +168,7 @@ module.exports = class Screenshare extends BaseProvider {
         Logger.info('[screenshare]', msEvent.type, '[' + msEvent.state? msEvent.state : 'UNKNOWN_STATE' + ']', 'for media session',  event.id);
         break;
 
-      default: Logger.warn("[screenshare] Unrecognized event", event);
+      default: Logger.warn(LOG_PREFIX, "Unrecognized event", event);
     }
   }
 
@@ -177,11 +176,11 @@ module.exports = class Screenshare extends BaseProvider {
     switch (event && event.eventTag) {
       case C.MEDIA_SERVER_OFFLINE:
         this._handleError(LOG_PREFIX, err);
-        Logger.error("[screenshare] Screenshare provider received MEDIA_SERVER_OFFLINE event");
+        Logger.error(LOG_PREFIX, "Screenshare provider received MEDIA_SERVER_OFFLINE event");
         this.emit(C.MEDIA_SERVER_OFFLINE, event);
         break;
       default:
-        Logger.warn("[screenshare] Unknown server state", event);
+        Logger.warn(LOG_PREFIX, "Unknown server state", event);
     }
   }
 
@@ -193,14 +192,12 @@ module.exports = class Screenshare extends BaseProvider {
   async startRecording() {
     return new Promise(async (resolve, reject) => {
       try {
-        this.recording = await this.mcs.startRecording(this.userId, this._presenterEndpoint, this._voiceBridge);
+        this.recording = await this.mcs.startRecording(this.mcsUserId, this._presenterEndpoint, this._voiceBridge);
         this.mcs.on('MediaEvent' + this.recording.recordingId, this.recordingState.bind(this));
         this.sendStartShareEvent();
         resolve(this.recording);
       } catch (err) {
-        this._handleError(LOG_PREFIX, err);
-        Logger.error("[screenshare] Error on start recording with message", err);
-        reject(err);
+        reject(this._handleError(LOG_PREFIX, err));
       }
     });
   }
@@ -208,14 +205,14 @@ module.exports = class Screenshare extends BaseProvider {
   sendStartShareEvent () {
     let shareEvent = Messaging.generateWebRTCShareEvent('StartWebRTCDesktopShareEvent', this.recording.meetingId, this.recording.filename);
     this._BigBlueButtonGW.writeMeetingKey(this.recording.meetingId, shareEvent, function(error) {
-      Logger.warn('[screenshare] Error writing START share event error', error);
+      Logger.warn(LOG_PREFIX, 'Error writing START share event error', error);
     });
   }
 
   sendStopShareEvent () {
     let shareEvent = Messaging.generateWebRTCShareEvent('StopWebRTCDesktopShareEvent', this.recording.meetingId, this.recording.filename);
     this._BigBlueButtonGW.writeMeetingKey(this.recording.meetingId, shareEvent, function(error) {
-      Logger.warn('[screenshare] Error writing STOP share event error', error);
+      Logger.warn(LOG_PREFIX, 'Error writing STOP share event error', error);
     });
   }
 
@@ -225,7 +222,7 @@ module.exports = class Screenshare extends BaseProvider {
     this._BigBlueButtonGW.publish(req, C.TO_AKKA_APPS);
   }
 
-  start (sessionId, connectionId, sdpOffer, callerName, role) {
+  start (sessionId, connectionId, sdpOffer, userId, role) {
     return new Promise(async (resolve, reject) => {
       // Forces H264 with a possible preferred profile
       if (FORCE_H264) {
@@ -234,31 +231,29 @@ module.exports = class Screenshare extends BaseProvider {
 
       // Start the recording process
       if (SHOULD_RECORD && role === C.SEND_ROLE) {
-        this.sendGetRecordingStatusRequestMessage(callerName);
+        this.sendGetRecordingStatusRequestMessage(userId);
       }
 
-      Logger.info("[screenshare] Starting session", this._voiceBridge + '-' + role);
-      if (!this.userId) {
+      Logger.info(LOG_PREFIX, "Starting session", this._voiceBridge + '-' + role);
+      if (!this.mcsUserId) {
         try {
-          this.userId = await this.mcs.join(this._meetingId, 'SFU', {});
-          Logger.info("[screenshare] MCS Join for", this._id, "returned", this.userId);
+          this.mcsUserId = await this.mcs.join(this._meetingId, 'SFU', {});
+          Logger.info(LOG_PREFIX, "MCS Join for", this._id, "returned", this.mcsUserId);
 
         }
         catch (error) {
-          this._handleError(LOG_PREFIX, error);
-          Logger.error("[screenshare] MCS Join returned error =>", error);
-          return reject (error);
+          Logger.error(LOG_PREFIX, "MCS Join returned error =>", error);
+          return reject(this._handleError(LOG_PREFIX, error, role, userId));
         }
       }
 
       if (role === C.RECV_ROLE) {
         try {
-          const sdpAnswer = await this._startViewer(connectionId, this._voiceBridge, sdpOffer, callerName, this._presenterEndpoint)
+          const sdpAnswer = await this._startViewer(connectionId, this._voiceBridge, sdpOffer, userId, this._presenterEndpoint)
           return resolve(sdpAnswer);
         }
         catch (err) {
-          this._handleError(LOG_PREFIX, err);
-          return reject(err);
+          return reject(this._handleError(LOG_PREFIX, err, role, userId));
         }
       }
 
@@ -268,8 +263,7 @@ module.exports = class Screenshare extends BaseProvider {
           return resolve(sdpAnswer);
         }
         catch (err) {
-          this._handleError(LOG_PREFIX, err);
-          return reject(err);
+          return reject(this._handleError(LOG_PREFIX, err, role, userId));
         }
       }
     });
@@ -278,7 +272,7 @@ module.exports = class Screenshare extends BaseProvider {
   _startPresenter (sdpOffer) {
     return new Promise(async (resolve, reject) => {
       try {
-        const retSource = await this.mcs.publish(this.userId, this._meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
+        const retSource = await this.mcs.publish(this.mcsUserId, this._meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
 
         this._presenterEndpoint = retSource.sessionId;
         sharedScreens[this._voiceBridge] = this._presenterEndpoint;
@@ -289,30 +283,29 @@ module.exports = class Screenshare extends BaseProvider {
           this.mediaStateWebRtc(event, this._id)
         });
 
-        Logger.info("[screenshare] MCS publish for user", this.userId, "returned", this._presenterEndpoint);
+        Logger.info(LOG_PREFIX, "MCS publish for user", this.mcsUserId, "returned", this._presenterEndpoint);
 
         let sendVideoPort = MediaHandler.getVideoPort();
         let rtpSdpOffer = MediaHandler.generateVideoSdp(localIpAddress, sendVideoPort);
 
-        const retRtp = await this.mcs.subscribe(this.userId, sharedScreens[this._voiceBridge], 'RtpEndpoint', { descriptor: rtpSdpOffer, keyframeInterval: KEYFRAME_INTERVAL});
+        const retRtp = await this.mcs.subscribe(this.mcsUserId, sharedScreens[this._voiceBridge], 'RtpEndpoint', { descriptor: rtpSdpOffer, keyframeInterval: KEYFRAME_INTERVAL});
 
         this._ffmpegEndpoint = retRtp.sessionId;
         rtpEndpoints[this._voiceBridge] = this._ffmpegEndpoint;
 
         let recvVideoPort = retRtp.answer.match(/m=video\s(\d*)/)[1];
         this._rtpParams = MediaHandler.generateTranscoderParams(kurentoIp, localIpAddress,
-          sendVideoPort, recvVideoPort, this._meetingId, "stream_type_video", C.RTP_TO_RTMP, "copy", this._caller, this._voiceBridge);
+          sendVideoPort, recvVideoPort, this._meetingId, "stream_type_video", C.RTP_TO_RTMP, "copy", this.userId, this._voiceBridge);
 
         this.mcs.on('MediaEvent' + this._ffmpegEndpoint, this.mediaStateRtp.bind(this));
 
-        Logger.info("[screenshare] MCS subscribe for user", this.userId, "returned", this._ffmpegEndpoint);
+        Logger.info(LOG_PREFIX, "MCS subscribe for user", this.mcsUserId, "returned", this._ffmpegEndpoint);
 
         return resolve(presenterSdpAnswer);
       }
       catch (err) {
-        this._handleError(LOG_PREFIX, err);
-        Logger.error("[screenshare] MCS publish returned error =>", err);
-        return reject(err);
+        Logger.error(LOG_PREFIX, "MCS publish returned error =>", err);
+        return reject(this._handleError(LOG_PREFIX, err));
       }
       finally {
         this.mcs.once('ServerState' + this._presenterEndpoint, this.serverState.bind(this));
@@ -320,31 +313,30 @@ module.exports = class Screenshare extends BaseProvider {
     });
   }
 
-  _startViewer(connectionId, voiceBridge, sdpOffer, callerName, presenterEndpoint) {
+  _startViewer(connectionId, voiceBridge, sdpOffer, userId, presenterEndpoint) {
     return new Promise(async (resolve, reject) => {
-      Logger.info("[screenshare] Starting viewer", callerName, "for voiceBridge", this._voiceBridge);
+      Logger.info(LOG_PREFIX, "Starting viewer", userId, "for voiceBridge", this._voiceBridge);
       let sdpAnswer;
 
-      this._viewersCandidatesQueue[callerName] = [];
+      this._viewersCandidatesQueue[userId] = [];
 
       try {
-        const retSource = await this.mcs.subscribe(this.userId, sharedScreens[voiceBridge], 'WebRtcEndpoint', {descriptor: sdpOffer});
+        const retSource = await this.mcs.subscribe(this.mcsUserId, sharedScreens[voiceBridge], 'WebRtcEndpoint', {descriptor: sdpOffer});
 
-        this._viewersEndpoint[callerName] = retSource.sessionId;
+        this._viewersEndpoint[userId] = retSource.sessionId;
         sdpAnswer = retSource.answer;
-        await this.flushCandidatesQueue(this._viewersEndpoint[callerName], this._viewersCandidatesQueue[callerName]);
+        await this.flushCandidatesQueue(this._viewersEndpoint[userId], this._viewersCandidatesQueue[userId]);
 
-        this.mcs.on('MediaEvent' + this._viewersEndpoint[callerName], (event) => {
+        this.mcs.on('MediaEvent' + this._viewersEndpoint[userId], (event) => {
           this.mediaStateWebRtc(event, connectionId);
         });
 
-        Logger.info("[screenshare] MCS subscribe returned for user", this.userId, "returned", this._viewersEndpoint[callerName], "at callername", callerName);
+        Logger.info(LOG_PREFIX, "MCS subscribe returned for user", this.mcsUserId, "returned", this._viewersEndpoint[userId], "at userId", userId);
         return resolve(sdpAnswer);
       }
       catch (err) {
-        this._handleError(LOG_PREFIX, err);
-        Logger.error("[screenshare] MCS publish returned error =>", err);
-        return reject(err);
+        Logger.error(LOG_PREFIX, "MCS publish returned error =>", err);
+        return reject(this._handleError(LOG_PREFIX, err));
       }
     });
   }
@@ -352,12 +344,12 @@ module.exports = class Screenshare extends BaseProvider {
   stop () {
     return new Promise(async (resolve, reject) => {
       try {
-        Logger.info('[screnshare] Stopping and releasing endpoints for MCS user', this.userId);
+        Logger.info('[screnshare] Stopping and releasing endpoints for MCS user', this.mcsUserId);
         await this._stopScreensharing();
         this._status = C.MEDIA_STOPPED;
 
-        Logger.info("[screenshare] Leaving mcs room");
-        await this.mcs.leave(this._meetingId, this.userId);
+        Logger.info(LOG_PREFIX, "Leaving mcs room");
+        await this.mcs.leave(this._meetingId, this.mcsUserId);
         delete sharedScreens[this._presenterEndpoint];
         this._candidatesQueue = null;
         this._presenterEndpoint = null;
@@ -369,7 +361,7 @@ module.exports = class Screenshare extends BaseProvider {
       }
       catch (err) {
         this._handleError(LOG_PREFIX, err);
-        Logger.error('[screenshare] MCS returned an error when trying to leave =>', err);
+        Logger.error(LOG_PREFIX, 'MCS returned an error when trying to leave =>', err);
         return resolve();
       }
     });
@@ -378,7 +370,7 @@ module.exports = class Screenshare extends BaseProvider {
   _stopScreensharing() {
     return new Promise(async (resolve, reject) => {
       try {
-        Logger.info("[screenshare] Stopping screensharing with status", this._status);
+        Logger.info(LOG_PREFIX, "Stopping screensharing with status", this._status);
         const isTranscoderAvailable = await this._BigBlueButtonGW.isChannelAvailable(C.TO_BBB_TRANSCODE_SYSTEM_CHAN);
         const strm = Messaging.generateStopTranscoderRequestMessage(this._meetingId, this._meetingId);
 
@@ -418,7 +410,7 @@ module.exports = class Screenshare extends BaseProvider {
 
   async _onRtpMediaFlowing() {
     if (!this._rtmpBroadcastStarted) {
-      Logger.info("[screenshare] RTP Media FLOWING for meeting", this._meetingId);
+      Logger.info(LOG_PREFIX, "RTP Media FLOWING for meeting", this._meetingId);
       const isTranscoderAvailable = await this._BigBlueButtonGW.isChannelAvailable(C.TO_BBB_TRANSCODE_SYSTEM_CHAN);
       const strm = Messaging.generateStartTranscoderRequestMessage(this._meetingId, this._meetingId, this._rtpParams);
 
@@ -445,7 +437,7 @@ module.exports = class Screenshare extends BaseProvider {
       }
 
       if (this._status != C.MEDIA_STARTED) {
-        Logger.info('[screenshare] webRTC started flowing for meeting', this._meetingId);
+        Logger.info(LOG_PREFIX, 'webRTC started flowing for meeting', this._meetingId);
         if (this.isRecorded) {
           this.startRecording();
         }
@@ -456,7 +448,7 @@ module.exports = class Screenshare extends BaseProvider {
 
   _stopRtmpBroadcast (meetingId) {
     return new Promise((resolve, reject) => {
-      Logger.info("[screenshare] _stopRtmpBroadcast for meeting", meetingId);
+      Logger.info(LOG_PREFIX, "_stopRtmpBroadcast for meeting", meetingId);
       let timestamp = now.format('hhmmss');
       let dsrstom = Messaging.generateScreenshareRTMPBroadcastStoppedEvent2x(this._voiceBridge,
         this._voiceBridge, this._streamUrl, this._vw, this._vh, timestamp);
@@ -466,7 +458,7 @@ module.exports = class Screenshare extends BaseProvider {
   }
 
   _startRtmpBroadcast (meetingId, output) {
-    Logger.info("[screenshare] _startRtmpBroadcast for meeting", + meetingId);
+    Logger.info(LOG_PREFIX, "_startRtmpBroadcast for meeting", + meetingId);
     let timestamp = now.format('hhmmss');
     this._streamUrl = MediaHandler.generateStreamUrl(localIpAddress, meetingId, output);
     let dsrbstam = Messaging.generateScreenshareRTMPBroadcastStartedEvent2x(this._voiceBridge,
@@ -477,23 +469,23 @@ module.exports = class Screenshare extends BaseProvider {
   }
 
   _onRtpMediaNotFlowing() {
-    Logger.warn("[screenshare] TODO RTP NOT_FLOWING");
+    Logger.warn(LOG_PREFIX, "TODO RTP NOT_FLOWING");
   }
 
   async stopViewer(id) {
     let viewer = this._viewersEndpoint[id];
-    Logger.info('[screenshare] Releasing endpoints for', viewer);
+    Logger.info(LOG_PREFIX, 'Releasing endpoints for', viewer);
 
     if (viewer) {
       try {
-        await this.mcs.unsubscribe(this.userId, this.viewer);
+        await this.mcs.unsubscribe(this.mcsUserId, this.viewer);
         this._viewersCandidatesQueue[id] = null;
         this._viewersEndpoint[id] = null;
         return;
       }
       catch (err) {
         this._handleError(LOG_PREFIX, err);
-        Logger.error('[screenshare] MCS returned error when trying to unsubscribe', err);
+        Logger.error(LOG_PREFIX, 'MCS returned error when trying to unsubscribe', err);
         return;
       }
     }
