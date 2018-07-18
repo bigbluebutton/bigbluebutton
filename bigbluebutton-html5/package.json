@@ -28,7 +28,9 @@
       "but Meteor 1.6.0.1 doesn't see it there for some reason",
       "need to investigate"
     ],
+    "@browser-bunyan/server-stream": "^1.3.0",
     "babel-runtime": "~6.26.0",
+    "browser-bunyan": "^1.3.0",
     "browser-detect": "^0.2.28",
     "classnames": "~2.2.5",
     "clipboard": "~1.7.1",

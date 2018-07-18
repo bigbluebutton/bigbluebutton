@@ -5,6 +5,7 @@ import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
+import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 
 const MEDIA = Meteor.settings.public.media;
@@ -262,7 +263,7 @@ class AudioManager {
         this.error = error;
         this.notify(this.messages.error[error] || this.messages.error.GENERIC_ERROR, true);
         makeCall('failed callStateCallback audio', response);
-        console.error('Audio Error:', error, bridgeError);
+        logger.error('Audio Error:', error, bridgeError);
         this.exitAudio();
         this.onAudioExit();
       }
