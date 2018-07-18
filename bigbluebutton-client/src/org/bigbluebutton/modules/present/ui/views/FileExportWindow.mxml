@@ -39,9 +39,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.utils.ByteArray;
 			import flash.utils.setTimeout;
-
+			
 			import mx.events.FlexEvent;
-
+			
 			import org.alivepdf.colors.RGBColor;
 			import org.alivepdf.display.Display;
 			import org.alivepdf.drawing.Caps;
@@ -64,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			import org.bigbluebutton.modules.whiteboard.models.Annotation;
+			import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
 			import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -132,89 +133,126 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_pdf.addImage(mc, new org.alivepdf.layout.Resize(Mode.RESIZE_PAGE, Position.CENTERED));
 
 					// The ratio to calculate positions
-					var ratio:Number = mc.width / slideModel.loaderW;
 					LOGGER.debug(_currentPage + " - Processing " + annotations.length + " annotations ");
 					for each (var annotation:Annotation in annotations) {
 						LOGGER.debug(_currentPage + " - Processing annotation " + annotation.type);
-
+						var _ao:Object = annotation.annotation;
+						
 						if (annotation.type == AnnotationType.TEXT) {
-							var textX:Number = convertToLocal(annotation.annotation.x, slideModel.loaderW);
-							var textY:Number = convertToLocal(annotation.annotation.y, slideModel.loaderH);
-							var textFontSize:Number = convertToLocal(annotation.annotation.calcedFontSize, slideModel.loaderH);
+							var textX:Number = convertToLocal(_ao.x, mc.width);
+							var textY:Number = convertToLocal(_ao.y, mc.height);
+							var textFontSize:Number = convertToLocal(_ao.calcedFontSize, mc.height);
 
-							_pdf.setFont(new CoreFont(FontFamily.ARIAL), textFontSize * ratio);
-							_pdf.textStyle(new RGBColor(annotation.annotation.fontColor));
-							// FIXME: added annotation.annotation.fontSize for approximation
-							_pdf.addText(annotation.annotation.text, textX * ratio, (textY + textFontSize) * ratio);
+							_pdf.setFont(new CoreFont(FontFamily.ARIAL), textFontSize);
+							_pdf.textStyle(new RGBColor(_ao.fontColor));
+							// FIXME: added _ao.fontSize for approximation
+							_pdf.addText(_ao.text, textX, textY + textFontSize);
 						} else if (annotation.type == AnnotationType.LINE) {
-							var lineX:Number = convertToLocal(annotation.annotation.points[0], slideModel.loaderW);
-							var lineY:Number = convertToLocal(annotation.annotation.points[1], slideModel.loaderH);
-							var lineX2:Number = convertToLocal(annotation.annotation.points[2], slideModel.loaderW);
-							var lineY2:Number = convertToLocal(annotation.annotation.points[3], slideModel.loaderH);
-							var lineThickness:Number = convertToLocal(annotation.annotation.thickness, slideModel.loaderW);
+							var lineX:Number = convertToLocal(_ao.points[0], mc.width);
+							var lineY:Number = convertToLocal(_ao.points[1], mc.height);
+							var lineX2:Number = convertToLocal(_ao.points[2], mc.width);
+							var lineY2:Number = convertToLocal(_ao.points[3], mc.height);
+							var lineThickness:Number = convertToLocal(_ao.thickness, mc.width);
 
-							_pdf.lineStyle(new RGBColor(annotation.annotation.color), lineThickness * ratio, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
-							_pdf.drawLine(lineX * ratio, lineY * ratio, lineX2 * ratio, lineY2 * ratio);
+							_pdf.lineStyle(new RGBColor(_ao.color), lineThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							_pdf.drawLine(lineX, lineY, lineX2, lineY2);
 						} else if (annotation.type == AnnotationType.RECTANGLE) {
-							var rectX:Number = convertToLocal(annotation.annotation.points[0], slideModel.loaderW);
-							var rectY:Number = convertToLocal(annotation.annotation.points[1], slideModel.loaderH);
-							var rectWidth:Number = convertToLocal(annotation.annotation.points[2], slideModel.loaderW) - rectX;
-							var rectHeight:Number = convertToLocal(annotation.annotation.points[3], slideModel.loaderH) - rectY;
-							var recThickness:Number = convertToLocal(annotation.annotation.thickness, slideModel.loaderW);
+							var rectX:Number = convertToLocal(_ao.points[0], mc.width);
+							var rectY:Number = convertToLocal(_ao.points[1], mc.height);
+							var rectWidth:Number = convertToLocal(_ao.points[2], mc.width) - rectX;
+							var rectHeight:Number = convertToLocal(_ao.points[3], mc.height) - rectY;
+							var recThickness:Number = convertToLocal(_ao.thickness, mc.width);
 
-							_pdf.lineStyle(new RGBColor(annotation.annotation.color), recThickness * ratio, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
-							_pdf.drawRect(new Rectangle(rectX * ratio, rectY * ratio, rectWidth * ratio, rectHeight * ratio));
+							_pdf.lineStyle(new RGBColor(_ao.color), recThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							_pdf.drawRect(new Rectangle(rectX, rectY, rectWidth, rectHeight));
 						} else if (annotation.type == AnnotationType.TRIANGLE) {
-							var startX:Number = convertToLocal(annotation.annotation.points[0], slideModel.loaderW);
-							var startY:Number = convertToLocal(annotation.annotation.points[1], slideModel.loaderH);
-							var triangleWidth:Number = convertToLocal(annotation.annotation.points[2], slideModel.loaderW) - startX;
-							var triangleHeight:Number = convertToLocal(annotation.annotation.points[3], slideModel.loaderH) - startY;
-							var triangleThickness:Number = convertToLocal(annotation.annotation.thickness, slideModel.loaderW);
+							var startX:Number = convertToLocal(_ao.points[0], mc.width);
+							var startY:Number = convertToLocal(_ao.points[1], mc.height);
+							var triangleWidth:Number = convertToLocal(_ao.points[2], mc.width) - startX;
+							var triangleHeight:Number = convertToLocal(_ao.points[3], mc.height) - startY;
+							var triangleThickness:Number = convertToLocal(_ao.thickness, mc.width);
 
-							_pdf.lineStyle(new RGBColor(annotation.annotation.color), triangleThickness * ratio, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							_pdf.lineStyle(new RGBColor(_ao.color), triangleThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
 
-							_pdf.drawLine((startX + triangleWidth / 2) * ratio, startY * ratio, (startX + triangleWidth) * ratio, (startY + triangleHeight) * ratio);
-							_pdf.drawLine((startX + triangleWidth) * ratio, (startY + triangleHeight) * ratio, startX * ratio, (triangleHeight + startY) * ratio);
-							_pdf.drawLine(startX * ratio, (triangleHeight + startY) * ratio, (startX + triangleWidth / 2) * ratio, startY * ratio);
+							_pdf.drawLine(startX + triangleWidth / 2, startY, startX + triangleWidth, startY + triangleHeight);
+							_pdf.drawLine(startX + triangleWidth, startY + triangleHeight, startX, triangleHeight + startY);
+							_pdf.drawLine(startX, triangleHeight + startY, startX + triangleWidth / 2, startY);
 						} else if (annotation.type == AnnotationType.ELLIPSE) {
-							var ellipseX:Number = convertToLocal(parseFloat(annotation.annotation.points[0]), slideModel.loaderW);
-							var ellipseY:Number = convertToLocal(parseFloat(annotation.annotation.points[1]), slideModel.loaderH);
-							var ellipseWidth:Number = convertToLocal(parseFloat(annotation.annotation.points[2]), slideModel.loaderW) - ellipseX;
-							var ellipseHeight:Number = convertToLocal(parseFloat(annotation.annotation.points[3]), slideModel.loaderH) - ellipseY;
-							var ellipseThickness:Number = convertToLocal(annotation.annotation.thickness, slideModel.loaderW);
+							var ellipseX:Number = convertToLocal(parseFloat(_ao.points[0]), mc.width);
+							var ellipseY:Number = convertToLocal(parseFloat(_ao.points[1]), mc.height);
+							var ellipseWidth:Number = convertToLocal(parseFloat(_ao.points[2]), mc.width) - ellipseX;
+							var ellipseHeight:Number = convertToLocal(parseFloat(_ao.points[3]), mc.height) - ellipseY;
+							var ellipseThickness:Number = convertToLocal(_ao.thickness, mc.width);
 
-							_pdf.lineStyle(new RGBColor(annotation.annotation.color), ellipseThickness * ratio, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
-							_pdf.drawEllipse((ellipseX * ratio) + (ellipseWidth / 2) * ratio, (ellipseY * ratio) + (ellipseHeight / 2) * ratio, (ellipseWidth * ratio) / 2, (ellipseHeight * ratio) / 2);
+							_pdf.lineStyle(new RGBColor(_ao.color), ellipseThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							_pdf.drawEllipse(ellipseX + ellipseWidth / 2, ellipseY + ellipseHeight / 2, ellipseWidth / 2, ellipseHeight / 2);
 						} else if (annotation.type == AnnotationType.PENCIL) {
-							LOGGER.debug(_currentPage + " - Drawin a new pencil - Points count = " + annotation.annotation.points.length);
-							var pencilThickness:Number = convertToLocal(annotation.annotation.thickness, slideModel.loaderW);
+							LOGGER.debug(_currentPage + " - Drawing a new pencil - Points count = " + _ao.points.length);
+							var pencilThickness:Number = convertToLocal(_ao.thickness, mc.width);
 
-							_pdf.lineStyle(new RGBColor(annotation.annotation.color), pencilThickness * ratio, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
-							var pointsArray:Array = annotation.annotation.points as Array;
-							var convertedPointsArray:Array = new Array();
-
-							for (var i:int = 0; i < pointsArray.length; i += 2) {
-								var x:Number = convertToLocal(pointsArray[i], slideModel.loaderW);
-								var y:Number = convertToLocal(pointsArray[i + 1], slideModel.loaderH);
-
-								if (i == 0)
-									_pdf.moveTo(x * ratio, y * ratio);
-								else
-									_pdf.lineTo(x * ratio, y * ratio);
+							_pdf.lineStyle(new RGBColor(_ao.color), pencilThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							
+							var points:Array = _ao.points as Array;
+							
+							if (annotation.status == AnnotationStatus.DRAW_END && _ao.points.length > 2 && _ao.commands) {
+								LOGGER.debug(_currentPage + " - Drawing a new finished pencil");
+								var commands:Array = _ao.commands as Array;
+								
+								for (var k:int=0, j:int=0; k<commands.length && j<points.length; k++){
+									switch (commands[k]) {
+										case 1: // MOVE_TO
+											_pdf.moveTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											break;
+										case 2: // LINE_TO
+											_pdf.lineTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											break;
+										case 3: // Q_CURVE_TO
+											// The PDF exporter doesn't have a quadratic curve so just do lineTo
+											_pdf.lineTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											_pdf.lineTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											break;
+										case 4: // C_CURVE_TO
+											var cX1:Number = convertToLocal(points[j++], mc.width);
+											var cY1:Number = convertToLocal(points[j++], mc.height);
+											var cX2:Number = convertToLocal(points[j++], mc.width);
+											var cY2:Number = convertToLocal(points[j++], mc.height);
+											var fX:Number = convertToLocal(points[j++], mc.width);
+											var fY:Number = convertToLocal(points[j++], mc.height);
+											
+											_pdf.curveTo(cX1, cY1, cX2, cY2, fX, fY);
+											break;
+									}
+								}
+							} else {
+								if (points.length > 2) {
+									LOGGER.debug(_currentPage + " - Drawing a new simple pencil");
+									_pdf.moveTo(convertToLocal(points[0], mc.width), convertToLocal(points[1], mc.height));
+									
+									for (var l:int = 2; l < points.length; l += 2){
+										_pdf.lineTo(convertToLocal(points[l], mc.width), convertToLocal(points[l+1], mc.height));
+									}
+								} else {
+									LOGGER.debug(_currentPage + " - Drawing a new pencil point");
+									_pdf.lineStyle(new RGBColor(_ao.color), 1, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+									_pdf.beginFill(new RGBColor(_ao.color));
+									var diameter:Number = convertToLocal(_ao.thickness, mc.width);
+									_pdf.drawEllipse(convertToLocal(points[0], mc.width)-diameter/2, convertToLocal(points[1], mc.height)-diameter/2, diameter, diameter);
+									_pdf.endFill();
+								}
 							}
 
 							_pdf.end(false);
 						} else if (annotation.type == AnnotationType.POLL) {
 							var child:DisplayObject = whiteboardCanvas.getGraphicByName(StringUtils.substringAfterLast(annotation.id, "/"));
 
-							var pollPointsArray:Array = annotation.annotation.points as Array;
+							var pollPointsArray:Array = _ao.points as Array;
 
-							var pollX:Number = convertToLocal(pollPointsArray[i], slideModel.loaderW);
-							var pollY:Number = convertToLocal(pollPointsArray[i + 1], slideModel.loaderH);
-							var pollWidth:Number = convertToLocal(pollPointsArray[i + 2], slideModel.loaderH);
-							var pollHeigth:Number = convertToLocal(pollPointsArray[i + 3], slideModel.loaderH);
+							var pollX:Number = convertToLocal(pollPointsArray[0], mc.width);
+							var pollY:Number = convertToLocal(pollPointsArray[1], mc.height);
+							var pollWidth:Number = convertToLocal(pollPointsArray[2], mc.height);
+							var pollHeigth:Number = convertToLocal(pollPointsArray[3], mc.height);
 
-							_pdf.addImage(child, null, pollX * ratio, pollY * ratio, child.width * ratio, child.height * ratio);
+							_pdf.addImage(child, null, pollX, pollY, child.width, child.height);
 						}
 					}
 
@@ -226,7 +264,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						dispatchEvent(new Event('pdfComplete'));
 					}
 				});
-				var url:URLRequest = new URLRequest(slidesUrl + _currentPage);
+				
+				var slideURI:String = slidesUrl + _currentPage;
+				var pngURI:String =  slideURI.replace(/\/slide\//g, "/png/");
+				var url:URLRequest = new URLRequest(pngURI);
+				
 				pageLoader.load(url);
 			}
 
