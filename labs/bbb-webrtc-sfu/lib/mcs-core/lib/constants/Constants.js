@@ -75,9 +75,6 @@ exports.ERROR.MEDIA_ADAPTER_OBJECT_NOT_FOUND = { code: 2209, message: "MEDIA_ADA
 exports.ERROR.MEDIA_CONNECT_ERROR = { code: 2210, message: "MEDIA_CONNECT_ERROR" };
 
 
-
-
-
 // Freeswitch Adapter
 exports.FREESWITCH = {};
 exports.FREESWITCH.GLOBAL_AUDIO_PREFIX = "GLOBAL_AUDIO_";

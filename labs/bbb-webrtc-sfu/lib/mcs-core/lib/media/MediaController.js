@@ -194,7 +194,7 @@ module.exports = class MediaController {
     try {
       const user = this.getUserMCS(userId);
       const answer = await user.unpublish(mediaId);
-      this._mediaSessions[mediaId] = null;
+      delete this._mediaSessions[mediaId];
       return Promise.resolve(answer);
     }
     catch (err) {
@@ -207,7 +207,7 @@ module.exports = class MediaController {
     try {
       const user = this.getUserMCS(userId);
       const answer = await user.unsubscribe(mediaId);
-      this._mediaSessions[mediaId] = null;
+      delete this._mediaSessions[mediaId];
       return Promise.resolve();
     }
     catch (err) {
