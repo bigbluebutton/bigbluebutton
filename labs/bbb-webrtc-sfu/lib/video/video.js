@@ -7,13 +7,14 @@ const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const Messaging = require('../bbb/messages/Messaging');
 const h264_sdp = require('../h264-sdp');
+const BaseProvider = require('../base/BaseProvider');
 const FORCE_H264 = config.get('webcam-force-h264');
-const EventEmitter = require('events').EventEmitter;
 const SHOULD_RECORD = config.get('recordWebcams');
+const LOG_PREFIX = "[video]";
 
 var sharedWebcams = {};
 
-module.exports = class Video extends EventEmitter {
+module.exports = class Video extends BaseProvider {
   constructor(_bbbGW, _meetingId, _id, _shared, _connectionId) {
     super();
     this.mcs = new MCSApi();
@@ -53,6 +54,7 @@ module.exports = class Video extends EventEmitter {
         await this.mcs.addIceCandidate(this.mediaId, _candidate);
       }
       catch (err)   {
+        this._handleError(LOG_PREFIX, err);
         Logger.error("[video] ICE candidate could not be added to media controller.", err);
       }
     }
@@ -72,6 +74,7 @@ module.exports = class Video extends EventEmitter {
           this.candidatesQueue = [];
           resolve();
         }).catch((err) => {
+          this._handleError(LOG_PREFIX, err);
           Logger.error("[video] ICE candidate could not be added to media controller.", err);
           reject();
         });
@@ -207,6 +210,7 @@ module.exports = class Video extends EventEmitter {
         resolve(this.recording);
       }
       catch (err) {
+        this._handleError(LOG_PREFIX, err);
         Logger.error("[video] Error on start recording with message", err);
         reject(err);
       }
@@ -251,6 +255,7 @@ module.exports = class Video extends EventEmitter {
       return resolve(sdpAnswer);
     }
     catch (err) {
+      this._handleError(LOG_PREFIX, err);
       Logger.error("[video] MCS returned error => ", err);
       return reject(err);
     }
@@ -273,6 +278,7 @@ module.exports = class Video extends EventEmitter {
         }
       }
       catch (err) {
+        this._handleError(LOG_PREFIX, err);
         return reject(err);
       }
     });
@@ -299,6 +305,7 @@ module.exports = class Video extends EventEmitter {
       }
     }
     catch (err) {
+      this._handleError(LOG_PREFIX, err);
       Logger.error("[video] MCS returned error on pause procedure with message", err);
     }
   }
@@ -338,7 +345,7 @@ module.exports = class Video extends EventEmitter {
         resolve();
       }
       catch (err) {
-        // TODO error handling
+        this._handleError(LOG_PREFIX, err);
         reject();
       }
     });

@@ -7,8 +7,10 @@ const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const Messaging = require('../bbb/messages/Messaging');
+const BaseProvider = require('../base/BaseProvider');
+const LOG_PREFIX = "[audio]";
 
-module.exports = class Audio {
+module.exports = class Audio extends BaseProvider {
   constructor(_bbbGW, _id, voiceBridge) {
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
@@ -32,6 +34,7 @@ module.exports = class Audio {
         this.mcs.addIceCandidate(this.audioEndpoints[connectionId], _candidate);
       }
       catch (err)   {
+        this._handleError(LOG_PREFIX, err);
         Logger.error("[audio] ICE candidate could not be added to media controller.", err);
       }
     }
@@ -52,6 +55,7 @@ module.exports = class Audio {
         }
       }
       catch (err) {
+        this._handleError(LOG_PREFIX, err);
         Logger.error("[audio] ICE candidate could not be added to media controller.", err);
       }
     }
@@ -190,6 +194,7 @@ module.exports = class Audio {
       return callback(null, sdpAnswer);
     }
     catch (err) {
+      this._handleError(LOG_PREFIX, err);
       Logger.error("[audio] MCS returned error => " + err);
       return callback(err);
     }
@@ -217,6 +222,7 @@ module.exports = class Audio {
         return;
       }
       catch (err) {
+        this._handleError(LOG_PREFIX, err);
         Logger.error('[audio] MCS returned error when trying to unsubscribe', err);
         return;
       }
@@ -246,7 +252,7 @@ module.exports = class Audio {
       return Promise.resolve();
     }
     catch (err) {
-      // TODO error handling
+      this._handleError(LOG_PREFIX, err);
       return Promise.reject();
     }
   };
