@@ -53,7 +53,7 @@ export function log(type = 'error', message, ...args) {
     location: window.location.href,
   };
   const logContents = { ...args };
-  const topic = typeof logContents[0] ? logContents[0].topic : null;
+  const topic = logContents[0] ? logContents[0].topic : null;
 
   const messageOrStack = message.stack || message.message || JSON.stringify(message);
   console.debug(`CLIENT LOG (${topic ? type.toUpperCase() + '.' + topic : type.toUpperCase()}): `, messageOrStack, ...args);
