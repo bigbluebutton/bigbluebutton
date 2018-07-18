@@ -8,11 +8,16 @@ const { errors } = require('../base/errors');
 module.exports = class BaseProvider extends EventEmitter {
   constructor () {
     super();
+    this.sfuApp = "base";
   }
 
   _handleError (logPrefix, error, role, endpointId) {
+    if (this._validateErrorMessage(error)) {
+      return error;
+    }
+
     const { code } = error;
-    const { reason } = errors[code];
+    const reason = errors[code];
 
     if (reason == null) {
       return;
@@ -28,12 +33,24 @@ module.exports = class BaseProvider extends EventEmitter {
 
   _assembleErrorMessage (error, role, endpointId) {
     return {
-      type: this.SFU_APP,
+      type: this.sfuApp,
       id: 'error',
       role,
       endpointId,
       code: error.code,
       reason: error.message,
     };
+  }
+
+  _validateErrorMessage (error) {
+    const {
+      type = null,
+      id = null,
+      role = null,
+      endpointId = null,
+      code = null,
+      reason = null,
+    } = error;
+    return type && id && role && endpointId && code && reason;
   }
 };

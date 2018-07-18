@@ -12,11 +12,12 @@ const FORCE_H264 = config.get('webcam-force-h264');
 const SHOULD_RECORD = config.get('recordWebcams');
 const LOG_PREFIX = "[video]";
 
-var sharedWebcams = {};
+let sharedWebcams = {};
 
 module.exports = class Video extends BaseProvider {
   constructor(_bbbGW, _meetingId, _id, _shared, _connectionId) {
     super();
+    this.sfuApp = "video";
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
     this.id = _id;
@@ -35,7 +36,7 @@ module.exports = class Video extends BaseProvider {
     this.notFlowingTimeout = null;
 
     this.bbbGW.once(C.RECORDING_STATUS_REPLY_MESSAGE_2x+this.meetingId, (payload) => {
-      Logger.info("[Video] RecordingStatusReply userId:", payload.requestedBy, "recorded:", payload.recorded);
+      Logger.info(LOG_PREFIX, "RecordingStatusReply userId:", payload.requestedBy, "recorded:", payload.recorded);
 
       if (payload.requestedBy === this.id && payload.recorded) {
         this.isRecorded = true;
@@ -54,8 +55,8 @@ module.exports = class Video extends BaseProvider {
         await this.mcs.addIceCandidate(this.mediaId, _candidate);
       }
       catch (err)   {
-        this._handleError(LOG_PREFIX, err);
-        Logger.error("[video] ICE candidate could not be added to media controller.", err);
+        this._handleError(LOG_PREFIX, err, this.role, this.id);
+        Logger.error(LOG_PREFIX, "ICE candidate could not be added to media controller.", err);
       }
     }
     else {
@@ -74,9 +75,8 @@ module.exports = class Video extends BaseProvider {
           this.candidatesQueue = [];
           resolve();
         }).catch((err) => {
-          this._handleError(LOG_PREFIX, err);
-          Logger.error("[video] ICE candidate could not be added to media controller.", err);
-          reject();
+          Logger.error(LOG_PREFIX, "ICE candidate could not be added to media controller.", err);
+          reject(this._handleError(LOG_PREFIX, err, this.role, this.id));
         });
       }
     });
@@ -85,7 +85,7 @@ module.exports = class Video extends BaseProvider {
   serverState (event) {
     switch (event && event.eventTag) {
       case C.MEDIA_SERVER_OFFLINE:
-        Logger.error("[video] Video provider received MEDIA_SERVER_OFFLINE event");
+        Logger.error(LOG_PREFIX, "Video provider received MEDIA_SERVER_OFFLINE event");
         this.bbbGW.publish(JSON.stringify({
           connectionId: this.connectionId,
           type: 'video',
@@ -98,7 +98,7 @@ module.exports = class Video extends BaseProvider {
         break;
 
       default:
-        Logger.warn("[video] Unknown server state", event);
+        Logger.warn(LOG_PREFIX, "Unknown server state", event);
     }
   }
 
@@ -110,7 +110,7 @@ module.exports = class Video extends BaseProvider {
 
       case "OnIceCandidate":
         let candidate = msEvent.candidate;
-        Logger.debug("[video] Sending ICE candidate to user", this.streamName, "with candidate", candidate);
+        Logger.debug(LOG_PREFIX, "Sending ICE candidate to user", this.streamName, "with candidate", candidate);
         this.bbbGW.publish(JSON.stringify({
           connectionId: this.connectionId,
           type: 'video',
@@ -126,10 +126,10 @@ module.exports = class Video extends BaseProvider {
 
       case "MediaFlowOutStateChange":
       case "MediaFlowInStateChange":
-        Logger.info('[video] ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.streamName);
+        Logger.info(LOG_PREFIX, ' ' + msEvent.type + '[' + msEvent.state + ']' + ' for media session', event.id, "for video", this.streamName);
 
         if (msEvent.state === 'NOT_FLOWING' && this.status !== C.MEDIA_PAUSED) {
-          Logger.warn("[video] Setting up a timeout for", this.streamName);
+          Logger.warn(LOG_PREFIX, "Setting up a timeout for", this.streamName);
           if (!this.notFlowingTimeout) {
             this.notFlowingTimeout = setTimeout(() => {
 
@@ -144,7 +144,7 @@ module.exports = class Video extends BaseProvider {
         }
         else if (msEvent.state === 'FLOWING') {
           if (this.notFlowingTimeout) {
-            Logger.warn("[video] Received a media flow before stopping", this.streamName);
+            Logger.warn(LOG_PREFIX, "Received a media flow before stopping", this.streamName);
             clearTimeout(this.notFlowingTimeout);
             delete this.notFlowingTimeout;
           }
@@ -163,7 +163,7 @@ module.exports = class Video extends BaseProvider {
         }
         break;
 
-      default: Logger.warn("[video] Unrecognized event", event);
+      default: Logger.warn(LOG_PREFIX, "Unrecognized event", event);
     }
   }
 
@@ -210,9 +210,8 @@ module.exports = class Video extends BaseProvider {
         resolve(this.recording);
       }
       catch (err) {
-        this._handleError(LOG_PREFIX, err);
-        Logger.error("[video] Error on start recording with message", err);
-        reject(err);
+        Logger.error(LOG_PREFIX, "Error on start recording with message", err);
+        reject(this._handleError(LOG_PREFIX, err, this.role, this.id));
       }
     });
   }
@@ -230,35 +229,32 @@ module.exports = class Video extends BaseProvider {
 
   start (sdpOffer) {
     return new Promise(async (resolve, reject) => {
+      Logger.info(LOG_PREFIX, "Starting video instance for", this.streamName);
 
-    Logger.info("[video] Starting video instance for", this.streamName);
+      // Force H264
+      if (FORCE_H264) {
+        sdpOffer = h264_sdp.transform(sdpOffer);
+      }
 
-    // Force H264
-    if (FORCE_H264) {
-      sdpOffer = h264_sdp.transform(sdpOffer);
-    }
+      // Start the recording process
+      if (SHOULD_RECORD && this.shared) {
+        this.sendGetRecordingStatusRequestMessage();
+      }
 
-    // Start the recording process
-    if (SHOULD_RECORD && this.shared) {
-      this.sendGetRecordingStatusRequestMessage();
-    }
-
-    try {
-      this.userId = await this.mcs.join(this.meetingId, 'SFU', {});
-      Logger.info("[video] MCS join for", this.streamName, "returned", this.userId);
-      const sdpAnswer = await this._addMCSMedia(C.WEBRTC, sdpOffer);
-      this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
-      this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
-      this.status = C.MEDIA_STARTING;
-      await this.flushCandidatesQueue();
-      Logger.info("[video] MCS call for user", this.userId, "returned", this.mediaId);
-      return resolve(sdpAnswer);
-    }
-    catch (err) {
-      this._handleError(LOG_PREFIX, err);
-      Logger.error("[video] MCS returned error => ", err);
-      return reject(err);
-    }
+      try {
+        this.userId = await this.mcs.join(this.meetingId, 'SFU', {});
+        Logger.info(LOG_PREFIX, "MCS join for", this.streamName, "returned", this.userId);
+        const sdpAnswer = await this._addMCSMedia(C.WEBRTC, sdpOffer);
+        this.mcs.on('MediaEvent' + this.mediaId, this.mediaState.bind(this));
+        this.mcs.on('ServerState' + this.mediaId, this.serverState.bind(this));
+        this.status = C.MEDIA_STARTING;
+        await this.flushCandidatesQueue();
+        Logger.info(LOG_PREFIX, "MCS call for user", this.userId, "returned", this.mediaId);
+        return resolve(sdpAnswer);
+      }
+      catch (err) {
+        reject(this._handleError(LOG_PREFIX, err, this.role, this.id));
+      }
     });
   }
 
@@ -278,8 +274,8 @@ module.exports = class Video extends BaseProvider {
         }
       }
       catch (err) {
-        this._handleError(LOG_PREFIX, err);
-        return reject(err);
+        err = this._handleError(LOG_PREFIX, err, this.role, this.id)
+        reject(err);
       }
     });
   }
@@ -289,7 +285,7 @@ module.exports = class Video extends BaseProvider {
     const sinkId = this.mediaId;
 
     if (sourceId == null || sinkId == null) {
-      Logger.error("[video] Source or sink is null.");
+      Logger.error(LOG_PREFIX, "Source or sink is null.");
       return;
     }
 
@@ -305,8 +301,7 @@ module.exports = class Video extends BaseProvider {
       }
     }
     catch (err) {
-      this._handleError(LOG_PREFIX, err);
-      Logger.error("[video] MCS returned error on pause procedure with message", err);
+      this._handleError(LOG_PREFIX, err, this.role, this.id);
     }
   }
 
@@ -323,7 +318,7 @@ module.exports = class Video extends BaseProvider {
 
   async stop () {
     return new Promise(async (resolve, reject) => {
-      Logger.info('[video] Stopping video session', this.userId, 'at room', this.meetingId);
+      Logger.info(LOG_PREFIX, 'Stopping video session', this.userId, 'at room', this.meetingId);
 
       try {
         await this.mcs.leave(this.meetingId, this.userId);
@@ -345,8 +340,7 @@ module.exports = class Video extends BaseProvider {
         resolve();
       }
       catch (err) {
-        this._handleError(LOG_PREFIX, err);
-        reject();
+        reject(this._handleError(LOG_PREFIX, err, this.role, this.id));
       }
     });
   }
