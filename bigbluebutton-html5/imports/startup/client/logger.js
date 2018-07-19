@@ -11,15 +11,15 @@ import { nameFromLevel } from '@browser-bunyan/levels';
 // To add more targets use the format { "target": "server", "level": "info" },
 // and add it to the public.log array
 // The accepted levels are "debug", "info", "warn", "error"
-// To send to URL, use the format { "target": "external", "level": "info", 
-// "streamOptions": {"url": "", "httpMethod": "PUT"} }
+// To send to URL, use the format    {"target": "external","level": "info",
+// "url": "","method": ""}
 // externalURL is the end-point that logs will be sent to
 // Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 
 const LOG_CONFIG = Meteor.settings.public.log || {};
 const { fullInfo } = Auth;
 
-// create a custom stream that logs to an end-point
+// Custom stream that logs to an end-point
 class ServerLoggerStream extends ServerStream {
   write(rec) {
     if (fullInfo.meetingId != null) {
@@ -28,8 +28,7 @@ class ServerLoggerStream extends ServerStream {
     return super.write(rec);
   }
 }
-
-// Created a custom stream to log to the meteor server
+// Custom stream to log to the meteor server
 class MeteorStream {
   write(rec) {
     if (fullInfo.meetingId != null) {
@@ -44,11 +43,11 @@ function createStreamForTarget(target, options) {
   const TARGET_EXTERNAL = 'external';
   const TARGET_CONSOLE = 'console';
   const TARGET_SERVER = 'server';
- 
+
   let Stream = ConsoleRawStream;
   switch (target) {
     case TARGET_EXTERNAL:
-      Stream = ServerLoggerStream
+      Stream = ServerLoggerStream;
       break;
     case TARGET_CONSOLE:
       Stream = ConsoleFormattedStream;
@@ -57,16 +56,15 @@ function createStreamForTarget(target, options) {
       Stream = MeteorStream;
       break;
   }
-  
+
   return new Stream(options);
 }
 
 function generateLoggerStreams(config) {
-  return config.map(( currentValue ) => {
-    return({
-      level: currentValue.level,
-      stream: createStreamForTarget(currentValue.target, currentValue.streamOptions)})
-  });
+  return config.map(({ target, level, ...streamOptions }) => ({
+    level,
+    stream: createStreamForTarget(target, streamOptions),
+  }));
 }
 
 // Creates the logger with the array of streams of the chosen targets
