@@ -204,7 +204,7 @@
 				var amIMod:Boolean = UsersUtil.amIModerator();
 				
 				if (data != null) {
-					settingsBtn.visible = rolledOver && !UsersUtil.isBreakout() && (amIMod || options.allowUserLookup);
+					settingsBtn.visible = rolledOver && !UsersUtil.isBreakout() && ((amIMod && !data.me) || options.allowUserLookup);
 
 					if (!data.inVoiceConf) {
 						muteImg.visible = false;
