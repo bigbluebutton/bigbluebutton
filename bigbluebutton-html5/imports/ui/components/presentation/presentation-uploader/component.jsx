@@ -261,7 +261,13 @@ class PresentationUploader extends Component {
 
     this.setState(({ presentations }) => ({
       presentations: presentations.concat(presentationsToUpload),
-    }));
+    }), () => {
+      // after the state is set (files have been dropped),
+      // make the first of the new presentations current
+      if (presentationsToUpload && presentationsToUpload.length) {
+        this.handleCurrentChange(presentationsToUpload[0].id);
+      }
+    });
   }
 
   handleCurrentChange(id) {
