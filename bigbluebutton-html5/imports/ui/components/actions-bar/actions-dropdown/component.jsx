@@ -118,6 +118,7 @@ class ActionsDropdown extends Component {
             intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
             key={this.videoItemId}
             onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
+            id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button' }
           />
         : null),
       (record && isUserModerator && allowStartStopRecording ?
