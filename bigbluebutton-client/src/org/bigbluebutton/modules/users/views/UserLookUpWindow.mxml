@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				implements="org.bigbluebutton.common.IKeyboardClose"
 				show="this.setFocus()"
 				layout="absolute"
-				width="300"
+				width="350"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
 				showCloseButton="false">
@@ -68,8 +68,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						   showHeaders="false"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.userLookupWindow.grid.accessibilityName')}" >
 			<views:columns>
-				<mx:DataGridColumn dataField="property" editable="false" sortable="false" />
-				<mx:DataGridColumn dataField="value" editable="false" sortable="false" />
+				<mx:DataGridColumn dataField="property" editable="false" sortable="false" width="110"/>
+				<mx:DataGridColumn dataField="value" editable="false" sortable="false" >
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:DataGridItemRenderer selectable="true" />
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
 			</views:columns>
 		</views:BBBDataGrid>
 		<mx:HBox width="100%" horizontalAlign="right">
