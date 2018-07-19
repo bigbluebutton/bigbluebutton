@@ -11,10 +11,12 @@ const Video = require('./video');
 const BaseManager = require('../base/BaseManager');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const errors = require('../base/errors');
 
 module.exports = class VideoManager extends BaseManager {
   constructor (connectionChannel, additionalChannels, logPrefix) {
     super(connectionChannel, additionalChannels, logPrefix);
+    this.sfuApp = C.VIDEO_APP;
     this.messageFactory(this._onMessage);
   }
 
@@ -97,14 +99,9 @@ module.exports = class VideoManager extends BaseManager {
           }), C.FROM_VIDEO);
         }
         catch (err) {
+          const errorMessage = this._handleError(this._logPrefix, connectionId, cameraId, role, error);
           return this._bbbGW.publish(JSON.stringify({
-            connectionId: connectionId,
-            type: 'video',
-            role: role,
-            id : 'error',
-            response : 'rejected',
-            cameraId : message.cameraId,
-            message :err 
+            ...errorMessage
           }), C.FROM_VIDEO);
         }
         break;
@@ -134,12 +131,9 @@ module.exports = class VideoManager extends BaseManager {
         break;
 
       default:
+        const errorMessage = this._handleError(this._logPrefix, connectionId, null, null, errors.SFU_INVALID_REQUEST);
         this._bbbGW.publish(JSON.stringify({
-          connectionId: connectionId,
-          type: 'video',
-          id : 'error',
-          response : 'rejected',
-          message : 'Invalid message ' + JSON.stringify(message)
+          ...errorMessage,
         }), C.FROM_VIDEO);
         break;
     }

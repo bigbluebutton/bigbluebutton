@@ -162,7 +162,7 @@ module.exports = class MCSApiStub extends EventEmitter {
 
   _handleError (error, operation, params) {
     const { code, message, details } = error;
-    const response = { type: 'error', code, message, details, operation, params};
+    const response = { type: 'error', code, message, details, operation, params };
     Logger.error("[mcs-api] Reject operation", response.operation, "with", { error: response });
 
     return response;

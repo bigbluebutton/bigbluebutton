@@ -17,7 +17,7 @@ let sharedWebcams = {};
 module.exports = class Video extends BaseProvider {
   constructor(_bbbGW, _meetingId, _id, _shared, _connectionId) {
     super();
-    this.sfuApp = "video";
+    this.sfuApp = C.VIDEO_APP;
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
     this.id = _id;

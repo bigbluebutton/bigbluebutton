@@ -1,4 +1,4 @@
-exports.errors =  {
+const errorCodes =  {
   MIN_CODE: 2000,
   MAX_CODE: 2999,
   2000: "MEDIA_SERVER_CONNECTION_ERROR",
@@ -15,4 +15,16 @@ exports.errors =  {
   2209: "MEDIA_ADAPTER_OBJECT_NOT_FOUND",
   2210: "MEDIA_CONNECT_ERROR",
   2211: "MEDIA_NOT_FLOWING",
+  2300: "SFU_INVALID_REQUEST",
 }
+
+const expandErrors = () => {
+  let expandedErrors = Object.keys(errorCodes).reduce((map, key) => {
+    map[errorCodes[key]] = { code: key, reason: errorCodes[key] };
+    return map;
+  }, {});
+
+  return { ...errorCodes, ...expandedErrors };
+}
+
+module.exports = expandErrors();

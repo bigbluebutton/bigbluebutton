@@ -33,7 +33,7 @@ var rtpEndpoints = {};
 module.exports = class Screenshare extends BaseProvider {
   constructor(id, bbbgw, voiceBridge, userId, vh, vw, meetingId) {
     super();
-    this.sfuApp = "screenshare";
+    this.sfuApp = C.SCREENSHARE_APP;
     this.mcs = new MCSApi();
     this.mcsUserId;
     this.userId = userId;

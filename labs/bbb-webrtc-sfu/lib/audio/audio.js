@@ -13,7 +13,7 @@ const LOG_PREFIX = "[audio]";
 module.exports = class Audio extends BaseProvider {
   constructor(_bbbGW, _id, voiceBridge) {
     super();
-    this.sfuApp = "audio";
+    this.sfuApp = C.AUDIO_APP;
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
     this.id = _id;
@@ -51,9 +51,11 @@ module.exports = class Audio extends BaseProvider {
   flushCandidatesQueue (connectionId) {
     if (this.audioEndpoints[connectionId]) {
       try {
-        while(this.candidatesQueue[connectionId].length) {
-          const candidate = this.candidatesQueue[connectionId].shift();
-          this.mcs.addIceCandidate(this.audioEndpoints[connectionId], candidate);
+        if (this.candidatesQueue[connectionId]) {
+          while(this.candidatesQueue[connectionId].length) {
+            const candidate = this.candidatesQueue[connectionId].shift();
+            this.mcs.addIceCandidate(this.audioEndpoints[connectionId], candidate);
+          }
         }
       }
       catch (err) {

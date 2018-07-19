@@ -34,11 +34,15 @@ module.exports = class SdpSession extends MediaSession {
   }
 
   setOffer (offer) {
-    this._offer = new SdpWrapper(offer, this._type);
+    if (offer) {
+      this._offer = new SdpWrapper(offer, this._type);
+    }
   }
 
   setAnswer (answer) {
-    this._answer = new SdpWrapper(answer, this._type);
+    if (answer) {
+      this._answer = new SdpWrapper(answer, this._type);
+    }
   }
 
   process () {
@@ -52,7 +56,7 @@ module.exports = class SdpSession extends MediaSession {
         this.setAnswer(answer);
 
         // Checks if the media server was able to find a compatible media line
-        if (!this._hasAvailableCodec()) {
+        if (answer && !this._hasAvailableCodec()) {
           return reject(this._handleError(C.ERROR.MEDIA_NO_AVAILABLE_CODEC));
         }
 
