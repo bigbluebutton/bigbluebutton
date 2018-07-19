@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
-
-import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import addUser from '/imports/api/users/server/modifiers/addUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
 
 export default function handleJoinVoiceUser({ body }, meetingId) {
@@ -27,56 +26,34 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
     callerName,
   } = voiceUser;
 
-  if (intId.toString().startsWith('v_')) {
-    /* voice-only user - called into the conference */
+  const User = Users.findOne({
+    meetingId,
+    intId,
+    connectionStatus: 'online',
+  });
 
-    const selector = {
-      meetingId,
-      userId: intId,
-    };
+  if (!User) {
+    /* voice-only user - called into the conference */
 
     const USER_CONFIG = Meteor.settings.public.user;
     const ROLE_VIEWER = USER_CONFIG.role_viewer;
 
-    const modifier = { // web (Users) representation of dial-in user
-      $set: {
-        meetingId,
-        connectionStatus: 'online',
-        roles: [ROLE_VIEWER.toLowerCase()],
-        sortName: callerName.trim().toLowerCase(),
-        color: '#ffffff', // TODO
-        intId,
-        extId: intId, // TODO
-        name: callerName,
-        role: ROLE_VIEWER.toLowerCase(),
-        guest: false,
-        authed: true,
-        waitingForAcceptance: false,
-        emoji: 'none',
-        presenter: false,
-        locked: false, // TODO
-        avatar: '',
-        clientType: 'dial-in-user',
-      },
+    const voiceOnlyUser = { // web (Users) representation of dial-in user
+      intId,
+      extId: intId, // TODO
+      name: callerName,
+      role: ROLE_VIEWER.toLowerCase(),
+      guest: false,
+      authed: true,
+      waitingForAcceptance: false,
+      emoji: 'none',
+      presenter: false,
+      locked: false, // TODO
+      avatar: 'https://bbb-joao.dev.imdt.com.br/client/avatar.png',
+      clientType: 'dial-in-user',
     };
 
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Adding call-in user to VoiceUser collection: ${err}`);
-      }
-
-      const { insertedId } = numChanged;
-      if (insertedId) {
-        return Logger.info(`Added a call-in user id=${intId} meeting=${meetingId}`);
-      }
-
-      return Logger.info(`Upserted a call-in user id=${intId} meeting=${meetingId}`);
-    };
-
-    Users.upsert(selector, modifier, cb);
-  } else {
-
-    /* there is a corresponding web user in Users collection -- no need to add new one */
+    addUser(meetingId, voiceOnlyUser);
   }
 
   return addVoiceUser(meetingId, voiceUser);
