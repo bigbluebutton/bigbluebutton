@@ -7,6 +7,11 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class TextDrawListener extends Component {
+  static contextMenuHandler(event) {
+    // disable showing context-menu when right click
+    event.preventDefault();
+  }
+
   constructor() {
     super();
 
@@ -55,7 +60,6 @@ export default class TextDrawListener extends Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.checkTextAreaFocus = this.checkTextAreaFocus.bind(this);
-    this.contextMenuHandler = this.contextMenuHandler.bind(this);
   }
 
   componentDidMount() {
@@ -375,12 +379,6 @@ export default class TextDrawListener extends Component {
     sendAnnotation(annotation);
   }
 
-  contextMenuHandler(event) {
-    // disable showing context-menu when right click
-    event.preventDefault();
-    return this;
-  }
-
   render() {
     const baseName = Meteor.settings.public.app.basename;
     const textDrawStyle = {
@@ -396,7 +394,7 @@ export default class TextDrawListener extends Component {
         style={textDrawStyle}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
-        onContextMenu={this.contextMenuHandler}
+        onContextMenu={TextDrawListener.contextMenuHandler}
       >
         {this.state.isDrawing ?
           <svg

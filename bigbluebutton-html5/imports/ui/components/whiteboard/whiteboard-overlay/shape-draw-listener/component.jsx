@@ -7,6 +7,11 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class ShapeDrawListener extends Component {
+  static contextMenuHandler(event) {
+    // disable showing context-menu when right click
+    event.preventDefault();
+  }
+
   constructor(props) {
     super(props);
 
@@ -39,7 +44,6 @@ export default class ShapeDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
-    this.contextMenuHandler = this.contextMenuHandler.bind(this);
   }
 
   componentDidMount() {
@@ -286,12 +290,6 @@ export default class ShapeDrawListener extends Component {
     sendAnnotation(annotation);
   }
 
-  contextMenuHandler(event) {
-    // disable showing context-menu when right click
-    event.preventDefault();
-    return this;
-  }
-
   render() {
     const { tool } = this.props.drawSettings;
     const baseName = Meteor.settings.public.app.basename;
@@ -308,7 +306,7 @@ export default class ShapeDrawListener extends Component {
         role="presentation"
         style={shapeDrawStyle}
         onMouseDown={this.handleMouseDown}
-        onContextMenu={this.contextMenuHandler}
+        onContextMenu={ShapeDrawListener.contextMenuHandler}
       />
     );
   }

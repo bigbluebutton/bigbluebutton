@@ -7,6 +7,11 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class PencilDrawListener extends Component {
+  static contextMenuHandler(event) {
+    // disable showing context-menu when right click
+    event.preventDefault();
+  }
+
   constructor() {
     super();
 
@@ -24,7 +29,6 @@ export default class PencilDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
-    this.contextMenuHandler = this.contextMenuHandler.bind(this);
   }
 
   componentDidMount() {
@@ -215,12 +219,6 @@ export default class PencilDrawListener extends Component {
     window.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
-  contextMenuHandler(event) {
-    // disable showing context-menu when right click
-    event.preventDefault();
-    return this;
-  }
-
   render() {
     const baseName = Meteor.settings.public.app.basename;
     const pencilDrawStyle = {
@@ -236,7 +234,7 @@ export default class PencilDrawListener extends Component {
         role="presentation"
         style={pencilDrawStyle}
         onMouseDown={this.mouseDownHandler}
-        onContextMenu={this.contextMenuHandler}
+        onContextMenu={PencilDrawListener.contextMenuHandler}
       />
     );
   }
