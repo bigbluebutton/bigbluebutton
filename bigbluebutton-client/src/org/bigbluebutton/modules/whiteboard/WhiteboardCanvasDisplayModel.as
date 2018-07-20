@@ -145,13 +145,23 @@ package org.bigbluebutton.modules.whiteboard
       textUpdateListener.canvasMouseDown();
       
       //LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
-      clearBoard();
+      
+      // forcefully clear all annotations and cursors on whiteboard change
+      _annotationsMap = new Object();
+      wbCanvas.removeAllGraphics();
+      
+      clearCursors();
       
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
       //LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
       for (var i:int = 0; i < annotations.length; i++) {
         createGraphic(annotations[i], true);
       }
+    }
+    
+    public function clearCursors():void {
+      _cursors = new Object();
+      wbCanvas.removeAllCursorChildren();
     }
     
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
