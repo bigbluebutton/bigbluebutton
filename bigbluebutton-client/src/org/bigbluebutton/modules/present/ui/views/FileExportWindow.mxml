@@ -48,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.alivepdf.fonts.CoreFont;
 			import org.alivepdf.fonts.FontFamily;
 			import org.alivepdf.layout.Layout;
+			import org.alivepdf.layout.LineBreakPolicy;
 			import org.alivepdf.layout.Mode;
 			import org.alivepdf.layout.Orientation;
 			import org.alivepdf.layout.Position;
@@ -113,6 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_currentPage = firstPage;
 				_pdf = new PDF(Orientation.LANDSCAPE, Unit.POINT);
 				_pdf.setMargins(0, 0, 0, 0);
+				_pdf.setLineBreakPolicy(LineBreakPolicy.X_POSITION);
 				_pdf.setDisplayMode(Display.FULL_PAGE, Layout.SINGLE_PAGE, Mode.NONE);
 				dispatchEvent(new Event('nextPdfPage'));
 			}
@@ -143,10 +145,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							var textY:Number = convertToLocal(_ao.y, mc.height);
 							var textFontSize:Number = convertToLocal(_ao.calcedFontSize, mc.height);
 
-							_pdf.setFont(new CoreFont(FontFamily.ARIAL), textFontSize);
-							_pdf.textStyle(new RGBColor(_ao.fontColor));
+							var htmlText : String = '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Arial" SIZE="'+textFontSize+'" COLOR="#'+parseInt(_ao.fontColor).toString(16)+'" LETTERSPACING="0" KERNING="1">'+String(_ao.text).split('\r').join('<BR />')+'</FONT></P></TEXTFORMAT>';
 							// FIXME: added _ao.fontSize for approximation
-							_pdf.addText(_ao.text, textX, textY + textFontSize);
+							_pdf.setXY(textX, textY);
+							_pdf.writeFlashHtmlText(6, htmlText , null, 120);
 						} else if (annotation.type == AnnotationType.LINE) {
 							var lineX:Number = convertToLocal(_ao.points[0], mc.width);
 							var lineY:Number = convertToLocal(_ao.points[1], mc.height);
