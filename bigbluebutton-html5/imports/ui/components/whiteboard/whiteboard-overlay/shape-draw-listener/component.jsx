@@ -156,7 +156,7 @@ export default class ShapeDrawListener extends Component {
     // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
     // but the browser didn't catch it. So check it here.
     if (this.isDrawing) {
-      if(event.button === 2) {
+      if (event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
       }
       return this.sendLastMessage();

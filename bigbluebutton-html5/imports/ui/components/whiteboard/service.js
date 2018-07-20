@@ -24,7 +24,7 @@ function handleAddedAnnotation({
 
   const fakeAnnotation = Annotations.findOne({ id: `${annotation.id}-fake` });
 
-  if(!fakeAnnotation) return;
+  if (!fakeAnnotation) return;
 
   const fakePoints = fakeAnnotation.annotationInfo.points;
   const lastPoints = annotation.annotationInfo.points;

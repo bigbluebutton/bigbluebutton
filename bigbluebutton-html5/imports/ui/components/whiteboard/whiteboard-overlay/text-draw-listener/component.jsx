@@ -194,7 +194,7 @@ export default class TextDrawListener extends Component {
       // publishing the final shape and resetting the state
       this.sendLastMessage();
 
-      if(event.button === 2) {
+      if (event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
       }
     }

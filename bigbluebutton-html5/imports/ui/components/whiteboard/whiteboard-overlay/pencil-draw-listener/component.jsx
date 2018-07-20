@@ -133,7 +133,7 @@ export default class PencilDrawListener extends Component {
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
     } else {
       this.sendLastMessage();
-      if(event.button === 2) {
+      if (event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
       }
     }
