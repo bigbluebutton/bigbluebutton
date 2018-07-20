@@ -405,7 +405,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
       LOGGER.debug("Closing publish window");
-      if (_myCamSettings.length > 0 || _chromeWebcamPermissionDenied) {
+      if (_myCamSettings.length > 0 || _chromeWebcamPermissionDenied || options.skipCamSettingsCheck) {
         stopBroadcasting();
       }
     }

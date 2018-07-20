@@ -86,7 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
       private function onCreationComplete():void {
-        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = UsersUtil.amIPresenter();
+		  showMultiUserBtn(UsersUtil.amIPresenter());
         
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
@@ -169,14 +169,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
-        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = true;
+				showMultiUserBtn(true);
 				checkVisibility();
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
-        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = false;
+				showMultiUserBtn(false);
 				checkToolReset();
 				checkVisibility();
+			}
+		
+			private function showMultiUserBtn(visible:Boolean):void{
+				multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = visible;
 			}
 		
 			public function whiteboardAccessModified(mu:Boolean):void {
@@ -225,6 +229,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 } else {
                     hideToolbar();
                 }
+				if (multiUser && wbOptions.onlyPenMUW) {
+					scribbleBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+				} else if (!multiUser) {
+					
+				}
             }
             
 			private function showToolbar():void {
@@ -282,7 +291,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function toolbarAllowed():Boolean {
-        return (multiUser? true : isPresenter);
+        return (multiUser && !wbOptions.onlyPenMUW? true : isPresenter);
       }
       
       /** Helper method to test whether this user is the presenter */
