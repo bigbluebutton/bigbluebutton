@@ -9,10 +9,10 @@ import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
-import IntlStartup from './intl';
-
+import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
+import IntlStartup from './intl';
 
 const propTypes = {
   error: PropTypes.object,
@@ -40,6 +40,13 @@ class Base extends Component {
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.updateErrorState = this.updateErrorState.bind(this);
+  }
+
+  componentWillUpdate() {
+    const { approved } = this.props;
+    const isLoading = this.state.loading;
+
+    if (approved && isLoading) this.updateLoadingState(false);
   }
 
   updateLoadingState(loading = false) {
@@ -75,7 +82,6 @@ class Base extends Component {
     if (loading || !subscriptionsReady) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
-
     // this.props.annotationsHandler.stop();
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
@@ -142,6 +148,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
 
   const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
+    approved: Users.findOne({ userId: Auth.userID, approved: true }) || false,
     locale,
     subscriptionsReady,
     annotationsHandler,
