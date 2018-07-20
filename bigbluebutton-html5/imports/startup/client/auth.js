@@ -61,7 +61,7 @@ export function joinRouteHandler(nextState, replace, callback) {
 
       replace({ pathname: path });
 
-      callback();
+      return callback();
     });
 }
 
