@@ -328,7 +328,7 @@ public class Meeting {
 		} else if (GuestPolicy.ALWAYS_DENY.equals(guestPolicy)) {
 			return GuestPolicy.DENY;
 		} else if (GuestPolicy.ASK_MODERATOR.equals(guestPolicy)) {
-			if (!ROLE_MODERATOR.equals(role) && (guest)) {
+			if (!ROLE_MODERATOR.equals(role)) {
 				return GuestPolicy.WAIT ;
 			}
 			return GuestPolicy.ALLOW;
