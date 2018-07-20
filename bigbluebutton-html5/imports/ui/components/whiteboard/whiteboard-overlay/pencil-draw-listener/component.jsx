@@ -122,21 +122,18 @@ export default class PencilDrawListener extends Component {
 
   // main mouse down handler
   mouseDownHandler(event) {
-    if (event.button === 0) {
-      if (!this.isDrawing) {
-        window.addEventListener('mouseup', this.mouseUpHandler);
-        window.addEventListener('mousemove', this.mouseMoveHandler, true);
+    if (!this.isDrawing) {
+      window.addEventListener('mouseup', this.mouseUpHandler);
+      window.addEventListener('mousemove', this.mouseMoveHandler, true);
 
-        const { clientX, clientY } = event;
-        this.commonDrawStartHandler(clientX, clientY);
+      const { clientX, clientY } = event;
+      this.commonDrawStartHandler(clientX, clientY);
 
-      // if you switch to a different window using Alt+Tab while mouse is down and release it
-      // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-      } else {
-        this.sendLastMessage();
-      }
-    } else if (event.button === 2) {
-      if (!this.isDrawing) {
+    // if you switch to a different window using Alt+Tab while mouse is down and release it
+    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+    } else {
+      this.sendLastMessage();
+      if(event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
       }
     }

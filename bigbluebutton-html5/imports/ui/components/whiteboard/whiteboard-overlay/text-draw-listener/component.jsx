@@ -177,26 +177,24 @@ export default class TextDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
-    if (event.button === 0) {
-      if (this.hasBeenTouchedRecently) {
-        return;
-      }
+    if (this.hasBeenTouchedRecently) {
+      return;
+    }
 
-      // if our current drawing state is not drawing the box and not writing the text
-      if (!this.state.isDrawing && !this.state.isWritingText) {
-        window.addEventListener('mouseup', this.handleMouseUp);
-        window.addEventListener('mousemove', this.handleMouseMove, true);
+    // if our current drawing state is not drawing the box and not writing the text
+    if (!this.state.isDrawing && !this.state.isWritingText) {
+      window.addEventListener('mouseup', this.handleMouseUp);
+      window.addEventListener('mousemove', this.handleMouseMove, true);
 
-        const { clientX, clientY } = event;
-        this.commonDrawStartHandler(clientX, clientY);
+      const { clientX, clientY } = event;
+      this.commonDrawStartHandler(clientX, clientY);
 
-      // second case is when a user finished writing the text and publishes the final result
-      } else {
-        // publishing the final shape and resetting the state
-        this.sendLastMessage();
-      }
-    } else if (event.button === 2) {
-      if (!this.state.isDrawing) {
+    // second case is when a user finished writing the text and publishes the final result
+    } else {
+      // publishing the final shape and resetting the state
+      this.sendLastMessage();
+
+      if(event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
       }
     }

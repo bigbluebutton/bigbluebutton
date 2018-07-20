@@ -153,24 +153,20 @@ export default class ShapeDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
-    if (event.button === 0) {
-      // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
-      // but the browser didn't catch it. So check it here.
-      if (this.isDrawing) {
-        return this.sendLastMessage();
-      }
-
-      window.addEventListener('mouseup', this.handleMouseUp);
-      window.addEventListener('mousemove', this.handleMouseMove, true);
-
-      const { clientX, clientY } = event;
-      return this.commonDrawStartHandler(clientX, clientY);
-    } else if (event.button === 2) {
-      if (!this.isDrawing) {
+    // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
+    // but the browser didn't catch it. So check it here.
+    if (this.isDrawing) {
+      if(event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
       }
+      return this.sendLastMessage();
     }
-    return null;
+
+    window.addEventListener('mouseup', this.handleMouseUp);
+    window.addEventListener('mousemove', this.handleMouseMove, true);
+
+    const { clientX, clientY } = event;
+    return this.commonDrawStartHandler(clientX, clientY);
   }
 
   // main mouse move handler
