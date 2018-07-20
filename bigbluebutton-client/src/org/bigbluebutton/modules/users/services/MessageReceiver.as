@@ -24,9 +24,6 @@ package org.bigbluebutton.modules.users.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.common.toaster.Toaster;
-  import org.bigbluebutton.common.toaster.message.ToastIcon;
-  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.TimerUtil;
@@ -469,6 +466,12 @@ package org.bigbluebutton.modules.users.services
       var stream: String = body.stream as String;
       var vidWidth: Number = body.vidWidth as Number;
       var vidHeight: Number = body.vidHeight as Number;
+			
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["webrtc-screenshare"];
+			logData.logCode = "screenshare-rtmp-broadcast-started";
+			logData.stream = stream;
+			LOGGER.info(JSON.stringify(logData));
       
       var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
       
@@ -485,6 +488,12 @@ package org.bigbluebutton.modules.users.services
       var vidWidth: Number = body.vidWidth as Number;
       var vidHeight: Number = body.vidHeight as Number;
       
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["webrtc-screenshare"];
+			logData.logCode = "screenshare-rtmp-broadcast-stopped";
+			logData.stream = stream;
+			LOGGER.info(JSON.stringify(logData));
+			
       var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
       
       event.videoWidth = vidWidth;
