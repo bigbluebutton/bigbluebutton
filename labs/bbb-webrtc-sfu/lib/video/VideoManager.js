@@ -99,7 +99,7 @@ module.exports = class VideoManager extends BaseManager {
           }), C.FROM_VIDEO);
         }
         catch (err) {
-          const errorMessage = this._handleError(this._logPrefix, connectionId, cameraId, role, error);
+          const errorMessage = this._handleError(this._logPrefix, connectionId, message.cameraId, role, err);
           return this._bbbGW.publish(JSON.stringify({
             ...errorMessage
           }), C.FROM_VIDEO);
