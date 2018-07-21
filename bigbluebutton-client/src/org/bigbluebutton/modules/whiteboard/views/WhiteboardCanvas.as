@@ -26,8 +26,6 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	
-	import melomel.core.UI;
-	
 	import mx.containers.Canvas;
 	import mx.core.IChildList;
 	import mx.managers.CursorManager;
