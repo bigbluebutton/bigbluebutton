@@ -345,7 +345,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 					// Needs to be improved in case of RTL layout
 					PopUpUtil.lockPosition(logoutWindow, function():Point {
-						return new Point(width - logoutWindow.width - 5, btnLogout.y + btnLogout.height + 5)
+						if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+							return new Point(5, btnLogout.y + btnLogout.height + 5)
+						} else {
+							return new Point(width - logoutWindow.width - 5, btnLogout.y + btnLogout.height + 5)	
+						}
 					});
 				} else {
 					doLogout();
