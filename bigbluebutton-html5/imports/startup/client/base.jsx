@@ -9,10 +9,7 @@ import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
-import IntlStartup from './intl';
 import logger from '/imports/startup/client/logger';
-
-
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
@@ -142,7 +139,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
         try {
           AnnotationsLocal.insert(a);
         } catch (e) {
-          // who cares.
+          // TODO
         }
       });
       annotationsHandler.stop();
