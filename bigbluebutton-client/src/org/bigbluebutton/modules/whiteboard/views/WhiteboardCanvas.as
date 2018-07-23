@@ -27,9 +27,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import flash.geom.Point;
 	
 	import mx.containers.Canvas;
+	import mx.core.IChildList;
 	import mx.managers.CursorManager;
 	
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.LiveMeeting;
+	import org.bigbluebutton.core.model.users.User2x;
 	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
@@ -268,6 +271,13 @@ package org.bigbluebutton.modules.whiteboard.views {
 			else trace("Does not contain");
 		}
 		
+		public function removeAllGraphics():void {
+			var children:IChildList = this.graphicObjectHolder.rawChildren;
+			while (children.numChildren != 0) {
+				children.removeChildAt(children.numChildren - 1);
+			}
+		}
+		
 		public function addGraphic(child:DisplayObject):void {
 			this.graphicObjectHolder.rawChildren.addChild(child);
 		}
@@ -282,6 +292,13 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		public function removeCursorChild(cursor:DisplayObject):void {
 			if (doesContainCursor(cursor)) this.cursorObjectHolder.rawChildren.removeChild(cursor);
+		}
+		
+		public function removeAllCursorChildren():void {
+			var children:IChildList = this.cursorObjectHolder.rawChildren;
+			while (children.numChildren != 0) {
+				children.removeChildAt(children.numChildren - 1);
+			}
 		}
 		
 		public function textToolbarSyncProxy(tobj:TextObject):void {
@@ -341,11 +358,20 @@ package org.bigbluebutton.modules.whiteboard.views {
 			//if (e.whiteboardId == currentWhiteboardId) {
 			whiteboardToolbar.whiteboardAccessModified(e.multiUser);
 			canvasModel.multiUserChange(e.multiUser);
+			
+			if (!e.multiUser) {
+				canvasDisplayModel.clearCursors();
+			}
 			//}
 		}
 		
 		private function onReceivedCursorPosition(e:WhiteboardCursorEvent):void {
-			canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
+			var user:User2x = UsersUtil.getUser(e.userId);
+			
+			// only draw the cursor if the user exists and it's in multiuser mode or they are the presenter
+			if (user && (LiveMeeting.inst().whiteboardModel.multiUser || user.presenter)) {
+				canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
+			}
 		}
 		
 		private function onEnableWhiteboardEvent(e:WhiteboardButtonEvent):void {
@@ -360,7 +386,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			stopDrawing();
 			
-			removeCursor()
+			removeCursor();
 			
 			this.whiteboardEnabled = false;
 			setWhiteboardInteractable();

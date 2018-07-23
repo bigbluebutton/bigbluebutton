@@ -81,6 +81,7 @@ class UserListContent extends Component {
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
+    this.renderUserAvatar = this.renderUserAvatar.bind(this);
   }
 
   componentWillMount() {
@@ -175,12 +176,41 @@ class UserListContent extends Component {
     return isActionsOpen && !dropdownVisible;
   }
 
+  renderUserAvatar() {
+    const {
+      normalizeEmojiName,
+      user,
+    } = this.props;
+
+    const { clientType } = user;
+    const isVoiceOnly = clientType === 'dial-in-user';
+
+    const iconUser = user.emoji.status !== 'none' ?
+      (<Icon iconName={normalizeEmojiName(user.emoji.status)} />) :
+      user.name.toLowerCase().slice(0, 2);
+
+    const iconVoiceOnlyUser = (<Icon iconName="speak_louder" />);
+
+    return (
+      <UserAvatar
+        moderator={user.isModerator}
+        presenter={user.isPresenter}
+        talking={user.isTalking}
+        muted={user.isMuted}
+        listenOnly={user.isListenOnly}
+        voice={user.isVoiceUser}
+        color={user.color}
+      >
+        {isVoiceOnly ? iconVoiceOnlyUser : iconUser }
+      </UserAvatar>
+    );
+  }
+
   render() {
     const {
       compact,
       user,
       intl,
-      normalizeEmojiName,
       actions,
       isMeetingLocked,
       meeting,
@@ -222,19 +252,7 @@ class UserListContent extends Component {
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
-            <UserAvatar
-              moderator={user.isModerator}
-              presenter={user.isPresenter}
-              talking={user.isTalking}
-              muted={user.isMuted}
-              listenOnly={user.isListenOnly}
-              voice={user.isVoiceUser}
-              color={user.color}
-            >
-              {user.emoji.status !== 'none' ?
-                <Icon iconName={normalizeEmojiName(user.emoji.status)} /> :
-                user.name.toLowerCase().slice(0, 2)}
-            </UserAvatar>
+            { this.renderUserAvatar() }
           </div>
           {<UserName
             user={user}
