@@ -1,4 +1,3 @@
-import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
 
@@ -49,10 +48,7 @@ const setTextShapeActiveId = (id) => {
 
 const getCurrentUserId = () => Auth.userID;
 
-const undoAnnotation = (whiteboardId) => {
-  makeCall('undoAnnotation', whiteboardId);
-};
-
+const contextMenuHandler = event => event.preventDefault();
 
 export default {
   sendAnnotation,
@@ -60,5 +56,5 @@ export default {
   setTextShapeActiveId,
   resetTextShapeSession,
   getCurrentUserId,
-  undoAnnotation,
+  contextMenuHandler,
 };

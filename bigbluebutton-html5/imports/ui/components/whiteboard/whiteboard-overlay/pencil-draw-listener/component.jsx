@@ -7,11 +7,6 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class PencilDrawListener extends Component {
-  static contextMenuHandler(event) {
-    // disable showing context-menu when right click
-    event.preventDefault();
-  }
-
   constructor() {
     super();
 
@@ -123,11 +118,13 @@ export default class PencilDrawListener extends Component {
   // main mouse down handler
   mouseDownHandler(event) {
     if (!this.isDrawing) {
-      window.addEventListener('mouseup', this.mouseUpHandler);
-      window.addEventListener('mousemove', this.mouseMoveHandler, true);
+      if (event.button === 0) {
+        window.addEventListener('mouseup', this.mouseUpHandler);
+        window.addEventListener('mousemove', this.mouseMoveHandler, true);
 
-      const { clientX, clientY } = event;
-      this.commonDrawStartHandler(clientX, clientY);
+        const { clientX, clientY } = event;
+        this.commonDrawStartHandler(clientX, clientY);
+      }
 
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
@@ -225,13 +222,14 @@ export default class PencilDrawListener extends Component {
       zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/pencil.png') 2 22, default`,
     };
+    const { contextMenuHandler } = this.props.actions;
     return (
       <div
         onTouchStart={this.handleTouchStart}
         role="presentation"
         style={pencilDrawStyle}
         onMouseDown={this.mouseDownHandler}
-        onContextMenu={PencilDrawListener.contextMenuHandler}
+        onContextMenu={contextMenuHandler}
       />
     );
   }

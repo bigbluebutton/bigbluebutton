@@ -7,11 +7,6 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class ShapeDrawListener extends Component {
-  static contextMenuHandler(event) {
-    // disable showing context-menu when right click
-    event.preventDefault();
-  }
-
   constructor(props) {
     super(props);
 
@@ -158,15 +153,19 @@ export default class ShapeDrawListener extends Component {
     if (this.isDrawing) {
       if (event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
+        this.isDrawing = false;
       }
       return this.sendLastMessage();
     }
 
-    window.addEventListener('mouseup', this.handleMouseUp);
-    window.addEventListener('mousemove', this.handleMouseMove, true);
+    if (event.button === 0) {
+      window.addEventListener('mouseup', this.handleMouseUp);
+      window.addEventListener('mousemove', this.handleMouseMove, true);
 
-    const { clientX, clientY } = event;
-    return this.commonDrawStartHandler(clientX, clientY);
+      const { clientX, clientY } = event;
+      return this.commonDrawStartHandler(clientX, clientY);
+    }
+    return null;
   }
 
   // main mouse move handler
@@ -296,13 +295,14 @@ export default class ShapeDrawListener extends Component {
       zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/${tool !== 'rectangle' ? tool : 'square'}.png'), default`,
     };
+    const { contextMenuHandler } = this.props.actions;
     return (
       <div
         onTouchStart={this.handleTouchStart}
         role="presentation"
         style={shapeDrawStyle}
         onMouseDown={this.handleMouseDown}
-        onContextMenu={ShapeDrawListener.contextMenuHandler}
+        onContextMenu={contextMenuHandler}
       />
     );
   }

@@ -7,11 +7,6 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 export default class TextDrawListener extends Component {
-  static contextMenuHandler(event) {
-    // disable showing context-menu when right click
-    event.preventDefault();
-  }
-
   constructor() {
     super();
 
@@ -183,20 +178,24 @@ export default class TextDrawListener extends Component {
 
     // if our current drawing state is not drawing the box and not writing the text
     if (!this.state.isDrawing && !this.state.isWritingText) {
-      window.addEventListener('mouseup', this.handleMouseUp);
-      window.addEventListener('mousemove', this.handleMouseMove, true);
+      if (event.button === 0) {
+        window.addEventListener('mouseup', this.handleMouseUp);
+        window.addEventListener('mousemove', this.handleMouseMove, true);
 
-      const { clientX, clientY } = event;
-      this.commonDrawStartHandler(clientX, clientY);
+        const { clientX, clientY } = event;
+        this.commonDrawStartHandler(clientX, clientY);
+      }
 
     // second case is when a user finished writing the text and publishes the final result
     } else {
-      // publishing the final shape and resetting the state
-      this.sendLastMessage();
-
       if (event.button === 2) {
         this.props.actions.undoAnnotation(this.props.whiteboardId);
+        this.state.isDrawing = false;
+        this.state.isWritingText = false;
       }
+
+      // publishing the final shape and resetting the state
+      this.sendLastMessage();
     }
   }
 
@@ -386,13 +385,14 @@ export default class TextDrawListener extends Component {
       zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/text.png'), default`,
     };
+    const { contextMenuHandler } = this.props.actions;
     return (
       <div
         role="presentation"
         style={textDrawStyle}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
-        onContextMenu={TextDrawListener.contextMenuHandler}
+        onContextMenu={contextMenuHandler}
       >
         {this.state.isDrawing ?
           <svg
