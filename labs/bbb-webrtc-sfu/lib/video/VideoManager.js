@@ -86,7 +86,10 @@ module.exports = class VideoManager extends BaseManager {
           this._flushIceQueue(video, iceQueue);
 
           video.once(C.MEDIA_SERVER_OFFLINE, async (event) => {
-            this._stopSession(sessionId);
+            const errorMessage = this._handleError(this._logPrefix, connectionId, message.cameraId, role, errors.MEDIA_SERVER_OFFLINE);
+            this._bbbGW.publish(JSON.stringify({
+              ...errorMessage,
+            }), C.FROM_VIDEO);
           });
 
           this._bbbGW.publish(JSON.stringify({

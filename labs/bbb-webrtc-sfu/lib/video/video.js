@@ -83,17 +83,10 @@ module.exports = class Video extends BaseProvider {
   }
 
   serverState (event) {
-    switch (event && event.eventTag) {
+    const { eventTag: { code }  } = { ...event };
+    switch (code) {
       case C.MEDIA_SERVER_OFFLINE:
         Logger.error(LOG_PREFIX, "Video provider received MEDIA_SERVER_OFFLINE event");
-        this.bbbGW.publish(JSON.stringify({
-          connectionId: this.connectionId,
-          type: 'video',
-          id : 'error',
-          response : 'rejected',
-          cameraId : this.id,
-          message : C.MEDIA_SERVER_OFFLINE
-        }), C.FROM_VIDEO);
         this.emit(C.MEDIA_SERVER_OFFLINE, event);
         break;
 
