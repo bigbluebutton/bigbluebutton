@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
+import logger from '/imports/startup/client/logger';
 import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
@@ -41,7 +42,7 @@ function handleAddedAnnotation({
 
   Annotations.upsert(query.selector, query.modifier, (err) => {
     if (err) {
-      console.error(err);
+      logger.error(err);
       return;
     }
 
