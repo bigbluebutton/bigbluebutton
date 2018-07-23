@@ -7,23 +7,19 @@ const logClient = function (type, log, ...args) {
   const logContents = { ...args };
 
   if (User) {
-    const {
-      meetingId, name, intId, extId, authToken,
-    } = User;
-    const serverInfo = {
-      meetingId,
-      userName: name,
-      userIntId: intId,
-      userExtId: extId,
-      authToken,
-    };
-    logContents.serverInfo = serverInfo;
+    if (User.meetingId === args[0].meetingId) {
+      args[0].validUser = 'vaild';
+    } else {
+      args[0].validUser = 'invaild';
+    }
+  } else {
+    args[0].validUser = 'notFound';
   }
 
   if (typeof log === 'string' || log instanceof String) {
-    Logger.log(type, `CLIENT LOG: ${log}\n`, logContents);
+    Logger.log(type, `CLIENT LOG: ${log}`, logContents);
   } else {
-    Logger.log(type, `CLIENT LOG: ${JSON.stringify(log)}\n`, logContents);
+    Logger.log(type, `CLIENT LOG: ${JSON.stringify(log)}`, logContents);
   }
 };
 
