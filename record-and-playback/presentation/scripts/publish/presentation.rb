@@ -1202,13 +1202,18 @@ begin
 
       begin
 
-        if File.exist?("#{$process_dir}/webcams.webm")
+        video_formats = $presentation_props['video_formats']
+
+        video_files = Dir.glob("#{$process_dir}/webcams.{#{video_formats.join(',')}}")
+        if ! video_files.empty?
           BigBlueButton.logger.info("Making video dir")
           video_dir = "#{package_dir}/video"
           FileUtils.mkdir_p video_dir
-          BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
-          FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
-          BigBlueButton.logger.info("Copied .webm file")
+          video_files.each do |video_file|
+            BigBlueButton.logger.info("Made video dir - copying: #{video_file} to -> #{video_dir}")
+            FileUtils.cp(video_file, video_dir)
+            BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
+          end
         else
           audio_dir = "#{package_dir}/audio"
           BigBlueButton.logger.info("Making audio dir")
@@ -1229,13 +1234,16 @@ begin
           end
         end
 
-        if File.exist?("#{$process_dir}/deskshare.webm")
+        video_files = Dir.glob("#{$process_dir}/deskshare.{#{video_formats.join(',')}}")
+        if ! video_files.empty?
           BigBlueButton.logger.info("Making deskshare dir")
           deskshare_dir = "#{package_dir}/deskshare"
           FileUtils.mkdir_p deskshare_dir
-          BigBlueButton.logger.info("Made deskshare dir - copying: #{$process_dir}/deskshare.webm to -> #{deskshare_dir}")
-          FileUtils.cp("#{$process_dir}/deskshare.webm", deskshare_dir)
-          BigBlueButton.logger.info("Copied deskshare.webm file")
+          video_files.each do |video_file|
+            BigBlueButton.logger.info("Made deskshare dir - copying: #{video_file} to -> #{deskshare_dir}")
+            FileUtils.cp(video_file, deskshare_dir)
+            BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
+          end
         else
           BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
         end
