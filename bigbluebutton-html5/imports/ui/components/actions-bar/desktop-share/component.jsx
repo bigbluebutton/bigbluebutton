@@ -33,6 +33,7 @@ const intlMessages = defineMessages({
 const BROWSER_RESULTS = browser();
 const isMobileBrowser = BROWSER_RESULTS.mobile ||
   BROWSER_RESULTS.os.includes('Android'); // mobile flag doesn't always work
+const screenSharingCheck = Meteor.settings.public.kurento.enableScreensharing;
 
 const DesktopShare = ({
   intl,
@@ -41,8 +42,7 @@ const DesktopShare = ({
   isVideoBroadcasting,
   isUserPresenter,
 }) => (
-  (Meteor.settings.public.kurento.enableScreensharing &&
-      !isMobileBrowser && isUserPresenter ?
+  (screenSharingCheck && !isMobileBrowser && isUserPresenter ?
         <Button
           className={styles.button}
           icon="desktop"
