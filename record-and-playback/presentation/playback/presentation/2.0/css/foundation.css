@@ -63,8 +63,7 @@ body {
   font-weight: normal;
   line-height: 1.5;
   margin: 0;
-  /* disable padding on body to handle the case when the playback is embedded in a third party app with a header
-  padding: 0; */
+  padding: 0;
   position: relative; }
 
 a:hover {

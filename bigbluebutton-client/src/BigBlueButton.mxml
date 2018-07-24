@@ -19,9 +19,10 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Application xmlns:mx="library://ns.adobe.com/flex/mx"
+<BigBlueButtonApplication xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:views="*"
+				xmlns="org.bigbluebutton.core.*"
 				xmlns:logging="org.bigbluebutton.common.logging.*"
 				pageTitle="BigBlueButton" 
 				layout="absolute"
@@ -54,4 +55,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <views:BigBlueButtonMainContainer id="bbbShell"/>
 
-</mx:Application>
+</BigBlueButtonApplication>

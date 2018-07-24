@@ -7,9 +7,13 @@ const MCSApi = require('../mcs-core/lib/media/MCSApiStub');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const Messaging = require('../bbb/messages/Messaging');
+const BaseProvider = require('../base/BaseProvider');
+const LOG_PREFIX = "[audio]";
 
-module.exports = class Audio {
+module.exports = class Audio extends BaseProvider {
   constructor(_bbbGW, _id, voiceBridge) {
+    super();
+    this.sfuApp = C.AUDIO_APP;
     this.mcs = new MCSApi();
     this.bbbGW = _bbbGW;
     this.id = _id;
@@ -32,7 +36,8 @@ module.exports = class Audio {
         this.mcs.addIceCandidate(this.audioEndpoints[connectionId], _candidate);
       }
       catch (err)   {
-        Logger.error("[audio] ICE candidate could not be added to media controller.", err);
+        const userId = this.getUser(connectionId);
+        this._handleError(LOG_PREFIX, err, "recv", userId);
       }
     }
     else {
@@ -46,13 +51,17 @@ module.exports = class Audio {
   flushCandidatesQueue (connectionId) {
     if (this.audioEndpoints[connectionId]) {
       try {
-        while(this.candidatesQueue[connectionId].length) {
-          let candidate = this.candidatesQueue[connectionId].shift();
-          this.mcs.addIceCandidate(this.audioEndpoints[connectionId], candidate);
+        if (this.candidatesQueue[connectionId]) {
+          while(this.candidatesQueue[connectionId].length) {
+            const candidate = this.candidatesQueue[connectionId].shift();
+            this.mcs.addIceCandidate(this.audioEndpoints[connectionId], candidate);
+          }
         }
       }
       catch (err) {
-        Logger.error("[audio] ICE candidate could not be added to media controller.", err);
+        const userId = this.getUser(connectionId);
+        this._handleError(LOG_PREFIX, err, "recv", userId);
+        Logger.error(LOG_PREFIX, "ICE candidate could not be added to media controller.", err);
       }
     }
   }
@@ -64,7 +73,7 @@ module.exports = class Audio {
  */
   addUser(connectionId, user) {
     if (this.connectedUsers.hasOwnProperty(connectionId)) {
-      Logger.warn("[audio] Updating user for connectionId", connectionId)
+      Logger.warn(LOG_PREFIX, "Updating user for connectionId", connectionId)
     }
     this.connectedUsers[connectionId] = user;
   };
@@ -77,7 +86,7 @@ module.exports = class Audio {
     if (this.connectedUsers.hasOwnProperty(connectionId)) {
       delete this.connectedUsers[connectionId];
     } else {
-      Logger.error("[audio] Missing connectionId", connectionId);
+      Logger.error(LOG_PREFIX, "Missing connectionId", connectionId);
     }
   };
 
@@ -90,7 +99,7 @@ module.exports = class Audio {
     if (this.connectedUsers.hasOwnProperty(connectionId)) {
       return this.connectedUsers[connectionId];
     } else {
-      Logger.error("[audio] Missing connectionId", connectionId);
+      Logger.error(LOG_PREFIX, "Missing connectionId", connectionId);
     }
   };
 
@@ -102,7 +111,7 @@ module.exports = class Audio {
       case "MediaStateChanged":
         break;
 
-      default: Logger.warn("[audio] Unrecognized event");
+      default: Logger.warn(LOG_PREFIX, "Unrecognized event");
     }
   }
 
@@ -112,7 +121,7 @@ module.exports = class Audio {
     switch (event.eventTag) {
       case "OnIceCandidate":
         let candidate = msEvent.candidate;
-        Logger.debug('[audio] Received ICE candidate from mcs-core for media session', event.id, '=>', candidate);
+        Logger.debug(LOG_PREFIX, 'Received ICE candidate from mcs-core for media session', event.id, '=>', candidate);
 
         this.bbbGW.publish(JSON.stringify({
           connectionId: id,
@@ -142,12 +151,12 @@ module.exports = class Audio {
         }
         break;
 
-      default: Logger.warn("[audio] Unrecognized event", event);
+      default: Logger.warn(LOG_PREFIX, "Unrecognized event", event);
     }
   }
 
   async start (sessionId, connectionId, sdpOffer, caleeName, userId, userName, callback) {
-    Logger.info("[audio] Starting audio instance for", this.id);
+    Logger.info(LOG_PREFIX, "Starting audio instance for", this.id);
     let sdpAnswer;
 
     // Storing the user data to be used by the pub calls
@@ -157,7 +166,7 @@ module.exports = class Audio {
     try {
       if (!this.sourceAudioStarted) {
         this.userId = await this.mcs.join(this.voiceBridge, 'SFU', {});
-        Logger.info("[audio] MCS join for", this.id, "returned", this.userId);
+        Logger.info(LOG_PREFIX, "MCS join for", this.id, "returned", this.userId);
 
         const ret = await this.mcs.publish(this.userId,
             this.voiceBridge,
@@ -168,7 +177,7 @@ module.exports = class Audio {
         this.mcs.on('MediaEvent' + this.sourceAudio, this.mediaState.bind(this));
         this.sourceAudioStarted = true;
 
-        Logger.info("[audio] MCS publish for user", this.userId, "returned", this.sourceAudio);
+        Logger.info(LOG_PREFIX, "MCS publish for user", this.userId, "returned", this.sourceAudio);
       }
 
       const retSubscribe  = await this.mcs.subscribe(this.userId,
@@ -185,19 +194,19 @@ module.exports = class Audio {
         this.mediaStateWebRtc(event, connectionId)
       });
 
-      Logger.info("[audio] MCS subscribe for user", this.userId, "returned", retSubscribe.sessionId);
+      Logger.info(LOG_PREFIX, "MCS subscribe for user", this.userId, "returned", retSubscribe.sessionId);
 
       return callback(null, sdpAnswer);
     }
     catch (err) {
-      Logger.error("[audio] MCS returned error => " + err);
-      return callback(err);
+      return callback(this._handleError(LOG_PREFIX, err, "recv", userId));
     }
   };
 
   async stopListener(id) {
-    let listener = this.audioEndpoints[id];
-    Logger.info('[audio] Releasing endpoints for', listener);
+    const listener = this.audioEndpoints[id];
+    const userId = this.getUser(id);
+    Logger.info(LOG_PREFIX, 'Releasing endpoints for', listener);
 
     this.sendUserDisconnectedFromGlobalAudioMessage(id);
 
@@ -217,14 +226,14 @@ module.exports = class Audio {
         return;
       }
       catch (err) {
-        Logger.error('[audio] MCS returned error when trying to unsubscribe', err);
+        this._handleError(LOG_PREFIX, err, "recv", userId);
         return;
       }
     }
   }
 
   async stop () {
-    Logger.info('[audio] Releasing endpoints for user', this.userId, 'at room', this.voiceBridge);
+    Logger.info(LOG_PREFIX, 'Releasing endpoints for user', this.userId, 'at room', this.voiceBridge);
 
     try {
       await this.mcs.leave(this.voiceBridge, this.userId);
@@ -246,15 +255,14 @@ module.exports = class Audio {
       return Promise.resolve();
     }
     catch (err) {
-      // TODO error handling
-      return Promise.reject();
+      reject(this._handleError(LOG_PREFIX, err, "recv", this.userId));
     }
   };
 
   sendUserDisconnectedFromGlobalAudioMessage(connectionId) {
     let user = this.getUser(connectionId);
     let msg = Messaging.generateUserDisconnectedFromGlobalAudioMessage(this.voiceBridge, user.userId, user.userName);
-    Logger.info('[audio] Sending global audio disconnection for user', user);
+    Logger.info(LOG_PREFIX, 'Sending global audio disconnection for user', user);
 
     // Interoperability between transcoder messages
     switch (C.COMMON_MESSAGE_VERSION) {
@@ -271,7 +279,7 @@ module.exports = class Audio {
   sendUserConnectedToGlobalAudioMessage(connectionId) {
     let user = this.getUser(connectionId);
     let msg = Messaging.generateUserConnectedToGlobalAudioMessage(this.voiceBridge, user.userId, user.userName);
-    Logger.info('[audio] Sending global audio connection for user', user);
+    Logger.info(LOG_PREFIX, 'Sending global audio connection for user', user);
 
     // Interoperability between transcoder messages
     switch (C.COMMON_MESSAGE_VERSION) {
@@ -284,7 +292,7 @@ module.exports = class Audio {
   };
 
   _onRtpMediaFlowing(connectionId) {
-    Logger.info("[audio] RTP Media FLOWING for voice bridge", this.voiceBridge);
+    Logger.info(LOG_PREFIX, "RTP Media FLOWING for voice bridge", this.voiceBridge);
     this.sendUserConnectedToGlobalAudioMessage(connectionId);
     this.bbbGW.publish(JSON.stringify({
         connectionId: connectionId,
@@ -294,7 +302,7 @@ module.exports = class Audio {
   };
 
   _onRtpMediaNotFlowing(connectionId) {
-    Logger.warn("[audio] RTP Media NOT FLOWING for voice bridge" + this.voiceBridge);
+    Logger.warn(LOG_PREFIX, "RTP Media NOT FLOWING for voice bridge" + this.voiceBridge);
     this.bbbGW.publish(JSON.stringify({
         connectionId: connectionId,
         id: "webRTCAudioError",
