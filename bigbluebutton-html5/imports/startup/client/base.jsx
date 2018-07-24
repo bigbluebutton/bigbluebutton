@@ -149,7 +149,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
 
   const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
-    approved: Users.findOne({ userId: Auth.userID, approved: true }) || false,
+    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
     locale,
     subscriptionsReady,
     annotationsHandler,
