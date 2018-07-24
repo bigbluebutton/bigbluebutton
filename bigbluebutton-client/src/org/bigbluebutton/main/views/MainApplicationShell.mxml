@@ -109,6 +109,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
 			
+			import flashx.textLayout.formats.Direction;
+			
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
@@ -163,6 +165,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			
+			
+			
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -225,6 +231,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
 			public function initOptions(e:Event):void {
+				// Set the layout direction at the application start
+				ResourceUtil.getInstance().updateLayoutDirection();
+				
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
@@ -414,7 +423,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					guestWindow = PopUpUtil.createModalPopUp( FlexGlobals.topLevelApplication as DisplayObject, GuestWindow, false) as GuestWindow;
 					
 					PopUpUtil.lockPosition(guestWindow, function():Point {
-						return new Point(systemManager.screen.width - guestWindow.width - 20, 20);
+						if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+							return new Point(20, 20);
+						} else {
+							return new Point(systemManager.screen.width - guestWindow.width - 20, 20);
+						}
 					});
 					
 					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
@@ -856,7 +869,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var popUp:RecordWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, RecordWindow, false) as RecordWindow;
 				popUp.setRecordingFlag(e.payload.recording);
 				PopUpUtil.lockPosition(popUp, function():Point {
-					return new Point(parentApplication.width - 150 - popUp.width, y + toolbar.height); 
+					if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+						return new Point(150, y + toolbar.height);
+					} else {
+						return new Point(parentApplication.width - popUp.width - 150, y + toolbar.height); 
+					}
 				});
 			}
 			
@@ -877,9 +894,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 			
 			private function onLocaleChanged(e:LocaleChangeEvent) : void {
-				if (ResourceUtil.getInstance().isRTLEnabled()) {
-					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
-				}
 				PopUpUtil.initAlert();
 			}
 

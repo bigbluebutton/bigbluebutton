@@ -46,6 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function init():void {
 				refreshRole(UsersUtil.amIModerator());
+				updateStyles();
 			}
 			
 			private function onClick(e:Event):void {
@@ -57,6 +58,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function localeChanged(event:LocaleChangeEvent) : void {
+				updateStyles();
+			}
+			
+			private function updateStyles():void {
 				var styleNameExt : String = "";
 				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
 					styleNameExt = "RTL";
