@@ -43,21 +43,20 @@ const DesktopShare = ({
   isUserPresenter,
 }) => (
   (screenSharingCheck && !isMobileBrowser && isUserPresenter ?
-        <Button
-          className={styles.button}
-          icon="desktop"
-          label={intl.formatMessage(isVideoBroadcasting ?
-          intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
-          description={intl.formatMessage(isVideoBroadcasting ?
-          intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
-          color="primary"
-          icon="desktop"
-          ghost={false}
-          hideLabel
-          circle
-          size="lg"
-          onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
-        />
+    <Button
+      className={styles.button}
+      icon="desktop"
+      label={intl.formatMessage(isVideoBroadcasting ?
+      intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
+      description={intl.formatMessage(isVideoBroadcasting ?
+      intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
+      color="primary"
+      ghost={false}
+      hideLabel
+      circle
+      size="lg"
+      onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
+    />
     : null)
 );
 
