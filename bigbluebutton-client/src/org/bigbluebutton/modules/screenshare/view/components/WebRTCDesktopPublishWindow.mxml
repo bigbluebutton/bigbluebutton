@@ -95,6 +95,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var streamHeight:Number = 100;
 			private var streamWidth:Number = 100;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
+			
+			private var red5StreamTimeout:Timer = new Timer(30000, 1);
 
 			[Bindable] private var dsOptions:ScreenshareOptions;
 			
@@ -220,8 +222,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							displayFail();
 						}
 						LOGGER.info(JSON.stringify(logData));
+						
+						red5StreamTimeout.stop();
 					};
+					var onSuccess:Function = function():void {
+						var logData:Object = UsersUtil.initLogData();
+						logData.tags = ["webrtc-screenshare"];
+						logData.logCode = "webrtc-sending-offer";
+						LOGGER.info(JSON.stringify(logData));
+						
+						// start timeout timer
+						red5StreamTimeout.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+							var logData:Object = UsersUtil.initLogData();
+							logData.tags = ["webrtc-screenshare"];
+							logData.logCode = "webrtc-stream-timeout";
+							logData.reason = "Timeout hit waiting for the red5 stream to start";
+							LOGGER.info(JSON.stringify(logData));
+							
+							displayFail(ResourceUtil.getInstance().getString("bbb.screensharePublish.streamTimeout.label"));
+						});
+						red5StreamTimeout.start();
+					}
 					ExternalInterface.addCallback("onFail", onFail);
+					ExternalInterface.addCallback("onSuccess", onSuccess);
 					
 					var voiceBridge:String = UsersUtil.getVoiceBridge();
 					var myUserId:String = UsersUtil.getMyUserID();
@@ -234,7 +257,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						myUserId,
 						internalMeetingID,
 						"onFail",
-						dsOptions.chromeExtensionKey);
+						dsOptions.chromeExtensionKey,
+						"",
+						"",
+						"onSuccess");
 					
 				}
 			}
@@ -275,7 +301,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(streamEvent);
 				}
 				streaming = false;
-				//closeWindow();
+				closeWindow();
 			}
 
 			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
@@ -284,6 +310,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function startVideo(rtmp:String, videoWidth:Number, videoHeight:Number):void {
+				red5StreamTimeout.stop();
+				
 				setCurrentState("dispFullRegionControlBar");
 				var myArray :Array = rtmp.split('/');
 				var meetingUrl:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
