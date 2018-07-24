@@ -40,3 +40,9 @@
   overflow: hidden;
   flex-shrink: 1;
 }
+
+.footer{
+  @include mq($small-only) {
+		margin: 4rem;
+  }
+}

@@ -1,4 +1,7 @@
 import RedisPubSub from '/imports/startup/server/redis';
-import handleModifyWhiteboardAccess from './handlers/modifyWhiteboardAccess';
+import { processForHTML5ServerOnly } from '/imports/api/common/server/helpers';
+import handleGetWhiteboardAccess from './handlers/modifyWhiteboardAccess';
 
-RedisPubSub.on('ModifyWhiteboardAccessEvtMsg', handleModifyWhiteboardAccess);
+RedisPubSub.on('GetWhiteboardAccessRespMsg', processForHTML5ServerOnly(handleGetWhiteboardAccess));
+RedisPubSub.on('SyncGetWhiteboardAccessRespMsg', handleGetWhiteboardAccess);
+RedisPubSub.on('ModifyWhiteboardAccessEvtMsg', handleGetWhiteboardAccess);

@@ -28,28 +28,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="0" value="stun:stun.freeswitch.org"/>
     </bean>
 
-    <!--bean id="stun2" claturnturn.StunServer">
+    <!--bean id="stun2" class="org.bigbluebutton.web.services.turn.StunServer">
         <constructor-arg index="0" value="stun:stun2.example.com"/>
     </bean-->
 
-    <!--bean id="iceCandidate1" claturnturn.RemoteIceCandidate">
+    <!--bean id="iceCandidate1" class="org.bigbluebutton.web.services.turn.RemoteIceCandidate">
         <constructor-arg index="0" value="192.168.0.1"/>
     </bean-->
 
     <!-- Turn servers are configured with a secret that's compatible with
-         http://tools.ietf.org/html/draft-uberti-behorg.bigbluebutton.web.services.turnturn-rest-00
-         as supported by the coturn and rfc5org.bigbluebutton.web.services.turnturn-serorg.bigbluebutton.web.services.turnturn servers -->
+         http://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
+         as supported by the coturn and rfc5766-turn-server turn servers -->
 
-    <!--bean id="turn1" claturnturn.TurnServer">
+    <!--bean id="turn1" class="org.bigbluebutton.web.services.turn.TurnServer">
         Secret:
         <constructor-arg index="0" value="secret"/>
-        TURN server URL, org.bigbluebutton.web.services.turnturn: or turns:
-        <constructor-arg index="1" valorg.bigbluebutton.web.services.turnturn:turn1.example.com"/>
+        TURN server URL, use turn: or turns:
+        <constructor-arg index="1" value="turn:turn1.example.com"/>
         TTL in seconds for shared secret
         <constructor-arg index="2" value="86400"/>
     </bean-->
 
-    <!--bean id="turn2" claturnturn.TurnServer">
+    <!--bean id="turn2" class="org.bigbluebutton.web.services.turn.TurnServer">
         <constructor-arg index="0" value="secret"/>
         <constructor-arg index="1" value="turns:turn2.example.com:443"/>
         <constructor-arg index="2" value="86400"/>

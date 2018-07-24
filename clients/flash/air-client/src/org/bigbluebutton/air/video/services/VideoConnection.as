@@ -15,9 +15,9 @@ package org.bigbluebutton.air.video.services {
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.main.models.LockSettings2x;
-	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserRole;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.air.video.commands.StopShareCameraSignal;
 	import org.bigbluebutton.air.video.models.VideoProfile;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
@@ -42,6 +42,9 @@ package org.bigbluebutton.air.video.services {
 		
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;
+		
+		[Inject]
+		public var stopShareCameraSignal:StopShareCameraSignal;
 		
 		private var cameraToNetStreamMap:Object = new Object();
 		
@@ -70,8 +73,9 @@ package org.bigbluebutton.air.video.services {
 		}
 		
 		private function lockSettingsChange(lockSettings:LockSettings2x):void {
-			if (lockSettings.disableCam && meetingData.users.me.locked && meetingData.users.me.role != UserRole.MODERATOR) {
-				shareCameraSignal.dispatch(false, null);
+			if (lockSettings.disableCam && meetingData.users.me.locked && 
+				meetingData.users.me.role != UserRole.MODERATOR) {
+				stopShareCameraSignal.dispatch();
 			}
 		}
 		

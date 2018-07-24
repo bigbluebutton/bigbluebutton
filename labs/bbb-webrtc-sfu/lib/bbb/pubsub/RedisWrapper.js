@@ -103,6 +103,66 @@ module.exports = class RedisWrapper extends EventEmitter {
     }
   }
 
+  pushToList (key, string, callback) {
+    if (this.redisPub) {
+      this.redisPub.rpush(key, string, callback);
+    } else {
+      callback(true, null)
+    }
+  }
+
+  setKeyWithIncrement (key, message, callback) {
+    let blowObject = function (obj) {
+      let arr = [];
+      Object.keys(obj).map(function (key) {
+        arr.push(key)
+        arr.push(obj[key]);
+      });
+      return arr;
+    }
+
+    if (this.redisPub){
+      this.redisPub.incr('global:nextRecordedMsgId', (err, msgId) => {
+        if (err) {
+          return callback(err, null);
+        }
+
+        let incr = key + ':' + msgId;
+        let value = blowObject(message);
+        this.redisPub.hmset(incr, value, (err) => {
+          if (err) {
+            return callback(err, null);
+          }
+
+          // Return the increment number to the caller
+          callback(err, msgId);
+        });
+      });
+
+    } else {
+      callback(true, null);
+    }
+  }
+
+  expireKey (key, seconds, callback) {
+    if (this.redisPub) {
+      this.redisPub.expire(key, seconds, callback);
+    } else {
+      callback(true, null);
+    }
+  }
+
+  getChannels () {
+    return new Promise((resolve, reject) => {
+      this.redisPub.pubsub('channels', (error, channels) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(channels);
+      });
+    });
+  }
+
   /* Private members */
 
   _onMessage (pattern, channel, _message) {

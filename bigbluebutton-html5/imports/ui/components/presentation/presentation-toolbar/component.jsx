@@ -198,8 +198,8 @@ class PresentationToolbar extends Component {
           aria-live="polite"
           aria-relevant="all"
           value={currentSlideNum}
-          onChange={this.handleSkipToSlideChange}
-          className={styles.skipSlide}
+          onChange={actions.skipToSlideHandler}
+          className={styles.skipSlideSelect}
         >
           {this.renderSkipSlideOpts(numberOfSlides)}
         </select>
@@ -214,6 +214,7 @@ class PresentationToolbar extends Component {
           onClick={actions.nextSlideHandler}
           label={intl.formatMessage(intlMessages.nextSlideLabel)}
           hideLabel
+          className={styles.skipSlide}
         />
 
         {/* Fit to width button

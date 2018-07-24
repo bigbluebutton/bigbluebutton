@@ -21,16 +21,12 @@
 		fontSize : 34;
 	}
 	
-	main|TopToolbarBase {
-		height : 80;
-	}
-	
 	views|NoTabView {
 		toolbarHeight : 80;
 	}
 	
 	main|MainView {
-		menuHeight : 160;
+		menuHeight : 110;
 	}
 	
 	main|MenuButtons {
@@ -38,9 +34,7 @@
 	}
 	
 	skins|MenuButtonSkin {
-		fontSize     : 24;
-		iconSize     : 36;
-		labelPadding : 12;
+		iconSize     : 40;
 	}
 	
 	chat|NewMessagesIndicator {
@@ -52,8 +46,8 @@
 		padding      : 14;
 		gap          : 8;
 		leftIndent   : 44;
-		fontSize     : 28;
-		nameFontSize : 28;
+		fontSize     : 32;
+		nameFontSize : 32;
 		timeFontSize : 28;
 	}
 	
@@ -65,7 +59,7 @@
 		padding: 30;
 	}
 	
-	main|ExitView, main|DisconnectView {
+	main|ExitView, main|DisconnectView, main|UserInactivityPopUp {
 		gap     : 30;
 		padding : 30;
 	}
@@ -105,13 +99,19 @@
 		fontSize : 24;
 	}
 	
-	main|EmojiPopUp {
+	main|EmojiCallout {
+		minListWidth : 220;
 		fontSize     : 22;
 	}
 	
-	poll|PollButtons {
-		padding      : 12;
-		gap          : 18;
+	main|MobilePopUp {
+		cornerRadius : 8;
+		fontSize     : 22;
+		padding : 12;
+	}
+	
+	.mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+		cornerRadius : 8;
 	}
 	
 	.icon {
@@ -119,8 +119,8 @@
 	}
 	
 	.sendButton {
-		borderWeight : 2;
 		diameter     : 56;
+		fontSize     : 30;
 	}
 	
 	.titleGroup {
@@ -131,6 +131,8 @@
 	
 	.topButton {
 		fontSize : 44;
+		height   : 76;
+		width    : 76;
 	}
 	
 	.saveButton {
@@ -138,11 +140,11 @@
 	}
 	
 	.topLeftButton {
-		left : 30;
+		left : 0;
 	}
 	
 	.topRightButton {
-		right : 30;
+		right : 0;
 	}
 	
 	.actionButton {
@@ -179,6 +181,8 @@
 	
 	.chatIcon, .settingsIcon {
 		fontSize : 44;
+		width: 44;
+		height: 44;
 	}
 	
 	.recordIcon {
@@ -188,12 +192,6 @@
 	.chatRoomItem {
 		fontSize : 34;
 		padding  : 30;
-	}
-	
-	.sendButton {
-		fontSize     : 20;
-		borderWeight : 2;
-		cornerRadius : 4;
 	}
 	
 	.echoTestLabel {

@@ -19,31 +19,25 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val msgFromClientEventBus = new MsgFromClientEventBus
-  private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
   private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus
-  private val msgToAkkaAppsEventBus = new MsgToAkkaAppsEventBus
+  private val msgToRedisEventBus = new MsgToRedisEventBus
   private val msgToClientEventBus = new MsgToClientEventBus
 
   private val redisPublisher = new RedisPublisher(system)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
-  private val messageSenderActorRef = system.actorOf(
-    MessageSenderActor.props(msgSender), "messageSenderActor")
-
-  jsonMsgToAkkaAppsBus.subscribe(messageSenderActorRef, toAkkaAppsJsonChannel)
-
   private val meetingManagerActorRef = system.actorOf(
-    MeetingManagerActor.props(msgToAkkaAppsEventBus, msgToClientEventBus), "meetingManagerActor")
+    MeetingManagerActor.props(msgToRedisEventBus, msgToClientEventBus), "meetingManagerActor")
 
   msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
   msgFromClientEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
 
   private val receivedJsonMsgBus = new JsonMsgFromAkkaAppsBus
 
-  private val msgToAkkaAppsToJsonActor = system.actorOf(
-    MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor")
+  private val msgToRedisActor = system.actorOf(
+    MsgToRedisActor.props(msgSender), "msgToRedisActor")
 
-  msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
+  msgToRedisEventBus.subscribe(msgToRedisActor, toRedisChannel)
 
   private val msgToClientJsonActor = system.actorOf(
     MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
@@ -77,11 +71,6 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
   def handleMsgFromClient(connInfo: ConnInfo, json: String): Unit = {
     //log.debug("**** ClientGWApplication handleMsgFromClient " + json)
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
-  }
-
-  def send(channel: String, json: String): Unit = {
-    //log.debug("Sending message {}", json)
-    jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, new JsonMsgToSendToAkkaApps(channel, json)))
   }
 
   def shutdown(): Unit = {

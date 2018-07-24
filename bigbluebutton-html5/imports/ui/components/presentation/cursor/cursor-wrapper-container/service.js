@@ -1,7 +1,9 @@
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import PresentationPods from '/imports/api/presentation-pods';
 import Auth from '/imports/ui/services/auth';
-import Cursor from '/imports/api/cursor';
+import Cursor from '/imports/ui/components/cursor/service';
+
+import Users from '/imports/api/users';
 
 const getMultiUserStatus = (whiteboardId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });

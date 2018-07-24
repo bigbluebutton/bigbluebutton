@@ -1,0 +1,118 @@
+/* Visually hides text
+ * see: yaccessibilityblog.com/library/css-clip-hidden-content.html
+ */
+.visually-hidden {
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	padding: 0 !important;
+	border: 0 !important;
+	height: 1px !important;
+	width: 1px !important;
+	overflow: hidden;
+}
+
+html {
+  height: 100%;
+}
+body {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-flow: column;
+  height: 100%;
+}
+header {
+  background: white;
+  border-bottom: 1px solid #e2e2e2;
+  padding: 0 10px;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+main {
+  -ms-flex: 1 0 16rem;
+  flex: 1 0 16rem;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: row;
+  flex-flow: row;
+  min-height: 16rem;
+}
+#main-area {
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-flow: column;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  background: white;
+}
+footer {
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  background: white;
+  border-top: 1px solid #e2e2e2;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+header > h1 {
+  font-size: 1.45rem;
+  line-height: 2rem;
+  padding: 0;
+  margin: 8px 0;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#main-area > #video-area {
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+}
+.video-js {
+  background-color: white;
+  position: absolute;
+}
+.video-js .vjs-current-time, .video-js .vjs-duration, .video-js .vjs-time-divider {
+  display: block;
+}
+.video-js .vjs-time-divider {
+  padding: 0;
+  min-width: 0;
+}
+.video-js .vjs-remaining-time {
+  display: none;
+}
+
+@media all and (max-width: 48rem) {
+  main {
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+  #main-area {
+    -ms-flex: 1 1 10rem;
+    flex: 1 1 10rem;
+    min-height: 10rem;
+  }
+  #main-area > #video-area {
+    min-height: 10rem;
+    position: relative;
+  }
+  .video-js {
+    position: absolute;
+  }
+}

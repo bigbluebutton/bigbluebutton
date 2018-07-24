@@ -27,6 +27,12 @@ const mapOpenChats = (chat) => {
     : chat.toUserId;
 };
 
+const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
+
+export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+
+const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
+
 const sortUsersByName = (a, b) => {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
     return -1;
@@ -86,8 +92,23 @@ const sortUsersByPhoneUser = (a, b) => {
   return 0;
 };
 
+// current user's name is always on top
+const sortUsersByCurrent = (a, b) => {
+  if (a.isCurrent) {
+    return -1;
+  } else if (b.isCurrent) {
+    return 1;
+  }
+
+  return 0;
+};
+
 const sortUsers = (a, b) => {
-  let sort = sortUsersByModerator(a, b);
+  let sort = sortUsersByCurrent(a, b);
+
+  if (sort === 0) {
+    sort = sortUsersByModerator(a, b);
+  }
 
   if (sort === 0) {
     sort = sortUsersByEmoji(a, b);
@@ -309,11 +330,34 @@ const removeUser = (userId) => {
   }
 };
 
-const toggleVoice = (userId) => { makeCall('toggleVoice', userId); };
+const toggleVoice = (userId) => { userId === Auth.userID ? makeCall('toggleSelfVoice') : makeCall('toggleVoice', userId); };
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const roving = (event, itemCount, changeState) => {
+  if (document.activeElement.getAttribute('data-isopen') === 'true') {
+    const menuChildren = document.activeElement.getElementsByTagName('li');
+
+    if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
+      document.activeElement.click();
+    }
+
+    if ([KEY_CODES.ARROW_UP].includes(event.keyCode)) {
+      menuChildren[menuChildren.length - 1].focus();
+    }
+
+    if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
+      for (let i = 0; i < menuChildren.length; i += 1) {
+        if (menuChildren[i].hasAttribute('tabIndex')) {
+          menuChildren[i].focus();
+          break;
+        }
+      }
+    }
+
+    return;
+  }
+
   if (this.selectedIndex === undefined) {
     this.selectedIndex = -1;
   }
@@ -344,7 +388,7 @@ const roving = (event, itemCount, changeState) => {
     changeState(this.selectedIndex);
   }
 
-  if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE].includes(event.keyCode)) {
+  if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
     document.activeElement.firstChild.click();
   }
 };
@@ -363,4 +407,6 @@ export default {
   isMeetingLocked,
   isPublicChat,
   roving,
+  setCustomLogoUrl,
+  getCustomLogoUrl,
 };

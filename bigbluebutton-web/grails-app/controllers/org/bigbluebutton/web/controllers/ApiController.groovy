@@ -249,12 +249,18 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
+    Boolean authenticated = false;
+
     Boolean guest = false;
     if (!StringUtils.isEmpty(params.guest)) {
       guest = Boolean.parseBoolean(params.guest)
+    } else {
+      // guest param has not been passed. Make user as
+      // authenticated by default. (ralam july 3, 2018)
+      authenticated = true
     }
 
-    Boolean authenticated = false;
+
     if (!StringUtils.isEmpty(params.auth)) {
       authenticated = Boolean.parseBoolean(params.auth)
     }
@@ -2098,7 +2104,8 @@ class ApiController {
             internalMeetingID(meeting.getInternalId())
             if (meeting.isBreakout()) {
                 parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
-                sequence(meeting.getSequence())
+                sequence() { mkp.yield(meeting.getSequence()) }
+                freeJoin() { mkp.yield(meeting.isFreeJoin()) }
             }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
@@ -2131,6 +2138,7 @@ class ApiController {
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")
                   hasVideo("${att.hasVideo()}")
+                  clientType() { mkp.yield("${att.clientType}") }
                   videoStreams() {
                     att.getStreams().each { s ->
                       streamName("${s}")

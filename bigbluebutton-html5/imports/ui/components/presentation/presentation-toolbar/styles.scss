@@ -1,30 +1,28 @@
 @import "/imports/ui/components/button/styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
 
-$controls-color: #212121 !default;
-$controls-background: #F0F2F6 !default;
+$controls-color: $color-gray !default;
+$controls-background: $color-white !default;
 
 .presentationToolbarWrapper,
 .zoomWrapper {
   order: 2;
-  padding: $line-height-computed / 2;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
 .presentationToolbarWrapper {
-  flex: 1;
+  position: absolute;
+  bottom: .8rem;
+  box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  align-self: center;
   justify-content: center;
-  width: 100%;
-  margin-top: 2%;
-  margin-bottom: 2%;
+  z-index: 1;
 
-  @include mq($portrait) {
-    @include mq($small-only) {
-      margin-top: 5%;
-      margin-bottom: 5%;
-    }
+  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
+    transform: scale(.75);
+    transform-origin: bottom;
   }
 
   button,
@@ -33,17 +31,30 @@ $controls-background: #F0F2F6 !default;
     background-color: $controls-background;
     color: $controls-color;
     border-top: 0;
-    border-right: $color-gray-light 2px solid;
     border-bottom: 0;
     border-left: 0;
     border-radius: 0;
     box-shadow: none;
     height: 2.25rem;
+    box-shadow: none !important;
+    border: 0;
   }
 
   i {
     font-weight: bolder;
     color: $color-gray;
+  }
+
+
+
+  button:first-of-type {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+
+  button:last-of-type {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
   }
 }
 
@@ -58,12 +69,21 @@ $controls-background: #F0F2F6 !default;
   border-right: 0 !important;
 }
 
+.skipSlide,
 .prevSlide {
-  border-radius: 5px 0 0 5px;
+  border: none !important;
+  width: 2.8rem;
+
+  &[aria-disabled="true"] {
+    opacity: 1;
+    background-color: $color-gray-lighter;
+  }
 }
 
-.skipSlide {
+.skipSlideSelect {
   padding: 0 0.8%;
+  border-left: $border-size solid $color-gray-lighter !important;
+  border-right: $border-size solid $color-gray-lighter !important;
 }
 
 .zoomSlider {

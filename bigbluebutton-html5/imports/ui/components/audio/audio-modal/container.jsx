@@ -1,26 +1,39 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import browser from 'browser-detect';
 import AudioModal from './component';
 import Service from '../service';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
+
+const APP_CONFIG = Meteor.settings.public.app;
+
+const { listenOnlyMode, forceListenOnly, skipCheck } = APP_CONFIG;
 
 export default withModalMounter(withTracker(({ mountModal }) =>
   ({
     closeModal: () => {
       if (!Service.isConnecting()) mountModal(null);
     },
-    joinMicrophone: () =>
-      new Promise((resolve, reject) => {
-        Service.transferCall().then(() => {
-          mountModal(null);
-          resolve();
-        }).catch(() => {
+    joinMicrophone: () => {
+      const call = new Promise((resolve, reject) => {
+        if (skipCheck) {
+          resolve(Service.joinMicrophone());
+        } else {
+          resolve(Service.transferCall());
+        }
+        reject(() => {
           Service.exitAudio();
-          reject();
         });
-      }),
+      });
+
+      return call.then(() => {
+        mountModal(null);
+      }).catch((error) => {
+        throw error;
+      });
+    },
     joinListenOnly: () => Service.joinListenOnly().then(() => mountModal(null)),
     leaveEchoTest: () => {
       if (!Service.isEchoTest()) {
@@ -38,4 +51,11 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
+    listenOnlyMode,
+    skipCheck,
+    audioLocked: Service.audioLocked(),
+    joinFullAudioImmediately: !listenOnlyMode && skipCheck,
+    joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
+    forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
+    isIOSChrome: browser().name === 'crios',
   }))(AudioModalContainer));

@@ -24,7 +24,6 @@ const getSlideData = (podId, presentationId) => {
   }).fetch().length;
 
   return {
-    userIsPresenter,
     numberOfSlides,
   };
 };

@@ -4,6 +4,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PresentationToolbarService from './service';
 import PresentationToolbar from './component';
 
+import PresentationService from '/imports/ui/components/presentation/service';
+
 const PresentationToolbarContainer = (props) => {
   const {
     currentSlideNum,
@@ -30,12 +32,11 @@ export default withTracker((params) => {
   const data = PresentationToolbarService.getSlideData(podId, presentationId);
 
   const {
-    userIsPresenter,
     numberOfSlides,
   } = data;
 
   return {
-    userIsPresenter,
+    userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides,
     actions: {
       nextSlideHandler: () =>

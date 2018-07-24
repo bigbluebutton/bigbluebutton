@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.settings.views.lock {
-	import org.bigbluebutton.air.main.models.IUserSession;
-	
+	import org.bigbluebutton.air.main.models.IMeetingData;
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class LockSettingsViewMediatorBase extends Mediator {
@@ -9,18 +8,18 @@ package org.bigbluebutton.air.settings.views.lock {
 		public var view:LockSettingsViewBase;
 		
 		[Inject]
-		public var userSession:IUserSession;
+		public var meetingData:IMeetingData;
 		
 		override public function initialize():void {
 			loadLockSettings();
 		}
 		
 		private function loadLockSettings():void {
-			view.webcamCheckbox.selected = !userSession.lockSettings.disableCam;
-			view.microphoneCheckbox.selected = !userSession.lockSettings.disableMic;
-			view.privateChatCheckbox.selected = !userSession.lockSettings.disablePrivateChat;
-			view.publicChatCheckbox.selected = !userSession.lockSettings.disablePublicChat;
-			view.layoutCheckbox.selected = !userSession.lockSettings.lockedLayout;
+			view.webcamCheckbox.selected = !meetingData.meetingStatus.lockSettings.disableCam;
+			view.microphoneCheckbox.selected = !meetingData.meetingStatus.lockSettings.disableMic;
+			view.privateChatCheckbox.selected = !meetingData.meetingStatus.lockSettings.disablePrivChat;
+			view.publicChatCheckbox.selected = !meetingData.meetingStatus.lockSettings.disablePubChat;
+			view.layoutCheckbox.selected = !meetingData.meetingStatus.lockSettings.lockedLayout;
 		}
 	
 	}

@@ -10,6 +10,7 @@
 @namespace settingsLock "org.bigbluebutton.air.settings.views.lock.*";
 @namespace settingsCamera "org.bigbluebutton.air.settings.views.camera.*";
 @namespace ex "http://flex.apache.org/experimental/ns";
+@namespace supportClasses "spark.skins.mobile.supportClasses.*";
 
 @font-face {
 	src        : url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
@@ -78,8 +79,12 @@
 /* Shared styles */
 
 global {
-	font-family : SourceSansPro;
-	color       : PropertyReference("bbbBlack");
+	font-family               : SourceSansPro;
+	color                     : PropertyReference("bbbBlack");
+	modalTransparencyBlur     : 0;
+	modalTransparency         : 0.5;
+	modalTransparencyColor    : black;
+	modalTransparencyDuration : 250;
 }
 
 /* Classes */
@@ -89,7 +94,18 @@ s|Application {
 }
 
 s|Button {
-	fontFamily : SourceSansProMX;
+	fontFamily 				: SourceSansPro;
+	color                   : PropertyReference("white");
+	backgroundColor         : PropertyReference("bbbBlue");
+	borderVisible           : false;
+	selectedBackgroundColor : PropertyReference("blue500");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.ActionButtonSkin");
+}
+
+s|Callout
+{
+	skinClass: ClassReference("spark.skins.ios7.CalloutSkin");
+	backgroundColor : #FFFFFF;
 }
 
 /* Loading screen */
@@ -104,6 +120,19 @@ main|LoadingScreen {
 main|MainView {
 	backgroundColor : PropertyReference("bbbBlack");
 }
+
+main|RectCoverView {
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+main|MenuButtons {
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+.no-background {
+	backgroundAlpha: 0;
+}
+
 
 main|TopToolbarBase {
 	textAlign : center;
@@ -166,12 +195,39 @@ main|EmojiItemRenderer {
 	iconColor     : PropertyReference("grey700");
 	color         : PropertyReference("grey700");
 	selectedColor : PropertyReference("bbbBlue");
-	itemHeight    : 30;
-	
+}
+
+main|MobilePopUp {
+	separatorColor : PropertyReference("grey300");
+	skinClass      : ClassReference("org.bigbluebutton.air.main.views.skins.MobilePopUpSkin");
+}
+
+.mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+	fontFamily 				: SourceSansPro;
+	color                   : PropertyReference("bbbBlue");
+	backgroundColor         : PropertyReference("white");
+	borderVisible           : false;
+	selectedBackgroundColor : PropertyReference("grey100");
+	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.MobilePopUpButtonSkin");
+}
+
+.mobilePopUpUniqueButton {
+	position : "unique";
+}
+
+.mobilePopUpFirstButton {
+	position : "first";
+}
+
+.mobilePopUpMiddleButton {
+	position : "middle";
+}
+
+.mobilePopUpLastButton {
+	position : "last";
 }
 
 .statusList {
-	skinClass              : ClassReference("org.bigbluebutton.air.main.views.EmojiListSkin");
 	contentBackgroundAlpha : 0;
 }
 
@@ -196,7 +252,7 @@ chat|NewMessagesIndicator {
 }
 
 chat|ChatItemRenderer {
-	color     : PropertyReference("grey700");
+	color     : PropertyReference("bbbDarkGrey");
 	nameColor : PropertyReference("blue900");
 }
 
@@ -245,16 +301,6 @@ settings|SettingsItemRenderer {
 	skinClass  : ClassReference("org.bigbluebutton.air.main.views.skins.SaveButtonSkin");
 }
 
-.voteButton {
-	color                   : PropertyReference("white");
-	cornerRadius            : 0;
-	borderVisible 			: false;
-	backgroundColor         : PropertyReference("bbbBlue");
-	fontFamily              : SourceSansPro;
-	selectedBackgroundColor : PropertyReference("darkBlue");
-	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.ActionButtonSkin");
-}
-
 .settingsIcon {
 	iconColor : PropertyReference("grey700");
 }
@@ -267,7 +313,6 @@ settings|SettingsItemRenderer {
 	fontFamily              : SourceSansPro;
 	backgroundColor         : PropertyReference("bbbBlue");
 	selectedBackgroundColor : PropertyReference("darkBlue");
-	color                   : PropertyReference("white");
 	iconFont                : BBBIcons;
 	iconColor               : PropertyReference("white");
 	skinClass               : ClassReference("org.bigbluebutton.air.main.views.skins.MenuButtonSkin");
@@ -288,9 +333,9 @@ settings|SettingsItemRenderer {
 }
 
 .sendButton {
-	color       : PropertyReference("blue500");
+	color       : PropertyReference("bbbWhite");
 	fontFamily  : BBBIcons;
-	borderColor : PropertyReference("blue500");
+	backgroundColor : PropertyReference("bbbBlue");
 	skinClass   : ClassReference("org.bigbluebutton.air.chat.views.skins.SendButtonSkin");
 }
 
@@ -317,7 +362,7 @@ settings|SettingsItemRenderer {
 }
 
 .userDetailsButton {
-	color : PropertyReference("bbbBlack");
+	color : PropertyReference("white");
 }
 
 .audioButtonStyle {

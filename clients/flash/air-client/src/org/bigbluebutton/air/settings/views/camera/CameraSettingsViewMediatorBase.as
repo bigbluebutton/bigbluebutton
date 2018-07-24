@@ -3,15 +3,16 @@ package org.bigbluebutton.air.settings.views.camera {
 	import mx.collections.ArrayCollection;
 	import mx.events.ItemClickEvent;
 	
+	import spark.events.IndexChangeEvent;
+	
 	import org.bigbluebutton.air.common.models.ISaveData;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.main.models.LockSettings2x;
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.video.models.VideoProfile;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.events.IndexChangeEvent;
 	
 	public class CameraSettingsViewMediatorBase extends Mediator {
 		
@@ -48,7 +49,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			dataProvider.refresh();
 			view.cameraProfilesList.selectedIndex = dataProvider.getItemIndex(userSession.videoConnection.selectedCameraQuality);
 			
-			userSession.lockSettings.disableCamSignal.add(disableCam);
+			meetingData.meetingStatus.lockSettingsChangeSignal.add(onLockSettingsChangeSignal);
 			//setQualityListEnable(!meetingData.users.me.hasStream);
 		}
 		
@@ -69,11 +70,11 @@ package org.bigbluebutton.air.settings.views.camera {
 		protected function userChangeHandler(user:User2x, type:int):void {
 		}
 		
-		private function disableCam(disable:Boolean):void {
-			if (disable) {
-				// view.startCameraButton.enabled = false;
+		private function onLockSettingsChangeSignal(newSettings:LockSettings2x):void {
+			if (newSettings.disableCam) {
+				//view..enabled = false;
 			} else {
-				// view.startCameraButton.enabled = true;
+				//view.startCameraButton.enabled = true;
 			}
 		}
 		
@@ -83,7 +84,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		
 		override public function destroy():void {
 			super.destroy();
-			userSession.lockSettings.disableCamSignal.remove(disableCam);
+			meetingData.meetingStatus.lockSettingsChangeSignal.remove(onLockSettingsChangeSignal);
 			meetingData.users.userChangeSignal.remove(userChangeHandler);
 			view.cameraProfilesList.removeEventListener(ItemClickEvent.ITEM_CLICK, onCameraQualitySelected);
 		}

@@ -6,7 +6,6 @@ bin/
 bin-debug/
 bin-release/
 client/
-locale/.tx/
 bbbResources.properties.*
 asdoc/
 hs_err_pid*

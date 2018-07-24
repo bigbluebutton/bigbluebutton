@@ -169,20 +169,20 @@ class UserParticipants extends Component {
       mute: {
         label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
         handler: user => toggleVoice(user.id),
-        icon: 'audio_off',
+        icon: 'mute',
       },
       unmute: {
         label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
         handler: user => toggleVoice(user.id),
-        icon: 'audio_on',
+        icon: 'unmute',
       },
       promote: {
-        label: user => intl.formatMessage(intlMessages.PromoteUserLabel, { 0: user.name }),
+        label: () => intl.formatMessage(intlMessages.PromoteUserLabel),
         handler: user => changeRole(user.id, 'MODERATOR'),
         icon: 'promote',
       },
       demote: {
-        label: user => intl.formatMessage(intlMessages.DemoteUserLabel, { 0: user.name }),
+        label: () => intl.formatMessage(intlMessages.DemoteUserLabel),
         handler: user => changeRole(user.id, 'VIEWER'),
         icon: 'user',
       },
@@ -242,14 +242,14 @@ class UserParticipants extends Component {
       <div className={styles.participants}>
         {
           !compact ?
-            <div className={styles.smallTitle} role="banner">
+            <h2 className={styles.smallTitle}>
               {intl.formatMessage(intlMessages.usersTitle)}
               &nbsp;({users.length})
-            </div> : <hr className={styles.separator} />
+            </h2> : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
-          role="tabpanel"
+          role="list"
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
@@ -257,6 +257,7 @@ class UserParticipants extends Component {
             <TransitionGroup ref={(ref) => { this.refScrollItems = ref; }}>
               { this.getUsers() }
             </TransitionGroup>
+            <div className={styles.footer} />
           </div>
         </div>
       </div>

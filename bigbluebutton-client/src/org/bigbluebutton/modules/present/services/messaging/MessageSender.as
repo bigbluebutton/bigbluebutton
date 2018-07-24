@@ -42,7 +42,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error(status); },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -56,7 +56,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error(status); },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -70,7 +70,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error(status); },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error(status); },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -98,7 +98,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error(status); },
-        JSON.stringify(message)
+        message
       );
     }
 	
@@ -112,7 +112,7 @@ package org.bigbluebutton.modules.present.services.messaging
 		_nc.sendMessage2x(
 			function(result:String):void { },
 			function(status:String):void { LOGGER.error(status); },
-			JSON.stringify(message)
+			message
 		);
 	}
 
@@ -126,7 +126,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error("Error while requesting token for presentation upload." + status); },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -140,7 +140,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error("Error while requesting a new presentation pod." + status); },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -154,7 +154,7 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error("Error while closing a presentation pod." + status); },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -168,13 +168,8 @@ package org.bigbluebutton.modules.present.services.messaging
       _nc.sendMessage2x(
         function(result:String):void { },
         function(status:String):void { LOGGER.error("Error while setting presenter for pod." + status); },
-        JSON.stringify(message)
+        message
       );
     }
-    
-    
-    
-    
-    
   }
 }

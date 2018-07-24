@@ -37,7 +37,6 @@ const shareScreen = () => {
 }
 
 const unshareScreen = () => {
-  console.log("Exiting screenshare");
   KurentoBridge.kurentoExitScreenShare();
 }
 

@@ -22,12 +22,6 @@ package org.bigbluebutton.air.common.views {
 			addElement(_topToolbar);
 		}
 		
-		/**
-		 * Override this method in subclasses to be notified of rotation changes
-		 */
-		public function rotationHandler(rotation:String):void {
-		}
-		
 		public function triggerLeftMenuTap(event:KeyboardEvent):void {
 			if (_topToolbar.leftButton && _topToolbar.leftButton.visible && event.keyCode == Keyboard.BACK) {
 				_topToolbar.leftButton.dispatchEvent(new MouseEvent(MouseEvent.CLICK));

@@ -14,5 +14,22 @@ package org.bigbluebutton.util
 				var result:Array = pattern.exec(appURL);
 				return result;
 			}
+			
+			private static function generateRandomString(strlen:Number):String{
+				//var chars:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+				var chars:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+				var num_chars:Number = chars.length - 1;
+				var randomChar:String = "";
+				
+				for (var i:Number = 0; i < strlen; i++){
+					randomChar += chars.charAt(Math.floor(Math.random() * num_chars));
+				}
+				return randomChar;
+			}
+			
+			public static function generateConnId():String {
+				return generateRandomString(16);
+			}
+			
 	}
 }

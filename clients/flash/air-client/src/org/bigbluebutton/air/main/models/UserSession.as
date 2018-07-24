@@ -1,8 +1,8 @@
 package org.bigbluebutton.air.main.models {
 	
-	import org.bigbluebutton.air.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.air.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.air.presentation.models.PresentationList;
+	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
 	import org.bigbluebutton.air.video.models.VideoProfileManager;
 	import org.bigbluebutton.air.video.services.IVideoConnection;
 	import org.bigbluebutton.air.voice.models.PhoneOptions;
@@ -24,10 +24,10 @@ package org.bigbluebutton.air.main.models {
 		
 		protected var _videoConnection:IVideoConnection;
 		
-		protected var _deskshareConnection:IDeskshareConnection;
+		protected var _screenshareConnection:IScreenshareConnection;
 		
 		protected var _presentationList:PresentationList;
-				
+		
 		protected var _phoneOptions:PhoneOptions;
 		
 		protected var _videoAutoStart:Boolean;
@@ -37,9 +37,7 @@ package org.bigbluebutton.air.main.models {
 		protected var _meetingMuted:Boolean;
 		
 		protected var _joinUrl:String;
-		
-		protected var _lockSettings:LockSettings;
-		
+			
 		protected var _pushToTalk:Boolean;
 		
 		protected var _assignedDeskshareSignal:ISignal = new Signal();
@@ -67,11 +65,7 @@ package org.bigbluebutton.air.main.models {
 		public function set videoProfileManager(value:VideoProfileManager):void {
 			_videoProfileManager = value;
 		}
-		
-		public function get lockSettings():LockSettings {
-			return _lockSettings;
-		}
-		
+				
 		public function get meetingMuted():Boolean {
 			return _meetingMuted;
 		}
@@ -144,12 +138,12 @@ package org.bigbluebutton.air.main.models {
 			_videoConnection = value;
 		}
 		
-		public function get deskshareConnection():IDeskshareConnection {
-			return _deskshareConnection;
+		public function get screenshareConnection():IScreenshareConnection {
+			return _screenshareConnection;
 		}
 		
-		public function set deskshareConnection(value:IDeskshareConnection):void {
-			_deskshareConnection = value;
+		public function set screenshareConnection(value:IScreenshareConnection):void {
+			_screenshareConnection = value;
 			_assignedDeskshareSignal.dispatch();
 		}
 		
@@ -164,7 +158,6 @@ package org.bigbluebutton.air.main.models {
 		
 		public function UserSession() {
 			_presentationList = new PresentationList();
-			_lockSettings = new LockSettings();
 		}
 		
 		public function get presentationList():PresentationList {
@@ -186,5 +179,6 @@ package org.bigbluebutton.air.main.models {
 		public function get authTokenSignal():ISignal {
 			return _authTokenSignal;
 		}
+	
 	}
 }

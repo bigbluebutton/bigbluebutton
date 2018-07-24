@@ -1,8 +1,7 @@
 package org.bigbluebutton.air.main.models {
-	
-	import org.bigbluebutton.air.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.air.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.air.presentation.models.PresentationList;
+	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
 	import org.bigbluebutton.air.video.models.VideoProfileManager;
 	import org.bigbluebutton.air.video.services.IVideoConnection;
 	import org.bigbluebutton.air.voice.models.PhoneOptions;
@@ -30,15 +29,14 @@ package org.bigbluebutton.air.main.models {
 		function set voiceStreamManager(value:VoiceStreamManager):void;
 		function get videoConnection():IVideoConnection;
 		function set videoConnection(value:IVideoConnection):void;
-		function get deskshareConnection():IDeskshareConnection;
-		function set deskshareConnection(value:IDeskshareConnection):void;
+		function get screenshareConnection():IScreenshareConnection;
+		function set screenshareConnection(value:IScreenshareConnection):void;
 		function get presentationList():PresentationList;
 		function get assignedDeskshareSignal():ISignal;
 		function get logoutSignal():Signal;
 		function get videoProfileManager():VideoProfileManager
 		function set videoProfileManager(value:VideoProfileManager):void;
 		function get authTokenSignal():ISignal
-		function get lockSettings():LockSettings;
 		function set meetingMuted(mute:Boolean):void;
 		function get meetingMuted():Boolean;
 		function get pushToTalk():Boolean;

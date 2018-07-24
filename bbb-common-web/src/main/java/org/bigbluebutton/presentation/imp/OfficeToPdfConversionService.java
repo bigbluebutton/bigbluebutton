@@ -22,17 +22,18 @@ package org.bigbluebutton.presentation.imp;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import com.google.gson.Gson;
+
 import org.bigbluebutton.presentation.ConversionMessageConstants;
-import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jodconverter.OfficeDocumentConverter;
 import org.jodconverter.office.DefaultOfficeManagerBuilder;
 import org.jodconverter.office.OfficeException;
 import org.jodconverter.office.OfficeManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class OfficeToPdfConversionService {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
@@ -58,39 +59,39 @@ public class OfficeToPdfConversionService {
     if (SupportedFileTypes.isOfficeFile(pres.getFileType())) {
       boolean valid = officeDocumentValidator.isValid(pres);
       if (!valid) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("message", "Problems detected prior to converting the file to PDF.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
 
         pres.setConversionStatus(ConversionMessageConstants.OFFICE_DOC_CONVERSION_INVALID_KEY);
         return pres;
       }
       File pdfOutput = setupOutputPdfFile(pres);
       if (convertOfficeDocToPdf(pres, pdfOutput)) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("message", "Successfully converted office file to pdf.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.info("-- analytics -- " + logStr);
+        log.info("-- analytics -- {}", logStr);
 
         makePdfTheUploadedFileAndSetStepAsSuccess(pres, pdfOutput);
       } else {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("message", "Failed to convert " + pres.getUploadedFile().getAbsolutePath() + " to Pdf.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
       }
     }
     return pres;
@@ -103,7 +104,7 @@ public class OfficeToPdfConversionService {
   private File setupOutputPdfFile(UploadedPresentation pres) {
     File presentationFile = pres.getUploadedFile();
     String filenameWithoutExt = presentationFile.getAbsolutePath().substring(0,
-        presentationFile.getAbsolutePath().lastIndexOf("."));
+        presentationFile.getAbsolutePath().lastIndexOf('.'));
     return new File(filenameWithoutExt + ".pdf");
   }
 

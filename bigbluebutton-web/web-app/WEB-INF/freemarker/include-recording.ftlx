@@ -22,6 +22,7 @@
     <breakout>
         <parentId>${breakout.getParentMeetingId()}</parentId>
         <sequence>${breakout.getSequence()?c}</sequence>
+        <freeJoin>${breakout.isFreeJoin()?c}</freeJoin>
     </breakout>
 </#if>
 

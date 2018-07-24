@@ -28,7 +28,7 @@ package org.bigbluebutton.core.managers {
     
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.common.logging.LogUtil;
     import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.model.Config;
     import org.bigbluebutton.main.events.ConfigLoadedEvent;

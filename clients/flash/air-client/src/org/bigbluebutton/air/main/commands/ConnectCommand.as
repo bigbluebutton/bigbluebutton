@@ -4,7 +4,6 @@ package org.bigbluebutton.air.main.commands {
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.air.chat.services.IChatMessageService;
-	import org.bigbluebutton.air.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
@@ -12,10 +11,11 @@ package org.bigbluebutton.air.main.commands {
 	import org.bigbluebutton.air.main.utils.DisconnectEnum;
 	import org.bigbluebutton.air.poll.services.IPollService;
 	import org.bigbluebutton.air.presentation.services.IPresentationService;
+	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
+	import org.bigbluebutton.air.screenshare.services.IScreenshareService;
 	import org.bigbluebutton.air.user.models.User2x;
 	import org.bigbluebutton.air.user.models.UserChangeEnum;
 	import org.bigbluebutton.air.user.services.IUsersService;
-	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.services.IVideoConnection;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.air.voice.models.PhoneOptions;
@@ -47,7 +47,7 @@ package org.bigbluebutton.air.main.commands {
 		public var voiceConnection:IVoiceConnection;
 		
 		[Inject]
-		public var deskshareConnection:IDeskshareConnection;
+		public var screenshareConnection:IScreenshareConnection;
 		
 		[Inject]
 		public var uri:String;
@@ -68,6 +68,9 @@ package org.bigbluebutton.air.main.commands {
 		public var chatService:IChatMessageService;
 		
 		[Inject]
+		public var screenshareService:IScreenshareService;
+		
+		[Inject]
 		public var presentationService:IPresentationService;
 		
 		[Inject]
@@ -81,10 +84,7 @@ package org.bigbluebutton.air.main.commands {
 		
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
-		
-		[Inject]
-		public var shareCameraSignal:ShareCameraSignal;
-		
+			
 		private var authTokenTimeout:Timer;
 		
 		private var joinMeetingTimeout:Timer;
@@ -111,6 +111,7 @@ package org.bigbluebutton.air.main.commands {
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
 			voiceService.setupMessageSenderReceiver();
+			screenshareService.setupMessageSenderReceiver();
 			pollService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
 			userSession.authTokenSignal.add(onAuthTokenReply);
@@ -166,13 +167,16 @@ package org.bigbluebutton.air.main.commands {
 				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
 			
-			trace("Configuring deskshare");
-			//deskshareConnection.applicationURI = userSession.config.getConfigFor("DeskShareModule").@uri;
-			//deskshareConnection.room = conferenceParameters.room;
-			//deskshareConnection.connect();
-			//userSession.deskshareConnection = deskshareConnection;
+			trace("Configuring Screenshare");
+			screenshareConnection.uri = userSession.config.getConfigFor("ScreenshareModule").@uri;
+			screenshareConnection.connect();
+			userSession.screenshareConnection = screenshareConnection;
+			
 			usersService.joinMeeting();
+
 			meetingData.users.userChangeSignal.add(userChangeListener);
+			
+			
 			joinMeetingTimeout = new Timer(5000, 1);
 			joinMeetingTimeout.addEventListener(TimerEvent.TIMER, onJoinMeetingTimeout);
 			joinMeetingTimeout.start();
@@ -194,7 +198,7 @@ package org.bigbluebutton.air.main.commands {
 				// Query the server for chat, users, and presentation info
 				chatService.getGroupChats();
 				presentationService.getPresentationPods();
-				meetingData.users.userChangeSignal.add(successUsersAdded);
+				meetingData.users.usersAddedSignal.add(successUsersAdded);
 				usersService.queryForParticipants();
 				usersService.getLockSettings();
 				usersService.getRoomLockState();
@@ -210,8 +214,8 @@ package org.bigbluebutton.air.main.commands {
 			joiningMeetingFailure(DisconnectEnum.JOIN_MEETING_TIMEOUT);
 		}
 		
-		protected function successUsersAdded(user:User2x, property:int):void {
-			meetingData.users.userChangeSignal.remove(successUsersAdded);
+		protected function successUsersAdded():void {
+			meetingData.users.usersAddedSignal.remove(successUsersAdded);
 			connectingFinishedSignal.dispatch();
 		}
 		

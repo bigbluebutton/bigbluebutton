@@ -1,0 +1,61 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.starRating {
+  font-family: 'bbb-icons' !important;
+  > fieldset {
+    border: none;
+    display: inline-block;
+
+    &:not(:checked) {
+      > input {
+        position: absolute;
+        top: -9999px;
+        clip: rect(0,0,0,0);
+      }
+
+      > label {
+        float: right;
+        width: 1em;
+        padding: 0 .05em;
+        overflow: hidden;
+        white-space: nowrap;
+        cursor: pointer;
+        font-size: 2.5rem;
+        padding-left: .1rem;
+        color: black;
+        font-weight: 100;
+
+        @include mq($small-only) {
+          font-size: 2rem;
+        };
+
+        &:before {
+          content: '\e951';
+        }
+
+        &:hover,
+        &:hover ~ label {
+          color: $color-primary;
+          text-shadow: 0 0 3px $color-primary;
+          &:before {
+            content: '\e951';
+          }
+        }
+      }
+    }
+
+    > input:checked {
+      & ~ label {
+        &:before {
+          content: '\e952';
+          color: $color-primary;
+        }
+      }
+    }
+
+    > label:active {
+      position: relative;
+      top: 2px;
+    }
+  }
+}

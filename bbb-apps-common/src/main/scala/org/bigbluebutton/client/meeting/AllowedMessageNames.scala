@@ -34,6 +34,7 @@ object AllowedMessageNames {
       GetGuestPolicyReqMsg.NAME,
       SetGuestPolicyCmdMsg.NAME,
       GuestsWaitingApprovedMsg.NAME,
+      UserInactivityAuditResponseMsg.NAME,
 
       // Webcams
       GetWebcamsOnlyForModeratorReqMsg.NAME,
@@ -106,6 +107,9 @@ object AllowedMessageNames {
       BreakoutRoomsListMsg.NAME,
 
         // System
-      ClientToServerLatencyTracerMsg.NAME
+      ClientToServerLatencyTracerMsg.NAME,
+      
+      // Third-party Message
+      LookUpUserReqMsg.NAME
   )
 }

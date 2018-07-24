@@ -34,7 +34,7 @@ module.exports.videoConfiguration = {
     codecName: 'H264',
     frameRate: '30.000000',
     codecRate: '90000'
-};     
+};
 
 module.exports.generateStreamUrl = function (address, meeting, path) {
   return "rtmp://" + address + "/video-broadcast/" + meeting + "/" + path;

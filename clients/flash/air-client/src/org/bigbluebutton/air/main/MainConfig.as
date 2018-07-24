@@ -10,8 +10,8 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.BannerViewMediator;
 	import org.bigbluebutton.air.main.views.DisconnectView;
 	import org.bigbluebutton.air.main.views.DisconnectViewMediator;
-	import org.bigbluebutton.air.main.views.EmojiPopUp;
-	import org.bigbluebutton.air.main.views.EmojiPopUpMediator;
+	import org.bigbluebutton.air.main.views.EmojiCallout;
+	import org.bigbluebutton.air.main.views.EmojiCalloutMediator;
 	import org.bigbluebutton.air.main.views.ExitView;
 	import org.bigbluebutton.air.main.views.ExitViewMediator;
 	import org.bigbluebutton.air.main.views.LoadingScreen;
@@ -24,6 +24,8 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
 	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	import org.bigbluebutton.air.main.views.TopToolbarMediator;
+	import org.bigbluebutton.air.main.views.UserInactivityPopUp;
+	import org.bigbluebutton.air.main.views.UserInactivityPopUpMediator;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -58,10 +60,11 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(BannerView).toMediator(BannerViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase)).toMediator(TopToolbarMediator);
 			mediatorMap.map(MenuButtons).toMediator(MenuButtonsMediator);
-			mediatorMap.map(EmojiPopUp).toMediator(EmojiPopUpMediator);
+			mediatorMap.map(EmojiCallout).toMediator(EmojiCalloutMediator);
 			mediatorMap.map(ExitView).toMediator(ExitViewMediator);
 			mediatorMap.map(DisconnectView).toMediator(DisconnectViewMediator);
 			mediatorMap.map(MainView).toMediator(MainViewMediator);
+			mediatorMap.map(UserInactivityPopUp).toMediator(UserInactivityPopUpMediator);
 		}
 		
 		/**

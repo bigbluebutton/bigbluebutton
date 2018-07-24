@@ -1,0 +1,14 @@
+@import "../../stylesheets/variables/_all";
+
+.selectParent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.select {
+    background-color: $color-white;
+    width: 50%;
+    margin: 1rem;
+    border-color: $color-gray-lighter;
+}

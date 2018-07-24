@@ -77,8 +77,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case RemovePresentationEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
-      case SetPresentationDownloadableEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case SetCurrentPresentationEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
 

@@ -33,16 +33,12 @@
         fontSize: 12.750;
     }
 
-    main|TopToolbarBase {
-        height: 30.000;
-    }
-
     views|NoTabView {
         toolbarHeight: 30.000;
     }
 
     main|MainView {
-        menuHeight: 60.000;
+        menuHeight: 41.250;
     }
 
     main|MenuButtons {
@@ -50,9 +46,7 @@
     }
 
     skins|MenuButtonSkin {
-        fontSize: 9.000;
-        iconSize: 13.500;
-        labelPadding: 4.500;
+        iconSize: 15.000;
     }
 
     chat|NewMessagesIndicator {
@@ -64,8 +58,8 @@
         padding: 5.250;
         gap: 3.000;
         leftIndent: 16.500;
-        fontSize: 10.500;
-        nameFontSize: 10.500;
+        fontSize: 12.000;
+        nameFontSize: 12.000;
         timeFontSize: 10.500;
     }
 
@@ -77,7 +71,7 @@
         padding: 11.250;
     }
 
-    main|ExitView, main|DisconnectView {
+    main|ExitView, main|DisconnectView, main|UserInactivityPopUp {
         gap: 11.250;
         padding: 11.250;
     }
@@ -117,13 +111,19 @@
         fontSize: 9.000;
     }
 
-    main|EmojiPopUp {
+    main|EmojiCallout {
+        minListWidth: 82.500;
         fontSize: 8.250;
     }
 
-    poll|PollButtons {
+    main|MobilePopUp {
+        cornerRadius: 3.000;
+        fontSize: 8.250;
         padding: 4.500;
-        gap: 6.750;
+    }
+
+    .mobilePopUpUniqueButton, .mobilePopUpFirstButton, .mobilePopUpLastButton, .mobilePopUpLastButton {
+        cornerRadius: 3.000;
     }
 
     .icon {
@@ -131,8 +131,8 @@
     }
 
     .sendButton {
-        borderWeight: .750;
         diameter: 21.000;
+        fontSize: 11.250;
     }
 
     .titleGroup {
@@ -143,6 +143,8 @@
 
     .topButton {
         fontSize: 16.500;
+        height: 28.500;
+        width: 28.500;
     }
 
     .saveButton {
@@ -150,11 +152,11 @@
     }
 
     .topLeftButton {
-        left: 11.250;
+        left: 0;
     }
 
     .topRightButton {
-        right: 11.250;
+        right: 0;
     }
 
     .actionButton {
@@ -191,6 +193,8 @@
 
     .chatIcon, .settingsIcon {
         fontSize: 16.500;
+        width: 16.500;
+        height: 16.500;
     }
 
     .recordIcon {
@@ -200,12 +204,6 @@
     .chatRoomItem {
         fontSize: 12.750;
         padding: 11.250;
-    }
-
-    .sendButton {
-        fontSize: 7.500;
-        borderWeight: .750;
-        cornerRadius: 1.500;
     }
 
     .echoTestLabel {
