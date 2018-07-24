@@ -56,6 +56,7 @@ const DesktopShare = ({
       circle
       size="lg"
       onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
+      id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
     />
     : null)
 );
