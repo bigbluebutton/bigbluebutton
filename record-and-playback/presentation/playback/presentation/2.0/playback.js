@@ -17,7 +17,7 @@
 *
 */
 
-const defaultCopyright = '<p>Recorded with <a target="_blank" href="http://mconf.org/">Mconf</a>.</p><p>Use <a target="_blank" href="http://mozilla.org/firefox">Mozilla Firefox</a> or <a target="_blank" href="http://google.com/chrome/">Google Chrome</a> to play this recording.</p>';
+const defaultCopyright = '<p>Recorded with <a target="_blank" href="https://bigbluebutton.org/">BigBlueButton</a>.</p><p>Use <a target="_blank" href="http://mozilla.org/firefox">Mozilla Firefox</a> or <a target="_blank" href="http://google.com/chrome/">Google Chrome</a> to play this recording.</p>';
 const defaultLogo = 'logo.png';
 
 // Playback events
