@@ -9,6 +9,7 @@ import logger from '/imports/startup/client/logger';
 
 import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
@@ -168,6 +169,7 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
+    const { mountModal } = this.props;
     const presentationsToSave = this.state.presentations
       .filter(p => !p.upload.error && !p.conversion.error);
 
@@ -186,7 +188,7 @@ class PresentationUploader extends Component {
             preventClosing: false,
           });
 
-          return;
+          return mountModal(null);
         }
 
         // if theres error we dont want to close the modal
@@ -214,7 +216,11 @@ class PresentationUploader extends Component {
   }
 
   handleDismiss() {
+    const { mountModal } = this.props;
+
     return new Promise((resolve) => {
+      mountModal(null);
+
       this.setState({
         preventClosing: false,
         disableActions: false,
@@ -519,4 +525,4 @@ class PresentationUploader extends Component {
 PresentationUploader.propTypes = propTypes;
 PresentationUploader.defaultProps = defaultProps;
 
-export default injectIntl(PresentationUploader);
+export default withModalMounter(injectIntl(PresentationUploader));
