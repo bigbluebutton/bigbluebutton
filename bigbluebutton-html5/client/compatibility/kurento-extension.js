@@ -3,13 +3,6 @@ const isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 const isChrome = !!window.chrome && !isOpera;
 const isSafari = navigator.userAgent.indexOf('Safari') >= 0 && !isChrome;
 const kurentoHandler = null;
-const SEND_ROLE = "send";
-const RECV_ROLE = "recv";
-const SFU_APP = "screenshare";
-const ON_ICE_CANDIDATE_MSG = "onIceCandidate";
-const START_MSG = "start";
-const START_RESPONSE_MSG = "startResponse";
-const PING_INTERVAL = 15000;
 
 Kurento = function (
   tag,
@@ -36,6 +29,13 @@ Kurento = function (
   // chromeScreenshareSources, firefoxScreenshareSource
 
   Object.assign(this, options);
+
+  this.SEND_ROLE = "send";
+  this.RECV_ROLE = "recv";
+  this.SFU_APP = "screenshare";
+  this.ON_ICE_CANDIDATE_MSG = "iceCandidate";
+  this.PING_INTERVAL = 15000;
+
 
   if (this.wsUrl == null) {
     this.defaultPath = 'bbb-webrtc-sfu';
@@ -218,7 +218,7 @@ Kurento.prototype.init = function () {
       self.onFail('Websocket connection error');
     };
     this.ws.onopen = function () {
-      self.pingInterval = setInterval(self.ping.bind(self), PING_INTERVAL);
+      self.pingInterval = setInterval(self.ping.bind(self), self.PING_INTERVAL);
       self.mediaCallback();
     };
   } else { console.log('this browser does not support websockets'); }
@@ -259,10 +259,10 @@ Kurento.prototype.startResponse = function (message) {
     console.warn(`Call not accepted for the following reason: ${errorMsg}`);
     switch (message.type) {
       case 'screenshare':
-        if (message.role === SEND_ROLE) {
+        if (message.role === this.SEND_ROLE) {
           kurentoManager.exitScreenShare();
         }
-        else if (message.role === RECV_ROLE) {
+        else if (message.role === this.RECV_ROLE) {
           kurentoManager.exitVideo();
         }
         break;
@@ -287,8 +287,8 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
 
   const message = {
     id: 'start',
-    type: SFU_APP,
-    role: SEND_ROLE,
+    type: this.SFU_APP,
+    role: this.SEND_ROLE,
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
     callerName: self.userId,
@@ -317,7 +317,7 @@ Kurento.prototype.startScreensharing = function () {
   const options = {
     localVideo: document.getElementById(this.renderTag),
     onicecandidate: (candidate) => {
-      this.onIceCandidate(candidate, SEND_ROLE);
+      this.onIceCandidate(candidate, this.SEND_ROLE);
     },
     sendSource: 'desktop',
   };
@@ -361,9 +361,9 @@ Kurento.prototype.onIceCandidate = function (candidate, role) {
   console.log(`Local candidate${JSON.stringify(candidate)}`);
 
   const message = {
-    id: ON_ICE_CANDIDATE_MSG,
+    id: this.ON_ICE_CANDIDATE_MSG,
     role: role,
-    type: SFU_APP,
+    type: this.SFU_APP,
     voiceBridge: self.voiceBridge,
     candidate,
     callerName: self.userId,
@@ -389,7 +389,7 @@ Kurento.prototype.viewer = function () {
       },
       remoteVideo: document.getElementById(this.renderTag),
       onicecandidate: (candidate) => {
-        this.onIceCandidate(candidate, RECV_ROLE);
+        this.onIceCandidate(candidate, this.RECV_ROLE);
       }
     }
 
@@ -413,8 +413,8 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   }
   const message = {
     id: 'start',
-    type: SFU_APP,
-    role: RECV_ROLE,
+    type: this.SFU_APP,
+    role: this.RECV_ROLE,
     internalMeetingId: self.internalMeetingId,
     voiceBridge: self.voiceBridge,
     callerName: self.userId,
@@ -467,7 +467,7 @@ Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
   console.debug("[onListenOnlyIceCandidate]", JSON.stringify(candidate));
 
   var message = {
-    id : 'iceCandidate',
+    id : this.ON_ICE_CANDIDATE_MSG,
     type: 'audio',
     role: 'viewer',
     voiceBridge: self.voiceBridge,
