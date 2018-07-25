@@ -9,7 +9,7 @@ import VideoService from './service';
 import VideoList from './video-list/component';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
-const intlMessages = defineMessages({
+const intlClientErrors = defineMessages({
   iceCandidateError: {
     id: 'app.video.iceCandidateError',
     description: 'Error message for ice candidate fail',
@@ -26,9 +26,6 @@ const intlMessages = defineMessages({
     id: 'app.video.chromeExtensionErrorLink',
     description: 'Error message for Chrome Extension not installed',
   },
-});
-
-const intlMediaErrorsMessages = defineMessages({
   permissionError: {
     id: 'app.video.permissionError',
     description: 'Error message for webcam permission',
@@ -49,10 +46,41 @@ const intlMediaErrorsMessages = defineMessages({
     id: 'app.video.notReadableError',
     description: 'error message When the webcam is being used by other software',
   },
-  1000: {
-    id: 'app.video.mediaServerOffline',
+});
+
+const intlSFUErrors = defineMessages({
+  2000: {
+    id: 'app.sfu.mediaServerConnectionError2000',
+    description: 'Error message fired when the SFU cannot connect to the media server',
+  },
+  2001: {
+    id: 'app.sfu.mediaServerOffline2001',
     description: 'error message when kurento is offline',
   },
+  2002: {
+    id: 'app.sfu.mediaServerNoResources2002',
+    description: 'Error message fired when the media server lacks disk, CPU or FDs',
+  },
+  2003: {
+    id: 'app.sfu.mediaServerRequestTimeout2003',
+    description: "Error message fired when requests are timing out due to lack of resources",
+  },
+  2021: {
+    id: 'app.sfu.serverIceGatheringFailed2021',
+    description: 'Error message fired when the server cannot enact ICE gathering',
+  },
+  2022: {
+    id: 'app.sfu.serverIceStateFailed2022',
+    description: 'Error message fired when the server endpoint transitioned to a FAILED ICE state',
+  },
+  2202: {
+    id: 'app.sfu.invalidSdp2202',
+    description: 'Error message fired when the clients provides an invalid SDP',
+  },
+  2203: {
+    id: 'app.sfu.noAvailableCodec2203',
+    description: 'Error message fired when the server has no available codec for the client',
+  }
 });
 
 const CAMERA_SHARE_FAILED_WAIT_TIME = 15000;
@@ -244,7 +272,7 @@ class VideoProvider extends Component {
 
       case 'error':
       default:
-        this.handleError(parsedMessage);
+        this.handleSFUError(parsedMessage);
         break;
     }
   }
@@ -302,6 +330,9 @@ class VideoProvider extends Component {
           }
         });
       } else {
+        if (webRtcPeer.iceQueue == null) {
+          webRtcPeer.iceQueue = [];
+        }
         webRtcPeer.iceQueue.push(message.candidate);
       }
     } else {
@@ -393,7 +424,9 @@ class VideoProvider extends Component {
         peer.started = false;
         peer.attached = false;
         peer.didSDPAnswered = false;
-        peer.iceQueue = [];
+        if (peer.iceQueue == null) {
+          peer.iceQueue = [];
+        }
 
         if (error) {
           return this._webRTCOnError(error, id, shareWebcam);
@@ -431,7 +464,7 @@ class VideoProvider extends Component {
       this.logger('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`, {cameraId: id});
 
       if (this.props.userId === id) {
-        this.notifyError(intl.formatMessage(intlMessages.sharingError));
+        this.notifyError(intl.formatMessage(intlClientErrors.sharingError));
         this.unshareWebcam();
         this.destroyWebRTCPeer(id);
       } else {
@@ -456,7 +489,7 @@ class VideoProvider extends Component {
       const candidate = peer.iceQueue.shift();
       peer.addIceCandidate(candidate, (err) => {
         if (err) {
-          this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
+          this.notifyError(intl.formatMessage(intlClientErrors.iceCandidateError));
           return this.logger('error', `Error adding candidate: ${err}`, {cameraId});
         }
       });
@@ -774,13 +807,15 @@ class VideoProvider extends Component {
     }
   }
 
-  handleError(message) {
+  handleSFUError(message) {
     const { intl } = this.props;
     const { userId } = this.props;
-    if (message.cameraId === userId) {
+    const { code, reason } = message;
+    this.logger('debug', 'Received error from SFU:', {code, reason, cameraId: message.streamId, userId});
+    if (message.streamId === userId) {
       this.unshareWebcam();
-      this.notifyError(intl.formatMessage(intlMediaErrorsMessages[message.message]
-        || intlMessages.sharingError));
+      this.notifyError(intl.formatMessage(intlSFUErrors[code]
+        || intlClientErrors.sharingError));
     } else {
       this.stopWebRTCPeer(message.cameraId);
     }
@@ -801,7 +836,7 @@ class VideoProvider extends Component {
       VideoService.joiningVideo();
     } else {
       this.logger('debug', 'Error on sharing webcam');
-      this.notifyError(intl.formatMessage(intlMessages.sharingError));
+      this.notifyError(intl.formatMessage(intlClientErrors.sharingError));
     }
   }
 

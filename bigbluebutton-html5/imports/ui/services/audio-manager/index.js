@@ -145,6 +145,11 @@ class AudioManager {
       setTimeout(reject, 12000, iceGatheringErr);
     });
 
+
+    // Workaround to circumvent the WebKit autoplay policy without prompting
+    // the user to do some action again. A silent stream is played.
+    this.playFakeAudio();
+
     return this.onAudioJoining()
       .then(() => Promise.race([
         bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
@@ -212,6 +217,8 @@ class AudioManager {
         },
       });
     }
+
+    clearInterval(this.fakeAudioInterval);
 
     if (!this.isEchoTest) {
       this.notify(this.messages.info.JOINED_AUDIO);
@@ -351,6 +358,19 @@ class AudioManager {
       error ? 'error' : 'info',
       this.isListenOnly ? 'audio_on' : 'unmute',
     );
+  }
+
+  playFakeAudio() {
+    const outputDeviceId = this.outputDeviceId;
+    const sound = new Audio('resources/sounds/silence.mp3');
+    if (outputDeviceId && sound.setSinkId) {
+      sound.setSinkId(outputDeviceId);
+    }
+    // Hack within the hack: haven't got time to get the right timing to play
+    // the audio on stock listen only, but I'll get back to it - prlanzarin
+    this.fakeAudioInterval = setInterval(() => {
+      sound.play();
+    }, 1000);
   }
 }
 

@@ -48,6 +48,7 @@ const JoinVideoOptions = ({
           description={item.description}
           onClick={item.click}
           tabIndex={-1}
+          id={item.id}
         >
           <img src={item.iconPath} className={styles.imageSize} alt="video menu icon" />
           <span className={styles.label}>{item.label}</span>

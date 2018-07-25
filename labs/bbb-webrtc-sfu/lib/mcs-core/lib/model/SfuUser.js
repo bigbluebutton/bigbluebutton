@@ -42,11 +42,6 @@ module.exports = class SfuUser extends User {
         }
       });
 
-      if (typeof this._mediaSessions[session.id] == 'undefined' ||
-          !this._mediaSessions[session.id]) {
-        this._mediaSessions[session.id] = {};
-      }
-
       this._mediaSessions[session.id] = session;
 
       Logger.info("[mcs-sfu-user] Added new URI session", session.id, "to user", this.id);
@@ -64,10 +59,6 @@ module.exports = class SfuUser extends User {
       }
     });
 
-    if (typeof this._mediaSessions[session.id] == 'undefined' ||
-        !this._mediaSessions[session.id]) {
-      this._mediaSessions[session.id] = {};
-    }
     this._mediaSessions[session.id] = session;
 
     Logger.info("[mcs-sfu-user] Added new SDP session", session.id, "to user", this.id);
@@ -86,10 +77,6 @@ module.exports = class SfuUser extends User {
       }
     });
 
-    if (typeof this._mediaSessions[session.id] == 'undefined' ||
-        !this._mediaSessions[session.id]) {
-      this._mediaSessions[session.id] = {};
-    }
     this._mediaSessions[session.id] = session;
     Logger.info("[mcs-sfu-user] Added new recording session", session.id, "to user", this.id);
 
@@ -187,7 +174,7 @@ module.exports = class SfuUser extends User {
     return new Promise(async (resolve, reject) => {
       try {
         if (session == null) {
-          return reject(this._handleError("[mcs-sfu-user] Source session " + sourceId + " not found"));
+          return reject(this._handleError(C.ERROR.MEDIA_NOT_FOUND));
         }
         Logger.info("[mcs-sfu-user] Connecting sessions " + sourceId + "=>" + sinkId);
         await session.connect(sinkId);
@@ -215,15 +202,5 @@ module.exports = class SfuUser extends User {
       err = this._handleError(err);
       Promise.reject(err);
     }
-  }
-
-  _handleError (error) {
-    Logger.trace("[mcs-sfu-user] SFU User received error", error, error.stack);
-    // Checking if the error needs to be wrapped into a JS Error instance
-    if (!isError(error)) {
-      error = new Error(error);
-    }
-    this._status = C.STATUS.STOPPED;
-    return error;
   }
 }
