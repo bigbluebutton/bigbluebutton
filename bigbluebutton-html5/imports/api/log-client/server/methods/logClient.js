@@ -1,23 +1,19 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-const logClient = function (type, log, ...args) {
+const logClient = function (type, log, fullInfo) {
   const SERVER_CONN_ID = this.connection.id;
   const User = Users.findOne({ connectionId: SERVER_CONN_ID });
-  const logContents = { ...args };
-  let validUser; // local variable that stores the future validUser value
+  const logContents = { fullInfo };
 
   if (User) {
-    if (User.meetingId === args[0].meetingId) {
-      validUser = 'valid';
+    if (User.meetingId === fullInfo.meetingId) {
+      logContents.validUser = 'valid';
     } else {
-      validUser = 'invalid';
+      logContents.validUser = 'invalid';
     }
   } else {
-    validUser = 'notFound';
-  }
-  if (args && args[0]) {
-    args[0].validUser = validUser;
+    logContents.validUser = 'notFound';
   }
 
   if (typeof log === 'string' || log instanceof String) {
