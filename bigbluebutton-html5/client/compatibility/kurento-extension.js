@@ -37,6 +37,8 @@ Kurento = function (
 
   Object.assign(this, options);
 
+  window.Logger = this.logger || console;
+
   if (this.wsUrl == null) {
     this.defaultPath = 'bbb-webrtc-sfu';
     this.hostName = window.location.hostname;
