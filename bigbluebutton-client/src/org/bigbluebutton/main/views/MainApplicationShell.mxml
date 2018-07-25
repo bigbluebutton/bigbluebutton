@@ -501,8 +501,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleUserInactivityAuditEvent(e:BBBEvent):void {
-				var inactivityWarning:UserInactivityAuditWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
-					UserInactivityAuditWindow, true) as UserInactivityAuditWindow;
+				var inactivityWarning:UserInactivityWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
+					UserInactivityWindow, true) as UserInactivityWindow;
 				inactivityWarning.duration = e.payload.duration;
 			}
 			
