@@ -96,9 +96,11 @@ public class ParamsProcessorUtil {
 
     private Integer maxInactivityTimeoutMinutes = 120;
     private Integer clientLogoutTimerInMinutes = 0;
-		private Integer warnMinutesBeforeMax = 5;
-		private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
-		private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+	private Integer warnMinutesBeforeMax = 5;
+	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
+	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+	private Integer userInactivityLogoutTimerInMinutes = 120;
+    private Integer userInactivityResponseDelayInMinutes = 5;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -482,7 +484,9 @@ public class ParamsProcessorUtil {
         meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
         meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
-				meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
+		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
+		meeting.setuserInactivityLogoutTimerInMinutes(userInactivityLogoutTimerInMinutes);
+		meeting.setuserInactivityResponseDelayInMinutes(userInactivityResponseDelayInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -942,7 +946,6 @@ public class ParamsProcessorUtil {
 		return warnMinutesBeforeMax;
 	}
 
-
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
 		meetingExpireWhenLastUserLeftInMinutes = value;
 	}
@@ -954,6 +957,22 @@ public class ParamsProcessorUtil {
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
 		meetingExpireIfNoUserJoinedInMinutes = value;
 	}
+	
+	public Integer getuserInactivityLogoutTimerInMinutes() {
+        return userInactivityLogoutTimerInMinutes;
+    }
+
+    public void setuserInactivityLogoutTimerInMinutes(Integer userInactivityLogoutTimerInMinutes) {
+        this.userInactivityLogoutTimerInMinutes = userInactivityLogoutTimerInMinutes;
+    }
+
+    public Integer getuserInactivityResponseDelayInMinutes() {
+        return userInactivityResponseDelayInMinutes;
+    }
+
+    public void setuserInactivityResponseDelayInMinutes(Integer userInactivityResponseDelayInMinutes) {
+        this.userInactivityResponseDelayInMinutes = userInactivityResponseDelayInMinutes;
+    }
 
 	public void setMaxPresentationFileUpload(Long maxFileSize) {
 		maxPresentationFileUpload = maxFileSize;

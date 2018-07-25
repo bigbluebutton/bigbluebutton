@@ -132,7 +132,9 @@ class MeetingActor(
     lastUserLeftOnInMs = None,
     durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
-    meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes)
+    meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes),
+    userInactivityLogoutTimerInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityLogoutTimerInMinutes),
+    userInactivityResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityResponseDelayInMinutes)
   )
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
@@ -560,7 +562,7 @@ class MeetingActor(
 
   def processUserInactivityAudit(): Unit = {
     val now = TimeUtil.timeNowInMs()
-    val auditTimerMs = TimeUtil.minutesToMillis(userInactivityAuditTimer)
+    val auditTimerMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityLogoutTimerInMinutes)
     if (now - lastUserInactivitySentOn > auditTimerMs) {
       lastUserInactivitySentOn = now
       checkInactiveUsers = true
@@ -568,7 +570,7 @@ class MeetingActor(
       outGW.send(event)
     }
 
-    val auditResponseMs = TimeUtil.minutesToMillis(userInactivityAuditResponseDuration)
+    val auditResponseMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityResponseDelayInMinutes)
     if (checkInactiveUsers && now - lastUserInactivitySentOn > auditResponseMs) {
       checkInactiveUsers = false
       checkForInactiveUsers()
@@ -576,7 +578,7 @@ class MeetingActor(
   }
 
   def checkForInactiveUsers(): Unit = {
-    val auditResponseMs = TimeUtil.minutesToMillis(userInactivityAuditResponseDuration)
+    val auditResponseMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityResponseDelayInMinutes)
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
       val respondedOntIme = lastUserInactivitySentOn < u.inactivityResponseOn && (lastUserInactivitySentOn + auditResponseMs) > u.inactivityResponseOn
@@ -590,7 +592,7 @@ class MeetingActor(
   def buildUserInactivityAuditMsg(meetingId: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "system")
     val envelope = BbbCoreEnvelope(UserInactivityAuditMsg.NAME, routing)
-    val body = UserInactivityAuditMsgBody(meetingId, TimeUtil.minutesToSeconds(userInactivityAuditResponseDuration))
+    val body = UserInactivityAuditMsgBody(meetingId, TimeUtil.minutesToSeconds(props.durationProps.userInactivityResponseDelayInMinutes))
     val header = BbbClientMsgHeader(UserInactivityAuditMsg.NAME, meetingId, "system")
     val event = UserInactivityAuditMsg(header, body)
 

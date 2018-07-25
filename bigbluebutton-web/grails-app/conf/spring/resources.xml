@@ -145,6 +145,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
+        <property name="userInactivityLogoutTimerInMinutes" value="${userInactivityLogoutTimerInMinutes}"/>
+        <property name="userInactivityResponseDelayInMinutes" value="${userInactivityResponseDelayInMinutes}"/>
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>

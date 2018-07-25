@@ -82,6 +82,8 @@ public class Meeting {
 	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+	private Integer userInactivityLogoutTimerInMinutes = 120;
+	private Integer userInactivityResponseDelayInMinutes = 5;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -510,7 +512,22 @@ public class Meeting {
 	public Integer getMeetingExpireIfNoUserJoinedInMinutes() {
 		return meetingExpireIfNoUserJoinedInMinutes;
 	}
+	
+   public Integer getuserInactivityLogoutTimerInMinutes() {
+        return userInactivityLogoutTimerInMinutes;
+    }
 
+    public void setuserInactivityLogoutTimerInMinutes(Integer userInactivityLogoutTimerInMinutes) {
+        this.userInactivityLogoutTimerInMinutes = userInactivityLogoutTimerInMinutes;
+    }
+
+    public Integer getuserInactivityResponseDelayInMinutes() {
+        return userInactivityResponseDelayInMinutes;
+    }
+
+    public void setuserInactivityResponseDelayInMinutes(Integer userInactivityResponseDelayInMinutes) {
+        this.userInactivityResponseDelayInMinutes = userInactivityResponseDelayInMinutes;
+    }
 
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);

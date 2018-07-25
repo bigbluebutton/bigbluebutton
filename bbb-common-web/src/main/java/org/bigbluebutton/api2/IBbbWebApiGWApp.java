@@ -22,6 +22,8 @@ public interface IBbbWebApiGWApp {
                      Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
+                     Integer userInactivityLogoutTimerInMinutes,
+                     Integer userInactivityResponseDelayInMinutes,
                      Boolean muteOnStart);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
