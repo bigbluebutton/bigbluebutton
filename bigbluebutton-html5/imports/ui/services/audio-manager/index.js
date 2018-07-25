@@ -7,6 +7,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
+import Service from '/imports/ui/components/audio/service';
 
 const MEDIA = Meteor.settings.public.media;
 const USE_SIP = MEDIA.useSIPAudio;
@@ -144,6 +145,11 @@ class AudioManager {
     const iceGatheringTimeout = new Promise((resolve, reject) => {
       setTimeout(reject, 12000, iceGatheringErr);
     });
+
+
+    // Workaround to circumvent the WebKit autoplay policy without prompting
+    // the user to do some action again. A silent stream is played.
+    this.playFakeAudio();
 
     return this.onAudioJoining()
       .then(() => Promise.race([
@@ -351,6 +357,15 @@ class AudioManager {
       error ? 'error' : 'info',
       this.isListenOnly ? 'audio_on' : 'unmute',
     );
+  }
+
+  playFakeAudio() {
+    const outputDeviceId = Service.outputDeviceId();
+    const sound = new Audio('resources/sounds/notify.mp3');
+    if (outputDeviceId && sound.setSinkId) {
+      sound.setSinkId(out);
+    }
+    sound.play();
   }
 }
 
