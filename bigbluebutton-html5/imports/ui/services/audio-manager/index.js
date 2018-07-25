@@ -7,7 +7,6 @@ import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import Service from '/imports/ui/components/audio/service';
 
 const MEDIA = Meteor.settings.public.media;
 const USE_SIP = MEDIA.useSIPAudio;
@@ -219,6 +218,8 @@ class AudioManager {
       });
     }
 
+    clearInterval(this.fakeAudioInterval);
+
     if (!this.isEchoTest) {
       this.notify(this.messages.info.JOINED_AUDIO);
     }
@@ -360,12 +361,16 @@ class AudioManager {
   }
 
   playFakeAudio() {
-    const outputDeviceId = Service.outputDeviceId();
-    const sound = new Audio('resources/sounds/notify.mp3');
+    const outputDeviceId = this.outputDeviceId;
+    const sound = new Audio('resources/sounds/silence.mp3');
     if (outputDeviceId && sound.setSinkId) {
-      sound.setSinkId(out);
+      sound.setSinkId(outputDeviceId);
     }
-    sound.play();
+    // Hack within the hack: haven't got time to get the right timing to play
+    // the audio on stock listen only, but I'll get back to it - prlanzarin
+    this.fakeAudioInterval = setInterval(() => {
+      sound.play();
+    }, 1000);
   }
 }
 
