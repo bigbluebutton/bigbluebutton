@@ -133,6 +133,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
     z-index: 3;
     height: auto;
     top: $navbar-height;
+    overflow: visible;
   }
 
   @include mq($medium-up) {

@@ -42,6 +42,7 @@ const JoinVideoOptionsContainer = (props) => {
       label: intl.formatMessage(intlMessages.swapCam),
       disabled: !swapLayoutAllowed,
       click: toggleSwapLayout,
+      id: 'swap-button',
     },
     {
       iconPath: `${baseName}/resources/images/video-menu/icon-webcam-off.svg`,
@@ -49,6 +50,7 @@ const JoinVideoOptionsContainer = (props) => {
       label: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
       disabled: isDisabled && !isSharingVideo,
       click: isSharingVideo ? handleCloseVideo : handleJoinVideo,
+      id: isSharingVideo ? 'leave-video-button' : 'join-video-button',
     },
   ];
 

@@ -1388,8 +1388,7 @@ class ApiController {
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL
               customdata = array {
-                userCustomData.each { k, v ->
-                  // Somehow we need to prepend something (custdata) for the JSON to work
+                meeting.getUserCustomData(us.externUserID).each { k, v ->
                   custdata "$k" : v
                 }
               }

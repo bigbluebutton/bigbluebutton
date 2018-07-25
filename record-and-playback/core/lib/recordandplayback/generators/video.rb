@@ -27,7 +27,7 @@ require File.expand_path('../../edl', __FILE__)
 module BigBlueButton
 
 
-  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file)
+  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file, video_formats=['webm'])
     BigBlueButton.logger.info("Processing webcam videos")
 
     # Process user video (camera)
@@ -57,15 +57,25 @@ module BigBlueButton
         :postprocess => [
           [ 'mkclean', '--quiet', ':input', ':output' ]
         ]
+      },
+      {
+        :extension => 'mp4',
+        :parameters => [
+          [ '-c:v', 'libx264', '-crf', '23', '-b:v', '60M',
+            '-threads', '2', '-preset', 'medium', '-cpu-used', '3',
+            '-c:a', 'libmp3lame', '-b:a', '48K',
+            '-f', 'mp4' ]
+        ]
       }
     ]
+    formats.reject!{ |format| ! video_formats.include? format[:extension] }
     formats.each do |format|
       filename = BigBlueButton::EDL::encode(
         processed_audio_file, user_video_file, format, "#{target_dir}/webcams", audio_offset)
     end
   end
 
-  def BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, output_width, output_height)
+  def BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, output_width, output_height, video_formats=['webm'])
     BigBlueButton.logger.info("Processing deskshare videos")
 
     deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
@@ -98,8 +108,18 @@ module BigBlueButton
         :postprocess => [
           [ 'mkclean', '--quiet', ':input', ':output' ]
         ]
+      },
+      {
+        :extension => 'mp4',
+        :parameters => [
+          [ '-c:v', 'libx264', '-crf', '23', '-b:v', '60M',
+            '-threads', '2', '-preset', 'medium', '-cpu-used', '3',
+            '-c:a', 'libmp3lame', '-b:a', '48K',
+            '-f', 'mp4' ]
+        ]
       }
     ]
+    formats.reject!{ |format| ! video_formats.include? format[:extension] }
     formats.each do |format|
       filename = BigBlueButton::EDL::encode(
         nil, deskshare_video_file, format, "#{target_dir}/deskshare", 0)
