@@ -8,6 +8,9 @@ import { styles } from '../styles';
 const propTypes = {
   intl: intlShape.isRequired,
   isUserPresenter: PropTypes.bool.isRequired,
+  handleShareScreen: PropTypes.func.isRequired,
+  handleUnshareScreen: PropTypes.func.isRequired,
+  isVideoBroadcasting: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -47,9 +50,9 @@ const DesktopShare = ({
       className={styles.button}
       icon="desktop"
       label={intl.formatMessage(isVideoBroadcasting ?
-      intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
+          intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
       description={intl.formatMessage(isVideoBroadcasting ?
-      intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
+          intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
       color="primary"
       ghost={false}
       hideLabel
