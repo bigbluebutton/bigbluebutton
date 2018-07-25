@@ -5,15 +5,19 @@ const logClient = function (type, log, ...args) {
   const SERVER_CONN_ID = this.connection.id;
   const User = Users.findOne({ connectionId: SERVER_CONN_ID });
   const logContents = { ...args };
+  let validUser; // local variable that stores the future validUser value
 
   if (User) {
     if (User.meetingId === args[0].meetingId) {
-      args[0].validUser = 'vaild';
+      validUser = 'valid';
     } else {
-      args[0].validUser = 'invaild';
+      validUser = 'invalid';
     }
   } else {
-    args[0].validUser = 'notFound';
+    validUser = 'notFound';
+  }
+  if (args && args[0]) {
+    args[0].validUser = validUser;
   }
 
   if (typeof log === 'string' || log instanceof String) {
