@@ -6,8 +6,9 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
 
 .main {
-  position: relative;
+  position: fixed;
   height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
