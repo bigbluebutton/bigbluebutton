@@ -36,6 +36,7 @@ Kurento = function (
   this.ON_ICE_CANDIDATE_MSG = "iceCandidate";
   this.PING_INTERVAL = 15000;
 
+  window.Logger = this.logger || console;
 
   if (this.wsUrl == null) {
     this.defaultPath = 'bbb-webrtc-sfu';

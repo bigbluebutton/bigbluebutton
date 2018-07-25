@@ -16,7 +16,7 @@ const logClient = function (type, log, ...args) {
     args[0].validUser = 'notFound';
   }
 
-  const topic = typeof logContents[0] == 'Object' ? logContents[0].topic : null;
+  const topic = typeof logContents == 'Object' ? logContents.topic : null;
 
   if (typeof log === 'string' || log instanceof String) {
     Logger.log(type, `${topic || 'CLIENT'} LOG: ${log}\n`, logContents);
