@@ -83,7 +83,7 @@ public class Meeting {
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityLogoutTimerInMinutes = 120;
-	private Integer userInactivityResponseDelayInMinutes = 5;
+	private Integer userActivitySignResponseDelayInMinutes = 5;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -513,20 +513,20 @@ public class Meeting {
 		return meetingExpireIfNoUserJoinedInMinutes;
 	}
 	
-   public Integer getuserInactivityLogoutTimerInMinutes() {
+   public Integer getUserInactivityLogoutTimerInMinutes() {
         return userInactivityLogoutTimerInMinutes;
     }
 
-    public void setuserInactivityLogoutTimerInMinutes(Integer userInactivityLogoutTimerInMinutes) {
+    public void setUserInactivityLogoutTimerInMinutes(Integer userInactivityLogoutTimerInMinutes) {
         this.userInactivityLogoutTimerInMinutes = userInactivityLogoutTimerInMinutes;
     }
 
-    public Integer getuserInactivityResponseDelayInMinutes() {
-        return userInactivityResponseDelayInMinutes;
+    public Integer getUserActivitySignResponseDelayInMinutes() {
+        return userActivitySignResponseDelayInMinutes;
     }
 
-    public void setuserInactivityResponseDelayInMinutes(Integer userInactivityResponseDelayInMinutes) {
-        this.userInactivityResponseDelayInMinutes = userInactivityResponseDelayInMinutes;
+    public void setUserActivitySignResponseDelayInMinutes(Integer userActivitySignResponseDelayInMinutes) {
+        this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
 	public Map<String, Object> getUserCustomData(String userID){

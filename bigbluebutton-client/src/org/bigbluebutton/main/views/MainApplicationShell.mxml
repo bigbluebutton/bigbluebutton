@@ -62,7 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 		<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 		<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
-		<mate:Listener type="{BBBEvent.USER_INACTIVITY_AUDIT_EVENT}" method="handleUserInactivityAuditEvent" />
+		<mate:Listener type="{BBBEvent.USER_INACTIVITY_INSPECT_EVENT}" method="handleUserInactivityInspectEvent" />
 		<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 		<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
 		
@@ -500,7 +500,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.addChild(e.component);
 			}
 			
-			private function handleUserInactivityAuditEvent(e:BBBEvent):void {
+			private function handleUserInactivityInspectEvent(e:BBBEvent):void {
 				var inactivityWarning:UserInactivityWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
 					UserInactivityWindow, true) as UserInactivityWindow;
 				inactivityWarning.duration = e.payload.duration;

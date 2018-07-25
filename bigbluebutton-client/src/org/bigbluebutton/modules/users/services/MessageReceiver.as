@@ -224,17 +224,17 @@ package org.bigbluebutton.modules.users.services
         case "GetGuestsWaitingApprovalRespMsg":
           handleGetGuestsWaitingApprovalRespMsg(message);
           break;
-				case "UserInactivityAuditMsg":
-					handleUserInactivityAuditMsg(message);
-					break;
+		case "UserInactivityInspectMsg":
+		  handleUserInactivityInspectMsg(message);
+		  break;
       }
     }
     
-		private function handleUserInactivityAuditMsg(msg: Object):void {
+		private function handleUserInactivityInspectMsg(msg: Object):void {
 			var header: Object = msg.header as Object;
 			var body: Object = msg.body as Object;
 			
-			var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_INACTIVITY_AUDIT_EVENT);    
+			var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_INACTIVITY_INSPECT_EVENT);    
 			bbbEvent.payload.duration = body.responseDuration as Number;
 			globalDispatcher.dispatchEvent(bbbEvent);
 		}

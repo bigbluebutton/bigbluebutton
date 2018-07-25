@@ -5,7 +5,7 @@ import java.io.{ PrintWriter, StringWriter }
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.apps.groupchats.{ GroupChatApp, GroupChatHdlrs }
+import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
 import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
@@ -36,7 +36,6 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
-import org.bigbluebutton.core2.testdata.FakeTestData
 
 object MeetingActor {
   def props(
@@ -81,7 +80,7 @@ class MeetingActor(
     with SyncGetMeetingInfoRespMsgHdlr
     with ClientToServerLatencyTracerMsgHdlr
     with ValidateConnAuthTokenSysMsgHdlr
-    with UserInactivityAuditResponseMsgHdlr {
+    with UserActivitySignResponseMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -134,7 +133,7 @@ class MeetingActor(
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes),
     userInactivityLogoutTimerInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityLogoutTimerInMinutes),
-    userInactivityResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityResponseDelayInMinutes)
+    userActivitySignResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes)
   )
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
@@ -371,7 +370,7 @@ class MeetingActor(
 
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
 
-      case m: UserInactivityAuditResponseMsg => handleUserInactivityAuditResponseMsg(m)
+      case m: UserActivitySignResponseMsg => handleUserActivitySignResponseMsg(m)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }
@@ -566,11 +565,11 @@ class MeetingActor(
     if (now - lastUserInactivitySentOn > auditTimerMs) {
       lastUserInactivitySentOn = now
       checkInactiveUsers = true
-      val event = buildUserInactivityAuditMsg(liveMeeting.props.meetingProp.intId)
+      val event = buildUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId)
       outGW.send(event)
     }
 
-    val auditResponseMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityResponseDelayInMinutes)
+    val auditResponseMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes)
     if (checkInactiveUsers && now - lastUserInactivitySentOn > auditResponseMs) {
       checkInactiveUsers = false
       checkForInactiveUsers()
@@ -578,10 +577,10 @@ class MeetingActor(
   }
 
   def checkForInactiveUsers(): Unit = {
-    val auditResponseMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityResponseDelayInMinutes)
+    val auditResponseMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes)
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val respondedOntIme = lastUserInactivitySentOn < u.inactivityResponseOn && (lastUserInactivitySentOn + auditResponseMs) > u.inactivityResponseOn
+      val respondedOntIme = lastUserInactivitySentOn < u.lastActivityTime && (lastUserInactivitySentOn + auditResponseMs) > u.lastActivityTime
       if (!respondedOntIme) {
         UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
@@ -589,12 +588,12 @@ class MeetingActor(
     }
   }
 
-  def buildUserInactivityAuditMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+  def buildUserInactivityInspectMsg(meetingId: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "system")
-    val envelope = BbbCoreEnvelope(UserInactivityAuditMsg.NAME, routing)
-    val body = UserInactivityAuditMsgBody(meetingId, TimeUtil.minutesToSeconds(props.durationProps.userInactivityResponseDelayInMinutes))
-    val header = BbbClientMsgHeader(UserInactivityAuditMsg.NAME, meetingId, "system")
-    val event = UserInactivityAuditMsg(header, body)
+    val envelope = BbbCoreEnvelope(UserInactivityInspectMsg.NAME, routing)
+    val body = UserInactivityInspectMsgBody(meetingId, TimeUtil.minutesToSeconds(props.durationProps.userActivitySignResponseDelayInMinutes))
+    val header = BbbClientMsgHeader(UserInactivityInspectMsg.NAME, meetingId, "system")
+    val event = UserInactivityInspectMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

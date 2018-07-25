@@ -4,7 +4,7 @@ case class ConfigProps(defaultConfigToken: String, config: String)
 
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String, maxInactivityTimeoutMinutes: Int,
                          warnMinutesBeforeMax: Int, meetingExpireIfNoUserJoinedInMinutes: Int,
-                         meetingExpireWhenLastUserLeftInMinutes: Int, userInactivityLogoutTimerInMinutes: Int, userInactivityResponseDelayInMinutes: Int)
+                         meetingExpireWhenLastUserLeftInMinutes: Int, userInactivityLogoutTimerInMinutes: Int, userActivitySignResponseDelayInMinutes: Int)
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 

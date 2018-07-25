@@ -76,8 +76,8 @@ package org.bigbluebutton.main.events {
 		public static const CANCEL_RECONNECTION_EVENT:String = "CANCEL_RECONNECTION_EVENT";
 		public static const WEBRTC_MONITOR_UPDATE_EVENT:String = "WEBRTC_MONITOR_UPDATE_EVENT";
 		
-		public static const USER_INACTIVITY_AUDIT_EVENT:String = "user_inactivity_audit_event";
-		public static const USER_INACTIVITY_AUDIT_RESPONSE_EVENT:String = "user_inactivity_audit_response_event";
+		public static const USER_INACTIVITY_INSPECT_EVENT:String = "user_inactivity_inspect_event";
+		public static const USER_ACTIVITY_SIGN_RESPONSE_EVENT:String = "user_activity_sign_response_event";
 
 		public var message:String;
 		public var payload:Object = new Object();

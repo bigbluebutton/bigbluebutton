@@ -27,8 +27,8 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
-  def updateInactivityResponse(users: Users2x, u: UserState): UserState = {
-    val newUserState = modify(u)(_.inactivityResponseOn).setTo(TimeUtil.timeNowInMs())
+  def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.lastActivityTime).setTo(TimeUtil.timeNowInMs())
     users.save(newUserState)
     newUserState
   }
@@ -214,21 +214,20 @@ class Users2x {
 case class OldPresenter(userId: String, changedPresenterOn: Long)
 
 case class UserState(
-  intId:                String,
-  extId:                String,
-  name:                 String,
-  role:                 String,
-  guest:                Boolean,
-  authed:               Boolean,
-  guestStatus:          String,
-  emoji:                String,
-  locked:               Boolean,
-  presenter:            Boolean,
-  avatar:               String,
-  roleChangedOn:        Long    = System.currentTimeMillis(),
-  inactivityResponseOn: Long    = TimeUtil.timeNowInMs(),
-  clientType:           String
-)
+  intId:            String,
+  extId:            String,
+  name:             String,
+  role:             String,
+  guest:            Boolean,
+  authed:           Boolean,
+  guestStatus:      String,
+  emoji:            String,
+  locked:           Boolean,
+  presenter:        Boolean,
+  avatar:           String,
+  roleChangedOn:    Long    = System.currentTimeMillis(),
+  lastActivityTime: Long    = TimeUtil.timeNowInMs(),
+  clientType:       String)
 
 case class UserIdAndName(id: String, name: String)
 

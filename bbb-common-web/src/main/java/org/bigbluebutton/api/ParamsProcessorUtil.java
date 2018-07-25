@@ -100,7 +100,7 @@ public class ParamsProcessorUtil {
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityLogoutTimerInMinutes = 120;
-    private Integer userInactivityResponseDelayInMinutes = 5;
+    private Integer userActivitySignResponseDelayInMinutes = 5;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -485,8 +485,8 @@ public class ParamsProcessorUtil {
         meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
 		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
-		meeting.setuserInactivityLogoutTimerInMinutes(userInactivityLogoutTimerInMinutes);
-		meeting.setuserInactivityResponseDelayInMinutes(userInactivityResponseDelayInMinutes);
+		meeting.setUserInactivityLogoutTimerInMinutes(userInactivityLogoutTimerInMinutes);
+		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -966,12 +966,12 @@ public class ParamsProcessorUtil {
         this.userInactivityLogoutTimerInMinutes = userInactivityLogoutTimerInMinutes;
     }
 
-    public Integer getuserInactivityResponseDelayInMinutes() {
-        return userInactivityResponseDelayInMinutes;
+    public Integer getUserActivitySignResponseDelayInMinutes() {
+        return userActivitySignResponseDelayInMinutes;
     }
 
-    public void setuserInactivityResponseDelayInMinutes(Integer userInactivityResponseDelayInMinutes) {
-        this.userInactivityResponseDelayInMinutes = userInactivityResponseDelayInMinutes;
+    public void getUserActivitySignResponseDelayInMinutes(Integer userActivitySignResponseDelayInMinutes) {
+        this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
     }
 
 	public void setMaxPresentationFileUpload(Long maxFileSize) {

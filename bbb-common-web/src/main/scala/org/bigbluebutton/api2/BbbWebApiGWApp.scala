@@ -89,7 +89,7 @@ class BbbWebApiGWApp(
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
                     userInactivityLogoutTimerInMinutes:      java.lang.Integer,
-                    userInactivityResponseDelayInMinutes: java.lang.Integer,
+                    userActivitySignResponseDelayInMinutes: java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
@@ -102,7 +102,7 @@ class BbbWebApiGWApp(
       meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes.intValue(),
       meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue(),
       userInactivityLogoutTimerInMinutes = userInactivityLogoutTimerInMinutes.intValue(),
-      userInactivityResponseDelayInMinutes = userInactivityResponseDelayInMinutes.intValue())
+      userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes.intValue())
 
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
