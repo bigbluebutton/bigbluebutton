@@ -34,8 +34,6 @@
     "app.userList.menu.makePresenter.label": "ធ្វើ​ជា​អ្នក​ធ្វើ​បទ​បង្ហាញ",
     "app.userList.menu.muteUserAudio.label": "បិទសម្លេងអ្នកប្រើប្រាស់",
     "app.userList.menu.unmuteUserAudio.label": "ឈប់បិទសម្លេងអ្នកប្រើប្រាស់",
-    "app.userList.menu.promoteUser.label": "ដំឡើងតួនាទី {0} ទៅជាអ្នកសម្របសម្រួល",
-    "app.userList.menu.demoteUser.label": "ដកតួនាទី {0} ទៅជាអ្នកមើល",
     "app.media.label": "មេឌៀ",
     "app.presentation.presentationToolbar.prevSlideLabel": "ស្លាយ​មុន",
     "app.presentation.presentationToolbar.prevSlideDesc": "ប្តូរ​បទ​បង្ហាញ​ទៅ​ស្លាយ​មុន",
