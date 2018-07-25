@@ -1,7 +1,7 @@
 FROM node:8
 
 ADD . /source
-RUN cp /source/config_local.coffee.example /source/config_local.coffee
+RUN cp /source/config_local.js.example /source/config_local.js
 
 ENV NODE_ENV production
 

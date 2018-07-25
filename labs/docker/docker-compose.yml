@@ -1,28 +1,32 @@
 version: '2'
 
+# export SERVER_DOMAIN=felipe.dev.mconf.com
+# export EXTERNAL_IP=`dig +short $SERVER_DOMAIN`
+# export SHARED_SECRET=`openssl rand -hex 16`
+# export COTURN_REST_SECRET=`openssl rand -hex 16`
+# export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/mconf-screenshare/mbfngdphjegmlbfobcblikeefpidfncb
+# export SCREENSHARE_EXTENSION_KEY=mbfngdphjegmlbfobcblikeefpidfncb
+
 services:
-#  nginx-dhp:
-#    image: nginx-dhp
-#    volumes:
-#      - config-nginx-dhp:/data
-
-#  nginx-ssl:
-#    image: certbot/certbot
-#    ports:
-#      - 80:80
-#    volumes:
-#      - config-nginx-ssl:/etc/letsencrypt
-#    command: certonly --non-interactive --register-unsafely-without-email --agree-tos --expand --domain ${SERVER_DOMAIN} --standalone
-
-#  mongo:
-#    image: mongo:3.4
-#    restart: unless-stopped
+  mongo:
+    image: mongo:3.4
+    restart: unless-stopped
 
   redis:
     image: redis
     restart: unless-stopped
-    volumes:
-      - recordings-redis:/data
+
+  bbb-html5:
+    image: bbb-html5
+    restart: unless-stopped
+    links:
+      - mongo
+      - redis
+    environment:
+      MONGO_URL: mongodb://mongo/bbbhtml5
+      METEOR_SETTINGS_MODIFIER: ".public.kurento.wsUrl = \"wss://${SERVER_DOMAIN}/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.chromeDefaultExtensionKey = \"${SCREENSHARE_EXTENSION_KEY}\" | .public.kurento.chromeDefaultExtensionLink = \"${SCREENSHARE_EXTENSION_LINK}\""
+      REDIS_HOST: redis
+      ROOT_URL: http://127.0.0.1/html5client
 
   bbb-webhooks:
     image: bbb-webhooks
@@ -31,35 +35,80 @@ services:
       - redis
     environment:
       REDIS_HOST: redis
+      SHARED_SECRET: ${SHARED_SECRET}
 
-#  coturn:
-#    image: kurento/coturn
-#    restart: unless-stopped
-#    network_mode: host
+  bbb-freeswitch:
+    image: bbb-freeswitch
+    restart: unless-stopped
+    links:
+      - coturn
 
-#  kurento:
-#    image: kurento
-#    restart: unless-stopped
-#    network_mode: host
+  bbb-webrtc-sfu:
+    image: bbb-webrtc-sfu
+    restart: unless-stopped
+    links:
+      - redis
+      - kurento
+    environment:
+      KURENTO_IP: ${EXTERNAL_IP}
+      KURENTO_URL: ws://kurento:8888/kurento
+      REDIS_HOST: redis
 
-#  bbb-apps-akka:
-#    image: bbb-apps-akka
-#    restart: unless-stopped
-#    links:
-#      - redis
-#    environment:
-#      JAVA_OPTS: -Dredis.host=redis
+  coturn:
+    image: coturn
+    restart: unless-stopped
+    volumes:
+      - ssl-conf:/etc/nginx/ssl
+    environment:
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
+      SSL_CERT_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/fullchain.pem
+      SSL_KEY_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/privkey.pem
+      SSL_DHPARAM_PATH: /etc/nginx/ssl/dhp-2048.pem
+      SECRET: ${COTURN_REST_SECRET}
+      EXTERNAL_IP: ${EXTERNAL_IP}
+      ENABLE_REST_API: 1
+      PORT: 3478
+      PORT_TLS: 5349
+    ports:
+      - 3478:3478/udp
+      - 3478:3478/tcp
+      - 5349:5349/tcp
 
-#  bbb-web:
-#    image: bbb-web
-#    restart: unless-stopped
-#    links:
-#      - redis
-#    volumes:
-#      - recordings-storage:/var/bigbluebutton
-#    environment:
-#      SERVER_DOMAIN: ${SERVER_DOMAIN}
-#      SHARED_SECRET: ${SHARED_SECRET}
+  kurento:
+    image: kurento
+    restart: unless-stopped
+    environment:
+      KMS_STUN_IP: ${EXTERNAL_IP}
+      KMS_STUN_PORT: 3478
+
+  bbb-apps-akka:
+    image: bbb-apps-akka
+    restart: unless-stopped
+    links:
+      - redis
+    environment:
+      JAVA_OPTS: -Dredis.host=redis
+
+  bbb-fsesl-akka:
+    image: bbb-fsesl-akka
+    restart: unless-stopped
+    links:
+      - bbb-freeswitch
+      - redis
+    environment:
+      JAVA_OPTS: -Dredis.host=redis -Dfreeswitch.esl.host=bbb-freeswitch
+
+  bbb-web:
+    image: bbb-web
+    restart: unless-stopped
+    links:
+      - redis
+    volumes:
+      - bigbluebutton:/var/bigbluebutton
+    environment:
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
+      SHARED_SECRET: ${SHARED_SECRET}
+      TURN_SECRET: ${COTURN_REST_SECRET}
 
 #  greenlight-env:
 #    image: bigbluebutton/greenlight
@@ -67,11 +116,11 @@ services:
 #      - config-greenlight:/data
 #    command: rake secret > /data/env
 
-  greenlight:
-    image: bigbluebutton/greenlight
-    restart: unless-stopped
-    volumes:
-      - db-greenlight:/usr/src/app/db/production
+#  greenlight:
+#    image: bigbluebutton/greenlight
+#    restart: unless-stopped
+#    volumes:
+#      - db-greenlight:/usr/src/app/db/production
 
   nginx:
     image: nginx
@@ -81,22 +130,23 @@ services:
       - bbb-web
       - bbb-html5
       - bbb-webrtc-sfu
-      - greenlight
+      - bbb-freeswitch
+#      - greenlight
     ports:
       - 80:80
       - 443:443
     volumes:
-      - config-nginx-ssl:/etc/letsencrypt
-      - config-nginx-dhp/dhp-2048.pem:/etc/nginx/ssl/dhp-2048.pem
-    
-
-
-docker run --rm --name nginx --link bbb-webhooks --link bbb-web --link bbb-html5 --link bbb-webrtc-sfu --link greenlight -p 80:80 -p 443:443 -v ~/certs:/etc/letsencrypt -v $(pwd)/dhp-2048.pem:/etc/nginx/ssl/dhp-2048.pem -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf -v $(pwd)/bigbluebutton-client/resources/config.xml.template:/var/www/bigbluebutton/client/conf/config.xml -d nginx
+      - ssl-conf:/etc/nginx/ssl
+      - static:/var/www/bigbluebutton-default
+    environment:
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
+      SSL_CERT_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/fullchain.pem
+      SSL_KEY_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/privkey.pem
+      SSL_DHPARAM_PATH: /etc/nginx/ssl/dhp-2048.pem
 
 volumes:
-  config-nginx-dhp:
-  config-nginx-ssl:
-  config-greenlight:
-  recordings-redis:
-  recordings-storage:
-  db-greenlight:
+  ssl-conf:
+    driver: local    
+  static:
+    driver: local    
+  bigbluebutton:

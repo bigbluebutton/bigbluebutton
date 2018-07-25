@@ -1,31 +1,25 @@
-FROM sbt:0.13.8
+FROM bbb-fsesl-client AS builder
 
-ARG COMMON_VERSION
+ARG COMMON_VERSION=0.0.1-SNAPSHOT
 
-COPY ./bbb-common-message /bbb-common-message
-
-RUN cd /bbb-common-message \
- && sed -i "s|\(version := \)\".*|\1\"$COMMON_VERSION\"|g" build.sbt \
- && echo 'publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))' | tee -a build.sbt \
- && sbt compile \
- && sbt publishLocal
-
-COPY ./bbb-fsesl-client /bbb-fsesl-client
-
-RUN cd /bbb-fsesl-client \
- && sed -i "s|\(version := \)\".*|\1\"$COMMON_VERSION\"|g" build.sbt \
- && echo 'publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))' | tee -a build.sbt \
- && sbt compile \
- && sbt publishLocal
-
-COPY ./akka-bbb-fsesl /source
+COPY . /source
 
 RUN cd /source \
  && find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^\"]*\"[ ]*%[ ]*\)\"[^\"]*\"\(.*\)|\1\"$COMMON_VERSION\"\2|g" {} \; \
  && find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-fsesl-client[^\"]*\"[ ]*%[ ]*\)\"[^\"]*\"\(.*\)|\1\"$COMMON_VERSION\"\2|g" {} \; \
  && sbt compile
 
-WORKDIR /source
+RUN apt-get update \
+ && apt-get -y install fakeroot
 
-CMD ["sbt", "run"]
+RUN cd /source \
+ && sbt debian:packageBin
 
+# FROM ubuntu:16.04
+FROM openjdk:8-jre-slim-stretch
+
+COPY --from=builder /source/target/*.deb /root/
+
+RUN dpkg -i /root/*.deb
+
+CMD ["/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]

@@ -17,12 +17,11 @@ RUN apt-get update \
 
 EXPOSE 8888
 
-COPY ./entrypoint.sh /entrypoint.sh
+COPY ./docker-entrypoint.sh /usr/local/bin/
 COPY ./healthchecker.sh /healthchecker.sh
 
 HEALTHCHECK --start-period=15s --interval=30s --timeout=3s --retries=1 CMD /healthchecker.sh
 
 ENV GST_DEBUG=Kurento*:5
 
-ENTRYPOINT ["/entrypoint.sh"]
-
+ENTRYPOINT ["docker-entrypoint.sh"]

@@ -13,8 +13,12 @@ const async = require("async");
 module.exports = class Application {
 
   constructor() {
-    config.redis.pubSubClient = redis.createClient();
-    config.redis.client = redis.createClient()
+    let options = {
+      host : process.env.REDIS_HOST || config.redis.host,
+      port : process.env.REDIS_PORT || config.redis.port
+    };
+    config.redis.pubSubClient = redis.createClient(options);
+    config.redis.client = redis.createClient(options);
     this.webHooks = new WebHooks();
     this.webServer = new WebServer();
   }

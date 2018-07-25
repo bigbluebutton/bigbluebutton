@@ -11,8 +11,7 @@ mkdir -p /var/bigbluebutton/published
 mkdir -p /var/bigbluebutton/deleted
 mkdir -p /var/bigbluebutton/unpublished
 
-export JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -DsecuritySalt=$SHARED_SECRET -Dredis.host=redis -Dbigbluebutton.web.serverURL=https://$SERVER_DOMAIN"
-sed -i "s|^securerandom\.source=.*|securerandom.source=file:/dev/./urandom|g" $JAVA_HOME/lib/security/java.security
+export JAVA_OPTS="${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom -DsecuritySalt=${SHARED_SECRET} -Dredis.host=redis -Dbigbluebutton.web.serverURL=https://${SERVER_DOMAIN} -DattendeesJoinViaHTML5Client=true -DmoderatorsJoinViaHTML5Client=true -DsvgImagesRequired=true"
+sed -i "s|^securerandom\.source=.*|securerandom.source=file:/dev/urandom|g" ${JAVA_HOME}/lib/security/java.security
 
 catalina.sh run
-

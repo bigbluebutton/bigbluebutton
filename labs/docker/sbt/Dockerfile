@@ -12,4 +12,3 @@ RUN curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_V
 RUN echo 'resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"' | tee -a ~/.sbt/0.13/global.sbt
 
 WORKDIR /root
-

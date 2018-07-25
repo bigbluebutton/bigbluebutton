@@ -130,5 +130,7 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 
-    debug  'org.bigbluebutton'
+    debug  'org.bigbluebutton',
+           'grails.app.controllers',
+           'grails.app.services',
 }

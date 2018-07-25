@@ -21,11 +21,4 @@ COPY --from=builder /source/target/*.deb /root/
 
 RUN dpkg -i /root/*.deb
 
-#RUN dpkg -i /root/*.deb || true \
-# && apt-get update \
-# && apt-get -y -f install
-
 CMD ["/usr/share/bbb-apps-akka/bin/bbb-apps-akka"]
-
-# CMD ["sbt", "run"]
-
