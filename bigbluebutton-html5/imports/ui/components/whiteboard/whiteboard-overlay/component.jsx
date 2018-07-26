@@ -127,7 +127,6 @@ export default class WhiteboardOverlay extends Component {
       sendAnnotation,
       resetTextShapeSession,
       setTextShapeActiveId,
-      undoAnnotation,
       contextMenuHandler,
     } = this.props;
     const { tool } = drawSettings;
@@ -142,7 +141,6 @@ export default class WhiteboardOverlay extends Component {
       sendAnnotation,
       resetTextShapeSession,
       setTextShapeActiveId,
-      undoAnnotation,
       contextMenuHandler,
     };
 

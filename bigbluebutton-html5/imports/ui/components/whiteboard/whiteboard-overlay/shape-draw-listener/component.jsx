@@ -152,8 +152,8 @@ export default class ShapeDrawListener extends Component {
     // but the browser didn't catch it. So check it here.
     if (this.isDrawing) {
       if (event.button === 2) {
-        this.props.actions.undoAnnotation(this.props.whiteboardId);
-        this.isDrawing = false;
+        const isDiscarded = true;
+        return this.sendLastMessage(isDiscarded);
       }
       return this.sendLastMessage();
     }
@@ -212,7 +212,7 @@ export default class ShapeDrawListener extends Component {
     }
   }
 
-  sendLastMessage() {
+  sendLastMessage(isDiscarded = false) {
     if (this.isDrawing) {
       // make sure we are drawing and we have some coordinates sent for this shape before
       // to prevent sending DRAW_END on a random mouse click
@@ -224,6 +224,7 @@ export default class ShapeDrawListener extends Component {
           DRAW_END,
           getCurrentShapeId(),
           this.props.drawSettings.tool,
+          isDiscarded,
         );
       }
       this.resetState();
@@ -256,7 +257,7 @@ export default class ShapeDrawListener extends Component {
 
   // since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
   // we use the same function for all of them
-  handleDrawCommonAnnotation(startPoint, endPoint, status, id, shapeType) {
+  handleDrawCommonAnnotation(startPoint, endPoint, status, id, shapeType, isDiscarded = false) {
     const { normalizeThickness, sendAnnotation } = this.props.actions;
 
     const annotation = {
@@ -282,7 +283,7 @@ export default class ShapeDrawListener extends Component {
       position: 0,
     };
 
-    sendAnnotation(annotation);
+    sendAnnotation(annotation, isDiscarded);
   }
 
   render() {

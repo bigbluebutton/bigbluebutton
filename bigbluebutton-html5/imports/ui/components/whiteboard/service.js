@@ -4,11 +4,20 @@ import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { isEqual } from 'lodash';
+import WhiteboardToolbarService from './whiteboard-toolbar/service';
 
 const Annotations = new Mongo.Collection(null);
+let _isDiscarded = false;
 
 function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
+}
+
+function discardCurrentAnnotation(whiteboardId) {
+  if (_isDiscarded === true) {
+    WhiteboardToolbarService.undoAnnotation(whiteboardId);
+    _isDiscarded = false;
+  }
 }
 
 function handleAddedAnnotation({
@@ -28,6 +37,7 @@ function handleAddedAnnotation({
 
   const fakePoints = fakeAnnotation.annotationInfo.points;
   const lastPoints = annotation.annotationInfo.points;
+  const wbId = annotation.annotationInfo.whiteboardId;
 
   if (annotation.annotationType !== 'pencil') {
     Annotations.update(fakeAnnotation._id, {
@@ -39,6 +49,9 @@ function handleAddedAnnotation({
       $inc: { version: 1 }, // TODO: Remove all this version stuff
     });
 
+    if (annotation.status === 'DRAW_END') {
+      discardCurrentAnnotation(wbId);
+    }
     return;
   }
 
@@ -51,6 +64,7 @@ function handleAddedAnnotation({
     // Remove fake annotation for pencil on draw end
     if (annotation.status === 'DRAW_END') {
       Annotations.remove({ id: `${annotation.id}-fake` });
+      discardCurrentAnnotation(wbId);
       return;
     }
 
@@ -137,7 +151,7 @@ const proccessAnnotationsQueue = () => {
   setTimeout(proccessAnnotationsQueue, delayTime);
 };
 
-export function sendAnnotation(annotation) {
+export function sendAnnotation(annotation, isDiscarded = false) {
   // Prevent sending annotations while disconnected
   if (!Meteor.status().connected) return;
 
@@ -145,7 +159,10 @@ export function sendAnnotation(annotation) {
   if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 
   // skip optimistic for draw end since the smoothing is done in akka
-  if (annotation.status === 'DRAW_END') return;
+  if (annotation.status === 'DRAW_END') {
+    if (isDiscarded) _isDiscarded = true;
+    return;
+  }
 
   const { position, ...relevantAnotation } = annotation;
   const queryFake = addAnnotationQuery(

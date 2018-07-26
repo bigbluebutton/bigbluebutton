@@ -187,13 +187,10 @@ export default class TextDrawListener extends Component {
       }
 
     // second case is when a user finished writing the text and publishes the final result
+    } else if (event.button === 2) {
+      const isDiscarded = true;
+      this.sendLastMessage(isDiscarded);
     } else {
-      if (event.button === 2) {
-        this.props.actions.undoAnnotation(this.props.whiteboardId);
-        this.state.isDrawing = false;
-        this.state.isWritingText = false;
-      }
-
       // publishing the final shape and resetting the state
       this.sendLastMessage();
     }
@@ -228,7 +225,7 @@ export default class TextDrawListener extends Component {
     });
   }
 
-  sendLastMessage() {
+  sendLastMessage(isDiscarded = false) {
     if (!this.state.isWritingText) {
       return;
     }
@@ -243,6 +240,7 @@ export default class TextDrawListener extends Component {
       this.currentStatus,
       getCurrentShapeId(),
       this.props.drawSettings.textShapeValue,
+      isDiscarded,
     );
 
     this.resetState();
@@ -346,7 +344,7 @@ export default class TextDrawListener extends Component {
     });
   }
 
-  handleDrawText(startPoint, width, height, status, id, text) {
+  handleDrawText(startPoint, width, height, status, id, text, isDiscarded = false) {
     const { normalizeFont, sendAnnotation } = this.props.actions;
 
     const annotation = {
@@ -373,7 +371,7 @@ export default class TextDrawListener extends Component {
       position: 0,
     };
 
-    sendAnnotation(annotation);
+    sendAnnotation(annotation, isDiscarded);
   }
 
   render() {
