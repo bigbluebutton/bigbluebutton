@@ -1,10 +1,9 @@
+import GroupChat, { CHAT_ACCESS_PUBLIC } from '/imports/api/group-chat';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 import Logger from '/imports/startup/server/logger';
 import mapToAcl from '/imports/startup/mapToAcl';
-
-import { GroupChat, CHAT_ACCESS_PUBLIC } from '/imports/api/group-chat';
 
 function groupChat(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -15,17 +14,7 @@ function groupChat(credentials) {
 
   Logger.info(`Publishing group-chat for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
-  return GroupChat.find({
-    $or: [
-      {
-        access: CHAT_ACCESS_PUBLIC,
-        meetingId,
-      }, {
-        users: { $in: [requesterUserId] },
-        meetingId,
-      },
-    ],
-  });
+  return GroupChat.find({ meetingId });
 }
 
 function publish(...args) {

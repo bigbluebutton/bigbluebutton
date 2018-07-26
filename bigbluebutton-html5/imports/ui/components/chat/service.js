@@ -1,6 +1,8 @@
 import Chats from '/imports/api/chat';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
+import GroupChatMsg, { GROUP_MESSAGE_PUBLIC_ID, CHAT_ACCESS_PRIVATE } from '/imports/api/group-chat-msg';
+import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
@@ -48,6 +50,21 @@ const mapMessage = (message) => {
   return mappedMessage;
 };
 
+const mapGroupMessage = (message) => {
+  const mappedMessage = {
+    id: message._id,
+    content: message.content,
+    time: message.timestamp, // + message.from_tz_offset,
+    sender: null,
+  };
+
+  if (message.sender !== SYSTEM_CHAT_TYPE) {
+    mappedMessage.sender = getUser(message.sender);
+  }
+
+  return mappedMessage;
+};
+
 const reduceMessages = (previous, current) => {
   const lastMessage = previous[previous.length - 1];
   const currentMessage = current;
@@ -78,6 +95,42 @@ const reduceMessages = (previous, current) => {
 const reduceAndMapMessages = messages =>
   (messages.reduce(reduceMessages, []).map(mapMessage));
 
+const reduceAndMapGroupMessages = messages => (messages.reduce(reduceGroupMessages, []).map(mapGroupMessage));
+
+const reduceGroupMessages = (previous, current) => {
+  const lastMessage = previous[previous.length - 1];
+  const currentMessage = current;
+    currentMessage.content = [{
+    id: current.id,
+    text: current.message,
+    time: current.timestamp,
+  }];
+    if (!lastMessage || !currentMessage.chatId === GROUP_MESSAGE_PUBLIC_ID) {
+    return previous.concat(currentMessage);
+  }
+  // Check if the last message is from the same user and time discrepancy
+  // between the two messages exceeds window and then group current message
+  // with the last one
+  const timeOfLastMessage = lastMessage.content[lastMessage.content.length - 1].time;
+  if (lastMessage.sender === currentMessage.sender
+    && (currentMessage.timestamp - timeOfLastMessage) <= GROUPING_MESSAGES_WINDOW) {
+    lastMessage.content.push(currentMessage.content.pop());
+    return previous;
+  }
+
+  return previous.concat(currentMessage);
+};
+
+const getPublicGroupMessages = () => {
+  const publicGroupMessages = GroupChatMsg.find({
+    chatId: GROUP_MESSAGE_PUBLIC_ID
+  }, {
+    sort: ['timestamp']
+  }).fetch();
+
+  return publicGroupMessages;
+};
+
 const getPublicMessages = () => {
   const publicMessages = Chats.find({
     type: { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
@@ -99,6 +152,28 @@ const getPrivateMessages = (userID) => {
     sort: ['fromTime'],
   }).fetch();
   return reduceAndMapMessages(messages);
+};
+
+const getPrivateGroupMessages = (chatID) => {
+  const sender = getUser(Auth.userID);
+
+  const privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.id] } });
+
+  let messages = [];
+
+  if (privateChat) {
+    const {
+      chatId
+    } = privateChat;
+
+    messages = GroupChatMsg.find({
+        chatId: chatId
+    }, {
+      sort: ['timestamp']
+    }).fetch();
+  }
+
+  return reduceAndMapGroupMessages(messages, []);
 };
 
 const isChatLocked = (receiverID) => {
@@ -130,6 +205,35 @@ const lastReadMessageTime = (receiverID) => {
   const chatType = isPublic ? PUBLIC_CHAT_USERID : receiverID;
 
   return UnreadMessages.get(chatType);
+};
+
+const sendGroupMessage = (chatID, message) => {
+
+  const isPublicChat = chatID === 'public';
+
+  let chatId = GROUP_MESSAGE_PUBLIC_ID;
+
+  const sender = getUser(Auth.userID);
+
+  if (!isPublicChat) {
+    let privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.id] } });
+
+    if (privateChat) {
+      chatId = privateChat.chatId;
+    }
+  }
+
+  const payload = {
+    color: "0",
+    correlationId: `${sender.id}-${Date.now()}`,
+    sender: {
+      id: sender.id,
+      name: sender.name
+    },
+    message: message
+  };
+
+  return makeCall('sendGroupChatMsg', chatId, payload);
 };
 
 const sendMessage = (receiverID, message) => {
@@ -247,8 +351,11 @@ const getNotified = (chat) => {
 
 export default {
   reduceAndMapMessages,
+  reduceAndMapGroupMessages,
+  getPublicGroupMessages,
   getPublicMessages,
   getPrivateMessages,
+  getPrivateGroupMessages,
   getUser,
   getScrollPosition,
   hasUnreadMessages,
@@ -256,6 +363,7 @@ export default {
   isChatLocked,
   updateScrollPosition,
   updateUnreadMessage,
+  sendGroupMessage,
   sendMessage,
   closePrivateChat,
   removeFromClosedChatsSession,

@@ -142,13 +142,17 @@ class UserParticipants extends Component {
       setEmojiStatus,
       removeUser,
       toggleVoice,
+      getGroupChatPrivate,
     } = this.props;
 
     const userActions =
     {
       openChat: {
         label: () => intl.formatMessage(intlMessages.ChatLabel),
-        handler: (router, user) => router.push(`/users/chat/${user.id}`),
+        handler: (router, user) => {
+          getGroupChatPrivate(currentUser, user)
+          router.push(`/users/chat/${user.id}`)
+        },
         icon: 'chat',
       },
       clearStatus: {

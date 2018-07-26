@@ -100,6 +100,7 @@ Base.defaultProps = defaultProps;
 const SUBSCRIPTIONS_NAME = [
   'users', 'chat', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
+  'group-chat', 'group-chat-msg',
 ];
 
 const BaseContainer = withRouter(withTracker(({ params, router }) => {

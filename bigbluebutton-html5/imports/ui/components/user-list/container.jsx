@@ -22,6 +22,7 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
+  getGroupChatPrivate: PropTypes.func.isRequired,
 };
 
 const UserListContainer = props => <UserList {...props} />;
@@ -46,4 +47,5 @@ export default withTracker(({ chatID, compact }) => ({
   roving: Service.roving,
   CustomLogoUrl: Service.getCustomLogoUrl(),
   compact,
+  getGroupChatPrivate: Service.getGroupChatPrivate,
 }))(UserListContainer);

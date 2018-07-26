@@ -1,5 +1,6 @@
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
+import GroupChat from '/imports/api/group-chat';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -393,6 +394,14 @@ const roving = (event, itemCount, changeState) => {
   }
 };
 
+const getGroupChatPrivate = (sender, receiver) => {
+  let privateChat = GroupChat.findOne({ users: { $all: [receiver.id, sender.id] } });
+
+  if (!privateChat) {
+    makeCall("createGroupChat", receiver);
+  }
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
@@ -409,4 +418,5 @@ export default {
   roving,
   setCustomLogoUrl,
   getCustomLogoUrl,
+  getGroupChatPrivate,
 };
