@@ -34,6 +34,6 @@ export default function handleCursorUpdate({ header, body }, meetingId) {
     cursorQueue[meetingId] = {};
   }
   // overwrite since we dont care about the other positions
-  cursorQueue[meetingId][userId] = { x, y };
+  cursorQueue[meetingId][userId] = { x, y, whiteboardId };
   if (!cursorRecieverIsRunning) proccess();
 }
