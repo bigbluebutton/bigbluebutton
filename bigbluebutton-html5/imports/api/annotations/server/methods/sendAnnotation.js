@@ -22,12 +22,13 @@ function isLastMessage(meetingId, annotation, userId) {
   return false;
 }
 
-export default function sendAnnotation(credentials, annotation, whiteboardId) {
+export default function sendAnnotation(credentials, annotation) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendWhiteboardAnnotationPubMsg';
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
+  const whiteboardId = annotation.wbId;
 
   check(meetingId, String);
   check(requesterUserId, String);
