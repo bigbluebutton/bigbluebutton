@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
 import logger from '/imports/startup/client/logger';
@@ -125,9 +124,9 @@ class VideoProvider extends Component {
 
   logger(type, message, options = {}) {
     const {userId, userName} = this.props;
+    const topic = options.topic || 'video';
 
-    log(type, message,
-      Object.assign(options, {userId, userName, topic: options.topic || 'video'}));
+    logger[type](`${type}.${topic}: ${message}`, Object.assign(options, {userId, userName, topic}));
   }
 
   _sendPauseStream(id, role, state) {
@@ -313,7 +312,7 @@ class VideoProvider extends Component {
         }
       });
     } else {
-      log('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...');
+      this.logger('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...');
     }
   }
 
@@ -381,7 +380,7 @@ class VideoProvider extends Component {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(sessionToken);
     } catch (error) {
-      log('error', 'Video provider failed to fetch ice servers, using default');
+      this.logger('error', 'Video provider failed to fetch ice servers, using default');
     } finally {
       const videoConstraints = {
         width: {
@@ -542,7 +541,7 @@ class VideoProvider extends Component {
   attachVideoStream(id) {
     const video = this.videoTags[id];
     if (video == null) {
-      log('warn', 'Peer', id, 'has not been started yet');
+      this.logger('warn', 'Peer', id, 'has not been started yet');
       return;
     }
 
@@ -803,7 +802,7 @@ class VideoProvider extends Component {
         VideoService.joinedVideo();
       }
     } else {
-      log('warn', '[playStart] Message arrived after the peer was already thrown out, discarding it...');
+      this.logger('warn', '[playStart] Message arrived after the peer was already thrown out, discarding it...');
     }
   }
 
@@ -811,7 +810,7 @@ class VideoProvider extends Component {
     const { intl } = this.props;
     const { userId } = this.props;
     const { code, reason } = message;
-    log('debug', 'Received error from SFU:', code, reason, message.streamId, userId);
+    this.logger('debug', 'Received error from SFU:', code, reason, message.streamId, userId);
     if (message.streamId === userId) {
       this.unshareWebcam();
       this.notifyError(intl.formatMessage(intlSFUErrors[code]

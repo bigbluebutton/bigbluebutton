@@ -95,7 +95,7 @@ KurentoManager.prototype.exitScreenShare = function () {
   if (typeof this.kurentoScreenshare !== 'undefined' && this.kurentoScreenshare) {
 
     if (this.kurentoScreenshare.logger !== null) {
-      this.kurentoScreenshare.logger.log('  [exitScreenShare] Exiting screensharing');
+      this.kurentoScreenshare.logger.info('  [exitScreenShare] Exiting screensharing');
     }
 
     if (this.kurentoScreenshare.ws !== null) {
@@ -120,7 +120,7 @@ KurentoManager.prototype.exitVideo = function () {
   if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
 
     if (this.kurentoVideo.logger !== null) {
-      this.kurentoVideo.logger.log('  [exitScreenShare] Exiting screensharing viewing');
+      this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
     }
 
     if (this.kurentoVideo.ws !== null) {
@@ -141,7 +141,7 @@ KurentoManager.prototype.exitAudio = function () {
   if (typeof this.kurentoAudio !== 'undefined' && this.kurentoAudio) {
 
     if (this.kurentoAudio.logger !== null) {
-      this.kurentoAudio.logger.log('  [exitAudio] Exiting listen only audio');
+      this.kurentoAudio.logger.info('  [exitAudio] Exiting listen only audio');
     }
 
     if (this.kurentoAudio.ws !== null) {
@@ -218,7 +218,7 @@ Kurento.prototype.downscaleResolution = function (oldWidth, oldHeight) {
 Kurento.prototype.init = function () {
   const self = this;
   if ('WebSocket' in window) {
-    this.logger.log('this browser supports websockets');
+    this.logger.info('this browser supports websockets');
     this.ws = new WebSocket(this.wsUrl);
 
     this.ws.onmessage = this.onWSMessage.bind(this);
@@ -234,7 +234,7 @@ Kurento.prototype.init = function () {
       self.pingInterval = setInterval(self.ping.bind(self), self.PING_INTERVAL);
       self.mediaCallback();
     };
-  } else { this.logger.log('this browser does not support websockets'); }
+  } else { this.logger.info('this browser does not support websockets'); }
 };
 
 Kurento.prototype.onWSMessage = function (message) {
@@ -293,7 +293,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   const self = this;
 
   if (error) {
-    this.logger.log(`Kurento.prototype.onOfferPresenter Error ${error}`);
+    this.logger.info(`Kurento.prototype.onOfferPresenter Error ${error}`);
     this.onFail(error);
     return;
   }
@@ -310,7 +310,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     vw: this.width,
   };
 
-  this.logger.log("onOfferPresenter sending to screenshare server => ", { sdpOffer: message });
+  this.logger.info("onOfferPresenter sending to screenshare server => ", { sdpOffer: message });
   this.sendMessage(message);
 };
 
@@ -335,7 +335,7 @@ Kurento.prototype.startScreensharing = function () {
     sendSource: 'desktop',
   };
 
-  this.logger.log(" Peer options =>", options);
+  this.logger.info(" Peer options =>", options);
 
   let resolution;
   this.logger.debug(`Screenshare screen dimensions are ${this.width} x ${this.height}`);
@@ -350,13 +350,13 @@ Kurento.prototype.startScreensharing = function () {
 
   this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
-      this.logger.error("WebRtcPeerSendonly constructor error:", {error: error});
+      this.logger.error("WebRtcPeerSendonly constructor error:", {error});
       this.onFail(error);
       return kurentoManager.exitScreenShare();
     }
 
     this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
-    this.logger.log("Generated peer offer w/ options:", {options: options});
+    this.logger.info("Generated peer offer w/ options:", {options: options});
 
     const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
     localStream.getVideoTracks()[0].onended = function () {
@@ -371,7 +371,7 @@ Kurento.prototype.startScreensharing = function () {
 
 Kurento.prototype.onIceCandidate = function (candidate, role) {
   const self = this;
-  this.logger.log("Local candidate:", {candidate: candidate});
+  this.logger.info("Local candidate:", {candidate});
 
   const message = {
     id: this.ON_ICE_CANDIDATE_MSG,
@@ -421,7 +421,7 @@ Kurento.prototype.viewer = function () {
 Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   const self = this;
   if (error) {
-    this.logger.log(`Kurento.prototype.onOfferViewer Error ${error}`);
+    this.logger.info(`Kurento.prototype.onOfferViewer Error ${error}`);
     return this.onFail();
   }
   const message = {
@@ -434,7 +434,7 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     sdpOffer: offerSdp,
   };
 
-  this.logger.log("onOfferViewer sending to screenshare server: ", {sdpOffer: message.sdpOffer});
+  this.logger.info("onOfferViewer sending to screenshare server: ", {sdpOffer: message.sdpOffer});
   this.sendMessage(message);
 };
 
@@ -477,7 +477,7 @@ Kurento.prototype.listenOnly = function () {
 
 Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
   let self = this;
-  this.logger.debug("[onListenOnlyIceCandidate]", {candidate: candidate});
+  this.logger.debug("[onListenOnlyIceCandidate]", {candidate});
 
   var message = {
     id : this.ON_ICE_CANDIDATE_MSG,
@@ -508,7 +508,7 @@ Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
     internalMeetingId: self.internalMeetingId
   };
 
-  this.logger.debug("[onOfferListenOnly]", {message: message});
+  this.logger.debug("[onOfferListenOnly]", {message});
   this.sendMessage(message);
 };
 
@@ -566,12 +566,12 @@ Kurento.prototype.ping = function () {
 
 Kurento.prototype.sendMessage = function (message) {
   const jsonMessage = JSON.stringify(message);
-  this.logger.log("Sending message:", {message: message});
+  this.logger.info("Sending message:", {message});
   this.ws.send(jsonMessage);
 };
 
 Kurento.prototype.logger = function (obj) {
-  this.logger.log(obj);
+  this.logger.info(obj);
 };
 
 Kurento.prototype.logError = function (obj) {
@@ -583,7 +583,7 @@ Kurento.normalizeCallback = function (callback) {
   if (typeof callback === 'function') {
     return callback;
   }
-  this.logger.log(document.getElementById('BigBlueButton')[callback]);
+  this.logger.info(document.getElementById('BigBlueButton')[callback]);
   return function (args) {
     document.getElementById('BigBlueButton')[callback](args);
   };

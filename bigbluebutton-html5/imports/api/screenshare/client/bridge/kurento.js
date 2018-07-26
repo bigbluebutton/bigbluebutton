@@ -2,7 +2,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
-import { log } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
@@ -26,11 +26,13 @@ const logFunc = (type, message, options) => {
   const userId = getUserId();
   const userName = getUsername();
 
-  log(type, message, Object.assign(options, {userId, userName, topic: options.topic || 'screenshare'}));
+  const topic = options.topic || 'audio';
+
+  logger[type](`[${type}.${topic}] ${message}`, Object.assign(options, {userId, userName, topic}));
 };
 
-const logger = {
-  log: function (message, options = {}) {
+const modLogger = {
+  info: function (message, options = {}) {
     logFunc('info', message, options);
   },
   error: function (message, options = {}) {
@@ -38,6 +40,9 @@ const logger = {
   },
   debug: function (message, options = {}) {
     logFunc('debug', message, options);
+  },
+  warn: (message, options = {}) => {
+    logFunc('warn', message, options);
   },
 };
 
@@ -53,7 +58,7 @@ export default class KurentoScreenshareBridge {
       const options = {
         wsUrl: SFU_URL,
         iceServers,
-        logger
+        logger: modLogger
       };
 
       window.kurentoWatchVideo(
@@ -85,7 +90,7 @@ export default class KurentoScreenshareBridge {
         chromeScreenshareSources: CHROME_SCREENSHARE_SOURCES,
         firefoxScreenshareSource: FIREFOX_SCREENSHARE_SOURCE,
         iceServers,
-        logger,
+        logger: modLogger,
       };
 
       window.kurentoShareScreen(
