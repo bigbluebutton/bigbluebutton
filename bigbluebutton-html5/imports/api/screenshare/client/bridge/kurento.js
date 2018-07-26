@@ -26,9 +26,9 @@ const logFunc = (type, message, options) => {
   const userId = getUserId();
   const userName = getUsername();
 
-  const topic = options.topic || 'audio';
+  const topic = options.topic || 'screenshare';
 
-  logger[type](`[${type}.${topic}] ${message}`, Object.assign(options, {userId, userName, topic}));
+  logger[type]({obj: Object.assign(options, {userId, userName, topic})}, `[${topic}] ${message}`);
 };
 
 const modLogger = {

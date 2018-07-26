@@ -126,7 +126,7 @@ class VideoProvider extends Component {
     const {userId, userName} = this.props;
     const topic = options.topic || 'video';
 
-    logger[type](`${type}.${topic}: ${message}`, Object.assign(options, {userId, userName, topic}));
+    logger[type]({obj: Object.assign(options, {userId, userName, topic})}, `[${topic}] ${message}`);
   }
 
   _sendPauseStream(id, role, state) {
