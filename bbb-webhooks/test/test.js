@@ -9,7 +9,7 @@ const Helpers = require('./helpers.js')
 const sinon = require('sinon');
 const winston = require('winston');
 
-const sharedSecret = process.env.SHARED_SECRET || sharedSecrett;
+const sharedSecret = process.env.SHARED_SECRET || sharedSecret;
 
 // Block winston from logging
 Logger.remove(winston.transports.Console);
@@ -40,7 +40,7 @@ describe('bbb-webhooks tests', () => {
 
   describe('GET /hooks/list permanent', () => {
     it('should list permanent hook', (done) => {
-      let getUrl = utils.checksumAPI(Helpers.url + Helpers.listUrl, sharedSecrett);
+      let getUrl = utils.checksumAPI(Helpers.url + Helpers.listUrl, sharedSecret);
       getUrl = Helpers.listUrl + '?checksum=' + getUrl
 
       request(Helpers.url)
@@ -64,7 +64,7 @@ describe('bbb-webhooks tests', () => {
       Hook.removeSubscription(hooks[hooks.length-1].id, () => { done(); });
     });
     it('should create a hook', (done) => {
-      let getUrl = utils.checksumAPI(Helpers.url + Helpers.createUrl, sharedSecrett);
+      let getUrl = utils.checksumAPI(Helpers.url + Helpers.createUrl, sharedSecret);
       getUrl = Helpers.createUrl + '&checksum=' + getUrl
 
       request(Helpers.url)
@@ -89,7 +89,7 @@ describe('bbb-webhooks tests', () => {
     it('should destroy a hook', (done) => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[hooks.length-1].id;
-      let getUrl = utils.checksumAPI(Helpers.url + Helpers.destroyUrl(hook), sharedSecrett);
+      let getUrl = utils.checksumAPI(Helpers.url + Helpers.destroyUrl(hook), sharedSecret);
       getUrl = Helpers.destroyUrl(hook) + '&checksum=' + getUrl
 
       request(Helpers.url)
@@ -105,7 +105,7 @@ describe('bbb-webhooks tests', () => {
 
   describe('GET /hooks/destroy permanent hook', () => {
     it('should not destroy the permanent hook', (done) => {
-      let getUrl = utils.checksumAPI(Helpers.url + Helpers.destroyPermanent, sharedSecrett);
+      let getUrl = utils.checksumAPI(Helpers.url + Helpers.destroyPermanent, sharedSecret);
       getUrl = Helpers.destroyPermanent + '&checksum=' + getUrl
       request(Helpers.url)
       .get(getUrl)
@@ -128,7 +128,7 @@ describe('bbb-webhooks tests', () => {
       Hook.removeSubscription(hooks[hooks.length-1].id, () => { done(); });
     });
     it('should create a hook with getRaw=true', (done) => {
-      let getUrl = utils.checksumAPI(Helpers.url + Helpers.createUrl + Helpers.createRaw, sharedSecrett);
+      let getUrl = utils.checksumAPI(Helpers.url + Helpers.createUrl + Helpers.createRaw, sharedSecret);
       getUrl = Helpers.createUrl + '&checksum=' + getUrl + Helpers.createRaw
 
       request(Helpers.url)

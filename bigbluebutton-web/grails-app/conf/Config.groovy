@@ -132,5 +132,5 @@ log4j = {
 
     debug  'org.bigbluebutton',
            'grails.app.controllers',
-           'grails.app.services',
+           'grails.app.services'
 }

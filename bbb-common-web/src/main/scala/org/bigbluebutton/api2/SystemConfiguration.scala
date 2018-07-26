@@ -1,14 +1,13 @@
 package org.bigbluebutton.api2
 
 import com.typesafe.config.ConfigFactory
-import scala.util.Properties
 
 import scala.util.Try
 
 trait SystemConfiguration {
-  val config = ConfigFactory.load()
+  val config = ConfigFactory.load("bbb-web")
 
-  lazy val redisHost = Try(Properties.envOrElse("REDIS_HOST", config.getString("redis.host"))).getOrElse("127.0.0.1")
+  lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
   lazy val redisPort = Try(config.getInt("redis.port")).getOrElse(6379)
   lazy val redisPassword = Try(config.getString("redis.password")).getOrElse("")
 

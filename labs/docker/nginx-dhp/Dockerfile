@@ -2,7 +2,6 @@ FROM tannerfe/alpine-openssl
 
 WORKDIR /root
 
-COPY entrypoint.sh .
+COPY entrypoint.sh /usr/local/bin/
 
-CMD ["./entrypoint.sh"]
-
+CMD ["docker-entrypoint.sh"]

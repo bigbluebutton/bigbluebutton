@@ -13,7 +13,7 @@ const async = require("async");
 module.exports = class Application {
 
   constructor() {
-    let options = {
+    const options = {
       host : process.env.REDIS_HOST || config.redis.host,
       port : process.env.REDIS_PORT || config.redis.port
     };

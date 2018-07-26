@@ -47,7 +47,6 @@ COPY --from=builder /source/target/lti-*.war webapps/lti.war
 RUN unzip -q webapps/lti.war -d webapps/lti \
  && rm webapps/lti.war
 
-COPY entrypoint.sh .
+COPY docker-entrypoint.sh /usr/local/bin/
 
-CMD ["./entrypoint.sh"]
-
+CMD ["docker-entrypoint.sh"]
