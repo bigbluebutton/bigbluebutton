@@ -24,7 +24,6 @@ function updateCursor(meetingId, userId, payload) {
 }
 
 CursorStreamer.on('message', ({ meetingId, cursors }) => {
-  console.log(cursors);
   Object.keys(cursors).forEach(userId => {
     if (Auth.meetingID === meetingId && Auth.userID === userId) return;
     updateCursor(meetingId, userId, cursors[userId]);

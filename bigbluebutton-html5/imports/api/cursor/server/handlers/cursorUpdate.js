@@ -12,7 +12,7 @@ const proccess = () => {
     return;
   }
   cursorRecieverIsRunning = true;
-  console.error(cursorQueue);
+  
   Object.keys(cursorQueue).forEach(meetingId => {
     CursorStreamer.emit('message', { meetingId, cursors: cursorQueue[meetingId] });
   });
