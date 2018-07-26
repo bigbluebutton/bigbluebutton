@@ -92,7 +92,23 @@ $ cd bbb-lti/
 $ docker build -t bbb-lti .
 ```
 
+Build everything with a single command
+```
+$ cd labs/docker/
+$ make release
+```
+
 ## RUN
+
+Export your configuration as environment variables
+```
+$ export SERVER_DOMAIN=felipe.dev.mconf.com
+$ export EXTERNAL_IP=`dig +short $SERVER_DOMAIN`
+$ export SHARED_SECRET=`openssl rand -hex 16`
+$ export COTURN_REST_SECRET=`openssl rand -hex 16`
+$ export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/mconf-screenshare/mbfngdphjegmlbfobcblikeefpidfncb
+$ export SCREENSHARE_EXTENSION_KEY=mbfngdphjegmlbfobcblikeefpidfncb
+```
 
 Create a volume for the SSL certs
 
@@ -103,7 +119,6 @@ $ docker volume create docker_ssl-conf
 Generate SSL certs
 
 ```
-$ export SERVER_DOMAIN=felipe.dev.mconf.com
 $ docker run --rm -p 80:80 -v docker_ssl-conf:/etc/letsencrypt -it certbot/certbot certonly --non-interactive --register-unsafely-without-email --agree-tos --expand --domain $SERVER_DOMAIN --standalone
 
 # certificate path: docker_ssl-conf/live/$SERVER_DOMAIN/fullchain.pem
@@ -130,15 +145,14 @@ $ docker stop nginx
 
 ```
 
+Launch everything with docker compose
+```
+$ cd labs/docker/
+$ docker-compose up
+```
+
 These are the instructions to run the containers individually
 ```
-$ export SERVER_DOMAIN=felipe.dev.mconf.com
-$ export EXTERNAL_IP=`dig +short $SERVER_DOMAIN`
-$ export SHARED_SECRET=`openssl rand -hex 16`
-$ export COTURN_REST_SECRET=`openssl rand -hex 16`
-$ export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/mconf-screenshare/mbfngdphjegmlbfobcblikeefpidfncb
-$ export SCREENSHARE_EXTENSION_KEY=mbfngdphjegmlbfobcblikeefpidfncb
-
 $ docker run --rm --name mongo -d mongo:3.4
 
 $ docker run --rm --name redis -d redis
