@@ -92,13 +92,13 @@ module.exports = class MCSApiStub extends EventEmitter {
     }
   }
 
-  async startRecording(userId, mediaId, recordingName) {
+  async startRecording(userId, mediaId, recordingPath) {
     try {
-      const answer = await this._mediaController.startRecording(userId, mediaId, recordingName);
+      const answer = await this._mediaController.startRecording(userId, mediaId, recordingPath);
       return (answer);
     }
     catch (error) {
-      throw (this._handleError(error, 'startRecording', { userId, mediaId, recordingName }));
+      throw (this._handleError(error, 'startRecording', { userId, mediaId, recordingPath}));
     }
   }
 

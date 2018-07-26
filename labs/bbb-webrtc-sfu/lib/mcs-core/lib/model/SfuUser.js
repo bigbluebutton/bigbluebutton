@@ -66,8 +66,8 @@ module.exports = class SfuUser extends User {
     return session;
   }
 
-  addRecording (recordingName) {
-    const session = new RecordingSession(this.emitter, this.roomId, recordingName);
+  addRecording (recordingPath) {
+    const session = new RecordingSession(this.emitter, this.roomId, recordingPath);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
     session.emitter.once(C.EVENT.MEDIA_SESSION_STOPPED, (sessId) => {

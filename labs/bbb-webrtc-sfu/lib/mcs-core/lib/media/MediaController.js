@@ -215,13 +215,13 @@ module.exports = class MediaController {
     }
   }
 
-  async startRecording (userId, sourceId, recordingName) {
+  async startRecording (userId, sourceId, recordingPath) {
     Logger.info("[mcs-controller] startRecording ", sourceId);
     try {
       const user = await this.getUserMCS(userId);
       const sourceSession = this.getMediaSession(sourceId);
 
-      const session = await user.addRecording(recordingName);
+      const session = await user.addRecording(recordingPath);
       const answer = await user.startSession(session.id);
       await sourceSession.connect(session._mediaElement);
 

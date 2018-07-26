@@ -31,6 +31,8 @@ module.exports = class Video extends BaseProvider {
     this.status = C.MEDIA_STOPPED;
     this.recording = {};
     this.isRecorded = false;
+    this._recordingSubPath = 'recordings';
+    this._cameraProfile = 'medium';
 
     this.candidatesQueue = [];
     this.notFlowingTimeout = null;
@@ -197,7 +199,9 @@ module.exports = class Video extends BaseProvider {
   async startRecording() {
     return new Promise(async (resolve, reject) => {
       try {
-        this.recording = await this.mcs.startRecording(this.userId, this.mediaId, this.id);
+        const recordingName = this._cameraProfile + '-' + this.id;
+        const recordingPath = this.getRecordingPath(this.meetingId, this._recordingSubPath, recordingName);
+        this.recording = await this.mcs.startRecording(this.userId, this.mediaId, recordingPath);
         this.mcs.on('MediaEvent' + this.recording.recordingId, this.recordingState.bind(this));
         this.sendStartShareEvent();
         resolve(this.recording);

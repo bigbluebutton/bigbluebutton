@@ -4,6 +4,7 @@ const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const EventEmitter = require('events').EventEmitter;
 const errors = require('../base/errors');
+const config = require('config');
 
 module.exports = class BaseProvider extends EventEmitter {
   constructor () {
@@ -52,5 +53,13 @@ module.exports = class BaseProvider extends EventEmitter {
       reason = null,
     } = error;
     return type && id && role && streamId && code && reason;
+  }
+
+  getRecordingPath (room, subPath, recordingName) {
+    const format = config.get('recordingFormat');
+    const basePath = config.get('recordingBasePath');
+    const timestamp = (new Date()).getTime();
+
+    return `${basePath}/${subPath}/${room}/${recordingName}-${timestamp}.${format}`
   }
 };
