@@ -67,6 +67,7 @@ module.exports = class SfuUser extends User {
   }
 
   addRecording (recordingPath) {
+    try {
     const session = new RecordingSession(this.emitter, this.roomId, recordingPath);
     this.emitter.emit(C.EVENT.NEW_SESSION+this.id, session.id);
 
@@ -81,6 +82,10 @@ module.exports = class SfuUser extends User {
     Logger.info("[mcs-sfu-user] Added new recording session", session.id, "to user", this.id);
 
     return session;
+    }
+    catch (err) {
+      this._handleError(err);
+    }
   }
 
 
