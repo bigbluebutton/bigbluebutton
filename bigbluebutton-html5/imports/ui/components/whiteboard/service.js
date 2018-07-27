@@ -7,22 +7,23 @@ import { isEqual } from 'lodash';
 import WhiteboardToolbarService from './whiteboard-toolbar/service';
 
 const Annotations = new Mongo.Collection(null);
-let _isDiscarded = false;
+let isDiscarded = false;
 
 function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
 }
 
 function discardCurrentAnnotation(whiteboardId) {
-  if (_isDiscarded === true) {
-    WhiteboardToolbarService.undoAnnotation(whiteboardId);
-    _isDiscarded = false;
-  }
+  WhiteboardToolbarService.undoAnnotation(whiteboardId);
+  isDiscarded = false;
 }
 
 function handleAddedAnnotation({
   meetingId, whiteboardId, userId, annotation,
 }) {
+  const drawStartStatus = Meteor.settings.public.whiteboard.annotations.status.start;
+  const drawEndStatus = Meteor.settings.public.whiteboard.annotations.status.end;
+
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
@@ -43,13 +44,14 @@ function handleAddedAnnotation({
     Annotations.update(fakeAnnotation._id, {
       $set: {
         position: annotation.position,
-        'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === 'DRAW_END' ?
+        'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === drawEndStatus ?
           annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
       },
       $inc: { version: 1 }, // TODO: Remove all this version stuff
     });
 
-    if (annotation.status === 'DRAW_END') {
+    // Remove current annotation when drawing is cancelled
+    if (annotation.status === drawEndStatus && isDiscarded) {
       discardCurrentAnnotation(wbId);
     }
     return;
@@ -62,13 +64,14 @@ function handleAddedAnnotation({
     }
 
     // Remove fake annotation for pencil on draw end
-    if (annotation.status === 'DRAW_END') {
+    if (annotation.status === drawEndStatus) {
       Annotations.remove({ id: `${annotation.id}-fake` });
-      discardCurrentAnnotation(wbId);
+      // Remove current annotation when drawing is cancelled
+      if (isDiscarded) discardCurrentAnnotation(wbId);
       return;
     }
 
-    if (annotation.status === 'DRAW_START') {
+    if (annotation.status === drawStartStatus) {
       Annotations.update(fakeAnnotation._id, {
         $set: {
           position: annotation.position - 1,
@@ -151,7 +154,9 @@ const proccessAnnotationsQueue = () => {
   setTimeout(proccessAnnotationsQueue, delayTime);
 };
 
-export function sendAnnotation(annotation, isDiscarded = false) {
+export function sendAnnotation(annotation, Discarded = false) {
+  const drawEndStatus = Meteor.settings.public.whiteboard.annotations.status.end;
+
   // Prevent sending annotations while disconnected
   if (!Meteor.status().connected) return;
 
@@ -159,8 +164,8 @@ export function sendAnnotation(annotation, isDiscarded = false) {
   if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 
   // skip optimistic for draw end since the smoothing is done in akka
-  if (annotation.status === 'DRAW_END') {
-    if (isDiscarded) _isDiscarded = true;
+  if (annotation.status === drawEndStatus) {
+    if (Discarded) isDiscarded = true;
     return;
   }
 
