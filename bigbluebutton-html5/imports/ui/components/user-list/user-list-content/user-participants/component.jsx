@@ -150,8 +150,8 @@ class UserParticipants extends Component {
       openChat: {
         label: () => intl.formatMessage(intlMessages.ChatLabel),
         handler: (router, user) => {
-          getGroupChatPrivate(currentUser, user)
-          router.push(`/users/chat/${user.id}`)
+          getGroupChatPrivate(currentUser, user);
+          router.push(`/users/chat/${user.id}`);
         },
         icon: 'chat',
       },

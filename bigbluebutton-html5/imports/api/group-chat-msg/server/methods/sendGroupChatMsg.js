@@ -40,11 +40,11 @@ export default function sendGroupChatMsg(credentials, chatId, message) {
 
   const parsedMessage = parseMessage(message.message);
 
-  message.message = parsedMessage
+  message.message = parsedMessage;
 
   const payload = {
     msg: message,
-    chatId: chatId
+    chatId,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

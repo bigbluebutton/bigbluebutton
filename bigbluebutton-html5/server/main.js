@@ -10,7 +10,6 @@ import '/imports/api/captions/server';
 import '/imports/api/presentations/server';
 import '/imports/api/slides/server';
 import '/imports/api/breakouts/server';
-import '/imports/api/chat/server';
 import '/imports/api/group-chat/server';
 import '/imports/api/group-chat-msg/server';
 import '/imports/api/screenshare/server';

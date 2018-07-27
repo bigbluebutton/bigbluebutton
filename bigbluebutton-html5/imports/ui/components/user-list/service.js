@@ -16,7 +16,7 @@ const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
-const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -230,7 +230,7 @@ const getOpenChats = (chatID) => {
     id: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
-    unreadCounter: UnreadMessages.count(PUBLIC_CHAT_USERID),
+    unreadCounter: UnreadMessages.count(PUBLIC_GROUP_CHAT_ID),
   });
 
   return openChats
@@ -395,10 +395,10 @@ const roving = (event, itemCount, changeState) => {
 };
 
 const getGroupChatPrivate = (sender, receiver) => {
-  let privateChat = GroupChat.findOne({ users: { $all: [receiver.id, sender.id] } });
+  const privateChat = GroupChat.findOne({ users: { $all: [receiver.id, sender.id] } });
 
   if (!privateChat) {
-    makeCall("createGroupChat", receiver);
+    makeCall('createGroupChat', receiver);
   }
 };
 

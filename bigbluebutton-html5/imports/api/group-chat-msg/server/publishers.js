@@ -1,4 +1,4 @@
-import GroupChatMsg, { CHAT_ACCESS_PUBLIC, GROUP_MESSAGE_PUBLIC_ID } from '/imports/api/group-chat-msg';
+import GroupChatMsg from '/imports/api/group-chat-msg';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 

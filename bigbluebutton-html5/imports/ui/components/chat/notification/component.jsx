@@ -149,7 +149,7 @@ class ChatNotification extends Component {
           .filter(({ fromTime, fromUserId }) => fromTime > (this.state.notified[fromUserId] || 0));
 
           const reduceMessages = Service
-            .reduceAndMapMessages(getChatmessages);
+            .reduceAndMapGroupMessages(getChatmessages);
 
           if (!reduceMessages.length) return null;
 
@@ -188,7 +188,7 @@ class ChatNotification extends Component {
     } = this.props;
 
     const publicUnread = UnreadMessages.getUnreadMessages(publicUserId);
-    const publicUnreadReduced = Service.reduceAndMapMessages(publicUnread);
+    const publicUnreadReduced = Service.reduceAndMapGroupMessages(publicUnread);
 
     if (disableNotify) return;
     if (!Service.hasUnreadMessages(publicUserId)) return;

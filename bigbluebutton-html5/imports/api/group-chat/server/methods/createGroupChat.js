@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
-import { CHAT_ACCESS_PUBLIC, CHAT_ACCESS_PRIVATE } from '/imports/api/group-chat'
+import { CHAT_ACCESS_PRIVATE } from '/imports/api/group-chat';
 
 
 export default function createGroupChat(credentials, receiver) {
@@ -16,12 +16,12 @@ export default function createGroupChat(credentials, receiver) {
   check(requesterToken, String);
   check(receiver, Object);
 
-  let payload = {
+  const payload = {
     correlationId: `${requesterUserId}-${Date.now()}`,
     msg: [],
     users: [receiver.id],
     access: CHAT_ACCESS_PRIVATE,
-    name: receiver.name
+    name: receiver.name,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

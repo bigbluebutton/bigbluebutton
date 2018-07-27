@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import Chat from './component';
@@ -54,7 +54,6 @@ export default injectIntl(withTracker(({ params, intl }) => {
   if (chatID === PUBLIC_CHAT_KEY) {
     messages = ChatService.reduceAndMapGroupMessages(ChatService.getPublicGroupMessages());
   } else {
-    // messages = ChatService.getPrivateMessages(chatID);
     messages = ChatService.getPrivateGroupMessages(chatID);
 
     const user = ChatService.getUser(chatID);
