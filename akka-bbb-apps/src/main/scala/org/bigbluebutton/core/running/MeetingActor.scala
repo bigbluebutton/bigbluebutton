@@ -221,15 +221,19 @@ class MeetingActor(
     state.update(tracker)
   }
 
-  private def updateUserLastUserActivity(userId: String) {
+  private def updateVoiceUserLastActivity(userId: String) {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
     } yield {
-      for {
-        user <- Users2x.findWithIntId(liveMeeting.users2x, vu.intId)
-      } yield {
-        Users2x.updateLastUserActivity(liveMeeting.users2x, user)
-      }
+      updateUserLastActivity(vu.intId)
+    }
+  }
+
+  private def updateUserLastActivity(userId: String) {
+    for {
+      user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
+    } yield {
+      Users2x.updateLastUserActivity(liveMeeting.users2x, user)
     }
   }
 
@@ -252,115 +256,145 @@ class MeetingActor(
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
+        updateVoiceUserLastActivity(m.body.setBy)
       case m: RecordAndClearPreviousMarkersCmdMsg =>
         state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
+        updateUserLastActivity(m.body.setBy)
       case m: GetWebcamsOnlyForModeratorReqMsg    => usersApp.handleGetWebcamsOnlyForModeratorReqMsg(m)
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => usersApp.handleUpdateWebcamsOnlyForModeratorCmdMsg(m)
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
+
       // Client requested to eject user
-      case m: EjectUserFromMeetingCmdMsg          => usersApp.handleEjectUserFromMeetingCmdMsg(m)
+      case m: EjectUserFromMeetingCmdMsg =>
+        usersApp.handleEjectUserFromMeetingCmdMsg(m)
+        updateUserLastActivity(m.body.ejectedBy)
+
       // Another part of system (e.g. bbb-apps) requested to eject user.
-      case m: EjectUserFromMeetingSysMsg          => usersApp.handleEjectUserFromMeetingSysMsg(m)
-      case m: GetUsersMeetingReqMsg               => usersApp.handleGetUsersMeetingReqMsg(m)
-      case m: ChangeUserRoleCmdMsg                => usersApp.handleChangeUserRoleCmdMsg(m)
+      case m: EjectUserFromMeetingSysMsg => usersApp.handleEjectUserFromMeetingSysMsg(m)
+      case m: GetUsersMeetingReqMsg      => usersApp.handleGetUsersMeetingReqMsg(m)
+      case m: ChangeUserRoleCmdMsg =>
+        usersApp.handleChangeUserRoleCmdMsg(m)
+        updateUserLastActivity(m.body.changedBy)
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg            => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ClearWhiteboardPubMsg               => wbApp.handle(m, liveMeeting, msgBus)
-      case m: UndoWhiteboardPubMsg                => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ModifyWhiteboardAccessPubMsg        => wbApp.handle(m, liveMeeting, msgBus)
-      case m: SendWhiteboardAnnotationPubMsg      => wbApp.handle(m, liveMeeting, msgBus)
-      case m: GetWhiteboardAnnotationsReqMsg      => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ClearWhiteboardPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
+      case m: UndoWhiteboardPubMsg           => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWhiteboardAccessPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
 
-      case m: ClientToServerLatencyTracerMsg      => handleClientToServerLatencyTracerMsg(m)
+      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
-      case m: StartPollReqMsg                     => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: StartCustomPollReqMsg               => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: StopPollReqMsg                      => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: ShowPollResultReqMsg                => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: GetCurrentPollReqMsg                => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
-      case m: RespondToPollReqMsg                 => pollApp.handle(m, liveMeeting, msgBus)
+      case m: StartPollReqMsg =>
+        pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: StartCustomPollReqMsg =>
+        pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: StopPollReqMsg =>
+        pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: ShowPollResultReqMsg =>
+        pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: GetCurrentPollReqMsg => pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: RespondToPollReqMsg =>
+        pollApp.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.requesterId)
 
       // Breakout
-      case m: BreakoutRoomsListMsg                => state = handleBreakoutRoomsListMsg(m, state)
-      case m: CreateBreakoutRoomsCmdMsg           => state = handleCreateBreakoutRoomsCmdMsg(m, state)
-      case m: EndAllBreakoutRoomsMsg              => state = handleEndAllBreakoutRoomsMsg(m, state)
-      case m: RequestBreakoutJoinURLReqMsg        => state = handleRequestBreakoutJoinURLReqMsg(m, state)
-      case m: TransferUserToMeetingRequestMsg     => state = handleTransferUserToMeetingRequestMsg(m, state)
+      case m: BreakoutRoomsListMsg            => state = handleBreakoutRoomsListMsg(m, state)
+      case m: CreateBreakoutRoomsCmdMsg       => state = handleCreateBreakoutRoomsCmdMsg(m, state)
+      case m: EndAllBreakoutRoomsMsg          => state = handleEndAllBreakoutRoomsMsg(m, state)
+      case m: RequestBreakoutJoinURLReqMsg    => state = handleRequestBreakoutJoinURLReqMsg(m, state)
+      case m: TransferUserToMeetingRequestMsg => state = handleTransferUserToMeetingRequestMsg(m, state)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg             => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg          => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg         => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg      => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         state = updateInactivityTracker(state)
-        updateUserLastUserActivity(m.body.voiceUserId)
+        updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
 
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
-      case m: MuteUserCmdMsg => usersApp.handleMuteUserCmdMsg(m)
-      case m: MuteAllExceptPresentersCmdMsg => handleMuteAllExceptPresentersCmdMsg(m)
+      case m: MuteUserCmdMsg =>
+        usersApp.handleMuteUserCmdMsg(m)
+        updateUserLastActivity(m.body.mutedBy)
+      case m: MuteAllExceptPresentersCmdMsg =>
+        handleMuteAllExceptPresentersCmdMsg(m)
+        updateUserLastActivity(m.body.mutedBy)
       case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
-      case m: IsMeetingMutedReqMsg => handleIsMeetingMutedReqMsg(m)
-      case m: MuteMeetingCmdMsg => handleMuteMeetingCmdMsg(m)
-      case m: UserConnectedToGlobalAudioMsg => handleUserConnectedToGlobalAudioMsg(m)
+      case m: IsMeetingMutedReqMsg     => handleIsMeetingMutedReqMsg(m)
+      case m: MuteMeetingCmdMsg =>
+        handleMuteMeetingCmdMsg(m)
+        updateUserLastActivity(m.body.mutedBy)
+      case m: UserConnectedToGlobalAudioMsg      => handleUserConnectedToGlobalAudioMsg(m)
       case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
-      case m: VoiceConfRunningEvtMsg => handleVoiceConfRunningEvtMsg(m)
+      case m: VoiceConfRunningEvtMsg             => handleVoiceConfRunningEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg => handleBroadcastLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg             => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg                 => handleBroadcastLayoutMsg(m)
 
       // Lock Settings
-      case m: ChangeLockSettingsInMeetingCmdMsg => handleSetLockSettings(m)
-      case m: LockUserInMeetingCmdMsg => handleLockUserInMeetingCmdMsg(m)
-      case m: LockUsersInMeetingCmdMsg => handleLockUsersInMeetingCmdMsg(m)
-      case m: GetLockSettingsReqMsg => handleGetLockSettingsReqMsg(m)
+      case m: ChangeLockSettingsInMeetingCmdMsg =>
+        handleSetLockSettings(m)
+        updateUserLastActivity(m.body.setBy)
+      case m: LockUserInMeetingCmdMsg                  => handleLockUserInMeetingCmdMsg(m)
+      case m: LockUsersInMeetingCmdMsg                 => handleLockUsersInMeetingCmdMsg(m)
+      case m: GetLockSettingsReqMsg                    => handleGetLockSettingsReqMsg(m)
 
       // Presentation
-      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: AssignPresenterReqMsg => state = handlePresenterChange(m, state)
+      case m: PreuploadedPresentationsSysPubMsg        => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: AssignPresenterReqMsg                    => state = handlePresenterChange(m, state)
 
       // Presentation Pods
-      case m: CreateNewPresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: RemovePresentationPodPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: GetAllPresentationPodsReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetCurrentPresentationPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: CreateNewPresentationPodPubMsg           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: RemovePresentationPodPubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetAllPresentationPodsReqMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetCurrentPresentationPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionCompletedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetCurrentPagePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresenterInPodReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: RemovePresentationPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresentationDownloadablePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationConversionUpdateSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageGeneratedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageCountErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationUploadTokenReqMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: ResizeAndMovePagePubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetCurrentPagePubMsg                     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresenterInPodReqMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: RemovePresentationPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationDownloadablePubMsg        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionUpdateSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageGeneratedSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageCountErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadTokenReqMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: ResizeAndMovePagePubMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
-      case m: EditCaptionHistoryPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateCaptionOwnerPubMsg => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendCaptionHistoryReqMsg => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: EditCaptionHistoryPubMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateCaptionOwnerPubMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: SendCaptionHistoryReqMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // SharedNotes
-      case m: GetSharedNotesPubMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: SyncSharedNotePubMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: ClearSharedNotePubMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateSharedNoteReqMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: CreateSharedNoteReqMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: DestroySharedNoteReqMsg => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetSharedNotesPubMsg                     => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: SyncSharedNotePubMsg                     => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: ClearSharedNotePubMsg                    => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateSharedNoteReqMsg                   => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: CreateSharedNoteReqMsg                   => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+      case m: DestroySharedNoteReqMsg                  => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
-      case m: GetGuestsWaitingApprovalReqMsg => handleGetGuestsWaitingApprovalReqMsg(m)
-      case m: SetGuestPolicyCmdMsg => handleSetGuestPolicyMsg(m)
-      case m: GuestsWaitingApprovedMsg => handleGuestsWaitingApprovedMsg(m)
-      case m: GetGuestPolicyReqMsg => handleGetGuestPolicyReqMsg(m)
+      case m: GetGuestsWaitingApprovalReqMsg           => handleGetGuestsWaitingApprovalReqMsg(m)
+      case m: SetGuestPolicyCmdMsg                     => handleSetGuestPolicyMsg(m)
+      case m: GuestsWaitingApprovedMsg                 => handleGuestsWaitingApprovedMsg(m)
+      case m: GetGuestPolicyReqMsg                     => handleGetGuestPolicyReqMsg(m)
 
       // Chat
-      case m: GetChatHistoryReqMsg => chatApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendPublicMessagePubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendPrivateMessagePubMsg => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetChatHistoryReqMsg                     => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: SendPublicMessagePubMsg =>
+        chatApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.message.fromUserId)
+      case m: SendPrivateMessagePubMsg =>
+        chatApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.message.fromUserId)
       case m: ClearPublicChatHistoryPubMsg => state = chatApp2x.handle(m, state, liveMeeting, msgBus)
 
       // Screenshare
@@ -579,24 +613,20 @@ class MeetingActor(
   }
 
   def warnPotentiallyInactiveUsers(): Unit = {
-    log.debug("### WARNING USERS")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
       val active = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
       if (!active) {
-        log.debug("$$$ WARNING USER {}", u.intId)
         Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, TimeUtil.minutesToSeconds(props.durationProps.userActivitySignResponseDelayInMinutes), outGW)
       }
     }
   }
 
   def disconnectInactiveUsers(): Unit = {
-    log.debug("### DISCONNECTING USERS")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
       val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
       if (!respondedOntIme) {
-        log.debug("$$$ INACTIVE USER {}", u.intId)
         UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
       }

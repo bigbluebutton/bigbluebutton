@@ -235,7 +235,7 @@ package org.bigbluebutton.modules.users.services
 			var body: Object = msg.body as Object;
 			
 			var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_INACTIVITY_INSPECT_EVENT);    
-			bbbEvent.payload.duration = body.responseDuration as Number;
+			bbbEvent.payload.responseDelay = body.responseDelay as Number;
 			globalDispatcher.dispatchEvent(bbbEvent);
 		}
 		
