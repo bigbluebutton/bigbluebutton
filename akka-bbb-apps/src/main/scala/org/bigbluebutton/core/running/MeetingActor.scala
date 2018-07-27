@@ -579,6 +579,7 @@ class MeetingActor(
   }
 
   def warnPotentiallyInactiveUsers(): Unit = {
+    log.debug("### WARNING USERS")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
       val active = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
@@ -590,10 +591,12 @@ class MeetingActor(
   }
 
   def disconnectInactiveUsers(): Unit = {
+    log.debug("### DISCONNECTING USERS")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val respondedOntIme = lastUserInactivityInspectSentOn < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
+      val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
       if (!respondedOntIme) {
+        log.debug("$$$ INACTIVE USER {}", u.intId)
         UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
       }

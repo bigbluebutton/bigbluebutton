@@ -209,7 +209,7 @@ object MsgBuilder {
   }
 
   def buildUserInactivityInspectMsg(meetingId: String, userId: String, responseDelay: Long): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserInactivityInspectMsg.NAME, routing)
     val body = UserInactivityInspectMsgBody(meetingId, responseDelay)
     val header = BbbClientMsgHeader(UserInactivityInspectMsg.NAME, meetingId, userId)

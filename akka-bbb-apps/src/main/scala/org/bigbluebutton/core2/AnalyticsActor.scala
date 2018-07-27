@@ -82,6 +82,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserBroadcastCamStoppedEvtMsg => logMessage(msg)
       case m: UserBroadcastCamStartedEvtMsg => logMessage(msg)
       case m: EjectUserFromMeetingSysMsg => logMessage(msg)
+      case m: UserInactivityInspectMsg => logMessage(msg)
 
       case m: ChangeUserRoleCmdMsg => logMessage(msg)
 
