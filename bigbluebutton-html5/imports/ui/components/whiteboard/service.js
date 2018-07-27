@@ -7,6 +7,7 @@ import { isEqual } from 'lodash';
 import WhiteboardToolbarService from './whiteboard-toolbar/service';
 
 const Annotations = new Mongo.Collection(null);
+const annotationStatus = Meteor.settings.public.whiteboard.annotations.status;
 let isDiscarded = false;
 
 function clearFakeAnnotations() {
@@ -21,8 +22,8 @@ function discardCurrentAnnotation(whiteboardId) {
 function handleAddedAnnotation({
   meetingId, whiteboardId, userId, annotation,
 }) {
-  const drawStartStatus = Meteor.settings.public.whiteboard.annotations.status.start;
-  const drawEndStatus = Meteor.settings.public.whiteboard.annotations.status.end;
+  const drawStartStatus = annotationStatus.start;
+  const drawEndStatus = annotationStatus.end;
 
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
@@ -154,8 +155,8 @@ const proccessAnnotationsQueue = () => {
   setTimeout(proccessAnnotationsQueue, delayTime);
 };
 
-export function sendAnnotation(annotation, Discarded = false) {
-  const drawEndStatus = Meteor.settings.public.whiteboard.annotations.status.end;
+export function sendAnnotation(annotation, discarded = false) {
+  const drawEndStatus = annotationStatus.end;
 
   // Prevent sending annotations while disconnected
   if (!Meteor.status().connected) return;
@@ -165,7 +166,7 @@ export function sendAnnotation(annotation, Discarded = false) {
 
   // skip optimistic for draw end since the smoothing is done in akka
   if (annotation.status === drawEndStatus) {
-    if (Discarded) isDiscarded = true;
+    if (discarded) isDiscarded = true;
     return;
   }
 
