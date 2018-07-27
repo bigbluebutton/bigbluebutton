@@ -3,9 +3,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
+import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import VideoService from './service';
 import VideoList from './video-list/component';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
 const intlMessages = defineMessages({
   iceCandidateError: {
@@ -79,7 +80,6 @@ class VideoProvider extends Component {
     this.videoTags = {};
     this.sharedWebcam = false;
 
-    this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
