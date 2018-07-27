@@ -82,8 +82,9 @@ public class Meeting {
 	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
-	private Integer userInactivityLogoutTimerInMinutes = 120;
-	private Integer userActivitySignResponseDelayInMinutes = 5;
+	private Integer userInactivityInspectTimerInMinutes = 120;
+	private Integer userInactivityThresholdInMinutes = 30;
+    private Integer userActivitySignResponseDelayInMinutes = 5;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -513,12 +514,20 @@ public class Meeting {
 		return meetingExpireIfNoUserJoinedInMinutes;
 	}
 	
-   public Integer getUserInactivityLogoutTimerInMinutes() {
-        return userInactivityLogoutTimerInMinutes;
+   public Integer getUserInactivityInspectTimerInMinutes() {
+        return userInactivityInspectTimerInMinutes;
     }
 
-    public void setUserInactivityLogoutTimerInMinutes(Integer userInactivityLogoutTimerInMinutes) {
-        this.userInactivityLogoutTimerInMinutes = userInactivityLogoutTimerInMinutes;
+    public void setUserInactivityInspectTimerInMinutes(Integer userInactivityInjspectTimerInMinutes) {
+        this.userInactivityInspectTimerInMinutes = userInactivityInjspectTimerInMinutes;
+    }
+    
+    public Integer getUserInactivityThresholdInMinutes() {
+        return userInactivityThresholdInMinutes;
+    }
+
+    public void setUserInactivityThresholdInMinutes(Integer userInactivityThresholdInMinutes) {
+        this.userInactivityThresholdInMinutes = userInactivityThresholdInMinutes;
     }
 
     public Integer getUserActivitySignResponseDelayInMinutes() {

@@ -22,7 +22,8 @@ public interface IBbbWebApiGWApp {
                      Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
-                     Integer userInactivityLogoutTimerInMinutes,
+                     Integer userInactivityInspectTimerInMinutes,
+                     Integer userInactivityThresholdInMinutes,
                      Integer userActivitySignResponseDelayInMinutes,
                      Boolean muteOnStart);
 
