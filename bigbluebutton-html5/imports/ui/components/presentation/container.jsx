@@ -13,6 +13,6 @@ export default withTracker(({ podId }) => {
   return {
     currentSlide,
     userIsPresenter: PresentationAreaService.isPresenter(podId) && !getSwapLayout(),
-    multiUser: PresentationAreaService.getMultiUserStatus(currentSlide.id) && !getSwapLayout(),
+    multiUser: PresentationAreaService.getMultiUserStatus(currentSlide && currentSlide.id) && !getSwapLayout(),
   };
 })(PresentationAreaContainer);
