@@ -107,14 +107,10 @@ module.exports = class MediaController {
 
         Logger.info("[mcs-controller] PublishAndSubscribe return a SDP session with ID", session.id);
         resolve({userId, sessionId});
+        session.sessionStarted();
       }
       catch (err) {
         reject(this._handleError(err));
-      }
-      finally {
-        if (typeof err === 'undefined' && session) {
-          session.sessionStarted();
-        }
       }
     });
   }
@@ -215,29 +211,28 @@ module.exports = class MediaController {
     }
   }
 
-  async startRecording (userId, sourceId, recordingName) {
-    Logger.info("[mcs-controller] startRecording ", sourceId);
-    try {
-      const user = await this.getUserMCS(userId);
-      const sourceSession = this.getMediaSession(sourceId);
+  startRecording (userId, sourceId, recordingPath) {
 
-      const session = await user.addRecording(recordingName);
-      const answer = await user.startSession(session.id);
-      await sourceSession.connect(session._mediaElement);
+    return new Promise(async (resolve, reject) => {
+      try {
+        Logger.info("[mcs-controller] startRecording ", sourceId);
+        const user = await this.getUserMCS(userId);
+        const sourceSession = this.getMediaSession(sourceId);
 
-      sourceSession.subscribedSessions.push(session.id);
-      this._mediaSessions[session.id] = session;
+        const session = await user.addRecording(recordingPath);
+        const answer = await user.startSession(session.id);
+        await sourceSession.connect(session._mediaElement);
 
-      return Promise.resolve(answer);
-    }
-    catch (err) {
-      return Promise.reject(this._handleError(err));
-    }
-    finally {
-      if (typeof err === 'undefined' && session) {
+        sourceSession.subscribedSessions.push(session.id);
+        this._mediaSessions[session.id] = session;
+
+        resolve(answer);
         session.sessionStarted();
       }
-    }
+      catch (err) {
+        reject(this._handleError(err));
+      }
+    });
   }
 
   async stopRecording (userId, sourceId, recId) {

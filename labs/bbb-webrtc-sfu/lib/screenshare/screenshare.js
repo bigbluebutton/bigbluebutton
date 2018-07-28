@@ -53,6 +53,7 @@ module.exports = class Screenshare extends BaseProvider {
     this._rtmpBroadcastStarted = false;
     this.recording = {};
     this.isRecorded = false;
+    this._recordingSubPath = 'screenshare';
 
     this._BigBlueButtonGW.on(C.RECORDING_STATUS_REPLY_MESSAGE_2x+meetingId, (payload) => {
       Logger.info("[Screenshare] RecordingStatusReply ", payload.recorded);
@@ -192,7 +193,8 @@ module.exports = class Screenshare extends BaseProvider {
   async startRecording() {
     return new Promise(async (resolve, reject) => {
       try {
-        this.recording = await this.mcs.startRecording(this.mcsUserId, this._presenterEndpoint, this._voiceBridge);
+        const recordingPath = this.getRecordingPath(this._meetingId, this._recordingSubPath, this._voiceBridge);
+        this.recording = await this.mcs.startRecording(this.mcsUserId, this._presenterEndpoint, recordingPath);
         this.mcs.on('MediaEvent' + this.recording.recordingId, this.recordingState.bind(this));
         this.sendStartShareEvent();
         resolve(this.recording);
