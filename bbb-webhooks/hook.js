@@ -168,11 +168,11 @@ module.exports = class Hook {
       hook.callbackURL = callbackURL;
       hook.externalMeetingID = meetingID;
       hook.getRaw = getRaw;
-      hook.permanent = config.hooks.permanentURLs.some( url => {
-        return url === callbackURL
+      hook.permanent = config.hooks.permanentURLs.some( obj => {
+        return obj.url === callbackURL
       });
       if (hook.permanent) {
-        hook.id = config.hooks.permanentURLs.indexOf(callbackURL) + 1;
+        hook.id = config.hooks.permanentURLs.map(obj => obj.url).indexOf(callbackURL) + 1;
         nextID = config.hooks.permanentURLs.length + 1;
       } else {
         hook.id = nextID++;
