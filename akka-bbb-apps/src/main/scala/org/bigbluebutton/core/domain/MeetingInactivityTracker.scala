@@ -1,14 +1,11 @@
 package org.bigbluebutton.core.domain
 
-import org.bigbluebutton.core.util.TimeUtil
-
 case class MeetingInactivityTracker(
-    val maxInactivityTimeoutInMs: Long,
-    val warningBeforeMaxInMs:     Long,
-    lastActivityTimestampInMs:    Long,
-    warningSent:                  Boolean,
-    warningSentOnTimestampInMs:   Long
-) {
+  val maxInactivityTimeoutInMs: Long,
+  val warningBeforeMaxInMs:     Long,
+  lastActivityTimestampInMs:    Long,
+  warningSent:                  Boolean,
+  warningSentOnTimestampInMs:   Long) {
   def setWarningSentAndTimestamp(nowInMs: Long): MeetingInactivityTracker = {
     copy(warningSent = true, warningSentOnTimestampInMs = nowInMs)
   }
@@ -22,10 +19,9 @@ case class MeetingInactivityTracker(
   }
 
   def hasRecentActivity(nowInMs: Long): Boolean = {
-
     val left = nowInMs - lastActivityTimestampInMs
     val right = maxInactivityTimeoutInMs - warningBeforeMaxInMs
-    nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
+    left < right
   }
 
   def isMeetingInactive(nowInMs: Long): Boolean = {
@@ -38,14 +34,16 @@ case class MeetingInactivityTracker(
 }
 
 case class MeetingExpiryTracker(
-    startedOnInMs:                     Long,
-    userHasJoined:                     Boolean,
-    isBreakout:                        Boolean,
-    lastUserLeftOnInMs:                Option[Long],
-    durationInMs:                      Long,
-    meetingExpireIfNoUserJoinedInMs:   Long,
-    meetingExpireWhenLastUserLeftInMs: Long
-) {
+  startedOnInMs:                     Long,
+  userHasJoined:                     Boolean,
+  isBreakout:                        Boolean,
+  lastUserLeftOnInMs:                Option[Long],
+  durationInMs:                      Long,
+  meetingExpireIfNoUserJoinedInMs:   Long,
+  meetingExpireWhenLastUserLeftInMs: Long,
+  userInactivityInspectTimerInMs:    Long,
+  userInactivityThresholdInMs:  Long,
+  userActivitySignResponseDelayInMs: Long) {
   def setUserHasJoined(): MeetingExpiryTracker = {
     if (!userHasJoined) {
       copy(userHasJoined = true, lastUserLeftOnInMs = None)
@@ -98,10 +96,9 @@ case class MeetingExpiryTracker(
 }
 
 case class MeetingRecordingTracker(
-    startedOnInMs:        Long,
-    previousDurationInMs: Long,
-    currentDurationInMs:  Long
-) {
+  startedOnInMs:        Long,
+  previousDurationInMs: Long,
+  currentDurationInMs:  Long) {
 
   def startTimer(nowInMs: Long): MeetingRecordingTracker = {
     copy(startedOnInMs = nowInMs)
