@@ -78,7 +78,7 @@ class MeetingActor(
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
-  with UserActivitySignResponseMsgHdlr {
+  with UserActivitySignCmdMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -395,26 +395,30 @@ class MeetingActor(
       case m: SendPrivateMessagePubMsg =>
         chatApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.message.fromUserId)
-      case m: ClearPublicChatHistoryPubMsg => state = chatApp2x.handle(m, state, liveMeeting, msgBus)
+      case m: ClearPublicChatHistoryPubMsg                   => state = chatApp2x.handle(m, state, liveMeeting, msgBus)
 
       // Screenshare
-      case m: ScreenshareStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
-      case m: ScreenshareStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: ScreenshareStartedVoiceConfEvtMsg              => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: ScreenshareStoppedVoiceConfEvtMsg              => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
-      case m: GetScreenshareStatusReqMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
 
       // GroupChat
-      case m: CreateGroupChatReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: CreateGroupChatReqMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
       case m: GetGroupChatMsgsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
-      case m: GetGroupChatsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
-      case m: SendGroupChatMessageMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetGroupChatsReqMsg    => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: SendGroupChatMessageMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.msg.sender.id)
 
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
 
-      case m: UserActivitySignResponseMsg => handleUserActivitySignResponseMsg(m)
+      case m: UserActivitySignCmdMsg      => handleUserActivitySignCmdMsg(m)
 
-      case _ => log.warning("***** Cannot handle " + msg.envelope.name)
+      case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -613,6 +617,7 @@ class MeetingActor(
   }
 
   def warnPotentiallyInactiveUsers(): Unit = {
+    log.info("Checking for potentially inactive users and sending them a message to show a sign of life.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
       val active = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
@@ -623,6 +628,7 @@ class MeetingActor(
   }
 
   def disconnectInactiveUsers(): Unit = {
+    log.info("Disconnecting inactive users that didn't show any sign of life since we warned them.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
       val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime

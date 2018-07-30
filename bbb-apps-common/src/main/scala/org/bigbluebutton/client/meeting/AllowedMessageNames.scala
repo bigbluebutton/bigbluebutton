@@ -34,7 +34,7 @@ object AllowedMessageNames {
       GetGuestPolicyReqMsg.NAME,
       SetGuestPolicyCmdMsg.NAME,
       GuestsWaitingApprovedMsg.NAME,
-      UserActivitySignResponseMsg.NAME,
+      UserActivitySignCmdMsg.NAME,
 
       // Webcams
       GetWebcamsOnlyForModeratorReqMsg.NAME,

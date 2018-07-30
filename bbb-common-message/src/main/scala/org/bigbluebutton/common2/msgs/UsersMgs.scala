@@ -378,6 +378,6 @@ object UserInactivityInspectMsg { val NAME = "UserInactivityInspectMsg" }
 case class UserInactivityInspectMsg(header: BbbClientMsgHeader, body: UserInactivityInspectMsgBody) extends StandardMsg
 case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 
-object UserActivitySignResponseMsg { val NAME = "UserActivitySignResponseMsg" }
-case class UserActivitySignResponseMsg(header: BbbClientMsgHeader, body: UserActivitySignResponseMsgBody) extends StandardMsg
-case class UserActivitySignResponseMsgBody(userId: String)
+object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
+case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
+case class UserActivitySignCmdMsgBody(userId: String)

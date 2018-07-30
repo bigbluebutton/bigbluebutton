@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.common2.msgs.UserActivitySignResponseMsg
+import org.bigbluebutton.common2.msgs.UserActivitySignCmdMsg
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.MeetingActor
 
-trait UserActivitySignResponseMsgHdlr {
+trait UserActivitySignCmdMsgHdlr {
   this: MeetingActor =>
 
-  def handleUserActivitySignResponseMsg(msg: UserActivitySignResponseMsg): Unit = {
+  def handleUserActivitySignCmdMsg(msg: UserActivitySignCmdMsg): Unit = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {

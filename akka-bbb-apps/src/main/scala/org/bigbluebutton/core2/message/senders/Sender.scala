@@ -18,8 +18,8 @@ object Sender {
   }
 
   def sendUserInactivityInspectMsg(meetingId: String, userId: String, responseDelay: Long, outGW: OutMsgRouter): Unit = {
-    val ejectFromMeetingSystemEvent = MsgBuilder.buildUserInactivityInspectMsg(meetingId, userId, responseDelay)
-    outGW.send(ejectFromMeetingSystemEvent)
+    val userInactivityInspectMsg = MsgBuilder.buildUserInactivityInspectMsg(meetingId, userId, responseDelay)
+    outGW.send(userInactivityInspectMsg)
   }
 
 }

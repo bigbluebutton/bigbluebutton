@@ -329,7 +329,7 @@ package org.bigbluebutton.modules.users.services
 		
 		public function userActivitySignResponse():void {
 			var message:Object = {
-				header: {name: "UserActivitySignResponseMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+				header: {name: "UserActivitySignCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
 					userId: UsersUtil.getMyUserID()},
 				body: {userId: UsersUtil.getMyUserID()}
 			};
