@@ -94,8 +94,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[RemoveUserFromPresenterGroupCmdMsg](envelope, jsonNode)
       case GetPresenterGroupReqMsg.NAME =>
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
-      case UserInactivityAuditResponseMsg.NAME =>
-        routeGenericMsg[UserInactivityAuditResponseMsg](envelope, jsonNode)
+      case UserActivitySignCmdMsg.NAME =>
+        routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>

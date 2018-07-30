@@ -327,9 +327,9 @@ package org.bigbluebutton.modules.users.services
       ); //_netConnection.call
     }
 		
-		public function userInactivityAuditResponse():void {
+		public function userActivitySignResponse():void {
 			var message:Object = {
-				header: {name: "UserInactivityAuditResponseMsg", meetingId: UsersUtil.getInternalMeetingID(), 
+				header: {name: "UserActivitySignCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), 
 					userId: UsersUtil.getMyUserID()},
 				body: {userId: UsersUtil.getMyUserID()}
 			};

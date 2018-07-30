@@ -27,8 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		verticalScrollPolicy="off"
 		horizontalScrollPolicy="off"
 		horizontalAlign="center"
-		width="500"
-		styleName="inactivityWarningTextStyle"
+		minWidth="500"
 		creationComplete="onCreationComplete()">
 
 	<fx:Declarations>
@@ -104,8 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.inactivityWarning.title')}"
 							  styleName="titleWindowStyle"
 							  width="{this.width - 40}" />
-		
-		<mx:Text id="warningMessage" selectable="false" text="{}" styleName="inactivityWarningTextStyle"/>
+		<mx:Text id="warningMessage" selectable="false"/>
 		<mx:Button id="cancelButton" click="cancelButtonClicked()" visible="false" styleName="mainActionButton"/>
 	</mx:VBox>
 </mx:TitleWindow>

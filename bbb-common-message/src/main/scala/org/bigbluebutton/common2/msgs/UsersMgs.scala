@@ -374,10 +374,10 @@ case class GetPresenterGroupRespMsg(header: BbbClientMsgHeader, body: GetPresent
 case class GetPresenterGroupRespMsgBody(presenterGroup: Vector[String], requesterId: String)
 
 
-object UserInactivityAuditMsg { val NAME = "UserInactivityAuditMsg" }
-case class UserInactivityAuditMsg(header: BbbClientMsgHeader, body: UserInactivityAuditMsgBody) extends StandardMsg
-case class UserInactivityAuditMsgBody(meetingId: String, responseDuration: Long)
+object UserInactivityInspectMsg { val NAME = "UserInactivityInspectMsg" }
+case class UserInactivityInspectMsg(header: BbbClientMsgHeader, body: UserInactivityInspectMsgBody) extends StandardMsg
+case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 
-object UserInactivityAuditResponseMsg { val NAME = "UserInactivityAuditResponseMsg" }
-case class UserInactivityAuditResponseMsg(header: BbbClientMsgHeader, body: UserInactivityAuditResponseMsgBody) extends StandardMsg
-case class UserInactivityAuditResponseMsgBody(userId: String)
+object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
+case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
+case class UserActivitySignCmdMsgBody(userId: String)
