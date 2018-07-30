@@ -2,7 +2,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
-import { log } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
@@ -22,6 +22,30 @@ const getUsername = () => Users.findOne({ userId: getUserId() }).name;
 
 const getSessionToken = () => Auth.sessionToken;
 
+const logFunc = (type, message, options) => {
+  const userId = getUserId();
+  const userName = getUsername();
+
+  const topic = options.topic || 'screenshare';
+
+  logger[type]({obj: Object.assign(options, {userId, userName, topic})}, `[${topic}] ${message}`);
+};
+
+const modLogger = {
+  info: function (message, options = {}) {
+    logFunc('info', message, options);
+  },
+  error: function (message, options = {}) {
+    logFunc('error', message, options);
+  },
+  debug: function (message, options = {}) {
+    logFunc('debug', message, options);
+  },
+  warn: (message, options = {}) => {
+    logFunc('warn', message, options);
+  },
+};
+
 export default class KurentoScreenshareBridge {
   async kurentoWatchVideo() {
     let iceServers = [];
@@ -29,11 +53,12 @@ export default class KurentoScreenshareBridge {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      log('error', 'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error('Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
         wsUrl: SFU_URL,
         iceServers,
+        logger: modLogger
       };
 
       window.kurentoWatchVideo(
@@ -57,7 +82,7 @@ export default class KurentoScreenshareBridge {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      log('error', 'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error('Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
         wsUrl: SFU_URL,
@@ -65,6 +90,7 @@ export default class KurentoScreenshareBridge {
         chromeScreenshareSources: CHROME_SCREENSHARE_SOURCES,
         firefoxScreenshareSource: FIREFOX_SCREENSHARE_SOURCE,
         iceServers,
+        logger: modLogger,
       };
 
       window.kurentoShareScreen(
