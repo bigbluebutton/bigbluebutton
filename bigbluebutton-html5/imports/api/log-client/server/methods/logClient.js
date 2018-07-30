@@ -7,7 +7,7 @@ const logClient = function (type, log, fullInfo) {
   const logContents = { fullInfo };
 
   if (User) {
-    if (User.meetingId === fullInfo.meetingId) {
+    if (User.meetingId === fullInfo.credentials.meetingId) {
       logContents.validUser = 'valid';
     } else {
       logContents.validUser = 'invalid';
