@@ -2,6 +2,7 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
+import GroupChat from '/imports/api/group-chat';
 import GroupChatMsg from '/imports/api/group-chat-msg';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -38,12 +39,14 @@ class UnreadMessagesTracker {
       },
       sender: { $ne: Auth.userID },
     };
-    // Minimongo does not support $eq. See https://github.com/meteor/meteor/issues/4142
     if (chatID === PUBLIC_GROUP_CHAT_ID) {
       filter.chatId = { $not: { $ne: chatID } };
     } else {
-      filter.toUserId = { $not: { $ne: Auth.userID } };
-      filter.sender.$not = { $ne: chatID };
+      const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
+
+      if (privateChat) {
+        filter.chatId = privateChat.chatId;
+      }
     }
     const messages = GroupChatMsg.find(filter).fetch();
     return messages;

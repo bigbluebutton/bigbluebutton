@@ -90,7 +90,7 @@ const getPrivateGroupMessages = (chatID) => {
 
   const privateChat = GroupChat.findOne({
     users: { $all: [chatID, sender.id] },
-    access: { $not: { $ne: PRIVATE_CHAT_TYPE } },
+    access: PRIVATE_CHAT_TYPE,
   });
 
   let messages = [];

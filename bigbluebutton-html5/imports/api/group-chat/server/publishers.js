@@ -12,11 +12,14 @@ function groupChat(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+  const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+
   Logger.info(`Publishing group-chat for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return GroupChat.find({
     $or: [
-      { meetingId },
+      { meetingId, access: PUBLIC_CHAT_TYPE },
       { meetingId, users: { $all: [requesterUserId] } },
     ],
 
