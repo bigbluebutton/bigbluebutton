@@ -150,7 +150,11 @@ package org.bigbluebutton.modules.whiteboard
       textUpdateListener.canvasMouseDown();
       
       //LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
-      clearBoard();
+
+      // forcefully clear all annotations and cursors on whiteboard change
+      _annotationsMap = new Object();
+      wbCanvas.removeAllGraphics();
+
       clearCursors();
       
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
@@ -167,6 +171,11 @@ package org.bigbluebutton.modules.whiteboard
 			cursor.updateMultiUser(multiUser);
 		}
 	}
+    
+    public function clearCursors():void {
+      _cursors = new Object();
+      wbCanvas.removeAllCursorChildren();
+    }
     
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
 			if (!_cursors.hasOwnProperty(userId)) {

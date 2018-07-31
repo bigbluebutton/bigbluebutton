@@ -12,10 +12,12 @@ const Audio = require('./audio');
 const BaseManager = require('../base/BaseManager');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const errors = require('../base/errors');
 
 module.exports = class AudioManager extends BaseManager {
   constructor (connectionChannel, additionalChannels, logPrefix) {
     super(connectionChannel, additionalChannels, logPrefix);
+    this.sfuApp = C.AUDIO_APP;
     this._meetings = {};
     this._trackMeetingTermination();
     this.messageFactory(this._onMessage);
@@ -73,14 +75,10 @@ module.exports = class AudioManager extends BaseManager {
           Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
           Logger.debug(this._logPrefix, "SDP answer was", sdpAnswer);
           if (error) {
-            this._bbbGW.publish(JSON.stringify({
-              connectionId: connectionId,
-              type: 'audio',
-              id : 'startResponse',
-              response : 'rejected',
-              message : error
+            const errorMessage = this._handleError(this._logPrefix, connectionId, callerName, C.RECV_ROLE, error);
+            return this._bbbGW.publish(JSON.stringify({
+              ...errorMessage
             }), C.FROM_AUDIO);
-            return error;
           }
 
           this._bbbGW.publish(JSON.stringify({
@@ -123,11 +121,9 @@ module.exports = class AudioManager extends BaseManager {
         break;
 
       default:
+        const errorMessage = this._handleError(this._logPrefix, connectionId, null, null, errors.SFU_INVALID_REQUEST);
         this._bbbGW.publish(JSON.stringify({
-          connectionId: connectionId,
-          id : 'error',
-          type: 'audio',
-          message: 'Invalid message ' + message
+          ...errorMessage,
         }), C.FROM_AUDIO);
         break;
     }

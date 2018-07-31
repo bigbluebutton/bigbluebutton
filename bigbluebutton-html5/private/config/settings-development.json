@@ -346,7 +346,11 @@
           }
         ]
       }
-    }
+      
+    },
+    "log": [
+      { "target": "server", "level": "info" }
+    ]
   },
 
   "private": {

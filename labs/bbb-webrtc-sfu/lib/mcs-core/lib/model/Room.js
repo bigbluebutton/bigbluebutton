@@ -17,14 +17,10 @@ module.exports = class Room {
   }
 
   setUser (user) {
-  if (typeof this._users[user.id] == 'undefined' ||
-        !this._users[user.id]) {
-      this._users[user.id] = {};
-    }
     this._users[user.id] = user;
   }
 
   destroyUser(userId) {
-    this._users[userId] = null;;
+    this._users[userId] = null;
   }
 }

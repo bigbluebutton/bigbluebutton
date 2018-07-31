@@ -49,6 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <fx:Script>
     <![CDATA[
+<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.TextEvent;
@@ -90,6 +91,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private static const LOGGER:ILogger = getClassLogger(ChatTab);      
       
+=======
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import flash.events.TextEvent;
+		
+		import mx.binding.utils.BindingUtils;
+		import mx.events.ScrollEvent;
+		
+		import flashx.textLayout.formats.Direction;
+		
+		import org.as3commons.lang.StringUtils;
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Role;
+		import org.bigbluebutton.core.Options;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.events.LockControlEvent;
+		import org.bigbluebutton.core.events.UserStatusChangedEvent;
+		import org.bigbluebutton.core.model.LiveMeeting;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.events.UserJoinedEvent;
+		import org.bigbluebutton.main.events.UserLeftEvent;
+		import org.bigbluebutton.modules.chat.ChatUtil;
+		import org.bigbluebutton.modules.chat.events.ChatEvent;
+		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+		import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+		import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+		import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+		import org.bigbluebutton.modules.chat.model.ChatConversation;
+		import org.bigbluebutton.modules.chat.model.ChatOptions;
+		import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+		import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      private static const LOGGER:ILogger = getClassLogger(ChatBox);      
+      
+      public var publicChat:Boolean = false;
+>>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
       public var chatWithUserID:String;
       public var chatWithUsername:String
       public var chatId: String = null;
@@ -170,8 +213,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
 //        chatToolbar.registerListeners(chatMessagesList);
         
+<<<<<<< HEAD:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatTab.mxml
         chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, 
           adjustToolbarWidthAccordingToScrollBar);
+=======
+        chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, adjustToolbarWidthAccordingToScrollBar);
+		
+		updateStyles();
+>>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5:bigbluebutton-client/src/org/bigbluebutton/modules/chat/views/ChatBox.mxml
       }
       
       

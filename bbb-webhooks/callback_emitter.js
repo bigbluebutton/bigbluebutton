@@ -19,8 +19,7 @@ module.exports = class CallbackEmitter extends EventEmitter {
     this.callbackURL = callbackURL;
     this.message = message;
     this.nextInterval = 0;
-    this.timestap = 0;
-    this.permanent = false;
+    this.timestamp = 0;
     this.permanent = permanent;
   }
 
@@ -47,9 +46,9 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
           // no intervals anymore, time to give up
           } else {
-            this.nextInterval = !this.permanent ? 0 : config.hooks.permanentIntervalReset; // Reset interval to permanent hooks
+            this.nextInterval = config.hooks.permanentIntervalReset; // Reset interval to permanent hooks
             if(this.permanent){
-              this._scheduleNext(interval);
+              this._scheduleNext(this.nextInterval);
             }
             else {
               return this.emit("stopped");
@@ -63,7 +62,7 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
   _emitMessage(callback) {
     let data,requestOptions;
-    
+
     if (config.bbb.auth2_0) {
       // Send data as a JSON
       data = "[" + this.message + "]";

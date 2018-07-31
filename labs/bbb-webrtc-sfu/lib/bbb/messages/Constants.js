@@ -159,7 +159,7 @@ const config = require('config');
         AUDIO_PROVIDER_PREFIX: '[AudioProvider]',
 
         // MCS error codes
-        MEDIA_SERVER_OFFLINE: "1000",
+        MEDIA_SERVER_OFFLINE: 2001,
 
         // Media states'
         MEDIA_FLOWING_IN: 'MEDIA_FLOWING_IN',
