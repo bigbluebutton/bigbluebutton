@@ -7,8 +7,8 @@ module.exports = class MessageMapping {
   constructor() {
     this.mappedObject = {};
     this.mappedMessage = {};
-    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg"];
-    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg"];
+    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg", "ScreenshareRtmpBroadcastStartedEvtMsg", "ScreenshareRtmpBroadcastStoppedEvtMsg", "SetCurrentPresentationEvtMsg", "RecordingStatusChangedEvtMsg"];
+    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg", "UserBroadcastCamStartedEvtMsg", "UserBroadcastCamStoppedEvtMsg", "UserEmojiChangedEvtMsg"];
     this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
     this.rapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended"];
   }
@@ -41,13 +41,14 @@ module.exports = class MessageMapping {
   // Map internal to external message for meeting information
   meetingTemplate(messageObj) {
     const props = messageObj.core.body.props;
+    const meetingId = messageObj.core.body.meetingId || messageObj.core.header.meetingId;
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj),
       "attributes":{
         "meeting":{
-          "internal-meeting-id": messageObj.core.body.meetingId,
-          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.core.body.meetingId)
+          "internal-meeting-id": meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(meetingId)
         }
       },
       "event":{
@@ -82,7 +83,7 @@ module.exports = class MessageMapping {
   userTemplate(messageObj) {
     const msgBody = messageObj.core.body;
     const msgHeader = messageObj.core.header;
-    const extId = UserMapping.getExternalUserID(msgHeader.userId) ? UserMapping.getExternalUserID(msgHeader.userId) : msgBody.extId;
+    const extId = UserMapping.getExternalUserID(msgHeader.userId) || msgBody.extId || "";
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj),
@@ -93,7 +94,7 @@ module.exports = class MessageMapping {
         },
         "user":{
           "internal-user-id": msgHeader.userId,
-          "external-user-id": extId ? extId : "",
+          "external-user-id": extId,
           "sharing-mic": msgBody.muted,
           "name": msgBody.name,
           "role": msgBody.role,
@@ -186,6 +187,10 @@ module.exports = class MessageMapping {
     const mappedMsg = (() => { switch (message) {
       case "MeetingCreatedEvtMsg": return "meeting-created";
       case "MeetingDestroyedEvtMsg": return "meeting-ended";
+      case "RecordingStatusChangedEvtMsg": return "meeting-recording-changed";
+      case "ScreenshareRtmpBroadcastStartedEvtMsg": return "meeting-screenshare-started";
+      case "ScreenshareRtmpBroadcastStoppedEvtMsg": return "meeting-screenshare-stopped";
+      case "SetCurrentPresentationEvtMsg": return "meeting-presentation-changed";
       case "UserJoinedMeetingEvtMsg": return "user-joined";
       case "UserLeftMeetingEvtMsg": return "user-left";
       case "UserJoinedVoiceConfToClientEvtMsg": return "user-audio-voice-enabled";
@@ -193,7 +198,8 @@ module.exports = class MessageMapping {
       case "UserBroadcastCamStartedEvtMsg": return "user-cam-broadcast-start";
       case "UserBroadcastCamStoppedEvtMsg": return "user-cam-broadcast-end";
       case "PresenterAssignedEvtMsg": return "user-presenter-assigned";
-      case "PresenterUnassignedEvtMsg": return "user-presenter-unassigned"
+      case "PresenterUnassignedEvtMsg": return "user-presenter-unassigned";
+      case "UserEmojiChangedEvtMsg": return "user-emoji-changed";
       case "SendPublicMessageEvtMsg": return "chat-public-message-sent";
       case "SendPrivateMessageEvtMsg": return "chat-private-message-sent";
       case "archive_started": return "rap-archive-started";
