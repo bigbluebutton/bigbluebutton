@@ -1,12 +1,5 @@
 version: '2'
 
-# export SERVER_DOMAIN=felipe.dev.mconf.com
-# export EXTERNAL_IP=`dig +short $SERVER_DOMAIN`
-# export SHARED_SECRET=`openssl rand -hex 16`
-# export COTURN_REST_SECRET=`openssl rand -hex 16`
-# export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/mconf-screenshare/mbfngdphjegmlbfobcblikeefpidfncb
-# export SCREENSHARE_EXTENSION_KEY=mbfngdphjegmlbfobcblikeefpidfncb
-
 services:
   mongo:
     image: mongo:3.4
@@ -17,7 +10,7 @@ services:
     restart: unless-stopped
 
   bbb-html5:
-    image: bbb-html5
+    image: ${TAG_PREFIX}bbb-html5${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - mongo
@@ -29,7 +22,7 @@ services:
       ROOT_URL: http://127.0.0.1/html5client
 
   bbb-webhooks:
-    image: bbb-webhooks
+    image: ${TAG_PREFIX}bbb-webhooks${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - redis
@@ -38,13 +31,13 @@ services:
       SHARED_SECRET: ${SHARED_SECRET}
 
   bbb-freeswitch:
-    image: bbb-freeswitch
+    image: ${TAG_PREFIX}bbb-freeswitch${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - coturn
 
   bbb-webrtc-sfu:
-    image: bbb-webrtc-sfu
+    image: ${TAG_PREFIX}bbb-webrtc-sfu${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - redis
@@ -55,7 +48,7 @@ services:
       REDIS_HOST: redis
 
   coturn:
-    image: coturn
+    image: ${TAG_PREFIX}coturn${TAG_SUFFIX}
     restart: unless-stopped
     volumes:
       - ssl-conf:/etc/nginx/ssl
@@ -75,14 +68,14 @@ services:
       - 5349:5349/tcp
 
   kurento:
-    image: kurento
+    image: ${TAG_PREFIX}kurento${TAG_SUFFIX}
     restart: unless-stopped
     environment:
       KMS_STUN_IP: ${EXTERNAL_IP}
       KMS_STUN_PORT: 3478
 
   bbb-apps-akka:
-    image: bbb-apps-akka
+    image: ${TAG_PREFIX}bbb-apps-akka${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - redis
@@ -90,7 +83,7 @@ services:
       JAVA_OPTS: -Dredis.host=redis
 
   bbb-fsesl-akka:
-    image: bbb-fsesl-akka
+    image: ${TAG_PREFIX}bbb-fsesl-akka${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - bbb-freeswitch
@@ -99,7 +92,7 @@ services:
       JAVA_OPTS: -Dredis.host=redis -Dfreeswitch.esl.host=bbb-freeswitch
 
   bbb-web:
-    image: bbb-web
+    image: ${TAG_PREFIX}bbb-web${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - redis
@@ -123,7 +116,7 @@ services:
 #      - db-greenlight:/usr/src/app/db/production
 
   nginx:
-    image: nginx
+    image: ${TAG_PREFIX}nginx${TAG_SUFFIX}
     restart: unless-stopped
     links:
       - bbb-webhooks

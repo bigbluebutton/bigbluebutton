@@ -1,4 +1,4 @@
-## Build
+## Build images individually
 
 sbt is needed to build the Scala components
 ```
@@ -92,13 +92,17 @@ $ cd bbb-lti/
 $ docker build -t bbb-lti .
 ```
 
+## Build all
+
 Build everything with a single command
 ```
 $ cd labs/docker/
 $ make release
 ```
 
-## RUN
+## Run
+
+### Setup
 
 Export your configuration as environment variables
 ```
@@ -108,6 +112,8 @@ $ export SHARED_SECRET=`openssl rand -hex 16`
 $ export COTURN_REST_SECRET=`openssl rand -hex 16`
 $ export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/mconf-screenshare/mbfngdphjegmlbfobcblikeefpidfncb
 $ export SCREENSHARE_EXTENSION_KEY=mbfngdphjegmlbfobcblikeefpidfncb
+$ export TAG_PREFIX=fcecagno/bigbluebutton:
+$ export TAG_SUFFIX=
 ```
 
 Create a volume for the SSL certs
@@ -145,13 +151,17 @@ $ docker stop nginx
 
 ```
 
+### Launch with docker-compose
+
 Launch everything with docker compose
 ```
 $ cd labs/docker/
 $ docker-compose up
 ```
 
-These are the instructions to run the containers individually
+### Launch without docker-compose
+
+These are the instructions to run the containers individually, in order
 ```
 $ docker run --rm --name mongo -d mongo:3.4
 
