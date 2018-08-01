@@ -53,7 +53,7 @@ export default class SettingsDropdownContainer extends Component {
     const handleToggleFullscreen = toggleFullScreen;
     const isFullScreen = this.state.isFullScreen;
     const result = browser();
-    const isAndroid = result.os.includes('Android');
+    const isAndroid = (result && result.os) ? result.os.includes('Android') : false;
 
     return (
       <SettingsDropdown

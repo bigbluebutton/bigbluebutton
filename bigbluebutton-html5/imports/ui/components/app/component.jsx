@@ -81,8 +81,12 @@ class App extends Component {
 
     const BROWSER_RESULTS = browser();
     const body = document.getElementsByTagName('body')[0];
-    body.classList.add(`browser-${BROWSER_RESULTS.name}`);
-    body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
+    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
+      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+    }
+    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
+      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
+    }
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
