@@ -73,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function webRTCAvailableCallback(reason:String):void {
 				LOGGER.debug("WebRTC available");
 				// have to also check for Chrome + Win 10 because it can be blurry
-				if (BrowserCheck.isChrome() && Capabilities.os == "Windows 10") {
+				if (BrowserCheck.isChrome() || BrowserCheck.isFirefox()) {
 					webrtcProblemHintBox.visible = webrtcProblemHintBox.includeInLayout = true;
 					webrtcProblemHintLbl.htmlText = ResourceUtil.getInstance().getString('bbb.screenshareSelection.problemHintText2', [screenshareOptions.chromeWin10Help]);
 				}

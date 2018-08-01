@@ -11,7 +11,9 @@ const propTypes = {
 
 export default class UserActions extends React.PureComponent {
   render() {
-    const { key, icon, label, handler, options } = this.props;
+    const {
+      key, icon, label, handler, options,
+    } = this.props;
 
     return (
       <DropdownListItem

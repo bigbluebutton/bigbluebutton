@@ -24,9 +24,6 @@ package org.bigbluebutton.modules.users.services
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.common.toaster.Toaster;
-  import org.bigbluebutton.common.toaster.message.ToastIcon;
-  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.TimerUtil;
@@ -469,6 +466,12 @@ package org.bigbluebutton.modules.users.services
       var stream: String = body.stream as String;
       var vidWidth: Number = body.vidWidth as Number;
       var vidHeight: Number = body.vidHeight as Number;
+			
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["webrtc-screenshare"];
+			logData.logCode = "screenshare-rtmp-broadcast-started";
+			logData.stream = stream;
+			LOGGER.info(JSON.stringify(logData));
       
       var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
       
@@ -485,6 +488,12 @@ package org.bigbluebutton.modules.users.services
       var vidWidth: Number = body.vidWidth as Number;
       var vidHeight: Number = body.vidHeight as Number;
       
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["webrtc-screenshare"];
+			logData.logCode = "screenshare-rtmp-broadcast-stopped";
+			logData.stream = stream;
+			LOGGER.info(JSON.stringify(logData));
+			
       var event:WebRTCViewStreamEvent = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
       
       event.videoWidth = vidWidth;
@@ -738,54 +747,53 @@ package org.bigbluebutton.modules.users.services
     private function sendUserEmojiChangedEvent(userId: String, emoji: String):void{
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new UserEmojiChangedEvent(userId, emoji));
-    }
-    
-    
-    private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
-      var userId: String = msg.body.userId as String; 
-      var streamId: String = msg.body.stream as String;
-      var logData:Object = UsersUtil.initLogData();
-      logData.tags = ["webcam"];
-      logData.logCode = "user_broadcasting_camera_start";
-			logData.userId = userId;
-      logData.streamId = streamId;
+	}
 
-      if (isValidFlashWebcamStream(streamId)) {
+	private function handleUserBroadcastCamStartedEvtMsg(msg:Object):void {
+		var userId:String = msg.body.userId as String;
+		var streamId:String = msg.body.stream as String;
+		var logData:Object = UsersUtil.initLogData();
+		logData.tags = ["webcam"];
+		logData.logCode = "user_broadcasting_camera_start";
+		logData.userId = userId;
+		logData.streamId = streamId;
 
-        LOGGER.info(JSON.stringify(logData));
+		if (isValidFlashWebcamStream(streamId)) {
 
-        var mediaStream: MediaStream = new MediaStream(streamId, userId)
-          LiveMeeting.inst().webcams.add(mediaStream);
+			LOGGER.info(JSON.stringify(logData));
 
-        var webUser: User2x = UsersUtil.getUser(userId);
-        if (webUser != null) {
-          sendStreamStartedEvent(userId, webUser.name, streamId);
-        }
-      }
-    }
-    
-    private function sendStreamStartedEvent(userId: String, name: String, stream: String):void{
-      var dispatcher:Dispatcher = new Dispatcher();
-      dispatcher.dispatchEvent(new StreamStartedEvent(userId, name, stream));
-    }
-    
-    private function handleUserBroadcastCamStoppedEvtMsg(msg: Object):void {  
-      var userId: String = msg.body.userId as String; 
-      var stream: String = msg.body.stream as String;
-      
-      var logData:Object = UsersUtil.initLogData();
-      logData.tags = ["webcam"];
-			logData.logCode = "user_broadcasting_camera_stop";
-			logData.userId = userId;
-			logData.streamId = stream;
-      LOGGER.info(JSON.stringify(logData));
-      
-      var mediaStream: MediaStream = LiveMeeting.inst().webcams.remove(stream);
-      
-			if (mediaStream != null) {
-      	sendStreamStoppedEvent(mediaStream.userId, stream);
+			var mediaStream:MediaStream = new MediaStream(streamId, userId)
+			LiveMeeting.inst().webcams.add(mediaStream);
+
+			var webUser:User2x = UsersUtil.getUser(userId);
+			if (webUser != null) {
+				sendStreamStartedEvent(userId, webUser.name, streamId);
 			}
-    }
+		}
+	}
+
+	private function sendStreamStartedEvent(userId:String, name:String, stream:String):void {
+		var dispatcher:Dispatcher = new Dispatcher();
+		dispatcher.dispatchEvent(new StreamStartedEvent(userId, name, stream));
+	}
+
+	private function handleUserBroadcastCamStoppedEvtMsg(msg:Object):void {
+		var userId:String = msg.body.userId as String;
+		var stream:String = msg.body.stream as String;
+
+		var logData:Object = UsersUtil.initLogData();
+		logData.tags = ["webcam"];
+		logData.logCode = "user_broadcasting_camera_stop";
+		logData.userId = userId;
+		logData.streamId = stream;
+		LOGGER.info(JSON.stringify(logData));
+
+		var mediaStream:MediaStream = LiveMeeting.inst().webcams.remove(stream);
+
+		if (mediaStream != null) {
+			sendStreamStoppedEvent(mediaStream.userId, stream);
+		}
+	}
     
     private function sendStreamStoppedEvent(userId: String, streamId: String):void{
       var dispatcher:Dispatcher = new Dispatcher();

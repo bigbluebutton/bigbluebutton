@@ -95,6 +95,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var streamHeight:Number = 100;
 			private var streamWidth:Number = 100;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
+			
+			private var red5StreamTimeout:Timer = new Timer(30000, 1);
 
 			[Bindable] private var dsOptions:ScreenshareOptions;
 			
@@ -175,8 +177,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function cannotUseWebRTC(message:String):void {
-				LOGGER.debug("Cannot use WebRTC Screensharing: " + message);
-				
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["webrtc-screenshare"];
+				logData.logCode = "cannot-use-webrtc-screenshare";
+				logData.reason = message;
+				LOGGER.info(JSON.stringify(logData));
 				displayFail(message);
 			};
 			
@@ -192,7 +197,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			attempt to share
 			*/
 			private function webRTCWorksAndConfigured(message:String):void {
-				LOGGER.debug("WebRTC Screenshare works, start sharing: " + message);
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["webrtc-screenshare"];
+				logData.logCode = "webrtc-works-and-configured";
+				logData.reason = message;
+				LOGGER.info(JSON.stringify(logData));
 				startWebRTCPublish();
 			}
 			
@@ -202,14 +211,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (ExternalInterface.available) {
 					var videoTag:String = "localWebRTCVideo";
 					var onFail:Function = function(args:Object):void {
-						LOGGER.debug("startWebRTCDeskshare - failed to publish WebRTC deskshare. " + ObjectUtil.toString(args));
+						var logData:Object = UsersUtil.initLogData();
+						logData.tags = ["webrtc-screenshare"];
+						logData.logCode = "webrtc-failed-to-publish";
+						
 						if (args is String) {
+							logData.reason = args as String;
 							displayFail(args as String);
 						} else {
 							displayFail();
 						}
+						LOGGER.info(JSON.stringify(logData));
+						
+						red5StreamTimeout.stop();
 					};
+					var onSuccess:Function = function():void {
+						var logData:Object = UsersUtil.initLogData();
+						logData.tags = ["webrtc-screenshare"];
+						logData.logCode = "webrtc-sending-offer";
+						LOGGER.info(JSON.stringify(logData));
+						
+						// start timeout timer
+						red5StreamTimeout.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+							var logData:Object = UsersUtil.initLogData();
+							logData.tags = ["webrtc-screenshare"];
+							logData.logCode = "webrtc-stream-timeout";
+							logData.reason = "Timeout hit waiting for the red5 stream to start";
+							LOGGER.info(JSON.stringify(logData));
+							
+							displayFail(ResourceUtil.getInstance().getString("bbb.screensharePublish.streamTimeout.label"));
+						});
+						red5StreamTimeout.start();
+					}
 					ExternalInterface.addCallback("onFail", onFail);
+					ExternalInterface.addCallback("onSuccess", onSuccess);
 					
 					var voiceBridge:String = UsersUtil.getVoiceBridge();
 					var myUserId:String = UsersUtil.getMyUserID();
@@ -222,7 +257,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						myUserId,
 						internalMeetingID,
 						"onFail",
-						dsOptions.chromeExtensionKey);
+						dsOptions.chromeExtensionKey,
+						"",
+						"",
+						"onSuccess");
 					
 				}
 			}
@@ -263,7 +301,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(streamEvent);
 				}
 				streaming = false;
-				//closeWindow();
+				closeWindow();
 			}
 
 			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
@@ -272,14 +310,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function startVideo(rtmp:String, videoWidth:Number, videoHeight:Number):void {
+				red5StreamTimeout.stop();
+				
 				setCurrentState("dispFullRegionControlBar");
 				var myArray :Array = rtmp.split('/');
 				var meetingUrl:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
 				stream = rtmp.substring(rtmp.lastIndexOf('/')+1, rtmp.length);
-				LOGGER.debug("WebRTCDesktopPublishWindow::startVideo meetingurl=[{0}] and stream=[{1}]",[meetingUrl, stream]);
-
-				JSLog.warn("WebRTCDesktopPublishWindow::startVideo meetingurl= ",meetingUrl);
-				JSLog.warn("WebRTCDesktopPublishWindow::startVideo stream=", stream);
+				
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["webrtc-screenshare"];
+				logData.logCode = "webrtc-screenshare-start-playing-preview";
+				logData.stream = stream;
+				LOGGER.info(JSON.stringify(logData));
 
 				connection = new NetConnection();
 				

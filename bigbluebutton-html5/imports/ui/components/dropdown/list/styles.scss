@@ -11,6 +11,8 @@ $more-icon-line-height: 16px;
   text-align: left;
   color: $color-gray-dark;
   display: flex;
+  overflow-wrap: break-word;
+  white-space: pre-line;
 
   @include mq($small-only) {
     font-size: $font-size-large * 1.1;
@@ -34,7 +36,6 @@ $more-icon-line-height: 16px;
 }
 
 .title {
-  @extend %text-elipsis;
   color: $color-gray;
   font-weight: 600;
   width: 100%;
@@ -136,7 +137,6 @@ $more-icon-line-height: 16px;
 }
 
 .itemLabel {
-  @extend %text-elipsis;
   color: $color-gray-dark;
   font-size: 90%;
   flex: 1;

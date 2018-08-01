@@ -11572,11 +11572,7 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
       })
       .then(function onSetLocalDescriptionSuccess() {
         var deferred = SIP.Utils.defer();
-        if (pc.iceGatheringState === 'complete' && (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed')) {
-          deferred.resolve();
-        } else {
-          self.onIceCompleted.promise.then(deferred.resolve);
-        }
+        self.onIceCompleted.promise.then(deferred.resolve);
         return deferred.promise;
       })
       .then(function readySuccess () {

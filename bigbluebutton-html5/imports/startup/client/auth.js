@@ -3,10 +3,12 @@ import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
+import logger from '/imports/startup/client/logger';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
 const METADATA_KEY = 'metadata';
+const CUSTOM_DATA_KEY = 'customdata';
 
 export function joinRouteHandler(nextState, replace, callback) {
   const { sessionToken } = nextState.location.query;
@@ -15,6 +17,9 @@ export function joinRouteHandler(nextState, replace, callback) {
     replace({ pathname: '/error/404' });
     callback();
   }
+  
+  // Old credentials stored in memory were being used when joining a new meeting
+  Auth.clearCredentials();
 
   // use enter api to get params for the client
   const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
@@ -24,6 +29,7 @@ export function joinRouteHandler(nextState, replace, callback) {
     .then(({ response }) => {
       const {
         returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+        externUserID, fullname, confname, customdata,
       } = response;
 
       if (returncode === 'FAILED') {
@@ -32,6 +38,7 @@ export function joinRouteHandler(nextState, replace, callback) {
       }
 
       setCustomLogoUrl(customLogoURL);
+
       const metakeys = metadata.length
         ? metadata.reduce((acc, meta) => {
           const key = Object.keys(meta).shift();
@@ -52,16 +59,58 @@ export function joinRouteHandler(nextState, replace, callback) {
             log('error', `Caught: ${e.message}`);
           }
           return { ...acc, [key]: value };
-        }) : {};
-      SessionStorage.setItem(METADATA_KEY, metakeys);
+        }, {}) : {};
 
-      Auth.set(meetingID, internalUserID, authToken, logoutUrl, sessionToken);
+      const customData = customdata.length
+        ? customdata.reduce((acc, data) => {
+          const key = Object.keys(data).shift();
+
+          const handledHTML5Parameters = [
+            'html5recordingbot'
+          ];
+          if (handledHTML5Parameters.indexOf(key) === -1) {
+            return acc;
+          }
+
+          let value = data[key];
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            log('error', `Caught: ${e.message}`);
+          }
+
+          return { ...acc, [key]: value};
+        }, {}) : {};
+
+      SessionStorage.setItem(METADATA_KEY, metakeys);
+      SessionStorage.setItem(CUSTOM_DATA_KEY, customData);
+
+      Auth.set(
+        meetingID, internalUserID, authToken, logoutUrl,
+        sessionToken, fullname, externUserID, confname,
+      );
 
       const path = deviceInfo.type().isPhone ? '/' : '/users';
+      const userInfo = window.navigator;
+
+      // Browser information is sent once on startup
+      // Sent here instead of Meteor.startup, as the
+      // user might not be validiated by then, thus user's data
+      // would not be sent with this information
+      const clientInfo = {
+        language: userInfo.language,
+        userAgent: userInfo.userAgent,
+        screenSize: { width: window.screen.width, height: window.screen.height },
+        windowSize: { width: window.innerWidth, height: window.innerHeight },
+        bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+        location: window.location.href,
+      };
 
       replace({ pathname: path });
 
-      callback();
+      logger.info(JSON.stringify(clientInfo));
+
+      return callback();
     });
 }
 

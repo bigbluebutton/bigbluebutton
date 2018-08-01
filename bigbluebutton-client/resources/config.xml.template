@@ -95,6 +95,7 @@
 			dependsOn="PresentModule"
 			baseTabIndex="601"
 			keepToolbarVisible="false"
+			onlyPenMUW="false"
 		/>
 
 		<module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION"
