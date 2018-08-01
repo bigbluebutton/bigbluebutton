@@ -147,8 +147,6 @@ package org.bigbluebutton.modules.chat.model
 				cm.lastTime = prevCM.time;
 				cm.differentLastSenderAndTime = differentLastSenderAndTime(cm.lastTime, cm.time, 
 					cm.senderId, cm.lastSenderId);
-				cm.sameLastSender = sameLastSender(cm.senderId, cm.lastSenderId);
-				cm.isModerator = isModerator(cm.senderId);
 			}
 			
 			return cm

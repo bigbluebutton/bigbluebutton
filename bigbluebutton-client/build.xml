@@ -145,7 +145,7 @@
 			<!-- Invoke MXMLC -->
 			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf" actionscript-file-encoding="UTF-8" incremental="true">
 				<locale>@{locale}</locale>
-				<target-player>11.2.0</target-player>
+				<target-player>29.0.0</target-player>
 				<source-path path-element="locale/{locale}" />
 
 				<!--
@@ -282,7 +282,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" incremental="true" swf-version="13" optimize="true" link-report="linker-report.xml">
-				<target-player>11.2.0</target-player>
+				<target-player>29.0.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<default-background-color>0xFFFFFF</default-background-color>
 				<source-path path-element="@{themeDir}" />
@@ -330,7 +330,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" incremental="true" swf-version="13">
-				<target-player>11.2.0</target-player>
+				<target-player>29.0.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
@@ -361,7 +361,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" incremental="true" swf-version="13" optimize="true" load-externs="linker-report.xml">
-				<target-player>11.2.0</target-player>
+				<target-player>29.0.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>

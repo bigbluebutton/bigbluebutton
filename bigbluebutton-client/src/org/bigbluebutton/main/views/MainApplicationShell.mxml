@@ -54,13 +54,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 		<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
 		<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
-	  
+		<mate:Listener type="{ScreenshareSelectionWindowEvent.SHOW_WINDOW}" method="handleShowScreenshareSelection" />
+		<mate:Listener type="{LookUpUserResultEvent.SHOW_WINDOW}" method="handleShowLookUpUserResult" />
+		
 		<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 		<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 		<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 		<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 		<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
-		<mate:Listener type="{BBBEvent.USER_INACTIVITY_AUDIT_EVENT}" method="handleUserInactivityAuditEvent" />
+		<mate:Listener type="{BBBEvent.USER_INACTIVITY_INSPECT_EVENT}" method="handleUserInactivityInspectEvent" />
 		<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 		<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
 		
@@ -76,6 +78,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     	<mate:Listener type="{RoundTripLatencyReceivedEvent.ROUND_TRIP_LATENCY_RECEIVED}" method="handleRoundTripLatencyReceivedEvent"/>
 		<mate:Listener type="{ClosePendingGuestWindow.CLOSE_PENDING_GUEST_WINDOW}" method="handleClosePendingGuestWindow" />
 		<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="handleConferenceCreatedEvent" />
+		
+		<mate:Listener type="{BBBEvent.OPEN_RECORD_WINDOW}" method="handleOpenRecordWindowEvent" />
     
 	</fx:Declarations>
 	<fx:Script>
@@ -86,12 +90,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.TextEvent;
 			import flash.utils.setTimeout;
 			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
+			
+			import flashx.textLayout.formats.Direction;
 			
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
@@ -132,17 +140,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.options.LanguageOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.LookUpUserResultEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.phone.models.PhoneOptions;
+			import org.bigbluebutton.modules.screenshare.events.ScreenshareSelectionWindowEvent;
+			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareSelectionWindow;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
+			import org.bigbluebutton.modules.users.views.UserLookUpWindow;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			
+			
+			
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -197,8 +213,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				return logWindow;
 			}
-      
+
 			public function initOptions():void {
+				// Set the layout direction at the application start
+				ResourceUtil.getInstance().updateLayoutDirection();
 				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
@@ -319,22 +337,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.height = appHeight - (_showFooter ? footerHeight: 0) - (_showToolbar ? toolbarHeight: 0);
 				updateCanvasBackgroundDimensions();
 			}
-
+			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				var logData:Object = UsersUtil.initLogData();
 				
 				appVersion = event.appVersion;
 				updateCopyrightText();
-
 				logData.appVersion = appVersion;
+				logData.tags = ["locale"];
+				logData.logCode = "config_xml_locale_version";
 				LOGGER.info(JSON.stringify(logData));
-
-				logData.message = "Received application version event";
 				sendStartAllModulesEvent();
 			}
 
 			public function sendStartAllModulesEvent():void{
-				LOGGER.debug("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -358,8 +374,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LOGGER.debug("OPENING GUEST WINDOW");
 					var guestWindow : PendingGuestsWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
 					PopUpUtil.lockPosition(guestWindow, function():Point {
-						return new Point(parentApplication.screen.width - guestWindow.width - 20, 20); 
-					});	
+						if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+							return new Point(20, 20);
+						} else {
+							return new Point(systemManager.screen.width - guestWindow.width - 20, 20);
+						}
+					});
 				}
 			}
 
@@ -376,7 +396,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function closeWaitWindow(e:BBBEvent):void {
 				if(waitWindow != null && e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-					LOGGER.debug("closeWaitWindow");
 					waitWindow.removeWindow();
 				}
 			}
@@ -419,7 +438,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen");
 				if (ExternalInterface.available) {
 					ExternalInterface.call("toggleFullscreen");
 				}
@@ -488,18 +506,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return flashVersion;
 			}
 			
-	   		private function resetLayout():void{
-	   			mdiCanvas.resetWindowLayout();
-	   		}
-	   		
-	   		private function addComponentToCanvas(e:AddUIComponentToMainCanvas):void{
-	   			mdiCanvas.addChild(e.component);
-	   		}
-	   		
-			private function handleUserInactivityAuditEvent(e:BBBEvent):void {
-				var inactivityWarning:UserInactivityAuditWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
-					UserInactivityAuditWindow, true) as UserInactivityAuditWindow;
-				inactivityWarning.duration = e.payload.duration;
+			private function resetLayout():void{
+				mdiCanvas.resetWindowLayout();
+			}
+			
+			private function addComponentToCanvas(e:AddUIComponentToMainCanvas):void{
+				mdiCanvas.addChild(e.component);
+			}
+			
+			private function handleUserInactivityInspectEvent(e:BBBEvent):void {
+				var inactivityWarning:UserInactivityWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
+					UserInactivityWindow, true) as UserInactivityWindow;
+				inactivityWarning.duration = e.payload.responseDelay;
 			}
 			
 			private function handleInactivityWarningEvent(e:BBBEvent):void {
@@ -507,74 +525,82 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				inactivityWarning.duration = e.payload.duration;
 			}
 
-            private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
-                /**
-                 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a
-                 * pop-up is opened from another pop-up. I delayed the second open to
-                 * avoid this case. - Chad
-                 */
-                this.callLater(function():void {
-                    PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FlashMicSettings, true) as FlashMicSettings;
-                });
-            }
-
-            private function openVideoPreviewWindow(event:BBBEvent):void {
-                var camSettings:CameraDisplaySettings = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, CameraDisplaySettings, true) as CameraDisplaySettings;
-                if (camSettings) {
-                    camSettings.defaultCamera = event.payload.defaultCamera;
-                    camSettings.camerasArray = event.payload.camerasArray;
-                    camSettings.publishInClient = event.payload.publishInClient;
-                    camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
+			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
+				/**
+				 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a
+				 * pop-up is opened from another pop-up. I delayed the second open to
+				 * avoid this case. - Chad
+				 */
+				this.callLater(function():void {
+					PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FlashMicSettings, true) as FlashMicSettings;
+				});
+			}
+			
+			private function openVideoPreviewWindow(event:BBBEvent):void {
+				var camSettings:CameraDisplaySettings = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, CameraDisplaySettings, true) as CameraDisplaySettings;
+				if (camSettings) {
+					camSettings.defaultCamera = event.payload.defaultCamera;
+					camSettings.camerasArray = event.payload.camerasArray;
+					camSettings.publishInClient = event.payload.publishInClient;
+					camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
 					camSettings.updateCameraList();
-                }
-            }
+				}
+			}
 
-            private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
-                PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, AudioSelectionWindow, true);
-            }
-
-            private function handleRoundTripLatencyReceivedEvent(event: RoundTripLatencyReceivedEvent): void {
-           //   rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
-            }
-      
-            private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
-                var options:PhoneOptions = new PhoneOptions();
-                if (!options.showMicrophoneHint) return;
-                var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
-                if (BrowserCheck.isFirefox()) {
-                    if (browserPermissionHelper) {
-						if (Capabilities.os.indexOf("Mac") >= 0){
-							browserPermissionHelper.currentState = "firefoxMicMacOSX";
-						}
-						else {
+			private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, AudioSelectionWindow, true);
+			}
+			
+			private function handleRoundTripLatencyReceivedEvent(event: RoundTripLatencyReceivedEvent): void {
+				//   rttLabel.text = "RTT = " + LiveMeeting.inst().whiteboardModel.latencyInSec/1000 + "s";
+			}
+			
+			private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
+				var options:PhoneOptions = new PhoneOptions();
+				if (!options.showMicrophoneHint) return;
+				var browserPermissionHelper:BrowserPermissionHelper = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
+				if (BrowserCheck.isFirefox()) {
+					if (browserPermissionHelper) {
+						if (Capabilities.os.indexOf("Windows") >= 0) {
 							browserPermissionHelper.currentState = "firefoxMic";
+						} else {
+							browserPermissionHelper.currentState = "firefoxMicMacOSX";
 						}
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 200;
-                    }
-                } else if (BrowserCheck.isChrome()) {
-                    if (browserPermissionHelper) {
-						if (Capabilities.os.indexOf("Mac") >= 0){
-							browserPermissionHelper.currentState = "chromeMicMacOSX";
-						} else {
+					}
+				} else if (BrowserCheck.isChrome()) {
+					if (browserPermissionHelper) {
+						if (Capabilities.os.indexOf("Windows") >= 0) {
 							browserPermissionHelper.currentState = "chromeMic";
+						} else {
+							browserPermissionHelper.currentState = "chromeMicMacOSX";
 						}
 						browserPermissionHelper.x = 50;
 						browserPermissionHelper.y = 130;
-                    }
-                }
-            }
+					}
+				}
+			}
 
-            private function handleWebRTCEchoTestConnectingEvent(event:WebRTCEchoTestEvent):void {
-                PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, WebRTCEchoTest, true) as WebRTCEchoTest;
-            }
-
-            private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-                if (BrowserCheck.isChrome()) {
+			private function handleWebRTCEchoTestConnectingEvent(event:WebRTCEchoTestEvent):void {
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, WebRTCEchoTest, true) as WebRTCEchoTest;
+			}
+			
+			private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
+				if (BrowserCheck.isChrome()) {
 					// Show browserPermissionHelper component after showing the webcam window due event listeners registration order
-                    setTimeout(showbrowserPermissionHelper, 100);
-                }
-            }
+					setTimeout(showbrowserPermissionHelper, 100);
+				}
+			}
+			
+			private function handleShowScreenshareSelection(event:ScreenshareSelectionWindowEvent):void {
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, ScreenshareSelectionWindow, true);
+			}
+			
+			private function handleShowLookUpUserResult(event:LookUpUserResultEvent):void {
+				var popup:UserLookUpWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, UserLookUpWindow, true) as UserLookUpWindow;
+				popup.setUserInfo(event.userInfo);
+			}
 			
 			private function showbrowserPermissionHelper() : void {
 				var browserPermissionHelper : BrowserPermissionHelper = PopUpUtil.createNonModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BrowserPermissionHelper, false) as BrowserPermissionHelper;
@@ -589,14 +615,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-            /**
-             * Removes toolbars from the display list.
-             * Used only when the user completely logged out.
-             */
-            private function removeToolBars():void {
-                this.removeChild(toolbar);
-                this.removeChild(controlBar);
-            }
+			/**
+			 * Removes toolbars from the display list.
+			 * Used only when the user completely logged out.
+			 */
+			private function removeToolBars():void {
+				this.removeChild(toolbar);
+				this.removeChild(controlBar);
+			}
+
+			private function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
+				if (! UsersUtil.isBreakout()) {
+					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
+				} else {
+					ExternalInterface.call("window.close");
+				}
+			}
+
+			private function redirectToLogoutUrl ():void {
+        		var logoutURL:String = BBB.getLogoutURL();
+				var request:URLRequest = new URLRequest(logoutURL);
+
+				navigateToURL(request, '_self');
+			}
+			
+
+			private function handleLogoutError(e:Event):void {
+
+				redirectToLogoutUrl();
+			}
+			
+			private function handleLogoutComplete(e:Event):void {	
+				redirectToLogoutUrl();
+			}
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
@@ -686,29 +737,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-            private function openLockSettingsWindow(event:LockControlEvent):void {
-                var lsv:LockSettingsVO = UsersUtil.getLockSettings();
-
-                var popUp:IFlexDisplayObject = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LockSettings, true);
-                if (popUp) {
-                    var ls:LockSettings = LockSettings(popUp);
-                    ls.disableCam = lsv.getDisableCam();
-                    ls.disableMic = lsv.getDisableMic();
+			private function openLockSettingsWindow(event:LockControlEvent):void {
+				var lsv:LockSettingsVO = UsersUtil.getLockSettings();
+				
+				var popUp:IFlexDisplayObject = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LockSettings, true);
+				if (popUp) {
+					var ls:LockSettings = LockSettings(popUp);
+					ls.disableCam = lsv.getDisableCam();
+					ls.disableMic = lsv.getDisableMic();
 					ls.webcamsOnlyForModerator = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
-                    ls.disablePrivChat = lsv.getDisablePrivateChat();
-                    ls.disablePubChat = lsv.getDisablePublicChat();
-                    ls.lockedLayout = lsv.getLockedLayout();
-                    ls.lockOnJoin = lsv.getLockOnJoin();
-                    ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();
-                }
-            }
-
-            private function openBreakoutRoomsWindow(e:BreakoutRoomEvent):void {
-                var popUp:IFlexDisplayObject = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BreakoutRoomSettings, true);
-                if (popUp != null) {
-                    BreakoutRoomSettings(popUp).initCreateBreakoutRooms(e.joinMode, e.record);
-                }
-            }
+					ls.disablePrivChat = lsv.getDisablePrivateChat();
+					ls.disablePubChat = lsv.getDisablePublicChat();
+					ls.lockedLayout = lsv.getLockedLayout();
+					ls.lockOnJoin = lsv.getLockOnJoin();
+					ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();
+				}
+			}
+			
+			private function openBreakoutRoomsWindow(e:BreakoutRoomEvent):void {
+				var popUp:IFlexDisplayObject = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, BreakoutRoomSettings, true);
+				if (popUp != null) {
+					BreakoutRoomSettings(popUp).initCreateBreakoutRooms(e.joinMode, e.record);
+				}
+			}
+			
+			private function handleOpenRecordWindowEvent(e:BBBEvent):void {
+				var popUp:RecordWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, RecordWindow, false) as RecordWindow;
+				popUp.setRecordingFlag(e.payload.recording);
+				PopUpUtil.lockPosition(popUp, function():Point {
+					if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+						return new Point(150, y + toolbar.height);
+					} else {
+						return new Point(parentApplication.width - popUp.width - 150, y + toolbar.height); 
+					}
+				});
+			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void{
 				if (ExternalInterface.available) {
@@ -716,23 +779,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-            private function onLayoutChanged(e:SwitchedLayoutEvent):void {
-                if (e.layoutID != "bbb.layout.name.videochat") {
-                    this.styleName = "defaultShellStyle";
+			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
+				if (e.layoutID != "bbb.layout.name.videochat") {
+					this.styleName = "defaultShellStyle";
 					controlBar.styleName = "defaultControlBarStyle";
-                } else {
+				} else {
 					this.styleName = "darkShellStyle";
 					controlBar.styleName = "darkControlBarStyle";
-                }
-            }
+				}
+			}
 			
 			private function onLocaleChanged(e:LocaleChangeEvent) : void {
-				if (ResourceUtil.getInstance().isRTLEnabled()) {
-					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
-				}
 				PopUpUtil.initAlert();
 			}
-
+			
 			private function handleCloseApplication(event:ExitApplicationEvent):void {
 				mdiCanvas.removeAllPopUps();
 				removeToolBars();

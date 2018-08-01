@@ -117,13 +117,13 @@ export default class Button extends BaseButton {
       circle,
       hideLabel,
       label,
-      'aria-label' : ariaLabel
+      'aria-label': ariaLabel,
     } = this.props;
 
     const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
 
     if (hideLabel) {
-      const tooltipLabel = label ? label : ariaLabel;
+      const tooltipLabel = label || ariaLabel;
 
       return (
         <Tooltip

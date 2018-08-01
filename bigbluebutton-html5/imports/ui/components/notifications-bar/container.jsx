@@ -83,19 +83,9 @@ const setRetrySeconds = (sec = 0) => {
   }
 };
 
-const changeDocumentTitle = (sec) => {
-  if (sec >= 0) {
-    const affix = `(${humanizeSeconds(sec)}`;
-    const splitTitle = document.title.split(') ');
-    const title = splitTitle[1] || splitTitle[0];
-    document.title = [affix, title].join(') ');
-  }
-};
-
 const setTimeRemaining = (sec = 0) => {
   if (sec !== timeRemaining) {
     timeRemaining = sec;
-    changeDocumentTitle(sec);
     timeRemainingDep.changed();
   }
 };
@@ -173,7 +163,7 @@ export default injectIntl(withTracker(({ intl }) => {
         clearInterval(timeRemainingInterval);
         data.message = intl.formatMessage(intlMessages.breakoutWillClose);
       }
-    } else if (!timeRemaining && currentBreakout) {
+    } else if (currentBreakout) {
       data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
     }
   }

@@ -37,12 +37,13 @@ public class Pdf2SwfPageConverterHandler extends AbstractCommandHandler {
   private static Logger log = LoggerFactory
       .getLogger(Pdf2SwfPageConverterHandler.class);
 
-  private static String PLACEMENT_OUTPUT = "DEBUG  Using";
-  private static String TEXT_TAG_OUTPUT = "VERBOSE Updating";
-  private static String IMAGE_TAG_OUTPUT = "VERBOSE Drawing";
-  private static String PLACEMENT_PATTERN = "\\d+\\s" + PLACEMENT_OUTPUT;
-  private static String TEXT_TAG_PATTERN = "\\d+\\s" + TEXT_TAG_OUTPUT;
-  private static String IMAGE_TAG_PATTERN = "\\d+\\s" + IMAGE_TAG_OUTPUT;
+  private static final String PLACEMENT_OUTPUT = "DEBUG  Using";
+  private static final String TEXT_TAG_OUTPUT = "VERBOSE Updating";
+  private static final String IMAGE_TAG_OUTPUT = "VERBOSE Drawing";
+  private static final String DIGITS_AND_WHITESPACES = "\\d+\\s";
+  private static final String PLACEMENT_PATTERN = DIGITS_AND_WHITESPACES + PLACEMENT_OUTPUT;
+  private static final String TEXT_TAG_PATTERN = DIGITS_AND_WHITESPACES + TEXT_TAG_OUTPUT;
+  private static final String IMAGE_TAG_PATTERN = DIGITS_AND_WHITESPACES + IMAGE_TAG_OUTPUT;
 
   /**
    * 

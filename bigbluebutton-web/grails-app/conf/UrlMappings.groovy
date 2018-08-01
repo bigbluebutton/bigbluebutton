@@ -49,7 +49,7 @@ class UrlMappings {
 			action = [GET:'showTextfile']
 		}
 
-		"/presentation/download/$meetingId/$presId/$presFilename"(controller:"presentation") {
+		"/presentation/download/$meetingId/$presId"(controller:"presentation") {
 			action = [GET:'downloadFile']
 		}
       
@@ -78,7 +78,15 @@ class UrlMappings {
 		}
 
 		"/api/guestWait"(controller:"api") {
-			action = [GET:'guestWaitHandler']
+			action = [GET: 'guestWaitHandler']
+		}
+
+		"/api/getRecordingTextTracks"(controller:"recording") {
+			action = [GET:'getRecordingTextTracks']
+		}
+
+		"/api/putRecordingTextTrack"(controller:"recording") {
+			action = [POST:'putRecordingTextTrack']
 		}
 
 		"/$controller/$action?/$id?(.${format})?"{

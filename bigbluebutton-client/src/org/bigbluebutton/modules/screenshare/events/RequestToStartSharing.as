@@ -7,9 +7,13 @@ package org.bigbluebutton.modules.screenshare.events
     
     public static const REQUEST_SHARE_START:String = "screenshare request to start sharing event";
     
-    public function RequestToStartSharing()
+    public var useWebRTC:Boolean = false;
+    
+    public function RequestToStartSharing(useWebRTC:Boolean)
     {
       super(REQUEST_SHARE_START, true, false);
+      
+      this.useWebRTC = useWebRTC;
     }
   }
 }

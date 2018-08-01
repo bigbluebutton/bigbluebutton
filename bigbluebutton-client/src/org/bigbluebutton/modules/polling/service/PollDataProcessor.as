@@ -14,7 +14,8 @@ package org.bigbluebutton.modules.polling.service
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
   import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
-  import org.bigbluebutton.modules.polling.events.PollVotedEvent;
+  import org.bigbluebutton.modules.polling.events.PollUpdatedEvent;
+  import org.bigbluebutton.modules.polling.events.PollVoteReceivedEvent;
   import org.bigbluebutton.modules.polling.model.PollingModel;
   import org.bigbluebutton.modules.polling.model.SimpleAnswer;
   import org.bigbluebutton.modules.polling.model.SimpleAnswerResult;
@@ -114,7 +115,15 @@ package org.bigbluebutton.modules.polling.service
       var numRespondents:Number = poll.numRespondents;
       var numResponders:Number = poll.numResponders;
 
-      dispatcher.dispatchEvent(new PollVotedEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));
+      dispatcher.dispatchEvent(new PollUpdatedEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));
+    }
+    
+    public function handleUserRespondedToPollRespMsg(msg:Object):void {
+      var pollId:String = msg.body.pollId;
+      var userId:String = msg.body.userId;
+      var answerId:int = msg.body.answerId;
+      
+      dispatcher.dispatchEvent(new PollVoteReceivedEvent(pollId, userId, answerId));
     }
   }
 }

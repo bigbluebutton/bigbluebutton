@@ -91,7 +91,8 @@ export default class MessageListItem extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !nextState.preventRender && nextState.pendingChanges;
+    if(!this.props.scrollArea && nextProps.scrollArea) return true;
+    else return !nextState.preventRender && nextState.pendingChanges;
   }
 
   renderSystemMessage() {
@@ -123,7 +124,7 @@ export default class MessageListItem extends Component {
     const {
       user,
       messages,
-      time,
+      time
     } = this.props;
 
     const dateTime = new Date(time);

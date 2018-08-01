@@ -65,8 +65,9 @@ const reduceMessages = (previous, current) => {
   // Check if the last message is from the same user and time discrepancy
   // between the two messages exceeds window and then group current message
   // with the last one
+  const timeOfLastMessage = lastMessage.content[lastMessage.content.length - 1].time;
   if (lastMessage.fromUserId === currentMessage.fromUserId
-    && (currentMessage.fromTime - lastMessage.fromTime) <= GROUPING_MESSAGES_WINDOW) {
+    && (currentMessage.fromTime - timeOfLastMessage) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(currentMessage.content.pop());
     return previous;
   }
@@ -97,7 +98,6 @@ const getPrivateMessages = (userID) => {
   }, {
     sort: ['fromTime'],
   }).fetch();
-
   return reduceAndMapMessages(messages);
 };
 
@@ -122,7 +122,6 @@ const isChatLocked = (receiverID) => {
 const hasUnreadMessages = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_CHAT_USERID : receiverID;
-
   return UnreadMessages.count(chatType) > 0;
 };
 
@@ -152,7 +151,6 @@ const sendMessage = (receiverID, message) => {
     fromTimezoneOffset: (new Date()).getTimezoneOffset(),
     toUsername: receiver.name,
     toUserId: receiver.id,
-    fromTime: Date.now(),
     fromColor: 0,
   };
 
@@ -224,6 +222,29 @@ const exportChat = messageList => (
   }).join('\n')
 );
 
+const setNotified = (chatType, item) => {
+  const notified = Storage.getItem('notified');
+  const key = 'notified';
+  const userChat = { [chatType]: item };
+  if (notified) {
+    Storage.setItem(key, {
+      ...notified,
+      ...userChat,
+    });
+    return;
+  }
+  Storage.setItem(key, {
+    ...userChat,
+  });
+};
+
+const getNotified = (chat) => {
+  const key = 'notified';
+  const notified = Storage.getItem(key);
+  if (notified) return notified[chat] || {};
+  return {};
+};
+
 export default {
   reduceAndMapMessages,
   getPublicMessages,
@@ -240,4 +261,6 @@ export default {
   removeFromClosedChatsSession,
   exportChat,
   clearPublicChatHistory,
+  setNotified,
+  getNotified,
 };

@@ -9,27 +9,45 @@ const config = require('config');
   function Constants () {
     return {
         // Media elements
-        WebRTC: "WebRtcEndpoint",
+        WEBRTC: "WebRtcEndpoint",
         RTP: "RtpEndpoint",
         AUDIO: "AUDIO",
         VIDEO: "VIDEO",
         ALL: "ALL",
 
+        // SFU app types
+        SCREENSHARE_APP:  'screenshare',
+        VIDEO_APP: 'video',
+        AUDIO_APP: 'audio',
+
+        // SFU requisition roles
+        SEND_ROLE: 'send',
+        RECV_ROLE: 'recv',
+        SEND_RECV_ROLE: 'sendrecv',
+
         // Redis channels
         FROM_BBB_TRANSCODE_SYSTEM_CHAN : "bigbluebutton:from-bbb-transcode:system",
         FROM_VOICE_CONF_SYSTEM_CHAN: "from-voice-conf-redis-channel",
         TO_BBB_TRANSCODE_SYSTEM_CHAN: "bigbluebutton:to-bbb-transcode:system",
+        TO_BBB_MEETING_CHAN: "bigbluebutton:to-bbb-apps:meeting",
+        FROM_BBB_MEETING_CHAN: "bigbluebutton:from-bbb-apps:meeting",
+        TO_AKKA_APPS_CHAN_2x: "to-akka-apps-redis-channel",
         FROM_SCREENSHARE: config.get('from-screenshare'),
         TO_SCREENSHARE: config.get('to-screenshare'),
         FROM_VIDEO: config.get('from-video'),
         TO_VIDEO: config.get('to-video'),
         FROM_AUDIO: config.get('from-audio'),
         TO_AUDIO: config.get('to-audio'),
+        TO_AKKA_APPS: config.get('to-akka'),
+        FROM_AKKA_APPS: config.get('from-akka'),
 
         // RedisWrapper events
         REDIS_MESSAGE : "redis_message",
         WEBSOCKET_MESAGE: "ws_message",
         GATEWAY_MESSAGE: "gateway_message",
+
+        RECORDING_STATUS_REQUEST_MESSAGE_2x: "GetRecordingStatusReqMsg",
+        RECORDING_STATUS_REPLY_MESSAGE_2x: "GetRecordingStatusRespMsg",
 
         // Message identifiers 1x
         START_TRANSCODER_REQUEST: "start_transcoder_request_message",
@@ -38,6 +56,9 @@ const config = require('config');
         STOP_TRANSCODER_REPLY: "stop_transcoder_reply_message",
         DESKSHARE_RTMP_BROADCAST_STARTED: "deskshare_rtmp_broadcast_started_message",
         DESKSHARE_RTMP_BROADCAST_STOPPED: "deskshare_rtmp_broadcast_stopped_message",
+        GLOBAL_AUDIO_CONNECTED: "user_connected_to_global_audio",
+        GLOBAL_AUDIO_DISCONNECTED: "user_disconnected_from_global_audio",
+        DICONNECT_ALL_USERS: "disconnect_all_users_message",
 
         //Message identifiers 2x
         SCREENSHARE_RTMP_BROADCAST_STARTED_2x: "ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg",
@@ -46,6 +67,17 @@ const config = require('config');
         START_TRANSCODER_RESP_2x: "StartTranscoderSysRespMsg",
         STOP_TRANSCODER_REQ_2x: "StopTranscoderSysReqMsg",
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
+        GLOBAL_AUDIO_CONNECTED_2x: "UserConnectedToGlobalAudioMsg",
+        GLOBAL_AUDIO_DISCONNECTED_2x: "UserDisconnectedFromGlobalAudioMsg",
+        // TODO: Check if this is the correct message in BBB 2.x
+        DICONNECT_ALL_USERS_2x: "DisconnectAllClientsSysMsg",
+
+        USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
+
+        STREAM_IS_RECORDED: "StreamIsRecordedMsg",
+
+        START_WEBCAM_SHARE: "StartWebRTCShareEvent",
+        STOP_WEBCAM_SHARE: "StopWebRTCShareEvent",
 
         // Redis messages fields
         //  Transcoder 1x
@@ -59,6 +91,9 @@ const config = require('config');
         TRANSCODER_ID_2x : "transcoderId",
         MEETING_ID_2x: "meetingId",
 
+        // Akka Apps 2x
+        REQUESTED_BY: "requestedBy",
+
         //  Screenshare 2x
         CONFERENCE_NAME: "voiceConf",
         SCREENSHARE_CONF: "screenshareConf",
@@ -66,6 +101,10 @@ const config = require('config');
         TIMESTAMP: "timestamp",
         VIDEO_WIDTH: "vidWidth",
         VIDEO_HEIGHT: "vidHeight",
+
+        // Audio
+        NAME: "name",
+        USERID: "userid",
 
         // RTP params
         MEETING_ID : "meeting_id",
@@ -93,7 +132,48 @@ const config = require('config');
         RTP_TO_RTMP: "transcode_rtp_to_rtmp",
         TRANSCODER_CODEC: "codec",
         TRANSCODER_TYPE: "transcoder_type",
-        CALLERNAME: "callername"
+        CALLERNAME: "callername",
+
+        EVENT_NAME: 'eventName',
+
+        TIMESTAMP: 'timestamp',
+        TIMESTAMP_UTC: 'timestampUTC',
+
+        MODULE: 'module',
+        MODULE_WEBCAM: 'bbb-webrtc-sfu',
+
+        FILENAME: 'filename',
+
+        // Log prefixes
+        BASE_PROCESS_PREFIX: '[BaseProcess]',
+        BASE_MANAGER_PREFIX: '[BaseManager]',
+        BASE_PROVIDER_PREFIX: '[BaseProvider]',
+        SCREENSHARE_PROCESS_PREFIX: '[ScreenshareProcess]',
+        SCREENSHARE_MANAGER_PREFIX: '[ScreenshareManager]',
+        SCREENSHARE_PROVIDER_PREFIX: '[ScreenshareProvider]',
+        VIDEO_PROCESS_PREFIX: '[VideoProcess]',
+        VIDEO_MANAGER_PREFIX: '[VideoManager]',
+        VIDEO_PROVIDER_PREFIX: '[VideoProvider]',
+        AUDIO_PROCESS_PREFIX: '[AudioProcess]',
+        AUDIO_MANAGER_PREFIX: '[AudioManager]',
+        AUDIO_PROVIDER_PREFIX: '[AudioProvider]',
+
+        // MCS error codes
+        MEDIA_SERVER_OFFLINE: 2001,
+
+        // Media states'
+        MEDIA_FLOWING_IN: 'MEDIA_FLOWING_IN',
+        MEDIA_FLOWING_OUT: 'MEDIA_FLOWING_OUT',
+        MEDIA_NOT_FLOWING_IN: 'MEDIA_NOT_FLOWING_IN',
+        MEDIA_NOT_FLOWING_OUT: 'MEDIA_NOT_FLOWING_OUT',
+        MEDIA_CONNECTED: 'MEDIA_CONNECTED',
+        MEDIA_DISCONNECTED: 'MEDIA_DISCONNECTED',
+        ON_ICE_CANDIDATE: 'ON_ICE_CANDIDATE',
+
+        MEDIA_STARTED: 'MEDIA_STARTED',
+        MEDIA_STOPPED: 'MEDIA_STOPPED',
+        MEDIA_STARTING: 'MEDIA_STARTING',
+        MEDIA_PAUSED: 'MEDIA_PAUSE'
     }
 }
 

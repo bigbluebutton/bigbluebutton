@@ -37,7 +37,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
       return Logger.error(`Add voice user=${intId}: ${err}`);
     }
 
-    return Logger.verbose(`Add voice user=${intId} meeting=${meetingId}`);
+    return Logger.info(`Add voice user=${intId} meeting=${meetingId}`);
   };
 
   return VoiceUsers.upsert(selector, modifier, cb);

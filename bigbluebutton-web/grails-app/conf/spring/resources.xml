@@ -43,10 +43,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
+        <property name="callbackUrlService" ref="callbackUrlService"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
         <constructor-arg index="0" ref="redisMessageHandler"/>
+    </bean>
+
+    <bean id="callbackUrlService" class="org.bigbluebutton.web.services.callback.CallbackUrlService"
+          init-method="start" destroy-method="stop">
     </bean>
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
@@ -98,6 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingStatusDir" value="${recordStatusDir}"/>
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>
+        <property name="captionsDir" value="${captionsDir}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
         <property name="presentationBaseDir" value="${presentationDir}"/>
     </bean>
@@ -139,6 +145,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
+        <property name="userInactivityInspectTimerInMinutes" value="${userInactivityInspectTimerInMinutes}"/>
+        <property name="userInactivityThresholdInMinutes" value="${userInactivityThresholdInMinutes}"/>
+        <property name="userActivitySignResponseDelayInMinutes" value="${userActivitySignResponseDelayInMinutes}"/>
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>

@@ -196,13 +196,16 @@ body {
 
 /* Presentation and related elements */
 #slide {
-  background-image: url('logo.png');
   background-size: 160px 160px;
   background-repeat: no-repeat;
   background-position: center center;
 }
 #slide.no-background {
-  background-image:none;
+  background-size: 0px 0px;
+}
+#slide svg {
+  width: 100%;
+  height: auto;
 }
 #cursor {
   visibility: hidden;
@@ -213,7 +216,6 @@ body {
   position: fixed;
   background: red;
   z-index: 10;
-  opacity: 0.6;
 }
 #main-section {
   padding: 10px 10px 25px 10px;
@@ -305,17 +307,18 @@ ul.off-canvas-list li label {
   background-color: #f6f6f6;
 }
 
-#loading-error {
+#loading {
   visibility: hidden;
   width: 100%;
   height: 100%;
-  background-image: url('logo.png');
-  background-size: 160px 160px;
-  background-position: center center;
-  background-repeat: no-repeat;
 }
 
-#load-error-msg {
+#load-msg {
+  font-size: 1.45rem;
+  color: #666666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: center;
   vertical-align: middle;
   position: absolute;
@@ -325,7 +328,6 @@ ul.off-canvas-list li label {
   left: 0;
   right: 0;
 }
-
 
 /* Small screens only */
 @media only screen and (max-width: 40em) {
@@ -397,4 +399,46 @@ ul.off-canvas-list li label {
 
 .pace-inactive {
   display: none;
+}
+
+/* https://stackoverflow.com/questions/23985018/simple-css-animation-loop-fading-in-out-loading-text */
+@keyframes flickerAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+
+@-o-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+
+@-moz-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+
+@-webkit-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+
+.animate {
+  -webkit-animation: flickerAnimation 1s infinite;
+  -moz-animation: flickerAnimation 1s infinite;
+  -o-animation: flickerAnimation 1s infinite;
+  animation: flickerAnimation 1s infinite;
+}
+
+.loading-img {
+  position: absolute;
+  margin: 0px 0px 0px 0px;
+  width: 250px;
+  height: 250px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

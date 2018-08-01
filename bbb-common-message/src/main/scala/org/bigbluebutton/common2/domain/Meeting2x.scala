@@ -2,13 +2,14 @@ package org.bigbluebutton.common2.domain
 
 case class ConfigProps(defaultConfigToken: String, config: String)
 
-case class DurationProps(duration: Int, createdTime: Long, createdDate: String,  maxInactivityTimeoutMinutes: Int,
-warnMinutesBeforeMax:     Int, meetingExpireIfNoUserJoinedInMinutes: Int,
-                         meetingExpireWhenLastUserLeftInMinutes: Int)
+case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
+                         maxInactivityTimeoutMinutes: Int, warnMinutesBeforeMax: Int,
+                         meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
+                         userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int, userActivitySignResponseDelayInMinutes: Int)
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
-case class BreakoutProps(parentId: String, sequence: Int, breakoutRooms: Vector[String])
+case class BreakoutProps(parentId: String, sequence: Int, freeJoin: Boolean, breakoutRooms: Vector[String])
 
 case class PasswordProp(moderatorPass: String, viewerPass: String)
 

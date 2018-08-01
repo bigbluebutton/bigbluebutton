@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
-import cx from 'classnames';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -29,7 +29,7 @@ const propTypes = {
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
-  unmute: PropTypes.bool.isRequired,
+  unmute: PropTypes.bool,
   mute: PropTypes.bool.isRequired,
   join: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
@@ -38,7 +38,13 @@ const propTypes = {
 
 const defaultProps = {
   glow: false,
+  unmute: false,
 };
+
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const JOIN_AUDIO_AK = SHORTCUTS_CONFIG.joinAudio.accesskey;
+const LEAVE_AUDIO_AK = SHORTCUTS_CONFIG.leaveAudio.accesskey;
+const MUTE_UNMUTE_AK = SHORTCUTS_CONFIG.toggleMute.accesskey;
 
 const AudioControls = ({
   handleToggleMuteMicrophone,
@@ -64,6 +70,7 @@ const AudioControls = ({
         icon={unmute ? 'mute' : 'unmute'}
         size="lg"
         circle
+        accessKey={MUTE_UNMUTE_AK}
       /> : null}
     <Button
       className={styles.button}
@@ -76,6 +83,7 @@ const AudioControls = ({
       icon={join ? 'audio_off' : 'audio_on'}
       size="lg"
       circle
+      accessKey={join ? LEAVE_AUDIO_AK : JOIN_AUDIO_AK}
     />
   </span>);
 

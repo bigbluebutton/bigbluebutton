@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -99,7 +99,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -123,7 +123,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -152,7 +152,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
   }

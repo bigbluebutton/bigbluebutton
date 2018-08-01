@@ -6,6 +6,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationPod
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait CreateNewPresentationPodPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -22,22 +23,14 @@ trait CreateNewPresentationPodPubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      def buildCreateNewPresentationPodEvtMsg(meetingId: String, currentPresenterId: String, podId: String): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, msg.header.userId)
-        val envelope = BbbCoreEnvelope(CreateNewPresentationPodEvtMsg.NAME, routing)
-        val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, msg.header.userId)
-
-        val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
-        val event = CreateNewPresentationPodEvtMsg(header, body)
-
-        BbbCommonEnvCoreMsg(envelope, event)
-      }
 
       val resultPod: PresentationPod = PresentationPodsApp.createPresentationPod(msg.header.userId)
 
-      val respMsg = buildCreateNewPresentationPodEvtMsg(
+      val respMsg = MsgBuilder.buildCreateNewPresentationPodEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        resultPod.currentPresenter, resultPod.id
+        resultPod.currentPresenter,
+        resultPod.id,
+        msg.header.userId
       )
       bus.outGW.send(respMsg)
 

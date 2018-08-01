@@ -66,8 +66,7 @@ public class OfficeToPdfConversionSuccessFilter {
     msg.put("message", conversionMessagesMap.get(pres.getConversionStatus()));
     msg.put("messageKey", pres.getConversionStatus());
 
-    log.info("Notifying of " + pres.getConversionStatus() + " for "
-        + pres.getUploadedFile().getAbsolutePath());
+    log.info("Notifying of {} for ", pres.getConversionStatus(), pres.getUploadedFile().getAbsolutePath());
     sendProgress(pres);
   }
 

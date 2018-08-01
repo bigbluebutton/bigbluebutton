@@ -21,9 +21,6 @@ trait SystemConfiguration {
   lazy val red5DeskShareIP = Try(config.getString("red5.deskshareip")).getOrElse("127.0.0.1")
   lazy val red5DeskShareApp = Try(config.getString("red5.deskshareapp")).getOrElse("")
 
-  lazy val userInactivityAuditTimer = Try(config.getInt("inactivityAudit.timer")).getOrElse(120) // 2 hours
-  lazy val userInactivityAuditResponseDuration = Try(config.getInt("inactivityAudit.responseDuration")).getOrElse(5) // 5 minutes
-
   lazy val expireLastUserLeft = Try(config.getInt("expire.lastUserLeft")).getOrElse(60) // 1 minute
   lazy val expireNeverJoined = Try(config.getInt("expire.neverJoined")).getOrElse(5 * 60) // 5 minutes
 
@@ -63,4 +60,7 @@ trait SystemConfiguration {
 
   lazy val voiceConfRecordPath = Try(config.getString("voiceConf.recordPath")).getOrElse("/var/freeswitch/meetings")
   lazy val recordingChapterBreakLenghtInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(180)
+
+  lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
+  lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
 }
