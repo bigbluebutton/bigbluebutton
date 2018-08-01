@@ -342,8 +342,11 @@
         ]
       }
     },
-    "log": [
-      { "target": "server", "level": "info" }
+    "clientLog": [
+      { 
+        "target": "server", 
+        "level": "info" 
+      }
     ]
   },
 
@@ -375,7 +378,7 @@
       ]
     },
 
-    "log": {
+    "serverLog": {
       "level": "info"
     }
   }
