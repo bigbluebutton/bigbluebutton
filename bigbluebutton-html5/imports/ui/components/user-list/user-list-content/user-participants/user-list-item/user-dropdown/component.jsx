@@ -421,7 +421,7 @@ class UserDropdown extends Component {
       dropdownOffset,
     } = this.state;
 
-    const acts = this.getUsersActions();
+    const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
 
@@ -448,7 +448,7 @@ class UserDropdown extends Component {
 
     const contents = (
       <div
-        className={!acts.length ? styles.userListItem : null}
+        className={!actions.length ? styles.userListItem : null}
         ref={node => this.trigger = node}
       >
         <div className={styles.userItemContents}>
@@ -472,7 +472,7 @@ class UserDropdown extends Component {
       </div>
     );
 
-    if (!acts.length) return contents;
+    if (!actions.length) return contents;
 
     return (
       <Dropdown
@@ -502,7 +502,7 @@ class UserDropdown extends Component {
             getDropdownMenuParent={this.getDropdownMenuParent}
             onActionsHide={this.onActionsHide}
           >
-            {acts}
+            {actions}
           </DropdownList>
         </DropdownContent>
       </Dropdown>
