@@ -34,8 +34,10 @@ const intlMessages = defineMessages({
 });
 
 const BROWSER_RESULTS = browser();
-const isMobileBrowser = BROWSER_RESULTS.mobile ||
-  BROWSER_RESULTS.os.includes('Android'); // mobile flag doesn't always work
+const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false) ||
+  (BROWSER_RESULTS && BROWSER_RESULTS.os ?
+    BROWSER_RESULTS.os.includes('Android') : // mobile flag doesn't always work
+    false);
 const screenSharingCheck = Meteor.settings.public.kurento.enableScreensharing;
 
 const DesktopShare = ({
