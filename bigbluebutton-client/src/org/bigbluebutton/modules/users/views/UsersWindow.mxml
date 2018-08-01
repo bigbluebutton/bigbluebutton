@@ -766,8 +766,9 @@ $Id: $
       }
 
 		private function refreshGuestButton():void {
-			var waitingGusers:int = LiveMeeting.inst().guestsWaiting.getGuests().length;
-
+			var waitingGusers:int = LiveMeeting.inst().guestsWaiting.getGuests().length
+				+ LiveMeeting.inst().guestsWaiting.getAuthenticatedGuests().length;
+			
 			// do not show the guest window if the user isn't moderator or if he's waiting for acceptance
 			if (waitingGusers == 0 || !UsersUtil.amIModerator() || UsersUtil.amIWaitingForAcceptance() && partOptions.enableGuestUI) {
 				guestBox.visible = guestBox.includeInLayout = false;
