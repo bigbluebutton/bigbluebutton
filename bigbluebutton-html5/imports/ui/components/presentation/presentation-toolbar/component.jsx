@@ -124,6 +124,12 @@ class PresentationToolbar extends Component {
 
     this.state = { sliderValue: 100 };
     this.handleValuesChange = this.handleValuesChange.bind(this);
+    this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
+  }
+
+  handleSkipToSlideChange(event) {
+    const requestedSlideNum = parseInt(event.target.value, 10);
+    this.props.actions.skipToSlideHandler(requestedSlideNum);
   }
 
   handleValuesChange(event) {

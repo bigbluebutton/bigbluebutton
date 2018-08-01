@@ -3,10 +3,11 @@ import { check } from 'meteor/check';
 import removePresentation from '../modifiers/removePresentation';
 
 export default function handlePresentationRemove({ body }, meetingId) {
-  const { presentationId } = body;
+  const { podId, presentationId } = body;
 
   check(meetingId, String);
+  check(podId);
   check(presentationId, String);
 
-  return removePresentation(meetingId, presentationId);
+  return removePresentation(meetingId, podId, presentationId);
 }

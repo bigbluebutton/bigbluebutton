@@ -177,7 +177,7 @@ export default class PencilDrawListener extends Component {
       annotation.annotationInfo.dimensions = dimensions;
     }
 
-    sendAnnotation(annotation);
+    sendAnnotation(annotation, whiteboardId);
   }
 
   sendLastMessage() {

@@ -196,6 +196,8 @@ export default class PresentationArea extends Component {
                   whiteboardId={slideObj.id}
                 />
                 <CursorWrapperContainer
+                  podId={this.props.podId}
+                  whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
                   physicalWidthRatio={adjustedSizes.width / width}
                   slideWidth={width}
@@ -227,6 +229,7 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationOverlayContainer
+        whiteboardId={slideObj.id}
         slideWidth={width}
         slideHeight={height}
         getSvgRef={this.getSvgRef}
@@ -254,7 +257,7 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
-        userIsPresenter={this.props.userIsPresenter}
+        podId={this.props.podId}
         currentSlideNum={this.props.currentSlide.num}
         presentationId={this.props.currentSlide.presentationId}
       />
@@ -301,6 +304,7 @@ export default class PresentationArea extends Component {
 }
 
 PresentationArea.propTypes = {
+  podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,
   currentSlide: PropTypes.shape({
