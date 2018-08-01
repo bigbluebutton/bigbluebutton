@@ -102,8 +102,10 @@ class Dropdown extends Component {
     const triggerElement = findDOMNode(this.trigger);
     const contentElement = findDOMNode(this.content);
 
-    if (this.props.isOpen && contentElement.contains(event.target) || !triggerElement) {
-      return;
+    if (contentElement) {
+      if (this.props.isOpen && contentElement.contains(event.target) || !triggerElement) {
+        return;
+      }
     }
 
     this.handleHide();
