@@ -36,7 +36,6 @@ package org.bigbluebutton.util.i18n
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.common.logging.LogUtil;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
@@ -89,16 +88,8 @@ package org.bigbluebutton.util.i18n
 			parse(new XML(e.target.data));		
 									
 			preferredLocale = getDefaultLocale();
-<<<<<<< HEAD
 			LOGGER.debug("Setting preferred locale=" + preferredLocale);
 			// Improve language detection
-=======
-			if (preferredLocale != MASTER_LOCALE) {
-        		LOGGER.debug("Preferred locale={0} is not the same as master locale={1}", [preferredLocale, MASTER_LOCALE]);
-				loadMasterLocale(MASTER_LOCALE);
-			}
-			
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 			setPreferredLocale(preferredLocale);
 		}
 		
@@ -127,15 +118,9 @@ package org.bigbluebutton.util.i18n
 			return ExternalInterface.call("getLanguage");
 		}
 		
-<<<<<<< HEAD
-		private function findPreferredLocale(prefLocale:String):Object {
-			for each(var item:* in locales) {
-				if (prefLocale == item.code)
-					return item;
-=======
 		private function findPreferredLocale(prefLocale:String) : * {
 			var item:* = null;
-			// Lookginf for locale in format 'en_US'
+			// Looking for locale in format 'en_US'
 			for each(item in locales) {
 				if (prefLocale == item.code)
 					return item;
@@ -150,7 +135,6 @@ package org.bigbluebutton.util.i18n
 			for each(item in locales) {
 				if (StringUtils.startsWith(item.code, mainLocale))
 					return item;
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 			}
 			return null;
 		}
@@ -163,20 +147,14 @@ package org.bigbluebutton.util.i18n
 			return -1;
 		}
 		
-<<<<<<< HEAD
 		public function setPreferredLocale(localeCode:String):void {
-=======
-		public function setPreferredLocale(locale:String):void {
-			var localeCode : String = locale;
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 			if (localeCode == DEFAULT_LOCALE_IDENTIFIER) {
 				localeCode = getDefaultLocale();
 			}
 
-<<<<<<< HEAD
 			var localeInfo:Object = findPreferredLocale(localeCode)
 			if (localeInfo != null) {
-				preferredLocale = localeCode;
+				preferredLocale = localeInfo.code;
 				preferredDirection = localeInfo.direction;
 			}else{
 				LOGGER.debug("Preferred locale wasn't in the list of locales falling back to ["+MASTER_LOCALE+"]");
@@ -184,17 +162,6 @@ package org.bigbluebutton.util.i18n
 				preferredDirection = "ltr";
 			}
 
-=======
-			var foundLocale : Object = findPreferredLocale(localeCode);
-			if (foundLocale) {
-				preferredLocale = foundLocale.code;
-				preferredDirection = foundLocale.direction;
-			} else {
-				preferredLocale = MASTER_LOCALE;
-				preferredDirection = "ltr";
-			}
-			
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 			changeLocale(preferredLocale);
 		}
 		
@@ -216,45 +183,15 @@ package org.bigbluebutton.util.i18n
 			locales.sort(localesCompareFunction);
 		}
 
-<<<<<<< HEAD
-=======
-		private function loadMasterLocale(locale:String):void {
-      		LOGGER.debug("Loading master locale={0}", [locale]);
-			/**
-			 *  http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/mx/resources/IResourceManager.html#localeChain
-			 *  Always load the default language, so if the chosen language 
-			 *  doesn't provide a resource, the default language resource is used
-			 */
-			var dispatcher:IEventDispatcher = loadResource(locale);
-			dispatcher.addEventListener(ResourceEvent.COMPLETE, onMasterLocaleLoaded);
-		}
-		
-		private function onMasterLocaleLoaded(event:ResourceEvent):void {
-			LOGGER.debug("Master locale is loaded");
-			masterLocaleLoaded = true;
-			if (masterLocaleLoadedCallback != null) {
-				LOGGER.debug("Calling callback to load a second language");
-				masterLocaleLoadedCallback();
-			}
-		}
-
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 		private function loadResource(language:String):IEventDispatcher {
 			// Add a random string on the query so that we don't get a cached version.
 			var languageOptions : LanguageOptions = Options.getOptions(LanguageOptions) as LanguageOptions;
 
 			var date:Date = new Date();
-<<<<<<< HEAD
 			var localeURI:String = languageOptions.localesDirectory + language + '_resources.swf?a=' + date.time;
 			LOGGER.debug("Loading locale " +  localeURI);
 			return ResourceManager.getInstance().loadResourceModule(localeURI, false);
 		}
-=======
-			var localeURI:String = buildRequestURL() + 'client/locale/' + language + '_resources.swf?a=' + date.time;
-			LOGGER.debug("Loading locale {0}", [localeURI]);
-			return resourceManager.loadResourceModule( localeURI, false);
-		}		
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 		
 		public static function getInstance():ResourceUtil {
 			if (instance == null) {
@@ -278,20 +215,8 @@ package org.bigbluebutton.util.i18n
 		}
 
 		public function changeLocale(locale:String):void {
-<<<<<<< HEAD
 			LOGGER.debug("Loading immediately " + locale);
 			changeLocaleHelper(locale);
-=======
-			if (masterLocaleLoaded || locale == MASTER_LOCALE) {
-				LOGGER.debug("Loading immediately {0}", [locale]);
-				changeLocaleHelper(locale);
-			} else {
-				LOGGER.debug("Registering callback to load {0} later", [locale]);
-				masterLocaleLoadedCallback = function():void {
-					changeLocaleHelper(locale);
-				}
-			}
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 		}
 		
 		private function localeChangeComplete(event:ResourceEvent=null):void {
@@ -299,41 +224,17 @@ package org.bigbluebutton.util.i18n
 			if (preferredLocale != MASTER_LOCALE) {
 				ResourceManager.getInstance().localeChain = [preferredLocale, MASTER_LOCALE];
 			} else {
-<<<<<<< HEAD
 				ResourceManager.getInstance().localeChain = [MASTER_LOCALE];
-=======
-				if (preferredLocale != MASTER_LOCALE) {
-                    var logData:Object = UsersUtil.initLogData();
-                    logData.tags = ["locale"];
-                    logData.message = "Failed to load locale = " + preferredLocale;
-					LOGGER.debug(JSON.stringify(logData));
-				}
-				masterLocaleLoaded = true;
-				resourceManager.localeChain = [MASTER_LOCALE];
-				preferredLocale = MASTER_LOCALE;
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 			}
 			
 			update();
 		}
 		
-<<<<<<< HEAD
-=======
-		private function sendAppAndLocaleVersions():void {
-			LOGGER.debug("Sending locale version");
-			var dispatcher:Dispatcher = new Dispatcher();
-			var versionEvent:AppVersionEvent = new AppVersionEvent();
-			versionEvent.configLocaleVersion = false;
-			dispatcher.dispatchEvent(versionEvent);			
-		}
-
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 		/**
 		 * Defaults to DEFAULT_LANGUAGE when an error is thrown by the ResourceManager
 		 * @param event
 		 */
 		private function handleResourceNotLoaded(event:ResourceEvent):void {
-<<<<<<< HEAD
 			LOGGER.debug("Resource locale [" + preferredLocale + "] could not be loaded.");
 			
 			if (preferredLocale != MASTER_LOCALE) {
@@ -344,26 +245,17 @@ package org.bigbluebutton.util.i18n
 			}
 			
 			ResourceManager.getInstance().localeChain = [MASTER_LOCALE];
-=======
-			LOGGER.debug("Resource locale {0} could not be loaded.", [preferredLocale]);
-			resourceManager.localeChain = [MASTER_LOCALE];
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 			preferredLocale = MASTER_LOCALE;
 			update();
 		}
 		
 		public function update():void{
 			reloadLocaleNames();
-<<<<<<< HEAD
 			if (!isInited()) {
 				inited = true;
 				dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_INIT));
 			}
-=======
-      		sendAppAndLocaleVersions();
 			updateLayoutDirection();
-			var dispatcher:Dispatcher = new Dispatcher;
->>>>>>> b99cc7f413ab74828893e8cbdc82157136024ad5
 			dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_CHANGED));
 			dispatchEvent(new Event(Event.CHANGE));
 		}
@@ -373,7 +265,6 @@ package org.bigbluebutton.util.i18n
 				FlexGlobals.topLevelApplication.setStyle("layoutDirection", preferredDirection);
 			}
 		}
-		
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
 			/**

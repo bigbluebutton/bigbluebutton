@@ -380,8 +380,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							return new Point(systemManager.screen.width - guestWindow.width - 20, 20);
 						}
 					});
-
-					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
 				}
 			}
 

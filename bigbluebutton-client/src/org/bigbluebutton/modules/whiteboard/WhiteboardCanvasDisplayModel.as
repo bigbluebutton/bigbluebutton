@@ -130,11 +130,6 @@ package org.bigbluebutton.modules.whiteboard
       }
     }
     
-    public function clearCursors():void {
-      _cursors = new Object();
-      wbCanvas.removeAllCursors();
-    }
-    
     public function undoAnnotation(annotation:Annotation):void {
       removeGraphic(annotation.id);
     }
