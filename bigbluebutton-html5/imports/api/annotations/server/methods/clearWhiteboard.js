@@ -18,7 +18,7 @@ export default function clearWhiteboard(credentials, whiteboardId) {
   check(requesterToken, String);
   check(whiteboardId, String);
 
-  const allowed = isPodPresenter(meetingId, whiteboardId, requesterUserId) 
+  const allowed = isPodPresenter(meetingId, whiteboardId, requesterUserId)
     || getMultiUserStatus(meetingId, whiteboardId);
   if (!allowed) {
     throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to clear the whiteboard`);
