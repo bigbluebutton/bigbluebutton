@@ -16,25 +16,28 @@ import { nameFromLevel } from '@browser-bunyan/levels';
 // externalURL is the end-point that logs will be sent to
 // Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 
-const LOG_CONFIG = Meteor.settings.public.log || {};
+const LOG_CONFIG = Meteor.settings.public.clientLog || [{ target: 'console', level: 'info' }];
 const { fullInfo } = Auth;
 
 // Custom stream that logs to an end-point
 class ServerLoggerStream extends ServerStream {
   write(rec) {
+    this.rec = rec;
     if (fullInfo.meetingId != null) {
-      rec.clientInfo = fullInfo;
+      this.rec.clientInfo = fullInfo;
     }
-    return super.write(rec);
+    return super.write(this.rec);
   }
 }
+
 // Custom stream to log to the meteor server
 class MeteorStream {
   write(rec) {
+    this.rec = rec;
     if (fullInfo.meetingId != null) {
-      Meteor.call('logClient', nameFromLevel[rec.level], rec.msg, fullInfo);
+      Meteor.call('logClient', nameFromLevel[this.rec.level], this.rec.msg, fullInfo);
     } else {
-      Meteor.call('logClient', nameFromLevel[rec.level], rec.msg);
+      Meteor.call('logClient', nameFromLevel[this.rec.level], this.rec.msg);
     }
   }
 }
@@ -55,6 +58,8 @@ function createStreamForTarget(target, options) {
     case TARGET_SERVER:
       Stream = MeteorStream;
       break;
+    default:
+      Stream = ConsoleFormattedStream;
   }
 
   return new Stream(options);
