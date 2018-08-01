@@ -11,7 +11,7 @@ export default function handleGuestsWaitingForApproval({ header, body }, meeting
   check(meetingId, String);
   check(approvedBy, String);
 
-  return guests.forEach(item => {
+  return guests.forEach((item) => {
     const { guest, approved } = item;
 
     check(approved, Boolean);
@@ -20,7 +20,7 @@ export default function handleGuestsWaitingForApproval({ header, body }, meeting
     const selector = {
       meetingId,
       userId: guest,
-      clientType: "HTML5",
+      clientType: 'HTML5',
     };
 
     const User = Users.findOne(selector);
@@ -30,5 +30,5 @@ export default function handleGuestsWaitingForApproval({ header, body }, meeting
     }
 
     setApprovedStatus(meetingId, guest, approved, approvedBy);
-  })
+  });
 }
