@@ -17,7 +17,7 @@ services:
       - redis
     environment:
       MONGO_URL: mongodb://mongo/bbbhtml5
-      METEOR_SETTINGS_MODIFIER: ".public.kurento.wsUrl = \"wss://${SERVER_DOMAIN}/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.chromeDefaultExtensionKey = \"${SCREENSHARE_EXTENSION_KEY}\" | .public.kurento.chromeDefaultExtensionLink = \"${SCREENSHARE_EXTENSION_LINK}\""
+      METEOR_SETTINGS_MODIFIER: ".public.kurento.wsUrl = \"wss://${SERVER_DOMAIN}/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.chromeDefaultExtensionKey = \"${SCREENSHARE_EXTENSION_KEY}\" | .public.kurento.chromeDefaultExtensionLink = \"${SCREENSHARE_EXTENSION_LINK}\" | .public.kurento.enableVideoStats = true | .public.kurento.enableListenOnly = true"
       REDIS_HOST: redis
       ROOT_URL: http://127.0.0.1/html5client
 
@@ -35,6 +35,8 @@ services:
     restart: unless-stopped
     links:
       - coturn
+    volumes:
+      - media-audio:/var/freeswitch/meetings
 
   bbb-webrtc-sfu:
     image: ${TAG_PREFIX}bbb-webrtc-sfu${TAG_SUFFIX}
@@ -42,10 +44,12 @@ services:
     links:
       - redis
       - kurento
+      - bbb-freeswitch
     environment:
       KURENTO_IP: ${EXTERNAL_IP}
       KURENTO_URL: ws://kurento:8888/kurento
       REDIS_HOST: redis
+      FREESWITCH_IP: bbb-freeswitch
 
   coturn:
     image: ${TAG_PREFIX}coturn${TAG_SUFFIX}
@@ -70,6 +74,9 @@ services:
   kurento:
     image: ${TAG_PREFIX}kurento${TAG_SUFFIX}
     restart: unless-stopped
+    volumes:
+      - media-video:/var/kurento/recordings
+      - media-screenshare:/var/kurento/screenshare
     environment:
       KMS_STUN_IP: ${EXTERNAL_IP}
       KMS_STUN_PORT: 3478
@@ -139,7 +146,8 @@ services:
 
 volumes:
   ssl-conf:
-    driver: local    
   static:
-    driver: local    
   bigbluebutton:
+  media-audio:
+  media-video:
+  media-screenshare:

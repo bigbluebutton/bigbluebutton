@@ -148,7 +148,6 @@ $ docker run -d --rm --name nginx -v docker_static:/var/www/bigbluebutton-defaul
 $ docker cp . nginx:/var/www/bigbluebutton-default
 $ docker exec -it nginx chown -R www-data:www-data /var/www/bigbluebutton-default
 $ docker stop nginx
-
 ```
 
 ### Launch with docker-compose
