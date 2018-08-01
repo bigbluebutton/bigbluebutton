@@ -449,7 +449,6 @@ class UserDropdown extends Component {
     const contents = (
       <div
         className={!actions.length ? styles.userListItem : null}
-        ref={node => this.trigger = node}
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
@@ -486,7 +485,7 @@ class UserDropdown extends Component {
         aria-live="assertive"
         aria-relevant="additions"
       >
-        <DropdownTrigger ref={(ref) => { this.trigger = ref; }}>
+        <DropdownTrigger>
           {contents}
         </DropdownTrigger>
         <DropdownContent
