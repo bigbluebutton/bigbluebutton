@@ -11,7 +11,7 @@ import Service from './service';
 import NavBar from './component';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
-const PUBLIC_CHAT_KEY = PUBLIC_CONFIG.chat.public_id;
+const PUBLIC_GROUP_CHAT_ID = PUBLIC_CONFIG.chat.public_group_id;
 const CLIENT_TITLE = PUBLIC_CONFIG.app.clientTitle;
 
 const NavBarContainer = ({ children, ...props }) => (
@@ -45,7 +45,7 @@ export default withRouter(withTracker(({ location, router }) => {
     return users
       .map(user => user.id)
       .filter(userID => userID !== Auth.userID)
-      .concat(PUBLIC_CHAT_KEY)
+      .concat(PUBLIC_GROUP_CHAT_ID)
       .some(receiverID => ChatService.hasUnreadMessages(receiverID));
   };
 
