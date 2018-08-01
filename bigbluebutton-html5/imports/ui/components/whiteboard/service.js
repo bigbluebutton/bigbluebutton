@@ -168,7 +168,6 @@ WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
 
 Users.find({ userId: Auth.userID }).observeChanges({
   changed(id, { presenter }) {
-    console.log(presenter);
     if (presenter === false) clearFakeAnnotations();
   },
 });
