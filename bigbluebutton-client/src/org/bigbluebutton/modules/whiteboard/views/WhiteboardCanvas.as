@@ -106,8 +106,6 @@ package org.bigbluebutton.modules.whiteboard.views {
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.ENABLE_WHITEBOARD, onEnableWhiteboardEvent);
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
 			
-			presenterChange(UsersUtil.amIPresenter(), UsersUtil.getPresenterUserID());
-			
 			var ull:Listener = new Listener();
 			ull.type = UserLeftEvent.LEFT;
 			ull.method = onUserLeftEvent;
