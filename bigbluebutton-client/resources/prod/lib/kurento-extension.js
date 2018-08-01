@@ -6,7 +6,7 @@ const kurentoHandler = null;
 const SEND_ROLE = "send";
 const RECV_ROLE = "recv";
 const SFU_APP = "screenshare";
-const ON_ICE_CANDIDATE_MSG = "onIceCandidate";
+const ON_ICE_CANDIDATE_MSG = "iceCandidate";
 const START_MSG = "start";
 const START_RESPONSE_MSG = "startResponse";
 const PING_INTERVAL = 15000;
@@ -367,9 +367,12 @@ Kurento.prototype.startScreensharing = function () {
     this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
       if (error) {
         console.log(`WebRtcPeerSendonly constructor error ${JSON.stringify(error, null, 2)}`);
-        //this.onFail(error);
+        console.log({error});
+        this.onFail(error);
         return kurentoManager.exitScreenShare();
       }
+
+      this.onSuccess();
 
       this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
       console.log(`Generated peer offer w/ options ${JSON.stringify(options)}`);
@@ -589,6 +592,9 @@ Kurento.prototype.logError = function (obj) {
   console.error(obj);
 };
 
+Kurento.prototype.logSuccess = function (obj) {
+  console.log(obj);
+};
 
 Kurento.normalizeCallback = function (callback) {
   if (typeof callback === 'function') {

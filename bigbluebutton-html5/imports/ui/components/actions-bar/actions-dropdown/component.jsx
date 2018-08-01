@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import browser from 'browser-detect';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -83,9 +82,6 @@ class ActionsDropdown extends Component {
   getAvailableActions() {
     const {
       intl,
-      handleShareScreen,
-      handleUnshareScreen,
-      isVideoBroadcasting,
       isUserPresenter,
       isUserModerator,
       allowStartStopRecording,
@@ -93,10 +89,6 @@ class ActionsDropdown extends Component {
       record,
       toggleRecording,
     } = this.props;
-
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile ||
-      BROWSER_RESULTS.os.includes('Android'); // mobile flag doesn't always work
 
     return _.compact([
       (isUserPresenter ?
@@ -107,18 +99,6 @@ class ActionsDropdown extends Component {
           key={this.presentationItemId}
           onClick={this.handlePresentationClick}
         />
-        : null),
-      (Meteor.settings.public.kurento.enableScreensharing &&
-        !isMobileBrowser && isUserPresenter ?
-          <DropdownListItem
-            icon="desktop"
-            label={intl.formatMessage(isVideoBroadcasting ?
-            intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
-            description={intl.formatMessage(isVideoBroadcasting ?
-            intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
-            key={this.videoItemId}
-            onClick={isVideoBroadcasting ? handleUnshareScreen : handleShareScreen}
-          />
         : null),
       (record && isUserModerator && allowStartStopRecording ?
         <DropdownListItem

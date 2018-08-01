@@ -928,7 +928,7 @@ views|GuestItemRenderer {
 
 /*
 //------------------------------
-//  Item InactivityWarningWindow
+//  InactivityWarningWindow
 //------------------------------
 */
 
@@ -2011,6 +2011,17 @@ users|MoodMenu {
 	iconMoodNeutral    : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Neutral");
 	iconMoodConfused   : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_Confused");
 	iconMoodNone       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_User_Mood_None");
+}
+
+/*
+//------------------------------
+//  UserInactivityWindow
+//------------------------------
+*/
+
+views|UserInactivityWindow {
+	fontSize     : 14;
+	headerHeight : 0;
 }
 
 /*

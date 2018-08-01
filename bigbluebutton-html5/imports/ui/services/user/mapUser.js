@@ -29,6 +29,7 @@ const mapUser = (user) => {
     isSharingWebcam: user.has_stream,
     isPhoneUser: user.phone_user,
     isOnline: user.connectionStatus === 'online',
+    clientType: user.clientType,
   };
 
   mappedUser.isLocked = user.locked && !(mappedUser.isPresenter || mappedUser.isModerator);
