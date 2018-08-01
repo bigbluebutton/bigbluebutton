@@ -103,3 +103,9 @@
   max-width: 100%;
   overflow: visible;
 }
+
+.emojiSelected {
+  span, i {
+    color: $color-primary;
+  }
+}

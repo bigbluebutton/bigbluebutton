@@ -67,39 +67,21 @@ class Dropdown extends Component {
     this.handleHide = this.handleHide.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
-    this.componentDidUpdate = this.componentDidUpdate.bind(this);
   }
 
   componentWillUpdate(nextProps, nextState) {
     return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
   }
 
-  componentDidUpdate(prevProps, prevState, event) {
+  componentDidUpdate(prevProps, prevState) {
     const {
-      userDropdownOpen,
-      closeUserDropdown,
-      showEmojiMenu,
       onShow,
       onHide,
     } = this.props;
 
-    if (event) {
-      const menuContent = findDOMNode(this.content);
+    if (this.state.isOpen && !prevState.isOpen) { onShow(); }
 
-      if (!menuContent.contains(event.target)) {
-        this.props.emojiSelected();
-        this.handleHide();
-      }
-    }
-
-    if (userDropdownOpen) return closeUserDropdown();
-
-    const emojisToggled = (showEmojiMenu && !prevProps.showEmojiMenu) || (!showEmojiMenu && prevProps.showEmojiMenu);
-    if (emojisToggled) this.handleShow();
-
-    if (this.state.isOpen && !prevState.isOpen) onShow();
-
-    if (!this.state.isOpen && prevState.isOpen) onHide();
+    if (!this.state.isOpen && prevState.isOpen) { onHide(); }
   }
 
   handleShow() {
@@ -109,27 +91,22 @@ class Dropdown extends Component {
     });
   }
 
-  handleHide(event) {
+  handleHide() {
     this.setState({ isOpen: false }, () => {
       const { removeEventListener } = window;
       removeEventListener('click', this.handleWindowClick, true);
     });
-
-    this.componentDidUpdate(this.props, this.state, event);
   }
 
-  handleWindowClick(event) {
+  handleWindowClick() {
     const triggerElement = findDOMNode(this.trigger);
+    const contentElement = findDOMNode(this.content);
 
-    if (!triggerElement) return;
-
-    if (!this.state.isOpen
-      || triggerElement === event.target
-      || triggerElement.contains(event.target)) {
+    if (this.props.isOpen && contentElement.contains(event.target) || !triggerElement) {
       return;
     }
 
-    this.handleHide(event);
+    this.handleHide();
   }
 
   handleToggle() {
