@@ -101,11 +101,16 @@ class Dropdown extends Component {
   handleWindowClick() {
     const triggerElement = findDOMNode(this.trigger);
     const contentElement = findDOMNode(this.content);
+    const closeDropdown = this.props.isOpen && this.state.isOpen && triggerElement.contains(event.target);
+
+    if (closeDropdown) {
+      return this.props.onHide();
+    }
 
     if (contentElement) {
-      if (this.props.isOpen && contentElement.contains(event.target) || !triggerElement) {
-        return;
-      }
+      const preventHide = this.props.isOpen && contentElement.contains(event.target) || !triggerElement;
+
+      if (preventHide) return;
     }
 
     this.handleHide();
