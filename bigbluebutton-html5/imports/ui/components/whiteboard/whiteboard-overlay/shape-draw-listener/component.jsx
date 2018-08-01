@@ -151,11 +151,8 @@ export default class ShapeDrawListener extends Component {
     // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
     // but the browser didn't catch it. So check it here.
     if (this.isDrawing) {
-      if (event.button === 2) {
-        const isDiscarded = true;
-        return this.sendLastMessage(isDiscarded);
-      }
-      return this.sendLastMessage();
+      const isDiscarded = true;
+      return this.sendLastMessage(isDiscarded);
     }
 
     if (event.button === 0) {
@@ -277,13 +274,14 @@ export default class ShapeDrawListener extends Component {
         whiteboardId: this.props.whiteboardId,
         status,
         type: shapeType,
+        isDiscarded,
       },
       wbId: this.props.whiteboardId,
       userId: this.props.userId,
       position: 0,
     };
 
-    sendAnnotation(annotation, isDiscarded);
+    sendAnnotation(annotation);
   }
 
   render() {

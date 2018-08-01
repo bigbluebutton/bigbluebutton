@@ -7,8 +7,9 @@ import { isEqual } from 'lodash';
 import WhiteboardToolbarService from './whiteboard-toolbar/service';
 
 const Annotations = new Mongo.Collection(null);
-const annotationStatus = Meteor.settings.public.whiteboard.annotations.status;
-let isDiscarded = false;
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
@@ -16,15 +17,11 @@ function clearFakeAnnotations() {
 
 function discardCurrentAnnotation(whiteboardId) {
   WhiteboardToolbarService.undoAnnotation(whiteboardId);
-  isDiscarded = false;
 }
 
 function handleAddedAnnotation({
   meetingId, whiteboardId, userId, annotation,
 }) {
-  const drawStartStatus = annotationStatus.start;
-  const drawEndStatus = annotationStatus.end;
-
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
@@ -38,23 +35,20 @@ function handleAddedAnnotation({
   if (!fakeAnnotation) return;
 
   const fakePoints = fakeAnnotation.annotationInfo.points;
-  const lastPoints = annotation.annotationInfo.points;
-  const wbId = annotation.annotationInfo.whiteboardId;
+  const { points: lastPoints, whiteboardId: wbId, isDiscarded } = annotation.annotationInfo;
 
   if (annotation.annotationType !== 'pencil') {
     Annotations.update(fakeAnnotation._id, {
       $set: {
         position: annotation.position,
-        'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === drawEndStatus ?
+        'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END ?
           annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
       },
       $inc: { version: 1 }, // TODO: Remove all this version stuff
     });
 
     // Remove current annotation when drawing is cancelled
-    if (annotation.status === drawEndStatus && isDiscarded) {
-      discardCurrentAnnotation(wbId);
-    }
+    if (isDiscarded) discardCurrentAnnotation(wbId);
     return;
   }
 
@@ -65,14 +59,14 @@ function handleAddedAnnotation({
     }
 
     // Remove fake annotation for pencil on draw end
-    if (annotation.status === drawEndStatus) {
+    if (annotation.status === DRAW_END) {
       Annotations.remove({ id: `${annotation.id}-fake` });
       // Remove current annotation when drawing is cancelled
       if (isDiscarded) discardCurrentAnnotation(wbId);
       return;
     }
 
-    if (annotation.status === drawStartStatus) {
+    if (annotation.status === DRAW_START) {
       Annotations.update(fakeAnnotation._id, {
         $set: {
           position: annotation.position - 1,
@@ -155,9 +149,7 @@ const proccessAnnotationsQueue = () => {
   setTimeout(proccessAnnotationsQueue, delayTime);
 };
 
-export function sendAnnotation(annotation, discarded = false) {
-  const drawEndStatus = annotationStatus.end;
-
+export function sendAnnotation(annotation) {
   // Prevent sending annotations while disconnected
   if (!Meteor.status().connected) return;
 
@@ -165,10 +157,7 @@ export function sendAnnotation(annotation, discarded = false) {
   if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 
   // skip optimistic for draw end since the smoothing is done in akka
-  if (annotation.status === drawEndStatus) {
-    if (discarded) isDiscarded = true;
-    return;
-  }
+  if (annotation.status === DRAW_END) return;
 
   const { position, ...relevantAnotation } = annotation;
   const queryFake = addAnnotationQuery(

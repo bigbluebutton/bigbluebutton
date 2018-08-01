@@ -187,12 +187,11 @@ export default class TextDrawListener extends Component {
       }
 
     // second case is when a user finished writing the text and publishes the final result
-    } else if (event.button === 2) {
-      const isDiscarded = true;
-      this.sendLastMessage(isDiscarded);
     } else {
+      const isDiscarded = true;
+
       // publishing the final shape and resetting the state
-      this.sendLastMessage();
+      this.sendLastMessage(isDiscarded);
     }
   }
 
@@ -365,13 +364,14 @@ export default class TextDrawListener extends Component {
         fontSize: this.props.drawSettings.textFontSize,
         dataPoints: `${startPoint.x},${startPoint.y}`,
         type: 'text',
+        isDiscarded,
       },
       wbId: this.props.whiteboardId,
       userId: this.props.userId,
       position: 0,
     };
 
-    sendAnnotation(annotation, isDiscarded);
+    sendAnnotation(annotation);
   }
 
   render() {

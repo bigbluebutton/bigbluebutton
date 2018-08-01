@@ -128,11 +128,9 @@ export default class PencilDrawListener extends Component {
 
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-    } else if (event.button === 2) {
+    } else {
       const isDiscarded = true;
       this.sendLastMessage(isDiscarded);
-    } else {
-      this.sendLastMessage();
     }
   }
 
@@ -171,6 +169,7 @@ export default class PencilDrawListener extends Component {
         whiteboardId,
         status,
         type: 'pencil',
+        isDiscarded,
       },
       wbId: whiteboardId,
       userId,
@@ -182,7 +181,7 @@ export default class PencilDrawListener extends Component {
       annotation.annotationInfo.dimensions = dimensions;
     }
 
-    sendAnnotation(annotation, isDiscarded);
+    sendAnnotation(annotation);
   }
 
   sendLastMessage(isDiscarded = false) {
