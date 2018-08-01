@@ -1,34 +1,58 @@
 SHELL=/bin/bash
 
+# in order to build images for fcecagno/bigbluebutton, run:
+# IMAGE_ACCOUNT=fcecagno IMAGE_REPO=bigbluebutton make release
+
 # build options
-BUILD_VERSION?=0.0.0
-BUILD_TAG_PREFIX?=
 BUILD_REVISION=`git rev-parse --short HEAD`
 BUILD_DIR_BASE=`git rev-parse --git-dir`/..
-TAG_REVISION=0
+BUILD_VERSION?=
+BUILD_IMAGE=0
+IMAGE_ACCOUNT?=
+IMAGE_REPO?=
+IMAGE_TAG=latest
+TAG_REVISION?=0
 
 all: release
 
 image:
-	-cd $(DIR) && docker build -t $(BUILD_TAG_PREFIX)$(BUILD_TAG):$(BUILD_VERSION) $(BUILD_ARGS) .
-	if [ "$(TAG_REVISION)" == "1" ]; then \
-		docker tag $(BUILD_TAG_PREFIX)$(BUILD_TAG):$(BUILD_VERSION) $(BUILD_TAG_PREFIX)$(BUILD_TAG):$(BUILD_REVISION) ; \
+	-cd $(DIR) && docker build -t $(IMAGE_NAME):$(IMAGE_TAG) $(BUILD_ARGS) .
+	if [ "$(BUILD_IMAGE)" == "0" ]; then \
+		if [ "$(IMAGE_ACCOUNT)" != "" ]; then \
+			if [ "$(IMAGE_REPO)" != "" ]; then \
+				docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_ACCOUNT)/$(IMAGE_REPO):$(IMAGE_NAME); \
+				if [ "$(TAG_REVISION)" == "1" ]; then \
+					docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_ACCOUNT)/$(IMAGE_REPO):$(IMAGE_NAME)-$(BUILD_REVISION); \
+				fi \
+			fi \
+		else \
+			if [ "$(IMAGE_REPO)" != "" ]; then \
+				docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_REPO):$(IMAGE_NAME); \
+				if [ "$(TAG_REVISION)" == "1" ]; then \
+					docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_REPO):$(IMAGE_NAME)-$(BUILD_REVISION); \
+				fi \
+			else \
+				if [ "$(TAG_REVISION)" == "1" ]; then \
+					docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(BUILD_REVISION); \
+				fi \
+			fi \
+		fi \
 	fi
 
 release:
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/sbt BUILD_TAG=sbt BUILD_VERSION=0.13.8
-	make image DIR=$(BUILD_DIR_BASE)/bbb-common-message BUILD_TAG=bbb-common-message BUILD_VERSION=latest BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
-	make image DIR=$(BUILD_DIR_BASE)/bbb-common-web BUILD_TAG=bbb-common-web BUILD_VERSION=latest BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
-	make image DIR=$(BUILD_DIR_BASE)/bbb-fsesl-client BUILD_TAG=bbb-fsesl-client BUILD_VERSION=latest BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
-	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-apps BUILD_TAG=bbb-apps-akka BUILD_VERSION=latest BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-fsesl BUILD_TAG=bbb-fsesl-akka BUILD_VERSION=latest BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/bigbluebutton-web BUILD_TAG=bbb-web BUILD_VERSION=latest BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/bigbluebutton-html5 BUILD_TAG=bbb-html5 BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/labs/bbb-webrtc-sfu BUILD_TAG=bbb-webrtc-sfu BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/bbb-webhooks BUILD_TAG=bbb-webhooks BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/kurento BUILD_TAG=kurento BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/freeswitch BUILD_TAG=bbb-freeswitch BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/nginx BUILD_TAG=nginx BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/nginx-dhp BUILD_TAG=nginx-dhp BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/coturn BUILD_TAG=coturn BUILD_VERSION=latest TAG_REVISION=1
-	make image DIR=$(BUILD_DIR_BASE)/bbb-lti BUILD_TAG=bbb-lti BUILD_VERSION=latest TAG_REVISION=1
+	make image DIR=$(BUILD_DIR_BASE)/labs/docker/sbt IMAGE_NAME=sbt IMAGE_TAG=0.13.8 BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/bbb-common-message IMAGE_NAME=bbb-common-message BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/bbb-common-web IMAGE_NAME=bbb-common-web BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/bbb-fsesl-client IMAGE_NAME=bbb-fsesl-client BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-apps IMAGE_NAME=bbb-apps-akka BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
+	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-fsesl IMAGE_NAME=bbb-fsesl-akka BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
+	make image DIR=$(BUILD_DIR_BASE)/bigbluebutton-web IMAGE_NAME=bbb-web BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
+	make image DIR=$(BUILD_DIR_BASE)/bigbluebutton-html5 IMAGE_NAME=bbb-html5
+	make image DIR=$(BUILD_DIR_BASE)/labs/bbb-webrtc-sfu IMAGE_NAME=bbb-webrtc-sfu
+	make image DIR=$(BUILD_DIR_BASE)/bbb-webhooks IMAGE_NAME=bbb-webhooks
+	make image DIR=$(BUILD_DIR_BASE)/labs/docker/kurento IMAGE_NAME=kurento
+	make image DIR=$(BUILD_DIR_BASE)/labs/docker/freeswitch IMAGE_NAME=bbb-freeswitch
+	make image DIR=$(BUILD_DIR_BASE)/labs/docker/nginx IMAGE_NAME=nginx
+	make image DIR=$(BUILD_DIR_BASE)/labs/docker/nginx-dhp IMAGE_NAME=nginx-dhp
+	make image DIR=$(BUILD_DIR_BASE)/labs/docker/coturn IMAGE_NAME=coturn
+	make image DIR=$(BUILD_DIR_BASE)/bbb-lti IMAGE_NAME=bbb-lti
