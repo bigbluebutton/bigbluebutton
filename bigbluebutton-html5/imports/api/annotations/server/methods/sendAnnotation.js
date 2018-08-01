@@ -5,6 +5,8 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Annotations from '/imports/api/annotations';
 
+import isPodPresenter from '/imports/api/presentation-pods/server/utils/isPodPresenter';
+
 function isLastMessage(meetingId, annotation, userId) {
   const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
 
@@ -43,7 +45,7 @@ export default function sendAnnotation(credentials, annotation) {
   // and then slide/presentation changes, the user lost presenter rights,
   // or multi-user whiteboard gets turned off
   // So we allow the last "DRAW_END" message to pass through, to finish the shape.
-  const allowed = Acl.can('methods.sendAnnotation', credentials) ||
+  const allowed =  isPodPresenter(meetingId, whiteboardId, requesterUserId) ||
     getMultiUserStatus(meetingId, whiteboardId) ||
     isLastMessage(meetingId, annotation, requesterUserId);
 
