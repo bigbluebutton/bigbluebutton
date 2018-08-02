@@ -804,7 +804,7 @@ check_configuration() {
 
 
 	#
-	# Check if BigBlueButto is defined in Nginx
+	# Check if BigBlueButton is defined in Nginx
 	#
 	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
         	echo "# Nginx: BigBlueButton appears to be disabled"
@@ -1634,7 +1634,7 @@ if [ $CHECK ]; then
 fi
 
 #
-# Check current setup
+# Zip log files
 #
 if [ $ZIP ]; then
 	need_root
@@ -1832,11 +1832,7 @@ if [ -n "$HOST" ]; then
         if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
                 sed -i  "s/bbbWebAPI[ ]*=[ ]*\"[^\"]*\"/bbbWebAPI=\"${PROTOCOL_HTTP}:\/\/$HOST\/bigbluebutton\/api\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
-                sed -i "s/bbbWebHost[ ]*=[ ]*\"[^\"]*\"/bbbWebHost=\"$HOST\"/g" \
-                        /usr/share/bbb-apps-akka/conf/application.conf
                 sed -i "s/deskshareip[ ]*=[ ]*\"[^\"]*\"/deskshareip=\"$HOST\"/g" \
-                        /usr/share/bbb-apps-akka/conf/application.conf
-                sed -i  "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"${PROTOCOL_HTTP}:\/\/$HOST\/default.pdf\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
 		# Fix to ensure application.conf has the latest shared secret
                 SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);

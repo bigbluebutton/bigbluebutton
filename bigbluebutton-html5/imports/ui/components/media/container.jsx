@@ -7,7 +7,7 @@ import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Media from './component';
 import MediaService, { getSwapLayout } from './service';
-import PresentationAreaContainer from '../presentation/container';
+import PresentationPodsContainer from '../presentation-pod/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 
@@ -80,7 +80,7 @@ class MediaContainer extends Component {
   safariScreenshareNotSupported() {
     const { intl } = this.props;
     notify(intl.formatMessage(intlMessages.screenshareSafariNotSupportedError), 'error', 'desktop');
-  }  
+  }
 
   render() {
     return <Media {...this.props} />;
@@ -98,7 +98,7 @@ export default withTracker(() => {
 
   if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
     data.currentPresentation = MediaService.getPresentationInfo();
-    data.children = <PresentationAreaContainer />;
+    data.children = <PresentationPodsContainer />;
   }
 
   if (MediaService.shouldShowScreenshare() && (viewScreenshare || MediaService.isUserPresenter())) {

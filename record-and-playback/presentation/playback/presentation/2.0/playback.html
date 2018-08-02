@@ -21,7 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BigBlueButton Playback</title>
+  <title>Loading</title>
 
   <link rel="stylesheet" type="text/css" href="acornmediaplayer/acornmediaplayer.base.css" />
   <link rel="stylesheet" type="text/css" href="acornmediaplayer/themes/access/acorn.access.css" />
@@ -33,8 +33,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 
 <body>
-  <div id="loading-error">
-    <p id="load-error-msg">This recording could not be found</p>
+  <div id="loading">
+    <img id="load-img" class="loading-img" src="logo.png">
+    <p id="load-msg">Loading</p>
   </div>
   <div class="circle" id="cursor"></div>
   <div id="playback-content" class="off-canvas-wrap" data-offcanvas>
@@ -44,7 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <a class="left-off-canvas-toggle menu-icon" href="#">
           <i class="sidebar-icon fi-list"></i>
         </a>
-        <h1 id="recording-title">BigBlueButton Playback</h1>
+        <h1 id="recording-title">Recording Playback</h1>
       </div>
 
       <aside class="left-off-canvas-menu">
@@ -65,11 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <div id="slideText" class="show-for-sr" aria-live="polite"></div>
           </div>
 
-          <div id="copyright">
-            Recorded with <a target="_blank" href="http://bigbluebutton.org/">BigBlueButton</a>.
-            Use <a target="_blank" href="http://mozilla.org/firefox">Mozilla Firefox</a> or
-            <a target="_blank" href="http://google.com/chrome/">Google Chrome</a> to play this recording.
-          </div>
+          <div id="copyright"></div>
         </div>
 
         <div id="side-section" class="small-4 columns">
@@ -108,8 +105,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <script type="text/javascript" src="lib/jquery.min.js"></script>
   <script type="text/javascript" src="lib/jquery-ui.min.js"></script>
   <script type="text/javascript" src="lib/foundation.min.js"></script>
-  <script type="text/javascript" src="lib/spin.min.js"></script>
   <script type="text/javascript" src="acornmediaplayer/jquery.acornmediaplayer.js"></script>
+  <script type="text/javascript" src="lib/bbblogger.js"></script>
   <script type="text/javascript" src="lib/writing.js"></script>
   <script type="text/javascript" src="playback.js"></script>
   <!-- popcorn has to be loaded after playback.js, otherwise the chat won't be displayed -->

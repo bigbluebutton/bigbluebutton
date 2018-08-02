@@ -15,9 +15,6 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
 
   val log = Logging(system, getClass)
 
-
-  log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
-
   private val msgFromClientEventBus = new MsgFromClientEventBus
   private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus
   private val msgToRedisEventBus = new MsgToRedisEventBus

@@ -5,6 +5,7 @@ import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
+import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 
 const MEDIA = Meteor.settings.public.media;
@@ -144,6 +145,11 @@ class AudioManager {
       setTimeout(reject, 12000, iceGatheringErr);
     });
 
+
+    // Workaround to circumvent the WebKit autoplay policy without prompting
+    // the user to do some action again. A silent stream is played.
+    this.playFakeAudio();
+
     return this.onAudioJoining()
       .then(() => Promise.race([
         bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
@@ -212,6 +218,8 @@ class AudioManager {
       });
     }
 
+    clearInterval(this.fakeAudioInterval);
+
     if (!this.isEchoTest) {
       this.notify(this.messages.info.JOINED_AUDIO);
     }
@@ -262,7 +270,7 @@ class AudioManager {
         this.error = error;
         this.notify(this.messages.error[error] || this.messages.error.GENERIC_ERROR, true);
         makeCall('failed callStateCallback audio', response);
-        console.error('Audio Error:', error, bridgeError);
+        logger.error('Audio Error:', error, bridgeError);
         this.exitAudio();
         this.onAudioExit();
       }
@@ -350,6 +358,19 @@ class AudioManager {
       error ? 'error' : 'info',
       this.isListenOnly ? 'audio_on' : 'unmute',
     );
+  }
+
+  playFakeAudio() {
+    const outputDeviceId = this.outputDeviceId;
+    const sound = new Audio('resources/sounds/silence.mp3');
+    if (outputDeviceId && sound.setSinkId) {
+      sound.setSinkId(outputDeviceId);
+    }
+    // Hack within the hack: haven't got time to get the right timing to play
+    // the audio on stock listen only, but I'll get back to it - prlanzarin
+    this.fakeAudioInterval = setInterval(() => {
+      sound.play();
+    }, 1000);
   }
 }
 

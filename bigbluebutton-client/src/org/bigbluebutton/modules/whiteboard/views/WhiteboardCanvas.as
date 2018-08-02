@@ -23,13 +23,16 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import com.asfusion.mate.events.Listener;
 	
 	import flash.display.DisplayObject;
-	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	
 	import mx.containers.Canvas;
+	import mx.core.IChildList;
 	import mx.managers.CursorManager;
 	
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.LiveMeeting;
+	import org.bigbluebutton.core.model.users.User2x;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
@@ -75,6 +78,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			textToolbar = new WhiteboardTextToolbar();
 			textToolbar.canvas = this;
 			
+			whiteboardToolbar.whiteboardAccessModified(whiteboardToolbar.multiUser);
+			
 			this.clipContent = true;
 			this.mouseEnabled = false;
 			
@@ -97,10 +102,10 @@ package org.bigbluebutton.modules.whiteboard.views {
 			wbModel.addEventListener(WhiteboardAccessEvent.MODIFIED_WHITEBOARD_ACCESS, onModifiedAccess);
 			wbModel.addEventListener(WhiteboardCursorEvent.RECEIVED_CURSOR_POSITION, onReceivedCursorPosition);
 			
+			whiteboardToolbar.addEventListener(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS, onMultiUserBtn);
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.ENABLE_WHITEBOARD, onEnableWhiteboardEvent);
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
-			whiteboardToolbar.addEventListener(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS, onMultiUserBtn);
-
+			
 			var ull:Listener = new Listener();
 			ull.type = UserLeftEvent.LEFT;
 			ull.method = onUserLeftEvent;
@@ -297,15 +302,11 @@ package org.bigbluebutton.modules.whiteboard.views {
 			if (doesContainCursor(cursor)) this.cursorObjectHolder.rawChildren.removeChild(cursor);
 		}
 		
-		public function removeAllCursors():void {
-			var newCursorHolder:Canvas = new Canvas;
-			newCursorHolder.height = cursorObjectHolder.height;
-			newCursorHolder.width = cursorObjectHolder.width;
-			newCursorHolder.tabFocusEnabled = false;
-			
-			addChildAt(newCursorHolder, getChildIndex(cursorObjectHolder));
-			removeChild(cursorObjectHolder);
-			cursorObjectHolder = newCursorHolder;
+		public function removeAllCursorChildren():void {
+			var children:IChildList = this.cursorObjectHolder.rawChildren;
+			while (children.numChildren != 0) {
+				children.removeChildAt(children.numChildren - 1);
+			}
 		}
 		
 		public function textToolbarSyncProxy(tobj:TextObject):void {
@@ -371,12 +372,21 @@ package org.bigbluebutton.modules.whiteboard.views {
 				whiteboardToolbar.whiteboardAccessModified(e.multiUser);
 				canvasModel.multiUserChange(e.multiUser);
 				canvasDisplayModel.multiUserChange(e.multiUser);
+				
+				if (!e.multiUser) {
+					canvasDisplayModel.clearCursors();
+				}
 			}
 		}
 		
 		private function onReceivedCursorPosition(e:WhiteboardCursorEvent):void {
 			if (e.whiteboardId == currentWhiteboardId) {
-				canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
+				var user:User2x = UsersUtil.getUser(e.userId);
+				
+				// only draw the cursor if the user exists and it's in multiuser mode or they are the presenter
+				if (user && (LiveMeeting.inst().whiteboardModel.getMultiUser(e.whiteboardId) || user.presenter)) {
+					canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);	
+				}
 			}
 		}
 		
@@ -404,7 +414,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			newEvent.whiteboardId = currentWhiteboardId;
 			dispatcher.dispatchEvent(newEvent);
 		}
-
+		
 		private function onUserLeftEvent(e:UserLeftEvent):void {
 			canvasDisplayModel.userLeft(e.userID);
 		}
