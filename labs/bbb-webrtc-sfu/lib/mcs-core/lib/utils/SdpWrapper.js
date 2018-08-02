@@ -15,19 +15,15 @@ module.exports = class SdpWrapper {
     this._mediaLines = {};
     this._mediaCapabilities = {};
     this._profileThreshold = "ffffff";
+    this.processSdp();
   }
 
-  setSdp (sdp) {
-    this._plainSdp = sdp;
-    this._jsonSdp = transform.parse(sdp);
-  }
-
-  getPlainSdp () {
+  get plainSdp() {
     return this._plainSdp;
   }
-  
-  getJsonSdp () {
-    return this._jsonSdp; 
+
+  get jsonSdp() {
+    return this._jsonSdp;
   }
 
   removeFmtp () {
@@ -38,35 +34,70 @@ module.exports = class SdpWrapper {
     return this._plainSdp.replace(/(IP4\s[0-9.]*)/g, 'IP4 ' + ipv4);
   }
 
-  getCallId () {
-    return this._plainSdp.match(/(call-id|i):\s(.*)/i)[2];
+  hasAudio () {
+    return this._mediaCapabilities.hasAudio;
+  }
+
+  hasVideo () {
+    return this._mediaCapabilities.hasVideo;
+  }
+
+  hasMultipleVideo () {
+    return this._mediaCapabilities.hasMultipleVideo;
+  }
+
+  hasAvailableVideoCodec () {
+    return this._mediaCapabilities.hasAvailableVideoCodec;
+  }
+
+  hasAvailableAudioCodec () {
+    return this._mediaCapabilities.hasAvailableAudioCodec;
   }
 
   /**
-   * Given a SDP, test if there is more than on video description
-   * @param  {string} sdp The Session Descriptor
+   * Given a SDP, test if there is an audio description in it
    * @return {boolean}    true if there is more than one video description, else false
    */
-  hasAudio () {
+  _hasAudio () {
     return /(m=audio)/i.test(this._plainSdp);
   }
 
   /**
-   * Given a SDP, test if there is a video description in it 
-   * @param  {string} sdp The Session Descriptor
+   * Given a SDP, test if there is a video description in it
    * @return {boolean}    true if there is a video description, else false
    */
-  hasVideo (sdp) {
-    return /(m=video)/i.test(sdp);
+  _hasVideo () {
+    return /(m=video)/i.test(this._plainSdp);
   }
 
   /**
    * Given a SDP, test if there is more than on video description
-   * @param  {string} sdp The Session Descriptor
    * @return {boolean}    true if there is more than one video description, else false
    */
-  hasMultipleVideo (sdp) {
-    return /(m=video)([\s\S]*\1){1,}/i.test(sdp);
+  _hasMultipleVideo () {
+    return /(m=video)([\s\S]*\1){1,}/i.test(this._plainSdp);
+  }
+
+  /**
+   * Tests if the current SDP has an available and valid video codec
+   * @return {boolean} true if there is an RTP video session specified and active
+   */
+  _hasAvailableVideoCodec () {
+    return this._jsonSdp.media.some((ml) => {
+      let  { type, rtp, port } = ml;
+      return type === 'video' && rtp && rtp.length > 0 && port !== 0;
+    });
+  }
+
+  /**
+   * Tests if the current SDP has an available and valid audio codec
+   * @return {boolean} true if there is an RTP audio session specified and active
+   */
+  _hasAvailableAudioCodec () {
+    return this._jsonSdp.media.some((ml) => {
+      let  { type, rtp, port } = ml;
+      return type === 'audio' && rtp && rtp.length > 0 && port !== 0;
+    });
   }
 
   /**
@@ -197,21 +228,19 @@ module.exports = class SdpWrapper {
     return mangledSdp;
   }
 
-  async processSdp () {
+  processSdp () {
     let description = this._plainSdp;
-    //if(config.get('kurento.force_low_resolution'))  {
-    //  description = this.removeFmtp(description);
-    //}
 
     description = description.toString().replace(/telephone-event/, "TELEPHONE-EVENT");
 
-    this._mediaCapabilities.hasVideo = this.hasVideo(description);
-    this._mediaCapabilities.hasAudio = this.hasAudio(description);
-    this._mediaCapabilities.hasContent = this.hasMultipleVideo(description);
-    this.sdpSessionDescription = this.getSessionDescription(description);
+    this._mediaCapabilities.hasVideo = this._hasVideo();
+    this._mediaCapabilities.hasAudio = this._hasAudio();
+    this._mediaCapabilities.hasContent = this._hasMultipleVideo();
+    this._mediaCapabilities.hasAvailableVideoCodec = this._hasAvailableVideoCodec();
+    this._mediaCapabilities.hasAvailableAudioCodec = this._hasAvailableAudioCodec();
+    this.sessionDescriptionHeader = this.getSessionDescription(description);
     this.audioSdp =  this.getAudioDescription(description);
     this.mainVideoSdp = this.getMainDescription(description);
-    //this.mainVideoSdp = this.removeHighQualityFmtps(this.mainVideoSdp);
     this.contentVideoSdp = this.getContentDescription(description);
 
     return;

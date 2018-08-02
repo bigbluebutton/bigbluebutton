@@ -62,7 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 		<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 		<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
-		<mate:Listener type="{BBBEvent.USER_INACTIVITY_AUDIT_EVENT}" method="handleUserInactivityAuditEvent" />
+		<mate:Listener type="{BBBEvent.USER_INACTIVITY_INSPECT_EVENT}" method="handleUserInactivityInspectEvent" />
 		<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 		<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
 		
@@ -98,6 +98,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
@@ -152,6 +156,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			
+			
+			
+			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
 			private var globalDispatcher:Dispatcher;			
@@ -205,8 +213,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				return logWindow;
 			}
-      
+
 			public function initOptions():void {
+				// Set the layout direction at the application start
+				ResourceUtil.getInstance().updateLayoutDirection();
 				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				usersOptions = Options.getOptions(UsersOptions) as UsersOptions;
 				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
@@ -364,8 +374,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LOGGER.debug("OPENING GUEST WINDOW");
 					var guestWindow : PendingGuestsWindow = PopUpUtil.createModalPopUp( mdiCanvas, PendingGuestsWindow, false) as PendingGuestsWindow;
 					PopUpUtil.lockPosition(guestWindow, function():Point {
-						return new Point(parentApplication.screen.width - guestWindow.width - 20, 20); 
-					});	
+						if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+							return new Point(20, 20);
+						} else {
+							return new Point(systemManager.screen.width - guestWindow.width - 20, 20);
+						}
+					});
 				}
 			}
 
@@ -500,10 +514,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.addChild(e.component);
 			}
 			
-			private function handleUserInactivityAuditEvent(e:BBBEvent):void {
-				var inactivityWarning:UserInactivityAuditWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
-					UserInactivityAuditWindow, true) as UserInactivityAuditWindow;
-				inactivityWarning.duration = e.payload.duration;
+			private function handleUserInactivityInspectEvent(e:BBBEvent):void {
+				var inactivityWarning:UserInactivityWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, 
+					UserInactivityWindow, true) as UserInactivityWindow;
+				inactivityWarning.duration = e.payload.responseDelay;
 			}
 			
 			private function handleInactivityWarningEvent(e:BBBEvent):void {
@@ -751,7 +765,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var popUp:RecordWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, RecordWindow, false) as RecordWindow;
 				popUp.setRecordingFlag(e.payload.recording);
 				PopUpUtil.lockPosition(popUp, function():Point {
-					return new Point(parentApplication.width - 150 - popUp.width, y + toolbar.height); 
+					if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+						return new Point(150, y + toolbar.height);
+					} else {
+						return new Point(parentApplication.width - popUp.width - 150, y + toolbar.height); 
+					}
 				});
 			}
 			
@@ -772,9 +790,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onLocaleChanged(e:LocaleChangeEvent) : void {
-				if (ResourceUtil.getInstance().isRTLEnabled()) {
-					FlexGlobals.topLevelApplication.setStyle("layoutDirection", ResourceUtil.getInstance().getCurrentLanguageDirection());
-				}
 				PopUpUtil.initAlert();
 			}
 			

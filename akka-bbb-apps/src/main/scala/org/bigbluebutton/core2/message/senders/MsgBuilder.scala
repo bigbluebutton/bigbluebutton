@@ -208,6 +208,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildUserInactivityInspectMsg(meetingId: String, userId: String, responseDelay: Long): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserInactivityInspectMsg.NAME, routing)
+    val body = UserInactivityInspectMsgBody(meetingId, responseDelay)
+    val header = BbbClientMsgHeader(UserInactivityInspectMsg.NAME, meetingId, userId)
+    val event = UserInactivityInspectMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildCheckAlivePingSysMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(CheckAlivePongSysMsg.NAME, routing)

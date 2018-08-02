@@ -83,9 +83,6 @@ class NavBar extends Component {
     this.props.toggleUserList();
   }
 
-  shouldComponentUpdate(nextProps) {
-    return nextProps.breakouts.length !== this.props.breakouts.length;
-  }
   componentDidUpdate(oldProps) {
     const {
       breakouts,

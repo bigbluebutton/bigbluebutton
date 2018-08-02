@@ -96,9 +96,12 @@ public class ParamsProcessorUtil {
 
     private Integer maxInactivityTimeoutMinutes = 120;
     private Integer clientLogoutTimerInMinutes = 0;
-		private Integer warnMinutesBeforeMax = 5;
-		private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
-		private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+	private Integer warnMinutesBeforeMax = 5;
+	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
+	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+	private Integer userInactivityInspectTimerInMinutes = 120;
+	private Integer userInactivityThresholdInMinutes = 30;
+    private Integer userActivitySignResponseDelayInMinutes = 5;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -482,7 +485,10 @@ public class ParamsProcessorUtil {
         meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
         meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
-				meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
+		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
+		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
+		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
+		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -942,7 +948,6 @@ public class ParamsProcessorUtil {
 		return warnMinutesBeforeMax;
 	}
 
-
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
 		meetingExpireWhenLastUserLeftInMinutes = value;
 	}
@@ -954,6 +959,30 @@ public class ParamsProcessorUtil {
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
 		meetingExpireIfNoUserJoinedInMinutes = value;
 	}
+	
+	public Integer getUserInactivityInspectTimerInMinutes() {
+        return userInactivityInspectTimerInMinutes;
+    }
+
+    public void setUserInactivityInspectTimerInMinutes(Integer userInactivityInspectTimerInMinutes) {
+        this.userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes;
+    }
+    
+    public Integer getUserInactivityThresholdInMinutes() {
+        return userInactivityThresholdInMinutes;
+    }
+
+    public void setUserInactivityThresholdInMinutes(Integer userInactivityThresholdInMinutes) {
+        this.userInactivityThresholdInMinutes = userInactivityThresholdInMinutes;
+    }
+
+    public Integer getUserActivitySignResponseDelayInMinutes() {
+        return userActivitySignResponseDelayInMinutes;
+    }
+
+    public void setUserActivitySignResponseDelayInMinutes(Integer userActivitySignResponseDelayInMinutes) {
+        this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
+    }
 
 	public void setMaxPresentationFileUpload(Long maxFileSize) {
 		maxPresentationFileUpload = maxFileSize;

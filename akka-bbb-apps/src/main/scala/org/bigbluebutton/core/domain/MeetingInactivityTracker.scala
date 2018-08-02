@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.domain
 
-import org.bigbluebutton.core.util.TimeUtil
-
 case class MeetingInactivityTracker(
     val maxInactivityTimeoutInMs: Long,
     val warningBeforeMaxInMs:     Long,
@@ -22,10 +20,9 @@ case class MeetingInactivityTracker(
   }
 
   def hasRecentActivity(nowInMs: Long): Boolean = {
-
     val left = nowInMs - lastActivityTimestampInMs
     val right = maxInactivityTimeoutInMs - warningBeforeMaxInMs
-    nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
+    left < right
   }
 
   def isMeetingInactive(nowInMs: Long): Boolean = {
@@ -44,7 +41,10 @@ case class MeetingExpiryTracker(
     lastUserLeftOnInMs:                Option[Long],
     durationInMs:                      Long,
     meetingExpireIfNoUserJoinedInMs:   Long,
-    meetingExpireWhenLastUserLeftInMs: Long
+    meetingExpireWhenLastUserLeftInMs: Long,
+    userInactivityInspectTimerInMs:    Long,
+    userInactivityThresholdInMs:       Long,
+    userActivitySignResponseDelayInMs: Long
 ) {
   def setUserHasJoined(): MeetingExpiryTracker = {
     if (!userHasJoined) {

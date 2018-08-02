@@ -233,7 +233,8 @@ class WhiteboardToolbar extends Component {
   }
 
   handleSwitchWhiteboardMode() {
-    this.props.actions.changeWhiteboardMode(!this.props.multiUser);
+    const { multiUser, whiteboardId } = this.props;
+    this.props.actions.changeWhiteboardMode(!multiUser, whiteboardId);
   }
 
   // changes a current selected annotation both in the state and in the session

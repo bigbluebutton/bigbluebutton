@@ -317,18 +317,15 @@ public class MeetingService implements MessageListener {
 
     log.info("Create meeting: data={}", logStr);
 
-    gw.createMeeting(m.getInternalId(), m.getExternalId(),
-      m.getParentMeetingId(), m.getName(), m.isRecord(),
-      m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(),
-      m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
-      m.getModeratorPassword(), m.getViewerPassword(),
-      m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
-      m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
-      m.getWelcomeMessage(), m.getModeratorOnlyMessage(), m.getDialNumber(), m.getMaxUsers(),
-      m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
-      m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
-            m.getMuteOnStart());
-
+    gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
+            m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
+            m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
+            formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
+            m.getGuestPolicy(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
+            m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
+            m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
+            m.getUserInactivityInspectTimerInMinutes(), m.getUserActivitySignResponseDelayInMinutes(),
+            m.getUserInactivityThresholdInMinutes(), m.getMuteOnStart());
   }
 
   private String formatPrettyDate(Long timestamp) {
