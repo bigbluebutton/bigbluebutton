@@ -59,7 +59,7 @@
     "react-toastify": "~2.1.2",
     "react-toggle": "~4.0.2",
     "react-transition-group": "~2.2.1",
-    "reconnecting-websocket": "^4.0.0-rc5",
+    "reconnecting-websocket": "~v3.2.2",
     "redis": "~2.8.0",
     "string-hash": "~1.1.3",
     "tippy.js": "~2.0.2",
