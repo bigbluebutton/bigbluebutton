@@ -59,25 +59,27 @@ class UserListItem extends Component {
     } = this.props;
 
     const contents = (<UserDropdown
-      compact={compact}
-      user={user}
-      intl={intl}
-      normalizeEmojiName={normalizeEmojiName}
-      meeting={meeting}
-      isMeetingLocked={isMeetingLocked}
-      getScrollContainerRef={getScrollContainerRef}
-      assignPresenter={assignPresenter}
-      removeUser={removeUser}
-      toggleVoice={toggleVoice}
-      changeRole={changeRole}
-      setEmojiStatus={setEmojiStatus}
-      currentUser={currentUser}
-      router={router}
-      isBreakoutRoom={isBreakoutRoom}
-      getAvailableActions={getAvailableActions}
-      handleEmojiChange={handleEmojiChange}
-      getEmojiList={getEmojiList}
-      getEmoji={getEmoji}
+      {...{
+        compact,
+        user,
+        intl,
+        normalizeEmojiName,
+        meeting,
+        isMeetingLocked,
+        getScrollContainerRef,
+        assignPresenter,
+        removeUser,
+        toggleVoice,
+        changeRole,
+        setEmojiStatus,
+        currentUser,
+        router,
+        isBreakoutRoom,
+        getAvailableActions,
+        handleEmojiChange,
+        getEmojiList,
+        getEmoji,
+      }}
     />);
 
     return contents;

@@ -115,6 +115,7 @@ class UserDropdown extends Component {
         label={action.label(...options)}
         handler={action.handler}
         options={[...options]}
+        desc={action.desc}
       />
     );
   }
@@ -242,6 +243,7 @@ class UserDropdown extends Component {
         icon: 'user',
         label: () => intl.formatMessage(messages.statusTriggerLabel),
         handler: () => { this.setState({ showNestedOptions: true }); },
+        desc: 'set_status',
       },
       back: {
         icon: 'left_arrow',
@@ -455,17 +457,21 @@ class UserDropdown extends Component {
             { this.renderUserAvatar() }
           </div>
           {<UserName
-            user={user}
-            compact={compact}
-            intl={intl}
-            meeting={meeting}
-            isMeetingLocked={isMeetingLocked}
-            userAriaLabel={userAriaLabel}
-            isActionsOpen={isActionsOpen}
+            {...{
+              user,
+              compact,
+              intl,
+              meeting,
+              isMeetingLocked,
+              userAriaLabel,
+              isActionsOpen,
+            }}
           />}
           {<UserIcons
-            user={user}
-            compact={compact}
+            {...{
+              user,
+              compact,
+            }}
           />}
         </div>
       </div>

@@ -129,23 +129,25 @@ class UserParticipants extends Component {
       >
         <div ref={(node) => { this.userRefs[index += 1] = node; }}>
           <UserListItem
-            compact={compact}
-            isBreakoutRoom={isBreakoutRoom}
-            user={user}
-            currentUser={currentUser}
-            meeting={meeting}
-            getAvailableActions={getAvailableActions}
-            normalizeEmojiName={normalizeEmojiName}
-            isMeetingLocked={isMeetingLocked}
+            {...{
+              user,
+              currentUser,
+              compact,
+              isBreakoutRoom,
+              meeting,
+              getAvailableActions,
+              normalizeEmojiName,
+              isMeetingLocked,
+              handleEmojiChange,
+              getEmojiList,
+              getEmoji,
+              setEmojiStatus,
+              assignPresenter,
+              removeUser,
+              toggleVoice,
+              changeRole,
+            }}
             getScrollContainerRef={this.getScrollContainerRef}
-            handleEmojiChange={handleEmojiChange}
-            getEmojiList={getEmojiList}
-            getEmoji={getEmoji}
-            setEmojiStatus={setEmojiStatus}
-            assignPresenter={assignPresenter}
-            removeUser={removeUser}
-            toggleVoice={toggleVoice}
-            changeRole={changeRole}
           />
         </div>
       </CSSTransition>
