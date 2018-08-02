@@ -15,11 +15,12 @@ RUN apt-get update \
 RUN cd /source \
  && sbt debian:packageBin
 
-# FROM ubuntu:16.04
 FROM openjdk:8-jre-slim-stretch
 
 COPY --from=builder /source/target/*.deb /root/
 
 RUN dpkg -i /root/*.deb
+
+COPY wait-for-it.sh /usr/local/bin/
 
 CMD ["/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]

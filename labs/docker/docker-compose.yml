@@ -12,7 +12,7 @@ services:
   bbb-html5:
     image: ${TAG_PREFIX}bbb-html5${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - mongo
       - redis
     environment:
@@ -24,7 +24,7 @@ services:
   bbb-webhooks:
     image: ${TAG_PREFIX}bbb-webhooks${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - redis
     environment:
       REDIS_HOST: redis
@@ -33,7 +33,7 @@ services:
   bbb-freeswitch:
     image: ${TAG_PREFIX}bbb-freeswitch${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - coturn
     volumes:
       - media-audio:/var/freeswitch/meetings
@@ -41,15 +41,16 @@ services:
   bbb-webrtc-sfu:
     image: ${TAG_PREFIX}bbb-webrtc-sfu${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - redis
       - kurento
       - bbb-freeswitch
     environment:
-      KURENTO_IP: ${EXTERNAL_IP}
+      KURENTO_NAME: kurento
       KURENTO_URL: ws://kurento:8888/kurento
       REDIS_HOST: redis
       FREESWITCH_IP: bbb-freeswitch
+      LOG_LEVEL: debug
 
   coturn:
     image: ${TAG_PREFIX}coturn${TAG_SUFFIX}
@@ -84,7 +85,7 @@ services:
   bbb-apps-akka:
     image: ${TAG_PREFIX}bbb-apps-akka${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - redis
     environment:
       JAVA_OPTS: -Dredis.host=redis
@@ -92,16 +93,17 @@ services:
   bbb-fsesl-akka:
     image: ${TAG_PREFIX}bbb-fsesl-akka${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - bbb-freeswitch
       - redis
+    command: ["wait-for-it.sh", "bbb-freeswitch:8021", "--timeout=60", "--strict", "--", "/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]
     environment:
       JAVA_OPTS: -Dredis.host=redis -Dfreeswitch.esl.host=bbb-freeswitch
 
   bbb-web:
     image: ${TAG_PREFIX}bbb-web${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - redis
     volumes:
       - bigbluebutton:/var/bigbluebutton
@@ -125,7 +127,7 @@ services:
   nginx:
     image: ${TAG_PREFIX}nginx${TAG_SUFFIX}
     restart: unless-stopped
-    links:
+    depends_on:
       - bbb-webhooks
       - bbb-web
       - bbb-html5
