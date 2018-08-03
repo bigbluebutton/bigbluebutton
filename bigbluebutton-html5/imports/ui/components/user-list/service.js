@@ -22,7 +22,16 @@ const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 const mapOpenChats = (chat) => {
   const currentUserId = Auth.userID;
-  return chat.sender !== currentUserId ? chat.sender : null;
+
+  if (chat.sender !== currentUserId) {
+    return chat.sender;
+  }
+
+  const { chatId } = chat;
+
+  const userId = GroupChat.findOne({ chatId }).users.filter(user => user !== currentUserId);
+
+  return userId[0];
 };
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
