@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
+import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
 const intlClientErrors = defineMessages({
   iceCandidateError: {
@@ -108,7 +109,6 @@ class VideoProvider extends Component {
     this.videoTags = {};
     this.sharedWebcam = false;
 
-    this.openWs = this.ws.open.bind(this.ws);
     this.onWsOpen = this.onWsOpen.bind(this);
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
