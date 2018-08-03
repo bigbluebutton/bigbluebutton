@@ -53,7 +53,7 @@ class ChatDropdown extends Component {
 
   componentDidMount() {
     this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(ChatService.getPublicMessages()),
+      text: () => ChatService.exportChat(ChatService.getPublicGroupMessages()),
     });
   }
 
@@ -93,7 +93,7 @@ class ChatDropdown extends Component {
           link.setAttribute(
             'href',
             `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicMessages()))}`,
+            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
           );
           link.click();
         }}

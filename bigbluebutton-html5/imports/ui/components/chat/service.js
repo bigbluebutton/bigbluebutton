@@ -17,6 +17,7 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+const PUBLIC_CHAT_USER_ID = CHAT_CONFIG.system_userid;
 
 const ScrollCollection = new Mongo.Collection(null);
 
@@ -227,14 +228,15 @@ const htmlDecode = (input) => {
 // Export the chat as [Hour:Min] user: message
 const exportChat = messageList => (
   messageList.map((message) => {
-    const date = new Date(message.fromTime);
+    const date = new Date(message.timestamp);
     const hour = date.getHours().toString().padStart(2, 0);
     const min = date.getMinutes().toString().padStart(2, 0);
     const hourMin = `[${hour}:${min}]`;
     if (message.type === SYSTEM_CHAT_TYPE) {
       return `${hourMin} ${message.message}`;
     }
-    return `${hourMin} ${message.fromUsername}: ${htmlDecode(message.message)}`;
+    const userName = message.sender === PUBLIC_CHAT_USER_ID ? '' : `${getUser(message.sender).name} :`;
+    return `${hourMin} ${userName} ${htmlDecode(message.message)}`;
   }).join('\n')
 );
 
