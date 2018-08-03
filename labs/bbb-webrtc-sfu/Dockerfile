@@ -12,4 +12,6 @@ RUN cd /source \
 
 WORKDIR /source
 
+EXPOSE 3008
+
 CMD [ "docker-entrypoint.sh" ]

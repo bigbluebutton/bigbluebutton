@@ -52,7 +52,5 @@ release:
 	make image DIR=$(BUILD_DIR_BASE)/bbb-webhooks IMAGE_NAME=bbb-webhooks
 	make image DIR=$(BUILD_DIR_BASE)/labs/docker/kurento IMAGE_NAME=bbb-kurento
 	make image DIR=$(BUILD_DIR_BASE)/labs/docker/freeswitch IMAGE_NAME=bbb-freeswitch
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/nginx IMAGE_NAME=bbb-nginx
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/nginx-dhp IMAGE_NAME=nginx-dhp
 	make image DIR=$(BUILD_DIR_BASE)/labs/docker/coturn IMAGE_NAME=bbb-coturn
 	make image DIR=$(BUILD_DIR_BASE)/bbb-lti IMAGE_NAME=bbb-lti

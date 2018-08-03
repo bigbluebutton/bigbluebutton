@@ -32,6 +32,9 @@ services:
     environment:
       REDIS_HOST: redis
       SHARED_SECRET: ${SHARED_SECRET}
+    labels:
+      - "traefik.backend=bbb-webhooks"
+      - "traefik.frontend.rule=PathPrefix: /bigbluebutton/api/hooks"
 
   bbb-freeswitch:
     image: ${TAG_PREFIX}bbb-freeswitch${TAG_SUFFIX}
@@ -40,6 +43,9 @@ services:
       - coturn
     volumes:
       - media-audio:/var/freeswitch/meetings
+    labels:
+      - "traefik.backend=bbb-freeswitch"
+      - "traefik.frontend.rule=PathPrefix: /ws"
 
   bbb-webrtc-sfu:
     image: ${TAG_PREFIX}bbb-webrtc-sfu${TAG_SUFFIX}
@@ -54,6 +60,9 @@ services:
       REDIS_HOST: redis
       FREESWITCH_IP: bbb-freeswitch
       LOG_LEVEL: debug
+    labels:
+      - "traefik.backend=bbb-webrtc-sfu"
+      - "traefik.frontend.rule=PathPrefix: /bbb-webrtc-sfu"
 
   coturn:
     image: ${TAG_PREFIX}bbb-coturn${TAG_SUFFIX}
@@ -117,40 +126,6 @@ services:
     labels:
       - "traefik.backend=bbb-web"
       - "traefik.frontend.rule=PathPrefix: /bigbluebutton"
-
-#  greenlight-env:
-#    image: bigbluebutton/greenlight
-#    volumes:
-#      - config-greenlight:/data
-#    command: rake secret > /data/env
-
-#  greenlight:
-#    image: bigbluebutton/greenlight
-#    restart: unless-stopped
-#    volumes:
-#      - db-greenlight:/usr/src/app/db/production
-
-  nginx:
-    image: ${TAG_PREFIX}bbb-nginx${TAG_SUFFIX}
-    restart: unless-stopped
-    depends_on:
-      - bbb-webhooks
-      - bbb-web
-      - bbb-html5
-      - bbb-webrtc-sfu
-      - bbb-freeswitch
-#      - greenlight
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ssl-conf:/etc/nginx/ssl
-      - static:/var/www/bigbluebutton-default
-    environment:
-      SERVER_DOMAIN: ${SERVER_DOMAIN}
-      SSL_CERT_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/fullchain.pem
-      SSL_KEY_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/privkey.pem
-      SSL_DHPARAM_PATH: /etc/nginx/ssl/dhp-2048.pem
 
   traefik:
     image: traefik
