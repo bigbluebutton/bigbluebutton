@@ -20,6 +20,9 @@ services:
       METEOR_SETTINGS_MODIFIER: ".public.kurento.wsUrl = \"wss://${SERVER_DOMAIN}/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.chromeDefaultExtensionKey = \"${SCREENSHARE_EXTENSION_KEY}\" | .public.kurento.chromeDefaultExtensionLink = \"${SCREENSHARE_EXTENSION_LINK}\" | .public.kurento.enableVideoStats = true | .public.kurento.enableListenOnly = true"
       REDIS_HOST: redis
       ROOT_URL: http://127.0.0.1/html5client
+    labels:
+      - "traefik.backend=bbb-html5"
+      - "traefik.frontend.rule=PathPrefix: /html5client,/_timesync"
 
   bbb-webhooks:
     image: ${TAG_PREFIX}bbb-webhooks${TAG_SUFFIX}
@@ -111,6 +114,9 @@ services:
       SERVER_DOMAIN: ${SERVER_DOMAIN}
       SHARED_SECRET: ${SHARED_SECRET}
       TURN_SECRET: ${COTURN_REST_SECRET}
+    labels:
+      - "traefik.backend=bbb-web"
+      - "traefik.frontend.rule=PathPrefix: /bigbluebutton"
 
 #  greenlight-env:
 #    image: bigbluebutton/greenlight
@@ -145,6 +151,17 @@ services:
       SSL_CERT_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/fullchain.pem
       SSL_KEY_PATH: /etc/nginx/ssl/live/${SERVER_DOMAIN}/privkey.pem
       SSL_DHPARAM_PATH: /etc/nginx/ssl/dhp-2048.pem
+
+  traefik:
+    image: traefik
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 8080:8080
+      - 443:443
+    command: traefik --docker --defaultentrypoints=http
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   ssl-conf:
