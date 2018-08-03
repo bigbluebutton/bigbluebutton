@@ -53,7 +53,7 @@ services:
       LOG_LEVEL: debug
 
   coturn:
-    image: ${TAG_PREFIX}coturn${TAG_SUFFIX}
+    image: ${TAG_PREFIX}bbb-coturn${TAG_SUFFIX}
     restart: unless-stopped
     volumes:
       - ssl-conf:/etc/nginx/ssl
@@ -73,7 +73,7 @@ services:
       - 5349:5349/tcp
 
   kurento:
-    image: ${TAG_PREFIX}kurento${TAG_SUFFIX}
+    image: ${TAG_PREFIX}bbb-kurento${TAG_SUFFIX}
     restart: unless-stopped
     volumes:
       - media-video:/var/kurento/recordings
@@ -125,7 +125,7 @@ services:
 #      - db-greenlight:/usr/src/app/db/production
 
   nginx:
-    image: ${TAG_PREFIX}nginx${TAG_SUFFIX}
+    image: ${TAG_PREFIX}bbb-nginx${TAG_SUFFIX}
     restart: unless-stopped
     depends_on:
       - bbb-webhooks
