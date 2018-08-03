@@ -50,7 +50,7 @@ const DesktopShare = ({
   (screenSharingCheck && !isMobileBrowser && isUserPresenter ?
     <Button
       className={styles.button}
-      icon="desktop"
+      icon={isVideoBroadcasting ? 'desktop' : 'desktop'}
       label={intl.formatMessage(isVideoBroadcasting ?
           intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
       description={intl.formatMessage(isVideoBroadcasting ?
