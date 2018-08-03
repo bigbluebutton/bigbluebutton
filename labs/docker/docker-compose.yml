@@ -43,9 +43,6 @@ services:
       - coturn
     volumes:
       - media-audio:/var/freeswitch/meetings
-    labels:
-      - "traefik.backend=bbb-freeswitch"
-      - "traefik.frontend.rule=PathPrefix: /ws"
 
   bbb-webrtc-sfu:
     image: ${TAG_PREFIX}bbb-webrtc-sfu${TAG_SUFFIX}
@@ -126,6 +123,18 @@ services:
     labels:
       - "traefik.backend=bbb-web"
       - "traefik.frontend.rule=PathPrefix: /bigbluebutton"
+
+  # when we're able to setup traefik properly for wss, nginx is no longer needed
+  nginx:
+    image: ${TAG_PREFIX}bbb-nginx${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - bbb-freeswitch
+    environment:
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
+    labels:
+      - "traefik.backend=bbb-freeswitch"
+      - "traefik.frontend.rule=PathPrefix: /ws"
 
   traefik:
     image: traefik
