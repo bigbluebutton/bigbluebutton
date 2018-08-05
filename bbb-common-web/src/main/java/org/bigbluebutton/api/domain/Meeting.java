@@ -416,66 +416,70 @@ public class Meeting {
 	}
 
 	public User userLeft(String userid){
-		return (User) users.remove(userid);	
+		return users.remove(userid);	
 	}
 
 	public User getUserById(String id){
 		return this.users.get(id);
 	}
 
-	public User getUserWithExternalId(String externalUserId) {
-		for (String key : users.keySet()) {
-			User u = users.get(key);
-			if (u.getExternalUserId().equals(externalUserId)) {
-				return u;
-			}
-		}
-		return null;
-	}
+    public User getUserWithExternalId(String externalUserId) {
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.getExternalUserId().equals(externalUserId)) {
+                return u;
+            }
+        }
+        return null;
+    }
 
+	    
 	public int getNumUsers(){
 		return this.users.size();
 	}
 	
-	public int getNumModerators(){
-		int sum = 0;
-		for (String key : users.keySet()) {
-		    User u =  users.get(key);
-		    if (u.isModerator()) sum++;
-		}
-		return sum;
-	}
+    public int getNumModerators() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.isModerator())
+                sum++;
+        }
+        return sum;
+    }
 	
 	public String getDialNumber() {
 		return dialNumber;
 	}
 
-	public int getNumListenOnly() {
-		int sum = 0;
-		for (String key : users.keySet()) {
-			User u =  users.get(key);
-			if (u.isListeningOnly()) sum++;
-		}
-		return sum;
-	}
+    public int getNumListenOnly() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.isListeningOnly())
+                sum++;
+        }
+        return sum;
+    }
 	
-	public int getNumVoiceJoined() {
-		int sum = 0;
-		for (String key : users.keySet()) {
-			User u =  users.get(key);
-			if (u.isVoiceJoined()) sum++;
-		}
-		return sum;
-	}
+    public int getNumVoiceJoined() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.isVoiceJoined())
+                sum++;
+        }
+        return sum;
+    }
 
-	public int getNumVideos() {
-		int sum = 0;
-		for (String key : users.keySet()) {
-			User u =  users.get(key);
-			sum += u.getStreams().size();
-		}
-		return sum;
-	}
+    public int getNumVideos() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            sum += u.getStreams().size();
+        }
+        return sum;
+    }
 	
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);

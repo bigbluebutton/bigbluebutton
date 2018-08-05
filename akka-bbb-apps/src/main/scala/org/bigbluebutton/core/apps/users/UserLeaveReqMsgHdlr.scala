@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.common2.domain.MeetingStatus
 import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp

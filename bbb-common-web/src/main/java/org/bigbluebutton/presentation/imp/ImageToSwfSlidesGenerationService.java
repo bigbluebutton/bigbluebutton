@@ -50,7 +50,7 @@ public class ImageToSwfSlidesGenerationService {
 	private SvgImageCreator svgImageCreator;
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
-	private long MAX_CONVERSION_TIME = 5*60*1000;
+	private long MAX_CONVERSION_TIME = 5*60*1000L;
 	private String BLANK_SLIDE;
 	
 	public ImageToSwfSlidesGenerationService() {
@@ -187,7 +187,7 @@ public class ImageToSwfSlidesGenerationService {
 	}
 	
 	public void setMaxConversionTime(int minutes) {
-		MAX_CONVERSION_TIME = minutes * 60 * 1000;
+		MAX_CONVERSION_TIME = minutes * 60 * 1000L;
 	}
 	
 	public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {

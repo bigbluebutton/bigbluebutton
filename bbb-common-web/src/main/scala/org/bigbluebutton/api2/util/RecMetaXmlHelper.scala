@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets
 import java.util
 
 import com.google.gson.Gson
-import org.apache.commons.io.FileUtils
 import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api2.RecordingServiceGW
 import org.bigbluebutton.api2.domain._
@@ -15,15 +14,13 @@ import scala.xml.{Elem, PrettyPrinter, XML}
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{Buffer, ListBuffer, Map}
 import scala.collection.Iterable
-import scala.collection.JavaConversions._
+
+import java.io.IOException
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
-
-  import java.io.IOException
-  import java.nio.charset.Charset
-  import java.nio.file.Files
-  import java.nio.file.Paths
-
 
   val SUCCESS = "SUCCESS"
   val FAILED = "FAILED"

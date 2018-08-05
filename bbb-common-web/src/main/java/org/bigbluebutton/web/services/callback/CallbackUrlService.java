@@ -25,7 +25,7 @@ public class CallbackUrlService {
 	private BlockingQueue<ICallbackEvent> receivedMessages = new LinkedBlockingQueue<ICallbackEvent>();
 
 	private volatile boolean processMessage = false;
-	private final int maxRedirects = 5;
+	private static final int MAX_REDIRECTS = 5;
 
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
 	private final Executor runExec = Executors.newSingleThreadExecutor();
@@ -55,7 +55,7 @@ public class CallbackUrlService {
 			};
 			msgProcessorExec.execute(messageProcessor);
 		} catch (Exception e) {
-			log.error("Error subscribing to channels: " + e.getMessage());
+			log.error("Error subscribing to channels: {}", e);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class CallbackUrlService {
 
 	private String followRedirect(String redirectUrl, int redirectCount, String origUrl) {
 
-		if (redirectCount > maxRedirects) {
+		if (redirectCount > MAX_REDIRECTS) {
 			log.error("Max redirect reached for callback url=[{}]", origUrl);
 			return null;
 		}

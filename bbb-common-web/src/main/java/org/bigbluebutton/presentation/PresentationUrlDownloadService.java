@@ -31,7 +31,7 @@ public class PresentationUrlDownloadService {
     private static Logger log = LoggerFactory
             .getLogger(PresentationUrlDownloadService.class);
 
-    private final int maxRedirects = 5;
+    private static final int MAX_REDIRECTS = 5;
     private PageExtractor pageExtractor;
     private DocumentConversionService documentConversionService;
     private String presentationBaseURL;
@@ -171,7 +171,7 @@ public class PresentationUrlDownloadService {
     private String followRedirect(String meetingId, String redirectUrl,
             int redirectCount, String origUrl) {
 
-        if (redirectCount > maxRedirects) {
+        if (redirectCount > MAX_REDIRECTS) {
             log.error("Max redirect reached for meeting=[{}] with url=[{}]",
                     meetingId, origUrl);
             return null;

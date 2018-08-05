@@ -66,10 +66,10 @@ public class Office2PdfPageConverter {
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("message", "Failed to convert Office doc to PDF.");
-      logData.put("exception", e.getMessage());
+      logData.put("exception", e);
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.error("-- analytics -- " + logStr);
+      log.error("-- analytics -- {}", logStr);
       return false;
     }
   }
