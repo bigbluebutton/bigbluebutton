@@ -13,7 +13,12 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
+import GroupChat from '/imports/api/group-chat';
 import IntlStartup from './intl';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
 const propTypes = {
   error: PropTypes.object,
@@ -107,7 +112,7 @@ Base.defaultProps = defaultProps;
 const SUBSCRIPTIONS_NAME = [
   'users', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
-  'group-chat', 'group-chat-msg', 'presentation-pods',
+  'group-chat', 'presentation-pods',
 ];
 
 const BaseContainer = withRouter(withTracker(({ params, router }) => {
@@ -115,6 +120,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
 
   const { locale } = Settings.application;
   const { credentials, loggedIn } = Auth;
+  const { meetingId, requesterUserId } = credentials;
 
   if (!loggedIn) {
     return {
@@ -132,6 +138,21 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
 
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
     Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+
+  const chats = GroupChat.find({
+    $or: [
+      {
+        meetingId,
+        access: PUBLIC_CHAT_TYPE,
+        chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
+      },
+      { meetingId, users: { $all: [requesterUserId] } },
+    ],
+  }).fetch();
+
+  const chatIds = chats.map(chat => chat.chatId);
+
+  const groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
@@ -154,6 +175,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
     locale,
     subscriptionsReady,
     annotationsHandler,
+    groupChatMessageHandler,
   };
 })(Base));
 
