@@ -20,7 +20,6 @@ package org.bigbluebutton.api;
 
 import java.io.File;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -414,7 +413,7 @@ public class MeetingService implements MessageListener {
   	return recordingService.getCaptionTrackInboxDir();
 	}
 
-  public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
+  public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);
   }
 
@@ -771,10 +770,7 @@ public class MeetingService implements MessageListener {
         } else {
           user.setVoiceJoined(false);
         }
-
-        return;
       }
-      return;
     }
   }
 

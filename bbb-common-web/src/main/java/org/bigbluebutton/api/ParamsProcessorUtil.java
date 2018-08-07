@@ -163,11 +163,11 @@ public class ParamsProcessorUtil {
 		
 	    // Collect metadata for this meeting that the third-party application wants to store if meeting is recorded.
 	    Map<String, String> meetingInfo = new HashMap<>();
-	    for (String key: params.keySet()) {
-	    	if (key.contains(ApiParams.META)){
-	    		String[] meta = key.split("_");
+	    for (Map.Entry<String, String> entry : params.entrySet()) {
+	    	if (entry.getKey().contains(ApiParams.META)){
+	    		String[] meta = entry.getKey().split("_");
 			    if(meta.length == 2){
-			    	meetingInfo.put(meta[1], params.get(key));
+			    	meetingInfo.put(meta[1], entry.getValue());
 			    }
 			}   
 	    }
@@ -184,7 +184,7 @@ public class ParamsProcessorUtil {
 		Matcher metaMatcher = META_VAR_PATTERN.matcher(param);
     if (metaMatcher.matches()) {
     	return true;
-    }	
+    }
 		return false;
 	}
 	
@@ -194,12 +194,12 @@ public class ParamsProcessorUtil {
 	
     public static Map<String, String> processMetaParam(Map<String, String> params) {
         Map<String, String> metas = new HashMap<>();
-        for (String key : params.keySet()) {
-            if (isMetaValid(key)) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (isMetaValid(entry.getKey())) {
                 // Need to lowercase to maintain backward compatibility with
                 // 0.81
-                String metaName = removeMetaString(key).toLowerCase();
-                metas.put(metaName, params.get(key));
+                String metaName = removeMetaString(entry.getKey()).toLowerCase();
+                metas.put(metaName, params.get(entry.getValue()));
             }
         }
 
@@ -643,7 +643,7 @@ public class ParamsProcessorUtil {
 		return true; 
 	}
 	
-	public boolean isPostChecksumSame(String apiCall, HashMap<String, String[]> params) {
+	public boolean isPostChecksumSame(String apiCall, Map<String, String[]> params) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;

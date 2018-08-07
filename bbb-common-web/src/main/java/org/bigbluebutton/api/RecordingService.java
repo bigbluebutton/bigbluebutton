@@ -159,7 +159,7 @@ public class RecordingService {
         return recordingServiceHelper.putRecordingTextTrack(track);
     }
 
-    public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
+    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
         List<RecordingMetadata> recsList = getRecordingsMetadata(idList, states);
         ArrayList<RecordingMetadata> recs = filterRecordingsByMetadata(recsList, metadataFilters);
         return recordingServiceHelper.getRecordings2x(recs);
