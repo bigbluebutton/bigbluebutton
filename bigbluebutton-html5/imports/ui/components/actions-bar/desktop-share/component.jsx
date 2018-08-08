@@ -50,12 +50,12 @@ const DesktopShare = ({
   (screenSharingCheck && !isMobileBrowser && isUserPresenter ?
     <Button
       className={styles.button}
-      icon="desktop"
+      icon={isVideoBroadcasting ? 'desktop_off' : 'desktop'}
       label={intl.formatMessage(isVideoBroadcasting ?
           intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
       description={intl.formatMessage(isVideoBroadcasting ?
           intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
-      color="primary"
+      color={isVideoBroadcasting ? 'danger' : 'primary'}
       ghost={false}
       hideLabel
       circle
