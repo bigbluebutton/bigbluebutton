@@ -6,3 +6,4 @@ import handleGroupChatDestroyed from './handlers/groupChatDestroyed';
 RedisPubSub.on('GetGroupChatsRespMsg', handleGroupChats);
 RedisPubSub.on('GroupChatCreatedEvtMsg', handleGroupChatCreated);
 RedisPubSub.on('GroupChatDestroyedEvtMsg', handleGroupChatDestroyed);
+RedisPubSub.on('SyncGetGroupChatsRespMsg', handleGroupChats);

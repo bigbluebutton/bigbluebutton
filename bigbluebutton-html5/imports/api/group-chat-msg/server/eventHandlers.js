@@ -6,3 +6,4 @@ import handleClearPublicGroupChat from './handlers/clearPublicGroupChat';
 RedisPubSub.on('GetGroupChatMsgsRespMsg', handleGroupChatsMsgs);
 RedisPubSub.on('GroupChatMessageBroadcastEvtMsg', handleGroupChatMsgBroadcast);
 RedisPubSub.on('ClearPublicChatHistoryEvtMsg', handleClearPublicGroupChat);
+RedisPubSub.on('SyncGetGroupChatMsgsRespMsg', handleGroupChatsMsgs);
