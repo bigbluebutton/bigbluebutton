@@ -97,6 +97,8 @@
     "app.navBar.settingsDropdown.exitFullscreenDesc": "Exit fullscreen mode",
     "app.navBar.settingsDropdown.hotkeysLabel": "Hotkeys",
     "app.navBar.settingsDropdown.hotkeysDesc": "Listing of available hotkeys",
+    "app.navBar.settingsDropdown.helpLabel": "Help",
+    "app.navBar.settingsDropdown.helpDesc": "Links user to video tutorials",
     "app.navBar.userListToggleBtnLabel": "User List Toggle",
     "app.navBar.toggleUserList.ariaLabel": "Users and Messages Toggle",
     "app.navBar.toggleUserList.newMessages": "with new message notification",
