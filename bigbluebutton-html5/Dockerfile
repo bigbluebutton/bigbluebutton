@@ -18,7 +18,8 @@ USER meteor
 
 RUN cd /source \
  && meteor npm install \
- && meteor build --directory /app
+ && meteor build --directory /app \
+ && rm -r /source
 
 ENV NODE_ENV production
 
