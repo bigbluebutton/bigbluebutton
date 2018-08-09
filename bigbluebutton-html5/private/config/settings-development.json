@@ -67,7 +67,8 @@
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
       "httpsConnection": false,
-      "connectionTimeout": 60000
+      "connectionTimeout": 60000,
+      "isHelpButton": true
     },
 
     "kurento": {

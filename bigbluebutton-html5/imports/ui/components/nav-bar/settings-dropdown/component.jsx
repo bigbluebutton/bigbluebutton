@@ -101,6 +101,7 @@ class SettingsDropdown extends Component {
   componentWillMount() {
     const { intl, mountModal, isAndroid } = this.props;
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
+    const { isHelpButton: helpButton } = Meteor.settings.public.app;
 
     this.menuItems = [(<DropdownListItem
       key={_.uniqueId('list-item-')}
@@ -150,6 +151,10 @@ class SettingsDropdown extends Component {
     // Removes fullscreen button if not on Android
     if (!isAndroid) {
       this.menuItems.shift();
+    }
+
+    if (!helpButton) {
+      this.menuItems.splice(2, 1);
     }
   }
 
