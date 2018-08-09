@@ -10,7 +10,7 @@ import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
-import ChatNotificationContainer from '../chat/notification/container';
+import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -319,7 +319,7 @@ class App extends Component {
         <ModalContainer />
         <AudioContainer />
         <ToastContainer />
-        <ChatNotificationContainer currentChatID={params.chatID} />
+        <ChatAlertContainer currentChatID={params.chatID} />
       </main>
     );
   }
