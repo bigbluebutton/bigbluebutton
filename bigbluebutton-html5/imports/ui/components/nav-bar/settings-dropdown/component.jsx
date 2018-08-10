@@ -103,7 +103,7 @@ class SettingsDropdown extends Component {
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     const { showHelpButton: helpButton } = Meteor.settings.public.app;
 
-    this.menuItems = [(<DropdownListItem
+    this.menuItems =_.compact( [(<DropdownListItem
       key={_.uniqueId('list-item-')}
       icon={fullscreenIcon}
       label={fullscreenLabel}
@@ -124,6 +124,7 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.aboutDesc)}
         onClick={() => mountModal(<AboutContainer />)}
       />),
+      !helpButton ? null :
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="help"
@@ -146,16 +147,14 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
         onClick={() => mountModal(<LogoutConfirmationContainer />)}
       />),
-    ];
+    ])
 
     // Removes fullscreen button if not on Android
     if (!isAndroid) {
       this.menuItems.shift();
     }
 
-    if (!helpButton) {
-      this.menuItems.splice(2, 1);
-    }
+
   }
 
   componentWillReceiveProps(nextProps) {
