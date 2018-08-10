@@ -101,7 +101,7 @@ class SettingsDropdown extends Component {
   componentWillMount() {
     const { intl, mountModal, isAndroid } = this.props;
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
-    const { isHelpButton: helpButton } = Meteor.settings.public.app;
+    const { showHelpButton: helpButton } = Meteor.settings.public.app;
 
     this.menuItems = [(<DropdownListItem
       key={_.uniqueId('list-item-')}
@@ -126,7 +126,7 @@ class SettingsDropdown extends Component {
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon="about"
+        icon="help"
         label={intl.formatMessage(intlMessages.helpLabel)}
         description={intl.formatMessage(intlMessages.helpDesc)}
         onClick={() => window.open('https://bigbluebutton.org/videos/')}
