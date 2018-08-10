@@ -24,6 +24,7 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
+  getGroupChatPrivate: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -65,6 +66,7 @@ class UserContent extends Component {
           normalizeEmojiName={this.props.normalizeEmojiName}
           isMeetingLocked={this.props.isMeetingLocked}
           roving={this.props.roving}
+          getGroupChatPrivate={this.props.getGroupChatPrivate}
         />
       </div>
     );

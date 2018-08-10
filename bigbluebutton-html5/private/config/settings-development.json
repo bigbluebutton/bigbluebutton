@@ -150,11 +150,12 @@
       "max_message_length": 5000,
       "grouping_messages_window": 10000,
       "type_system": "SYSTEM_MESSAGE",
-      "type_public": "PUBLIC_CHAT",
-      "type_private": "PRIVATE_CHAT",
+      "type_public": "PUBLIC_ACCESS",
+      "type_private": "PRIVATE_ACCESS",
       "system_userid": "SYSTEM_MESSAGE",
       "system_username": "SYSTEM_MESSAGE",
       "public_id": "public",
+      "public_group_id": "MAIN-PUBLIC-GROUP-CHAT",
       "public_userid": "public_chat_userid",
       "public_username": "public_chat_username",
       "storage_key": "UNREAD_CHATS",
@@ -381,7 +382,6 @@
         "DoLatencyTracerMsg"
       ]
     },
-
 
     "log": {
       "level": "info"
