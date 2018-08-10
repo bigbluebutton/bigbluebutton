@@ -7,6 +7,7 @@ import flat from 'flat';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
+import setApprovedStatus from '/imports/api/users/server/modifiers/setApprovedStatus';
 
 import Meetings from '/imports/api/meetings';
 import addChat from '/imports/api/chat/server/modifiers/addChat';
@@ -67,6 +68,7 @@ export default function addUser(meetingId, user) {
   const ROLE_VIEWER = USER_CONFIG.role_viewer;
   const APP_CONFIG = Meteor.settings.public.app;
   const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
+  const GUEST_ALWAYS_ACCEPT = "ALWAYS_ACCEPT";
 
   // override moderator status of html5 client users, depending on a system flag
   const dummyUser = Users.findOne(selector);
@@ -136,6 +138,10 @@ export default function addUser(meetingId, user) {
           meetingId, userId,
         );
       }
+    }
+
+    if (Meeting.usersProp.guestPolicy === GUEST_ALWAYS_ACCEPT) {
+      setApprovedStatus(meetingId, userId, true);
     }
 
     const { insertedId } = numChanged;
