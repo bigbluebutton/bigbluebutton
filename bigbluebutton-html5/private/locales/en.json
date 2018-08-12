@@ -320,6 +320,7 @@
     "app.video.joinVideo": "Share Webcam",
     "app.video.leaveVideo": "Unshare Webcam",
     "app.video.iceCandidateError": "Error on adding ice candidate",
+    "app.video.iceConnectionStateError": "Error on ice connection state",
     "app.video.permissionError": "Error on sharing webcam. Please check permissions",
     "app.video.sharingError": "Error on sharing webcam",
     "app.video.notFoundError": "Could not find webcam. Please make sure it's connected",

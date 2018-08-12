@@ -45,6 +45,10 @@ const intlClientErrors = defineMessages({
     id: 'app.video.notReadableError',
     description: 'error message When the webcam is being used by other software',
   },
+  iceConnectionStateError: {
+    id: 'app.video.iceConnectionStateError',
+    description: 'Error message for ice connection state being failed',
+  },
 });
 
 const intlSFUErrors = defineMessages({
@@ -453,6 +457,8 @@ class VideoProvider extends Component {
           peer.didSDPAnswered = true;
         });
       });
+      this.webRtcPeers[id].peerConnection.oniceconnectionstatechange =
+        this._getOnIceConnectionStateChangeCallback(id);
     }
   }
 
@@ -536,6 +542,20 @@ class VideoProvider extends Component {
       };
       this.sendMessage(message);
     };
+  }
+
+  _getOnIceConnectionStateChangeCallback(id) {
+    const { intl } = this.props;
+    const peer = this.webRtcPeers[id];
+
+    return (event) => {
+      const connectionState = peer.peerConnection.iceConnectionState;
+      if(connectionState === 'failed') {
+        this.logger('error', 'ICE connection state', id);
+        this.stopWebRTCPeer(id);
+        this.notifyError(intl.formatMessage(intlClientErrors.iceConnectionStateError));
+      }
+    }
   }
 
   attachVideoStream(id) {
