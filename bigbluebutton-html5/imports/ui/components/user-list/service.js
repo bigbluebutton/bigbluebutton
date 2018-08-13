@@ -321,12 +321,12 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const setEmojiStatus = (s) => {
-  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(s));
+const setEmojiStatus = (data) => {
+  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(data));
 
   return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, s)
-    : makeCall('setEmojiStatus', s, 'none');
+    ? makeCall('setEmojiStatus', Auth.userID, data)
+    : makeCall('setEmojiStatus', data, 'none');
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
