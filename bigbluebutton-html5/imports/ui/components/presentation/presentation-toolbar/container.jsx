@@ -45,6 +45,8 @@ export default withTracker((params) => {
         PresentationToolbarService.previousSlide(params.currentSlideNum, podId),
       skipToSlideHandler: requestedSlideNum =>
         PresentationToolbarService.skipToSlide(requestedSlideNum, podId),
+      zoomSlideHandler: value =>
+        PresentationToolbarService.zoomSlide(params.currentSlideNum, podId, value),
     },
   };
 })(PresentationToolbarContainer);

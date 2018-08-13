@@ -148,7 +148,8 @@ export default class PresentationArea extends Component {
       viewBoxHeight,
       imageUri,
     } = slideObj.calculatedData;
-
+    console.log(x, y);
+    
     return (
       <div
         style={{
@@ -229,9 +230,14 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationOverlayContainer
+        podId={this.props.podId}
+        currentSlideNum={this.props.currentSlide.num}
+        presentationId={this.props.currentSlide.presentationId}
+        slide={slideObj}
         whiteboardId={slideObj.id}
         slideWidth={width}
         slideHeight={height}
+        adjustedSizes={adjustedSizes}
         getSvgRef={this.getSvgRef}
       >
         <WhiteboardOverlayContainer
@@ -242,7 +248,7 @@ export default class PresentationArea extends Component {
           viewBoxX={x}
           viewBoxY={y}
           viewBoxWidth={viewBoxWidth}
-          viewBoxHeight={viewBoxHeight}
+          viewBoxHeight={viewBoxHeight}          
           physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
           physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
         />

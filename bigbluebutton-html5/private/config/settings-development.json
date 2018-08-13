@@ -140,7 +140,8 @@
           "moveCursor",
           "sendAnnotation",
           "removePresentation",
-          "setPresentation"
+          "setPresentation",
+          "zoomSlide"
         ]
       }
     },

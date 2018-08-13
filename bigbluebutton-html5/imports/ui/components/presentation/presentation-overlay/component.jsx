@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 const CURSOR_INTERVAL = 16;
+const MYSTERY_NUM = 2;
+const HUNDRED_PERCENT = 100;
 
 export default class PresentationOverlay extends Component {
   constructor(props) {
@@ -17,6 +19,9 @@ export default class PresentationOverlay extends Component {
 
     // id of the setInterval()
     this.intervalId = 0;
+    this.state = {
+        zoomValue: 100,
+    };
 
     // Mobile Firefox has a bug where e.preventDefault on touchstart doesn't prevent
     // onmousedown from triggering right after. Thus we have to track it manually.
@@ -35,6 +40,7 @@ export default class PresentationOverlay extends Component {
     this.mouseOutHandler = this.mouseOutHandler.bind(this);
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
     this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
+    this.mouseZoomHandler = this.mouseZoomHandler.bind(this);
   }
   // transforms the coordinate from window coordinate system
   // to the main svg coordinate system
@@ -46,6 +52,7 @@ export default class PresentationOverlay extends Component {
 
     // transform a screen point to svg point
     const CTM = svgObject.getScreenCTM();
+    
     return screenPoint.matrixTransform(CTM.inverse());
   }
 
@@ -56,6 +63,7 @@ export default class PresentationOverlay extends Component {
       const { currentClientX, currentClientY } = this;
       // retrieving a transformed coordinate
       let transformedSvgPoint = this.getTransformedSvgPoint(currentClientX, currentClientY);
+      
       // determining the cursor's coordinates as percentages from the slide's width/height
       transformedSvgPoint = this.svgCoordinateToPercentages(transformedSvgPoint);
       // updating last sent raw coordinates
@@ -79,6 +87,78 @@ export default class PresentationOverlay extends Component {
     };
 
     return point;
+  }
+
+
+  mouseZoomHandler(e) {
+    // calc for sliderZoom
+    // zoomSlide(zoom, (((slideLoader.content.width/2)*SlideViewModel.HUNDRED_PERCENT)/zoom), (((slideLoader.content.height/2)*SlideViewModel.HUNDRED_PERCENT)/zoom));
+    const {
+      zoomSlide,
+      podId,
+      currentSlideNum,
+      slideWidth,
+      slideHeight,
+      adjustedSizes
+    } = this.props;
+
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+
+    // console.error('event', x,y);
+    const _pageOrigW = slideWidth;
+    const _pageOrigH = slideHeight;
+    const viewportW = adjustedSizes.width;
+    const viewportH = adjustedSizes.height;
+
+    let _calcPageW = viewportW/(100/HUNDRED_PERCENT);
+    let _calcPageH = viewportH/(100/HUNDRED_PERCENT);
+    let _calcPageX = (0/HUNDRED_PERCENT) * _calcPageW;
+    let _calcPageY =  (0/HUNDRED_PERCENT) * _calcPageH;	
+
+    const svgPosition = this.getTransformedSvgPoint(mouseX, mouseY);
+    const svgPercentage = this.svgCoordinateToPercentages(svgPosition);
+    
+    // console.error('svgPosition', svgPosition.x, svgPosition.y);
+    // console.error('svgPercentage', svgPercentage.x, svgPercentage.y);
+       
+    const relXcoordInPage = (svgPercentage.x) / 100;
+    const relYcoordInPage = (svgPercentage.y) / 100;
+
+    const zoomValue = this.state.zoomValue + 5;
+
+    console.error(zoomValue);
+    console.error(mouseX, mouseY);
+
+    _calcPageW = viewportW * zoomValue / HUNDRED_PERCENT;
+    _calcPageH = (_calcPageW / _pageOrigW) * _pageOrigH;
+
+    console.error(_calcPageW, _calcPageH);
+
+    const absXcoordInPage = relXcoordInPage * _calcPageW;
+    const absYcoordInPage = relYcoordInPage * _calcPageH;
+  
+    console.error(mouseX, mouseY);
+    console.error(svgPosition.x, svgPosition.y);
+    console.error(relXcoordInPage, relYcoordInPage);
+    console.error(absXcoordInPage, absYcoordInPage);
+
+    _calcPageX = (absXcoordInPage - mouseX) / MYSTERY_NUM;
+    _calcPageY = (absYcoordInPage - mouseY) / MYSTERY_NUM;
+
+    const offsetX = (_calcPageX * 100) / _calcPageW;
+    const offsetY = (_calcPageX * 100) / _calcPageW;
+    console.error(`(${_calcPageX} * 100) / ${_calcPageW}`, offsetX);
+    console.error(`(${_calcPageY} * 100) / ${_calcPageH}`, offsetY);
+
+    this.setState(
+      { zoomValue },
+      () => zoomSlide(currentSlideNum, podId, 
+        (this.state.zoomValue - 100) - 100,
+        offsetX,
+        offsetY
+      )
+    );
   }
 
 
@@ -201,6 +281,8 @@ export default class PresentationOverlay extends Component {
           onMouseOut={this.mouseOutHandler}
           onMouseEnter={this.mouseEnterHandler}
           onMouseMove={this.mouseMoveHandler}
+          onWheel={this.mouseZoomHandler}
+          onBlur={() => {}}
           style={{ width: '100%', height: '100%', touchAction: 'none' }}
         >
           {this.props.children}

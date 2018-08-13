@@ -125,6 +125,7 @@ class PresentationToolbar extends Component {
     this.state = { sliderValue: 100 };
     this.handleValuesChange = this.handleValuesChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
+    this.handleZoom = this.handleZoom.bind(this);
   }
 
   handleSkipToSlideChange(event) {
@@ -133,7 +134,10 @@ class PresentationToolbar extends Component {
   }
 
   handleValuesChange(event) {
-    this.setState({ sliderValue: event.target.value });
+    this.setState({ sliderValue: event.target.value }, () => this.handleZoom(this.state.sliderValue));
+  }
+  handleZoom(value) {
+    this.props.actions.zoomSlideHandler(value);
   }
 
   fitToWidthClickHandler() {
@@ -216,6 +220,25 @@ class PresentationToolbar extends Component {
           hideLabel
           className={styles.skipSlide}
         />
+        <div className={styles.zoomMinMax}> 100% </div>
+          <input
+            role="slider"
+            aria-labelledby="zoomLabel"
+            aria-describedby="zoomDesc"
+            aria-valuemax="100"
+            aria-valuemin="25"
+            aria-valuenow={this.state.sliderValue}
+            value={this.state.sliderValue}
+            step="5"
+            type="range"
+            min="25"
+            max="100"
+            onChange={this.handleValuesChange}
+            onInput={this.handleValuesChange}
+            className={styles.zoomSlider}
+          />
+          <div className={styles.zoomMinMax}> 400% </div>
+
 
         {/* Fit to width button
         <Button
