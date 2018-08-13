@@ -277,6 +277,8 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
       && user.isModerator
       && !isDialInUser;
 
+  const allowedToChangeStatus = user.isCurrent;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -286,6 +288,7 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
+    allowedToChangeStatus,
   };
 };
 
@@ -318,7 +321,13 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none'); };
+const setEmojiStatus = (data) => {
+  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(data));
+
+  return statusAvailable
+    ? makeCall('setEmojiStatus', Auth.userID, data)
+    : makeCall('setEmojiStatus', data, 'none');
+};
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
@@ -409,4 +418,6 @@ export default {
   roving,
   setCustomLogoUrl,
   getCustomLogoUrl,
+  getEmojiList: () => EMOJI_STATUSES,
+  getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
 };

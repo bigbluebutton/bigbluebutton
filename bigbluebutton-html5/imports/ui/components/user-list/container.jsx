@@ -46,4 +46,7 @@ export default withTracker(({ chatID, compact }) => ({
   roving: Service.roving,
   CustomLogoUrl: Service.getCustomLogoUrl(),
   compact,
+  handleEmojiChange: Service.setEmojiStatus,
+  getEmojiList: Service.getEmojiList(),
+  getEmoji: Service.getEmoji(),
 }))(UserListContainer);
