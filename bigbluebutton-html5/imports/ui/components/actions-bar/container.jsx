@@ -10,9 +10,6 @@ const ActionsBarContainer = props => <ActionsBar {...props} />;
 export default withTracker(() => ({
   isUserPresenter: Service.isUserPresenter(),
   isUserModerator: Service.isUserModerator(),
-  emojiList: Service.getEmojiList(),
-  emojiSelected: Service.getEmoji(),
-  handleEmojiChange: Service.setEmoji,
   handleExitVideo: () => VideoService.exitVideo(),
   handleJoinVideo: () => VideoService.joinVideo(),
   handleShareScreen: () => shareScreen(),

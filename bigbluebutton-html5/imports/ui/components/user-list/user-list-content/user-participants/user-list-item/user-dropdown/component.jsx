@@ -8,8 +8,9 @@ import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
+import _ from 'lodash';
 import { styles } from './styles';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
@@ -39,6 +40,46 @@ const messages = defineMessages({
     id: 'app.userList.userAriaLabel',
     description: 'aria label for each user in the userlist',
   },
+  statusTriggerLabel: {
+    id: 'app.actionsBar.emojiMenu.statusTriggerLabel',
+    description: 'label for option to show emoji menu',
+  },
+  backTriggerLabel: {
+    id: 'app.audio.backLabel',
+    description: 'label for option to hide emoji menu',
+  },
+  ChatLabel: {
+    id: 'app.userList.menu.chat.label',
+    description: 'Save the changes and close the settings menu',
+  },
+  ClearStatusLabel: {
+    id: 'app.userList.menu.clearStatus.label',
+    description: 'Clear the emoji status of this user',
+  },
+  MakePresenterLabel: {
+    id: 'app.userList.menu.makePresenter.label',
+    description: 'Set this user to be the presenter in this meeting',
+  },
+  RemoveUserLabel: {
+    id: 'app.userList.menu.removeUser.label',
+    description: 'Forcefully remove this user from the meeting',
+  },
+  MuteUserAudioLabel: {
+    id: 'app.userList.menu.muteUserAudio.label',
+    description: 'Forcefully mute this user',
+  },
+  UnmuteUserAudioLabel: {
+    id: 'app.userList.menu.unmuteUserAudio.label',
+    description: 'Forcefully unmute this user',
+  },
+  PromoteUserLabel: {
+    id: 'app.userList.menu.promoteUser.label',
+    description: 'Forcefully promote this viewer to a moderator',
+  },
+  DemoteUserLabel: {
+    id: 'app.userList.menu.demoteUser.label',
+    description: 'Forcefully demote this moderator to a viewer',
+  },
 });
 
 const propTypes = {
@@ -48,14 +89,12 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
 };
 
-
-class UserListContent extends Component {
+class UserDropdown extends Component {
   /**
    * Return true if the content fit on the screen, false otherwise.
    *
@@ -75,6 +114,7 @@ class UserListContent extends Component {
       dropdownOffset: 0,
       dropdownDirection: 'top',
       dropdownVisible: false,
+      showNestedOptions: false,
     };
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -82,6 +122,8 @@ class UserListContent extends Component {
     this.onActionsHide = this.onActionsHide.bind(this);
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
+    this.resetMenuState = this.resetMenuState.bind(this);
+    this.makeDropdownItem = this.makeDropdownItem.bind(this);
   }
 
   componentWillMount() {
@@ -89,30 +131,199 @@ class UserListContent extends Component {
     this.seperator = _.uniqueId('action-separator-');
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
+    if (!this.state.isActionsOpen && this.state.showNestedOptions) {
+      return this.resetMenuState();
+    }
+
     this.checkDropdownDirection();
+  }
+
+  makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
+    return (
+      <DropdownListItem
+        key={key}
+        label={label}
+        onClick={onClick}
+        icon={icon}
+        iconRight={iconRight}
+        className={key === this.props.getEmoji ? styles.emojiSelected : null}
+      />
+    );
+  }
+
+  resetMenuState() {
+    return this.setState({
+      isActionsOpen: false,
+      dropdownOffset: 0,
+      dropdownDirection: 'top',
+      dropdownVisible: false,
+      showNestedOptions: false,
+    });
+  }
+
+  getUsersActions() {
+    const {
+      intl,
+      currentUser,
+      user,
+      router,
+      isBreakoutRoom,
+      getAvailableActions,
+      handleEmojiChange,
+      getEmojiList,
+      setEmojiStatus,
+      assignPresenter,
+      removeUser,
+      toggleVoice,
+      changeRole,
+    } = this.props;
+
+    const actionPermissions = getAvailableActions(currentUser, user, router, isBreakoutRoom);
+    const actions = [];
+
+    const {
+      allowedToChatPrivately,
+      allowedToMuteAudio,
+      allowedToUnmuteAudio,
+      allowedToResetStatus,
+      allowedToRemove,
+      allowedToSetPresenter,
+      allowedToPromote,
+      allowedToDemote,
+      allowedToChangeStatus,
+    } = actionPermissions;
+
+    if (this.state.showNestedOptions) {
+      if (allowedToChangeStatus) {
+        actions.push(this.makeDropdownItem(
+          'back',
+          intl.formatMessage(messages.backTriggerLabel),
+          () => this.setState({ showNestedOptions: false, isActionsOpen: true }),
+          'left_arrow',
+        ));
+      }
+
+      actions.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+
+      const statuses = Object.keys(getEmojiList);
+      statuses.map(status => actions.push(this.makeDropdownItem(
+        status,
+        intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
+        () => { handleEmojiChange(status); this.resetMenuState(); },
+        getEmojiList[status],
+      )));
+
+      return actions;
+    }
+
+    if (allowedToChangeStatus) {
+      actions.push(this.makeDropdownItem(
+        'setstatus',
+        intl.formatMessage(messages.statusTriggerLabel),
+        () => this.setState({ showNestedOptions: true, isActionsOpen: true }),
+        'user',
+        'right_arrow',
+      ));
+    }
+
+    if (allowedToChatPrivately) {
+      actions.push(this.makeDropdownItem(
+        'openChat',
+        intl.formatMessage(messages.ChatLabel),
+        () => this.onActionsHide(router.push(`/users/chat/${user.id}`)),
+        'chat',
+      ));
+    }
+
+    if (allowedToMuteAudio) {
+      actions.push(this.makeDropdownItem(
+        'mute',
+        intl.formatMessage(messages.MuteUserAudioLabel),
+        () => this.onActionsHide(toggleVoice(user.id)),
+        'mute',
+      ));
+    }
+
+    if (allowedToUnmuteAudio) {
+      actions.push(this.makeDropdownItem(
+        'unmute',
+        intl.formatMessage(messages.UnmuteUserAudioLabel),
+        () => this.onActionsHide(toggleVoice(user.id)),
+        'unmute',
+      ));
+    }
+
+    if (allowedToResetStatus && user.emoji.status !== 'none') {
+      actions.push(this.makeDropdownItem(
+        'clearStatus',
+        intl.formatMessage(messages.ClearStatusLabel),
+        () => this.onActionsHide(setEmojiStatus(user.id, 'none')),
+        'clear_status',
+      ));
+    }
+
+    if (allowedToSetPresenter) {
+      actions.push(this.makeDropdownItem(
+        'setPresenter',
+        intl.formatMessage(messages.MakePresenterLabel),
+        () => this.onActionsHide(assignPresenter(user.id)),
+        'presentation',
+      ));
+    }
+
+    if (allowedToRemove) {
+      actions.push(this.makeDropdownItem(
+        'remove',
+        intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
+        () => this.onActionsHide(removeUser(user.id)),
+        'circle_close',
+      ));
+    }
+
+    if (allowedToPromote) {
+      actions.push(this.makeDropdownItem(
+        'promote',
+        intl.formatMessage(messages.PromoteUserLabel),
+        () => this.onActionsHide(changeRole(user.id, 'MODERATOR')),
+        'promote',
+      ));
+    }
+
+    if (allowedToDemote) {
+      actions.push(this.makeDropdownItem(
+        'demote',
+        intl.formatMessage(messages.DemoteUserLabel),
+        () => this.onActionsHide(changeRole(user.id, 'VIEWER')),
+        'user',
+      ));
+    }
+
+    return actions;
   }
 
   onActionsShow() {
     const dropdown = this.getDropdownMenuParent();
     const scrollContainer = this.props.getScrollContainerRef();
-    const dropdownTrigger = dropdown.children[0];
 
-    const list = findDOMNode(this.list);
-    const children = [].slice.call(list.children);
-    children.find(child => child.getAttribute('role') === 'menuitem').focus();
+    if (dropdown && scrollContainer) {
+      const dropdownTrigger = dropdown.children[0];
+      const list = findDOMNode(this.list);
+      const children = [].slice.call(list.children);
+      children.find(child => child.getAttribute('role') === 'menuitem').focus();
 
-    this.setState({
-      isActionsOpen: true,
-      dropdownVisible: false,
-      dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
-      dropdownDirection: 'top',
-    });
+      this.setState({
+        isActionsOpen: true,
+        dropdownVisible: false,
+        dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
+        dropdownDirection: 'top',
+      });
 
-    scrollContainer.addEventListener('scroll', this.handleScroll, false);
+      scrollContainer.addEventListener('scroll', this.handleScroll, false);
+    }
   }
 
-  onActionsHide() {
+  onActionsHide(callback) {
     this.setState({
       isActionsOpen: false,
       dropdownVisible: false,
@@ -120,6 +331,10 @@ class UserListContent extends Component {
 
     const scrollContainer = this.props.getScrollContainerRef();
     scrollContainer.removeEventListener('scroll', this.handleScroll, false);
+
+    if (callback) {
+      return callback;
+    }
   }
 
   getDropdownMenuParent() {
@@ -127,9 +342,7 @@ class UserListContent extends Component {
   }
 
   handleScroll() {
-    this.setState({
-      isActionsOpen: false,
-    });
+    this.setState({ isActionsOpen: false });
   }
 
   /**
@@ -148,7 +361,7 @@ class UserListContent extends Component {
       };
 
       const isDropdownVisible =
-        UserListContent.checkIfDropdownIsVisible(
+        UserDropdown.checkIfDropdownIsVisible(
           dropdownContent.offsetTop,
           dropdownContent.offsetHeight,
         );
@@ -211,7 +424,6 @@ class UserListContent extends Component {
       compact,
       user,
       intl,
-      actions,
       isMeetingLocked,
       meeting,
     } = this.props;
@@ -222,6 +434,8 @@ class UserListContent extends Component {
       dropdownDirection,
       dropdownOffset,
     } = this.state;
+
+    const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
 
@@ -255,25 +469,27 @@ class UserListContent extends Component {
             { this.renderUserAvatar() }
           </div>
           {<UserName
-            user={user}
-            compact={compact}
-            intl={intl}
-            meeting={meeting}
-            isMeetingLocked={isMeetingLocked}
-            userAriaLabel={userAriaLabel}
-            isActionsOpen={isActionsOpen}
+            {...{
+              user,
+              compact,
+              intl,
+              meeting,
+              isMeetingLocked,
+              userAriaLabel,
+              isActionsOpen,
+            }}
           />}
           {<UserIcons
-            user={user}
-            compact={compact}
+            {...{
+              user,
+              compact,
+            }}
           />}
         </div>
       </div>
     );
 
-    if (!actions.length) {
-      return contents;
-    }
+    if (!actions.length) return contents;
 
     return (
       <Dropdown
@@ -298,24 +514,12 @@ class UserListContent extends Component {
           className={styles.dropdownContent}
           placement={`right ${dropdownDirection}`}
         >
-
           <DropdownList
             ref={(ref) => { this.list = ref; }}
             getDropdownMenuParent={this.getDropdownMenuParent}
             onActionsHide={this.onActionsHide}
           >
-            {
-              [
-                (
-                  <DropdownListTitle
-                    description={intl.formatMessage(messages.menuTitleContext)}
-                    key={this.title}
-                  >
-                    {user.name}
-                  </DropdownListTitle>),
-                (<DropdownListSeparator key={this.seperator} />),
-              ].concat(actions)
-            }
+            {actions}
           </DropdownList>
         </DropdownContent>
       </Dropdown>
@@ -323,5 +527,5 @@ class UserListContent extends Component {
   }
 }
 
-UserListContent.propTypes = propTypes;
-export default UserListContent;
+UserDropdown.propTypes = propTypes;
+export default UserDropdown;

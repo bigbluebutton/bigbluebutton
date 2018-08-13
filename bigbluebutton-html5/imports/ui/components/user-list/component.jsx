@@ -62,6 +62,9 @@ class UserList extends Component {
       isPublicChat,
       roving,
       CustomLogoUrl,
+      handleEmojiChange,
+      getEmojiList,
+      getEmoji,
     } = this.props;
 
     return (
@@ -91,6 +94,9 @@ class UserList extends Component {
           isMeetingLocked,
           isPublicChat,
           roving,
+          handleEmojiChange,
+          getEmojiList,
+          getEmoji,
         }
       }
         />}
