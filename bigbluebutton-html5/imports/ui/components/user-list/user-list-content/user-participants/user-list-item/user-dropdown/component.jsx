@@ -123,6 +123,7 @@ class UserDropdown extends Component {
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
+    this.makeDropdownItem = this.makeDropdownItem.bind(this);
   }
 
   componentWillMount() {
@@ -136,6 +137,19 @@ class UserDropdown extends Component {
     }
 
     this.checkDropdownDirection();
+  }
+
+  makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
+    return (
+      <DropdownListItem
+        key={key}
+        label={label}
+        onClick={onClick}
+        icon={icon}
+        iconRight={iconRight}
+        className={key === this.props.getEmoji ? styles.emojiSelected : null}
+      />
+    );
   }
 
   resetMenuState() {
@@ -158,7 +172,6 @@ class UserDropdown extends Component {
       getAvailableActions,
       handleEmojiChange,
       getEmojiList,
-      getEmoji,
       setEmojiStatus,
       assignPresenter,
       removeUser,
@@ -166,7 +179,8 @@ class UserDropdown extends Component {
       changeRole,
     } = this.props;
 
-    const actions = getAvailableActions(currentUser, user, router, isBreakoutRoom);
+    const actionPermissions = getAvailableActions(currentUser, user, router, isBreakoutRoom);
+    const actions = [];
 
     const {
       allowedToChatPrivately,
@@ -178,93 +192,114 @@ class UserDropdown extends Component {
       allowedToPromote,
       allowedToDemote,
       allowedToChangeStatus,
-    } = actions;
+    } = actionPermissions;
 
     if (this.state.showNestedOptions) {
-      const statuses = Object.keys(getEmojiList);
-      const options = statuses.map(status => (
-        <DropdownListItem
-          key={status}
-          className={status === getEmoji ? styles.emojiSelected : null}
-          icon={getEmojiList[status]}
-          label={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` })}
-          description={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Desc` })}
-          onClick={() => {
-            handleEmojiChange(status);
-            this.resetMenuState();
-          }}
-          tabIndex={-1}
-        />
-      ));
+      if (allowedToChangeStatus) {
+        actions.push(this.makeDropdownItem(
+          'back',
+          intl.formatMessage(messages.backTriggerLabel),
+          () => this.setState({ showNestedOptions: false, isActionsOpen: true }),
+          'left_arrow',
+        ));
+      }
 
-      return _.compact([
-        (allowedToChangeStatus ? <DropdownListItem
-          key="back"
-          icon="left_arrow"
-          label={intl.formatMessage(messages.backTriggerLabel)}
-          onClick={() => this.setState({ showNestedOptions: false, isActionsOpen: true })}
-        /> : null),
-        (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      ]).concat(options);
+      actions.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+
+      const statuses = Object.keys(getEmojiList);
+      statuses.map(status => actions.push(this.makeDropdownItem(
+        status,
+        intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
+        () => { handleEmojiChange(status); this.resetMenuState(); },
+        getEmojiList[status],
+      )));
+
+      return actions;
     }
 
-    return _.compact([
-      (allowedToChangeStatus ? <DropdownListItem
-        key="setstatus"
-        icon="user"
-        iconRight="right_arrow"
-        label={intl.formatMessage(messages.statusTriggerLabel)}
-        onClick={() => this.setState({ showNestedOptions: true, isActionsOpen: true })}
-      /> : null),
-      (allowedToChatPrivately ? <DropdownListItem
-        key="openChat"
-        icon="chat"
-        label={intl.formatMessage(messages.ChatLabel)}
-        onClick={() => this.onActionsHide(router.push(`/users/chat/${user.id}`))}
-      /> : null),
-      (allowedToMuteAudio ? <DropdownListItem
-        key="mute"
-        icon="mute"
-        label={intl.formatMessage(messages.MuteUserAudioLabel)}
-        onClick={() => this.onActionsHide(toggleVoice(user.id))}
-      /> : null),
-      (allowedToUnmuteAudio ? <DropdownListItem
-        key="unmute"
-        icon="ummute"
-        label={intl.formatMessage(messages.UnmuteUserAudioLabel)}
-        onClick={() => this.onActionsHide(toggleVoice(user.id))}
-      /> : null),
-      (allowedToResetStatus && user.emoji.status !== 'none' ? <DropdownListItem
-        key="clearStatus"
-        icon="clear_status"
-        label={intl.formatMessage(messages.ClearStatusLabel)}
-        onClick={() => this.onActionsHide(setEmojiStatus(user.id, 'none'))}
-      /> : null),
-      (allowedToSetPresenter ? <DropdownListItem
-        key="setPresenter"
-        icon="presentation"
-        label={intl.formatMessage(messages.MakePresenterLabel)}
-        onClick={() => this.onActionsHide(assignPresenter(user.id))}
-      /> : null),
-      (allowedToRemove ? <DropdownListItem
-        key="remove"
-        icon="circle_close"
-        label={intl.formatMessage(messages.RemoveUserLabel, { 0: user.name })}
-        onClick={() => this.onActionsHide(removeUser(user.id))}
-      /> : null),
-      (allowedToPromote ? <DropdownListItem
-        key="promote"
-        icon="promote"
-        label={intl.formatMessage(messages.PromoteUserLabel)}
-        onClick={() => this.onActionsHide(changeRole(user.id, 'MODERATOR'))}
-      /> : null),
-      (allowedToDemote ? <DropdownListItem
-        key="demote"
-        icon="user"
-        label={intl.formatMessage(messages.DemoteUserLabel)}
-        onClick={() => this.onActionsHide(changeRole(user.id, 'VIEWER'))}
-      /> : null),
-    ]);
+    if (allowedToChangeStatus) {
+      actions.push(this.makeDropdownItem(
+        'setstatus',
+        intl.formatMessage(messages.statusTriggerLabel),
+        () => this.setState({ showNestedOptions: true, isActionsOpen: true }),
+        'user',
+        'right_arrow',
+      ));
+    }
+
+    if (allowedToChatPrivately) {
+      actions.push(this.makeDropdownItem(
+        'openChat',
+        intl.formatMessage(messages.ChatLabel),
+        () => this.onActionsHide(router.push(`/users/chat/${user.id}`)),
+        'chat',
+      ));
+    }
+
+    if (allowedToMuteAudio) {
+      actions.push(this.makeDropdownItem(
+        'mute',
+        intl.formatMessage(messages.MuteUserAudioLabel),
+        () => this.onActionsHide(toggleVoice(user.id)),
+        'mute',
+      ));
+    }
+
+    if (allowedToUnmuteAudio) {
+      actions.push(this.makeDropdownItem(
+        'unmute',
+        intl.formatMessage(messages.UnmuteUserAudioLabel),
+        () => this.onActionsHide(toggleVoice(user.id)),
+        'unmute',
+      ));
+    }
+
+    if (allowedToResetStatus && user.emoji.status !== 'none') {
+      actions.push(this.makeDropdownItem(
+        'clearStatus',
+        intl.formatMessage(messages.ClearStatusLabel),
+        () => this.onActionsHide(setEmojiStatus(user.id, 'none')),
+        'clear_status',
+      ));
+    }
+
+    if (allowedToSetPresenter) {
+      actions.push(this.makeDropdownItem(
+        'setPresenter',
+        intl.formatMessage(messages.MakePresenterLabel),
+        () => this.onActionsHide(assignPresenter(user.id)),
+        'presentation',
+      ));
+    }
+
+    if (allowedToRemove) {
+      actions.push(this.makeDropdownItem(
+        'remove',
+        intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
+        () => this.onActionsHide(removeUser(user.id)),
+        'circle_close',
+      ));
+    }
+
+    if (allowedToPromote) {
+      actions.push(this.makeDropdownItem(
+        'promote',
+        intl.formatMessage(messages.PromoteUserLabel),
+        () => this.onActionsHide(changeRole(user.id, 'MODERATOR')),
+        'promote',
+      ));
+    }
+
+    if (allowedToDemote) {
+      actions.push(this.makeDropdownItem(
+        'demote',
+        intl.formatMessage(messages.DemoteUserLabel),
+        () => this.onActionsHide(changeRole(user.id, 'VIEWER')),
+        'user',
+      ));
+    }
+
+    return actions;
   }
 
   onActionsShow() {
