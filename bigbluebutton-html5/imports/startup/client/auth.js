@@ -108,7 +108,7 @@ export function joinRouteHandler(nextState, replace, callback) {
 
       replace({ pathname: path });
 
-      logger.info(JSON.stringify(clientInfo));
+      logger.info(clientInfo);
 
       return callback();
     });
