@@ -73,6 +73,14 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.hotkeysDesc',
     description: 'Describes hotkeys option',
   },
+  helpLabel: {
+    id: 'app.navBar.settingsDropdown.helpLabel',
+    description: 'Help options label',
+  },
+  helpDesc: {
+    id: 'app.navBar.settingsDropdown.helpDesc',
+    description: 'Describes help option',
+  },
 });
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
@@ -93,8 +101,9 @@ class SettingsDropdown extends Component {
   componentWillMount() {
     const { intl, mountModal, isAndroid } = this.props;
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
+    const { showHelpButton: helpButton } = Meteor.settings.public.app;
 
-    this.menuItems = [(<DropdownListItem
+    this.menuItems =_.compact( [(<DropdownListItem
       key={_.uniqueId('list-item-')}
       icon={fullscreenIcon}
       label={fullscreenLabel}
@@ -115,9 +124,17 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.aboutDesc)}
         onClick={() => mountModal(<AboutContainer />)}
       />),
+      !helpButton ? null :
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon="about"
+        icon="help"
+        label={intl.formatMessage(intlMessages.helpLabel)}
+        description={intl.formatMessage(intlMessages.helpDesc)}
+        onClick={() => window.open('https://bigbluebutton.org/videos/')}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="shortcuts"
         label={intl.formatMessage(intlMessages.hotkeysLabel)}
         description={intl.formatMessage(intlMessages.hotkeysDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
@@ -130,12 +147,14 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
         onClick={() => mountModal(<LogoutConfirmationContainer />)}
       />),
-    ];
+    ])
 
     // Removes fullscreen button if not on Android
     if (!isAndroid) {
       this.menuItems.shift();
     }
+
+
   }
 
   componentWillReceiveProps(nextProps) {
