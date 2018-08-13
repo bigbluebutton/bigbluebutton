@@ -255,6 +255,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendPrivateMessagePubMsg](envelope, jsonNode)
       case ClearPublicChatHistoryPubMsg.NAME =>
         routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
+      case UserTypingPubMsg.NAME =>
+        routeGenericMsg[UserTypingPubMsg](envelope, jsonNode)
 
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>

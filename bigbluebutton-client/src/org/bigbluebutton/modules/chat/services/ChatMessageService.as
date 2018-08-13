@@ -21,18 +21,16 @@ package org.bigbluebutton.modules.chat.services
   import com.asfusion.mate.events.Dispatcher;
   
   import flash.events.IEventDispatcher;
-  import flash.external.ExternalInterface;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
   import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
   import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+  import org.bigbluebutton.modules.chat.events.UserTypingEvent;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class ChatMessageService
   {
@@ -75,6 +73,10 @@ package org.bigbluebutton.modules.chat.services
         sender.createGroupChat(event.name, event.access, event.users);
       }
     }
+	
+	public function handleUserTypingMessage(event:UserTypingEvent):void{
+	  sender.userTyping(event.chatId);
+	}
     
     public function getGroupChats():void {
       sender.getGroupChats();

@@ -710,6 +710,15 @@ chat|ChatMessageRenderer {
 	paddingRight  : 12;
 }
 
+.userTypingCanvas {
+	backgroundColor : #FFFFFF;
+}
+
+.userTypingLabel {
+	fontSize      : 13;
+	color         : #4E5A66;
+}
+
 /*
 //------------------------------
 //  CheckBox
