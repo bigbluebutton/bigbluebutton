@@ -24,6 +24,7 @@ export default class PencilDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
+    this.discardAnnotation = this.discardAnnotation.bind(this);
   }
 
   componentDidMount() {
@@ -128,9 +129,9 @@ export default class PencilDrawListener extends Component {
 
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-    } else {
-      const isDiscarded = true;
-      this.sendLastMessage(isDiscarded);
+    } else if (event.button === 2) {
+      this.sendLastMessage();
+      this.discardAnnotation();
     }
   }
 
@@ -153,7 +154,7 @@ export default class PencilDrawListener extends Component {
     }
   }
 
-  handleDrawPencil(points, status, id, dimensions, isDiscarded = false) {
+  handleDrawPencil(points, status, id, dimensions) {
     const { normalizeThickness, sendAnnotation } = this.props.actions;
     const { whiteboardId, userId } = this.props;
 
@@ -169,14 +170,13 @@ export default class PencilDrawListener extends Component {
         whiteboardId,
         status,
         type: 'pencil',
-        isDiscarded,
       },
       wbId: whiteboardId,
       userId,
       position: 0,
     };
 
-    // dimensions are added to the 'DRAW_END', last message
+      // dimensions are added to the 'DRAW_END', last message
     if (dimensions) {
       annotation.annotationInfo.dimensions = dimensions;
     }
@@ -184,7 +184,7 @@ export default class PencilDrawListener extends Component {
     sendAnnotation(annotation);
   }
 
-  sendLastMessage(isDiscarded = false) {
+  sendLastMessage() {
     if (this.isDrawing) {
       const { getCurrentShapeId } = this.props.actions;
       const { physicalSlideWidth, physicalSlideHeight } = this.props;
@@ -194,7 +194,6 @@ export default class PencilDrawListener extends Component {
         DRAW_END,
         getCurrentShapeId(),
         [Math.round(physicalSlideWidth), Math.round(physicalSlideHeight)],
-        isDiscarded,
       );
       this.resetState();
     }
@@ -211,6 +210,12 @@ export default class PencilDrawListener extends Component {
     window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
     window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
     window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+  }
+
+  discardAnnotation() {
+    const { getCurrentShapeId, addAnnotationToDiscardedList } = this.props.actions;
+
+    addAnnotationToDiscardedList(getCurrentShapeId());
   }
 
   render() {

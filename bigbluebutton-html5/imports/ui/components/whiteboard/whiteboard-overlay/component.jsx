@@ -128,6 +128,7 @@ export default class WhiteboardOverlay extends Component {
       resetTextShapeSession,
       setTextShapeActiveId,
       contextMenuHandler,
+      addAnnotationToDiscardedList,
     } = this.props;
     const { tool } = drawSettings;
     const actions = {
@@ -142,6 +143,7 @@ export default class WhiteboardOverlay extends Component {
       resetTextShapeSession,
       setTextShapeActiveId,
       contextMenuHandler,
+      addAnnotationToDiscardedList,
     };
 
     if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {

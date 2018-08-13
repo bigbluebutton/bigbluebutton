@@ -10,18 +10,38 @@ const Annotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+let discardedList = [];
 
 function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
 }
 
-function discardCurrentAnnotation(whiteboardId) {
-  WhiteboardToolbarService.undoAnnotation(whiteboardId);
-}
-
 function handleAddedAnnotation({
   meetingId, whiteboardId, userId, annotation,
 }) {
+  // Filter out discarded annotations
+  if (discardedList.includes(annotation.id)) {
+    const query = { meetingId, whiteboardId };
+
+    if (userId) {
+      query.userId = userId;
+    }
+
+    if (annotation.id) {
+      query.id = { $in: [annotation.id, `${annotation.id}-fake`] };
+    }
+
+    Annotations.remove(query);
+
+    if (annotation.status === DRAW_END) {
+      WhiteboardToolbarService.undoAnnotation(whiteboardId);
+
+      const index = discardedList.indexOf(annotation.id);
+      discardedList.splice(index, 1);
+    }
+    return;
+  }
+
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
@@ -31,11 +51,8 @@ function handleAddedAnnotation({
   }
 
   const fakeAnnotation = Annotations.findOne({ id: `${annotation.id}-fake` });
-
-  if (!fakeAnnotation) return;
-
   const fakePoints = fakeAnnotation.annotationInfo.points;
-  const { points: lastPoints, whiteboardId: wbId, isDiscarded } = annotation.annotationInfo;
+  const { points: lastPoints } = annotation.annotationInfo;
 
   if (annotation.annotationType !== 'pencil') {
     Annotations.update(fakeAnnotation._id, {
@@ -46,9 +63,6 @@ function handleAddedAnnotation({
       },
       $inc: { version: 1 }, // TODO: Remove all this version stuff
     });
-
-    // Remove current annotation when drawing is cancelled
-    if (isDiscarded) discardCurrentAnnotation(wbId);
     return;
   }
 
@@ -61,8 +75,6 @@ function handleAddedAnnotation({
     // Remove fake annotation for pencil on draw end
     if (annotation.status === DRAW_END) {
       Annotations.remove({ id: `${annotation.id}-fake` });
-      // Remove current annotation when drawing is cancelled
-      if (isDiscarded) discardCurrentAnnotation(wbId);
       return;
     }
 
@@ -179,6 +191,10 @@ export function sendAnnotation(annotation) {
 WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
   changed: clearFakeAnnotations,
 });
+
+export function addAnnotationToDiscardedList(annotation) {
+  discardedList.push(annotation);
+}
 
 Users.find({ userId: Auth.userID }).observeChanges({
   changed(id, { presenter }) {

@@ -151,8 +151,11 @@ export default class ShapeDrawListener extends Component {
     // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
     // but the browser didn't catch it. So check it here.
     if (this.isDrawing) {
-      const isDiscarded = true;
-      return this.sendLastMessage(isDiscarded);
+      if (event.button === 2) {
+        this.sendLastMessage();
+        this.discardAnnotation();
+      }
+      return;
     }
 
     if (event.button === 0) {
@@ -160,9 +163,8 @@ export default class ShapeDrawListener extends Component {
       window.addEventListener('mousemove', this.handleMouseMove, true);
 
       const { clientX, clientY } = event;
-      return this.commonDrawStartHandler(clientX, clientY);
+      this.commonDrawStartHandler(clientX, clientY);
     }
-    return null;
   }
 
   // main mouse move handler
@@ -209,7 +211,7 @@ export default class ShapeDrawListener extends Component {
     }
   }
 
-  sendLastMessage(isDiscarded = false) {
+  sendLastMessage() {
     if (this.isDrawing) {
       // make sure we are drawing and we have some coordinates sent for this shape before
       // to prevent sending DRAW_END on a random mouse click
@@ -221,7 +223,6 @@ export default class ShapeDrawListener extends Component {
           DRAW_END,
           getCurrentShapeId(),
           this.props.drawSettings.tool,
-          isDiscarded,
         );
       }
       this.resetState();
@@ -254,7 +255,7 @@ export default class ShapeDrawListener extends Component {
 
   // since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
   // we use the same function for all of them
-  handleDrawCommonAnnotation(startPoint, endPoint, status, id, shapeType, isDiscarded = false) {
+  handleDrawCommonAnnotation(startPoint, endPoint, status, id, shapeType) {
     const { normalizeThickness, sendAnnotation } = this.props.actions;
 
     const annotation = {
@@ -274,7 +275,6 @@ export default class ShapeDrawListener extends Component {
         whiteboardId: this.props.whiteboardId,
         status,
         type: shapeType,
-        isDiscarded,
       },
       wbId: this.props.whiteboardId,
       userId: this.props.userId,
@@ -282,6 +282,12 @@ export default class ShapeDrawListener extends Component {
     };
 
     sendAnnotation(annotation);
+  }
+
+  discardAnnotation() {
+    const { getCurrentShapeId, addAnnotationToDiscardedList } = this.props.actions;
+
+    addAnnotationToDiscardedList(getCurrentShapeId());
   }
 
   render() {

@@ -16,6 +16,7 @@ const WhiteboardOverlayContainer = (props) => {
 export default withTracker(() => ({
   contextMenuHandler: WhiteboardOverlayService.contextMenuHandler,
   sendAnnotation: WhiteboardOverlayService.sendAnnotation,
+  addAnnotationToDiscardedList: WhiteboardOverlayService.addAnnotationToDiscardedList,
   setTextShapeActiveId: WhiteboardOverlayService.setTextShapeActiveId,
   resetTextShapeSession: WhiteboardOverlayService.resetTextShapeSession,
   drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
