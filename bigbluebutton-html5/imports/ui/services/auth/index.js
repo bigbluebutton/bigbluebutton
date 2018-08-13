@@ -122,7 +122,7 @@ class Auth {
       sessionToken: this.sessionToken,
       fullname: this.fullname,
       externUserID: this.externUserID,
-      confname: this.confname
+      confname: this.confname,
     };
   }
 
@@ -156,7 +156,7 @@ class Auth {
     this.logoutURL = null;
     this.sessionToken = null;
     this.fullname = null;
-    this.externUserID = null
+    this.externUserID = null;
     this.confname = null;
     return Promise.resolve(...args);
   }
