@@ -266,7 +266,7 @@ class VideoProvider extends Component {
         break;
 
       case 'iceCandidate':
-        this.handleIceCandidate(parsedMessage);
+        //this.handleIceCandidate(parsedMessage);
         break;
 
       case 'pong':
@@ -347,6 +347,10 @@ class VideoProvider extends Component {
     this.logger('info', 'Stopping webcam', { cameraId: id });
     const { userId } = this.props;
     const shareWebcam = id === userId;
+
+    // in this case, 'closed' state is not caused by an error;
+    // we stop listening to prevent this from being treated as an error
+    this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = null;
 
     if (shareWebcam) {
       this.unshareWebcam();
@@ -550,7 +554,11 @@ class VideoProvider extends Component {
 
     return (event) => {
       const connectionState = peer.peerConnection.iceConnectionState;
-      if (connectionState === 'failed') {
+      if (connectionState === 'failed' || connectionState === 'closed') {
+
+        // prevent the same error from being detected multiple times
+        peer.peerConnection.oniceconnectionstatechange = null;
+
         this.logger('error', 'ICE connection state', id);
         this.stopWebRTCPeer(id);
         this.notifyError(intl.formatMessage(intlClientErrors.iceConnectionStateError));
