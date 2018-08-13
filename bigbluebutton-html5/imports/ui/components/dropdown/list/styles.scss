@@ -110,7 +110,7 @@ $more-icon-line-height: 16px;
       border-radius: 0.2rem;
     }
 
-    .moreIcon,
+    .iconRight,
     .itemIcon,
     .itemLabel {
       color: inherit;
@@ -122,14 +122,14 @@ $more-icon-line-height: 16px;
   }
 }
 
-.moreIcon,
+.iconRight,
 .itemIcon {
   margin-right: ($line-height-computed / 2);
   color: $color-text;
   flex: 0 0;
 }
 
-.moreIcon {
+.iconRight {
   margin-right: -$indicator-padding-left;
   margin-left: $sm-padding-x;
   font-size: $more-icon-font-size;

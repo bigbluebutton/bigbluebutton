@@ -14,7 +14,6 @@ import _ from 'lodash';
 import { styles } from './styles';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
-import UserAction from '../user-action/component';
 
 const messages = defineMessages({
   presenter: {
@@ -107,19 +106,6 @@ class UserDropdown extends Component {
     return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
   }
 
-  static createAction(action, ...options) {
-    return (
-      <UserAction
-        key={_.uniqueId('action-item-')}
-        icon={action.icon}
-        label={action.label(...options)}
-        handler={action.handler}
-        options={[...options]}
-        desc={action.desc}
-      />
-    );
-  }
-
   constructor(props) {
     super(props);
 
@@ -180,50 +166,6 @@ class UserDropdown extends Component {
       changeRole,
     } = this.props;
 
-    const userActions =
-    {
-      openChat: {
-        label: () => intl.formatMessage(messages.ChatLabel),
-        handler: (router, user) => this.onActionsHide(router.push(`/users/chat/${user.id}`)),
-        icon: 'chat',
-      },
-      clearStatus: {
-        label: () => intl.formatMessage(messages.ClearStatusLabel),
-        handler: user => this.onActionsHide(setEmojiStatus(user.id, 'none')),
-        icon: 'clear_status',
-      },
-      setPresenter: {
-        label: () => intl.formatMessage(messages.MakePresenterLabel),
-        handler: user => this.onActionsHide(assignPresenter(user.id)),
-        icon: 'presentation',
-      },
-      remove: {
-        label: user => intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
-        handler: user => this.onActionsHide(removeUser(user.id)),
-        icon: 'circle_close',
-      },
-      mute: {
-        label: () => intl.formatMessage(messages.MuteUserAudioLabel),
-        handler: user => this.onActionsHide(toggleVoice(user.id)),
-        icon: 'mute',
-      },
-      unmute: {
-        label: () => intl.formatMessage(messages.UnmuteUserAudioLabel),
-        handler: user => this.onActionsHide(toggleVoice(user.id)),
-        icon: 'unmute',
-      },
-      promote: {
-        label: () => intl.formatMessage(messages.PromoteUserLabel),
-        handler: user => this.onActionsHide(changeRole(user.id, 'MODERATOR')),
-        icon: 'promote',
-      },
-      demote: {
-        label: () => intl.formatMessage(messages.DemoteUserLabel),
-        handler: user => this.onActionsHide(changeRole(user.id, 'VIEWER')),
-        icon: 'user',
-      },
-    };
-
     const actions = getAvailableActions(currentUser, user, router, isBreakoutRoom);
 
     const {
@@ -238,20 +180,6 @@ class UserDropdown extends Component {
       allowedToChangeStatus,
     } = actions;
 
-    const emojiMenuControls = {
-      setstatus: {
-        icon: 'user',
-        label: () => intl.formatMessage(messages.statusTriggerLabel),
-        handler: () => { this.setState({ showNestedOptions: true }); },
-        desc: 'set_status',
-      },
-      back: {
-        icon: 'left_arrow',
-        label: () => intl.formatMessage(messages.backTriggerLabel),
-        handler: () => this.setState({ showNestedOptions: false }),
-      },
-    };
-
     if (this.state.showNestedOptions) {
       const statuses = Object.keys(getEmojiList);
       const options = statuses.map(status => (
@@ -262,8 +190,6 @@ class UserDropdown extends Component {
           label={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` })}
           description={intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Desc` })}
           onClick={() => {
-            const { removeEventListener } = window;
-            removeEventListener('click', this.handleWindowClick, true);
             handleEmojiChange(status);
             this.resetMenuState();
           }}
@@ -272,21 +198,72 @@ class UserDropdown extends Component {
       ));
 
       return _.compact([
-        (allowedToChangeStatus ? UserDropdown.createAction(emojiMenuControls.back, user) : null),
+        (allowedToChangeStatus ? <DropdownListItem
+          key="back"
+          icon="left_arrow"
+          label={intl.formatMessage(messages.backTriggerLabel)}
+          onClick={() => this.setState({ showNestedOptions: false, isActionsOpen: true })}
+        /> : null),
         (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
       ]).concat(options);
     }
 
     return _.compact([
-      (allowedToChangeStatus ? UserDropdown.createAction(emojiMenuControls.setstatus, user) : null),
-      (allowedToChatPrivately ? UserDropdown.createAction(userActions.openChat, router, user) : null),
-      (allowedToMuteAudio ? UserDropdown.createAction(userActions.mute, user) : null),
-      (allowedToUnmuteAudio ? UserDropdown.createAction(userActions.unmute, user) : null),
-      (allowedToResetStatus && user.emoji.status !== 'none' ? UserDropdown.createAction(userActions.clearStatus, user) : null),
-      (allowedToSetPresenter ? UserDropdown.createAction(userActions.setPresenter, user) : null),
-      (allowedToRemove ? UserDropdown.createAction(userActions.remove, user) : null),
-      (allowedToPromote ? UserDropdown.createAction(userActions.promote, user) : null),
-      (allowedToDemote ? UserDropdown.createAction(userActions.demote, user) : null),
+      (allowedToChangeStatus ? <DropdownListItem
+        key="setstatus"
+        icon="user"
+        iconRight="right_arrow"
+        label={intl.formatMessage(messages.statusTriggerLabel)}
+        onClick={() => this.setState({ showNestedOptions: true, isActionsOpen: true })}
+      /> : null),
+      (allowedToChatPrivately ? <DropdownListItem
+        key="openChat"
+        icon="chat"
+        label={intl.formatMessage(messages.ChatLabel)}
+        onClick={() => this.onActionsHide(router.push(`/users/chat/${user.id}`))}
+      /> : null),
+      (allowedToMuteAudio ? <DropdownListItem
+        key="mute"
+        icon="mute"
+        label={intl.formatMessage(messages.MuteUserAudioLabel)}
+        onClick={() => this.onActionsHide(toggleVoice(user.id))}
+      /> : null),
+      (allowedToUnmuteAudio ? <DropdownListItem
+        key="unmute"
+        icon="ummute"
+        label={intl.formatMessage(messages.UnmuteUserAudioLabel)}
+        onClick={() => this.onActionsHide(toggleVoice(user.id))}
+      /> : null),
+      (allowedToResetStatus && user.emoji.status !== 'none' ? <DropdownListItem
+        key="clearStatus"
+        icon="clear_status"
+        label={intl.formatMessage(messages.ClearStatusLabel)}
+        onClick={() => this.onActionsHide(setEmojiStatus(user.id, 'none'))}
+      /> : null),
+      (allowedToSetPresenter ? <DropdownListItem
+        key="setPresenter"
+        icon="presentation"
+        label={intl.formatMessage(messages.MakePresenterLabel)}
+        onClick={() => this.onActionsHide(assignPresenter(user.id))}
+      /> : null),
+      (allowedToRemove ? <DropdownListItem
+        key="remove"
+        icon="circle_close"
+        label={intl.formatMessage(messages.RemoveUserLabel, { 0: user.name })}
+        onClick={() => this.onActionsHide(removeUser(user.id))}
+      /> : null),
+      (allowedToPromote ? <DropdownListItem
+        key="promote"
+        icon="promote"
+        label={intl.formatMessage(messages.PromoteUserLabel)}
+        onClick={() => this.onActionsHide(changeRole(user.id, 'MODERATOR'))}
+      /> : null),
+      (allowedToDemote ? <DropdownListItem
+        key="demote"
+        icon="user"
+        label={intl.formatMessage(messages.DemoteUserLabel)}
+        onClick={() => this.onActionsHide(changeRole(user.id, 'VIEWER'))}
+      /> : null),
     ]);
   }
 
