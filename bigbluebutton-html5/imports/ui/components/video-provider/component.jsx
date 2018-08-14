@@ -266,7 +266,7 @@ class VideoProvider extends Component {
         break;
 
       case 'iceCandidate':
-        //this.handleIceCandidate(parsedMessage);
+        this.handleIceCandidate(parsedMessage);
         break;
 
       case 'pong':
