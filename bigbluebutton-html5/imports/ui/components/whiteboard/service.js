@@ -85,7 +85,7 @@ function handleRemovedAnnotation({
 AnnotationsStreamer.on('removed', handleRemovedAnnotation);
 
 AnnotationsStreamer.on('added', ({ annotations }) => {
-  // Clear fakeAnnotaion of discarded annotations
+  // Remove fakeAnnotaion of this annotation when it is in discardedList
   annotations
     .filter(({ annotation }) => discardedList.includes(annotation.id))
     .forEach(({
@@ -95,18 +95,18 @@ AnnotationsStreamer.on('added', ({ annotations }) => {
         meetingId, whiteboardId, userId, shapeId: annotation.id,
       }));
 
+  // Call handleAddedAnnotation when this annotation is not in discardedList
   annotations
     .filter(({ annotation }) => !discardedList.includes(annotation.id))
     .forEach(annotation => handleAddedAnnotation(annotation));
 
-  // When draw end, remove discardedAnnotation's id in discardedList
+  // When draw end, call undo, and clear discardedList
   annotations
     .filter(({ annotation }) => discardedList.includes(annotation.id))
     .filter(({ annotation }) => annotation.status === DRAW_END)
     .forEach(({ annotation }) => {
       WhiteboardToolbarService.undoAnnotation(annotation.wbId);
 
-      // Clear discardedList
       const index = discardedList.indexOf(annotation.id);
       discardedList.splice(index, 1);
     });
