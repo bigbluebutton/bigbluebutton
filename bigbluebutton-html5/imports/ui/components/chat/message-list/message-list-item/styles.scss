@@ -1,7 +1,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .item {
-  font-size: $font-size-base * .90;
+  font-size: $font-size-base;
   margin-bottom: $line-height-computed;
 
   &:last-child {
