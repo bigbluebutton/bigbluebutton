@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import UnreadMessages from '/imports/ui/services/unread-messages';
-import ChatAudioNotification from './audio-notification/component';
-import ChatPushNotification from './push-notification/component';
+import ChatAudioAlert from './audio-alert/component';
+import ChatPushAlert from './push-alert/component';
 import Service from '../service';
 import { styles } from '../styles';
 
@@ -36,7 +36,7 @@ const intlMessages = defineMessages({
 const PUBLIC_KEY = 'public';
 const PRIVATE_KEY = 'private';
 
-class ChatNotification extends Component {
+class ChatAlert extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -157,7 +157,7 @@ class ChatNotification extends Component {
             .map(msg => this.createMessage(name, msg.content)));
           const limitingMessages = flatMessages;
 
-          return (<ChatPushNotification
+          return (<ChatPushAlert
             key={id}
             chatId={id}
             content={limitingMessages}
@@ -210,7 +210,7 @@ class ChatNotification extends Component {
       <span>
         {
         chatsNotify.map(({ sender, time, content }) =>
-            (<ChatPushNotification
+            (<ChatPushAlert
               key={time}
               chatId={PUBLIC_KEY}
               name={sender.name}
@@ -249,13 +249,13 @@ class ChatNotification extends Component {
 
     return (
       <span>
-        <ChatAudioNotification play={shouldPlayAudio} count={unreadMessagesCount} />
+        <ChatAudioAlert play={shouldPlayAudio} count={unreadMessagesCount} />
         { this.notifyPublicChat() }
         { this.notifyPrivateChat() }
       </span>
     );
   }
 }
-ChatNotification.propTypes = propTypes;
+ChatAlert.propTypes = propTypes;
 
-export default injectIntl(ChatNotification);
+export default injectIntl(ChatAlert);
