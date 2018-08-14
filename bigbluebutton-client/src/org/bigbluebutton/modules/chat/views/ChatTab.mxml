@@ -259,14 +259,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function loadChatHistory(event:TimerEvent):void {
 				displayChatHistory();
       }
-      
-			private function displayChatHistory():void {
-				var chat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
-				if (chat != null) {
-					chatMessages.processChatHistory(chat.messages.source);
-					scrollToEndOfMessage("no-scroll");
-				}
+		
+		private function displayChatHistory():void {
+			var chat:GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+			if (chat != null) {
+				chatMessages.processChatHistory(chat.messages.source);
+				scrollToEndOfMessage("no-scroll");
 			}
+		}
 			
       private function handleUserLeftEvent(event:UserLeftEvent):void {
         var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
@@ -274,6 +274,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           addMessageAndScrollToEnd(createUserHasLeftMessage(), event.userID);
           txtMsgArea.enabled = false;
         }
+		if (DictionaryUtils.containsKey(typingUsersInfo, event.userID)) {
+			delete typingUsersInfo[event.userID];
+		}
       }
 	  
 	  private function refreshChat(e:BBBEvent):void {
@@ -321,14 +324,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (chatId == event.chatId && chatMessages != null) {
+		  if (DictionaryUtils.containsKey(typingUsersInfo, event.msg.fromUserId)) {
+			  delete typingUsersInfo[event.msg.fromUserId];
+			  if (typingIndicatorTimer.running) {
+				  typingIndicatorTimer.stop();
+			  }
+			  displayTypingUsers();
+		  }
           addMessageAndScrollToEnd(event.msg, event.msg.fromUserId);
         }
       }
       
       private function handleReceivedChatHistoryEvent(event:ChatHistoryEvent):void {
         if (chatId == event.chatId) {
-					displayChatHistory();
-					scrollToEndOfMessage("no-scroll");
+			displayChatHistory();
+			scrollToEndOfMessage("no-scroll");
         }
       }
       
@@ -392,7 +402,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	  private function onTypingIndicatorTimer(event:TimerEvent):void {
 		  displayTypingUsers();
-		  typingSenderTimer.start();
 	  }
       
       public function setMessageUnread():void{
@@ -571,12 +580,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
       
       private function showMessageTooLong(messageLength : int):void {
-        msgTooLongLabel.text = ResourceUtil.getInstance().getString('bbb.chat.chatMessage.tooLong', [(messageLength - chatOptions.maxMessageLength).toString()]);
-        msgTooLongLabel.includeInLayout = msgTooLongLabel.visible = true;
-        if (chatCtrlBar.height != 80) {
-          chatCtrlBar.height = 80;
-          chatListHeight -= 20;  
-        }
+        msgTooLongLabel.toolTip = ResourceUtil.getInstance().getString('bbb.chat.chatMessage.tooLong', [(messageLength - chatOptions.maxMessageLength).toString()]);
+        msgTooLongLabel.text = "-" + (messageLength - chatOptions.maxMessageLength).toString();
+        msgTooLongLabel.visible = true;
         // The case where lock settings are set
         if (txtMsgArea.enabled) {
           sendBtn.enabled = false;
@@ -584,11 +590,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function hideMessageTooLong():void {
-        msgTooLongLabel.includeInLayout = msgTooLongLabel.visible = false;
-        if (chatCtrlBar.height != 60) {
-          chatCtrlBar.height = 60;
-          chatListHeight += 20;  
-        }
+        msgTooLongLabel.visible = false;
         // The case where lock settings are set
         if (txtMsgArea.enabled) {
           sendBtn.enabled = true;
@@ -604,7 +606,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function applyLockSettings():void {
-				if (publicChat) {
+		if (publicChat) {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
         } else {
           txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat || LiveMeeting.inst().users.getUser(chatWithUserID).role == Role.MODERATOR;
@@ -670,7 +672,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				  showTypingIndicator(ResourceUtil.getInstance().getString('bbb.chat.usersTyping.multiple'));
 			  } else if (usernames.length > 1) {
 				  showTypingIndicator(ResourceUtil.getInstance().getString('bbb.chat.usersTyping.many', [usernames.splice(usernames.length-1,1).join(", "), usernames.pop()]));
-			  } else if (usernames.length == 1)/* If equals to 1 */ {
+			  } else if (usernames.length == 1) {
 				  showTypingIndicator(ResourceUtil.getInstance().getString('bbb.chat.usersTyping.one', [usernames[0]]));
 			  } else {
 				  hideTypingIndicator();
@@ -678,17 +680,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  } else {
 			  hideTypingIndicator();
 		  }
+		  typingSenderTimer.start();
 	  }
 		
 	  private function showTypingIndicator(message:String) : void {
 		  userTypingLabel.text = message;
-		  userTypingLabel.visible = userTypingLabel.includeInLayout = true;
+		  userTypingLabel.visible = true;
 		  chatMessagesList.setStyle("paddingBottom", userTypingLabel.height);
 	  }
 		
 	  private function hideTypingIndicator():void {
 		  userTypingLabel.text = "";
-		  userTypingLabel.visible = userTypingLabel.includeInLayout = false;
+		  userTypingLabel.visible = false;
 		  chatMessagesList.setStyle("paddingBottom", 0);
 	  }
       
@@ -700,7 +703,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         const paddingHeight:int = 5;
         const paddingWidth:int = 5;
-        
       }
 		
 	]]>
@@ -723,27 +725,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 scroll="chatMessagesList_scrollHandler(event)"
                          accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
 		<mx:Canvas id="unreadMessagesBar" visible="false" includeInLayout="false" filters="{[unreadMessagesBoxShadow]}"
-				   width="100%" top="0" styleName="unreadMessagesBar" click="scrollToBottom()">
+				   width="100%" bottom="0" styleName="unreadMessagesBar" click="scrollToBottom()">
 			<mx:Text width="{unreadMessagesBar.width - 32}" verticalCenter="0" horizontalCenter="0"
 					 styleName="unreadMessagesBarText" text="{ResourceUtil.getInstance().getString('bbb.chat.unreadMessages')}"/> 
 		</mx:Canvas>
-		<mx:Canvas id="userTypingCanvas" width="100%" bottom="0">
-			<mx:Label id="userTypingLabel" styleName="userTypingLabel" width="100%" truncateToFit="true"
-					  verticalCenter="0" visible="true" includeInLayout="false"
-					  top="6" bottom="6" right="12" left="12"/>	
-		</mx:Canvas>
     </mx:Canvas>
   </mx:VBox>
-  <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
+  <mx:HBox id="chatCtrlBar" width="100%" height="80" styleName="chatControlBarStyle"
+		   verticalScrollPolicy="off" horizontalScrollPolicy="off"
            paddingLeft="5" paddingRight="5">	
-    <mx:VBox width="100%" height="100%">
-      <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
-      <mx:TextArea id="txtMsgArea" width="100%" height="100%" restrict="^\u007F"
-                   styleName="chatControlBarTextMsgStyle"
-                   change="txtMsgAreaChangeHandler(event)"
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
-                   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
-      <mx:Label id="msgTooLongLabel" width="100%" height="100%" includeInLayout="false" visible="false"/>
+    <mx:VBox width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	  <mx:Canvas width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	      <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
+	      <mx:TextArea id="txtMsgArea" width="100%" height="100%" restrict="^\u007F"
+	                   styleName="chatControlBarTextMsgStyle"
+	                   change="txtMsgAreaChangeHandler(event)"
+	                   toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
+	                   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
+	      <mx:Label id="msgTooLongLabel" styleName="msgTooLongLabel" bottom="-2" right="8" visible="false"/>
+	  </mx:Canvas>
+	  <mx:Label id="userTypingLabel" styleName="userTypingLabel" truncateToFit="true"
+			    visible="false" width="100%" />	
     </mx:VBox>
     <mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
       <mx:HBox horizontalGap="0">

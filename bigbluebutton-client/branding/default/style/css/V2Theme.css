@@ -714,9 +714,17 @@ chat|ChatMessageRenderer {
 	backgroundColor : #FFFFFF;
 }
 
+.msgTooLongLabel {
+	color : #DE2721;
+}
+
 .userTypingLabel {
 	fontSize      : 13;
 	color         : #4E5A66;
+	paddingBottom : 2;
+	paddingTop    : 2;
+	paddingLeft   : 4;
+	paddingRight  : 4;
 }
 
 /*
