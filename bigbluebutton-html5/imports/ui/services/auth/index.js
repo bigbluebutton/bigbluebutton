@@ -10,6 +10,17 @@ const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
+    this._loggedIn = {
+      value: false,
+      tracker: new Tracker.Dependency(),
+    };
+
+    const queryParams = new URLSearchParams(document.location.search);
+    if (queryParams.has('sessionToken')
+      && queryParams.get('sessionToken') !== Session.get('sessionToken')) {
+      return;
+    }
+
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
@@ -18,10 +29,6 @@ class Auth {
     this._confname = Storage.getItem('confname');
     this._externUserID = Storage.getItem('externUserID');
     this._fullname = Storage.getItem('fullname');
-    this._loggedIn = {
-      value: false,
-      tracker: new Tracker.Dependency(),
-    };
   }
 
   get meetingID() {
@@ -115,7 +122,7 @@ class Auth {
       sessionToken: this.sessionToken,
       fullname: this.fullname,
       externUserID: this.externUserID,
-      confname: this.confname
+      confname: this.confname,
     };
   }
 
@@ -149,7 +156,7 @@ class Auth {
     this.logoutURL = null;
     this.sessionToken = null;
     this.fullname = null;
-    this.externUserID = null
+    this.externUserID = null;
     this.confname = null;
     return Promise.resolve(...args);
   }

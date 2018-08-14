@@ -7,6 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
+import logger from '/imports/startup/client/logger';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
@@ -72,6 +73,8 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
+
+  logger.info('User joined meeting and subscribed to data successfully');
 
   // Check if user is removed out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
