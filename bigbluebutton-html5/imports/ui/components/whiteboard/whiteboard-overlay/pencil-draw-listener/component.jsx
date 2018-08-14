@@ -118,8 +118,11 @@ export default class PencilDrawListener extends Component {
 
   // main mouse down handler
   mouseDownHandler(event) {
+    const isLeftClick = event.button === 0;
+    const isRightClick = event.button === 2;
+
     if (!this.isDrawing) {
-      if (event.button === 0) {
+      if (isLeftClick) {
         window.addEventListener('mouseup', this.mouseUpHandler);
         window.addEventListener('mousemove', this.mouseMoveHandler, true);
 
@@ -129,7 +132,7 @@ export default class PencilDrawListener extends Component {
 
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
-    } else if (event.button === 2) {
+    } else if (isRightClick) {
       this.sendLastMessage();
       this.discardAnnotation();
     }

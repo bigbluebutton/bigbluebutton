@@ -10,7 +10,7 @@ const Annotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
-let discardedList = [];
+const discardedList = [];
 
 function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
@@ -19,29 +19,6 @@ function clearFakeAnnotations() {
 function handleAddedAnnotation({
   meetingId, whiteboardId, userId, annotation,
 }) {
-  // Filter out discarded annotations
-  if (discardedList.includes(annotation.id)) {
-    const query = { meetingId, whiteboardId };
-
-    if (userId) {
-      query.userId = userId;
-    }
-
-    if (annotation.id) {
-      query.id = { $in: [annotation.id, `${annotation.id}-fake`] };
-    }
-
-    Annotations.remove(query);
-
-    if (annotation.status === DRAW_END) {
-      WhiteboardToolbarService.undoAnnotation(whiteboardId);
-
-      const index = discardedList.indexOf(annotation.id);
-      discardedList.splice(index, 1);
-    }
-    return;
-  }
-
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
@@ -108,7 +85,31 @@ function handleRemovedAnnotation({
 AnnotationsStreamer.on('removed', handleRemovedAnnotation);
 
 AnnotationsStreamer.on('added', ({ annotations }) => {
-  annotations.forEach(annotation => handleAddedAnnotation(annotation));
+  // Clear fakeAnnotaion of discarded annotations
+  annotations
+    .filter(({ annotation }) => discardedList.includes(annotation.id))
+    .forEach(({
+      meetingId, whiteboardId, userId, annotation,
+    }) =>
+      handleRemovedAnnotation({
+        meetingId, whiteboardId, userId, shapeId: annotation.id,
+      }));
+
+  annotations
+    .filter(({ annotation }) => !discardedList.includes(annotation.id))
+    .forEach(annotation => handleAddedAnnotation(annotation));
+
+  // When draw end, remove discardedAnnotation's id in discardedList
+  annotations
+    .filter(({ annotation }) => discardedList.includes(annotation.id))
+    .filter(({ annotation }) => annotation.status === DRAW_END)
+    .forEach(({ annotation }) => {
+      WhiteboardToolbarService.undoAnnotation(annotation.wbId);
+
+      // Clear discardedList
+      const index = discardedList.indexOf(annotation.id);
+      discardedList.splice(index, 1);
+    });
 });
 
 function increaseBrightness(realHex, percent) {

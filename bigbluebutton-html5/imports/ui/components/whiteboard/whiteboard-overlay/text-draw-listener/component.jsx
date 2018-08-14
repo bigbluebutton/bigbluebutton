@@ -172,13 +172,16 @@ export default class TextDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
+    const isLeftClick = event.button === 0;
+    const isRightClick = event.button === 2;
+
     if (this.hasBeenTouchedRecently) {
       return;
     }
 
     // if our current drawing state is not drawing the box and not writing the text
     if (!this.state.isDrawing && !this.state.isWritingText) {
-      if (event.button === 0) {
+      if (isLeftClick) {
         window.addEventListener('mouseup', this.handleMouseUp);
         window.addEventListener('mousemove', this.handleMouseMove, true);
 
@@ -190,7 +193,7 @@ export default class TextDrawListener extends Component {
     } else {
       // publishing the final shape and resetting the state
       this.sendLastMessage();
-      if (event.button === 2) {
+      if (isRightClick) {
         this.discardAnnotation();
       }
     }

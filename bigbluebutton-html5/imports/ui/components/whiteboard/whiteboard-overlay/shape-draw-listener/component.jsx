@@ -148,17 +148,20 @@ export default class ShapeDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
+    const isLeftClick = event.button === 0;
+    const isRightClick = event.button === 2;
+
     // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
     // but the browser didn't catch it. So check it here.
     if (this.isDrawing) {
-      if (event.button === 2) {
+      if (isRightClick) {
         this.sendLastMessage();
         this.discardAnnotation();
       }
       return;
     }
 
-    if (event.button === 0) {
+    if (isLeftClick) {
       window.addEventListener('mouseup', this.handleMouseUp);
       window.addEventListener('mousemove', this.handleMouseMove, true);
 
