@@ -322,6 +322,7 @@
     "app.video.joinVideo": "Share Webcam",
     "app.video.leaveVideo": "Unshare Webcam",
     "app.video.iceCandidateError": "Error on adding ice candidate",
+    "app.video.iceConnectionStateError": "Error 1107: ICE negotiation failed",
     "app.video.permissionError": "Error on sharing webcam. Please check permissions",
     "app.video.sharingError": "Error on sharing webcam",
     "app.video.notFoundError": "Could not find webcam. Please make sure it's connected",
