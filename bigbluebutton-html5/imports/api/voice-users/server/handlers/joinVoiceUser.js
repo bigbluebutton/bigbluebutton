@@ -50,7 +50,7 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
       emoji: 'none',
       presenter: false,
       locked: false, // TODO
-      avatar: 'https://bbb-joao.dev.imdt.com.br/client/avatar.png',
+      avatar: '',
       clientType: 'dial-in-user',
     };
 
