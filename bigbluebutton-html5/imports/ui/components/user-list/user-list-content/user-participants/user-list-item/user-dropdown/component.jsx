@@ -236,6 +236,15 @@ class UserDropdown extends Component {
       ));
     }
 
+    if (allowedToResetStatus && user.emoji.status !== 'none') {
+      actions.push(this.makeDropdownItem(
+        'clearStatus',
+        intl.formatMessage(messages.ClearStatusLabel),
+        () => this.onActionsHide(setEmojiStatus(user.id, 'none')),
+        'clear_status',
+      ));
+    }
+
     if (allowedToMuteAudio) {
       actions.push(this.makeDropdownItem(
         'mute',
@@ -251,15 +260,6 @@ class UserDropdown extends Component {
         intl.formatMessage(messages.UnmuteUserAudioLabel),
         () => this.onActionsHide(toggleVoice(user.id)),
         'unmute',
-      ));
-    }
-
-    if (allowedToResetStatus && user.emoji.status !== 'none') {
-      actions.push(this.makeDropdownItem(
-        'clearStatus',
-        intl.formatMessage(messages.ClearStatusLabel),
-        () => this.onActionsHide(setEmojiStatus(user.id, 'none')),
-        'clear_status',
       ));
     }
 
