@@ -7,7 +7,7 @@ const propTypes = {
   count: PropTypes.number.isRequired,
 };
 
-class ChatAudioNotification extends React.Component {
+class ChatAudioAlert extends React.Component {
   constructor(props) {
     super(props);
     this.audio = new Audio(`${Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
@@ -43,6 +43,6 @@ class ChatAudioNotification extends React.Component {
     return null;
   }
 }
-ChatAudioNotification.propTypes = propTypes;
+ChatAudioAlert.propTypes = propTypes;
 
-export default ChatAudioNotification;
+export default ChatAudioAlert;

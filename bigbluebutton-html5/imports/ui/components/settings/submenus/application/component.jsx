@@ -149,8 +149,8 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatAudioNotifications}
-                  onChange={() => this.handleToggle('chatAudioNotifications')}
+                  defaultChecked={this.state.settings.chatAudioAlerts}
+                  onChange={() => this.handleToggle('chatAudioAlerts')}
                   ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
                 />
               </div>
@@ -169,8 +169,8 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatPushNotifications}
-                  onChange={() => this.handleToggle('chatPushNotifications')}
+                  defaultChecked={this.state.settings.chatPushAlerts}
+                  onChange={() => this.handleToggle('chatPushAlerts')}
                   ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
                 />
               </div>

@@ -19,8 +19,8 @@
       "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
-          "chatAudioNotifications": false,
-          "chatPushNotifications": false,
+          "chatAudioAlerts": false,
+          "chatPushAlerts": false,
           "fontSize": "16px",
           "fallbackLocale": "en"
         },
