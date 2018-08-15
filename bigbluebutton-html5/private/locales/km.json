@@ -86,8 +86,6 @@
     "app.actionsBar.raiseLabel": "លើកដៃ",
     "app.actionsBar.label": "របារ​សកម្មភាព",
     "app.submenu.application.applicationSectionTitle": "កម្មវិធី",
-    "app.submenu.application.audioNotifyLabel": "ការ​ជូន​ដំណឹង​ជា​សម្លេង​សម្រាប់​ការ​ជជែក",
-    "app.submenu.application.pushNotifyLabel": "ការ​ជូន​ដំណឹង​ដែល​លេច​ឡើង​សម្រាប់​ការ​ជជែក",
     "app.submenu.application.fontSizeControlLabel": "ទំហំ​អក្សរ​",
     "app.submenu.application.increaseFontBtnLabel": "បង្កើន​ទំហំ​អក្សរ​ក្នុង​កម្មវិធី",
     "app.submenu.application.decreaseFontBtnLabel": "បន្ថយ​ទំហំ​អក្សរ​ក្នុង​កម្មវិធី",
