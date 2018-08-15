@@ -46,6 +46,7 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
       guest: false,
       authed: true,
       waitingForAcceptance: false,
+      guestStatus: 'ALLOW',
       emoji: 'none',
       presenter: false,
       locked: false, // TODO
