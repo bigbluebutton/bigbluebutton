@@ -117,14 +117,6 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
-  // Adjust the locale format to be able to display the locale names properly in the client
-  formatLocale(locale) {
-    return locale
-      .split('-')
-      .map((val, idx) => (idx == 1 ? val.toUpperCase() : val))
-      .join('_');
-  }
-
   render() {
     const { availableLocales, intl } = this.props;
     const { isLargestFontSize, isSmallestFontSize } = this.state;
