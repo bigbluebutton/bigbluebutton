@@ -84,8 +84,6 @@
     "app.actionsBar.raiseLabel": "Alzar",
     "app.actionsBar.label": "Barra de acciones",
     "app.submenu.application.applicationSectionTitle": "Aplicación",
-    "app.submenu.application.audioNotifyLabel": "Notificación de audio para el chat",
-    "app.submenu.application.pushNotifyLabel": "Empujar notificaciones para el chat",
     "app.submenu.application.fontSizeControlLabel": "Tamaño de fuente",
     "app.submenu.application.increaseFontBtnLabel": "Incrementar tamaño de fuente",
     "app.submenu.application.decreaseFontBtnLabel": "Reducir tamaño de fuente",
