@@ -142,11 +142,13 @@ class UserDropdown extends Component {
   makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
     return (
       <DropdownListItem
-        key={key}
-        label={label}
-        onClick={onClick}
-        icon={icon}
-        iconRight={iconRight}
+        {...{
+          key,
+          label,
+          onClick,
+          icon,
+          iconRight,
+        }}
         className={key === this.props.getEmoji ? styles.emojiSelected : null}
       />
     );
