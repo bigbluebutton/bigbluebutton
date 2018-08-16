@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import VoiceUsers from '/imports/api/voice-users/';
 import Meetings from '/imports/api/meetings';
-import addUser from '/imports/api/users/server/modifiers/addUser';
+import addDialInUser from '/imports/api/users/server/modifiers/addDialInUser';
 import removeVoiceUser from '../modifiers/removeVoiceUser';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
@@ -46,27 +46,7 @@ export default function handleVoiceUsers({ header, body }) {
         joined: true,
       });
 
-      const USER_CONFIG = Meteor.settings.public.user;
-      const ROLE_VIEWER = USER_CONFIG.role_viewer;
-
-      const voiceOnlyUser = { // web (Users) representation of dial-in user
-        intId: voice.intId,
-        extId: voice.intId, // TODO
-        name: voice.callerName,
-        role: ROLE_VIEWER.toLowerCase(),
-        guest: false,
-        authed: true,
-        waitingForAcceptance: false,
-        guestStatus: 'ALLOW',
-        emoji: 'none',
-        presenter: false,
-        locked: false, // TODO
-        avatar: '',
-        clientType: 'dial-in-user',
-      };
-
-      addUser(meetingId, voiceOnlyUser);
-
+      addDialInUser(meetingId, voice);
     }
   });
 
