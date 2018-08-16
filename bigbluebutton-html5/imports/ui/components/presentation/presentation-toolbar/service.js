@@ -40,8 +40,8 @@ const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
   }
 };
 
-const zoomSlide = (currentSlideNum, podId, value, xOffset, yOffset) => {
-  makeCall('zoomSlide', currentSlideNum, podId, value, xOffset, yOffset);
+const zoomSlide = (currentSlideNum, podId, widthRation, HeightRatio, xOffset, yOffset) => {
+  makeCall('zoomSlide', currentSlideNum, podId, widthRation, HeightRatio, xOffset, yOffset);
 };
 
 

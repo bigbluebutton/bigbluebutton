@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import SlideViewModel from '/imports/utils/slideViewModel';
 
 const CURSOR_INTERVAL = 16;
-const MYSTERY_NUM = 2;
+const MYSTERY_NUM = 5;
 const HUNDRED_PERCENT = 100;
 
 export default class PresentationOverlay extends Component {
   constructor(props) {
     super(props);
+
+    this.SlideZoomData = new SlideViewModel(props.adjustedSizes.width, props.adjustedSizes.height, props.slideHeight, props.slideWidth);;
 
     // last sent coordinates
     this.lastSentClientX = 0;
@@ -20,7 +23,7 @@ export default class PresentationOverlay extends Component {
     // id of the setInterval()
     this.intervalId = 0;
     this.state = {
-        zoomValue: 100,
+        zoom: 100,
     };
 
     // Mobile Firefox has a bug where e.preventDefault on touchstart doesn't prevent
@@ -89,76 +92,115 @@ export default class PresentationOverlay extends Component {
     return point;
   }
 
+  componentDidMount() {
+    this.SlideZoomData.viewportW = this.props.adjustedSizes.width;
+    this.SlideZoomData.viewportH = this.props.adjustedSizes.height;
+    this.SlideZoomData.pageOrigW = this.props.adjustedSizes.width;
+    this.SlideZoomData.pageOrigH = this.props.adjustedSizes.height;
+    this.SlideZoomData.parentW = document.querySelector('._imports_ui_components_presentation__styles__presentationArea').getBoundingClientRect().width;
+    this.SlideZoomData.parentH = document.querySelector('._imports_ui_components_presentation__styles__presentationArea').getBoundingClientRect().height;
+    console.error(this.SlideZoomData);
+    
+  }
 
   mouseZoomHandler(e) {
     // calc for sliderZoom
     // zoomSlide(zoom, (((slideLoader.content.width/2)*SlideViewModel.HUNDRED_PERCENT)/zoom), (((slideLoader.content.height/2)*SlideViewModel.HUNDRED_PERCENT)/zoom));
+    let zoom = this.state.zoom;
+    console.error(this.SlideZoomData.viewportW);
+    
+    if (e.deltaY < 0) {
+      zoom += 5;
+    }
+    if (e.deltaY > 0) {
+      zoom -= 5;
+    }
+    if (zoom <= HUNDRED_PERCENT) {
+      zoom = HUNDRED_PERCENT;
+    } else if (zoom >= 400) {
+      zoom = 400;
+    }
     const {
       zoomSlide,
       podId,
       currentSlideNum,
       slideWidth,
       slideHeight,
-      adjustedSizes
+      adjustedSizes,
+      updateCursor,
+      whiteboardId,
     } = this.props;
-
+    
     const mouseX = e.clientX;
     const mouseY = e.clientY;
-
-    // console.error('event', x,y);
-    const _pageOrigW = slideWidth;
-    const _pageOrigH = slideHeight;
-    const viewportW = adjustedSizes.width;
-    const viewportH = adjustedSizes.height;
-
-    let _calcPageW = viewportW/(100/HUNDRED_PERCENT);
-    let _calcPageH = viewportH/(100/HUNDRED_PERCENT);
-    let _calcPageX = (0/HUNDRED_PERCENT) * _calcPageW;
-    let _calcPageY =  (0/HUNDRED_PERCENT) * _calcPageH;	
-
     const svgPosition = this.getTransformedSvgPoint(mouseX, mouseY);
     const svgPercentage = this.svgCoordinateToPercentages(svgPosition);
+    console.error(this.state.zoom);
     
-    // console.error('svgPosition', svgPosition.x, svgPosition.y);
-    // console.error('svgPercentage', svgPercentage.x, svgPercentage.y);
-       
-    const relXcoordInPage = (svgPercentage.x) / 100;
-    const relYcoordInPage = (svgPercentage.y) / 100;
+    this.SlideZoomData.onZoom(zoom, svgPosition.x, svgPosition.y);
 
-    const zoomValue = this.state.zoomValue + 5;
-
-    console.error(zoomValue);
-    console.error(mouseX, mouseY);
-
-    _calcPageW = viewportW * zoomValue / HUNDRED_PERCENT;
-    _calcPageH = (_calcPageW / _pageOrigW) * _pageOrigH;
-
-    console.error(_calcPageW, _calcPageH);
-
-    const absXcoordInPage = relXcoordInPage * _calcPageW;
-    const absYcoordInPage = relYcoordInPage * _calcPageH;
-  
-    console.error(mouseX, mouseY);
-    console.error(svgPosition.x, svgPosition.y);
-    console.error(relXcoordInPage, relYcoordInPage);
-    console.error(absXcoordInPage, absYcoordInPage);
-
-    _calcPageX = (absXcoordInPage - mouseX) / MYSTERY_NUM;
-    _calcPageY = (absYcoordInPage - mouseY) / MYSTERY_NUM;
-
-    const offsetX = (_calcPageX * 100) / _calcPageW;
-    const offsetY = (_calcPageX * 100) / _calcPageW;
-    console.error(`(${_calcPageX} * 100) / ${_calcPageW}`, offsetX);
-    console.error(`(${_calcPageY} * 100) / ${_calcPageH}`, offsetY);
-
-    this.setState(
-      { zoomValue },
-      () => zoomSlide(currentSlideNum, podId, 
-        (this.state.zoomValue - 100) - 100,
-        offsetX,
-        offsetY
-      )
+    zoomSlide(
+      currentSlideNum,
+      podId,
+      this.SlideZoomData.viewedRegionW,
+      this.SlideZoomData.viewedRegionH,
+      this.SlideZoomData.viewedRegionX,
+      this.SlideZoomData.viewedRegionY,
     );
+    this.setState({ zoom });
+    updateCursor({
+      xPercent: svgPercentage.x,
+      yPercent: svgPercentage.y,
+      whiteboardId,
+    });
+    // console.error('event', x,y);
+    // const _pageOrigW = slideWidth;
+    // const _pageOrigH = slideHeight;
+    // const viewportW = adjustedSizes.width;
+    // const viewportH = adjustedSizes.height;
+
+    // let _calcPageW = viewportW/(100/HUNDRED_PERCENT);
+    // let _calcPageH = viewportH/(100/HUNDRED_PERCENT);
+    // let _calcPageX = (0/HUNDRED_PERCENT) * _calcPageW;
+    // let _calcPageY =  (0/HUNDRED_PERCENT) * _calcPageH;	
+
+    // const svgPercentage = this.svgCoordinateToPercentages(svgPosition);
+    
+    // // console.error('svgPosition', svgPosition.x, svgPosition.y);
+    // // console.error('svgPercentage', svgPercentage.x, svgPercentage.y);
+       
+    // const relXcoordInPage = (svgPercentage.x) / 100;
+    // const relYcoordInPage = (svgPercentage.y) / 100;
+
+    // const zoomValue = this.state.zoomValue + 5;
+
+    // console.error(zoomValue);
+    // console.error(mouseX, mouseY);
+
+    // _calcPageW = viewportW * zoomValue / HUNDRED_PERCENT;
+    // _calcPageH = (_calcPageW / _pageOrigW) * _pageOrigH;
+
+    // console.error(_calcPageW, _calcPageH);
+
+    // const absXcoordInPage = relXcoordInPage * _calcPageW;
+    // const absYcoordInPage = relYcoordInPage * _calcPageH;
+  
+    // console.error(mouseX, mouseY);
+    // console.error(svgPosition.x, svgPosition.y);
+    // console.error(relXcoordInPage, relYcoordInPage);
+    // console.error(absXcoordInPage, absYcoordInPage);
+
+    // _calcPageX = (absXcoordInPage - mouseX) / MYSTERY_NUM;
+    // _calcPageY = (absYcoordInPage - mouseY) / MYSTERY_NUM;
+
+    // const offsetX = (_calcPageX * 100) / _calcPageW;
+    // const offsetY = (_calcPageX * 100) / _calcPageW;
+    // const ration = HUNDRED_PERCENT - (this.state.zoomValue - HUNDRED_PERCENT);
+    // console.error(`(${_calcPageX} * 100) / ${_calcPageW}`, offsetX);
+    // console.error(`(${_calcPageY} * 100) / ${_calcPageH}`, offsetY);
+   
+    
+   
   }
 
 
