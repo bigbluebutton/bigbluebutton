@@ -63,8 +63,9 @@ module.exports = class CallbackEmitter extends EventEmitter {
   _emitMessage(callback) {
     let data,requestOptions;
     const sharedSecret = process.env.SHARED_SECRET || config.bbb.sharedSecret;
+    const bearer_auth = process.env.BEARER_AUTH || config.bbb.auth2_0;
 
-    if (config.bbb.auth2_0) {
+    if (bearer_auth) {
       // Send data as a JSON
       data = "[" + this.message + "]";
 
