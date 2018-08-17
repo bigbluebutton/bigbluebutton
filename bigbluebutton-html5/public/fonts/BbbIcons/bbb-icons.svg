@@ -5,7 +5,7 @@
 -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
 <metadata>
-Created by FontForge 20170731 at Thu Jul 05 16:25:35 2018
+Created by FontForge 20170731 at Fri Aug 17 08:12:26 2018
  By BigBlueButton Inc.
 Copyright (c) 2016-2017, BigBlueButton Inc.
 </metadata>
@@ -22,7 +22,7 @@ Copyright (c) 2016-2017, BigBlueButton Inc.
     bbox="-3 -208 1191 826"
     underline-thickness="51"
     underline-position="-102"
-    unicode-range="U+0020-E952"
+    unicode-range="U+0020-E954"
   />
 <missing-glyph horiz-adv-x="1048" 
  />
@@ -332,5 +332,7 @@ c0 -3 0 -7 -1 -10l-46 -269l242 126c8 3 18 5 28 5s20 -2 28 -6z" />
     <glyph glyph-name="star_filled" unicode="&#xe952;" 
 d="M243 -167c-33 1 -60 28 -60 61c0 2 1 7 1 10l46 266l-196 192c-10 9 -18 29 -18 42c0 29 24 56 52 60l269 39l121 244c9 19 33 34 54 34s45 -15 54 -34l120 -243l270 -40c28 -4 52 -31 52 -60c0 -13 -8 -33 -18 -42l-196 -192l46 -268c0 -3 1 -7 1 -10
 c0 -17 -11 -39 -25 -49c-9 -6 -24 -11 -35 -11c-8 0 -21 3 -28 7l-241 127l-241 -127c-7 -3 -19 -6 -27 -6h-1z" />
+    <glyph glyph-name="minus" unicode="&#xe954;" 
+d="M934 352c24 0 45 -20 45 -45s-21 -45 -45 -45h-844c-24 0 -45 21 -45 45c0 25 21 45 45 45h844z" />
   </font>
 </defs></svg>
