@@ -274,3 +274,6 @@
 .icon-bbb-star_filled:before {
   content: "\e952";
 } 
+.icon-bbb-minus:before {
+  content: "\e954";
+} 
