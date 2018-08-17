@@ -65,10 +65,14 @@ module.exports = class CallbackEmitter extends EventEmitter {
     const sharedSecret = process.env.SHARED_SECRET || config.bbb.sharedSecret;
     const bearer_auth = process.env.BEARER_AUTH || config.bbb.auth2_0;
 
-    if (bearer_auth) {
-      // Send data as a JSON
-      data = "[" + this.message + "]";
+    // data to be sent
+    // note: keep keys in alphabetical order
+    data = {
+      event: "[" + this.message + "]",
+      timestamp: this.timestamp
+    };
 
+    if (bearer_auth) {
       const callbackURL = this.callbackURL;
 
       requestOptions = {
@@ -83,13 +87,6 @@ module.exports = class CallbackEmitter extends EventEmitter {
       };
     }
     else {
-      // data to be sent
-      // note: keep keys in alphabetical order
-      data = {
-        event: "[" + this.message + "]",
-        timestamp: this.timestamp
-      };
-
       // calculate the checksum
       const checksum = Utils.checksum(`${this.callbackURL}${JSON.stringify(data)}${sharedSecret}`);
 
