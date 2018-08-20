@@ -23,7 +23,6 @@ export default function removeUser(meetingId, userId) {
     $set: {
       connectionStatus: 'offline',
       validated: false,
-      emoji: 'none',
       presenter: false,
       role: 'VIEWER',
     },
