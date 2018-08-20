@@ -315,3 +315,10 @@ object UserDisconnectedFromGlobalAudioMsg { val NAME = "UserDisconnectedFromGlob
 case class UserDisconnectedFromGlobalAudioMsg(header: BbbCoreVoiceConfHeader,
                                               body: UserDisconnectedFromGlobalAudioMsgBody) extends VoiceStandardMsg
 case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String)
+
+/**
+ * Sync voice users with html5 client
+ */
+object SyncGetVoiceUsersRespMsg { val NAME = "SyncGetVoiceUsersRespMsg" }
+case class SyncGetVoiceUsersRespMsg(header: BbbClientMsgHeader, body: SyncGetVoiceUsersRespMsgBody) extends BbbCoreMsg
+case class SyncGetVoiceUsersRespMsgBody(voiceUsers: Vector[VoiceConfUser])
