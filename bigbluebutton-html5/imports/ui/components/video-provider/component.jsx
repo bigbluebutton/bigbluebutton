@@ -8,6 +8,8 @@ import VideoService from './service';
 import VideoList from './video-list/component';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
+const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+
 const intlClientErrors = defineMessages({
   iceCandidateError: {
     id: 'app.video.iceCandidateError',
@@ -350,7 +352,9 @@ class VideoProvider extends Component {
 
     // in this case, 'closed' state is not caused by an error;
     // we stop listening to prevent this from being treated as an error
-    this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = null;
+    if (this.webRtcPeers[id]) {
+      this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = null;
+    }
 
     if (shareWebcam) {
       this.unshareWebcam();
@@ -390,25 +394,10 @@ class VideoProvider extends Component {
     } catch (error) {
       this.logger('error', 'Video provider failed to fetch ice servers, using default');
     } finally {
-      const videoConstraints = {
-        width: {
-          min: 320,
-          max: 640,
-        },
-        height: {
-          min: 180,
-          max: 480,
-        },
-      };
-
-      if (!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
-        videoConstraints.frameRate = { min: 5, ideal: 10 };
-      }
-
       const options = {
         mediaConstraints: {
           audio: false,
-          video: videoConstraints,
+          video: VIDEO_CONSTRAINTS,
         },
         onicecandidate: this._getOnIceCandidateCallback(id, shareWebcam),
       };
@@ -803,7 +792,7 @@ class VideoProvider extends Component {
     const { cameraId } = message;
 
     this.logger('info', 'Handle play stop for camera', { cameraId });
-    this.stopWebRTCPeer(id);
+    this.stopWebRTCPeer(cameraId);
   }
 
   handlePlayStart(message) {

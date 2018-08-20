@@ -79,6 +79,14 @@
       "chromeExtensionLink": "LINK",
       "chromeScreenshareSources": ["window", "screen"],
       "firefoxScreenshareSource": "window",
+      "cameraConstraints": {
+        "width": {
+          "max": 640
+        },
+        "height": {
+          "max": 480
+        }
+      },
       "enableScreensharing": false,
       "enableVideo": false,
       "enableVideoStats": false,
@@ -344,9 +352,9 @@
       }
     },
     "clientLog": [
-      { 
-        "target": "server", 
-        "level": "info" 
+      {
+        "target": "server",
+        "level": "info"
       }
     ]
   },
@@ -378,7 +386,6 @@
         "DoLatencyTracerMsg"
       ]
     },
-
 
     "serverLog": {
       "level": "info"
