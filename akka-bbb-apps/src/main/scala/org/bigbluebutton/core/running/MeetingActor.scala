@@ -441,8 +441,12 @@ class MeetingActor(
     // sync all group chats and group chat messages
     groupChatApp.handleSyncGetGroupChatsInfo(state, liveMeeting, msgBus)
 
+    // sync all voice users
+    handleSyncGetVoiceUsersMsg(state, liveMeeting, msgBus)
+
     // TODO send all lock settings
     // TODO send all screen sharing info
+
   }
 
   def handlePresenterChange(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
