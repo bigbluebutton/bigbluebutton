@@ -15,7 +15,8 @@ if [ -n "$KMS_STUN_IP" -a -n "$KMS_STUN_PORT" ]; then
   echo "stunServerPort=$KMS_STUN_PORT" >> /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini
 fi
 
-cat /etc/kurento/kurento.conf.json | sed '/^[ ]*\/\//d' | jq ".mediaServer.net.websocket.port = $PORT" > /etc/kurento/kurento.conf.json
+KMS_CONFIG=$(cat /etc/kurento/kurento.conf.json | sed '/^[ ]*\/\//d' | jq ".mediaServer.net.websocket.port = $PORT")
+echo $KMS_CONFIG > /etc/kurento/kurento.conf.json
 
 # Remove ipv6 local loop until ipv6 is supported
 cat /etc/hosts | sed '/::1/d' | tee /etc/hosts > /dev/null

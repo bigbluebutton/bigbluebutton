@@ -1,5 +1,7 @@
 FROM ubuntu:16.04
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN apt-get update \
  && apt-get -y dist-upgrade \
  && apt-get install -y software-properties-common curl wget apt-transport-https
