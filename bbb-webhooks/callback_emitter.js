@@ -62,17 +62,19 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
   _emitMessage(callback) {
     let data,requestOptions;
+    const serverDomain = process.env.SERVER_DOMAIN || config.bbb.serverDomain;
     const sharedSecret = process.env.SHARED_SECRET || config.bbb.sharedSecret;
-    const bearer_auth = process.env.BEARER_AUTH || config.bbb.auth2_0;
+    const bearerAuth = process.env.BEARER_AUTH || config.bbb.auth2_0;
 
     // data to be sent
     // note: keep keys in alphabetical order
     data = {
       event: "[" + this.message + "]",
-      timestamp: this.timestamp
+      timestamp: this.timestamp,
+      domain: serverDomain
     };
 
-    if (bearer_auth) {
+    if (bearerAuth) {
       const callbackURL = this.callbackURL;
 
       requestOptions = {

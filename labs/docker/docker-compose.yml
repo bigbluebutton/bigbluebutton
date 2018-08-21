@@ -33,6 +33,7 @@ services:
       REDIS_HOST: redis
       SHARED_SECRET: ${SHARED_SECRET}
       BEARER_AUTH: 1
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
     labels:
       - "traefik.backend=bbb-webhooks"
       - "traefik.frontend.rule=PathPrefix: /bigbluebutton/api/hooks"
