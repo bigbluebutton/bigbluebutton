@@ -73,7 +73,9 @@ export default function addUser(meetingId, user) {
   let userRole = user.role;
 
   // prevents users status being lost on page reload
-  user.emoji = dummyUser.emoji ? dummyUser.emoji : 'none';
+  if (dummyUser.clientType === 'HTML5') {
+    user.emoji = dummyUser.emoji ? dummyUser.emoji : 'none';
+  }
 
   if (
     dummyUser &&
