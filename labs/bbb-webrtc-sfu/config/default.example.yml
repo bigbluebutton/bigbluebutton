@@ -18,6 +18,7 @@ to-akka: "to-akka-apps-redis-channel"
 from-akka: "from-akka-apps-redis-channel"
 common-message-version: "2.x"
 webcam-force-h264: true
+webcam-preferred-h264-profile: "42e01f"
 # Target bitrate (kbps) for webcams. Value 0 leaves it unconstrained.
 webcam-target-bitrate: 300000
 screenshare-force-h264: true
