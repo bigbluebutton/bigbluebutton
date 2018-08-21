@@ -33,7 +33,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
+  @include mq("(max-height:#{upper-bound($small-range)}), #{$small-only}") {
+    max-width: 70vw;
+  }
+  
   > [class^="icon-bbb-"] {
     font-size: 75%;
   }
