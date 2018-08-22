@@ -12,7 +12,7 @@ export default withTracker(() => ({
   isUserModerator: Service.isUserModerator(),
   handleExitVideo: () => VideoService.exitVideo(),
   handleJoinVideo: () => VideoService.joinVideo(),
-  handleShareScreen: () => shareScreen(),
+  handleShareScreen: (onFail) => shareScreen(onFail),
   handleUnshareScreen: () => unshareScreen(),
   isVideoBroadcasting: isVideoBroadcasting(),
   recordSettingsList: Service.recordSettingsList(),

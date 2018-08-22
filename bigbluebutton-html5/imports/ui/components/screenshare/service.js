@@ -32,8 +32,8 @@ const presenterScreenshareHasStarted = () => {
   KurentoBridge.kurentoWatchVideo();
 }
 
-const shareScreen = () => {
-  KurentoBridge.kurentoShareScreen();
+const shareScreen = (onFail) => {
+  KurentoBridge.kurentoShareScreen(onFail);
 }
 
 const unshareScreen = () => {

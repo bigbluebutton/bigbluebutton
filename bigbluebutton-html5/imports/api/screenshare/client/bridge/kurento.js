@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import logger from '/imports/startup/client/logger';
+import { notify } from '/imports/ui/services/notification';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
@@ -13,6 +14,8 @@ const FIREFOX_SCREENSHARE_SOURCE = SFU_CONFIG.firefoxScreenshareSource;
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 
 const CHROME_EXTENSION_KEY = CHROME_CUSTOM_EXTENSION_KEY === 'KEY' ? CHROME_DEFAULT_EXTENSION_KEY : CHROME_CUSTOM_EXTENSION_KEY;
+
+const ICE_CONNECTION_FAILED = "Ice connection failed";
 
 const getUserId = () => Auth.userID;
 
@@ -77,7 +80,7 @@ export default class KurentoScreenshareBridge {
     window.kurentoExitVideo();
   }
 
-  async kurentoShareScreen() {
+  async kurentoShareScreen(onFail) {
     let iceServers = [];
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
@@ -92,13 +95,12 @@ export default class KurentoScreenshareBridge {
         iceServers,
         logger: modLogger,
       };
-
       window.kurentoShareScreen(
         SCREENSHARE_VIDEO_TAG,
         BridgeService.getConferenceBridge(),
         getUserId(),
         getMeetingId(),
-        null,
+        onFail,
         null,
         options
       );

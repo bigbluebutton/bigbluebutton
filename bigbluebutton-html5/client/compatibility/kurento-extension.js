@@ -367,6 +367,14 @@ Kurento.prototype.startScreensharing = function () {
       return kurentoManager.exitScreenShare();
     };
   });
+  this.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
+    if(this.webRtcPeer) {
+      const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+      if(connectionState === 'failed') {
+        this.onFail('Ice connection failed');
+      }
+    }
+  };
 };
 
 Kurento.prototype.onIceCandidate = function (candidate, role) {
@@ -415,6 +423,14 @@ Kurento.prototype.viewer = function () {
 
       this.generateOffer(self.onOfferViewer.bind(self));
     });
+    self.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
+      if(this.webRtcPeer) {
+        const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+        if(connectionState === 'failed') {
+          this.onFail('Ice connection failed');
+        }
+      }
+    };
   }
 };
 
