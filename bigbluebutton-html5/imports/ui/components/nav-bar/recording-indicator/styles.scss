@@ -30,6 +30,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
+  @include mq("(max-height:#{upper-bound($small-range)}), #{$small-only}") {
+    max-width: 20vw;
+  }
 }
 
 .recordIndicator {
