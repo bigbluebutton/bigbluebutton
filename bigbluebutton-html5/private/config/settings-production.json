@@ -343,12 +343,11 @@
         ]
       }
     },
-    "clientLog": [
-      { 
-        "target": "server", 
-        "level": "info" 
-      }
-    ]
+    "clientLog": {
+      "server": { "enabled": true, "level": "info" },
+      "console": { "enabled": false, "level": "debug" },
+      "external": { "enabled": false, "level": "info", "url": "https://LOG_HOST/html5Log", "method": "POST" }
+    }
   },
 
   "private": {
