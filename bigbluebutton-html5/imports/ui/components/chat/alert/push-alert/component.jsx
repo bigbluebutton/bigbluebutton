@@ -5,15 +5,15 @@ import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { Link } from 'react-router';
 import { styles } from '../../styles.scss';
 
-const NOTIFICATION_INTERVAL = 2000; // 2 seconds
-const NOTIFICATION_LIFETIME = 4000; // 4 seconds
+const ALERT_INTERVAL = 2000; // 2 seconds
+const ALERT_LIFETIME = 4000; // 4 seconds
 
 const propTypes = {
   notify: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
 };
 
-class ChatPushNotification extends React.Component {
+class ChatPushAlert extends React.Component {
   static link(message, chatId) {
     return (
       <Link className={styles.link} to={`/users/chat/${chatId}`}>
@@ -24,7 +24,7 @@ class ChatPushNotification extends React.Component {
 
   constructor(props) {
     super(props);
-    this.showNotify = _.debounce(this.showNotify.bind(this), NOTIFICATION_INTERVAL);
+    this.showNotify = _.debounce(this.showNotify.bind(this), ALERT_INTERVAL);
 
     this.componentDidMount = this.showNotify;
     this.componentDidUpdate = this.showNotify;
@@ -40,11 +40,11 @@ class ChatPushNotification extends React.Component {
     } = this.props;
 
     return notify(
-      ChatPushNotification.link(message, chatId),
+      ChatPushAlert.link(message, chatId),
       'info',
       'chat',
-      { onOpen, autoClose: NOTIFICATION_LIFETIME },
-      ChatPushNotification.link(content, chatId),
+      { onOpen, autoClose: ALERT_LIFETIME },
+      ChatPushAlert.link(content, chatId),
       true,
     );
   }
@@ -53,6 +53,6 @@ class ChatPushNotification extends React.Component {
     return null;
   }
 }
-ChatPushNotification.propTypes = propTypes;
+ChatPushAlert.propTypes = propTypes;
 
-export default injectNotify(ChatPushNotification);
+export default injectNotify(ChatPushAlert);

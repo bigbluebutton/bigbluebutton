@@ -19,8 +19,8 @@
       "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
-          "chatAudioNotifications": false,
-          "chatPushNotifications": false,
+          "chatAudioAlerts": false,
+          "chatPushAlerts": false,
           "fontSize": "16px",
           "fallbackLocale": "en"
         },
@@ -79,6 +79,14 @@
       "chromeExtensionLink": "LINK",
       "chromeScreenshareSources": ["window", "screen"],
       "firefoxScreenshareSource": "window",
+      "cameraConstraints": {
+        "width": {
+          "max": 640
+        },
+        "height": {
+          "max": 480
+        }
+      },
       "enableScreensharing": false,
       "enableVideo": false,
       "enableVideoStats": false,

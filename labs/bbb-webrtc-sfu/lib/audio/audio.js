@@ -255,7 +255,7 @@ module.exports = class Audio extends BaseProvider {
       return Promise.resolve();
     }
     catch (err) {
-      reject(this._handleError(LOG_PREFIX, err, "recv", this.userId));
+      throw (this._handleError(LOG_PREFIX, err, "recv", this.userId));
     }
   };
 
