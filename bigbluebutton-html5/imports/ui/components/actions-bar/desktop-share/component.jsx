@@ -44,7 +44,7 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false) ||
     BROWSER_RESULTS.os.includes('Android') : // mobile flag doesn't always work
     false);
 const screenSharingCheck = Meteor.settings.public.kurento.enableScreensharing;
-const ICE_CONNECTION_FAILED = "Ice connection failed";
+const ICE_CONNECTION_FAILED = "ICE connection failed";
 
 const DesktopShare = ({
   intl,

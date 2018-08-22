@@ -371,7 +371,7 @@ Kurento.prototype.startScreensharing = function () {
     if(this.webRtcPeer) {
       const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
       if(connectionState === 'failed') {
-        this.onFail('Ice connection failed');
+        this.onFail('ICE connection failed');
       }
     }
   };
@@ -427,7 +427,7 @@ Kurento.prototype.viewer = function () {
       if(this.webRtcPeer) {
         const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
         if(connectionState === 'failed') {
-          this.onFail('Ice connection failed');
+          this.onFail('ICE connection failed');
         }
       }
     };

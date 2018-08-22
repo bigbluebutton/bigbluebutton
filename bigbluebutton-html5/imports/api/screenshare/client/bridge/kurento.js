@@ -15,7 +15,7 @@ const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 
 const CHROME_EXTENSION_KEY = CHROME_CUSTOM_EXTENSION_KEY === 'KEY' ? CHROME_DEFAULT_EXTENSION_KEY : CHROME_CUSTOM_EXTENSION_KEY;
 
-const ICE_CONNECTION_FAILED = "Ice connection failed";
+const ICE_CONNECTION_FAILED = "ICE connection failed";
 
 const getUserId = () => Auth.userID;
 
