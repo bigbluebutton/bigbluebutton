@@ -3,19 +3,28 @@
 
 $controls-color: $color-gray !default;
 $controls-background: $color-white !default;
+$toolbar-button-border-radius: 5px;
 
 .presentationToolbarWrapper,
+.presentationControls,
 .zoomWrapper {
   order: 2;
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-left: .5rem;
+  margin-right: .5rem;
+  border-radius: $toolbar-button-border-radius;
+}
+
+.presentationControls,
+.zoomWrapper {
+  box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
 }
 
 .presentationToolbarWrapper {
   position: absolute;
   bottom: .8rem;
-  box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
   align-self: center;
   justify-content: center;
   z-index: 1;
@@ -24,6 +33,7 @@ $controls-background: $color-white !default;
     transform: scale(.75);
     transform-origin: bottom;
   }
+
 
   button,
   select,
@@ -34,7 +44,6 @@ $controls-background: $color-white !default;
     border-bottom: 0;
     border-left: 0;
     border-radius: 0;
-    box-shadow: none;
     height: 2.25rem;
     box-shadow: none !important;
     border: 0;
@@ -59,10 +68,12 @@ $controls-background: $color-white !default;
 }
 
 .zoomWrapper {
-  border-radius: 0 5px 5px 0;
+  // border-radius: 0 5px 5px 0;
   justify-content: space-between;
+  // flex-direction: column;
   width: 11.5%;
   min-width: 175px;
+  background-color: $color-white;
 }
 
 .zoomWrapperNoBorder {
@@ -88,9 +99,16 @@ $controls-background: $color-white !default;
 
 .zoomSlider {
   width: 50%;
-  direction: rtl;
 }
 
 .zoomMinMax {
   font-weight: normal;
+}
+.zoomPercentageDisplay {
+  width: 100%;
+  height: calc(100% - 100px);
+  text-align: center;
+  color: black;
+  border-left: $border-size solid $color-gray-lighter !important;
+  border-right: $border-size solid $color-gray-lighter !important;
 }
