@@ -4,13 +4,18 @@ import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { isEqual } from 'lodash';
-import WhiteboardToolbarService from './whiteboard-toolbar/service';
 
 const Annotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 const discardedList = [];
+const discardedListSizeMax = 10;
+
+export function addAnnotationToDiscardedList(annotation) {
+  discardedList.push(annotation);
+  while (discardedList.length > discardedListSizeMax) discardedList.shift();
+}
 
 function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
@@ -71,6 +76,8 @@ function handleRemovedAnnotation({
 }) {
   const query = { meetingId, whiteboardId };
 
+  addAnnotationToDiscardedList(shapeId);
+
   if (userId) {
     query.userId = userId;
   }
@@ -86,18 +93,9 @@ AnnotationsStreamer.on('removed', handleRemovedAnnotation);
 
 AnnotationsStreamer.on('added', ({ annotations }) => {
   // Call handleAddedAnnotation when this annotation is not in discardedList
-  annotations.forEach(annotation => handleAddedAnnotation(annotation));
-
-  // When draw end, call undo, and clear discardedList
   annotations
-    .filter(({ annotation }) => discardedList.includes(annotation.id))
-    .filter(({ annotation }) => annotation.status === DRAW_END)
-    .forEach(({ annotation }) => {
-      WhiteboardToolbarService.undoAnnotation(annotation.wbId);
-
-      const index = discardedList.indexOf(annotation.id);
-      if (index !== -1) discardedList.splice(index, 1);
-    });
+    .filter(({ annotation }) => !discardedList.includes(annotation.id))
+    .forEach(annotation => handleAddedAnnotation(annotation));
 });
 
 function increaseBrightness(realHex, percent) {
@@ -133,6 +131,7 @@ let annotationsSenderIsRunning = false;
 const proccessAnnotationsQueue = () => {
   annotationsSenderIsRunning = true;
   const queueSize = annotationsQueue.length;
+  const isDiscarded = annotationsQueue.filter(({ id }) => discardedList.includes(id)).length;
 
   if (!queueSize) {
     annotationsSenderIsRunning = false;
@@ -140,7 +139,7 @@ const proccessAnnotationsQueue = () => {
   }
 
   // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  AnnotationsStreamer.emit('publish', { credentials: Auth.credentials, payload: annotationsQueue });
+  if (!isDiscarded) AnnotationsStreamer.emit('publish', { credentials: Auth.credentials, payload: annotationsQueue });
   annotationsQueue = [];
   // ask tiago
   const delayPerc =
@@ -180,10 +179,6 @@ export function sendAnnotation(annotation) {
 WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
   changed: clearFakeAnnotations,
 });
-
-export function addAnnotationToDiscardedList(annotation) {
-  discardedList.push(annotation);
-}
 
 Users.find({ userId: Auth.userID }).observeChanges({
   changed(id, { presenter }) {

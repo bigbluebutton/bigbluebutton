@@ -216,8 +216,10 @@ export default class PencilDrawListener extends Component {
   }
 
   discardAnnotation() {
-    const { getCurrentShapeId, addAnnotationToDiscardedList } = this.props.actions;
+    const { getCurrentShapeId, addAnnotationToDiscardedList, undoAnnotation } = this.props.actions;
+    const { whiteboardId } = this.props;
 
+    undoAnnotation(whiteboardId);
     addAnnotationToDiscardedList(getCurrentShapeId());
   }
 

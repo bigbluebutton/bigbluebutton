@@ -151,22 +151,21 @@ export default class ShapeDrawListener extends Component {
     const isLeftClick = event.button === 0;
     const isRightClick = event.button === 2;
 
-    // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
-    // but the browser didn't catch it. So check it here.
-    if (this.isDrawing) {
-      if (isRightClick) {
-        this.sendLastMessage();
-        this.discardAnnotation();
+    if (!this.isDrawing) {
+      if (isLeftClick) {
+        window.addEventListener('mouseup', this.handleMouseUp);
+        window.addEventListener('mousemove', this.handleMouseMove, true);
+
+        const { clientX, clientY } = event;
+        this.commonDrawStartHandler(clientX, clientY);
       }
-      return;
-    }
 
-    if (isLeftClick) {
-      window.addEventListener('mouseup', this.handleMouseUp);
-      window.addEventListener('mousemove', this.handleMouseMove, true);
-
-      const { clientX, clientY } = event;
-      this.commonDrawStartHandler(clientX, clientY);
+    // if you switch to a different window using Alt+Tab while mouse is down and release it
+    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+    } else if (isRightClick) {
+      // this.isDrawing = false;
+      this.sendLastMessage();
+      this.discardAnnotation();
     }
   }
 
@@ -288,8 +287,10 @@ export default class ShapeDrawListener extends Component {
   }
 
   discardAnnotation() {
-    const { getCurrentShapeId, addAnnotationToDiscardedList } = this.props.actions;
+    const { getCurrentShapeId, addAnnotationToDiscardedList, undoAnnotation } = this.props.actions;
+    const { whiteboardId } = this.props;
 
+    undoAnnotation(whiteboardId);
     addAnnotationToDiscardedList(getCurrentShapeId());
   }
 
