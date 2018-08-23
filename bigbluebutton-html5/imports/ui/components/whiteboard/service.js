@@ -10,11 +10,9 @@ const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 const discardedList = [];
-const discardedListSizeMax = 10;
 
 export function addAnnotationToDiscardedList(annotation) {
   if (!discardedList.includes(annotation)) discardedList.push(annotation);
-  if (discardedList.length > discardedListSizeMax) discardedList.shift();
 }
 
 function clearFakeAnnotations() {
@@ -131,7 +129,6 @@ let annotationsSenderIsRunning = false;
 const proccessAnnotationsQueue = () => {
   annotationsSenderIsRunning = true;
   const queueSize = annotationsQueue.length;
-  const isDiscarded = annotationsQueue.filter(({ id }) => discardedList.includes(id)).length;
 
   if (!queueSize) {
     annotationsSenderIsRunning = false;
@@ -139,7 +136,10 @@ const proccessAnnotationsQueue = () => {
   }
 
   // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  if (!isDiscarded) AnnotationsStreamer.emit('publish', { credentials: Auth.credentials, payload: annotationsQueue });
+  AnnotationsStreamer.emit('publish', {
+    credentials: Auth.credentials,
+    payload: annotationsQueue.filter(({ id }) => !discardedList.includes(id)),
+  });
   annotationsQueue = [];
   // ask tiago
   const delayPerc =
