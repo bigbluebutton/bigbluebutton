@@ -37,7 +37,7 @@ recordingFormat: 'mkv'
 redisExpireTime: 1209600 # 14 days as per the akka keys
 
 freeswitch:
-    ip: ''
+    ip: 'FREESWITCH_IP'
     port: '5066'
 
 log:
