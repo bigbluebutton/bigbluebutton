@@ -13,8 +13,8 @@ const discardedList = [];
 const discardedListSizeMax = 10;
 
 export function addAnnotationToDiscardedList(annotation) {
-  discardedList.push(annotation);
-  while (discardedList.length > discardedListSizeMax) discardedList.shift();
+  if (!discardedList.includes(annotation)) discardedList.push(annotation);
+  if (discardedList.length > discardedListSizeMax) discardedList.shift();
 }
 
 function clearFakeAnnotations() {
