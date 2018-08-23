@@ -15,7 +15,7 @@ const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 
 const CHROME_EXTENSION_KEY = CHROME_CUSTOM_EXTENSION_KEY === 'KEY' ? CHROME_DEFAULT_EXTENSION_KEY : CHROME_CUSTOM_EXTENSION_KEY;
 
-const ICE_CONNECTION_FAILED = "ICE connection failed";
+const ICE_CONNECTION_FAILED = 'ICE connection failed';
 
 const getUserId = () => Auth.userID;
 
@@ -31,17 +31,17 @@ const logFunc = (type, message, options) => {
 
   const topic = options.topic || 'screenshare';
 
-  logger[type]({obj: Object.assign(options, {userId, userName, topic})}, `[${topic}] ${message}`);
+  logger[type]({ obj: Object.assign(options, { userId, userName, topic }) }, `[${topic}] ${message}`);
 };
 
 const modLogger = {
-  info: function (message, options = {}) {
+  info(message, options = {}) {
     logFunc('info', message, options);
   },
-  error: function (message, options = {}) {
+  error(message, options = {}) {
     logFunc('error', message, options);
   },
-  debug: function (message, options = {}) {
+  debug(message, options = {}) {
     logFunc('debug', message, options);
   },
   warn: (message, options = {}) => {
@@ -61,7 +61,7 @@ export default class KurentoScreenshareBridge {
       const options = {
         wsUrl: SFU_URL,
         iceServers,
-        logger: modLogger
+        logger: modLogger,
       };
 
       window.kurentoWatchVideo(
@@ -71,9 +71,9 @@ export default class KurentoScreenshareBridge {
         getMeetingId(),
         null,
         null,
-        options
+        options,
       );
-    };
+    }
   }
 
   kurentoExitVideo() {
@@ -102,7 +102,7 @@ export default class KurentoScreenshareBridge {
         getMeetingId(),
         onFail,
         null,
-        options
+        options,
       );
     }
   }
