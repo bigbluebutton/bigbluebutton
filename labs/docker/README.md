@@ -1,3 +1,68 @@
+IMPORTANT: this is a work in progress!
+
+# Purpose
+
+The purpose of this repo is to get BigBlueButton working in a multi-container Docker configuration over a single port, then to deploy and scale it using Kubernetes
+
+# Launching BBB via Docker
+
+## Prerequisites
+
+Ensure you have the latest version of Docker-CE by following the install steps
+
+Ubuntu: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+Fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
+
+Make sure to also do the post install steps
+
+https://docs.docker.com/install/linux/linux-postinstall/
+
+Install docker-compose
+
+Ubuntu: 
+```
+$ sudo dnf install docker-compose
+```
+
+Fedora:
+```
+$ sudo apt-get install docker-compose
+```
+
+## Build all docker images
+
+You should now be able to build all docker images with one command
+```
+$ cd labs/docker/
+$ make release
+```
+
+Verify that you have all the necessary images
+```
+$ docker images
+```
+
+You should see:
+* sbt
+* bbb-common-message
+* bbb-common-web
+* bbb-fsesl-client
+* bbb-akka-apps
+* bbb-fsesl-akka
+* bbb-web
+* bbb-html5
+* bbb-webrtc-sfu
+* bbb-webhooks
+* bbb-kurento
+* bbb-freeswitch
+* bbb-nginx
+* bbb-coturn
+* bbb-lti
+
+
+In the event that any of the above images are missing, you'll need to build them individually
+
 ## Build images individually
 
 sbt is needed to build the Scala components
@@ -23,7 +88,7 @@ Build akka components
 $ cd akka-bbb-apps/
 $ docker build -t bbb-apps-akka --build-arg COMMON_VERSION=0.0.1-SNAPSHOT .
 
-# it's not needed, since we're setting up HTML5 only
+# Not needed since we're setting up HTML5 only
 $ cd akka-bbb-transcode/
 $ docker build -t bbb-transcode --build-arg COMMON_VERSION=0.0.1-SNAPSHOT .
 
@@ -58,7 +123,7 @@ $ docker build -t bbb-webhooks .
 Build Kurento Media Server
 ```
 $ cd labs/docker/kurento/
-$ docker build -t kurento .
+$ docker build -t bbb-kurento .
 ```
 
 Build FreeSWITCH
@@ -70,7 +135,7 @@ $ docker build -t bbb-freeswitch .
 Build nginx
 ```
 $ cd labs/docker/nginx/
-$ docker build -t nginx .
+$ docker build -t bbb-nginx .
 ```
 
 Build nginx-dhp (used to generate the Diffie-Hellman file)
@@ -82,65 +147,31 @@ $ docker build -t nginx-dhp .
 Build coturn
 ```
 $ cd labs/docker/coturn
-$ docker build -t coturn .
+$ docker build -t bbb-coturn .
 ```
 
 (Optional) Build bbb-lti
-
 ```
 $ cd bbb-lti/
 $ docker build -t bbb-lti .
 ```
 
-## Build all
+## Setup
 
-Build everything with a single command
+Export your configuration as environment variables, make sure to replace the SERVER_DOMAIN value with your hostname
 ```
-$ cd labs/docker/
-$ make release
-```
-
-## Run
-
-### Setup
-
-Export your configuration as environment variables
-```
-$ export SERVER_DOMAIN=felipe.dev.mconf.com
-$ export EXTERNAL_IP=`dig +short $SERVER_DOMAIN`
+$ export SERVER_DOMAIN=docker.bigbluebutton.org
+$ export EXTERNAL_IP=$(dig +short $SERVER_DOMAIN | grep '^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$' | head -n 1)
 $ export SHARED_SECRET=`openssl rand -hex 16`
 $ export COTURN_REST_SECRET=`openssl rand -hex 16`
-$ export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/mconf-screenshare/mbfngdphjegmlbfobcblikeefpidfncb
-$ export SCREENSHARE_EXTENSION_KEY=mbfngdphjegmlbfobcblikeefpidfncb
-$ export TAG_PREFIX=fcecagno/bigbluebutton:
+$ export SECRET_KEY_BASE=`openssl rand -hex 64`
+$ export SCREENSHARE_EXTENSION_KEY=akgoaoikmbmhcopjgakkcepdgdgkjfbc
+$ export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
+$ export TAG_PREFIX=
 $ export TAG_SUFFIX=
 ```
 
-Create a volume for the SSL certs
-
-```
-$ docker volume create docker_ssl-conf
-```
-
-Generate SSL certs
-
-```
-$ docker run --rm -p 80:80 -v docker_ssl-conf:/etc/letsencrypt -it certbot/certbot certonly --non-interactive --register-unsafely-without-email --agree-tos --expand --domain $SERVER_DOMAIN --standalone
-
-# certificate path: docker_ssl-conf/live/$SERVER_DOMAIN/fullchain.pem
-# key path: docker_ssl-conf/live/$SERVER_DOMAIN/privkey.pem
-```
-
-Generate Diffie-Hellman file
-
-```
-$ docker run --rm -v docker_ssl-conf:/data -it nginx-dhp
-
-# dh-param path: docker_ssl-conf/dhp-2048.pem
-```
-
-Create a volume for the static files
-
+Create a volume for the static files (optional)
 ```
 $ docker volume create docker_static
 $ cd bigbluebutton-config/web/
@@ -150,7 +181,7 @@ $ docker exec -it nginx chown -R www-data:www-data /var/www/bigbluebutton-defaul
 $ docker stop nginx
 ```
 
-### Launch with docker-compose
+## Run
 
 Launch everything with docker compose
 ```
@@ -158,33 +189,72 @@ $ cd labs/docker/
 $ docker-compose up
 ```
 
-### Launch without docker-compose
+You should be able to start using greenlight to access your server and create meetings
 
-These are the instructions to run the containers individually, in order
+https://<your_hostname>/b
+
+To exit
 ```
-$ docker run --rm --name mongo -d mongo:3.4
-
-$ docker run --rm --name redis -d redis
-
-$ docker run --rm --name bbb-html5 --link mongo --link redis -e MONGO_URL=mongodb://mongo/bbbhtml5 -e METEOR_SETTINGS_MODIFIER=".public.kurento.wsUrl = \"wss://${SERVER_DOMAIN}/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.chromeDefaultExtensionKey = \"${SCREENSHARE_EXTENSION_KEY}\" | .public.kurento.chromeDefaultExtensionLink = \"${SCREENSHARE_EXTENSION_LINK}\"" -e REDIS_HOST=redis -e ROOT_URL=http://127.0.0.1/html5client -d bbb-html5
-
-$ docker run --rm --name bbb-apps-akka --link redis -e REDIS_HOST=redis -d bbb-apps-akka
-
-$ docker run --rm --name bbb-fsesl-akka --link redis --link bbb-freeswitch -e REDIS_HOST=redis -e ESL_HOST=bbb-freeswitch -d bbb-fsesl-akka
-
-$ docker run --rm --name bbb-web --link redis -e REDIS_HOST=redis -e SERVER_DOMAIN=${SERVER_DOMAIN} -e SHARED_SECRET=${SHARED_SECRET} -e TURN_SECRET=${COTURN_REST_SECRET} -v bigbluebutton:/var/bigbluebutton -d bbb-web
-
-$ docker run --rm --name bbb-webrtc-sfu --link redis --link kurento -e KURENTO_IP=${EXTERNAL_IP} -e KURENTO_URL=ws://kurento:8888/kurento -e REDIS_HOST=redis -d bbb-webrtc-sfu
-
-$ docker run --rm --name coturn -v docker_ssl-conf:/etc/nginx/ssl -e SERVER_DOMAIN=${SERVER_DOMAIN} -e SSL_CERT_PATH=/etc/nginx/ssl/live/${SERVER_DOMAIN}/fullchain.pem -e SSL_KEY_PATH=/etc/nginx/ssl/live/${SERVER_DOMAIN}/privkey.pem -e SSL_DHPARAM_PATH=/etc/nginx/ssl/dhp-2048.pem -e SECRET=${COTURN_REST_SECRET} -e EXTERNAL_IP=${EXTERNAL_IP} -e ENABLE_REST_API=1 -e PORT=3478 -e PORT_TLS=5349 -p 3478:3478/udp -p 3478:3478/tcp -p 5349:5349/tcp -d coturn
-
-$ docker run --rm --name bbb-freeswitch --link coturn -d bbb-freeswitch
-
-$ docker run --rm --name bbb-fsesl-akka --link redis --link bbb-freeswitch -e REDIS_HOST=redis -e ESL_HOST=freeswitch -d bbb-fsesl-akka
-
-$ docker run --rm --name nginx --link bbb-freeswitch --link bbb-web --link bbb-html5 --link bbb-webrtc-sfu --link bbb-webhooks -p 80:80 -p 443:443 -v docker_static:/var/www/bigbluebutton-default -v docker_ssl-conf:/etc/nginx/ssl -e SERVER_DOMAIN=${SERVER_DOMAIN} -e SSL_CERT_PATH=/etc/nginx/ssl/live/${SERVER_DOMAIN}/fullchain.pem -e SSL_KEY_PATH=/etc/nginx/ssl/live/${SERVER_DOMAIN}/privkey.pem -e SSL_DHPARAM_PATH=/etc/nginx/ssl/dhp-2048.pem -d nginx
-
-$ docker run --rm --name kurento -e KMS_STUN_IP=${EXTERNAL_IP} -e KMS_STUN_PORT=3478 -d kurento
-
-$ docker run --rm --name bbb-webhooks --link redis -e REDIS_HOST=redis -e SHARED_SECRET=${SHARED_SECRET} -d bbb-webhooks
+CTRL+C
 ```
+
+
+# Setting up a Kubernetes Cluster
+
+## Prerequisites
+
+Install kubeadm, kubelet, and kubectl
+
+https://kubernetes.io/docs/setup/independent/install-kubeadm/
+
+To disable swap, comment out the "swap" line in the following file, then do a reboot:
+```
+$ sudo vi /etc/fstab
+$ sudo systemctl reboot
+```
+
+Verify swap is disabled
+```
+$ sudo free -h
+```
+
+Install Minikube
+
+https://kubernetes.io/docs/tasks/tools/install-minikube/
+
+Install VirtualBox Manager
+
+Ubuntu:
+```
+$ sudo dnf install virtualbox
+```
+
+Fedora:
+```
+$ sudo apt-get install virtualbox
+```
+
+## Setup
+
+Ensure you have the following kernel modules loaded to avoid preflight errors and warnings when setting up your cluster:
+* ip_vs
+* ip_vs_rr
+* ip_vs_wrr
+* ip_vs_sh
+
+You can check if you already have these loaded with
+```
+$ lsmod | grep ip_vs
+```
+
+If the kernel modules aren't loaded, go ahead and add them
+```
+$ sudo modprobe ip_vs
+$ sudo modprobe ip_vs_rr
+$ sudo modprobe ip_vs_wrr
+$ sudo modprobe ip_vs_sh
+```
+
+Create a single master cluster with kubeadm
+
+https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/

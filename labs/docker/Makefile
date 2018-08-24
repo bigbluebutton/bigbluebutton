@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 
-# in order to build images for fcecagno/bigbluebutton, run:
-# IMAGE_ACCOUNT=fcecagno IMAGE_REPO=bigbluebutton make release
+# in order to build images for bigbluebutton/bigbluebutton-docker, run:
+# IMAGE_ACCOUNT=bigbluebutton IMAGE_REPO=bigbluebutton-docker make release
 
 # build options
 BUILD_REVISION=`git rev-parse --short HEAD`
