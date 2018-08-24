@@ -79,6 +79,8 @@ FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 
+HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
+
 if [ -f /etc/redhat-release ]; then
   DISTRIB_ID=centos
   SERVLET_LOGS=/usr/share/tomcat/logs
@@ -944,15 +946,19 @@ check_configuration() {
 			echo "#    $FREESWITCH_EXTERNAL"
 			echo 
 		fi
-                if grep ws-binding $FREESWITCH_EXTERNAL > /dev/null; then
-                        echo "# Warning: You have configured SSL, but FreeSWITCH is still listening"
-                        echo "# on port 5066.  You should edit "
-                        echo "#"
-                        echo "#    $FREESWITCH_EXTERNAL"
-                        echo "#"
-                        echo "# and remove the line that contains ws-binding."
-                        echo
-                fi
+
+        if grep \"enableListenOnly\".*true $HTML5_CONFIG > /dev/null; then
+            if ! grep -q ws-binding $FREESWITCH_EXTERNAL ;  then
+                echo "# Warning: You have enabled listen-only audio via Kurento"
+                echo "# but FreeSWITCH is not listening on port 5066.  You should edit "
+                echo "#"
+                echo "#    $FREESWITCH_EXTERNAL"
+                echo "#"
+                echo "# and add a line that enables ws-binding on port 5066."
+                echo
+            fi
+        fi
+
 	fi
 
 	if [ $DISTRIB_ID != "centos" ]; then
@@ -1893,10 +1899,9 @@ if [ -n "$HOST" ]; then
         #
         # Update HTML5 client
         #
-	if [ -f /usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json ]; then 
+	if [ -f $HTML5_CONFIG ]; then
         	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
-        	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" \
-                	/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
+        	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG
 
 		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
 		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
