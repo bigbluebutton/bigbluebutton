@@ -55,4 +55,6 @@ trait SystemConfiguration {
 
   lazy val maxNumberOfNotes = Try(config.getInt("sharedNotes.maxNumberOfNotes")).getOrElse(3)
   lazy val maxNumberOfUndos = Try(config.getInt("sharedNotes.maxNumberOfUndos")).getOrElse(30)
+
+  lazy val multiUserWhiteboardDefault = Try(config.getBoolean("whiteboard.multiUserDefault")).getOrElse(false)
 }

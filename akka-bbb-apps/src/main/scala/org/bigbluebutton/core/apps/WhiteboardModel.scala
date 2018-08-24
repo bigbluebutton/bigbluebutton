@@ -7,11 +7,12 @@ import scala.collection.immutable.HashMap
 import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
+import org.bigbluebutton.SystemConfiguration
 
-class WhiteboardModel {
+class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
-  private var _multiUser = false
+  private var _multiUser = multiUserWhiteboardDefault
 
   private def saveWhiteboard(wb: Whiteboard) {
     _whiteboards += wb.id -> wb
