@@ -147,31 +147,36 @@ module.exports = class MessageMapping {
   }
 
   rapTemplate(messageObj) {
-    data = messageObj.payload
+    const data = messageObj.payload;
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj.header.name),
       "attributes": {
         "meeting": {
           "internal-meeting-id": data.meeting_id,
-          "external-meeting-id": IDMapping.getExternalMeetingID(data.meeting_id)
+          "external-meeting-id": data.external_meeting_id
         },
-        "recording": {
-          "name": data.metadata.meetingName,
-          "isBreakout": data.metadata.isBreakout,
-          "startTime": data.startTime,
-          "endTime": data.endTime,
-          "size": data.playback.size,
-          "rawSize": data.rawSize,
-          "metadata": data.metadata,
-          "playback": data.playback,
-          "download": data.download
-        }
+        "success": data.success,
+        "step-time": data.step_time
       },
       "event": {
         "ts": messageObj.header.current_time
       }
     };
+
+    if (this.mappedObject.data["id"] == "rap-publish-ended") {
+      this.mappedObject.data["attributes"]["recording"] = {
+        "name": data.metadata.meetingName,
+        "isBreakout": data.metadata.isBreakout,
+        "startTime": data.startTime,
+        "endTime": data.endTime,
+        "size": data.playback.size,
+        "rawSize": data.rawSize,
+        "metadata": data.metadata,
+        "playback": data.playback,
+        "download": data.download
+      }
+    }
     this.mappedMessage = JSON.stringify(this.mappedObject);
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
   }
