@@ -82,6 +82,7 @@ class Page
     await this.page.waitFor(e.listenButton);
     await this.page.waitFor(e.closeAudio);
     await this.page.click(e.closeAudio);
+    await this.elementRemoved(e.audioDialog);
     console.log("Joined meeting without audio");
   }
 
