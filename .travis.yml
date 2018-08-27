@@ -2,21 +2,22 @@ language: node_js
 
 install:
   # - git clone git@github.com:browniecab/bigbluebutton-tests.git tests
-  - cd bigbluebutton-html5/tests/puppeteer
-  - npm install
-
-script:
+  - cd bigbluebutton-html5
   - docker build -t b2 .
   - docker=$(docker run -d -p 80:80/tcp -p 443:443/tcp -p 1935:1935 -p 5066:5066 -p 3478:3478 -p 3478:3478/udp b2 -h localhost)
   - echo $docker
+  - cd tests/puppeteer
+  - npm install
+
+script:
   - node test-html5-check.js
-  
   - node test-chat.js
   - node test-draw.js
   - node test-status.js
   - node test-switch-slides.js
   - node test-upload.js
-  
+
+after_script:
   - docker stop $docker
 #   - node tests/puppeteer/test-hotkeys.js
 #   - node tests/puppeteer/test-hotkeys-mic-first.js
