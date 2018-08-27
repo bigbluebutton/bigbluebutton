@@ -1,5 +1,5 @@
-exports.audioDialog = '[aria-label="Modal"]';
-exports.closeAudio = '[aria-label="Close"]';
+exports.audioDialog = '.ReactModal__Content[aria-label="Modal"]';
+exports.closeAudio = 'button[aria-label="Close"]';
 exports.microphoneButton = 'button[aria-label="Microphone"]'
 exports.listenButton = 'button[aria-label="Listen Only"]';
 exports.echoYes = 'button[aria-label="Echo is audible"]';
