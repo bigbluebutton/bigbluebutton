@@ -6,7 +6,6 @@ install:
   - npm install
 
 script:
-  - cd bigbluebutton-html5/tests/puppeteer
   - node test-chat.js
   - node test-draw.js
   - node test-status.js
