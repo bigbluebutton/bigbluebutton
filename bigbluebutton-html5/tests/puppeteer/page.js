@@ -79,12 +79,9 @@ class Page
   // Joins a BigBlueButton meeting without audio
   async joinWithoutAudio()
   {
-    console.log("Waiting for buttons");
     await this.page.waitFor(e.listenButton);
     await this.page.waitFor(e.closeAudio);
     await this.page.click(e.closeAudio);
-    console.log("Waiting for dialog to close");
-    await this.elementRemoved(e.audioDialog);
     console.log("Joined meeting without audio");
   }
 
