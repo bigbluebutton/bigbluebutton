@@ -6,10 +6,17 @@ install:
   - npm install
 
 script:
+  - docker build -t b2 .
+  - docker=$(docker run -d -p 80:80/tcp -p 443:443/tcp -p 1935:1935 -p 5066:5066 -p 3478:3478 -p 3478:3478/udp b2 -h localhost)
+  - echo $docker
+  - node test-html5-check.js
+  
   - node test-chat.js
   - node test-draw.js
   - node test-status.js
   - node test-switch-slides.js
   - node test-upload.js
+  
+  - docker stop $docker
 #   - node tests/puppeteer/test-hotkeys.js
 #   - node tests/puppeteer/test-hotkeys-mic-first.js
