@@ -2,11 +2,11 @@ language: node_js
 
 install:
   # - git clone git@github.com:browniecab/bigbluebutton-tests.git tests
-  - cd tests/puppeteer
+  - cd bigbluebutton-html5/tests/puppeteer
   - npm install
 
 script:
-  - cd tests/puppeteer
+  - cd bigbluebutton-html5/tests/puppeteer
   - node test-chat.js
   - node test-draw.js
   - node test-status.js
