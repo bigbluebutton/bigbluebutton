@@ -1,0 +1,11 @@
+<configuration name="event_socket.conf" description="Socket Client">
+  <settings>
+    <param name="nat-map" value="false"/>
+    <param name="listen-ip" value="127.0.0.1"/> 
+    <param name="listen-port" value="8021"/>
+    <param name="password" value="ClueCon"/>
+    <!--<param name="apply-inbound-acl" value="loopback.auto"/>-->
+    <!--<param name="stop-on-bind-error" value="true"/>-->
+  </settings>
+</configuration>
+

@@ -1,0 +1,16 @@
+language: node_js
+
+install:
+  # - git clone git@github.com:browniecab/bigbluebutton-tests.git tests
+  - cd tests/puppeteer
+  - npm install
+
+script:
+  - cd tests/puppeteer
+  - node test-chat.js
+  - node test-draw.js
+  - node test-status.js
+  - node test-switch-slides.js
+  - node test-upload.js
+#   - node tests/puppeteer/test-hotkeys.js
+#   - node tests/puppeteer/test-hotkeys-mic-first.js
