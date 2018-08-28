@@ -455,6 +455,7 @@ Kurento.prototype.listenOnly = function () {
   var self = this;
   if (!this.webRtcPeer) {
     var options = {
+      audioStream: this.inputStream,
       remoteVideo: document.getElementById(this.renderTag),
       onicecandidate : this.onListenOnlyIceCandidate.bind(this),
       mediaConstraints: {
