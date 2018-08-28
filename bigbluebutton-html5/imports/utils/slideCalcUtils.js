@@ -39,11 +39,11 @@ export default class SlideCalcUtil {
   }
 
   static calcViewedRegionX(cpx, cpw) {
-    return (cpx * HUNDRED_PERCENT) / cpw;
+    return (cpx * HUNDRED_PERCENT) / cpw || 0;
   }
 
   static calcViewedRegionY(cpy, cph) {
-    return (cpy * HUNDRED_PERCENT) / cph;
+    return (cpy * HUNDRED_PERCENT) / cph || 0;
   }
 
   static calculateViewportX(vpw, pw) {
