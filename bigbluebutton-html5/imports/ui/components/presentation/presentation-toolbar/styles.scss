@@ -106,9 +106,12 @@ $toolbar-button-border-radius: 5px;
 }
 .zoomPercentageDisplay {
   width: 100%;
-  height: calc(100% - 100px);
+  height: 2.25rem;
   text-align: center;
   color: black;
   border-left: $border-size solid $color-gray-lighter !important;
   border-right: $border-size solid $color-gray-lighter !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
