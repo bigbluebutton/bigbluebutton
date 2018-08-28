@@ -112,8 +112,8 @@ export default class PresentationOverlay extends Component {
     const svgCenterX = svgRect.left + (svgRect.width / 2);
     const svgCenterY = svgRect.top + (svgRect.height / 2);
 
-    const isDiferent = zoom !== this.state.zoom;
-    if (isDiferent) {
+    const isDifferent = zoom !== this.state.zoom;
+    if (isDifferent) {
       this.doZoomCall(zoom, svgCenterX, svgCenterY);
     }
   }
