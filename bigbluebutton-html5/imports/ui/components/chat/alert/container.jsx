@@ -13,8 +13,8 @@ export default withTracker(() => {
   const openChats = UserListService.getOpenChats();
 
   return {
-    disableAudio: !AppSettings.chatAudioNotifications,
-    disableNotify: !AppSettings.chatPushNotifications,
+    disableAudio: !AppSettings.chatAudioAlerts,
+    disableNotify: !AppSettings.chatPushAlerts,
     openChats,
     publicUserId: Meteor.settings.public.chat.public_userid,
   };

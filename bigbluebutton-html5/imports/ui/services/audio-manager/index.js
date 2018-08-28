@@ -158,8 +158,7 @@ class AudioManager {
       .catch((err) => {
         // If theres a iceGathering timeout we retry to join after asking device permissions
         if (err === iceGatheringErr) {
-          return this.askDevicesPermissions()
-            .then(() => this.joinListenOnly());
+          this.joinListenOnly();
         }
 
         throw err;
@@ -369,8 +368,8 @@ class AudioManager {
     // Hack within the hack: haven't got time to get the right timing to play
     // the audio on stock listen only, but I'll get back to it - prlanzarin
     this.fakeAudioInterval = setInterval(() => {
-      sound.play();
-    }, 1000);
+      sound.play().catch(e => { return; });
+    }, 800);
   }
 }
 

@@ -60,13 +60,19 @@ module.exports = class SdpSession extends MediaSession {
           return reject(this._handleError(C.ERROR.MEDIA_NO_AVAILABLE_CODEC));
         }
 
+        const { targetBitrate } = this._options;
+
+        if (answer && targetBitrate && targetBitrate !== '0') {
+          this._answer.addBandwidth('video', targetBitrate);
+        }
+
         if (this._type !== 'WebRtcEndpoint') {
           this._offer.replaceServerIpv4(kurentoIp);
-          return resolve(answer);
+          return resolve(this._answer? this._answer._plainSdp : null);
         }
 
         await this._MediaServer.gatherCandidates(this._mediaElement);
-        resolve(answer);
+        resolve(this._answer._plainSdp);
       }
       catch (err) {
         return reject(this._handleError(err));

@@ -34,7 +34,7 @@ class IntlStartup extends Component {
   componentWillUpdate(nextProps) {
     if (!this.state.fetching
       && this.state.normalizedLocale
-      && nextProps.locale !== this.state.normalizedLocale) {
+      && nextProps.locale.toLowerCase() !== this.state.normalizedLocale.toLowerCase()) {
       this.fetchLocalizedMessages(nextProps.locale);
     }
   }

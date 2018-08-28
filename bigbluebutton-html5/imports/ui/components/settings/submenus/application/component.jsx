@@ -117,14 +117,6 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
-  // Adjust the locale format to be able to display the locale names properly in the client
-  formatLocale(locale) {
-    return locale
-      .split('-')
-      .map((val, idx) => (idx == 1 ? val.toUpperCase() : val))
-      .join('_');
-  }
-
   render() {
     const { availableLocales, intl } = this.props;
     const { isLargestFontSize, isSmallestFontSize } = this.state;
@@ -149,8 +141,8 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatAudioNotifications}
-                  onChange={() => this.handleToggle('chatAudioNotifications')}
+                  defaultChecked={this.state.settings.chatAudioAlerts}
+                  onChange={() => this.handleToggle('chatAudioAlerts')}
                   ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
                 />
               </div>
@@ -169,8 +161,8 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatPushNotifications}
-                  onChange={() => this.handleToggle('chatPushNotifications')}
+                  defaultChecked={this.state.settings.chatPushAlerts}
+                  onChange={() => this.handleToggle('chatPushAlerts')}
                   ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
                 />
               </div>

@@ -13,8 +13,9 @@ const isVideoBroadcasting = () => {
     return false;
   }
 
+  const hasStream = ds.screenshare.stream ? true : false;
   // TODO commented out isPresenter to enable screen viewing to the presenter
-  return ds.screenshare.stream; // && !PresentationService.isPresenter();
+  return hasStream; // && !PresentationService.isPresenter();
 }
 
 // if remote screenshare has been ended disconnect and hide the video stream

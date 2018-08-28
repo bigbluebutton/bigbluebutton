@@ -474,7 +474,8 @@ Kurento.prototype.setAudio = function (tag) {
 Kurento.prototype.listenOnly = function () {
   const self = this;
   if (!this.webRtcPeer) {
-    const options = {
+    var options = {
+      audioStream: this.inputStream,
       remoteVideo: document.getElementById(this.renderTag),
       onicecandidate: this.onListenOnlyIceCandidate.bind(this),
       mediaConstraints: {

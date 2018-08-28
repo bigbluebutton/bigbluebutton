@@ -16,7 +16,7 @@ import { nameFromLevel } from '@browser-bunyan/levels';
 // externalURL is the end-point that logs will be sent to
 // Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 
-const LOG_CONFIG = Meteor.settings.public.clientLog || [{ target: 'console', level: 'info' }];
+const LOG_CONFIG = Meteor.settings.public.clientLog || { console: { enabled: true, level: 'info' } };
 const { fullInfo } = Auth;
 
 // Custom stream that logs to an end-point
@@ -66,10 +66,15 @@ function createStreamForTarget(target, options) {
 }
 
 function generateLoggerStreams(config) {
-  return config.map(({ target, level, ...streamOptions }) => ({
-    level,
-    stream: createStreamForTarget(target, streamOptions),
-  }));
+  let result = [];
+  Object.keys(config).forEach((key) => {
+    const logOption = config[key];
+    if (logOption && logOption.enabled) {
+      const { level, ...streamOptions } = logOption;
+      result = result.concat({ level, stream: createStreamForTarget(key, streamOptions) });
+    }
+  });
+  return result;
 }
 
 // Creates the logger with the array of streams of the chosen targets

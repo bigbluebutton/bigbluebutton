@@ -19,8 +19,8 @@
       "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
-          "chatAudioNotifications": false,
-          "chatPushNotifications": false,
+          "chatAudioAlerts": false,
+          "chatPushAlerts": false,
           "fontSize": "16px",
           "fallbackLocale": "en"
         },
@@ -79,6 +79,14 @@
       "chromeExtensionLink": "LINK",
       "chromeScreenshareSources": ["window", "screen"],
       "firefoxScreenshareSource": "window",
+      "cameraConstraints": {
+        "width": {
+          "max": 640
+        },
+        "height": {
+          "max": 480
+        }
+      },
       "enableScreensharing": false,
       "enableVideo": false,
       "enableVideoStats": false,
@@ -343,12 +351,11 @@
         ]
       }
     },
-    "clientLog": [
-      { 
-        "target": "server", 
-        "level": "info" 
-      }
-    ]
+    "clientLog": {
+      "server": { "enabled": true, "level": "info" },
+      "console": { "enabled": false, "level": "debug" },
+      "external": { "enabled": false, "level": "info", "url": "https://LOG_HOST/html5Log", "method": "POST" }
+    }
   },
 
   "private": {
