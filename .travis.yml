@@ -10,7 +10,6 @@ install:
   - npm install
   - conf=$(docker exec $(docker ps -q) bbb-conf --secret | grep "Secret:")
   - secret=$(echo $conf | cut -d' ' -f2)
-  - echo $conf
   - export BBB_SHARED_SECRET=$secret
   
 env:
@@ -18,16 +17,14 @@ env:
     - BBB_SERVER_URL=http://localhost/bigbluebutton/api
 
 script:
-  - echo $BBB_SERVER_URL
-  - echo $BBB_SHARED_SECRET
   - node test-html5-check.js
   - node test-chat.js
   - node test-draw.js
   - node test-status.js
   - node test-switch-slides.js
   - node test-upload.js
+#   - node tests/puppeteer/test-hotkeys.js
+#   - node tests/puppeteer/test-hotkeys-mic-first.js
 
 after_script:
   - docker stop $docker
-#   - node tests/puppeteer/test-hotkeys.js
-#   - node tests/puppeteer/test-hotkeys-mic-first.js
