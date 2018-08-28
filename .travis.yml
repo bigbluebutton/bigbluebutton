@@ -18,6 +18,8 @@ env:
     - BBB_SERVER_URL=http://localhost/bigbluebutton/api
 
 script:
+  - echo $BBB_SERVER_URL
+  - echo $BBB_SHARED_SECRET
   - node test-html5-check.js
   - node test-chat.js
   - node test-draw.js

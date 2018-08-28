@@ -7,6 +7,7 @@ const helper = require('./helper');
 {
   var bbb = url.parse(process.env.BBB_SERVER_URL)
   var check = bbb.protocol + "//" + bbb.hostname + "/html5client/check";
+  console.log("HTML5 check URL: " + check);
   const maxRetries = 20;
   const delay = 10000;
   var retryCount = 0;
