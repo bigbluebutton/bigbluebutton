@@ -8,6 +8,13 @@ install:
   - echo $docker
   - cd tests/puppeteer
   - npm install
+  - conf=$(docker exec $(docker ps -q) bbb-conf --secret | grep "Secret:")
+  - secret=$(echo $conf | cut -d' ' -f2)
+  - echo $conf
+  
+env:
+  - BBB_SERVER_URL=http://localhost/bigbluebutton/api
+  - BBB_SHARED_SECRET=$secret
 
 script:
   - node test-html5-check.js
