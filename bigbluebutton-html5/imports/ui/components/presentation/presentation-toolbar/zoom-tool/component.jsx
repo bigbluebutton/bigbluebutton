@@ -4,14 +4,14 @@ import { FormattedMessage } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from '../styles.scss';
 
-const DELAY_MILLISECONDS = 500;
+const DELAY_MILLISECONDS = 200;
 const STEP_TIME = 100;
 
 export default class ZoomTool extends Component {
   static renderAriaLabelsDescs() {
     return (
-      <div hidden >
-        {/* Previous Slide button aria */}
+      <div hidden key="hidden-div">
+        {/* Zoom in button aria */}
         <div id="zoomInLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomInLabel"
@@ -26,7 +26,7 @@ export default class ZoomTool extends Component {
             defaultMessage="Change the presentation to the previous slide"
           />
         </div>
-        {/* Next Slide button aria */}
+        {/* Zoom out button aria */}
         <div id="zoomOutLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomOutLabel"
@@ -41,7 +41,7 @@ export default class ZoomTool extends Component {
             defaultMessage="Change the presentation to the next slide"
           />
         </div>
-        {/* Skip Slide drop down aria */}
+        {/* Zoom indicator aria */}
         <div id="zoomIndicator">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomIndicator"

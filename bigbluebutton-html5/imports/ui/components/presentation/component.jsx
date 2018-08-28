@@ -43,15 +43,6 @@ export default class PresentationArea extends Component {
     });
   }
 
-  componentDidUpdate() {
-    // const {
-    //   currentSlide,
-    // } = this.props;
-    // const viewW = (currentSlide.calculatedData.viewBoxWidth / currentSlide.calculatedData.width) * 100;
-    // const percentage = Math.ceil((100 / viewW) * 100);
-    // this.zoomChanger(percentage);
-    // console.error(percentage);
-  }
   // returns a ref to the svg element, which is required by a WhiteboardOverlay
   // to transform screen coordinates to svg coordinate system
   getSvgRef() {
@@ -83,6 +74,7 @@ export default class PresentationArea extends Component {
   getInitialPresentationSizes() {
     // determining the presentationWidth and presentationHeight (available space for the svg)
     // on the initial load
+    
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // setting the state of the available space for the svg
@@ -96,6 +88,7 @@ export default class PresentationArea extends Component {
   }
 
   handleResize() {
+    
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
@@ -254,15 +247,12 @@ export default class PresentationArea extends Component {
       <PresentationOverlayContainer
         podId={this.props.podId}
         currentSlideNum={this.props.currentSlide.num}
-        presentationId={this.props.currentSlide.presentationId}
         slide={slideObj}
         whiteboardId={slideObj.id}
         slideWidth={width}
         slideHeight={height}
         viewBoxWidth={viewBoxWidth}
         viewBoxHeight={viewBoxHeight}
-        x={x}
-        y={y}
         zoom={this.state.zoom}
         zoomChanger={this.zoomChanger}
         adjustedSizes={adjustedSizes}

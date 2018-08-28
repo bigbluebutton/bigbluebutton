@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import SlideViewModel from '/imports/utils/slideViewModel';
+import SlideCalcUtil from '/imports/utils/slideCalcUtils';
 
 const CURSOR_INTERVAL = 16;
-const MYSTERY_NUM = 5;
+const MYSTERY_NUM = 2;
 const HUNDRED_PERCENT = 100;
 const MAX_PERCENT = 400;
 
 export default class PresentationOverlay extends Component {
   constructor(props) {
     super(props);
-
-    this.SlideZoomData = new SlideViewModel(props.adjustedSizes.width, props.adjustedSizes.height, props.slideHeight, props.slideWidth);
 
     // last sent coordinates
     this.lastSentClientX = 0;
@@ -24,7 +22,7 @@ export default class PresentationOverlay extends Component {
     // id of the setInterval()
     this.intervalId = 0;
     this.state = {
-        zoom: props.zoom,
+      zoom: props.zoom,
     };
 
     // Mobile Firefox has a bug where e.preventDefault on touchstart doesn't prevent
@@ -48,44 +46,65 @@ export default class PresentationOverlay extends Component {
     this.zoomCalculation = this.zoomCalculation.bind(this);
     this.doZoomCall = this.doZoomCall.bind(this);
     this.zoomCall = this.zoomCall.bind(this);
-    this.updateCursorWhenZoom = this.updateCursorWhenZoom.bind(this);
+
+    this.isPortraitDoc = this.isPortraitDoc.bind(this);
+    this.doWidthBoundsDetection = this.doWidthBoundsDetection.bind(this);
+    this.doHeightBoundsDetection = this.doHeightBoundsDetection.bind(this);
+    this.calcViewedRegion = this.calcViewedRegion.bind(this);
+    this.onZoom = this.onZoom.bind(this);
+
+    const {
+      adjustedSizes,
+      presentationSize,
+      viewBoxWidth,
+      viewBoxHeight,
+      slideWidth,
+      slideHeight,
+      slide,
+    } = props;
+
+    this.fitToPage = false;
+
+    this.viewportW = adjustedSizes.width;
+    this.viewportH = adjustedSizes.height;
+
+    this.viewedRegionX = slide.xOffset;
+    this.viewedRegionY = slide.yOffset;
+    this.viewedRegionW = (viewBoxWidth / slideWidth) * 100;
+    this.viewedRegionH = (viewBoxHeight / slideHeight) * 100;
+
+    this.pageOrigW = slideWidth;
+    this.pageOrigH = slideHeight;
+
+    this.parentW = presentationSize.presentationWidth;
+    this.parentH = presentationSize.presentationHeight;
+
+    this.calcPageW = this.viewportW / (this.viewedRegionW / HUNDRED_PERCENT);
+    this.calcPageH = this.viewportH / (this.viewedRegionH / HUNDRED_PERCENT);
+    this.calcPageX = (this.viewedRegionX / HUNDRED_PERCENT) * this.calcPageW;
+    this.calcPageY = (this.viewedRegionY / HUNDRED_PERCENT) * this.calcPageH;
   }
-  // transforms the coordinate from window coordinate system
-  // to the main svg coordinate system
+
   componentDidMount() {
     const {
       viewBoxWidth,
-      viewBoxHeight,
-      adjustedSizes,
-      slideHeight,
       slideWidth,
-      x,
-      y,
       zoomChanger,
-      presentationSize,
-      getSvgRef,
     } = this.props;
-    const svgRect = getSvgRef().getBoundingClientRect();
-    const svgCenterX = svgRect.left + (svgRect.width / 2);
-    const svgCenterY = svgRect.top + (svgRect.height / 2);
-    const VRW = (viewBoxWidth / slideWidth) * 100;
 
-    this.SlideZoomData.viewportW = adjustedSizes.width;
-    this.SlideZoomData.viewportH = adjustedSizes.height;
-    this.SlideZoomData.pageOrigW = adjustedSizes.width;
-    this.SlideZoomData.pageOrigH = adjustedSizes.height;
-    this.SlideZoomData.parentW = presentationSize.presentationWidth;
-    this.SlideZoomData.parentH = presentationSize.presentationHeight;
+    const realZoom = (viewBoxWidth / slideWidth) * 100;
+    const zoomPercentage = (Math.round((100 / realZoom) * 100));
 
-    const percentage = (Math.round((100 / VRW) * 100));
-    this.zoomCalculation(percentage, svgCenterX, svgCenterY);
-    this.doZoomCall(percentage, svgCenterX, svgCenterY);
+    zoomChanger(zoomPercentage);
+
+    window.addEventListener('resize', () => {
+      setTimeout(this.handleResize.bind(this), 0);
+    });
   }
 
   componentDidUpdate() {
-    const { 
+    const {
       zoom,
-      zoomChanger,
       getSvgRef,
     } = this.props;
 
@@ -95,21 +114,96 @@ export default class PresentationOverlay extends Component {
 
     const isDiferent = zoom !== this.state.zoom;
     if (isDiferent) {
-
       this.doZoomCall(zoom, svgCenterX, svgCenterY);
     }
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', () => {
+      setTimeout(this.handleResize.bind(this), 0);
+    });
+  }
+
+  onZoom(zoomValue, mouseX, mouseY) {
+    let absXcoordInPage = (Math.abs(this.calcPageX) * MYSTERY_NUM) + mouseX;
+    let absYcoordInPage = (Math.abs(this.calcPageY) * MYSTERY_NUM) + mouseY;
+
+    const relXcoordInPage = absXcoordInPage / this.calcPageW;
+    const relYcoordInPage = absYcoordInPage / this.calcPageH;
+
+    if (this.isPortraitDoc() && this.fitToPage) {
+      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+      this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
+    } else if (!this.isPortraitDoc() && this.fitToPage) {
+      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+    } else {
+      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+      this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+    }
+
+    absXcoordInPage = relXcoordInPage * this.calcPageW;
+    absYcoordInPage = relYcoordInPage * this.calcPageH;
+
+    this.calcPageX = -((absXcoordInPage - mouseX) / MYSTERY_NUM);
+    this.calcPageY = -((absYcoordInPage - mouseY) / MYSTERY_NUM);
+
+    this.doWidthBoundsDetection();
+    this.doHeightBoundsDetection();
+
+    this.calcViewedRegion();
+  }
+
   getTransformedSvgPoint(clientX, clientY) {
     const svgObject = this.props.getSvgRef();
     const screenPoint = svgObject.createSVGPoint();
     screenPoint.x = clientX;
     screenPoint.y = clientY;
-    console.error(clientX, clientY);
-    
     // transform a screen point to svg point
     const CTM = svgObject.getScreenCTM();
 
     return screenPoint.matrixTransform(CTM.inverse());
+  }
+
+  isPortraitDoc() {
+    return this.pageOrigH > this.pageOrigW;
+  }
+
+  handleResize() {
+    const {
+      presentationSize,
+      adjustedSizes,
+    } = this.props;
+
+    this.viewportW = adjustedSizes.width;
+    this.viewportH = adjustedSizes.height;
+    this.parentW = presentationSize.presentationWidth;
+    this.parentH = presentationSize.presentationHeight;
+  }
+
+  doWidthBoundsDetection() {
+    const verifyPositionToBound = (this.calcPageW + (this.calcPageX * MYSTERY_NUM));
+    if (this.calcPageX >= 0) {
+      this.calcPageX = 0;
+    } else if (verifyPositionToBound < this.viewportW) {
+      this.calcPageX = (this.viewportW - this.calcPageW) / MYSTERY_NUM;
+    }
+  }
+
+  doHeightBoundsDetection() {
+    const verifyPositionToBound = (this.calcPageH + (this.calcPageY * MYSTERY_NUM));
+    if (this.calcPageY >= 0) {
+      this.calcPageY = 0;
+    } else if (verifyPositionToBound < this.viewportH) {
+      this.calcPageY = (this.viewportH - this.calcPageH) / MYSTERY_NUM;
+    }
+  }
+
+  calcViewedRegion() {
+    this.viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(this.viewportW, this.calcPageW);
+    this.viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(this.viewportH, this.calcPageH);
+    this.viewedRegionX = SlideCalcUtil.calcViewedRegionX(this.calcPageX, this.calcPageW);
+    this.viewedRegionY = SlideCalcUtil.calcViewedRegionY(this.calcPageY, this.calcPageH);
   }
 
   checkCursor() {
@@ -119,7 +213,7 @@ export default class PresentationOverlay extends Component {
       const { currentClientX, currentClientY } = this;
       // retrieving a transformed coordinate
       let transformedSvgPoint = this.getTransformedSvgPoint(currentClientX, currentClientY);
-      
+
       // determining the cursor's coordinates as percentages from the slide's width/height
       transformedSvgPoint = this.svgCoordinateToPercentages(transformedSvgPoint);
       // updating last sent raw coordinates
@@ -148,13 +242,13 @@ export default class PresentationOverlay extends Component {
   zoomCalculation(zoom, mouseX, mouseY) {
     const svgPosition = this.getTransformedSvgPoint(mouseX, mouseY);
 
-    this.SlideZoomData.onZoom(zoom, svgPosition.x, svgPosition.y);
+    this.onZoom(zoom, svgPosition.x, svgPosition.y);
 
     return {
-      viewedRegionW: this.SlideZoomData.viewedRegionW,
-      viewedRegionH: this.SlideZoomData.viewedRegionH,
-      viewedRegionX: this.SlideZoomData.viewedRegionX,
-      viewedRegionY: this.SlideZoomData.viewedRegionY,
+      viewedRegionW: this.viewedRegionW,
+      viewedRegionH: this.viewedRegionH,
+      viewedRegionX: this.viewedRegionX,
+      viewedRegionY: this.viewedRegionY,
     };
   }
 
@@ -167,24 +261,10 @@ export default class PresentationOverlay extends Component {
     zoomSlide(currentSlideNum, podId, w, h, x, y);
     this.setState({ zoom });
   }
-  updateCursorWhenZoom(mouseX, mouseY) {
-    const {
-      updateCursor,
-      whiteboardId,
-    } = this.props;
-    const svgPosition = this.getTransformedSvgPoint(mouseX, mouseY);
-    const svgPercentage = this.svgCoordinateToPercentages(svgPosition);
-    updateCursor({
-      xPercent: svgPercentage.x,
-      yPercent: svgPercentage.y,
-      whiteboardId,
-    });
-  }
 
   doZoomCall(zoom, mouseX, mouseY) {
     const zoomData = this.zoomCalculation(zoom, mouseX, mouseY);
-    console.error(zoomData);
-    
+
     const {
       viewedRegionW,
       viewedRegionH,
@@ -193,12 +273,16 @@ export default class PresentationOverlay extends Component {
     } = zoomData;
 
     this.zoomCall(zoom, viewedRegionW, viewedRegionH, viewedRegionX, viewedRegionY);
-    this.updateCursorWhenZoom(mouseX, mouseY);
     this.props.zoomChanger(zoom);
   }
 
   mouseZoomHandler(e) {
-    const { zoom } = this.props;
+    const {
+      zoom,
+      whiteboardId,
+      updateCursor,
+    } = this.props;
+
     let newZoom = zoom;
     if (e.deltaY < 0) {
       newZoom += 5;
@@ -214,9 +298,16 @@ export default class PresentationOverlay extends Component {
 
     const mouseX = e.clientX;
     const mouseY = e.clientY;
-    this.doZoomCall(newZoom, mouseX, mouseY);
-  }
+    const svgPosition = this.getTransformedSvgPoint(mouseX, mouseY);
+    const svgPercentage = this.svgCoordinateToPercentages(svgPosition);
 
+    this.doZoomCall(newZoom, mouseX, mouseY);
+    updateCursor({
+      xPercent: svgPercentage.x,
+      yPercent: svgPercentage.y,
+      whiteboardId,
+    });
+  }
 
   handleTouchStart(event) {
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
