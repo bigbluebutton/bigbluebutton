@@ -61,7 +61,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     window.kurentoExitAudio();
   }
 
-  joinAudio({ isListenOnly }, callback) {
+  joinAudio({ isListenOnly, inputStream }, callback) {
     return new Promise(async (resolve, reject) => {
       this.callback = callback;
       let iceServers = [];
@@ -78,6 +78,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
           iceServers,
           logger: modLogger,
+          inputStream,
         };
 
         const onSuccess = ack => resolve(this.callback({ status: this.baseCallStates.started }));
