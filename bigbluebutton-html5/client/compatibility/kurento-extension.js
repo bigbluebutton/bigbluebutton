@@ -116,6 +116,11 @@ KurentoManager.prototype.exitScreenShare = function () {
 
 KurentoManager.prototype.exitVideo = function () {
   if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
+
+    if(this.kurentoVideo.webRtcPeer) {
+      this.kurentoVideo.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+    }
+
     if (this.kurentoVideo.logger !== null) {
       this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
     }
@@ -424,7 +429,8 @@ Kurento.prototype.viewer = function () {
     self.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
       if (this.webRtcPeer) {
         const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
-        if (connectionState === 'failed') {
+        if (connectionState === 'failed' || connectionState === 'closed') {
+          this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
           this.onFail('ICE connection failed');
         }
       }
