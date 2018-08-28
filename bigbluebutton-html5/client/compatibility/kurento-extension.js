@@ -354,7 +354,9 @@ Kurento.prototype.startScreensharing = function () {
     this.logger.info('Generated peer offer w/ options:', { options });
 
     const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
+    const _this = this;
     localStream.getVideoTracks()[0].onended = function () {
+      _this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
       return kurentoManager.exitScreenShare();
     };
 
@@ -365,7 +367,8 @@ Kurento.prototype.startScreensharing = function () {
   this.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
     if (this.webRtcPeer) {
       const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
-      if (connectionState === 'failed') {
+      if (connectionState === 'failed' || connectionState === 'closed') {
+        this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
         this.onFail('ICE connection failed');
       }
     }
