@@ -11,10 +11,11 @@ install:
   - conf=$(docker exec $(docker ps -q) bbb-conf --secret | grep "Secret:")
   - secret=$(echo $conf | cut -d' ' -f2)
   - echo $conf
+  - export BBB_SHARED_SECRET=$secret
   
 env:
-  - BBB_SERVER_URL=http://localhost/bigbluebutton/api
-  - BBB_SHARED_SECRET=$secret
+  global:
+    - BBB_SERVER_URL=http://localhost/bigbluebutton/api
 
 script:
   - node test-html5-check.js
