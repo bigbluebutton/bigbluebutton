@@ -9,6 +9,7 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 
 const MEDIA = Meteor.settings.public.media;
+const MEDIA_TAG = MEDIA.mediaTag;
 const USE_SIP = MEDIA.useSIPAudio;
 const USE_KURENTO = Meteor.settings.public.kurento.enableListenOnly;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
@@ -145,11 +146,6 @@ class AudioManager {
       setTimeout(reject, 12000, iceGatheringErr);
     });
 
-
-    // Workaround to circumvent the WebKit autoplay policy without prompting
-    // the user to do some action again. A silent stream is played.
-    this.playFakeAudio();
-
     return this.onAudioJoining()
       .then(() => Promise.race([
         bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
@@ -159,9 +155,10 @@ class AudioManager {
         // If theres a iceGathering timeout we retry to join after asking device permissions
         if (err === iceGatheringErr) {
           this.joinListenOnly();
+        } else {
+          logger.error('Listen only error:', err);
+          throw err;
         }
-
-        throw err;
       });
   }
 
@@ -216,8 +213,6 @@ class AudioManager {
         },
       });
     }
-
-    clearInterval(this.fakeAudioInterval);
 
     if (!this.isEchoTest) {
       this.notify(this.messages.info.JOINED_AUDIO);
@@ -285,7 +280,22 @@ class AudioManager {
       new window.AudioContext() :
       new window.webkitAudioContext();
 
-    return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
+    // Create a placeholder buffer to upstart audio context
+    const pBuffer = this.listenOnlyAudioContext.createBuffer(2, this.listenOnlyAudioContext.sampleRate * 3, this.listenOnlyAudioContext.sampleRate);
+
+    var dest = this.listenOnlyAudioContext.createMediaStreamDestination();
+
+    let audio = document.querySelector(MEDIA_TAG);
+
+    // Play bogus silent audio to try to circumvent autoplay policy on Safari
+    audio.src = 'resources/sounds/silence.mp3'
+
+    audio.play().then(() => {
+      return dest.stream;
+    }).catch(e => {
+      logger.warn('Error on playing test audio:', e);
+      return dest.stream;
+    });
   }
 
   isUsingAudio() {
@@ -357,19 +367,6 @@ class AudioManager {
       error ? 'error' : 'info',
       this.isListenOnly ? 'audio_on' : 'unmute',
     );
-  }
-
-  playFakeAudio() {
-    const outputDeviceId = this.outputDeviceId;
-    const sound = new Audio('resources/sounds/silence.mp3');
-    if (outputDeviceId && sound.setSinkId) {
-      sound.setSinkId(outputDeviceId);
-    }
-    // Hack within the hack: haven't got time to get the right timing to play
-    // the audio on stock listen only, but I'll get back to it - prlanzarin
-    this.fakeAudioInterval = setInterval(() => {
-      sound.play().catch(e => { return; });
-    }, 800);
   }
 }
 
