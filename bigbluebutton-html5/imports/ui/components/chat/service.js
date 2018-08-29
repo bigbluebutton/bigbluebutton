@@ -110,9 +110,8 @@ const isChatLocked = (receiverID) => {
   if (meeting.lockSettingsProp !== undefined) {
     const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
     const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
-    const isViewer = user.role === 'VIEWER';
 
-    return isViewer && user.locked &&
+    return mapUser(user).isLocked &&
       ((isPublic && isPubChatLocked) || (!isPublic && isPrivChatLocked));
   }
 
