@@ -287,13 +287,26 @@ function WebRtcPeer(mode, options, callback) {
         return pc.remoteDescription;
     };
     function setRemoteVideo() {
-        if (remoteVideo) {
-            var stream = pc.getRemoteStreams()[0];
-            remoteVideo.pause();
-            remoteVideo.srcObject = stream;
-            remoteVideo.load();
-            logger.info('Remote URL:', remoteVideo.srcObject);
+      if (remoteVideo) {
+        var played = false;
+        const playVideo = (remote) => {
+          if (!played) {
+            remoteVideo.play().catch(e => {
+              playVideo(remoteVideo);
+            }).then(() => { remoteVideo.muted = false; played = true; });
+          }
         }
+        var stream = pc.getRemoteStreams()[0];
+
+        remoteVideo.oncanplaythrough = function() {
+          playVideo(remoteVideo);
+        };
+
+        remoteVideo.pause();
+        remoteVideo.srcObject = stream;
+        remoteVideo.load();
+        logger.info('Remote URL:', remoteVideo.srcObject);
+      }
     }
     this.showLocalVideo = function () {
         localVideo.srcObject = videoStream;
@@ -1045,7 +1058,7 @@ module.exports = function(stream, options) {
   harker.setInterval = function(i) {
     interval = i;
   };
-  
+
   harker.stop = function() {
     running = false;
     harker.emit('volume_change', -100, threshold);
@@ -1063,12 +1076,12 @@ module.exports = function(stream, options) {
   // and emit events if changed
   var looper = function() {
     setTimeout(function() {
-    
+
       //check if stop has been called
       if(!running) {
         return;
       }
-      
+
       var currentVolume = getMaxVolume(analyser, fftBins);
 
       harker.emit('volume_change', currentVolume, threshold);
