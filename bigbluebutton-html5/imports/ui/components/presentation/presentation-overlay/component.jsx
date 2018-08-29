@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import SlideCalcUtil from '/imports/utils/slideCalcUtils';
 
-const CURSOR_INTERVAL = 16;
+// After lots of trial and error on why synching doesn't work properly, I found I had to
+// multiply the coordinates by 2. There's something I don't understand probably on the
+// canvas coordinate system. (ralam feb 22, 2012)
 const MYSTERY_NUM = 2;
+const CURSOR_INTERVAL = 16;
 const HUNDRED_PERCENT = 100;
 const MAX_PERCENT = 400;
 
