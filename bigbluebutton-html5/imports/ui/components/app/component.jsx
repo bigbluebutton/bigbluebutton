@@ -224,7 +224,7 @@ class App extends Component {
 
     // Variables for resizing chat.
     const CHAT_MIN_WIDTH_PX = 180;
-    const CHAT_MAX_WIDTH_PX = 310;
+    const CHAT_MAX_WIDTH_PX = 600;
     const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
 
     // decide whether using pixel or percentage unit as a default width for chat
