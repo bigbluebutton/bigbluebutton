@@ -290,12 +290,11 @@ class AudioManager {
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
     audio.src = 'resources/sounds/silence.mp3'
 
-    audio.play().then(() => {
-      return dest.stream;
-    }).catch(e => {
+    audio.play().catch(e => {
       logger.warn('Error on playing test audio:', e);
-      return dest.stream;
     });
+
+    return dest.stream;
   }
 
   isUsingAudio() {
