@@ -288,18 +288,22 @@ function WebRtcPeer(mode, options, callback) {
     };
     function setRemoteVideo() {
       if (remoteVideo) {
-        var played = false;
-        const playVideo = (remote) => {
-          if (!played) {
+        // TODO review the retry - prlanzarin 08/18
+        let played = false;
+        const MAX_RETRIES = 5;
+        let attempt = 0;
+        const playVideo = () => {
+          if (!played && attempt < MAX_RETRIES) {
             remoteVideo.play().catch(e => {
-              playVideo(remoteVideo);
-            }).then(() => { remoteVideo.muted = false; played = true; });
+                attempt++;
+                playVideo(remoteVideo);
+            }).then(() => { remoteVideo.muted = false; played = true; attempt = 0;});
           }
         }
         var stream = pc.getRemoteStreams()[0];
 
         remoteVideo.oncanplaythrough = function() {
-          playVideo(remoteVideo);
+          playVideo();
         };
 
         remoteVideo.pause();
