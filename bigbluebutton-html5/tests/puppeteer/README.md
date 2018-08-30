@@ -21,7 +21,7 @@ To run these tests with an existing BigBlueButton server, make sure you have a s
 
 Copy the `.env-template` file to a new file, and name it `.env`. In the `.env` file, add your BigBlueButton server URL and secret, so the tests will know which server to connect to.
 
-To run all the tests at once, run `npm test`. If you have Jest installed globally, you can run individual tests with `jest TEST [TEST...]`. The tests are found in the `.test.js files`, but you may choose to omit file extensions when running the tests.
+To run all the tests at once, run `npm test`. If you have Jest installed globally, you can run individual tests with `jest TEST [TEST...]`. The tests are found in the `.test.js` files, but you may choose to omit file extensions when running the tests.
 
 ## Running the tests in a Docker container
 
