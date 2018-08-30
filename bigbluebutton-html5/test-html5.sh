@@ -25,3 +25,4 @@ fi
 
 # Stop Docker container
 docker stop $docker
+docker rm $docker

@@ -9,7 +9,7 @@ const helper = require('./helper');
   var check = bbb.protocol + "//" + bbb.hostname + "/html5client/check";
   console.log("HTML5 check URL: " + check);
   const maxRetries = 20;
-  const delay = 10000;
+  const retryDelay = 10000;
   var retryCount = 0;
   while(true)
   {
@@ -46,6 +46,6 @@ const helper = require('./helper');
       }
     }
     console.log("Retrying (attempt " + (retryCount) + "/" + maxRetries + ")...");
-    await helper.sleep(delay);
+    await helper.sleep(retryDelay);
   }
 })();
