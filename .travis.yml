@@ -18,13 +18,7 @@ env:
 
 script:
   - node test-html5-check.js
-  - node test-chat.js
-  - node test-draw.js
-  - node test-status.js
-  - node test-switch-slides.js
-  - node test-upload.js
-#   - node tests/puppeteer/test-hotkeys.js
-#   - node tests/puppeteer/test-hotkeys-mic-first.js
+  - npm test
 
 after_script:
   - docker stop $docker

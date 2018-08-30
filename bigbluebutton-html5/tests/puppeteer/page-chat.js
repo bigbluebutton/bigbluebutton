@@ -55,18 +55,4 @@ class ChatTestPage extends Page
   }
 };
 
-var test = new ChatTestPage();
-(async() =>
-{
-  try
-  {
-    await test.init(Page.getArgs());
-    await test.test();
-    await test.close();
-  }
-  catch(e)
-  {
-    console.log(e);
-    process.exit(1);
-  }
-})();
+module.exports = exports = ChatTestPage;

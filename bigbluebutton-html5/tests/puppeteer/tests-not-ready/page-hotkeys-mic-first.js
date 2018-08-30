@@ -1,5 +1,3 @@
-// Test: Hotkeys when a user first joins a meeting with a microphone: Leaving audio, rejoining as Listen Only, then rejoining with microphone
-
 const Page = require('./page');
 const helper = require('./helper');
 const e = require('./elements');
@@ -67,18 +65,4 @@ class HotkeysMicFirstTestPage extends Page
   }
 };
 
-var test = new HotkeysMicFirstTestPage();
-(async() =>
-{
-  try
-  {
-    await test.init(Page.getArgs());
-    await test.test();
-    await test.close();
-  }
-  catch(e)
-  {
-    console.log(e);
-    process.exit(1);
-  }
-})();
+module.exports = exports = HotkeysMicFirstTestPage;

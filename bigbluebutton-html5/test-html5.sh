@@ -9,7 +9,7 @@ echo $docker
 
 # Check if HTML5 client is ready 
 cd tests/puppeteer
-node test-html5-check.js
+node html5-check.js
 status=$?
 echo $status
 
@@ -20,11 +20,7 @@ echo $BBB_SHARED_SECRET
 
 # Run tests
 if [ $status -eq 0 ]; then
-  node test-chat.js
-  node test-draw.js
-  node test-upload.js
-  node test-switch-slides.js
-  node test-status.js
+  npm test
 fi
 
 # Stop Docker container

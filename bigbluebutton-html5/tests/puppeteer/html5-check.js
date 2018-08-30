@@ -3,7 +3,7 @@ const axios = require('axios');
 const url = require('url');
 const helper = require('./helper');
 
-(async() =>
+(async () =>
 {
   var bbb = url.parse(process.env.BBB_SERVER_URL)
   var check = bbb.protocol + "//" + bbb.hostname + "/html5client/check";
@@ -28,6 +28,7 @@ const helper = require('./helper');
       }
       else
       {
+        console.log("Too many attempts. Exiting...");
         process.exit(1);
       }
     }
@@ -40,10 +41,11 @@ const helper = require('./helper');
       }
       else
       {
+        console.log("Too many attempts. Exiting...");
         process.exit(1);
       }
     }
-    console.log("Retrying (attempt " + (retryCount + 1) + "/" + maxRetries + ")...");
+    console.log("Retrying (attempt " + (retryCount) + "/" + maxRetries + ")...");
     await helper.sleep(delay);
   }
 })();

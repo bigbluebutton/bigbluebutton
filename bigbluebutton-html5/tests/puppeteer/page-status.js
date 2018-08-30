@@ -1,5 +1,3 @@
-// Test: Setting/changing/clearing a user's status
-
 const Page = require('./page');
 const helper = require('./helper');
 const e = require('./elements');
@@ -50,18 +48,4 @@ class StatusTestPage extends Page
   }
 };
 
-var test = new StatusTestPage();
-(async() =>
-{
-  try
-  {
-    await test.init(Page.getArgs());
-    await test.test();
-    await test.close();
-  }
-  catch(e)
-  {
-    console.log(e);
-    process.exit(1);
-  }
-})();
+module.exports = exports = StatusTestPage;

@@ -1,5 +1,3 @@
-// Test: Hotkeys: Options, User List, Leave/Join Audio, Mute/Unmute, Toggle Public Chat, Actions Menu, Status Menu
-
 const Page = require('./page');
 const helper = require('./helper');
 const e = require('./elements');
@@ -163,18 +161,4 @@ class HotkeysTestPage extends Page
   }
 };
 
-var test = new HotkeysTestPage();
-(async() =>
-{
-  try
-  {
-    await test.init(Page.getArgs());
-    await test.test();
-    await test.close();
-  }
-  catch(e)
-  {
-    console.log(e);
-    process.exit(1);
-  }
-})();
+module.exports = exports = HotkeysTestPage;

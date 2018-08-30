@@ -1,5 +1,3 @@
-// Test: Uploading an image
-
 const Page = require('./page');
 const helper = require('./helper');
 const e = require('./elements');
@@ -48,18 +46,4 @@ class UploadTestPage extends Page
   }
 };
 
-var test = new UploadTestPage();
-(async() =>
-{
-  try
-  {
-    await test.init(Page.getArgs());
-    await test.test();
-    await test.close();
-  }
-  catch(e)
-  {
-    console.log(e);
-    process.exit(1);
-  }
-})();
+module.exports = exports = UploadTestPage;

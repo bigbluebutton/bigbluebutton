@@ -1,5 +1,3 @@
-// Test: Drawing a box
-
 const Page = require('./page');
 const helper = require('./helper');
 const e = require('./elements');
@@ -43,18 +41,4 @@ class DrawTestPage extends Page
   }
 };
 
-var test = new DrawTestPage();
-(async() =>
-{
-  try
-  {
-    await test.init(Page.getArgs());
-    await test.test();
-    await test.close();
-  }
-  catch(e)
-  {
-    console.log(e);
-    process.exit(1);
-  }
-})();
+module.exports = exports = DrawTestPage;
