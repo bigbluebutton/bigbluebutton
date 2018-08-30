@@ -17,7 +17,7 @@ env:
     - BBB_SERVER_URL=http://localhost/bigbluebutton/api
 
 script:
-  - node test-html5-check.js
+  - node html5-check.js
   - npm test
 
 after_script:
