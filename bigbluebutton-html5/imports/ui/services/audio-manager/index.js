@@ -13,6 +13,7 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const USE_SIP = MEDIA.useSIPAudio;
 const USE_KURENTO = Meteor.settings.public.kurento.enableListenOnly;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
+const MAX_LISTEN_ONLY_RETRIES = 2;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -128,7 +129,7 @@ class AudioManager {
       .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
   }
 
-  joinListenOnly() {
+  joinListenOnly(retries = 0) {
     this.isListenOnly = true;
     this.isEchoTest = false;
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
@@ -152,10 +153,11 @@ class AudioManager {
         iceGatheringTimeout,
       ]))
       .catch((err) => {
-        // If theres a iceGathering timeout we retry to join after asking device permissions
-        if (err === iceGatheringErr) {
-          this.joinListenOnly();
+        // If theres a iceGathering timeout we retry to join until MAX_LISTEN_ONLY_RETRIES
+        if (err === iceGatheringErr && retries < MAX_LISTEN_ONLY_RETRIES) {
+          this.joinListenOnly(++retries);
         } else {
+          clearTimeout(iceGatheringTimeout);
           logger.error('Listen only error:', err);
           throw err;
         }
@@ -263,7 +265,6 @@ class AudioManager {
       } else if (status === FAILED) {
         this.error = error;
         this.notify(this.messages.error[error] || this.messages.error.GENERIC_ERROR, true);
-        makeCall('failed callStateCallback audio', response);
         logger.error('Audio Error:', error, bridgeError);
         this.exitAudio();
         this.onAudioExit();
