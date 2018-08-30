@@ -472,12 +472,14 @@ Kurento.prototype.setAudio = function (tag) {
 };
 
 Kurento.prototype.listenOnly = function () {
-  const self = this;
+  var self = this;
+  const remoteVideo = document.getElementById(this.renderTag);
+  remoteVideo.muted = true;
   if (!this.webRtcPeer) {
     var options = {
       audioStream: this.inputStream,
-      remoteVideo: document.getElementById(this.renderTag),
-      onicecandidate: this.onListenOnlyIceCandidate.bind(this),
+      remoteVideo,
+      onicecandidate : this.onListenOnlyIceCandidate.bind(this),
       mediaConstraints: {
         audio: true,
         video: false,

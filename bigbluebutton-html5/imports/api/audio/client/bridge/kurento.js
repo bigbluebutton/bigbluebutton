@@ -53,6 +53,11 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       sessionToken
     };
 
+    this.media = {
+      inputDevice: {},
+    };
+
+
     this.internalMeetingID = meetingId;
     this.voiceBridge = voiceBridge;
   }
@@ -105,6 +110,22 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       }
     });
   }
+
+  async changeOutputDevice(value) {
+    const audioContext = document.querySelector('#'+MEDIA_TAG);
+    if (audioContext.setSinkId) {
+      try {
+        await audioContext.setSinkId(value);
+        this.media.outputDeviceId = value;
+      } catch (err) {
+        logger.error(err);
+        throw new Error(this.baseErrorCodes.MEDIA_ERROR);
+      }
+    }
+
+    return this.media.outputDeviceId || value;
+  }
+
 
   exitAudio() {
     return new Promise((resolve, reject) => {
