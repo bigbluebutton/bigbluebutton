@@ -1,5 +1,15 @@
 @import "../../stylesheets/variables/_all";
 
+// screen sizes for iphones where pollingAnswer need to be offset
+$safari-mobile-xs: 320px;
+$safari-mobile-s: 375px;
+
+// pollingAnswer position offsets
+$xs-portrait-offset: 8.75em;
+$xs-landscape-offset: 4.75em;
+$s-portrait-offset: 11.75em;
+$s-landscape-offset: 1.75em;
+
 .pollingContainer {
   order: 2;
   width: 100%;
@@ -20,12 +30,36 @@
 }
 
 .pollingAnswers {
+  align-items: center;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: auto;
   justify-content: center;
-  align-items: center;
+  position: relative;
   width: 100%;
+  z-index: 1;
+
+  :global(.browser-safari) & {
+    @include mq($portrait) {
+      @media (max-width: $safari-mobile-s) {
+        bottom: $s-portrait-offset;
+      }
+
+      @media (max-width: $safari-mobile-xs) {
+        bottom: $xs-portrait-offset;
+      }
+    }
+
+    @include mq($landscape) {
+      @media (max-height: $safari-mobile-s) {
+        bottom: $s-landscape-offset;
+      }
+
+      @media (max-height: $safari-mobile-xs) {
+        bottom: $xs-landscape-offset;
+      }
+    }
+  }
 }
 
 .pollButtonWrapper {
