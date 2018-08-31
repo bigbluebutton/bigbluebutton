@@ -30,3 +30,8 @@ Using this method, you can run the tests with the latest version of the HTML5 cl
 ### Note
 
 The HTML5 client takes a long time to start in the Docker container. The script will check if the HTML5 client is running before running the tests, but it will exit if it takes too many attempts. If the HTML5 client takes too long to start and the check exits without running the tests, you can experiment with the values of `maxRetries` and `retryDelay` in `html5-check.js`. Note that the value of `retryDelay` is in milliseconds.
+
+## Known Issues
+
+* Hotkeys do not work yet. When hotkeys are pressed, keydown and keyup events are fired, but the click events that would normally be created to press buttons do not occur.
+* Some tests will sometimes fail with a timeout error. Different tests may fail every time the tests are run. This problem affects all tests, and the cause is unknown as of now.
