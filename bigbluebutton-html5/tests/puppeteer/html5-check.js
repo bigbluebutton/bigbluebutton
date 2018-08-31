@@ -1,7 +1,10 @@
 require('dotenv').config();
 const axios = require('axios');
+const path = require('path');
 const url = require('url');
 const helper = require('./helper');
+const httpPath = path.join(path.dirname(require.resolve('axios')),'lib/adapters/http');
+const http = require(httpPath);
 
 (async () =>
 {
@@ -15,7 +18,7 @@ const helper = require('./helper');
   {
     try
     {
-      var response = await axios.get(check);
+      var response = await axios.get(check, {adapter: http});
       var status = response.data.html5clientStatus
       console.log(response.data);
       if(status === 'running')

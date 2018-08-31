@@ -1,3 +1,5 @@
+export BBB_SERVER_URL="http://localhost/bigbluebutton/api"
+
 # Change to HTML5 directory
 cd $(dirname $0)
 echo "Working directory: $PWD"
