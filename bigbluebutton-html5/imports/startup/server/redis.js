@@ -105,8 +105,8 @@ class RedisPubSub {
     this.config = config;
 
     this.didSendRequestEvent = false;
-    this.pub = Redis.createClient();
-    this.sub = Redis.createClient();
+    this.pub = Redis.createClient(Meteor.settings.private.redis);
+    this.sub = Redis.createClient(Meteor.settings.private.redis);
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
 
