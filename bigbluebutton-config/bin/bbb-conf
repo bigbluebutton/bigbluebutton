@@ -947,7 +947,8 @@ check_configuration() {
 			echo 
 		fi
 
-        if grep \"enableListenOnly\".*true $HTML5_CONFIG > /dev/null; then
+	if [ -f $HTML5_CONFIG ]; then 
+          if grep \"enableListenOnly\".*true $HTML5_CONFIG > /dev/null; then
             if ! grep -q ws-binding $FREESWITCH_EXTERNAL ;  then
                 echo "# Warning: You have enabled listen-only audio via Kurento"
                 echo "# but FreeSWITCH is not listening on port 5066.  You should edit "
@@ -957,6 +958,7 @@ check_configuration() {
                 echo "# and add a line that enables ws-binding on port 5066."
                 echo
             fi
+          fi
         fi
 
 	fi
