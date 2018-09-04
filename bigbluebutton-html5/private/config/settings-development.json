@@ -140,7 +140,8 @@
           "moveCursor",
           "sendAnnotation",
           "removePresentation",
-          "setPresentation"
+          "setPresentation",
+          "requestPresentationUploadToken"
         ]
       }
     },
@@ -348,9 +349,10 @@
           }
         ]
       }
-      
+
     },
     "log": [
+      { "target": "console", "level": "info" },
       { "target": "server", "level": "info" }
     ]
   },

@@ -7,7 +7,7 @@ const logClient = function (type, log, fullInfo) {
   const logContents = { fullInfo };
 
   if (User) {
-    if (User.meetingId === fullInfo.credentials.meetingId) {
+    if (User.meetingId === fullInfo.meetingId) {
       logContents.validUser = 'valid';
     } else {
       logContents.validUser = 'invalid';
@@ -16,7 +16,7 @@ const logClient = function (type, log, fullInfo) {
     logContents.validUser = 'notFound';
   }
 
-  const topic = typeof logContents == 'Object' ? logContents.topic : null;
+  const topic = typeof logContents === 'Object' ? logContents.topic : null;
 
   if (typeof log === 'string' || log instanceof String) {
     Logger.log(type, `${topic || 'CLIENT'} LOG: ${log}\n`, logContents);
