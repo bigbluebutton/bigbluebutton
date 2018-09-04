@@ -253,7 +253,7 @@ Kurento.prototype.onWSMessage = function (message) {
       this.onSuccess(parsedMessage.success);
       break;
     case 'webRTCAudioError':
-      this.onFail(parsedMessage.error);
+      this.onFail(parsedMessage);
       break;
     case 'pong':
       break;

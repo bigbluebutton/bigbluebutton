@@ -88,11 +88,16 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
 
         const onSuccess = ack => resolve(this.callback({ status: this.baseCallStates.started }));
 
-        const onFail = error => resolve(this.callback({
-          status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.CONNECTION_ERROR,
-          bridgeError: error,
-        }));
+        const onFail = error => {
+          const { reason } = error;
+          this.callback({
+            status: this.baseCallStates.failed,
+            error: this.baseErrorCodes.CONNECTION_ERROR,
+            bridgeError: reason,
+          })
+
+          reject(reason);
+        };
 
         if (!isListenOnly) {
           return reject("Invalid bridge option");
