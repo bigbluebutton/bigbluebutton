@@ -1,37 +1,17 @@
+import _ from 'lodash';
 import VoiceUsers from '/imports/api/voice-users';
 import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
+import logger from '/imports/startup/client/logger';
+import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+
 
 const MEDIA = Meteor.settings.public.media;
-const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
 const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
-
-const fetchStunTurnServers = (sessionToken) => {
-  const handleStunTurnResponse = ({ stunServers, turnServers }) => {
-    if (!stunServers && !turnServers) {
-      return { error: 404, stun: [], turn: [] };
-    }
-    return {
-      stun: stunServers.map(server => server.url),
-      turn: turnServers.map(server => server.url),
-    };
-  };
-
-  const url = `${STUN_TURN_FETCH_URL}?sessionToken=${sessionToken}`;
-  return fetch(url)
-    .then(res => res.json())
-    .then(handleStunTurnResponse)
-    .then((response) => {
-      if (response.error) {
-        return Promise.reject('Could not fetch the stuns/turns servers!');
-      }
-      return response;
-    });
-};
-
+const CONNECTION_TERMINATED_EVENTS = ['iceConnectionFailed', 'iceConnectionClosed'];
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -64,6 +44,20 @@ export default class SIPBridge extends BaseAudioBridge {
       [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
       [causes.INVALID_TARGET]: this.baseErrorCodes.INVALID_TARGET,
       [causes.CONNECTION_ERROR]: this.baseErrorCodes.CONNECTION_ERROR,
+      [causes.WEBRTC_NOT_SUPPORTED]: this.baseErrorCodes.WEBRTC_NOT_SUPPORTED,
+    };
+    this.webRtcError = {
+      1001: '1001',
+      1002: '1002',
+      1003: '1003',
+      1004: '1004',
+      1005: '1005',
+      1006: '1006',
+      1007: '1007',
+      1008: '1008',
+      1009: '1009',
+      1010: '1010',
+      1011: '1011',
     };
   }
 
@@ -156,6 +150,10 @@ export default class SIPBridge extends BaseAudioBridge {
     return new Promise((resolve, reject) => {
       let hangupRetries = 0;
       let hangup = false;
+      const { mediaHandler } = this.currentSession;
+
+      // Removing termination events to avoid triggering an error
+      CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.off(e));
       const tryHangup = () => {
         this.currentSession.bye();
         hangupRetries += 1;
@@ -217,12 +215,15 @@ export default class SIPBridge extends BaseAudioBridge {
         resolve(userAgent);
       };
 
-      const handleUserAgentDisconnection = () => {
+      const handleUserAgentDisconnection = (event) => {
         userAgent.stop();
         userAgent = null;
+        const { lastTransportError } = event.transport;
+        const errorCode = lastTransportError.code;
+        const error = this.webRtcError[errorCode] || this.baseErrorCodes.CONNECTION_ERROR;
         this.callback({
           status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.CONNECTION_ERROR,
+          error,
           bridgeError: 'User Agent Disconnected',
         });
         reject(this.baseErrorCodes.CONNECTION_ERROR);
@@ -269,17 +270,18 @@ export default class SIPBridge extends BaseAudioBridge {
 
   setupEventHandlers(currentSession) {
     return new Promise((resolve) => {
-      this.connectionCompleted = false;
+      const { mediaHandler } = currentSession;
 
+      const connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
       const handleConnectionCompleted = () => {
-        if (this.connectionCompleted) return;
+        connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
         this.callback({ status: this.baseCallStates.started });
         this.connectionCompleted = true;
         resolve();
       };
+      connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
       const handleSessionTerminated = (message, cause) => {
-        this.connectionCompleted = false;
         if (!message && !cause) {
           return this.callback({
             status: this.baseCallStates.ended,
@@ -296,10 +298,17 @@ export default class SIPBridge extends BaseAudioBridge {
           bridgeError: cause,
         });
       };
-
       currentSession.on('terminated', handleSessionTerminated);
-      currentSession.mediaHandler.on('iceConnectionCompleted', handleConnectionCompleted);
-      currentSession.mediaHandler.on('iceConnectionConnected', handleConnectionCompleted);
+
+      const handleConnectionTerminated = (peer) => {
+        CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: this.baseErrorCodes.ICE_NEGOTIATION_FAILED,
+          bridgeError: peer,
+        });
+      };
+      CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.on(e, handleConnectionTerminated));
 
       this.currentSession = currentSession;
     });
@@ -308,6 +317,7 @@ export default class SIPBridge extends BaseAudioBridge {
   setDefaultInputDevice() {
     const handleMediaSuccess = (mediaStream) => {
       const deviceLabel = mediaStream.getAudioTracks()[0].label;
+      window.defaultInputStream = mediaStream.getTracks();
       return navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
         const device = mediaDevices.find(d => d.label === deviceLabel);
         return this.changeInputDevice(device.deviceId);
@@ -371,7 +381,7 @@ export default class SIPBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        console.error(err);
+        logger.error(err);
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

@@ -37,6 +37,7 @@ class PresentationController {
 
   def checkPresentationBeforeUploading = {
     try {
+
       def maxUploadFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
       def presentationToken = request.getHeader("x-presentation-token")
       def originalUri = request.getHeader("x-original-uri")
@@ -79,7 +80,7 @@ class PresentationController {
     def meeting = meetingService.getNotEndedMeetingWithId(meetingId);
     if (meeting == null) {
       flash.message = 'meeting is not running'
-
+      log.debug("Upload failed. No meeting running " + meetingId)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'no-meeting';
@@ -102,7 +103,20 @@ class PresentationController {
          
          def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
          def podId = params.pod_id
+         log.debug "@Default presentation pod" + podId
 
+         if(isDownloadable) {
+           log.debug "@Creating download directory..."
+           File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
+           if (downloadDir != null) {
+             def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+             def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
+             def downloadableFile = new File( downloadDir.absolutePath + File.separatorChar + downloadableFileName )
+             downloadableFile << pres.newInputStream()
+           }
+         }
+
+        log.debug("processing file upload " + presFilename)
          def presentationBaseUrl = presentationService.presentationBaseUrl
          UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
                  presFilename, presentationBaseUrl, false /* default presentation */);
@@ -114,19 +128,19 @@ class PresentationController {
 
          uploadedPres.setUploadedFile(pres);
          presentationService.processUploadedPresentation(uploadedPres)
-
+         log.debug("file upload success " + presFilename)
          response.addHeader("Cache-Control", "no-cache")
          response.contentType = 'plain/text'
          response.outputStream << 'upload-success';
       }
     } else {
+      log.warn "Upload failed. File Empty."
       flash.message = 'file cannot be empty'
-    }
-
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'file-empty';
     }
+  }
 
   def testConversion = {
     presentationService.testConversionProcess();

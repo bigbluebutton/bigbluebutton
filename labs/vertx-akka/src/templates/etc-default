@@ -1,0 +1,1 @@
+JAVA_OPTS="-Dconfig.file=${{chdir}}/conf/application.conf $JAVA_OPTS"

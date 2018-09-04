@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class PageExtractorImp implements PageExtractor {
   private static Logger log = LoggerFactory.getLogger(PageExtractorImp.class);
 
-  private String SPACE = " ";
+  private static final String SPACE = " ";
 
   public boolean extractPage(File presentationFile, File output, int page) {
     String COMMAND = "pdfseparate -f " + page + " -l " + page + SPACE

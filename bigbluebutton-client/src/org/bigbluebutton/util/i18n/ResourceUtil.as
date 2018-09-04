@@ -36,7 +36,6 @@ package org.bigbluebutton.util.i18n
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
@@ -119,9 +118,22 @@ package org.bigbluebutton.util.i18n
 			return ExternalInterface.call("getLanguage");
 		}
 		
-		private function findPreferredLocale(prefLocale:String):Object {
-			for each(var item:* in locales) {
+		private function findPreferredLocale(prefLocale:String) : * {
+			var item:* = null;
+			// Looking for locale in format 'en_US'
+			for each(item in locales) {
 				if (prefLocale == item.code)
+					return item;
+			}
+			// If not found we look for form 'en'
+			var mainLocale : String = prefLocale.substr(0,2);
+			for each(item in locales) {
+				if (mainLocale == item.code)
+					return item;
+			}
+			// If not found we look for the first item that contains 'en'
+			for each(item in locales) {
+				if (StringUtils.startsWith(item.code, mainLocale))
 					return item;
 			}
 			return null;
@@ -142,7 +154,7 @@ package org.bigbluebutton.util.i18n
 
 			var localeInfo:Object = findPreferredLocale(localeCode)
 			if (localeInfo != null) {
-				preferredLocale = localeCode;
+				preferredLocale = localeInfo.code;
 				preferredDirection = localeInfo.direction;
 			}else{
 				LOGGER.debug("Preferred locale wasn't in the list of locales falling back to ["+MASTER_LOCALE+"]");
@@ -243,10 +255,16 @@ package org.bigbluebutton.util.i18n
 				inited = true;
 				dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_INIT));
 			}
+			updateLayoutDirection();
 			dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_CHANGED));
 			dispatchEvent(new Event(Event.CHANGE));
 		}
 		
+		public function updateLayoutDirection():void {
+			if (isRTLEnabled()) {
+				FlexGlobals.topLevelApplication.setStyle("layoutDirection", preferredDirection);
+			}
+		}
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
 			/**

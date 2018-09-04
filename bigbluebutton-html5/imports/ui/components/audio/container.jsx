@@ -2,7 +2,9 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
+import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
+import { notify } from '/imports/ui/services/notification';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 
@@ -21,23 +23,35 @@ const intlMessages = defineMessages({
   },
   genericError: {
     id: 'app.audioManager.genericError',
-    description: 'Generic error messsage',
+    description: 'Generic error message',
   },
   connectionError: {
     id: 'app.audioManager.connectionError',
-    description: 'Connection error messsage',
+    description: 'Connection error message',
   },
   requestTimeout: {
     id: 'app.audioManager.requestTimeout',
-    description: 'Request timeout error messsage',
+    description: 'Request timeout error message',
   },
   invalidTarget: {
     id: 'app.audioManager.invalidTarget',
-    description: 'Invalid target error messsage',
+    description: 'Invalid target error message',
   },
   mediaError: {
     id: 'app.audioManager.mediaError',
-    description: 'Media error messsage',
+    description: 'Media error message',
+  },
+  BrowserNotSupported: {
+    id: 'app.audioNotification.audioFailedError1003',
+    description: 'browser not supported error messsage',
+  },
+  iceNegotiationError: {
+    id: 'app.audioNotification.audioFailedError1007',
+    description: 'ice negociation error messsage',
+  },
+  reconectingAsListener: {
+    id: 'app.audioNotificaion.reconnectingAsListenOnly',
+    description: 'ice negociation error messsage',
   },
 });
 
@@ -63,17 +77,34 @@ let didMountAutoJoin = false;
 export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
-  const { autoJoinAudio } = APP_CONFIG;
+  const { autoJoin } = APP_CONFIG;
   const openAudioModal = mountModal.bind(
     null,
     <AudioModalContainer />,
   );
+  if (Service.audioLocked() && Service.isConnected() && !Service.isListenOnly()) {
+    Service.exitAudio();
+    notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+    Service.joinListenOnly();
+  }
 
   Breakouts.find().observeChanges({
     removed() {
+      // if the user joined a breakout room, the main room's audio was
+      // programmatically dropped to avoid interference. On breakout end,
+      // offer to rejoin main room audio only if the user is not in audio already
+      if (Service.isUsingAudio()) {
+        return;
+      }
       setTimeout(() => openAudioModal(), 0);
     },
   });
+
+  const webRtcError = _.range(1001, 1012)
+    .reduce((acc, value) => ({
+      ...acc,
+      [value]: intl.formatMessage({ id: `app.audioNotification.audioFailedError${value}` }),
+    }), {});
 
   const messages = {
     info: {
@@ -87,6 +118,9 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       REQUEST_TIMEOUT: intl.formatMessage(intlMessages.requestTimeout),
       INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
       MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
+      WEBRTC_NOT_SUPPORTED: intl.formatMessage(intlMessages.BrowserNotSupported),
+      ICE_NEGOTIATION_FAILED: intl.formatMessage(intlMessages.iceNegotiationError),
+      ...webRtcError,
     },
   };
 
@@ -94,7 +128,7 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
     init: () => {
       Service.init(messages);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
-      if (!autoJoinAudio || didMountAutoJoin) return;
+      if (!autoJoin || didMountAutoJoin) return;
       openAudioModal();
       didMountAutoJoin = true;
     },

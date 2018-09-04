@@ -9,12 +9,12 @@ const Logger = require('../../../utils/Logger');
 
 let instance = null;
 
-module.exports = class MCSApiStub extends EventEmitter{
+module.exports = class MCSApiStub extends EventEmitter {
   constructor() {
     if(!instance) {
       super();
-      this.listener = new EventEmitter();
-      this._mediaController = new MediaController(this.listener);
+      this.emitter = this;
+      this._mediaController = new MediaController(this.emitter);
       instance = this;
     }
 
@@ -24,91 +24,111 @@ module.exports = class MCSApiStub extends EventEmitter{
   async join (room, type, params) {
     try {
       const answer = await this._mediaController.join(room, type, params);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error(err);
-      Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'join', { room, type, params}));
     }
   }
 
-  async leave (roomId, userId) {
+  async leave (room, user) {
     try {
-      const answer = await this._mediaController.leave(roomId, userId);
-      return Promise.resolve(answer);
+      const answer = await this._mediaController.leave(room, user);
+      return (answer);
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'leave', { room, user }));
     }
   }
 
   async publishnsubscribe (user, sourceId, sdp, params) {
     try {
       const answer = await this._mediaController.publishnsubscribe(user, sourceId, sdp, params);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'publishnsubscribe', { user, sourceId, sdp, params }));
     }
   }
 
   async publish (user, room,  type, params) {
     try {
-      this.listener.once(C.EVENT.NEW_SESSION+user, (event) => {
-        let sessionId = event;
-        this.listener.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, (event) => {
-          this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, event);
-        });
-      });
       const answer = await this._mediaController.publish(user, room, type, params);
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'publish', { user, room, type, params }));
     }
   }
-  
+
   async unpublish (user, mediaId) {
     try {
       await this._mediaController.unpublish(mediaId);
-      return Promise.resolve();
+      return ;
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'unpublish', { user, mediaId }));
     }
   }
 
   async subscribe (user, sourceId, type, params) {
     try {
-      this.listener.once(C.EVENT.NEW_SESSION+user, (event) => {
-        let sessionId = event;
-        this.listener.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, (event) => {
-          this.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+sessionId, event);
-        });
-      });
-
       const answer = await this._mediaController.subscribe(user, sourceId, type, params);
 
-      return Promise.resolve(answer);
+      return (answer);
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'subscribe', { user, sourceId, type, params }));
     }
   }
 
   async unsubscribe (user, mediaId) {
     try {
       await this._mediaController.unsubscribe(user, mediaId);
-      return Promise.resolve();
+      return ;
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject(err);
+    catch (error) {
+      throw (this._handleError(error, 'unsubscribe', { user, mediaId }));
+    }
+  }
+
+  async startRecording(userId, mediaId, recordingPath) {
+    try {
+      const answer = await this._mediaController.startRecording(userId, mediaId, recordingPath);
+      return (answer);
+    }
+    catch (error) {
+      throw (this._handleError(error, 'startRecording', { userId, mediaId, recordingPath}));
+    }
+  }
+
+  async stopRecording(userId, sourceId, recId) {
+    try {
+      let answer = await this._mediaController.stopRecording(userId, sourceId, recId);
+      return (answer);
+    }
+    catch (error) {
+      throw (this._handleError(error, 'stopRecording', { userId, sourceId, recId }));
+    }
+  }
+
+  async connect (source, sink, type) {
+    try {
+      await this._mediaController.connect(source, sink, type);
+      return ;
+    }
+    catch (error) {
+      throw (this._handleError(error, 'connect', { source, sink, type }));
+    }
+  }
+
+  async disconnect (source, sink, type) {
+    try {
+      await this._mediaController.disconnect(source, sink, type);
+      return ;
+    }
+    catch (error) {
+      throw (this._handleError(error, 'disconnect', { source, sink, type }));
     }
   }
 
@@ -116,29 +136,35 @@ module.exports = class MCSApiStub extends EventEmitter{
     try {
       const eventTag = this._mediaController.onEvent(eventName, mediaId);
       this._mediaController.on(eventTag, (event) => {
-        this.emit(eventTag, event);
+        this.emitter.emit(eventTag, event);
       });
 
-      return Promise.resolve(eventTag);
+      return (eventTag);
     }
-    catch (err) {
-      Logger.error(err);
-      return Promise.reject();
+    catch (error) {
+      throw (this._handleError(error, 'onEvent', { eventName, mediaId }));
     }
   }
 
   async addIceCandidate (mediaId, candidate) {
     try {
-      const ack = await this._mediaController.addIceCandidate(mediaId, candidate);
-      return Promise.resolve(ack);
+      await this._mediaController.addIceCandidate(mediaId, candidate);
+      return ;
     }
-    catch (err) {
-      Logger.error(err);
-      Promise.reject();
+    catch (error) {
+      throw (this._handleError(error, 'addIceCandidate', { mediaId, candidate }));
     }
   }
 
   setStrategy (strategy) {
     // TODO
+  }
+
+  _handleError (error, operation, params) {
+    const { code, message, details } = error;
+    const response = { type: 'error', code, message, details, operation, params };
+    Logger.error("[mcs-api] Reject operation", response.operation, "with", { error: response });
+
+    return response;
   }
 }

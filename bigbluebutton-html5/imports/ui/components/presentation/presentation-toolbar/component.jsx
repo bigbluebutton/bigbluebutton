@@ -124,6 +124,12 @@ class PresentationToolbar extends Component {
 
     this.state = { sliderValue: 100 };
     this.handleValuesChange = this.handleValuesChange.bind(this);
+    this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
+  }
+
+  handleSkipToSlideChange(event) {
+    const requestedSlideNum = parseInt(event.target.value, 10);
+    this.props.actions.skipToSlideHandler(requestedSlideNum);
   }
 
   handleValuesChange(event) {
@@ -193,7 +199,7 @@ class PresentationToolbar extends Component {
           aria-relevant="all"
           value={currentSlideNum}
           onChange={actions.skipToSlideHandler}
-          className={styles.skipSlide}
+          className={styles.skipSlideSelect}
         >
           {this.renderSkipSlideOpts(numberOfSlides)}
         </select>
@@ -208,6 +214,7 @@ class PresentationToolbar extends Component {
           onClick={actions.nextSlideHandler}
           label={intl.formatMessage(intlMessages.nextSlideLabel)}
           hideLabel
+          className={styles.skipSlide}
         />
 
         {/* Fit to width button

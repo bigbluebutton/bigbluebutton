@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
-import PollingContainer from '/imports/ui/components/polling/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationToolbarContainer from './presentation-toolbar/container';
@@ -155,8 +154,6 @@ export default class PresentationArea extends Component {
         style={{
           width: adjustedSizes.width,
           height: adjustedSizes.height,
-          WebkitTransition: 'width 0.2s', /* Safari */
-          transition: 'width 0.2s',
         }}
       >
         <TransitionGroup>
@@ -189,7 +186,6 @@ export default class PresentationArea extends Component {
               </defs>
               <g clipPath="url(#viewBox)">
                 <Slide
-                  id="slideComponent"
                   imageUri={imageUri}
                   svgWidth={width}
                   svgHeight={height}
@@ -200,6 +196,8 @@ export default class PresentationArea extends Component {
                   whiteboardId={slideObj.id}
                 />
                 <CursorWrapperContainer
+                  podId={this.props.podId}
+                  whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
                   physicalWidthRatio={adjustedSizes.width / width}
                   slideWidth={width}
@@ -231,6 +229,7 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationOverlayContainer
+        whiteboardId={slideObj.id}
         slideWidth={width}
         slideHeight={height}
         getSvgRef={this.getSvgRef}
@@ -258,6 +257,7 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
+        podId={this.props.podId}
         currentSlideNum={this.props.currentSlide.num}
         presentationId={this.props.currentSlide.presentationId}
       />
@@ -297,7 +297,6 @@ export default class PresentationArea extends Component {
               this.renderWhiteboardToolbar()
             : null }
         </div>
-        <PollingContainer />
         {this.renderPresentationToolbar()}
       </div>
     );
@@ -305,6 +304,7 @@ export default class PresentationArea extends Component {
 }
 
 PresentationArea.propTypes = {
+  podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,
   currentSlide: PropTypes.shape({

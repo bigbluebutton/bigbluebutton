@@ -1,17 +1,15 @@
 package org.bigbluebutton.presentation.imp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import com.google.gson.Gson;
+
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.presentation.FileTypeConstants;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class OfficeDocumentValidator2 {
   private static Logger log = LoggerFactory.getLogger(OfficeDocumentValidator2.class);
@@ -31,14 +29,14 @@ public class OfficeDocumentValidator2 {
       if (done) {
         return true;
       } else {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("message", "PPTX failed validation.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.error("-- analytics -- " + logStr);
+        log.error("-- analytics -- {}", logStr);
 
         return false;
       }

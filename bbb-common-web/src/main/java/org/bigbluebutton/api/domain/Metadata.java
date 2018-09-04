@@ -1,15 +1,15 @@
 package org.bigbluebutton.api.domain;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 @JacksonXmlRootElement(localName = "meta")
 public class Metadata {
-  private Map<String,String> map = new TreeMap<String,String>();
+  private Map<String,String> map = new TreeMap<>();
 
   @JsonAnyGetter
   public Map<String, String> get() {

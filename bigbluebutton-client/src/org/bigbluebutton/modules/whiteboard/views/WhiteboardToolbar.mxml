@@ -41,8 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
   <fx:Script>
     <![CDATA[
-		import com.asfusion.mate.core.GlobalDispatcher;
-		
 		import mx.events.MoveEvent;
 		import mx.events.ResizeEvent;
 		
@@ -57,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+		import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 		import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -75,7 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var containerToOverlay:MDIWindow;
 			
 			[Bindable]
-			private var multiUser:Boolean = false;
+			public var multiUser:Boolean = false;
 		
 			private var isPresenter: Boolean = false;
 
@@ -85,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
       private function onCreationComplete():void {
-        multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = this.isPresenter;
+		showMultiUserBtn(this.isPresenter);
         
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
@@ -95,9 +94,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           changeThickness();
           changeColor();
         }
+
+        penOnlyMultiUser();
       }
       
       public function setCanvas(c:WhiteboardCanvas):void {
+        wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
+
         canvas = c;
         
         if (cpik) {
@@ -164,13 +167,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				event.multiUser = !multiUser;
 				dispatchEvent(event);
 			}
-
 		
 			public function presenterChange(amIPresenter:Boolean): void {
 				this.isPresenter = amIPresenter;
 				
 				if (multiUserBtn != null) {
-					multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = amIPresenter;
+					showMultiUserBtn(amIPresenter);
 				}
 				checkVisibility();
 
@@ -178,7 +180,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					checkToolReset();
 				}
 			}
-
+		
+			private function showMultiUserBtn(visible:Boolean):void{
+				multiUserBtn.enabled = multiUserBtn.visible = multiUserBtn.includeInLayout = visible;
+			}
+		
 			public function whiteboardAccessModified(mu:Boolean):void {
 				multiUser = mu;
 				checkToolReset();
@@ -195,7 +201,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function positionToolbar(container:MDIWindow):void {
-				wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
         		LOGGER.debug("Positioning whiteboard toolbar");
 				containerToOverlay = container;
 				containerToOverlay.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
@@ -225,6 +230,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 } else {
                     hideToolbar();
                 }
+                penOnlyMultiUser();
+            }
+
+            private function penOnlyMultiUser() : void {
+				if (multiUser && wbOptions.onlyPenMUW && !isPresenter) {
+					setToolType(WhiteboardConstants.TYPE_SHAPE, AnnotationType.PENCIL);
+				}
             }
             
 			private function showToolbar():void {
@@ -282,7 +294,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function toolbarAllowed():Boolean {
-        return (multiUser? true : isPresenter);
+        return (multiUser && !wbOptions.onlyPenMUW? true : isPresenter);
       }
 
 		]]>
@@ -341,5 +353,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			   width="{BUTTON_SIZE}" height="{BUTTON_SIZE}"
 			   selected="{multiUser}"
 			   styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser')}" /> 
+			   toolTip="{!multiUser ? ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser.start') : ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.multiuser.stop')}" />
 </mx:VBox>

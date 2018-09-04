@@ -115,7 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCancelClicked():void {
 				LOGGER.debug("AudioSelectionWindow - Close clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION, true));
 				
 				PopUpUtil.removePopUp(this);
 			}

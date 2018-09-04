@@ -1,0 +1,6 @@
+# For PRODUCTION
+publish_dir: /var/bigbluebutton/published/podcast
+
+# For DEVELOPMENT
+#publish_dir: /home/ubuntu/temp/published/podcast
+

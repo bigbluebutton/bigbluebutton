@@ -19,7 +19,9 @@
 
 package org.bigbluebutton.presentation;
 
-import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
@@ -27,8 +29,7 @@ import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
   private static Logger log = LoggerFactory
@@ -52,7 +53,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
-    log.info("-- analytics -- " + logStr);
+    log.info("-- analytics -- {}", logStr);
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
@@ -87,7 +88,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     logData.put("message", "End presentation conversion.");
     gson = new Gson();
     logStr = gson.toJson(logData);
-    log.info("-- analytics -- " + logStr);
+    log.info("-- analytics -- {}", logStr);
   }
 
   public void setBbbWebApiGWApp(IBbbWebApiGWApp m) {

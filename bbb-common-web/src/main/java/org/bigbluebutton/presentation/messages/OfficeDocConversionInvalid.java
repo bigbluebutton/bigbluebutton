@@ -1,6 +1,5 @@
 package org.bigbluebutton.presentation.messages;
 
-
 import org.bigbluebutton.api.messaging.messages.IMessage;
 
 public class OfficeDocConversionInvalid implements IMessage{

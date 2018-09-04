@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from '../styles.scss';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
@@ -152,6 +151,7 @@ export default class TextDrawListener extends Component {
   }
 
   handleTouchMove(event) {
+    event.preventDefault();
     const { clientX, clientY } = event.changedTouches[0];
     this.commonDrawMoveHandler(clientX, clientY);
   }
@@ -340,6 +340,8 @@ export default class TextDrawListener extends Component {
 
   handleDrawText(startPoint, width, height, status, id, text) {
     const { normalizeFont, sendAnnotation } = this.props.actions;
+    const { whiteboardId, userId } = this.props;
+    const { color, textFontSize } = this.props.drawSettings;
 
     const annotation = {
       id,
@@ -348,32 +350,39 @@ export default class TextDrawListener extends Component {
       annotationInfo: {
         x: startPoint.x, // left corner
         y: startPoint.y, // left corner
-        fontColor: this.props.drawSettings.color,
-        calcedFontSize: normalizeFont(this.props.drawSettings.textFontSize), // fontsize
+        fontColor: color,
+        calcedFontSize: normalizeFont(textFontSize), // fontsize
         textBoxWidth: width, // width
         text,
         textBoxHeight: height, // height
         id,
-        whiteboardId: this.props.whiteboardId,
+        whiteboardId,
         status,
         fontSize: this.props.drawSettings.textFontSize,
         dataPoints: `${startPoint.x},${startPoint.y}`,
         type: 'text',
       },
-      wbId: this.props.whiteboardId,
-      userId: this.props.userId,
+      wbId: whiteboardId,
+      userId,
       position: 0,
     };
 
-    sendAnnotation(annotation);
+    sendAnnotation(annotation, whiteboardId);
   }
 
   render() {
+    const baseName = Meteor.settings.public.app.basename;
+    const textDrawStyle = {
+      width: '100%',
+      height: '100%',
+      touchAction: 'none',
+      zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/text.png'), default`,
+    };
     return (
       <div
         role="presentation"
-        className={styles.text}
-        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        style={textDrawStyle}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
       >

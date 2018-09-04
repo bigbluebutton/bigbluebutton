@@ -49,7 +49,7 @@ export default withTracker((params) => {
   const cursor = CursorService.getCurrentCursor(cursorId);
 
   if (cursor) {
-    const { x: cursorX, y: cursorY, userName } = cursor;
+    const { xPercent: cursorX, yPercent: cursorY, userName } = cursor;
     return {
       cursorX,
       cursorY,

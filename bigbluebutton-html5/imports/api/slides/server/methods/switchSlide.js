@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function switchSlide(credentials, slideNumber) {
+export default function switchSlide(credentials, slideNumber, podId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
 
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -19,6 +19,7 @@ export default function switchSlide(credentials, slideNumber) {
 
   const selector = {
     meetingId,
+    podId,
     current: true,
   };
 
@@ -30,6 +31,7 @@ export default function switchSlide(credentials, slideNumber) {
 
   const Slide = Slides.findOne({
     meetingId,
+    podId,
     presentationId: Presentation.id,
     num: slideNumber,
   });
@@ -39,8 +41,9 @@ export default function switchSlide(credentials, slideNumber) {
   }
 
   const payload = {
-    pageId: Slide.id,
+    podId,
     presentationId: Presentation.id,
+    pageId: Slide.id,
   };
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

@@ -35,6 +35,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.model.LiveMeeting;
+	import org.bigbluebutton.core.model.users.User2x;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
@@ -48,6 +49,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
+	import org.bigbluebutton.main.model.users.events.LookUpUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -188,8 +190,8 @@ package org.bigbluebutton.main.model.users
 			sender.activityResponse();
 		}
 		
-		public function userInactivityAuditResponse():void {
-			sender.userInactivityAuditResponse();
+		public function userActivitySignResponse():void {
+			sender.userActivitySignResponse();
 		}
 		
 		private function queryForRecordingStatus():void {
@@ -199,6 +201,12 @@ package org.bigbluebutton.main.model.users
 		public function changeRecordingStatus(e:BBBEvent):void {
 			if (this.isModerator() && !e.payload.remote) {
 				sender.changeRecordingStatus(UsersUtil.getMyUserID(), e.payload.recording);
+			}
+		}
+
+		public function recordAndClearPreviousMarkers(e:BBBEvent):void {
+			if (this.isModerator() && !e.payload.remote) {
+				sender.recordAndClearPreviousMarkers(UsersUtil.getMyUserID(), e.payload.recording);
 			}
 		}
 
@@ -231,11 +239,19 @@ package org.bigbluebutton.main.model.users
 		}
 				
 		public function addStream(e:BroadcastStartedEvent):void {
-      sender.addStream(e.userid, e.stream);
+			// Do not do anything. We are having the server (red5 bbb-video)
+			// send the start stream event. This way, we are sure that the event
+			// is dispatched even if we loose message path if connection is
+			// disconnected (ralam may 11, 2018)
+      //sender.addStream(e.userid, e.stream);
 		}
 		
 		public function removeStream(e:BroadcastStoppedEvent):void {
-      sender.removeStream(e.userid, e.stream);
+			// Do not do anything. We are having the server (red5 bbb-video)
+			// send the stop stream event. This way, we are sure that the event
+			// is dispatched even if we loose message path if connection is
+			// disconnected (ralam may 11, 2018)
+      //sender.removeStream(e.userid, e.stream);
 		}
 		
 		public function emojiStatus(e:EmojiStatusEvent):void {
@@ -344,5 +360,12 @@ package org.bigbluebutton.main.model.users
 	public function updateWebcamsOnlyForModerator(command:SetWebcamsOnlyForModeratorEvent):void {
 		sender.updateWebcamsOnlyForModerator(command.webcamsOnlyForModerator, UsersUtil.getMyUserID());
 	}
+	
+    public function lookUpUser(command:LookUpUserEvent):void {
+      var user:User2x = UsersUtil.getUser(command.userId);
+      if (user) {
+        sender.lookUpUser(user.extId);
+	  }
+    }
 	}
 }

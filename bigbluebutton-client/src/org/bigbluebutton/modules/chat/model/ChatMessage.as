@@ -18,6 +18,9 @@
 */
 package org.bigbluebutton.modules.chat.model {
 	import org.as3commons.lang.StringUtils;
+	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.model.users.User2x;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatMessage {
@@ -31,14 +34,30 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var lastTime:String;
 		[Bindable] public var text:String;
 		[Bindable] public var differentLastSenderAndTime:Boolean;
-		[Bindable] public var sameLastSender:Boolean;
-		[Bindable] public var isModerator:Boolean;
 
 	    // Stores the time (millis) when the sender sent the message.
 	    public var fromTime:Number;
 	    // Stores the timezone offset (minutes) of the sender.
 	    public var fromTimezoneOffset:Number;
 
+		/*
+	    // Stores what we display to the user. The converted fromTime and fromTimezoneOffset to local time.
+	    [Bindable] public var senderTime:String;
+	    */
+		
+		public function sameLastTime():Boolean {
+			return lastTime == time;
+		}
+		
+		public function sameLastSender():Boolean {
+			return StringUtils.trimToEmpty(senderId) == StringUtils.trimToEmpty(lastSenderId);
+		}
+		
+		public function isModerator():Boolean {
+			var user:User2x = UsersUtil.getUser(senderId);
+			return user && user.role == Role.MODERATOR
+		}
+		
 		public function toString() : String {
 			var result:String;
 			var accName:String = (StringUtils.isBlank(name) ? ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage") : name);

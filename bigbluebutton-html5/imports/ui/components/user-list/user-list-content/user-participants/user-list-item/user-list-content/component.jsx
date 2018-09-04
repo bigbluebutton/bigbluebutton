@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -82,6 +81,7 @@ class UserListContent extends Component {
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
+    this.renderUserAvatar = this.renderUserAvatar.bind(this);
   }
 
   componentWillMount() {
@@ -176,12 +176,41 @@ class UserListContent extends Component {
     return isActionsOpen && !dropdownVisible;
   }
 
+  renderUserAvatar() {
+    const {
+      normalizeEmojiName,
+      user,
+    } = this.props;
+
+    const { clientType } = user;
+    const isVoiceOnly = clientType === 'dial-in-user';
+
+    const iconUser = user.emoji.status !== 'none' ?
+      (<Icon iconName={normalizeEmojiName(user.emoji.status)} />) :
+      user.name.toLowerCase().slice(0, 2);
+
+    const iconVoiceOnlyUser = (<Icon iconName="speak_louder" />);
+
+    return (
+      <UserAvatar
+        moderator={user.isModerator}
+        presenter={user.isPresenter}
+        talking={user.isTalking}
+        muted={user.isMuted}
+        listenOnly={user.isListenOnly}
+        voice={user.isVoiceUser}
+        color={user.color}
+      >
+        {isVoiceOnly ? iconVoiceOnlyUser : iconUser }
+      </UserAvatar>
+    );
+  }
+
   render() {
     const {
       compact,
       user,
       intl,
-      normalizeEmojiName,
       actions,
       isMeetingLocked,
       meeting,
@@ -197,7 +226,9 @@ class UserListContent extends Component {
     const userItemContentsStyle = {};
 
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
-    userItemContentsStyle[styles.active] = isActionsOpen;
+    userItemContentsStyle[styles.dropdown] = true;
+    userItemContentsStyle[styles.userListItem] = !this.state.isActionsOpen;
+    userItemContentsStyle[styles.usertListItemWithMenu] = this.state.isActionsOpen;
 
     const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
@@ -217,24 +248,11 @@ class UserListContent extends Component {
 
     const contents = (
       <div
-        className={!actions.length ? cx(styles.userListItem, userItemContentsStyle) : null}
-        aria-label={userAriaLabel}
+        className={!actions.length ? styles.userListItem : null}
       >
-        <div className={styles.userItemContents} aria-hidden="true">
+        <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
-            <UserAvatar
-              moderator={user.isModerator}
-              presenter={user.isPresenter}
-              talking={user.isTalking}
-              muted={user.isMuted}
-              listenOnly={user.isListenOnly}
-              voice={user.isVoiceUser}
-              color={user.color}
-            >
-              {user.emoji.status !== 'none' ?
-                <Icon iconName={normalizeEmojiName(user.emoji.status)} /> :
-                user.name.toLowerCase().slice(0, 2)}
-            </UserAvatar>
+            { this.renderUserAvatar() }
           </div>
           {<UserName
             user={user}
@@ -242,6 +260,8 @@ class UserListContent extends Component {
             intl={intl}
             meeting={meeting}
             isMeetingLocked={isMeetingLocked}
+            userAriaLabel={userAriaLabel}
+            isActionsOpen={isActionsOpen}
           />}
           {<UserIcons
             user={user}
@@ -261,7 +281,7 @@ class UserListContent extends Component {
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={cx(styles.dropdown, styles.userListItem, userItemContentsStyle)}
+        className={userItemContentsStyle}
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"

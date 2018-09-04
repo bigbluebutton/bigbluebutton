@@ -4,7 +4,6 @@ import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
 
-
 const messages = defineMessages({
   presenter: {
     id: 'app.userList.presenter',
@@ -31,6 +30,7 @@ const messages = defineMessages({
     description: 'aria label for each user in the userlist',
   },
 });
+
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -45,6 +45,7 @@ const propTypes = {
   }).isRequired,
   meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
+  userAriaLabel: PropTypes.string.isRequired,
 };
 
 const UserName = (props) => {
@@ -54,6 +55,8 @@ const UserName = (props) => {
     compact,
     isMeetingLocked,
     meeting,
+    userAriaLabel,
+    isActionsOpen,
   } = props;
 
   if (compact) {
@@ -77,9 +80,8 @@ const UserName = (props) => {
     userNameSub.push(intl.formatMessage(messages.guest));
   }
 
-
   return (
-    <div className={styles.userName}>
+    <div className={styles.userName} role="button" aria-label={userAriaLabel} aria-expanded={isActionsOpen}>
       <span className={styles.userNameMain}>
         {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>

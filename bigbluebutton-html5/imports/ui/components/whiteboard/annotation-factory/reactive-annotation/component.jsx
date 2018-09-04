@@ -10,11 +10,13 @@ const ReactiveAnnotation = (props) => {
       annotation={props.annotation.annotationInfo}
       slideWidth={props.slideWidth}
       slideHeight={props.slideHeight}
+      whiteboardId={props.whiteboardId}
     />
   );
 };
 
 ReactiveAnnotation.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   annotation: PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,

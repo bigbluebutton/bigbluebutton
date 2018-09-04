@@ -4,14 +4,15 @@ import { check } from 'meteor/check';
 import flat from 'flat';
 
 export default function handleBreakoutRoomStarted({ body }, meetingId) {
+  // 0 seconds default breakout time, forces use of real expiration time
+  const DEFAULT_TIME_REMAINING = 0;
+
   const {
     parentMeetingId,
     breakout,
   } = body;
 
   const { breakoutId } = breakout;
-
-  const timeRemaining = 15;
 
   check(meetingId, String);
 
@@ -22,7 +23,7 @@ export default function handleBreakoutRoomStarted({ body }, meetingId) {
   const modifier = {
     $set: Object.assign(
       { users: [] },
-      { timeRemaining: Number(timeRemaining) },
+      { timeRemaining: DEFAULT_TIME_REMAINING },
       { parentMeetingId },
       flat(breakout),
     ),

@@ -208,6 +208,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildUserInactivityInspectMsg(meetingId: String, userId: String, responseDelay: Long): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserInactivityInspectMsg.NAME, routing)
+    val body = UserInactivityInspectMsgBody(meetingId, responseDelay)
+    val header = BbbClientMsgHeader(UserInactivityInspectMsg.NAME, meetingId, userId)
+    val event = UserInactivityInspectMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildCheckAlivePingSysMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(CheckAlivePongSysMsg.NAME, routing)
@@ -284,6 +294,17 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(StopRecordingVoiceConfSysMsg.NAME, meetingId)
     val body = StopRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
     val event = StopRecordingVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCreateNewPresentationPodEvtMsg(meetingId: String, currentPresenterId: String, podId: String, userId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(CreateNewPresentationPodEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, userId)
+
+    val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
+    val event = CreateNewPresentationPodEvtMsg(header, body)
+
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }

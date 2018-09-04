@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FilenameUtils;
@@ -17,6 +16,8 @@ import org.bigbluebutton.presentation.FileTypeConstants;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class OfficeDocumentValidator {
   private static Logger log = LoggerFactory.getLogger(OfficeDocumentValidator.class);
@@ -34,14 +35,14 @@ public class OfficeDocumentValidator {
         // Close the resource once we finished reading it
         xmlSlideShow.close();
       } catch (IOException e) {
-        Map<String, Object> logData = new HashMap<String, Object>();
+        Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("message", "Cannot open PPTX file " + pres.getName());
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.error("-- analytics -- " + logStr);
+        log.error("-- analytics -- {}", logStr);
 
         valid = false;
       }
@@ -59,16 +60,16 @@ public class OfficeDocumentValidator {
     EmfPredicate emfPredicate = new EmfPredicate();
     ArrayList<XSLFPictureData> embeddedEmfFiles = (ArrayList<XSLFPictureData>) CollectionUtils
         .select(xmlSlideShow.getPictureData(), emfPredicate);
-    if (embeddedEmfFiles.size() > 0) {
+    if (!embeddedEmfFiles.isEmpty()) {
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("message", "Found " + embeddedEmfFiles.size() + " EMF files in presentation.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- " + logStr);
+      log.warn("-- analytics -- {}", logStr);
 
       return true;
     }
@@ -85,16 +86,16 @@ public class OfficeDocumentValidator {
     TinyTileBackgroundPredicate tinyTileCondition = new TinyTileBackgroundPredicate();
     ArrayList<XSLFPictureData> tileImage = (ArrayList<XSLFPictureData>) CollectionUtils
         .select(xmlSlideShow.getPictureData(), tinyTileCondition);
-    if (tileImage.size() > 0) {
+    if (!tileImage.isEmpty()) {
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("message", "Found small background tile image.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- " + logStr);
+      log.warn("-- analytics -- {}", logStr);
 
       return true;
     }
@@ -104,7 +105,7 @@ public class OfficeDocumentValidator {
   private final class EmfPredicate implements Predicate<XSLFPictureData> {
     @Override
     public boolean evaluate(XSLFPictureData img) {
-      return img.getContentType().equals("image/x-emf");
+      return "image/x-emf".equals(img.getContentType());
     }
   }
 
@@ -113,7 +114,7 @@ public class OfficeDocumentValidator {
     @Override
     public boolean evaluate(XSLFPictureData img) {
       return img.getContentType() != null
-          && img.getContentType().equals("image/jpeg")
+          && "image/jpeg".equals(img.getContentType())
           && LittleEndian.getLong(img.getChecksum()) == 4114937224L;
     }
   }

@@ -9,7 +9,7 @@ import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, MeetingCreatedEvtMsg
 
 sealed trait ApiMsg
 case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
-                                 name: String, sequence: Integer, voiceConfId: String,
+                                 name: String, sequence: Integer, freeJoin: Boolean, voiceConfId: String,
                                  viewerPassword: String, moderatorPassword: String, duration: Int,
                                  sourcePresentationId: String, sourcePresentationSlide: Int,
                                  record: Boolean) extends ApiMsg
