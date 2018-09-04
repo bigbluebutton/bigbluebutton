@@ -22,10 +22,15 @@ export default class PresentationArea extends Component {
       presentationHeight: 0,
       showSlide: false,
       zoom: 100,
+      delta: {
+        x: 0,
+        y: 0,
+      },
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
+    this.pointUpdate = this.pointUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -34,7 +39,7 @@ export default class PresentationArea extends Component {
       setTimeout(this.handleResize.bind(this), 0);
     });
 
-    this.getInitialPresentationSizes();    
+    this.getInitialPresentationSizes();
   }
 
   componentWillUnmount() {
@@ -88,7 +93,6 @@ export default class PresentationArea extends Component {
   }
 
   handleResize() {
-    
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
@@ -139,6 +143,14 @@ export default class PresentationArea extends Component {
       newZoom = MAX_PERCENT;
     }
     if (isDifferent) this.setState({ zoom: newZoom });
+  }
+  pointUpdate(pointX, pointY) {
+    this.setState({
+      delta: {
+        x: pointX,
+        y: pointY,
+      },
+    });
   }
   // renders the whole presentation area
   renderPresentationArea() {
@@ -251,6 +263,7 @@ export default class PresentationArea extends Component {
         whiteboardId={slideObj.id}
         slideWidth={width}
         slideHeight={height}
+        delta={this.state.delta}
         viewBoxWidth={viewBoxWidth}
         viewBoxHeight={viewBoxHeight}
         zoom={this.state.zoom}
@@ -266,6 +279,7 @@ export default class PresentationArea extends Component {
           slideHeight={height}
           viewBoxX={x}
           viewBoxY={y}
+          pointChanger={this.pointUpdate}
           viewBoxWidth={viewBoxWidth}
           viewBoxHeight={viewBoxHeight}
           physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}

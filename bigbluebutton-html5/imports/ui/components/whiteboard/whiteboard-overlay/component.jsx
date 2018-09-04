@@ -173,7 +173,7 @@ export default class WhiteboardOverlay extends Component {
           slideHeight={this.props.slideHeight}
         />
       );
-    } else if (tool === 'hand') {
+    } else if (tool === 'pointer') {
       return (
         <PanZoomDrawListener {...this.props} />
       );

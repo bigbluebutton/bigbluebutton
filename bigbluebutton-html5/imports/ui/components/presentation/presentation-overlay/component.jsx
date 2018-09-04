@@ -105,17 +105,37 @@ export default class PresentationOverlay extends Component {
     });
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const {
       zoom,
       getSvgRef,
+      delta,
     } = this.props;
+    const isDifferent = zoom !== this.state.zoom;
+    const moveSLide = ((delta.x !== prevProps.delta.x)
+    || (delta.y !== prevProps.delta.y)) && !isDifferent;
 
-    const svgRect = getSvgRef().getBoundingClientRect();    
+    if (moveSLide) {
+      this.deltaX = delta.x;
+      this.deltaY = delta.y;
+      this.calcPageX += delta.x * -1;
+      this.calcPageY += delta.y * -1;
+      this.doHeightBoundsDetection();
+      this.doWidthBoundsDetection();
+      this.calcViewedRegion();
+      this.zoomCall(
+        this.state.zoom,
+        this.viewedRegionW,
+        this.viewedRegionH,
+        this.viewedRegionX,
+        this.viewedRegionY,
+      );
+    }
+
+    const svgRect = getSvgRef().getBoundingClientRect();
     const svgCenterX = svgRect.left + (svgRect.width / 2);
     const svgCenterY = svgRect.top + (svgRect.height / 2);
 
-    const isDifferent = zoom !== this.state.zoom;
     if (isDifferent) {
       this.doZoomCall(zoom, svgCenterX, svgCenterY);
     }
@@ -383,7 +403,6 @@ export default class PresentationOverlay extends Component {
     if (this.touchStarted) {
       return;
     }
-
     // for the case where you change settings in one of the lists (which are displayed on the slide)
     // the mouse starts pointing to the slide right away and mouseEnter doesn't fire
     // so we call it manually here
