@@ -324,12 +324,15 @@ class AudioModal extends Component {
     }
     if (this.skipAudioOptions()) {
       return (
-        <span className={styles.connecting} role="alert">
-          {!isEchoTest ?
+        <div className={styles.connecting} role="alert">
+          <span>
+            {!isEchoTest ?
               intl.formatMessage(intlMessages.connecting) :
               intl.formatMessage(intlMessages.connectingEchoTest)
             }
-        </span>
+          </span>
+          <span className={styles.connectingAnimation} />
+        </div>
       );
     }
     return content ? this.contents[content].component() : this.renderAudioOptions();
