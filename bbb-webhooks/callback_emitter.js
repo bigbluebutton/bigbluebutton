@@ -62,11 +62,19 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
   _emitMessage(callback) {
     let data,requestOptions;
+    const serverDomain = process.env.SERVER_DOMAIN || config.bbb.serverDomain;
+    const sharedSecret = process.env.SHARED_SECRET || config.bbb.sharedSecret;
+    const bearerAuth = process.env.BEARER_AUTH || config.bbb.auth2_0;
 
-    if (config.bbb.auth2_0) {
-      // Send data as a JSON
-      data = "[" + this.message + "]";
+    // data to be sent
+    // note: keep keys in alphabetical order
+    data = {
+      event: "[" + this.message + "]",
+      timestamp: this.timestamp,
+      domain: serverDomain
+    };
 
+    if (bearerAuth) {
       const callbackURL = this.callbackURL;
 
       requestOptions = {
@@ -76,20 +84,13 @@ module.exports = class CallbackEmitter extends EventEmitter {
         method: "POST",
         form: data,
         auth: {
-          bearer: config.bbb.sharedSecret
+          bearer: sharedSecret
         }
       };
     }
     else {
-      // data to be sent
-      // note: keep keys in alphabetical order
-      data = {
-        event: "[" + this.message + "]",
-        timestamp: this.timestamp
-      };
-
       // calculate the checksum
-      const checksum = Utils.checksum(`${this.callbackURL}${JSON.stringify(data)}${config.bbb.sharedSecret}`);
+      const checksum = Utils.checksum(`${this.callbackURL}${JSON.stringify(data)}${sharedSecret}`);
 
       // get the final callback URL, including the checksum
       const urlObj = url.parse(this.callbackURL, true);
