@@ -17,11 +17,12 @@ import { nameFromLevel } from '@browser-bunyan/levels';
 // Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 
 const LOG_CONFIG = Meteor.settings.public.clientLog || { console: { enabled: true, level: 'info' } };
-const { fullInfo } = Auth;
 
 // Custom stream that logs to an end-point
 class ServerLoggerStream extends ServerStream {
   write(rec) {
+    const { fullInfo } = Auth;
+
     this.rec = rec;
     if (fullInfo.meetingId != null) {
       this.rec.clientInfo = fullInfo;
@@ -33,6 +34,8 @@ class ServerLoggerStream extends ServerStream {
 // Custom stream to log to the meteor server
 class MeteorStream {
   write(rec) {
+    const { fullInfo } = Auth;
+
     this.rec = rec;
     if (fullInfo.meetingId != null) {
       Meteor.call('logClient', nameFromLevel[this.rec.level], this.rec.msg, fullInfo);
