@@ -51,7 +51,8 @@ export default class PanZoomDrawListener extends React.Component {
       height: '100%',
       touchAction: 'none',
       zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
-      cursor: this.state.pressed ? `url('${baseName}/resources/images/whiteboard-cursor/pencil.svg') 2 22, default` : '',
+      cursor: this.state.pressed ? `url('${baseName}/resources/images/whiteboard-cursor/pan-closed.png') 4 8 ,  default`
+      : `url('${baseName}/resources/images/whiteboard-cursor/pan.png') 4 8,  default`,
     };
     return (<div
       style={pencilDrawStyle}
