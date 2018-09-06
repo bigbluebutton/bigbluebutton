@@ -48,7 +48,7 @@ module.exports = class AudioManager extends BaseManager {
     }
   }
 
-  _onMessage(message) {
+  async _onMessage(message) {
     Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
     let session;
 
@@ -62,24 +62,27 @@ module.exports = class AudioManager extends BaseManager {
 
     switch (message.id) {
       case 'start':
-
-        if (!session) {
-          session = new Audio(this._bbbGW, connectionId, voiceBridge);
-        }
-
-        this._meetings[message.internalMeetingId] = sessionId;
-        this._sessions[sessionId] = session;
-
-        // starts audio session by sending sessionID, websocket and sdpoffer
-        session.start(sessionId, connectionId, message.sdpOffer, message.caleeName, message.userId, message.userName, (error, sdpAnswer) => {
-          Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
-          Logger.debug(this._logPrefix, "SDP answer was", sdpAnswer);
-          if (error) {
-            const errorMessage = this._handleError(this._logPrefix, connectionId, callerName, C.RECV_ROLE, error);
-            return this._bbbGW.publish(JSON.stringify({
-              ...errorMessage
-            }), C.FROM_AUDIO);
+        try {
+          if (!session) {
+            session = new Audio(this._bbbGW, connectionId, voiceBridge);
           }
+
+          this._meetings[message.internalMeetingId] = sessionId;
+          this._sessions[sessionId] = session;
+
+          const { sdpOffer, caleeName, userId, userName } = message;
+
+          // starts audio session by sending sessionID, websocket and sdpoffer
+          const sdpAnswer = await session.start(sessionId, connectionId, sdpOffer, caleeName, userId, userName);
+          Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
+
+          session.once(C.MEDIA_SERVER_OFFLINE, async (event) => {
+            const errorMessage = this._handleError(this._logPrefix, connectionId, caleeName, C.RECV_ROLE, errors.MEDIA_SERVER_OFFLINE);
+            errorMessage.id = 'webRTCAudioError';
+            this._bbbGW.publish(JSON.stringify({
+              ...errorMessage,
+            }), C.FROM_AUDIO);
+          });
 
           this._bbbGW.publish(JSON.stringify({
             connectionId: connectionId,
@@ -90,7 +93,13 @@ module.exports = class AudioManager extends BaseManager {
           }), C.FROM_AUDIO);
 
           Logger.info(this._logPrefix, "Sending startResponse to user", sessionId, "for connection", session._id);
-        });
+        } catch (err) {
+          const errorMessage = this._handleError(this._logPrefix, connectionId, message.caleeName, C.RECV_ROLE, err);
+          errorMessage.id = 'webRTCAudioError';
+          return this._bbbGW.publish(JSON.stringify({
+            ...errorMessage
+          }), C.FROM_AUDIO);
+        }
         break;
 
       case 'stop':

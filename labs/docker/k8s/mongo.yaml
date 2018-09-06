@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mongo
+    version: latest
+  name: mongo
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: mongo
+        version: latest
+      name: mongo
+    spec:
+      containers:
+      - image: mongo:3.6
+        imagePullPolicy: Always
+        name: mongo
+        ports:
+        - containerPort: 27017
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: bigbluebutton
+spec:
+  ports:
+  - targetPort: 27017
+    port: 27017
+  selector:
+    app: mongo

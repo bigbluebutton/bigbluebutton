@@ -7,6 +7,14 @@ import logger from '/imports/startup/client/logger';
 import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
+const discardedList = [];
+
+export function addAnnotationToDiscardedList(annotation) {
+  if (!discardedList.includes(annotation)) discardedList.push(annotation);
+}
 
 function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
@@ -25,18 +33,17 @@ function handleAddedAnnotation({
 
   const fakeAnnotation = Annotations.findOne({ id: `${annotation.id}-fake` });
   const fakePoints = fakeAnnotation.annotationInfo.points;
-  const lastPoints = annotation.annotationInfo.points;
+  const { points: lastPoints } = annotation.annotationInfo;
 
   if (annotation.annotationType !== 'pencil') {
     Annotations.update(fakeAnnotation._id, {
       $set: {
         position: annotation.position,
-        'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === 'DRAW_END' ?
+        'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END ?
           annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
       },
       $inc: { version: 1 }, // TODO: Remove all this version stuff
     });
-
     return;
   }
 
@@ -47,12 +54,12 @@ function handleAddedAnnotation({
     }
 
     // Remove fake annotation for pencil on draw end
-    if (annotation.status === 'DRAW_END') {
+    if (annotation.status === DRAW_END) {
       Annotations.remove({ id: `${annotation.id}-fake` });
       return;
     }
 
-    if (annotation.status === 'DRAW_START') {
+    if (annotation.status === DRAW_START) {
       Annotations.update(fakeAnnotation._id, {
         $set: {
           position: annotation.position - 1,
@@ -68,6 +75,8 @@ function handleRemovedAnnotation({
 }) {
   const query = { meetingId, whiteboardId };
 
+  addAnnotationToDiscardedList(shapeId);
+
   if (userId) {
     query.userId = userId;
   }
@@ -82,7 +91,10 @@ function handleRemovedAnnotation({
 AnnotationsStreamer.on('removed', handleRemovedAnnotation);
 
 AnnotationsStreamer.on('added', ({ annotations }) => {
-  annotations.forEach(annotation => handleAddedAnnotation(annotation));
+  // Call handleAddedAnnotation when this annotation is not in discardedList
+  annotations
+    .filter(({ annotation }) => !discardedList.includes(annotation.id))
+    .forEach(annotation => handleAddedAnnotation(annotation));
 });
 
 function increaseBrightness(realHex, percent) {
@@ -125,7 +137,10 @@ const proccessAnnotationsQueue = () => {
   }
 
   // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  AnnotationsStreamer.emit('publish', { credentials: Auth.credentials, payload: annotationsQueue });
+  AnnotationsStreamer.emit('publish', {
+    credentials: Auth.credentials,
+    payload: annotationsQueue.filter(({ id }) => !discardedList.includes(id)),
+  });
   annotationsQueue = [];
   // ask tiago
   const delayPerc =
@@ -143,7 +158,7 @@ export function sendAnnotation(annotation) {
   if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 
   // skip optimistic for draw end since the smoothing is done in akka
-  if (annotation.status === 'DRAW_END') return;
+  if (annotation.status === DRAW_END) return;
 
   const { position, ...relevantAnotation } = annotation;
   const queryFake = addAnnotationQuery(
@@ -168,7 +183,6 @@ WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
 
 Users.find({ userId: Auth.userID }).observeChanges({
   changed(id, { presenter }) {
-    console.log(presenter);
     if (presenter === false) clearFakeAnnotations();
   },
 });

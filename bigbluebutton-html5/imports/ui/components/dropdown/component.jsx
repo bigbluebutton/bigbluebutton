@@ -73,15 +73,15 @@ class Dropdown extends Component {
     return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
   }
 
-
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.isOpen && !prevState.isOpen) {
-      this.props.onShow();
-    }
+    const {
+      onShow,
+      onHide,
+    } = this.props;
 
-    if (!this.state.isOpen && prevState.isOpen) {
-      this.props.onHide();
-    }
+    if (this.state.isOpen && !prevState.isOpen) { onShow(); }
+
+    if (!this.state.isOpen && prevState.isOpen) { onHide(); }
   }
 
   handleShow() {
@@ -98,14 +98,17 @@ class Dropdown extends Component {
     });
   }
 
-  handleWindowClick(event) {
+  handleWindowClick() {
     const triggerElement = findDOMNode(this.trigger);
+    const contentElement = findDOMNode(this.content);
+    const closeDropdown = this.props.isOpen && this.state.isOpen && triggerElement.contains(event.target);
+    const preventHide = this.props.isOpen && contentElement.contains(event.target) || !triggerElement;
 
-    if (!triggerElement) return;
+    if (closeDropdown) {
+      return this.props.onHide();
+    }
 
-    if (!this.state.isOpen
-      || triggerElement === event.target
-      || triggerElement.contains(event.target)) {
+    if (contentElement && preventHide) {
       return;
     }
 

@@ -18,9 +18,14 @@ to-akka: "to-akka-apps-redis-channel"
 from-akka: "from-akka-apps-redis-channel"
 common-message-version: "2.x"
 webcam-force-h264: true
+webcam-preferred-h264-profile: "42e01f"
+# Target bitrate (kbps) for webcams. Value 0 leaves it unconstrained.
+webcam-target-bitrate: 300
 screenshare-force-h264: true
 screenshare-preferred-h264-profile: "42e01f"
 screenshareKeyframeInterval: 2
+# Target bitrate (kbps) for screenshare. Value 0 leaves it unconstrained.
+screenshare-target-bitrate: 0
 
 recordScreenSharing: true
 recordWebcams: false
@@ -32,7 +37,7 @@ recordingFormat: 'mkv'
 redisExpireTime: 1209600 # 14 days as per the akka keys
 
 freeswitch:
-    ip: ''
+    ip: 'FREESWITCH_IP'
     port: '5066'
 
 log:

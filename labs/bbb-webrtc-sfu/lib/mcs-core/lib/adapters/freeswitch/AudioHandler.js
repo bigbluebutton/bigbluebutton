@@ -1,7 +1,7 @@
 'use strict';
-
 const Logger = require('../../../../utils/Logger');
 const config = require('config');
+const KURENTO_IP = config.get('kurentoIp');
 
 var kmh = function(sdp) {
   this.endpointSdp = sdp;
@@ -77,6 +77,7 @@ kmh.prototype.AudioHandler.prototype = {
     if(this.endpointSdp === null) {
       Logger.info("[mcs-audio-handler] Processing SDP for Kurento RTP endpoint", this.rtp);
       this.endpointSdp = await this.Kurento.processOffer(this.rtp, this.remote_sdp);
+      this.endpointSdp = this.endpointSdp.replace(/(IP4\s[0-9.]*)/g, 'IP4 ' + KURENTO_IP);
     }
     this.sdp = this.endpointSdp;
     this.timeout = setTimeout(function () {

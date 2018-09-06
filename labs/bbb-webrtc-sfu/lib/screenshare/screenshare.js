@@ -21,6 +21,7 @@ const kurentoIp = config.get('kurentoIp');
 const localIpAddress = config.get('localIpAddress');
 const FORCE_H264 = config.get('screenshare-force-h264');
 const PREFERRED_H264_PROFILE = config.get('screenshare-preferred-h264-profile');
+const SCREENSHARE_TARGET_BITRATE = config.get('screenshare-target-bitrate');
 const SHOULD_RECORD = config.get('recordScreenSharing');
 const KEYFRAME_INTERVAL = config.get('screenshareKeyframeInterval');
 const LOG_PREFIX = "[screenshare]";
@@ -274,7 +275,7 @@ module.exports = class Screenshare extends BaseProvider {
   _startPresenter (sdpOffer) {
     return new Promise(async (resolve, reject) => {
       try {
-        const retSource = await this.mcs.publish(this.mcsUserId, this._meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer});
+        const retSource = await this.mcs.publish(this.mcsUserId, this._meetingId, 'WebRtcEndpoint', {descriptor: sdpOffer, targetBitrate: SCREENSHARE_TARGET_BITRATE });
 
         this._presenterEndpoint = retSource.sessionId;
         sharedScreens[this._voiceBridge] = this._presenterEndpoint;

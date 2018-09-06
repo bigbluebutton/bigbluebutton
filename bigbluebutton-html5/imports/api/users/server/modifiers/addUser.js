@@ -1,12 +1,14 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
+import setApprovedStatus from '/imports/api/users/server/modifiers/setApprovedStatus';
 
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
@@ -47,7 +49,9 @@ export default function addUser(meetingId, user) {
   const ROLE_VIEWER = USER_CONFIG.role_viewer;
   const APP_CONFIG = Meteor.settings.public.app;
   const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
+  const GUEST_ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
 
+  const Meeting = Meetings.findOne({ meetingId });
   // override moderator status of html5 client users, depending on a system flag
   const dummyUser = Users.findOne(selector);
   let userRole = user.role;
@@ -102,6 +106,10 @@ export default function addUser(meetingId, user) {
 
     if (userRole === ROLE_MODERATOR) {
       changeRole(ROLE_MODERATOR, true, userId, meetingId);
+    }
+
+    if (Meeting.usersProp.guestPolicy === GUEST_ALWAYS_ACCEPT) {
+      setApprovedStatus(meetingId, userId, true);
     }
 
     const { insertedId } = numChanged;

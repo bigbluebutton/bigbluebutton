@@ -17,7 +17,7 @@ export function joinRouteHandler(nextState, replace, callback) {
     replace({ pathname: '/error/404' });
     callback();
   }
-  
+
   // Old credentials stored in memory were being used when joining a new meeting
   Auth.clearCredentials();
 
@@ -66,7 +66,7 @@ export function joinRouteHandler(nextState, replace, callback) {
           const key = Object.keys(data).shift();
 
           const handledHTML5Parameters = [
-            'html5recordingbot'
+            'html5recordingbot',
           ];
           if (handledHTML5Parameters.indexOf(key) === -1) {
             return acc;
@@ -79,7 +79,7 @@ export function joinRouteHandler(nextState, replace, callback) {
             log('error', `Caught: ${e.message}`);
           }
 
-          return { ...acc, [key]: value};
+          return { ...acc, [key]: value };
         }, {}) : {};
 
       SessionStorage.setItem(METADATA_KEY, metakeys);
@@ -108,7 +108,7 @@ export function joinRouteHandler(nextState, replace, callback) {
 
       replace({ pathname: path });
 
-      logger.info(JSON.stringify(clientInfo));
+      logger.info(clientInfo);
 
       return callback();
     });

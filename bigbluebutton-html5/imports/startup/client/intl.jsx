@@ -2,13 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
+import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
 const propTypes = {
-  locale: PropTypes.string.isRequired,
-  baseControls: PropTypes.shape({
-    updateErrorState: PropTypes.func.isRequired,
-    updateLoadingState: PropTypes.func.isRequired,
-  }).isRequired,
+  locale: PropTypes.string,
   children: PropTypes.element.isRequired,
 };
 
@@ -24,7 +21,8 @@ class IntlStartup extends Component {
 
     this.state = {
       messages: {},
-      locale: DEFAULT_LANGUAGE,
+      normalizedLocale: null,
+      fetching: false,
     };
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
@@ -34,7 +32,9 @@ class IntlStartup extends Component {
   }
 
   componentWillUpdate(nextProps) {
-    if (nextProps.locale && this.props.locale !== nextProps.locale) {
+    if (!this.state.fetching
+      && this.state.normalizedLocale
+      && nextProps.locale.toLowerCase() !== this.state.normalizedLocale.toLowerCase()) {
       this.fetchLocalizedMessages(nextProps.locale);
     }
   }
@@ -42,37 +42,34 @@ class IntlStartup extends Component {
   fetchLocalizedMessages(locale) {
     const url = `/html5client/locale?locale=${locale}`;
 
-    const { baseControls } = this.props;
+    this.setState({ fetching: true }, () => {
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            return Promise.reject();
+          }
 
-    baseControls.updateLoadingState(true);
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          return Promise.reject();
-        }
-
-        return response.json();
-      })
-      .then(({ messages, normalizedLocale }) => {
-        const dasherizedLocale = normalizedLocale.replace('_', '-')
-        this.setState({ messages, locale: dasherizedLocale }, () => {
-          Settings.application.locale = dasherizedLocale;
-          Settings.save();
-          baseControls.updateLoadingState(false);
+          return response.json();
+        })
+        .then(({ messages, normalizedLocale }) => {
+          const dasherizedLocale = normalizedLocale.replace('_', '-');
+          this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
+            Settings.application.locale = dasherizedLocale;
+            Settings.save();
+          });
+        })
+        .catch(() => {
+          this.setState({ fetching: false, normalizedLocale: null }, () => {
+            Settings.application.locale = DEFAULT_LANGUAGE;
+            Settings.save();
+          });
         });
-      })
-      .catch((messages) => {
-        this.setState({ locale: DEFAULT_LANGUAGE }, () => {
-          Settings.application.locale = DEFAULT_LANGUAGE;
-          Settings.save();
-          baseControls.updateLoadingState(false);
-        });
-      });
+    });
   }
 
   render() {
-    return (
-      <IntlProvider locale={this.state.locale} messages={this.state.messages}>
+    return this.state.fetching ? <LoadingScreen /> : (
+      <IntlProvider locale={this.state.normalizedLocale} messages={this.state.messages}>
         {this.props.children}
       </IntlProvider>
     );

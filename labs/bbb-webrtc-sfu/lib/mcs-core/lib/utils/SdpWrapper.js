@@ -54,6 +54,20 @@ module.exports = class SdpWrapper {
     return this._mediaCapabilities.hasAvailableAudioCodec;
   }
 
+  addBandwidth (type, bw) {
+    // Bandwidth format
+    // { type: 'TIAS or AS', limit: 2048000 }
+    for(var ml of this._jsonSdp.media) {
+      if(ml.type === type ) {
+        ml['bandwidth'] = [];
+        ml.bandwidth.push({ type: 'TIAS', limit: (bw >>> 0) * 1000 });
+        ml.bandwidth.push({ type: 'AS', limit: bw });
+      }
+    }
+
+    this._plainSdp = transform.write(this._jsonSdp);
+  }
+
   /**
    * Given a SDP, test if there is an audio description in it
    * @return {boolean}    true if there is more than one video description, else false

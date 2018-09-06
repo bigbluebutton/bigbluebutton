@@ -48,4 +48,7 @@ export default withTracker(({ chatID, compact }) => ({
   CustomLogoUrl: Service.getCustomLogoUrl(),
   compact,
   getGroupChatPrivate: Service.getGroupChatPrivate,
+  handleEmojiChange: Service.setEmojiStatus,
+  getEmojiList: Service.getEmojiList(),
+  getEmoji: Service.getEmoji(),
 }))(UserListContainer);

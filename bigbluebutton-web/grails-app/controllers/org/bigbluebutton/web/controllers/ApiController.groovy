@@ -425,28 +425,10 @@ class ApiController {
       }
     } else {
       Config conf = meeting.getDefaultConfig();
-      if (conf == null) {
-        // BEGIN - backward compatibility
-        invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
-        return
-        // END - backward compatibility
-
-        errors.noConfigFound();
-        respondWithErrors(errors);
-      } else {
-        configxml = conf.config;
-      }
+      configxml = conf.config;
     }
 
-    if (StringUtils.isEmpty(configxml)) {
-      // BEGIN - backward compatibility
-      invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
-      return
-      // END - backward compatibility
-
-      errors.noConfigFound();
-      respondWithErrors(errors);
-    }
+    // Do not fail if there's no default config.xml, needed for an HTML5 client only scenario
 
     String guestStatusVal = meeting.calcGuestStatus(role, guest, authenticated)
 
@@ -1239,6 +1221,16 @@ class ApiController {
 
         String defConfigXML = paramsProcessorUtil.getDefaultConfigXML();
 
+        if (StringUtils.isEmpty(defConfigXML)) {
+          // BEGIN - backward compatibility
+          invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+          return
+          // END - backward compatibility
+
+          errors.noConfigFound();
+          respondWithErrors(errors);
+        }
+
         response.addHeader("Cache-Control", "no-cache")
         render text: defConfigXML, contentType: 'text/xml'
     }
@@ -1280,6 +1272,16 @@ class ApiController {
         }
       }
     } else {
+      if (StringUtils.isEmpty(us.configXML)) {
+        // BEGIN - backward compatibility
+        invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+        return
+        // END - backward compatibility
+
+        errors.noConfigFound();
+        respondWithErrors(errors);
+      }
+
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", us.meetingID);
       logData.put("externalMeetingId", us.externMeetingID);
