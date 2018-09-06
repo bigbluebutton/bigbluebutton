@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
@@ -48,8 +49,9 @@ export default function addUser(meetingId, user) {
   const ROLE_VIEWER = USER_CONFIG.role_viewer;
   const APP_CONFIG = Meteor.settings.public.app;
   const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
-  const GUEST_ALWAYS_ACCEPT = "ALWAYS_ACCEPT";
+  const GUEST_ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
 
+  const Meeting = Meetings.findOne({ meetingId });
   // override moderator status of html5 client users, depending on a system flag
   const dummyUser = Users.findOne(selector);
   let userRole = user.role;
