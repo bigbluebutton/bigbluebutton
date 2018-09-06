@@ -115,15 +115,14 @@ const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
 
   const meeting = Meetings.findOne({});
-  const user = Users.findOne({});
+  const user = Users.findOne({ userId: Auth.userID });
 
   if (meeting.lockSettingsProp !== undefined) {
     const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
     const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
-    const isViewer = user.role === 'VIEWER';
 
-    return (isPublic && isPubChatLocked && isViewer && user.locked)
-      || (!isPublic && isPrivChatLocked && isViewer && user.locked);
+    return mapUser(user).isLocked &&
+      ((isPublic && isPubChatLocked) || (!isPublic && isPrivChatLocked));
   }
 
   return false;

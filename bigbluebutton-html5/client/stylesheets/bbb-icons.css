@@ -89,6 +89,9 @@
 .icon-bbb-desktop:before {
   content: "\e928";
 }
+.icon-bbb-desktop_off:before {
+  content: "\e953";
+}
 .icon-bbb-logout:before {
   content: "\e900";
 }

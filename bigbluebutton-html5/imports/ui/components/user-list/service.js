@@ -61,15 +61,15 @@ const sortUsersByEmoji = (a, b) => {
   const emojiA = statusA in EMOJI_STATUSES ? EMOJI_STATUSES[statusA] : statusA;
   const emojiB = statusB in EMOJI_STATUSES ? EMOJI_STATUSES[statusB] : statusB;
 
-  if (emojiA && emojiB && (emojiA !== EMOJI_STATUSES.none && emojiB !== EMOJI_STATUSES.none)) {
+  if (emojiA && emojiB && (emojiA !== 'none' && emojiB !== 'none')) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
     } else if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-  } else if (emojiA && emojiA !== EMOJI_STATUSES.none) {
+  } else if (emojiA && emojiA !== 'none') {
     return -1;
-  } else if (emojiB && emojiB !== EMOJI_STATUSES.none) {
+  } else if (emojiB && emojiB !== 'none') {
     return 1;
   }
   return 0;
@@ -297,6 +297,8 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
       && user.isModerator
       && !isDialInUser;
 
+  const allowedToChangeStatus = user.isCurrent;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -306,6 +308,7 @@ const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
+    allowedToChangeStatus,
   };
 };
 
@@ -338,7 +341,13 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none'); };
+const setEmojiStatus = (data) => {
+  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(data));
+
+  return statusAvailable
+    ? makeCall('setEmojiStatus', Auth.userID, data)
+    : makeCall('setEmojiStatus', data, 'none');
+};
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
@@ -438,4 +447,7 @@ export default {
   setCustomLogoUrl,
   getCustomLogoUrl,
   getGroupChatPrivate,
+  getEmojiList: () => EMOJI_STATUSES,
+  getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
 };
+

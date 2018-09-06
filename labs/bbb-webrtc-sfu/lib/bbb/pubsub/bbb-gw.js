@@ -157,9 +157,4 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
   setEventEmitter (emitter) {
     this.emitter = emitter;
   }
-
-  _onServerResponse(data) {
-    // Here this is the 'ws' instance
-    this.sendMessage(data);
-  }
 }

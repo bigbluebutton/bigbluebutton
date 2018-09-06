@@ -3,6 +3,7 @@
 
 $controls-color: $color-gray !default;
 $controls-background: $color-white !default;
+$toolbar-button-border-radius: 5px;
 
 .presentationToolbarWrapper,
 .zoomWrapper {
@@ -16,6 +17,7 @@ $controls-background: $color-white !default;
   position: absolute;
   bottom: .8rem;
   box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  border-radius: $toolbar-button-border-radius;
   align-self: center;
   justify-content: center;
   z-index: 1;

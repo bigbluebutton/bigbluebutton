@@ -17,7 +17,7 @@ Logger.configure({
 });
 
 Meteor.startup(() => {
-  const LOG_CONFIG = Meteor.settings.private.log || {};
+  const LOG_CONFIG = Meteor.settings.private.serverLog || {};
   const { level } = LOG_CONFIG;
 
   // console logging
@@ -28,7 +28,6 @@ Meteor.startup(() => {
     handleExceptions: true,
     level,
   });
-
 });
 
 export default Logger;

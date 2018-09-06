@@ -69,7 +69,7 @@ module.exports = class WebHooks {
           }
         }
       } catch (e) {
-        Logger.error("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e);
+        Logger.error("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e.message);
       }
     });
 

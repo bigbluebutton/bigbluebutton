@@ -26,6 +26,7 @@ const propTypes = {
   subscriptionsReady: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   endedCode: PropTypes.string,
+  approved: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -33,6 +34,7 @@ const defaultProps = {
   errorCode: undefined,
   locale: undefined,
   endedCode: undefined,
+  approved: undefined,
 };
 
 class Base extends Component {
@@ -82,6 +84,7 @@ class Base extends Component {
     }
 
     if (error || errorCode) {
+      logger.error(`User could not log in HTML5, hit ${errorCode}`);
       return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);
     }
 
@@ -89,6 +92,10 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
     // this.props.annotationsHandler.stop();
+
+    if (subscriptionsReady) {
+      logger.info('Client loaded successfully');
+    }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }

@@ -155,53 +155,56 @@ module.exports = class Audio extends BaseProvider {
     }
   }
 
-  async start (sessionId, connectionId, sdpOffer, caleeName, userId, userName, callback) {
-    Logger.info(LOG_PREFIX, "Starting audio instance for", this.id);
-    let sdpAnswer;
+  start (sessionId, connectionId, sdpOffer, caleeName, userId, userName) {
+    return new Promise(async (resolve, reject) => {
+      Logger.info(LOG_PREFIX, "Starting audio instance for", this.id);
+      let sdpAnswer;
 
-    // Storing the user data to be used by the pub calls
-    let user = {userId: userId, userName: userName};
-    this.addUser(connectionId, user);
+      // Storing the user data to be used by the pub calls
+      let user = {userId: userId, userName: userName};
+      this.addUser(connectionId, user);
 
-    try {
-      if (!this.sourceAudioStarted) {
-        this.userId = await this.mcs.join(this.voiceBridge, 'SFU', {});
-        Logger.info(LOG_PREFIX, "MCS join for", this.id, "returned", this.userId);
+      try {
+        if (!this.sourceAudioStarted) {
+          this.userId = await this.mcs.join(this.voiceBridge, 'SFU', {});
+          Logger.info(LOG_PREFIX, "MCS join for", this.id, "returned", this.userId);
 
-        const ret = await this.mcs.publish(this.userId,
+          const ret = await this.mcs.publish(this.userId,
             this.voiceBridge,
             'RtpEndpoint',
             {descriptor: sdpOffer, adapter: 'Freeswitch', name: caleeName});
 
-        this.sourceAudio = ret.sessionId;
-        this.mcs.on('MediaEvent' + this.sourceAudio, this.mediaState.bind(this));
-        this.sourceAudioStarted = true;
+          this.sourceAudio = ret.sessionId;
+          this.mcs.on('MediaEvent' + this.sourceAudio, this.mediaState.bind(this));
+          this.mcs.on('ServerState' + this.sourceAudio, this.serverState.bind(this));
+          this.sourceAudioStarted = true;
 
-        Logger.info(LOG_PREFIX, "MCS publish for user", this.userId, "returned", this.sourceAudio);
-      }
+          Logger.info(LOG_PREFIX, "MCS publish for user", this.userId, "returned", this.sourceAudio);
+        }
 
-      const retSubscribe  = await this.mcs.subscribe(this.userId,
+        const retSubscribe  = await this.mcs.subscribe(this.userId,
           this.sourceAudio,
           'WebRtcEndpoint',
           {descriptor: sdpOffer, adapter: 'Kurento'});
 
-      this.audioEndpoints[connectionId] = retSubscribe.sessionId;
+        this.audioEndpoints[connectionId] = retSubscribe.sessionId;
 
-      sdpAnswer = retSubscribe.answer;
-      this.flushCandidatesQueue(connectionId);
+        sdpAnswer = retSubscribe.answer;
+        this.flushCandidatesQueue(connectionId);
 
-      this.mcs.on('MediaEvent' + retSubscribe.sessionId, (event) => {
-        this.mediaStateWebRtc(event, connectionId)
-      });
+        this.mcs.on('MediaEvent' + retSubscribe.sessionId, (event) => {
+          this.mediaStateWebRtc(event, connectionId)
+        });
 
-      Logger.info(LOG_PREFIX, "MCS subscribe for user", this.userId, "returned", retSubscribe.sessionId);
+        Logger.info(LOG_PREFIX, "MCS subscribe for user", this.userId, "returned", retSubscribe.sessionId);
 
-      return callback(null, sdpAnswer);
-    }
-    catch (err) {
-      return callback(this._handleError(LOG_PREFIX, err, "recv", userId));
-    }
-  };
+        return resolve(sdpAnswer);
+      }
+      catch (err) {
+        return reject(this._handleError(LOG_PREFIX, err, "recv", userId));
+      }
+    });
+  }
 
   async stopListener(id) {
     const listener = this.audioEndpoints[id];
@@ -255,7 +258,7 @@ module.exports = class Audio extends BaseProvider {
       return Promise.resolve();
     }
     catch (err) {
-      reject(this._handleError(LOG_PREFIX, err, "recv", this.userId));
+      throw (this._handleError(LOG_PREFIX, err, "recv", this.userId));
     }
   };
 
@@ -310,4 +313,17 @@ module.exports = class Audio extends BaseProvider {
     }), C.FROM_AUDIO);
     this.removeUser(connectionId);
   };
+
+  serverState (event) {
+    const { eventTag: { code }  } = { ...event };
+    switch (code) {
+      case C.MEDIA_SERVER_OFFLINE:
+        Logger.error(LOG_PREFIX, "Provider received MEDIA_SERVER_OFFLINE event");
+        this.emit(C.MEDIA_SERVER_OFFLINE, event);
+        break;
+
+      default:
+        Logger.warn(LOG_PREFIX, "Unknown server state", event);
+    }
+  }
 };

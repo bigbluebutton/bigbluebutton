@@ -69,6 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 			import org.bigbluebutton.util.ConnUtil;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
@@ -112,6 +113,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.addEventListener(MouseEvent.MOUSE_OVER, videoHolder_mouseOverHanlder);
 				videoHolder.addEventListener(MouseEvent.MOUSE_OUT, videoHolder_mouseOutHanlder);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				
+				if (BrowserCheck.isFirefox() && Capabilities.os.indexOf("Mac") >= 0) {
+					ffMacWarning.visible = ffMacWarning.includeInLayout = true;
+				}
 				
 				resourcesChanged();
 			}
@@ -475,5 +480,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			   mouseOver="btnActualSize.alpha = 1"
 			   label="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
 			   toolTip="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"/>
-
+	<mx:Box id="ffMacWarning"
+			visible="false"
+			includeInLayout="false"
+			width="260"
+			styleName="lockSettingsHintBoxStyle"
+			horizontalCenter="0"
+			top="{VIDEO_HEIGHT_PADDING*2+btnActualSize.height}">
+		<mx:Text width="100%"
+				 textAlign="center"
+				 styleName="lockSettingHintTextStyle"
+				 text="{ResourceUtil.getInstance().getString('bbb.screenshareView.warning.ffMacWebRTC')}" />
+	</mx:Box>
 </CustomMdiWindow>

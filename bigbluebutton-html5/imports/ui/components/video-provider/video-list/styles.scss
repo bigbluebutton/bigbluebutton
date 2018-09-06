@@ -1,5 +1,9 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+$cam-dropdown-width: 70%;
+$audio-indicator-width: 1.12rem;
+$audio-indicator-fs: 75%;
+
 .videoCanvas {
   position: absolute;
   top: 0;
@@ -119,6 +123,7 @@
   flex: 1;
   display: flex;
   outline: none !important;
+  width: $cam-dropdown-width;
 
   @include mq($medium-up) {
     > [aria-expanded] {
@@ -164,13 +169,15 @@
 
 .muted, .voice {
   display: inline-block;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: $audio-indicator-width;
+  height: $audio-indicator-width;
+  min-width: $audio-indicator-width;
+  min-height: $audio-indicator-width;
   color: $color-white;
   border-radius: 50%;
 
   &::before {
-    font-size: 75%;
+    font-size: $audio-indicator-fs;
   }
 }
 

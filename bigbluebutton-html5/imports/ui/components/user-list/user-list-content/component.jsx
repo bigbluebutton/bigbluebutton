@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipants from './user-participants/component';
@@ -35,8 +35,32 @@ const defaultProps = {
   meeting: {},
 };
 
-class UserContent extends Component {
+class UserContent extends React.PureComponent {
   render() {
+    const {
+      users,
+      compact,
+      intl,
+      currentUser,
+      meeting,
+      isBreakoutRoom,
+      setEmojiStatus,
+      assignPresenter,
+      removeUser,
+      toggleVoice,
+      changeRole,
+      getAvailableActions,
+      normalizeEmojiName,
+      isMeetingLocked,
+      roving,
+      handleEmojiChange,
+      getEmojiList,
+      getEmoji,
+      isPublicChat,
+      openChats,
+      getGroupChatPrivate,
+    } = this.props;
+
     return (
       <div
         data-test="userListContent"
@@ -44,29 +68,36 @@ class UserContent extends Component {
         role="complementary"
       >
         <UserMessages
-          isPublicChat={this.props.isPublicChat}
-          openChats={this.props.openChats}
-          compact={this.props.compact}
-          intl={this.props.intl}
-          roving={this.props.roving}
+          {...{
+            isPublicChat,
+            openChats,
+            compact,
+            intl,
+            roving,
+          }}
         />
         <UserParticipants
-          users={this.props.users}
-          compact={this.props.compact}
-          intl={this.props.intl}
-          currentUser={this.props.currentUser}
-          meeting={this.props.meeting}
-          isBreakoutRoom={this.props.isBreakoutRoom}
-          setEmojiStatus={this.props.setEmojiStatus}
-          assignPresenter={this.props.assignPresenter}
-          removeUser={this.props.removeUser}
-          toggleVoice={this.props.toggleVoice}
-          changeRole={this.props.changeRole}
-          getAvailableActions={this.props.getAvailableActions}
-          normalizeEmojiName={this.props.normalizeEmojiName}
-          isMeetingLocked={this.props.isMeetingLocked}
-          roving={this.props.roving}
-          getGroupChatPrivate={this.props.getGroupChatPrivate}
+          {...{
+            users,
+            compact,
+            intl,
+            currentUser,
+            meeting,
+            isBreakoutRoom,
+            setEmojiStatus,
+            assignPresenter,
+            removeUser,
+            toggleVoice,
+            changeRole,
+            getAvailableActions,
+            normalizeEmojiName,
+            isMeetingLocked,
+            roving,
+            handleEmojiChange,
+            getEmojiList,
+            getEmoji,
+            getGroupChatPrivate,
+          }}
         />
       </div>
     );

@@ -13,7 +13,6 @@ Kurento = function (
   onSuccess,
   options = {},
 ) {
-
   this.ws = null;
   this.video = null;
   this.screen = null;
@@ -30,10 +29,10 @@ Kurento = function (
 
   Object.assign(this, options);
 
-  this.SEND_ROLE = "send";
-  this.RECV_ROLE = "recv";
-  this.SFU_APP = "screenshare";
-  this.ON_ICE_CANDIDATE_MSG = "iceCandidate";
+  this.SEND_ROLE = 'send';
+  this.RECV_ROLE = 'recv';
+  this.SFU_APP = 'screenshare';
+  this.ON_ICE_CANDIDATE_MSG = 'iceCandidate';
   this.PING_INTERVAL = 15000;
 
   window.Logger = this.logger || console;
@@ -45,11 +44,11 @@ Kurento = function (
   }
 
   if (this.chromeScreenshareSources == null) {
-    this.chromeScreenshareSources = ["screen", "window"];
+    this.chromeScreenshareSources = ['screen', 'window'];
   }
 
   if (this.firefoxScreenshareSource == null) {
-    this.firefoxScreenshareSource = "window";
+    this.firefoxScreenshareSource = 'window';
   }
 
   // Limiting max resolution to WQXGA
@@ -78,7 +77,7 @@ Kurento = function (
   if (onSuccess != null) {
     this.onSuccess = Kurento.normalizeCallback(onSuccess);
   } else {
-    var _this = this;
+    const _this = this;
     this.onSuccess = function () {
       _this.logSuccess('Default success handler');
     };
@@ -93,7 +92,6 @@ this.KurentoManager = function () {
 
 KurentoManager.prototype.exitScreenShare = function () {
   if (typeof this.kurentoScreenshare !== 'undefined' && this.kurentoScreenshare) {
-
     if (this.kurentoScreenshare.logger !== null) {
       this.kurentoScreenshare.logger.info('  [exitScreenShare] Exiting screensharing');
     }
@@ -119,6 +117,10 @@ KurentoManager.prototype.exitScreenShare = function () {
 KurentoManager.prototype.exitVideo = function () {
   if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
 
+    if(this.kurentoVideo.webRtcPeer) {
+      this.kurentoVideo.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+    }
+
     if (this.kurentoVideo.logger !== null) {
       this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
     }
@@ -139,7 +141,6 @@ KurentoManager.prototype.exitVideo = function () {
 
 KurentoManager.prototype.exitAudio = function () {
   if (typeof this.kurentoAudio !== 'undefined' && this.kurentoAudio) {
-
     if (this.kurentoAudio.logger !== null) {
       this.kurentoAudio.logger.info('  [exitAudio] Exiting listen only audio');
     }
@@ -177,15 +178,15 @@ KurentoManager.prototype.joinWatchVideo = function (tag) {
 
 KurentoManager.prototype.getFirefoxScreenshareSource = function () {
   return this.kurentoScreenshare.firefoxScreenshareSource;
-}
+};
 
 KurentoManager.prototype.getChromeScreenshareSources = function () {
   return this.kurentoScreenshare.chromeScreenshareSources;
-}
+};
 
 KurentoManager.prototype.getChromeExtensionKey = function () {
   return this.kurentoScreenshare.chromeExtension;
-}
+};
 
 
 Kurento.prototype.setScreensharing = function (tag) {
@@ -201,13 +202,13 @@ Kurento.prototype.create = function (tag) {
 Kurento.prototype.downscaleResolution = function (oldWidth, oldHeight) {
   const factorWidth = this.vid_max_width / oldWidth;
   const factorHeight = this.vid_max_height / oldHeight;
-  let width, height;
+  let width,
+    height;
 
   if (factorWidth < factorHeight) {
     width = Math.trunc(oldWidth * factorWidth);
     height = Math.trunc(oldHeight * factorWidth);
-  }
-  else {
+  } else {
     width = Math.trunc(oldWidth * factorHeight);
     height = Math.trunc(oldHeight * factorHeight);
   }
@@ -253,7 +254,7 @@ Kurento.prototype.onWSMessage = function (message) {
       this.onSuccess(parsedMessage.success);
       break;
     case 'webRTCAudioError':
-      this.onFail(parsedMessage.error);
+      this.onFail(parsedMessage);
       break;
     case 'pong':
       break;
@@ -269,13 +270,12 @@ Kurento.prototype.setRenderTag = function (tag) {
 Kurento.prototype.startResponse = function (message) {
   if (message.response !== 'accepted') {
     const errorMsg = message.message ? message.message : 'Unknow error';
-    this.logger.warn("Call not accepted for the following reason:", {error: errorMsg});
+    this.logger.warn('Call not accepted for the following reason:', { error: errorMsg });
     switch (message.type) {
       case 'screenshare':
         if (message.role === this.SEND_ROLE) {
           kurentoManager.exitScreenShare();
-        }
-        else if (message.role === this.RECV_ROLE) {
+        } else if (message.role === this.RECV_ROLE) {
           kurentoManager.exitVideo();
         }
         break;
@@ -284,7 +284,7 @@ Kurento.prototype.startResponse = function (message) {
         break;
     }
   } else {
-    this.logger.debug(`Procedure for ${message.type} was accepted with SDP =>`, {sdpAnswer: message.sdpAnswer});
+    this.logger.debug(`Procedure for ${message.type} was accepted with SDP =>`, { sdpAnswer: message.sdpAnswer });
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
 };
@@ -310,7 +310,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     vw: this.width,
   };
 
-  this.logger.info("onOfferPresenter sending to screenshare server => ", { sdpOffer: message });
+  this.logger.info('onOfferPresenter sending to screenshare server => ', { sdpOffer: message });
   this.sendMessage(message);
 };
 
@@ -335,7 +335,7 @@ Kurento.prototype.startScreensharing = function () {
     sendSource: 'desktop',
   };
 
-  this.logger.info(" Peer options =>", options);
+  this.logger.info(' Peer options =>', options);
 
   let resolution;
   this.logger.debug(`Screenshare screen dimensions are ${this.width} x ${this.height}`);
@@ -343,23 +343,25 @@ Kurento.prototype.startScreensharing = function () {
     resolution = this.downscaleResolution(this.width, this.height);
     this.width = resolution.width;
     this.height = resolution.height;
-    this.logger.debug("Screenshare track dimensions have been resized to", this.width, "x", this.height);
+    this.logger.debug('Screenshare track dimensions have been resized to', this.width, 'x', this.height);
   }
 
   this.addIceServers(this.iceServers, options);
 
   this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
-      this.logger.error("WebRtcPeerSendonly constructor error:", {error});
+      this.logger.error('WebRtcPeerSendonly constructor error:', { error });
       this.onFail(error);
       return kurentoManager.exitScreenShare();
     }
 
     this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
-    this.logger.info("Generated peer offer w/ options:", {options: options});
+    this.logger.info('Generated peer offer w/ options:', { options });
 
     const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
+    const _this = this;
     localStream.getVideoTracks()[0].onended = function () {
+      _this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
       return kurentoManager.exitScreenShare();
     };
 
@@ -367,15 +369,24 @@ Kurento.prototype.startScreensharing = function () {
       return kurentoManager.exitScreenShare();
     };
   });
+  this.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
+    if (this.webRtcPeer) {
+      const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+      if (connectionState === 'failed' || connectionState === 'closed') {
+        this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+        this.onFail('ICE connection failed');
+      }
+    }
+  };
 };
 
 Kurento.prototype.onIceCandidate = function (candidate, role) {
   const self = this;
-  this.logger.info("Local candidate:", {candidate});
+  this.logger.info('Local candidate:', { candidate });
 
   const message = {
     id: this.ON_ICE_CANDIDATE_MSG,
-    role: role,
+    role,
     type: this.SFU_APP,
     voiceBridge: self.voiceBridge,
     candidate,
@@ -398,13 +409,13 @@ Kurento.prototype.viewer = function () {
   if (!this.webRtcPeer) {
     const options = {
       mediaConstraints: {
-        audio: false
+        audio: false,
       },
       remoteVideo: document.getElementById(this.renderTag),
       onicecandidate: (candidate) => {
         this.onIceCandidate(candidate, this.RECV_ROLE);
-      }
-    }
+      },
+    };
 
     this.addIceServers(this.iceServers, options);
 
@@ -415,6 +426,15 @@ Kurento.prototype.viewer = function () {
 
       this.generateOffer(self.onOfferViewer.bind(self));
     });
+    self.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
+      if (this.webRtcPeer) {
+        const connectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+        if (connectionState === 'failed' || connectionState === 'closed') {
+          this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+          this.onFail('ICE connection failed');
+        }
+      }
+    };
   }
 };
 
@@ -434,15 +454,15 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     sdpOffer: offerSdp,
   };
 
-  this.logger.info("onOfferViewer sending to screenshare server: ", {sdpOffer: message.sdpOffer});
+  this.logger.info('onOfferViewer sending to screenshare server: ', { sdpOffer: message.sdpOffer });
   this.sendMessage(message);
 };
 
 KurentoManager.prototype.joinAudio = function (tag) {
   this.exitAudio();
-  var obj = Object.create(Kurento.prototype);
+  const obj = Object.create(Kurento.prototype);
   Kurento.apply(obj, arguments);
-  this.kurentoAudio= obj;
+  this.kurentoAudio = obj;
   this.kurentoAudio.setAudio(tag);
 };
 
@@ -453,20 +473,23 @@ Kurento.prototype.setAudio = function (tag) {
 
 Kurento.prototype.listenOnly = function () {
   var self = this;
+  const remoteVideo = document.getElementById(this.renderTag);
+  remoteVideo.muted = true;
   if (!this.webRtcPeer) {
     var options = {
-      remoteVideo: document.getElementById(this.renderTag),
+      audioStream: this.inputStream,
+      remoteVideo,
       onicecandidate : this.onListenOnlyIceCandidate.bind(this),
       mediaConstraints: {
-        audio:true,
-        video:false
-      }
-    }
+        audio: true,
+        video: false,
+      },
+    };
 
     this.addIceServers(this.iceServers, options);
 
-    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
-      if(error) {
+    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (error) {
+      if (error) {
         return self.onFail(PEER_ERROR);
       }
 
@@ -476,39 +499,39 @@ Kurento.prototype.listenOnly = function () {
 };
 
 Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
-  let self = this;
-  this.logger.debug("[onListenOnlyIceCandidate]", {candidate});
+  const self = this;
+  this.logger.debug('[onListenOnlyIceCandidate]', { candidate });
 
-  var message = {
-    id : this.ON_ICE_CANDIDATE_MSG,
+  const message = {
+    id: this.ON_ICE_CANDIDATE_MSG,
     type: 'audio',
     role: 'viewer',
     voiceBridge: self.voiceBridge,
-    candidate : candidate,
-  }
+    candidate,
+  };
   this.sendMessage(message);
 };
 
 Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
-  let self = this;
-  if(error)  {
-    this.logger.error("[onOfferListenOnly]", error);
+  const self = this;
+  if (error) {
+    this.logger.error('[onOfferListenOnly]', error);
     return this.onFail(SDP_ERROR);
   }
 
-  let message = {
-    id : 'start',
+  const message = {
+    id: 'start',
     type: 'audio',
     role: 'viewer',
     voiceBridge: self.voiceBridge,
     caleeName: self.caleeName,
-    sdpOffer : offerSdp,
+    sdpOffer: offerSdp,
     userId: self.userId,
     userName: self.userName,
-    internalMeetingId: self.internalMeetingId
+    internalMeetingId: self.internalMeetingId,
   };
 
-  this.logger.debug("[onOfferListenOnly]", {message});
+  this.logger.debug('[onOfferListenOnly]', { message });
   this.sendMessage(message);
 };
 
@@ -519,7 +542,7 @@ Kurento.prototype.pauseTrack = function (message) {
   if (track) {
     track.enabled = false;
   }
-}
+};
 
 Kurento.prototype.resumeTrack = function (message) {
   const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
@@ -528,10 +551,10 @@ Kurento.prototype.resumeTrack = function (message) {
   if (track) {
     track.enabled = true;
   }
-}
+};
 
 Kurento.prototype.addIceServers = function (iceServers, options) {
-  this.logger.debug("Adding iceServers", iceServers);
+  this.logger.debug('Adding iceServers', iceServers);
   if (iceServers && iceServers.length > 0) {
     options.configuration = {};
     options.configuration.iceServers = iceServers;
@@ -559,14 +582,14 @@ Kurento.prototype.dispose = function () {
 
 Kurento.prototype.ping = function () {
   const message = {
-    id: 'ping'
+    id: 'ping',
   };
   this.sendMessage(message);
-}
+};
 
 Kurento.prototype.sendMessage = function (message) {
   const jsonMessage = JSON.stringify(message);
-  this.logger.info("Sending message:", {message});
+  this.logger.info('Sending message:', { message });
   this.ws.send(jsonMessage);
 };
 
@@ -635,12 +658,12 @@ window.getScreenConstraints = function (sendSource, callback) {
         { googCpuOveruseDetection: true },
         { googCpuOveruseEncodeUsage: true },
         { googCpuUnderuseThreshold: 55 },
-        { googCpuOveruseThreshold: 100},
+        { googCpuOveruseThreshold: 100 },
         { googPayloadPadding: true },
         { googScreencastMinBitrate: 600 },
         { googHighStartBitrate: true },
         { googHighBitrate: true },
-        { googVeryHighBitrate: true }
+        { googVeryHighBitrate: true },
       ];
 
       console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
@@ -659,7 +682,6 @@ window.getScreenConstraints = function (sendSource, callback) {
   if (isSafari) {
     // At this time (version 11.1), Safari doesn't support screenshare.
     document.dispatchEvent(new Event('safariScreenshareNotSupported'));
-    return;
   }
 };
 
@@ -736,4 +758,4 @@ window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
       callback(true);
     }
   );
-}*/
+} */

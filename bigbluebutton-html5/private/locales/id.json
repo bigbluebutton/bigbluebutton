@@ -96,8 +96,6 @@
     "app.actionsBar.camOffLabel": "Kamera Off",
     "app.actionsBar.raiseLabel": "Naikan",
     "app.submenu.application.applicationSectionTitle": "Aplikasi",
-    "app.submenu.application.audioNotifyLabel": "Notifikasi audio untuk Chat",
-    "app.submenu.application.pushNotifyLabel": "Notifikasi otomatis untuk Chat",
     "app.submenu.application.fontSizeControlLabel": "Ukuran Huruf",
     "app.submenu.application.increaseFontBtnLabel": "Besarkan Ukuran Huruf Aplikasi",
     "app.submenu.application.decreaseFontBtnLabel": "Kecilkan Ukuran Huruf Aplikasi",
