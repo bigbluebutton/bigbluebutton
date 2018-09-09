@@ -1,9 +1,5 @@
 @import "../../stylesheets/variables/_all";
 
-// screen sizes for iphones where pollingAnswer need to be offset
-$safari-mobile-xs: 320px;
-$safari-mobile-s: 375px;
-
 // pollingAnswer position offsets
 $xs-portrait-offset: 8.75em;
 $xs-landscape-offset: 4.75em;
@@ -40,24 +36,17 @@ $s-landscape-offset: 1.75em;
   z-index: 1;
 
   :global(.browser-safari) & {
-    @include mq($portrait) {
-      @media (max-width: $safari-mobile-s) {
-        bottom: $s-portrait-offset;
-      }
-
-      @media (max-width: $safari-mobile-xs) {
-        bottom: $xs-portrait-offset;
-      }
+    @include mq($ip5-portrait) {
+      bottom: $xs-portrait-offset;
     }
-
-    @include mq($landscape) {
-      @media (max-height: $safari-mobile-s) {
-        bottom: $s-landscape-offset;
-      }
-
-      @media (max-height: $safari-mobile-xs) {
-        bottom: $xs-landscape-offset;
-      }
+    @include mq($ip678-portrait) {
+      bottom: $s-portrait-offset;
+    }
+    @include mq($ip5-landscape) {
+      bottom: $xs-landscape-offset;
+    }
+    @include mq($ip678-landscape) {
+      bottom: $s-landscape-offset;
     }
   }
 }
