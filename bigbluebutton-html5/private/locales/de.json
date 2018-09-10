@@ -349,6 +349,7 @@
     "app.video.stats.rtt": "RTT",
     "app.video.stats.encodeUsagePercent": "Enkodierungsnutzung",
     "app.video.stats.currentDelay": "Aktuelle Verzögerung",
+    "app.deskshare.iceConnectionStateError": "Fehler 1108: ICE Verbindung während der Bildschirmfreigabe fehlgeschlagen",
     "app.sfu.mediaServerConnectionError2000": "Fehler 2000: Verbindung zum Mediaserver kann nicht hergestellt werden",
     "app.sfu.mediaServerOffline2001": "Fehler 2001: Mediaserver ist offline. Versuchen Sie es später nochmal.",
     "app.sfu.mediaServerNoResources2002": "Fehler 2002: Mediaserver hat keine verfügbaren Resourcen",
