@@ -135,7 +135,7 @@ module.exports = class ScreenshareManager extends BaseManager {
       }
       if (role === C.RECV_ROLE && session) {
         Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
-        await session.stopViewer(message.connectionId);
+        await session.stopViewer(connectionId);
       }
     }
   }
