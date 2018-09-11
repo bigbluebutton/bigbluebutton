@@ -52,6 +52,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="pageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter"/>
 
+    <bean id="imageResizer" class="org.bigbluebutton.presentation.imp.ImageResizerImp"/>
+
     <bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
         <property name="pageCounter" ref="pageCounter"/>
         <property name="maxNumPages" value="${maxNumPages}"/>
@@ -110,6 +112,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="blankSlide" value="${BLANK_SLIDE}"/>
         <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+        <property name="imageResizer" ref="imageResizer"/>
+        <property name="maxImageSize" value="${maxImageSize}"/>
     </bean>
 
     <bean id="swfSlidesGenerationProgressNotifier"
