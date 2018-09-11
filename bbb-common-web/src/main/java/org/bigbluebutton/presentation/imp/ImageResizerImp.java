@@ -21,7 +21,6 @@ package org.bigbluebutton.presentation.imp;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.presentation.ImageResizer;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.bigbluebutton.presentation.handlers.ImageResizerHandler;
@@ -45,8 +44,6 @@ public class ImageResizerImp implements ImageResizer {
 
         ImageResizerHandler pHandler = new ImageResizerHandler();
         imgResize.setProcessListener(pHandler);
-        
-        log.debug("CCCCCCCCCC Command => {}", StringUtils.join(imgResize.command(), ' '));
 
         NuProcess process = imgResize.start();
         try {
