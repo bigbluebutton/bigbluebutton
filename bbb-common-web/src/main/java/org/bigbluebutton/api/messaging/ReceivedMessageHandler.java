@@ -1,20 +1,19 @@
 package org.bigbluebutton.api.messaging;
 
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.bigbluebutton.api.IReceivedOldMessageHandler;
 import org.bigbluebutton.api.messaging.messages.IMessage;
-import org.bigbluebutton.api2.bus.OldMessageReceivedGW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReceivedMessageHandler implements IReceivedOldMessageHandler {
   private static Logger log = LoggerFactory.getLogger(ReceivedMessageHandler.class);
 
-  private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
+  private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<>();
 
   private volatile boolean processMessage = false;
 
@@ -47,7 +46,7 @@ public class ReceivedMessageHandler implements IReceivedOldMessageHandler {
       };
       msgProcessorExec.execute(messageProcessor);
     } catch (Exception e) {
-      log.error("Error subscribing to channels: " + e.getMessage());
+      log.error("Error subscribing to channels: {}", e.getMessage());
     }
   }
 

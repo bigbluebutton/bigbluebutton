@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -33,7 +34,7 @@ public class ResponseBuilder {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    cfg.setDefaultEncoding("UTF-8");
+    cfg.setDefaultEncoding(StandardCharsets.UTF_8.name());
     cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     cfg.setLogTemplateExceptions(false);
   }

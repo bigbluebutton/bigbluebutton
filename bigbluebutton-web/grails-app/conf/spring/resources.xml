@@ -103,7 +103,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingStatusDir" value="${recordStatusDir}"/>
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>
+        <property name="captionsDir" value="${captionsDir}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
+        <property name="presentationBaseDir" value="${presentationDir}"/>
     </bean>
 
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
@@ -127,6 +129,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
         <property name="defaultClientUrl" value="${defaultClientUrl}"/>
+        <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
         <property name="html5ClientUrl" value="${html5ClientUrl}"/>
         <property name="moderatorsJoinViaHTML5Client" value="${moderatorsJoinViaHTML5Client}"/>
         <property name="attendeesJoinViaHTML5Client" value="${attendeesJoinViaHTML5Client}"/>
@@ -142,6 +145,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="warnMinutesBeforeMax" value="${warnMinutesBeforeMax}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
+        <property name="userInactivityInspectTimerInMinutes" value="${userInactivityInspectTimerInMinutes}"/>
+        <property name="userInactivityThresholdInMinutes" value="${userInactivityThresholdInMinutes}"/>
+        <property name="userActivitySignResponseDelayInMinutes" value="${userActivitySignResponseDelayInMinutes}"/>
+        <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
+        <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
     </bean>
 

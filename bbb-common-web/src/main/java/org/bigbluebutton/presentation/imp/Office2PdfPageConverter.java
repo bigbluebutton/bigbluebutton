@@ -23,12 +23,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
 import org.bigbluebutton.presentation.UploadedPresentation;
+import org.jodconverter.OfficeDocumentConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jodconverter.OfficeDocumentConverter;
+import com.google.gson.Gson;
 
 public class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
@@ -36,34 +36,32 @@ public class Office2PdfPageConverter {
   public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
                          final OfficeDocumentConverter converter){
     try {
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("message", "Converting Office doc to PDF.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.info("-- analytics -- " + logStr);
+      log.info("-- analytics -- {}", logStr);
 
-
-      final long startTime = System.currentTimeMillis();
       converter.convert(presentationFile, output);
       if (output.exists()) {
         return true;
       } else {
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("message", "Failed to convert Office doc to PDF.");
         gson = new Gson();
         logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn("-- analytics -- {}", logStr);
 
         return false;
       }
     } catch (Exception e) {
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());

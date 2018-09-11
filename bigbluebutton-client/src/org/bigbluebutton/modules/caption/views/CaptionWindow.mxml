@@ -127,6 +127,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return MainCanvas.POPUP;
 			}
 			
+			public function getName():String {
+				return "CaptionWindow";
+			}
+			
 			private function optionChange(type:int, val:Object):void {
 				switch (type) {
 					case OptionENUM.LOCALE:

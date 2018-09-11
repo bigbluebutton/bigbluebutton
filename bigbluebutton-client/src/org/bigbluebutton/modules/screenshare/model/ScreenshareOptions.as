@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.screenshare.model {
 
 		[Bindable]
 		public var uri: String = "";
-			
+
 		[Bindable]
 		public var showButton:Boolean = true;
 

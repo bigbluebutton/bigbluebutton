@@ -27,13 +27,18 @@ require File.expand_path('../../edl', __FILE__)
 module BigBlueButton
 
 
-  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file)
+  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file, video_formats=['webm'])
     BigBlueButton.logger.info("Processing webcam videos")
 
+    events = Nokogiri::XML(File.open("#{temp_dir}/#{meeting_id}/events.xml"))
+
     # Process user video (camera)
+    start_time = BigBlueButton::Events.first_event_timestamp(events)
+    end_time = BigBlueButton::Events.last_event_timestamp(events)
     webcam_edl = BigBlueButton::Events.create_webcam_edl(
-      "#{temp_dir}/#{meeting_id}")
-    user_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(webcam_edl, "#{temp_dir}/#{meeting_id}")
+                    events, "#{temp_dir}/#{meeting_id}")
+    user_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(
+                    webcam_edl, events, start_time, end_time)
     BigBlueButton::EDL::Video.dump(user_video_edl)
 
     user_video_layout = {
@@ -57,20 +62,35 @@ module BigBlueButton
         :postprocess => [
           [ 'mkclean', '--quiet', ':input', ':output' ]
         ]
+      },
+      {
+        :extension => 'mp4',
+        :parameters => [
+          [ '-c:v', 'libx264', '-crf', '23', '-b:v', '60M',
+            '-threads', '2', '-preset', 'medium', '-cpu-used', '3',
+            '-c:a', 'libmp3lame', '-b:a', '48K',
+            '-f', 'mp4' ]
+        ]
       }
     ]
+    formats.reject!{ |format| ! video_formats.include? format[:extension] }
     formats.each do |format|
       filename = BigBlueButton::EDL::encode(
         processed_audio_file, user_video_file, format, "#{target_dir}/webcams", audio_offset)
     end
   end
 
-  def BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, output_width, output_height)
+  def BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, output_width, output_height, video_formats=['webm'])
     BigBlueButton.logger.info("Processing deskshare videos")
 
+    events = Nokogiri::XML(File.open("#{temp_dir}/#{meeting_id}/events.xml"))
+
+    start_time = BigBlueButton::Events.first_event_timestamp(events)
+    end_time = BigBlueButton::Events.last_event_timestamp(events)
     deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
-      "#{temp_dir}/#{meeting_id}")
-    deskshare_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(deskshare_edl, "#{temp_dir}/#{meeting_id}")
+                    events, "#{temp_dir}/#{meeting_id}")
+    deskshare_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(
+                    deskshare_edl, events, start_time, end_time)
 
     return if not BigBlueButton.video_recorded?(deskshare_video_edl)
 
@@ -98,8 +118,18 @@ module BigBlueButton
         :postprocess => [
           [ 'mkclean', '--quiet', ':input', ':output' ]
         ]
+      },
+      {
+        :extension => 'mp4',
+        :parameters => [
+          [ '-c:v', 'libx264', '-crf', '23', '-b:v', '60M',
+            '-threads', '2', '-preset', 'medium', '-cpu-used', '3',
+            '-c:a', 'libmp3lame', '-b:a', '48K',
+            '-f', 'mp4' ]
+        ]
       }
     ]
+    formats.reject!{ |format| ! video_formats.include? format[:extension] }
     formats.each do |format|
       filename = BigBlueButton::EDL::encode(
         nil, deskshare_video_file, format, "#{target_dir}/deskshare", 0)

@@ -2,9 +2,10 @@ package org.bigbluebutton.common2.domain
 
 case class ConfigProps(defaultConfigToken: String, config: String)
 
-case class DurationProps(duration: Int, createdTime: Long, createdDate: String,  maxInactivityTimeoutMinutes: Int,
-warnMinutesBeforeMax:     Int, meetingExpireIfNoUserJoinedInMinutes: Int,
-                         meetingExpireWhenLastUserLeftInMinutes: Int)
+case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
+                         maxInactivityTimeoutMinutes: Int, warnMinutesBeforeMax: Int,
+                         meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
+                         userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int, userActivitySignResponseDelayInMinutes: Int)
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
@@ -48,7 +49,7 @@ case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, que
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean)
 
 case class UserVO(id: String, externalId: String, name: String, role: String,
-                  guest: Boolean, authed: Boolean, waitingForAcceptance: Boolean, emojiStatus: String,
+                  guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
                   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
                   phoneUser: Boolean, voiceUser: VoiceUserVO, listenOnly: Boolean, avatarURL: String,
                   joinedWeb: Boolean)

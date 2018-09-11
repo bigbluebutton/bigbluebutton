@@ -14,7 +14,10 @@ package org.bigbluebutton.modules.present.model {
 		
 		private var recentPosition:PagePosition;
 		
-		public function PagePositionBroadcaster() {
+    private var podId: String;
+    
+		public function PagePositionBroadcaster(podId: String) {
+      this.podId = podId;
 			updateTimer = new Timer(50, 1);
 			updateTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimer);
 			
@@ -22,7 +25,8 @@ package org.bigbluebutton.modules.present.model {
 			lastSentPosition = new PagePosition();
 		}
 		
-		public function broadcastPosition(x:Number, y:Number, width:Number, height:Number):void {
+		public function broadcastPosition(x:Number, y:Number, 
+                                      width:Number, height:Number):void {
 			recentPosition = new PagePosition(x, y, width, height);
 			
 			if (!updateTimer.running) {
@@ -43,7 +47,8 @@ package org.bigbluebutton.modules.present.model {
 			if (!lastSentPosition.equals(recentPosition)) {
 				var globalDispatcher:Dispatcher = new Dispatcher();
 				
-				var moveEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
+				var moveEvent:PresenterCommands = 
+          new PresenterCommands(PresenterCommands.ZOOM, podId);
 				moveEvent.xOffset = recentPosition.x;
 				moveEvent.yOffset = recentPosition.y;
 				moveEvent.slideToCanvasWidthRatio = recentPosition.width;
@@ -62,8 +67,9 @@ class PagePosition {
 	public var width:Number;
 	public var height:Number;
 	
-	public function PagePosition(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0) {
-		this.x = x;
+	public function PagePosition(x:Number = 0, y:Number = 0, 
+                               width:Number = 0, height:Number = 0) {
+    this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;

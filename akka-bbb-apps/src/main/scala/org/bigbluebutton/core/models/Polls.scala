@@ -3,6 +3,7 @@ package org.bigbluebutton.core.models
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
+import org.bigbluebutton.core.domain.MeetingState2x
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
@@ -10,7 +11,8 @@ import org.bigbluebutton.core.running.LiveMeeting
 
 object Polls {
 
-  def handleStartPollReqMsg(userId: String, pollId: String, pollType: String, lm: LiveMeeting): Option[SimplePollOutVO] = {
+  def handleStartPollReqMsg(state: MeetingState2x, userId: String, pollId: String, pollType: String,
+                            lm: LiveMeeting): Option[SimplePollOutVO] = {
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
       for {
         poll <- PollFactory.createPoll(pollId, pollType, numRespondents, None)
@@ -21,7 +23,9 @@ object Polls {
     }
 
     for {
-      page <- lm.presModel.getCurrentPage()
+      pod <- state.presentationPodManager.getDefaultPod()
+      pres <- pod.getCurrentPresentation()
+      page <- pres.getCurrentPage(pres)
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
       numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
@@ -34,9 +38,11 @@ object Polls {
     }
   }
 
-  def handleStopPollReqMsg(userId: String, lm: LiveMeeting): Option[String] = {
+  def handleStopPollReqMsg(state: MeetingState2x, userId: String, lm: LiveMeeting): Option[String] = {
     for {
-      page <- lm.presModel.getCurrentPage()
+      pod <- state.presentationPodManager.getDefaultPod()
+      pres <- pod.getCurrentPresentation()
+      page <- pres.getCurrentPage(pres)
       curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
     } yield {
       stopPoll(curPoll.id, lm.polls)
@@ -44,14 +50,16 @@ object Polls {
     }
   }
 
-  def handleShowPollResultReqMsg(requesterId: String, pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO, AnnotationVO)] = {
+  def handleShowPollResultReqMsg(state: MeetingState2x, requesterId: String, pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO, AnnotationVO)] = {
     def updateWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
       lm.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
     }
 
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
       for {
-        page <- lm.presModel.getCurrentPage()
+        pod <- state.presentationPodManager.getDefaultPod()
+        pres <- pod.getCurrentPresentation()
+        page <- pres.getCurrentPage(pres)
       } yield {
         val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
         val updatedShape = shape + ("whiteboardId" -> pageId)
@@ -71,9 +79,11 @@ object Polls {
     }
   }
 
-  def handleGetCurrentPollReqMsg(requesterId: String, lm: LiveMeeting): Option[PollVO] = {
+  def handleGetCurrentPollReqMsg(state: MeetingState2x, requesterId: String, lm: LiveMeeting): Option[PollVO] = {
     val poll = for {
-      page <- lm.presModel.getCurrentPage()
+      pod <- state.presentationPodManager.getDefaultPod()
+      pres <- pod.getCurrentPresentation()
+      page <- pres.getCurrentPage(pres)
       curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
     } yield curPoll
 
@@ -103,7 +113,7 @@ object Polls {
 
   }
 
-  def handleStartCustomPollReqMsg(requesterId: String, pollId: String, pollType: String,
+  def handleStartCustomPollReqMsg(state: MeetingState2x, requesterId: String, pollId: String, pollType: String,
                                   answers: Seq[String], lm: LiveMeeting): Option[SimplePollOutVO] = {
 
     def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
@@ -116,7 +126,9 @@ object Polls {
     }
 
     for {
-      page <- lm.presModel.getCurrentPage()
+      pod <- state.presentationPodManager.getDefaultPod()
+      pres <- pod.getCurrentPresentation()
+      page <- pres.getCurrentPage(pres)
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
       numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
@@ -167,7 +179,7 @@ object Polls {
     shape += "id" -> result.id
     shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
-    var answers = new ArrayBuffer[SimpleVoteOutVO]
+    val answers = new ArrayBuffer[SimpleVoteOutVO]
     result.answers.foreach(ans => {
       answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
     })
@@ -352,7 +364,6 @@ object PollFactory {
 
     if (numQs > 0 && numQs <= 6) {
       val answers = new Array[Answer](numQs)
-      var i = 0
       for (i <- 0 until numQs) {
         answers(i) = new Answer(i, NumberArray(i), Some(NumberArray(i)))
         val question = new Question(0, PollType.NumberPollType, multiResponse, None, answers)
@@ -564,11 +575,13 @@ class Polls {
     poll
   }
 
+  /*
   private def remove(id: String): Option[Poll] = {
     val poll = polls.get(id)
     poll foreach (p => polls -= id)
     poll
   }
+  */
 
   private def get(id: String): Option[Poll] = {
     polls.get(id)

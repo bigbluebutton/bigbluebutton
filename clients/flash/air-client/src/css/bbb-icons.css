@@ -1,0 +1,270 @@
+/* BigBlueButton Font */
+
+@namespace s "library://ns.adobe.com/flex/spark";
+
+@font-face {
+	src: url("../assets/fonts/BBBIcons/bbb-icons.ttf");
+	fontFamily: BBBIcons;
+	fontStyle: normal;
+	fontWeight: normal;
+	embedAsCFF: true;
+}
+
+@font-face {
+	src: url("../assets/fonts/BBBIcons/bbb-icons.ttf");
+	fontFamily: BBBIcons;
+	fontStyle: normal;
+	fontWeight: bold;
+	embedAsCFF: true;
+}
+
+.icon {
+	fontFamily: BBBIcons;
+}
+
+.icon-logout {
+	icon: "\ue900";
+}
+.icon-application {
+	icon: "\ue901";
+}
+.icon-more {
+	icon: "\ue902";
+}
+.icon-promote {
+	icon: "\ue903";
+}
+.icon-video-off {
+	icon: "\ue904";
+}
+.icon-user {
+	icon: "\ue905";
+}
+.icon-up-arrow {
+	icon: "\ue906";
+}
+.icon-undecided, .icon-neutral {
+	icon: "\ue907";
+}
+.icon-time, .icon-away {
+	icon: "\ue908";
+}
+.icon-sad {
+	icon: "\ue909";
+}
+.icon-right-arrow {
+	icon: "\ue90a";
+}
+.icon-presentation {
+	icon: "\ue90b";
+}
+.icon-listen {
+	icon: "\ue90c";
+}
+.icon-left-arrow {
+	icon: "\ue90d";
+}
+.icon-happy {
+	icon: "\ue90e";
+}
+.icon-hand, .icon-raiseHand {
+	icon: "\ue90f";
+}
+.icon-group-chat {
+	icon: "\ue910";
+}
+.icon-confused {
+	icon: "\ue911";
+}
+.icon-close {
+	icon: "\ue912";
+}
+.icon-clear-status, .icon-none {
+	icon: "\ue913";
+}
+.icon-circle {
+	icon: "\ue914";
+}
+.icon-substract {
+	icon: "\ue915";
+}
+.icon-circle-close {
+	icon: "\ue916";
+}
+.icon-add {
+	icon: "\ue917";
+}
+.icon-check {
+	icon: "\ue918";
+}
+.icon-chat {
+	icon: "\ue919";
+}
+.icon-audio-on {
+	icon: "\ue91a";
+}
+.icon-audio-off {
+	icon: "\ue91b";
+}
+.icon-line-tool {
+	icon: "\ue91c";
+}
+.icon-circle-tool {
+	icon: "\ue91d";
+}
+.icon-triangle-tool {
+	icon: "\ue91e";
+}
+.icon-rectangle-tool {
+	icon: "\ue91f";
+}
+.icon-text-tool {
+	icon: "\ue920";
+}
+.icon-plus {
+	icon: "\ue921";
+}
+.icon-fit-to-width {
+	icon: "\ue922";
+}
+.icon-applause {
+	icon: "\ue923";
+}
+.icon-undo {
+	icon: "\ue924";
+}
+.icon-pen-tool {
+	icon: "\ue925";
+}
+.icon-lock {
+	icon: "\ue926";
+}
+.icon-polling {
+	icon: "\ue927";
+}
+.icon-desktop {
+	icon: "\ue928";
+}
+.icon-fit-to-screen {
+	icon: "\ue929";
+}
+.icon-fullscreen {
+	icon: "\ue92a";
+}
+.icon-settings {
+	icon: "\ue92b";
+}
+.icon-thumbs-down, .icon-thumbsDown {
+	icon: "\ue92c";
+}
+.icon-thumbs-up, .icon-thumbsUp {
+	icon: "\ue92d";
+}
+.icon-file {
+	icon: "\ue92e";
+}
+.icon-upload {
+	icon: "\ue92f";
+}
+.icon-video {
+	icon: "\ue930";
+}
+.icon-unmute {
+	icon: "\ue931";
+}
+.icon-mute {
+	icon: "\ue932";
+}
+.icon-about {
+	icon: "\ue933";
+}
+.icon-send {
+	icon: "\ue934";
+}
+.icon-exit-fullscreen {
+	icon: "\ue935";
+}
+.icon-delete {
+	icon: "\ue936";
+}
+.icon-unmute-filled {
+	icon: "\ue937";
+}
+.icon-mute-filled {
+	icon: "\ue938";
+}
+.icon-listen_filled	 {
+	icon: "\ue939";
+}
+.icon-template-upload {
+	icon: "\ue93a";
+}
+.icon-template-download {
+	icon: "\ue93b";
+}
+.icon-save-notes {
+	icon: "\ue93c";
+}
+.icon-multi-whiteboard {
+	icon: "\ue93d";
+}
+.icon-whiteboard {
+	icon: "\ue93e";
+}
+.icon-rooms {
+	icon: "\ue93f";
+}
+.icon-unlock {
+	icon: "\ue940";
+}
+.icon-record {
+	icon: "\ue941";
+}
+.icon-network {
+	icon: "\ue942";
+}
+.icon-redo {
+	icon: "\ue943";
+}
+.icon-thumbs-down-filled {
+	icon: "\ue944";
+}
+.icon-thumbs-up-filled {
+	icon: "\ue945";
+}
+.icon-checkmark {
+	icon: "\ue946";
+}
+.icon-speak-louder {
+	icon: "\ue947";
+}
+.icon-help {
+	icon: "\ue940";
+}
+.icon-unlock {
+	icon: "\ue948";
+}
+.icon-refresh {
+	icon: "\ue949";
+}
+.icon-copy {
+	icon: "\ue94a";
+}
+.icon-shortcuts {
+	icon: "\ue94b";
+}
+.icon-warning {
+	icon: "\ue94c";
+}
+.icon-transfer-audio {
+	icon: "\ue94d";
+}
+.icon-room {
+	icon: "\ue94e";
+}
+.icon-new_file {
+	icon: "\ue94f";
+}
+.icon-pointer {
+	icon: "\ue950";
+}

@@ -6,8 +6,7 @@ import akka.event.Logging
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.{ AppsRedisSubscriberActor, MessageSender, RedisPublisher }
-import org.bigbluebutton.api2.meeting.{ MeetingsManagerActor, OldMeetingMsgHdlrActor, RegisterUser }
-import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage
+import org.bigbluebutton.api2.meeting.{ OldMeetingMsgHdlrActor, RegisterUser }
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.presentation.messages._
 
@@ -89,6 +88,9 @@ class BbbWebApiGWApp(
                     warnMinutesBeforeMax:                   java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
+                    userInactivityInspectTimerInMinutes:    java.lang.Integer,
+                    userInactivityThresholdInMinutes:       java.lang.Integer,
+                    userActivitySignResponseDelayInMinutes: java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
@@ -99,7 +101,10 @@ class BbbWebApiGWApp(
       maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes.intValue(),
       warnMinutesBeforeMax = warnMinutesBeforeMax.intValue(),
       meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes.intValue(),
-      meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue())
+      meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue(),
+      userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes.intValue(),
+      userInactivityThresholdInMinutes = userInactivityThresholdInMinutes.intValue(),
+      userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes.intValue())
 
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
@@ -128,7 +133,8 @@ class BbbWebApiGWApp(
 
   def registerUser(meetingId: String, intUserId: String, name: String,
                    role: String, extUserId: String, authToken: String, avatarURL: String,
-                   guest: java.lang.Boolean, authed: java.lang.Boolean): Unit = {
+                   guest: java.lang.Boolean, authed: java.lang.Boolean,
+                   guestStatus: String): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
@@ -136,9 +142,14 @@ class BbbWebApiGWApp(
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
-      guest = guest.booleanValue(), authed = authed.booleanValue())
+      guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
+  def ejectDuplicateUser(meetingId: String, intUserId: String, name: String, extUserId: String): Unit = {
+    val event = MsgBuilder.buildEjectDuplicateUserRequestToAkkaApps(meetingId, intUserId, name, extUserId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
@@ -170,10 +181,6 @@ class BbbWebApiGWApp(
 
   }
 
-  def sendStunTurnInfoReply(msg: SendStunTurnInfoReplyMessage): Unit = {
-
-  }
-
   def sendDocConversionMsg(msg: IDocConversionMsg): Unit = {
     if (msg.isInstanceOf[DocPageGeneratedProgress]) {
       val event = MsgBuilder.buildPresentationPageGeneratedPubMsg(msg.asInstanceOf[DocPageGeneratedProgress])
@@ -185,7 +192,7 @@ class BbbWebApiGWApp(
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCountFailed]) {
-      val event = MsgBuilder.buildbuildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
+      val event = MsgBuilder.buildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCountExceeded]) {
       val event = MsgBuilder.buildPresentationPageCountExceededSysPubMsg(msg.asInstanceOf[DocPageCountExceeded])

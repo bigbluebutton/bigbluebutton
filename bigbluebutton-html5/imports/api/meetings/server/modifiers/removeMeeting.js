@@ -2,7 +2,7 @@ import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
-import clearChats from '/imports/api/chat/server/modifiers/clearChats';
+import clearGroupChat from '/imports/api/group-chat/server/modifiers/clearGroupChat';
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
 import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
 import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
@@ -14,7 +14,7 @@ import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoic
 export default function removeMeeting(meetingId) {
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
-    clearChats(meetingId);
+    clearGroupChat(meetingId);
     clearPresentations(meetingId);
     clearBreakouts(meetingId);
     clearPolls(meetingId);

@@ -2,8 +2,6 @@ package org.bigbluebutton.api2.domain
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import java.util.Map
-
 import scala.xml.{Elem, NodeSeq}
 
 object RecMeta {

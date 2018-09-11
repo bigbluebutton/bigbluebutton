@@ -1,32 +1,42 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.BreakoutModel
+import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.MeetingActor
 
-trait CreateBreakoutRoomsCmdMsgHdlr {
-  this: BaseMeetingActor =>
+trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
+  this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
-    state.breakout match {
-      case Some(breakout) =>
-        log.warning(
-          "CreateBreakoutRooms event received while breakout created for meeting {}", liveMeeting.props.meetingProp.intId
-        )
-        state
-      case None =>
-        processRequest(msg, state)
+
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to create breakout room for meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId,
+        reason, outGW, liveMeeting)
+      state
+    } else {
+      state.breakout match {
+        case Some(breakout) =>
+          log.warning(
+            "CreateBreakoutRooms event received while breakout created for meeting {}", liveMeeting.props.meetingProp.intId
+          )
+          state
+        case None =>
+          processRequest(msg, state)
+      }
     }
   }
 
   def processRequest(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
-    val presId = getPresentationId
-    val presSlide = getPresentationSlide
+    val presId = getPresentationId(state)
+    val presSlide = getPresentationSlide(state)
     val parentId = liveMeeting.props.meetingProp.intId
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
 
@@ -71,13 +81,31 @@ trait CreateBreakoutRoomsCmdMsgHdlr {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def getPresentationId: String = {
+  def getPresentationId(state: MeetingState2x): String = {
     // in very rare cases the presentation conversion generates an error, what should we do?
     // those cases where default.pdf is deleted from the whiteboard
-    if (!liveMeeting.presModel.getCurrentPresentation().isEmpty) liveMeeting.presModel.getCurrentPresentation().get.id else "blank"
+    var currentPresentation = "blank"
+    for {
+      defaultPod <- state.presentationPodManager.getDefaultPod()
+      curPres <- defaultPod.getCurrentPresentation()
+    } yield {
+      currentPresentation = curPres.id
+    }
+
+    currentPresentation
   }
 
-  def getPresentationSlide: Int = {
+  def getPresentationSlide(state: MeetingState2x): Int = {
     if (!liveMeeting.presModel.getCurrentPage().isEmpty) liveMeeting.presModel.getCurrentPage().get.num else 0
+    var currentSlide = 0
+    for {
+      defaultPod <- state.presentationPodManager.getDefaultPod()
+      curPres <- defaultPod.getCurrentPresentation()
+      curPage <- curPres.getCurrentPage(curPres)
+    } yield {
+      currentSlide = curPage.num
+    }
+
+    currentSlide
   }
 }

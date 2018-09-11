@@ -1,5 +1,8 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+$more-icon-font-size: 12px;
+$more-icon-line-height: 16px;
+
 %list {
   list-style: none;
   font-size: $font-size-base;
@@ -8,6 +11,8 @@
   text-align: left;
   color: $color-gray-dark;
   display: flex;
+  overflow-wrap: break-word;
+  white-space: pre-line;
 
   @include mq($small-only) {
     font-size: $font-size-large * 1.1;
@@ -31,7 +36,6 @@
 }
 
 .title {
-  @extend %text-elipsis;
   color: $color-gray;
   font-weight: 600;
   width: 100%;
@@ -106,6 +110,7 @@
       border-radius: 0.2rem;
     }
 
+    .iconRight,
     .itemIcon,
     .itemLabel {
       color: inherit;
@@ -117,14 +122,21 @@
   }
 }
 
+.iconRight,
 .itemIcon {
   margin-right: ($line-height-computed / 2);
   color: $color-text;
   flex: 0 0;
 }
 
+.iconRight {
+  margin-right: -$indicator-padding-left;
+  margin-left: $sm-padding-x;
+  font-size: $more-icon-font-size;
+  line-height: $more-icon-line-height;
+}
+
 .itemLabel {
-  @extend %text-elipsis;
   color: $color-gray-dark;
   font-size: 90%;
   flex: 1;

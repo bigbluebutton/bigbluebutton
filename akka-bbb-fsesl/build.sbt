@@ -53,7 +53,7 @@ libraryDependencies ++= {
 
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
-libraryDependencies += "org.bigbluebutton"         %  "bbb-fsesl-client"   % "0.0.5"
+libraryDependencies += "org.bigbluebutton"         %  "bbb-fsesl-client"   % "0.0.6"
 
 // https://mvnrepository.com/artifact/org.scala-lang/scala-library
 libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"

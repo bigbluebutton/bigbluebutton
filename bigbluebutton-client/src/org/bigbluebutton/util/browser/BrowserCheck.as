@@ -23,6 +23,7 @@ package org.bigbluebutton.util.browser {
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.BBB;
 
 	public class BrowserCheck {
 		private static const LOGGER:ILogger = getClassLogger(BrowserCheck);
@@ -92,9 +93,8 @@ package org.bigbluebutton.util.browser {
 		}
 
 		public static function isHttps():Boolean {
-			var url:String = ExternalInterface.call("window.location.href.toString");
 			var httpsPattern:RegExp = /^https/;
-			return httpsPattern.test(url);
+			return httpsPattern.test(BBB.getBaseURL());
 		}
 	}
 }

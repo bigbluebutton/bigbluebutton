@@ -22,8 +22,8 @@ const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
 };
 
-const changeWhiteboardMode = (multiUser) => {
-  makeCall('changeWhiteboardAccess', multiUser);
+const changeWhiteboardMode = (multiUser, whiteboardId) => {
+  makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
 };
 
 const setInitialWhiteboardToolbarValues = (tool, thickness, color, fontSize, textShape) => {
@@ -57,8 +57,8 @@ const getTextShapeActiveId = () => {
   return drawSettings ? drawSettings.textShape.textShapeActiveId : '';
 };
 
-const getMultiUserStatus = () => {
-  const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID });
+const getMultiUserStatus = (whiteboardId) => {
+  const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
   return data ? data.multiUser : false;
 };
 

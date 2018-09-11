@@ -20,7 +20,9 @@ case class MeetingInactivityTracker(
   }
 
   def hasRecentActivity(nowInMs: Long): Boolean = {
-    nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
+    val left = nowInMs - lastActivityTimestampInMs
+    val right = maxInactivityTimeoutInMs - warningBeforeMaxInMs
+    left < right
   }
 
   def isMeetingInactive(nowInMs: Long): Boolean = {
@@ -39,7 +41,10 @@ case class MeetingExpiryTracker(
     lastUserLeftOnInMs:                Option[Long],
     durationInMs:                      Long,
     meetingExpireIfNoUserJoinedInMs:   Long,
-    meetingExpireWhenLastUserLeftInMs: Long
+    meetingExpireWhenLastUserLeftInMs: Long,
+    userInactivityInspectTimerInMs:    Long,
+    userInactivityThresholdInMs:       Long,
+    userActivitySignResponseDelayInMs: Long
 ) {
   def setUserHasJoined(): MeetingExpiryTracker = {
     if (!userHasJoined) {

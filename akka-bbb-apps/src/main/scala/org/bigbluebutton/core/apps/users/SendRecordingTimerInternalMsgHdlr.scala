@@ -27,15 +27,17 @@ trait SendRecordingTimerInternalMsgHdlr {
     var newDuration = 0L
     if (MeetingStatus2x.isRecording(liveMeeting.status)) {
       newDuration = TimeUtil.timeNowInMs()
+      val tracker = state.recordingTracker.udpateCurrentDuration(newDuration)
+
+      val recordingTime = TimeUtil.millisToSeconds(tracker.recordingDuration())
+
+      val event = buildUpdateRecordingTimerEvtMsg(liveMeeting.props.meetingProp.intId, recordingTime)
+      outGW.send(event)
+
+      state.update(tracker)
+    } else {
+      state
     }
 
-    val tracker = state.recordingTracker.udpateCurrentDuration(newDuration)
-
-    val recordingTime = TimeUtil.millisToSeconds(tracker.recordingDuration())
-
-    val event = buildUpdateRecordingTimerEvtMsg(liveMeeting.props.meetingProp.intId, recordingTime)
-    outGW.send(event)
-
-    state.update(tracker)
   }
 }

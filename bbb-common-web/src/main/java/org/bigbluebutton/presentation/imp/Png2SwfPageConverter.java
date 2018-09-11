@@ -23,11 +23,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class Png2SwfPageConverter implements PageConverter {
   private static Logger log = LoggerFactory.getLogger(Png2SwfPageConverter.class);
@@ -35,7 +36,7 @@ public class Png2SwfPageConverter implements PageConverter {
   private String SWFTOOLS_DIR;
 
   public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres){		
-    String COMMAND = SWFTOOLS_DIR + File.separator + "png2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath();		
+    String COMMAND = SWFTOOLS_DIR + File.separatorChar + "png2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath();		
 
     boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000); 	            
 
@@ -49,7 +50,7 @@ public class Png2SwfPageConverter implements PageConverter {
       logData.put("message", "Failed to convert PNG doc to SWF.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- " + logStr);
+      log.warn("-- analytics -- {}", logStr);
 
       return false;
     }

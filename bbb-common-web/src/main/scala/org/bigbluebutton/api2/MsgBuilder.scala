@@ -35,13 +35,23 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildEjectDuplicateUserRequestToAkkaApps(meetingId: String, intUserId: String, name: String, extUserId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(EjectDuplicateUserReqMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(EjectDuplicateUserReqMsg.NAME, meetingId)
+    val body = EjectDuplicateUserReqMsgBody(meetingId = meetingId, intUserId = intUserId,
+      name = name, extUserId = extUserId)
+    val req = EjectDuplicateUserReqMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildRegisterUserRequestToAkkaApps(msg: RegisterUser): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken,
-      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed)
+      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -59,7 +69,7 @@ object MsgBuilder {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationPageGeneratedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageGeneratedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
-    val body = PresentationPageGeneratedSysPubMsgBody(messageKey = msg.key,
+    val body = PresentationPageGeneratedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentationId = msg.presId, numberOfPages = msg.numPages.intValue(),
       pagesCompleted = msg.pagesCompleted.intValue(), presName = msg.filename)
     val req = PresentationPageGeneratedSysPubMsg(header, body)
@@ -70,7 +80,7 @@ object MsgBuilder {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionUpdateSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionUpdateSysPubMsg.NAME, msg.meetingId, msg.authzToken)
-    val body = PresentationConversionUpdateSysPubMsgBody(messageKey = msg.key,
+    val body = PresentationConversionUpdateSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentationId = msg.presId, presName = msg.filename)
     val req = PresentationConversionUpdateSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
@@ -85,14 +95,14 @@ object MsgBuilder {
     val presentation = PresentationVO(msg.presId, msg.filename,
       current=msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue())
 
-    val body = PresentationConversionCompletedSysPubMsgBody(messageKey = msg.key,
+    val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentation)
     val req = PresentationConversionCompletedSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.Map[String, PageVO] = {
-    var pages = new scala.collection.mutable.HashMap[String, PageVO]
+    val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
       val num = i
@@ -112,12 +122,12 @@ object MsgBuilder {
     pages.toMap
   }
 
-  def buildbuildPresentationPageCountFailedSysPubMsg(msg: DocPageCountFailed): BbbCommonEnvCoreMsg = {
+  def buildPresentationPageCountFailedSysPubMsg(msg: DocPageCountFailed): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationPageCountErrorSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageCountErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val body = PresentationPageCountErrorSysPubMsgBody(messageKey = msg.key,
+    val body = PresentationPageCountErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, msg.presId, 0, 0, msg.filename)
     val req = PresentationPageCountErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
@@ -128,7 +138,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationPageCountErrorSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageCountErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val body = PresentationPageCountErrorSysPubMsgBody(messageKey = msg.key,
+    val body = PresentationPageCountErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, msg.presId, msg.numPages.intValue(), msg.maxNumPages.intValue(), msg.filename)
     val req = PresentationPageCountErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)

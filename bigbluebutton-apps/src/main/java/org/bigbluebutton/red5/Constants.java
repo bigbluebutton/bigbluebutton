@@ -21,9 +21,5 @@ package org.bigbluebutton.red5;
 
 
 public class Constants{
-
-	public static final String LIVE_MODE = "LIVE";
 	public static final String SESSION = "BBB-SESSION";
-	
-	
 }

@@ -34,6 +34,7 @@ $toolbar-list-color: $color-gray;
   align-items: center;
   justify-content: center;
   box-shadow: $toolbar-box-shadow;
+  border-radius: $toolbar-button-border-radius;
   pointer-events: all;
 
   .buttonWrapper > .toolbarButton {

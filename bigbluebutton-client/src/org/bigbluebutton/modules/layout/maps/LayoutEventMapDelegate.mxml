@@ -28,34 +28,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.modules.layout.model.LayoutModuleOptions;
 			import org.bigbluebutton.modules.layout.views.ToolbarComponent;
 			
-			private var _attributes:Object;
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			private var options:LayoutOptions;
+			private var moduleOptions:LayoutModuleOptions;
 			private var layoutComponent:ToolbarComponent;
 			
 			public function stopModule():void {
 			}
 			
-			public function startModule(attributes:Object):void {
-				_attributes = attributes;
+			public function startModule():void {
 				options = Options.getOptions(LayoutOptions) as LayoutOptions;
+				moduleOptions = Options.getOptions(LayoutModuleOptions) as LayoutModuleOptions;
 				
 				layoutComponent = new ToolbarComponent();
-				
-				// using the negation will keep it enabled if the property is not there
-				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
-				layoutComponent.visibleTools = options.showLayoutTools;
+				layoutComponent.enableEdit = moduleOptions.enableEdit;
+				layoutComponent.visibleTools(options.showLayoutTools);
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = layoutComponent;
 				event.location = ToolbarButtonEvent.BOTTOM_TOOLBAR;
 				_globalDispatcher.dispatchEvent(event);
-				
 			}
 
 			public function refreshRole(e:ChangeMyRole):void {
-				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
+				//layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
 				layoutComponent.refreshRole(e.role == Role.MODERATOR);
 			}
 		]]>

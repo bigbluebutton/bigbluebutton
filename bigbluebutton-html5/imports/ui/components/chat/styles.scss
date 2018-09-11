@@ -44,6 +44,7 @@ $background-active: darken($color-white, 5%);
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
+  height: 100vh;
 }
 
 .header {

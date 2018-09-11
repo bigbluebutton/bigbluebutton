@@ -105,8 +105,9 @@ class RedisPubSub {
     this.config = config;
 
     this.didSendRequestEvent = false;
-    this.pub = Redis.createClient();
-    this.sub = Redis.createClient();
+    const redisHost = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
+    this.pub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
+    this.sub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
 
@@ -161,6 +162,9 @@ class RedisPubSub {
       this.debug(`${eventName} skipped`);
       return;
     }
+
+    // Please keep this log until the message handling is solid
+    console.warn(` ~~~~ REDIS RECEIVED: ${eventName}  ${message}`);
 
     const queueId = meetingId || NO_MEETING_ID;
 
@@ -224,6 +228,9 @@ class RedisPubSub {
     };
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
+
+    // Please keep this log until the message handling is solid
+    console.warn(` ~~~~ REDIS PUBLISHING:  ${envelope}`);
 
     return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }

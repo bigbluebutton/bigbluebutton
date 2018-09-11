@@ -10,7 +10,7 @@ import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
-import ChatNotificationContainer from '../chat/notification/container';
+import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -81,8 +81,12 @@ class App extends Component {
 
     const BROWSER_RESULTS = browser();
     const body = document.getElementsByTagName('body')[0];
-    body.classList.add(`browser-${BROWSER_RESULTS.name}`);
-    body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
+    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
+      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+    }
+    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
+      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
+    }
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
@@ -315,7 +319,7 @@ class App extends Component {
         <ModalContainer />
         <AudioContainer />
         <ToastContainer />
-        <ChatNotificationContainer currentChatID={params.chatID} />
+        <ChatAlertContainer currentChatID={params.chatID} />
       </main>
     );
   }

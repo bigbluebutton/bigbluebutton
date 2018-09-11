@@ -58,7 +58,6 @@ class VideoService {
   }
 
   exitedVideo() {
-    console.warn('exitedVideo');
     this.isSharing = false;
     this.isWaitingResponse = false;
     this.isConnected = false;
@@ -114,6 +113,11 @@ class VideoService {
     return Auth.userID;
   }
 
+  userName() {
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    return currentUser.name;
+  }
+
   meetingId() {
     return Auth.meetingID;
   }
@@ -149,6 +153,7 @@ export default {
   sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
   sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
   userId: () => videoService.userId(),
+  userName: () => videoService.userName(),
   meetingId: () => videoService.meetingId(),
   getAllUsersVideo: () => videoService.getAllUsersVideo(),
   sessionToken: () => videoService.sessionToken(),

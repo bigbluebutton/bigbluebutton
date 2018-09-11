@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
+				styleName="fileExportWindow"
+				creationComplete="creationCompleteHandler(event)"
+				layout="absolute"
+				resizeEffect="{windowResize}"
+				width="500">
+
+	<fx:Declarations>
+		<mate:Dispatcher id="globalDispatch" />
+		<mx:Resize id="windowResize" />
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.ByteArray;
+			import flash.utils.setTimeout;
+			
+			import mx.events.FlexEvent;
+			
+			import org.alivepdf.colors.RGBColor;
+			import org.alivepdf.display.Display;
+			import org.alivepdf.drawing.Caps;
+			import org.alivepdf.fonts.CoreFont;
+			import org.alivepdf.fonts.FontFamily;
+			import org.alivepdf.layout.Layout;
+			import org.alivepdf.layout.LineBreakPolicy;
+			import org.alivepdf.layout.Mode;
+			import org.alivepdf.layout.Orientation;
+			import org.alivepdf.layout.Position;
+			import org.alivepdf.layout.Resize;
+			import org.alivepdf.layout.Unit;
+			import org.alivepdf.pages.Page;
+			import org.alivepdf.pdf.PDF;
+			import org.alivepdf.saving.Method;
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.modules.present.events.ExportEvent;
+			import org.bigbluebutton.modules.present.model.PresentationModel;
+			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
+			import org.bigbluebutton.modules.whiteboard.models.Annotation;
+			import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
+			import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
+			import org.bigbluebutton.modules.whiteboard.views.IWhiteboardOverlay;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			public var firstPage:int;
+
+			public var numberOfPages:int;
+
+			public var slidesUrl:String;
+
+			public var slideModel:SlideViewModel;
+
+			public var presentationModel:PresentationModel;
+
+			public var whiteboardCanvas:IWhiteboardOverlay;
+
+			private var _pdf:PDF;
+
+			private var _pdfByteArray:ByteArray;
+
+			private var _currentPage:int = 1;
+
+			private var fileName:String;
+
+			private static const LOGGER:ILogger = getClassLogger(FileExportWindow);
+
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				addEventListener("pdfComplete", pdfCompleteHandler);
+				addEventListener("nextPdfPage", nextPdfPageHandler);
+			}
+
+			public function initConversion():void {
+				fileName = presentationModel.getCurrentPresentation().name;
+				fileName = StringUtils.substringBeforeLast(fileName, ".");
+
+				closeButton.enabled = false;
+				progressBar.visible = true;
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.generatingPDF');
+				progressBar.setProgress(0, 100);
+				progressBar.validateNow();
+
+				setTimeout(startConversion, 750);
+			}
+
+			private function startConversion():void {
+				_currentPage = firstPage;
+				_pdf = new PDF(Orientation.LANDSCAPE, Unit.POINT);
+				_pdf.setMargins(0, 0, 0, 0);
+				_pdf.setLineBreakPolicy(LineBreakPolicy.X_POSITION);
+				_pdf.setDisplayMode(Display.FULL_PAGE, Layout.SINGLE_PAGE, Mode.NONE);
+				dispatchEvent(new Event('nextPdfPage'));
+			}
+
+			protected function nextPdfPageHandler(event:Event):void {
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.converting', [presentationModel.getCurrentPresentation().name, _currentPage > numberOfPages ? 1 : _currentPage, numberOfPages]);
+				progressBar.setProgress(_currentPage > numberOfPages ? 0 : _currentPage, _currentPage > numberOfPages ? 1 : numberOfPages);
+
+				var pageLoader:Loader = new Loader();
+				pageLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, function():void {
+					var pagePath:String = presentationModel.getCurrentPresentation().id + "/" + _currentPage;
+					LOGGER.debug(_currentPage + " - Page model path: " + pagePath);
+					var annotations:Array = LiveMeeting.inst().whiteboardModel.getAnnotations(pagePath);
+
+					// The mc type can be MovieClip or AMV1Movie
+					var mc:* = (pageLoader.contentLoaderInfo.content);
+					var page:Page = _pdf.addPage();
+					_pdf.addImage(mc, new org.alivepdf.layout.Resize(Mode.RESIZE_PAGE, Position.CENTERED));
+
+					// The ratio to calculate positions
+					LOGGER.debug(_currentPage + " - Processing " + annotations.length + " annotations ");
+					for each (var annotation:Annotation in annotations) {
+						LOGGER.debug(_currentPage + " - Processing annotation " + annotation.type);
+						var _ao:Object = annotation.annotation;
+						
+						if (annotation.type == AnnotationType.TEXT) {
+							var textX:Number = convertToLocal(_ao.x, mc.width);
+							var textY:Number = convertToLocal(_ao.y, mc.height);
+							var textFontSize:Number = convertToLocal(_ao.calcedFontSize, mc.height);
+
+							var htmlText : String = '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Arial" SIZE="'+textFontSize+'" COLOR="#'+parseInt(_ao.fontColor).toString(16)+'" LETTERSPACING="0" KERNING="1">'+String(_ao.text).split('\r').join('<BR />')+'</FONT></P></TEXTFORMAT>';
+							// FIXME: added _ao.fontSize for approximation
+							_pdf.setXY(textX, textY);
+							_pdf.writeFlashHtmlText(6, htmlText , null, 120);
+						} else if (annotation.type == AnnotationType.LINE) {
+							var lineX:Number = convertToLocal(_ao.points[0], mc.width);
+							var lineY:Number = convertToLocal(_ao.points[1], mc.height);
+							var lineX2:Number = convertToLocal(_ao.points[2], mc.width);
+							var lineY2:Number = convertToLocal(_ao.points[3], mc.height);
+							var lineThickness:Number = convertToLocal(_ao.thickness, mc.width);
+
+							_pdf.lineStyle(new RGBColor(_ao.color), lineThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							_pdf.drawLine(lineX, lineY, lineX2, lineY2);
+						} else if (annotation.type == AnnotationType.RECTANGLE) {
+							var rectX:Number = convertToLocal(_ao.points[0], mc.width);
+							var rectY:Number = convertToLocal(_ao.points[1], mc.height);
+							var rectWidth:Number = convertToLocal(_ao.points[2], mc.width) - rectX;
+							var rectHeight:Number = convertToLocal(_ao.points[3], mc.height) - rectY;
+							var recThickness:Number = convertToLocal(_ao.thickness, mc.width);
+
+							_pdf.lineStyle(new RGBColor(_ao.color), recThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							_pdf.drawRect(new Rectangle(rectX, rectY, rectWidth, rectHeight));
+						} else if (annotation.type == AnnotationType.TRIANGLE) {
+							var startX:Number = convertToLocal(_ao.points[0], mc.width);
+							var startY:Number = convertToLocal(_ao.points[1], mc.height);
+							var triangleWidth:Number = convertToLocal(_ao.points[2], mc.width) - startX;
+							var triangleHeight:Number = convertToLocal(_ao.points[3], mc.height) - startY;
+							var triangleThickness:Number = convertToLocal(_ao.thickness, mc.width);
+
+							_pdf.lineStyle(new RGBColor(_ao.color), triangleThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+
+							_pdf.drawLine(startX + triangleWidth / 2, startY, startX + triangleWidth, startY + triangleHeight);
+							_pdf.drawLine(startX + triangleWidth, startY + triangleHeight, startX, triangleHeight + startY);
+							_pdf.drawLine(startX, triangleHeight + startY, startX + triangleWidth / 2, startY);
+						} else if (annotation.type == AnnotationType.ELLIPSE) {
+							var ellipseX:Number = convertToLocal(parseFloat(_ao.points[0]), mc.width);
+							var ellipseY:Number = convertToLocal(parseFloat(_ao.points[1]), mc.height);
+							var ellipseWidth:Number = convertToLocal(parseFloat(_ao.points[2]), mc.width) - ellipseX;
+							var ellipseHeight:Number = convertToLocal(parseFloat(_ao.points[3]), mc.height) - ellipseY;
+							var ellipseThickness:Number = convertToLocal(_ao.thickness, mc.width);
+
+							_pdf.lineStyle(new RGBColor(_ao.color), ellipseThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							_pdf.drawEllipse(ellipseX + ellipseWidth / 2, ellipseY + ellipseHeight / 2, ellipseWidth / 2, ellipseHeight / 2);
+						} else if (annotation.type == AnnotationType.PENCIL) {
+							LOGGER.debug(_currentPage + " - Drawing a new pencil - Points count = " + _ao.points.length);
+							var pencilThickness:Number = convertToLocal(_ao.thickness, mc.width);
+
+							_pdf.lineStyle(new RGBColor(_ao.color), pencilThickness, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+							
+							var points:Array = _ao.points as Array;
+							
+							if (annotation.status == AnnotationStatus.DRAW_END && _ao.points.length > 2 && _ao.commands) {
+								LOGGER.debug(_currentPage + " - Drawing a new finished pencil");
+								var commands:Array = _ao.commands as Array;
+								
+								for (var k:int=0, j:int=0; k<commands.length && j<points.length; k++){
+									switch (commands[k]) {
+										case 1: // MOVE_TO
+											_pdf.moveTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											break;
+										case 2: // LINE_TO
+											_pdf.lineTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											break;
+										case 3: // Q_CURVE_TO
+											// The PDF exporter doesn't have a quadratic curve so just do lineTo
+											_pdf.lineTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											_pdf.lineTo(convertToLocal(points[j++], mc.width), convertToLocal(points[j++], mc.height));
+											break;
+										case 4: // C_CURVE_TO
+											var cX1:Number = convertToLocal(points[j++], mc.width);
+											var cY1:Number = convertToLocal(points[j++], mc.height);
+											var cX2:Number = convertToLocal(points[j++], mc.width);
+											var cY2:Number = convertToLocal(points[j++], mc.height);
+											var fX:Number = convertToLocal(points[j++], mc.width);
+											var fY:Number = convertToLocal(points[j++], mc.height);
+											
+											_pdf.curveTo(cX1, cY1, cX2, cY2, fX, fY);
+											break;
+									}
+								}
+							} else {
+								if (points.length > 2) {
+									LOGGER.debug(_currentPage + " - Drawing a new simple pencil");
+									_pdf.moveTo(convertToLocal(points[0], mc.width), convertToLocal(points[1], mc.height));
+									
+									for (var l:int = 2; l < points.length; l += 2){
+										_pdf.lineTo(convertToLocal(points[l], mc.width), convertToLocal(points[l+1], mc.height));
+									}
+								} else {
+									LOGGER.debug(_currentPage + " - Drawing a new pencil point");
+									_pdf.lineStyle(new RGBColor(_ao.color), 1, 0, 1, "NonZeroWinding", "Normal", null, Caps.ROUND);
+									_pdf.beginFill(new RGBColor(_ao.color));
+									var diameter:Number = convertToLocal(_ao.thickness, mc.width);
+									_pdf.drawEllipse(convertToLocal(points[0], mc.width)-diameter/2, convertToLocal(points[1], mc.height)-diameter/2, diameter, diameter);
+									_pdf.endFill();
+								}
+							}
+
+							_pdf.end(false);
+						} else if (annotation.type == AnnotationType.POLL) {
+							var child:DisplayObject = whiteboardCanvas.getGraphicByName(StringUtils.substringAfterLast(annotation.id, "/"));
+
+							var pollPointsArray:Array = _ao.points as Array;
+
+							var pollX:Number = convertToLocal(pollPointsArray[0], mc.width);
+							var pollY:Number = convertToLocal(pollPointsArray[1], mc.height);
+							var pollWidth:Number = convertToLocal(pollPointsArray[2], mc.height);
+							var pollHeigth:Number = convertToLocal(pollPointsArray[3], mc.height);
+
+							_pdf.addImage(child, null, pollX, pollY, child.width, child.height);
+						}
+					}
+
+					LOGGER.debug(_currentPage + " - " + "Next page");
+					_currentPage++;
+					if (_currentPage <= numberOfPages) {
+						dispatchEvent(new Event('nextPdfPage'));
+					} else {
+						dispatchEvent(new Event('pdfComplete'));
+					}
+				});
+				
+				var slideURI:String = slidesUrl + _currentPage;
+				var pngURI:String =  slideURI.replace(/\/slide\//g, "/png/");
+				var url:URLRequest = new URLRequest(pngURI);
+				
+				pageLoader.load(url);
+			}
+
+			protected function pdfCompleteHandler(event:Event):void {
+				progressBar.setProgress(100, 100);
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentationExport.conversionComplete');
+				setTimeout(downloadReady, 500);
+			}
+
+			private function downloadReady():void {
+				closeButton.enabled = saveBtn.enabled = true;
+				closeButton.visible = closeButton.includeInLayout = true;
+				saveBtn.visible = saveBtn.includeInLayout = true;
+				progressBar.visible = progressBar.includeInLayout = false;
+			}
+
+			protected function saveButtonClickHandler(event:MouseEvent):void {
+				_pdfByteArray = _pdf.save(Method.LOCAL);
+				var file:FileReference = new FileReference();
+				file.addEventListener(Event.COMPLETE, function(evt:Event):void {
+					globalDispatch.dispatchEvent(new ExportEvent(ExportEvent.CLOSE_EXPORT_WINDOW));
+				});
+				file.addEventListener(Event.DEACTIVATE, function(evt:Event):void {
+					saveResultText.visible = saveResultText.includeInLayout = false;
+					saveResultText.text = "";
+				});
+				file.addEventListener(IOErrorEvent.IO_ERROR, function(evt:Event):void {
+					saveResultText.visible = saveResultText.includeInLayout = true;
+					saveResultText.text = ResourceUtil.getInstance().getString('bbb.presentationExport.ioerror');
+					saveResultText.styleName = "fileExportResultError";
+				});
+				file.save(_pdfByteArray, fileName + ".pdf");
+			}
+
+			protected function closeButtonClickHandler(event:MouseEvent):void {
+				close();
+			}
+
+			private function close():void {
+				_pdf = null;
+				_pdfByteArray = null;
+				globalDispatch.dispatchEvent(new ExportEvent(ExportEvent.CLOSE_EXPORT_WINDOW));
+			}
+
+			private function convertToLocal(value:Number, factor:Number):Number {
+				return (value * factor) / 100.0;
+			}
+		]]>
+	</fx:Script>
+
+	<mx:VBox width="100%"
+			 height="100%"
+			 paddingBottom="20"
+			 paddingTop="15"
+			 verticalGap="20"
+			 horizontalAlign="center">
+
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.presentationExport.title')}"
+							  styleName="titleWindowStyle"
+							  width="100%" />
+
+		<mx:ProgressBar id="progressBar"
+						mode="manual"
+						styleName="fileExportUploadProgressBar"
+						labelPlacement="top"
+						width="100%"
+						visible="false" />
+
+		<mx:Button id="saveBtn"
+				   styleName="mainActionButton"
+				   visible="false"
+				   includeInLayout="false"
+				   label="{ResourceUtil.getInstance().getString('bbb.presentationExport.saveToDisk')}"
+				   enabled="false"
+				   click="saveButtonClickHandler(event)" />
+
+		<mx:Text id="saveResultText"
+				 width="100%"
+				 visible="false"
+				 includeInLayout="false"
+				 textAlign="center" />
+	</mx:VBox>
+
+	<mx:Button id="closeButton"
+			   click="closeButtonClickHandler(event)"
+			   styleName="titleWindowCloseButton"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.presentationExport.close')}"
+			   right="10"
+			   top="15"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentationExport.close.toolTip')}" />
+
+</mx:TitleWindow>

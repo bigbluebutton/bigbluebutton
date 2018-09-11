@@ -1,12 +1,8 @@
 package org.bigbluebutton.red5.pubsub;
 
 
-//import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
-//import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
-
 import com.google.gson.Gson;
 import org.bigbluebutton.common2.msgs.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +27,7 @@ public class MessagePublisher {
 		routing.put("sender", "bbb-video");
 		return routing;
 	}
+
 
 	public void validateConnAuthToken(String meetingId, String userId, String authToken, String connId) {
 		BbbCoreBaseHeader header = new BbbCoreBaseHeader("ValidateConnAuthTokenSysMsg");

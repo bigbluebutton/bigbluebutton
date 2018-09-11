@@ -21,158 +21,203 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-	       xmlns:mx="library://ns.adobe.com/flex/mx" 
-		   xmlns:fx="http://ns.adobe.com/mxml/2009"
-		   xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
-	       showCloseButton="false"
-	       implements="org.bigbluebutton.common.IBbbModuleWindow" 
-	       creationComplete="onCreationComplete()"
-	       xmlns:components="org.bigbluebutton.modules.chat.view.components.*" 
-		   xmlns:mate="http://mate.asfusion.com/" 
-		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
-	
-	<fx:Declarations>
-		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-		<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
-		<mate:Listener type="{ShortcutEvent.MINIMIZE_CHAT}" method="remoteMinimize" />
-		<mate:Listener type="{ShortcutEvent.MAXIMIZE_CHAT}" method="remoteMaximize" />
-	</fx:Declarations>
-	
-	<fx:Script>
-		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.KeyboardUtil;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			private var _xPosition:int;
-			private var _yPosition:int;
-			private var keyCombos:Object;
-			private var disp:Dispatcher = new Dispatcher();
-			[Bindable] public var chatOptions:ChatOptions;
-			
-			public function getPrefferedPosition():String{
-				return MainCanvas.TOP_RIGHT;
-			} 
-			
-			private function onCreationComplete():void {
-				hotkeyCapture();
-				titleBarOverlay.tabIndex = chatOptions.baseTabIndex;
-				
-				minimizeBtn.tabIndex = chatOptions.baseTabIndex+1;
-				maximizeRestoreBtn.tabIndex = chatOptions.baseTabIndex+2;
-				closeBtn.tabIndex = chatOptions.baseTabIndex+3;
-
-				resourcesChanged(); // update the window controls once they've been created
-			}
-			
-			private function loadKeyCombos(modifier:String):void {
-				keyCombos = new Object(); // always start with a fresh array
-			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusTabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
-				
-				// Get sent to chatView
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusBox') as String)] = ShortcutEvent.FOCUS_CHAT_BOX;
-				
-				// Get sent to chatBox
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.changeColour') as String)] = ShortcutEvent.CHANGE_FONT_COLOUR;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.sendMessage') as String)] = ShortcutEvent.SEND_MESSAGE;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate') as String)] = ShortcutEvent.CLOSE_PRIVATE;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_CHAT;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_CHAT;
-			}
+                 xmlns:mx="library://ns.adobe.com/flex/mx" 
+                 xmlns:fx="http://ns.adobe.com/mxml/2009"
+                 xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
+                 showCloseButton="false"
+                 implements="org.bigbluebutton.common.IBbbModuleWindow" 
+                 creationComplete="onCreationComplete()"
+				 closeMDIWindow="closeMDIWindowHandler(event)"
+                 xmlns:components="org.bigbluebutton.modules.chat.view.components.*" 
+                 xmlns:mate="http://mate.asfusion.com/" 
+                 xmlns:views="org.bigbluebutton.modules.chat.views.*">
+  
+  <fx:Declarations>
+    <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+    <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
+    <mate:Listener type="{ShortcutEvent.MINIMIZE_CHAT}" method="remoteMinimize" />
+    <mate:Listener type="{ShortcutEvent.MAXIMIZE_CHAT}" method="remoteMaximize" />
+  </fx:Declarations>
+  
+  <fx:Script>
+    <![CDATA[
+		import com.asfusion.mate.events.Dispatcher;
 		
-		    private function hotkeyCapture():void{
-		      this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-		      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-		    }
+		import flexlib.mdi.events.MDIWindowEvent;
 		
-			// Handle general-access hotkeys, regardless of what window the user is focused in
-		    private function handleKeyDown(e:KeyboardEvent) :void {
-		      var modifier:String = ExternalInterface.call("determineModifier");
-			  loadKeyCombos(modifier);			  
-			  var keyPress:String = KeyboardUtil.buildPressedKeys(e);
-		      if (keyCombos[keyPress]) {
-		        disp.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
-		      }
-		    }
-			
-			private function remoteMinimize(e:ShortcutEvent):void{
-				if (!minimized){
-					this.minimize();
-				}
-			}
-			
-			private function remoteMaximize(e:ShortcutEvent):void{
-				if (!maximized && !minimized){
-					this.maximize();
-				}
-				else{
-					this.restore();
-				}				
-			}
-			
-			private function focusWindow(e:ShortcutEvent):void{
-				if (this.visible) {
-					focusManager.setFocus(titleBarOverlay);
-				}
-			}
+		import org.bigbluebutton.common.IBbbModuleWindow;
+		import org.bigbluebutton.common.events.LocaleChangeEvent;
+		import org.bigbluebutton.core.KeyboardUtil;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
+		import org.bigbluebutton.modules.chat.model.ChatModel;
+		import org.bigbluebutton.modules.chat.model.ChatOptions;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      private var _xPosition:int;
+      private var _yPosition:int;
+      private var keyCombos:Object;
+      private var disp:Dispatcher = new Dispatcher();
 
-			override protected function resourcesChanged():void{
-				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString("bbb.chat.title");
-				
-				if (titleBarOverlay != null) {
-					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.chat.titleBar');
-				}
-				
-				if (windowControls != null) {
-					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
-					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.minimizeBtn.accessibilityName");
-					
-					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
-					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.maximizeRestoreBtn.accessibilityName");
-					
-					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
-					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.closeBtn.accessibilityName");
-				}
-			}
-			
-			private function localeChanged(e:Event):void{
-				resourcesChanged();
-			}
-            
+      [Bindable] public var chatOptions:ChatOptions;
+      
+      [Bindable] private var _windowId: String;
+      
+      // The chatId that would be displayed when this window opens.
+      [Bindable] private var _mainChatId:String;
+      
+      [Bindable] private var _openAddTabBox:Boolean = false;
+      
+      public function setWindowId(winId: String):void {
+        _windowId = winId;
+      }
+      
+      public function getWindowId():String {
+        return _windowId;
+      }
+      
+      public function getPrefferedPosition():String {
+        return MainCanvas.TOP_RIGHT;
+      }
+      
+      public function getName():String {
+        return _windowId;
+	  }
+      
+      public function setMainChatId(chatId: String):void {
+        _mainChatId = chatId;
+      }
+      
+      public function setOpenAddTabBox(open:Boolean):void {
+        _openAddTabBox = open;
+      }
+      
+      private function onCreationComplete():void {
+        hotkeyCapture();
+        titleBarOverlay.tabIndex = chatOptions.baseTabIndex;
+        
+        minimizeBtn.tabIndex = chatOptions.baseTabIndex+1;
+        maximizeRestoreBtn.tabIndex = chatOptions.baseTabIndex+2;
+        closeBtn.tabIndex = chatOptions.baseTabIndex+3;
+        
+        resourcesChanged(); // update the window controls once they've been created
+      }
+      
+      private function loadKeyCombos(modifier:String):void {
+        keyCombos = new Object(); // always start with a fresh array
+        keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusTabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
+        
+        // Get sent to chatView
+        keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusBox') as String)] = ShortcutEvent.FOCUS_CHAT_BOX;
+        
+        // Get sent to chatBox
+        keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.changeColour') as String)] = ShortcutEvent.CHANGE_FONT_COLOUR;
+        keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.sendMessage') as String)] = ShortcutEvent.SEND_MESSAGE;
+        keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate') as String)] = ShortcutEvent.CLOSE_PRIVATE;
+        keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_CHAT;
+        keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_CHAT;
+      }
+      
+      private function hotkeyCapture():void{
+        this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+        ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+      }
+      
+      // Handle general-access hotkeys, regardless of what window the user is focused in
+      private function handleKeyDown(e:KeyboardEvent) :void {
+        var modifier:String = ExternalInterface.call("determineModifier");
+        loadKeyCombos(modifier);			  
+        var keyPress:String = KeyboardUtil.buildPressedKeys(e);
+        if (keyCombos[keyPress]) {
+          disp.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+        }
+      }
+      
+      private function remoteMinimize(e:ShortcutEvent):void{
+        if (!minimized){
+          this.minimize();
+        }
+      }
+      
+      private function remoteMaximize(e:ShortcutEvent):void{
+        if (!maximized && !minimized){
+          this.maximize();
+        }
+        else{
+          this.restore();
+        }				
+      }
+      
+      private function focusWindow(e:ShortcutEvent):void{
+        if (this.visible) {
+          focusManager.setFocus(titleBarOverlay);
+        }
+      }
+      
+      override protected function resourcesChanged():void{
+        super.resourcesChanged();
+		if (_mainChatId == ChatModel.MAIN_PUBLIC_CHAT) {
+	        this.title = ResourceUtil.getInstance().getString("bbb.chat.title");
+		}
+        
+        if (titleBarOverlay != null) {
+          titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.chat.titleBar');
+        }
+        
+        if (windowControls != null) {
+          minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+          minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.minimizeBtn.accessibilityName");
+          
+          maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+          maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.maximizeRestoreBtn.accessibilityName");
+          
+          closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+          closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.closeBtn.accessibilityName");
+        }
+      }
+      
+      private function localeChanged(e:Event):void{
+        resourcesChanged();
+      }
+      
       private function enableMessageEntryTextBox():void {
-//        txtMsg.enabled = true;
+        //        txtMsg.enabled = true;
       }
-            
+      
       private function disableMessageEntryTextBox():void {
-//        txtMsg.enabled = false;
+        //        txtMsg.enabled = false;
       }
-			
-			
-			override protected function hideAllChildren():void {
-				chatView.includeInLayout=false;
-			}
-			
-			override protected function showAllChildren():void {
-				chatView.includeInLayout=true;
-			}
-			
-			public function handleDraggableStatus(value:Boolean):void {
-				this.draggable = value;
-			}
+      
+      
+      override protected function hideAllChildren():void {
+        chatView.includeInLayout=false;
+      }
+      
+      override protected function showAllChildren():void {
+        chatView.includeInLayout=true;
+      }
+      
+      public function handleDraggableStatus(value:Boolean):void {
+        this.draggable = value;
+      }
+      
+      public function handleResizableStatus(value:Boolean):void {
+        this.resizable = value;
+      }
+		
+		protected function closeMDIWindowHandler(event:MDIWindowEvent):void {
+			this.removeEventListener(MDIWindowEvent.CLOSE, closeMDIWindowHandler);
+			var evt:GroupChatBoxClosedEvent = new GroupChatBoxClosedEvent(_mainChatId, _windowId);
+			disp.dispatchEvent(evt);
+		}
 
-			public function handleResizableStatus(value:Boolean):void {
-				this.resizable = value;
-			}
-			
-		]]>
-	</fx:Script>
-	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}" includeInLayout="false"/>
+	]]>
+  </fx:Script>
+  <mx:VBox width="100%" height="100%">
+    <views:ChatView id="chatView" chatOptions="{chatOptions}" mainChatId="{_mainChatId}"
+                    windowId="{_windowId}"
+                    openTabBox="{_openAddTabBox}" includeInLayout="true"/>
+  </mx:VBox>
+  
 </CustomMdiWindow>

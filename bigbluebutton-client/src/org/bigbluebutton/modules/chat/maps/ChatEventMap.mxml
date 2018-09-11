@@ -21,10 +21,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <EventMap xmlns="http://mate.asfusion.com/"
-	xmlns:mx="library://ns.adobe.com/flex/mx"
-	xmlns:fx="http://ns.adobe.com/mxml/2009">
-	<fx:Script>
-		<![CDATA[
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:fx="http://ns.adobe.com/mxml/2009">
+  <fx:Script>
+    <![CDATA[
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.core.EventConstants;
@@ -33,8 +33,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+      import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
+      import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
+      import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
+      import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
+      import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
       import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
       import org.bigbluebutton.modules.chat.services.ChatCopy;
@@ -42,75 +47,90 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.services.ChatSaver;
       import org.bigbluebutton.modules.chat.services.MessageReceiver;
       import org.bigbluebutton.modules.chat.services.MessageSender;
-		]]>
-	</fx:Script>
-	<fx:Declarations>
-		<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-			<ObjectBuilder generator="{ChatEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
-		</EventHandlers>
-		
-		<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">
-			<MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow" />
-	    <ObjectBuilder generator="{ChatMessageService}"/>
-	  </EventHandlers>
-	    
-	  <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
-	   		<MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindow" />
-	  </EventHandlers>
-	
-	  <EventHandlers type="{EventConstants.SEND_PUBLIC_CHAT_REQ}">        
-	    <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessageFromApi" arguments="{event.message}"/>		
-	  </EventHandlers>
-	  
-	  <EventHandlers type="{EventConstants.SEND_PRIVATE_CHAT_REQ}">        
-	    <MethodInvoker generator="{ChatMessageService}" method="sendPrivateMessageFromApi" arguments="{event.message}"/>		
-	  </EventHandlers>
-	  
-	    <EventHandlers type="{SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}">        
-	 		<MethodInvoker generator="{ChatMessageService}" method="sendPublicMessage" arguments="{event.chatMessage}"/>		
-	    </EventHandlers>
-	    
-	    <EventHandlers type="{SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT}">        
-	 		<MethodInvoker generator="{ChatMessageService}" method="sendPrivateMessage" arguments="{event.chatMessage}"/>		
-	    </EventHandlers>
-	    		
-		<EventHandlers type="{ChatHistoryEvent.REQUEST_HISTORY}" >
-	    <MethodInvoker generator="{ChatMessageService}" method="getPublicChatMessages"/>
-		</EventHandlers>    
-	  
-	  <EventHandlers type="{ChatHistoryEvent.RECEIVED_HISTORY}" >
-	    <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage"/>
-	  </EventHandlers>      
-	
-	  <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-	    <EventAnnouncer generator="{ChatHistoryEvent}" type="{ChatHistoryEvent.REQUEST_HISTORY}"/>
-	  </EventHandlers>
-	  
-	  <EventHandlers type="{ChatSaveEvent.SAVE_CHAT_EVENT}">
-	    <MethodInvoker generator="{ChatSaver}" method="saveChatToFile" arguments="{event}"/>
-	  </EventHandlers>
-	
-	  <EventHandlers type="{ChatCopyEvent.COPY_CHAT_EVENT}">
-	    <MethodInvoker generator="{ChatCopy}" method="copyAllText" arguments="{event}"/>
-	  </EventHandlers>
-	
-	  <EventHandlers type="{ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT}">
-	    <MethodInvoker generator="{ChatMessageService}" method="clearPublicChatMessages"/>
-	  </EventHandlers>
-	
-	  <Injectors target="{ChatMessageService}">
-	    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-	    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
-	    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
-	  </Injectors>
-	
-	  <Injectors target="{MessageReceiver}">
-	    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-	  </Injectors>
-	 
-	  <Injectors target="{MessageSender}">
-	    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-	  </Injectors>
-	</fx:Declarations>
+    ]]>
+  </fx:Script>
+  <fx:Declarations>
+    <EventHandlers type="{FlexEvent.PREINITIALIZE}">
+      <ObjectBuilder generator="{ChatEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
+      <ObjectBuilder generator="{ChatMessageService}"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">
+      <MethodInvoker generator="{ChatMessageService}" method="getGroupChats" />   
+    </EventHandlers>
+    
+    <EventHandlers type="{ReceivedGroupChatsEvent.RECEIVED_GROUPCHATS_EVENT}">
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleReceivedGroupChatsEvent"/>
+      <MethodInvoker generator="{ChatMessageService}" method="handleReceivedGroupChatsEvent"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{GroupChatBoxClosedEvent.CHATBOX_CLOSED_EVENT}">
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="chatBoxClosed" arguments="{event}"/>  
+    </EventHandlers>
+    
+    <EventHandlers type="{NewGroupChatMessageEvent.NEW_GROUP_CHAT_MSG_RECEIVED}">
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleNewGroupChatMessageEvent" arguments="{event}"/>  
+    </EventHandlers>
+    
+    <EventHandlers type="{GroupChatCreatedEvent.GROUP_CHAT_CREATED_EVENT}">
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="createNewGroupChat" arguments="{event.chatId}"/>  
+    </EventHandlers>
+    
+    <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindows" />
+    </EventHandlers>
+    
+    <EventHandlers type="{OpenChatBoxEvent.OPEN_CHATBOX_EVENT}" >
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleOpenChatBoxEvent" arguments="{event}"/>
+    </EventHandlers>  
+    
+    
+    <EventHandlers type="{EventConstants.SEND_PUBLIC_CHAT_REQ}">        
+      <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessageFromApi" arguments="{event.message}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{SendGroupChatMessageEvent.SEND_GROUP_CHAT_MESSAGE_EVENT}">        
+      <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessage" arguments="{event}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{ChatHistoryEvent.REQUEST_HISTORY}" >
+      <MethodInvoker generator="{ChatMessageService}" method="getGroupChatHistoryMessages" 
+                     arguments="{event.chatId}"/>
+    </EventHandlers>    
+        
+    <EventHandlers type="{CreateGroupChatReqEvent.CREATE_GROUP_CHAT_REQ_EVENT}" >
+      <MethodInvoker generator="{ChatMessageService}" method="handleCreateGCReqEvent" arguments="{event}"/>
+    </EventHandlers>    
+
+    <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
+      <MethodInvoker generator="{ChatMessageService}" method="getGroupChats" />
+    </EventHandlers>
+    
+    <EventHandlers type="{ChatSaveEvent.SAVE_CHAT_EVENT}">
+      <MethodInvoker generator="{ChatSaver}" method="saveChatToFile" arguments="{event}"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{ChatCopyEvent.COPY_CHAT_EVENT}">
+      <MethodInvoker generator="{ChatCopy}" method="copyAllText" arguments="{event}"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT}">
+      <MethodInvoker generator="{ChatMessageService}" method="clearPublicChatMessages"/>
+    </EventHandlers>
+    
+    <Injectors target="{ChatMessageService}">
+      <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+      <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
+      <PropertyInjector targetKey="sender" source="{MessageSender}"/>
+    </Injectors>
+    
+    <Injectors target="{MessageReceiver}">
+      <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+    </Injectors>
+    
+    <Injectors target="{MessageSender}">
+      <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+    </Injectors>
+  </fx:Declarations>
   
 </EventMap>

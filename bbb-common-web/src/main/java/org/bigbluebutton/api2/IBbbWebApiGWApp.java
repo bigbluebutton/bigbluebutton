@@ -1,11 +1,13 @@
 package org.bigbluebutton.api2;
 
-
-import org.bigbluebutton.api.messaging.converters.messages.*;
-import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
-import org.bigbluebutton.presentation.messages.IDocConversionMsg;
-
 import java.util.Map;
+
+import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.PublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.UnpublishRecordingMessage;
+import org.bigbluebutton.presentation.messages.IDocConversionMsg;
 
 public interface IBbbWebApiGWApp {
   void send(String channel, String message);
@@ -20,10 +22,16 @@ public interface IBbbWebApiGWApp {
                      Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
+                     Integer userInactivityInspectTimerInMinutes,
+                     Integer userInactivityThresholdInMinutes,
+                     Integer userActivitySignResponseDelayInMinutes,
                      Boolean muteOnStart);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed);
+                    String externUserID, String authToken, String avatarURL,
+                    Boolean guest, Boolean authed, String guestStatus);
+  void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,
+                    String externUserID);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);
@@ -31,6 +39,5 @@ public interface IBbbWebApiGWApp {
   void publishRecording(PublishRecordingMessage msg);
   void unpublishRecording(UnpublishRecordingMessage msg);
   void deleteRecording(DeleteRecordingMessage msg);
-  void sendStunTurnInfoReply(SendStunTurnInfoReplyMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
 }

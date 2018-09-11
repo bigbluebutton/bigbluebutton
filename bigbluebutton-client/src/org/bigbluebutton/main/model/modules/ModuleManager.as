@@ -124,17 +124,14 @@ package org.bigbluebutton.main.model.modules
 			} 
 			
 			if (allModulesLoaded()) {
-				sendAppAndLocaleVersions();
+				sendAppVersion();
 			}
 		}
 		
-		private function sendAppAndLocaleVersions():void {
+		private function sendAppVersion():void {
 			var dispatcher:Dispatcher = new Dispatcher();
 			var versionEvent:AppVersionEvent = new AppVersionEvent();
 			versionEvent.appVersion = BBB.getConfigManager().config.version;	
-			versionEvent.localeVersion = BBB.getConfigManager().config.locale.version; 
-			versionEvent.configLocaleVersion = true;
-			versionEvent.suppressLocaleWarning = BBB.getConfigManager().config.locale.suppressLocaleWarning;
 			dispatcher.dispatchEvent(versionEvent);			
 		}
 		
@@ -154,13 +151,13 @@ package org.bigbluebutton.main.model.modules
 				loadModule(m.getName());
 			}
 		}
-		
-		public function startLayoutModule():void{
-			for (var i:int = 0; i<sorted.length; i++){
+
+		public function startLayoutModule():void {
+			for (var i:int = 0; i < sorted.length; i++) {
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-        if (m.getName() == "LayoutModule") {
-          startModule(m.getName());
-        }				
+				if (m.getName() == "LayoutModule") {
+					startModule(m.getName());
+				}
 			}
 		}
 

@@ -62,7 +62,7 @@
       };
 
       //swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
-      var flashvars = {};
+      var flashvars = {"origin":window.location.origin};
       var params = {};
       params.quality = "high";
       params.bgcolor = "#FFFFFF";
@@ -79,7 +79,7 @@
       } else {
         params.wmode = "window";
       }
-      params.allowscriptaccess = "true";
+      params.allowscriptaccess = "always";
       params.seamlesstabbing = "true";
       var attributes = {};
       attributes.id = "BigBlueButton";
@@ -98,11 +98,11 @@
         var fillContent = function(){
           var content = document.getElementById("content");
           if (content) {
-            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="allowfullscreeninteractive" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="allowfullscreeninteractive" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="always"><param name="seamlesstabbing" value="true"><param name="FlashVars" value="origin='+window.location.origin+'"/></object>';
           }
         };
       } else {
-        swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
+        swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "29.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
       }
       
       function embedCallback(e) {
@@ -127,13 +127,14 @@
         });
       }
     </script>
+    <script src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
     <!--<script src="lib/jquery-1.5.1.min.js?v=VERSION" language="javascript"></script>-->
     <script src="lib/jquery-2.1.1.min.js" language="javascript"></script>
     <script src="lib/bbblogger.js?v=VERSION" language="javascript"></script>
     <script src="lib/bigbluebutton.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_localization.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_screenshare.js" language="javascript"></script>
-
+    <!--script src="lib/vertxbus.js" language="javascript"></script-->
     <!--<script src="lib/jquery.mobile.min.js" language="javascript"></script>-->
     <script src="lib/jquery.json-2.4.min.js" language="javascript"></script>
     <script src="lib/jquery.cookie.js" language="javascript"></script>
@@ -153,6 +154,7 @@
     <script src="lib/jsnlog.min.js?v=VERSION" language="javascript"></script>
     <script src="lib/diff_match_patch_uncompressed.js?v=VERSION" language="javascript"></script>
     <script src="lib/shared_notes.js?v=VERSION" language="javascript"></script>
+    
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');

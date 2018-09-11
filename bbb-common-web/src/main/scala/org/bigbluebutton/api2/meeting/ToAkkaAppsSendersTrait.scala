@@ -28,7 +28,7 @@ trait ToAkkaAppsSendersTrait extends SystemConfiguration {
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken,
-      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed)
+      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus)
     val req = RegisterUserReqMsg(header, body)
     val message = BbbCommonEnvCoreMsg(envelope, req)
     sendToBus(message)

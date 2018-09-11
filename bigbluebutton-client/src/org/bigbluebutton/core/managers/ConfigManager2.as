@@ -26,9 +26,6 @@ package org.bigbluebutton.core.managers {
     import flash.net.URLVariables;
     import flash.utils.Dictionary;
     
-    import mx.core.FlexGlobals;
-    import mx.utils.URLUtil;
-    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.common.logging.LogUtil;
@@ -55,10 +52,9 @@ package org.bigbluebutton.core.managers {
             urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 
             var date:Date = new Date();
-            var localeReqURL:String = buildRequestURL();
-            trace("::loadConfig [{0}]", [localeReqURL]);
+            var localeReqURL:String = BBB.getBaseURL() + "/" + CONFIG_XML;;
 
-            trace(localeReqURL + " session=[" + sessionToken + "]");
+            LOGGER.debug("loadConfig request={0} session=[{1}]", [localeReqURL, sessionToken]);
 
             var request:URLRequest = new URLRequest(localeReqURL);
             request.method = URLRequestMethod.GET;
@@ -67,29 +63,20 @@ package org.bigbluebutton.core.managers {
             urlLoader.load(request);
         }
 
-        private function buildRequestURL():String {
-            var swfURL:String = FlexGlobals.topLevelApplication.url;
-            var protocol:String = URLUtil.getProtocol(swfURL);
-            var serverName:String = URLUtil.getServerNameWithPort(swfURL);
-            return protocol + "://" + serverName + "/" + CONFIG_XML;
-        }
-
         private function handleComplete(e:Event):void {
-            trace("handleComplete [{0}]", [new XML(e.target.data)]);
+			LOGGER.debug("handleComplete [{0}]", [new XML(e.target.data)]);
 
             var xml:XML = new XML(e.target.data)
             var dispatcher:Dispatcher = new Dispatcher();
 
             if (xml.returncode == "FAILED") {
-
-               // trace("Getting configXML failed [{0}]", [xml]);
-
+				LOGGER.error("Getting configXML failed [{0}]", [xml]);
                 dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.response.logoutURL));
             } else {
-              //  trace("Getting configXML passed [{0}]", [xml]);
+                LOGGER.info("Getting configXML passed [{0}]", [xml]);
                 _config = new Config(new XML(e.target.data));
 
-                trace("Initializing logging.");
+                LOGGER.debug("Initializing logging.");
                 LogUtil.initLogging();
 
                 dispatcher.dispatchEvent(new ConfigLoadedEvent());

@@ -1,25 +1,24 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import akka.actor.ActorContext
+import akka.event.Logging
+import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
-case class Whiteboard(id: String, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
+case class Whiteboard(id: String, multiUser: Boolean, changedModeOn: Long, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
 
-trait WhiteboardApp2x
+class WhiteboardApp2x(implicit val context: ActorContext)
     extends SendCursorPositionPubMsgHdlr
     with ClearWhiteboardPubMsgHdlr
     with UndoWhiteboardPubMsgHdlr
     with ModifyWhiteboardAccessPubMsgHdlr
-    with GetWhiteboardAccessReqMsgHdlr
     with SendWhiteboardAnnotationPubMsgHdlr
-    with SyncWhiteboardAccessRespMsgHdlr
     with GetWhiteboardAnnotationsReqMsgHdlr {
-  this: MeetingActor =>
 
-  val outGW: OutMsgRouter
+  val log = Logging(context.system, getClass)
 
-  def sendWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
+  def sendWhiteboardAnnotation(annotation: AnnotationVO, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
     var rtnAnnotation: AnnotationVO = annotation
 
@@ -44,24 +43,31 @@ trait WhiteboardApp2x
     rtnAnnotation
   }
 
-  def getWhiteboardAnnotations(whiteboardId: String): Array[AnnotationVO] = {
+  def getWhiteboardAnnotations(whiteboardId: String, liveMeeting: LiveMeeting): Array[AnnotationVO] = {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
     liveMeeting.wbModel.getHistory(whiteboardId)
   }
 
-  def clearWhiteboard(whiteboardId: String, requesterId: String): Option[Boolean] = {
+  def clearWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[Boolean] = {
     liveMeeting.wbModel.clearWhiteboard(whiteboardId, requesterId)
   }
 
-  def undoWhiteboard(whiteboardId: String, requesterId: String): Option[AnnotationVO] = {
+  def undoWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[AnnotationVO] = {
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
-  def modifyWhiteboardAccess(multiUser: Boolean) {
-    liveMeeting.wbModel.modifyWhiteboardAccess(multiUser)
+  def getWhiteboardAccess(whiteboardId: String, liveMeeting: LiveMeeting): Boolean = {
+    liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }
 
-  def getWhiteboardAccess(): Boolean = {
-    liveMeeting.wbModel.getWhiteboardAccess()
+  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Boolean, liveMeeting: LiveMeeting) {
+    liveMeeting.wbModel.modifyWhiteboardAccess(whiteboardId, multiUser)
+  }
+
+  def filterWhiteboardMessage(whiteboardId: String, liveMeeting: LiveMeeting): Boolean = {
+    // Need to check if the wb mode change from multi-user to single-user. Give 5sec allowance to
+    // allow delayed messages to be handled as clients may have been sending messages while the wb
+    // mode was changed. (ralam nov 22, 2017)
+    if (!liveMeeting.wbModel.getWhiteboardAccess(whiteboardId) && liveMeeting.wbModel.getChangedModeOn(whiteboardId) > 5000) true else false
   }
 }

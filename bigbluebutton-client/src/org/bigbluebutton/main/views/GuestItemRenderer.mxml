@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 width="90%">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.bigbluebutton.main.events.ResponseModeratorEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var dispatcher:Dispatcher = new Dispatcher();
+			
+			private function onRejectUserBtnClick():void {
+				sendResponseToServer(false);
+			}
+			
+			private function onAllowUserBtnClick():void {
+				sendResponseToServer(true);
+			}
+			
+			private function sendResponseToServer(accept:Boolean):void {
+				var approvedGuests:Array = new Array();
+				approvedGuests.push(data.intId);
+				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(approvedGuests, accept);
+				dispatcher.dispatchEvent(respCommand);
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:Label text="{data.name}" width="{this.width-denyButton.width-allowButton.width-30}" />
+	<mx:Button width="20" height="20" id="denyButton" styleName="denyButtonStyle"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" 
+						 click="onRejectUserBtnClick()" />
+	<mx:Button width="20" height="20" id="allowButton" styleName="allowButtonStyle"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" 
+						 click="onAllowUserBtnClick()" />
+	
+</mx:HBox>

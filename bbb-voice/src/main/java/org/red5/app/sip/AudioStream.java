@@ -37,8 +37,12 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	// Codec handling stuff for frame dropping
 	private StreamCodecInfo streamCodecInfo;
 	private Long creationTime;
-	private Long startTime;
 
+	/**
+	 * Timestamp the stream was started.
+	 */
+	private Long startTime;
+	
 	public AudioStream(String name) {
 		publishedStreamName = name;
 		livePipe = null;

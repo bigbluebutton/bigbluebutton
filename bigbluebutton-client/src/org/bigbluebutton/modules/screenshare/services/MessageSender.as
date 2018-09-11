@@ -80,7 +80,7 @@ package org.bigbluebutton.modules.screenshare.services
                         logData.logCode = "error_sending_get_screenshare_status";
                         LOGGER.info(JSON.stringify(logData));
                     },
-                    JSON.stringify(message)
+                    message
             ); //_netConnection.call
         }
 

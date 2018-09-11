@@ -67,7 +67,7 @@ public class PdfToSwfSlide {
 
   public void generateBlankSlide() {
     if (BLANK_SLIDE != null) {
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -80,7 +80,7 @@ public class PdfToSwfSlide {
 
       copyBlankSlide(slide);
     } else {
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());

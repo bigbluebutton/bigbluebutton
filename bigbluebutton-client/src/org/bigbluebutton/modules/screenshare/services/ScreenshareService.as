@@ -37,9 +37,7 @@ package org.bigbluebutton.modules.screenshare.services {
         
         private var module:ScreenshareModule;
         private var dispatcher:Dispatcher;
-        
-        private var uri:String;
-        private var room:String;
+
         private var sender:MessageSender;
         private var receiver:MessageReceiver;
         
@@ -57,7 +55,6 @@ package org.bigbluebutton.modules.screenshare.services {
             conn = new Connection();
             sender = new MessageSender(conn);
             receiver = new MessageReceiver(conn);
-
             conn.connect();
         }
         
@@ -66,7 +63,7 @@ package org.bigbluebutton.modules.screenshare.services {
         }
         
         public function disconnect():void {
-            conn.disconnect();
+            if (conn) conn.disconnect();
         }
         
         public function checkIfPresenterIsSharingScreen():void {

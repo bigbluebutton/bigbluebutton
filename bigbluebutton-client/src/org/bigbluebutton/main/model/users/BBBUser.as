@@ -23,6 +23,7 @@ package org.bigbluebutton.main.model.users
   import flash.events.Event;
   
   import org.as3commons.lang.ArrayUtils;
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Role;
@@ -156,7 +157,7 @@ package org.bigbluebutton.main.model.users
     
     [Bindable("emojiStatusChange")]
     public function get hasEmojiStatus():Boolean {
-      return _emojiStatus != null && _emojiStatus != "none" && _emojiStatus != "null";
+      return !StringUtils.isEmpty(_emojiStatus) && _emojiStatus != "none" && _emojiStatus != "null";
     }
     
     private var _role:String = Role.VIEWER;
@@ -253,6 +254,7 @@ package org.bigbluebutton.main.model.users
       if (presenter)
         isPresenter=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presIcon.toolTip');
       if (hasEmojiStatus)
+		// @fixme : need adding tooltip string for emoji
         hasEmoji = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.'+ emojiStatus +'.toolTip');
       
       status = showingWebcam + isPresenter + hasEmoji;

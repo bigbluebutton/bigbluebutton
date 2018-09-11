@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Protocol;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -48,7 +47,8 @@ public class MessageSender {
 		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, null,
 				Protocol.DEFAULT_DATABASE, "BbbRed5VideoPub");
 
-		log.info("Redis org.bigbluebutton.red5.pubsub.message publisher starting!");
+		log.info("Redis message publisher starting!");
+
 		try {
 			sendMessage = true;
 			

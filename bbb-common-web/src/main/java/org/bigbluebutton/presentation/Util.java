@@ -22,7 +22,6 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 
 public final class Util {
-	private Util() {}
 	
 	public static void deleteDirectory(File directory) {
 		/**
@@ -31,11 +30,11 @@ public final class Util {
 		 * directory can be deleted.
 		**/
 		File[] files = directory.listFiles();				
-		for (int i = 0; i < files.length; i++) {
-			if (files[i].isDirectory()) {
-				deleteDirectory(files[i]);
+		for (File file : files) {
+			if (file.isDirectory()) {
+				deleteDirectory(file);
 			} else {
-				files[i].delete();
+				file.delete();
 			}
 		}
 		// Now that the directory is empty. Delete it.

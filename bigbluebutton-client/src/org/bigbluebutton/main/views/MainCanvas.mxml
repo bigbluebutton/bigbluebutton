@@ -212,6 +212,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						// don't reposition the window
 						x = win.x;
 						y = win.y;
+						break;
+					default:
+						break;
 				}
 				windowManager.absPos(win, x, y);
 			}

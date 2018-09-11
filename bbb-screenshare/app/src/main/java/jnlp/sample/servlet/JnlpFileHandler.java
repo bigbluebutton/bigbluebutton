@@ -358,9 +358,9 @@ public class JnlpFileHandler {
     jnlpTemplate = substitute(jnlpTemplate, "$$context", urlprefix + request.getContextPath());
     // fix for 6256326: add $$site macro to sample jnlp servlet
     jnlpTemplate = substitute(jnlpTemplate, "$$site", urlprefix);
-    
-    
-    log.info("JNLP Response: " + jnlpTemplate);
+
+
+    System.out.println("JNLP Response: " + jnlpTemplate);
 
     return jnlpTemplate;
   }

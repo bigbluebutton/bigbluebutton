@@ -42,7 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function changeLanguage():void {
-				ResourceUtil.getInstance().setPreferredLocale(selectedItem);
+				ResourceUtil.getInstance().setPreferredLocale(selectedItem.code);
 			}
 		]]>
 	</fx:Script>

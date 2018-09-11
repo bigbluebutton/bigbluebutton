@@ -13,9 +13,17 @@ function meetings(credentials) {
 
   Logger.info(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
 
-  return Meetings.find({
+  const selector = {
     meetingId,
-  });
+  };
+
+  const options = {
+    fields: {
+      password: false,
+    },
+  };
+
+  return Meetings.find(selector, options);
 }
 
 function publish(...args) {

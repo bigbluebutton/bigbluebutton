@@ -14,7 +14,7 @@ object TestDataGen {
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, waitForApproval)
+      authToken, avatarURL, guest, authed, GuestStatus.ALLOW)
 
     RegisteredUsers.add(users, ru)
     ru
@@ -45,7 +45,7 @@ object TestDataGen {
 
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {
     val u = UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, role = regUser.role,
-      guest = regUser.guest, authed = regUser.authed, waitingForAcceptance = regUser.waitingForAcceptance,
+      guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       emoji = "none", locked = false, presenter, avatar = regUser.avatarURL)
     Users2x.add(liveMeeting.users2x, u)
 

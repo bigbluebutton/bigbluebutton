@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+  <title>Guest Lobby</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <style></style>
+
+  <script src="lib/jquery-2.1.1.min.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+    function updateMessage(message) {
+      $('#content > p').html(message);
+    }
+
+    function findSessionToken() {
+      return location.search
+        .substr(1)
+        .split('&')
+        .find(function(item) {
+          return item.split('=')[0] === 'sessionToken'
+        });
+    };
+
+    function fetchGuestWait(sessionToken) {
+      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
+
+      return $.get(GUEST_WAIT_ENDPOINT, sessionToken.concat('&redirect=false'));
+    };
+
+    function pollGuestStatus(token, attempt, limit, everyMs) {
+      setTimeout(function() {
+        var REDIRECT_STATUSES = ['ALLOW', 'DENY'];
+
+
+        if (attempt >= limit) {
+          updateMessage('TIMEOUT_MESSAGE_HERE');
+          return;
+        }
+
+        fetchGuestWait(token).always(function(data) {
+          console.log("data=" + JSON.stringify(data));
+          var status = data.response.guestStatus;
+
+          if (REDIRECT_STATUSES.includes(status)) {
+            window.location = data.response.url;
+            return;
+          }
+
+          return pollGuestStatus(token, attempt + 1, limit, everyMs);
+        })
+      }, everyMs);
+    };
+
+    window.onload = function() {
+      try {
+        var ATTEMPT_EVERY_MS = 5000;
+        var ATTEMPT_LIMIT = 100;
+
+        var sessionToken = findSessionToken();
+
+        if(!sessionToken) {
+          updateMessage('NO_SESSION_TOKEN_MESSAGE');
+          return;
+        }
+
+        pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
+      } catch (e) {
+        console.error(e);
+        updateMessage('GENERIC_ERROR_MESSAGE');
+      }
+    };
+  </script>
+</head>
+
+<body>
+  <div id="banner"></div>
+  <div id="content">
+    <p>Please wait for a moderator to approve you joining the meeting.</p>
+  </div>
+</body>
+
+</html>

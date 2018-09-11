@@ -14,12 +14,12 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.applicationSectionTitle',
     description: 'Application section title',
   },
-  audioNotifyLabel: {
-    id: 'app.submenu.application.audioNotifyLabel',
+  audioAlertLabel: {
+    id: 'app.submenu.application.audioAlertLabel',
     description: 'audio notification label',
   },
-  pushNotifyLabel: {
-    id: 'app.submenu.application.pushNotifyLabel',
+  pushAlertLabel: {
+    id: 'app.submenu.application.pushAlertLabel',
     description: 'push notifiation label',
   },
   fontSizeControlLabel: {
@@ -117,14 +117,6 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
-  // Adjust the locale format to be able to display the locale names properly in the client
-  formatLocale(locale) {
-    return locale
-      .split('-')
-      .map((val, idx) => (idx == 1 ? val.toUpperCase() : val))
-      .join('_');
-  }
-
   render() {
     const { availableLocales, intl } = this.props;
     const { isLargestFontSize, isSmallestFontSize } = this.state;
@@ -141,7 +133,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioNotifyLabel)}
+                  {intl.formatMessage(intlMessages.audioAlertLabel)}
                 </label>
               </div>
             </div>
@@ -149,9 +141,9 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatAudioNotifications}
-                  onChange={() => this.handleToggle('chatAudioNotifications')}
-                  ariaLabel={intl.formatMessage(intlMessages.audioNotifyLabel)}
+                  defaultChecked={this.state.settings.chatAudioAlerts}
+                  onChange={() => this.handleToggle('chatAudioAlerts')}
+                  ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
                 />
               </div>
             </div>
@@ -161,7 +153,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushNotifyLabel)}
+                  {intl.formatMessage(intlMessages.pushAlertLabel)}
                 </label>
               </div>
             </div>
@@ -169,9 +161,9 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatPushNotifications}
-                  onChange={() => this.handleToggle('chatPushNotifications')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushNotifyLabel)}
+                  defaultChecked={this.state.settings.chatPushAlerts}
+                  onChange={() => this.handleToggle('chatPushAlerts')}
+                  ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
                 />
               </div>
             </div>

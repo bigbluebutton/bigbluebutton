@@ -19,7 +19,7 @@ package org.bigbluebutton.modules.present.model
       _id = id;
       _name = name;
       _current = current;
-      _pages = pages
+      _pages = pages;
       _downloadable = downloadable;
     }
     
@@ -86,5 +86,9 @@ package org.bigbluebutton.modules.present.model
     public function get downloadable():Boolean {
       return _downloadable;
     }
+	
+	public function set downloadable(value:Boolean):void {
+		_downloadable = value;
+	}
   }
 }

@@ -20,9 +20,7 @@
 package org.bigbluebutton.core.record.events
 
 import org.bigbluebutton.common2.domain.SimpleVoteOutVO
-
 import scala.collection.immutable.List
-import scala.collection.JavaConverters._
 import scala.collection.Map
 import scala.collection.mutable.ArrayBuffer
 

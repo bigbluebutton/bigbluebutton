@@ -14,6 +14,8 @@ package org.bigbluebutton.main.model.users
     public var logoutTimer : int;
     public var defaultLayout: String;
     public var avatarURL: String;
+	public var bannerText: String;
+	public var bannerColor: String;
     public var dialnumber: String;
     public var voiceConf: String;
     public var welcome: String;

@@ -175,7 +175,7 @@ public class Red5AppService {
 
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    //log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
+    log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
 
     handler.screenShareClientPongMessage(meetingId, userId, streamId, timestamp.longValue());
   }

@@ -20,7 +20,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
-		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:mate="http://mate.asfusion.com/"
 		 xmlns:common="org.bigbluebutton.common.*"
@@ -42,26 +41,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.EffectEvent;
-
-			import org.as3commons.lang.StringUtils;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private function dissolveOutHandler(event:EffectEvent):void {
-				showNewQuote();
-			}
-
-			private function showNewQuote():void {
+			public function init():void {
 				var randomQuoteId:int = Math.ceil(Math.random() * 5);
 				var quote:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.sentence.' + randomQuoteId);
 				var attribution:String = ResourceUtil.getInstance().getString('bbb.mainshell.quote.attribution.' + randomQuoteId);
-				if (StringUtils.isEmpty(quote)) {
-					quote = "Research is creating new knowledge."
-				}
-				if (StringUtils.isEmpty(attribution)) {
-					attribution = "Neil Armstrong"
-				}
 				quoteLabel.text = "“ " + quote + " ”";
 				quoteAttribution.text = attribution;
 				dissolveIn.play();
@@ -69,10 +55,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function allModulesLoaded(event:ModuleLoadEvent):void {
 				dispose();
-			}
-
-			public function init():void {
-				showNewQuote();
 			}
 
 			public function dispose():void {

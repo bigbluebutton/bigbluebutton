@@ -6,8 +6,8 @@ import com.softwaremill.quicklens._
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              token: String, avatar: String, guest: Boolean, authenticated: Boolean,
-             waitingForAcceptance: Boolean): RegisteredUser = {
-    new RegisteredUser(userId, extId, name, roles, token, avatar, guest, authenticated, waitingForAcceptance)
+             guestStatus: String): RegisteredUser = {
+    new RegisteredUser(userId, extId, name, roles, token, avatar, guest, authenticated, guestStatus)
   }
 
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
@@ -33,6 +33,14 @@ object RegisteredUsers {
     } yield user
   }
 
+  def updateRegUser(uvo: UserVO, users: RegisteredUsers) {
+    for {
+      ru <- RegisteredUsers.findWithUserId(uvo.id, users)
+      regUser = new RegisteredUser(uvo.id, uvo.externalId, uvo.name, uvo.role, ru.authToken,
+        uvo.avatarURL, uvo.guest, uvo.authed, uvo.guestStatus)
+    } yield users.save(regUser)
+  }
+
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
     users.save(user)
   }
@@ -42,8 +50,8 @@ object RegisteredUsers {
   }
 
   def setWaitingForApproval(users: RegisteredUsers, user: RegisteredUser,
-                            waitingForApproval: Boolean): RegisteredUser = {
-    val u = user.modify(_.waitingForAcceptance).setTo(waitingForApproval)
+                            guestStatus: String): RegisteredUser = {
+    val u = user.modify(_.guestStatus).setTo(guestStatus)
     users.save(u)
     u
   }
@@ -68,13 +76,15 @@ class RegisteredUsers {
   }
 
   private def delete(id: String): Option[RegisteredUser] = {
-    val ru = regUsers.get(id)
-    ru foreach { u => regUsers -= u.authToken }
+    val ru = regUsers.values.find(p => p.id == id)
+    ru foreach { u =>
+      regUsers -= u.authToken
+    }
     ru
   }
 }
 
 case class RegisteredUser(id: String, externId: String, name: String, role: String,
                           authToken: String, avatarURL: String, guest: Boolean,
-                          authed: Boolean, waitingForAcceptance: Boolean)
+                          authed: Boolean, guestStatus: String)
 

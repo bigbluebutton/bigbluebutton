@@ -148,17 +148,25 @@ export default class ShapeDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
-    // Sometimes when you Alt+Tab while drawing it can happen that your mouse is up,
-    // but the browser didn't catch it. So check it here.
-    if (this.isDrawing) {
-      return this.sendLastMessage();
+    const isLeftClick = event.button === 0;
+    const isRightClick = event.button === 2;
+
+    if (!this.isDrawing) {
+      if (isLeftClick) {
+        window.addEventListener('mouseup', this.handleMouseUp);
+        window.addEventListener('mousemove', this.handleMouseMove, true);
+
+        const { clientX, clientY } = event;
+        this.commonDrawStartHandler(clientX, clientY);
+      }
+
+    // if you switch to a different window using Alt+Tab while mouse is down and release it
+    // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
+    } else if (isRightClick) {
+      // this.isDrawing = false;
+      this.sendLastMessage();
+      this.discardAnnotation();
     }
-
-    window.addEventListener('mouseup', this.handleMouseUp);
-    window.addEventListener('mousemove', this.handleMouseMove, true);
-
-    const { clientX, clientY } = event;
-    return this.commonDrawStartHandler(clientX, clientY);
   }
 
   // main mouse move handler
@@ -251,14 +259,16 @@ export default class ShapeDrawListener extends Component {
   // we use the same function for all of them
   handleDrawCommonAnnotation(startPoint, endPoint, status, id, shapeType) {
     const { normalizeThickness, sendAnnotation } = this.props.actions;
+    const { whiteboardId, userId } = this.props;
+    const { color, thickness } = this.props.drawSettings;
 
     const annotation = {
       id,
       status,
       annotationType: shapeType,
       annotationInfo: {
-        color: this.props.drawSettings.color,
-        thickness: normalizeThickness(this.props.drawSettings.thickness),
+        color,
+        thickness: normalizeThickness(thickness),
         points: [
           startPoint.x,
           startPoint.y,
@@ -266,16 +276,24 @@ export default class ShapeDrawListener extends Component {
           endPoint.y,
         ],
         id,
-        whiteboardId: this.props.whiteboardId,
+        whiteboardId,
         status,
         type: shapeType,
       },
-      wbId: this.props.whiteboardId,
-      userId: this.props.userId,
+      wbId: whiteboardId,
+      userId,
       position: 0,
     };
 
-    sendAnnotation(annotation);
+    sendAnnotation(annotation, whiteboardId);
+  }
+
+  discardAnnotation() {
+    const { getCurrentShapeId, addAnnotationToDiscardedList, undoAnnotation } = this.props.actions;
+    const { whiteboardId } = this.props;
+
+    undoAnnotation(whiteboardId);
+    addAnnotationToDiscardedList(getCurrentShapeId());
   }
 
   render() {
@@ -288,12 +306,14 @@ export default class ShapeDrawListener extends Component {
       zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/${tool !== 'rectangle' ? tool : 'square'}.png'), default`,
     };
+    const { contextMenuHandler } = this.props.actions;
     return (
       <div
         onTouchStart={this.handleTouchStart}
         role="presentation"
         style={shapeDrawStyle}
         onMouseDown={this.handleMouseDown}
+        onContextMenu={contextMenuHandler}
       />
     );
   }

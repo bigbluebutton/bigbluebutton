@@ -115,12 +115,12 @@ case class MuteAllExceptPresentersCmdMsg(header: BbbClientMsgHeader,
 case class MuteAllExceptPresentersCmdMsgBody(mutedBy: String, mute: Boolean)
 
 /**
-  * Sent by client to mute all users except presenters in the voice conference.
+  * Sent by client to determine current meeting mute state.
   */
 object IsMeetingMutedReqMsg { val NAME = "IsMeetingMutedReqMsg"}
 case class IsMeetingMutedReqMsg(header: BbbClientMsgHeader,
                                          body: IsMeetingMutedReqMsgBody) extends StandardMsg
-case class IsMeetingMutedReqMsgBody(requesterId: String)
+case class IsMeetingMutedReqMsgBody()
 
 object IsMeetingMutedRespMsg { val NAME = "IsMeetingMutedRespMsg"}
 case class IsMeetingMutedRespMsg(header: BbbClientMsgHeader,
@@ -191,7 +191,7 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   object StartRecordingVoiceConfSysMsg { val NAME = "StartRecordingVoiceConfSysMsg" }
   case class StartRecordingVoiceConfSysMsg(header: BbbCoreHeaderWithMeetingId,
                                         body: StartRecordingVoiceConfSysMsgBody) extends BbbCoreMsg
-  case class StartRecordingVoiceConfSysMsgBody(voiceConf: String, meetingId: String)
+  case class StartRecordingVoiceConfSysMsgBody(voiceConf: String, meetingId: String, stream: String)
 
 /**
   * Sent to FS to stop recording voice conference.
@@ -227,6 +227,15 @@ case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
   case class UserJoinedVoiceConfToClientEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, callerName: String,
                                                    callerNum: String, muted: Boolean,
                                                    talking: Boolean, callingWith: String, listenOnly: Boolean)
+
+/**
+  * Received from FS about the conference is running (created, destroyed).
+  */
+object VoiceConfRunningEvtMsg { val NAME = "VoiceConfRunningEvtMsg" }
+case class VoiceConfRunningEvtMsg(header: BbbCoreVoiceConfHeader,
+                                     body: VoiceConfRunningEvtMsgBody) extends VoiceStandardMsg
+case class VoiceConfRunningEvtMsgBody(voiceConf: String, running: Boolean)
+
 
 /**
   * Received from FS that user has left the voice conference.
@@ -306,3 +315,10 @@ object UserDisconnectedFromGlobalAudioMsg { val NAME = "UserDisconnectedFromGlob
 case class UserDisconnectedFromGlobalAudioMsg(header: BbbCoreVoiceConfHeader,
                                               body: UserDisconnectedFromGlobalAudioMsgBody) extends VoiceStandardMsg
 case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String)
+
+/**
+ * Sync voice users with html5 client
+ */
+object SyncGetVoiceUsersRespMsg { val NAME = "SyncGetVoiceUsersRespMsg" }
+case class SyncGetVoiceUsersRespMsg(header: BbbClientMsgHeader, body: SyncGetVoiceUsersRespMsgBody) extends BbbCoreMsg
+case class SyncGetVoiceUsersRespMsgBody(voiceUsers: Vector[VoiceConfUser])
