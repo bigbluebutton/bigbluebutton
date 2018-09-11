@@ -108,34 +108,37 @@ KurentoManager.prototype.exitScreenShare = function () {
     this.kurentoScreenshare.dispose();
     this.kurentoScreenshare = null;
   }
-
-  if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
-    this.exitVideo();
-  }
 };
 
 KurentoManager.prototype.exitVideo = function () {
-  if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
+  try {
+    if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
+      if(this.kurentoVideo.webRtcPeer) {
+        this.kurentoVideo.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+      }
 
-    if(this.kurentoVideo.webRtcPeer) {
-      this.kurentoVideo.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+      if (this.kurentoVideo.logger !== null) {
+        this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
+      }
+
+      if (this.kurentoVideo.ws !== null) {
+        this.kurentoVideo.ws.onclose = function () {};
+        this.kurentoVideo.ws.close();
+      }
+
+      if (this.kurentoVideo.pingInterval) {
+        clearInterval(this.kurentoVideo.pingInterval);
+      }
+
+      this.kurentoVideo.dispose();
+      this.kurentoVideo = null;
     }
-
-    if (this.kurentoVideo.logger !== null) {
-      this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
+  }
+  catch (err) {
+    if (this.kurentoVideo) {
+      this.kurentoVideo.dispose();
+      this.kurentoVideo = null;
     }
-
-    if (this.kurentoVideo.ws !== null) {
-      this.kurentoVideo.ws.onclose = function () {};
-      this.kurentoVideo.ws.close();
-    }
-
-    if (this.kurentoVideo.pingInterval) {
-      clearInterval(this.kurentoVideo.pingInterval);
-    }
-
-    this.kurentoVideo.dispose();
-    this.kurentoVideo = null;
   }
 };
 
