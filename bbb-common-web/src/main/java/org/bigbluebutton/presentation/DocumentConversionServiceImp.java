@@ -72,11 +72,11 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       } else if (SupportedFileTypes.isImageFile(fileType)) {
         imageToSwfSlidesGenerationService.generateSlides(pres);
       } else {
-
+          log.warn("Supported file not handled");
       }
 
     } else {
-      // TODO: error log
+        log.error("Unsupported file format");
     }
 
     logData = new HashMap<String, Object>();
