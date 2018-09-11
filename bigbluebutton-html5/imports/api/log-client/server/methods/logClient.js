@@ -1,13 +1,14 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-const logClient = function (type, log, fullInfo) {
+const logClient = function (type, log, fullInfo = {}) {
   const SERVER_CONN_ID = this.connection.id;
   const User = Users.findOne({ connectionId: SERVER_CONN_ID });
   const logContents = { fullInfo };
 
   if (User) {
-    if (User.meetingId === fullInfo.meetingId) {
+    if ((fullInfo.credentials && User.meetingId === fullInfo.credentials.meetingId) ||
+      ((fullInfo.meetingId && User.meetingId === fullInfo.meetingId))) {
       logContents.validUser = 'valid';
     } else {
       logContents.validUser = 'invalid';

@@ -58,7 +58,7 @@ public class PdfToSwfSlidesGenerationService {
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
   private boolean svgImagesRequired;
-	private boolean generatePngs;
+  private boolean generatePngs;
 
   private final long CONVERSION_TIMEOUT = 20000000000L; // 20s
 
