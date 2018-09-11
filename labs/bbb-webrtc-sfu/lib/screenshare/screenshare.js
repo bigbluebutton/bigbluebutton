@@ -227,6 +227,8 @@ module.exports = class Screenshare extends BaseProvider {
 
   start (sessionId, connectionId, sdpOffer, userId, role) {
     return new Promise(async (resolve, reject) => {
+      this._status = C.MEDIA_STARTING;
+
       // Forces H264 with a possible preferred profile
       if (FORCE_H264) {
         sdpOffer = h264_sdp.transform(sdpOffer, PREFERRED_H264_PROFILE);
@@ -347,6 +349,9 @@ module.exports = class Screenshare extends BaseProvider {
   stop () {
     return new Promise(async (resolve, reject) => {
       try {
+        if (this._status === C.MEDIA_STOPPED) {
+          return resolve();
+        }
         Logger.info('[screnshare] Stopping and releasing endpoints for MCS user', this.mcsUserId);
         await this._stopScreensharing();
         this._status = C.MEDIA_STOPPED;
