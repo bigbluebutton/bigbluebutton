@@ -325,11 +325,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				connection = new NetConnection();
 				
-				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<serverAndApp>.+)/;
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
 				var result:Array = pattern.exec(meetingUrl);
 				
 				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 				var ssAppUrl: String = null;
+				
+				var hostName:String = BBB.initConnectionManager().hostToUse;
 				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
@@ -340,7 +342,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					
 					
-					ssAppUrl = tunnelProtocol + "://" + result.serverAndApp;
+					ssAppUrl = tunnelProtocol + "://" + hostName + "/" + result.app;
 					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
@@ -349,7 +351,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						nativeProtocol = ConnUtil.RTMPS;
 					}
 					
-					ssAppUrl = nativeProtocol + "://" + result.serverAndApp;
+					ssAppUrl = nativeProtocol + "://" + hostName + "/" + result.app;
 					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
 				}
 				

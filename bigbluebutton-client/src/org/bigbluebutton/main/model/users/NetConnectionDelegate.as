@@ -19,6 +19,7 @@
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -28,6 +29,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.ObjectEncoding;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -415,6 +417,8 @@ package org.bigbluebutton.main.model.users
 
 								var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 								
+								var hostName:String = BBB.initConnectionManager().hostToUse;
+								
 								if (BBB.initConnectionManager().isTunnelling) {
 									var tunnelProtocol: String = ConnUtil.RTMPT;
 								
@@ -423,7 +427,7 @@ package org.bigbluebutton.main.model.users
 										tunnelProtocol = ConnUtil.RTMPS;
 									}
 								
-									bbbAppsUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
+									bbbAppsUrl = tunnelProtocol + "://" + hostName + "/" + result.app + "/" + intMeetingId;
 									//LOGGER.debug("BBB APPS CONNECT tunnel = TRUE " + "url=" +  bbbAppsUrl);
 								} else {
 									var nativeProtocol: String = ConnUtil.RTMP;
@@ -432,7 +436,7 @@ package org.bigbluebutton.main.model.users
 										nativeProtocol = ConnUtil.RTMPS;
 									}
 								
-									bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
+									bbbAppsUrl = nativeProtocol + "://" + hostName + "/" + result.app + "/" + intMeetingId;
 									//LOGGER.debug("BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
 								
                 }
