@@ -40,7 +40,9 @@ package org.bigbluebutton.air.main.views {
 			// If we are in the Flash Builder debugger the InvokeEvent will never be fired
 			if (Capabilities.isDebugger) {
 				//var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=AIR&meetingID=Demo+Meeting&password=mp&redirect=false&checksum=3fdf56e9915c1031c3ea012b4ec8823cedd7c272";
-				var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=User+2021828&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=8751963df96437c7d435eac8124e4fb3ec147115";
+				//var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=User+2021828&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=8751963df96437c7d435eac8124e4fb3ec147115";
+				//var url:String = "bigbluebuttons://dev21.bigbluebutton.org/bigbluebutton/api/join?meetingID=Demo+Meeting&fullName=AAA&password=mp&checksum=5516fb6f7d7330d0c02fd94c8e1fb683957e2da4a1c7013f66004b68148d4478";
+				var url:String = "bigbluebutton://206.47.241.19/bigbluebutton/api/join?meetingID=Demo+Meeting&fullName=AAA&password=mp&checksum=94cc8981bf215b13101fa4d3307d3aca8512578b23b91b7be8042f65abd4a007";
 				joinRoom(url);
 			}
 		}

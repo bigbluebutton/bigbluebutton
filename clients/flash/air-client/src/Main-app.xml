@@ -385,5 +385,6 @@
 	<extensions>
         <extensionID>com.freshplanet.AirCapabilities</extensionID>
         <extensionID>com.juankpro.ane.LocalNotification</extensionID>
+        <extensionID>org.bigbluebutton.BBBRtmpPlayer</extensionID>
     </extensions>
 </application>
