@@ -19,8 +19,8 @@
       "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
-          "chatAudioNotifications": false,
-          "chatPushNotifications": false,
+          "chatAudioAlerts": false,
+          "chatPushAlerts": false,
           "fontSize": "16px",
           "fallbackLocale": "en"
         },
@@ -67,7 +67,8 @@
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
       "httpsConnection": true,
-      "connectionTimeout": 10000
+      "connectionTimeout": 10000,
+      "showHelpButton": true
     },
 
     "kurento": {
@@ -78,6 +79,14 @@
       "chromeExtensionLink": "LINK",
       "chromeScreenshareSources": ["window", "screen"],
       "firefoxScreenshareSource": "window",
+      "cameraConstraints": {
+        "width": {
+          "max": 640
+        },
+        "height": {
+          "max": 480
+        }
+      },
       "enableScreensharing": false,
       "enableVideo": false,
       "enableVideoStats": false,
@@ -150,11 +159,12 @@
       "max_message_length": 5000,
       "grouping_messages_window": 10000,
       "type_system": "SYSTEM_MESSAGE",
-      "type_public": "PUBLIC_CHAT",
-      "type_private": "PRIVATE_CHAT",
+      "type_public": "PUBLIC_ACCESS",
+      "type_private": "PRIVATE_ACCESS",
       "system_userid": "SYSTEM_MESSAGE",
       "system_username": "SYSTEM_MESSAGE",
       "public_id": "public",
+      "public_group_id": "MAIN-PUBLIC-GROUP-CHAT",
       "public_userid": "public_chat_userid",
       "public_username": "public_chat_username",
       "storage_key": "UNREAD_CHATS",
@@ -348,9 +358,11 @@
         ]
       }
     },
-    "log": [
-      { "target": "server", "level": "info" }
-    ]
+    "clientLog": {
+      "server": { "enabled": true, "level": "info" },
+      "console": { "enabled": false, "level": "debug" },
+      "external": { "enabled": false, "level": "info", "url": "https://LOG_HOST/html5Log", "method": "POST" }
+    }
   },
 
   "private": {
@@ -381,7 +393,7 @@
       ]
     },
 
-    "log": {
+    "serverLog": {
       "level": "info"
     }
   }

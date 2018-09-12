@@ -144,8 +144,9 @@ module.exports = class WebServer {
   _validateChecksum(req, res, next) {
     const urlObj = url.parse(req.url, true);
     const checksum = urlObj.query["checksum"];
+    const sharedSecret = process.env.SHARED_SECRET || config.bbb.sharedSecret;
 
-    if (checksum === Utils.checksumAPI(req.url, config.bbb.sharedSecret)) {
+    if (checksum === Utils.checksumAPI(req.url, sharedSecret)) {
       next();
     } else {
       Logger.info("[WebServer] checksum check failed, sending a checksumError response");

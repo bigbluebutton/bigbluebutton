@@ -53,6 +53,11 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       sessionToken
     };
 
+    this.media = {
+      inputDevice: {},
+    };
+
+
     this.internalMeetingID = meetingId;
     this.voiceBridge = voiceBridge;
   }
@@ -61,7 +66,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     window.kurentoExitAudio();
   }
 
-  joinAudio({ isListenOnly }, callback) {
+  joinAudio({ isListenOnly, inputStream }, callback) {
     return new Promise(async (resolve, reject) => {
       this.callback = callback;
       let iceServers = [];
@@ -78,15 +83,21 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
           iceServers,
           logger: modLogger,
+          inputStream,
         };
 
         const onSuccess = ack => resolve(this.callback({ status: this.baseCallStates.started }));
 
-        const onFail = error => resolve(this.callback({
-          status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.CONNECTION_ERROR,
-          bridgeError: error,
-        }));
+        const onFail = error => {
+          const { reason } = error;
+          this.callback({
+            status: this.baseCallStates.failed,
+            error: this.baseErrorCodes.CONNECTION_ERROR,
+            bridgeError: reason,
+          })
+
+          reject(reason);
+        };
 
         if (!isListenOnly) {
           return reject("Invalid bridge option");
@@ -104,6 +115,22 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       }
     });
   }
+
+  async changeOutputDevice(value) {
+    const audioContext = document.querySelector('#'+MEDIA_TAG);
+    if (audioContext.setSinkId) {
+      try {
+        await audioContext.setSinkId(value);
+        this.media.outputDeviceId = value;
+      } catch (err) {
+        logger.error(err);
+        throw new Error(this.baseErrorCodes.MEDIA_ERROR);
+      }
+    }
+
+    return this.media.outputDeviceId || value;
+  }
+
 
   exitAudio() {
     return new Promise((resolve, reject) => {

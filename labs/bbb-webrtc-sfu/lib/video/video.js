@@ -7,8 +7,10 @@ const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
 const Messaging = require('../bbb/messages/Messaging');
 const h264_sdp = require('../h264-sdp');
+const PREFERRED_H264_PROFILE = config.get('webcam-preferred-h264-profile');
 const BaseProvider = require('../base/BaseProvider');
 const FORCE_H264 = config.get('webcam-force-h264');
+const WEBCAM_TARGET_BITRATE = config.get('webcam-target-bitrate');
 const SHOULD_RECORD = config.get('recordWebcams');
 const LOG_PREFIX = "[video]";
 
@@ -230,7 +232,7 @@ module.exports = class Video extends BaseProvider {
 
       // Force H264
       if (FORCE_H264) {
-        sdpOffer = h264_sdp.transform(sdpOffer);
+        sdpOffer = h264_sdp.transform(sdpOffer, PREFERRED_H264_PROFILE);
       }
 
       // Start the recording process
@@ -259,7 +261,7 @@ module.exports = class Video extends BaseProvider {
     return new Promise(async (resolve, reject) => {
       try {
         if (this.shared) {
-          let { answer, sessionId } = await this.mcs.publish(this.userId, this.meetingId, type, { descriptor });
+          let { answer, sessionId } = await this.mcs.publish(this.userId, this.meetingId, type, { descriptor, targetBitrate: WEBCAM_TARGET_BITRATE });
           this.mediaId = sessionId;
           sharedWebcams[this.id] = this.mediaId;
           return resolve(answer);

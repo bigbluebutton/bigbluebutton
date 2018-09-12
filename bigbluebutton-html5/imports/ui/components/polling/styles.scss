@@ -1,5 +1,11 @@
 @import "../../stylesheets/variables/_all";
 
+// pollingAnswer position offsets
+$xs-portrait-offset: 8.75em;
+$xs-landscape-offset: 4.75em;
+$s-portrait-offset: 11.75em;
+$s-landscape-offset: 1.75em;
+
 .pollingContainer {
   order: 2;
   width: 100%;
@@ -20,12 +26,29 @@
 }
 
 .pollingAnswers {
+  align-items: center;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: auto;
   justify-content: center;
-  align-items: center;
+  position: relative;
   width: 100%;
+  z-index: 1;
+
+  :global(.browser-safari) & {
+    @include mq($ip5-portrait) {
+      bottom: $xs-portrait-offset;
+    }
+    @include mq($ip678-portrait) {
+      bottom: $s-portrait-offset;
+    }
+    @include mq($ip5-landscape) {
+      bottom: $xs-landscape-offset;
+    }
+    @include mq($ip678-landscape) {
+      bottom: $s-landscape-offset;
+    }
+  }
 }
 
 .pollButtonWrapper {

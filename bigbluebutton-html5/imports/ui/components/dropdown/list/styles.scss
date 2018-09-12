@@ -1,5 +1,8 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+$more-icon-font-size: 12px;
+$more-icon-line-height: 16px;
+
 %list {
   list-style: none;
   font-size: $font-size-base;
@@ -107,6 +110,7 @@
       border-radius: 0.2rem;
     }
 
+    .iconRight,
     .itemIcon,
     .itemLabel {
       color: inherit;
@@ -118,10 +122,18 @@
   }
 }
 
+.iconRight,
 .itemIcon {
   margin-right: ($line-height-computed / 2);
   color: $color-text;
   flex: 0 0;
+}
+
+.iconRight {
+  margin-right: -$indicator-padding-left;
+  margin-left: $sm-padding-x;
+  font-size: $more-icon-font-size;
+  line-height: $more-icon-line-height;
 }
 
 .itemLabel {

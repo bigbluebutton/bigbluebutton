@@ -46,22 +46,30 @@ $user-color: currentColor; //picks the current color reference in the class
     text-align: center;
     vertical-align: middle;
     letter-spacing: -.65rem;
+    z-index: 1;
   }
 }
 
 .talking {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: $user-color;
+  border-radius: inherit;
   animation: pulse 1s infinite ease-in;
 }
 
+
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 $user-color;
-  }
-  70% {
-    box-shadow: 0 0 0 0.5625rem transparent;
+    opacity: 1;
+    transform: scale(1);
   }
   100% {
-    box-shadow: 0 0 0 0 transparent;
+    opacity: 0;
+    transform: scale(1.5);
   }
 }
 
@@ -91,6 +99,7 @@ $user-color: currentColor; //picks the current color reference in the class
     background-color: $user-indicator-muted-bg;
   }
 }
+
 
 .listenOnly {
   &:after {

@@ -27,6 +27,7 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
+  getGroupChatPrivate: PropTypes.func.isRequired,
 };
 const SHOW_BRANDING = Meteor.settings.public.app.branding.displayBrandingArea;
 const defaultProps = {
@@ -62,6 +63,10 @@ class UserList extends Component {
       isPublicChat,
       roving,
       CustomLogoUrl,
+      getGroupChatPrivate,
+      handleEmojiChange,
+      getEmojiList,
+      getEmoji,
     } = this.props;
 
     return (
@@ -91,6 +96,10 @@ class UserList extends Component {
           isMeetingLocked,
           isPublicChat,
           roving,
+          getGroupChatPrivate,
+          handleEmojiChange,
+          getEmojiList,
+          getEmoji,
         }
       }
         />}

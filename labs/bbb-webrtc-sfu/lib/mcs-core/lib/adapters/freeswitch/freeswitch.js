@@ -24,6 +24,10 @@ module.exports = class Freeswitch extends EventEmitter {
       this._sessions = {};
       this._rtpConverters = {};
       this._Kurento = new Kurento(config.get('kurentoUrl'));
+      this._Kurento.on(C.ERROR.MEDIA_SERVER_OFFLINE, () => {
+        this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
+      });
+
       instance = this;
     }
 
