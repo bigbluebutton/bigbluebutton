@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.layout.managers
   import flash.events.TimerEvent;
   import flash.net.FileReference;
   import flash.utils.Timer;
+  import flash.utils.setTimeout;
   
   import mx.controls.Alert;
   import mx.core.FlexGlobals;
@@ -336,6 +337,8 @@ package org.bigbluebutton.modules.layout.managers
 			}
 		}
 		
+		private var firstDisplay : Boolean = true;
+		
 		private function applyLayout(layout:LayoutDefinition):void {
 			//LOGGER.debug("applyLayout");
 			detectContainerChange = false;
@@ -351,6 +354,10 @@ package org.bigbluebutton.modules.layout.managers
 				detectContainerChange = true;
 			}
 			updateCurrentLayout(layout);
+			if (!firstDisplay) {
+				firstDisplay = false;
+				setTimeout(lockSettingsChanged, 250)
+			}
 		}
 
     private function set detectContainerChange(detect:Boolean):void {
@@ -397,8 +404,7 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function checkPermissionsOverWindow(window:MDIWindow):void {
-			if (UsersUtil.amIModerator()) return;
-			if (window != null && !LayoutDefinition.ignoreWindow(window)) {
+			if (!UsersUtil.amIModerator() && window != null && !LayoutDefinition.ignoreWindow(window)) {
 				(window as CustomMdiWindow).unlocked = !_locked;
 			}
 		}
