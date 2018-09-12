@@ -137,7 +137,7 @@ module.exports = class BaseManager {
   }
 
   _handleError (logPrefix, connectionId, streamId, role, error) {
-    if (this._validateErrorMessage(error)) {
+    if (error && this._validateErrorMessage(error)) {
       return error;
     }
 
