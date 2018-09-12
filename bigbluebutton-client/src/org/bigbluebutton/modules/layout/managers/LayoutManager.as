@@ -354,9 +354,9 @@ package org.bigbluebutton.modules.layout.managers
 				detectContainerChange = true;
 			}
 			updateCurrentLayout(layout);
-			if (!firstDisplay) {
+			if (firstDisplay) {
 				firstDisplay = false;
-				setTimeout(lockSettingsChanged, 250)
+				setTimeout(lockSettingsChanged, 1000)
 			}
 		}
 
