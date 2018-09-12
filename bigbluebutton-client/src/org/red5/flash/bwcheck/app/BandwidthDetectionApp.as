@@ -61,6 +61,9 @@ package org.red5.flash.bwcheck.app
 			nc = new NetConnection();
 			
 			var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+			
+			var hostName:String = BBB.initConnectionManager().hostToUse;
+			
 			if (BBB.initConnectionManager().isTunnelling) {
 				var tunnelProtocol: String = ConnUtil.RTMPT;
 				
@@ -69,7 +72,7 @@ package org.red5.flash.bwcheck.app
 					tunnelProtocol = ConnUtil.RTMPS;
 				}
 				
-				bwMonUrl = tunnelProtocol + "://" + result.server + "/" + bwMonOption.application;
+				bwMonUrl = tunnelProtocol + "://" + hostName + "/" + bwMonOption.application;
 				trace("******* BW MON CONNECT tunnel = TRUE " + "url=" +  bwMonUrl);
 			} else {
 				var nativeProtocol: String = ConnUtil.RTMP;
@@ -78,7 +81,7 @@ package org.red5.flash.bwcheck.app
 					nativeProtocol = ConnUtil.RTMPS;
 				}
 				
-				bwMonUrl = nativeProtocol + "://" + result.server + "/" + bwMonOption.application;
+				bwMonUrl = nativeProtocol + "://" + hostName + "/" + bwMonOption.application;
 				trace("******* BBB MON CONNECT tunnel = FALSE " + "url=" +  bwMonUrl);
 			}
 
