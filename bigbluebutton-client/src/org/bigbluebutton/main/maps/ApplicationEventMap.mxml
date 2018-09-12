@@ -100,6 +100,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
       <MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
     </EventHandlers>
+		
+    <EventHandlers type="{BBBEvent.GET_LOCK_SETTINGS_EVENT}" >
+      <MethodInvoker generator="{UserService}" method="getLockSettings"/>
+    </EventHandlers>
 	</fx:Declarations>
 
   

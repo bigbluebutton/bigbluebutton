@@ -49,6 +49,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
@@ -89,7 +90,7 @@ package org.bigbluebutton.modules.layout.managers
         applyLayout(currentLayout);
       });
     }
-    
+	
     /**
      *  There's a race condition when the layouts combo doesn't get populated 
      *  with the server's layouts definition. The problem is that sometimes 
@@ -337,8 +338,6 @@ package org.bigbluebutton.modules.layout.managers
 			}
 		}
 		
-		private var firstDisplay : Boolean = true;
-		
 		private function applyLayout(layout:LayoutDefinition):void {
 			//LOGGER.debug("applyLayout");
 			detectContainerChange = false;
@@ -354,10 +353,6 @@ package org.bigbluebutton.modules.layout.managers
 				detectContainerChange = true;
 			}
 			updateCurrentLayout(layout);
-			if (firstDisplay) {
-				firstDisplay = false;
-				setTimeout(lockSettingsChanged, 1000)
-			}
 		}
 
     private function set detectContainerChange(detect:Boolean):void {
@@ -410,9 +405,10 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
 		private function checkPermissionsOverAllWindows():void {
-			if (UsersUtil.amIModerator()) return;
-			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
-				checkPermissionsOverWindow(window);
+			if (!UsersUtil.amIModerator() && _canvas && _canvas.windowManager) {
+				for each (var window:MDIWindow in _canvas.windowManager.windowList) {
+					checkPermissionsOverWindow(window);
+				}
 			}
 		}
 
