@@ -149,7 +149,8 @@
           "moveCursor",
           "sendAnnotation",
           "removePresentation",
-          "setPresentation"
+          "setPresentation",
+          "requestPresentationUploadToken"
         ]
       }
     },
