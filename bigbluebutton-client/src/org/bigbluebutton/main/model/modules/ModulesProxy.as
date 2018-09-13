@@ -52,7 +52,15 @@ package org.bigbluebutton.main.model.modules
             logData.hostname = e.hostname;
             logData.logCode = "port_test_done";
             LOGGER.info(JSON.stringify(logData));
-                
+            
+            if (e.hostname == getPortTestAlternateHost()) {
+                var logData2:Object = UsersUtil.initLogData();
+                logData2.tags = ["initialization"];
+                logData2.hostname = e.hostname;
+                logData2.logCode = "fallback_to_ipv4_host";
+                LOGGER.info(JSON.stringify(logData2));
+            }
+            
             BBB.initConnectionManager().useProtocol(e.tunnel);
             
             var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
