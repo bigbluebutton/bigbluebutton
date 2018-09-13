@@ -325,7 +325,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				connection = new NetConnection();
 				
-				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>[^\/]+)\/(?P<app>.+)/;
 				var result:Array = pattern.exec(meetingUrl);
 				
 				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
