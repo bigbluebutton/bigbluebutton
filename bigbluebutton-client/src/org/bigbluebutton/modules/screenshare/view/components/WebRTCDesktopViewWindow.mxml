@@ -165,7 +165,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				nc = new NetConnection();
 				
-				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>[^\/]+)\/(?P<app>.+)/;
 				var result:Array = pattern.exec(rtmpUrl);
 				
 				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
