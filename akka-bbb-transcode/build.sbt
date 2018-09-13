@@ -1,4 +1,5 @@
 enablePlugins(JavaServerAppPackaging)
+enablePlugins(SystemdPlugin)
 
 name := "bbb-transcode-akka"
 
