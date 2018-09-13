@@ -1,7 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
-import { log } from '/imports/ui/services/api';
+import { log, makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 
@@ -67,6 +67,21 @@ export function joinRouteHandler(nextState, replace, callback) {
 
           const handledHTML5Parameters = [
             'html5recordingbot',
+            // APP
+            'autoJoin', // OK
+            'listenOnlyMode', // OK
+            'forceListenOnly', // OK
+            'skipCheck', // OK
+            'clientTitle', // OK
+            'lockOnJoin', // NOT IMPLEMENTED YET
+            'askForFeedbackOnLogout', // OK
+            // BRANDING
+            'displayBrandingArea', // OK
+            // KURENTO
+            'enableScreensharing', // OK
+            'enableVideo', // OK
+            'enableVideoStats', // COULDN'T TEST
+            // WHITEBOARD
           ];
           if (handledHTML5Parameters.indexOf(key) === -1) {
             return acc;
@@ -78,6 +93,8 @@ export function joinRouteHandler(nextState, replace, callback) {
           } catch (e) {
             log('error', `Caught: ${e.message}`);
           }
+
+          makeCall('addUserSettings', meetingID, internalUserID, key, value);
 
           return { ...acc, [key]: value };
         }, {}) : {};

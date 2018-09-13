@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
@@ -17,4 +18,6 @@ export default withTracker(() => ({
   isVideoBroadcasting: isVideoBroadcasting(),
   recordSettingsList: Service.recordSettingsList(),
   toggleRecording: Service.toggleRecording,
+  screenSharingCheck: getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing),
+  enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
 }))(ActionsBarContainer);
