@@ -57,8 +57,7 @@ object BreakoutRoomsUtil {
       "isBreakout" -> urlEncode(isBreakout.toString()),
       "meetingID" -> urlEncode(breakoutMeetingId),
       "password" -> urlEncode(password),
-      "redirect" -> urlEncode("true")
-    )
+      "redirect" -> urlEncode("true"))
 
     (params, params + ("joinViaHtml5" -> urlEncode("true")))
   }

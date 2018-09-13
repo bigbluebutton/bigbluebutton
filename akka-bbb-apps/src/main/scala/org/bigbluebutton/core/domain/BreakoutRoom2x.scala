@@ -1,19 +1,18 @@
 package org.bigbluebutton.core.domain
 
 case class BreakoutRoom2x(
-    id:            String,
-    externalId:    String,
-    name:          String,
-    parentId:      String,
-    sequence:      Int,
-    freeJoin:      Boolean,
-    voiceConf:     String,
-    assignedUsers: Vector[String],
-    users:         Vector[BreakoutUser],
-    voiceUsers:    Vector[BreakoutVoiceUser],
-    startedOn:     Option[Long],
-    started:       Boolean
-) {
+  id:            String,
+  externalId:    String,
+  name:          String,
+  parentId:      String,
+  sequence:      Int,
+  freeJoin:      Boolean,
+  voiceConf:     String,
+  assignedUsers: Vector[String],
+  users:         Vector[BreakoutUser],
+  voiceUsers:    Vector[BreakoutVoiceUser],
+  startedOn:     Option[Long],
+  started:       Boolean) {
 
 }
 

@@ -34,8 +34,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
     def broadcastEvent(msg: EditCaptionHistoryPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, msg.header.userId
-      )
+        liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(EditCaptionHistoryEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(EditCaptionHistoryEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 

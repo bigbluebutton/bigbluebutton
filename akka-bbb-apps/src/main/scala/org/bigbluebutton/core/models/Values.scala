@@ -10,8 +10,7 @@ case class Voice(
   callerId:  CallerId = CallerId(),
   muted:     Boolean  = false,
   talking:   Boolean  = false,
-  locked:    Boolean  = false
-)
+  locked:    Boolean  = false)
 
 case class UserV(
   id:     String,
@@ -19,5 +18,4 @@ case class UserV(
   name:   String,
   role:   String = Roles.VIEWER_ROLE,
   status: Status = Status(),
-  voice:  Voice  = Voice()
-)
+  voice:  Voice  = Voice())

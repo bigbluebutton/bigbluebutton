@@ -464,7 +464,7 @@ class RedisRecorderActor(val system: ActorSystem)
 
     record(msg.header.meetingId, ev.toMap)
   }
-  
+
   private def handleRecordStatusResetSysMsg(msg: RecordStatusResetSysMsg) {
     val ev = new RecordStatusResetEvent()
     ev.setMeetingId(msg.header.meetingId)

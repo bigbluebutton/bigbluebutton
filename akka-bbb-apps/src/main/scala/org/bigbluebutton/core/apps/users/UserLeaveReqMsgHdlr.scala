@@ -20,8 +20,7 @@ trait UserLeaveReqMsgHdlr {
     def broadcastSetPresenterInPodRespMsg(podId: String, nextPresenterId: String, requesterId: String): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, requesterId
-      )
+        liveMeeting.props.meetingProp.intId, requesterId)
       val envelope = BbbCoreEnvelope(SetPresenterInPodRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SetPresenterInPodRespMsg.NAME, liveMeeting.props.meetingProp.intId, requesterId)
 
@@ -56,8 +55,7 @@ trait UserLeaveReqMsgHdlr {
         screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
           liveMeeting.props.voiceProp.voiceConf,
           liveMeeting.props.screenshareProps.screenshareConf,
-          liveMeeting, msgBus
-        )
+          liveMeeting, msgBus)
 
         // request ongoing poll to end
         pollApp.stopPoll(state, u.intId, liveMeeting, msgBus)

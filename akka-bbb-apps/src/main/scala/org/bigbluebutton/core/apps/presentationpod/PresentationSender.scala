@@ -11,12 +11,10 @@ object PresentationSender {
     podId:     String, userId: String,
     presentationId: String,
     downloadable:   Boolean,
-    presFilename:   String
-  ): Unit = {
+    presFilename:   String): Unit = {
     val routing = Routing.addMsgToClientRouting(
       MessageTypes.BROADCAST_TO_MEETING,
-      meetingId, userId
-    )
+      meetingId, userId)
     val envelope = BbbCoreEnvelope(SetPresentationDownloadableEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(SetPresentationDownloadableEvtMsg.NAME, meetingId, userId)
 
@@ -30,12 +28,10 @@ object PresentationSender {
     bus:       MessageBus,
     meetingId: String,
     podId:     String, userId: String, messageKey: String,
-    code: String, presentation: PresentationVO
-  ): Unit = {
+    code: String, presentation: PresentationVO): Unit = {
     val routing = Routing.addMsgToClientRouting(
       MessageTypes.BROADCAST_TO_MEETING,
-      meetingId, userId
-    )
+      meetingId, userId)
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionCompletedEvtMsg.NAME, meetingId, userId)
 

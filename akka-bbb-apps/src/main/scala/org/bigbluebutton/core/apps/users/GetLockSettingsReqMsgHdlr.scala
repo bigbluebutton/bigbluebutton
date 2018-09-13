@@ -19,8 +19,7 @@ trait GetLockSettingsReqMsgHdlr {
         disableCam = settings.disableCam,
         disableMic = settings.disableMic, disablePrivChat = settings.disablePrivChat,
         disablePubChat = settings.disablePubChat, lockedLayout = settings.lockedLayout,
-        lockOnJoin = settings.lockOnJoin, lockOnJoinConfigurable = settings.lockOnJoinConfigurable
-      )
+        lockOnJoin = settings.lockOnJoin, lockOnJoinConfigurable = settings.lockOnJoinConfigurable)
       val header = BbbClientMsgHeader(GetLockSettingsRespMsg.NAME, meetingId, requestedBy)
       val event = GetLockSettingsRespMsg(header, body)
 

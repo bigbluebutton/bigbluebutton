@@ -153,7 +153,7 @@ class ApiController {
         log.debug "Existing conference found"
         Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
         if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
-          paramsProcessorUtil.updateMeeting(updateParams, existing);
+          //paramsProcessorUtil.updateMeeting(updateParams, existing);
           // trying to create a conference a second time, return success, but give extra info
           // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
           //uploadDocuments(existing);

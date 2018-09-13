@@ -1,9 +1,9 @@
 package org.bigbluebutton.app.screenshare.redis
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 import java.net.InetSocketAddress
 
-import akka.actor.{OneForOneStrategy, Props}
+import akka.actor.{ OneForOneStrategy, Props }
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.app.screenshare.SystemConfiguration
 import redis.actors.RedisSubscriberActor
@@ -12,7 +12,7 @@ import redis.actors.RedisSubscriberActor
 import redis.api.pubsub.{ Message, PMessage }
 import scala.concurrent.duration._
 
-object AppsRedisSubscriberActor extends SystemConfiguration{
+object AppsRedisSubscriberActor extends SystemConfiguration {
 
   val channels = Seq(fromAkkaAppsRedisChannel)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
@@ -26,8 +26,9 @@ object AppsRedisSubscriberActor extends SystemConfiguration{
 class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
+  extends RedisSubscriberActor(
+    new InetSocketAddress(redisHost, redisPort),
+    channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
