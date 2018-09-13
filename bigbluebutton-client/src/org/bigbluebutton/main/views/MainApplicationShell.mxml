@@ -394,7 +394,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function sendStartAllModulesEvent():void{
 				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
+				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.GET_LOCK_SETTINGS_EVENT));
 			}
 			
 			public function guestAllowed(evt:BBBEvent):void {
