@@ -13,8 +13,7 @@ trait MeetingActivityResponseCmdMsgHdlr {
 
   def handleMeetingActivityResponseCmdMsg(
     msg:   MeetingActivityResponseCmdMsg,
-    state: MeetingState2x
-  ): MeetingState2x = {
+    state: MeetingState2x): MeetingState2x = {
     processMeetingActivityResponse(liveMeeting.props, outGW, msg)
     val tracker = state.inactivityTracker.resetWarningSentAndTimestamp()
     state.update(tracker)
@@ -23,8 +22,7 @@ trait MeetingActivityResponseCmdMsgHdlr {
   def processMeetingActivityResponse(
     props: DefaultProps,
     outGW: OutMsgRouter,
-    msg:   MeetingActivityResponseCmdMsg
-  ): Unit = {
+    msg:   MeetingActivityResponseCmdMsg): Unit = {
 
     def buildMeetingIsActiveEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")

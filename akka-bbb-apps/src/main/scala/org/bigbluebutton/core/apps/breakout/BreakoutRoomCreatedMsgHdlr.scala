@@ -78,8 +78,7 @@ trait BreakoutRoomCreatedMsgHdlr extends BreakoutHdlrHelpers {
     def build(meetingId: String, breakout: BreakoutRoomInfo): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, "not-used"
-      )
+        liveMeeting.props.meetingProp.intId, "not-used")
       val envelope = BbbCoreEnvelope(BreakoutRoomStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(BreakoutRoomStartedEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
 

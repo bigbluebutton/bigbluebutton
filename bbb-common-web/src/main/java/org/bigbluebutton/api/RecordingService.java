@@ -46,10 +46,10 @@ import org.slf4j.LoggerFactory;
 public class RecordingService {
     private static Logger log = LoggerFactory.getLogger(RecordingService.class);
 
-    private String processDir = "/var/bigbluebutton/recording/process";
-    private String publishedDir = "/var/bigbluebutton/published";
-    private String unpublishedDir = "/var/bigbluebutton/unpublished";
-    private String deletedDir = "/var/bigbluebutton/deleted";
+    private static String processDir = "/var/bigbluebutton/recording/process";
+    private static String publishedDir = "/var/bigbluebutton/published";
+    private static String unpublishedDir = "/var/bigbluebutton/unpublished";
+    private static String deletedDir = "/var/bigbluebutton/deleted";
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
     private String captionsDir;
@@ -59,7 +59,7 @@ public class RecordingService {
         try {
             FileUtils.copyFile(presFile, dlownloadableFile);
         } catch (IOException ex) {
-            log.error("Failed to copy file: " + ex);
+            log.error("Failed to copy file: {}", ex);
         }
     }
 
@@ -71,7 +71,7 @@ public class RecordingService {
             if (msg.downloadable) {
                 String fileExt = FilenameUtils.getExtension(msg.presFilename);
                 File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presId + "." + fileExt);
-                log.info("Make file downloadable. " + downloadableFile.getAbsolutePath());
+                log.info("Make file downloadable. {}", downloadableFile.getAbsolutePath());
                 copyPresentationFile(presFile, downloadableFile);
             } else {
                 if (downloadableFile.exists()) {
@@ -86,13 +86,10 @@ public class RecordingService {
     }
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
-    	log.info("Find downloadable presentation for meetingId=" + meetingId + " presId=" + presId + " filename=" + presFilename);
+    	log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId, presFilename);
 
         File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
-
-        File downloadableFile = new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
-        log.info("Found downloadable presentation file " + downloadableFile.getAbsolutePath());
-        return downloadableFile;
+        return new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
     }
 
     public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {
@@ -103,9 +100,9 @@ public class RecordingService {
             try {
                 doneFile.createNewFile();
                 if (!doneFile.exists())
-                    log.error("Failed to create file.", done);
+                    log.error("Failed to create {} file.", done);
             } catch (IOException e) {
-                log.error("Failed to create {} file", done);
+                log.error("Exception occured when trying to create {} file", done);
             }
         } else {
             log.error("{} file already exists.", done);
@@ -122,7 +119,7 @@ public class RecordingService {
                 if (!doneFile.exists())
                     log.error("Failed to create {} file.", done);
             } catch (IOException e) {
-                log.error("Failed to create {} file.", done);
+                log.error("Exception occured when trying to create {} file.", done);
             }
         } else {
             log.error("{} file already exists.", done);
@@ -162,7 +159,7 @@ public class RecordingService {
         return recordingServiceHelper.putRecordingTextTrack(track);
     }
 
-    public String getRecordings2x(ArrayList<String> idList, ArrayList<String> states, Map<String, String> metadataFilters) {
+    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
         List<RecordingMetadata> recsList = getRecordingsMetadata(idList, states);
         ArrayList<RecordingMetadata> recs = filterRecordingsByMetadata(recsList, metadataFilters);
         return recordingServiceHelper.getRecordings2x(recs);
@@ -170,8 +167,7 @@ public class RecordingService {
 
     private RecordingMetadata getRecordingMetadata(File dir) {
         File file = new File(dir.getPath() + File.separatorChar + "metadata.xml");
-        RecordingMetadata rec = recordingServiceHelper.getRecordingMetadata(file);
-        return rec;
+        return recordingServiceHelper.getRecordingMetadata(file);
     }
 
     public boolean recordingMatchesMetadata(RecordingMetadata recording, Map<String, String> metadataFilters) {
@@ -579,8 +575,6 @@ public class RecordingService {
                 }
             }
         }
-
-        return;
     }
 
     public void updateRecordingMetadata(File srxMetadataXml, Map<String,String> metaParams, File destMetadataXml) {

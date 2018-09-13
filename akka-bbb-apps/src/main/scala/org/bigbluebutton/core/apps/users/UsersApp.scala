@@ -32,8 +32,7 @@ object UsersApp {
 
       val event = MsgBuilder.buildGuestApprovedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        guest.guest, guest.status, approvedBy
-      )
+        guest.guest, guest.status, approvedBy)
 
       outGW.send(event)
 
@@ -61,8 +60,7 @@ object UsersApp {
     // send a message to client
     Sender.sendUserEjectedFromMeetingClientEvtMsg(
       meetingId,
-      userId, ejectedBy, reason, reasonCode, outGW
-    )
+      userId, ejectedBy, reason, reasonCode, outGW)
   }
 
   def sendUserLeftMeetingToAllClients(outGW: OutMsgRouter, meetingId: String,
@@ -76,13 +74,11 @@ object UsersApp {
     outGW:       OutMsgRouter,
     meetingId:   String,
     voiceConf:   String,
-    voiceUserId: String
-  ): Unit = {
+    voiceUserId: String): Unit = {
     val ejectFromVoiceEvent = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(
       meetingId,
       voiceConf,
-      voiceUserId
-    )
+      voiceUserId)
     outGW.send(ejectFromVoiceEvent)
   }
 
@@ -108,8 +104,7 @@ object UsersApp {
       sendEjectUserFromVoiceToFreeswitch(
         outGW,
         liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
-      )
+        liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId)
     }
   }
 
@@ -118,8 +113,7 @@ object UsersApp {
 class UsersApp(
   val liveMeeting: LiveMeeting,
   val outGW:       OutMsgRouter,
-  val eventBus:    InternalEventBus
-)(implicit val context: ActorContext)
+  val eventBus:    InternalEventBus)(implicit val context: ActorContext)
 
     extends ValidateAuthTokenReqMsgHdlr
     with GetUsersMeetingReqMsgHdlr

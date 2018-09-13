@@ -4,7 +4,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.19-SNAPSHOT"
 
-scalaVersion  := "2.12.2"
+scalaVersion := "2.12.6"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -32,9 +32,9 @@ libraryDependencies ++= {
 	)}
 
 // https://mvnrepository.com/artifact/org.scala-lang/scala-library
-libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-library" % scalaVersion.value
 // https://mvnrepository.com/artifact/org.scala-lang/scala-compiler
-libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
 
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
@@ -49,7 +49,7 @@ libraryDependencies += "org.pegdown" % "pegdown" % "1.6.0" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.3" % "test"
 
 // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
-libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.6"
 
 seq(Revolver.settings: _*)
 

@@ -26,8 +26,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         disablePubChat = msg.body.disablePubChat,
         lockedLayout = msg.body.lockedLayout,
         lockOnJoin = msg.body.lockOnJoin,
-        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable
-      )
+        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable)
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
         MeetingStatus2x.initializePermissions(liveMeeting.status)
@@ -37,12 +36,10 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           props.meetingProp.intId,
-          msg.body.setBy
-        )
+          msg.body.setBy)
         val envelope = BbbCoreEnvelope(
           LockSettingsInMeetingChangedEvtMsg.NAME,
-          routing
-        )
+          routing)
         val body = LockSettingsInMeetingChangedEvtMsgBody(
           disableCam = settings.disableCam,
           disableMic = settings.disableMic,
@@ -51,13 +48,11 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           lockedLayout = settings.lockedLayout,
           lockOnJoin = settings.lockOnJoin,
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
-          msg.body.setBy
-        )
+          msg.body.setBy)
         val header = BbbClientMsgHeader(
           LockSettingsInMeetingChangedEvtMsg.NAME,
           props.meetingProp.intId,
-          msg.body.setBy
-        )
+          msg.body.setBy)
 
         outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
       }

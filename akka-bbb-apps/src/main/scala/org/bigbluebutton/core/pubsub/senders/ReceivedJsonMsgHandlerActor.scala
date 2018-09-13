@@ -15,8 +15,7 @@ object ReceivedJsonMsgHandlerActor {
 
 class ReceivedJsonMsgHandlerActor(
   val eventBus:               BbbMsgRouterEventBus,
-  val incomingJsonMessageBus: IncomingJsonMessageBus
-)
+  val incomingJsonMessageBus: IncomingJsonMessageBus)
     extends Actor with ActorLogging
     with SystemConfiguration
     with ReceivedJsonMsgDeserializer
