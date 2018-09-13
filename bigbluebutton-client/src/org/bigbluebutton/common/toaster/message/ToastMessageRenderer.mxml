@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<message:ToastMessageBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+						  xmlns:s="library://ns.adobe.com/flex/spark"
+						  xmlns:mx="library://ns.adobe.com/flex/mx"
+						  xmlns:message="org.bigbluebutton.common.toaster.message.*"
+						  height="75"
+						  minWidth="320"
+						  filters="{[dropShadow]}"
+						  creationComplete="{progressBarAnimation.play()}"
+						  click="progressBarAnimation.pause(); dispatchEvent(new ToasterEvent(ToasterEvent.CLOSE))"
+						  mouseOver="progressBarAnimation.pause(); dispatchEvent(new ToasterEvent(ToasterEvent.MOUSE_OVER))"
+						  mouseOut="progressBarAnimation.resume(); dispatchEvent(new ToasterEvent(ToasterEvent.MOUSE_OUT))"
+						  toolTip="{message}">
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.toaster.event.ToasterEvent;
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<mx:Resize id="progressBarAnimation"
+				   repeatCount="1"
+				   duration="{displayTime}"
+				   widthFrom="{this.width}"
+				   widthTo="0"
+				   target="{progressBar}" />
+		<mx:DropShadowFilter id="dropShadow"
+							 distance="4"
+							 angle="90"
+							 alpha=".22" 
+							 blurX="7"
+							 blurY="7" />
+	</fx:Declarations>
+
+	<mx:HBox styleName="toasterContainer"
+			 horizontalScrollPolicy="off"
+			 verticalScrollPolicy="off"
+			 width="100%"
+			 verticalCenter="0">
+		<mx:Canvas id="iconCanvas"
+				   width="32"
+				   height="32"
+				   horizontalScrollPolicy="off"
+				   verticalScrollPolicy="off">
+			<!-- Circle background -->
+			<s:Group verticalCenter="0"
+					 horizontalCenter="0"
+					 width="32"
+					 height="32">
+				<s:Ellipse width="32"
+						   height="32"
+						   verticalCenter="0"
+						   horizontalCenter="0">
+					<s:fill>
+						<s:SolidColor color="{iconBackgroundColor}" />
+					</s:fill>
+				</s:Ellipse>
+			</s:Group>
+
+			<mx:Image id="iconImage"
+					  verticalCenter="0"
+					  horizontalCenter="0"
+					  source="{iconImageClass}" />
+		</mx:Canvas>
+		<mx:Text id="messageText"
+				 selectable="false"
+				 text="{message}"
+				 paddingRight="20"
+				 textAlign="center" />
+	</mx:HBox>
+
+	<mx:Image id="closeButton"
+			  top="10"
+			  right="10"
+			  width="14"
+			  height="14"
+			  source="{getStyle('iconClose')}" />
+
+	<mx:Canvas id="progressBar"
+			   width="100%"
+			   height="8"
+			   backgroundColor="{iconBackgroundColor}"
+			   bottom="0" />
+
+</message:ToastMessageBase>

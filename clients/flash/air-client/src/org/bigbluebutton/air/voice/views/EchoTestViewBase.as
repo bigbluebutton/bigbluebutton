@@ -36,13 +36,14 @@ package org.bigbluebutton.air.voice.views {
 			addElement(echoButtonGroup);
 			
 			micLevelProgressBar = new ProgressBar();
-			micLevelProgressBar.percentWidth = 80;
+			micLevelProgressBar.percentWidth = 100;
 			micLevelProgressBar.height = 40;
 			micLevelProgressBar.styleName = "micLevelProgressBar";
 			echoButtonGroup.addElement(micLevelProgressBar);
 			
 			echoTestButton = new Button();
 			echoTestButton.label = "Start Echo Test";
+			echoTestButton.percentWidth = 100;
 			echoButtonGroup.addElement(echoTestButton);
 			
 			// Echo Validation Group
@@ -55,7 +56,6 @@ package org.bigbluebutton.air.voice.views {
 			
 			echoLabel = new Label();
 			echoLabel.maxDisplayedLines = 5;
-			echoLabel.percentWidth = 80;
 			echoLabel.styleName = "echoTestLabel";
 			echoLabel.text = "This is a private echo test. Speak a few words. Did you hear audio?";
 			//echoLabel.maxWidth = echoValidationGroup.width - 40;
@@ -63,10 +63,12 @@ package org.bigbluebutton.air.voice.views {
 			
 			yesButton = new Button();
 			yesButton.label = "Yes";
+			yesButton.percentWidth = 100;
 			echoValidationGroup.addElement(yesButton);
 			
 			noButton = new Button();
 			noButton.label = "No";
+			noButton.percentWidth = 100;
 			echoValidationGroup.addElement(noButton);
 		}
 		

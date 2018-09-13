@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles';
+import CustomLogo from './custom-logo/component';
 import UserContent from './user-list-content/component';
 
 const propTypes = {
@@ -27,8 +27,9 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
+  getGroupChatPrivate: PropTypes.func.isRequired,
 };
-
+const SHOW_BRANDING = Meteor.settings.public.app.branding.displayBrandingArea;
 const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
@@ -40,38 +41,67 @@ const defaultProps = {
 class UserList extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      compact: this.props.compact,
-    };
-
-    this.handleToggleCompactView = this.handleToggleCompactView.bind(this);
-  }
-
-  handleToggleCompactView() {
-    this.setState({ compact: !this.state.compact });
   }
 
   render() {
+    const {
+      intl,
+      openChats,
+      users,
+      compact,
+      currentUser,
+      isBreakoutRoom,
+      setEmojiStatus,
+      assignPresenter,
+      removeUser,
+      toggleVoice,
+      changeRole,
+      meeting,
+      getAvailableActions,
+      normalizeEmojiName,
+      isMeetingLocked,
+      isPublicChat,
+      roving,
+      CustomLogoUrl,
+      getGroupChatPrivate,
+      handleEmojiChange,
+      getEmojiList,
+      getEmoji,
+    } = this.props;
+
     return (
       <div className={styles.userList}>
+        {
+          SHOW_BRANDING
+          && !this.props.compact
+          && CustomLogoUrl
+          ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
+        }
         {<UserContent
-          intl={this.props.intl}
-          openChats={this.props.openChats}
-          users={this.props.users}
-          compact={this.props.compact}
-          currentUser={this.props.currentUser}
-          isBreakoutRoom={this.props.isBreakoutRoom}
-          setEmojiStatus={this.props.setEmojiStatus}
-          assignPresenter={this.props.assignPresenter}
-          removeUser={this.props.removeUser}
-          toggleVoice={this.props.toggleVoice}
-          changeRole={this.props.changeRole}
-          meeting={this.props.meeting}
-          getAvailableActions={this.props.getAvailableActions}
-          normalizeEmojiName={this.props.normalizeEmojiName}
-          isMeetingLocked={this.props.isMeetingLocked}
-          isPublicChat={this.props.isPublicChat}
-          roving={this.props.roving}
+          {...{
+          intl,
+          openChats,
+          users,
+          compact,
+          currentUser,
+          isBreakoutRoom,
+          setEmojiStatus,
+          assignPresenter,
+          removeUser,
+          toggleVoice,
+          changeRole,
+          meeting,
+          getAvailableActions,
+          normalizeEmojiName,
+          isMeetingLocked,
+          isPublicChat,
+          roving,
+          getGroupChatPrivate,
+          handleEmojiChange,
+          getEmojiList,
+          getEmoji,
+        }
+      }
         />}
       </div>
     );

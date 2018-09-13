@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from '../styles.scss';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
@@ -152,6 +151,7 @@ export default class TextDrawListener extends Component {
   }
 
   handleTouchMove(event) {
+    event.preventDefault();
     const { clientX, clientY } = event.changedTouches[0];
     this.commonDrawMoveHandler(clientX, clientY);
   }
@@ -172,22 +172,30 @@ export default class TextDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
+    const isLeftClick = event.button === 0;
+    const isRightClick = event.button === 2;
+
     if (this.hasBeenTouchedRecently) {
       return;
     }
 
     // if our current drawing state is not drawing the box and not writing the text
     if (!this.state.isDrawing && !this.state.isWritingText) {
-      window.addEventListener('mouseup', this.handleMouseUp);
-      window.addEventListener('mousemove', this.handleMouseMove, true);
+      if (isLeftClick) {
+        window.addEventListener('mouseup', this.handleMouseUp);
+        window.addEventListener('mousemove', this.handleMouseMove, true);
 
-      const { clientX, clientY } = event;
-      this.commonDrawStartHandler(clientX, clientY);
+        const { clientX, clientY } = event;
+        this.commonDrawStartHandler(clientX, clientY);
+      }
 
     // second case is when a user finished writing the text and publishes the final result
     } else {
       // publishing the final shape and resetting the state
       this.sendLastMessage();
+      if (isRightClick) {
+        this.discardAnnotation();
+      }
     }
   }
 
@@ -340,6 +348,8 @@ export default class TextDrawListener extends Component {
 
   handleDrawText(startPoint, width, height, status, id, text) {
     const { normalizeFont, sendAnnotation } = this.props.actions;
+    const { whiteboardId, userId } = this.props;
+    const { color, textFontSize } = this.props.drawSettings;
 
     const annotation = {
       id,
@@ -348,34 +358,51 @@ export default class TextDrawListener extends Component {
       annotationInfo: {
         x: startPoint.x, // left corner
         y: startPoint.y, // left corner
-        fontColor: this.props.drawSettings.color,
-        calcedFontSize: normalizeFont(this.props.drawSettings.textFontSize), // fontsize
+        fontColor: color,
+        calcedFontSize: normalizeFont(textFontSize), // fontsize
         textBoxWidth: width, // width
         text,
         textBoxHeight: height, // height
         id,
-        whiteboardId: this.props.whiteboardId,
+        whiteboardId,
         status,
         fontSize: this.props.drawSettings.textFontSize,
         dataPoints: `${startPoint.x},${startPoint.y}`,
         type: 'text',
       },
-      wbId: this.props.whiteboardId,
-      userId: this.props.userId,
+      wbId: whiteboardId,
+      userId,
       position: 0,
     };
 
-    sendAnnotation(annotation);
+    sendAnnotation(annotation, whiteboardId);
+  }
+
+  discardAnnotation() {
+    const { getCurrentShapeId, addAnnotationToDiscardedList, undoAnnotation } = this.props.actions;
+    const { whiteboardId } = this.props;
+
+    undoAnnotation(whiteboardId);
+    addAnnotationToDiscardedList(getCurrentShapeId());
   }
 
   render() {
+    const baseName = Meteor.settings.public.app.basename;
+    const textDrawStyle = {
+      width: '100%',
+      height: '100%',
+      touchAction: 'none',
+      zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/text.png'), default`,
+    };
+    const { contextMenuHandler } = this.props.actions;
     return (
       <div
         role="presentation"
-        className={styles.text}
-        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        style={textDrawStyle}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
+        onContextMenu={contextMenuHandler}
       >
         {this.state.isDrawing ?
           <svg

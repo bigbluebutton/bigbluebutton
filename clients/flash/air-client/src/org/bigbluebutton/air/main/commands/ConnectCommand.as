@@ -4,16 +4,18 @@ package org.bigbluebutton.air.main.commands {
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.air.chat.services.IChatMessageService;
-	import org.bigbluebutton.air.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.air.main.utils.DisconnectEnum;
+	import org.bigbluebutton.air.poll.services.IPollService;
 	import org.bigbluebutton.air.presentation.services.IPresentationService;
+	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
+	import org.bigbluebutton.air.screenshare.services.IScreenshareService;
 	import org.bigbluebutton.air.user.models.User2x;
+	import org.bigbluebutton.air.user.models.UserChangeEnum;
 	import org.bigbluebutton.air.user.services.IUsersService;
-	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.services.IVideoConnection;
 	import org.bigbluebutton.air.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.air.voice.models.PhoneOptions;
@@ -45,7 +47,7 @@ package org.bigbluebutton.air.main.commands {
 		public var voiceConnection:IVoiceConnection;
 		
 		[Inject]
-		public var deskshareConnection:IDeskshareConnection;
+		public var screenshareConnection:IScreenshareConnection;
 		
 		[Inject]
 		public var uri:String;
@@ -60,7 +62,13 @@ package org.bigbluebutton.air.main.commands {
 		public var voiceService:IVoiceService;
 		
 		[Inject]
+		public var pollService:IPollService;
+		
+		[Inject]
 		public var chatService:IChatMessageService;
+		
+		[Inject]
+		public var screenshareService:IScreenshareService;
 		
 		[Inject]
 		public var presentationService:IPresentationService;
@@ -76,11 +84,10 @@ package org.bigbluebutton.air.main.commands {
 		
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
-		
-		[Inject]
-		public var shareCameraSignal:ShareCameraSignal;
-		
+			
 		private var authTokenTimeout:Timer;
+		
+		private var joinMeetingTimeout:Timer;
 		
 		override public function execute():void {
 			loadConfigOptions();
@@ -104,6 +111,8 @@ package org.bigbluebutton.air.main.commands {
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
 			voiceService.setupMessageSenderReceiver();
+			screenshareService.setupMessageSenderReceiver();
+			pollService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
 			userSession.authTokenSignal.add(onAuthTokenReply);
 			usersService.validateToken();
@@ -149,44 +158,64 @@ package org.bigbluebutton.air.main.commands {
 			var audioOptions:Object = new Object();
 			if (userSession.phoneOptions.autoJoin && userSession.phoneOptions.skipCheck) {
 				var forceListenOnly:Boolean = (userSession.config.getConfigFor("PhoneModule").@forceListenOnly.toString().toUpperCase() == "TRUE") ? true : false;
-				//audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
-				//audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
-				//shareMicrophoneSignal.dispatch(audioOptions);
+					//audioOptions.shareMic = userSession.userList.me.voiceJoined = !forceListenOnly;
+					//audioOptions.listenOnly = userSession.userList.me.listenOnly = forceListenOnly;
+					//shareMicrophoneSignal.dispatch(audioOptions);
 			} else {
 				//audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
 				//audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
 				//shareMicrophoneSignal.dispatch(audioOptions);
 			}
 			
-			trace("Configuring deskshare");
-			//deskshareConnection.applicationURI = userSession.config.getConfigFor("DeskShareModule").@uri;
-			//deskshareConnection.room = conferenceParameters.room;
-			//deskshareConnection.connect();
-			//userSession.deskshareConnection = deskshareConnection;
+			trace("Configuring Screenshare");
+			screenshareConnection.uri = userSession.config.getConfigFor("ScreenshareModule").@uri;
+			screenshareConnection.connect();
+			userSession.screenshareConnection = screenshareConnection;
+			
 			usersService.joinMeeting();
-			// Query the server for chat, users, and presentation info
-			chatService.getGroupChats();
-			presentationService.getPresentationPods();
-			meetingData.users.userChangeSignal.add(successUsersAdded);
-			usersService.queryForParticipants();
-			usersService.getLockSettings();
-			usersService.queryForRecordingStatus();
-			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
-			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
-			usersService.getRoomLockState();
+
+			meetingData.users.userChangeSignal.add(userChangeListener);
+			
+			
+			joinMeetingTimeout = new Timer(5000, 1);
+			joinMeetingTimeout.addEventListener(TimerEvent.TIMER, onJoinMeetingTimeout);
+			joinMeetingTimeout.start();
 		}
 		
 		// reason is one of the DisconnectEnum types
 		private function joiningMeetingFailure(reason:int):void {
 			trace(LOG + "joiningMeetingFailure() -- Failed to join the meeting!!!");
-			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
-			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
-			
 			disconnectUserSignal.dispatch(reason);
 		}
 		
-		protected function successUsersAdded(user:User2x, property:int):void {
-			meetingData.users.userChangeSignal.remove(successUsersAdded);
+		private function userChangeListener(user:User2x, enum:int):void {
+			// If we fetch data before the server has recognized the join we can get disconnected. Need
+			// to delay the fetch until after the join is received back.
+			if (user.me && enum == UserChangeEnum.JOIN) {
+				meetingData.users.userChangeSignal.remove(userChangeListener);
+				joinMeetingTimeout.stop();
+				
+				// Query the server for chat, users, and presentation info
+				chatService.getGroupChats();
+				presentationService.getPresentationPods();
+				meetingData.users.usersAddedSignal.add(successUsersAdded);
+				usersService.queryForParticipants();
+				usersService.getLockSettings();
+				usersService.getRoomLockState();
+				
+				videoConnection.loadCameraSettings();
+			}
+		}
+		
+		private function onJoinMeetingTimeout(e:TimerEvent):void {
+			trace(LOG + "onJoinMeetingTimeout - timeout hit");
+			meetingData.users.userChangeSignal.remove(userChangeListener);
+			
+			joiningMeetingFailure(DisconnectEnum.JOIN_MEETING_TIMEOUT);
+		}
+		
+		protected function successUsersAdded():void {
+			meetingData.users.usersAddedSignal.remove(successUsersAdded);
 			connectingFinishedSignal.dispatch();
 		}
 		
@@ -199,10 +228,6 @@ package org.bigbluebutton.air.main.commands {
 		
 		private function videoConnectedSuccess():void {
 			trace(LOG + "successVideoConnected()");
-			if (userSession.videoAutoStart && userSession.skipCamSettingsCheck) {
-				trace("TODO: Need to implement auto start cam still");
-				//shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
-			}
 			videoConnection.connectionSuccessSignal.remove(videoConnectedSuccess);
 			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);
 		}

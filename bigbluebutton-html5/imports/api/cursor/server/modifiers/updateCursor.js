@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import Cursor from '/imports/api/cursor';
 import { check } from 'meteor/check';
 
-export default function updateCursor(meetingId, userId, x = -1, y = -1) {
+export default function updateCursor(meetingId, whiteboardId, userId, x = -1, y = -1) {
   check(meetingId, String);
   check(userId, String);
   check(x, Number);
@@ -10,13 +10,15 @@ export default function updateCursor(meetingId, userId, x = -1, y = -1) {
 
   const selector = {
     meetingId,
+    whiteboardId,
     userId,
   };
 
   const modifier = {
     $set: {
-      userId,
       meetingId,
+      whiteboardId,
+      userId,
       x,
       y,
     },

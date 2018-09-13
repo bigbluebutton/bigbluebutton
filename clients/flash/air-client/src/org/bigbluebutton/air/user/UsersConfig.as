@@ -6,8 +6,6 @@ package org.bigbluebutton.air.user {
 	import org.bigbluebutton.air.main.commands.EmojiSignal;
 	import org.bigbluebutton.air.user.views.UserDetailsView;
 	import org.bigbluebutton.air.user.views.UserDetailsViewMediator;
-	import org.bigbluebutton.air.user.views.UsersView;
-	import org.bigbluebutton.air.user.views.UsersViewMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -30,7 +28,6 @@ package org.bigbluebutton.air.user {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(UsersView).toMediator(UsersViewMediator);
 			mediatorMap.map(UserDetailsView).toMediator(UserDetailsViewMediator);
 		}
 		

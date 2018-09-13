@@ -1,18 +1,18 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$item-bg-focus: $color-blue-lightest;
-$item-border-focus: $color-blue-lighter;
+$more-icon-font-size: 12px;
+$more-icon-line-height: 16px;
 
-.list {
+%list {
   list-style: none;
   font-size: $font-size-base;
   margin: 0;
   padding: 0;
   text-align: left;
   color: $color-gray-dark;
-  padding: ($line-height-computed / 2);
   display: flex;
-  flex-direction: column;
+  overflow-wrap: break-word;
+  white-space: pre-line;
 
   @include mq($small-only) {
     font-size: $font-size-large * 1.1;
@@ -20,8 +20,22 @@ $item-border-focus: $color-blue-lighter;
   }
 }
 
+.verticalList {
+  @extend %list;
+  flex-direction: column;
+}
+
+.horizontalList {
+  @extend %list;
+  padding: 0;
+  flex-direction: row;
+  @include mq($small-only) {
+    flex-direction: column;
+    padding: $line-height-computed;
+  }
+}
+
 .title {
-  @extend %text-elipsis;
   color: $color-gray;
   font-weight: 600;
   width: 100%;
@@ -41,40 +55,88 @@ $item-border-focus: $color-blue-lighter;
 .item {
   display: flex;
   flex: 1 1 100%;
-  padding: ($line-height-computed / 3) 0;
-  padding-left: ($line-height-computed / 3);
-
-  &:focus {
-    outline: none;
-    border-radius: $border-size;
-    box-shadow: 0 0 0 $border-size $item-border-focus;
-    background-color: $item-bg-focus;
-  }
 
   @include mq($small-only) {
-    padding: ($line-height-computed / 1.5) 0;
     justify-content: center;
+  }
+
+  .verticalList & {
+    padding: ($line-height-computed / 3) 0;
+
+    @include mq($small-only) {
+      padding: ($line-height-computed / 1.5) 0;
+    }
+  }
+
+  .horizontalList & {
+    padding: 0 ($line-height-computed / 3);
+
+    @include mq($small-only) {
+      padding: ($line-height-computed / 1.5) 0;
+    }
   }
 
   &:hover,
   &:focus {
     cursor: pointer;
+    outline: none;
+    background-color: $color-primary;
+    color: $color-white;
 
+    .verticalList & {
+      margin-left: -($line-height-computed / 2);
+      margin-right: -($line-height-computed / 2);
+      padding-left: ($line-height-computed / 2);
+      padding-right: ($line-height-computed / 2);
+    }
+
+    .horizontalList & {
+      margin-top: -($line-height-computed / 2);
+      margin-bottom: -($line-height-computed / 2);
+      padding-top: ($line-height-computed / 2);
+      padding-bottom: ($line-height-computed / 2);
+
+      @include mq($small-only) {
+        margin: 0;
+        padding: ($line-height-computed / 1.5) 0;
+        margin-left: -($line-height-computed / 2);
+        margin-right: -($line-height-computed / 2);
+        padding-left: ($line-height-computed / 2);
+        padding-right: ($line-height-computed / 2);
+      }
+    }
+
+    @include mq($small-only) {
+      border-radius: 0.2rem;
+    }
+
+    .iconRight,
     .itemIcon,
     .itemLabel {
       color: inherit;
     }
   }
+
+  &:focus {
+    box-shadow: 0 0 0 2px $color-white, 0 0 2px 4px rgba($color-primary, .4);
+  }
 }
 
+.iconRight,
 .itemIcon {
   margin-right: ($line-height-computed / 2);
   color: $color-text;
   flex: 0 0;
 }
 
+.iconRight {
+  margin-right: -$indicator-padding-left;
+  margin-left: $sm-padding-x;
+  font-size: $more-icon-font-size;
+  line-height: $more-icon-line-height;
+}
+
 .itemLabel {
-  @extend %text-elipsis;
   color: $color-gray-dark;
   font-size: 90%;
   flex: 1;

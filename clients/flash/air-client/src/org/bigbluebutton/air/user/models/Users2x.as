@@ -1,13 +1,14 @@
 package org.bigbluebutton.air.user.models {
 	import mx.collections.ArrayCollection;
 	
-	import org.as3commons.lang.StringUtils;
 	import org.osflash.signals.Signal;
 	
 	public class Users2x {
 		private var _users:ArrayCollection;
 		
 		private var _userChangeSignal:Signal = new Signal();
+		
+		private var _usersAddedSignal:Signal = new Signal();
 		
 		private var _me:User2x;
 		
@@ -21,6 +22,10 @@ package org.bigbluebutton.air.user.models {
 		
 		public function get userChangeSignal():Signal {
 			return _userChangeSignal;
+		}
+		
+		public function get usersAddedSignal():Signal {
+			return _usersAddedSignal;
 		}
 		
 		public function Users2x() {
@@ -38,6 +43,7 @@ package org.bigbluebutton.air.user.models {
 				if (user.me) {
 					_me = user;
 				}
+
 				_userChangeSignal.dispatch(user, UserChangeEnum.JOIN);
 			}
 		}
@@ -122,5 +128,16 @@ package org.bigbluebutton.air.user.models {
 				_userChangeSignal.dispatch(user, UserChangeEnum.ROLE);
 			}
 		}
+		
+		public function addAllUsers(users:Array):void {
+			for (var i:int; i < users.length; i++) {
+				var newUser:User2x = users[i];
+				add(newUser);
+			}
+			
+			_usersAddedSignal.dispatch();
+		}
+		
+
 	}
 }

@@ -36,7 +36,7 @@ package org.bigbluebutton.air.main.views {
 			uiSession.loadingChangeSignal.add(onLoadingChange);
 			onLoadingChange(uiSession.loading, uiSession.loadingMessage);
 		}
-		
+				
 		private function onInvokeEvent(invocation:InvokeEvent):void {
 			if (invocation.arguments.length > 0) {
 				var url:String = invocation.arguments[0].toString();
@@ -47,12 +47,11 @@ package org.bigbluebutton.air.main.views {
 						userSession.videoConnection.disconnect(true);
 					if (userSession.voiceConnection)
 						userSession.voiceConnection.disconnect(true);
-					if (userSession.deskshareConnection)
-						userSession.deskshareConnection.disconnect(true);
+					if (userSession.screenshareConnection)
+						userSession.screenshareConnection.disconnect(true);
 					FlexGlobals.topLevelApplication.mainshell.visible = false;
 					uiSession.popPage();
 					uiSession.pushPage(PageEnum.MAIN);
-					
 					joinRoom(url);
 				}
 			} else {
@@ -83,6 +82,7 @@ package org.bigbluebutton.air.main.views {
 			if (url.lastIndexOf("://") != -1) {
 				url = getEndURL(url);
 			}
+			
 			joinMeetingSignal.dispatch(url);
 		}
 		
@@ -90,7 +90,7 @@ package org.bigbluebutton.air.main.views {
 		 * Replace the schema with "http"
 		 */
 		protected function getEndURL(origin:String):String {
-			return origin.replace('bigbluebutton://', 'http://');
+			return origin.replace('bigbluebutton://', 'http://').replace('bigbluebuttons://', 'https://');
 		}
 		
 		/**

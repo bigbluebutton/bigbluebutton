@@ -6,12 +6,12 @@ import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg, MessageTypes}
 
 
 object MeetingManagerActor {
-  def props(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
+  def props(msgToAkkaAppsEventBus: MsgToRedisEventBus,
             msgToClientEventBus: MsgToClientEventBus): Props =
     Props(classOf[MeetingManagerActor], msgToAkkaAppsEventBus, msgToClientEventBus)
 }
 
-class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
+class MeetingManagerActor(msgToRedisEventBus: MsgToRedisEventBus,
                           msgToClientEventBus: MsgToClientEventBus)
   extends Actor with ActorLogging {
 
@@ -26,7 +26,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
   }
 
   def createMeeting(meetingId: String): Meeting = {
-    Meeting(meetingId, msgToAkkaAppsEventBus, msgToClientEventBus)
+    Meeting(meetingId, msgToRedisEventBus, msgToClientEventBus)
   }
 
   def handleConnectMsg(msg: ConnectMsg): Unit = {

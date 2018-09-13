@@ -5,13 +5,14 @@ import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 
 const ReactiveAnnotationContainer = (props) => {
-  if (props.annotation) {
+  if (props.annotation && props.drawObject) {
     return (
       <ReactiveAnnotation
         annotation={props.annotation}
         slideWidth={props.slideWidth}
         slideHeight={props.slideHeight}
         drawObject={props.drawObject}
+        whiteboardId={props.whiteboardId}
       />
     );
   }
@@ -29,6 +30,7 @@ export default withTracker((params) => {
 })(ReactiveAnnotationContainer);
 
 ReactiveAnnotationContainer.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   annotation: PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,

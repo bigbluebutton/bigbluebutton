@@ -34,6 +34,7 @@ object AllowedMessageNames {
       GetGuestPolicyReqMsg.NAME,
       SetGuestPolicyCmdMsg.NAME,
       GuestsWaitingApprovedMsg.NAME,
+      UserActivitySignCmdMsg.NAME,
 
       // Webcams
       GetWebcamsOnlyForModeratorReqMsg.NAME,
@@ -50,6 +51,7 @@ object AllowedMessageNames {
       SendGroupChatMessageMsg.NAME,
       ClearPublicChatHistoryPubMsg.NAME,
       CreateGroupChatReqMsg.NAME,
+      UserTypingPubMsg.NAME,
 
       // Presentation Messages
       ResizeAndMovePagePubMsg.NAME,
@@ -106,6 +108,9 @@ object AllowedMessageNames {
       BreakoutRoomsListMsg.NAME,
 
         // System
-      ClientToServerLatencyTracerMsg.NAME
+      ClientToServerLatencyTracerMsg.NAME,
+      
+      // Third-party Message
+      LookUpUserReqMsg.NAME
   )
 }

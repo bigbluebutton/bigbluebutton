@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   xmlns:userMap="org.bigbluebutton.modules.users.maps.*"
   xmlns:apimap="org.bigbluebutton.main.api.maps.*"
   xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
+  xmlns:toaster="org.bigbluebutton.common.toaster.*"
   xmlns:mate="http://mate.asfusion.com/"
   width="100%" height="100%"
   backgroundColor="white"
@@ -235,5 +236,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_INIT}"  method="handleLocaleInit"/>
 	</fx:Declarations>
+
+<!--	
+	<toaster:Toaster id="toasterContainer" width="100%" height="100%"/>
+-->
 
 </mx:Canvas>

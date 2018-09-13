@@ -11,17 +11,23 @@ function breakouts(credentials) {
 
   Logger.info(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
 
-  return Breakouts.find({
+  const selector = {
     $or: [
-      { breakoutId: meetingId },
-      { meetingId },
       {
-        users: {
-          $elemMatch: { userId: requesterUserId },
-        },
+        parentMeetingId: meetingId,
+        freeJoin: true,
+      },
+      {
+        parentMeetingId: meetingId,
+        'users.userId': requesterUserId,
+      },
+      {
+        breakoutId: meetingId,
       },
     ],
-  });
+  };
+
+  return Breakouts.find(selector);
 }
 
 function publish(...args) {

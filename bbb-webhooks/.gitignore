@@ -3,4 +3,5 @@
 *.log
 node_modules/
 config_local.coffee
+config_local.js
 log/*

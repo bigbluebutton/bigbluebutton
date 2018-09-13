@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
+
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
@@ -15,6 +16,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 
 import { styles } from '../styles';
 
@@ -63,7 +65,26 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
+  hotkeysLabel: {
+    id: 'app.navBar.settingsDropdown.hotkeysLabel',
+    description: 'Hotkeys options label',
+  },
+  hotkeysDesc: {
+    id: 'app.navBar.settingsDropdown.hotkeysDesc',
+    description: 'Describes hotkeys option',
+  },
+  helpLabel: {
+    id: 'app.navBar.settingsDropdown.helpLabel',
+    description: 'Help options label',
+  },
+  helpDesc: {
+    id: 'app.navBar.settingsDropdown.helpDesc',
+    description: 'Describes help option',
+  },
 });
+
+const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const OPEN_OPTIONS_AK = SHORTCUTS_CONFIG.openOptions.accesskey;
 
 class SettingsDropdown extends Component {
   constructor(props) {
@@ -75,30 +96,20 @@ class SettingsDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
-    this.getListItems = this.getListItems.bind(this);
   }
 
   componentWillMount() {
-    const { intl, isFullScreen, mountModal } = this.props;
+    const { intl, mountModal, isAndroid } = this.props;
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
+    const { showHelpButton: helpButton } = Meteor.settings.public.app;
 
-    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-    let fullscreenIcon = 'fullscreen';
-
-    if (isFullScreen) {
-      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
-      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
-      fullscreenIcon = 'exit_fullscreen';
-    }
-
-    this.menuItems = [
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon={fullscreenIcon}
-        label={fullscreenLabel}
-        description={fullscreenDesc}
-        onClick={this.props.handleToggleFullscreen}
-      />),
+    this.menuItems =_.compact( [(<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon={fullscreenIcon}
+      label={fullscreenLabel}
+      description={fullscreenDesc}
+      onClick={this.props.handleToggleFullscreen}
+    />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="settings"
@@ -113,6 +124,21 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.aboutDesc)}
         onClick={() => mountModal(<AboutContainer />)}
       />),
+      !helpButton ? null :
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="help"
+        label={intl.formatMessage(intlMessages.helpLabel)}
+        description={intl.formatMessage(intlMessages.helpDesc)}
+        onClick={() => window.open('https://bigbluebutton.org/videos/')}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="shortcuts"
+        label={intl.formatMessage(intlMessages.hotkeysLabel)}
+        description={intl.formatMessage(intlMessages.hotkeysDesc)}
+        onClick={() => mountModal(<ShortcutHelpComponent />)}
+      />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -121,7 +147,21 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
         onClick={() => mountModal(<LogoutConfirmationContainer />)}
       />),
-    ];
+    ])
+
+    // Removes fullscreen button if not on Android
+    if (!isAndroid) {
+      this.menuItems.shift();
+    }
+
+
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // Alters fullscreen button's label
+    if (this.props.isAndroid) {
+      this.alterMenu(nextProps);
+    }
   }
 
   onActionsShow() {
@@ -136,12 +176,37 @@ class SettingsDropdown extends Component {
     });
   }
 
-  getListItems() {
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  checkFullscreen(nextProps) {
+    const { intl, isFullScreen } = nextProps;
 
-    // we slice the list item to be hidden, for iOS devices, in order to avoid the error
-    // thrown if the DropdownList receives a null value.
-    return (iOS) ? this.menuItems.slice(1) : this.menuItems;
+    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullscreenIcon = 'fullscreen';
+
+    if (isFullScreen) {
+      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
+      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
+      fullscreenIcon = 'exit_fullscreen';
+    }
+    return {
+      fullscreenLabel,
+      fullscreenDesc,
+      fullscreenIcon,
+    };
+  }
+
+  alterMenu(props) {
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
+
+    const newFullScreenButton = (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon={fullscreenIcon}
+      label={fullscreenLabel}
+      description={fullscreenDesc}
+      onClick={this.props.handleToggleFullscreen}
+    />);
+    this.menuItems = this.menuItems.slice(1);
+    this.menuItems.unshift(newFullScreenButton);
   }
 
   render() {
@@ -154,7 +219,7 @@ class SettingsDropdown extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0}>
+        <DropdownTrigger tabIndex={0} accessKey={OPEN_OPTIONS_AK}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
@@ -171,7 +236,7 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             {
-              this.getListItems()
+              this.menuItems
             }
           </DropdownList>
         </DropdownContent>

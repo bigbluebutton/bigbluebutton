@@ -1,7 +1,6 @@
 package org.bigbluebutton.air.chat.services {
 	
 	import org.bigbluebutton.air.chat.models.ChatMessageVO;
-	import org.bigbluebutton.air.chat.models.ChatMessagesSession;
 	import org.bigbluebutton.air.chat.models.GroupChat;
 	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;

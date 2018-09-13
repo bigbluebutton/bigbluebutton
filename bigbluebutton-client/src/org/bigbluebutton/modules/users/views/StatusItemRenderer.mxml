@@ -84,6 +84,15 @@
   				validateNow();
   			}
   			
+			override public function set data(value:Object):void {
+				//reset rolledOver when the data changes because onRollOut wont be called if the row moves
+				if (data == null || value == null || data.userId != value.userId) {
+					rolledOver = false;
+				}
+				
+				super.data = value;
+			}
+			
   			private function dataChangeHandler(e:Event):void {
   				if (data != null) {
   					updateButtons(); //reassess data state on change

@@ -2,10 +2,13 @@ package org.bigbluebutton.air.video.commands {
 	
 	import flash.media.Camera;
 	
+	import org.bigbluebutton.air.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.main.models.IMedia;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.user.services.IUsersService;
 	import org.bigbluebutton.air.video.models.VideoProfile;
+	import org.bigbluebutton.air.video.models.WebcamStreamInfo;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
@@ -15,15 +18,32 @@ package org.bigbluebutton.air.video.commands {
 		public var userSession:IUserSession;
 		
 		[Inject]
+		public var usersService:IUsersService;
+		
+		[Inject]
 		public var meetingData:IMeetingData;
+		
+		[Inject]
+		public var conferenceParameters:IConferenceParameters;
+		
+		[Inject]
+		public var media:IMedia;
 		
 		[Inject]
 		public var enabled:Boolean;
 		
-		[Inject]
-		public var usersService:IUsersService;
-		
 		override public function execute():void {
+			if (media.cameraAvailable) {
+				if (!media.cameraPermissionGranted) {
+					media.requestCameraPermission();
+				}
+				else {
+					enableDisableWebcam();
+				}
+			}
+		}
+		
+		private function enableDisableWebcam():void {
 			if (enabled) {
 				enableCamera(userSession.videoConnection.cameraPosition);
 			} else {
@@ -39,8 +59,12 @@ package org.bigbluebutton.air.video.commands {
 				trace("null video profile manager");
 			}
 			var videoProfile:VideoProfile = userSession.videoConnection.selectedCameraQuality;
-			var res:String = videoProfile.id;
-			return res.concat("-" + uid) + "-" + curTime;
+			var streamName:String = videoProfile.id + "-" + uid + "-" + curTime;
+			if (conferenceParameters.record) {
+				streamName += "-recorded";
+			}
+			
+			return streamName;
 		}
 		
 		private function setupCamera(position:String):Camera {
@@ -56,9 +80,6 @@ package org.bigbluebutton.air.video.commands {
 		}
 		
 		private function findCamera(position:String):Camera {
-			if (!Camera.isSupported) {
-				return null;
-			}
 			var cam:Camera = this.getCamera(position);
 			/*
 			   cam.setMode(160, 120, 5, false);
@@ -102,9 +123,11 @@ package org.bigbluebutton.air.video.commands {
 		}
 		
 		private function disableCamera():void {
-			trace("TODO: Need to actually end the webcam stream");
-			//usersService.removeStream(meetingData.users.me.intId, meetingData.webcams. .me.streamName);
-			userSession.videoConnection.stopPublishing(setupCamera(userSession.videoConnection.cameraPosition));
+			var webcams:Array = meetingData.webcams.findWebcamsByUserId(meetingData.users.me.intId);
+			if (webcams.length > 0) {
+				usersService.removeStream(meetingData.users.me.intId, (webcams[0] as WebcamStreamInfo).streamId);
+				userSession.videoConnection.stopPublishing(setupCamera(userSession.videoConnection.cameraPosition));
+			}
 		}
 	}
 }

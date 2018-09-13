@@ -4,6 +4,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PresentationToolbarService from './service';
 import PresentationToolbar from './component';
 
+import PresentationService from '/imports/ui/components/presentation/service';
+
 const PresentationToolbarContainer = (props) => {
   const {
     currentSlideNum,
@@ -26,23 +28,23 @@ const PresentationToolbarContainer = (props) => {
 };
 
 export default withTracker((params) => {
-  const data = PresentationToolbarService.getSlideData(params);
+  const { podId, presentationId } = params;
+  const data = PresentationToolbarService.getSlideData(podId, presentationId);
 
   const {
-    userIsPresenter,
     numberOfSlides,
   } = data;
 
   return {
-    userIsPresenter,
+    userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides,
     actions: {
       nextSlideHandler: () =>
-        PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides),
+        PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides, podId),
       previousSlideHandler: () =>
-        PresentationToolbarService.previousSlide(params.currentSlideNum, numberOfSlides),
-      skipToSlideHandler: event =>
-        PresentationToolbarService.skipToSlide(event),
+        PresentationToolbarService.previousSlide(params.currentSlideNum, podId),
+      skipToSlideHandler: requestedSlideNum =>
+        PresentationToolbarService.skipToSlide(requestedSlideNum, podId),
     },
   };
 })(PresentationToolbarContainer);

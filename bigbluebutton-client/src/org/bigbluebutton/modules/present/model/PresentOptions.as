@@ -40,6 +40,8 @@ package org.bigbluebutton.modules.present.model {
 		public var enableDownload:Boolean = true;
 		
 		[Bindable]
+		public var disableFirefoxF60Upload:Boolean = true;
+
 		public var maxNumWindows:uint = 9;
 
 		public function PresentOptions() {

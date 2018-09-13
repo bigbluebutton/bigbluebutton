@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.presentation.models {
 	
+	import flash.system.Capabilities;
 	import flash.utils.ByteArray;
 	
 	import mx.controls.SWFLoader;
@@ -91,7 +92,11 @@ package org.bigbluebutton.air.presentation.models {
 		}
 		
 		public function get slideURI():String {
-			return _slideURI;
+			if (Capabilities.version.indexOf("IOS") >= 0) {
+				return _slideURI.replace(/\/slide\//g, "/png/");
+			} else {
+				return _slideURI;
+			}
 		}
 		
 		public function get loaded():Boolean {

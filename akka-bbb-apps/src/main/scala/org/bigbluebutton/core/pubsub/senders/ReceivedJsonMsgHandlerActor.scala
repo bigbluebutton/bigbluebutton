@@ -94,6 +94,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[RemoveUserFromPresenterGroupCmdMsg](envelope, jsonNode)
       case GetPresenterGroupReqMsg.NAME =>
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
+      case UserActivitySignCmdMsg.NAME =>
+        routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -184,7 +186,6 @@ class ReceivedJsonMsgHandlerActor(
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
       case ClientToServerLatencyTracerMsg.NAME =>
-        log.info("-- trace --" + jsonNode.toString)
         routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
 
       // Presentation
@@ -254,6 +255,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendPrivateMessagePubMsg](envelope, jsonNode)
       case ClearPublicChatHistoryPubMsg.NAME =>
         routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
+      case UserTypingPubMsg.NAME =>
+        routeGenericMsg[UserTypingPubMsg](envelope, jsonNode)
 
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>
@@ -264,6 +267,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>
         routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
+      case RecordAndClearPreviousMarkersCmdMsg.NAME =>
+        routeGenericMsg[RecordAndClearPreviousMarkersCmdMsg](envelope, jsonNode)
       case GetRecordingStatusReqMsg.NAME =>
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>

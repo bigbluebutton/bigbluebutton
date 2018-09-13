@@ -2,8 +2,8 @@ package org.bigbluebutton.api.messaging.messages;
 
 public class GuestsStatus {
 
-    public String userId;
-    public String status;
+    public final String userId;
+    public final String status;
 
     public GuestsStatus(String userId, String status) {
       this.userId = userId;

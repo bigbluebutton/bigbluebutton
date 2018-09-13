@@ -1,21 +1,19 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
+import setApprovedStatus from '/imports/api/users/server/modifiers/setApprovedStatus';
 
 const COLOR_LIST = [
-  '#d32f2f', '#c62828', '#b71c1c', '#d81b60', '#c2185b', '#ad1457', '#880e4f',
-  '#8e24aa', '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
+  '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
   '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',
-  '#0d47a1', '#0277bd', '#01579b', '#00838f', '#006064', '#00796b', '#00695c',
-  '#004d40', '#2e7d32', '#1b5e20', '#33691e', '#827717', '#bf360c', '#6d4c41',
-  '#5d4037', '#4e342e', '#3e2723', '#757575', '#616161', '#424242', '#212121',
-  '#546e7a', '#455a64', '#37474f', '#263238',
+  '#0d47a1', '#0277bd', '#01579b',
 ];
 
 export default function addUser(meetingId, user) {
@@ -28,11 +26,13 @@ export default function addUser(meetingId, user) {
     role: String,
     guest: Boolean,
     authed: Boolean,
+    waitingForAcceptance: Match.Maybe(Boolean),
     guestStatus: String,
     emoji: String,
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    clientType: String,
   });
 
   const userId = user.intId;
@@ -49,7 +49,9 @@ export default function addUser(meetingId, user) {
   const ROLE_VIEWER = USER_CONFIG.role_viewer;
   const APP_CONFIG = Meteor.settings.public.app;
   const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
+  const GUEST_ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
 
+  const Meeting = Meetings.findOne({ meetingId });
   // override moderator status of html5 client users, depending on a system flag
   const dummyUser = Users.findOne(selector);
   let userRole = user.role;
@@ -104,6 +106,10 @@ export default function addUser(meetingId, user) {
 
     if (userRole === ROLE_MODERATOR) {
       changeRole(ROLE_MODERATOR, true, userId, meetingId);
+    }
+
+    if (Meeting.usersProp.guestPolicy === GUEST_ALWAYS_ACCEPT) {
+      setApprovedStatus(meetingId, userId, true);
     }
 
     const { insertedId } = numChanged;

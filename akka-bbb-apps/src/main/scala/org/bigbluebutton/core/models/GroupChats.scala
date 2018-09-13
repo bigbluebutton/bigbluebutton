@@ -20,6 +20,7 @@ case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
   def findAllPublicChats(): Vector[GroupChat] = chats.values.toVector filter (c => c.access == GroupChatAccess.PUBLIC)
   def findAllPrivateChatsForUser(id: String) = chats.values.toVector filter (c =>
     c.access == GroupChatAccess.PRIVATE && c.isUserMemberOf(id))
+  def getAllGroupChatsInMeeting(): Vector[GroupChat] = chats.values.toVector
 }
 
 case class GroupChat(id: String, name: String, access: String, createdBy: GroupChatUser,

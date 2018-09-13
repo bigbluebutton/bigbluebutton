@@ -16,6 +16,8 @@ package org.bigbluebutton.air.main.services {
 		
 		protected var _guestWaitSignal:Signal = new Signal();
 		
+		protected var _guestDeniedSignal:Signal = new Signal();
+		
 		private static const URL_REQUEST_ERROR_TYPE:String = "TypeError";
 		
 		private static const URL_REQUEST_INVALID_URL_ERROR:String = "invalidURL";
@@ -42,6 +44,10 @@ package org.bigbluebutton.air.main.services {
 		
 		public function get guestWaitSignal():ISignal {
 			return _guestWaitSignal;
+		}
+		
+		public function get guestDeniedSignal():ISignal {
+			return _guestDeniedSignal;
 		}
 		
 		public function join(joinUrl:String):void {
@@ -109,8 +115,14 @@ package org.bigbluebutton.air.main.services {
 								//trace("******************** GUEST STATUS = " + guestStatus + " waitUrl=" + waitUrl);
 								//trace("******************** responseUrl = " + responseUrl);
 								//trace("******************** sessionToken = " + sessionToken);
-								var waitUrlTrim:String = getServerUrl(waitUrl);
-								guestWaitSignal.dispatch(waitUrlTrim, urlRequest, responseUrl, sessionToken);
+								if (guestStatus == 'ALLOW') {
+									successSignal.dispatch(urlRequest, responseUrl, sessionToken);
+								} else if (guestStatus == 'WAIT') {
+									var waitUrlTrim:String = getServerUrl(waitUrl);
+									guestWaitSignal.dispatch(waitUrlTrim, urlRequest, responseUrl, sessionToken);
+								} else {
+									guestDeniedSignal.dispatch();
+								}
 							} else {
 								successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 							}

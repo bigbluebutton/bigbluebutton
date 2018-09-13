@@ -43,3 +43,12 @@
     font-size: $font-size-base;
   }
 }
+
+.textarea {
+  resize: none;
+  margin: 1rem auto;
+  width: 100%;
+  &::placeholder {
+    text-align: center;
+  }
+}

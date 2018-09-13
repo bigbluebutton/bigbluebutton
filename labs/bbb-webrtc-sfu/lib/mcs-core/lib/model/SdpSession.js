@@ -8,110 +8,92 @@
 const C = require('../constants/Constants');
 const SdpWrapper = require('../utils/SdpWrapper');
 const rid = require('readable-id');
-const EventEmitter = require('events').EventEmitter;
-const MediaServer = require('../media/media-server');
+const MediaSession = require('./MediaSession');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
+const kurentoIp = config.get('kurentoIp');
 const Logger = require('../../../utils/Logger');
 
-module.exports = class SdpSession extends EventEmitter {
-  constructor(emitter, sdp = null, room, type = 'WebRtcEndpoint') {
-    super();
-    this.id = rid();
-    this.room = room;
-    this.emitter = emitter;
-    this._status = C.STATUS.STOPPED;
-    this._type = type;
+module.exports = class SdpSession extends MediaSession {
+  constructor(
+    emitter,
+    offer = null,
+    room,
+    type = 'WebRtcEndpoint',
+    options
+  ) {
+    super(emitter, room, type, options);
+    Logger.info("[mcs-sdp-session] New session with options", options);
     // {SdpWrapper} SdpWrapper
-    this._sdp;
-    if (sdp && type) {
-      this.setSdp(sdp, type);
+    this._offer;
+    this._answer;
+
+    if (offer) {
+      this.setOffer(offer);
     }
-    this._MediaServer = new MediaServer(kurentoUrl);
-    this._mediaElement;
-    this.subscribedSessions = [];
   }
 
-  async setSdp (sdp, type) {
-    this._sdp = new SdpWrapper(sdp, type);
-    await this._sdp.processSdp();
+  setOffer (offer) {
+    if (offer) {
+      this._offer = new SdpWrapper(offer, this._type);
+    }
   }
 
-  async start (sdpId) {
-    this._status = C.STATUS.STARTING;
-    try {
-      const client = await this._MediaServer.init();
+  setAnswer (answer) {
+    if (answer) {
+      this._answer = new SdpWrapper(answer, this._type);
+    }
+  }
 
-      Logger.info("[mcs-sdp-session] Starting new SDP session", this.id, "in room", this.room );
-      this._mediaElement = await this._MediaServer.createMediaElement(this.room, this._type);
-      this._MediaServer.trackMediaState(this._mediaElement, this._type);
-      this._MediaServer.on(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this._mediaElement, (event) => {
-        setTimeout(() => {
-          event.id = this.id;
-          this.emitter.emit(C.EVENT.MEDIA_STATE.MEDIA_EVENT+this.id, event);
-        }, 50);
-      });
+  process () {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const answer = await this._MediaServer.processOffer(this._mediaElement,
+          this._offer.plainSdp,
+          { name: this._name }
+        );
 
-      const answer = await this._MediaServer.processOffer(this._mediaElement, this._sdp.getPlainSdp()); 
+        this.setAnswer(answer);
 
-      if (this._type === 'WebRtcEndpoint') {
-        this._MediaServer.gatherCandidates(this._mediaElement);
+        // Checks if the media server was able to find a compatible media line
+        if (answer && !this._hasAvailableCodec()) {
+          return reject(this._handleError(C.ERROR.MEDIA_NO_AVAILABLE_CODEC));
+        }
+
+        const { targetBitrate } = this._options;
+
+        if (answer && targetBitrate && targetBitrate !== '0') {
+          this._answer.addBandwidth('video', targetBitrate);
+        }
+
+        if (this._type !== 'WebRtcEndpoint') {
+          this._offer.replaceServerIpv4(kurentoIp);
+          return resolve(this._answer? this._answer._plainSdp : null);
+        }
+
+        await this._MediaServer.gatherCandidates(this._mediaElement);
+        resolve(this._answer._plainSdp);
       }
-
-      return Promise.resolve(answer);
-    }
-    catch (err) {
-      this.handleError(err);
-      return Promise.reject(err);
-    }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 
-  // TODO move to parent Session
-  async stop () {
-    this._status = C.STATUS.STOPPING;
-    try {
-      await this._MediaServer.stop(this._mediaElement);
-      this._status = C.STATUS.STOPPED;
-      Logger.info("[mcs-sdp-session] Session ", this.id, " is going to stop...");
-      this.emit('SESSION_STOPPED', this.id);
-      Promise.resolve();
-    }
-    catch (err) {
-      this.handleError(err);
-      Promise.reject(err);
-    }
+  addIceCandidate (candidate) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this._MediaServer.addIceCandidate(this._mediaElement, candidate);
+        resolve();
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
   }
 
-  // TODO move to parent Session
-  // TODO handle connection type
-  async connect (sinkId) {
-    try {
-      Logger.info("[mcs-sdp-session] Connecting " + this._mediaElement + " => " + sinkId);
-      await this._MediaServer.connect(this._mediaElement, sinkId, 'ALL');
-      return Promise.resolve();
-    }
-    catch (err) {
-      this.handleError(err);
-      return Promise.reject(err);
-    }
-  }
-
-  async addIceCandidate (candidate) {
-    try {
-      await this._MediaServer.addIceCandidate(this._mediaElement, candidate);
-      Promise.resolve();
-    }
-    catch (err) {
-      Promise.reject(err);
-    }
-  }
-
-  addMediaEventListener (type, mediaId) {
-    this._MediaServer.addMediaEventListener (type, mediaId);
-  }
-
-  handleError (err) {
-    Logger.error("[mcs-sdp-session] SFU SDP Session received an error", err);
-    this._status = C.STATUS.STOPPED;
+    _hasAvailableCodec () {
+    return (this._offer.hasAvailableVideoCodec() === this._answer.hasAvailableVideoCodec()) &&
+      (this._offer.hasAvailableAudioCodec() === this._answer.hasAvailableAudioCodec());
   }
 }

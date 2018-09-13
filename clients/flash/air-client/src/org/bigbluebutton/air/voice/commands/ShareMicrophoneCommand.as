@@ -2,6 +2,7 @@ package org.bigbluebutton.air.voice.commands {
 	
 	import org.bigbluebutton.air.common.models.ISaveData;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.main.models.IMedia;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.voice.models.AudioTypeEnum;
 	import org.bigbluebutton.air.voice.services.IVoiceConnection;
@@ -27,9 +28,22 @@ package org.bigbluebutton.air.voice.commands {
 		[Inject]
 		public var dialStr:String;
 		
+		[Inject]
+		public var media:IMedia;
+		
 		private var voiceConnection:IVoiceConnection;
 		
 		override public function execute():void {
+			if (media.microphoneAvailable) {
+				if (!media.microphonePermissionGranted) {
+					media.requestMicrophonePermission();
+				} else {
+					enableDisableMicrophone();
+				}
+			}
+		}
+		
+		private function enableDisableMicrophone():void {
 			if (audioType == AudioTypeEnum.LEAVE) {
 				disableAudio();
 			} else {

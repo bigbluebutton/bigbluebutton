@@ -1,8 +1,10 @@
 package org.bigbluebutton.air.user.services {
 	import mx.utils.ObjectUtil;
 	
+	import org.bigbluebutton.air.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.air.common.models.IMessageListener;
 	import org.bigbluebutton.air.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.air.main.commands.UserInactivityTimerSignal;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
@@ -20,9 +22,13 @@ package org.bigbluebutton.air.user.services {
 		
 		public var meetingData:IMeetingData;
 		
+		public var chatMessagesSession:IChatMessagesSession;
+		
 		public var conferenceParameters:IConferenceParameters;
 		
 		public var disconnectUserSignal:DisconnectUserSignal;
+		
+		public var meetingInactivityTimerSignal:UserInactivityTimerSignal;
 		
 		public function UsersMessageReceiver() {
 		}
@@ -91,11 +97,19 @@ package org.bigbluebutton.air.user.services {
 				case "UserRoleChangedEvtMsg":
 					handleUserRoleChangedEvtMsg(message);
 					break;
+				case "UserInactivityAuditMsg":
+					handleUserInactivityAuditMsg(message);
+					break;
 				default:
 					break;
 			}
 		}
 		
+		private function handleUserInactivityAuditMsg(m:Object):void {
+			trace("handleInactivityWarning: " + ObjectUtil.toString(m));
+			meetingInactivityTimerSignal.dispatch(m.body.responseDuration as Number);
+		}
+				
 		private function handleMeetingMuted(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("handleMeetingMuted: " + ObjectUtil.toString(msg));
@@ -137,12 +151,16 @@ package org.bigbluebutton.air.user.services {
 		}
 		
 		private function handleGetUsersMeetingRespMsg(msg:Object):void {
-			var users:Array = msg.body.users as Array;
-			
-			for (var i:int; i < users.length; i++) {
+			var users:Array = msg.body.users as Array;			
+			var newUsers:Array = new Array();
+
+			for (var i:int=0; i < users.length; i++) {
 				var newUser:Object = users[i];
-				addUser(newUser);
+				var user:User2x = toUser2x(newUser);
+				newUsers.push(user);
 			}
+			
+			meetingData.users.addAllUsers(newUsers);
 		}
 		
 		private function handleUserJoinedMeetingEvtMsg(msg:Object):void {
@@ -287,6 +305,25 @@ package org.bigbluebutton.air.user.services {
 			var role:String = msg.body.role as String;
 			
 			meetingData.users.changeUserRole(userId, role);
+			chatMessagesSession.updatePartnerRole(userId, role);
+		}
+		
+		private function toUser2x(newUser:Object):User2x {
+			var user:User2x = new User2x();
+			user.intId = newUser.intId;
+			user.extId = newUser.extId;
+			user.name = newUser.name;
+			user.role = newUser.role;
+			user.guest = newUser.guest;
+			user.authed = newUser.authed;
+			user.waitingForAcceptance = newUser.waitingForAcceptance;
+			user.emoji = newUser.emoji;
+			user.locked = newUser.locked;
+			user.presenter = newUser.presenter;
+			user.avatar = newUser.avatar;
+			user.me = user.intId == conferenceParameters.internalUserID;
+			
+			return user;
 		}
 	}
 }

@@ -68,12 +68,11 @@ package org.bigbluebutton.air.voice.services {
 			meetingData.voiceUsers.remove(intId);
 		}
 		
-		private function handleUserMutedEvtMsg(msg:Object):void {
+		private function handleUserMutedEvtMsg(msg:Object):void {			
 			var header:Object = msg.header as Object;
 			var body:Object = msg.body as Object;
 			var intId:String = body.intId as String;
 			var muted:Boolean = body.muted as Boolean;
-			
 			meetingData.voiceUsers.changeUserMute(intId, muted);
 		}
 		

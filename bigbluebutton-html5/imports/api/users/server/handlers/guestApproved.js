@@ -5,11 +5,11 @@ import userJoin from '../methods/userJoin';
 
 export default function handleGuestsWaitingForApproval({ header, body }, meetingId) {
   const { userId } = header;
-  const { approved, approvedBy } = body;
+  const { status, approvedBy } = body;
 
   check(userId, String);
   check(meetingId, String);
-  check(approved, Boolean);
+  check(status, String);
   check(approvedBy, String);
 
   const selector = {
@@ -19,6 +19,8 @@ export default function handleGuestsWaitingForApproval({ header, body }, meeting
 
   const User = Users.findOne(selector);
 
+  const GUEST_STATUS_ALLOW = 'ALLOW';
+  const approved = GUEST_STATUS_ALLOW === status;
   if (User && approved) {
     userJoin(meetingId, userId, User.authToken);
   }

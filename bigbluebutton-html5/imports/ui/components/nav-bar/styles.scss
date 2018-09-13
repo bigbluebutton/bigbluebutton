@@ -33,10 +33,17 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
+  max-width: 30vw;
+  
   > [class^="icon-bbb-"] {
     font-size: 75%;
   }
+}
+
+.presentationTitleSeparator {
+  color: $color-gray;
+  font-size: $font-size-base;
+  margin: 0 1rem;
 }
 
 .btnWithNotificationDot {

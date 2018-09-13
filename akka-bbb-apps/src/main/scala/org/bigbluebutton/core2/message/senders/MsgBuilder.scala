@@ -156,6 +156,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildRecordStatusResetSysMsg(meetingId: String, recording: Boolean, setBy: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, setBy)
+    val envelope = BbbCoreEnvelope(RecordStatusResetSysMsg.NAME, routing)
+    val body = RecordStatusResetSysMsgBody(recording, setBy)
+    val header = BbbCoreHeaderWithMeetingId(RecordStatusResetSysMsg.NAME, meetingId)
+    val event = RecordStatusResetSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildDisconnectAllClientsSysMsg(meetingId: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(DisconnectAllClientsSysMsg.NAME, routing)
@@ -204,6 +214,16 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(UserLeftMeetingEvtMsg.NAME, meetingId, userId)
     val body = UserLeftMeetingEvtMsgBody(userId)
     val event = UserLeftMeetingEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildUserInactivityInspectMsg(meetingId: String, userId: String, responseDelay: Long): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserInactivityInspectMsg.NAME, routing)
+    val body = UserInactivityInspectMsgBody(meetingId, responseDelay)
+    val header = BbbClientMsgHeader(UserInactivityInspectMsg.NAME, meetingId, userId)
+    val event = UserInactivityInspectMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -284,6 +304,17 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(StopRecordingVoiceConfSysMsg.NAME, meetingId)
     val body = StopRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
     val event = StopRecordingVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCreateNewPresentationPodEvtMsg(meetingId: String, currentPresenterId: String, podId: String, userId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(CreateNewPresentationPodEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, userId)
+
+    val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
+    val event = CreateNewPresentationPodEvtMsg(header, body)
+
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }

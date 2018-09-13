@@ -4,6 +4,7 @@ import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import screenreaderTrap from 'makeup-screenreader-trap';
 import { styles } from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
@@ -68,14 +69,19 @@ class Dropdown extends Component {
     this.handleWindowClick = this.handleWindowClick.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.isOpen && !prevState.isOpen) {
-      this.props.onShow();
-    }
+  componentWillUpdate(nextProps, nextState) {
+    return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
+  }
 
-    if (!this.state.isOpen && prevState.isOpen) {
-      this.props.onHide();
-    }
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      onShow,
+      onHide,
+    } = this.props;
+
+    if (this.state.isOpen && !prevState.isOpen) { onShow(); }
+
+    if (!this.state.isOpen && prevState.isOpen) { onHide(); }
   }
 
   handleShow() {
@@ -92,12 +98,17 @@ class Dropdown extends Component {
     });
   }
 
-  handleWindowClick(event) {
+  handleWindowClick() {
     const triggerElement = findDOMNode(this.trigger);
+    const contentElement = findDOMNode(this.content);
+    const closeDropdown = this.props.isOpen && this.state.isOpen && triggerElement.contains(event.target);
+    const preventHide = this.props.isOpen && contentElement.contains(event.target) || !triggerElement;
 
-    if (!this.state.isOpen
-      || triggerElement === event.target
-      || triggerElement.contains(event.target)) {
+    if (closeDropdown) {
+      return this.props.onHide();
+    }
+
+    if (contentElement && preventHide) {
       return;
     }
 
@@ -122,6 +133,7 @@ class Dropdown extends Component {
 
     trigger = React.cloneElement(trigger, {
       ref: (ref) => { this.trigger = ref; },
+      dropdownIsOpen: this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
@@ -130,6 +142,7 @@ class Dropdown extends Component {
     content = React.cloneElement(content, {
       ref: (ref) => { this.content = ref; },
       'aria-expanded': this.state.isOpen,
+      dropdownIsOpen: this.state.isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
@@ -143,6 +156,8 @@ class Dropdown extends Component {
         aria-relevant={otherProps['aria-relevant']}
         aria-haspopup={otherProps['aria-haspopup']}
         aria-label={otherProps['aria-label']}
+        data-isopen={this.state.isOpen}
+        ref={(node) => { this.dropdown = node; }}
         tabIndex={-1}
       >
         {trigger}

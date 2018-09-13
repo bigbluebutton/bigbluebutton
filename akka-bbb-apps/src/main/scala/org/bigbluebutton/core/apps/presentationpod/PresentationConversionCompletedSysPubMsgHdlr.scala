@@ -16,20 +16,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
     liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
-    def broadcastPresentationConversionCompletedEvtMsg(podId: String, userId: String, messageKey: String,
-                                                       code: String, presentation: PresentationVO): Unit = {
-      val routing = Routing.addMsgToClientRouting(
-        MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, userId
-      )
-      val envelope = BbbCoreEnvelope(PresentationConversionCompletedEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(PresentationConversionCompletedEvtMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
-
-      val body = PresentationConversionCompletedEvtMsgBody(podId, messageKey, code, presentation)
-      val event = PresentationConversionCompletedEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      bus.outGW.send(msgEvent)
-    }
+    val meetingId = liveMeeting.props.meetingProp.intId
 
     val pages = new collection.mutable.HashMap[String, PageVO]
 
@@ -39,15 +26,20 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pages += page.id -> page
     }
 
-    val pres = new PresentationInPod(msg.body.presentation.id, msg.body.presentation.name, msg.body.presentation.current,
-      pages.toMap, msg.body.presentation.downloadable)
+    val downloadable = msg.body.presentation.downloadable
+    val presentationId = msg.body.presentation.id
+    val pres = new PresentationInPod(presentationId, msg.body.presentation.name, msg.body.presentation.current,
+      pages.toMap, downloadable)
     val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres)
     val podId = msg.body.podId
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)
     } yield {
-      broadcastPresentationConversionCompletedEvtMsg(pod.id, msg.header.userId, msg.body.messageKey, msg.body.code, presVO)
+      PresentationSender.broadcastPresentationConversionCompletedEvtMsg(bus, meetingId,
+        pod.id, msg.header.userId, msg.body.messageKey, msg.body.code, presVO)
+      PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, pod.id,
+        msg.header.userId, presentationId, downloadable, pres.name)
 
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, pres)

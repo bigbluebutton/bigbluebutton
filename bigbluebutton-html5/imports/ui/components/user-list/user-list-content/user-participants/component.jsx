@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import UserListItem from './user-list-item/component';
@@ -47,38 +47,6 @@ const intlMessages = defineMessages({
   usersTitle: {
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
-  },
-  ChatLabel: {
-    id: 'app.userList.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
-  },
-  ClearStatusLabel: {
-    id: 'app.userList.menu.clearStatus.label',
-    description: 'Clear the emoji status of this user',
-  },
-  MakePresenterLabel: {
-    id: 'app.userList.menu.makePresenter.label',
-    description: 'Set this user to be the presenter in this meeting',
-  },
-  RemoveUserLabel: {
-    id: 'app.userList.menu.removeUser.label',
-    description: 'Forcefully remove this user from the meeting',
-  },
-  MuteUserAudioLabel: {
-    id: 'app.userList.menu.muteUserAudio.label',
-    description: 'Forcefully mute this user',
-  },
-  UnmuteUserAudioLabel: {
-    id: 'app.userList.menu.unmuteUserAudio.label',
-    description: 'Forcefully unmute this user',
-  },
-  PromoteUserLabel: {
-    id: 'app.userList.menu.promoteUser.label',
-    description: 'Forcefully promote this viewer to a moderator',
-  },
-  DemoteUserLabel: {
-    id: 'app.userList.menu.demoteUser.label',
-    description: 'Forcefully demote this moderator to a viewer',
   },
 });
 
@@ -136,57 +104,16 @@ class UserParticipants extends Component {
       normalizeEmojiName,
       isMeetingLocked,
       users,
-      intl,
       changeRole,
       assignPresenter,
       setEmojiStatus,
       removeUser,
       toggleVoice,
+      getGroupChatPrivate, //// TODO check if this is used
+      handleEmojiChange, //// TODO add to props validation
+      getEmojiList,
+      getEmoji,
     } = this.props;
-
-    const userActions =
-    {
-      openChat: {
-        label: () => intl.formatMessage(intlMessages.ChatLabel),
-        handler: (router, user) => router.push(`/users/chat/${user.id}`),
-        icon: 'chat',
-      },
-      clearStatus: {
-        label: () => intl.formatMessage(intlMessages.ClearStatusLabel),
-        handler: user => setEmojiStatus(user.id, 'none'),
-        icon: 'clear_status',
-      },
-      setPresenter: {
-        label: () => intl.formatMessage(intlMessages.MakePresenterLabel),
-        handler: user => assignPresenter(user.id),
-        icon: 'presentation',
-      },
-      remove: {
-        label: user => intl.formatMessage(intlMessages.RemoveUserLabel, { 0: user.name }),
-        handler: user => removeUser(user.id),
-        icon: 'circle_close',
-      },
-      mute: {
-        label: () => intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => toggleVoice(user.id),
-        icon: 'audio_off',
-      },
-      unmute: {
-        label: () => intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => toggleVoice(user.id),
-        icon: 'audio_on',
-      },
-      promote: {
-        label: user => intl.formatMessage(intlMessages.PromoteUserLabel, { 0: user.name }),
-        handler: user => changeRole(user.id, 'MODERATOR'),
-        icon: 'promote',
-      },
-      demote: {
-        label: user => intl.formatMessage(intlMessages.DemoteUserLabel, { 0: user.name }),
-        handler: user => changeRole(user.id, 'VIEWER'),
-        icon: 'user',
-      },
-    };
 
     let index = -1;
 
@@ -203,15 +130,24 @@ class UserParticipants extends Component {
       >
         <div ref={(node) => { this.userRefs[index += 1] = node; }}>
           <UserListItem
-            compact={compact}
-            isBreakoutRoom={isBreakoutRoom}
-            user={user}
-            currentUser={currentUser}
-            userActions={userActions}
-            meeting={meeting}
-            getAvailableActions={getAvailableActions}
-            normalizeEmojiName={normalizeEmojiName}
-            isMeetingLocked={isMeetingLocked}
+            {...{
+              user,
+              currentUser,
+              compact,
+              isBreakoutRoom,
+              meeting,
+              getAvailableActions,
+              normalizeEmojiName,
+              isMeetingLocked,
+              handleEmojiChange,
+              getEmojiList,
+              getEmoji,
+              setEmojiStatus,
+              assignPresenter,
+              removeUser,
+              toggleVoice,
+              changeRole,
+            }}
             getScrollContainerRef={this.getScrollContainerRef}
           />
         </div>
@@ -220,9 +156,7 @@ class UserParticipants extends Component {
   }
 
   focusUserItem(index) {
-    if (!this.userRefs[index]) {
-      return;
-    }
+    if (!this.userRefs[index]) return;
 
     this.userRefs[index].firstChild.focus();
   }
@@ -242,14 +176,14 @@ class UserParticipants extends Component {
       <div className={styles.participants}>
         {
           !compact ?
-            <div className={styles.smallTitle} role="banner">
+            <h2 className={styles.smallTitle}>
               {intl.formatMessage(intlMessages.usersTitle)}
               &nbsp;({users.length})
-            </div> : <hr className={styles.separator} />
+            </h2> : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
-          role="tabpanel"
+          role="list"
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
@@ -257,6 +191,7 @@ class UserParticipants extends Component {
             <TransitionGroup ref={(ref) => { this.refScrollItems = ref; }}>
               { this.getUsers() }
             </TransitionGroup>
+            <div className={styles.footer} />
           </div>
         </div>
       </div>

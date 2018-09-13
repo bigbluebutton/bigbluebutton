@@ -5,28 +5,32 @@
       "mobileFont": 16,
       "desktopFont": 14,
       "audioChatNotification": false,
-      "autoJoinAudio": true,
-      "listenOnly": false,
+      "autoJoin": true,
+      "listenOnlyMode": true,
+      "forceListenOnly": false,
       "skipCheck": false,
+      "clientTitle": "BigBlueButton",
       "appName": "BigBlueButton HTML5 Client",
       "bbbServerVersion": "2.0-rc",
       "copyright": "©2018 BigBlueButton Inc.",
       "html5ClientBuild": "HTML5_CLIENT_VERSION",
       "lockOnJoin": true,
       "basename": "/html5client",
+      "askForFeedbackOnLogout": false,
       "defaultSettings": {
         "application": {
-          "chatAudioNotifications": false,
-          "chatPushNotifications": false,
+          "chatAudioAlerts": false,
+          "chatPushAlerts": false,
           "fontSize": "16px",
-          "locale": "en"
+          "fallbackLocale": "en"
         },
         "audio": {
           "inputDeviceId": "undefined",
           "outputDeviceId": "undefined"
         },
-        "video": {
-          "viewParticipantsWebcams": true
+        "dataSaving": {
+          "viewParticipantsWebcams": true,
+          "viewScreenshare": true
         },
         "cc": {
           "backgroundColor": "#FFFFFF",
@@ -45,18 +49,48 @@
           "layout": false
         }
       },
+      "shortcuts": {
+        "openOptions": {"accesskey": "O", "descId": "openOptions"},
+        "toggleUserList": {"accesskey": "U", "descId": "toggleUserList"},
+        "toggleMute": {"accesskey": "M", "descId": "toggleMute"},
+        "joinAudio": {"accesskey": "J", "descId": "joinAudio"},
+        "leaveAudio": {"accesskey": "L", "descId": "leaveAudio"},
+        "togglePublicChat": {"accesskey": "P", "descId": "togglePublicChat"},
+        "hidePrivateChat": {"accesskey": "H", "descId": "hidePrivateChat"},
+        "closePrivateChat": {"accesskey": "G", "descId": "closePrivateChat"},
+        "openActions": {"accesskey": "A", "descId": "openActions"},
+        "openStatus": {"accesskey": "S", "descId": "openStatus"}
+      },
+      "branding": {
+        "displayBrandingArea": false
+      },
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
       "httpsConnection": false,
-      "connectionTimeout": 60000
+      "connectionTimeout": 60000,
+      "showHelpButton": true
     },
 
     "kurento": {
       "wsUrl": "HOST",
+      "chromeDefaultExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
+      "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeExtensionKey": "KEY",
       "chromeExtensionLink": "LINK",
+      "chromeScreenshareSources": ["window", "screen"],
+      "firefoxScreenshareSource": "window",
+      "cameraConstraints": {
+        "width": {
+          "max": 640
+        },
+        "height": {
+          "max": 480
+        }
+      },
       "enableScreensharing": false,
-      "enableVideo": false
+      "enableVideo": false,
+      "enableVideoStats": false,
+      "enableListenOnly": false
     },
 
     "acl": {
@@ -74,7 +108,10 @@
           "captions",
           "breakouts",
           "voiceUsers",
-          "whiteboard-multi-user"
+          "whiteboard-multi-user",
+          "presentation-pods",
+          "group-chat",
+          "group-chat-msg"
         ],
         "methods": [
           "listenOnlyToggle",
@@ -82,7 +119,10 @@
           "setEmojiStatus",
           "toggleSelfVoice",
           "publishVote",
-          "sendChat"
+          "sendChat",
+          "createGroupChat",
+          "destroyGroupChat",
+          "sendGroupChatMsg"
         ]
       },
       "moderator": {
@@ -95,7 +135,8 @@
           "toggleVoice",
           "clearPublicChatHistory",
           "changeRole",
-          "ejectUserFromVoice"
+          "ejectUserFromVoice",
+          "toggleRecording"
         ]
       },
       "presenter": {
@@ -116,13 +157,14 @@
     "chat": {
       "min_message_length": 1,
       "max_message_length": 5000,
-      "grouping_messages_window": 60000,
+      "grouping_messages_window": 10000,
       "type_system": "SYSTEM_MESSAGE",
-      "type_public": "PUBLIC_CHAT",
-      "type_private": "PRIVATE_CHAT",
+      "type_public": "PUBLIC_ACCESS",
+      "type_private": "PRIVATE_ACCESS",
       "system_userid": "SYSTEM_MESSAGE",
       "system_username": "SYSTEM_MESSAGE",
       "public_id": "public",
+      "public_group_id": "MAIN-PUBLIC-GROUP-CHAT",
       "public_userid": "public_chat_userid",
       "public_username": "public_chat_username",
       "storage_key": "UNREAD_CHATS",
@@ -181,7 +223,6 @@
 
     "whiteboard": {
       "annotations": {
-        "message_frequency": 50,
         "status": {
           "start": "DRAW_START",
           "update": "DRAW_UPDATE",
@@ -260,6 +301,9 @@
           },
           {
             "value": 2
+          },
+          {
+            "value": 1
           }
         ],
         "font_sizes": [
@@ -308,11 +352,16 @@
             "value": "pencil"
           },
           {
-            "icon": "hand",
-            "value": "hand"
+            "icon": "pointer",
+            "value": "pointer"
           }
         ]
       }
+    },
+    "clientLog": {
+      "server": { "enabled": true, "level": "info" },
+      "console": { "enabled": false, "level": "debug" },
+      "external": { "enabled": false, "level": "info", "url": "https://LOG_HOST/html5Log", "method": "POST" }
     }
   },
 
@@ -327,7 +376,7 @@
       "host": "127.0.0.1",
       "post": "6379",
       "timeout": 5000,
-      "debug": false,
+      "debug": true,
       "channels": {
         "toAkkaApps": "to-akka-apps-redis-channel"
       },
@@ -344,9 +393,7 @@
       ]
     },
 
-
-    "log": {
-      "filename": "/log/development.log",
+    "serverLog": {
       "level": "info"
     }
   }

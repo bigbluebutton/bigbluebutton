@@ -9,7 +9,16 @@ import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
+import logger from '/imports/startup/client/logger';
+import Users from '/imports/api/users';
+import Annotations from '/imports/api/annotations';
+import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
+import GroupChat from '/imports/api/group-chat';
 import IntlStartup from './intl';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
 const propTypes = {
   error: PropTypes.object,
@@ -17,6 +26,7 @@ const propTypes = {
   subscriptionsReady: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   endedCode: PropTypes.string,
+  approved: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -24,6 +34,7 @@ const defaultProps = {
   errorCode: undefined,
   locale: undefined,
   endedCode: undefined,
+  approved: undefined,
 };
 
 class Base extends Component {
@@ -37,6 +48,13 @@ class Base extends Component {
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.updateErrorState = this.updateErrorState.bind(this);
+  }
+
+  componentWillUpdate() {
+    const { approved } = this.props;
+    const isLoading = this.state.loading;
+
+    if (approved && isLoading) this.updateLoadingState(false);
   }
 
   updateLoadingState(loading = false) {
@@ -66,11 +84,17 @@ class Base extends Component {
     }
 
     if (error || errorCode) {
+      logger.error(`User could not log in HTML5, hit ${errorCode}`);
       return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);
     }
 
     if (loading || !subscriptionsReady) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
+    }
+    // this.props.annotationsHandler.stop();
+
+    if (subscriptionsReady) {
+      logger.info('Client loaded successfully');
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
@@ -93,23 +117,28 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
-  'users', 'chat', 'cursor', 'meetings', 'polls', 'presentations', 'annotations',
+  'users', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
+  'group-chat', 'presentation-pods',
 ];
 
 const BaseContainer = withRouter(withTracker(({ params, router }) => {
   if (params.errorCode) return params;
 
-  if (!Auth.loggedIn) {
-    return router.push('/logout');
+  const { locale } = Settings.application;
+  const { credentials, loggedIn } = Auth;
+  const { meetingId, requesterUserId } = credentials;
+
+  if (!loggedIn) {
+    return {
+      locale,
+      subscriptionsReady: false,
+    };
   }
-
-  const { credentials } = Auth;
-
 
   const subscriptionErrorHandler = {
     onError: (error) => {
-      console.error(error);
+      logger.error(error);
       return router.push('/logout');
     },
   };
@@ -117,10 +146,43 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
     Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
+  const chats = GroupChat.find({
+    $or: [
+      {
+        meetingId,
+        access: PUBLIC_CHAT_TYPE,
+        chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
+      },
+      { meetingId, users: { $all: [requesterUserId] } },
+    ],
+  }).fetch();
 
+  const chatIds = chats.map(chat => chat.chatId);
+
+  const groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
+
+  const annotationsHandler = Meteor.subscribe('annotations', credentials, {
+    onReady: () => {
+      AnnotationsLocal.remove({});
+      Annotations.find({}, { reactive: false }).forEach((a) => {
+        try {
+          AnnotationsLocal.insert(a);
+        } catch (e) {
+          // TODO
+        }
+      });
+      annotationsHandler.stop();
+    },
+    ...subscriptionErrorHandler,
+  });
+
+  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
-    locale: Settings.application.locale,
-    subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
+    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
+    locale,
+    subscriptionsReady,
+    annotationsHandler,
+    groupChatMessageHandler,
   };
 })(Base));
 

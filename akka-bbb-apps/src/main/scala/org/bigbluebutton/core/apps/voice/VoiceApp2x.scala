@@ -9,7 +9,8 @@ trait VoiceApp2x extends UserJoinedVoiceConfEvtMsgHdlr
     with UserMutedInVoiceConfEvtMsgHdlr
     with UserTalkingInVoiceConfEvtMsgHdlr
     with RecordingStartedVoiceConfEvtMsgHdlr
-    with VoiceConfRunningEvtMsgHdlr {
+    with VoiceConfRunningEvtMsgHdlr
+    with SyncGetVoiceUsersMsgHdlr {
 
   this: MeetingActor =>
 }

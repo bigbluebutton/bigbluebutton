@@ -7,13 +7,39 @@ redisPort : "6379"
 clientPort : "3008"
 minVideoPort: 30000
 maxVideoPort: 33000
+mediaFlowTimeoutDuration: 5000
 from-screenshare: "from-screenshare-sfu"
 to-screenshare: "to-screenshare-sfu"
 from-video: "from-video-sfu"
 to-video: "to-video-sfu"
 from-audio: "from-audio-sfu"
 to-audio: "to-audio-sfu"
+to-akka: "to-akka-apps-redis-channel"
+from-akka: "from-akka-apps-redis-channel"
+common-message-version: "2.x"
+webcam-force-h264: true
+webcam-preferred-h264-profile: "42e01f"
+# Target bitrate (kbps) for webcams. Value 0 leaves it unconstrained.
+webcam-target-bitrate: 300
+screenshare-force-h264: true
+screenshare-preferred-h264-profile: "42e01f"
+screenshareKeyframeInterval: 2
+# Target bitrate (kbps) for screenshare. Value 0 leaves it unconstrained.
+screenshare-target-bitrate: 0
+
+recordScreenSharing: true
+recordWebcams: false
+recordingBasePath: "file:///var/kurento"
+
+recordingMediaProfile: 'MKV_VIDEO_ONLY'
+recordingFormat: 'mkv'
+
+redisExpireTime: 1209600 # 14 days as per the akka keys
+
+freeswitch:
+    ip: 'FREESWITCH_IP'
+    port: '5066'
 
 log:
-    filename: '/var/log/bigbluebutton/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
+    filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'

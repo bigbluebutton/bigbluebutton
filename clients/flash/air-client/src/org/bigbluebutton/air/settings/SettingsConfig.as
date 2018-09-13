@@ -8,7 +8,6 @@ package org.bigbluebutton.air.settings {
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediatorAIR;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewBase;
-	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewMediatorAIR;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsViewBase;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsViewBaseAIR;
@@ -41,7 +40,7 @@ package org.bigbluebutton.air.settings {
 		private function mediators():void {
 			mediatorMap.map(SettingsViewBase).toMediator(SettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(AudioSettingsViewBase, AudioSettingsViewBaseAIR)).toMediator(AudioSettingsViewMediatorAIR);
-			mediatorMap.mapMatcher(new TypeMatcher().allOf(CameraSettingsViewBase, CameraSettingsViewBaseAIR)).toMediator(CameraSettingsViewMediatorAIR);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(CameraSettingsViewBase)).toMediator(CameraSettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(ChatSettingsViewBase, ChatSettingsViewBaseAIR)).toMediator(ChatSettingsViewMediatorBase);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(LockSettingsViewBase, LockSettingsViewBaseAIR)).toMediator(LockSettingsViewMediatorAIR);
 		}

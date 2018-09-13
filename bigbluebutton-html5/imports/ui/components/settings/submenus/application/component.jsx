@@ -14,12 +14,12 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.applicationSectionTitle',
     description: 'Application section title',
   },
-  audioNotifyLabel: {
-    id: 'app.submenu.application.audioNotifyLabel',
+  audioAlertLabel: {
+    id: 'app.submenu.application.audioAlertLabel',
     description: 'audio notification label',
   },
-  pushNotifyLabel: {
-    id: 'app.submenu.application.pushNotifyLabel',
+  pushAlertLabel: {
+    id: 'app.submenu.application.pushAlertLabel',
     description: 'push notifiation label',
   },
   fontSizeControlLabel: {
@@ -67,6 +67,8 @@ class ApplicationMenu extends BaseMenu {
     this.state = {
       settingsName: 'application',
       settings: props.settings,
+      isLargestFontSize: false,
+      isSmallestFontSize: false,
     };
   }
 
@@ -93,18 +95,20 @@ class ApplicationMenu extends BaseMenu {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < MAX_FONTSIZE;
-    const fs = (canIncreaseFontSize) ?
-      availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
+    const fs = canIncreaseFontSize ? availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
+    if (fs === MAX_FONTSIZE) this.setState({ isLargestFontSize: true });
+    this.setState({ isSmallestFontSize: false });
   }
 
   handleDecreaseFontSize() {
     const currentFontSize = this.state.settings.fontSize;
     const availableFontSizes = this.props.fontSizes;
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
-    const fs = (canDecreaseFontSize) ?
-      availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
+    const fs = canDecreaseFontSize ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
+    if (fs === MIN_FONTSIZE) this.setState({ isSmallestFontSize: true });
+    this.setState({ isLargestFontSize: false });
   }
 
   handleSelectChange(fieldname, options, e) {
@@ -113,16 +117,9 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
-  // Adjust the locale format to be able to display the locale names properly in the client
-  formatLocale(locale) {
-    return locale.split('-').map((val, idx) => (idx == 1 ? val.toUpperCase() : val)).join('_');
-  }
-
   render() {
-    const {
-      availableLocales,
-      intl,
-    } = this.props;
+    const { availableLocales, intl } = this.props;
+    const { isLargestFontSize, isSmallestFontSize } = this.state;
 
     return (
       <div className={styles.tabContent}>
@@ -136,7 +133,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioNotifyLabel)}
+                  {intl.formatMessage(intlMessages.audioAlertLabel)}
                 </label>
               </div>
             </div>
@@ -144,20 +141,19 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatAudioNotifications}
-                  onChange={() => this.handleToggle('chatAudioNotifications')}
-                  ariaLabelledBy="audioNotify"
-                  ariaLabel={intl.formatMessage(intlMessages.audioNotifyLabel)}
+                  defaultChecked={this.state.settings.chatAudioAlerts}
+                  onChange={() => this.handleToggle('chatAudioAlerts')}
+                  ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
                 />
               </div>
             </div>
           </div>
 
           <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement} >
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
                 <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushNotifyLabel)}
+                  {intl.formatMessage(intlMessages.pushAlertLabel)}
                 </label>
               </div>
             </div>
@@ -165,16 +161,15 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatPushNotifications}
-                  onChange={() => this.handleToggle('chatPushNotifications')}
-                  ariaLabelledBy="pushNotify"
-                  ariaLabel={intl.formatMessage(intlMessages.pushNotifyLabel)}
+                  defaultChecked={this.state.settings.chatPushAlerts}
+                  onChange={() => this.handleToggle('chatPushAlerts')}
+                  ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
                 />
               </div>
             </div>
           </div>
           <div className={styles.row}>
-            <div className={styles.col}>
+            <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.languageLabel)}
@@ -182,27 +177,29 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <label aria-labelledby="changeLangLabel" className={cx(styles.formElement, styles.pullContentRight)}>
-      { availableLocales && availableLocales.length > 0 ?
-                  <select
-                    defaultValue={this.formatLocale(this.state.settings.locale)}
-                    className={styles.select}
-                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
-                  >
-                    <option disabled>
-                      { intl.formatMessage(intlMessages.languageOptionLabel) }
-                    </option>
-                    { availableLocales.map((locale, index) =>
-                      (<option key={index} value={locale.locale}>
-                        {locale.name}
-                      </option>)) }
-                  </select>
-                : null }
-              </label>
               <div
                 id="changeLangLabel"
                 aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
               />
+              <label
+                aria-labelledby="changeLangLabel"
+                className={cx(styles.formElement, styles.pullContentRight)}
+              >
+                {availableLocales && availableLocales.length > 0 ? (
+                  <select
+                    defaultValue={this.state.settings.locale}
+                    className={styles.select}
+                    onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
+                  >
+                    <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
+                    {availableLocales.map((locale, index) => (
+                      <option key={index} value={locale.locale}>
+                        {locale.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
+              </label>
             </div>
           </div>
           <hr className={styles.separator} />
@@ -232,6 +229,7 @@ class ApplicationMenu extends BaseMenu {
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
+                      disabled={isLargestFontSize}
                     />
                   </div>
                   <div className={styles.col}>
@@ -242,6 +240,7 @@ class ApplicationMenu extends BaseMenu {
                       circle
                       hideLabel
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
+                      disabled={isSmallestFontSize}
                     />
                   </div>
                 </div>
