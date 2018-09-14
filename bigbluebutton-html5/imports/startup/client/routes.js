@@ -27,6 +27,15 @@ const renderRoutes = () => (
     <Route path="/" component={Base} onEnter={authenticatedRouteHandler} >
       <IndexRoute components={{}} />
       <Route name="users" path="users" components={{ userList: UserListContainer }} />
+
+      <Route
+        name="poll"
+        path="users/poll"
+        components={{
+          userList: UserListContainer,
+        }}
+      />
+
       <Route
         name="chat"
         path="users/chat/:chatID"

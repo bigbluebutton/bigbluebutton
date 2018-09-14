@@ -88,9 +88,19 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
+      togglePollMenu,
     } = this.props;
 
     return _.compact([
+      (isUserPresenter ?
+        <DropdownListItem
+          icon="user"
+          label="Start Poll"
+          description="Starts Poll"
+          key="someID"
+          onClick={() => togglePollMenu()}
+        />
+        : null),
       (isUserPresenter ?
         <DropdownListItem
           icon="presentation"

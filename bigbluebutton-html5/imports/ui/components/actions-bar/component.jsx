@@ -18,6 +18,7 @@ class ActionsBar extends React.PureComponent {
       isUserModerator,
       recordSettingsList,
       toggleRecording,
+      togglePollMenu,
     } = this.props;
 
     const {
@@ -40,6 +41,7 @@ class ActionsBar extends React.PureComponent {
             isRecording,
             record,
             toggleRecording,
+            togglePollMenu,
           }}
           />
         </div>
