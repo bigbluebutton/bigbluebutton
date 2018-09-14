@@ -68,19 +68,19 @@ export function joinRouteHandler(nextState, replace, callback) {
           const handledHTML5Parameters = [
             'html5recordingbot',
             // APP
-            'autoJoin', // OK
-            'listenOnlyMode', // OK
-            'forceListenOnly', // OK
-            'skipCheck', // OK
-            'clientTitle', // OK
+            'autoJoin',
+            'listenOnlyMode',
+            'forceListenOnly',
+            'skipCheck',
+            'clientTitle',
             'lockOnJoin', // NOT IMPLEMENTED YET
-            'askForFeedbackOnLogout', // OK
+            'askForFeedbackOnLogout',
             // BRANDING
-            'displayBrandingArea', // OK
+            'displayBrandingArea',
             // KURENTO
-            'enableScreensharing', // OK
-            'enableVideo', // OK
-            'enableVideoStats', // COULDN'T TEST
+            'enableScreensharing',
+            'enableVideo',
+            'enableVideoStats',
             // WHITEBOARD
           ];
           if (handledHTML5Parameters.indexOf(key) === -1) {
