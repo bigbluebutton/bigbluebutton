@@ -1,0 +1,17 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.dropdown {
+  position: static;
+}
+
+.dropdownContent {
+  top: 5rem;
+}
+
+.optionsButton{
+  display: block;
+  margin-right: .3rem;
+  i {
+    color: $color-gray-dark !important;
+  }
+}
