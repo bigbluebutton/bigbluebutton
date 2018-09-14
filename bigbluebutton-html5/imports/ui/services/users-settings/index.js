@@ -12,8 +12,6 @@ export default function getFromUserSettings(setting, defaultValue) {
 
   const userSetting = UserSettings.findOne(selector);
 
-  console.log('XIMIRA', selector, userSetting);
-
   if (userSetting !== undefined) {
     return userSetting.value;
   }
