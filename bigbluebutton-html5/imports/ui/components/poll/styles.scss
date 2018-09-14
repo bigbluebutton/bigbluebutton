@@ -1,0 +1,20 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+
+
+.pollMenu {
+    height: 100vh;
+
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+
+
+    background-color: #fff;
+    padding: $md-padding-x;
+
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: space-around;
+    overflow: hidden;
+}

@@ -147,6 +147,13 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   }
 }
 
+//fix this stuff
+.poll {
+  @extend %full-page;
+  width: 250px;
+  background-color: white;
+}
+
 .sidebar {
   @extend %full-page;
   z-index: 4;

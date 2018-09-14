@@ -104,6 +104,18 @@ class App extends Component {
     this.setState({ enableResize: shouldEnableResize });
   }
 
+  renderPoll() {
+    const { poll } = this.props;
+
+    if (!poll) return null;
+
+    return (
+      <div className={styles.poll}>
+        {poll}
+      </div>
+    );
+  }
+
   renderNavBar() {
     const { navbar } = this.props;
 
@@ -314,6 +326,7 @@ class App extends Component {
           {enableResize ? this.renderUserListResizable() : this.renderUserList()}
           {userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
           {enableResize ? this.renderChatResizable() : this.renderChat()}
+          {this.renderPoll()}
           {this.renderSidebar()}
         </section>
         <ModalContainer />
