@@ -8,7 +8,6 @@ import logger from '/imports/startup/client/logger';
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
 const METADATA_KEY = 'metadata';
-const CUSTOM_DATA_KEY = 'customdata';
 
 export function joinRouteHandler(nextState, replace, callback) {
   const { sessionToken } = nextState.location.query;
@@ -94,13 +93,14 @@ export function joinRouteHandler(nextState, replace, callback) {
             log('error', `Caught: ${e.message}`);
           }
 
-          makeCall('addUserSettings', meetingID, internalUserID, key, value);
-
           return { ...acc, [key]: value };
         }, {}) : {};
 
+      if (Object.keys(customData).length > 0) {
+        makeCall('addUserSettings', meetingID, internalUserID, customData);
+      }
+
       SessionStorage.setItem(METADATA_KEY, metakeys);
-      SessionStorage.setItem(CUSTOM_DATA_KEY, customData);
 
       Auth.set(
         meetingID, internalUserID, authToken, logoutUrl,
