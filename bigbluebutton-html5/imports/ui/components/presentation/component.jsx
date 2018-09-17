@@ -22,6 +22,7 @@ export default class PresentationArea extends Component {
       presentationHeight: 0,
       showSlide: false,
       zoom: 100,
+      touchZoom: false,
       delta: {
         x: 0,
         y: 0,
@@ -30,6 +31,7 @@ export default class PresentationArea extends Component {
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
+    this.touchUpdate = this.touchUpdate.bind(this);
     this.pointUpdate = this.pointUpdate.bind(this);
   }
 
@@ -152,6 +154,11 @@ export default class PresentationArea extends Component {
       },
     });
   }
+  touchUpdate(bool) {
+    this.setState({
+      touchZoom: bool,
+    });
+  }
   // renders the whole presentation area
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
@@ -271,6 +278,7 @@ export default class PresentationArea extends Component {
         adjustedSizes={adjustedSizes}
         getSvgRef={this.getSvgRef}
         presentationSize={this.getPresentationSizesAvailable()}
+        touchZoom={this.state.touchZoom}
       >
         <WhiteboardOverlayContainer
           getSvgRef={this.getSvgRef}
@@ -284,6 +292,9 @@ export default class PresentationArea extends Component {
           viewBoxHeight={viewBoxHeight}
           physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
           physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
+          zoom={this.state.zoom}
+          zoomChanger={this.zoomChanger}
+          touchUpdate={this.touchUpdate}
         />
       </PresentationOverlayContainer>
     );

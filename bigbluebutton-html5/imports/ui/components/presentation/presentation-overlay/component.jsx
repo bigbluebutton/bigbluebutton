@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import SlideCalcUtil from '/imports/utils/slideCalcUtils';
-
 // After lots of trial and error on why synching doesn't work properly, I found I had to
 // multiply the coordinates by 2. There's something I don't understand probably on the
 // canvas coordinate system. (ralam feb 22, 2012)
@@ -51,6 +50,10 @@ export default class PresentationOverlay extends Component {
     this.tapHandler = this.tapHandler.bind(this);
     this.zoomCall = this.zoomCall.bind(this);
 
+    this.panZoom = this.panZoom.bind(this);
+    this.pinchZoom = this.pinchZoom.bind(this);
+    this.toolbarZoom = this.toolbarZoom.bind(this);
+
     this.isPortraitDoc = this.isPortraitDoc.bind(this);
     this.doWidthBoundsDetection = this.doWidthBoundsDetection.bind(this);
     this.doHeightBoundsDetection = this.doHeightBoundsDetection.bind(this);
@@ -84,6 +87,7 @@ export default class PresentationOverlay extends Component {
     this.calcPageY = (this.viewedRegionY / HUNDRED_PERCENT) * this.calcPageH;
 
     this.tapedTwice = false;
+    this.touches = [];
   }
 
   componentDidMount() {
@@ -96,43 +100,30 @@ export default class PresentationOverlay extends Component {
     const realZoom = (viewBoxWidth / slideWidth) * 100;
 
     const zoomPercentage = (Math.round((100 / realZoom) * 100));
-
-    zoomChanger(zoomPercentage);
+    const roundedUpToFive = Math.round(zoomPercentage / 5) * 5;
+    zoomChanger(roundedUpToFive);
   }
 
   componentDidUpdate(prevProps) {
     const {
       zoom,
-      getSvgRef,
       delta,
+      touchZoom,
     } = this.props;
-    const isDifferent = zoom !== this.state.zoom;
+    const isDifferent = zoom !== this.state.zoom && !touchZoom;
     const moveSLide = ((delta.x !== prevProps.delta.x)
     || (delta.y !== prevProps.delta.y)) && !isDifferent;
-
+    const isTouchZoom = zoom !== this.state.zoom && touchZoom;
     if (moveSLide) {
-      this.deltaX = delta.x;
-      this.deltaY = delta.y;
-      this.calcPageX += delta.x * -1;
-      this.calcPageY += delta.y * -1;
-      this.doHeightBoundsDetection();
-      this.doWidthBoundsDetection();
-      this.calcViewedRegion();
-      this.zoomCall(
-        this.state.zoom,
-        this.viewedRegionW,
-        this.viewedRegionH,
-        this.viewedRegionX,
-        this.viewedRegionY,
-      );
+      this.panZoom();
     }
 
-    const svgRect = getSvgRef().getBoundingClientRect();
-    const svgCenterX = svgRect.left + (svgRect.width / 2);
-    const svgCenterY = svgRect.top + (svgRect.height / 2);
+    if (isTouchZoom) {
+      this.pinchZoom();
+    }
 
     if (isDifferent) {
-      this.doZoomCall(zoom, svgCenterX, svgCenterY);
+      this.toolbarZoom();
     }
   }
 
@@ -175,6 +166,46 @@ export default class PresentationOverlay extends Component {
     const CTM = svgObject.getScreenCTM();
 
     return screenPoint.matrixTransform(CTM.inverse());
+  }
+
+  panZoom() {
+    const {
+      delta,
+    } = this.props;
+    this.deltaX = delta.x;
+    this.deltaY = delta.y;
+    this.calcPageX += delta.x * -1;
+    this.calcPageY += delta.y * -1;
+    this.doHeightBoundsDetection();
+    this.doWidthBoundsDetection();
+    this.calcViewedRegion();
+    this.zoomCall(
+      this.state.zoom,
+      this.viewedRegionW,
+      this.viewedRegionH,
+      this.viewedRegionX,
+      this.viewedRegionY,
+    );
+  }
+
+  pinchZoom() {
+    const {
+      zoom,
+    } = this.props;
+    const posX = this.touches[0].clientX;
+    const posY = this.touches[0].clientY;
+    this.doZoomCall(zoom, posX, posY);
+  }
+
+  toolbarZoom() {
+    const {
+      getSvgRef,
+      zoom,
+    } = this.props;
+    const svgRect = getSvgRef().getBoundingClientRect();
+    const svgCenterX = svgRect.left + (svgRect.width / 2);
+    const svgCenterY = svgRect.top + (svgRect.height / 2);
+    this.doZoomCall(zoom, svgCenterX, svgCenterY);
   }
 
   isPortraitDoc() {
@@ -293,7 +324,7 @@ export default class PresentationOverlay extends Component {
       newZoom = HUNDRED_PERCENT;
     } else if (newZoom >= MAX_PERCENT) {
       newZoom = MAX_PERCENT;
-    }
+    } 
 
     const mouseX = e.clientX;
     const mouseY = e.clientY;
@@ -308,11 +339,11 @@ export default class PresentationOverlay extends Component {
     });
   }
   tapHandler(event) {
-    if (event.touches.length === 2) return;
-    if(!this.tapedTwice) {
-        this.tapedTwice = true;
-        setTimeout( () => { this.tapedTwice = false; }, 300);
-        return false;
+    if (event.touches.length === 2) return; 
+    if (!this.tapedTwice) {
+      this.tapedTwice = true;
+      setTimeout(() => this.tapedTwice = false, 300);
+      return;
     }
     event.preventDefault();
     const sizeDefault = this.state.zoom === HUNDRED_PERCENT;
@@ -335,6 +366,9 @@ export default class PresentationOverlay extends Component {
     const { clientX, clientY } = event.changedTouches[0];
     this.currentClientX = clientX;
     this.currentClientY = clientY;
+    if (event.touches.length === 2) {
+      this.touches = [...event.touches];
+    }
 
     const intervalId = setInterval(this.checkCursor, CURSOR_INTERVAL);
     this.intervalId = intervalId;
@@ -352,7 +386,7 @@ export default class PresentationOverlay extends Component {
 
   handleTouchEnd(event) {
     event.preventDefault();
-
+    
     // touch ended, removing the interval
     clearInterval(this.intervalId);
     this.intervalId = 0;

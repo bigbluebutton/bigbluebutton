@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import browser from 'browser-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles.scss';
@@ -190,6 +191,9 @@ class PresentationToolbar extends Component {
       zoom,
     } = this.props;
 
+    const BROWSER_RESULTS = browser();
+    const isMobileBrowser = BROWSER_RESULTS.mobile ||
+      BROWSER_RESULTS.os.includes('Android');
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
@@ -237,15 +241,17 @@ class PresentationToolbar extends Component {
           </span>
         }
         {
-          <span className={styles.zoomWrapper}>
-            <ZoomTool
-              value={zoom}
-              change={this.change}
-              minBound={HUNDRED_PERCENT}
-              maxBound={MAX_PERCENT}
-              step={STEP}
-            />
-          </span>
+          !isMobileBrowser ?
+            <span className={styles.zoomWrapper}>
+              <ZoomTool
+                value={zoom}
+                change={this.change}
+                minBound={HUNDRED_PERCENT}
+                maxBound={MAX_PERCENT}
+                step={STEP}
+              />
+            </span>
+            : null
         }
         {/* <div className={styles.zoomMinMax}> 100% </div>
           <input
