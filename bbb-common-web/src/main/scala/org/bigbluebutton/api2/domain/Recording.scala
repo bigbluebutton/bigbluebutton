@@ -136,7 +136,6 @@ object RecMeta {
     val meta = getMeta(metaXml)
     val playback = getPlayback(metaXml)
     val breakout = getBreakout(metaXml)
-    val breakoutRoom = getBreakout(metaXml)
     val breakoutRooms = getBreakoutRooms(metaXml)
 
     val meetingId =  meeting match {

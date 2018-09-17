@@ -37,10 +37,9 @@ public class ExternalProcessExecutor {
 	private static Logger log = LoggerFactory.getLogger(ExternalProcessExecutor.class);
 	
 	public boolean exec(String COMMAND, long timeoutMillis) {
-        Timer timer = null;
+        Timer timer = new Timer(false);
         Process p = null;
         try {
-            timer = new Timer(false);
             InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
             timer.schedule(interrupter, timeoutMillis);
             p = Runtime.getRuntime().exec(COMMAND);
@@ -53,7 +52,9 @@ public class ExternalProcessExecutor {
 
         } catch(Exception e) {
         	log.info("TIMEDOUT excuting : {}", COMMAND);
-            p.destroy();
+        	if (p != null) {
+        	    p.destroy();
+        	}
         } finally {
             timer.cancel();     // If the process returns within the timeout period, we have to stop the interrupter
                                 // so that it does not unexpectedly interrupt some other code later.

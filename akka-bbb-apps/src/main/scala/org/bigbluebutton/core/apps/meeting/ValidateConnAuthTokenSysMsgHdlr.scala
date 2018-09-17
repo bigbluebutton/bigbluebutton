@@ -13,8 +13,7 @@ trait ValidateConnAuthTokenSysMsgHdlr {
     val regUser = RegisteredUsers.getRegisteredUserWithToken(
       msg.body.authToken,
       msg.body.userId,
-      liveMeeting.registeredUsers
-    )
+      liveMeeting.registeredUsers)
 
     regUser match {
       case Some(u) =>

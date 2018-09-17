@@ -5,12 +5,15 @@ import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
+import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 
 const MEDIA = Meteor.settings.public.media;
+const MEDIA_TAG = MEDIA.mediaTag;
 const USE_SIP = MEDIA.useSIPAudio;
 const USE_KURENTO = Meteor.settings.public.kurento.enableListenOnly;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
+const MAX_LISTEN_ONLY_RETRIES = 2;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -126,7 +129,7 @@ class AudioManager {
       .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
   }
 
-  joinListenOnly() {
+  joinListenOnly(retries = 0) {
     this.isListenOnly = true;
     this.isEchoTest = false;
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
@@ -150,13 +153,14 @@ class AudioManager {
         iceGatheringTimeout,
       ]))
       .catch((err) => {
-        // If theres a iceGathering timeout we retry to join after asking device permissions
-        if (err === iceGatheringErr) {
-          return this.askDevicesPermissions()
-            .then(() => this.joinListenOnly());
+        // If theres a iceGathering timeout we retry to join until MAX_LISTEN_ONLY_RETRIES
+        if (err === iceGatheringErr && retries < MAX_LISTEN_ONLY_RETRIES) {
+          this.joinListenOnly(++retries);
+        } else {
+          clearTimeout(iceGatheringTimeout);
+          logger.error('Listen only error:', err);
+          throw err;
         }
-
-        throw err;
       });
   }
 
@@ -261,8 +265,7 @@ class AudioManager {
       } else if (status === FAILED) {
         this.error = error;
         this.notify(this.messages.error[error] || this.messages.error.GENERIC_ERROR, true);
-        makeCall('failed callStateCallback audio', response);
-        console.error('Audio Error:', error, bridgeError);
+        logger.error('Audio Error:', error, bridgeError);
         this.exitAudio();
         this.onAudioExit();
       }
@@ -278,7 +281,21 @@ class AudioManager {
       new window.AudioContext() :
       new window.webkitAudioContext();
 
-    return this.listenOnlyAudioContext.createMediaStreamDestination().stream;
+    // Create a placeholder buffer to upstart audio context
+    const pBuffer = this.listenOnlyAudioContext.createBuffer(2, this.listenOnlyAudioContext.sampleRate * 3, this.listenOnlyAudioContext.sampleRate);
+
+    var dest = this.listenOnlyAudioContext.createMediaStreamDestination();
+
+    let audio = document.querySelector(MEDIA_TAG);
+
+    // Play bogus silent audio to try to circumvent autoplay policy on Safari
+    audio.src = 'resources/sounds/silence.mp3'
+
+    audio.play().catch(e => {
+      logger.warn('Error on playing test audio:', e);
+    });
+
+    return dest.stream;
   }
 
   isUsingAudio() {

@@ -11,8 +11,7 @@ trait PreuploadedPresentationsPubMsgHdlr {
 
   def handle(
     msg:         PreuploadedPresentationsSysPubMsg,
-    liveMeeting: LiveMeeting, bus: MessageBus
-  ): Unit = {
+    liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     val presos = new collection.mutable.HashMap[String, Presentation]
 

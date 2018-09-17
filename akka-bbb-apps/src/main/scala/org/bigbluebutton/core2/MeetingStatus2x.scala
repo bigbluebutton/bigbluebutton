@@ -11,8 +11,7 @@ case class Permissions(
   disablePubChat:         Boolean = false,
   lockedLayout:           Boolean = false,
   lockOnJoin:             Boolean = true,
-  lockOnJoinConfigurable: Boolean = false
-)
+  lockOnJoinConfigurable: Boolean = false)
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
                                 sendNotice: Boolean = true, sent15MinNotice: Boolean = false,

@@ -16,8 +16,7 @@ trait ScreenshareStartedVoiceConfEvtMsgHdlr {
       val envelope = BbbCoreEnvelope(ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME, routing)
       val header = BbbCoreHeaderWithMeetingId(
         ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME,
-        liveMeeting.props.meetingProp.intId
-      )
+        liveMeeting.props.meetingProp.intId)
 
       val body = ScreenshareStartRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
       val event = ScreenshareStartRtmpBroadcastVoiceConfMsg(header, body)

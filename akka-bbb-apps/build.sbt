@@ -6,7 +6,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.2"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.6"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -38,15 +38,15 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-val akkaVersion       = "2.5.1"
-val scalaTestVersion  = "3.0.1"
+val akkaVersion       = "2.5.14"
+val scalaTestVersion  = "3.0.5"
 
 libraryDependencies ++= {
   Seq(
-    "ch.qos.logback"           %   "logback-classic"                      % "1.0.13"       % "runtime",
+    "ch.qos.logback"           %   "logback-classic"                      % "1.2.3"       % "runtime",
     "junit"                    %   "junit"                                % "4.11",
-    "commons-codec"             %  "commons-codec"                        % "1.10",
-    "org.apache.commons"        %  "commons-lang3"                        % "3.2"
+    "commons-codec"             %  "commons-codec"                        % "1.11",
+    "org.apache.commons"        %  "commons-lang3"                        % "3.7"
   )
 }
 
@@ -66,14 +66,14 @@ libraryDependencies += "com.typesafe.akka" % "akka-slf4j_2.12" % akkaVersion
 // https://mvnrepository.com/artifact/com.github.etaty/rediscala_2.12
 libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
 
-libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.8"
-libraryDependencies += "com.google.code.gson" % "gson" % "2.8.0"
-libraryDependencies += "joda-time" % "joda-time" % "2.9.9"
-libraryDependencies += "io.spray" % "spray-json_2.12" % "1.3.3"
+libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.11"
+libraryDependencies += "com.google.code.gson" % "gson" % "2.8.5"
+libraryDependencies += "joda-time" % "joda-time" % "2.10"
+libraryDependencies += "io.spray" % "spray-json_2.12" % "1.3.4"
 libraryDependencies += "org.parboiled" % "parboiled-scala_2.12" % "1.1.8"
 
 // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
-libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.6"
 
 
 // For generating test reports
@@ -87,7 +87,7 @@ libraryDependencies += "org.scalactic" % "scalactic_2.12" % "3.0.3" % "test"
 // https://mvnrepository.com/artifact/org.scalatest/scalatest_2.12
 libraryDependencies += "org.scalatest" % "scalatest_2.12" % scalaTestVersion % "test"
 
-libraryDependencies += "org.mockito" % "mockito-core" % "2.7.22" % "test"
+libraryDependencies += "org.mockito" % "mockito-core" % "2.21.0" % "test"
 
 
 
@@ -143,5 +143,3 @@ mappings in Universal <+= (packageBin in Compile, sourceDirectory ) map { (_, sr
     val logConf = src / "main" / "resources" / "logback.xml"
     logConf -> "conf/logback.xml"
 }
-
-debianPackageDependencies in Debian ++= Seq("java7-runtime-headless", "bash")

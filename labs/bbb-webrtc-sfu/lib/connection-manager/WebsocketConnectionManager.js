@@ -7,25 +7,6 @@ const Logger = require('../utils/Logger');
 // ID counter
 let connectionIDCounter = 0;
 
-ws.prototype.sendMessage = function(json) {
-
-  let websocket = this;
-
-  if (this._closeCode === 1000) {
-    Logger.error("[WebsocketConnectionManager] Websocket closed, not sending");
-    this._errorCallback("[WebsocketConnectionManager] Error: not opened");
-  }
-
-  return this.send(JSON.stringify(json), function(error) {
-    if(error) {
-      Logger.error('[WebsocketConnectionManager] Websocket error "' + error + '" on message "' + json.id + '"');
-
-      websocket._errorCallback(error);
-    }
-  });
-
-};
-
 module.exports = class WebsocketConnectionManager {
   constructor (server, path) {
     this.wss = new ws.Server({
@@ -48,7 +29,7 @@ module.exports = class WebsocketConnectionManager {
     const connectionId = data? data.connectionId : null;
     const ws = this.webSockets[connectionId];
     if (ws) {
-      ws.sendMessage(data);
+      this.sendMessage(ws, data);
     }
   }
 
@@ -77,7 +58,7 @@ module.exports = class WebsocketConnectionManager {
       message = JSON.parse(data);
 
       if (message.id === 'ping') {
-        ws.sendMessage({id: 'pong'});
+        this.sendMessage(ws, {id: 'pong'});
         return;
       }
 
@@ -133,5 +114,21 @@ module.exports = class WebsocketConnectionManager {
     this.emitter.emit(C.WEBSOCKET_MESSAGE, message);
 
     delete this.webSockets[ws.id];
+  }
+
+  sendMessage (ws, json) {
+
+    if (ws._closeCode === 1000) {
+      Logger.error("[WebsocketConnectionManager] Websocket closed, not sending");
+      this._onError(ws, "[WebsocketConnectionManager] Error: not opened");
+    }
+
+    return ws.send(JSON.stringify(json), (error) => {
+      if(error) {
+        Logger.error('[WebsocketConnectionManager] Websocket error "' + error + '" on message "' + json.id + '"');
+
+        this._onError(ws, error);
+      }
+    });
   }
 }
