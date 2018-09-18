@@ -66,15 +66,15 @@ const runExceptInEdge = fn => (browser().name === 'edge' ? noop : fn);
 class WhiteboardToolbar extends Component {
   constructor() {
     super();
-
+    const isMobile = browser().mobile;
     this.state = {
       // a variable to control which list is currently open
       currentSubmenuOpen: '',
 
       // variables to keep current selected draw settings
       annotationSelected: {
-        icon: 'pen_tool',
-        value: 'pencil',
+        icon: isMobile ? 'hand' : 'pen_tool',
+        value: isMobile ? 'hand' : 'pencil',
       },
       thicknessSelected: { value: 4 },
       colorSelected: { value: '#000000' },
