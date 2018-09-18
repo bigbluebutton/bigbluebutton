@@ -37,6 +37,7 @@ package org.bigbluebutton.core.managers {
     import org.bigbluebutton.main.events.ConfigLoadedEvent;
     import org.bigbluebutton.main.events.MeetingNotFoundEvent;
     import org.bigbluebutton.main.model.modules.ModuleDescriptor;
+    import org.bigbluebutton.util.i18n.ResourceUtil;
 
     public class ConfigManager2 {
         private static const LOGGER:ILogger = getClassLogger(ConfigManager2);
@@ -74,15 +75,18 @@ package org.bigbluebutton.core.managers {
         }
 
         private function handleComplete(e:Event):void {
-			LOGGER.debug("handleComplete [{0}]", [new XML(e.target.data)]);
+            var xml:XML;
+            
+            try {
+                xml = new XML(e.target.data)
+                LOGGER.debug("handleComplete [{0}]", [xml]);
+            } catch(e:Error) {
+                LOGGER.error("Failed to process configXML [{0}]", [xml]);
+            }
 
-            var xml:XML = new XML(e.target.data)
             var dispatcher:Dispatcher = new Dispatcher();
-
-            if (xml.returncode == "FAILED") {
-				LOGGER.error("Getting configXML failed [{0}]", [xml]);
-                dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.response.logoutURL));
-            } else {
+            
+            if (xml && xml.contains("config") && xml.config.contains("modules")) {
                 LOGGER.info("Getting configXML passed [{0}]", [xml]);
                 _config = new Config(new XML(e.target.data));
 
@@ -90,6 +94,9 @@ package org.bigbluebutton.core.managers {
                 LogUtil.initLogging();
 
                 dispatcher.dispatchEvent(new ConfigLoadedEvent());
+            } else {
+                LOGGER.error("Getting configXML failed [{0}]", [xml]);
+                dispatcher.dispatchEvent(new MeetingNotFoundEvent(ResourceUtil.getInstance().getString('bbb.mainshell.configXMLFailed')));
             }
         }
 

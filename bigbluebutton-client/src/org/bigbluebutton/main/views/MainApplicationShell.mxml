@@ -677,32 +677,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
             private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
-                showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
+                mdiCanvas.removeAllPopUps();
+                removeToolBars();
+                progressBar.loadingFailed(e.reason);
             }
 
             private function showlogoutWindow(reason:String):void {
-                if (layoutOptions != null && layoutOptions.showLogoutWindow) {
-                    if (UsersUtil.iAskedToLogout()) {
-                        handleExitApplicationEvent();
-                        return;
-                    }
+                if ((layoutOptions != null && !layoutOptions.showLogoutWindow) || UsersUtil.iAskedToLogout()) {
+                    mdiCanvas.removeAllPopUps();
+                    removeToolBars();
+                    
+                    handleExitApplicationEvent();
+                } else {
                     var loggedOutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LoggedOutWindow, true) as LoggedOutWindow;
                     if (loggedOutWindow) {
                         loggedOutWindow.setReason(reason);
                         mdiCanvas.removeAllPopUps();
                         removeToolBars();
                     }
-                } else {
-                    mdiCanvas.removeAllPopUps();
-                    removeToolBars();
-                    var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-                    var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-                    LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
-                    var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-                    var urlLoader:URLLoader = new URLLoader();
-                    urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);
-                    urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
-                    urlLoader.load(request);
                 }
             }
 
@@ -729,24 +721,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     ExternalInterface.call("window.close");
                 }
             }
-
-			private function redirectToLogoutUrl ():void {
-        		var logoutURL:String = BBB.getLogoutURL();
-				var request:URLRequest = new URLRequest(logoutURL);
-
-				navigateToURL(request, '_self');
-			}
-			
-
-			private function handleLogoutError(e:Event):void {
-
-				redirectToLogoutUrl();
-			}
-			
-			private function handleLogoutComplete(e:Event):void {	
-
-				redirectToLogoutUrl();
-			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
 				handleLogout(e);
