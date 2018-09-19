@@ -8,14 +8,15 @@ import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnn
 import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
 import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions';
-import clearPresentations from '/imports/api/presentations/server/modifiers/clearPresentations';
+import clearPresentationPods from '/imports/api/presentation-pods/server/modifiers/clearPresentationPods';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
+
 
 export default function removeMeeting(meetingId) {
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
     clearGroupChat(meetingId);
-    clearPresentations(meetingId);
+    clearPresentationPods(meetingId);
     clearBreakouts(meetingId);
     clearPolls(meetingId);
     clearAnnotations(meetingId);
