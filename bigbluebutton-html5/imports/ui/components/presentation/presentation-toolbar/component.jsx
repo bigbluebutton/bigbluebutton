@@ -253,26 +253,6 @@ class PresentationToolbar extends Component {
             </span>
             : null
         }
-        {/* <div className={styles.zoomMinMax}> 100% </div>
-          <input
-            role="slider"
-            aria-labelledby="zoomLabel"
-            aria-describedby="zoomDesc"
-            aria-valuemax="100"
-            aria-valuemin="25"
-            aria-valuenow={this.state.sliderValue}
-            value={this.state.sliderValue}
-            step="5"
-            type="range"
-            min="100"
-            max="400"
-            onChange={this.handleValuesChange}
-            onInput={this.handleValuesChange}
-            className={styles.zoomSlider}
-          />
-          <div className={styles.zoomMinMax}> 400% </div> */}
-
-
         {/* Fit to width button
         <Button
           role="button"
