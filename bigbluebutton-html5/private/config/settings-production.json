@@ -150,6 +150,7 @@
           "sendAnnotation",
           "removePresentation",
           "setPresentation",
+          "zoomSlide",
           "requestPresentationUploadToken"
         ]
       }
