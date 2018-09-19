@@ -156,6 +156,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						break;
+					default:
+						message = reason;
 				}
 				if (message && UsersUtil.isBreakout()) {
 					message += "\n" + ResourceUtil.getInstance().getString('bbb.logour.breakoutRoomClose');
