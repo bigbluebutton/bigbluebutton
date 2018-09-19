@@ -279,29 +279,6 @@ class PresentationToolbar extends Component {
           label={'Fit to Screen'}
           hideLabel={true}
         /> */}
-        {/* Zoom slider
-        <div
-          className={classNames(styles.zoomWrapper, { [styles.zoomWrapperNoBorder]: true })}
-        >
-          <div className={styles.zoomMinMax}> 100% </div>
-          <input
-            role="slider"
-            aria-labelledby="zoomLabel"
-            aria-describedby="zoomDesc"
-            aria-valuemax="400"
-            aria-valuemin="100"
-            aria-valuenow={this.state.sliderValue}
-            value={this.state.sliderValue}
-            step="5"
-            type="range"
-            min="100"
-            max="400"
-            onChange={this.handleValuesChange}
-            onInput={this.handleValuesChange}
-            className={styles.zoomSlider}
-          />
-          <div className={styles.zoomMinMax}> 400% </div>
-        </div> */}
       </div>
     );
   }
