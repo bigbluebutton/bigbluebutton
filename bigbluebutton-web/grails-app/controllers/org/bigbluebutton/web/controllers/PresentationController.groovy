@@ -163,7 +163,8 @@ class PresentationController {
         response.outputStream << bytes;
       }	
     } catch (IOException e) {
-      log.error("Error reading file.\n" + e.getMessage());
+      log.error("Failed to read SWF file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
+      log.error("Error reading SWF file.\n" + e.getMessage());
     }
     
     return null;
@@ -185,7 +186,8 @@ class PresentationController {
         response.outputStream << bytes;
       }
     } catch (IOException e) {
-      log.error("Error reading file.\n" + e.getMessage());
+      log.error("Failed to read SVG file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
+      log.error("Error reading SVG file.\n" + e.getMessage());
     }
   
     return null;
@@ -208,7 +210,8 @@ class PresentationController {
         response.outputStream << bytes;
       }
     } catch (IOException e) {
-      log.error("Error reading file.\n" + e.getMessage());
+      log.error("Failed to read thumb file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + thumb);
+      log.error("Error reading thunb file.\n" + e.getMessage());
     }
     
     return null;
@@ -235,7 +238,8 @@ class PresentationController {
         log.debug "$pres does not exist."
       }
     } catch (IOException e) {
-      log.error("Error reading file.\n" + e.getMessage());
+      log.error("Failed to read text file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + textfile);
+      log.error("Error reading text file.\n" + e.getMessage());
     }
   
     return null;
