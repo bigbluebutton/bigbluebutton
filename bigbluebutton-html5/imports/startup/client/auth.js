@@ -60,44 +60,8 @@ export function joinRouteHandler(nextState, replace, callback) {
           return { ...acc, [key]: value };
         }, {}) : {};
 
-      const customData = customdata.length
-        ? customdata.reduce((acc, data) => {
-          const key = Object.keys(data).shift();
-
-          const handledHTML5Parameters = [
-            'html5recordingbot',
-            // APP
-            'autoJoin',
-            'listenOnlyMode',
-            'forceListenOnly',
-            'skipCheck',
-            'clientTitle',
-            'lockOnJoin', // NOT IMPLEMENTED YET
-            'askForFeedbackOnLogout',
-            // BRANDING
-            'displayBrandingArea',
-            // KURENTO
-            'enableScreensharing',
-            'enableVideo',
-            'enableVideoStats',
-            // WHITEBOARD
-          ];
-          if (handledHTML5Parameters.indexOf(key) === -1) {
-            return acc;
-          }
-
-          let value = data[key];
-          try {
-            value = JSON.parse(value);
-          } catch (e) {
-            log('error', `Caught: ${e.message}`);
-          }
-
-          return { ...acc, [key]: value };
-        }, {}) : {};
-
-      if (Object.keys(customData).length > 0) {
-        makeCall('addUserSettings', meetingID, internalUserID, customData);
+      if (customdata.length) {
+        makeCall('addUserSettings', meetingID, internalUserID, customdata);
       }
 
       SessionStorage.setItem(METADATA_KEY, metakeys);
