@@ -287,9 +287,12 @@ export default class PresentationOverlay extends Component {
       zoomSlide,
       podId,
       currentSlideNum,
+      isPresenter,
     } = this.props;
+    if (!isPresenter) return;
     zoomSlide(currentSlideNum, podId, w, h, x, y);
     this.setState({ zoom });
+    this.props.zoomChanger(zoom);
   }
 
   doZoomCall(zoom, mouseX, mouseY) {
@@ -303,7 +306,6 @@ export default class PresentationOverlay extends Component {
     } = zoomData;
 
     this.zoomCall(zoom, viewedRegionW, viewedRegionH, viewedRegionX, viewedRegionY);
-    this.props.zoomChanger(zoom);
   }
 
   mouseZoomHandler(e) {
