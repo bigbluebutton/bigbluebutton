@@ -86,7 +86,7 @@ package org.bigbluebutton.core.managers {
 
             var dispatcher:Dispatcher = new Dispatcher();
             
-            if (xml && xml.contains("config") && xml.config.contains("modules")) {
+            if (xml && xml.modules.length() > 0) {
                 LOGGER.info("Getting configXML passed [{0}]", [xml]);
                 _config = new Config(new XML(e.target.data));
 
