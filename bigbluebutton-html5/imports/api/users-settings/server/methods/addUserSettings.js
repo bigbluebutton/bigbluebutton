@@ -17,7 +17,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'listenOnlyMode',
       'forceListenOnly',
       'skipCheck',
-      // 'clientTitle',
+      'clientTitle',
       'lockOnJoin', // NOT IMPLEMENTED YET
       'askForFeedbackOnLogout',
       // BRANDING
