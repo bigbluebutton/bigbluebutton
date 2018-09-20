@@ -18,27 +18,21 @@
  */
 package org.bigbluebutton.modules.screenshare.services
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.screenshare.services.red5.Connection;
 
     public class MessageSender
     {	
         private static const LOG:String = "SC::MessageSender - ";
         private static const LOGGER:ILogger = getClassLogger(MessageSender);
-		private var globalDispatcher:Dispatcher;
-
         private var conn: Connection;
         
         public function MessageSender(conn: Connection) {
-          this.conn = conn;
-		  globalDispatcher = new Dispatcher();
+          this.conn = conn;  
         }
         
         public function isScreenSharing(meetingId: String):void {
@@ -50,12 +44,10 @@ package org.bigbluebutton.modules.screenshare.services
         }
         
         public function startShareRequest(meetingId: String, userId: String, session: String):void {
-		  globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.SCREEN_SHARING_STARTED, "WEBRTC"));
           conn.startShareRequest(meetingId, userId, session);
         }
         
         public function stopShareRequest(meetingId: String, streamId: String):void {
-		  globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.SCREEN_SHARING_STOPPED));
           conn.stopShareRequest(meetingId, streamId);
         }
         

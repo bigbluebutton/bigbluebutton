@@ -210,7 +210,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.warn(JSON.stringify(logData));
 				
         var showReason:Boolean = false;
-		
+
         if (event.reason == "JWS_START_FAILED_REASON") {
           showReason = true;
           if (paused) {
@@ -263,12 +263,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       public function shareScreen(fullScreen:Boolean):void {
+
         startBtn.enabled = false;
         var shareStartEvent:ShareStartEvent = new ShareStartEvent();
         dispatchEvent(shareStartEvent);
         startSharing(connection.getConnection(), fullScreen);
-		
-		dispatchEvent(new BBBEvent(BBBEvent.SCREEN_SHARING_STARTED, "JAVA"));
       }
 
       private function startSharing(connection:NetConnection, fullScreen:Boolean):void {
@@ -299,8 +298,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         sharingFullScreen = false;
         streaming = false;
-		
-		dispatchEvent(new BBBEvent(BBBEvent.SCREEN_SHARING_STOPPED));
 
         //closeWindow();
       }

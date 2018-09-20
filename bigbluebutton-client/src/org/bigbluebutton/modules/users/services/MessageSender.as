@@ -129,45 +129,7 @@ package org.bigbluebutton.modules.users.services
             },
           JSON.stringify(message)
         );
-	}
-	
-	public function userStartedScreenSharing(screenSharingType:String):void {
-		var message:Object = {
-			header: {name: "UserScreenSharingStartedCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-			body: {userId: UsersUtil.getMyUserID(), screenSharingType: screenSharingType}
-		};
-		
-		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage2x(function(result:String):void {   
-			// On successful result
-		}, function(status:String):void { // status - On error occurred
-			var logData:Object = UsersUtil.initLogData();
-			logData.tags = ["apps"];
-			logData.logCode = "error_sending_change_emoji";
-			LOGGER.info(JSON.stringify(logData));
-		},
-			JSON.stringify(message)
-		);
-	}
-	
-	public function userStoppedScreenSharing():void {
-		var message:Object = {
-			header: {name: "UserScreenSharingStoppedCmdMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-			body: {userId: UsersUtil.getMyUserID()}
-		};
-		
-		var _nc:ConnectionManager = BBB.initConnectionManager();
-		_nc.sendMessage2x(function(result:String):void {   
-			// On successful result
-		}, function(status:String):void { // status - On error occurred
-			var logData:Object = UsersUtil.initLogData();
-			logData.tags = ["apps"];
-			logData.logCode = "error_sending_user_screen_sharing_stopped";
-			LOGGER.info(JSON.stringify(logData));
-		},
-			JSON.stringify(message)
-		);
-	}
+		}
 
 		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
 			var body:CreateBreakoutRoomsMsgBody = new CreateBreakoutRoomsMsgBody(meetingId, durationInMinutes, record, rooms);

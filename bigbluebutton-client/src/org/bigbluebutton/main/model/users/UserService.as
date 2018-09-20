@@ -250,14 +250,6 @@ package org.bigbluebutton.main.model.users
 			sender.emojiStatus(e.userId != "" ? e.userId : UsersUtil.getMyUserID(), e.status);
 		}
 		
-		public function onUserStartedScreenSharing(e:BBBEvent):void {
-			sender.userStartedScreenSharing(e.message);
-		}
-		
-		public function onUserStoppedScreenSharing(e:BBBEvent):void {
-			sender.userStoppedScreenSharing();
-		}
-		
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
 			sender.createBreakoutRooms(LiveMeeting.inst().meeting.internalId, e.rooms, e.durationInMinutes, e.record);
 		}

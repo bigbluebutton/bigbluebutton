@@ -34,7 +34,6 @@ public interface IMeetingService {
   void userListeningOnly(UserListeningOnly message);
   void userSharedWebcam(UserSharedWebcam message);
   void userUnsharedWebcam(UserUnsharedWebcam message);
-  void userScreenSharingStarted(ScreenSharingStarted message);
-  void userScreenSharingStopped(ScreenSharingStopped message);
+
 
 }

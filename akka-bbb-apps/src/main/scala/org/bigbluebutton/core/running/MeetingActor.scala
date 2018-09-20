@@ -320,10 +320,6 @@ class MeetingActor(
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handleScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(m)
       case m: GetScreenshareStatusReqMsg => screenshareApp2x.handleGetScreenshareStatusReqMsg(m)
-      
-      // Screen Sharing
-      case m: UserScreenSharingStartedCmdMsg => usersApp.handleUserScreenSharingStartedCmdMsg(m)
-      case m: UserScreenSharingStoppedCmdMsg => usersApp.handleUserScreenSharingStoppedCmdMsg(m)
 
       case _ => log.warning("***** Cannot handle " + msg.envelope.name)
     }

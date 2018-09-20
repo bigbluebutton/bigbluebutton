@@ -36,8 +36,6 @@ public class User {
 	private Boolean waitingForAcceptance;
 	private Boolean listeningOnly = false;
 	private Boolean voiceJoined = false;
-	private Boolean screenSharingStarted = false;
-	private String screenSharingType;
 	private String clientType;
 	private List<String> streams;
 	
@@ -141,9 +139,9 @@ public class User {
 		return streams;
 	}
 
-    public Boolean hasVideo() {
-        return !this.getStreams().isEmpty();
-    }
+        public Boolean hasVideo() {
+                return this.getStreams().size() > 0;
+        }
 
 	public Boolean isListeningOnly() {
 		return listeningOnly;
@@ -160,25 +158,9 @@ public class User {
 	public void setVoiceJoined(Boolean voiceJoined) {
 		this.voiceJoined = voiceJoined;
 	}
-	
-	public Boolean isScreenSharingStarted() {
-	    return screenSharingStarted;
-	}
-	
-	public void setScreenSharingStarted(Boolean screenSharingStarted) {
-	    this.screenSharingStarted = screenSharingStarted;
-	}
 
-	public String getScreenSharingType() {
-		return this.screenSharingType;
-	}
-	
-	public void setScreenSharingType(String screenSharingType) {
-	    this.screenSharingType = screenSharingType;
-	}
-	
 	public String getClientType() {
-	    return this.clientType;
+		return this.clientType;
 	}
 
 }

@@ -18,15 +18,12 @@
 */
 package org.bigbluebutton.modules.screenshare.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.external.ExternalInterface;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 	import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
@@ -88,7 +85,6 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		private function stopWebRTCDeskshare():void {
-			globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.SCREEN_SHARING_STOPPED));
 			LOGGER.debug("WebRTCDeskshareManager::stopWebRTCDeskshare");
 			viewWindowManager.stopViewing();
 
@@ -117,7 +113,6 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		/*handle start sharing event*/
 		public function startSharing():void {
-			globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.SCREEN_SHARING_STARTED, "WEBRTC"));
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
 
 			publishWindowManager.startSharing();
