@@ -188,6 +188,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  </EventHandlers>
 	  <!-- End Lock Events -->
 	
+	  <!-- Screen Sharing Events -->
+		<EventHandlers type="{BBBEvent.SCREEN_SHARING_STARTED}">
+			<MethodInvoker generator="{UserService}" method="onUserStartedScreenSharing" arguments="{event}" />
+		</EventHandlers>
+
+		<EventHandlers type="{BBBEvent.SCREEN_SHARING_STOPPED}">
+			<MethodInvoker generator="{UserService}" method="onUserStoppedScreenSharing" arguments="{event}" />
+		</EventHandlers>
+	  <!-- End Screen Sharing Events -->
+		
 	  <!-- Guest Events -->
 	  <EventHandlers type="{BBBEvent.ADD_GUEST_TO_LIST}" >
 	    <MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />

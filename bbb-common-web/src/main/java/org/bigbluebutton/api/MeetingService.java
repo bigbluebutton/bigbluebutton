@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.*;
 
 import org.bigbluebutton.api.domain.*;
@@ -47,6 +47,9 @@ import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
+import org.bigbluebutton.api.messaging.messages.ScreenSharingStarted;
+import org.bigbluebutton.api.messaging.messages.ScreenSharingStopped;
+import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
@@ -60,7 +63,6 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
-import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
 import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
@@ -778,6 +780,28 @@ public class MeetingService implements MessageListener {
       return;
     }
   }
+  
+  public void userScreenSharingStarted(ScreenSharingStarted message) {
+      Meeting m = getMeeting(message.meetingId);
+      if (m != null) {
+        User user = m.getUserById(message.userId);
+        if (user != null) {
+          user.setScreenSharingStarted(true);
+          user.setScreenSharingType(message.screenSharingType);
+        }
+      }
+  }
+  
+  public void userScreenSharingStopped(ScreenSharingStopped message) {
+      Meeting m = getMeeting(message.meetingId);
+      if (m != null) {
+        User user = m.getUserById(message.userId);
+        if (user != null) {
+          user.setScreenSharingStarted(false);
+          user.setScreenSharingType("");
+        }
+      }
+  }
 
   public void userSharedWebcam(UserSharedWebcam message) {
     Meeting m = getMeeting(message.meetingId);
@@ -851,6 +875,8 @@ public class MeetingService implements MessageListener {
           userSharedWebcam((UserSharedWebcam) message);
         } else if (message instanceof UserUnsharedWebcam) {
           userUnsharedWebcam((UserUnsharedWebcam) message);
+        } else if (message instanceof ScreenSharingStarted) {
+          userScreenSharingStarted((ScreenSharingStarted) message);
         } else if (message instanceof CreateMeeting) {
           processCreateMeeting((CreateMeeting) message);
         } else if (message instanceof EndMeeting) {

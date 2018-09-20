@@ -1976,6 +1976,10 @@ class ApiController {
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")
                   hasVideo("${att.hasVideo()}")
+                  isScreenSharingStarted("${att.isScreenSharingStarted()}")
+                  if (att.isScreenSharingStarted()) {
+                      screenSharingType("${att.getScreenSharingType()}")
+                  }
                   clientType() { mkp.yield("${att.clientType}") }
                   videoStreams() {
                     att.getStreams().each { s ->

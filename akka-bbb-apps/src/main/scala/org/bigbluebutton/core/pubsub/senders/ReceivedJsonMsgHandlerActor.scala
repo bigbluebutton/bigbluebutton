@@ -103,6 +103,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStopMsg](envelope, jsonNode)
+        
+      // Screen Sharing
+      case UserScreenSharingStartedCmdMsg.NAME =>
+        routeGenericMsg[UserScreenSharingStartedCmdMsg](envelope, jsonNode)
+      case UserScreenSharingStoppedCmdMsg.NAME =>
+        routeGenericMsg[UserScreenSharingStoppedCmdMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>

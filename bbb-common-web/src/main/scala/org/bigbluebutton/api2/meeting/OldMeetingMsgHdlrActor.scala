@@ -36,6 +36,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStartedEvtMsg => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
+      case m: UserScreenSharingStartedEvtMsg => handleUserScreenSharingStarted(m)
+      case m: UserScreenSharingStoppedEvtMsg => handleUserScreenSharingStopped(m)
       case _ => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -119,6 +121,14 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   
   def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg): Unit = {
     olgMsgGW.handle(new UserRoleChanged(msg.header.meetingId, msg.body.userId, msg.body.role))
+  }
+
+  def handleUserScreenSharingStarted(msg: UserScreenSharingStartedEvtMsg): Unit = {
+    olgMsgGW.handle(new ScreenSharingStarted(msg.header.meetingId, msg.body.userId, msg.body.screenSharingType))
+  }
+  
+  def handleUserScreenSharingStopped(msg: UserScreenSharingStoppedEvtMsg): Unit = {
+    olgMsgGW.handle(new ScreenSharingStopped(msg.header.meetingId, msg.body.userId))
   }
 
 

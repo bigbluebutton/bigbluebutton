@@ -25,6 +25,8 @@ class UsersApp(
     with GetRecordingStatusReqMsgHdlr
     with GetWebcamsOnlyForModeratorReqMsgHdlr
     with AssignPresenterReqMsgHdlr
+    with UserScreenSharingStartedCmdMsgHdlr
+    with UserScreenSharingStoppedCmdMsgHdlr
     with EjectUserFromMeetingCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)

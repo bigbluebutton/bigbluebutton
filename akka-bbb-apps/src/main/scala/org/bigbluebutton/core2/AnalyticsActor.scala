@@ -82,6 +82,10 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: UserBroadcastCamStoppedEvtMsg => logMessage(msg)
       case m: UserBroadcastCamStartedEvtMsg => logMessage(msg)
 
+      // Screen Sharing
+      case m: UserScreenSharingStartedCmdMsg => logMessage(msg)
+      case m: UserScreenSharingStoppedCmdMsg => logMessage(msg)
+      
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
 
