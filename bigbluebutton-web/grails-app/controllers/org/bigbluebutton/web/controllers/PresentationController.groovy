@@ -152,7 +152,9 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
     def slide = params.id
-    
+
+    log.error("Nginx should be serving this SWF file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
+
     InputStream is = null;
     try {
       def pres = presentationService.showSlide(conf, rm, presentationName, slide)
@@ -175,7 +177,9 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
     def slide = params.id
-  
+
+    log.error("Nginx should be serving this SVG file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
+
     InputStream is = null;
     try {
       def pres = presentationService.showSvgImage(conf, rm, presentationName, slide)
@@ -198,7 +202,9 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
     def thumb = params.id
-    
+
+    log.error("Nginx should be serving this thumb file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + thumb);
+
     InputStream is = null;
     try {
       def pres = presentationService.showThumbnail(conf, rm, presentationName, thumb)
@@ -223,7 +229,9 @@ class PresentationController {
     def rm = params.room
     def textfile = params.id
     log.debug "Controller: Show textfile request for $presentationName $textfile"
-    
+
+    log.error("Nginx should be serving this text file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + textfile);
+
     InputStream is = null;
     try {
       def pres = presentationService.showTextfile(conf, rm, presentationName, textfile)
