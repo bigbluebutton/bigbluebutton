@@ -37,7 +37,7 @@
         <isScreenSharingStarted>${att.isScreenSharingStarted()?c}</isScreenSharingStarted>
         <#if att.isScreenSharingStarted()??>
             <screenSharingType>${att.getScreenSharingType()?c}</screenSharingType>
-        </#if
+        </#if>
         <clientType>${att.getClientType()}</clientType>
         <#if meeting.getUserCustomData(att.getExternalUserId())??>
             <#assign ucd = meeting.getUserCustomData(att.getExternalUserId())>
