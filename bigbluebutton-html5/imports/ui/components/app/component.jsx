@@ -64,6 +64,8 @@ class App extends Component {
   constructor() {
     super();
 
+    console.log('1');
+
     this.state = {
       compactUserList: false,
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
@@ -304,22 +306,23 @@ class App extends Component {
 
     return (
       <main className={styles.main}>
-        <NotificationsBarContainer />
-        <section className={styles.wrapper}>
-          <div className={styles.content}>
-            {this.renderNavBar()}
-            {this.renderMedia()}
-            {this.renderActionsBar()}
-          </div>
-          {enableResize ? this.renderUserListResizable() : this.renderUserList()}
-          {userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
-          {enableResize ? this.renderChatResizable() : this.renderChat()}
-          {this.renderSidebar()}
-        </section>
-        <ModalContainer />
-        <AudioContainer />
-        <ToastContainer />
-        <ChatAlertContainer currentChatID={params.chatID} />
+        AAAAA
+        {/*<NotificationsBarContainer />*/}
+        {/*<section className={styles.wrapper}>*/}
+          {/*<div className={styles.content}>*/}
+            {/*{this.renderNavBar()}*/}
+            {/*{this.renderMedia()}*/}
+            {/*{this.renderActionsBar()}*/}
+          {/*</div>*/}
+          {/*{enableResize ? this.renderUserListResizable() : this.renderUserList()}*/}
+          {/*{userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}*/}
+          {/*{enableResize ? this.renderChatResizable() : this.renderChat()}*/}
+          {/*{this.renderSidebar()}*/}
+        {/*</section>*/}
+        {/*<ModalContainer />*/}
+        {/*<AudioContainer />*/}
+        {/*<ToastContainer />*/}
+        {/*<ChatAlertContainer currentChatID={params.chatID} />*/}
       </main>
     );
   }

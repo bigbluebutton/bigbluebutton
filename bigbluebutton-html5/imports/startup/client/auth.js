@@ -10,13 +10,13 @@ const STATUS_CONNECTING = 'connecting';
 const METADATA_KEY = 'metadata';
 const CUSTOM_DATA_KEY = 'customdata';
 
-export function joinRouteHandler(nextState, replace, callback) {
-  const { sessionToken } = nextState.location.query;
+export function joinRouteHandler_2(callback) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionToken = urlParams.get('sessionToken');
+  console.log('joinRouteHandler_2', sessionToken);
 
-  if (!nextState || !sessionToken) {
-    replace({ pathname: '/error/404' });
-    callback();
-  }
+  // if (!sessionToken) { // TODO  }
+
 
   // Old credentials stored in memory were being used when joining a new meeting
   Auth.clearCredentials();
@@ -27,60 +27,67 @@ export function joinRouteHandler(nextState, replace, callback) {
   fetch(url, { credentials: 'same-origin' })
     .then(response => response.json())
     .then(({ response }) => {
+      debugger
       const {
         returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
         externUserID, fullname, confname, customdata,
       } = response;
 
-      if (returncode === 'FAILED') {
-        replace({ pathname: '/error/404' });
-        callback();
-      }
+      // if (returncode === 'FAILED') { // TODO
+      //   replace({ pathname: '/error/404' });
+      //   callback();
+      // }
 
       setCustomLogoUrl(customLogoURL);
 
-      const metakeys = metadata.length
-        ? metadata.reduce((acc, meta) => {
-          const key = Object.keys(meta).shift();
+      let metakeys = 0;
+      if (metadata) {
+        metakeys = metadata.length
+          ? metadata.reduce((acc, meta) => {
+            const key = Object.keys(meta).shift();
 
-          const handledHTML5Parameters = [
-            'html5autoswaplayout', 'html5autosharewebcam', 'html5hidepresentation',
-          ];
-          if (handledHTML5Parameters.indexOf(key) === -1) {
-            return acc;
-          }
+            const handledHTML5Parameters = [
+              'html5autoswaplayout', 'html5autosharewebcam', 'html5hidepresentation',
+            ];
+            if (handledHTML5Parameters.indexOf(key) === -1) {
+              return acc;
+            }
 
-          /* this reducer transforms array of objects in a single object and
-           forces the metadata a be boolean value */
-          let value = meta[key];
-          try {
-            value = JSON.parse(meta[key]);
-          } catch (e) {
-            log('error', `Caught: ${e.message}`);
-          }
-          return { ...acc, [key]: value };
-        }, {}) : {};
+            /* this reducer transforms array of objects in a single object and
+             forces the metadata a be boolean value */
+            let value = meta[key];
+            try {
+              value = JSON.parse(meta[key]);
+            } catch (e) {
+              log('error', `Caught: ${e.message}`);
+            }
+            return { ...acc, [key]: value };
+          }, {}) : {};
+      }
 
-      const customData = customdata.length
-        ? customdata.reduce((acc, data) => {
-          const key = Object.keys(data).shift();
+      let customData = 0;
+      if (customdata) {
+        customData = customdata.length
+          ? customdata.reduce((acc, data) => {
+            const key = Object.keys(data).shift();
 
-          const handledHTML5Parameters = [
-            'html5recordingbot',
-          ];
-          if (handledHTML5Parameters.indexOf(key) === -1) {
-            return acc;
-          }
+            const handledHTML5Parameters = [
+              'html5recordingbot',
+            ];
+            if (handledHTML5Parameters.indexOf(key) === -1) {
+              return acc;
+            }
 
-          let value = data[key];
-          try {
-            value = JSON.parse(value);
-          } catch (e) {
-            log('error', `Caught: ${e.message}`);
-          }
+            let value = data[key];
+            try {
+              value = JSON.parse(value);
+            } catch (e) {
+              log('error', `Caught: ${e.message}`);
+            }
 
-          return { ...acc, [key]: value };
-        }, {}) : {};
+            return { ...acc, [key]: value };
+          }, {}) : {};
+      }
 
       SessionStorage.setItem(METADATA_KEY, metakeys);
       SessionStorage.setItem(CUSTOM_DATA_KEY, customData);
@@ -90,12 +97,14 @@ export function joinRouteHandler(nextState, replace, callback) {
         sessionToken, fullname, externUserID, confname,
       );
 
-      const path = deviceInfo.type().isPhone ? '/' : '/users';
+      window.Auth = Auth; // TODO remove this
+
+      const path = deviceInfo.type().isPhone ? '/' : '/users'; // TODO
       const userInfo = window.navigator;
 
       // Browser information is sent once on startup
       // Sent here instead of Meteor.startup, as the
-      // user might not be validiated by then, thus user's data
+      // user might not be validated by then, thus user's data
       // would not be sent with this information
       const clientInfo = {
         language: userInfo.language,
@@ -106,12 +115,16 @@ export function joinRouteHandler(nextState, replace, callback) {
         location: window.location.href,
       };
 
-      replace({ pathname: path });
+      // replace({ pathname: path }); // TODO
 
       logger.info(clientInfo);
 
-      return callback();
+      // return callback(); // TODO
+      callback('lala');
     });
+}
+
+export function joinRouteHandler(nextState, replace, callback) {
 }
 
 export function logoutRouteHandler() {
