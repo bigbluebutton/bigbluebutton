@@ -18,8 +18,10 @@
 */
 package org.bigbluebutton.modules.screenshare.managers
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.external.ExternalInterface;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.Options;
@@ -73,7 +75,12 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		/*viewer being told there is no more stream*/
 		public function handleStreamStopEvent(args:Object):void {
-			LOGGER.debug("WebRTCDeskshareManager::handleStreamStopEvent");
+			var logData:Object = UsersUtil.initLogData();
+			logData.type = "webrtc";
+			logData.tags = ["screenshare"];
+			logData.logCode = "screenshare_stopped_stream";
+			LOGGER.info(JSON.stringify(logData));
+			
 			sharing = false;
 			viewWindowManager.handleViewWindowCloseEvent();
 		}
@@ -85,7 +92,12 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		private function stopWebRTCDeskshare():void {
-			LOGGER.debug("WebRTCDeskshareManager::stopWebRTCDeskshare");
+			var logData:Object = UsersUtil.initLogData();
+			logData.type = "webrtc";
+			logData.tags = ["screenshare"];
+			logData.logCode = "screenshare_stop_request";
+			LOGGER.info(JSON.stringify(logData));
+
 			viewWindowManager.stopViewing();
 
 			/* close the sharing window. The sharing window can also be open when going through
@@ -113,7 +125,11 @@ package org.bigbluebutton.modules.screenshare.managers
 
 		/*handle start sharing event*/
 		public function startSharing():void {
-			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
+			var logData:Object = UsersUtil.initLogData();
+			logData.type = "webrtc";
+			logData.tags = ["screenshare"];
+			logData.logCode = "screenshare_start_request";
+			LOGGER.info(JSON.stringify(logData));
 
 			publishWindowManager.startSharing();
 		}
@@ -135,19 +151,23 @@ package org.bigbluebutton.modules.screenshare.managers
 			var isPresenter:Boolean = UsersUtil.amIPresenter();
 			LOGGER.debug("Received start viewing command when isPresenter==[{0}]",[isPresenter]);
 
+			var logData:Object = UsersUtil.initLogData();
+			logData.type = "webrtc";
+			logData.tags = ["screenshare"];
+			logData.logCode = "screenshare_start_stream";
+			LOGGER.info(JSON.stringify(logData));
+			
 			if(isPresenter && usingWebRTC) {
 				publishWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 				globalDispatcher.dispatchEvent(new DeskshareToolbarEvent(DeskshareToolbarEvent.START));
 			} else {
-
 				if (!options.offerWebRTC || e == null || e.rtmp == null) {
 					return;
 				}
 
 				viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 			}
-
-			 sharing = true; //TODO must uncomment this for the non-webrtc desktop share
+			sharing = true; //TODO must uncomment this for the non-webrtc desktop share
 		}
 
 		public function handleRequestStartSharingEvent(event:RequestToStartSharing):void {
