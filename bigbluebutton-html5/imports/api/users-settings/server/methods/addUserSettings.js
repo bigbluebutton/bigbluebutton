@@ -28,6 +28,8 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'enableVideoStats',
       // WHITEBOARD
       'multiUserPenOnly',
+      'presenterTools',
+      'multiUserTools',
     ];
     if (!handledHTML5Parameters.includes(key)) {
       return acc;

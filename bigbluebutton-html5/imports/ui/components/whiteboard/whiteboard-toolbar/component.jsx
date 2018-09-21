@@ -63,18 +63,26 @@ const intlMessages = defineMessages({
 const runExceptInEdge = fn => (browser().name === 'edge' ? noop : fn);
 
 class WhiteboardToolbar extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    const { annotations } = this.props;
+
+    let annotationSelected = {
+      icon: 'pen_tool',
+      value: 'pencil',
+    };
+
+    if (annotations.length > 0) {
+      annotationSelected = annotations[annotations.length - 1];
+    }
 
     this.state = {
       // a variable to control which list is currently open
       currentSubmenuOpen: '',
 
       // variables to keep current selected draw settings
-      annotationSelected: {
-        icon: 'pen_tool',
-        value: 'pencil',
-      },
+      annotationSelected,
       thicknessSelected: { value: 4 },
       colorSelected: { value: '#000000' },
       fontSizeSelected: { value: 20 },

@@ -357,6 +357,24 @@
             "icon": "pointer",
             "value": "pointer"
           }
+        ],
+        "presenterTools": [
+          "text",
+          "line",
+          "ellipse",
+          "triangle",
+          "rectangle",
+          "pencil",
+          "hand"
+        ],
+        "multiUserTools": [
+          "text",
+          "line",
+          "ellipse",
+          "triangle",
+          "rectangle",
+          "pencil",
+          "hand"
         ]
       }
     },

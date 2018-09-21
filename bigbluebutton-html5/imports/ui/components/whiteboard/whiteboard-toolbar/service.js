@@ -6,7 +6,7 @@ import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const DRAW_SETTINGS = 'drawSettings';
-const WHITEBOARD_TOOLS = Meteor.settings.public.whiteboard.toolbar;
+const WHITEBOARD_TOOLBAR = Meteor.settings.public.whiteboard.toolbar;
 
 const makeSetter = key => (value) => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
@@ -70,15 +70,27 @@ const isPresenter = () => {
 };
 
 const filterAnnotationList = () => {
-  const multiUserPenOnly = getFromUserSettings('multiUserPenOnly', WHITEBOARD_TOOLS.multiUserPenOnly);
+  const multiUserPenOnly = getFromUserSettings('multiUserPenOnly', WHITEBOARD_TOOLBAR.multiUserPenOnly);
 
-  let filteredAnnotationList = WHITEBOARD_TOOLS.tools;
+  let filteredAnnotationList = WHITEBOARD_TOOLBAR.tools;
 
   if (!isPresenter() && multiUserPenOnly) {
     filteredAnnotationList = [{
       icon: 'pen_tool',
       value: 'pencil',
     }];
+  }
+
+  const presenterTools = getFromUserSettings('presenterTools', WHITEBOARD_TOOLBAR.presenterTools);
+  if (isPresenter() && Array.isArray(presenterTools)) {
+    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
+      presenterTools.includes(el.value));
+  }
+
+  const multiUserTools = getFromUserSettings('multiUserTools', WHITEBOARD_TOOLBAR.multiUserTools);
+  if (!isPresenter() && !multiUserPenOnly && Array.isArray(multiUserTools)) {
+    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
+      multiUserTools.includes(el.value));
   }
 
   return filteredAnnotationList;
