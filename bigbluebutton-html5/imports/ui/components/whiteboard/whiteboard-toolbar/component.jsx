@@ -16,7 +16,6 @@ const TOOLBAR_CONFIG = Meteor.settings.public.whiteboard.toolbar;
 const ANNOTATION_COLORS = TOOLBAR_CONFIG.colors;
 const THICKNESS_RADIUSES = TOOLBAR_CONFIG.thickness;
 const FONT_SIZES = TOOLBAR_CONFIG.font_sizes;
-const ANNOTATION_TOOLS = TOOLBAR_CONFIG.tools;
 
 const intlMessages = defineMessages({
   toolbarTools: {
@@ -574,7 +573,6 @@ WhiteboardToolbar.defaultProps = {
   colors: ANNOTATION_COLORS,
   thicknessRadiuses: THICKNESS_RADIUSES,
   fontSizes: FONT_SIZES,
-  annotations: ANNOTATION_TOOLS,
 };
 
 WhiteboardToolbar.propTypes = {

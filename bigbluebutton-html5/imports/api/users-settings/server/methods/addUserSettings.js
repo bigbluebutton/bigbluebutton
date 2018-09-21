@@ -27,6 +27,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'enableVideo',
       'enableVideoStats',
       // WHITEBOARD
+      'multiUserPenOnly',
     ];
     if (!handledHTML5Parameters.includes(key)) {
       return acc;

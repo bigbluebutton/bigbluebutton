@@ -231,6 +231,7 @@
         }
       },
       "toolbar": {
+        "multiUserPenOnly": false,
         "colors": [
           {
             "label": "black",

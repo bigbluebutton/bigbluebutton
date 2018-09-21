@@ -3,8 +3,10 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const DRAW_SETTINGS = 'drawSettings';
+const WHITEBOARD_TOOLS = Meteor.settings.public.whiteboard.toolbar;
 
 const makeSetter = key => (value) => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
@@ -67,6 +69,21 @@ const isPresenter = () => {
   return currentUser ? currentUser.presenter : false;
 };
 
+const filterAnnotationList = () => {
+  const multiUserPenOnly = getFromUserSettings('multiUserPenOnly', WHITEBOARD_TOOLS.multiUserPenOnly);
+
+  let filteredAnnotationList = WHITEBOARD_TOOLS.tools;
+
+  if (!isPresenter() && multiUserPenOnly) {
+    filteredAnnotationList = [{
+      icon: 'pen_tool',
+      value: 'pencil',
+    }];
+  }
+
+  return filteredAnnotationList;
+};
+
 export default {
   undoAnnotation,
   clearWhiteboard,
@@ -81,4 +98,5 @@ export default {
   getTextShapeActiveId,
   getMultiUserStatus,
   isPresenter,
+  filterAnnotationList,
 };
