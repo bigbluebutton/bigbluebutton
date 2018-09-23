@@ -10,6 +10,8 @@ import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
 
+const HUNDRED_PERCENT = 100;
+const MAX_PERCENT = 400;
 
 export default class PresentationArea extends Component {
   constructor() {
@@ -19,9 +21,18 @@ export default class PresentationArea extends Component {
       presentationWidth: 0,
       presentationHeight: 0,
       showSlide: false,
+      zoom: 100,
+      touchZoom: false,
+      delta: {
+        x: 0,
+        y: 0,
+      },
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
+    this.zoomChanger = this.zoomChanger.bind(this);
+    this.touchUpdate = this.touchUpdate.bind(this);
+    this.pointUpdate = this.pointUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -53,7 +64,7 @@ export default class PresentationArea extends Component {
       // By default presentation sizes are equal to the sizes of the refPresentationArea
       // direct parent of the svg wrapper
       let { clientWidth, clientHeight } = refPresentationArea;
-
+      
       // if a user is a presenter - this means there is a whiteboard toolbar on the right
       // and we have to get the width/height of the refWhiteboardArea
       // (inner hidden div with absolute position)
@@ -70,6 +81,7 @@ export default class PresentationArea extends Component {
   getInitialPresentationSizes() {
     // determining the presentationWidth and presentationHeight (available space for the svg)
     // on the initial load
+    
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // setting the state of the available space for the svg
@@ -123,7 +135,30 @@ export default class PresentationArea extends Component {
       height: adjustedHeight,
     };
   }
+  zoomChanger(zoom) {
+    let newZoom = zoom;
+    const isDifferent = newZoom !== this.state.zoom;
 
+    if (newZoom <= HUNDRED_PERCENT) {
+      newZoom = HUNDRED_PERCENT;
+    } else if (zoom >= MAX_PERCENT) {
+      newZoom = MAX_PERCENT;
+    }
+    if (isDifferent) this.setState({ zoom: newZoom });
+  }
+  pointUpdate(pointX, pointY) {
+    this.setState({
+      delta: {
+        x: pointX,
+        y: pointY,
+      },
+    });
+  }
+  touchUpdate(bool) {
+    this.setState({
+      touchZoom: bool,
+    });
+  }
   // renders the whole presentation area
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
@@ -229,10 +264,21 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationOverlayContainer
+        podId={this.props.podId}
+        currentSlideNum={this.props.currentSlide.num}
+        slide={slideObj}
         whiteboardId={slideObj.id}
         slideWidth={width}
         slideHeight={height}
+        delta={this.state.delta}
+        viewBoxWidth={viewBoxWidth}
+        viewBoxHeight={viewBoxHeight}
+        zoom={this.state.zoom}
+        zoomChanger={this.zoomChanger}
+        adjustedSizes={adjustedSizes}
         getSvgRef={this.getSvgRef}
+        presentationSize={this.getPresentationSizesAvailable()}
+        touchZoom={this.state.touchZoom}
       >
         <WhiteboardOverlayContainer
           getSvgRef={this.getSvgRef}
@@ -241,10 +287,14 @@ export default class PresentationArea extends Component {
           slideHeight={height}
           viewBoxX={x}
           viewBoxY={y}
+          pointChanger={this.pointUpdate}
           viewBoxWidth={viewBoxWidth}
           viewBoxHeight={viewBoxHeight}
           physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
           physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
+          zoom={this.state.zoom}
+          zoomChanger={this.zoomChanger}
+          touchUpdate={this.touchUpdate}
         />
       </PresentationOverlayContainer>
     );
@@ -260,6 +310,8 @@ export default class PresentationArea extends Component {
         podId={this.props.podId}
         currentSlideNum={this.props.currentSlide.num}
         presentationId={this.props.currentSlide.presentationId}
+        zoom={this.state.zoom}
+        zoomChanger={this.zoomChanger}
       />
     );
   }

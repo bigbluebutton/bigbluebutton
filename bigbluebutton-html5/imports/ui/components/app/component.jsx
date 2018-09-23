@@ -239,12 +239,9 @@ class App extends Component {
     const { chat } = this.props;
 
     // Variables for resizing chat.
-    const CHAT_MIN_WIDTH_PX = 180;
-    const CHAT_MAX_WIDTH_PX = 310;
-    const CHAT_DEFAULT_WIDTH_RELATIVE = 25;
-
-    // decide whether using pixel or percentage unit as a default width for chat
-    const CHAT_DEFAULT_WIDTH = (window.innerWidth * (CHAT_DEFAULT_WIDTH_RELATIVE / 100.0)) < CHAT_MAX_WIDTH_PX ? `${CHAT_DEFAULT_WIDTH_RELATIVE}%` : CHAT_MAX_WIDTH_PX;
+    const CHAT_MIN_WIDTH = '10%';
+    const CHAT_MAX_WIDTH = '25%';
+    const CHAT_DEFAULT_WIDTH = '15%';
 
     if (!chat) return null;
 
@@ -262,8 +259,8 @@ class App extends Component {
     return (
       <Resizable
         defaultSize={{ width: CHAT_DEFAULT_WIDTH }}
-        minWidth={CHAT_MIN_WIDTH_PX}
-        maxWidth={CHAT_MAX_WIDTH_PX}
+        minWidth={CHAT_MIN_WIDTH}
+        maxWidth={CHAT_MAX_WIDTH}
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
         enable={resizableEnableOptions}

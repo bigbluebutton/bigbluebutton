@@ -40,6 +40,11 @@ const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
   }
 };
 
+const zoomSlide = (currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset) => {
+  makeCall('zoomSlide', currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset);
+};
+
+
 const skipToSlide = (requestedSlideNum, podId) => {
   makeCall('switchSlide', requestedSlideNum, podId);
 };
@@ -49,4 +54,5 @@ export default {
   nextSlide,
   previousSlide,
   skipToSlide,
+  zoomSlide,
 };

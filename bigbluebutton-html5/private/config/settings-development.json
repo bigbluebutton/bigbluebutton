@@ -151,8 +151,8 @@
           "removePresentation",
           "setPresentation",
           "requestPresentationUploadToken",
-          "startPoll",
-          "zoomSlide"
+          "zoomSlide",
+          "startPoll"
         ]
       }
     },
@@ -355,8 +355,8 @@
             "value": "pencil"
           },
           {
-            "icon": "pointer",
-            "value": "pointer"
+            "icon": "hand",
+            "value": "hand"
           }
         ]
       }
