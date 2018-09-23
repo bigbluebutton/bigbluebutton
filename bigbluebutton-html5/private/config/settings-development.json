@@ -151,7 +151,8 @@
           "removePresentation",
           "setPresentation",
           "requestPresentationUploadToken",
-          "initiatePoll"
+          "startPoll",
+          "zoomSlide"
         ]
       }
     },

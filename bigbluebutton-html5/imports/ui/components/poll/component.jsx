@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import Button from '/imports/ui/components/button/component';
 import Icon from '/imports/ui/components/icon/component';
+import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { styles } from './styles.scss';
@@ -73,85 +74,103 @@ class Poll extends Component {
 
     this.toggleCustomFields = this.toggleCustomFields.bind(this);
     this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
-    this.renderCustomInputs = this.renderCustomInputs.bind(this);
-    this.setCustomInputStrings = this.setCustomInputStrings.bind(this);
-    this.getCustomInputs = this.getCustomInputs.bind(this);
-    this.getCustomInput = this.getCustomInput.bind(this);
+    this.renderInputFields = this.renderInputFields.bind(this);
+    this.validateInputField = this.validateInputField.bind(this);
+    this.getInputFields = this.getInputFields.bind(this);
   }
 
-  getCustomInputs(fn, amount) {
-    const inputs = [];
-    while (amount--) inputs.push(fn());
-    return inputs;
+  componentDidUpdate(prevProps, prevState) {
+    const { currentUser, router } = this.props;
+
+    if (!currentUser.presenter) router.push('/users');
   }
 
-  getCustomInput() {
+  getInputFields() {
     const { intl } = this.props;
-    return (
-      <input
+    const MAX_INPUT_FIELDS = 5;
+    const items = [];
+
+    for (let i = 0; i < MAX_INPUT_FIELDS; i++) {
+      items.push(<input
         key={_.uniqueId('custom-poll-')}
         placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-      />
-    );
-  }
-
-  setCustomInputStrings(menu) {
-    this.pollOptions = [];
-
-    for (let i = 0; i < (menu.children.length - 1); i++) {
-      this.pollOptions.push(menu.children[i].value === '' ? null : menu.children[i].value);
+        className={styles.input}
+        ref={(node) => { this[`pollInput${i}`] = node; }}
+        onChange={() => this.validateInputField(this[`pollInput${i}`])}
+        data-index={i}
+      />);
     }
 
-    this.pollOptions = this.pollOptions.filter(option => option);
+    return items;
+  }
+
+  validateInputField(ref) {
+    const option = ref.value.replace(/\s{2,}/g, ' ').trim();
+    const index = ref.getAttribute('data-index');
+
+    this.pollOptions[index] = option === '' ? '' : option;
+
+    return _.compact(this.pollOptions).length > 1
+      ? findDOMNode(this.startPollBtn).setAttribute('aria-disabled', 'false')
+      : findDOMNode(this.startPollBtn).setAttribute('aria-disabled', 'true');
   }
 
   toggleCustomFields() {
     const { customPollReq } = this.state;
-    customPollReq ? this.setState({ customPollReq: false }) : this.setState({ customPollReq: true });
+
+    this.pollOptions = [];
+
+    return customPollReq
+      ? this.setState({ customPollReq: false })
+      : this.setState({ customPollReq: true });
   }
 
   renderQuickPollBtns() {
     const { pollTypes, startPoll, intl } = this.props;
-    const btns = [];
 
-    Object.entries(pollTypes).forEach(([key, value]) => {
+    const btns = pollTypes.reduce((arr, type) => {
+      if (type === 'custom') return arr;
+
       let label = '';
 
-      switch (key) {
-        case 'YN': label = intl.formatMessage(intlMessages.yesno); break;
-        case 'TF': label = intl.formatMessage(intlMessages.truefalse); break;
-        case 'A2': label = intl.formatMessage(intlMessages.ab); break;
-        case 'A3': label = intl.formatMessage(intlMessages.abc); break;
-        case 'A4': label = intl.formatMessage(intlMessages.abcd); break;
-        case 'A5': label = intl.formatMessage(intlMessages.abcde); break;
-        default: break;
-      }
+      if (type === 'YN') label = intl.formatMessage(intlMessages.yesno);
+      if (type === 'TF') label = intl.formatMessage(intlMessages.truefalse);
+      if (type === 'A-2') label = intl.formatMessage(intlMessages.ab);
+      if (type === 'A-3') label = intl.formatMessage(intlMessages.abc);
+      if (type === 'A-4') label = intl.formatMessage(intlMessages.abcd);
+      if (type === 'A-5') label = intl.formatMessage(intlMessages.abcde);
 
-      btns.push(<Button
+      arr.push(<Button
         label={label}
-        color="primary"
+        color="primary-outlined"
         className={styles.pollBtn}
         key={_.uniqueId('quick-poll-')}
-        onClick={() => { startPoll(value); }}
+        onClick={() => { startPoll(type); }}
       />);
-    });
+
+      return arr;
+    }, []);
 
     return btns;
   }
 
-  renderCustomInputs() {
-    const { intl } = this.props;
-    const MAX_POLL_CHOICES = 5;
+  renderInputFields() {
+    const { intl, startCustomPoll } = this.props;
 
     return (
-      <div
-        className={styles.customInputWrapper}
-        ref={(node) => { this.customInputWrapper = node; }}
-      >
-        { this.getCustomInputs(this.getCustomInput, MAX_POLL_CHOICES) }
+      <div className={styles.customInputWrapper}>
+        {this.getInputFields()}
         <Button
-          onClick={() => { this.setCustomInputStrings(this.customInputWrapper); }}
+          onClick={() => {
+            if (_.compact(this.pollOptions).length > 1) {
+              startCustomPoll('custom', _.compact(this.pollOptions));
+            }
+          }}
           label={intl.formatMessage(intlMessages.startCustomLabel)}
+          color="primary"
+          ref={node => this.startPollBtn = node}
+          aria-disabled
+          className={styles.btn}
         />
       </div>
     );
@@ -162,7 +181,7 @@ class Poll extends Component {
     const { customPollReq } = this.state;
 
     return (
-      <div className={styles.pollmenu}>
+      <div>
         <header className={styles.header}>
           <Link
             to="/users"
@@ -172,27 +191,22 @@ class Poll extends Component {
             <Icon iconName="left_arrow" />{intl.formatMessage(intlMessages.pollPaneTitle)}
           </Link>
         </header>
-
         <div className={styles.instructions}>
           {intl.formatMessage(intlMessages.quickPollInstruction)}
         </div>
-
         <div className={styles.grid}>
           {this.renderQuickPollBtns()}
         </div>
-
         <div className={styles.instructions}>
           {intl.formatMessage(intlMessages.customPollInstruction)}
         </div>
-
         <Button
           className={styles.customBtn}
-          color="primary"
+          color="primary-outlined"
           onClick={this.toggleCustomFields}
           label={intl.formatMessage(intlMessages.customPollLabel)}
         />
-
-        {!customPollReq ? null : this.renderCustomInputs()}
+        {!customPollReq ? null : this.renderInputFields()}
       </div>
     );
   }

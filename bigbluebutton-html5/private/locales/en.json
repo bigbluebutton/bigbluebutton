@@ -215,6 +215,8 @@
     "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Stop sharing your screen with",
     "app.actionsBar.actionsDropdown.startRecording": "Start recording",
     "app.actionsBar.actionsDropdown.stopRecording": "Stop recording",
+    "app.actionsBar.actionsDropdown.pollBtnLabel": "Start Poll",
+    "app.actionsBar.actionsDropdown.pollBtnDesc": "Toggles poll pane",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set Status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",
     "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",

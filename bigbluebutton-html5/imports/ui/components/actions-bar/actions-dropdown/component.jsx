@@ -54,6 +54,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopRecording',
     description: 'stop recording option',
   },
+  pollBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
+    description: 'poll menu toggle button label',
+  },
+  pollBtnDesc: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
+    description: 'poll menu toggle button description',
+  },
 });
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
@@ -69,6 +77,7 @@ class ActionsDropdown extends Component {
     this.presentationItemId = _.uniqueId('action-item-');
     this.videoItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
+    this.pollId = _.uniqueId('action-item-');
   }
 
   componentWillUpdate(nextProps) {
@@ -95,9 +104,9 @@ class ActionsDropdown extends Component {
       (isUserPresenter ?
         <DropdownListItem
           icon="user"
-          label="Start Poll"
-          description="Starts Poll"
-          key="someID"
+          label={intl.formatMessage(intlMessages.pollBtnLabel)}
+          description={intl.formatMessage(intlMessages.pollBtnDesc)}
+          key={this.pollId}
           onClick={() => togglePollMenu()}
         />
         : null),

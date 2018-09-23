@@ -33,6 +33,11 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
 $btn-jumbo-font-size: 3rem;
 $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 
+$btn-outlined-hover: #1A73D4;
+$btn-outlined-bg: $color-white;
+$btn-outlined-color: $color-gray-light;
+$btn-outlined-border: $color-gray-light;
+
 /* Base
  * ==========
  */
@@ -116,9 +121,6 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     line-height: 1.5;
     text-align: center;
     white-space: nowrap;
-    vertical-align: middle;
-
-
   }
 
   .buttonWrapper.sm & {
@@ -166,7 +168,6 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 /* Colors
  * ==========
  */
-
 @mixin button-variant($color, $background, $border) {
   $active-background: darken($background, 10%);
   $active-border: darken($border, 12%);
@@ -219,6 +220,36 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   }
 }
 
+@mixin button-outlined-variant($color, $background, $border, $color-outline) {
+  color: $color;
+  background-color: $background;
+  box-shadow: 0 0 0 1px $border;
+
+  &:hover,
+  .buttonWrapper:hover & {
+    color: $color-outline;
+    background-color: $background;
+    box-shadow: 0 0 0 1px $color-outline;
+
+     .label:hover  {
+      color: $color-outline !important;
+      opacity: 1 !important;
+    }
+  }
+
+  &:focus,
+  .buttonWrapper:focus:not([aria-disabled="true"]) & {
+    outline: none !important;
+    color: $color-outline;
+    background-color: $background;
+    box-shadow: 0 0 0 $border-size $color-outline;
+  }
+
+  &:active {
+    box-shadow: 0 0 0 $border-size $color-outline;
+  }
+}
+
 .default {
   @include button-variant($btn-default-color, $btn-default-bg, $btn-primary-border);
 }
@@ -235,6 +266,9 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   @include button-variant($btn-danger-color, $btn-danger-bg, $btn-danger-border);
 }
 
+.primary-outlined {
+  @include button-outlined-variant($btn-outlined-color, $btn-outlined-bg, $btn-outlined-border, $btn-outlined-hover);
+}
 
 /* Styles
  * ==========
