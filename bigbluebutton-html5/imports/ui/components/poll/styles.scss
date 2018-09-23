@@ -1,20 +1,82 @@
 @import "/imports/ui/stylesheets/variables/_all";
-@import "/imports/ui/stylesheets/mixins/_scrollable";
 
+$column-amount: 2;
 
 .pollMenu {
     height: 100vh;
-
     display: flex;
     flex-flow: column;
     justify-content: flex-start;
-
-
     background-color: #fff;
     padding: $md-padding-x;
-
     flex-grow: 1;
     flex-direction: column;
     justify-content: space-around;
     overflow: hidden;
+}
+
+.customBtn {
+    width: 100%;
+}
+
+.customInputWrapper {
+    width: 100%;
+
+    > input {
+        width: 100%;
+        margin-top: $sm-padding-y;
+        margin-bottom: $sm-padding-y;
+    }
+
+    > input:first-child {
+        margin-top: $md-padding-y;
+    }
+
+    > Button {
+        width: 100%;
+        margin-top: $sm-padding-y;
+        margin-bottom: $sm-padding-y;
+    }
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: $md-padding-y;
+
+    > a {
+        text-decoration: none;
+    }
+}
+
+.instructions {
+    margin-top: $lg-padding-x;
+    margin-bottom: $lg-padding-x;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat($column-amount, 1fr);
+
+    > pollBtn:nth-child(odd) {
+        grid-column: 1;
+    }
+
+    > pollBtn:nth-child(even) {
+        grid-column: 2;
+    }
+}
+
+.pollBtn:nth-child(even) {
+    margin-left: $sm-padding-y;
+}
+
+.pollBtn:nth-child(odd) {
+    margin-right: $sm-padding-y;
+}
+
+.pollBtn {
+    margin-top: $sm-padding-y;
+    margin-bottom: $sm-padding-y;
 }

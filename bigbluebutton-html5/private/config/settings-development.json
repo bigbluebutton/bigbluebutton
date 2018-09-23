@@ -150,7 +150,8 @@
           "sendAnnotation",
           "removePresentation",
           "setPresentation",
-          "requestPresentationUploadToken"
+          "requestPresentationUploadToken",
+          "initiatePoll"
         ]
       }
     },

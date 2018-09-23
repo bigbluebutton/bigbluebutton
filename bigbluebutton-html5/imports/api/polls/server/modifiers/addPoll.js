@@ -7,7 +7,6 @@ import { check } from 'meteor/check';
 export default function addPoll(meetingId, requesterId, poll) {
   check(requesterId, String);
   check(meetingId, String);
-
   check(poll, {
     id: String,
     answers: [
@@ -31,7 +30,9 @@ export default function addPoll(meetingId, requesterId, poll) {
 
   const userIds = Users.find(selector, options)
     .fetch()
-    .map(user => user.userId);
+    .map((user) => {
+      if (user.userId !== requesterId) return user.userId;
+    });
 
   selector = {
     meetingId,

@@ -98,8 +98,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   @extend %text-elipsis;
 
   z-index: 2;
-  overflow: visible;
-
+  overflow: visible;  
   order: 1;
 
   @include mq($small-only) {
@@ -147,11 +146,35 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   }
 }
 
-//fix this stuff
 .poll {
   @extend %full-page;
-  width: 250px;
+  
+  order: 2;
+  height: 100%;
   background-color: white;
+
+  min-width: 320px;
+  padding: 15px;
+  flex: 0 25vw;
+
+
+  @include mq($small-only) {
+    z-index: 3;
+    height: auto;
+    top: $navbar-height;
+    overflow: visible;
+  }
+
+  @include mq($medium-up) {
+    flex: 0 25vw;
+    order: 1;
+  }
+
+  @include mq($xlarge-up) {
+    flex-basis: 20vw;
+  }
+
+
 }
 
 .sidebar {

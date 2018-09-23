@@ -1,7 +1,7 @@
 import React from 'react';
 import { Router, Route, Redirect, IndexRoute, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
-import Poll from '/imports/ui/components/poll/component';
+import PollContainer from '/imports/ui/components/poll/container';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
@@ -33,7 +33,7 @@ const renderRoutes = () => (
         path="users/poll"
         components={{
           userList: UserListContainer,
-          poll: Poll,
+          poll: PollContainer,
         }}
       />
 
