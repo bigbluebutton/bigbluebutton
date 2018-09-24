@@ -152,7 +152,9 @@
           "setPresentation",
           "zoomSlide",
           "requestPresentationUploadToken",
-          "startPoll"
+          "startPoll",
+          "stopPoll",
+          "publishPoll"
         ]
       }
     },

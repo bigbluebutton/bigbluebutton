@@ -8,6 +8,11 @@ $column-amount: 2;
     width: 100%;
 }
 
+.btn {
+    margin-top: $sm-padding-y;
+    margin-bottom: $sm-padding-y;
+}
+
 .customInputWrapper {
     width: 100%;
 
@@ -42,7 +47,7 @@ $column-amount: 2;
 .instructions {
     margin-top: $lg-padding-x;
     margin-bottom: $lg-padding-x;
-    font-weight: 600;
+
     color: $color-text;
 }
 

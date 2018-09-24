@@ -32,6 +32,18 @@ const intlMessages = defineMessages({
     id: 'app.poll.quickPollInstruction',
     description: 'instructions for using pre configured polls',
   },
+  activePollInstruction: {
+    id: 'app.poll.activePollInstruction',
+    description: 'instructions displayed when a poll is active',
+  },
+  publishLabel: {
+    id: 'app.poll.publishLabel',
+    description: 'label for the publish button',
+  },
+  backLabel: {
+    id: 'app.poll.backLabel',
+    description: 'label for the return to poll options button',
+  },
   customPlaceholder: {
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',
@@ -68,6 +80,7 @@ class Poll extends Component {
 
     this.state = {
       customPollReq: false,
+      isPolling: false,
     };
 
     this.pollOptions = [];
@@ -145,7 +158,9 @@ class Poll extends Component {
         color="primary-outlined"
         className={styles.pollBtn}
         key={_.uniqueId('quick-poll-')}
-        onClick={() => { startPoll(type); }}
+        onClick={() => {
+          this.setState({ isPolling: true }, () => startPoll(type));
+        }}
       />);
 
       return arr;
@@ -163,7 +178,7 @@ class Poll extends Component {
         <Button
           onClick={() => {
             if (_.compact(this.pollOptions).length > 1) {
-              startCustomPoll('custom', _.compact(this.pollOptions));
+              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.pollOptions)));
             }
           }}
           label={intl.formatMessage(intlMessages.startCustomLabel)}
@@ -176,21 +191,43 @@ class Poll extends Component {
     );
   }
 
-  render() {
+  renderActivePollOptions() {
+    const {
+      intl, router, publishPoll, stopPoll,
+    } = this.props;
+
+    return (
+      <div>
+        <div className={styles.instructions}>{intl.formatMessage(intlMessages.activePollInstruction)}</div>
+        <Button
+          onClick={() => {
+            router.push('/users');
+            publishPoll();
+            this.setState({ isPolling: false });
+          }}
+          label={intl.formatMessage(intlMessages.publishLabel)}
+          color="primary"
+          className={styles.btn}
+        />
+        <Button
+          onClick={() => {
+            stopPoll();
+            this.setState({ isPolling: false });
+          }}
+          label={intl.formatMessage(intlMessages.backLabel)}
+          color="default"
+          className={styles.btn}
+        />
+      </div>
+    );
+  }
+
+  renderPollOptions() {
     const { intl } = this.props;
     const { customPollReq } = this.state;
 
     return (
       <div>
-        <header className={styles.header}>
-          <Link
-            to="/users"
-            role="button"
-            aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
-          >
-            <Icon iconName="left_arrow" />{intl.formatMessage(intlMessages.pollPaneTitle)}
-          </Link>
-        </header>
         <div className={styles.instructions}>
           {intl.formatMessage(intlMessages.quickPollInstruction)}
         </div>
@@ -207,6 +244,35 @@ class Poll extends Component {
           label={intl.formatMessage(intlMessages.customPollLabel)}
         />
         {!customPollReq ? null : this.renderInputFields()}
+      </div>
+    );
+  }
+
+  render() {
+    const {
+      intl, stopPoll,
+    } = this.props;
+
+    return (
+      <div>
+        <header className={styles.header}>
+          <Link
+            to="/users"
+            role="button"
+            aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
+            onClick={() => {
+              if (this.state.isPolling) {
+                stopPoll();
+                this.setState({ isPolling: false });
+              }
+            }}
+          >
+            <Icon iconName="left_arrow" />{intl.formatMessage(intlMessages.pollPaneTitle)}
+          </Link>
+        </header>
+        {
+          this.state.isPolling ? this.renderActivePollOptions() : this.renderPollOptions()
+        }
       </div>
     );
   }

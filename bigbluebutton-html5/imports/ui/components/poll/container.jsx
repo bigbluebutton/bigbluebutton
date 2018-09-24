@@ -30,11 +30,17 @@ export default withTracker(({ }) => {
 
   const startCustomPoll = (type, answers) => makeCall('startPoll', type, currentSlide.id, answers);
 
+  const stopPoll = () => makeCall('stopPoll', Auth.userId);
+
+  const publishPoll = () => makeCall('publishPoll');
+
   return {
     currentSlide,
     currentUser,
     pollTypes,
     startPoll,
     startCustomPoll,
+    stopPoll,
+    publishPoll,
   };
 })(PollContainer);
