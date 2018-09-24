@@ -1838,8 +1838,7 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-              true /* default presentation */ );
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
     } else {
       log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
@@ -1850,7 +1849,12 @@ class ApiController {
           // need to iterate over presentation files and process them
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), true /* default presentation */);
+              def fileName;
+              if (!StringUtils.isEmpty(document.@filename.toString())) {
+                  log.debug("user provided filename: [${module.@filename}]");
+                  fileName = document.@filename.toString();
+              }
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), true /* default presentation */, fileName);
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
@@ -1884,9 +1888,15 @@ class ApiController {
 
   }
 
-  def downloadAndProcessDocument(address, meetingId, current) {
-    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
-    String presFilename = address.tokenize("/")[-1];
+  def downloadAndProcessDocument(address, meetingId, current, fileName) {
+    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
+    String presFilename;
+    if (StringUtils.isEmpty(fileName)) {
+        presFilename = address.tokenize("/")[-1];
+    } else {
+        presFilename = fileName;
+    }
+    
     def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
 
@@ -1900,7 +1910,7 @@ class ApiController {
         def pres = new File(newFilePath)
         processUploadedFile(meetingId, presId, presFilename, pres, current);
       } else {
-        log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
+        log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
       }
     }
   }
