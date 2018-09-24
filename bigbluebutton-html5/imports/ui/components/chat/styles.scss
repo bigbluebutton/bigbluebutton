@@ -45,6 +45,7 @@ $background-active: darken($color-white, 5%);
   justify-content: space-around;
   overflow: hidden;
   height: 100vh;
+  transform: translateZ(0);
 }
 
 .header {

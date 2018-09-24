@@ -6,14 +6,14 @@ export default function clearPresentations(meetingId, podId) {
   if (meetingId && podId) {
     return Presentations.remove(
       { meetingId, podId },
-      Logger.info(`Cleared Presentations for the podId=${podId} and meetingId=${meetingId}`),
+      Logger.info(`Cleared Presentations (${meetingId}, ${podId})`),
     );
 
   // clearing presentations for the whole meeting
   } else if (meetingId) {
     return Presentations.remove(
       { meetingId },
-      Logger.info(`Cleared Presentations for the meetingId=${meetingId}`),
+      Logger.info(`Cleared Presentations (${meetingId})`),
     );
   }
 

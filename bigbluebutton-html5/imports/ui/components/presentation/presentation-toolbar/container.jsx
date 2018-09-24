@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
+import PresentationService from '/imports/ui/components/presentation/service';
 import PresentationToolbarService from './service';
 import PresentationToolbar from './component';
 
-import PresentationService from '/imports/ui/components/presentation/service';
 
 const PresentationToolbarContainer = (props) => {
   const {
@@ -12,15 +12,21 @@ const PresentationToolbarContainer = (props) => {
     userIsPresenter,
     numberOfSlides,
     actions,
+    zoom,
+    zoomChanger,
   } = props;
 
   if (userIsPresenter) {
     // Only show controls if user is presenter
     return (
       <PresentationToolbar
-        currentSlideNum={currentSlideNum}
-        numberOfSlides={numberOfSlides}
-        actions={actions}
+        {...{
+          currentSlideNum,
+          numberOfSlides,
+          actions,
+          zoom,
+          zoomChanger,
+        }}
       />
     );
   }
@@ -38,6 +44,8 @@ export default withTracker((params) => {
   return {
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides,
+    zoom: params.zoom,
+    zoomChanger: params.zoomChanger,
     actions: {
       nextSlideHandler: () =>
         PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides, podId),
@@ -45,6 +53,8 @@ export default withTracker((params) => {
         PresentationToolbarService.previousSlide(params.currentSlideNum, podId),
       skipToSlideHandler: requestedSlideNum =>
         PresentationToolbarService.skipToSlide(requestedSlideNum, podId),
+      zoomSlideHandler: value =>
+        PresentationToolbarService.zoomSlide(params.currentSlideNum, podId, value),
     },
   };
 })(PresentationToolbarContainer);
@@ -52,6 +62,8 @@ export default withTracker((params) => {
 PresentationToolbarContainer.propTypes = {
   // Number of current slide being displayed
   currentSlideNum: PropTypes.number.isRequired,
+  zoom: PropTypes.number.isRequired,
+  zoomChanger: PropTypes.func.isRequired,
 
   // Is the user a presenter
   userIsPresenter: PropTypes.bool.isRequired,
