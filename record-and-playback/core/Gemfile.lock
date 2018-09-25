@@ -4,6 +4,8 @@ GEM
     absolute_time (1.0.0)
     builder (3.2.3)
     fastimage (2.1.0)
+    java_properties (0.0.4)
+    jwt (2.1.0)
     mini_portile2 (2.3.0)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
@@ -19,6 +21,8 @@ DEPENDENCIES
   absolute_time
   builder
   fastimage
+  java_properties
+  jwt
   nokogiri
   open4
   redis
@@ -26,4 +30,4 @@ DEPENDENCIES
   trollop
 
 BUNDLED WITH
-   1.13.7
+   1.15.4
