@@ -5,6 +5,7 @@ import { withRouter } from 'react-router';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '../user-list/service';
 import ChatService from '../chat/service';
 import Service from './service';
@@ -12,7 +13,6 @@ import NavBar from './component';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const PUBLIC_GROUP_CHAT_ID = PUBLIC_CONFIG.chat.public_group_id;
-const CLIENT_TITLE = PUBLIC_CONFIG.app.clientTitle;
 
 const NavBarContainer = ({ children, ...props }) => (
   <NavBar {...props}>
@@ -21,6 +21,8 @@ const NavBarContainer = ({ children, ...props }) => (
 );
 
 export default withRouter(withTracker(({ location, router }) => {
+  const CLIENT_TITLE = getFromUserSettings('clientTitle', PUBLIC_CONFIG.app.clientTitle);
+
   let meetingTitle;
   let meetingRecorded;
 

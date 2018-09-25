@@ -5,6 +5,7 @@ import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import Media from './component';
 import MediaService, { getSwapLayout } from './service';
 import PresentationPodsContainer from '../presentation-pod/container';
@@ -120,7 +121,7 @@ export default withTracker(() => {
     data.hideOverlay = hidePresentation;
   }
 
-  const { enableVideo } = Meteor.settings.public.kurento;
+  const enableVideo = getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo);
   const autoShareWebcam = SessionStorage.getItem('metadata').html5autosharewebcam || false;
 
   if (enableVideo && autoShareWebcam) {

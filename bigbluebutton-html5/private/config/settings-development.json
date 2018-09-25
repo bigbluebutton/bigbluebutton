@@ -111,7 +111,8 @@
           "whiteboard-multi-user",
           "presentation-pods",
           "group-chat",
-          "group-chat-msg"
+          "group-chat-msg",
+          "users-settings"
         ],
         "methods": [
           "listenOnlyToggle",

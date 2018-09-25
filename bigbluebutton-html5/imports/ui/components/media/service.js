@@ -6,6 +6,7 @@ import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import PollingService from '/imports/ui/components/polling/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
@@ -24,11 +25,11 @@ function shouldShowWhiteboard() {
 }
 
 function shouldShowScreenshare() {
-  return isVideoBroadcasting() && Meteor.settings.public.kurento.enableScreensharing;
+  return isVideoBroadcasting() && getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing);
 }
 
 function shouldShowOverlay() {
-  return Meteor.settings.public.kurento.enableVideo;
+  return getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo);
 }
 
 const swapLayout = {

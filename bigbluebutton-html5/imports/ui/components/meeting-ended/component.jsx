@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import Rating from './rating/component';
 import { styles } from './styles';
 
@@ -82,7 +83,7 @@ class MeetingEnded extends React.PureComponent {
     };
     this.setSelectedStar = this.setSelectedStar.bind(this);
     this.sendFeedback = this.sendFeedback.bind(this);
-    this.shouldShowFeedback = Meteor.settings.public.app.askForFeedbackOnLogout;
+    this.shouldShowFeedback = getFromUserSettings('askForFeedbackOnLogout', Meteor.settings.public.app.askForFeedbackOnLogout);
   }
   setSelectedStar(starNumber) {
     this.setState({
