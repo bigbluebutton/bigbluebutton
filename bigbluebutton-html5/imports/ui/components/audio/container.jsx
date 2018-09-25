@@ -5,6 +5,7 @@ import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
 import { notify } from '/imports/ui/services/notification';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 
@@ -77,7 +78,7 @@ let didMountAutoJoin = false;
 export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
   const APP_CONFIG = Meteor.settings.public.app;
 
-  const { autoJoin } = APP_CONFIG;
+  const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
   const openAudioModal = mountModal.bind(
     null,
     <AudioModalContainer />,

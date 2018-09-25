@@ -19,6 +19,8 @@ class ActionsBar extends React.PureComponent {
       recordSettingsList,
       toggleRecording,
       togglePollMenu,
+      screenSharingCheck,
+      enableVideo,
     } = this.props;
 
     const {
@@ -47,7 +49,7 @@ class ActionsBar extends React.PureComponent {
         </div>
         <div className={isUserPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center}>
           <AudioControlsContainer />
-          {Meteor.settings.public.kurento.enableVideo ?
+          {enableVideo ?
             <JoinVideoOptionsContainer
               handleJoinVideo={handleJoinVideo}
               handleCloseVideo={handleExitVideo}
@@ -58,6 +60,7 @@ class ActionsBar extends React.PureComponent {
               handleUnshareScreen,
               isVideoBroadcasting,
               isUserPresenter,
+              screenSharingCheck,
             }}
           />
         </div>
