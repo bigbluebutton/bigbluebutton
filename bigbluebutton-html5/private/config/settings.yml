@@ -117,6 +117,7 @@ public:
       - presentation-pods
       - group-chat
       - group-chat-msg
+      - users-settings
       methods:
       - listenOnlyToggle
       - userLogout
