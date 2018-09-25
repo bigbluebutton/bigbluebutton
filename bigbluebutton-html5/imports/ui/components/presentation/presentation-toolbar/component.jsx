@@ -128,7 +128,9 @@ class PresentationToolbar extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { sliderValue: 100 };
+    this.state = {
+      sliderValue: 100,
+    };
     this.handleValuesChange = this.handleValuesChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
@@ -145,12 +147,6 @@ class PresentationToolbar extends Component {
       { sliderValue: event.target.value },
       () => this.handleZoom(this.state.sliderValue),
     );
-  }
-
-  fitToWidthClickHandler() {
-    this.setState({
-      fitToWidthValue: 'not_implemented_yet',
-    });
   }
 
   fitToScreenClickHandler() {
@@ -242,8 +238,8 @@ class PresentationToolbar extends Component {
         }
         {
           !isMobileBrowser ?
-            <span className={styles.zoomWrapper}>
-              <ZoomTool
+              <span className={styles.zoomWrapper}>
+                <ZoomTool
                 value={zoom}
                 change={this.change}
                 minBound={HUNDRED_PERCENT}
@@ -253,19 +249,21 @@ class PresentationToolbar extends Component {
             </span>
             : null
         }
-        {/* Fit to width button
-        <Button
-          role="button"
-          aria-labelledby="fitWidthLabel"
-          aria-describedby="fitWidthDesc"
-          color={'default'}
-          icon={'fit_to_width'}
-          size={'md'}
-          circle={false}
-          onClick={this.fitToWidthClickHandler}
-          label={'Fit to Width'}
-          hideLabel={true}
-        /> */}
+        <span className={styles.presentationControls}>
+          <Button
+            role="button"
+            aria-labelledby="fitWidthLabel"
+            aria-describedby="fitWidthDesc"
+            color={'default'}
+            icon={'fit_to_width'}
+            size={'md'}
+            circle={false}
+            onClick={this.props.fitToWidthHandler}
+            label={'Fit to Width'}
+            hideLabel
+            className={styles.skipSlide}
+          />
+        </span>
         {/* Fit to screen button
         <Button
           role="button"
