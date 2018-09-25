@@ -54,6 +54,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopRecording',
     description: 'stop recording option',
   },
+  createBreakoutRoom: {
+    id: 'app.actionsBar.actionsDropdown.createBreakoutRoom',
+    description: 'Create breakout room option',
+  },
+  createBreakoutRoomDesc: {
+    id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
+    description: 'Description of create breakout room option',
+  },
 });
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
@@ -109,6 +117,15 @@ class ActionsDropdown extends Component {
             intlMessages.stopRecording : intlMessages.startRecording)}
           key={this.recordId}
           onClick={toggleRecording}
+        />
+        : null),
+      (isUserPresenter ?
+        <DropdownListItem
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+          key={this.presentationItemId}
+          onClick={this.handlePresentationClick}
         />
         : null),
     ]);
