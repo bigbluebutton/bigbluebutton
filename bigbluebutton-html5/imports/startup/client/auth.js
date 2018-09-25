@@ -1,14 +1,13 @@
 import Auth from '/imports/ui/services/auth';
 import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
-import { log } from '/imports/ui/services/api';
+import { log, makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
 const METADATA_KEY = 'metadata';
-const CUSTOM_DATA_KEY = 'customdata';
 
 export function joinRouteHandler(nextState, replace, callback) {
   const { sessionToken } = nextState.location.query;
@@ -61,29 +60,11 @@ export function joinRouteHandler(nextState, replace, callback) {
           return { ...acc, [key]: value };
         }, {}) : {};
 
-      const customData = customdata.length
-        ? customdata.reduce((acc, data) => {
-          const key = Object.keys(data).shift();
-
-          const handledHTML5Parameters = [
-            'html5recordingbot',
-          ];
-          if (handledHTML5Parameters.indexOf(key) === -1) {
-            return acc;
-          }
-
-          let value = data[key];
-          try {
-            value = JSON.parse(value);
-          } catch (e) {
-            log('error', `Caught: ${e.message}`);
-          }
-
-          return { ...acc, [key]: value };
-        }, {}) : {};
+      if (customdata.length) {
+        makeCall('addUserSettings', meetingID, internalUserID, customdata);
+      }
 
       SessionStorage.setItem(METADATA_KEY, metakeys);
-      SessionStorage.setItem(CUSTOM_DATA_KEY, customData);
 
       Auth.set(
         meetingID, internalUserID, authToken, logoutUrl,

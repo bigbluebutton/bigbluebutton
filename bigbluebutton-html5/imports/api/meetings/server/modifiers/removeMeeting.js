@@ -2,6 +2,7 @@ import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
+import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
 import clearGroupChat from '/imports/api/group-chat/server/modifiers/clearGroupChat';
 import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
 import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
@@ -22,6 +23,7 @@ export default function removeMeeting(meetingId) {
     clearAnnotations(meetingId);
     clearSlides(meetingId);
     clearUsers(meetingId);
+    clearUsersSettings(meetingId);
     clearVoiceUsers(meetingId);
 
     return Logger.info(`Cleared Meetings with id ${meetingId}`);
