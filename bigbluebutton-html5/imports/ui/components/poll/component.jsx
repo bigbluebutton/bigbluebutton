@@ -89,13 +89,21 @@ class Poll extends Component {
     this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
     this.renderInputFields = this.renderInputFields.bind(this);
     this.validateInputField = this.validateInputField.bind(this);
+    this.nonPresenterRedirect = this.nonPresenterRedirect.bind(this);
     this.getInputFields = this.getInputFields.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { currentUser, router } = this.props;
+  componentWillMount() {
+    this.nonPresenterRedirect();
+  }
 
-    if (!currentUser.presenter) router.push('/users');
+  componentDidUpdate(prevProps, prevState) {
+    this.nonPresenterRedirect();
+  }
+
+  nonPresenterRedirect() {
+    const { currentUser, router } = this.props;
+    if (!currentUser.presenter) return router.push('/users');
   }
 
   getInputFields() {
