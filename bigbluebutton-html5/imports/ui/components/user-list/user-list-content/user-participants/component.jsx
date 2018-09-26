@@ -4,9 +4,6 @@ import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
-import Auth from '/imports/ui/services/auth';
-import mapUser from '/imports/ui/services/user/mapUser';
-import Users from '/imports/api/users/';
 import UserListItem from './user-list-item/component';
 import UserOptionsContainer from './user-options/container';
 
@@ -172,9 +169,6 @@ class UserParticipants extends Component {
   render() {
     const { intl, users, compact } = this.props;
 
-    const currentUser = Users.findOne({ userId: Auth.userID });
-    const currentUserIsModerator = mapUser(currentUser).isModerator;
-
     return (
       <div>
         {
@@ -185,8 +179,7 @@ class UserParticipants extends Component {
                 &nbsp;({users.length})
 
               </h2>
-              {currentUserIsModerator ?
-                <UserOptionsContainer /> : null}
+              <UserOptionsContainer />
             </div>
             : <hr className={styles.separator} />
         }

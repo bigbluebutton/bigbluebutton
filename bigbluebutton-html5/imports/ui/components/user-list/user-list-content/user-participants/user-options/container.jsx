@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import logger from '/imports/startup/client/logger';
+import Auth from '/imports/ui/services/auth';
+import mapUser from '/imports/ui/services/user/mapUser';
+import Users from '/imports/api/users/';
 import UserOptions from './component';
 
 export default class UserOptionsContainer extends Component {
@@ -29,13 +32,17 @@ export default class UserOptionsContainer extends Component {
   }
 
   render() {
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    const currentUserIsModerator = mapUser(currentUser).isModerator;
+
     return (
-      <UserOptions
-        toggleMuteAllUsers={this.muteAllUsers}
-        toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
-        toggleLockView={this.handleLockView}
-        toggleStatus={this.handleClearStatus}
-      />
+      currentUserIsModerator ?
+        <UserOptions
+          toggleMuteAllUsers={this.muteAllUsers}
+          toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
+          toggleLockView={this.handleLockView}
+          toggleStatus={this.handleClearStatus}
+        /> : null
     );
   }
 }
