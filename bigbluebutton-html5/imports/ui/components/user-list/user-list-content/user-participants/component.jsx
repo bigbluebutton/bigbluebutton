@@ -109,8 +109,8 @@ class UserParticipants extends Component {
       setEmojiStatus,
       removeUser,
       toggleVoice,
-      getGroupChatPrivate, //// TODO check if this is used
-      handleEmojiChange, //// TODO add to props validation
+      getGroupChatPrivate, // // TODO check if this is used
+      handleEmojiChange, // // TODO add to props validation
       getEmojiList,
       getEmoji,
     } = this.props;
@@ -147,6 +147,7 @@ class UserParticipants extends Component {
               removeUser,
               toggleVoice,
               changeRole,
+              getGroupChatPrivate,
             }}
             getScrollContainerRef={this.getScrollContainerRef}
           />

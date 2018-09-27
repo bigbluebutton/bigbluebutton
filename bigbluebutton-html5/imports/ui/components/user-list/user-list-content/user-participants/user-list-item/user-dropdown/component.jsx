@@ -172,6 +172,7 @@ class UserDropdown extends Component {
       router,
       isBreakoutRoom,
       getAvailableActions,
+      getGroupChatPrivate,
       handleEmojiChange,
       getEmojiList,
       setEmojiStatus,
@@ -233,7 +234,10 @@ class UserDropdown extends Component {
       actions.push(this.makeDropdownItem(
         'openChat',
         intl.formatMessage(messages.ChatLabel),
-        () => this.onActionsHide(router.push(`/users/chat/${user.id}`)),
+        () => {
+          getGroupChatPrivate(currentUser, user);
+          this.onActionsHide(router.push(`/users/chat/${user.id}`));
+        },
         'chat',
       ));
     }
