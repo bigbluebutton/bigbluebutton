@@ -209,9 +209,8 @@ class Poll extends Component {
         <div className={styles.instructions}>{intl.formatMessage(intlMessages.activePollInstruction)}</div>
         <Button
           onClick={() => {
-            router.push('/users');
             publishPoll();
-            this.setState({ isPolling: false });
+            router.push('/users');
           }}
           label={intl.formatMessage(intlMessages.publishLabel)}
           color="primary"
