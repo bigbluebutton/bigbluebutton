@@ -31,6 +31,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.muteAllDesc',
     description: 'Mute all description',
   },
+  unmuteAllLabel: {
+    id: 'app.userList.userOptions.unmuteAllLabel',
+    description: 'Unmute all label',
+  },
+  unmuteAllDesc: {
+    id: 'app.userList.userOptions.unmuteAllDesc',
+    description: 'Unmute all desc',
+  },
   lockViewersLabel: {
     id: 'app.userList.userOptions.lockViewersLabel',
     description: 'Lock all label',
@@ -59,11 +67,11 @@ class UserOptions extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.alterMenu = this.alterMenu.bind(this);
   }
 
   componentWillMount() {
-    const { intl } = this.props;
-
+    const { intl, isMeetingMuted } = this.props;
     this.menuItems = _.compact([
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -74,14 +82,14 @@ class UserOptions extends Component {
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon="mute filled"
+        icon="mute"
         label={intl.formatMessage(intlMessages.muteAllLabel)}
         description={intl.formatMessage(intlMessages.muteAllDesc)}
         onClick={this.props.toggleMuteAllUsers}
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon="mute filled"
+        icon="mute"
         label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
         description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
         onClick={this.props.toggleMuteAllUsersExceptPresenter}
@@ -94,6 +102,16 @@ class UserOptions extends Component {
         onClick={this.props.toggleLockView}
       />),
     ]);
+
+    if (isMeetingMuted) {
+      this.alterMenu();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps.isMeetingMuted !== this.props.isMeetingMuted){
+    this.alterMenu();
+    }
   }
 
   onActionsShow() {
@@ -106,6 +124,39 @@ class UserOptions extends Component {
     this.setState({
       isUserOptionsOpen: false,
     });
+  }
+
+  alterMenu() {
+    const { intl, isMeetingMuted } = this.props;
+
+    if (isMeetingMuted) {
+      const menuButton = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="unmute"
+        label={intl.formatMessage(intlMessages.unmuteAllLabel)}
+        description={intl.formatMessage(intlMessages.unmuteAllDesc)}
+        onClick={this.props.toggleMuteAllUsers}
+      />);
+      this.menuItems.splice(1, 2, menuButton);
+    } else {
+      const menuButton1 = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllLabel)}
+        description={intl.formatMessage(intlMessages.muteAllDesc)}
+        onClick={this.props.toggleMuteAllUsers}
+      />);
+
+      const menuButton2 = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+        onClick={this.props.toggleMuteAllUsersExceptPresenter}
+      />);
+      this.menuItems.splice(1, 1, menuButton1);
+      this.menuItems.splice(2, 0, menuButton2);
+    }
   }
 
   render() {

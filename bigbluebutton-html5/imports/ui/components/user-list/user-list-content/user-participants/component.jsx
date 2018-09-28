@@ -20,6 +20,8 @@ const propTypes = {
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
+  muteAllUsers: PropTypes.func.isRequired,
+  muteAllExceptPresenter: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
@@ -167,7 +169,9 @@ class UserParticipants extends Component {
   }
 
   render() {
-    const { intl, users, compact } = this.props;
+    const {
+      intl, users, compact, setEmojiStatus, muteAllUsers, meeting, muteAllExceptPresenter,
+    } = this.props;
 
     return (
       <div>
@@ -179,7 +183,14 @@ class UserParticipants extends Component {
                 &nbsp;({users.length})
 
               </h2>
-              <UserOptionsContainer />
+              <UserOptionsContainer {...{
+                users,
+                muteAllUsers,
+                muteAllExceptPresenter,
+                setEmojiStatus,
+                meeting,
+              }}
+              />
             </div>
             : <hr className={styles.separator} />
         }

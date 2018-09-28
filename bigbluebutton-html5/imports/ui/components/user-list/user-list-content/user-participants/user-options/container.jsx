@@ -3,24 +3,38 @@ import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import mapUser from '/imports/ui/services/user/mapUser';
 import Users from '/imports/api/users/';
+import Meetings from '/imports/api/meetings';
 import UserOptions from './component';
+
 
 export default class UserOptionsContainer extends Component {
   constructor(props) {
     super(props);
+    const meetingId = Auth.meetingID;
+    const meeting = Meetings.findOne({ meetingId });
 
-    this.muteAllUsers = this.muteAllUsers.bind(this);
+    this.state = {
+      isFullScreen: meeting.voiceProp.muteOnStart,
+    };
+
+    this.muteMeeting = this.muteMeeting.bind(this);
     this.muteAllUsersExceptPresenter = this.muteAllUsersExceptPresenter.bind(this);
     this.handleLockView = this.handleLockView.bind(this);
     this.handleClearStatus = this.handleClearStatus.bind(this);
   }
 
-  muteAllUsers() {
-    logger.info('muteAllUsers function');
+  muteMeeting() {
+    const { muteAllUsers } = this.props;
+    const currentUser = Users.findOne({ userId: Auth.userID });
+
+    muteAllUsers(currentUser.userId);
   }
 
   muteAllUsersExceptPresenter() {
-    logger.info('muteAllUsersExceptPresenter function');
+    const { muteAllExceptPresenter } = this.props;
+    const currentUser = Users.findOne({ userId: Auth.userID });
+
+    muteAllExceptPresenter(currentUser.userId);
   }
 
   handleLockView() {
@@ -28,20 +42,26 @@ export default class UserOptionsContainer extends Component {
   }
 
   handleClearStatus() {
-    logger.info('handleClearStatus function');
+    const { users, setEmojiStatus } = this.props;
+
+    users.map(user => setEmojiStatus(user.id, 'none'));
   }
 
   render() {
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsModerator = mapUser(currentUser).isModerator;
+    const meetingId = Auth.meetingID;
+    const meeting = Meetings.findOne({ meetingId });
+    this.state.isFullScreen = meeting.voiceProp.muteOnStart;
 
     return (
       currentUserIsModerator ?
         <UserOptions
-          toggleMuteAllUsers={this.muteAllUsers}
+          toggleMuteAllUsers={this.muteMeeting}
           toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
           toggleLockView={this.handleLockView}
           toggleStatus={this.handleClearStatus}
+          isMeetingMuted={this.state.isFullScreen}
         /> : null
     );
   }

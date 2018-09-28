@@ -136,7 +136,9 @@
           "clearPublicChatHistory",
           "changeRole",
           "ejectUserFromVoice",
-          "toggleRecording"
+          "toggleRecording",
+          "muteAllUsers",
+          "muteAllExceptPresenter"
         ]
       },
       "presenter": {
