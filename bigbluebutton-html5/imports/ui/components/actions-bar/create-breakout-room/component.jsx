@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import _ from 'lodash';
+import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
 import { styles } from './styles';
 import Icon from '../../icon/component';
-import _ from 'lodash';
-import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component.jsx';
 
 const intlMessages = defineMessages({
   BreakoutRoomTitle: {
