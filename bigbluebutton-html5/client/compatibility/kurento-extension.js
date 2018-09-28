@@ -634,7 +634,7 @@ window.getScreenConstraints = function (sendSource, callback) {
         },
         (response) => {
           resolve(response);
-        },
+        }
       );
     });
   };
