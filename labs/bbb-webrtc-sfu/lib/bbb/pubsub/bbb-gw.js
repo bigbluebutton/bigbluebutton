@@ -105,6 +105,11 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
           payload[C.MEETING_ID_2x] = header[C.MEETING_ID_2x];
           this.emit(C.DICONNECT_ALL_USERS_2x, payload);
           break;
+        case C.PRESENTER_ASSIGNED_2x:
+          meetingId = header[C.MEETING_ID_2x];
+          payload[C.MEETING_ID_2x] = meetingId;
+          this.emit(C.PRESENTER_ASSIGNED_2x+meetingId, payload);
+          break;
         default:
           this.emit(C.GATEWAY_MESSAGE, msg);
       }
@@ -156,10 +161,5 @@ module.exports = class BigBlueButtonGW extends EventEmitter {
 
   setEventEmitter (emitter) {
     this.emitter = emitter;
-  }
-
-  _onServerResponse(data) {
-    // Here this is the 'ws' instance
-    this.sendMessage(data);
   }
 }

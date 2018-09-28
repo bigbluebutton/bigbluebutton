@@ -419,28 +419,11 @@ class ApiController {
       }
     } else {
       Config conf = meeting.getDefaultConfig();
-      if (conf == null) {
-        // BEGIN - backward compatibility
-        invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
-        return
-        // END - backward compatibility
-
-        errors.noConfigFound();
-        respondWithErrors(errors);
-      } else {
-        configxml = conf.config;
-      }
+      configxml = conf.config;
     }
 
-    if (StringUtils.isEmpty(configxml)) {
-      // BEGIN - backward compatibility
-      invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
-      return
-      // END - backward compatibility
+    // Do not fail if there's no default config.xml, needed for an HTML5 client only scenario
 
-      errors.noConfigFound();
-      respondWithErrors(errors);
-    }
     UserSession us = new UserSession();
     us.authToken = authToken;
     us.internalUserId = internalUserID
@@ -1217,6 +1200,16 @@ class ApiController {
 
         String defConfigXML = paramsProcessorUtil.getDefaultConfigXML();
 
+        if (StringUtils.isEmpty(defConfigXML)) {
+          // BEGIN - backward compatibility
+          invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+          return
+          // END - backward compatibility
+
+          errors.noConfigFound();
+          respondWithErrors(errors);
+        }
+
         response.addHeader("Cache-Control", "no-cache")
         render text: defConfigXML, contentType: 'text/xml'
     }
@@ -1258,6 +1251,16 @@ class ApiController {
         }
       }
     } else {
+      if (StringUtils.isEmpty(us.configXML)) {
+        // BEGIN - backward compatibility
+        invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+        return
+        // END - backward compatibility
+
+        errors.noConfigFound();
+        respondWithErrors(errors);
+      }
+
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", us.meetingID);
       logData.put("externalMeetingId", us.externMeetingID);
@@ -1388,8 +1391,7 @@ class ApiController {
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL
               customdata = array {
-                userCustomData.each { k, v ->
-                  // Somehow we need to prepend something (custdata) for the JSON to work
+                meeting.getUserCustomData(us.externUserID).each { k, v ->
                   custdata "$k" : v
                 }
               }
@@ -1836,8 +1838,7 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-              true /* default presentation */ );
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
     } else {
       log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
@@ -1849,6 +1850,11 @@ class ApiController {
           Boolean current = true;
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
+              def fileName;
+              if (!StringUtils.isEmpty(document.@filename.toString())) {
+                  log.debug("user provided filename: [${module.@filename}]");
+                  fileName = document.@filename.toString();
+              }
               downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */);
               current = false;
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
@@ -1885,9 +1891,15 @@ class ApiController {
 
   }
 
-  def downloadAndProcessDocument(address, meetingId, current) {
-    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
-    String presFilename = address.tokenize("/")[-1];
+  def downloadAndProcessDocument(address, meetingId, current, fileName) {
+    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
+    String presFilename;
+    if (StringUtils.isEmpty(fileName)) {
+        presFilename = address.tokenize("/")[-1];
+    } else {
+        presFilename = fileName;
+    }
+    
     def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
 
@@ -1901,7 +1913,7 @@ class ApiController {
         def pres = new File(newFilePath)
         processUploadedFile(meetingId, presId, presFilename, pres, current);
       } else {
-        log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
+        log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
       }
     }
   }

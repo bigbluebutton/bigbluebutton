@@ -11838,7 +11838,7 @@ module.exports = {
   },
 
   MediaStream: getPrefixedProperty(toplevel, 'MediaStream'),
-  getUserMedia: getPrefixedProperty(toplevel.navigator, 'getUserMedia'),
+  getUserMedia: getPrefixedProperty(toplevel.navigator, 'getUserMedia') || navigator.getUserMedia,
   RTCPeerConnection: getPrefixedProperty(toplevel, 'RTCPeerConnection'),
   RTCSessionDescription: getPrefixedProperty(toplevel, 'RTCSessionDescription'),
 

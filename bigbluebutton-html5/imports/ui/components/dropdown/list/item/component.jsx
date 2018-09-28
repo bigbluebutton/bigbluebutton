@@ -26,11 +26,12 @@ export default class DropdownListItem extends Component {
   }
 
   renderDefault() {
-    const { icon, label } = this.props;
+    const { icon, label, iconRight } = this.props;
 
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
       (<span className={styles.itemLabel} key="label">{label}</span>),
+      (iconRight ? <Icon iconName={iconRight} key="iconRight" className={styles.iconRight} /> : null),
     ];
   }
 

@@ -248,7 +248,7 @@ function WebRtcPeer(mode, options, callback) {
         } else {
             candidate = new RTCIceCandidate(iceCandidate);
         }
-        logger.debug('Remote ICE candidate received', iceCandidate);
+        // logger.debug('Remote ICE candidate received', iceCandidate);
         callback = (callback || noop).bind(this);
         addIceCandidate(candidate, callback);
     };
@@ -265,14 +265,14 @@ function WebRtcPeer(mode, options, callback) {
                 offerToReceiveVideo: mode !== 'sendonly' && offerVideo
             };
         var constraints = browserDependantConstraints;
-        logger.debug('constraints: ' + JSON.stringify(constraints));
+        // logger.debug('constraints: ' + JSON.stringify(constraints));
         pc.createOffer(constraints).then(function (offer) {
-            logger.debug('Created SDP offer');
+            // logger.debug('Created SDP offer');
             offer = mangleSdpToAddSimulcast(offer);
             return pc.setLocalDescription(offer);
         }).then(function () {
             var localDescription = pc.localDescription;
-            logger.debug('Local description set', localDescription.sdp);
+            // logger.debug('Local description set', localDescription.sdp);
             if (multistream && usePlanB) {
                 localDescription = interop.toUnifiedPlan(localDescription);
                 logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
@@ -287,13 +287,30 @@ function WebRtcPeer(mode, options, callback) {
         return pc.remoteDescription;
     };
     function setRemoteVideo() {
-        if (remoteVideo) {
-            var stream = pc.getRemoteStreams()[0];
-            remoteVideo.pause();
-            remoteVideo.srcObject = stream;
-            remoteVideo.load();
-            logger.info('Remote URL:', remoteVideo.srcObject);
+      if (remoteVideo) {
+        // TODO review the retry - prlanzarin 08/18
+        let played = false;
+        const MAX_RETRIES = 5;
+        let attempt = 0;
+        const playVideo = () => {
+          if (!played && attempt < MAX_RETRIES) {
+            remoteVideo.play().catch(e => {
+                attempt++;
+                playVideo(remoteVideo);
+            }).then(() => { remoteVideo.muted = false; played = true; attempt = 0;});
+          }
         }
+        var stream = pc.getRemoteStreams()[0];
+
+        remoteVideo.oncanplaythrough = function() {
+          playVideo();
+        };
+
+        remoteVideo.pause();
+        remoteVideo.srcObject = stream;
+        remoteVideo.load();
+        logger.info('Remote URL:', remoteVideo.srcObject);
+      }
     }
     this.showLocalVideo = function () {
         localVideo.srcObject = videoStream;
@@ -317,7 +334,7 @@ function WebRtcPeer(mode, options, callback) {
             logger.debug('asnwer::planB', dumpSDP(planBAnswer));
             answer = planBAnswer;
         }
-        logger.debug('SDP answer received, setting remote description');
+        // logger.debug('SDP answer received, setting remote description');
         if (pc.signalingState === 'closed') {
             return callback('PeerConnection is closed');
         }
@@ -337,7 +354,7 @@ function WebRtcPeer(mode, options, callback) {
             logger.debug('offer::planB', dumpSDP(planBOffer));
             offer = planBOffer;
         }
-        logger.debug('SDP offer received, setting remote description');
+        // logger.debug('SDP offer received, setting remote description');
         if (pc.signalingState === 'closed') {
             return callback('PeerConnection is closed');
         }
@@ -347,7 +364,7 @@ function WebRtcPeer(mode, options, callback) {
             return pc.createAnswer();
         }).then(function (answer) {
             answer = mangleSdpToAddSimulcast(answer);
-            logger.debug('Created SDP answer');
+            // logger.debug('Created SDP answer');
             return pc.setLocalDescription(answer);
         }).then(function () {
             var localDescription = pc.localDescription;
@@ -355,7 +372,7 @@ function WebRtcPeer(mode, options, callback) {
                 localDescription = interop.toUnifiedPlan(localDescription);
                 logger.debug('answer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
             }
-            logger.debug('Local description set', localDescription.sdp);
+            // logger.debug('Local description set', localDescription.sdp);
             callback(null, localDescription.sdp);
         }).catch(callback);
     };
@@ -487,7 +504,7 @@ WebRtcPeer.prototype.getRemoteStream = function (index) {
     }
 };
 WebRtcPeer.prototype.dispose = function () {
-    logger.debug('Disposing WebRtcPeer');
+    // logger.debug('Disposing WebRtcPeer');
     var pc = this.peerConnection;
     var dc = this.dataChannel;
     try {
@@ -1045,7 +1062,7 @@ module.exports = function(stream, options) {
   harker.setInterval = function(i) {
     interval = i;
   };
-  
+
   harker.stop = function() {
     running = false;
     harker.emit('volume_change', -100, threshold);
@@ -1063,12 +1080,12 @@ module.exports = function(stream, options) {
   // and emit events if changed
   var looper = function() {
     setTimeout(function() {
-    
+
       //check if stop has been called
       if(!running) {
         return;
       }
-      
+
       var currentVolume = getMaxVolume(analyser, fftBins);
 
       harker.emit('volume_change', currentVolume, threshold);

@@ -65,15 +65,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         populateComboBox();
         refreshRole(UsersUtil.amIModerator());
       }
-      
-      private function lockSettingsChanged(e:LockControlEvent):void {
-		  this.enabled = ! LiveMeeting.inst().me.lockedLayout;
-      }
-      
-			private function populateLayoutsList(e:LayoutsReadyEvent):void {
-        populateComboBox();
-			}
-      
+
+	  private function lockSettingsChanged(e:LockControlEvent):void {
+		  this.enabled = !LiveMeeting.inst().me.lockedLayout;
+	  }
+
+	  private function populateLayoutsList(e:LayoutsReadyEvent):void {
+		  populateComboBox();
+	  }
+
       private function populateComboBox():void {
         layoutNames = new ArrayCollection();
         var layouts:Array = LayoutModel.getInstance().getLayoutNames();

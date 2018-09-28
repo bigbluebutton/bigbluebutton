@@ -147,6 +147,8 @@
 
 				typistsTimer.addEventListener(TimerEvent.TIMER, updateTypists);
 				typistsTimer.start();
+				
+				updateStyles();
 			}
 
 			private function updateTypists(e:Event):void {
@@ -578,6 +580,10 @@
 			}
 			
 			private function onLocaleChanged(event:LocaleChangeEvent):void {
+				updateStyles();
+			}
+			
+			private function updateStyles():void {
 				var styleNameExt : String = "";
 				if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
 					styleNameExt = "RTL";

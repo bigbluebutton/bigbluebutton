@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.screenshare.utils
 {
   import flash.external.ExternalInterface;
+  import flash.system.Capabilities;
   
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
@@ -66,7 +67,11 @@ package org.bigbluebutton.modules.screenshare.utils
 
       // if its firefox go ahead and let webrtc handle it
       if (BrowserCheck.isFirefox()) {
-        webRTCWorksAndConfigured("Firefox, lets try");
+        if (Capabilities.os.indexOf("Mac") >= 0) {
+          cannotUseWebRTC("Firefox on Mac performs poorly fallback to Java");
+        } else {
+          webRTCWorksAndConfigured("Firefox, lets try");
+        }
         return;
 
       // if its chrome we need to check for the extension

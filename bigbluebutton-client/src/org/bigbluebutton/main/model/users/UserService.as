@@ -80,7 +80,6 @@ package org.bigbluebutton.main.model.users
 			sender.queryForParticipants();
 			sender.queryForRecordingStatus();
 			sender.queryForGuestPolicy();
-			sender.getLockSettings();
 
 			if (!LiveMeeting.inst().meeting.isBreakout) {
 				sender.queryForBreakoutRooms(LiveMeeting.inst().meeting.internalId);
@@ -88,6 +87,10 @@ package org.bigbluebutton.main.model.users
 
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 			dispatcher.dispatchEvent(loadCommand);
+		}
+		
+		public function getLockSettings() : void {
+			sender.getLockSettings();
 		}
 		
 		public function startService(e:UserServicesEvent):void {
