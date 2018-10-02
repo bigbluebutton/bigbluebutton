@@ -9,7 +9,7 @@ import logger from '/imports/startup/client/logger';
 const STATUS_CONNECTING = 'connecting';
 const METADATA_KEY = 'metadata';
 
-export function joinRouteHandler_2(callback) {
+export function joinRouteHandler(callback) {
   const urlParams = new URLSearchParams(window.location.search);
   const sessionToken = urlParams.get('sessionToken');
   console.log('joinRouteHandler_2', sessionToken);
@@ -26,18 +26,18 @@ export function joinRouteHandler_2(callback) {
   fetch(url, { credentials: 'same-origin' })
     .then(response => response.json())
     .then(({ response }) => {
-      debugger
       const {
         returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
         externUserID, fullname, confname, customdata,
       } = response;
 
+      console.log({ returncode });
       // if (returncode === 'FAILED') { // TODO
       //   replace({ pathname: '/error/404' });
       //   callback();
       // }
 
-      setCustomLogoUrl(customLogoURL);
+      setCustomLogoUrl(customLogoURL); // TODO
 
       let metakeys = 0;
       if (metadata) {
@@ -64,7 +64,6 @@ export function joinRouteHandler_2(callback) {
           }, {}) : {};
       }
 
-      let customData = 0;
       if (customdata.length) {
         makeCall('addUserSettings', meetingID, internalUserID, customdata);
       }
@@ -94,6 +93,7 @@ export function joinRouteHandler_2(callback) {
         location: window.location.href,
       };
 
+      console.log({ path });
       // replace({ pathname: path }); // TODO
 
       logger.info(clientInfo);
@@ -101,9 +101,6 @@ export function joinRouteHandler_2(callback) {
       // return callback(); // TODO
       callback('lala');
     });
-}
-
-export function joinRouteHandler(nextState, replace, callback) {
 }
 
 export function logoutRouteHandler() {
@@ -149,7 +146,7 @@ function _addReconnectObservable() {
   });
 }
 
-export function authenticatedRouteHandler(nextState, replace, callback) {
+export function authenticatedRouteHandler(callback) {
   if (Auth.loggedIn) {
     callback();
   }
@@ -160,7 +157,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
     .then(callback)
     .catch((reason) => {
       log('error', reason);
-      replace({ pathname: `/error/${reason.error}` });
+      // replace({ pathname: `/error/${reason.error}` }); // TODO
       callback();
     });
 }

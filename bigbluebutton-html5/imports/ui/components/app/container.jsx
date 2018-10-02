@@ -1,6 +1,5 @@
 import React, { cloneElement } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -66,7 +65,7 @@ const AppContainer = (props) => {
 };
 
 
-export default withRouter(injectIntl(withModalMounter(withTracker(({ router, intl, baseControls }) => {
+export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
   const isMeetingBreakout = meetingIsBreakout();
 
@@ -82,7 +81,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
       const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
       if (fields.ejected || hasNewConnection) {
-        router.push(`/ended/${403}`);
+        // router.push(`/ended/${403}`); // TODO
       }
     },
   });
@@ -93,7 +92,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
       if (isMeetingBreakout) {
         Auth.clearCredentials().then(window.close);
       } else {
-        router.push(`/ended/${410}`);
+        // router.push(`/ended/${410}`); // TODO
       }
     },
   });
@@ -111,7 +110,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
     userlistIsOpen: window.location.pathname.includes('users'),
     chatIsOpen: window.location.pathname.includes('chat'),
   };
-})(AppContainer))));
+})(AppContainer)));
 
 AppContainer.defaultProps = defaultProps;
 AppContainer.propTypes = propTypes;

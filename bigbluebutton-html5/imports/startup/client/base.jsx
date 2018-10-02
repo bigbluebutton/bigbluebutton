@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter } from 'react-router';
+// import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
@@ -75,18 +75,20 @@ class Base extends Component {
 
     const { loading, error } = this.state;
 
-    const { subscriptionsReady, errorCode } = this.props;
-    const { endedCode } = this.props.params;
+    console.error('jjj', this.props);
+    const { subscriptionsReady } = this.props;
+    // const { errorCode } = this.props; // TODO
+    // const { endedCode } = this.props.params; // TODO
 
-    if (endedCode) {
-      AudioManager.exitAudio();
-      return (<MeetingEnded code={endedCode} />);
-    }
-
-    if (error || errorCode) {
-      logger.error(`User could not log in HTML5, hit ${errorCode}`);
-      return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);
-    }
+    // if (endedCode) { // TODO
+    //   AudioManager.exitAudio();
+    //   return (<MeetingEnded code={endedCode} />);
+    // }
+    //
+    // if (error || errorCode) {
+    //   logger.error(`User could not log in HTML5, hit ${errorCode}`);
+    //   return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);
+    // }
 
     if (loading || !subscriptionsReady) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
@@ -122,13 +124,14 @@ const SUBSCRIPTIONS_NAME = [
   'group-chat', 'presentation-pods', 'users-settings',
 ];
 
-const BaseContainer = withRouter(withTracker(({ params, router }) => {
-  if (params.errorCode) return params;
+const BaseContainer = withTracker(() => {
+  // if (params.errorCode) return params; // TODO
 
   const { locale } = Settings.application;
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
 
+  console.error(`Auth.isLoggedIn=${loggedIn} `, Auth);
   if (!loggedIn) {
     return {
       locale,
@@ -139,7 +142,7 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error(error);
-      return router.push('/logout');
+      // return router.push('/logout'); // TODO
     },
   };
 
@@ -184,6 +187,6 @@ const BaseContainer = withRouter(withTracker(({ params, router }) => {
     annotationsHandler,
     groupChatMessageHandler,
   };
-})(Base));
+})(Base);
 
 export default BaseContainer;
