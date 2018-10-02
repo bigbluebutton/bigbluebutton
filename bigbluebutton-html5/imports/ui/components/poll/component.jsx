@@ -126,6 +126,8 @@ class Poll extends Component {
   }
 
   validateInputField(ref) {
+    // This regex will replace any instance of 2 or more consecutive white spaces
+    // with a single white space character.
     const option = ref.value.replace(/\s{2,}/g, ' ').trim();
     const index = ref.getAttribute('data-index');
 
