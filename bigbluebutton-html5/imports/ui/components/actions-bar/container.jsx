@@ -11,7 +11,7 @@ const ActionsBarContainer = props => <ActionsBar {...props} />;
 
 export default withRouter(withTracker(({ location, router }) => {
   const togglePollMenu = () => {
-    return location.pathname.indexOf('/poll') !== -1
+    return location.pathname.includes('poll')
       ? router.push('/') : router.push('/users/poll');
   };
 
