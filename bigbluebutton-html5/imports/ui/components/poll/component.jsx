@@ -74,6 +74,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
+
 class Poll extends Component {
   constructor(props) {
     super(props);
@@ -108,10 +110,9 @@ class Poll extends Component {
 
   getInputFields() {
     const { intl } = this.props;
-    const MAX_INPUT_FIELDS = 5;
     const items = [];
 
-    for (let i = 0; i < MAX_INPUT_FIELDS; i++) {
+    for (let i = 0; i < MAX_CUSTOM_FIELDS; i++) {
       items.push(<input
         key={_.uniqueId('custom-poll-')}
         placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
