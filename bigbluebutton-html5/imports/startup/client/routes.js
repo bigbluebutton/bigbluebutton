@@ -5,6 +5,7 @@ import { createHistory } from 'history';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
+import BreakoutRoom from '/imports/ui/components/Breakout-room/component';
 import { joinRouteHandler, logoutRouteHandler, authenticatedRouteHandler } from './auth';
 import Base from './base';
 
@@ -36,6 +37,14 @@ const renderRoutes = () => (
         }}
       />
       <Redirect from="users/chat" to="/users/chat/public" />
+      <Route
+        name="breakout-room"
+        path="users/breakout"
+        components={{
+          userList: UserListContainer,
+          breakoutRoom: BreakoutRoom,
+        }}
+      />
     </Route>
     <Route
       name="meeting-ended"

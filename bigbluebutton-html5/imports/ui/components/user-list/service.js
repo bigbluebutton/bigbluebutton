@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import GroupChat from '/imports/api/group-chat';
 import GroupChatMsg from '/imports/api/group-chat-msg';
+import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -188,6 +189,10 @@ const getUsers = () => {
   return users
     .map(mapUser)
     .sort(sortUsers);
+};
+
+const hasBreakoutRoom = (parentMeetingId) => {
+  return Breakouts.find({ parentMeetingId }).fetch().length > 0;
 };
 
 const getOpenChats = (chatID) => {
@@ -447,6 +452,7 @@ export default {
   setCustomLogoUrl,
   getCustomLogoUrl,
   getGroupChatPrivate,
+  hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
 };

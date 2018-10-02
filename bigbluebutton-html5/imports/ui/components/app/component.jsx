@@ -164,6 +164,19 @@ class App extends Component {
     );
   }
 
+  renderBreakoutRoom() {
+    
+    const { breakoutRoom } = this.props;
+
+    if (!breakoutRoom) return null;
+
+    return (
+      <div className={styles.breakoutRoom}>
+        {breakoutRoom}
+      </div>
+    );
+  }
+
   renderUserListResizable() {
     const { userList } = this.props;
 
@@ -311,6 +324,7 @@ class App extends Component {
           {enableResize ? this.renderUserListResizable() : this.renderUserList()}
           {userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
           {enableResize ? this.renderChatResizable() : this.renderChat()}
+          {this.renderBreakoutRoom()}
           {this.renderSidebar()}
         </section>
         <ModalContainer />

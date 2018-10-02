@@ -404,5 +404,9 @@
     "app.videoDock.webcamUnfocusLabel": "Unfocus",
     "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam",
     "app.createBreakoutRoom.title": "Breakout Rooms",
+    "app.createBreakoutRoom.duration": "Duration {0}",
+    "app.createBreakoutRoom.room": "Room {0}",
+    "app.createBreakoutRoom.join": "Join Room",
+    "app.createBreakoutRoom.listen": "Listen",
     "app.createBreakoutRoom.modalDesc": "Complete the steps below to create rooms in your session, To add participants to a room."
 }

@@ -124,7 +124,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
 .compact {
   flex-basis: 4.6rem;
 }
-
+.breakoutRoom,
 .chat {
   @extend %full-page;
 
@@ -145,6 +145,13 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   @include mq($xlarge-up) {
     flex-basis: 20vw;
   }
+}
+
+.breakoutRoom {
+  height: 100%;
+  width: 20vw;
+  background-color: $color-white;
+
 }
 
 .sidebar {

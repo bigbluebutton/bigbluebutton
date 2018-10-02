@@ -69,6 +69,7 @@ class UserList extends Component {
       getEmojiList,
       getEmoji,
       showBranding,
+      hasBreakoutRoom,
     } = this.props;
 
     return (
@@ -102,6 +103,7 @@ class UserList extends Component {
           handleEmojiChange,
           getEmojiList,
           getEmoji,
+          hasBreakoutRoom,
         }
       }
         />}

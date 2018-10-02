@@ -47,7 +47,8 @@ class BreakoutRoom extends Component {
   }
 
   decreaseDurationTime() {
-    this.setState({ durationTime: (1 * this.state.durationTime) - 1 });
+    const number = ((1 * this.state.durationTime) - 1);
+    this.setState({ durationTime: number < 1 ? 1 : number });
   }
 
   render() {
