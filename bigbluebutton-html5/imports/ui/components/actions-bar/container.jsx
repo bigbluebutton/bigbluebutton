@@ -10,10 +10,8 @@ import { withRouter } from 'react-router';
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
 export default withRouter(withTracker(({ location, router }) => {
-  const togglePollMenu = () => {
-    return location.pathname.includes('poll')
-      ? router.push('/') : router.push('/users/poll');
-  };
+  const togglePollMenu = () => (location.pathname.includes('poll')
+    ? router.push('/') : router.push('/users/poll'));
 
   return {
     isUserPresenter: Service.isUserPresenter(),

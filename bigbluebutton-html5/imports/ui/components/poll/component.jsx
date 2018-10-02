@@ -165,7 +165,7 @@ class Poll extends Component {
 
       arr.push(<Button
         label={label}
-        color="primary-outlined"
+        color="default"
         className={styles.pollBtn}
         key={_.uniqueId('quick-poll-')}
         onClick={() => {
@@ -248,7 +248,7 @@ class Poll extends Component {
         </div>
         <Button
           className={styles.customBtn}
-          color="primary-outlined"
+          color="default"
           onClick={this.toggleCustomFields}
           label={intl.formatMessage(intlMessages.customPollLabel)}
         />

@@ -72,9 +72,59 @@ $column-amount: 2;
     margin-right: $sm-padding-y;
 }
 
+.customBtn:hover,
+.pollBtn:hover {
+    box-shadow: 0 0 0 1px #1A73D4;
+    background-color: $color-white;
+    color: #1A73D4;
+
+    > span {
+        color: #1A73D4;
+        opacity: 1;
+    }
+}
+
+.customBtn,
 .pollBtn {
     margin-top: $sm-padding-y;
     margin-bottom: $sm-padding-y;
+    background-color: $color-white;
+    box-shadow: 0 0 0 1px $color-gray-light;
+    color: $color-gray-light;
+
+    > span {
+        color: $color-gray-light;
+    }
+
+    > span:hover {
+        color: #1A73D4;
+        opacity: 1;
+    }
+}
+
+.customBtn:active,
+.pollBtn:active {
+    &:focus {
+        box-shadow: 0 0 0 1px #1A73D4;
+    }
+
+
+    background-color: $color-white;
+    box-shadow: 0 0 0 1px #1A73D4;
+
+    > span {
+        color: #1A73D4;
+    }
+}
+
+.customBtn:focus,
+.pollBtn:focus {
+    background-color: $color-white;
+    box-shadow: 0 0 0 1px #1A73D4;
+
+    > span {
+        color: #1A73D4;
+    }
 }
 
 .input {
