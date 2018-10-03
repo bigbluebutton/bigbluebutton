@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter, Link } from 'react-router';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
@@ -67,43 +66,43 @@ const ChatListItem = (props) => {
   linkClasses[styles.active] = isCurrentChat;
 
   return (
-    <Link
-      data-test="publicChatLink"
-      to={linkPath}
-      className={cx(styles.chatListItem, linkClasses)}
-      role="button"
-      aria-expanded={isCurrentChat}
-      tabIndex={tabIndex}
-      accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-    >
-      <div className={styles.chatListItemLink}>
-        <div className={styles.chatIcon}>
-          {chat.icon ?
-            <ChatIcon icon={chat.icon} />
-            :
-            <ChatAvatar
-              isModerator={chat.isModerator}
-              color={chat.color}
-              name={chat.name.toLowerCase().slice(0, 2)}
-            />}
-        </div>
-        <div className={styles.chatName}>
-          {!compact ?
-            <span className={styles.chatNameMain}>
-              {isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-            </span> : null}
-        </div>
-        {(chat.unreadCounter > 0) ?
-          <ChatUnreadCounter
-            counter={chat.unreadCounter}
-          />
-          : null}
-      </div>
-    </Link>
+    {/*<Link*/}
+      {/*data-test="publicChatLink"*/}
+      {/*to={linkPath}*/}
+      {/*className={cx(styles.chatListItem, linkClasses)}*/}
+      {/*role="button"*/}
+      {/*aria-expanded={isCurrentChat}*/}
+      {/*tabIndex={tabIndex}*/}
+      {/*accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}*/}
+    {/*>*/}
+      {/*<div className={styles.chatListItemLink}>*/}
+        {/*<div className={styles.chatIcon}>*/}
+          {/*{chat.icon ?*/}
+            {/*<ChatIcon icon={chat.icon} />*/}
+            {/*:*/}
+            {/*<ChatAvatar*/}
+              {/*isModerator={chat.isModerator}*/}
+              {/*color={chat.color}*/}
+              {/*name={chat.name.toLowerCase().slice(0, 2)}*/}
+            {/*/>}*/}
+        {/*</div>*/}
+        {/*<div className={styles.chatName}>*/}
+          {/*{!compact ?*/}
+            {/*<span className={styles.chatNameMain}>*/}
+              {/*{isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}*/}
+            {/*</span> : null}*/}
+        {/*</div>*/}
+        {/*{(chat.unreadCounter > 0) ?*/}
+          {/*<ChatUnreadCounter*/}
+            {/*counter={chat.unreadCounter}*/}
+          {/*/>*/}
+          {/*: null}*/}
+      {/*</div>*/}
+    {/*</Link>*/} // TODO 4767
   );
 };
 
 ChatListItem.propTypes = propTypes;
 ChatListItem.defaultProps = defaultProps;
 
-export default withRouter(injectIntl(ChatListItem));
+export default injectIntl(ChatListItem);

@@ -169,7 +169,6 @@ class UserDropdown extends Component {
       intl,
       currentUser,
       user,
-      router,
       isBreakoutRoom,
       getAvailableActions,
       handleEmojiChange,
@@ -181,7 +180,7 @@ class UserDropdown extends Component {
       changeRole,
     } = this.props;
 
-    const actionPermissions = getAvailableActions(currentUser, user, router, isBreakoutRoom);
+    const actionPermissions = getAvailableActions(currentUser, user, isBreakoutRoom);
     const actions = [];
 
     const {
@@ -233,7 +232,8 @@ class UserDropdown extends Component {
       actions.push(this.makeDropdownItem(
         'openChat',
         intl.formatMessage(messages.ChatLabel),
-        () => this.onActionsHide(router.push(`/users/chat/${user.id}`)),
+        () => this.onActionsHide(),
+        // () => this.onActionsHide(router.push(`/users/chat/${user.id}`)),  // TODO 4767
         'chat',
       ));
     }

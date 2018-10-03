@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
@@ -49,41 +48,41 @@ const Chat = (props) => {
       data-test="publicChat"
       className={styles.chat}
     >
-      <header className={styles.header}>
-        <div
-          data-test="chatTitle"
-          className={styles.title}
-        >
-          <Link
-            to="/users"
-            role="button"
-            aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            accessKey={HIDE_CHAT_AK}
-          >
-            <Icon iconName="left_arrow" /> {title}
-          </Link>
-        </div>
-        {
-          chatID !== 'public' ?
-            <Link
-              to="/users"
-              role="button"
-              tabIndex={-1}
-            >
-              <Button
-                className={styles.closeBtn}
-                icon="close"
-                size="md"
-                hideLabel
-                onClick={() => actions.handleClosePrivateChat(chatID)}
-                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                accessKey={CLOSE_CHAT_AK}
-              />
-            </Link> :
-            <ChatDropdown />
-        }
-      </header>
+      {/*<header className={styles.header}>*/}
+        {/*<div*/}
+          {/*data-test="chatTitle"*/}
+          {/*className={styles.title}*/}
+        {/*>*/}
+          {/*<Link*/}
+            {/*to="/users"*/}
+            {/*role="button"*/}
+            {/*aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}*/}
+            {/*accessKey={HIDE_CHAT_AK}*/}
+          {/*>*/}
+            {/*<Icon iconName="left_arrow" /> {title}*/}
+          {/*</Link>*/}
+        {/*</div>*/}
+        {/*{*/}
+          {/*chatID !== 'public' ?*/}
+            {/*<Link*/}
+              {/*to="/users"*/}
+              {/*role="button"*/}
+              {/*tabIndex={-1}*/}
+            {/*>*/}
+              {/*<Button*/}
+                {/*className={styles.closeBtn}*/}
+                {/*icon="close"*/}
+                {/*size="md"*/}
+                {/*hideLabel*/}
+                {/*onClick={() => actions.handleClosePrivateChat(chatID)}*/}
+                {/*aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}*/}
+                {/*label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}*/}
+                {/*accessKey={CLOSE_CHAT_AK}*/}
+              {/*/>*/}
+            {/*</Link> :*/}
+            {/*<ChatDropdown />*/}
+        {/*}*/}
+      {/*</header> // TODO 4767 */}
       <MessageList
         chatId={chatID}
         messages={messages}

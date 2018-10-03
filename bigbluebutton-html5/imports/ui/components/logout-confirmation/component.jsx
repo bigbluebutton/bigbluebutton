@@ -55,7 +55,7 @@ const intlMessages = defineMessages({
 
 const LeaveConfirmation = ({
   intl,
-  router,
+  // router, // TODO 4767
   handleEndMeeting,
   showEndMeeting,
   showFeedback,

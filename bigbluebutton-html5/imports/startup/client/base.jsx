@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-// import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
@@ -75,12 +74,11 @@ class Base extends Component {
 
     const { loading, error } = this.state;
 
-    console.error('jjj', this.props);
     const { subscriptionsReady } = this.props;
-    // const { errorCode } = this.props; // TODO
-    // const { endedCode } = this.props.params; // TODO
+    // const { errorCode } = this.props; // TODO 4767
+    // const { endedCode } = this.props.params; // TODO 4767
 
-    // if (endedCode) { // TODO
+    // if (endedCode) { // TODO 4767
     //   AudioManager.exitAudio();
     //   return (<MeetingEnded code={endedCode} />);
     // }
@@ -125,7 +123,7 @@ const SUBSCRIPTIONS_NAME = [
 ];
 
 const BaseContainer = withTracker(() => {
-  // if (params.errorCode) return params; // TODO
+  // if (params.errorCode) return params; // TODO 4767
 
   const { locale } = Settings.application;
   const { credentials, loggedIn } = Auth;
@@ -142,7 +140,7 @@ const BaseContainer = withTracker(() => {
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error(error);
-      // return router.push('/logout'); // TODO
+      // return router.push('/logout'); // TODO 4767
     },
   };
 

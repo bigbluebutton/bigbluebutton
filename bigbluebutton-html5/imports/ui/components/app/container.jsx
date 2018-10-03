@@ -52,8 +52,9 @@ const AppContainer = (props) => {
     ...otherProps
   } = props;
 
-  const navbarWithLocation = cloneElement(navbar, { location: props.location });
-
+  // const navbarWithLocation = cloneElement(navbar, { location: props.location }); // TODO 4767
+  const navbarWithLocation = navbar; // TODO 4767
+  console.log('_001')
   return (
     <App
       navbar={navbarWithLocation}
@@ -81,7 +82,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
       if (fields.ejected || hasNewConnection) {
-        // router.push(`/ended/${403}`); // TODO
+        // router.push(`/ended/${403}`); // TODO 4767
       }
     },
   });
@@ -92,7 +93,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       if (isMeetingBreakout) {
         Auth.clearCredentials().then(window.close);
       } else {
-        // router.push(`/ended/${410}`); // TODO
+        // router.push(`/ended/${410}`); // TODO 4767
       }
     },
   });

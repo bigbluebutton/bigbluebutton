@@ -303,23 +303,22 @@ class App extends Component {
 
     return (
       <main className={styles.main}>
-        AAAAA
-        {/*<NotificationsBarContainer />*/}
-        {/*<section className={styles.wrapper}>*/}
-          {/*<div className={styles.content}>*/}
-            {/*{this.renderNavBar()}*/}
-            {/*{this.renderMedia()}*/}
-            {/*{this.renderActionsBar()}*/}
-          {/*</div>*/}
-          {/*{enableResize ? this.renderUserListResizable() : this.renderUserList()}*/}
-          {/*{userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}*/}
-          {/*{enableResize ? this.renderChatResizable() : this.renderChat()}*/}
-          {/*{this.renderSidebar()}*/}
-        {/*</section>*/}
-        {/*<ModalContainer />*/}
-        {/*<AudioContainer />*/}
-        {/*<ToastContainer />*/}
-        {/*<ChatAlertContainer currentChatID={params.chatID} />*/}
+        <NotificationsBarContainer />
+        <section className={styles.wrapper}>
+          <div className={styles.content}>
+            {this.renderNavBar()}
+            {this.renderMedia()}
+            {this.renderActionsBar()}
+          </div>
+          {enableResize ? this.renderUserListResizable() : this.renderUserList()}
+          {userlistIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
+          {enableResize ? this.renderChatResizable() : this.renderChat()}
+          {this.renderSidebar()}
+        </section>
+        <ModalContainer />
+        <AudioContainer />
+        <ToastContainer />
+        {/*<ChatAlertContainer currentChatID={params.chatID} /> TODO 4767*/}
       </main>
     );
   }

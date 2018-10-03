@@ -14,7 +14,7 @@ export function joinRouteHandler(callback) {
   const sessionToken = urlParams.get('sessionToken');
   console.log('joinRouteHandler_2', sessionToken);
 
-  // if (!sessionToken) { // TODO  }
+  // if (!sessionToken) { // TODO 4767 }
 
 
   // Old credentials stored in memory were being used when joining a new meeting
@@ -32,12 +32,12 @@ export function joinRouteHandler(callback) {
       } = response;
 
       console.log({ returncode });
-      // if (returncode === 'FAILED') { // TODO
+      // if (returncode === 'FAILED') { // TODO 4767
       //   replace({ pathname: '/error/404' });
       //   callback();
       // }
 
-      setCustomLogoUrl(customLogoURL); // TODO
+      setCustomLogoUrl(customLogoURL); // TODO 4767
 
       let metakeys = 0;
       if (metadata) {
@@ -75,9 +75,9 @@ export function joinRouteHandler(callback) {
         sessionToken, fullname, externUserID, confname,
       );
 
-      window.Auth = Auth; // TODO remove this
+      window.Auth = Auth; // TODO 4767 remove this
 
-      const path = deviceInfo.type().isPhone ? '/' : '/users'; // TODO
+      const path = deviceInfo.type().isPhone ? '/' : '/users'; // TODO 4767
       const userInfo = window.navigator;
 
       // Browser information is sent once on startup
@@ -94,11 +94,11 @@ export function joinRouteHandler(callback) {
       };
 
       console.log({ path });
-      // replace({ pathname: path }); // TODO
+      // replace({ pathname: path }); // TODO 4767
 
       logger.info(clientInfo);
 
-      // return callback(); // TODO
+      // return callback(); // TODO 4767
       callback('lala');
     });
 }
@@ -157,7 +157,7 @@ export function authenticatedRouteHandler(callback) {
     .then(callback)
     .catch((reason) => {
       log('error', reason);
-      // replace({ pathname: `/error/${reason.error}` }); // TODO
+      // replace({ pathname: `/error/${reason.error}` }); // TODO 4767
       callback();
     });
 }

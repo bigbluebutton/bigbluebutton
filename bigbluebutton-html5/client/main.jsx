@@ -2,7 +2,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
-import renderRoutes from '/imports/startup/client/routes';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import { joinRouteHandler, authenticatedRouteHandler } from '/imports/startup/client/auth';
