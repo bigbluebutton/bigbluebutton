@@ -112,16 +112,16 @@ class Poll extends Component {
     const { intl } = this.props;
     const items = [];
 
-    for (let i = 0; i < MAX_CUSTOM_FIELDS; i++) {
-      items.push(<input
+    items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => (
+      <input
         key={_.uniqueId('custom-poll-')}
         placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
         className={styles.input}
-        ref={(node) => { this[`pollInput${i}`] = node; }}
-        onChange={() => this.validateInputField(this[`pollInput${i}`])}
-        data-index={i}
-      />);
-    }
+        ref={(node) => { this[`pollInput${index}`] = node; }}
+        onChange={() => this.validateInputField(this[`pollInput${index}`])}
+        data-index={index}
+      />
+    ));
 
     return items;
   }
