@@ -12,6 +12,7 @@ if [[ $files = *"bigbluebutton-html5"* ]]; then
   conf=$(docker exec $(docker ps -q) bbb-conf --secret | grep "Secret:")
   secret=$(echo $conf | cut -d' ' -f2)
   export BBB_SHARED_SECRET=$secret
+  node html5-check.js
 
   cd ../..
   curl https://install.meteor.com/ | sh
