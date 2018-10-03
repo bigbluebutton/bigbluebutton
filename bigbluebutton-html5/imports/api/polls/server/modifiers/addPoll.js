@@ -30,9 +30,8 @@ export default function addPoll(meetingId, requesterId, poll) {
 
   const userIds = Users.find(selector, options)
     .fetch()
-    .map((user) => {
-      if (user.userId !== requesterId) return user.userId;
-    });
+    .filter(user => user.userId !== requesterId)
+    .map(user => user.userId);
 
   selector = {
     meetingId,
