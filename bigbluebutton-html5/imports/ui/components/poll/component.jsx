@@ -48,28 +48,28 @@ const intlMessages = defineMessages({
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',
   },
-  truefalse: {
-    id: 'app.poll.truefalse',
+  tf: {
+    id: 'app.poll.tf',
     description: 'label for true / false poll',
   },
-  yesno: {
-    id: 'app.poll.yesno',
+  yn: {
+    id: 'app.poll.yn',
     description: 'label for Yes / No poll',
   },
-  ab: {
-    id: 'app.poll.ab',
+  a2: {
+    id: 'app.poll.a2',
     description: 'label for A / B poll',
   },
-  abc: {
-    id: 'app.poll.abc',
+  a3: {
+    id: 'app.poll.a3',
     description: 'label for A / B / C poll',
   },
-  abcd: {
-    id: 'app.poll.abcd',
+  a4: {
+    id: 'app.poll.a4',
     description: 'label for A / B / C / D poll',
   },
-  abcde: {
-    id: 'app.poll.abcde',
+  a5: {
+    id: 'app.poll.a5',
     description: 'label for A / B / C / D / E poll',
   },
 });
@@ -152,30 +152,24 @@ class Poll extends Component {
   renderQuickPollBtns() {
     const { pollTypes, startPoll, intl } = this.props;
 
-    const btns = pollTypes.reduce((arr, type) => {
-      if (type === 'custom') return arr;
+    const btns = pollTypes.map((type) => {
+      if (type === 'custom') return;
 
-      let label = '';
+      const label = intl.formatMessage(
+        // regex removes the - to match the message id
+        intlMessages[type.replace(/-/g, '').toLowerCase()]);
 
-      if (type === 'YN') label = intl.formatMessage(intlMessages.yesno);
-      if (type === 'TF') label = intl.formatMessage(intlMessages.truefalse);
-      if (type === 'A-2') label = intl.formatMessage(intlMessages.ab);
-      if (type === 'A-3') label = intl.formatMessage(intlMessages.abc);
-      if (type === 'A-4') label = intl.formatMessage(intlMessages.abcd);
-      if (type === 'A-5') label = intl.formatMessage(intlMessages.abcde);
-
-      arr.push(<Button
-        label={label}
-        color="default"
-        className={styles.pollBtn}
-        key={_.uniqueId('quick-poll-')}
-        onClick={() => {
+      return (
+        <Button
+          label={label}
+          color="default"
+          className={styles.pollBtn}
+          key={_.uniqueId('quick-poll-')}
+          onClick={() => {
           this.setState({ isPolling: true }, () => startPoll(type));
         }}
-      />);
-
-      return arr;
-    }, []);
+        />);
+    });
 
     return btns;
   }
@@ -222,6 +216,7 @@ class Poll extends Component {
         <Button
           onClick={() => {
             stopPoll();
+            this.pollOptions = [];
             this.setState({ isPolling: false });
           }}
           label={intl.formatMessage(intlMessages.backLabel)}

@@ -2,6 +2,7 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 
 $column-amount: 2;
+$poll-blue: #1A73D4;
 
 .customBtn,
 .btn {
@@ -74,12 +75,12 @@ $column-amount: 2;
 
 .customBtn:hover,
 .pollBtn:hover {
-    box-shadow: 0 0 0 1px #1A73D4;
+    box-shadow: 0 0 0 1px $poll-blue;
     background-color: $color-white;
-    color: #1A73D4;
+    color: $poll-blue;
 
     > span {
-        color: #1A73D4;
+        color: $poll-blue;
         opacity: 1;
     }
 }
@@ -97,7 +98,7 @@ $column-amount: 2;
     }
 
     > span:hover {
-        color: #1A73D4;
+        color: $poll-blue;
         opacity: 1;
     }
 }
@@ -105,25 +106,24 @@ $column-amount: 2;
 .customBtn:active,
 .pollBtn:active {
     &:focus {
-        box-shadow: 0 0 0 1px #1A73D4;
+        box-shadow: 0 0 0 1px $poll-blue;
     }
 
-
     background-color: $color-white;
-    box-shadow: 0 0 0 1px #1A73D4;
+    box-shadow: 0 0 0 1px $poll-blue;
 
     > span {
-        color: #1A73D4;
+        color: $poll-blue;
     }
 }
 
 .customBtn:focus,
 .pollBtn:focus {
     background-color: $color-white;
-    box-shadow: 0 0 0 1px #1A73D4;
+    box-shadow: 0 0 0 1px $poll-blue;
 
     > span {
-        color: #1A73D4;
+        color: $poll-blue;
     }
 }
 
