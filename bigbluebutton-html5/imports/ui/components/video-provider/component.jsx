@@ -407,11 +407,12 @@ class VideoProvider extends Component {
         options.configuration.iceServers = iceServers;
       }
 
-      let WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-
+      let WebRtcPeerObj;
       if (shareWebcam) {
         WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
         this.shareWebcam();
+      } else {
+        WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
       }
 
       this.webRtcPeers[id] = new WebRtcPeerObj(options, (error) => {
