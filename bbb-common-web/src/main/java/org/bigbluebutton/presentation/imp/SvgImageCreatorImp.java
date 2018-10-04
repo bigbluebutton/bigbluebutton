@@ -12,9 +12,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.bigbluebutton.presentation.handlers.AddNamespaceToSvgHanlder;
+import org.bigbluebutton.presentation.handlers.AddNamespaceToSvgHandler;
 import org.bigbluebutton.presentation.handlers.Pdf2PngPageConverterHandler;
-import org.bigbluebutton.presentation.handlers.Png2SvgConvertionHandler;
+import org.bigbluebutton.presentation.handlers.Png2SvgConversionHandler;
 import org.bigbluebutton.presentation.handlers.SvgConversionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +155,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convTimeout, "convert",
                         tempPng.getAbsolutePath(), destsvg.getAbsolutePath()));
 
-                Png2SvgConvertionHandler svgHandler = new Png2SvgConvertionHandler();
+                Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
                 convertPngToSvg.setProcessListener(svgHandler);
                 NuProcess svgProcess = convertPngToSvg.start();
                 try {
@@ -177,7 +177,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                                 + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
                                 + destsvg.getAbsolutePath()));
 
-                AddNamespaceToSvgHanlder namespaceHandler = new AddNamespaceToSvgHanlder();
+                AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
                 addNameSpaceToSVG.setProcessListener(namespaceHandler);
                 NuProcess namespaceProcess = addNameSpaceToSVG.start();
                 try {
