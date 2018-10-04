@@ -33,11 +33,11 @@ const intlMessages = defineMessages({
   },
   lockViewersLabel: {
     id: 'app.userList.userOptions.lockViewersLabel',
-    description: 'Lock all label',
+    description: 'Lock viewers label',
   },
   lockViewersDesc: {
     id: 'app.userList.userOptions.lockViewersDesc',
-    description: 'Lock all description',
+    description: 'Lock viewers description',
   },
   muteAllExceptPresenterLabel: {
     id: 'app.userList.userOptions.muteAllExceptPresenterLabel',
@@ -74,14 +74,14 @@ class UserOptions extends Component {
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon="mute filled"
+        icon="mute"
         label={intl.formatMessage(intlMessages.muteAllLabel)}
         description={intl.formatMessage(intlMessages.muteAllDesc)}
         onClick={this.props.toggleMuteAllUsers}
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon="mute filled"
+        icon="mute"
         label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
         description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
         onClick={this.props.toggleMuteAllUsersExceptPresenter}
