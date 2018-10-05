@@ -83,16 +83,17 @@ class Poll extends Component {
     this.state = {
       customPollReq: false,
       isPolling: false,
+      customPollValues: [],
     };
 
-    this.pollOptions = [];
+    this.inputEditor = [];
 
     this.toggleCustomFields = this.toggleCustomFields.bind(this);
     this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
     this.renderInputFields = this.renderInputFields.bind(this);
-    this.validateInputField = this.validateInputField.bind(this);
     this.nonPresenterRedirect = this.nonPresenterRedirect.bind(this);
     this.getInputFields = this.getInputFields.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   componentWillMount() {
@@ -108,41 +109,35 @@ class Poll extends Component {
     if (!currentUser.presenter) return router.push('/users');
   }
 
+  handleInputChange(index, event) {
+    // This regex will replace any instance of 2 or more consecutive white spaces
+    // with a single white space character.
+    const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
+    this.inputEditor[index] = option === '' ? '' : option;
+    this.setState({ customPollValues: this.inputEditor });
+  }
+
   getInputFields() {
     const { intl } = this.props;
     const items = [];
 
     items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => (
       <input
-        key={_.uniqueId('custom-poll-')}
+        key={`custom-poll-${index}`}
         placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
         className={styles.input}
-        ref={(node) => { this[`pollInput${index}`] = node; }}
-        onChange={() => this.validateInputField(this[`pollInput${index}`])}
-        data-index={index}
+        onChange={event => this.handleInputChange(index, event)}
+        defaultValue={this.state.customPollValues[index]}
       />
     ));
 
     return items;
   }
 
-  validateInputField(ref) {
-    // This regex will replace any instance of 2 or more consecutive white spaces
-    // with a single white space character.
-    const option = ref.value.replace(/\s{2,}/g, ' ').trim();
-    const index = ref.getAttribute('data-index');
-
-    this.pollOptions[index] = option === '' ? '' : option;
-
-    return _.compact(this.pollOptions).length > 1
-      ? findDOMNode(this.startPollBtn).setAttribute('aria-disabled', 'false')
-      : findDOMNode(this.startPollBtn).setAttribute('aria-disabled', 'true');
-  }
-
   toggleCustomFields() {
     const { customPollReq } = this.state;
 
-    this.pollOptions = [];
+    this.inputEditor = [];
 
     return customPollReq
       ? this.setState({ customPollReq: false })
@@ -176,20 +171,20 @@ class Poll extends Component {
 
   renderInputFields() {
     const { intl, startCustomPoll } = this.props;
+    const isDisabled = _.compact(this.inputEditor).length < 2;
 
     return (
       <div className={styles.customInputWrapper}>
         {this.getInputFields()}
         <Button
           onClick={() => {
-            if (_.compact(this.pollOptions).length > 1) {
-              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.pollOptions)));
+            if (this.inputEditor.length > 1) {
+              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
             }
           }}
           label={intl.formatMessage(intlMessages.startCustomLabel)}
           color="primary"
-          ref={node => this.startPollBtn = node}
-          aria-disabled
+          aria-disabled={isDisabled}
           className={styles.btn}
         />
       </div>
@@ -216,8 +211,8 @@ class Poll extends Component {
         <Button
           onClick={() => {
             stopPoll();
-            this.pollOptions = [];
-            this.setState({ isPolling: false });
+            this.inputEditor = [];
+            this.setState({ isPolling: false, customPollValues: this.inputEditor });
           }}
           label={intl.formatMessage(intlMessages.backLabel)}
           color="default"
