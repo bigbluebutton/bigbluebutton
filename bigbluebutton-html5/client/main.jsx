@@ -6,6 +6,7 @@ import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import { joinRouteHandler, authenticatedRouteHandler } from '/imports/startup/client/auth';
 import Base from '/imports/startup/client/base';
+import { Session } from 'meteor/session';
 
 Meteor.startup(() => {
   render(<LoadingScreen />, document.getElementById('app'));
@@ -23,6 +24,8 @@ Meteor.startup(() => {
   // TODO make this a Promise
   joinRouteHandler((value, error) => {
     authenticatedRouteHandler((valueInner, errorInner) => {
+      // set defaults
+      Session.set('isUserListOpen', false);
       render(<Base />, document.getElementById('app'));
     });
   });

@@ -39,7 +39,6 @@ const defaultProps = {
 };
 
 class UserList extends Component {
-
   render() {
     const {
       intl,

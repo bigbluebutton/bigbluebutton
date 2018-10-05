@@ -79,7 +79,7 @@ const LeaveConfirmation = ({
         className={styles.endMeeting}
         label={intl.formatMessage(intlMessages.endMeetingLabel)}
         onClick={handleEndMeeting}
-        aria-describedby={'modalEndMeetingDesc'}
+        aria-describedby="modalEndMeetingDesc"
       /> : null
     }
     <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>

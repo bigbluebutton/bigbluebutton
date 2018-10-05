@@ -60,46 +60,47 @@ const ChatListItem = (props) => {
   } = props;
 
   let linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
-  linkPath = location.pathname.includes(linkPath) ? CLOSED_CHAT_PATH : linkPath;
+  // linkPath = location.pathname.includes(linkPath) ? CLOSED_CHAT_PATH : linkPath; // TODO 4767
   const isCurrentChat = chat.id === openChat;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
-  return (
-    {/*<Link*/}
-      {/*data-test="publicChatLink"*/}
-      {/*to={linkPath}*/}
-      {/*className={cx(styles.chatListItem, linkClasses)}*/}
-      {/*role="button"*/}
-      {/*aria-expanded={isCurrentChat}*/}
-      {/*tabIndex={tabIndex}*/}
-      {/*accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}*/}
-    {/*>*/}
-      {/*<div className={styles.chatListItemLink}>*/}
-        {/*<div className={styles.chatIcon}>*/}
-          {/*{chat.icon ?*/}
-            {/*<ChatIcon icon={chat.icon} />*/}
-            {/*:*/}
-            {/*<ChatAvatar*/}
-              {/*isModerator={chat.isModerator}*/}
-              {/*color={chat.color}*/}
-              {/*name={chat.name.toLowerCase().slice(0, 2)}*/}
-            {/*/>}*/}
-        {/*</div>*/}
-        {/*<div className={styles.chatName}>*/}
-          {/*{!compact ?*/}
-            {/*<span className={styles.chatNameMain}>*/}
-              {/*{isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}*/}
-            {/*</span> : null}*/}
-        {/*</div>*/}
-        {/*{(chat.unreadCounter > 0) ?*/}
-          {/*<ChatUnreadCounter*/}
-            {/*counter={chat.unreadCounter}*/}
-          {/*/>*/}
-          {/*: null}*/}
-      {/*</div>*/}
-    {/*</Link>*/} // TODO 4767
-  );
+  return null;
+  // return (
+  //   <Link
+  //     data-test="publicChatLink"
+  //     to={linkPath}
+  //     className={cx(styles.chatListItem, linkClasses)}
+  //     role="button"
+  //     aria-expanded={isCurrentChat}
+  //     tabIndex={tabIndex}
+  //     accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
+  //   >
+  //     <div className={styles.chatListItemLink}>
+  //       <div className={styles.chatIcon}>
+  //         {chat.icon ?
+  //           <ChatIcon icon={chat.icon} />
+  //           :
+  //           <ChatAvatar
+  //             isModerator={chat.isModerator}
+  //             color={chat.color}
+  //             name={chat.name.toLowerCase().slice(0, 2)}
+  //           />}
+  //       </div>
+  //       <div className={styles.chatName}>
+  //         {!compact ?
+  //           <span className={styles.chatNameMain}>
+  //             {isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+  //           </span> : null}
+  //       </div>
+  //       {(chat.unreadCounter > 0) ?
+  //         <ChatUnreadCounter
+  //           counter={chat.unreadCounter}
+  //         />
+  //         : null}
+  //     </div>
+  //   </Link>
+  // ); // TODO 4767
 };
 
 ChatListItem.propTypes = propTypes;

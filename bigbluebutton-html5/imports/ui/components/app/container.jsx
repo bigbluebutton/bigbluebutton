@@ -54,7 +54,7 @@ const AppContainer = (props) => {
 
   // const navbarWithLocation = cloneElement(navbar, { location: props.location }); // TODO 4767
   const navbarWithLocation = navbar; // TODO 4767
-  console.log('_001')
+  console.log('_001');
   return (
     <App
       navbar={navbarWithLocation}
@@ -108,8 +108,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
-    userlistIsOpen: window.location.pathname.includes('users'),
-    chatIsOpen: window.location.pathname.includes('chat'),
+    userListIsOpen: Boolean(Session.get('isUserListOpen')),
+    // chatIsOpen: window.location.pathname.includes('chat'),  // TODO 4767
   };
 })(AppContainer)));
 
