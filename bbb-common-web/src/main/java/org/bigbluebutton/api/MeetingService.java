@@ -18,6 +18,9 @@
 
 package org.bigbluebutton.api;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,11 +32,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.TreeMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import org.bigbluebutton.api.domain.*;
+import org.apache.http.client.utils.URIBuilder;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.domain.User;
+import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.RedisStorageService;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
@@ -47,6 +59,8 @@ import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
+import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
+import org.bigbluebutton.api.messaging.messages.UpdateRecordingStatus;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
@@ -60,7 +74,6 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
-import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
 import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
@@ -447,6 +460,14 @@ public class MeetingService implements MessageListener {
         message.meetingId, message.parentMeetingId);
     }
   }
+  
+  private void processUpdateRecordingStatus(UpdateRecordingStatus message) {
+    Meeting m = getMeeting(message.meetingId);
+      // Set only once
+      if (m != null && message.recording && !m.haveRecordingMarks()) {
+          m.setHaveRecordingMarks(message.recording);
+      }
+  }
 
   private void processEndBreakoutRoom(EndBreakoutRoom message) {
     processEndMeeting(new EndMeeting(message.breakoutMeetingId));
@@ -570,12 +591,18 @@ public class MeetingService implements MessageListener {
       Map<String, String> metadata = m.getMetadata();
       if (metadata.containsKey(END_CALLBACK_URL)) {
         String callbackUrl = metadata.get(END_CALLBACK_URL);
+        try {
+            callbackUrl = new URIBuilder(new URI(callbackUrl)).addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false").build().toURL().toString();
+        } catch (MalformedURLException e) {
+            log.error("Malformed URL in callback url=[{}]", callbackUrl);
+        } catch (URISyntaxException e) {
+            log.error("URI Syntax error in callback url=[{}]", callbackUrl);
+            e.printStackTrace();
+        }
         callbackUrlService.handleMessage(new MeetingEndedEvent(callbackUrl));
       }
 
       processRemoveEndedMeeting(message);
-
-      return;
     }
   }
 
@@ -861,6 +888,8 @@ public class MeetingService implements MessageListener {
           processStunTurnInfoRequested((StunTurnInfoRequested) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
+        } else if (message instanceof UpdateRecordingStatus) {
+          processUpdateRecordingStatus((UpdateRecordingStatus) message);
         }
       }
     };
