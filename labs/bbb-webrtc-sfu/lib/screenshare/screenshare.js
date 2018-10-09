@@ -174,18 +174,6 @@ module.exports = class Screenshare extends BaseProvider {
     }
   }
 
-  serverState (event) {
-    switch (event && event.eventTag) {
-      case C.MEDIA_SERVER_OFFLINE:
-        this._handleError(LOG_PREFIX, err);
-        Logger.error(LOG_PREFIX, "Screenshare provider received MEDIA_SERVER_OFFLINE event");
-        this.emit(C.MEDIA_SERVER_OFFLINE, event);
-        break;
-      default:
-        Logger.warn(LOG_PREFIX, "Unknown server state", event);
-    }
-  }
-
   recordingState(event) {
     const msEvent = event.event;
     Logger.info('[Recording]', msEvent.type, '[', msEvent.state, ']', 'for recording session', event.id, 'for screenshare', this.streamName);
