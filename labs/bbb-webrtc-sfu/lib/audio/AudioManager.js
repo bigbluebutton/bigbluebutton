@@ -21,6 +21,7 @@ module.exports = class AudioManager extends BaseManager {
     this._meetings = {};
     this._trackMeetingTermination();
     this.messageFactory(this._onMessage);
+    this._iceQueues = {};
   }
 
   _trackMeetingTermination () {
@@ -50,15 +51,12 @@ module.exports = class AudioManager extends BaseManager {
 
   async _onMessage(message) {
     Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
-    let session;
-
     let sessionId = message.voiceBridge;
     let voiceBridge = sessionId;
     let connectionId = message.connectionId;
 
-    if(this._sessions[sessionId]) {
-      session = this._sessions[sessionId];
-    }
+    let session = this._fetchSession(sessionId);
+    let iceQueue = this._fetchIceQueue(sessionId+connectionId);
 
     switch (message.id) {
       case 'start':
@@ -75,6 +73,9 @@ module.exports = class AudioManager extends BaseManager {
           // starts audio session by sending sessionID, websocket and sdpoffer
           const sdpAnswer = await session.start(sessionId, connectionId, sdpOffer, caleeName, userId, userName);
           Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
+
+          // Empty the ICE queue
+          this._flushIceQueue(session, iceQueue);
 
           session.once(C.MEDIA_SERVER_OFFLINE, async (event) => {
             const errorMessage = this._handleError(this._logPrefix, connectionId, caleeName, C.RECV_ROLE, errors.MEDIA_SERVER_OFFLINE);
@@ -117,12 +118,13 @@ module.exports = class AudioManager extends BaseManager {
           session.onIceCandidate(message.candidate, connectionId);
         } else {
           Logger.warn(this._logPrefix, "There was no audio session for onIceCandidate for", sessionId, ". There should be a queue here");
+          iceQueue.push(message.candidate);
         }
         break;
 
       case 'close':
         Logger.info(this._logPrefix, 'Connection ' + connectionId + ' closed');
-
+        this._deleteIceQueue(sessionId+connectionId);
         if (typeof session !== 'undefined') {
           Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
           session.stopListener(message.connectionId);
