@@ -528,7 +528,13 @@ WebRtcPeer.prototype.getRemoteStream = function () {
     this.remoteStream = new MediaStream();
     this.peerConnection.getReceivers().forEach((rs) => {
       let track = rs.track;
-      if (track && !track.muted) {
+      if (track) {
+        if (track.muted) {
+          track.onunmute = () => {
+            this.remoteStream.addTrack(track);
+          };
+          return;
+        }
         this.remoteStream.addTrack(track);
       }
     });
