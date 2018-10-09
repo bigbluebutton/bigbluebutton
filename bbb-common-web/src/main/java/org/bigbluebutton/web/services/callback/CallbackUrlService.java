@@ -1,23 +1,21 @@
 package org.bigbluebutton.web.services.callback;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.http.nio.client.methods.ZeroCopyConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CallbackUrlService {
 	private static Logger log = LoggerFactory.getLogger(CallbackUrlService.class);
@@ -119,9 +117,9 @@ public class CallbackUrlService {
 	}
 
 	private boolean fetchCallbackUrl(final String callbackUrl) {
-		log.info("Calling callback url {}", callbackUrl);
-
 		String finalUrl = followRedirect(callbackUrl, 0, callbackUrl);
+
+		log.info("Calling callback url {}", finalUrl);
 
 		if (finalUrl == null) return false;
 

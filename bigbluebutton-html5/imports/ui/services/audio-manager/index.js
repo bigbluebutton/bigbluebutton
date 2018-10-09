@@ -7,6 +7,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
+import browser from 'browser-detect';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -130,9 +131,10 @@ class AudioManager {
       .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
   }
 
-  joinListenOnly(retries = 0) {
+  async joinListenOnly(retries = 0) {
     this.isListenOnly = true;
     this.isEchoTest = false;
+    const { name } = browser();
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
     const bridge  = this.useKurento? this.listenOnlyBridge : this.bridge;
 
@@ -142,18 +144,24 @@ class AudioManager {
       inputStream: this.createListenOnlyStream(),
     };
 
+    // Webkit ICE restrictions demand a capture device permission to release
+    // host candidates
+    if (name == 'safari') {
+      await this.askDevicesPermissions();
+    }
+
     // We need this until we upgrade to SIP 9x. See #4690
     const iceGatheringErr = 'ICE_TIMEOUT';
     const iceGatheringTimeout = new Promise((resolve, reject) => {
       setTimeout(reject, 12000, iceGatheringErr);
     });
 
-    const handleIceGatheringError = (err) => {
+    const handleListenOnlyError = async (err) => {
       if (iceGatheringTimeout) {
         clearTimeout(iceGatheringTimeout);
       }
 
-      logger.error('Listen only error:', err);
+      logger.error('Listen only error:', err, 'on try', retries);
       const error = {
         type: 'MEDIA_ERROR',
         message: this.messages.error.MEDIA_ERROR,
@@ -167,19 +175,23 @@ class AudioManager {
         iceGatheringTimeout,
       ]))
       .catch(async (err) => {
-        // If theres a iceGathering timeout we retry to join until MAX_LISTEN_ONLY_RETRIES
-        if (err === iceGatheringErr && retries < MAX_LISTEN_ONLY_RETRIES) {
+        if (retries < MAX_LISTEN_ONLY_RETRIES) {
           // Fallback to SIP.js listen only in case of failure
           if (this.useKurento) {
+            // Exit previous SFU session and clean audio tag state
+            window.kurentoExitAudio();
             this.useKurento = false;
+            let audio = document.querySelector(MEDIA_TAG);
+            audio.muted = false;
           }
+
           try {
             await this.joinListenOnly(++retries);
           } catch (err) {
-            return handleIceGatheringError(err);
+            return handleListenOnlyError(err);
           }
         } else {
-          handleIceGatheringError(err);
+          handleListenOnlyError(err);
         }
       });
   }
@@ -239,9 +251,6 @@ class AudioManager {
     if (!this.isEchoTest) {
       this.notify(this.messages.info.JOINED_AUDIO);
     }
-
-    // Restore the default listen only bridge
-    this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
   }
 
   onTransferStart() {
@@ -264,9 +273,6 @@ class AudioManager {
     if (!this.error && !this.isEchoTest) {
       this.notify(this.messages.info.LEFT_AUDIO);
     }
-
-    // Restore the default listen only bridge
-    this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
   }
 
   callStateCallback(response) {

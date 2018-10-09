@@ -64,6 +64,12 @@ module.exports = class BaseManager {
     }
   }
 
+  _deleteIceQueue (sessionId) {
+    if (this._iceQueues[sessionId]) {
+      delete this._iceQueues[sessionId];
+    }
+  }
+
   _killConnectionSessions (connectionId) {
     const keys = Object.keys(this._sessions);
     keys.forEach((sessionId) => {
