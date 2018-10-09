@@ -1,6 +1,5 @@
 node_modules/
 screenshots/*
 !screenshots/screenshots.txt
-package-lock.json
 .directory
 .env
