@@ -51,6 +51,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
 	private String dialNumber;
 	private String defaultAvatarURL;
@@ -212,7 +213,16 @@ public class Meeting {
 	public Boolean isBreakout() {
 	  return isBreakout;
 	}
+	
+	   
+    public void setHaveRecordingMarks(boolean marks) {
+        haveRecordingMarks = marks;
+    }
 
+    public boolean haveRecordingMarks() {
+        return  haveRecordingMarks;
+    }
+    
 	public String getName() {
 		return name;
 	}
@@ -495,7 +505,7 @@ public class Meeting {
     		this.allowStartStopRecording = allow;
     		return this;
     	}
-    	
+    
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
             return this;
