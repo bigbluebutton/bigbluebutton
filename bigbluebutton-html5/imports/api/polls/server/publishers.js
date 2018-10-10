@@ -11,7 +11,7 @@ Meteor.publish('results', (meetingId) => {
     meetingId,
   };
 
-  Logger.info(`Publishing poll results for meeting=${meetingId}`);
+  Logger.info(`Publishing poll for meeting=${meetingId}`);
 
   return Polls.find(selector);
 });

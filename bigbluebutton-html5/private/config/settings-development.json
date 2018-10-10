@@ -155,8 +155,7 @@
           "zoomSlide",
           "startPoll",
           "stopPoll",
-          "publishPoll",
-          "getCurrentPoll"
+          "publishPoll"
         ]
       }
     },

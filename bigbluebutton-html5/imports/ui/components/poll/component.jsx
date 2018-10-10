@@ -197,15 +197,12 @@ class Poll extends Component {
       intl, router, publishPoll, stopPoll,
     } = this.props;
 
-
     return (
       <div>
-        <div className={styles.instructions}>{intl.formatMessage(intlMessages.activePollInstruction)}</div>
-
-
+        <div className={styles.instructions}>
+          {intl.formatMessage(intlMessages.activePollInstruction)}
+        </div>
         <LiveResultContainer />
-
-
         <Button
           onClick={() => {
             publishPoll();
@@ -277,8 +274,6 @@ class Poll extends Component {
           >
             <Icon iconName="left_arrow" />{intl.formatMessage(intlMessages.pollPaneTitle)}
           </Link>
-
-
         </header>
         {
           this.state.isPolling ? this.renderActivePollOptions() : this.renderPollOptions()

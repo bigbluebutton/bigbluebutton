@@ -53,5 +53,4 @@ export default withTracker(({ chatID, compact }) => ({
   getEmojiList: Service.getEmojiList(),
   getEmoji: Service.getEmoji(),
   showBranding: getFromUserSettings('displayBrandingArea', Meteor.settings.public.app.branding.displayBrandingArea),
-  currentPoll: Service.currentPoll(),
 }))(UserListContainer);

@@ -14,8 +14,6 @@ export default function startPoll(credentials, pollType, pollId, answers) {
   check(pollId, String);
   check(pollType, String);
 
-  //if (Polls.findOne({})) Polls.remove({});
-
   const payload = {
     requesterId: requesterUserId,
     pollId: `${pollId}/${new Date().getTime()}`,

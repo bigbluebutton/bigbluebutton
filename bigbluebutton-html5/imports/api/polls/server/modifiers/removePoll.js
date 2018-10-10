@@ -26,9 +26,9 @@ export default function removePoll(meetingId, id, userId) {
     hasPoll: true,
   };
 
-  const u = Users.findOne(sel);
+  const user = Users.findOne(sel);
 
-  Users.upsert(sel, { $unset: { hasPoll: false, poll: flat(u.poll) } }, (err) => {
+  Users.upsert(sel, { $unset: { hasPoll: false, poll: flat(user.poll) } }, (err) => {
     if (err) {
       return Logger.error(`Removing Poll from User: ${err}`);
     }
