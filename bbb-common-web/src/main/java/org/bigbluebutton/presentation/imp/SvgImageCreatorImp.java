@@ -54,12 +54,18 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
         int numSlides;
-        boolean done = true;
+        boolean done = false;
+
+        // Convert single image file
         if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             numSlides = 1;
             dest = imagePresentationDir.getAbsolutePath() + File.separator + "slide1.pdf";
 
-            NuProcessBuilder convertImgToSvg = new NuProcessBuilder(Arrays.asList("convert " + source + " " + dest));
+            NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
+                    Arrays.asList("timeout", convTimeout, "convert", source, dest));
+
+            Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
+            convertImgToSvg.setProcessListener(pHandler);
 
             NuProcess process = convertImgToSvg.start();
             try {
@@ -74,9 +80,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         } else {
             numSlides = pres.getNumberOfPages();
         }
-        for (int i = 1; i <= numSlides; i++) {
-            int numPages = 0; // total numbers of this SVG
 
+        // Continue image processing
+        for (int i = 1; i <= numSlides; i++) {
             File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + i + ".svg");
 
             NuProcessBuilder convertPdfToSvg = createConversionProcess("-svg", i, source, destsvg.getAbsolutePath(),
