@@ -1,5 +1,8 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+$sm-margin: 0.3125rem;
+$element-width: 17%; 
+
 .main {
   display: flex;
   justify-content: space-between;
@@ -14,41 +17,40 @@
 .left,
 .right,
 .center {
-  padding: .375rem;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  padding: $sm-padding-y;
+  margin-top: $sm-margin;
+  margin-bottom: $sm-margin;
 }
 
 .left,
 .right {
-  position: relative;
   flex:0 0 auto;
+  position: relative;
+  min-width: $element-width;
 }
 
 .left {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 19%;
-  border-right: 2px solid $color-text;
+  border-right: $border-size solid $color-text;
 }
 
 .right {
   text-align: right;
-  min-width: 17%;
-  max-width: 17%;
+  max-width: $element-width;
 }
 
 .container,
 .stats {
-  margin-bottom: 15px;
+  margin-bottom: $sm-padding-x;
 }
 
 .stats {
   display: flex;
   flex-direction: column;
-  border: 2px solid $color-text;
-  border-radius: 3px;
+  border: $border-size solid $color-text;
+  border-radius: $border-size-large;
 
   > div {
     display: flex;
@@ -56,7 +58,7 @@
 
     > div:nth-child(even) {
       position: relative;
-      width: 60%;
+      width: 50%;
       text-align: center;
     }
 
@@ -89,3 +91,4 @@
   .itemR {
     color: $color-text;
   }
+  
