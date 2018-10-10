@@ -38,6 +38,7 @@ const Polling = ({ intl, poll, handleVote }) => (
               color="default"
               size="md"
               label={pollAnswer.key}
+              key={pollAnswer.key}
               onClick={() => handleVote(poll.pollId, pollAnswer)}
               aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
               aria-describedby={`pollAnswerDesc${pollAnswer.key}`}

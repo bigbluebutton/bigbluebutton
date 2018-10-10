@@ -1,0 +1,91 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.center {
+  position: relative;
+  flex:1 1 auto;
+}
+
+.left,
+.right,
+.center {
+  padding: .375rem;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.left,
+.right {
+  position: relative;
+  flex:0 0 auto;
+}
+
+.left {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 19%;
+  border-right: 2px solid $color-text;
+}
+
+.right {
+  text-align: right;
+  min-width: 17%;
+  max-width: 17%;
+}
+
+.container,
+.stats {
+  margin-bottom: 15px;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid $color-text;
+  border-radius: 3px;
+
+  > div {
+    display: flex;
+    flex-direction: row;
+
+    > div:nth-child(even) {
+      position: relative;
+      width: 60%;
+      text-align: center;
+    }
+
+  }
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .itemR,
+  .responseHeading {
+    text-align: right;
+  }
+
+  .usersHeading,
+  .responseHeading {
+    font-weight: 600;
+  }
+  
+  .usersHeading,
+  .responseHeading,
+  .item,
+  .itemR {
+    width: 50%;
+  }
+
+  .item,
+  .itemR {
+    color: $color-text;
+  }

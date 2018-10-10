@@ -12,7 +12,7 @@ export default function pollStopped({ body }, meetingId) {
 
     check(pollId, String);
 
-    return removePoll(meetingId, pollId);
+    return removePoll(meetingId, pollId, body.userId);
   }
 
   return clearPolls(meetingId);

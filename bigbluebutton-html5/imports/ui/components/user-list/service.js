@@ -1,4 +1,5 @@
 import Users from '/imports/api/users';
+import Polls from '/imports/api/polls';
 import GroupChat from '/imports/api/group-chat';
 import GroupChatMsg from '/imports/api/group-chat-msg';
 import Meetings from '/imports/api/meetings';
@@ -449,5 +450,6 @@ export default {
   getGroupChatPrivate,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
+  currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
 };
 
