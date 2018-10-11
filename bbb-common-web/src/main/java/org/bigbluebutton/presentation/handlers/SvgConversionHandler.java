@@ -27,6 +27,7 @@ public class SvgConversionHandler extends AbstractCommandHandler {
                 m.find();
                 return Integer.parseInt(m.group(0).replace(PATH_OUTPUT, "").trim());
             } catch (Exception e) {
+                log.error("Exception counting the number of paths", e);
                 return 0;
             }
         }
@@ -46,6 +47,7 @@ public class SvgConversionHandler extends AbstractCommandHandler {
                 m.find();
                 return Integer.parseInt(m.group(0).replace(IMAGE_TAG_OUTPUT, "").trim());
             } catch (Exception e) {
+                log.error("Exception counting the number of image tags", e);
                 return 0;
             }
         }

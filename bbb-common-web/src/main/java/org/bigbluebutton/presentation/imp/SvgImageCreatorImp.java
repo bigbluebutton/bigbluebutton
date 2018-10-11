@@ -42,7 +42,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             FileUtils.cleanDirectory(svgImagesPresentationDir);
             success = generateSvgImages(svgImagesPresentationDir, pres);
         } catch (Exception e) {
-            log.warn("Interrupted Exception while generating images.");
+            log.error("Interrupted Exception while generating images {}", pres.getName(), e);
             success = false;
         }
 
@@ -73,7 +73,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 done = true;
             } catch (InterruptedException e) {
                 done = false;
-                log.error(e.getMessage());
+                log.error("InterruptedException while converting to SVG {}", dest, e);
             }
 
             source = imagePresentationDir.getAbsolutePath() + File.separator + "slide1.pdf";
@@ -96,7 +96,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
                 done = true;
             } catch (InterruptedException e) {
-                log.error(e.getMessage());
+                log.error("Interrupted Exception while generating SVG slides {}", pres.getName(), e);
             }
             if (!done) {
                 break;
@@ -141,7 +141,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     logData.put("message", "Unable to create temporary files");
                     gson = new Gson();
                     logStr = gson.toJson(logData);
-                    log.error("-- analytics -- {}", logStr);
+                    log.error("-- analytics -- {}", logStr, ioException);
                 }
 
                 // Step 1: Convert a PDF page to PNG using a raw pdftocairo
@@ -154,7 +154,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 try {
                     pngProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
-                    log.error(e.getMessage());
+                    log.error("Interrupted Exception while generating PNG image {}", pres.getName(), e);
                 }
 
                 // Step 2: Convert a PNG image to SVG
@@ -167,7 +167,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 try {
                     svgProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
-                    log.error(e.getMessage());
+                    log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
                 }
 
                 done = svgHandler.isCommandSuccessful();
@@ -189,7 +189,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 try {
                     namespaceProcess.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
-                    log.error(e.getMessage());
+                    log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
                 }
             }
 
