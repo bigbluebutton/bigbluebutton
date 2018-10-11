@@ -143,6 +143,11 @@ module.exports = class BaseManager {
   }
 
   _handleError (logPrefix, connectionId, streamId, role, error) {
+    // Setting a default error in case it was unhandled
+    if (error == null) {
+      error = { code: 2200, reason: errors[2200] }
+    }
+
     if (error && this._validateErrorMessage(error)) {
       return error;
     }

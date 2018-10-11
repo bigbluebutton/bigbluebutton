@@ -12,10 +12,11 @@ const KURENTO_WEBSOCKET_POOL_SIZE = config.get('kurento-websocket-pool-size');
 let instance = null;
 
 module.exports = class MediaServer extends EventEmitter {
-  constructor(serverUri) {
+  constructor(serverUri, globalEmitter) {
     if (!instance){
       super();
       this._serverUri = serverUri;
+      this._globalEmitter = globalEmitter;
       this._mediaPipelines = {};
       this._mediaElements = {};
       this._mediaServers;
@@ -36,6 +37,7 @@ module.exports = class MediaServer extends EventEmitter {
             let client = await this._getMediaServerClient(this._serverUri);
             this._mediaServers.push(client);
           }
+          this._globalEmitter.on(C.EVENT.ROOM_EMPTY, this._releasePipeline.bind(this));
           Logger.info("[mcs-media] Retrieved", this._mediaServers.length, "media server clients");
           this._status = C.STATUS.STARTING;
           this._monitorConnectionState();
@@ -170,6 +172,7 @@ module.exports = class MediaServer extends EventEmitter {
             if (error) {
               return reject(this._handleError(error));
             }
+            Logger.debug("[mcs-media] Pipeline", pipeline.id, "released");
             delete this._mediaPipelines[room];
             return resolve()
           });

@@ -33,6 +33,11 @@ module.exports = class BaseProvider extends EventEmitter {
 
 
   _handleError (logPrefix, error, role, streamId) {
+    // Setting a default error in case it was unhandled
+    if (error == null) {
+      error = { code: 2200, reason: errors[2200] }
+    }
+
     if (this._validateErrorMessage(error)) {
       return error;
     }
