@@ -171,10 +171,8 @@ module.exports = class MediaController {
           case C.MEDIA_TYPE.URI:
             const  { session, answer } = await user.subscribe(params.descriptor, type, source, params);
             this.addMediaSession(session);
-            source.subscribedSessions.push(session.id);
             resolve({answer, sessionId: session.id});
             session.sessionStarted();
-            Logger.info("[mcs-controller] Updated", source.id,  "subscribers list to", source.subscribedSessions);
             break;
           default:
             return reject(this._handleError(C.ERROR.MEDIA_INVALID_TYPE));
@@ -223,7 +221,6 @@ module.exports = class MediaController {
         const answer = await user.startSession(session.id);
         await sourceSession.connect(session._mediaElement);
 
-        sourceSession.subscribedSessions.push(session.id);
         this._mediaSessions[session.id] = session;
 
         resolve(answer);

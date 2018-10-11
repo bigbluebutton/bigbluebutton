@@ -224,10 +224,10 @@ module.exports = class MediaServer extends EventEmitter {
         let mediaServer = this._getClientFromPool();
         if (this._mediaElements[elementId]) {
           mediaServer.getMediaobjectById(elementId, (error, element) => {
-            if (error) {
+            if (error || element == null) {
               return reject(this._handleError(error));
             }
-            Logger.warn('[mcs-media] Element', elementId, 'found');
+            Logger.trace('[mcs-media] Element', elementId, 'found');
             return resolve(element);
           });
         } else {
