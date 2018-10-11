@@ -25,7 +25,8 @@ Meteor.startup(() => {
   joinRouteHandler((value, error) => {
     authenticatedRouteHandler((valueInner, errorInner) => {
       // set defaults
-      Session.set('isUserListOpen', false);
+      Session.set('isChatOpen', false);
+      Session.set('idChatOpen', '');
       render(<Base />, document.getElementById('app'));
     });
   });

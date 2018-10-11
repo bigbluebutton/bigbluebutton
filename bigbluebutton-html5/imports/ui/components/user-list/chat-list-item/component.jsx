@@ -6,6 +6,7 @@ import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
+import Button from '../../button/component';
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -21,10 +22,6 @@ const intlMessages = defineMessages({
     description: 'plural aria label for new messages',
   },
 });
-
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
-const CLOSED_CHAT_PATH = 'users/';
 
 const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
 const TOGGLE_CHAT_PUB_AK = SHORTCUTS_CONFIG.togglePublicChat.accesskey;
@@ -56,51 +53,54 @@ const ChatListItem = (props) => {
     intl,
     tabIndex,
     isPublicChat,
-    location,
   } = props;
 
-  let linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
-  // linkPath = location.pathname.includes(linkPath) ? CLOSED_CHAT_PATH : linkPath; // TODO 4767
   const isCurrentChat = chat.id === openChat;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
-  return null;
-  // return (
-  //   <Link
-  //     data-test="publicChatLink"
-  //     to={linkPath}
-  //     className={cx(styles.chatListItem, linkClasses)}
-  //     role="button"
-  //     aria-expanded={isCurrentChat}
-  //     tabIndex={tabIndex}
-  //     accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-  //   >
-  //     <div className={styles.chatListItemLink}>
-  //       <div className={styles.chatIcon}>
-  //         {chat.icon ?
-  //           <ChatIcon icon={chat.icon} />
-  //           :
-  //           <ChatAvatar
-  //             isModerator={chat.isModerator}
-  //             color={chat.color}
-  //             name={chat.name.toLowerCase().slice(0, 2)}
-  //           />}
-  //       </div>
-  //       <div className={styles.chatName}>
-  //         {!compact ?
-  //           <span className={styles.chatNameMain}>
-  //             {isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-  //           </span> : null}
-  //       </div>
-  //       {(chat.unreadCounter > 0) ?
-  //         <ChatUnreadCounter
-  //           counter={chat.unreadCounter}
-  //         />
-  //         : null}
-  //     </div>
-  //   </Link>
-  // ); // TODO 4767
+  return (
+    <Button
+      className={cx(styles.chatListItem, linkClasses)}
+      aria-expanded={isCurrentChat}
+      tabIndex={tabIndex}
+      accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
+      color="primary"
+      onClick={() => {
+        Session.set('isChatOpen', true);
+        Session.set('idChatOpen', chat.id);
+      }}
+      id="chat-toggle-button"
+      // label={"~"}
+      label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+    >
+
+      <div className={styles.chatListItemLink}>
+        <div className={styles.chatIcon}>
+          {chat.icon ?
+            <ChatIcon icon={chat.icon} />
+            :
+            <ChatAvatar
+              isModerator={chat.isModerator}
+              color={chat.color}
+              name={chat.name.toLowerCase().slice(0, 2)}
+            />}
+        </div>
+        <div className={styles.chatName}>
+          {!compact ?
+            <span className={styles.chatNameMain}>
+              {isPublicChat(chat) ?
+              intl.formatMessage(intlMessages.titlePublic) : chat.name}
+            </span> : null}
+        </div>
+        {(chat.unreadCounter > 0) ?
+          <ChatUnreadCounter
+            counter={chat.unreadCounter}
+          />
+          : null}
+      </div>
+    </Button>
+  );
 };
 
 ChatListItem.propTypes = propTypes;

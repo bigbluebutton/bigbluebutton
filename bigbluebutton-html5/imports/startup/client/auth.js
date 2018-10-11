@@ -4,6 +4,7 @@ import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log, makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
+import { Session } from 'meteor/session';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -75,9 +76,7 @@ export function joinRouteHandler(callback) {
         sessionToken, fullname, externUserID, confname,
       );
 
-      window.Auth = Auth; // TODO 4767 remove this
-
-      const path = deviceInfo.type().isPhone ? '/' : '/users'; // TODO 4767
+      Session.set('isUserListOpen', deviceInfo.type().isPhone);
       const userInfo = window.navigator;
 
       // Browser information is sent once on startup
@@ -92,9 +91,6 @@ export function joinRouteHandler(callback) {
         bbbVersion: Meteor.settings.public.app.bbbServerVersion,
         location: window.location.href,
       };
-
-      console.log({ path });
-      // replace({ pathname: path }); // TODO 4767
 
       logger.info(clientInfo);
 

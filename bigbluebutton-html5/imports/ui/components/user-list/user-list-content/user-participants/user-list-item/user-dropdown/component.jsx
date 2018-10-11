@@ -14,6 +14,7 @@ import _ from 'lodash';
 import { styles } from './styles';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
+import { Session } from 'meteor/session';
 
 const messages = defineMessages({
   presenter: {
@@ -232,8 +233,10 @@ class UserDropdown extends Component {
       actions.push(this.makeDropdownItem(
         'openChat',
         intl.formatMessage(messages.ChatLabel),
-        () => this.onActionsHide(),
-        // () => this.onActionsHide(router.push(`/users/chat/${user.id}`)),  // TODO 4767
+        () => {
+          Session.set('idChatOpen', user.id);
+          console.error(`__ idChatOpen: ${Session.get('idChatOpen')}`);
+        },
         'chat',
       ));
     }

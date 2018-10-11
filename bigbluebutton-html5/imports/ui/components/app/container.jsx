@@ -1,4 +1,4 @@
-import React, { cloneElement } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -27,7 +27,6 @@ const propTypes = {
   navbar: PropTypes.node,
   actionsbar: PropTypes.node,
   media: PropTypes.node,
-  location: PropTypes.shape({}).isRequired,
 };
 
 const defaultProps = {
@@ -44,7 +43,6 @@ const intlMessages = defineMessages({
 });
 
 const AppContainer = (props) => {
-  // inject location on the navbar container
   const {
     navbar,
     actionsbar,
@@ -52,12 +50,9 @@ const AppContainer = (props) => {
     ...otherProps
   } = props;
 
-  // const navbarWithLocation = cloneElement(navbar, { location: props.location }); // TODO 4767
-  const navbarWithLocation = navbar; // TODO 4767
-  console.log('_001');
   return (
     <App
-      navbar={navbarWithLocation}
+      navbar={navbar}
       actionsbar={actionsbar}
       media={media}
       {...otherProps}
@@ -109,7 +104,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
     userListIsOpen: Boolean(Session.get('isUserListOpen')),
-    // chatIsOpen: window.location.pathname.includes('chat'),  // TODO 4767
+    chatIsOpen: Boolean(Session.get('isChatOpen')),
   };
 })(AppContainer)));
 

@@ -13,6 +13,7 @@ import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 import UserListContainer from '../user-list/container';
+import ChatContainer from '../chat/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const USERLIST_COMPACT_WIDTH = 50;
@@ -213,29 +214,29 @@ class App extends Component {
   }
 
   renderChat() {
-    const { chat, intl } = this.props;
+    const { intl, chatIsOpen } = this.props;
 
-    if (!chat) return null;
+    if (!chatIsOpen) return null;
 
     return (
       <section
         className={styles.chat}
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
       >
-        {chat}
+        <ChatContainer />
       </section>
     );
   }
 
   renderChatResizable() {
-    const { chat } = this.props;
+    const { chatIsOpen } = this.props;
 
     // Variables for resizing chat.
     const CHAT_MIN_WIDTH = '10%';
     const CHAT_MAX_WIDTH = '25%';
     const CHAT_DEFAULT_WIDTH = '15%';
 
-    if (!chat) return null;
+    if (!chatIsOpen) return null;
 
     const resizableEnableOptions = {
       top: false,
