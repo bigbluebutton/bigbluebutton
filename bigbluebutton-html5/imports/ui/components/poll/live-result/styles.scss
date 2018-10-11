@@ -20,6 +20,7 @@ $element-width: 17%;
   padding: $sm-padding-y;
   margin-top: $sm-margin;
   margin-bottom: $sm-margin;
+  color: $color-text;
 }
 
 .left,
@@ -49,7 +50,7 @@ $element-width: 17%;
 .stats {
   display: flex;
   flex-direction: column;
-  border: $border-size solid $color-text;
+  border: $border-size solid $color-gray-lighter;
   border-radius: $border-size-large;
 
   > div {
