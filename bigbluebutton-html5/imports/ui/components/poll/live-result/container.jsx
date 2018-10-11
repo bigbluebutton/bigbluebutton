@@ -2,12 +2,12 @@ import React from 'react';
 import Users from '/imports/api/users';
 import Polls from '/imports/api/polls';
 import Auth from '/imports/ui/services/auth';
+import { withTracker } from 'meteor/react-meteor-data';
 import LiveResult from './component';
-import { createContainer } from 'meteor/react-meteor-data';
 
 const LiveResultContainer = ({ ...props }) => <LiveResult {...props} />;
 
-export default createContainer(() => {
+export default withTracker(({ }) => {
   Meteor.subscribe('results', Auth.meetingID);
 
   const getUser = userId => Users.findOne({ userId });
@@ -21,4 +21,4 @@ export default createContainer(() => {
     currentUser,
     currentPoll,
   };
-}, LiveResultContainer);
+})(LiveResultContainer);
