@@ -35,7 +35,7 @@ const Polling = ({ intl, poll, handleVote }) => (
           >
             <Button
               className={styles.pollingButton}
-              color="default"
+              color="primary"
               size="md"
               label={pollAnswer.key}
               key={pollAnswer.key}

@@ -7,32 +7,40 @@ $s-portrait-offset: 11.75em;
 $s-landscape-offset: 1.75em;
 
 .pollingContainer {
-  order: 2;
-  width: 100%;
-  display: flex;
+  width: 15rem;
+  position: absolute;
+  z-index: 2;
+  border:1px solid #EAEDEF;
+  border-radius:4px;
+  box-shadow: rgba(67, 90, 111, 0.416) 0px 0px 1px, rgba(67, 90, 111, 0.3) 0px 16px 24px -8px;
   align-items: center;
-  flex-direction: column;
-  padding-bottom: 5px;
-
-  @include mq($medium-up) {
-    padding-bottom: 10px;
-  }
+  text-align: center;
+  font-weight: 600;
+  padding: $md-padding-y;
+  background-color: $color-white;
+  bottom: .725em;
+  right: .725em;
 }
 
 .pollingTitle {
-  color: $color-white;
+  color: $color-text;
   white-space: nowrap;
   padding-bottom: 10px;
+  padding-top: 7px;
 }
 
 .pollingAnswers {
-  align-items: center;
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: auto;
-  justify-content: center;
-  position: relative;
-  width: 100%;
+  grid-template-columns: repeat(2, 1fr);
+
+  > pollButtonWrapper:nth-child(odd) {
+      grid-column: 1;
+  }
+
+  > pollButtonWrapper:nth-child(even) {
+      grid-column: 2;
+  }
+
   z-index: 1;
 
   :global(.browser-safari) & {
@@ -53,16 +61,8 @@ $s-landscape-offset: 1.75em;
 
 .pollButtonWrapper {
   text-align: center;
-  margin-left: 5px;
-  overflow: hidden;
+  padding: 5px;
 
-  @include mq($medium-up) {
-    margin-left: 10px;
-  }
-
-  &:first-of-type {
-    margin-left: 0;
-  }
 }
 
 .pollingButton {

@@ -6,6 +6,7 @@ import Modal from 'react-modal';
 import cx from 'classnames';
 import Resizable from 're-resizable';
 import browser from 'browser-detect';
+import PollingContainer from '/imports/ui/components/polling/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -326,6 +327,7 @@ class App extends Component {
           {this.renderPoll()}
           {this.renderSidebar()}
         </section>
+        <PollingContainer />
         <ModalContainer />
         <AudioContainer />
         <ToastContainer />
