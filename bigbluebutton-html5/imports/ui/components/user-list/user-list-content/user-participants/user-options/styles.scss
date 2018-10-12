@@ -1,17 +1,37 @@
 @import "/imports/ui/stylesheets/variables/_all";
+$icon-offset-left: -.44em;
+$icon-offset-top: -.38em;
+$square-side-length: 1.56rem;
 
 .dropdown {
   position: static;
 }
 
 .dropdownContent {
-  top: 5rem;
+  top: 4.8rem;
 }
 
 .optionsButton{
   display: block;
   margin-right: .3rem;
-  i {
-    color: $color-gray-dark !important;
+
+  span:first-child {
+    width: $square-side-length;
+    height: $square-side-length;
   }
+
+  i {
+    top: $icon-offset-top;
+    left: $icon-offset-left;
+    color: $color-gray-dark !important;
+    background-color: transparent !important;
+  }
+
+  &:hover,
+  &:focus {
+    > span:first-child {
+      background-color: transparent !important;
+    }
+  }
+
 }

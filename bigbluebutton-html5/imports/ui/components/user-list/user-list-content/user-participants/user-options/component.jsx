@@ -124,7 +124,6 @@ class UserOptions extends Component {
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="settings"
-            size="sm"
             circle
             ghost
             color="primary"
