@@ -15,8 +15,11 @@ export function joinRouteHandler(callback) {
   const sessionToken = urlParams.get('sessionToken');
   console.log('joinRouteHandler_2', sessionToken);
 
-  // if (!sessionToken) { // TODO 4767 }
-
+  if (!sessionToken) {
+    Session.set('hasError', true);
+    Session.set('codeError', '404');
+    callback('failed - no sessionToken');
+  }
 
   // Old credentials stored in memory were being used when joining a new meeting
   Auth.clearCredentials();
@@ -33,69 +36,69 @@ export function joinRouteHandler(callback) {
       } = response;
 
       console.log({ returncode });
-      // if (returncode === 'FAILED') { // TODO 4767
-      //   replace({ pathname: '/error/404' });
-      //   callback();
-      // }
+      if (returncode === 'FAILED') {
+        Session.set('hasError', true);
+        Session.set('codeError', '404');
+        callback('failed unhappily');
+      } else {
+        setCustomLogoUrl(customLogoURL); // TODO 4767
 
-      setCustomLogoUrl(customLogoURL); // TODO 4767
+        let metakeys = 0;
+        if (metadata) {
+          metakeys = metadata.length
+            ? metadata.reduce((acc, meta) => {
+              const key = Object.keys(meta).shift();
 
-      let metakeys = 0;
-      if (metadata) {
-        metakeys = metadata.length
-          ? metadata.reduce((acc, meta) => {
-            const key = Object.keys(meta).shift();
+              const handledHTML5Parameters = [
+                'html5autoswaplayout', 'html5autosharewebcam', 'html5hidepresentation',
+              ];
+              if (handledHTML5Parameters.indexOf(key) === -1) {
+                return acc;
+              }
 
-            const handledHTML5Parameters = [
-              'html5autoswaplayout', 'html5autosharewebcam', 'html5hidepresentation',
-            ];
-            if (handledHTML5Parameters.indexOf(key) === -1) {
-              return acc;
-            }
+              /* this reducer transforms array of objects in a single object and
+               forces the metadata a be boolean value */
+              let value = meta[key];
+              try {
+                value = JSON.parse(meta[key]);
+              } catch (e) {
+                log('error', `Caught: ${e.message}`);
+              }
+              return { ...acc, [key]: value };
+            }, {}) : {};
+        }
 
-            /* this reducer transforms array of objects in a single object and
-             forces the metadata a be boolean value */
-            let value = meta[key];
-            try {
-              value = JSON.parse(meta[key]);
-            } catch (e) {
-              log('error', `Caught: ${e.message}`);
-            }
-            return { ...acc, [key]: value };
-          }, {}) : {};
+        if (customdata.length) {
+          makeCall('addUserSettings', meetingID, internalUserID, customdata);
+        }
+
+        SessionStorage.setItem(METADATA_KEY, metakeys);
+
+        Auth.set(
+          meetingID, internalUserID, authToken, logoutUrl,
+          sessionToken, fullname, externUserID, confname,
+        );
+
+        Session.set('isUserListOpen', deviceInfo.type().isPhone);
+        const userInfo = window.navigator;
+
+        // Browser information is sent once on startup
+        // Sent here instead of Meteor.startup, as the
+        // user might not be validated by then, thus user's data
+        // would not be sent with this information
+        const clientInfo = {
+          language: userInfo.language,
+          userAgent: userInfo.userAgent,
+          screenSize: { width: window.screen.width, height: window.screen.height },
+          windowSize: { width: window.innerWidth, height: window.innerHeight },
+          bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+          location: window.location.href,
+        };
+
+        logger.info(clientInfo);
+
+        callback('all is cool'); // TODO 4767
       }
-
-      if (customdata.length) {
-        makeCall('addUserSettings', meetingID, internalUserID, customdata);
-      }
-
-      SessionStorage.setItem(METADATA_KEY, metakeys);
-
-      Auth.set(
-        meetingID, internalUserID, authToken, logoutUrl,
-        sessionToken, fullname, externUserID, confname,
-      );
-
-      Session.set('isUserListOpen', deviceInfo.type().isPhone);
-      const userInfo = window.navigator;
-
-      // Browser information is sent once on startup
-      // Sent here instead of Meteor.startup, as the
-      // user might not be validated by then, thus user's data
-      // would not be sent with this information
-      const clientInfo = {
-        language: userInfo.language,
-        userAgent: userInfo.userAgent,
-        screenSize: { width: window.screen.width, height: window.screen.height },
-        windowSize: { width: window.innerWidth, height: window.innerHeight },
-        bbbVersion: Meteor.settings.public.app.bbbServerVersion,
-        location: window.location.href,
-      };
-
-      logger.info(clientInfo);
-
-      // return callback(); // TODO 4767
-      callback('lala');
     });
 }
 
@@ -153,7 +156,8 @@ export function authenticatedRouteHandler(callback) {
     .then(callback)
     .catch((reason) => {
       log('error', reason);
-      // replace({ pathname: `/error/${reason.error}` }); // TODO 4767
+      Session.set('hasError', true);
+      Session.set('codeError', reason.error);
       callback();
     });
 }

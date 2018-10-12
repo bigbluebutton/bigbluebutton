@@ -27,6 +27,7 @@ Meteor.startup(() => {
       // set defaults
       Session.set('isChatOpen', false);
       Session.set('idChatOpen', '');
+      Session.set('isMeetingEnded', false);
       render(<Base />, document.getElementById('app'));
     });
   });

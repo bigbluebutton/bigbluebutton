@@ -15,7 +15,7 @@ class Auth {
       tracker: new Tracker.Dependency(),
     };
 
-    const queryParams = new URLSearchParams(document.location.search); // TODO 4767
+    const queryParams = new URLSearchParams(document.location.search);
     if (queryParams.has('sessionToken')
       && queryParams.get('sessionToken') !== Session.get('sessionToken')) {
       return;

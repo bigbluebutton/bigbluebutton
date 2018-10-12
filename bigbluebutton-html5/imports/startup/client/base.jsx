@@ -13,6 +13,7 @@ import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import GroupChat from '/imports/api/group-chat';
+import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -20,19 +21,13 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
 const propTypes = {
-  error: PropTypes.object,
-  errorCode: PropTypes.number,
   subscriptionsReady: PropTypes.bool.isRequired,
   locale: PropTypes.string,
-  endedCode: PropTypes.string,
   approved: PropTypes.bool,
 };
 
 const defaultProps = {
-  error: undefined,
-  errorCode: undefined,
   locale: undefined,
-  endedCode: undefined,
   approved: undefined,
 };
 
@@ -42,11 +37,9 @@ class Base extends Component {
 
     this.state = {
       loading: false,
-      error: props.error || null,
     };
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
-    this.updateErrorState = this.updateErrorState.bind(this);
   }
 
   componentWillUpdate() {
@@ -62,31 +55,24 @@ class Base extends Component {
     });
   }
 
-  updateErrorState(error = null) {
-    this.setState({
-      error,
-    });
-  }
-
   renderByState() {
-    const { updateLoadingState, updateErrorState } = this;
-    const stateControls = { updateLoadingState, updateErrorState };
+    const { updateLoadingState } = this;
+    const stateControls = { updateLoadingState };
 
-    const { loading, error } = this.state;
+    const { loading } = this.state;
 
+    const codeError = Session.get('codeError');
     const { subscriptionsReady } = this.props;
-    // const { errorCode } = this.props; // TODO 4767
-    // const { endedCode } = this.props.params; // TODO 4767
 
-    // if (endedCode) { // TODO 4767
-    //   AudioManager.exitAudio();
-    //   return (<MeetingEnded code={endedCode} />);
-    // }
-    //
-    // if (error || errorCode) {
-    //   logger.error(`User could not log in HTML5, hit ${errorCode}`);
-    //   return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);
-    // }
+    if (Session.get('isMeetingEnded')) {
+      AudioManager.exitAudio();
+      return (<MeetingEnded code={Session.get('codeError')} />);
+    }
+
+    if (codeError) {
+      logger.error(`User could not log in HTML5, hit ${codeError}`);
+      return (<ErrorScreen code={codeError} />);
+    }
 
     if (loading || !subscriptionsReady) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
@@ -101,9 +87,9 @@ class Base extends Component {
   }
 
   render() {
-    const { updateLoadingState, updateErrorState } = this;
+    const { updateLoadingState } = this;
     const { locale } = this.props;
-    const stateControls = { updateLoadingState, updateErrorState };
+    const stateControls = { updateLoadingState };
 
     return (
       <IntlStartup locale={locale} baseControls={stateControls}>
@@ -123,13 +109,10 @@ const SUBSCRIPTIONS_NAME = [
 ];
 
 const BaseContainer = withTracker(() => {
-  // if (params.errorCode) return params; // TODO 4767
-
   const { locale } = Settings.application;
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
 
-  console.error(`Auth.isLoggedIn=${loggedIn} `, Auth);
   if (!loggedIn) {
     return {
       locale,
@@ -140,7 +123,8 @@ const BaseContainer = withTracker(() => {
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error(error);
-      // return router.push('/logout'); // TODO 4767
+      Session.set('isMeetingEnded', true);
+      Session.set('codeError', error.error);
     },
   };
 
