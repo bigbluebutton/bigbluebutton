@@ -37,7 +37,7 @@
             </thead>
             <tbody>
             <g:each in="${recordingList}" var="r">
-                <g:if test="${ismoderator || r.published == 'true'}">
+                <g:if test="${ismoderator || r.published}">
                 <tr class="r0 lastrow">
                     <td class="cell c0" style="text-align:center;">
                     <g:if test="${r.published}">
