@@ -14,7 +14,7 @@ export default class UserOptionsContainer extends Component {
     const meeting = Meetings.findOne({ meetingId });
 
     this.state = {
-      isFullScreen: meeting.voiceProp.muteOnStart,
+      meetingMuted: meeting.voiceProp.muteOnStart,
     };
 
     this.muteMeeting = this.muteMeeting.bind(this);
@@ -52,7 +52,7 @@ export default class UserOptionsContainer extends Component {
     const currentUserIsModerator = mapUser(currentUser).isModerator;
     const meetingId = Auth.meetingID;
     const meeting = Meetings.findOne({ meetingId });
-    this.state.isFullScreen = meeting.voiceProp.muteOnStart;
+    this.state.meetingMuted = meeting.voiceProp.muteOnStart;
 
     return (
       currentUserIsModerator ?
@@ -61,7 +61,7 @@ export default class UserOptionsContainer extends Component {
           toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
           toggleLockView={this.handleLockView}
           toggleStatus={this.handleClearStatus}
-          isMeetingMuted={this.state.isFullScreen}
+          isMeetingMuted={this.state.meetingMuted}
         /> : null
     );
   }
