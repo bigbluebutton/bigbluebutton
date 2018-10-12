@@ -21,21 +21,21 @@ class TranscodersModel {
   def removeTranscoder(meetingId: String, transcoderId: String) {
     meetings.get(meetingId) match {
       case Some(transcoders) => transcoders -= transcoderId
-      case _ =>
+      case _                 =>
     }
   }
 
   def getTranscoder(meetingId: String, transcoderId: String): Option[ActorRef] = {
     meetings.get(meetingId) match {
       case Some(transcoders) => transcoders.get(transcoderId)
-      case _ => None
+      case _                 => None
     }
   }
 
   def getTranscoders(meetingId: String): Array[ActorRef] = {
     meetings.get(meetingId) match {
       case Some(transcoders) => transcoders.values toArray
-      case _ => Array.empty
+      case _                 => Array.empty
     }
   }
 }

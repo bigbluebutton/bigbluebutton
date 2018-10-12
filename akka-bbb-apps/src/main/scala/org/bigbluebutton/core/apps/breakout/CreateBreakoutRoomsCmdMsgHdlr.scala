@@ -24,8 +24,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       state.breakout match {
         case Some(breakout) =>
           log.warning(
-            "CreateBreakoutRooms event received while breakout created for meeting {}", liveMeeting.props.meetingProp.intId
-          )
+            "CreateBreakoutRooms event received while breakout created for meeting {}", liveMeeting.props.meetingProp.intId)
           state
         case None =>
           processRequest(msg, state)
@@ -60,8 +59,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
-        presId, presSlide, msg.body.record
-      )
+        presId, presSlide, msg.body.record)
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
       outGW.send(event)

@@ -46,7 +46,7 @@ public class ReceivedMessageHandler implements IReceivedOldMessageHandler {
       };
       msgProcessorExec.execute(messageProcessor);
     } catch (Exception e) {
-      log.error("Error subscribing to channels: {}", e.getMessage());
+      log.error("Error subscribing to channels: {}", e);
     }
   }
 

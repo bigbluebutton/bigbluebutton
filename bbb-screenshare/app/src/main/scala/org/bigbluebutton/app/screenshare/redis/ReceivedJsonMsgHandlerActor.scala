@@ -1,19 +1,19 @@
 package org.bigbluebutton.app.screenshare.redis
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.app.screenshare.server.sessions.messages.{MeetingCreated, MeetingEnded, RecordingChapterBreak}
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import org.bigbluebutton.app.screenshare.server.sessions.messages.{ MeetingCreated, MeetingEnded, RecordingChapterBreak }
+import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
 
 import scala.reflect.runtime.universe._
 import org.bigbluebutton.common2.msgs._
 
 object ReceivedJsonMsgHandlerActor {
-  def props(screenshareManager: ActorRef ): Props =
+  def props(screenshareManager: ActorRef): Props =
     Props(classOf[ReceivedJsonMsgHandlerActor], screenshareManager)
 }
 
 class ReceivedJsonMsgHandlerActor(screenshareManager: ActorRef)
-    extends Actor with ActorLogging {
+  extends Actor with ActorLogging {
 
   object JsonDeserializer extends Deserializer
 
@@ -63,7 +63,7 @@ class ReceivedJsonMsgHandlerActor(screenshareManager: ActorRef)
           screenshareManager ! new RecordingChapterBreak(m.body.meetingId, m.body.timestamp)
         }
       case _ =>
-       // log.error("Cannot route envelope name " + envelope.name)
+      // log.error("Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }

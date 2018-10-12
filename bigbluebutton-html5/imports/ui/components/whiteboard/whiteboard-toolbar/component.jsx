@@ -66,15 +66,15 @@ const runExceptInEdge = fn => (browser().name === 'edge' ? noop : fn);
 class WhiteboardToolbar extends Component {
   constructor() {
     super();
-
+    const isMobile = browser().mobile;
     this.state = {
       // a variable to control which list is currently open
       currentSubmenuOpen: '',
 
       // variables to keep current selected draw settings
       annotationSelected: {
-        icon: 'pen_tool',
-        value: 'pencil',
+        icon: isMobile ? 'hand' : 'pen_tool',
+        value: isMobile ? 'hand' : 'pencil',
       },
       thicknessSelected: { value: 4 },
       colorSelected: { value: '#000000' },
@@ -380,7 +380,7 @@ class WhiteboardToolbar extends Component {
 
   renderThicknessItem() {
     const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'pointer';
+    const isDisabled = this.state.annotationSelected.value === 'hand';
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -453,7 +453,7 @@ class WhiteboardToolbar extends Component {
 
   renderColorItem() {
     const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'pointer';
+    const isDisabled = this.state.annotationSelected.value === 'hand';
     return (
       <ToolbarMenuItem
         disabled={isDisabled}

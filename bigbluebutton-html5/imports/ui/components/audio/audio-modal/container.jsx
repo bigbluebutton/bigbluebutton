@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import browser from 'browser-detect';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
 import Service from '../service';
 
@@ -9,10 +10,13 @@ const AudioModalContainer = props => <AudioModal {...props} />;
 
 const APP_CONFIG = Meteor.settings.public.app;
 
-const { listenOnlyMode, forceListenOnly, skipCheck } = APP_CONFIG;
 
-export default withModalMounter(withTracker(({ mountModal }) =>
-  ({
+export default withModalMounter(withTracker(({ mountModal }) => {
+  const listenOnlyMode = getFromUserSettings('listenOnlyMode', APP_CONFIG.listenOnlyMode);
+  const forceListenOnly = getFromUserSettings('forceListenOnly', APP_CONFIG.forceListenOnly);
+  const skipCheck = getFromUserSettings('skipCheck', APP_CONFIG.skipCheck);
+
+  return ({
     closeModal: () => {
       if (!Service.isConnecting()) mountModal(null);
     },
@@ -58,4 +62,5 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
     forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
     isIOSChrome: browser().name === 'crios',
-  }))(AudioModalContainer));
+  });
+})(AudioModalContainer));

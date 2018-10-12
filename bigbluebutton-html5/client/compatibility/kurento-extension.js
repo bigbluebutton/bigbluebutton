@@ -2,6 +2,7 @@ const isFirefox = typeof window.InstallTrigger !== 'undefined';
 const isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 const isChrome = !!window.chrome && !isOpera;
 const isSafari = navigator.userAgent.indexOf('Safari') >= 0 && !isChrome;
+const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
 const kurentoHandler = null;
 
 Kurento = function (
@@ -639,6 +640,31 @@ window.getScreenConstraints = function (sendSource, callback) {
     });
   };
 
+  const optionalConstraints = [
+    { googCpuOveruseDetection: true },
+    { googCpuOveruseEncodeUsage: true },
+    { googCpuUnderuseThreshold: 55 },
+    { googCpuOveruseThreshold: 100 },
+    { googPayloadPadding: true },
+    { googScreencastMinBitrate: 600 },
+    { googHighStartBitrate: true },
+    { googHighBitrate: true },
+    { googVeryHighBitrate: true },
+  ];
+
+  if (isElectron) {
+        var sourceId = ipcRenderer.sendSync('screen-chooseSync');
+        kurentoManager.kurentoScreenshare.extensionInstalled = true;
+
+        // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
+        screenConstraints.video.chromeMediaSource = { exact: [sendSource] };
+        screenConstraints.video.chromeMediaSourceId = sourceId;
+        screenConstraints.optional = optionalConstraints;
+
+        console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
+        return callback(null, screenConstraints);
+  }
+  
   if (isChrome) {
     const extensionKey = kurentoManager.getChromeExtensionKey();
     getChromeScreenConstraints(extensionKey).then((constraints) => {
@@ -654,17 +680,7 @@ window.getScreenConstraints = function (sendSource, callback) {
       // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
       screenConstraints.video.chromeMediaSource = { exact: [sendSource] };
       screenConstraints.video.chromeMediaSourceId = sourceId;
-      screenConstraints.optional = [
-        { googCpuOveruseDetection: true },
-        { googCpuOveruseEncodeUsage: true },
-        { googCpuUnderuseThreshold: 55 },
-        { googCpuOveruseThreshold: 100 },
-        { googPayloadPadding: true },
-        { googScreencastMinBitrate: 600 },
-        { googHighStartBitrate: true },
-        { googHighBitrate: true },
-        { googVeryHighBitrate: true },
-      ];
+      screenConstraints.optional = optionalConstraints;
 
       console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
       return callback(null, screenConstraints);

@@ -32,7 +32,7 @@ dependencies {
 
   // Spring 
   providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-beans:4.3.12.RELEASE@jar'
   providedCompile 'org.springframework:spring-context:4.3.12.RELEASE@jar'
   providedCompile 'org.springframework:spring-core:4.3.13.RELEASE@jar'
 
@@ -54,13 +54,13 @@ dependencies {
   compile 'aopalliance:aopalliance:1.0@jar'
 	     
   // Testing
-  compile 'org.easymock:easymock:2.4@jar'
+  compile 'org.easymock:easymock:3.6@jar'
   
   //redis
-  compile "redis.clients:jedis:2.7.2"
-  compile 'org.apache.commons:commons-pool2:2.3'
+  compile "redis.clients:jedis:2.9.0"
+  compile 'org.apache.commons:commons-pool2:2.6.0'
  
-   compile 'com.google.code.gson:gson:2.5'
+   compile 'com.google.code.gson:gson:2.8.5'
    providedCompile 'org.apache.commons:commons-lang3:3.7'
 
   compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'

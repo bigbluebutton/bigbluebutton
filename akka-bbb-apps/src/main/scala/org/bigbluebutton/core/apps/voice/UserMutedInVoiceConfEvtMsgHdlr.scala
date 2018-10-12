@@ -16,13 +16,11 @@ trait UserMutedInVoiceConfEvtMsgHdlr {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId,
-        vu.intId
-      )
+        vu.intId)
       val envelope = BbbCoreEnvelope(UserMutedVoiceEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
         UserMutedVoiceEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, vu.intId
-      )
+        liveMeeting.props.meetingProp.intId, vu.intId)
 
       val body = UserMutedVoiceEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.intId, vu.muted)
 

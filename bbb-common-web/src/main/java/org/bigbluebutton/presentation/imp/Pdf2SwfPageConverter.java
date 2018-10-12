@@ -137,7 +137,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
         log.error("-- analytics -- {}", logStr);
       }
 
-      long pdfStart = System.currentTimeMillis();
+      // long pdfStart = System.currentTimeMillis();
 
       // Step 1: Convert a PDF page to PNG using a raw pdftocairo
       NuProcessBuilder pbPng = new NuProcessBuilder(
@@ -159,7 +159,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       //long pdfEnd = System.currentTimeMillis();
       //log.debug("pdftocairo conversion duration: {} sec", (pdfEnd - pdfStart) / 1000);
 
-      long png2swfStart = System.currentTimeMillis();
+      // long png2swfStart = System.currentTimeMillis();
 
       // Step 2: Convert a PNG image to SWF
       // We need to update the file path as pdftocairo adds "-page.png"

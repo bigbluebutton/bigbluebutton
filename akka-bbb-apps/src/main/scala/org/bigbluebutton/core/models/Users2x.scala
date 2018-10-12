@@ -227,8 +227,7 @@ case class UserState(
   avatar:           String,
   roleChangedOn:    Long    = System.currentTimeMillis(),
   lastActivityTime: Long    = TimeUtil.timeNowInMs(),
-  clientType:       String
-)
+  clientType:       String)
 
 case class UserIdAndName(id: String, name: String)
 

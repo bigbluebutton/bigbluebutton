@@ -38,7 +38,7 @@ public class RedisStorageService {
       log.debug("Saving metadata in {}", meetingId);
       jedis.hmset("meeting:info:" + meetingId, info);
     } catch (Exception e) {
-      log.warn("Cannot record the info meeting:" + meetingId, e);
+      log.warn("Cannot record the info meeting: {}" + meetingId, e);
     } finally {
       jedis.close();
     }

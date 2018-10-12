@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Meetings from '/imports/api/meetings';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import Service from './service';
 import UserList from './component';
 
@@ -55,4 +56,5 @@ export default withTracker(({ chatID, compact }) => ({
   handleEmojiChange: Service.setEmojiStatus,
   getEmojiList: Service.getEmojiList(),
   getEmoji: Service.getEmoji(),
+  showBranding: getFromUserSettings('displayBrandingArea', Meteor.settings.public.app.branding.displayBrandingArea),
 }))(UserListContainer);

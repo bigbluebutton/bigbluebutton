@@ -30,8 +30,9 @@ const propTypes = {
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
+  showBranding: PropTypes.bool.isRequired,
 };
-const SHOW_BRANDING = Meteor.settings.public.app.branding.displayBrandingArea;
+
 const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
@@ -71,12 +72,13 @@ class UserList extends Component {
       handleEmojiChange,
       getEmojiList,
       getEmoji,
+      showBranding,
     } = this.props;
 
     return (
       <div className={styles.userList}>
         {
-          SHOW_BRANDING
+          showBranding
           && !this.props.compact
           && CustomLogoUrl
           ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
