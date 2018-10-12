@@ -208,8 +208,6 @@ class Settings extends Component {
   render() {
     const {
       intl,
-      // router, // TODO 4767
-      // location, // TODO 4767
       mountModal,
     } = this.props;
 

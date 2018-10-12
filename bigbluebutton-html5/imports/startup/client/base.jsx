@@ -24,11 +24,13 @@ const propTypes = {
   subscriptionsReady: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   approved: PropTypes.bool,
+  meetingEnded: PropTypes.bool,
 };
 
 const defaultProps = {
   locale: undefined,
   approved: undefined,
+  meetingEnded: false,
 };
 
 class Base extends Component {
@@ -62,9 +64,9 @@ class Base extends Component {
     const { loading } = this.state;
 
     const codeError = Session.get('codeError');
-    const { subscriptionsReady } = this.props;
+    const { subscriptionsReady, meetingEnded } = this.props;
 
-    if (Session.get('isMeetingEnded')) {
+    if (meetingEnded) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={Session.get('codeError')} />);
     }
@@ -164,6 +166,7 @@ const BaseContainer = withTracker(() => {
   const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
     approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
+    meetingEnded: Session.get('isMeetingEnded'),
     locale,
     subscriptionsReady,
     annotationsHandler,

@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { logoutRouteHandler } from '/imports/startup/client/auth';
 import Rating from './rating/component';
 import { styles } from './styles';
 
@@ -93,7 +94,7 @@ class MeetingEnded extends React.PureComponent {
     } = this.state;
 
     if (selected <= 0) {
-      // router.push('/logout'); // TODO 4767
+      logoutRouteHandler();
       return;
     }
 
@@ -114,8 +115,9 @@ class MeetingEnded extends React.PureComponent {
     };
 
     fetch(url, options)
-      // .finally(() => router.push('/logout')); // TODO 4767
-      .finally();
+      .finally(() => {
+        logoutRouteHandler();
+      });
   }
 
   render() {

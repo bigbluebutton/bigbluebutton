@@ -39,7 +39,6 @@ class ErrorScreen extends React.PureComponent {
       intl,
       code,
       children,
-      // router, // TODO 4767
     } = this.props;
 
     let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
@@ -62,7 +61,7 @@ class ErrorScreen extends React.PureComponent {
         <div className={styles.content}>
           <Button
             size="sm"
-            onClick={() => console.log()} /* router.push('/logout/')  // TODO 4767 */
+            onClick={() => Session.set('isMeetingEnded', true)}
             label={intl.formatMessage(intlMessages.leave)}
           />
         </div>

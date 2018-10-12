@@ -41,7 +41,7 @@ export function joinRouteHandler(callback) {
         Session.set('codeError', '404');
         callback('failed unhappily');
       } else {
-        setCustomLogoUrl(customLogoURL); // TODO 4767
+        setCustomLogoUrl(customLogoURL);
 
         let metakeys = 0;
         if (metadata) {
