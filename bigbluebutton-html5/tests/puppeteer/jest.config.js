@@ -1,4 +1,4 @@
 module.exports =
 {
-  setupTestFrameworkScriptFile: './jest.setup.js'
+  setupTestFrameworkScriptFile: './jest.setup.js',
 };

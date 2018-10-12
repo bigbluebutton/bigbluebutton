@@ -2,23 +2,20 @@ const Page = require('./page');
 const helper = require('./helper');
 const e = require('./elements');
 
-class HotkeysMicFirstTestPage extends Page
-{
-  constructor()
-  {
+class HotkeysMicFirstTestPage extends Page {
+  constructor() {
     super();
-    this.tabCounts = 
+    this.tabCounts =
     {
       audioNoMic: 12,
-      audioMic: 13
-    }
+      audioMic: 13,
+    };
   }
 
-  async test()
-  {
+  async test() {
     await this.createBBBMeeting();
     await this.joinAudioMicrophone();
-    await this.page.screenshot({path: "screenshots/test-hotkeys-mic-first-0.png"});
+    await this.page.screenshot({ path: 'screenshots/test-hotkeys-mic-first-0.png' });
 
     await this.page.waitFor(e.whiteboard);
     await this.page.waitFor(e.options);
@@ -44,8 +41,8 @@ class HotkeysMicFirstTestPage extends Page
     await this.enter();
     await this.elementRemoved(e.audioDialog);
     await helper.sleep(500);
-    await this.page.screenshot({path: "screenshots/test-hotkeys-mic-first-1.png"});
-    
+    await this.page.screenshot({ path: 'screenshots/test-hotkeys-mic-first-1.png' });
+
     // Leave/Join Audio with Microphone
     await this.elementRemoved(e.alerts);
     await this.page.click(e.title);
@@ -61,8 +58,8 @@ class HotkeysMicFirstTestPage extends Page
     await this.enter();
     await this.elementRemoved(e.audioDialog);
     await helper.sleep(500);
-    await this.page.screenshot({path: "screenshots/test-hotkeys-mic-first-2.png"});
+    await this.page.screenshot({ path: 'screenshots/test-hotkeys-mic-first-2.png' });
   }
-};
+}
 
 module.exports = exports = HotkeysMicFirstTestPage;
