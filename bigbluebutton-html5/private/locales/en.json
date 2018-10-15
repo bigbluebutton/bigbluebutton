@@ -99,6 +99,8 @@
     "app.poll.a3": "A / B / C",
     "app.poll.a4": "A / B / C / D",
     "app.poll.a5": "A / B / C / D / E",
+    "app.poll.liveResult.usersTitle": "Users",
+    "app.poll.liveResult.responsesTitle": "Response",
     "app.polling.pollingTitle": "Polling Options",
     "app.polling.pollAnswerLabel": "Poll answer {0}",
     "app.polling.pollAnswerDesc": "Select this option to vote for {0}",

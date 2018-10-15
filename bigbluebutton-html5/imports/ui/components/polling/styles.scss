@@ -1,6 +1,7 @@
 @import "../../stylesheets/variables/_all";
 
 $poll-width: 18rem;
+$max-btn-width: 9em;
 $col-amount: 2;
 
 // pollingAnswer position offsets
@@ -69,6 +70,7 @@ $s-landscape-offset: 1.75em;
 
 .pollingButton {
   width: 100%;
+  max-width: $max-btn-width;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

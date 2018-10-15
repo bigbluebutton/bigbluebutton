@@ -1,6 +1,18 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
+
+const intlMessages = defineMessages({
+  usersTitle: {
+    id: 'app.poll.liveResult.usersTitle',
+    description: 'heading label for poll users',
+  },
+  responsesTitle: {
+    id: 'app.poll.liveResult.responsesTitle',
+    description: 'heading label for poll responses',
+  },
+});
 
 class LiveResult extends Component {
   constructor(props) {
@@ -103,14 +115,16 @@ class LiveResult extends Component {
   }
 
   render() {
+    const { intl } = this.props;
+
     return (
       <div>
         <div className={styles.stats}>
           {this.getPollStats()}
         </div>
         <div className={styles.container}>
-          <div className={styles.usersHeading}>Users</div>
-          <div className={styles.responseHeading}>Response</div>
+          <div className={styles.usersHeading}>{intl.formatMessage(intlMessages.usersTitle)}</div>
+          <div className={styles.responseHeading}>{intl.formatMessage(intlMessages.responsesTitle)}</div>
           {this.getRespondents()}
           {this.getUnresponsive()}
         </div>
@@ -119,4 +133,4 @@ class LiveResult extends Component {
   }
 }
 
-export default LiveResult;
+export default injectIntl(LiveResult);

@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
 import mapToAcl from '/imports/startup/mapToAcl';
 
-Meteor.publish('results', (meetingId) => {
+Meteor.publish('current-poll', (meetingId) => {
   check(meetingId, String);
 
   const selector = {

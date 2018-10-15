@@ -1,9 +1,11 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$sm-margin: 0.3125rem;
-$element-width: 17%;
-$user-line-height: 1.75rem;
 $stats-border-color: #d4d9df;
+$stats-option-width: 4em;
+$stats-element-width: 17%;
+
+$sm-margin: 0.3125rem;
+$user-line-height: 1.75rem;
 
 .main {
   display: flex;
@@ -29,10 +31,11 @@ $stats-border-color: #d4d9df;
 .right {
   flex: 0 0 auto;
   position: relative;
-  min-width: $element-width;
+  min-width: $stats-element-width;
 }
 
 .left {
+  width: $stats-option-width;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -41,7 +44,7 @@ $stats-border-color: #d4d9df;
 
 .right {
   text-align: right;
-  max-width: $element-width;
+  max-width: $stats-element-width;
 }
 
 .container,

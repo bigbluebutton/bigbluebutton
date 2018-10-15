@@ -8,7 +8,7 @@ import LiveResult from './component';
 const LiveResultContainer = ({ ...props }) => <LiveResult {...props} />;
 
 export default withTracker(({ }) => {
-  Meteor.subscribe('results', Auth.meetingID);
+  Meteor.subscribe('current-poll', Auth.meetingID);
 
   const getUser = userId => Users.findOne({ userId });
 

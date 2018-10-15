@@ -29,19 +29,21 @@ const Polling = ({ intl, poll, handleVote }) => (
           key={pollAnswer.id}
           className={styles.pollButtonWrapper}
         >
-
-
-          <Button
-            className={styles.pollingButton}
-            color="primary"
-            size="md"
-            label={pollAnswer.key}
-            key={pollAnswer.key}
-            onClick={() => handleVote(poll.pollId, pollAnswer)}
-            aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-            aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-          />
-
+          <Tooltip
+            key={pollAnswer.id}
+            title={pollAnswer.key}
+          >
+            <Button
+              className={styles.pollingButton}
+              color="primary"
+              size="md"
+              label={pollAnswer.key}
+              key={pollAnswer.key}
+              onClick={() => handleVote(poll.pollId, pollAnswer)}
+              aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+              aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+            />
+          </Tooltip>
           <div
             className={styles.hidden}
             id={`pollAnswerLabel${pollAnswer.key}`}
