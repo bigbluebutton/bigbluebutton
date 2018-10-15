@@ -1,5 +1,8 @@
 @import "../../stylesheets/variables/_all";
 
+$poll-width: 18rem;
+$col-amount: 2;
+
 // pollingAnswer position offsets
 $xs-portrait-offset: 8.75em;
 $xs-landscape-offset: 4.75em;
@@ -7,38 +10,38 @@ $s-portrait-offset: 11.75em;
 $s-landscape-offset: 1.75em;
 
 .pollingContainer {
-  width: 15rem;
+  width: $poll-width;
   position: absolute;
   z-index: 2;
-  border:1px solid #EAEDEF;
-  border-radius:4px;
-  box-shadow: rgba(67, 90, 111, 0.416) 0px 0px 1px, rgba(67, 90, 111, 0.3) 0px 16px 24px -8px;
+  border: 1px solid $color-off-white;
+  border-radius: $border-radius;
+  box-shadow: $color-gray-dark 0px 0px $lg-padding-y;
   align-items: center;
   text-align: center;
   font-weight: 600;
   padding: $md-padding-y;
   background-color: $color-white;
-  bottom: .725em;
-  right: .725em;
+  bottom: $sm-padding-x;
+  right: $sm-padding-x;
 }
 
 .pollingTitle {
   color: $color-text;
   white-space: nowrap;
-  padding-bottom: 10px;
-  padding-top: 7px;
+  padding-bottom: $md-padding-y;
+  padding-top: $md-padding-y;
 }
 
 .pollingAnswers {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat($col-amount, 1fr);
 
   > pollButtonWrapper:nth-child(odd) {
       grid-column: 1;
   }
 
   > pollButtonWrapper:nth-child(even) {
-      grid-column: 2;
+      grid-column: $col-amount;
   }
 
   z-index: 1;
@@ -61,8 +64,7 @@ $s-landscape-offset: 1.75em;
 
 .pollButtonWrapper {
   text-align: center;
-  padding: 5px;
-
+  padding: $sm-padding-y;
 }
 
 .pollingButton {

@@ -76,6 +76,7 @@ class UserContent extends React.PureComponent {
             roving,
           }}
         />
+
         <UserParticipants
           {...{
             users,

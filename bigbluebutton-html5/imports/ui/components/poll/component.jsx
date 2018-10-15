@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import Button from '/imports/ui/components/button/component';
 import Icon from '/imports/ui/components/icon/component';
 import LiveResultContainer from './live-result/container';
-import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { styles } from './styles.scss';
@@ -217,7 +216,10 @@ class Poll extends Component {
           onClick={() => {
             stopPoll();
             this.inputEditor = [];
-            this.setState({ isPolling: false, customPollValues: this.inputEditor });
+            this.setState({
+              isPolling: false,
+              customPollValues: this.inputEditor,
+            }, document.activeElement.blur());
           }}
           label={intl.formatMessage(intlMessages.backLabel)}
           color="default"
@@ -268,7 +270,6 @@ class Poll extends Component {
             onClick={() => {
               if (this.state.isPolling) {
                 stopPoll();
-                this.setState({ isPolling: false });
               }
             }}
           >

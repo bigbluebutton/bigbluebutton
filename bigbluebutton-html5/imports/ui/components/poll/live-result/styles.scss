@@ -1,7 +1,9 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 $sm-margin: 0.3125rem;
-$element-width: 17%; 
+$element-width: 17%;
+$user-line-height: 1.75rem;
+$stats-border-color: #d4d9df;
 
 .main {
   display: flex;
@@ -11,7 +13,7 @@ $element-width: 17%;
 
 .center {
   position: relative;
-  flex:1 1 auto;
+  flex: 1 1 auto;
 }
 
 .left,
@@ -25,7 +27,7 @@ $element-width: 17%;
 
 .left,
 .right {
-  flex:0 0 auto;
+  flex: 0 0 auto;
   position: relative;
   min-width: $element-width;
 }
@@ -34,7 +36,7 @@ $element-width: 17%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-right: $border-size solid $color-text;
+  font-weight: bold;
 }
 
 .right {
@@ -50,8 +52,9 @@ $element-width: 17%;
 .stats {
   display: flex;
   flex-direction: column;
-  border: $border-size solid $color-gray-lighter;
+  border: 1px solid $stats-border-color;
   border-radius: $border-size-large;
+  padding: $md-padding-x;
 
   > div {
     display: flex;
@@ -78,7 +81,7 @@ $element-width: 17%;
 
   .usersHeading,
   .responseHeading {
-    font-weight: 600;
+    font-weight: $headings-font-weight;
   }
   
   .usersHeading,
@@ -86,9 +89,11 @@ $element-width: 17%;
   .item,
   .itemR {
     width: 50%;
+    line-height: $user-line-height;
   }
 
   .item,
   .itemR {
+    line-height: $user-line-height;
     color: $color-text;
   }

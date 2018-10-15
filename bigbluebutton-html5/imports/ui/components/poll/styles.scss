@@ -61,7 +61,7 @@ $poll-blue: #1A73D4;
     }
 
     > pollBtn:nth-child(even) {
-        grid-column: 2;
+        grid-column: $column-amount;
     }
 }
 
@@ -134,10 +134,9 @@ $poll-blue: #1A73D4;
     margin: 0;
     color: $color-text;
     background: $color-white;
-    font-size: $font-size-base;
+    font-size: $font-size-small;
     border: 1px solid $color-gray-lighter;
     border-radius: $border-radius;
-    box-shadow: 0 0 0 $border-size $color-gray-lighter;
     padding: $sm-padding-y * 1 $sm-padding-x * 0.25;
     padding-left: $lg-padding-y;
 }
