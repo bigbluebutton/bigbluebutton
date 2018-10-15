@@ -11,10 +11,10 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import _ from 'lodash';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from './../user-name/component';
 import UserIcons from './../user-icons/component';
-import { Session } from 'meteor/session';
 
 const messages = defineMessages({
   presenter: {
@@ -235,7 +235,7 @@ class UserDropdown extends Component {
         intl.formatMessage(messages.ChatLabel),
         () => {
           Session.set('idChatOpen', user.id);
-          console.error(`__ idChatOpen: ${Session.get('idChatOpen')}`);
+          Session.set('isChatOpen', true);
         },
         'chat',
       ));

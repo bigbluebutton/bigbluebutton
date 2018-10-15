@@ -45,7 +45,7 @@ const propTypes = {
   actionsbar: PropTypes.element,
   closedCaption: PropTypes.element,
   userListIsOpen: PropTypes.bool.isRequired,
-  chat: PropTypes.element,
+  chatIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -57,15 +57,12 @@ const defaultProps = {
   media: null,
   actionsbar: null,
   closedCaption: null,
-  chat: null,
   locale: 'en',
 };
 
 class App extends Component {
   constructor() {
     super();
-
-    console.log('1');
 
     this.state = {
       compactUserList: false,
@@ -162,7 +159,7 @@ class App extends Component {
       <div
         className={cx(styles.userList, userListStyle)}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
-        aria-hidden={chatIsOpen /* TODO 4767 -- Why is this not `userListIsOpen` */}
+        aria-hidden={chatIsOpen}
       >
         <UserListContainer />
       </div>
@@ -301,7 +298,7 @@ class App extends Component {
   }
 
   render() {
-    const { params, userListIsOpen } = this.props;
+    const { userListIsOpen } = this.props;
     const { enableResize } = this.state;
 
     return (
@@ -321,7 +318,7 @@ class App extends Component {
         <ModalContainer />
         <AudioContainer />
         <ToastContainer />
-        {/* <ChatAlertContainer currentChatID={params.chatID} /> TODO 4767 */}
+        <ChatAlertContainer />
       </main>
     );
   }

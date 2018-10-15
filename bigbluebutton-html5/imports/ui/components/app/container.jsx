@@ -106,7 +106,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
     userListIsOpen: Boolean(Session.get('isUserListOpen')),
-    chatIsOpen: Boolean(Session.get('isChatOpen')),
+    chatIsOpen: Boolean(Session.get('isChatOpen') && Session.get('isUserListOpen')),
   };
 })(AppContainer)));
 

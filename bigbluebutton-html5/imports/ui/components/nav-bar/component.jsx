@@ -79,22 +79,19 @@ class NavBar extends Component {
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
-  handleToggleUserList() {
-    this.props.toggleUserList();
-  }
-
   componentDidUpdate(oldProps) {
     const {
       breakouts,
       getBreakoutJoinURL,
       isBreakoutRoom,
+      mountModal,
     } = this.props;
 
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
 
     if (!hasBreakouts && hadBreakouts) {
-      closeBreakoutJoinConfirmation(this.props.mountModal);
+      closeBreakoutJoinConfirmation(mountModal);
     }
 
     breakouts.forEach((breakout) => {
@@ -110,6 +107,10 @@ class NavBar extends Component {
     if (!breakouts.length && this.state.didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
+  }
+
+  handleToggleUserList() {
+    this.props.toggleUserList();
   }
 
   inviteUserToBreakout(breakout) {

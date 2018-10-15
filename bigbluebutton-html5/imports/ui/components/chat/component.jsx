@@ -57,7 +57,6 @@ const Chat = (props) => {
           <Button
             onClick={() => {
               Session.set('isChatOpen', false);
-              alert('A');
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}

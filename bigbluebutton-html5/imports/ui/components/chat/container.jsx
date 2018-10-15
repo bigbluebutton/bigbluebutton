@@ -31,7 +31,7 @@ const intlMessages = defineMessages({
 class ChatContainer extends Component {
   componentDidMount() {
     // in case of reopening a chat, need to make sure it's removed from closed list
-    ChatService.removeFromClosedChatsSession(this.props.chatID); // TODO 4767
+    ChatService.removeFromClosedChatsSession();
   }
   render() {
     return (
@@ -100,7 +100,7 @@ export default injectIntl(withTracker(({ intl }) => {
   const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
 
   return {
-    chatID,
+    chatID: Session.get('idChatOpen'),
     chatName,
     title,
     messages,
@@ -115,13 +115,13 @@ export default injectIntl(withTracker(({ intl }) => {
       handleClosePrivateChat: chatId => ChatService.closePrivateChat(chatId),
 
       handleSendMessage: (message) => {
-        ChatService.updateScrollPosition(chatID, null);
-        return ChatService.sendGroupMessage(chatID, message);
+        ChatService.updateScrollPosition(null);
+        return ChatService.sendGroupMessage(message);
       },
 
-      handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),
+      handleScrollUpdate: position => ChatService.updateScrollPosition(position),
 
-      handleReadMessage: timestamp => ChatService.updateUnreadMessage(chatID, timestamp),
+      handleReadMessage: timestamp => ChatService.updateUnreadMessage(timestamp),
     },
   };
 })(ChatContainer));
