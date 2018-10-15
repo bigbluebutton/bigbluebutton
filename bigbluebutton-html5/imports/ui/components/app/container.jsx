@@ -1,6 +1,5 @@
-import React, { cloneElement } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -28,7 +27,6 @@ const propTypes = {
   navbar: PropTypes.node,
   actionsbar: PropTypes.node,
   media: PropTypes.node,
-  location: PropTypes.shape({}).isRequired,
 };
 
 const defaultProps = {
@@ -45,7 +43,6 @@ const intlMessages = defineMessages({
 });
 
 const AppContainer = (props) => {
-  // inject location on the navbar container
   const {
     navbar,
     actionsbar,
@@ -53,11 +50,9 @@ const AppContainer = (props) => {
     ...otherProps
   } = props;
 
-  const navbarWithLocation = cloneElement(navbar, { location: props.location });
-
   return (
     <App
-      navbar={navbarWithLocation}
+      navbar={navbar}
       actionsbar={actionsbar}
       media={media}
       {...otherProps}
@@ -66,7 +61,7 @@ const AppContainer = (props) => {
 };
 
 
-export default withRouter(injectIntl(withModalMounter(withTracker(({ router, intl, baseControls }) => {
+export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
   const isMeetingBreakout = meetingIsBreakout();
 
@@ -82,7 +77,8 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
       const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
       if (fields.ejected || hasNewConnection) {
-        router.push(`/ended/${403}`);
+        Session.set('codeError', '403');
+        Session.set('isMeetingEnded', true);
       }
     },
   });
@@ -93,7 +89,8 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
       if (isMeetingBreakout) {
         Auth.clearCredentials().then(window.close);
       } else {
-        router.push(`/ended/${410}`);
+        Session.set('codeError', '410');
+        Session.set('isMeetingEnded', true);
       }
     },
   });
@@ -108,10 +105,10 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
-    userlistIsOpen: window.location.pathname.includes('users'),
-    chatIsOpen: window.location.pathname.includes('chat'),
+    userListIsOpen: Boolean(Session.get('isUserListOpen')),
+    chatIsOpen: Boolean(Session.get('isChatOpen')),
   };
-})(AppContainer))));
+})(AppContainer)));
 
 AppContainer.defaultProps = defaultProps;
 AppContainer.propTypes = propTypes;

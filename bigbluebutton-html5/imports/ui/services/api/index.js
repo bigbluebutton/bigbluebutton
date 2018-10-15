@@ -50,13 +50,13 @@ export function log(type = 'error', message, ...args) {
     screenSize: { width: window.screen.width, height: window.screen.height },
     windowSize: { width: window.innerWidth, height: window.innerHeight },
     bbbVersion: Meteor.settings.public.app.bbbServerVersion,
-    location: window.location.href,
+    location: window.location.href, // TODO 4767
   };
   const logContents = { ...args };
   const topic = logContents[0] ? logContents[0].topic : null;
 
   const messageOrStack = message.stack || message.message || JSON.stringify(message);
-  console.debug(`CLIENT LOG (${topic ? type.toUpperCase() + '.' + topic : type.toUpperCase()}): `, messageOrStack, ...args);
+  console.debug(`CLIENT LOG (${topic ? `${type.toUpperCase()}.${topic}` : type.toUpperCase()}): `, messageOrStack, ...args);
 
   Meteor.call('logClient', type, messageOrStack, {
     clientInfo,
