@@ -58,6 +58,7 @@ public class Pdf2SwfPageConverterHandler extends AbstractCommandHandler {
         return Integer
             .parseInt(m.group(0).replace(PLACEMENT_OUTPUT, "").trim());
       } catch (Exception e) {
+        log.error("Exception counting the number of placements", e);
         return 0;
       }
     }
@@ -77,6 +78,7 @@ public class Pdf2SwfPageConverterHandler extends AbstractCommandHandler {
         m.find();
         return Integer.parseInt(m.group(0).replace(TEXT_TAG_OUTPUT, "").trim());
       } catch (Exception e) {
+        log.error("Exception counting the number of text tags", e);
         return 0;
       }
     }
@@ -97,6 +99,7 @@ public class Pdf2SwfPageConverterHandler extends AbstractCommandHandler {
         return Integer
             .parseInt(m.group(0).replace(IMAGE_TAG_OUTPUT, "").trim());
       } catch (Exception e) {
+        log.error("Exception counting the number of iamge tags", e);
         return 0;
       }
     }
