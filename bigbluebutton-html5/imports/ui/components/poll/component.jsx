@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl } from 'react-intl';
+import _ from 'lodash';
 import { Link } from 'react-router';
 import Button from '/imports/ui/components/button/component';
 import Icon from '/imports/ui/components/icon/component';
 import LiveResultContainer from './live-result/container';
-import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
@@ -100,13 +101,8 @@ class Poll extends Component {
     this.nonPresenterRedirect();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
     this.nonPresenterRedirect();
-  }
-
-  nonPresenterRedirect() {
-    const { currentUser, router } = this.props;
-    if (!currentUser.presenter) return router.push('/users');
   }
 
   handleInputChange(index, event) {
@@ -132,6 +128,11 @@ class Poll extends Component {
     ));
 
     return items;
+  }
+
+  nonPresenterRedirect() {
+    const { currentUser, router } = this.props;
+    if (!currentUser.presenter) return router.push('/users');
   }
 
   toggleCustomFields() {
@@ -285,3 +286,15 @@ class Poll extends Component {
 }
 
 export default injectIntl(Poll);
+
+Poll.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  currentUser: PropTypes.instanceOf(Object).isRequired,
+  pollTypes: PropTypes.instanceOf(Array).isRequired,
+  startPoll: PropTypes.func.isRequired,
+  startCustomPoll: PropTypes.func.isRequired,
+  stopPoll: PropTypes.func.isRequired,
+  publishPoll: PropTypes.func.isRequired,
+};

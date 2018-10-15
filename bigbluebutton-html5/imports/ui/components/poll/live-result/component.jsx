@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
@@ -134,3 +135,10 @@ class LiveResult extends Component {
 }
 
 export default injectIntl(LiveResult);
+
+LiveResult.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  getUser: PropTypes.func.isRequired,
+};
