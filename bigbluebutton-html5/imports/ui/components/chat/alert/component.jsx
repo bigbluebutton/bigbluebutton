@@ -121,9 +121,7 @@ class ChatAlert extends Component {
     const hasUnread = ({ unreadCounter }) => unreadCounter > 0;
     const isNotNotified = ({ id, unreadCounter }) => unreadCounter !== this.state.notified[id];
     const isPrivate = ({ id }) => id !== PUBLIC_KEY;
-    const thisChatClosed = ({ id }) => {
-      id !== Session.get('idChatOpen');
-    };
+    const thisChatClosed = ({ id }) => !Session.equals('idChatOpen', id);
 
     const chatsNotify = openChats
       .filter(hasUnread)
@@ -193,7 +191,7 @@ class ChatAlert extends Component {
 
     if (disableNotify) return;
     if (!Service.hasUnreadMessages(publicUserId)) return;
-    if (Session.get('idChatOpen') === PUBLIC_KEY) return;
+    if (Session.equals('idChatOpen', PUBLIC_KEY)) return;
 
     const checkIfBeenNotified = ({ sender, time }) =>
       time > (this.state.publicNotified[sender.id] || 0);
