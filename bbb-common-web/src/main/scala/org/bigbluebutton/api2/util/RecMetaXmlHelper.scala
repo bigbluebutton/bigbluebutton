@@ -123,6 +123,10 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
             case Some(p) => ListBuffer(p)
             case None => ListBuffer()
           },
+          recMeta.dataMetrics match {
+            case Some(p) => ListBuffer(p)
+            case None => ListBuffer()
+          },
           recMeta.breakout,
           recMeta.breakoutRooms
       )

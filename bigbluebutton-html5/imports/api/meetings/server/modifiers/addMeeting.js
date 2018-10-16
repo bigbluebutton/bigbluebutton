@@ -3,13 +3,8 @@ import { check } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-import addGroupChatMsg from '/imports/api/group-chat-msg/server/modifiers/addGroupChatMsg';
-
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
-  const CHAT_CONFIG = Meteor.settings.public.chat;
-  const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
-  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   check(meetingId, String);
   check(meeting, {
@@ -80,19 +75,6 @@ export default function addMeeting(meeting) {
       flat(meeting, { safe: true }),
     ),
   };
-
-  const welcomeMsg = {
-    color: '0',
-    timestamp: Date.now(),
-    correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
-    sender: {
-      id: PUBLIC_CHAT_SYSTEM_ID,
-      name: '',
-    },
-    message: meeting.welcomeProp.welcomeMsg,
-  };
-
-  addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, welcomeMsg);
 
   const cb = (err, numChanged) => {
     if (err) {
