@@ -44,7 +44,11 @@ export default class UserOptionsContainer extends Component {
   handleClearStatus() {
     const { users, setEmojiStatus } = this.props;
 
-    users.map(user => setEmojiStatus(user.id, 'none'));
+    users.forEach((user) => {
+      if (user.emoji.status !== 'none') {
+        setEmojiStatus(user.id, 'none');
+      }
+    });
   }
 
   render() {
