@@ -2,19 +2,21 @@
 $icon-offset-left: -.44em;
 $icon-offset-top: -.38em;
 $square-side-length: 1.56rem;
+$dropdown-offset-top: 4.8rem;
+$dropdown-offset-right: -0.2rem;
 
 .dropdown {
   position: static;
 }
 
 .dropdownContent {
-  top: 4.8rem;
-  margin-right: -0.2rem;
+  top: $dropdown-offset-top;
+  margin-right: $dropdown-offset-right;
 }
 
 .optionsButton{
   display: block;
-  margin-right: .3rem;
+  margin-right: $sm-padding-y;
 
   span:first-child {
     width: $square-side-length;
