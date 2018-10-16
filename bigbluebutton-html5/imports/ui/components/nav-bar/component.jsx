@@ -183,6 +183,9 @@ class NavBar extends Component {
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
 
+    let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
+    ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
+
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
@@ -193,16 +196,11 @@ class NavBar extends Component {
             circle
             hideLabel
             label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-            aria-label={intl.formatMessage(intlMessages.toggleUserListAria)}
+            aria-label={ariaLabel}
             icon="user"
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
-            aria-describedby="newMessage"
             accessKey={TOGGLE_USERLIST_AK}
-          />
-          <div
-            id="newMessage"
-            aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}
           />
         </div>
         <div className={styles.center}>

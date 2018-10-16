@@ -6,7 +6,6 @@ import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
-import Button from '../../button/component';
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -60,19 +59,18 @@ const ChatListItem = (props) => {
   linkClasses[styles.active] = isCurrentChat;
 
   return (
-    <Button
+    <div
+      role="button"
       className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      color="primary"
       onClick={() => {
         Session.set('isChatOpen', true);
         Session.set('idChatOpen', chat.id);
       }}
       id="chat-toggle-button"
-      // label={"~"}
-      label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+      aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
     >
 
       <div className={styles.chatListItemLink}>
@@ -99,7 +97,7 @@ const ChatListItem = (props) => {
           />
           : null}
       </div>
-    </Button>
+    </div>
   );
 };
 

@@ -62,6 +62,7 @@ const Chat = (props) => {
             accessKey={HIDE_CHAT_AK}
             label={title}
             icon="left_arrow"
+            className={styles.hideBtn}
           />
         </div>
         {
