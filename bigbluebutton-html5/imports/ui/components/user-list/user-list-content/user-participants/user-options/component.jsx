@@ -41,11 +41,11 @@ const intlMessages = defineMessages({
   },
   lockViewersLabel: {
     id: 'app.userList.userOptions.lockViewersLabel',
-    description: 'Lock all label',
+    description: 'Lock viewers label',
   },
   lockViewersDesc: {
     id: 'app.userList.userOptions.lockViewersDesc',
-    description: 'Lock all description',
+    description: 'Lock viewers description',
   },
   muteAllExceptPresenterLabel: {
     id: 'app.userList.userOptions.muteAllExceptPresenterLabel',
@@ -175,7 +175,6 @@ class UserOptions extends Component {
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="settings"
-            size="sm"
             circle
             ghost
             color="primary"
