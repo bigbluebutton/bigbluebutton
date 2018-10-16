@@ -155,7 +155,7 @@ public:
       - requestPresentationUploadToken
       - startPoll
       - stopPoll
-      - publishPol
+      - publishPoll
   poll:
     max_custom: 5
   chat:
