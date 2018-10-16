@@ -152,7 +152,8 @@
           "removePresentation",
           "setPresentation",
           "zoomSlide",
-          "requestPresentationUploadToken"
+          "requestPresentationUploadToken",
+          "transferUser"
         ]
       }
     },
