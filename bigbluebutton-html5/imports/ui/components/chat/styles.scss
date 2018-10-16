@@ -93,6 +93,23 @@ $background-active: darken($color-white, 5%);
   }
 }
 
+.hideBtn {
+  position: relative;
+  background-color: white;
+  display: block;
+  margin: 4px;
+  margin-bottom: 2px;
+  padding-left: 0px;
+
+  > i {
+    color: black;
+  }
+
+  &:hover {
+    background-color: #fff;
+  }
+}
+
 .link {
   text-decoration: none;
   background-color: inherit;
