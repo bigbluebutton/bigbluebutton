@@ -107,7 +107,7 @@ class LiveResult extends Component {
 
         if (user) {
           usersToRespond.push(<div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>);
-          usersToRespond.push(<div className={styles.itemR} key={_.uniqueId('stats-')}>^</div>);
+          usersToRespond.push(<div className={styles.itemR} key={_.uniqueId('stats-')}>-</div>);
         }
       });
     }
