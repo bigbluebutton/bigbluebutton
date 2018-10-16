@@ -153,6 +153,9 @@ public:
       - setPresentation
       - zoomSlide
       - requestPresentationUploadToken
+      - startPoll
+      - stopPoll
+      - publishPol
   poll:
     max_custom: 5
   chat:
