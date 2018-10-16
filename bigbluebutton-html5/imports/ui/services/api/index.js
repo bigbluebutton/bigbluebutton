@@ -50,7 +50,7 @@ export function log(type = 'error', message, ...args) {
     screenSize: { width: window.screen.width, height: window.screen.height },
     windowSize: { width: window.innerWidth, height: window.innerHeight },
     bbbVersion: Meteor.settings.public.app.bbbServerVersion,
-    location: window.location.href, // TODO 4767
+    location: window.location.href,
   };
   const logContents = { ...args };
   const topic = logContents[0] ? logContents[0].topic : null;
