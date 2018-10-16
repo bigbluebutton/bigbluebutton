@@ -136,10 +136,8 @@ public class PresentationUrlDownloadService {
             try {
                 FileUtils.copyFile(sourcePresentationFile, newPresentation);
             } catch (IOException e) {
-                log.error("Could not copy presentation {} to {}",
-                        sourcePresentationFile.getAbsolutePath(),
-                        newPresentation.getAbsolutePath());
-                e.printStackTrace();
+                log.error("Could not copy presentation {} to {}", sourcePresentationFile.getAbsolutePath(),
+                        newPresentation.getAbsolutePath(), e);
             }
         }
 
@@ -179,8 +177,7 @@ public class PresentationUrlDownloadService {
         try {
             presUrl = new URL(redirectUrl);
         } catch (MalformedURLException e) {
-            log.error("Malformed url=[{}] for meeting=[{}]", redirectUrl,
-                    meetingId);
+            log.error("Malformed url=[{}] for meeting=[{}]", redirectUrl, meetingId, e);
             return null;
         }
 
@@ -210,8 +207,7 @@ public class PresentationUrlDownloadService {
                 return redirectUrl;
             }
         } catch (IOException e) {
-            log.error("IOException for url=[{}] with meeting[{}]", redirectUrl,
-                    meetingId);
+            log.error("IOException for url=[{}] with meeting[{}]", redirectUrl, meetingId, e);
             return null;
         }
     }
@@ -246,16 +242,16 @@ public class PresentationUrlDownloadService {
             File result = future.get();
             success = result.exists();
         } catch (java.lang.InterruptedException ex) {
-
+            log.error("InterruptedException while saving presentation", meetingId, ex);
         } catch (java.util.concurrent.ExecutionException ex) {
-
+            log.error("ExecutionException while saving presentation", meetingId, ex);
         } catch (java.io.FileNotFoundException ex) {
-
+            log.error("FileNotFoundException while saving presentation", meetingId, ex);
         } finally {
             try {
                 httpclient.close();
             } catch (java.io.IOException ex) {
-
+                log.error("IOException while saving presentation", meetingId, ex);
             }
         }
 

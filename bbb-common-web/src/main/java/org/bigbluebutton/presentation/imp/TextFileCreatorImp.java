@@ -49,7 +49,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     try {
       success = generateTextFiles(textfilesDir, pres);
     } catch (InterruptedException e) {
-      log.warn("Interrupted Exception while generating thumbnails.");
+      log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
       success = false;
     }
 
@@ -77,13 +77,13 @@ public class TextFileCreatorImp implements TextFileCreator {
         writer = new BufferedWriter(new FileWriter(file));
         writer.write(text);
       } catch (IOException e) {
-        log.error("Error: " + e.getMessage());
+        log.error("Error: ", e);
         success = false;
       } finally {
         try {
           writer.close();
         } catch (IOException e) {
-          log.error("Error: " + e.getMessage());
+          log.error("Error: ", e);
           success = false;
         }
       }

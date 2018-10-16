@@ -407,11 +407,12 @@ class VideoProvider extends Component {
         options.configuration.iceServers = iceServers;
       }
 
-      let WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-
+      let WebRtcPeerObj;
       if (shareWebcam) {
         WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
         this.shareWebcam();
+      } else {
+        WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
       }
 
       this.webRtcPeers[id] = new WebRtcPeerObj(options, (error) => {
@@ -463,19 +464,15 @@ class VideoProvider extends Component {
 
       if (this.props.userId === id) {
         this.notifyError(intl.formatMessage(intlClientErrors.sharingError));
-        this.unshareWebcam();
-        this.destroyWebRTCPeer(id);
+        this.stopWebRTCPeer(id);
       } else {
-        const tag = this.webRtcPeers[id].videoTag;
-
         this.stopWebRTCPeer(id);
         this.createWebRTCPeer(id, shareWebcam);
 
-        // We reattach the peer for a real video restart
-        this.attachVideoStream(id);
-
         // Increment reconnect interval
         this.restartTimer[id] = Math.min(2 * this.restartTimer[id], MAX_CAMERA_SHARE_FAILED_WAIT_TIME);
+
+        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer)
       }
     };
   }

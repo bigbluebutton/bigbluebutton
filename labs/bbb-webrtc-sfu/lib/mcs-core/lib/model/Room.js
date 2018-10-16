@@ -5,11 +5,14 @@
 
 'use strict'
 
+const C = require('../constants/Constants');
+
 module.exports = class Room {
-  constructor(id) {
+  constructor(id, emitter) {
     this._id = id;
     this._users = {};
     this._mcuUsers = {};
+    this.emitter = emitter;
   }
 
   getUser (id) {
@@ -21,6 +24,11 @@ module.exports = class Room {
   }
 
   destroyUser(userId) {
-    this._users[userId] = null;
+    if (this._users[userId]) {
+      delete this._users[userId];
+      if (Object.keys(this._users).length <= 0) {
+        this.emitter.emit(C.EVENT.ROOM_EMPTY, this._id);
+      }
+    }
   }
 }

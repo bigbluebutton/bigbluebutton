@@ -108,7 +108,7 @@ public class PdfToSwfSlidesGenerationService {
       logData.put("message", "Failed to determine number of pages.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- " + logStr);
+      log.error("-- analytics -- {}", logStr, e);
 
       DocPageCountFailed progress = new DocPageCountFailed(pres.getMeetingId(),
         pres.getId(), pres.getId(),
@@ -203,9 +203,7 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("message", "ExecutionException while converting page.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
-
-        log.error(e.getMessage());
+        log.error("-- analytics -- {}", logStr, e);
       } catch (InterruptedException e) {
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", pres.getMeetingId());
@@ -215,7 +213,7 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("message", "InterruptedException while converting page");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.error("-- analytics -- {}", logStr, e);
 
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
@@ -227,7 +225,7 @@ public class PdfToSwfSlidesGenerationService {
         logData.put("message", "TimeoutException while converting page");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.error("-- analytics -- {}", logStr, e);
 
         f.cancel(true);
       }
