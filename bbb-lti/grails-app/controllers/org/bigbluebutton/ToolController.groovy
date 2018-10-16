@@ -60,7 +60,9 @@ class ToolController {
             return
         }
         // On post request proceed with the launch.
-        def endPoint = ltiService.getScheme(request) + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null ? "." + params.get("format") : "")
+        def schemeHeader = request.getHeader("X-Forwarded-Proto")
+        def scheme = schemeHeader == null ? ltiService.getScheme(request) : schemeHeader
+        def endPoint = scheme + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null ? "." + params.get("format") : "")
         log.info "endPoint: " + endPoint
         ArrayList<String> missingParams = new ArrayList<String>()
 
@@ -177,7 +179,7 @@ class ToolController {
     private void setLocalization(Map<String, String> params){
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
-        String[] localeCodes = locale.split("_")
+        String[] localeCodes = locale.split("[_-]")
         // Localize the default welcome message
         session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
         if (localeCodes.length > 1) {
