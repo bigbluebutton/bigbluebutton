@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
-import { Link } from 'react-router';
+import { Session } from 'meteor/session';
 import { styles } from '../../styles.scss';
 
 const ALERT_INTERVAL = 2000; // 2 seconds
@@ -16,9 +16,17 @@ const propTypes = {
 class ChatPushAlert extends React.Component {
   static link(message, chatId) {
     return (
-      <Link className={styles.link} to={`/users/chat/${chatId}`}>
-        {message}
-      </Link>
+      <div
+        role="button"
+        label={message}
+        onClick={() => {
+        Session.set('isUserListOpen', true);
+        Session.set('isChatOpen', true);
+        Session.set('isChatOpen', chatId);
+      }}
+      >
+        { message }
+      </div>
     );
   }
 
