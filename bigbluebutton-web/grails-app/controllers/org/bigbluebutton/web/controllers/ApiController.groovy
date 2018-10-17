@@ -1847,6 +1847,7 @@ class ApiController {
 
         if ("presentation".equals(module.@name.toString())) {
           // need to iterate over presentation files and process them
+          Boolean current = true;
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
@@ -1854,12 +1855,14 @@ class ApiController {
                   log.debug("user provided filename: [${module.@filename}]");
                   fileName = document.@filename.toString();
               }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), true /* default presentation */, fileName);
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
+              current = false;
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                      conf.getInternalId(), true /* default presentation */);
+                      conf.getInternalId(), current /* default presentation */);
+              current = false;
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
