@@ -8,11 +8,10 @@ $poll-blue: #1A73D4;
     position: relative;
     background-color: white;
     display: block;
-    margin: 4px;
-    margin-bottom: 2px;
+    margin: $border-size-large;
     padding-left: 0px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: $border-size-large;
+    padding-bottom: $border-size-large;
     font-size: 1rem;
   
     > i {
