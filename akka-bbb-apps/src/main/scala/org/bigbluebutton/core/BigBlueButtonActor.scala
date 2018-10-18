@@ -23,16 +23,14 @@ object BigBlueButtonActor extends SystemConfiguration {
     system:    ActorSystem,
     eventBus:  InternalEventBus,
     bbbMsgBus: BbbMsgRouterEventBus,
-    outGW:     OutMessageGateway
-  ): Props =
+    outGW:     OutMessageGateway): Props =
     Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW)
 }
 
 class BigBlueButtonActor(
   val system:   ActorSystem,
   val eventBus: InternalEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
-  val outGW: OutMessageGateway
-) extends Actor
+  val outGW: OutMessageGateway) extends Actor
     with ActorLogging with SystemConfiguration {
 
   implicit def executionContext = system.dispatcher

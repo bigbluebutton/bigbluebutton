@@ -7,8 +7,8 @@
     "generate-refs-visual-regression": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression",
     "test-visual-regression-desktop": "export BROWSER_NAME=firefox; wdio ./tests/webdriverio/wdio.vreg.conf.js; export BROWSER_NAME=chrome; wdio ./tests/webdriverio/wdio.vreg.conf.js",
     "generate-refs-visual-regression-desktop": "rm -rf tests/webdriverio/screenshots; npm run test-visual-regression-desktop",
-    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production --settings private/config/settings-production.json",
-    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor --settings private/config/settings-development.json",
+    "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
+    "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js",
     "precommit": "lint-staged"
@@ -67,7 +67,8 @@
     "redis": "~2.8.0",
     "string-hash": "~1.1.3",
     "tippy.js": "~2.0.2",
-    "winston": "^2.4.4"
+    "winston": "^2.4.4",
+    "yaml": "^1.0.0"
   },
   "devDependencies": {
     "chai": "~4.1.2",

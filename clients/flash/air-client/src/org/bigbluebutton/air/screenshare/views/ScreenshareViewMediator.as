@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.screenshare.views {
 	
+	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.screenshare.model.IScreenshareModel;
 	import org.bigbluebutton.air.screenshare.services.IScreenshareConnection;
 	
@@ -16,6 +17,9 @@ package org.bigbluebutton.air.screenshare.views {
 		[Inject]
 		public var model:IScreenshareModel;
 		
+		[Inject]
+		public var conferenceParameters:IConferenceParameters;
+		
 		override public function initialize():void {
 			//trace("************ ScreenshareViewMediator:: INIT **************");
 			model.screenshareStreamStartedSignal.add(viewStream);
@@ -26,11 +30,11 @@ package org.bigbluebutton.air.screenshare.views {
 		}
 		
 		public function viewStream(streamId:String, width:int, height:int):void {
-			view.viewStream(conn.connection, streamId, width, height);
+			view.startStream(conn.connection, streamId, width, height, conferenceParameters.meetingID, conferenceParameters.authToken, conferenceParameters.externUserID);
 		}
 		
 		public function streamStopped(session:String, reason:String):void {
-			view.streamStopped(session, reason);
+			view.stopStream(session, reason);
 		}
 		
 		override public function destroy():void {

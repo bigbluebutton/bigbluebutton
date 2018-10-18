@@ -16,8 +16,7 @@ trait DestroyMeetingSysCmdMsgHdlr {
     if (liveMeeting.props.meetingProp.isBreakout) {
       log.info(
         "Informing parent meeting {} that a breakout room has been ended {}",
-        liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId
-      )
+        liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId)
 
       // send out BreakoutRoomEndedEvtMsg to inform clients the breakout has ended
       outGW.send(MsgBuilder.buildBreakoutRoomEndedEvtMsg(liveMeeting.props.meetingProp.intId, "not-used",
@@ -30,8 +29,7 @@ trait DestroyMeetingSysCmdMsgHdlr {
     // Eject all users from the voice conference
     outGW.send(MsgBuilder.buildEjectAllFromVoiceConfMsg(
       liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.voiceProp.voiceConf
-    ))
+      liveMeeting.props.voiceProp.voiceConf))
 
     // send a system message to force disconnection
     outGW.send(MsgBuilder.buildDisconnectAllClientsSysMsg(liveMeeting.props.meetingProp.intId, "meeting-destroyed"))

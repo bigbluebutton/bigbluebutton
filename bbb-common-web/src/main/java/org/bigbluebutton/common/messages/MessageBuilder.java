@@ -2,6 +2,8 @@ package org.bigbluebutton.common.messages;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.Gson;
 
 public class MessageBuilder {
@@ -21,7 +23,7 @@ public class MessageBuilder {
     header.put(NAME, name);
     header.put(VERSION, version);
     header.put(TIMESTAMP, generateTimestamp());
-    if (replyTo != null && replyTo != "")
+    if (!StringUtils.isEmpty(replyTo))
       header.put(REPLY_TO, replyTo);
     
     return header;

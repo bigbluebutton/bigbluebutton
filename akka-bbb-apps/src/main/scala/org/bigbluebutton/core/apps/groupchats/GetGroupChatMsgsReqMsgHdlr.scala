@@ -27,8 +27,7 @@ trait GetGroupChatMsgsReqMsgHdlr {
           m.sender, m.color, m.message))
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,
-          msg.header.userId, msgs, gc.id
-        )
+          msg.header.userId, msgs, gc.id)
         bus.outGW.send(respMsg)
       }
     }

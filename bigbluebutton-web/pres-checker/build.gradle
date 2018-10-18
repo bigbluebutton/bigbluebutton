@@ -21,10 +21,10 @@ dependencies {
    compile 'org.apache.poi:poi:3.17@jar'  
    compile 'org.apache.poi:poi-ooxml:3.17@jar'
    compile 'org.apache.poi:poi-ooxml-schemas:3.17@jar'
-   compile 'commons-io:commons-io:2.4@jar'
-   compile 'org.apache.commons:commons-lang3:3.5@jar'
-   compile 'org.apache.commons:commons-collections4:4.1@jar'
-   compile 'org.apache.xmlbeans:xmlbeans:2.6.0@jar'
+   compile 'commons-io:commons-io:2.6@jar'
+   compile 'org.apache.commons:commons-lang3:3.7@jar'
+   compile 'org.apache.commons:commons-collections4:4.2@jar'
+   compile 'org.apache.xmlbeans:xmlbeans:3.0.0@jar'
 }
 
 jar {

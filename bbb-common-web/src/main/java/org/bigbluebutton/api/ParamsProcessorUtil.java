@@ -146,148 +146,28 @@ public class ParamsProcessorUtil {
             errors.missingParamError(ApiParams.MEETING_ID);
         }
     }
-
-	public void updateMeeting(Map<String, Object> updateParams, Meeting existing) {
-		// TODO: Assign new values to meeting.
-/*	    
-	    String meetingName = (String) updateParams.get("name");
-	    if (meetingName != null) {
-	    	existing.setM("name", meetingName);
-	    }
-	    	    
-	    String viewerPass = params.get("attendeePW");
-	    if (! StringUtils.isEmpty(viewerPass) ) {
-	    	newParams.put("attendeePW", viewerPass);
-	    }
-	    
-	    String modPass = params.get("moderatorPW"); 
-	    if (! StringUtils.isEmpty(modPass) ) {
-	    	newParams.put("moderatorPW", modPass);
-	    }
-	    
-	    String telVoice = params.get("voiceBridge");
-	    if (! StringUtils.isEmpty(telVoice) ) {
-	    	newParams.put("voiceBridge", telVoice);
-	    }	    
-	    
-	    String webVoice = params.get("webVoice");
-	    if (! StringUtils.isEmpty(webVoice)) {
-	    	newParams.put("webVoice", webVoice);
-	    }
-	    
-	    String dialNumber = params.get("dialNumber");
-	    if (! StringUtils.isEmpty(dialNumber)) {
-	    	newParams.put("dialNumber", dialNumber);
-	    }	    
-	    
-	    String logoutUrl = params.get("logoutURL"); 
-	    if (! StringUtils.isEmpty(logoutUrl)) {
-	    	newParams.put("logoutURL", logoutUrl);
-	    }	
-	    
-	    String record = params.get("record");
-	    if (! StringUtils.isEmpty(record)) {
-	    	newParams.put("record", record);
-	    }	
-	    
-	    String maxUsers = params.get("maxParticipants");
-	    if (! StringUtils.isEmpty(maxUsers)) {
-	    	newParams.put("maxParticipants", maxUsers);
-	    }	
-	    
-	    String meetingDuration = params.get("duration");
-	    if (! StringUtils.isEmpty(meetingDuration)) {
-	    	newParams.put("duration", meetingDuration);
-	    }
-	    
-	    String welcomeMessage = params.get("welcome");
-	    if (! StringUtils.isEmpty(welcomeMessage)) {
-	    	newParams.put("welcome", welcomeMessage);
-	    }
-	    	    	    
-	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
-	    Map<String, String> meetingInfo = new HashMap<String, String>();
-	    for (String key: params.keySet()) {
-	    	if (key.contains("meta")){
-	    		String[] meta = key.split("_");
-			    if(meta.length == 2){
-			    	meetingInfo.put(meta[1], params.get(key));
-			    }
-			}   
-	    }
-
-	    if (! meetingInfo.isEmpty()) {
-	    	newParams.put("metadata", meetingInfo);
-	    }		
-*/
-	}
 	
 	public Map<String, Object> processUpdateCreateParams(Map<String, String> params) {
 		Map<String, Object> newParams = new HashMap<>();
-		    
-	    // Do we have a meeting name? If not, complain.
-	    String meetingName = params.get(ApiParams.NAME);
-	    if (! StringUtils.isEmpty(meetingName) ) {
-	    	newParams.put(ApiParams.NAME, meetingName);
-	    }
-	    	    
-	    String viewerPass = params.get(ApiParams.ATTENDEE_PW);
-	    if (! StringUtils.isEmpty(viewerPass) ) {
-	    	newParams.put(ApiParams.ATTENDEE_PW, viewerPass);
-	    }
-	    
-	    String modPass = params.get(ApiParams.MODERATOR_PW); 
-	    if (! StringUtils.isEmpty(modPass) ) {
-	    	newParams.put(ApiParams.MODERATOR_PW, modPass);
-	    }
-	    
-	    String telVoice = params.get(ApiParams.VOICE_BRIDGE);
-	    if (! StringUtils.isEmpty(telVoice) ) {
-	    	newParams.put(ApiParams.VOICE_BRIDGE, telVoice);
-	    }	    
-	    
-	    String webVoice = params.get(ApiParams.WEB_VOICE);
-	    if (! StringUtils.isEmpty(webVoice)) {
-	    	newParams.put(ApiParams.WEB_VOICE, webVoice);
-	    }
-	    
-	    String dialNumber = params.get(ApiParams.DIAL_NUMBER);
-	    if (! StringUtils.isEmpty(dialNumber)) {
-	    	newParams.put(ApiParams.DIAL_NUMBER, dialNumber);
-	    }	    
-	    
-	    String logoutUrl = params.get(ApiParams.LOGOUT_URL); 
-	    if (! StringUtils.isEmpty(logoutUrl)) {
-	    	newParams.put(ApiParams.LOGOUT_URL, logoutUrl);
-	    }	
-	    
-	    String record = params.get(ApiParams.RECORD);
-	    if (! StringUtils.isEmpty(record)) {
-	    	newParams.put(ApiParams.RECORD, record);
-	    }	
-	    
-	    String maxUsers = params.get(ApiParams.MAX_PARTICIPANTS);
-	    if (! StringUtils.isEmpty(maxUsers)) {
-	    	newParams.put(ApiParams.MAX_PARTICIPANTS, maxUsers);
-	    }	
-	    
-	    String meetingDuration = params.get(ApiParams.DURATION);
-	    if (! StringUtils.isEmpty(meetingDuration)) {
-	    	newParams.put(ApiParams.DURATION, meetingDuration);
-	    }
-	    
-	    String welcomeMessage = params.get(ApiParams.WELCOME);
-	    if (! StringUtils.isEmpty(welcomeMessage)) {
-	    	newParams.put(ApiParams.WELCOME, welcomeMessage);
-	    }
-	    	    	    
-	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
+		
+        String[] createParams = { ApiParams.NAME, ApiParams.ATTENDEE_PW, ApiParams.MODERATOR_PW, ApiParams.VOICE_BRIDGE,
+                ApiParams.WEB_VOICE, ApiParams.DIAL_NUMBER, ApiParams.LOGOUT_URL, ApiParams.RECORD,
+                ApiParams.MAX_PARTICIPANTS, ApiParams.DURATION, ApiParams.WELCOME };
+
+        for (String paramName : createParams) {
+            String parameter = params.get(paramName);
+            if (!StringUtils.isEmpty(parameter)) {
+                newParams.put(paramName, parameter);
+            }
+        }
+		
+	    // Collect metadata for this meeting that the third-party application wants to store if meeting is recorded.
 	    Map<String, String> meetingInfo = new HashMap<>();
-	    for (String key: params.keySet()) {
-	    	if (key.contains(ApiParams.META)){
-	    		String[] meta = key.split("_");
+	    for (Map.Entry<String, String> entry : params.entrySet()) {
+	    	if (entry.getKey().contains(ApiParams.META)){
+	    		String[] meta = entry.getKey().split("_");
 			    if(meta.length == 2){
-			    	meetingInfo.put(meta[1], params.get(key));
+			    	meetingInfo.put(meta[1], entry.getValue());
 			    }
 			}   
 	    }
@@ -304,7 +184,7 @@ public class ParamsProcessorUtil {
 		Matcher metaMatcher = META_VAR_PATTERN.matcher(param);
     if (metaMatcher.matches()) {
     	return true;
-    }	
+    }
 		return false;
 	}
 	
@@ -314,12 +194,12 @@ public class ParamsProcessorUtil {
 	
     public static Map<String, String> processMetaParam(Map<String, String> params) {
         Map<String, String> metas = new HashMap<>();
-        for (String key : params.keySet()) {
-            if (isMetaValid(key)) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (isMetaValid(entry.getKey())) {
                 // Need to lowercase to maintain backward compatibility with
                 // 0.81
-                String metaName = removeMetaString(key).toLowerCase();
-                metas.put(metaName, params.get(key));
+                String metaName = removeMetaString(entry.getKey()).toLowerCase();
+                metas.put(metaName, params.get(entry.getValue()));
             }
         }
 
@@ -448,7 +328,7 @@ public class ParamsProcessorUtil {
             // meeting, the shared timestamp and the sequence number
             String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");
             String externalHash = DigestUtils
-                    .sha1Hex((parentMeetingId + "-" + timeStamp + "-" + params.get("sequence")));
+                    .sha1Hex((parentMeetingId + "-" + timeStamp + "-" + params.get(ApiParams.SEQUENCE)));
             externalMeetingId = externalHash + "-" + timeStamp;
         }
 
@@ -476,7 +356,7 @@ public class ParamsProcessorUtil {
         meeting.storeConfig(true, configXML);
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
-            String moderatorOnlyMessageTemplate = params.get("moderatorOnlyMessage");
+            String moderatorOnlyMessageTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
             String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
                     dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
@@ -492,21 +372,21 @@ public class ParamsProcessorUtil {
 
         // Add extra parameters for breakout room
         if (isBreakout) {
-            meeting.setSequence(Integer.parseInt(params.get("sequence")));
-            meeting.setFreeJoin(Boolean.parseBoolean(params.get("freeJoin")));
+            meeting.setSequence(Integer.parseInt(params.get(ApiParams.SEQUENCE)));
+            meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
             meeting.setParentMeetingId(parentMeetingId);
         }
 
-		if (!StringUtils.isEmpty(params.get("logo"))) {
-			meeting.setCustomLogoURL(params.get("logo"));
+		if (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
+			meeting.setCustomLogoURL(params.get(ApiParams.LOGO));
 		}
 
-		if (!StringUtils.isEmpty(params.get("copyright"))) {
-			meeting.setCustomCopyright(params.get("copyright"));
+		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
+			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
 		}
 		Boolean muteOnStart = defaultMuteOnStart;
-		if (!StringUtils.isEmpty(params.get("muteOnStart"))) {
-        	muteOnStart = Boolean.parseBoolean(params.get("muteOnStart"));
+		if (!StringUtils.isEmpty(params.get(ApiParams.MUTE_ON_START))) {
+        	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));
         }
 
 		meeting.setMuteOnStart(muteOnStart);
@@ -694,20 +574,19 @@ public class ParamsProcessorUtil {
 		return mDuration;
 	}
 
-	public boolean isTestMeeting(String telVoice) {	
-		return ((! StringUtils.isEmpty(telVoice)) && 
-				(! StringUtils.isEmpty(testVoiceBridge)) && 
-				(telVoice == testVoiceBridge));	
-	}
+    public boolean isTestMeeting(String telVoice) {
+        return ((!StringUtils.isEmpty(telVoice)) && (!StringUtils.isEmpty(testVoiceBridge))
+                && (telVoice.equals(testVoiceBridge)));
+    }
 		
-	public String getIntMeetingIdForTestMeeting(String telVoice) {		
-		if ((testVoiceBridge != null) && (telVoice == testVoiceBridge)) {
-			if (StringUtils.isEmpty(testConferenceMock)) 
-				return testConferenceMock;
-		} 
-		
-		return "";	
-	}
+    public String getIntMeetingIdForTestMeeting(String telVoice) {
+        if ((testVoiceBridge != null) && (testVoiceBridge.equals(telVoice))
+                && StringUtils.isEmpty(testConferenceMock)) {
+            return testConferenceMock;
+        }
+
+        return "";
+    }
 	
 	public boolean isConfigXMLChecksumSame(String meetingID, String configXML, String checksum) {
 		if (StringUtils.isEmpty(securitySalt)) {
@@ -755,7 +634,7 @@ public class ParamsProcessorUtil {
 			cs = DigestUtils.sha256Hex(data);
 			log.info("SHA256 {}", cs);
 		}
-		if (cs == null || cs.equals(checksum) == false) {
+		if (cs == null || !cs.equals(checksum)) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
 			return false;
@@ -764,7 +643,7 @@ public class ParamsProcessorUtil {
 		return true; 
 	}
 	
-	public boolean isPostChecksumSame(String apiCall, HashMap<String, String[]> params) {
+	public boolean isPostChecksumSame(String apiCall, Map<String, String[]> params) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;

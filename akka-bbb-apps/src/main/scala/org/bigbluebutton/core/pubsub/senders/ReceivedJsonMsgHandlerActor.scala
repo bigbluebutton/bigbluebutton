@@ -15,8 +15,7 @@ object ReceivedJsonMsgHandlerActor {
 
 class ReceivedJsonMsgHandlerActor(
   val eventBus:               BbbMsgRouterEventBus,
-  val incomingJsonMessageBus: IncomingJsonMessageBus
-)
+  val incomingJsonMessageBus: IncomingJsonMessageBus)
     extends Actor with ActorLogging
     with SystemConfiguration
     with ReceivedJsonMsgDeserializer
@@ -255,6 +254,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendPrivateMessagePubMsg](envelope, jsonNode)
       case ClearPublicChatHistoryPubMsg.NAME =>
         routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
+      case UserTypingPubMsg.NAME =>
+        routeGenericMsg[UserTypingPubMsg](envelope, jsonNode)
 
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>

@@ -481,6 +481,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				
 				btnLogout.styleName = "logoutButtonStyle" + styleNameExt;
+				helpBtn.styleName = "helpLinkButtonStyle" + styleNameExt;
 			}
 
 			private function openSettings(e:Event = null):void{

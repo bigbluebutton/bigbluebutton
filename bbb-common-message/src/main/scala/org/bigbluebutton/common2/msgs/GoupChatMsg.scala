@@ -86,6 +86,10 @@ object GroupChatMessageBroadcastEvtMsg { val NAME = "GroupChatMessageBroadcastEv
 case class GroupChatMessageBroadcastEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageBroadcastEvtMsgBody) extends BbbCoreMsg
 case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, msg: GroupChatMsgToUser)
 
+object UserTypingPubMsg { val NAME = "UserTypingPubMsg"}
+case class UserTypingPubMsg(header: BbbClientMsgHeader, body: UserTypingPubMsgBody) extends StandardMsg
+case class UserTypingPubMsgBody(chatId: String)
+
 // html5 client only
 object SyncGetGroupChatsRespMsg { val NAME = "SyncGetGroupChatsRespMsg"}
 case class SyncGetGroupChatsRespMsg(header: BbbClientMsgHeader, body: SyncGetGroupChatsRespMsgBody) extends BbbCoreMsg

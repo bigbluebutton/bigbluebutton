@@ -17,10 +17,10 @@ sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-sc
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/jackson-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/paranamer-2.8.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/akka-* \
- ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/config-1.3.1.jar \
- ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-2.5.jar \
- ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/jedis-2.7.2.jar \
- ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/commons-pool2-2.3.jar \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/config-1.3.3.jar \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-2.8.5.jar \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/jedis-2.9.0.jar \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/commons-pool2-2.6.0.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/spring-webmvc-4.3.12.RELEASE.jar  \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/rediscala_2.12-1.8.0.jar  \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-common-message_2.12-0.0.19-SNAPSHOT.jar \

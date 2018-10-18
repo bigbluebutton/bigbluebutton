@@ -1,11 +1,11 @@
 package org.bigbluebutton.air.main.services {
 	
 	import flash.net.NetConnection;
-	import flash.net.Responder;
-	import mx.utils.ObjectUtil;
+	
 	import org.bigbluebutton.air.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.air.common.services.IBaseConnection;
 	import org.bigbluebutton.air.main.models.IConferenceParameters;
+	import org.bigbluebutton.air.util.ConnUtil;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -22,6 +22,8 @@ package org.bigbluebutton.air.main.services {
 		private var _applicationURI:String;
 		
 		private var _conferenceParameters:IConferenceParameters;
+		
+		private var _connectionId : String;
 		
 		private var _tried_tunneling:Boolean = false;
 		
@@ -72,6 +74,7 @@ package org.bigbluebutton.air.main.services {
 		public function connect(params:IConferenceParameters, tunnel:Boolean = false):void {
 			_conferenceParameters = params;
 			_tried_tunneling = tunnel;
+			_connectionId = ConnUtil.generateConnId();
 			var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 			
 			var username:String = _conferenceParameters.username;
@@ -85,7 +88,7 @@ package org.bigbluebutton.air.main.services {
 			var guest:Boolean = _conferenceParameters.guest;
 			var authToken:String = _conferenceParameters.authToken;
 			
-			var connectParams:Array = [username, role, intMeetingId, voiceConf, recorded, extUserId, intUserId, muteOnStart, guest, authToken];
+			var connectParams:Array = [username, role, intMeetingId, voiceConf, recorded, extUserId, intUserId, muteOnStart, guest, authToken, _connectionId];
 			
 			trace("BBB Apps connect: " + connectParams);
 			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));

@@ -40,7 +40,7 @@ public class PngCreatorImp implements PngCreator {
 	private String BLANK_PNG;
 	private int slideWidth = 800;
 
-	private static String TEMP_PNG_NAME = "temp-png";
+	private static final String TEMP_PNG_NAME = "temp-png";
 
 	public boolean createPng(UploadedPresentation pres) {
 		boolean success = false;
@@ -87,7 +87,7 @@ public class PngCreatorImp implements PngCreator {
 
 			Gson gson = new Gson();
 			String logStr = gson.toJson(logData);
-			log.warn("-- analytics -- " + logStr);
+			log.warn("-- analytics -- {}",  logStr);
 		}
 
 		return false;
@@ -116,7 +116,7 @@ public class PngCreatorImp implements PngCreator {
 					// 2. 1 ---> what we are interested in
 					// 3. .png
 					// We are interested in the second match.
-					int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
+					int pageNum = Integer.parseInt(matcher.group(2).trim());
 					String newFilename = "slide-" + (pageNum) + ".png";
 					File renamedFile = new File(
 									dir.getAbsolutePath() + File.separator + newFilename);
@@ -140,7 +140,7 @@ public class PngCreatorImp implements PngCreator {
 			for (int i = 0; i < pageCount; i++) {
 				File png = new File(pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME + "-" + i + ".png");
 				if (!png.exists()) {
-					log.info("Copying blank png for slide " + i);
+					log.info("Copying blank png for slide {}", i);
 					copyBlankPng(png);
 				}
 			}

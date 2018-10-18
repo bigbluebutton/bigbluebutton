@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import browser from 'browser-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles.scss';
+import ZoomTool from './zoom-tool/component';
+
+const STEP = 5;
+const HUNDRED_PERCENT = 100;
+const MAX_PERCENT = 400;
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -125,6 +131,8 @@ class PresentationToolbar extends Component {
     this.state = { sliderValue: 100 };
     this.handleValuesChange = this.handleValuesChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
+    this.change = this.change.bind(this);
+    this.setInt = 0;
   }
 
   handleSkipToSlideChange(event) {
@@ -133,7 +141,10 @@ class PresentationToolbar extends Component {
   }
 
   handleValuesChange(event) {
-    this.setState({ sliderValue: event.target.value });
+    this.setState(
+      { sliderValue: event.target.value },
+      () => this.handleZoom(this.state.sliderValue),
+    );
   }
 
   fitToWidthClickHandler() {
@@ -147,6 +158,11 @@ class PresentationToolbar extends Component {
       fitToScreenValue: 'not_implemented_yet',
     });
   }
+
+  change(value) {
+    this.props.zoomChanger(value);
+  }
+
   renderSkipSlideOpts(numberOfSlides) {
     // Fill drop down menu with all the slides in presentation
     const { intl } = this.props;
@@ -172,51 +188,71 @@ class PresentationToolbar extends Component {
       numberOfSlides,
       actions,
       intl,
+      zoom,
     } = this.props;
 
+    const BROWSER_RESULTS = browser();
+    const isMobileBrowser = BROWSER_RESULTS.mobile ||
+      BROWSER_RESULTS.os.includes('Android');
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
-        <Button
-          role="button"
-          aria-labelledby="prevSlideLabel"
-          aria-describedby="prevSlideDesc"
-          disabled={!(currentSlideNum > 1)}
-          color="default"
-          icon="left_arrow"
-          size="md"
-          onClick={actions.previousSlideHandler}
-          label={intl.formatMessage(intlMessages.previousSlideLabel)}
-          hideLabel
-          className={styles.prevSlide}
-        />
-        <select
-          // <select> has an implicit role of listbox, no need to define role="listbox" explicitly
-          id="skipSlide"
-          aria-labelledby="skipSlideLabel"
-          aria-describedby="skipSlideDesc"
-          aria-live="polite"
-          aria-relevant="all"
-          value={currentSlideNum}
-          onChange={actions.skipToSlideHandler}
-          className={styles.skipSlideSelect}
-        >
-          {this.renderSkipSlideOpts(numberOfSlides)}
-        </select>
-        <Button
-          role="button"
-          aria-labelledby="nextSlideLabel"
-          aria-describedby="nextSlideDesc"
-          disabled={!(currentSlideNum < numberOfSlides)}
-          color="default"
-          icon="right_arrow"
-          size="md"
-          onClick={actions.nextSlideHandler}
-          label={intl.formatMessage(intlMessages.nextSlideLabel)}
-          hideLabel
-          className={styles.skipSlide}
-        />
-
+        {
+          <span className={styles.presentationControls}>
+            <Button
+              role="button"
+              aria-labelledby="prevSlideLabel"
+              aria-describedby="prevSlideDesc"
+              disabled={!(currentSlideNum > 1)}
+              color="default"
+              icon="left_arrow"
+              size="md"
+              onClick={actions.previousSlideHandler}
+              label={intl.formatMessage(intlMessages.previousSlideLabel)}
+              hideLabel
+              className={styles.prevSlide}
+            />
+            <select
+              // <select> has an implicit role of listbox, no need to define role="listbox" explicitly
+              id="skipSlide"
+              aria-labelledby="skipSlideLabel"
+              aria-describedby="skipSlideDesc"
+              aria-live="polite"
+              aria-relevant="all"
+              value={currentSlideNum}
+              onChange={actions.skipToSlideHandler}
+              className={styles.skipSlideSelect}
+            >
+              {this.renderSkipSlideOpts(numberOfSlides)}
+            </select>
+            <Button
+              role="button"
+              aria-labelledby="nextSlideLabel"
+              aria-describedby="nextSlideDesc"
+              disabled={!(currentSlideNum < numberOfSlides)}
+              color="default"
+              icon="right_arrow"
+              size="md"
+              onClick={actions.nextSlideHandler}
+              label={intl.formatMessage(intlMessages.nextSlideLabel)}
+              hideLabel
+              className={styles.skipSlide}
+            />
+          </span>
+        }
+        {
+          !isMobileBrowser ?
+            <span className={styles.zoomWrapper}>
+              <ZoomTool
+                value={zoom}
+                change={this.change}
+                minBound={HUNDRED_PERCENT}
+                maxBound={MAX_PERCENT}
+                step={STEP}
+              />
+            </span>
+            : null
+        }
         {/* Fit to width button
         <Button
           role="button"
@@ -243,29 +279,6 @@ class PresentationToolbar extends Component {
           label={'Fit to Screen'}
           hideLabel={true}
         /> */}
-        {/* Zoom slider
-        <div
-          className={classNames(styles.zoomWrapper, { [styles.zoomWrapperNoBorder]: true })}
-        >
-          <div className={styles.zoomMinMax}> 100% </div>
-          <input
-            role="slider"
-            aria-labelledby="zoomLabel"
-            aria-describedby="zoomDesc"
-            aria-valuemax="400"
-            aria-valuemin="100"
-            aria-valuenow={this.state.sliderValue}
-            value={this.state.sliderValue}
-            step="5"
-            type="range"
-            min="100"
-            max="400"
-            onChange={this.handleValuesChange}
-            onInput={this.handleValuesChange}
-            className={styles.zoomSlider}
-          />
-          <div className={styles.zoomMinMax}> 400% </div>
-        </div> */}
       </div>
     );
   }

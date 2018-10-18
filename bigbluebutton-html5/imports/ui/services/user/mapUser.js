@@ -30,6 +30,7 @@ const mapUser = (user) => {
     isPhoneUser: user.phone_user,
     isOnline: user.connectionStatus === 'online',
     clientType: user.clientType,
+    logTime: user.logTime,
   };
 
   mappedUser.isLocked = user.locked && !(mappedUser.isPresenter || mappedUser.isModerator);

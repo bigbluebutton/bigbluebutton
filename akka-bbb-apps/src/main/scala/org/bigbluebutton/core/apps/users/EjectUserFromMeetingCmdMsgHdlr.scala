@@ -21,8 +21,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL,
       liveMeeting.users2x,
-      msg.header.userId
-    )) {
+      msg.header.userId)) {
 
       val reason = "No permission to eject user from meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

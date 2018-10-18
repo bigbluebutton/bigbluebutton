@@ -132,7 +132,7 @@
 
     .sendButton {
         diameter: 28.0;
-        fontSize: 15;
+        fontSize: 15.0;
     }
 
     .titleGroup {
@@ -220,5 +220,9 @@
 
     .audioButtonStyle {
         iconSize: 44.0;
+    }
+
+    .startingScreensharingLabel {
+        fontSize: 28.0;
     }
 }

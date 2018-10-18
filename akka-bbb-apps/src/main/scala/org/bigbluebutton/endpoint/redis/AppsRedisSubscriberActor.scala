@@ -31,8 +31,7 @@ class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: St
                                channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(
       new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }
-    ) with SystemConfiguration {
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {

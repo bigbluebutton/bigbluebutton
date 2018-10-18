@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
+import Auth from '/imports/ui/services/auth';
 import Chat from './component';
 import ChatService from './service';
 
@@ -52,7 +53,61 @@ export default injectIntl(withTracker(({ params, intl }) => {
   let systemMessageIntl = {};
 
   if (chatID === PUBLIC_CHAT_KEY) {
-    messages = ChatService.reduceAndMapGroupMessages(ChatService.getPublicGroupMessages());
+    const { welcomeProp } = ChatService.getMeeting();
+    const user = ChatService.getUser(Auth.userID);
+
+    messages = ChatService.getPublicGroupMessages();
+
+    const time = user.logTime;
+    const welcomeId = `welcome-msg-${time}`;
+
+    const welcomeMsg = {
+      id: welcomeId,
+      content: [{
+        id: welcomeId,
+        text: welcomeProp.welcomeMsg,
+        time,
+      }],
+      time,
+      sender: null,
+    };
+
+    const moderatorTime = time + 1;
+    const moderatorId = `moderator-msg-${moderatorTime}`;
+
+    const moderatorMsg = {
+      id: moderatorId,
+      content: [{
+        id: moderatorId,
+        text: welcomeProp.modOnlyMessage,
+        time: moderatorTime,
+      }],
+      time: moderatorTime,
+      sender: null,
+    };
+
+    const messagesBeforeWelcomeMsg =
+      ChatService.reduceAndMapGroupMessages(messages.filter(message => message.timestamp < time));
+    const messagesAfterWelcomeMsg =
+      ChatService.reduceAndMapGroupMessages(messages.filter(message => message.timestamp >= time));
+
+    const clearMessage = messages.filter(message => message.message === 'PUBLIC_CHAT_CLEAR');
+
+    const hasClearMessage = clearMessage.length;
+
+    const showWelcomeMsg =
+      (hasClearMessage && clearMessage[0].timestamp < time) || !hasClearMessage;
+
+    const showModeratorMsg =
+      (user.isModerator)
+      && ((hasClearMessage && clearMessage[0].timestamp < moderatorTime) || !hasClearMessage);
+
+    const messagesFormated = messagesBeforeWelcomeMsg
+      .concat(showWelcomeMsg ? welcomeMsg : [])
+      .concat(showModeratorMsg ? moderatorMsg : [])
+      .concat(messagesAfterWelcomeMsg);
+
+    messages = messagesFormated.sort((a, b) => (a.time - b.time));
   } else {
     messages = ChatService.getPrivateGroupMessages(chatID);
 

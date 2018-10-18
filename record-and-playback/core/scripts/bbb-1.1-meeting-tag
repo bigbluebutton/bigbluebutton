@@ -1,0 +1,89 @@
+#!/usr/bin/ruby
+
+require File.expand_path('../../lib/recordandplayback', __FILE__)
+require 'trollop'
+
+props = YAML::load(File.open(File.expand_path('../bigbluebutton.yml', __FILE__)))
+log_dir = props['log_dir']
+published_dir = props['published_dir']
+unpublished_dir = "#{published_dir}/../unpublished"
+
+opts = Trollop::options do
+  opt(:force, "Run script even if it has previously been run",
+              :default => false)
+  opt(:quiet, "Minimal output mode, for automated use",
+              :default => false)
+end
+
+log_file = "#{log_dir}/bbb-1.1-meeting-tag.log"
+done_file = "#{props['recording_dir']}/status/bbb-1.1-meeting-tag.done"
+
+logger = Logger.new(log_file)
+logger.level = Logger::INFO
+BigBlueButton.logger = logger
+
+if File.exist?(done_file) and !opts.force
+  if !opts.quiet
+    puts "Script has previously been run, doing nothing"
+    puts "Use the --force option to override"
+  end
+  exit 0
+end
+
+def do_update(recording_dir, format_dir)
+  match = /([^\/]*)$/.match(recording_dir)
+  meeting_id = match[1]
+
+  match = /([^\/]*)$/.match(format_dir)
+  format = match[1]
+
+  BigBlueButton.logger.info("Processing #{format} recording #{meeting_id}")
+  
+  xml_filename = "#{recording_dir}/metadata.xml"
+  doc = Nokogiri::XML(File.open(xml_filename)) { |x| x.noblanks }
+  return if ! doc.xpath("/recording/meeting").empty?
+
+  node = Nokogiri::XML::Node.new "meeting", doc
+  node["id"] = doc.at_xpath("/recording/id").text || ""
+  node["externalId"] = doc.at_xpath("/recording/meta/meetingId").text || ""
+  node["name"] = doc.at_xpath("/recording/meta/meetingName").text || ""
+  node["breakout"] = "false"
+
+  doc.at("/recording") << node
+
+  xml_file = File.new(xml_filename, "w")
+  xml_file.write(doc.to_xml(:indent => 2))
+  xml_file.close
+end
+
+BigBlueButton.logger.info("Updating meeting tag for 1.1.0")
+
+puts "Updating meeting tag for 1.1.0..."
+
+num_recordings = 0
+
+BigBlueButton.logger.info("Checking recordings in #{published_dir}")
+Dir.glob("#{published_dir}/*").each do |format_dir|
+  Dir.glob("#{format_dir}/*-*").each do |recording_dir|
+    print '.' if num_recordings % 10 == 0
+    num_recordings += 1
+    do_update(recording_dir, format_dir)
+  end
+end
+
+BigBlueButton.logger.info("Checking recordings in #{unpublished_dir}")
+Dir.glob("#{unpublished_dir}/*").each do |format_dir|
+  Dir.glob("#{format_dir}/*-*").each do |recording_dir|
+    print '.' if num_recordings % 10 == 0
+    num_recordings += 1
+    do_update(recording_dir, format_dir)
+  end
+end
+
+puts "done"
+
+puts "See the output in #{log_file} for details"
+
+BigBlueButton.logger.info("Processed #{num_recordings} recordings")
+
+IO.write(done_file, Time.now)

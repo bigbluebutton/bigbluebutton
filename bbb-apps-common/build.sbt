@@ -5,7 +5,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.3-SNAPSHOT"
 
-scalaVersion  := "2.12.2"
+scalaVersion  := "2.12.6"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -26,14 +26,13 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-val scalaV = "2.12.2"
-val akkaVersion  = "2.5.1"
+val akkaVersion  = "2.5.14"
 val scalaTestV  = "2.2.6"
 
 // https://mvnrepository.com/artifact/org.scala-lang/scala-library
-libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-library" % scalaVersion.value
 // https://mvnrepository.com/artifact/org.scala-lang/scala-compiler
-libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
 
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.12
 libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % "2.5.1"
@@ -43,18 +42,17 @@ libraryDependencies += "com.typesafe.akka" % "akka-slf4j_2.12" % "2.5.1"
 // https://mvnrepository.com/artifact/com.github.etaty/rediscala_2.12
 libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
 
-libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.8"
+libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.11"
 
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
-libraryDependencies += "com.google.code.gson" % "gson" % "2.8.0"
+libraryDependencies += "com.google.code.gson" % "gson" % "2.8.5"
 libraryDependencies += "redis.clients" % "jedis" % "2.9.0"
 
 // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.5"
+libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.7"
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
-libraryDependencies += "org.apache.commons" % "commons-pool2" % "2.3"
-libraryDependencies += "commons-io" % "commons-io" % "2.4"
+libraryDependencies += "org.apache.commons" % "commons-pool2" % "2.6.0"
 libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.23" % "provided"
 
 
