@@ -54,15 +54,6 @@ class UserListItem extends Component {
       setEmojiStatus,
       toggleVoice,
       user,
-      toggleVoice,
-      changeRole,
-      setEmojiStatus,
-      currentUser,
-      isBreakoutRoom,
-      getAvailableActions,
-      handleEmojiChange,
-      getEmojiList,
-      getEmoji,
     } = this.props;
 
     const contents = (<UserDropdown
@@ -86,15 +77,6 @@ class UserListItem extends Component {
         setEmojiStatus,
         toggleVoice,
         user,
-        toggleVoice,
-        changeRole,
-        setEmojiStatus,
-        currentUser,
-        isBreakoutRoom,
-        getAvailableActions,
-        handleEmojiChange,
-        getEmojiList,
-        getEmoji,
       }}
     />);
 

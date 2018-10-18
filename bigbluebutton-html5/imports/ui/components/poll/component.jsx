@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import { Link } from 'react-router';
+import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
 import Icon from '/imports/ui/components/icon/component';
 import LiveResultContainer from './live-result/container';
@@ -131,8 +131,11 @@ class Poll extends Component {
   }
 
   nonPresenterRedirect() {
-    const { currentUser, router } = this.props;
-    if (!currentUser.presenter) return router.push('/users');
+    const { currentUser } = this.props;
+    if (!currentUser.presenter) {
+      Session.set('isUserListOpen', true);
+      return Session.set('isPollOpen', false);
+    }
   }
 
   toggleCustomFields() {
@@ -194,7 +197,7 @@ class Poll extends Component {
 
   renderActivePollOptions() {
     const {
-      intl, router, publishPoll, stopPoll,
+      intl, publishPoll, stopPoll,
     } = this.props;
 
     return (
@@ -207,7 +210,8 @@ class Poll extends Component {
           onClick={() => {
             publishPoll();
             stopPoll();
-            router.push('/users');
+            Session.set('isUserListOpen', true);
+            Session.set('isPollOpen', false);
           }}
           label={intl.formatMessage(intlMessages.publishLabel)}
           color="primary"
@@ -264,18 +268,22 @@ class Poll extends Component {
     return (
       <div>
         <header className={styles.header}>
-          <Link
-            to="/users"
+          <Button
             role="button"
+            tabIndex={0}
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
+            className={styles.hideBtn}
             onClick={() => {
               if (this.state.isPolling) {
                 stopPoll();
               }
+              Session.set('isUserListOpen', true);
+              Session.set('isPollOpen', false);
             }}
           >
-            <Icon iconName="left_arrow" />{intl.formatMessage(intlMessages.pollPaneTitle)}
-          </Link>
+            <Icon iconName="left_arrow" />
+            {intl.formatMessage(intlMessages.pollPaneTitle)}
+          </Button>
         </header>
         {
           this.state.isPolling ? this.renderActivePollOptions() : this.renderPollOptions()

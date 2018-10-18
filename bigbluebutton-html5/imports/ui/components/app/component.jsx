@@ -15,6 +15,7 @@ import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 import UserListContainer from '../user-list/container';
 import ChatContainer from '../chat/container';
+import PollContainer from '/imports/ui/components/poll/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const USERLIST_COMPACT_WIDTH = 50;
@@ -47,6 +48,7 @@ const propTypes = {
   closedCaption: PropTypes.element,
   userListIsOpen: PropTypes.bool.isRequired,
   chatIsOpen: PropTypes.bool.isRequired,
+  pollIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -106,13 +108,13 @@ class App extends Component {
   }
 
   renderPoll() {
-    const { poll } = this.props;
+    const { pollIsOpen } = this.props;
 
-    if (!poll) return null;
+    if (!pollIsOpen) return null;
 
     return (
       <div className={styles.poll}>
-        {poll}
+        <PollContainer />
       </div>
     );
   }

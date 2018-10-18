@@ -107,6 +107,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     fontSize: getFontSize(),
     userListIsOpen: Boolean(Session.get('isUserListOpen')),
     chatIsOpen: Boolean(Session.get('isChatOpen') && Session.get('isUserListOpen')),
+    pollIsOpen: Boolean(Session.get('isPollOpen') && Session.get('isUserListOpen')),
   };
 })(AppContainer)));
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import ActionsBar from './component';
 import Service from './service';
@@ -9,9 +10,16 @@ import { withRouter } from 'react-router';
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
-export default withRouter(withTracker(({ location, router }) => {
-  const togglePollMenu = () => (location.pathname.includes('poll')
-    ? router.push('/') : router.push('/users/poll'));
+export default withRouter(withTracker(({ }) => {
+  const togglePollMenu = () => {
+    if (!Session.get('isPollOpen')) {
+      Session.set('isUserListOpen', true);
+      return Session.set('isPollOpen', true);
+    }
+
+    Session.set('isUserListOpen', true);
+    return Session.set('isPollOpen', false);
+  };
 
   return {
     isUserPresenter: Service.isUserPresenter(),
