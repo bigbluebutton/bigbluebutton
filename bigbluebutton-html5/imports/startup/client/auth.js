@@ -31,6 +31,8 @@ export function joinRouteHandler(nextState, replace, callback) {
         externUserID, fullname, confname, customdata,
       } = response;
 
+      console.log(response);
+
       if (returncode === 'FAILED') {
         replace({ pathname: '/error/404' });
         callback();

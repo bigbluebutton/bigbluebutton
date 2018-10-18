@@ -72,57 +72,73 @@
 }
 
 @-webkit-keyframes bounce {
-	0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     -webkit-transform: translateY(0);
     transform: translateY(0);
   }
-	40% {
+  40% {
     -webkit-transform: translateY(10px);
     transform: translateY(10px);
   }
-	60% {
+  60% {
     -webkit-transform: translateY(5px);
     transform: translateY(5px);
   }
 }
 
 @-moz-keyframes bounce {
-	0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
-	40% {
+  40% {
     transform: translateY(10px);
   }
-	60% {
+  60% {
     transform: translateY(5px);
   }
 }
 
 @keyframes bounce {
-	0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     -ms-transform: translateY(0);
     transform: translateY(0);
   }
-	40% {
+  40% {
     -ms-transform: translateY(10px);
     transform: translateY(10px);
   }
-	60% {
+  60% {
     -ms-transform: translateY(5px);
     transform: translateY(5px);
   }
 }
 
 @keyframes bounceRotate {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     -ms-transform: translateY(0) rotate(180deg);
     transform: translateY(0) rotate(180deg);
   }
-	40% {
+  40% {
     -ms-transform: translateY(10px) rotate(180deg);
     transform: translateY(10px) rotate(180deg);
   }
-	60% {
+  60% {
     -ms-transform: translateY(5px) rotate(180deg);
     transform: translateY(5px) rotate(180deg);
   }
@@ -132,7 +148,7 @@
   0% {
     opacity: 0;
   }
-	100% {
+  100% {
     opacity: 1;
   }
 }

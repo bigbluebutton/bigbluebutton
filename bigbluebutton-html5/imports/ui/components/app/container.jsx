@@ -10,6 +10,7 @@ import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 import {
   getFontSize,
@@ -110,6 +111,8 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
     fontSize: getFontSize(),
     userlistIsOpen: window.location.pathname.includes('users'),
     chatIsOpen: window.location.pathname.includes('chat'),
+    customStyle: getFromUserSettings('customStyle', false),
+    customStyleUrl: getFromUserSettings('customStyleUrl', false),
   };
 })(AppContainer))));
 

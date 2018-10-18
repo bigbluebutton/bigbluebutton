@@ -30,6 +30,9 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'multiUserPenOnly',
       'presenterTools',
       'multiUserTools',
+      // SKINNING/THEMMING
+      'customStyle',
+      'customStyleUrl',      
     ];
     if (!handledHTML5Parameters.includes(key)) {
       return acc;

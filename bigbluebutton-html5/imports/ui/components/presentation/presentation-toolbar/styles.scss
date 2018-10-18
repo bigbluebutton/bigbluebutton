@@ -1,9 +1,10 @@
-@import "/imports/ui/components/button/styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
 
-$controls-color: $color-gray !default;
-$controls-background: $color-white !default;
-$toolbar-button-border-radius: 5px;
+:root {
+  --controls-color: var(--color-gray);
+  --controls-background: var(--color-white);
+  --toolbar-button-border-radius: 5px;
+}
 
 .presentationToolbarWrapper,
 .presentationControls,
@@ -14,7 +15,7 @@ $toolbar-button-border-radius: 5px;
   align-items: center;
   margin-left: .5rem;
   margin-right: .5rem;
-  border-radius: $toolbar-button-border-radius;
+  border-radius: var(--toolbar-button-border-radius);
 }
 
 .presentationControls,
@@ -29,7 +30,7 @@ $toolbar-button-border-radius: 5px;
   justify-content: center;
   z-index: 1;
 
-  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
+  @include mq("#{$landscape}) and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
     transform: scale(.75);
     transform-origin: bottom;
   }
@@ -38,8 +39,8 @@ $toolbar-button-border-radius: 5px;
   button,
   select,
   > div {
-    background-color: $controls-background;
-    color: $controls-color;
+    background-color: var(--controls-background);
+    color: var(--controls-color);
     border-top: 0;
     border-bottom: 0;
     border-left: 0;
@@ -51,7 +52,7 @@ $toolbar-button-border-radius: 5px;
 
   i {
     font-weight: bolder;
-    color: $color-gray;
+    color: var(--color-gray);
   }
 
 
@@ -73,7 +74,7 @@ $toolbar-button-border-radius: 5px;
   // flex-direction: column;
   width: 11.5%;
   min-width: 175px;
-  background-color: $color-white;
+  background-color: var(--color-white);
 }
 
 .zoomWrapperNoBorder {
@@ -87,14 +88,14 @@ $toolbar-button-border-radius: 5px;
 
   &[aria-disabled="true"] {
     opacity: 1;
-    background-color: $color-gray-lighter;
+    background-color: var(--color-gray-lighter);
   }
 }
 
 .skipSlideSelect {
   padding: 0 0.8%;
-  border-left: $border-size solid $color-gray-lighter !important;
-  border-right: $border-size solid $color-gray-lighter !important;
+  border-left: var(--border-size) solid var(--color-gray-lighter) !important;
+  border-right: var(--border-size) solid var(--color-gray-lighter) !important;
 }
 
 .zoomSlider {
@@ -109,8 +110,8 @@ $toolbar-button-border-radius: 5px;
   height: 2.25rem;
   text-align: center;
   color: black;
-  border-left: $border-size solid $color-gray-lighter !important;
-  border-right: $border-size solid $color-gray-lighter !important;
+  border-left: var(--border-size) solid var(--color-gray-lighter) !important;
+  border-right: var(--border-size) solid var(--color-gray-lighter) !important;
   display: flex;
   align-items: center;
   justify-content: center;
