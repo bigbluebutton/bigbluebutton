@@ -1,0 +1,5 @@
+node_modules/
+screenshots/*
+!screenshots/screenshots.txt
+.directory
+.env
