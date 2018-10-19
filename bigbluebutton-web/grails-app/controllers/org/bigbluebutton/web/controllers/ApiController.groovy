@@ -1855,7 +1855,7 @@ class ApiController {
                   log.debug("user provided filename: [${module.@filename}]");
                   fileName = document.@filename.toString();
               }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */);
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
               current = false;
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
