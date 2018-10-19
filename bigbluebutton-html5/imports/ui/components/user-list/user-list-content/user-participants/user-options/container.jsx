@@ -38,6 +38,7 @@ export default class UserOptionsContainer extends Component {
   }
 
   handleLockView() {
+    
     logger.info('handleLockView function');
   }
 
