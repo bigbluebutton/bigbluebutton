@@ -363,13 +363,22 @@ phonecomponents|MuteMeButton {
 	textSelectedColor : #FFFFFF;
 }
 
-.helpLinkButtonStyle {
+.helpLinkButtonStyle, .helpLinkButtonStyleRTL {
 	cornerRadius   : 2;
 	rollOverColor  : #1070D7;
 	selectionColor : #0A5EAC;
+}
+
+.helpLinkButtonStyle {
 	icon           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help");
 	overIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
 	downIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White");
+}
+
+.helpLinkButtonStyleRTL {
+	icon           : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_RTL");
+	overIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White_RTL");
+	downIcon       : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Help_White_RTL");
 }
 
 /*
@@ -599,9 +608,7 @@ chat|ChatOptionsTab {
 	paddingTop   : 20;
 }
 
-.chatControlBarSendButtonStyle {
-	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
-	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
+.chatControlBarSendButtonStyle, .chatControlBarSendButtonStyleRTL {
 	cornerRadius      : 20;
 	borderStyle       : none;
 	borderThickness   : 0;
@@ -611,16 +618,14 @@ chat|ChatOptionsTab {
 	fillColorDisabled : #F0F2F6;
 }
 
+.chatControlBarSendButtonStyle {
+	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send");
+	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled");
+}
+
 .chatControlBarSendButtonStyleRTL {
 	icon              : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_RTL");
 	disabledIcon      : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Send_Disabled_RTL");
-	cornerRadius      : 20;
-	borderStyle       : none;
-	borderThickness   : 0;
-	fillColorUp       : #1070D7;
-	fillColorOver     : #0A5EAC;
-	fillColorDown     : #1070D7;
-	fillColorDisabled : #F0F2F6;
 }
 
 .chatControlBarTextMsgStyle {
@@ -708,6 +713,23 @@ chat|ChatMessageRenderer {
 	paddingTop    : 6;
 	paddingLeft   : 12;
 	paddingRight  : 12;
+}
+
+.userTypingCanvas {
+	backgroundColor : #FFFFFF;
+}
+
+.msgTooLongLabel {
+	color : #DE2721;
+}
+
+.userTypingLabel {
+	fontSize      : 13;
+	color         : #4E5A66;
+	paddingBottom : 2;
+	paddingTop    : 2;
+	paddingLeft   : 4;
+	paddingRight  : 4;
 }
 
 /*

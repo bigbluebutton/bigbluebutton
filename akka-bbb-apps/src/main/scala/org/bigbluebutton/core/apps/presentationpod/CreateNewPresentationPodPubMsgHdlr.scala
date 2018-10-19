@@ -16,8 +16,7 @@ trait CreateNewPresentationPodPubMsgHdlr extends RightsManagementTrait {
 
     if (permissionFailed(
       PermissionCheck.MOD_LEVEL,
-      PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
-    )) {
+      PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to create new presentation pod."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
@@ -30,8 +29,7 @@ trait CreateNewPresentationPodPubMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.meetingProp.intId,
         resultPod.currentPresenter,
         resultPod.id,
-        msg.header.userId
-      )
+        msg.header.userId)
       bus.outGW.send(respMsg)
 
       val pods = state.presentationPodManager.addPod(resultPod)

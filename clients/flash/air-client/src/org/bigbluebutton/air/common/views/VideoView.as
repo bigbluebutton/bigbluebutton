@@ -6,12 +6,9 @@ package org.bigbluebutton.air.common.views {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.system.Capabilities;
-	import mx.core.UIComponent;
 	
-	public class VideoView extends UIComponent {
+	public class VideoView extends VideoBaseView {
 		protected var ns:NetStream;
-		
-		protected var _video:Video;
 		
 		protected var connection:NetConnection;
 		
@@ -21,13 +18,13 @@ package org.bigbluebutton.air.common.views {
 		
 		public var streamName:String;
 		
-		protected var originalVideoWidth:Number;
-		
-		protected var originalVideoHeight:Number;
+		private function get video():Video {
+			return videoComp as Video;
+		}
 		
 		public function VideoView():void {
-			_video = new Video();
-			addChild(_video);
+			videoComp = new Video();
+			addChild(videoComp);
 		}
 		
 		public function startStream(connection:NetConnection, name:String, streamName:String, userId:String, oWidth:Number, oHeight:Number):void {
@@ -51,8 +48,8 @@ package org.bigbluebutton.air.common.views {
 			ns.bufferTime = 0;
 			ns.receiveVideo(true);
 			ns.receiveAudio(false);
-			_video.smoothing = true;
-			_video.attachNetStream(ns);
+			video.smoothing = true;
+			video.attachNetStream(ns);
 			ns.play(streamName);
 		}
 		
@@ -87,7 +84,7 @@ package org.bigbluebutton.air.common.views {
 		
 		public function close():void {
 			if (ns) {
-				_video.attachCamera(null);
+				video.attachCamera(null);
 				ns.removeEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 				ns.removeEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 				ns.close();
@@ -103,89 +100,38 @@ package org.bigbluebutton.air.common.views {
 			}
 		}
 		
-		public function resizeForPortrait():void {
-			// if we have device where screen width less than screen height e.g. phone
-			if (width < height) {
-				// make the video width full width of the screen 
-				_video.width = width;
-				// calculate height based on a video width, it order to keep the same aspect ratio
-				_video.height = (_video.width / originalVideoWidth) * originalVideoHeight;
-				// if calculated height appeared to be bigger than screen height, recalculuate the video size based on width
-				if (height < _video.height) {
-					// make the video height full height of the screen
-					_video.height = height;
-					// calculate width based on a video height, it order to keep the same aspect ratio
-					_video.width = ((originalVideoWidth * _video.height) / originalVideoHeight);
-				}
-			} // if we have device where screen height less than screen width e.g. tablet
-			else {
-				// make the video height full height of the screen
-				_video.height = height;
-				// calculate width based on a video height, it order to keep the same aspect ratio
-				_video.width = ((originalVideoWidth * _video.height) / originalVideoHeight);
-				// if calculated width appeared to be bigger than screen width, recalculuate the video size based on height
-				if (width < _video.width) {
-					// make the video width full width of the screen 
-					_video.width = width;
-					// calculate height based on a video width, it order to keep the same aspect ratio
-					_video.height = (_video.width / originalVideoWidth) * originalVideoHeight;
-				}
-			}
-			
-			_video.x = width - _video.width;
-			_video.y = height - _video.height;
-		}
-		
-		public function resizeForLandscape():void {
-			if (height < width) {
-				_video.height = width;
-				_video.width = ((originalVideoWidth * _video.height) / originalVideoHeight);
-				if (width < _video.width) {
-					_video.width = height;
-					_video.height = (_video.width / originalVideoWidth) * originalVideoHeight;
-				}
-			} else {
-				_video.width = height;
-				_video.height = (_video.width / originalVideoWidth) * originalVideoHeight;
-				if (height < _video.height) {
-					_video.height = width;
-					_video.width = ((originalVideoWidth * _video.height) / originalVideoHeight);
-				}
-			}
-		}
-		
 		public function rotateVideo(rotation:Number):void {
-			if (_video && stage.contains(_video)) {
-				stage.removeChild(_video);
+			if (video && stage.contains(video)) {
+				stage.removeChild(video);
 			}
-			_video = new Video();
-			_video.attachNetStream(ns);
+			videoComp = new Video();
+			video.attachNetStream(ns);
 			switch (rotation) {
 				case 0:
 					resizeForPortrait();
-					_video.x = width / 2 - _video.width / 2;
-					_video.y = height / 2 - _video.height / 2; // + topMenuBarHeight;
+					video.x = width / 2 - video.width / 2;
+					video.y = height / 2 - video.height / 2; // + topMenuBarHeight;
 					break;
 				case -90:
 					resizeForLandscape();
-					_video.x = (width / 2) - (_video.height / 2);
-					_video.y = (height / 2) + (_video.width / 2); // + topMenuBarHeight;
+					video.x = (width / 2) - (video.height / 2);
+					video.y = (height / 2) + (video.width / 2); // + topMenuBarHeight;
 					break;
 				case 90:
 					resizeForLandscape();
-					_video.x = (width / 2) + (_video.height / 2);
-					_video.y = (height / 2) - (_video.width / 2); // + topMenuBarHeight;
+					video.x = (width / 2) + (video.height / 2);
+					video.y = (height / 2) - (video.width / 2); // + topMenuBarHeight;
 					break;
 				case 180:
 					resizeForPortrait();
-					_video.x = width / 2 + _video.width / 2;
-					_video.y = (height / 2) + (_video.height / 2); // + topMenuBarHeight
+					video.x = width / 2 + video.width / 2;
+					video.y = (height / 2) + (video.height / 2); // + topMenuBarHeight
 					break;
 				default:
 					break;
 			}
-			_video.rotation = rotation;
-			this.stage.addChild(_video);
+			video.rotation = rotation;
+			this.stage.addChild(video);
 		}
 	}
 }

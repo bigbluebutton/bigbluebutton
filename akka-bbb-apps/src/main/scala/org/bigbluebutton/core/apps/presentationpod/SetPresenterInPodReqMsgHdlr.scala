@@ -13,8 +13,7 @@ trait SetPresenterInPodReqMsgHdlr {
 
   def handle(
     msg: SetPresenterInPodReqMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus
-  ): MeetingState2x = {
+    liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
     if (msg.body.podId == PresentationPod.DEFAULT_PRESENTATION_POD) {
       // Swith presenter as default presenter pod has changed.
       AssignPresenterActionHandler.handleAction(liveMeeting, bus.outGW, msg.header.userId, msg.body.nextPresenterId)
@@ -30,8 +29,7 @@ object SetPresenterInPodActionHandler extends RightsManagementTrait {
     outGW:          OutMsgRouter,
     assignedBy:     String,
     podId:          String,
-    newPresenterId: String
-  ): MeetingState2x = {
+    newPresenterId: String): MeetingState2x = {
 
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
       val meetingId = liveMeeting.props.meetingProp.intId
@@ -42,8 +40,7 @@ object SetPresenterInPodActionHandler extends RightsManagementTrait {
       def broadcastSetPresenterInPodRespMsg(podId: String, nextPresenterId: String, requesterId: String): Unit = {
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
-          liveMeeting.props.meetingProp.intId, requesterId
-        )
+          liveMeeting.props.meetingProp.intId, requesterId)
         val envelope = BbbCoreEnvelope(SetPresenterInPodRespMsg.NAME, routing)
         val header = BbbClientMsgHeader(SetPresenterInPodRespMsg.NAME, liveMeeting.props.meetingProp.intId, requesterId)
 

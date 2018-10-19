@@ -34,6 +34,8 @@ const getUser = (userId) => {
   return mapUser(user);
 };
 
+const getMeeting = () => Meetings.findOne({});
+
 const mapGroupMessage = (message) => {
   const mappedMessage = {
     id: message._id,
@@ -267,6 +269,7 @@ export default {
   getPublicGroupMessages,
   getPrivateGroupMessages,
   getUser,
+  getMeeting,
   getScrollPosition,
   hasUnreadMessages,
   lastReadMessageTime,

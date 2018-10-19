@@ -67,13 +67,14 @@ class WhiteboardToolbar extends Component {
     super(props);
 
     const { annotations } = this.props;
+    const isMobile = browser().mobile;
 
     let annotationSelected = {
-      icon: 'pen_tool',
-      value: 'pencil',
+      icon: isMobile ? 'hand' : 'pen_tool',
+      value: isMobile ? 'hand' : 'pencil',
     };
 
-    if (annotations.length > 0) {
+    if (!annotations.some(el => el.value === annotationSelected.value) && annotations.length > 0) {
       annotationSelected = annotations[annotations.length - 1];
     }
 
@@ -150,9 +151,17 @@ class WhiteboardToolbar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { annotations } = this.props;
+    const { annotationSelected } = prevState;
+    const hadInAnnotations = annotations.some(el => el.value === annotationSelected.value);
+
     // if color or thickness were changed
     // we might need to trigger svg animation for Color and Thickness icons
     this.animateSvgIcons(prevState);
+
+    if (!hadInAnnotations) {
+      this.handleAnnotationChange(annotations[annotations.length - 1]);
+    }
   }
 
   setToolbarValues(drawSettings) {
@@ -387,7 +396,7 @@ class WhiteboardToolbar extends Component {
 
   renderThicknessItem() {
     const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'pointer';
+    const isDisabled = this.state.annotationSelected.value === 'hand';
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -420,7 +429,14 @@ class WhiteboardToolbar extends Component {
     return (
       <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
         <RenderInBrowser only edge>
-          <circle cx="50%" cy="50%" r={this.state.thicknessSelected.value} stroke="black" strokeWidth="1" fill={this.state.colorSelected.value} />
+          <circle
+            cx="50%"
+            cy="50%"
+            r={this.state.thicknessSelected.value}
+            stroke="black"
+            strokeWidth="1"
+            fill={this.state.colorSelected.value}
+          />
         </RenderInBrowser>
         <RenderInBrowser except edge>
           <circle
@@ -460,7 +476,7 @@ class WhiteboardToolbar extends Component {
 
   renderColorItem() {
     const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'pointer';
+    const isDisabled = this.state.annotationSelected.value === 'hand';
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -493,7 +509,15 @@ class WhiteboardToolbar extends Component {
     return (
       <svg className={styles.customSvgIcon}>
         <RenderInBrowser only edge>
-          <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={this.state.colorSelected.value} />
+          <rect
+            x="25%"
+            y="25%"
+            width="50%"
+            height="50%"
+            stroke="black"
+            strokeWidth="1"
+            fill={this.state.colorSelected.value}
+          />
         </RenderInBrowser>
         <RenderInBrowser except edge>
           <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">

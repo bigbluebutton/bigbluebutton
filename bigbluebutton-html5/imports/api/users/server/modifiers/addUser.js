@@ -77,6 +77,7 @@ export default function addUser(meetingId, user) {
         roles: [ROLE_VIEWER.toLowerCase()],
         sortName: user.name.trim().toLowerCase(),
         color,
+        logTime: Date.now(),
       },
       flat(user),
     ),

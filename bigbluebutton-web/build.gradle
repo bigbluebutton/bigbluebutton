@@ -17,7 +17,7 @@ dependencies {
 
 
   // XML creation speedup
-  compile 'org.freemarker:freemarker:2.3.23'
+  compile 'org.freemarker:freemarker:2.3.28'
 
 	//junit
 	compile 'junit:junit:4.8.2'

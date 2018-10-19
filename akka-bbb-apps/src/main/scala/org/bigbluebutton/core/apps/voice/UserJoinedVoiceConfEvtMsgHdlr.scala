@@ -26,13 +26,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers with SystemConfi
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, voiceUserState.intId
-      )
+        liveMeeting.props.meetingProp.intId, voiceUserState.intId)
       val envelope = BbbCoreEnvelope(UserJoinedVoiceConfToClientEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
         UserJoinedVoiceConfToClientEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, voiceUserState.intId
-      )
+        liveMeeting.props.meetingProp.intId, voiceUserState.intId)
 
       val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf, voiceUserState.intId, voiceUserState.voiceUserId,
         voiceUserState.callerName, voiceUserState.callerNum, voiceUserState.muted, voiceUserState.talking,

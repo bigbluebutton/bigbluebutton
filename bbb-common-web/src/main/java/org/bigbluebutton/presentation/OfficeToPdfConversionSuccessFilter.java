@@ -32,11 +32,10 @@ public class OfficeToPdfConversionSuccessFilter {
 
   private final IBbbWebApiGWApp gw;
 
-  private static Map<String, String> conversionMessagesMap;
+  private static Map<String, String> conversionMessagesMap = new HashMap<String, String>();
 
   public OfficeToPdfConversionSuccessFilter(IBbbWebApiGWApp m) {
     gw = m;
-    conversionMessagesMap = new HashMap<String, String>();
     conversionMessagesMap.put(
         ConversionMessageConstants.OFFICE_DOC_CONVERSION_SUCCESS_KEY,
         "Office document successfully converted.");
@@ -50,8 +49,7 @@ public class OfficeToPdfConversionSuccessFilter {
 
   public boolean didConversionSucceed(UploadedPresentation pres) {
     notifyProgressListener(pres);
-    return pres
-        .getConversionStatus() == ConversionMessageConstants.OFFICE_DOC_CONVERSION_SUCCESS_KEY;
+    return ConversionMessageConstants.OFFICE_DOC_CONVERSION_SUCCESS_KEY.equals(pres.getConversionStatus());
   }
 
   private void notifyProgressListener(UploadedPresentation pres) {
@@ -66,7 +64,7 @@ public class OfficeToPdfConversionSuccessFilter {
     msg.put("message", conversionMessagesMap.get(pres.getConversionStatus()));
     msg.put("messageKey", pres.getConversionStatus());
 
-    log.info("Notifying of {} for ", pres.getConversionStatus(), pres.getUploadedFile().getAbsolutePath());
+    log.info("Notifying of {} for {}", pres.getConversionStatus(), pres.getUploadedFile().getAbsolutePath());
     sendProgress(pres);
   }
 

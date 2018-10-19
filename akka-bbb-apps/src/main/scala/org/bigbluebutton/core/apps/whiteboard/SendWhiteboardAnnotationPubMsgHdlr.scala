@@ -29,8 +29,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
 
     if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, liveMeeting) && permissionFailed(
       PermissionCheck.GUEST_LEVEL,
-      PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
-    )) {
+      PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       //val meetingId = liveMeeting.props.meetingProp.intId
       //val reason = "No permission to send a whiteboard annotation."
 

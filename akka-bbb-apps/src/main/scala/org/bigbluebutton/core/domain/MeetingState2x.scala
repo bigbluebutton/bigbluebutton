@@ -9,13 +9,12 @@ object MeetingState2x {
 }
 
 case class MeetingState2x(
-    groupChats:             GroupChats,
-    presentationPodManager: PresentationPodManager,
-    breakout:               Option[BreakoutModel],
-    inactivityTracker:      MeetingInactivityTracker,
-    expiryTracker:          MeetingExpiryTracker,
-    recordingTracker:       MeetingRecordingTracker
-) {
+  groupChats:             GroupChats,
+  presentationPodManager: PresentationPodManager,
+  breakout:               Option[BreakoutModel],
+  inactivityTracker:      MeetingInactivityTracker,
+  expiryTracker:          MeetingExpiryTracker,
+  recordingTracker:       MeetingRecordingTracker) {
 
   def update(groupChats: GroupChats): MeetingState2x = copy(groupChats = groupChats)
   def update(presPodManager: PresentationPodManager): MeetingState2x = copy(presentationPodManager = presPodManager)

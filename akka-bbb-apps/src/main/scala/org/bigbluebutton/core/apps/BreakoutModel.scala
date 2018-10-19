@@ -11,18 +11,16 @@ object BreakoutModel {
     sequence:      Integer,
     freeJoin:      Boolean,
     voiceConf:     String,
-    assignedUsers: Vector[String]
-  ): BreakoutRoom2x = {
+    assignedUsers: Vector[String]): BreakoutRoom2x = {
     new BreakoutRoom2x(id, externalId, name, parentId, sequence, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false)
   }
 
 }
 
 case class BreakoutModel(
-    startedOn:         Option[Long],
-    durationInMinutes: Int,
-    rooms:             Map[String, BreakoutRoom2x]
-) {
+  startedOn:         Option[Long],
+  durationInMinutes: Int,
+  rooms:             Map[String, BreakoutRoom2x]) {
 
   def find(id: String): Option[BreakoutRoom2x] = {
     rooms.get(id)
