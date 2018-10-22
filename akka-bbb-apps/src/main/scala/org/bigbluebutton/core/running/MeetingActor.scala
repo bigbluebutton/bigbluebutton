@@ -135,8 +135,8 @@ class MeetingActor(
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes),
     userInactivityInspectTimerInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityInspectTimerInMinutes),
-    amoutOfTimeToConsiderUserAsInactiveInMs = TimeUtil.minutesToMillis(props.durationProps.amoutOfTimeToConsiderUserAsInactiveInMinutes),
-    amoutOfTimeToDisconnectUserIfUnresponsiveInMs = TimeUtil.minutesToMillis(props.durationProps.amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes))
+    amountOfTimeToConsiderUserAsInactiveInMs = TimeUtil.minutesToMillis(props.durationProps.amountOfTimeToConsiderUserAsInactiveInMinutes),
+    amountOfTimeToDisconnectUserIfUnresponsiveInMs = TimeUtil.minutesToMillis(props.durationProps.amountOfTimeToDisconnectUserIfUnresponsiveInMinutes))
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
 
@@ -624,7 +624,7 @@ class MeetingActor(
         }
       }
       case InactivityCheckPhase.Disconnect => {
-        if (now > lastUserInactivityInspectSentOn + expiryTracker.amoutOfTimeToDisconnectUserIfUnresponsiveInMs) {
+        if (now > lastUserInactivityInspectSentOn + expiryTracker.amountOfTimeToDisconnectUserIfUnresponsiveInMs) {
           inactivityCheckPhase = InactivityCheckPhase.Check
           disconnectInactiveUsers()
         }
@@ -637,10 +637,10 @@ class MeetingActor(
     log.info("Warning inactive users.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val active = (lastUserInactivityInspectSentOn - expiryTracker.amoutOfTimeToConsiderUserAsInactiveInMs) < u.lastActivityTime
+      val active = (lastUserInactivityInspectSentOn - expiryTracker.amountOfTimeToConsiderUserAsInactiveInMs) < u.lastActivityTime
       if (!active) {
         inactivityCheckPhase = InactivityCheckPhase.Disconnect
-        Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, TimeUtil.minutesToSeconds(props.durationProps.amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes), outGW)
+        Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, TimeUtil.minutesToSeconds(props.durationProps.amountOfTimeToDisconnectUserIfUnresponsiveInMinutes), outGW)
       }
     }
   }
@@ -649,7 +649,7 @@ class MeetingActor(
     log.info("Check for users who haven't responded to user inactivity warning.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.amoutOfTimeToConsiderUserAsInactiveInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.amoutOfTimeToDisconnectUserIfUnresponsiveInMs) > u.lastActivityTime
+      val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.amountOfTimeToConsiderUserAsInactiveInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.amountOfTimeToDisconnectUserIfUnresponsiveInMs) > u.lastActivityTime
       if (!respondedOntIme) {
         UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)

@@ -100,8 +100,8 @@ public class ParamsProcessorUtil {
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
-	private Integer amoutOfTimeToConsiderUserAsInactiveInMinutes = 30;
-    private Integer amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes = 5;
+	private Integer amountOfTimeToConsiderUserAsInactiveInMinutes = 30;
+    private Integer amountOfTimeToDisconnectUserIfUnresponsiveInMinutes = 5;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -367,8 +367,8 @@ public class ParamsProcessorUtil {
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
 		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
-		meeting.setamoutOfTimeToDisconnectUserIfUnresponsiveInMinutes(amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes);
-		meeting.setamoutOfTimeToConsiderUserAsInactiveInMinutes(amoutOfTimeToConsiderUserAsInactiveInMinutes);
+		meeting.setamountOfTimeToDisconnectUserIfUnresponsiveInMinutes(amountOfTimeToDisconnectUserIfUnresponsiveInMinutes);
+		meeting.setamountOfTimeToConsiderUserAsInactiveInMinutes(amountOfTimeToConsiderUserAsInactiveInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -847,20 +847,20 @@ public class ParamsProcessorUtil {
         this.userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes;
     }
     
-    public Integer getamoutOfTimeToConsiderUserAsInactiveInMinutes() {
-        return amoutOfTimeToConsiderUserAsInactiveInMinutes;
+    public Integer getamountOfTimeToConsiderUserAsInactiveInMinutes() {
+        return amountOfTimeToConsiderUserAsInactiveInMinutes;
     }
 
-    public void setamoutOfTimeToConsiderUserAsInactiveInMinutes(Integer amoutOfTimeToConsiderUserAsInactiveInMinutes) {
-        this.amoutOfTimeToConsiderUserAsInactiveInMinutes = amoutOfTimeToConsiderUserAsInactiveInMinutes;
+    public void setamountOfTimeToConsiderUserAsInactiveInMinutes(Integer amountOfTimeToConsiderUserAsInactiveInMinutes) {
+        this.amountOfTimeToConsiderUserAsInactiveInMinutes = amountOfTimeToConsiderUserAsInactiveInMinutes;
     }
 
-    public Integer getamoutOfTimeToDisconnectUserIfUnresponsiveInMinutes() {
-        return amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes;
+    public Integer getamountOfTimeToDisconnectUserIfUnresponsiveInMinutes() {
+        return amountOfTimeToDisconnectUserIfUnresponsiveInMinutes;
     }
 
-    public void setamoutOfTimeToDisconnectUserIfUnresponsiveInMinutes(Integer amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes) {
-        this.amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes = amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes;
+    public void setamountOfTimeToDisconnectUserIfUnresponsiveInMinutes(Integer amountOfTimeToDisconnectUserIfUnresponsiveInMinutes) {
+        this.amountOfTimeToDisconnectUserIfUnresponsiveInMinutes = amountOfTimeToDisconnectUserIfUnresponsiveInMinutes;
     }
 
 	public void setMaxPresentationFileUpload(Long maxFileSize) {

@@ -23,8 +23,8 @@ public interface IBbbWebApiGWApp {
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
                      Integer userInactivityInspectTimerInMinutes,
-                     Integer amoutOfTimeToConsiderUserAsInactiveInMinutes,
-                     Integer amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes,
+                     Integer amountOfTimeToConsiderUserAsInactiveInMinutes,
+                     Integer amountOfTimeToDisconnectUserIfUnresponsiveInMinutes,
                      Boolean muteOnStart);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
