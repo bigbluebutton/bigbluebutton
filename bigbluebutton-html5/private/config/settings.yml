@@ -219,6 +219,7 @@ public:
         update: DRAW_UPDATE
         end: DRAW_END
     toolbar:
+      multiUserPenOnly: false
       colors:
       - label: black
         value: "#000000"
@@ -275,6 +276,22 @@ public:
         value: pencil
       - icon: hand
         value: hand
+      presenterTools:
+      - text
+      - line
+      - ellipse
+      - triangle
+      - rectangle
+      - pencil
+      - hand
+      multiUserTools:
+      - text
+      - line
+      - ellipse
+      - triangle
+      - rectangle
+      - pencil
+      - hand
   clientLog:
     server:
       enabled: true
