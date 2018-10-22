@@ -42,8 +42,8 @@ case class MeetingExpiryTracker(
   meetingExpireIfNoUserJoinedInMs:   Long,
   meetingExpireWhenLastUserLeftInMs: Long,
   userInactivityInspectTimerInMs:    Long,
-  userInactivityThresholdInMs:       Long,
-  userActivitySignResponseDelayInMs: Long) {
+  amoutOfTimeToConsiderUserAsInactiveInMs:  Long,
+  amoutOfTimeToDisconnectUserIfUnresponsiveInMs: Long) {
   def setUserHasJoined(): MeetingExpiryTracker = {
     if (!userHasJoined) {
       copy(userHasJoined = true, lastUserLeftOnInMs = None)

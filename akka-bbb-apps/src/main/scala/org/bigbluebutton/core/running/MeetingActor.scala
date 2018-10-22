@@ -2,6 +2,8 @@ package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
 
+import scala.concurrent.duration.DurationInt
+
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.SystemConfiguration
@@ -46,39 +48,43 @@ object MeetingActor {
     Props(classOf[MeetingActor], props, eventBus, outGW, liveMeeting)
 }
 
+object InactivityCheckPhase extends Enumeration {
+  val Check, Disconnect = Value
+}
+
 class MeetingActor(
   val props:       DefaultProps,
   val eventBus:    InternalEventBus,
   val outGW:       OutMsgRouter,
   val liveMeeting: LiveMeeting)
-    extends BaseMeetingActor
-    with SystemConfiguration
-    with GuestsApp
-    with LayoutApp2x
-    with VoiceApp2x
-    with BreakoutApp2x
-    with UsersApp2x
+  extends BaseMeetingActor
+  with SystemConfiguration
+  with GuestsApp
+  with LayoutApp2x
+  with VoiceApp2x
+  with BreakoutApp2x
+  with UsersApp2x
 
-    with UserBroadcastCamStartMsgHdlr
-    with UserJoinMeetingReqMsgHdlr
-    with UserJoinMeetingAfterReconnectReqMsgHdlr
-    with UserBroadcastCamStopMsgHdlr
-    with UserConnectedToGlobalAudioMsgHdlr
-    with UserDisconnectedFromGlobalAudioMsgHdlr
-    with MuteAllExceptPresentersCmdMsgHdlr
-    with MuteMeetingCmdMsgHdlr
-    with IsMeetingMutedReqMsgHdlr
+  with UserBroadcastCamStartMsgHdlr
+  with UserJoinMeetingReqMsgHdlr
+  with UserJoinMeetingAfterReconnectReqMsgHdlr
+  with UserBroadcastCamStopMsgHdlr
+  with UserConnectedToGlobalAudioMsgHdlr
+  with UserDisconnectedFromGlobalAudioMsgHdlr
+  with MuteAllExceptPresentersCmdMsgHdlr
+  with MuteMeetingCmdMsgHdlr
+  with IsMeetingMutedReqMsgHdlr
 
-    with EjectUserFromVoiceCmdMsgHdlr
-    with EndMeetingSysCmdMsgHdlr
-    with DestroyMeetingSysCmdMsgHdlr
-    with SendTimeRemainingUpdateHdlr
-    with SendBreakoutTimeRemainingMsgHdlr
-    with ChangeLockSettingsInMeetingCmdMsgHdlr
-    with SyncGetMeetingInfoRespMsgHdlr
-    with ClientToServerLatencyTracerMsgHdlr
-    with ValidateConnAuthTokenSysMsgHdlr
-    with UserActivitySignCmdMsgHdlr {
+  with EjectUserFromVoiceCmdMsgHdlr
+  with EndMeetingSysCmdMsgHdlr
+  with DestroyMeetingSysCmdMsgHdlr
+  with SendTimeRemainingUpdateHdlr
+  with SendBreakoutTimeRemainingMsgHdlr
+  with ChangeLockSettingsInMeetingCmdMsgHdlr
+  with SyncGetMeetingInfoRespMsgHdlr
+  with ClientToServerLatencyTracerMsgHdlr
+  with ValidateConnAuthTokenSysMsgHdlr
+  with UserActivitySignCmdMsgHdlr {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -129,8 +135,8 @@ class MeetingActor(
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes),
     userInactivityInspectTimerInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityInspectTimerInMinutes),
-    userInactivityThresholdInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityInspectTimerInMinutes),
-    userActivitySignResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes))
+    amoutOfTimeToConsiderUserAsInactiveInMs = TimeUtil.minutesToMillis(props.durationProps.amoutOfTimeToConsiderUserAsInactiveInMinutes),
+    amoutOfTimeToDisconnectUserIfUnresponsiveInMs = TimeUtil.minutesToMillis(props.durationProps.amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes))
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
 
@@ -604,30 +610,37 @@ class MeetingActor(
   }
 
   var lastUserInactivityInspectSentOn = TimeUtil.timeNowInMs()
-  var checkInactiveUsers = false
+  var inactivityCheckPhase = InactivityCheckPhase.Check
 
   def processUserInactivityAudit(): Unit = {
     val now = TimeUtil.timeNowInMs()
     // Time to do a new check?
-    if (now > lastUserInactivityInspectSentOn + expiryTracker.userInactivityInspectTimerInMs) {
-      lastUserInactivityInspectSentOn = now
-      checkInactiveUsers = true
-      warnPotentiallyInactiveUsers()
+
+    inactivityCheckPhase match {
+      case InactivityCheckPhase.Check => {
+        if (now > lastUserInactivityInspectSentOn + expiryTracker.userInactivityInspectTimerInMs) {
+          lastUserInactivityInspectSentOn = now
+          warnPotentiallyInactiveUsers()
+        }
+      }
+      case InactivityCheckPhase.Disconnect => {
+        if (now > lastUserInactivityInspectSentOn + expiryTracker.amoutOfTimeToDisconnectUserIfUnresponsiveInMs) {
+          inactivityCheckPhase = InactivityCheckPhase.Check
+          disconnectInactiveUsers()
+        }
+      }
     }
 
-    if (checkInactiveUsers && now > lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) {
-      checkInactiveUsers = false
-      disconnectInactiveUsers()
-    }
   }
 
   def warnPotentiallyInactiveUsers(): Unit = {
-    log.info("Checking for inactive users.")
+    log.info("Warning inactive users.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val active = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
+      val active = (lastUserInactivityInspectSentOn - expiryTracker.amoutOfTimeToConsiderUserAsInactiveInMs) < u.lastActivityTime
       if (!active) {
-        Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, TimeUtil.minutesToSeconds(props.durationProps.userActivitySignResponseDelayInMinutes), outGW)
+        inactivityCheckPhase = InactivityCheckPhase.Disconnect
+        Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, TimeUtil.minutesToSeconds(props.durationProps.amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes), outGW)
       }
     }
   }
@@ -636,7 +649,7 @@ class MeetingActor(
     log.info("Check for users who haven't responded to user inactivity warning.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
+      val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.amoutOfTimeToConsiderUserAsInactiveInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.amoutOfTimeToDisconnectUserIfUnresponsiveInMs) > u.lastActivityTime
       if (!respondedOntIme) {
         UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)

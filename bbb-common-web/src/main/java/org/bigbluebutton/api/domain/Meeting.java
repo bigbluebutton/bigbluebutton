@@ -83,8 +83,8 @@ public class Meeting {
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
-	private Integer userInactivityThresholdInMinutes = 30;
-    private Integer userActivitySignResponseDelayInMinutes = 5;
+	private Integer amoutOfTimeToConsiderUserAsInactiveInMinutes = 30;
+    private Integer amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes = 5;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -526,20 +526,20 @@ public class Meeting {
         this.userInactivityInspectTimerInMinutes = userInactivityInjspectTimerInMinutes;
     }
     
-    public Integer getUserInactivityThresholdInMinutes() {
-        return userInactivityThresholdInMinutes;
+    public Integer getamoutOfTimeToConsiderUserAsInactiveInMinutes() {
+        return amoutOfTimeToConsiderUserAsInactiveInMinutes;
     }
 
-    public void setUserInactivityThresholdInMinutes(Integer userInactivityThresholdInMinutes) {
-        this.userInactivityThresholdInMinutes = userInactivityThresholdInMinutes;
+    public void setamoutOfTimeToConsiderUserAsInactiveInMinutes(Integer amoutOfTimeToConsiderUserAsInactiveInMinutes) {
+        this.amoutOfTimeToConsiderUserAsInactiveInMinutes = amoutOfTimeToConsiderUserAsInactiveInMinutes;
     }
 
-    public Integer getUserActivitySignResponseDelayInMinutes() {
-        return userActivitySignResponseDelayInMinutes;
+    public Integer getamoutOfTimeToDisconnectUserIfUnresponsiveInMinutes() {
+        return amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes;
     }
 
-    public void setUserActivitySignResponseDelayInMinutes(Integer userActivitySignResponseDelayInMinutes) {
-        this.userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes;
+    public void setamoutOfTimeToDisconnectUserIfUnresponsiveInMinutes(Integer amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes) {
+        this.amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes = amoutOfTimeToDisconnectUserIfUnresponsiveInMinutes;
     }
 
 	public Map<String, Object> getUserCustomData(String userID){
