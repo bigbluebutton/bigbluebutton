@@ -5,7 +5,7 @@ import { createHistory } from 'history';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
-import BreakoutRoom from '/imports/ui/components/Breakout-room/component';
+import BreakoutRoomContainer from '/imports/ui/components/Breakout-room/container';
 import { joinRouteHandler, logoutRouteHandler, authenticatedRouteHandler } from './auth';
 import Base from './base';
 
@@ -42,7 +42,7 @@ const renderRoutes = () => (
         path="users/breakout"
         components={{
           userList: UserListContainer,
-          breakoutRoom: BreakoutRoom,
+          breakoutRoom: BreakoutRoomContainer,
         }}
       />
     </Route>

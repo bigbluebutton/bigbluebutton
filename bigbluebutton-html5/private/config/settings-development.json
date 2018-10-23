@@ -123,7 +123,8 @@
           "sendChat",
           "createGroupChat",
           "destroyGroupChat",
-          "sendGroupChatMsg"
+          "sendGroupChatMsg",
+          "requestJoinURL"
         ]
       },
       "moderator": {
@@ -153,7 +154,10 @@
           "setPresentation",
           "zoomSlide",
           "requestPresentationUploadToken",
-          "transferUser"
+          "transferUser",
+          "createBreakoutRoom",
+          "endAllBreakouts",
+          "transferVoiceUser"
         ]
       }
     },
@@ -382,7 +386,8 @@
       "timeout": 5000,
       "debug": true,
       "channels": {
-        "toAkkaApps": "to-akka-apps-redis-channel"
+        "toAkkaApps": "to-akka-apps-redis-channel",
+        "toVoiceConf": "to-voice-conf-redis-channel"
       },
       "subscribeTo": [
         "to-html5-redis-channel",

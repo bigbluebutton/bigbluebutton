@@ -165,11 +165,10 @@ class App extends Component {
   }
 
   renderBreakoutRoom() {
-    
-    const { breakoutRoom } = this.props;
+    const { breakoutRoom, hasBreakoutRooms, router } = this.props;
 
     if (!breakoutRoom) return null;
-
+    if (!hasBreakoutRooms) return null;
     return (
       <div className={styles.breakoutRoom}>
         {breakoutRoom}

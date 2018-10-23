@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import { Link, withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
@@ -11,39 +11,37 @@ const intlMessages = defineMessages({
     description: 'breakout title',
   },
 });
+const USERLIST_PATH = 'users/';
+const BREAKOUT_PATH = 'breakout/';
 
-class BreakoutRoomItem extends Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    const {
-      isPresenter,
-      hasBreakoutRoom,
-      intl,
-    } = this.props;
-    if (isPresenter && hasBreakoutRoom) {
-      return (
-        <div >
-          <h2 className={styles.smallTitle}> {intl.formatMessage(intlMessages.breakoutTitle).toUpperCase()}</h2>
-          <div className={styles.BreakoutRoomsItem}>
-            <Link
-            to="users/breakout"
+const BreakoutRoomItem = ({
+  hasBreakoutRoom,
+  intl,
+  location,
+}) => {
+  const linkPath = [USERLIST_PATH, BREAKOUT_PATH].join('');
+  const path = location.pathname.includes(linkPath) ? USERLIST_PATH : linkPath;
+  if (hasBreakoutRoom) {
+    return (
+      <div >
+        <h2 className={styles.smallTitle}> {intl.formatMessage(intlMessages.breakoutTitle).toUpperCase()}</h2>
+        <div className={styles.BreakoutRoomsItem}>
+          <Link
+            to={path}
             className={styles.link}
-            >
-              <div className={styles.BreakoutRoomsContents}>
-                <div className={styles.BreakoutRoomsIcon} >
-                  <Icon iconName="rooms" />
-                </div>
-                <span className={styles.BreakoutRoomsText}>{intl.formatMessage(intlMessages.breakoutTitle)}</span>
+          >
+            <div className={styles.BreakoutRoomsContents}>
+              <div className={styles.BreakoutRoomsIcon} >
+                <Icon iconName="rooms" />
               </div>
-            </Link>
-          </div>
+              <span className={styles.BreakoutRoomsText}>{intl.formatMessage(intlMessages.breakoutTitle)}</span>
+            </div>
+          </Link>
         </div>
-      );
-    }
-    return <span />;
+      </div>
+    );
   }
-}
+  return <span />;
+};
 
-export default injectIntl(BreakoutRoomItem);
+export default withRouter(injectIntl(BreakoutRoomItem));

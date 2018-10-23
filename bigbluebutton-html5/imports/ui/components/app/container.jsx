@@ -15,6 +15,7 @@ import {
   getFontSize,
   getCaptionsStatus,
   meetingIsBreakout,
+  getBreakoutRooms,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -110,6 +111,7 @@ export default withRouter(injectIntl(withModalMounter(withTracker(({ router, int
     fontSize: getFontSize(),
     userlistIsOpen: window.location.pathname.includes('users'),
     chatIsOpen: window.location.pathname.includes('chat'),
+    hasBreakoutRooms: getBreakoutRooms().length > 0,
   };
 })(AppContainer))));
 

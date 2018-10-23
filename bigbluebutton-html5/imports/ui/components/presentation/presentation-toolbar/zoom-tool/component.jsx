@@ -165,6 +165,7 @@ export default class ZoomTool extends Component {
               role="button"
               label="-"
               icon="minus"
+              onClick={() => {}}
               disabled={(value <= minBound)}
               className={styles.prevSlide}
               hideLabel
@@ -195,6 +196,7 @@ export default class ZoomTool extends Component {
               role="button"
               label="+"
               icon="plus"
+              onClick={() => {}}
               disabled={(value >= maxBound)}
               className={styles.skipSlide}
               hideLabel

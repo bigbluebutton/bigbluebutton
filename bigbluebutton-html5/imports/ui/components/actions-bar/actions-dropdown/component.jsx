@@ -99,6 +99,8 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
+      meetingIsBreakout,
+      hasBreakoutRoom,
     } = this.props;
 
     return _.compact([
@@ -122,7 +124,7 @@ class ActionsDropdown extends Component {
           onClick={toggleRecording}
         />
         : null),
-      (isUserPresenter ?
+      (isUserPresenter && !meetingIsBreakout && !hasBreakoutRoom ?
         <DropdownListItem
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}
@@ -138,7 +140,11 @@ class ActionsDropdown extends Component {
     this.props.mountModal(<PresentationUploaderContainer />);
   }
   handleCreateBreakoutRoomClick() {
-    this.props.mountModal(<BreakoutRoom />);
+    const {
+      createBreakoutRoom,
+      mountModal,
+    } = this.props;
+    mountModal(<BreakoutRoom createBreakoutRoom={createBreakoutRoom} />);
   }
 
   render() {

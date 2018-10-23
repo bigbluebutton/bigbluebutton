@@ -7,35 +7,62 @@ import { styles } from './styles';
 import Icon from '../../icon/component';
 
 const intlMessages = defineMessages({
-  BreakoutRoomTitle: {
+  breakoutRoomTitle: {
     id: 'app.createBreakoutRoom.title',
     description: 'modal title',
   },
-  BreakoutRoomDesc: {
+  breakoutRoomDesc: {
     id: 'app.createBreakoutRoom.modalDesc',
+    description: 'modal title',
+  },
+  confirmButton: {
+    id: 'app.createBreakoutRoom.confirm',
+    description: 'modal title',
+  },
+  numberOfRooms: {
+    id: 'app.createBreakoutRoom.numberOfRooms',
+    description: 'modal title',
+  },
+  duration: {
+    id: 'app.createBreakoutRoom.durationInMinutes',
+    description: 'modal title',
+  },
+  randomlyAssign: {
+    id: 'app.createBreakoutRoom.randomlyAssign',
     description: 'modal title',
   },
 });
 
-const MIN_BREAKOUT_ROOMS = 1;
+const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
 
 class BreakoutRoom extends Component {
   constructor(props) {
     super(props);
-    this.changeNumberOfBreakouts = this.changeNumberOfBreakouts.bind(this);
+    this.changeNumberOfRooms = this.changeNumberOfRooms.bind(this);
     this.changeDurationTime = this.changeDurationTime.bind(this);
     this.increaseDurationTime = this.increaseDurationTime.bind(this);
     this.decreaseDurationTime = this.decreaseDurationTime.bind(this);
+    this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
 
     this.state = {
-      numberOfBreakouts: 1,
+      numberOfRooms: 2,
       durationTime: 1,
     };
   }
 
-  changeNumberOfBreakouts(event) {
-    this.setState({ numberOfBreakouts: event.target.value });
+  onCreateBreakouts() {
+    const {
+      createBreakoutRoom,
+    } = this.props;
+
+    const { numberOfRooms, durationTime } = this.state;
+
+    createBreakoutRoom(numberOfRooms, durationTime, true);
+  }
+
+  changeNumberOfRooms(event) {
+    this.setState({ numberOfRooms: Number.parseInt(event.target.value, 10) });
   }
 
   changeDurationTime(event) {
@@ -55,27 +82,34 @@ class BreakoutRoom extends Component {
     const { intl } = this.props;
     return (
       <Modal
-        title={intl.formatMessage(intlMessages.BreakoutRoomTitle)}
+        title={intl.formatMessage(intlMessages.breakoutRoomTitle)}
+        confirm={
+          {
+            label: intl.formatMessage(intlMessages.confirmButton),
+            callback: this.onCreateBreakouts,
+          }
+        }
       >
         <div className={styles.content}>
           <p className={styles.subTitle}>
-            {intl.formatMessage(intlMessages.BreakoutRoomDesc)}
+            {intl.formatMessage(intlMessages.breakoutRoomDesc)}
           </p>
           <div className={styles.breakoutSettings}>
             <label>
-              <p className={styles.labelText}>Number of Rooms</p>
-              <select name="numberOfBreakouts" className={styles.inputRooms} value={this.state.numberOfBreakouts} onChange={this.changeNumberOfBreakouts}>
+              <p className={styles.labelText}>{intl.formatMessage(intlMessages.numberOfRooms)}</p>
+              <select name="numberOfRooms" className={styles.inputRooms} value={this.state.numberOfRooms} onChange={this.changeNumberOfRooms}>
                 {
                   _.range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map(item => (<option key={_.uniqueId('value-')}>{item}</option>))
                 }
               </select>
             </label>
             <label >
-              <p className={styles.labelText}>Duration (minutes)</p>
+              <p className={styles.labelText}>{intl.formatMessage(intlMessages.duration)}</p>
               <div className={styles.durationArea}>
                 <input type="number" className={styles.duration} min={MIN_BREAKOUT_ROOMS} value={this.state.durationTime} onChange={this.changeDurationTime} />
                 <span>
                   <HoldButton
+                    key="decrease-breakout-time"
                     exec={this.decreaseDurationTime}
                     minBound={MIN_BREAKOUT_ROOMS}
                     value={this.state.durationTime}
@@ -86,6 +120,7 @@ class BreakoutRoom extends Component {
                     />
                   </HoldButton>
                   <HoldButton
+                    key="increase-breakout-time"
                     exec={this.increaseDurationTime}
                   >
                     <Icon
@@ -93,11 +128,11 @@ class BreakoutRoom extends Component {
                       iconName="add"
                     />
                   </HoldButton>
-                  
+
                 </span>
               </div>
             </label>
-            <p className={styles.randomText}>Randomly Assign</p>
+            <p className={styles.randomText}>{intl.formatMessage(intlMessages.randomlyAssign)}</p>
           </div>
         </div>
       </Modal >

@@ -151,7 +151,9 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   height: 100%;
   width: 20vw;
   background-color: $color-white;
-
+  @include mq($small-only) {
+    width: auto;
+  }
 }
 
 .sidebar {
