@@ -40,6 +40,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.generatedURL',
     description: 'breakout duration time',
   },
+  endAllBreakouts: {
+    id: 'app.createBreakoutRoom.endAllBreakouts',
+    description: 'breakout duration time',
+  },
 });
 
 class BreakoutRoom extends Component {
@@ -74,7 +78,10 @@ class BreakoutRoom extends Component {
     const { requestJoinURL, breakoutRoomUser } = this.props;
     const hasUser = breakoutRoomUser(breakoutId);
     if (!hasUser && !this.state.waiting) {
-      this.setState({ waiting: true, requestedBreakoutId: breakoutId }, () => requestJoinURL(breakoutId));
+      this.setState(
+        { waiting: true, requestedBreakoutId: breakoutId },
+        () => requestJoinURL(breakoutId),
+      );
     }
 
     if (hasUser) {
@@ -112,7 +119,9 @@ class BreakoutRoom extends Component {
 
     const presenterJoinedAudio = isMicrophoneUser && isPresenter;
     const disable = waiting && requestedBreakoutId !== breakoutId;
-
+    const audioAction = joinedAudioOnly ?
+      () => this.returnBackToMeeeting(breakoutId) :
+      () => this.transferUserToBreakoutRoom(breakoutId);
     return (
       <div className={styles.breakoutActions}>
         <Button
@@ -138,11 +147,7 @@ class BreakoutRoom extends Component {
                       intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
-                  onClick={() => {
-                    joinedAudioOnly ?
-                      this.returnBackToMeeeting(breakoutId) :
-                      this.transferUserToBreakoutRoom(breakoutId);
-                  }}
+                  onClick={audioAction}
                 />
               ),
             ]
@@ -163,7 +168,8 @@ class BreakoutRoom extends Component {
         <span>{intl.formatMessage(intlMessages.breakoutRoom, item.sequence.toString())}</span>
         {this.state.waiting && this.state.requestedBreakoutId === item.breakoutId ? (
           <span>
-            {intl.formatMessage(intlMessages.generatingURL)}<span className={styles.connectingAnimation} />
+            {intl.formatMessage(intlMessages.generatingURL)}
+            <span className={styles.connectingAnimation} />
           </span>
         ) : this.renderUserActions(item.breakoutId)}
       </div>
@@ -176,7 +182,10 @@ class BreakoutRoom extends Component {
     const { breakoutRooms } = this.props;
     return (
       <span className={styles.duration}>
-        <BreakoutRoomContainer messageDuration={intlMessages.breakoutDuration} breakoutRoom={breakoutRooms[0]} />
+        <BreakoutRoomContainer
+          messageDuration={intlMessages.breakoutDuration}
+          breakoutRoom={breakoutRooms[0]}
+        />
       </span>
     );
   }
@@ -193,6 +202,7 @@ class BreakoutRoom extends Component {
             to="/users"
             role="button"
             className={styles.link}
+            href="/users"
           >
             <Icon iconName="left_arrow" />
             {intl.formatMessage(intlMessages.breakoutTitle)}
@@ -206,7 +216,7 @@ class BreakoutRoom extends Component {
               <Button
                 color="primary"
                 size="lg"
-                label="End All Breakout Rooms"
+                label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}
                 onClick={endAllBreakouts}
               />

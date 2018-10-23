@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import _ from 'lodash';
 import BreakoutRemainingTimeComponent from './component';
-import { String } from 'core-js';
 
 const intlMessages = defineMessages({
   failedMessage: {
