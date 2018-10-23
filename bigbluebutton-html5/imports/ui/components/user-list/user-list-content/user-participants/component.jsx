@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import UserListItem from './user-list-item/component';
+import UserOptionsContainer from './user-options/container';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
@@ -109,8 +110,8 @@ class UserParticipants extends Component {
       setEmojiStatus,
       removeUser,
       toggleVoice,
-      getGroupChatPrivate, //// TODO check if this is used
-      handleEmojiChange, //// TODO add to props validation
+      getGroupChatPrivate, // // TODO check if this is used
+      handleEmojiChange, // // TODO add to props validation
       getEmojiList,
       getEmoji,
     } = this.props;
@@ -166,20 +167,21 @@ class UserParticipants extends Component {
   }
 
   render() {
-    const {
-      users,
-      intl,
-      compact,
-    } = this.props;
+    const { intl, users, compact } = this.props;
 
     return (
-      <div className={styles.participants}>
+      <div>
         {
           !compact ?
-            <h2 className={styles.smallTitle}>
-              {intl.formatMessage(intlMessages.usersTitle)}
-              &nbsp;({users.length})
-            </h2> : <hr className={styles.separator} />
+            <div className={styles.container}>
+              <h2 className={styles.smallTitle}>
+                {intl.formatMessage(intlMessages.usersTitle)}
+                &nbsp;({users.length})
+
+              </h2>
+              <UserOptionsContainer />
+            </div>
+            : <hr className={styles.separator} />
         }
         <div
           className={styles.scrollableList}
@@ -189,7 +191,7 @@ class UserParticipants extends Component {
         >
           <div className={styles.list}>
             <TransitionGroup ref={(ref) => { this.refScrollItems = ref; }}>
-              { this.getUsers() }
+              {this.getUsers()}
             </TransitionGroup>
             <div className={styles.footer} />
           </div>

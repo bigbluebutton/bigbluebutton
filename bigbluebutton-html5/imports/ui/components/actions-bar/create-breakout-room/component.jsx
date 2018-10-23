@@ -32,9 +32,9 @@ const intlMessages = defineMessages({
     description: 'modal title',
   },
 });
-
-const MIN_BREAKOUT_ROOMS = 2;
-const MAX_BREAKOUT_ROOMS = 8;
+const BREAKOUT_CONFIG = Meteor.settings.public.breakout;
+const MIN_BREAKOUT_ROOMS = BREAKOUT_CONFIG.rooms.min;
+const MAX_BREAKOUT_ROOMS = BREAKOUT_CONFIG.rooms.max;
 
 class BreakoutRoom extends Component {
   constructor(props) {
@@ -46,7 +46,7 @@ class BreakoutRoom extends Component {
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
 
     this.state = {
-      numberOfRooms: 2,
+      numberOfRooms: MIN_BREAKOUT_ROOMS,
       durationTime: 1,
     };
   }
