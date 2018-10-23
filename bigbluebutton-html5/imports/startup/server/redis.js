@@ -28,7 +28,7 @@ const makeEnvelope = (channel, eventName, header, body) => {
 
 const makeDebugger = enabled => (message) => {
   if (!enabled) return;
-  // Logger.info(`REDIS: ${message}`);
+  Logger.info(`REDIS: ${message}`);
 };
 
 class MettingMessageQueue {
@@ -164,7 +164,7 @@ class RedisPubSub {
     }
 
     // Please keep this log until the message handling is solid
-    // console.warn(` ~~~~ REDIS RECEIVED: ${eventName}  ${message}`);
+    console.warn(` ~~~~ REDIS RECEIVED: ${eventName}  ${message}`);
 
     const queueId = meetingId || NO_MEETING_ID;
 
@@ -230,7 +230,7 @@ class RedisPubSub {
     const envelope = makeEnvelope(channel, eventName, header, payload);
 
     // Please keep this log until the message handling is solid
-    // console.warn(` ~~~~ REDIS PUBLISHING:  ${envelope}`);
+    console.warn(` ~~~~ REDIS PUBLISHING:  ${envelope}`);
 
     return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }
