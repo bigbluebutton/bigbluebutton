@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import SessionStorage from '/imports/ui/services/storage/session';
 import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -11,6 +10,9 @@ import MediaService, { getSwapLayout } from './service';
 import PresentationPodsContainer from '../presentation-pod/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
+
+const LAYOUT_CONFIG = Meteor.settings.public.layout;
+const KURENTO_CONFIG = Meteor.settings.public.kurento;
 
 const intlMessages = defineMessages({
   screenshareStarted: {
@@ -66,8 +68,8 @@ class MediaContainer extends Component {
   installChromeExtension() {
     const { intl } = this.props;
 
-    const CHROME_DEFAULT_EXTENSION_LINK = Meteor.settings.public.kurento.chromeDefaultExtensionLink;
-    const CHROME_CUSTOM_EXTENSION_LINK = Meteor.settings.public.kurento.chromeExtensionLink;
+    const CHROME_DEFAULT_EXTENSION_LINK = KURENTO_CONFIG.chromeDefaultExtensionLink;
+    const CHROME_CUSTOM_EXTENSION_LINK = KURENTO_CONFIG.chromeExtensionLink;
     const CHROME_EXTENSION_LINK = CHROME_CUSTOM_EXTENSION_LINK === 'LINK' ? CHROME_DEFAULT_EXTENSION_LINK : CHROME_CUSTOM_EXTENSION_LINK;
 
     notify(<div>
@@ -92,7 +94,7 @@ export default withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
-  const hidePresentation = SessionStorage.getItem('metadata').html5hidepresentation || false;
+  const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation) || false;
   const data = {
     children: <DefaultContent />,
   };
@@ -121,8 +123,8 @@ export default withTracker(() => {
     data.hideOverlay = hidePresentation;
   }
 
-  const enableVideo = getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo);
-  const autoShareWebcam = SessionStorage.getItem('metadata').html5autosharewebcam || false;
+  const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
+  const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam) || false;
 
   if (enableVideo && autoShareWebcam) {
     data.willMount = VideoService.joinVideo;
