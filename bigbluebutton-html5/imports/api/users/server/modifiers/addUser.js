@@ -110,8 +110,9 @@ export default function addUser(meetingId, user) {
     }
 
     setApprovedStatus(meetingId, userId, true);
-    // if (Meeting.usersProp.guestPolicy === GUEST_ALWAYS_ACCEPT) {
-    // }
+    if (Meeting.usersProp.guestPolicy === GUEST_ALWAYS_ACCEPT) {
+      setApprovedStatus(meetingId, userId, true);
+    }
 
     const { insertedId } = numChanged;
     if (insertedId) {
