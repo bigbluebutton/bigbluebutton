@@ -24,6 +24,10 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.goToSlide',
     description: 'button for slide select',
   },
+  FitToWidth: {
+    id: 'app.presentation.presentationToolbar.FitToWidth',
+    description: 'button for fit to width',
+  },
 });
 
 class PresentationToolbar extends Component {
@@ -254,12 +258,12 @@ class PresentationToolbar extends Component {
             role="button"
             aria-labelledby="fitWidthLabel"
             aria-describedby="fitWidthDesc"
-            color={'default'}
-            icon={'fit_to_width'}
-            size={'md'}
+            color="default"
+            icon="fit_to_width"
+            size="md"
             circle={false}
             onClick={this.props.fitToWidthHandler}
-            label={'Fit to Width'}
+            label={intl.formatMessage(intlMessages.FitToWidth)}
             hideLabel
             className={styles.skipSlide}
           />

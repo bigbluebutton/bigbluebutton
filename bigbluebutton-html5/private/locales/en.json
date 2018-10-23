@@ -62,6 +62,7 @@
     "app.presentation.presentationToolbar.zoomOutLabel": "Zoom out",
     "app.presentation.presentationToolbar.zoomOutDesc": "Zoom out of the presentation",
     "app.presentation.presentationToolbar.zoomIndicator": "Show the zoom percentage",
+    "app.presentation.presentationToolbar.fitToWidth": "Fit to Width",
     "app.presentation.presentationToolbar.goToSlide": "Slide {0}",
     "app.presentationUploder.title": "Presentation",
     "app.presentationUploder.message": "As a presenter in BigBlueButton, you have the ability of uploading any office document or PDF file. We recommend for the best results, to please upload a PDF file.",
