@@ -109,7 +109,6 @@ export default function addUser(meetingId, user) {
       changeRole(ROLE_MODERATOR, true, userId, meetingId);
     }
 
-    setApprovedStatus(meetingId, userId, true);
     if (Meeting.usersProp.guestPolicy === GUEST_ALWAYS_ACCEPT) {
       setApprovedStatus(meetingId, userId, true);
     }
