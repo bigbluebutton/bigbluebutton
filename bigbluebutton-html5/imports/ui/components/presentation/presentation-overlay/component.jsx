@@ -144,7 +144,7 @@ export default class PresentationOverlay extends Component {
     if (!this.props.fitToWidth && prevProps.fitToWidth) {
       this.viewportH = slideHeight;
       this.viewportW = slideWidth;
-      this.doZoomCall(zoom, 0, 0);
+      this.doZoomCall(HUNDRED_PERCENT, 0, 0);
     }
   }
 
