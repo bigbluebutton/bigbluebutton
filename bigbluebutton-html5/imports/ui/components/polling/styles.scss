@@ -13,7 +13,7 @@ $s-landscape-offset: 1.75em;
 .pollingContainer {
   width: $poll-width;
   position: absolute;
-  z-index: 2;
+  z-index: 1015;
   border: 1px solid $color-off-white;
   border-radius: $border-radius;
   ////
