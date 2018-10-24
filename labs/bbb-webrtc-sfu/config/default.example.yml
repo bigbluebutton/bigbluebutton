@@ -40,7 +40,7 @@ screenshareKeyframeInterval: 2
 # Target bitrate (kbps) for screenshare. Value 0 leaves it unconstrained.
 screenshare-target-bitrate: 0
 # Size of the websocket pool SFU uses to connect to Kurento.
-kurento-websocket-pool-size: 7
+kurento-websocket-pool-size: 1
 
 recordScreenSharing: true
 recordWebcams: false
