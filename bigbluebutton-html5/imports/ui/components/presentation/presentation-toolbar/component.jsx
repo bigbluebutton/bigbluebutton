@@ -24,8 +24,8 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.goToSlide',
     description: 'button for slide select',
   },
-  FitToWidth: {
-    id: 'app.presentation.presentationToolbar.FitToWidth',
+  fitToWidth: {
+    id: 'app.presentation.presentationToolbar.fitToWidth',
     description: 'button for fit to width',
   },
 });
@@ -263,7 +263,7 @@ class PresentationToolbar extends Component {
             size="md"
             circle={false}
             onClick={this.props.fitToWidthHandler}
-            label={intl.formatMessage(intlMessages.FitToWidth)}
+            label={intl.formatMessage(intlMessages.fitToWidth)}
             hideLabel
             className={styles.skipSlide}
           />
