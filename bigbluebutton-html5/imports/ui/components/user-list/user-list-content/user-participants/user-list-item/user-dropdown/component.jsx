@@ -236,7 +236,11 @@ class UserDropdown extends Component {
         intl.formatMessage(messages.ChatLabel),
         () => {
           getGroupChatPrivate(currentUser, user);
-          //this.onActionsHide(router.push(`/users/chat/${user.id}`));
+          // this.onActionsHide(router.push(`/users/chat/${user.id}`));
+          if (Session.equals('isPollOpen', true)) {
+            Session.set('isPollOpen', false);
+            Session.set('forcePollOpen', true);
+          }
           Session.set('idChatOpen', user.id);
           Session.set('isChatOpen', true);
         },

@@ -74,6 +74,7 @@ const Chat = (props) => {
               hideLabel
               onClick={() => {
                 actions.handleClosePrivateChat(chatID);
+                Session.set('isChatOpen', false);
                 Session.set('idChatOpen', '');
               }}
               aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
