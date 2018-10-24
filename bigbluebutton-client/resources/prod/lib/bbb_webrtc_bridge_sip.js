@@ -12,15 +12,15 @@ function webRTCCallback(message) {
 			if (message.errorcode !== 1004) {
 				message.cause = null;
 			}
-			monitorTracksStop();
+			//monitorTracksStop();
 			BBB.webRTCCallFailed(inEchoTest, message.errorcode, message.cause);
 			break;
 		case 'ended':
-			monitorTracksStop();
+			//monitorTracksStop();
 			BBB.webRTCCallEnded(inEchoTest);
 			break;
 		case 'started':
-			monitorTracksStart();
+			//monitorTracksStart();
 			BBB.webRTCCallStarted(inEchoTest);
 			break;
 		case 'connecting':
