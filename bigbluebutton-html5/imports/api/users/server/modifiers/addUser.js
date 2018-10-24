@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import VoiceUsers from '/imports/api/voice-users/';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
@@ -68,7 +69,7 @@ export default function addUser(meetingId, user) {
   const ROLE_VIEWER = USER_CONFIG.role_viewer;
   const APP_CONFIG = Meteor.settings.public.app;
   const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
-  const GUEST_ALWAYS_ACCEPT = "ALWAYS_ACCEPT";
+  const GUEST_ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
 
   // override moderator status of html5 client users, depending on a system flag
   const dummyUser = Users.findOne(selector);
@@ -100,18 +101,21 @@ export default function addUser(meetingId, user) {
     ),
   };
 
-  addVoiceUser(meetingId, {
-    voiceUserId: '',
-    intId: userId,
-    callerName: user.name,
-    callerNum: '',
-    muted: false,
-    talking: false,
-    callingWith: '',
-    listenOnly: false,
-    voiceConf: '',
-    joined: false,
-  });
+  // Only add an empty VoiceUser if there isn't one already. We want to avoid overwriting good data
+  if (!VoiceUsers.findOne({ meetingId, intId: userId })) {
+    addVoiceUser(meetingId, {
+      voiceUserId: '',
+      intId: userId,
+      callerName: user.name,
+      callerNum: '',
+      muted: false,
+      talking: false,
+      callingWith: '',
+      listenOnly: false,
+      voiceConf: '',
+      joined: false,
+    });
+  }
 
   const cb = (err, numChanged) => {
     if (err) {
