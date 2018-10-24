@@ -6,9 +6,6 @@ import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain.{ MeetingExpiryTracker, MeetingInactivityTracker, MeetingRecordingTracker, MeetingState2x }
 import org.bigbluebutton.core.util.TimeUtil
-
-import akka.actor._
-import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
@@ -30,10 +27,14 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
+import akka.actor._
+import akka.actor.SupervisorStrategy.Resume
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.SyncGetMeetingInfoRespMsgHdlr
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object MeetingActor {
   def props(
@@ -374,6 +375,8 @@ class MeetingActor(
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
+    state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
+
     val (newState, expireReason) = ExpiryTrackerHelper.processMeetingInactivityAudit(outGW, eventBus, liveMeeting, state)
     state = newState
     expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
@@ -409,4 +412,43 @@ class MeetingActor(
 
   }
 
+  def removeUsersWithExpiredUserLeftFlag(liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+    val leftUsers = Users2x.findAllExpiredUserLeftFlags(liveMeeting.users2x)
+    leftUsers foreach { leftUser =>
+      for {
+        u <- Users2x.remove(liveMeeting.users2x, leftUser.intId)
+      } yield {
+        log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
+        captionApp2x.handleUserLeavingMsg(leftUser.intId)
+
+        // send a user left event for the clients to update
+        val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
+        outGW.send(userLeftMeetingEvent)
+
+        if (u.presenter) {
+          automaticallyAssignPresenter(outGW, liveMeeting)
+
+          // request screenshare to end
+          screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, liveMeeting.props.screenshareProps.screenshareConf)
+
+          // request ongoing poll to end
+          handleStopPollReqMsg(u.intId)
+        }
+      }
+    }
+
+    stopRecordingIfAutoStart2x(outGW, liveMeeting, state)
+
+    if (liveMeeting.props.meetingProp.isBreakout) {
+      updateParentMeetingWithUsers()
+    }
+
+    if (Users2x.numUsers(liveMeeting.users2x) == 0) {
+      val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInMs())
+      state.update(tracker)
+    } else {
+      state
+    }
+  }
 }
