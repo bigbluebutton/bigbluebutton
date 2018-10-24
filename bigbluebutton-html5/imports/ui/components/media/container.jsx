@@ -94,7 +94,7 @@ export default withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
-  const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation) || false;
+  const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation);
   const data = {
     children: <DefaultContent />,
   };
@@ -124,7 +124,7 @@ export default withTracker(() => {
   }
 
   const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
-  const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam) || false;
+  const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
 
   if (enableVideo && autoShareWebcam) {
     data.willMount = VideoService.joinVideo;
