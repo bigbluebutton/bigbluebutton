@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -13,6 +14,11 @@ import DefaultContent from '../presentation/default-content/component';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
+
+const propTypes = {
+  isScreensharing: PropTypes.bool.isRequired,
+  intl: intlShape.isRequired,
+};
 
 const intlMessages = defineMessages({
   screenshareStarted: {
@@ -40,14 +46,11 @@ const intlMessages = defineMessages({
 class MediaContainer extends Component {
   componentWillMount() {
     const { willMount } = this.props;
-    willMount && willMount();
+    if (willMount) {
+      willMount();
+    }
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
     document.addEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
-    document.removeEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -65,6 +68,11 @@ class MediaContainer extends Component {
     }
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('installChromeExtension', this.installChromeExtension.bind(this));
+    document.removeEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
+  }
+
   installChromeExtension() {
     const { intl } = this.props;
 
@@ -72,12 +80,15 @@ class MediaContainer extends Component {
     const CHROME_CUSTOM_EXTENSION_LINK = KURENTO_CONFIG.chromeExtensionLink;
     const CHROME_EXTENSION_LINK = CHROME_CUSTOM_EXTENSION_LINK === 'LINK' ? CHROME_DEFAULT_EXTENSION_LINK : CHROME_CUSTOM_EXTENSION_LINK;
 
-    notify(<div>
-      {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
-      <a href={CHROME_EXTENSION_LINK} target="_blank">
-        {intl.formatMessage(intlMessages.chromeExtensionErrorLink)}
-      </a>
-    </div>, 'error', 'desktop');
+    const chromeErrorElement = (
+      <div>
+        {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
+        <a href={CHROME_EXTENSION_LINK} target="_blank">
+          {intl.formatMessage(intlMessages.chromeExtensionErrorLink)}
+        </a>
+      </div>
+    );
+    notify(chromeErrorElement, 'error', 'desktop');
   }
 
   safariScreenshareNotSupported() {
@@ -130,5 +141,6 @@ export default withTracker(() => {
     data.willMount = VideoService.joinVideo;
   }
 
+  MediaContainer.propTypes = propTypes;
   return data;
 })(injectIntl(MediaContainer));
