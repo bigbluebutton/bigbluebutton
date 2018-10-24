@@ -170,7 +170,7 @@
 @mixin button-variant($color, $background, $border) {
   color: $color;
   background-color: $background;
-  border: --var(border-size-large) solid transparent;
+  border: var(--border-size-large) solid transparent;
 
   &:focus,
   .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -178,8 +178,8 @@
     color: $color;
     background-color: $background;
     background-clip: padding-box;
-    border: --var(border-size-large) solid transparent;
-    box-shadow: 0 0 0 --var(border-size) $border;
+    border: var(--border-size-large) solid transparent;
+    box-shadow: 0 0 0 var(--border-size) $border;
   }
 
   &:hover,
@@ -187,7 +187,7 @@
     color: $color;
     // background-color: $active-background; TODO;
     // border-color: $active-border; TODO;
-    border: --var(border-size-large) solid transparent;
+    border: var(--border-size-large) solid transparent;
   }
 }
 
@@ -195,7 +195,7 @@
   color: $color;
   background-image: none;
   background-color: transparent;
-  border: --var(border-size-large) solid transparent;
+  border: var(--border-size-large) solid transparent;
 
   &:focus,
   .buttonWrapper:focus & {
@@ -203,8 +203,8 @@
     outline: none !important;
     background-color: $variant;
     background-clip: padding-box;
-    border: --var(border-size-large) solid transparent;
-    box-shadow: 0 0 0 --var(border-size-large) $color;
+    border: var(--border-size-large) solid transparent;
+    box-shadow: 0 0 0 var(--border-size-large) $color;
   }
 
   &:hover,
@@ -212,7 +212,7 @@
     color: $color;
     background-color: $variant;
     border-color: $variant;
-    border: --var(border-size-large) solid transparent;
+    border: var(--border-size-large) solid transparent;
   }
 }
 

@@ -4,7 +4,7 @@
 .modal {
   display: flex;
   flex-direction: column;
-  padding: (var(--line-height-computed) / 2) var(--line-height-computed);
+  padding: calc(var(--line-height-computed) / 2) var(--line-height-computed);
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
 }
 
@@ -17,7 +17,7 @@
 
 .header {
   display: flex;
-  padding: (var(--line-height-computed) / 2) 0;
+  padding: calc(var(--line-height-computed) / 2) 0;
   border-bottom: var(--border-size) solid var(--color-gray-lighter);
   flex-shrink: 0;
 }

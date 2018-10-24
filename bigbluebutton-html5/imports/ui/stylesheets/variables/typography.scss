@@ -10,7 +10,7 @@
   --font-size-small: 0.875rem;
 
   --line-height-base: 1.25; // 20/16
-  --line-height-computed: 1; //floor((--font-size-base * --line-height-base));
+  --line-height-computed: 1rem;
 
   --headings-font-family: inherit;
   --headings-font-weight: 500;

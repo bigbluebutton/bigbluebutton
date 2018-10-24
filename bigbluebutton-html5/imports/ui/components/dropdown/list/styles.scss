@@ -66,7 +66,7 @@
   }
 
   .horizontalList & {
-    padding: 0 (var(--line-height-computed) / 3);
+    padding: 0 calc(var(--line-height-computed) / 3);
 
     @include mq($small-only) {
       padding: calc(var(--line-height-computed) / 1.5) 0;
@@ -90,8 +90,8 @@
     .horizontalList & {
       margin-top: calc((var(--line-height-computed) / 2) * -1);
       margin-bottom: calc((var(--line-height-computed) / 2) * -1);
-      padding-top: (var(--line-height-computed) / 2);
-      padding-bottom: (var(--line-height-computed) / 2);
+      padding-top: calc(var(--line-height-computed) / 2);
+      padding-bottom: calc(var(--line-height-computed) / 2);
 
       @include mq($small-only) {
         margin: 0;
@@ -121,13 +121,13 @@
 
 .iconRight,
 .itemIcon {
-  margin-right: (var(--line-height-computed) / 2);
+  margin-right: calc(var(--line-height-computed) / 2);
   color: var(--color-text);
   flex: 0 0;
 }
 
 .iconRight {
-  margin-right: -var(--indicator-padding-left);
+  margin-right: calc(var(--indicator-padding-left) * -1);
   margin-left: var(--sm-padding-x);
   font-size: 12px;
   line-height: 16px;
