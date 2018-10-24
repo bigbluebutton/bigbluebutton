@@ -12,7 +12,9 @@ const ActionsBarContainer = props => <ActionsBar {...props} />;
 
 export default withRouter(withTracker(({ }) => {
   const togglePollMenu = () => {
-    if (!Session.get('isPollOpen')) {
+    if (Session.equals('isChatOpen', true)) Session.set('isChatOpen', false);
+
+    if (Session.equals('isPollOpen', false)) {
       Session.set('isUserListOpen', true);
       return Session.set('isPollOpen', true);
     }

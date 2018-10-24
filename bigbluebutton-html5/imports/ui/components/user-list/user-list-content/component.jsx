@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
+import UserPolls from './user-polls/component';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
@@ -35,7 +36,7 @@ const defaultProps = {
   meeting: {},
 };
 
-class UserContent extends React.PureComponent {
+class UserContent extends React.Component {
   render() {
     const {
       users,
@@ -59,7 +60,12 @@ class UserContent extends React.PureComponent {
       isPublicChat,
       openChats,
       getGroupChatPrivate,
+      pollIsOpen,
+      forcePollOpen,
     } = this.props;
+
+    const showPoll = pollIsOpen && currentUser.isPresenter;
+    const keepPollOpen = forcePollOpen && !pollIsOpen && currentUser.isPresenter;
 
     return (
       <div
@@ -76,7 +82,10 @@ class UserContent extends React.PureComponent {
             roving,
           }}
         />
-
+        {
+          showPoll || keepPollOpen ?
+            <UserPolls /> : null
+        }
         <UserParticipants
           {...{
             users,

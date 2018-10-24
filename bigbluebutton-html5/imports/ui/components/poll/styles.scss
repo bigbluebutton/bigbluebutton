@@ -4,6 +4,11 @@
 $column-amount: 2;
 $poll-blue: #1A73D4;
 
+.closeBtn {
+    position: relative;
+    margin-left: 9.125rem;
+}
+
 .hideBtn {
     position: relative;
     background-color: white;
@@ -24,14 +29,8 @@ $poll-blue: #1A73D4;
     }
   }
 
-.customBtn,
-.btn {
+.customBtn {
     width: 100%;
-}
-
-.btn {
-    margin-top: $sm-padding-y;
-    margin-bottom: $sm-padding-y;
 }
 
 .customInputWrapper {

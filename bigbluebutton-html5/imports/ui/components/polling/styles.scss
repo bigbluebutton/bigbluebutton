@@ -16,7 +16,8 @@ $s-landscape-offset: 1.75em;
   z-index: 2;
   border: 1px solid $color-off-white;
   border-radius: $border-radius;
-  box-shadow: $color-gray-dark 0px 0px $lg-padding-y;
+  ////
+  box-shadow: 0 0 10px -2px rgba(0, 0, 0, 0.25);
   align-items: center;
   text-align: center;
   font-weight: 600;

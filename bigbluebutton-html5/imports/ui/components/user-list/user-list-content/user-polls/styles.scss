@@ -1,0 +1,65 @@
+@import "../../styles.scss";
+@import "/imports/ui/stylesheets/variables/_all";
+
+$list-item-bg-hover: darken($color-off-white, 7%);
+$item-focus-border: $color-blue-lighter;
+
+.smallTitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0 0.75rem;
+    margin: 0 0 0.625rem 0;
+    color: #8B9AA8;
+    margin-bottom: 12px;
+    margin-top: 8px;
+}
+
+.scrollableList {
+    margin-left: 0.45rem;
+    margin-bottom: 1px;
+    outline: none;
+}
+
+.pollLink {
+    @extend %list-item;
+
+    cursor: pointer;
+    display: flex;
+    flex-flow: row;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-top: 10px;
+    padding-left: 12px;
+    padding-right: 0.75rem;
+    text-decoration: none;
+    width: 100%;
+    height: 6vh;
+    color: $color-gray-dark;
+    background-color: $color-off-white;
+
+    > i {
+        display: flex;
+        font-size: 175%;
+        color: #8B9AA8;
+        flex: 0 0 2.2rem;
+    }
+
+    > span {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: black;
+        position: relative;
+        flex-grow: 1;
+        line-height: 2;
+        text-align: left;
+        padding-left: 10px;
+        text-overflow: ellipsis;
+    }
+
+    &:active {
+        background-color: $list-item-bg-hover;
+        box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+        outline: none;
+    }
+}

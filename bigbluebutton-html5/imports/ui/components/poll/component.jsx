@@ -37,14 +37,6 @@ const intlMessages = defineMessages({
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
   },
-  publishLabel: {
-    id: 'app.poll.publishLabel',
-    description: 'label for the publish button',
-  },
-  backLabel: {
-    id: 'app.poll.backLabel',
-    description: 'label for the return to poll options button',
-  },
   customPlaceholder: {
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',
@@ -95,6 +87,7 @@ class Poll extends Component {
     this.nonPresenterRedirect = this.nonPresenterRedirect.bind(this);
     this.getInputFields = this.getInputFields.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.back = this.back.bind(this);
   }
 
   componentWillMount() {
@@ -195,6 +188,17 @@ class Poll extends Component {
     );
   }
 
+  back() {
+    const { stopPoll } = this.props;
+
+    stopPoll();
+    this.inputEditor = [];
+    this.setState({
+      isPolling: false,
+      customPollValues: this.inputEditor,
+    }, document.activeElement.blur());
+  }
+
   renderActivePollOptions() {
     const {
       intl, publishPoll, stopPoll,
@@ -205,31 +209,9 @@ class Poll extends Component {
         <div className={styles.instructions}>
           {intl.formatMessage(intlMessages.activePollInstruction)}
         </div>
-        <LiveResultContainer />
-        <Button
-          onClick={() => {
-            publishPoll();
-            stopPoll();
-            Session.set('isUserListOpen', true);
-            Session.set('isPollOpen', false);
-          }}
-          label={intl.formatMessage(intlMessages.publishLabel)}
-          color="primary"
-          className={styles.btn}
-        />
-        <Button
-          onClick={() => {
-            stopPoll();
-            this.inputEditor = [];
-            this.setState({
-              isPolling: false,
-              customPollValues: this.inputEditor,
-            }, document.activeElement.blur());
-          }}
-          label={intl.formatMessage(intlMessages.backLabel)}
-          color="default"
-          className={styles.btn}
-        />
+
+
+        <LiveResultContainer publishPoll={publishPoll} stopPoll={stopPoll} back={this.back} />
       </div>
     );
   }
@@ -271,19 +253,36 @@ class Poll extends Component {
           <Button
             role="button"
             tabIndex={0}
+            label=""
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
             onClick={() => {
               if (this.state.isPolling) {
                 stopPoll();
               }
-              Session.set('isUserListOpen', true);
               Session.set('isPollOpen', false);
+              Session.set('forcePollOpen', true);
+              Session.set('isUserListOpen', true);
             }}
           >
             <Icon iconName="left_arrow" />
             {intl.formatMessage(intlMessages.pollPaneTitle)}
           </Button>
+
+
+          <Button
+            onClick={() => {
+            if (this.state.isPolling) {
+              stopPoll();
+            }
+            Session.set('isPollOpen', false);
+            Session.set('forcePollOpen', false);
+            Session.set('isUserListOpen', true);
+          }}
+            className={styles.closeBtn}
+            label="X"
+          />
+
         </header>
         {
           this.state.isPolling ? this.renderActivePollOptions() : this.renderPollOptions()
