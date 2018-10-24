@@ -64,7 +64,7 @@ package org.bigbluebutton.main.model.users
         private var reconnecting:Boolean = false;
         private var guestKickedOutCommand:Boolean = false;
         
-        private var maxConnectAttempt:int = 2;
+        private var maxConnectAttempt:int = 3;
         private var connectAttemptCount:int = 0;
         private var connectAttemptTimeout:Number = 5000;
         private var connectionTimer:Timer;
@@ -638,51 +638,47 @@ package org.bigbluebutton.main.model.users
                 sendUserLoggedOutEvent();
             } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED && !UsersUtil.isUserEjected()) {
                 // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED  
-                if (reconnecting) {
-									logData.reason = reason;
-									logData.app = "apps";
-									logData.logCode = "reconnect_attempt_failed";
-									LOGGER.info(JSON.stringify(logData));
-									
-                    var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-                    attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
-                    dispatcher.dispatchEvent(attemptFailedEvent);
-                } else {
-                    reconnecting = true;
-                    LiveMeeting.inst().me.authTokenValid = false;
+                
+                reconnecting = true;
+                LiveMeeting.inst().me.authTokenValid = false;
 
-										logData.reason = reason;
-										logData.app = "apps";
-										logData.logCode = "reconnecting_attempt";
-										LOGGER.info(JSON.stringify(logData));
-										
-                    var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
-                    disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
-                    disconnectedEvent.payload.callback = connect;
-                    disconnectedEvent.payload.callbackParameters = new Array();
-                    dispatcher.dispatchEvent(disconnectedEvent);
-                }
+                logData.reason = reason;
+                logData.app = "apps";
+                logData.logCode = "reconnecting_attempt";
+                LOGGER.info(JSON.stringify(logData));
+                
+                var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+                disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                disconnectedEvent.payload.callback = connect;
+                disconnectedEvent.payload.callbackParameters = new Array();
+                dispatcher.dispatchEvent(disconnectedEvent);
+            } else if (UsersUtil.isUserEjected()) {
+                
+                logData.reason = reason;
+                logData.app = "apps";
+                logData.logCode = "user_ejected_from_meeting";
+                LOGGER.info(JSON.stringify(logData));
+
+                reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
+                var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                dispatcher.dispatchEvent(cfe);
+            } else if (reconnecting && connectAttemptCount < maxConnectAttempt) {
+                logData.reason = reason;
+                logData.app = "apps";
+                logData.logCode = "reconnect_attempt_failed";
+                LOGGER.info(JSON.stringify(logData));
+                
+                var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+                attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                dispatcher.dispatchEvent(attemptFailedEvent);
             } else {
-                if (UsersUtil.isUserEjected()) {
-									
-										logData.reason = reason;
-										logData.app = "apps";
-										logData.logCode = "user_ejected_from_meeting";
-										LOGGER.info(JSON.stringify(logData));
-
-                    LOGGER.info(JSON.stringify(logData));
-                    reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
-                    var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-                    dispatcher.dispatchEvent(cfe);
-                } else {
-										logData.reason = reason;
-										logData.app = "apps";
-										logData.logCode = "connection_failed";
-										LOGGER.info(JSON.stringify(logData));
-                    var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-                    dispatcher.dispatchEvent(e);
-                }
-
+                logData.reason = reason;
+                logData.app = "apps";
+                logData.logCode = "connection_failed";
+                logData.reconnecting = reconnecting;
+                LOGGER.info(JSON.stringify(logData));
+                var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                dispatcher.dispatchEvent(e);
             }
         }
 
