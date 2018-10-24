@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -9,6 +10,17 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { styles } from './styles';
+
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  isMeetingMuted: PropTypes.bool.isRequired,
+  toggleMuteAllUsers: PropTypes.func.isRequired,
+  toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
+  toggleStatus: PropTypes.func.isRequired,
+  toggleLockView: PropTypes.func.isRequired,
+};
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -109,8 +121,8 @@ class UserOptions extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if(prevProps.isMeetingMuted !== this.props.isMeetingMuted){
-    this.alterMenu();
+    if (prevProps.isMeetingMuted !== this.props.isMeetingMuted) {
+      this.alterMenu();
     }
   }
 
@@ -198,4 +210,5 @@ class UserOptions extends Component {
   }
 }
 
+UserOptions.propTypes = propTypes;
 export default withModalMounter(injectIntl(UserOptions));
