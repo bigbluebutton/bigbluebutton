@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import SessionStorage from '/imports/ui/services/storage/session';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log, makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -8,7 +7,6 @@ import { Session } from 'meteor/session';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
-const METADATA_KEY = 'metadata';
 
 export function joinRouteHandler(callback) {
   const urlParams = new URLSearchParams(window.location.search);
@@ -31,7 +29,7 @@ export function joinRouteHandler(callback) {
     .then(response => response.json())
     .then(({ response }) => {
       const {
-        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL, metadata,
+        returncode, meetingID, internalUserID, authToken, logoutUrl, customLogoURL,
         externUserID, fullname, confname, customdata,
       } = response;
 
@@ -43,36 +41,9 @@ export function joinRouteHandler(callback) {
       } else {
         setCustomLogoUrl(customLogoURL);
 
-        let metakeys = 0;
-        if (metadata) {
-          metakeys = metadata.length
-            ? metadata.reduce((acc, meta) => {
-              const key = Object.keys(meta).shift();
-
-              const handledHTML5Parameters = [
-                'html5autoswaplayout', 'html5autosharewebcam', 'html5hidepresentation',
-              ];
-              if (handledHTML5Parameters.indexOf(key) === -1) {
-                return acc;
-              }
-
-              /* this reducer transforms array of objects in a single object and
-               forces the metadata a be boolean value */
-              let value = meta[key];
-              try {
-                value = JSON.parse(meta[key]);
-              } catch (e) {
-                log('error', `Caught: ${e.message}`);
-              }
-              return { ...acc, [key]: value };
-            }, {}) : {};
-        }
-
         if (customdata.length) {
           makeCall('addUserSettings', meetingID, internalUserID, customdata);
         }
-
-        SessionStorage.setItem(METADATA_KEY, metakeys);
 
         Auth.set(
           meetingID, internalUserID, authToken, logoutUrl,

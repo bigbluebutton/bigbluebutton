@@ -80,6 +80,7 @@ FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
+HTML5_CONFIG_NEW=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 if [ -f /etc/redhat-release ]; then
   DISTRIB_ID=centos
@@ -279,8 +280,9 @@ comment () {
 }
 
 change_yml_value () {
-        sed -i "s<^[[:blank:]#]*\(${2}\):[ ].*<\1: ${3}<" $1
+	sed -i "s<^\([[:blank:]#]*\)\(${2}\): .*<\1\2: ${3}<" $1
 }
+
 
 # comment lines matching $2 ($1 is the file)
 uncomment () {
@@ -1905,6 +1907,16 @@ if [ -n "$HOST" ]; then
 	if [ -f $HTML5_CONFIG ]; then
         	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
         	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG
+
+		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
+		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
+		fi
+	fi
+
+	if [ -f $HTML5_CONFIG_NEW ]; then
+        	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
+
+		change_yml_value $HTML5_CONFIG_NEW wsUrl "$WS/bbb-webrtc-sfu"
 
 		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
 		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
