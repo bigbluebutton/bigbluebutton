@@ -40,7 +40,7 @@ object Users2x {
 
   def findAllExpiredUserLeftFlags(users: Users2x): Vector[UserState] = {
     users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
-      System.currentTimeMillis() - u.userLeftFlag.leftOn > 60000)
+      System.currentTimeMillis() - u.userLeftFlag.leftOn > 10000)
   }
 
   def numUsers(users: Users2x): Int = {

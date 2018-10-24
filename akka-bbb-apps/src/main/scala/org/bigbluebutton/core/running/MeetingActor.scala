@@ -418,7 +418,7 @@ class MeetingActor(
       for {
         u <- Users2x.remove(liveMeeting.users2x, leftUser.intId)
       } yield {
-        log.info("User left meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+        log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
         captionApp2x.handleUserLeavingMsg(leftUser.intId)
 
