@@ -201,13 +201,10 @@ public class Application extends MultiThreadedApplicationAdapter {
 
 		if (peerId != null) {
 				try {
-					if (!clientConnManager.hasActiveConnections(userId)) {
-						// Client reconnected and has new connection. THis is the old connection, so ignore. ralam oct 35, 2018
-						log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userId + "]", clientId);
-						sipPeerManager.hangup(peerId, clientId);
-					} else {
-						log.debug("Do not hang up {} [clientid={}] in case the user is still in the conference. Probably reconnected.", username + "[uid=" + userId + "]", clientId);
-					}
+					boolean notifyApps = !clientConnManager.hasActiveConnections(userId);
+					// Check if client reconnected. If so, notify apps. ralam oct 35, 2018
+					log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userId + "]", clientId);
+					sipPeerManager.hangup(peerId, clientId, notifyApps);
 				} catch (PeerNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
