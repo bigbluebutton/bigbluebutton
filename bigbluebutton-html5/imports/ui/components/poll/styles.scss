@@ -9,11 +9,11 @@ $poll-blue: #1A73D4;
     margin-left: 9.125rem;
 }
 
-<<<<<<< HEAD
 .btn {
     margin-top: var(--sm-padding-y);
     margin-bottom: var(--sm-padding-y);
-=======
+}
+
 .hideBtn {
     position: relative;
     background-color: white;
@@ -34,7 +34,6 @@ $poll-blue: #1A73D4;
 
 .customBtn {
     width: 100%;
->>>>>>> test-merge-anton
 }
 
 .customInputWrapper {
@@ -42,13 +41,8 @@ $poll-blue: #1A73D4;
 
     > input {
         width: 100%;
-<<<<<<< HEAD
         margin-top: .3rem;
         margin-bottom: .3rem;
-=======
-        margin-top: var(--sm-padding-y);
-        margin-bottom: var(--sm-padding-y);
->>>>>>> test-merge-anton
     }
 
     > input:first-child {
