@@ -1,6 +1,5 @@
 @import "../../stylesheets/variables/_all";
 
-<<<<<<< HEAD
 $poll-width: 18rem;
 $max-btn-width: 9em;
 $col-amount: 2;
@@ -11,33 +10,27 @@ $xs-landscape-offset: 4.75em;
 $s-portrait-offset: 11.75em;
 $s-landscape-offset: 1.75em;
 
-=======
->>>>>>> Upstream/master
 .pollingContainer {
   width: $poll-width;
   position: absolute;
   z-index: 2;
-  border: 1px solid $color-off-white;
-  border-radius: $border-radius;
-  box-shadow: $color-gray-dark 0px 0px $lg-padding-y;
+  border: 1px solid var(--color-off-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--color-gray-dark) 0px 0px var(--lg-padding-y);
   align-items: center;
   text-align: center;
   font-weight: 600;
-  padding: $md-padding-y;
-  background-color: $color-white;
-  bottom: $sm-padding-x;
-  right: $sm-padding-x;
+  padding: var(--md-padding-y);
+  background-color: var(--color-white);
+  bottom: var(--sm-padding-x);
+  right: var(--sm-padding-x);
 }
 
 .pollingTitle {
-<<<<<<< HEAD
-  color: $color-text;
-=======
   color: var(--color-white);
->>>>>>> Upstream/master
   white-space: nowrap;
-  padding-bottom: $md-padding-y;
-  padding-top: $md-padding-y;
+  padding-bottom: var(--md-padding-y);
+  padding-top: var(--md-padding-y);
 }
 
 .pollingAnswers {
@@ -72,7 +65,7 @@ $s-landscape-offset: 1.75em;
 
 .pollButtonWrapper {
   text-align: center;
-  padding: $sm-padding-y;
+  padding: var(--sm-padding-y);
 }
 
 .pollingButton {
