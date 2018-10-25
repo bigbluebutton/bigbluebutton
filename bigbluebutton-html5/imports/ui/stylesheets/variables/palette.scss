@@ -7,6 +7,10 @@
   --color-gray-light: #8B9AA8;
   --color-gray-lighter: #a7b3bd;
 
+  --color-blue-light: #54a1f3;
+  --color-blue-lighter: #92BCEA;
+  --color-blue-lightest: #E4ECF2;
+
   --color-primary: #0F70D7;
   --color-success: #008081;
   --color-danger: #DF2721;
@@ -20,9 +24,5 @@
   --color-link: var(--color-primary);
   --color-link-hover: #2687ef;
 
-  --color-gray-label: --color-gray;
-
-  --color-blue-light: #54a1f3;
-  --color-blue-lighter: #92BCEA;
-  --color-blue-lightest: #E4ECF2;
+  --color-gray-label: var(--color-gray);
 }

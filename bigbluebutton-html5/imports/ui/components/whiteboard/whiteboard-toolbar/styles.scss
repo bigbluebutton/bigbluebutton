@@ -3,11 +3,14 @@
 :root {
   --toolbar-margin: .8rem;
   --toolbar-box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  --toolbar-button-color: var(--btn-default-color);
+  --toolbar-button-bg: var(--btn-default-bg);  
   --toolbar-button-width: 3rem;
   --toolbar-button-height: 3rem;
   --toolbar-button-font-size: 1.75rem;
   --toolbar-button-border: 1px;
   --toolbar-button-border-radius: 5px;
+  --toolbar-button-border-color: var(--color-gray-lighter);
   --toolbar-list-bg: #ddd;
   --toolbar-list-bg-focus: #c6c6c6;
   --toolbar-list-color: var(--color-gray);
@@ -41,7 +44,7 @@
   pointer-events: all;
 
   .buttonWrapper > .toolbarButton {
-    border-bottom: 1px solid var(--color-gray-lighter);
+    border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
   }
 
   .buttonWrapper:first-child > .toolbarButton {
@@ -80,12 +83,15 @@
   display: flex;
   flex-direction: row;
   align-items: center !important;
-  justify-content: center !important;
-  font-size: var(--toolbar-button-font-size);
+  justify-content: center !important;  
   position: relative;
   border-radius: 0;
   box-shadow: none !important;
   z-index: 1;
+  font-size: var(--toolbar-button-font-size);
+  color: var(--toolbar-button-color);
+  background-color: var(--toolbar-button-bg);
+  border-color: var(--toolbar-button-border-color);
 
   &:focus,
   &:hover {
@@ -93,7 +99,7 @@
   }
 
   i {
-    color: var(--color-gray);
+    color: var(--toolbar-button-color);
   }
 
   &.toolbarActive {
@@ -174,3 +180,4 @@
   margin: auto;
   color: var(--toolbar-list-color);
 }
+

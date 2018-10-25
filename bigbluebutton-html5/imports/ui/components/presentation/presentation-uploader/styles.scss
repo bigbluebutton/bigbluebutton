@@ -94,19 +94,19 @@
 }
 
 .tableItemNew {
-  background-color: var(--color-primary);
+  background-color: rgba(0, 128, 129, 0.05);
 }
 
 .tableItemUploading {
-  background-color: var(--color-primary);
+  background-color: rgba(0, 128, 129, 0.25);
 }
 
 .tableItemConverting {
-  background-color: var(--color-success);
+  background-color: rgba(0, 128, 129, 0.25);
 }
 
 .tableItemError {
-  background-color: var(--color-danger);
+  background-color: rgba(223, 39, 33, 0.25);
 }
 
 .tableItemAnimated {

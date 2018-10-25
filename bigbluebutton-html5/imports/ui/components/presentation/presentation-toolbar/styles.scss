@@ -1,11 +1,5 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-:root {
-  --controls-color: var(--color-gray);
-  --controls-background: var(--color-white);
-  --toolbar-button-border-radius: 5px;
-}
-
 .presentationToolbarWrapper,
 .presentationControls,
 .zoomWrapper {
@@ -30,7 +24,7 @@
   justify-content: center;
   z-index: 1;
 
-  @include mq("#{$landscape}) and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
+  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
     transform: scale(.75);
     transform-origin: bottom;
   }
@@ -39,20 +33,19 @@
   button,
   select,
   > div {
-    background-color: var(--controls-background);
-    color: var(--controls-color);
+    color: var(--toolbar-button-color);
+    background-color: var(--toolbar-button-bg);
     border-top: 0;
     border-bottom: 0;
     border-left: 0;
     border-radius: 0;
     height: 2.25rem;
     box-shadow: none !important;
-    border: 0;
+    border: 0;    
   }
 
   i {
-    font-weight: bolder;
-    color: var(--color-gray);
+    color: var(--toolbar-button-color);
   }
 
 
@@ -74,7 +67,7 @@
   // flex-direction: column;
   width: 11.5%;
   min-width: 175px;
-  background-color: var(--color-white);
+  background-color: var(--toolbar-button-bg);
 }
 
 .zoomWrapperNoBorder {
@@ -84,18 +77,21 @@
 .skipSlide,
 .prevSlide {
   border: none !important;
-  width: 2.8rem;
 
   &[aria-disabled="true"] {
     opacity: 1;
-    background-color: var(--color-gray-lighter);
+    background-color: var(--toolbar-list-bg);
   }
 }
 
 .skipSlideSelect {
-  padding: 0 0.8%;
-  border-left: var(--border-size) solid var(--color-gray-lighter) !important;
-  border-right: var(--border-size) solid var(--color-gray-lighter) !important;
+  padding: 0 var(--sm-padding-y);
+}
+
+.skipSlideSelect,
+.zoomPercentageDisplay {
+  border-left: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
+  border-right: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
 }
 
 .zoomSlider {
@@ -105,13 +101,12 @@
 .zoomMinMax {
   font-weight: normal;
 }
+
 .zoomPercentageDisplay {
   width: 100%;
   height: 2.25rem;
   text-align: center;
   color: black;
-  border-left: var(--border-size) solid var(--color-gray-lighter) !important;
-  border-right: var(--border-size) solid var(--color-gray-lighter) !important;
   display: flex;
   align-items: center;
   justify-content: center;
