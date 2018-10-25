@@ -3,16 +3,23 @@ import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { log, makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
+import { Session } from 'meteor/session';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
 
-export function joinRouteHandler(nextState, replace, callback) {
-  const { sessionToken } = nextState.location.query;
+const setError = (errorCode) => {
+  Session.set('hasError', true);
+  Session.set('codeError', errorCode);
+};
 
-  if (!nextState || !sessionToken) {
-    replace({ pathname: '/error/404' });
-    callback();
+export function joinRouteHandler(callback) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionToken = urlParams.get('sessionToken');
+
+  if (!sessionToken) {
+    setError('404');
+    callback('failed - no sessionToken', urlParams);
   }
 
   // Old credentials stored in memory were being used when joining a new meeting
@@ -30,42 +37,40 @@ export function joinRouteHandler(nextState, replace, callback) {
       } = response;
 
       if (returncode === 'FAILED') {
-        replace({ pathname: '/error/404' });
-        callback();
+        setError('404');
+        callback('failed during enter API call', response);
+      } else {
+        setCustomLogoUrl(customLogoURL);
+
+        if (customdata.length) {
+          makeCall('addUserSettings', meetingID, internalUserID, customdata);
+        }
+
+        Auth.set(
+          meetingID, internalUserID, authToken, logoutUrl,
+          sessionToken, fullname, externUserID, confname,
+        );
+
+        Session.set('isUserListOpen', deviceInfo.type().isPhone);
+        const userInfo = window.navigator;
+
+        // Browser information is sent once on startup
+        // Sent here instead of Meteor.startup, as the
+        // user might not be validated by then, thus user's data
+        // would not be sent with this information
+        const clientInfo = {
+          language: userInfo.language,
+          userAgent: userInfo.userAgent,
+          screenSize: { width: window.screen.width, height: window.screen.height },
+          windowSize: { width: window.innerWidth, height: window.innerHeight },
+          bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+          location: window.location.href,
+        };
+
+        logger.info(clientInfo);
+
+        callback('all is good', null);
       }
-
-      setCustomLogoUrl(customLogoURL);
-
-      if (customdata.length) {
-        makeCall('addUserSettings', meetingID, internalUserID, customdata);
-      }
-
-      Auth.set(
-        meetingID, internalUserID, authToken, logoutUrl,
-        sessionToken, fullname, externUserID, confname,
-      );
-
-      const path = deviceInfo.type().isPhone ? '/' : '/users';
-      const userInfo = window.navigator;
-
-      // Browser information is sent once on startup
-      // Sent here instead of Meteor.startup, as the
-      // user might not be validiated by then, thus user's data
-      // would not be sent with this information
-      const clientInfo = {
-        language: userInfo.language,
-        userAgent: userInfo.userAgent,
-        screenSize: { width: window.screen.width, height: window.screen.height },
-        windowSize: { width: window.innerWidth, height: window.innerHeight },
-        bbbVersion: Meteor.settings.public.app.bbbServerVersion,
-        location: window.location.href,
-      };
-
-      replace({ pathname: path });
-
-      logger.info(clientInfo);
-
-      return callback();
     });
 }
 
@@ -112,7 +117,7 @@ function _addReconnectObservable() {
   });
 }
 
-export function authenticatedRouteHandler(nextState, replace, callback) {
+export function authenticatedRouteHandler(callback) {
   if (Auth.loggedIn) {
     callback();
   }
@@ -123,7 +128,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
     .then(callback)
     .catch((reason) => {
       log('error', reason);
-      replace({ pathname: `/error/${reason.error}` });
+      setError(reason.error);
       callback();
     });
 }

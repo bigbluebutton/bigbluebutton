@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles';
 import CustomLogo from './custom-logo/component';
-import UserContent from './user-list-content/component';
+import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
@@ -40,10 +39,6 @@ const defaultProps = {
 };
 
 class UserList extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       intl,
@@ -79,7 +74,7 @@ class UserList extends Component {
           && CustomLogoUrl
           ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
-        {<UserContent
+        {<UserContentContainer
           {...{
           intl,
           openChats,
@@ -113,4 +108,4 @@ class UserList extends Component {
 UserList.propTypes = propTypes;
 UserList.defaultProps = defaultProps;
 
-export default withRouter(injectWbResizeEvent(injectIntl(UserList)));
+export default injectWbResizeEvent(injectIntl(UserList));

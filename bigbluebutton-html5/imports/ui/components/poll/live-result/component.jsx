@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Session } from 'meteor/session';
+import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -12,6 +14,14 @@ const intlMessages = defineMessages({
   responsesTitle: {
     id: 'app.poll.liveResult.responsesTitle',
     description: 'heading label for poll responses',
+  },
+  publishLabel: {
+    id: 'app.poll.publishLabel',
+    description: 'label for the publish button',
+  },
+  backLabel: {
+    id: 'app.poll.backLabel',
+    description: 'label for the return to poll options button',
   },
 });
 
@@ -116,13 +126,35 @@ class LiveResult extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl, publishPoll, stopPoll, back,
+    } = this.props;
 
     return (
       <div>
         <div className={styles.stats}>
           {this.getPollStats()}
         </div>
+        <Button
+          onClick={() => {
+            publishPoll();
+            stopPoll();
+            Session.set('isUserListOpen', true);
+            Session.set('isPollOpen', false);
+            Session.set('forcePollOpen', false);
+          }}
+          label={intl.formatMessage(intlMessages.publishLabel)}
+          color="primary"
+          className={styles.btn}
+        />
+        <Button
+          onClick={() => {
+            back();
+          }}
+          label={intl.formatMessage(intlMessages.backLabel)}
+          color="default"
+          className={styles.btn}
+        />
         <div className={styles.container}>
           <div className={styles.usersHeading}>{intl.formatMessage(intlMessages.usersTitle)}</div>
           <div className={styles.responseHeading}>{intl.formatMessage(intlMessages.responsesTitle)}</div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter } from 'react-router';
+import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
@@ -20,7 +20,7 @@ const NavBarContainer = ({ children, ...props }) => (
   </NavBar>
 );
 
-export default withRouter(withTracker(({ location, router }) => {
+export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('clientTitle', PUBLIC_CONFIG.app.clientTitle);
 
   let meetingTitle;
@@ -54,7 +54,7 @@ export default withRouter(withTracker(({ location, router }) => {
   const breakouts = Service.getBreakouts();
   const currentUserId = Auth.userID;
 
-  const isExpanded = location.pathname.indexOf('/users') !== -1;
+  const isExpanded = Session.get('isUserListOpen');
 
   return {
     isExpanded,
@@ -66,11 +66,7 @@ export default withRouter(withTracker(({ location, router }) => {
     isBreakoutRoom: meetingIsBreakout(),
     beingRecorded: meetingRecorded,
     toggleUserList: () => {
-      if (location.pathname.indexOf('/users') !== -1) {
-        router.push('/');
-      } else {
-        router.push('/users');
-      }
+      Session.set('isUserListOpen', !isExpanded);
     },
   };
-})(NavBarContainer));
+})(NavBarContainer);

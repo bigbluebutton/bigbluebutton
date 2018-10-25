@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import { Link } from 'react-router';
+import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
 import Icon from '/imports/ui/components/icon/component';
 import LiveResultContainer from './live-result/container';
@@ -36,14 +36,6 @@ const intlMessages = defineMessages({
   activePollInstruction: {
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
-  },
-  publishLabel: {
-    id: 'app.poll.publishLabel',
-    description: 'label for the publish button',
-  },
-  backLabel: {
-    id: 'app.poll.backLabel',
-    description: 'label for the return to poll options button',
   },
   customPlaceholder: {
     id: 'app.poll.customPlaceholder',
@@ -95,6 +87,13 @@ class Poll extends Component {
     this.nonPresenterRedirect = this.nonPresenterRedirect.bind(this);
     this.getInputFields = this.getInputFields.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.back = this.back.bind(this);
+  }
+
+  componentWillUnmount() {
+    const { stopPoll } = this.props;
+
+    stopPoll();
   }
 
   componentWillMount() {
@@ -131,8 +130,11 @@ class Poll extends Component {
   }
 
   nonPresenterRedirect() {
-    const { currentUser, router } = this.props;
-    if (!currentUser.presenter) return router.push('/users');
+    const { currentUser } = this.props;
+    if (!currentUser.presenter) {
+      Session.set('isUserListOpen', true);
+      return Session.set('isPollOpen', false);
+    }
   }
 
   toggleCustomFields() {
@@ -192,9 +194,20 @@ class Poll extends Component {
     );
   }
 
+  back() {
+    const { stopPoll } = this.props;
+
+    stopPoll();
+    this.inputEditor = [];
+    this.setState({
+      isPolling: false,
+      customPollValues: this.inputEditor,
+    }, document.activeElement.blur());
+  }
+
   renderActivePollOptions() {
     const {
-      intl, router, publishPoll, stopPoll,
+      intl, publishPoll, stopPoll,
     } = this.props;
 
     return (
@@ -202,30 +215,7 @@ class Poll extends Component {
         <div className={styles.instructions}>
           {intl.formatMessage(intlMessages.activePollInstruction)}
         </div>
-        <LiveResultContainer />
-        <Button
-          onClick={() => {
-            publishPoll();
-            stopPoll();
-            router.push('/users');
-          }}
-          label={intl.formatMessage(intlMessages.publishLabel)}
-          color="primary"
-          className={styles.btn}
-        />
-        <Button
-          onClick={() => {
-            stopPoll();
-            this.inputEditor = [];
-            this.setState({
-              isPolling: false,
-              customPollValues: this.inputEditor,
-            }, document.activeElement.blur());
-          }}
-          label={intl.formatMessage(intlMessages.backLabel)}
-          color="default"
-          className={styles.btn}
-        />
+        <LiveResultContainer publishPoll={publishPoll} stopPoll={stopPoll} back={this.back} />
       </div>
     );
   }
@@ -264,18 +254,35 @@ class Poll extends Component {
     return (
       <div>
         <header className={styles.header}>
-          <Link
-            to="/users"
-            role="button"
+          <Button
+            tabIndex={0}
+            label={intl.formatMessage(intlMessages.pollPaneTitle)}
+            icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
+            className={styles.hideBtn}
             onClick={() => {
               if (this.state.isPolling) {
                 stopPoll();
               }
+              Session.set('isPollOpen', false);
+              Session.set('forcePollOpen', true);
+              Session.set('isUserListOpen', true);
             }}
-          >
-            <Icon iconName="left_arrow" />{intl.formatMessage(intlMessages.pollPaneTitle)}
-          </Link>
+          />
+
+          <Button
+            onClick={() => {
+            if (this.state.isPolling) {
+              stopPoll();
+            }
+            Session.set('isPollOpen', false);
+            Session.set('forcePollOpen', false);
+            Session.set('isUserListOpen', true);
+          }}
+            className={styles.closeBtn}
+            label="X"
+          />
+
         </header>
         {
           this.state.isPolling ? this.renderActivePollOptions() : this.renderPollOptions()

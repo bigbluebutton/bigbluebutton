@@ -4,16 +4,24 @@ $poll-width: 18rem;
 $max-btn-width: 9em;
 $col-amount: 2;
 
-// pollingAnswer position offsets
-$xs-portrait-offset: 8.75em;
-$xs-landscape-offset: 4.75em;
-$s-portrait-offset: 11.75em;
-$s-landscape-offset: 1.75em;
+.overlay {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  z-index: 1015;
+  pointer-events: none;
+
+  @media screen and (max-width: 479px), screen and (max-height: 479px) {
+    background-color: rgba(0, 0, 0, 0.349);
+  }
+}
 
 .pollingContainer {
+  pointer-events:auto;
   width: $poll-width;
   position: absolute;
-  z-index: 2;
+
+  z-index: 1016;
   border: 1px solid var(--color-off-white);
   border-radius: var(--border-radius);
   box-shadow: var(--color-gray-dark) 0px 0px var(--lg-padding-y);
@@ -27,10 +35,20 @@ $s-landscape-offset: 1.75em;
 }
 
 .pollingTitle {
-  color: var(--color-text);
+  color: var(--color-white);
   white-space: nowrap;
   padding-bottom: var(--md-padding-y);
   padding-top: var(--md-padding-y);
+
+  @media screen and (max-height: 479px), screen and (max-width: 479px)  {
+    bottom: auto;
+    right: auto;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+  }
+
 }
 
 .pollingAnswers {
@@ -45,32 +63,33 @@ $s-landscape-offset: 1.75em;
       grid-column: $col-amount;
   }
 
-  z-index: 1;
+  @media screen and (max-width: 479px) {
+    grid-template-columns: repeat(1, 1fr);
 
-  :global(.browser-safari) & {
-    @include mq($ip5-portrait) {
-      bottom: 8.75em;
+    > pollButtonWrapper:nth-child(odd) {
+        grid-column: 1;
     }
-    @include mq($ip678-portrait) {
-      bottom: 4.75em;
-    }
-    @include mq($ip5-landscape) {
-      bottom: 11.75em;
-    }
-    @include mq($ip678-landscape) {
-      bottom: 1.75em;
+  
+    > pollButtonWrapper:nth-child(even) {
+        grid-column: 1;
     }
   }
+
+  z-index: 1;
 }
 
 .pollButtonWrapper {
   text-align: center;
   padding: var(--sm-padding-y);
+  width: 100%;
 }
 
 .pollingButton {
   width: 100%;
   max-width: $max-btn-width;
+  @media screen and (max-width: 479px) { 
+    max-width: none;
+  }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

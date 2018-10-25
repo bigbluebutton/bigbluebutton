@@ -7,6 +7,7 @@ import { styles } from './styles';
 
 const propTypes = {
   handleEndMeeting: PropTypes.func.isRequired,
+  confirmLeaving: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -55,15 +56,14 @@ const intlMessages = defineMessages({
 
 const LeaveConfirmation = ({
   intl,
-  router,
   handleEndMeeting,
   showEndMeeting,
-  showFeedback,
+  confirmLeaving,
 }) => (
   <Modal
     title={intl.formatMessage(intlMessages.title)}
     confirm={{
-      callback: showFeedback,
+      callback: confirmLeaving,
       label: intl.formatMessage(intlMessages.confirmLabel),
       description: intl.formatMessage(intlMessages.confirmDesc),
     }}
@@ -79,7 +79,7 @@ const LeaveConfirmation = ({
         className={styles.endMeeting}
         label={intl.formatMessage(intlMessages.endMeetingLabel)}
         onClick={handleEndMeeting}
-        aria-describedby={'modalEndMeetingDesc'}
+        aria-describedby="modalEndMeetingDesc"
       /> : null
     }
     <div id="modalEndMeetingDesc" hidden>{intl.formatMessage(intlMessages.endMeetingDesc)}</div>

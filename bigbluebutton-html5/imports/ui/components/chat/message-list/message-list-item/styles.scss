@@ -17,6 +17,7 @@
 
 .systemMessage {
   padding: var(--line-height-computed) 0;
+  padding-top: 0px;
   border-bottom: 1px solid var(--color-gray-lighter);
 
   .item:not(&) + & {

@@ -208,8 +208,6 @@ class Settings extends Component {
   render() {
     const {
       intl,
-      router,
-      location,
       mountModal,
     } = this.props;
 
@@ -219,7 +217,7 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(this.state.current);
-            router.push(location.pathname);
+            // router.push(location.pathname); // TODO 4767
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */

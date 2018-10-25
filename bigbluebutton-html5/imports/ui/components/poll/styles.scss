@@ -4,14 +4,37 @@
 $column-amount: 2;
 $poll-blue: #1A73D4;
 
-.customBtn,
-.btn {
-    width: 100%;
+.closeBtn {
+    position: relative;
+    margin-left: 9.125rem;
 }
 
+<<<<<<< HEAD
 .btn {
     margin-top: var(--sm-padding-y);
     margin-bottom: var(--sm-padding-y);
+=======
+.hideBtn {
+    position: relative;
+    background-color: white;
+    display: block;
+    margin: 4px;
+    margin-bottom: 2px;
+    padding-left: 0px;
+
+    > i {
+        color: black;
+        font-size: 85%;
+    }
+
+    &:hover {
+        background-color: #fff;
+    }
+  }
+
+.customBtn {
+    width: 100%;
+>>>>>>> test-merge-anton
 }
 
 .customInputWrapper {
@@ -19,8 +42,13 @@ $poll-blue: #1A73D4;
 
     > input {
         width: 100%;
+<<<<<<< HEAD
         margin-top: .3rem;
         margin-bottom: .3rem;
+=======
+        margin-top: var(--sm-padding-y);
+        margin-bottom: var(--sm-padding-y);
+>>>>>>> test-merge-anton
     }
 
     > input:first-child {
@@ -38,6 +66,7 @@ $poll-blue: #1A73D4;
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: var(--md-padding-y);
 
     > a {
