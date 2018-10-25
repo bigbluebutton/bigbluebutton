@@ -32,6 +32,7 @@ module.exports = class UserMapping {
     this.externalUserID = null;
     this.internalUserID = null;
     this.meetingId = null;
+    this.user = null;
     this.redisClient = config.redis.client;
   }
 
@@ -68,7 +69,8 @@ module.exports = class UserMapping {
       "id": this.id,
       "internalUserID": this.internalUserID,
       "externalUserID": this.externalUserID,
-      "meetingId": this.meetingId
+      "meetingId": this.meetingId,
+      "user": this.user
     };
     return r;
   }
@@ -78,18 +80,20 @@ module.exports = class UserMapping {
     this.externalUserID = redisData.externalUserID;
     this.internalUserID = redisData.internalUserID;
     this.meetingId = redisData.meetingId;
+    this.user = redisData.user;
   }
 
   print() {
     return JSON.stringify(this.toRedis());
   }
 
-  static addMapping(internalUserID, externalUserID, meetingId, callback) {
+  static addOrUpdateMapping(internalUserID, externalUserID, meetingId, user, callback) {
     let mapping = new UserMapping();
     mapping.id = nextID++;
     mapping.internalUserID = internalUserID;
     mapping.externalUserID = externalUserID;
     mapping.meetingId = meetingId;
+    mapping.user = user;
     mapping.save(function(error, result) {
       Logger.info(`[UserMapping] added user mapping to the list ${internalUserID}:`, mapping.print());
       (typeof callback === 'function' ? callback(error, result) : undefined);
@@ -129,6 +133,12 @@ module.exports = class UserMapping {
       }
       return (typeof callback === 'function' ? callback() : undefined);
     })();
+  }
+
+  static getUser(internalUserID) {
+    if (db[internalUserID]){
+      return db[internalUserID].user;
+    }
   }
 
   static getExternalUserID(internalUserID) {
