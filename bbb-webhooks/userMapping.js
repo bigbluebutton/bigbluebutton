@@ -37,12 +37,13 @@ module.exports = class UserMapping {
   }
 
   save(callback) {
+    db[this.internalUserID] = this;
+
     this.redisClient.hmset(config.redis.keys.userMap(this.id), this.toRedis(), (error, reply) => {
       if (error != null) { Logger.error("[UserMapping] error saving mapping to redis:", error, reply); }
       this.redisClient.sadd(config.redis.keys.userMaps, this.id, (error, reply) => {
         if (error != null) { Logger.error("[UserMapping] error saving mapping ID to the list of mappings:", error, reply); }
 
-        db[this.internalUserID] = this;
         (typeof callback === 'function' ? callback(error, db[this.internalUserID]) : undefined);
       });
     });
