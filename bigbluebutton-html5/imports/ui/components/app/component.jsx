@@ -313,7 +313,11 @@ class App extends Component {
   }
 
   render() {
-    const { userListIsOpen } = this.props;
+
+    const {
+      params, userListIsOpen, customStyle, customStyleUrl,
+    } = this.props;
+
     const { enableResize } = this.state;
 
     return (
@@ -335,7 +339,9 @@ class App extends Component {
         <ModalContainer />
         <AudioContainer />
         <ToastContainer />
-        <ChatAlertContainer />
+        <ChatAlertContainer currentChatID={params.chatID} />
+        { customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null }
+        { customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null }
       </main>
     );
   }

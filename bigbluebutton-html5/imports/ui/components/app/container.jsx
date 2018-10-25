@@ -9,6 +9,7 @@ import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 import {
   getFontSize,
@@ -111,6 +112,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     userListIsOpen: Boolean(Session.get('isUserListOpen')),
     chatIsOpen: Boolean(Session.get('isChatOpen') && Session.get('isUserListOpen')),
     pollIsOpen: Boolean(Session.get('isPollOpen') && Session.get('isUserListOpen')),
+    customStyle: getFromUserSettings('customStyle', false),
+    customStyleUrl: getFromUserSettings('customStyleUrl', false),
   };
 })(AppContainer)));
 

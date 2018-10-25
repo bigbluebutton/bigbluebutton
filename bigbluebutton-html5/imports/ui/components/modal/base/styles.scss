@@ -6,7 +6,7 @@
 
   max-width: 60vw;
   max-height: 100%;
-  border-radius: $border-radius;
+  border-radius: var(--border-radius);
   background: #fff;
   overflow: auto;
   outline: none;

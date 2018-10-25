@@ -3,35 +3,34 @@
 %baseIndicator {
   position: relative;
   display: inline-block;
-  width: $font-size-base;
-  height: $font-size-base;
+  width: var(--font-size-base);
+  height: var(--font-size-base);
   border-radius: 50%;
-  border: 1px solid $color-white;
+  border: 1px solid var(--color-white);
 
   &:after {
     content: '';
-    width: $font-size-base / 2;
-    height: $font-size-base / 2;
+    width: var(--font-size-base) / 2;
+    height: var(--font-size-base) / 2;
     position: absolute;
     top: 50%;
     left: 50%;
-    margin-top: -($font-size-base / 4);
-    margin-left: -($font-size-base / 4);
+    margin-top: -(var(--font-size-base) / 4);
+    margin-left: -(var(--font-size-base) / 4);
     border-radius: 50%;
-    background-color: $color-danger;
+    background-color: var(--color-danger);
   }
 }
 
 %baseIndicatorLabel {
   font-weight: 200;
-  font-size: $font-size-base;
+  font-size: var(--font-size-base);
   margin: 0 0 0 0.5rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
   max-width: 20vw;
- 
 }
 
 .recordIndicator {
@@ -40,22 +39,21 @@
 
 .notRecording {
   @extend %baseIndicator;
-  border: 1px solid $color-gray;
+  border: 1px solid var(--color-gray);
 
   &:after {
-    background-color: $color-gray;
+    background-color: var(--color-gray);
   }
-
 }
 
 .recordingLabel {
   @extend %baseIndicatorLabel;
-  color: $color-white;
+  color: var(--color-white);
 }
 
 .notRecordingLabel {
   @extend %baseIndicatorLabel;
-  color: $color-gray;
+  color: var(--color-gray);
 }
 
 .recordState {
