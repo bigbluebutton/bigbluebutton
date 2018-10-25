@@ -27,6 +27,7 @@ trait HandlerHelpers extends SystemConfiguration {
 
   def userJoinMeeting(outGW: OutMsgRouter, authToken: String, clientType: String,
                       liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
@@ -42,21 +43,32 @@ trait HandlerHelpers extends SystemConfiguration {
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
-        clientType = clientType
+        clientType = clientType,
+        userLeftFlag = UserLeftFlag(false, 0)
       )
     }
 
     nu match {
       case Some(newUser) =>
-        Users2x.add(liveMeeting.users2x, newUser)
+        Users2x.findWithIntId(liveMeeting.users2x, newUser.intId) match {
+          case Some(reconnectingUser) =>
+            if (reconnectingUser.userLeftFlag.left) {
+              // User has reconnected. Just reset it's flag. ralam Oct 23, 2018
+              Users2x.resetUserLeftFlag(liveMeeting.users2x, newUser.intId)
+            }
+            state
+          case None =>
+            Users2x.add(liveMeeting.users2x, newUser)
 
-        val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
-        outGW.send(event)
-        val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
-        if (!Users2x.hasPresenter(liveMeeting.users2x)) {
-          automaticallyAssignPresenter(outGW, liveMeeting)
+            val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
+            outGW.send(event)
+            val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
+            if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+              automaticallyAssignPresenter(outGW, liveMeeting)
+            }
+            newState.update(newState.expiryTracker.setUserHasJoined())
         }
-        newState.update(newState.expiryTracker.setUserHasJoined())
+
       case None =>
         state
     }
