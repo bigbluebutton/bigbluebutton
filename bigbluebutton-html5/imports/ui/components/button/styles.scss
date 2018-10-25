@@ -1,48 +1,51 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$btn-default-color: $color-gray;
-$btn-default-bg: $color-white;
-$btn-default-border: $color-white;
-
-$btn-primary-color: $color-white;
-$btn-primary-bg: $color-primary;
-$btn-primary-border: $color-primary;
-
-$btn-success-color: $color-white;
-$btn-success-bg: $color-success;
-$btn-success-border: $color-success;
-
-$btn-danger-color: $color-white;
-$btn-danger-bg: $color-danger;
-$btn-danger-border: $color-danger;
-
-$btn-border-size: $border-size;
-$btn-border-radius: $border-radius;
-$btn-font-weight: 600;
-$btn-spacing: .35rem;
-
-$btn-sm-font-size: $font-size-small * .85;
-$btn-sm-padding: $sm-padding-y $sm-padding-x;
-
-$btn-md-font-size: $font-size-base * .85;
-$btn-md-padding: $md-padding-y $md-padding-x;
-
-$btn-lg-font-size: $font-size-large * .85;
-$btn-lg-padding: $lg-padding-y $lg-padding-x;
-
-$btn-jumbo-font-size: 3rem;
-$btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
-
 /* Base
  * ==========
  */
+
+:root {
+  --btn-default-color: var(--color-gray);
+  --btn-default-bg: var(--color-white);
+  --btn-default-border: var(--color-white);
+
+  --btn-primary-color: var(--color-white);
+  --btn-primary-bg: var(--color-primary);
+  --btn-primary-border: var(--color-primary);
+
+  --btn-success-color: var(--color-white);
+  --btn-success-bg: var(--color-success);
+  --btn-success-border: var(--color-success);
+
+  --btn-danger-color: var(--color-white);
+  --btn-danger-bg: var(--color-danger);
+  --btn-danger-border: var(--color-danger);
+
+  --btn-border-size: var(--border-size);
+  --btn-border-radius: var(--border-radius);
+  --btn-font-weight: 600;
+  --btn-spacing: .35rem;
+
+  --btn-sm-font-size: calc(var(--font-size-small) * .85);
+  --btn-sm-padding: var(--sm-padding-y) var(--sm-padding-x);
+
+  --btn-md-font-size: calc(var(--font-size-base) * .85);
+  --btn-md-padding: var(--md-padding-y) var(--md-padding-x);
+
+  --btn-lg-font-size: calc(var(--font-size-large) * .85);
+  --btn-lg-padding: var(--lg-padding-y) var(--lg-padding-x);
+
+  --btn-jumbo-font-size: 3rem;
+  --btn-jumbo-padding: var(--jumbo-padding-y) var(--jumbo-padding-x);
+}
+
 .button {
   border: none;
   outline: none;
   overflow: visible;
   display: inline-block;
-  border-radius: $border-size;
-  font-weight: $btn-font-weight;
+  border-radius: var(--border-size);
+  font-weight: var(--btn-font-weight);
   line-height: 1;
   text-align: center;
   white-space: nowrap;
@@ -71,7 +74,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   &:active {
     &:focus {
       span:first-of-type::before {
-        border-radius: $border-size;
+        border-radius: var(--border-size);
       }
     }
   }
@@ -110,26 +113,24 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   .buttonWrapper & {
     opacity: .85;
     display: block;
-    margin-top: $btn-spacing;
+    margin-top: var(--btn-spacing);
     color: #fff;
     font-weight: normal;
     line-height: 1.5;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;
-
-
   }
 
   .buttonWrapper.sm & {
     display: inline-block;
     margin-top: 0;
-    margin-left: $btn-spacing;
+    margin-left: var(--btn-spacing);
   }
 
   & + .icon,
-  & + .button  {
-    margin-left: $btn-spacing;
+  & + .button {
+    margin-left: var(--btn-spacing);
   }
   &:hover {
     opacity: .5;
@@ -156,7 +157,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   }
 
   & + .label {
-    margin-left: $btn-spacing;
+    margin-left: var(--btn-spacing);
   }
   .buttonWrapper:hover & {
     opacity: .75;
@@ -166,14 +167,10 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 /* Colors
  * ==========
  */
-
 @mixin button-variant($color, $background, $border) {
-  $active-background: darken($background, 10%);
-  $active-border: darken($border, 12%);
-
   color: $color;
   background-color: $background;
-  border: $border-size-large solid transparent;
+  border: var(--border-size-large) solid transparent;
 
   &:focus,
   .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -181,16 +178,16 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     color: $color;
     background-color: $background;
     background-clip: padding-box;
-    border: $border-size-large solid transparent;
-    box-shadow: 0 0 0 $border-size $border;
+    border: var(--border-size-large) solid transparent;
+    box-shadow: 0 0 0 var(--border-size) $border;
   }
 
   &:hover,
   .buttonWrapper:hover & {
     color: $color;
-    background-color: $active-background;
-    border-color: $active-border;
-    border: $border-size-large solid transparent;
+    // background-color: $active-background; TODO;
+    // border-color: $active-border; TODO;
+    border: var(--border-size-large) solid transparent;
   }
 }
 
@@ -198,7 +195,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   color: $color;
   background-image: none;
   background-color: transparent;
-  border: $border-size-large solid transparent;
+  border: var(--border-size-large) solid transparent;
 
   &:focus,
   .buttonWrapper:focus & {
@@ -206,8 +203,8 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     outline: none !important;
     background-color: $variant;
     background-clip: padding-box;
-    border: $border-size-large solid transparent;
-    box-shadow: 0 0 0 $border-size $color;
+    border: var(--border-size-large) solid transparent;
+    box-shadow: 0 0 0 var(--border-size-large) $color;
   }
 
   &:hover,
@@ -215,24 +212,24 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     color: $color;
     background-color: $variant;
     border-color: $variant;
-    border: $border-size-large solid transparent;
+    border: var(--border-size-large) solid transparent;
   }
 }
 
 .default {
-  @include button-variant($btn-default-color, $btn-default-bg, $btn-primary-border);
+  @include button-variant(var(--btn-default-color), var(--btn-default-bg), var(--btn-primary-border));
 }
 
 .primary {
-  @include button-variant($btn-primary-color, $btn-primary-bg, $btn-primary-border);
+  @include button-variant(var(--btn-primary-color), var(--btn-primary-bg), var(--btn-primary-border));
 }
 
 .success {
-  @include button-variant($btn-success-color, $btn-success-bg, $btn-success-border);
+  @include button-variant(var(--btn-success-color), var(--btn-success-bg), var(--btn-success-border));
 }
 
 .danger {
-  @include button-variant($btn-danger-color, $btn-danger-bg, $btn-danger-border);
+  @include button-variant(var(--btn-danger-color), var(--btn-danger-bg), var(--btn-danger-border));
 }
 
 
@@ -247,48 +244,48 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 
 .ghost {
   &.default {
-    @include button-ghost-variant($btn-default-bg, $btn-default-color);
+    @include button-ghost-variant(var(--btn-default-bg), var(--btn-default-color));
   }
 
   &.primary {
-    @include button-ghost-variant($btn-primary-bg, $btn-primary-color);
+    @include button-ghost-variant(var(--btn-primary-bg), var(--btn-primary-color));
   }
 
   &.success {
-    @include button-ghost-variant($btn-success-bg, $btn-success-color);
+    @include button-ghost-variant(var(--btn-success-bg), var(--btn-success-color));
   }
 
   &.danger {
-    @include button-ghost-variant($btn-danger-bg, $btn-danger-color);
+    @include button-ghost-variant(var(--btn-danger-bg), var(--btn-danger-color));
   }
 }
 
 .circle {
-  $btn-sm-padding-x: nth($btn-sm-padding, 2) / 2.75;
-  $btn-md-padding-x: nth($btn-md-padding, 2) / 2.75;
-  $btn-lg-padding-x: nth($btn-lg-padding, 2) / 2.75;
-  $btn-jumbo-padding-x: nth($btn-jumbo-padding, 2) / 2.75;
+  --btn-sm-padding-x: calc(var(--lg-padding-x) / 2.75);
+  --btn-md-padding-x: calc(var(--md-padding-x) / 2.75);
+  --btn-lg-padding-x: calc(var(--lg-padding-x) / 2.75);
+  --btn-jumbo-padding-x: calc(var(--jumbo-padding-x) / 2.75);
 
   border-radius: 50%;
 
   &.sm {
-    padding-right: $btn-sm-padding-x;
-    padding-left: $btn-sm-padding-x;
+    padding-right: var(--btn-sm-padding-x);
+    padding-left: var(--btn-sm-padding-x);
   }
 
   &.md {
-    padding-right: $btn-md-padding-x;
-    padding-left: $btn-md-padding-x;
+    padding-right: var(--btn-md-padding-x);
+    padding-left: var(--btn-md-padding-x);
   }
 
   &.lg {
-    padding-right: $btn-lg-padding-x;
-    padding-left: $btn-lg-padding-x;
+    padding-right: var(--btn-lg-padding-x);
+    padding-left: var(--btn-lg-padding-x);
   }
 
   &.jumbo {
-    padding-right: $btn-jumbo-padding-x;
-    padding-left: $btn-jumbo-padding-x;
+    padding-right: var(--btn-jumbo-padding-x);
+    padding-left: var(--btn-jumbo-padding-x);
   }
 }
 
@@ -297,21 +294,21 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
  */
 
 .sm {
-  font-size: $btn-sm-font-size;
-  padding: $btn-sm-padding;
+  font-size: var(--btn-sm-font-size);
+  padding: var(--btn-sm-padding);
 }
 
 .md {
-  font-size: $btn-md-font-size;
-  padding: $btn-md-padding;
+  font-size: var(--btn-md-font-size);
+  padding: var(--btn-md-padding);
 }
 
 .lg {
-  font-size: $btn-lg-font-size;
-  padding: $btn-lg-padding;
+  font-size: var(--btn-lg-font-size);
+  padding: var(--btn-lg-padding);
 }
 
 .jumbo {
-  font-size: $btn-jumbo-font-size;
-  padding: $btn-jumbo-padding;
+  font-size: var(--btn-jumbo-font-size);
+  padding: var(--btn-jumbo-padding);
 }

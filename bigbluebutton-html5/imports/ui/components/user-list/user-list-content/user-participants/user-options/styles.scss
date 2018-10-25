@@ -1,32 +1,27 @@
 @import "/imports/ui/stylesheets/variables/_all";
-$icon-offset-left: -.44em;
-$icon-offset-top: -.38em;
-$square-side-length: 1.56rem;
-$dropdown-offset-top: 4.8rem;
-$dropdown-offset-right: -0.2rem;
 
 .dropdown {
   position: static;
 }
 
 .dropdownContent {
-  top: $dropdown-offset-top;
-  margin-right: $dropdown-offset-right;
+  top: 4.8rem;
+  margin-right: -0.2rem;
 }
 
 .optionsButton{
   display: block;
-  margin-right: $sm-padding-y;
+  margin-right: var(--sm-padding-y);
 
   span:first-child {
-    width: $square-side-length;
-    height: $square-side-length;
+    width: 1.56rem;
+    height: 1.56rem;
   }
 
   i {
-    top: $icon-offset-top;
-    left: $icon-offset-left;
-    color: $color-gray-dark !important;
+    top: -.38em;
+    left: -.44em;
+    color: var(--color-gray-dark) !important;
     background-color: transparent !important;
   }
 

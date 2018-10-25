@@ -25,12 +25,16 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'enableScreensharing',
       'enableVideo',
       'enableVideoStats',
+      'autoShareWebcam',
       // WHITEBOARD
       'multiUserPenOnly',
       'presenterTools',
       'multiUserTools',
+      // SKINNING/THEMMING
+      'customStyle',
+      'customStyleUrl',
+      // LAYOUT
       'autoSwapLayout',
-      'autoShareWebcam',
       'hidePresentation',
     ];
     if (!handledHTML5Parameters.includes(key)) {

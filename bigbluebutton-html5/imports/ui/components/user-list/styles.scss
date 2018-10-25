@@ -5,26 +5,29 @@
  * ==========
  */
 
-$unread-messages-bg: $color-danger;
-$user-list-text: $color-gray;
-$user-list-bg: $color-off-white;
+// TODO: would be better to have those variables scoped and not global
+:root {
+  --unread-messages-bg: var(--color-danger);
+  --user-list-text: var(--color-gray);
+  --user-list-bg: var(--color-off-white);
 
-$user-thumbnail-border: $color-gray-light;
-$user-thumbnail-text: $user-thumbnail-border;
+  --user-thumbnail-border: var(--color-gray-light);
+  --user-thumbnail-text: var(--user-thumbnail-border);
 
-$voice-user-bg: $color-success;
-$voice-user-text: $color-white;
+  --voice-user-bg: var(--color-success);
+  --voice-user-text: var(--color-white);
 
-$moderator-text: $color-white;
-$moderator-bg: $color-primary;
+  --moderator-text: var(--color-white);
+  --moderator-bg: var(--color-primary);
 
-$sub-name-color: $color-gray-light;
+  --sub-name-color: var(--color-gray-light);
 
-$user-icons-color: $color-gray-light;
-$user-icons-color-hover: $color-gray;
+  --user-icons-color: var(--color-gray-light);
+  --user-icons-color-hover: var(--color-gray);
 
-$list-item-bg-hover: darken($color-off-white, 7%);
-$item-focus-border: $color-blue-lighter;
+  --list-item-bg-hover: #dce4ed;
+  --item-focus-border: var(--color-blue-lighter);
+}
 
 /* classes for extending
  * ==========
@@ -51,15 +54,14 @@ $item-focus-border: $color-blue-lighter;
   }
 
   &:focus {
-    background-color: $list-item-bg-hover;
-    box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+    background-color: var(--list-item-bg-hover);
+    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
     outline: none;
   }
 
   &:hover {
-    background-color: $list-item-bg-hover;
+    background-color: var(--list-item-bg-hover);
   }
-
 }
 
 /* Styling
@@ -69,10 +71,10 @@ $item-focus-border: $color-blue-lighter;
 .userList {
   @extend %flex-column;
   justify-content: flex-start;
-  background-color: $user-list-bg;
-  color: $user-list-text;
+  background-color: var(--user-list-bg);
+  color: var(--user-list-text);
   height: 100vh;
-  padding-top: $md-padding-x;
+  padding-top: var(--md-padding-x);
 }
 
 .lists {
@@ -89,7 +91,8 @@ $item-focus-border: $color-blue-lighter;
   flex-shrink: 1;
 }
 
-.participants, .messages {
+.participants,
+.messages {
   flex-grow: 0;
   display: flex;
   flex-flow: column;
@@ -106,23 +109,25 @@ $item-focus-border: $color-blue-lighter;
   flex-shrink: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  margin-top: ($lg-padding-x / 2);
+  margin-top: (var(--lg-padding-x) / 2);
 }
 
 .smallTitle {
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
-  padding: 0 $sm-padding-x;
-  margin: 0 0 ($lg-padding-x / 2) 0;
-  color: $color-gray-light;
+  padding: 0 var(--sm-padding-x);
+  margin: 0 0 (var(--lg-padding-x) / 2) 0;
+  color: var(--color-gray-light);
 }
 
-.enter, .appear {
+.enter,
+.appear {
   opacity: 0.01;
 }
 
-.enterActive, .appearActive {
+.enterActive,
+.appearActive {
   opacity: 1;
   transition: all 600ms;
 }

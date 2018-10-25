@@ -92,6 +92,9 @@
     "webdriverio": "~4.13.1"
   },
   "cssModules": {
+    "cssClassNamingConvention": {
+      "template": "${name}--${shorthash.unique(scopedName)}"
+    },
     "extensions": [
       "scss"
     ],
