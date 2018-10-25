@@ -8,14 +8,17 @@ import { Session } from 'meteor/session';
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
 
+const setError = (errorCode) => {
+  Session.set('hasError', true);
+  Session.set('codeError', errorCode);
+};
+
 export function joinRouteHandler(callback) {
   const urlParams = new URLSearchParams(window.location.search);
   const sessionToken = urlParams.get('sessionToken');
-  console.log('joinRouteHandler_2', sessionToken);
 
   if (!sessionToken) {
-    Session.set('hasError', true);
-    Session.set('codeError', '404');
+    setError('404');
     callback('failed - no sessionToken');
   }
 
@@ -33,10 +36,8 @@ export function joinRouteHandler(callback) {
         externUserID, fullname, confname, customdata,
       } = response;
 
-      console.log({ returncode });
       if (returncode === 'FAILED') {
-        Session.set('hasError', true);
-        Session.set('codeError', '404');
+        setError('404');
         callback('failed unhappily');
       } else {
         setCustomLogoUrl(customLogoURL);
@@ -127,8 +128,7 @@ export function authenticatedRouteHandler(callback) {
     .then(callback)
     .catch((reason) => {
       log('error', reason);
-      Session.set('hasError', true);
-      Session.set('codeError', reason.error);
+      setError(reason.error);
       callback();
     });
 }

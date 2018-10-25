@@ -54,7 +54,7 @@ export default withTracker(() => {
   const breakouts = Service.getBreakouts();
   const currentUserId = Auth.userID;
 
-  const isExpanded = Boolean(Session.get('isUserListOpen'));
+  const isExpanded = Session.get('isUserListOpen');
 
   return {
     isExpanded,
