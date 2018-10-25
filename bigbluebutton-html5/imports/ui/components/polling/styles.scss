@@ -32,13 +32,6 @@ $col-amount: 2;
   background-color: var(--color-white);
   bottom: var(--sm-padding-x);
   right: var(--sm-padding-x);
-}
-
-.pollingTitle {
-  color: var(--color-white);
-  white-space: nowrap;
-  padding-bottom: var(--md-padding-y);
-  padding-top: var(--md-padding-y);
 
   @media screen and (max-height: 479px), screen and (max-width: 479px)  {
     bottom: auto;
@@ -48,7 +41,13 @@ $col-amount: 2;
     margin-right: -50%;
     transform: translate(-50%, -50%);
   }
+}
 
+.pollingTitle {
+  color: var(--color-text);
+  white-space: nowrap;
+  padding-bottom: var(--md-padding-y);
+  padding-top: var(--md-padding-y);
 }
 
 .pollingAnswers {
