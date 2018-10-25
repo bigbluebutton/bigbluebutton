@@ -105,7 +105,7 @@ class LiveResult extends Component {
       usersList.map((userId) => {
         const user = getUser(userId);
 
-        if (user) {
+        if (user && user.connectionStatus == 'online') {
           usersToRespond.push(<div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>);
           usersToRespond.push(<div className={styles.itemR} key={_.uniqueId('stats-')}>-</div>);
         }
