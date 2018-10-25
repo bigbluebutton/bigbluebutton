@@ -19,7 +19,7 @@ export function joinRouteHandler(callback) {
 
   if (!sessionToken) {
     setError('404');
-    callback('failed - no sessionToken');
+    callback('failed - no sessionToken', urlParams);
   }
 
   // Old credentials stored in memory were being used when joining a new meeting
@@ -38,7 +38,7 @@ export function joinRouteHandler(callback) {
 
       if (returncode === 'FAILED') {
         setError('404');
-        callback('failed unhappily');
+        callback('failed during enter API call', response);
       } else {
         setCustomLogoUrl(customLogoURL);
 
@@ -69,7 +69,7 @@ export function joinRouteHandler(callback) {
 
         logger.info(clientInfo);
 
-        callback('all is cool'); // TODO 4767
+        callback('all is good', null);
       }
     });
 }
