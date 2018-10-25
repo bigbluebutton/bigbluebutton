@@ -12,15 +12,15 @@ const ActionsBarContainer = props => <ActionsBar {...props} />;
 
 export default withRouter(withTracker(({ }) => {
   const togglePollMenu = () => {
+    const showPoll = Session.equals('isPollOpen', false) || !Session.get('isPollOpen');
+
+    const show = () => Session.set('isPollOpen', true);
+
+    const hide = () => Session.set('isPollOpen', false);
+
     if (Session.equals('isChatOpen', true)) Session.set('isChatOpen', false);
 
-    if (Session.equals('isPollOpen', false)) {
-      Session.set('isUserListOpen', true);
-      return Session.set('isPollOpen', true);
-    }
-
-    Session.set('isUserListOpen', true);
-    return Session.set('isPollOpen', false);
+    return showPoll ? show() : hide();
   };
 
   return {
