@@ -1,10 +1,13 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$navbar-height: 63px; // TODO: Change to NavBar real height
-$actionsbar-height: 75px; // TODO: Change to ActionsBar real height
-$bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is aligned with the presentation title
-$userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
 $poll-pane-min-width: 20em;
+
+:root {
+  --navbar-height: 63px; // TODO: Change to NavBar real height
+  --actionsbar-height: 75px; // TODO: Change to ActionsBar real height
+  --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
+  --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
+}
 
 .main {
   position: fixed;
@@ -19,7 +22,7 @@ $poll-pane-min-width: 20em;
   text-align: center;
 
   font-size: 1.5rem;
-  padding: $bars-padding;
+  padding: var(--bars-padding);
 }
 
 .wrapper {
@@ -103,7 +106,7 @@ $poll-pane-min-width: 20em;
   order: 1;
 
   @include mq($small-only) {
-    top: $navbar-height;
+    top: var(--navbar-height);
   }
 
   @include mq($medium-up) {
@@ -117,8 +120,8 @@ $poll-pane-min-width: 20em;
 }
 
 .userlistPad {
-  background-color: $color-off-white;
-  width: $userlist-handle-width;
+  background-color: var(--color-off-white);
+  width: var(--userlist-handle-width);
 }
 
 .compact {
@@ -134,7 +137,7 @@ $poll-pane-min-width: 20em;
   @include mq($small-only) {
     z-index: 3;
     height: auto;
-    top: $navbar-height;
+    top: var(--navbar-height);
     overflow: visible;
   }
 
@@ -149,9 +152,9 @@ $poll-pane-min-width: 20em;
 }
 
 .poll {
-  background-color: $color-white;
+  background-color: var(--color-white);
   min-width: $poll-pane-min-width;
-  padding: $sm-padding-x;
+  padding: 1rem;
 }
 
 .sidebar {
@@ -194,7 +197,7 @@ $poll-pane-min-width: 20em;
 
 .actionsbar {
   flex: 1;
-  padding: $bars-padding;
+  padding: var(--bars-padding);
   position: relative;
   order: 3;
 }

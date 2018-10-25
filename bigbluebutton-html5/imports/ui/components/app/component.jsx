@@ -181,7 +181,7 @@ class App extends Component {
     const { userList } = this.props;
 
     // Variables for resizing user-list.
-    const USERLIST_MIN_WIDTH_PX = 100;
+    const USERLIST_MIN_WIDTH_PX = 150;
     const USERLIST_MAX_WIDTH_PX = 240;
     const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
 
@@ -309,7 +309,9 @@ class App extends Component {
   }
 
   render() {
-    const { params, userlistIsOpen } = this.props;
+    const {
+      params, userlistIsOpen, customStyle, customStyleUrl,
+    } = this.props;
     const { enableResize } = this.state;
 
     return (
@@ -332,6 +334,8 @@ class App extends Component {
         <AudioContainer />
         <ToastContainer />
         <ChatAlertContainer currentChatID={params.chatID} />
+        { customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null }
+        { customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null }
       </main>
     );
   }

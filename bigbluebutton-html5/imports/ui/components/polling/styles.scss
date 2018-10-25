@@ -1,5 +1,6 @@
 @import "../../stylesheets/variables/_all";
 
+<<<<<<< HEAD
 $poll-width: 18rem;
 $max-btn-width: 9em;
 $col-amount: 2;
@@ -10,6 +11,8 @@ $xs-landscape-offset: 4.75em;
 $s-portrait-offset: 11.75em;
 $s-landscape-offset: 1.75em;
 
+=======
+>>>>>>> Upstream/master
 .pollingContainer {
   width: $poll-width;
   position: absolute;
@@ -27,7 +30,11 @@ $s-landscape-offset: 1.75em;
 }
 
 .pollingTitle {
+<<<<<<< HEAD
   color: $color-text;
+=======
+  color: var(--color-white);
+>>>>>>> Upstream/master
   white-space: nowrap;
   padding-bottom: $md-padding-y;
   padding-top: $md-padding-y;
@@ -49,16 +56,16 @@ $s-landscape-offset: 1.75em;
 
   :global(.browser-safari) & {
     @include mq($ip5-portrait) {
-      bottom: $xs-portrait-offset;
+      bottom: 8.75em;
     }
     @include mq($ip678-portrait) {
-      bottom: $s-portrait-offset;
+      bottom: 4.75em;
     }
     @include mq($ip5-landscape) {
-      bottom: $xs-landscape-offset;
+      bottom: 11.75em;
     }
     @include mq($ip678-landscape) {
-      bottom: $s-landscape-offset;
+      bottom: 1.75em;
     }
   }
 }

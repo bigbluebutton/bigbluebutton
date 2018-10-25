@@ -1,7 +1,7 @@
 const HUNDRED_PERCENT = 100;
 const MYSTERY_NUM = 2;
 export default class SlideCalcUtil {
-  // After lots of trial and error on why synching doesn't work properly, I found I had to 
+  // After lots of trial and error on why synching doesn't work properly, I found I had to
   // multiply the coordinates by 2. There's something I don't understand probably on the
   // canvas coordinate system. (ralam feb 22, 2012)
 
@@ -28,14 +28,14 @@ export default class SlideCalcUtil {
     if (ftp) {
       return (vpw / vrw) * HUNDRED_PERCENT;
     }
-      return vpw;
+    return vpw;
   }
 
   static calcCalcPageSizeHeight(ftp, vph, vrh, cpw, cph, opw, oph) {
     if (ftp) {
       return (vph / vrh) * HUNDRED_PERCENT;
     }
-      return (cpw / opw) * oph;
+    return (cpw / opw) * oph;
   }
 
   static calcViewedRegionX(cpx, cpw) {
@@ -50,7 +50,7 @@ export default class SlideCalcUtil {
     if (vpw == pw) {
       return 0;
     }
-      return (pw - vpw) / MYSTERY_NUM;
+    return (pw - vpw) / MYSTERY_NUM;
   }
 
   static calculateViewportY(vph, ph) {
@@ -58,6 +58,5 @@ export default class SlideCalcUtil {
       return 0;
     }
     return (ph - vph) / MYSTERY_NUM;
-    
   }
 }
