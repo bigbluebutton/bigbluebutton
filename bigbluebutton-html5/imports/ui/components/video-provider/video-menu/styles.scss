@@ -14,11 +14,11 @@
   height: 4rem;
   @include mq($small-only) {
     margin: auto 1rem;
-  };
+  }
 }
 
 .label {
-  font-size: $font-size-small;
+  font-size: var(--font-size-small);
   white-space: nowrap;
   margin-top: .5rem;
   color: inherit;
@@ -26,7 +26,7 @@
   @include mq($small-only) {
     margin-top: 0;
     font-size: 90%;
-  };
+  }
 }
 
 .item {
@@ -37,5 +37,5 @@
 
   @include mq($small-only) {
     flex-direction: row;
-  };
+  }
 }

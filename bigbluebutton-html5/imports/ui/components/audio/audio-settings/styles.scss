@@ -32,7 +32,7 @@
   }
 
   &.spacedLeft {
-    // @extend .spaced;
+	// @extend .spaced;
 
     label {
       flex-grow: 1;
@@ -78,11 +78,11 @@
 .select {
   -webkit-appearance: none;
   -webkit-border-radius: 0px;
-  background: $color-white url("data:image/svg+xml;charset=utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='#667189' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>") no-repeat right .35rem center/.4rem .5rem;
+  background: var(--color-white) url("data:image/svg+xml;charset=utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='#667189' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>") no-repeat right .35rem center/.4rem .5rem;
   background-repeat: no-repeat;
-  border: 0.07rem solid $color-gray-light;
+  border: 0.07rem solid var(--color-gray-light);
   border-radius: .125rem;
-  color: $color-text;
+  color: var(--color-text);
   width: 100%;
   // appearance: none;
   padding: .4rem;
@@ -120,7 +120,7 @@
 }
 
 .chooseAudio {
-  position:absolute;
-  left:50%;
+  position: absolute;
+  left: 50%;
   transform: translate(-50%, 0);
 }

@@ -298,7 +298,9 @@ class App extends Component {
   }
 
   render() {
-    const { userListIsOpen } = this.props;
+    const {
+      userListIsOpen, customStyle, customStyleUrl,
+    } = this.props;
     const { enableResize } = this.state;
 
     return (
@@ -319,6 +321,8 @@ class App extends Component {
         <AudioContainer />
         <ToastContainer />
         <ChatAlertContainer />
+        { customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null }
+        { customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null }
       </main>
     );
   }
