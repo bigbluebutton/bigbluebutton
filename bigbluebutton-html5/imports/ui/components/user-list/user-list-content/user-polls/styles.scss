@@ -1,8 +1,8 @@
 @import "../../styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
 
-$list-item-bg-hover: darken($color-off-white, 7%);
-$item-focus-border: $color-blue-lighter;
+$list-item-bg-hover: darken(#F3F6F9, 7%);
+$item-focus-border: #92BCEA;
 
 .smallTitle {
     font-size: 0.85rem;
@@ -34,8 +34,8 @@ $item-focus-border: $color-blue-lighter;
     padding-left: 12px;
     text-decoration: none;
     width: 100%;
-    color: $color-gray-dark;
-    background-color: $color-off-white;
+    color: var(--color-gray-dark);
+    background-color: var(--color-off-white);
 
     > i {
         display: flex;
@@ -58,7 +58,7 @@ $item-focus-border: $color-blue-lighter;
 
     &:active {
         background-color: $list-item-bg-hover;
-        box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+        box-shadow: inset 0 0 0 var(--border-size) $item-focus-border, inset 1px 0 0 1px $item-focus-border;
         outline: none;
     }
 }

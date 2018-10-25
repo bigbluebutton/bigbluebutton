@@ -36,18 +36,18 @@ $poll-blue: #1A73D4;
 
     > input {
         width: 100%;
-        margin-top: $sm-padding-y;
-        margin-bottom: $sm-padding-y;
+        margin-top: var(--sm-padding-y);
+        margin-bottom: var(--sm-padding-y);
     }
 
     > input:first-child {
-        margin-top: $md-padding-y;
+        margin-top: var(--md-padding-y);
     }
 
     > Button {
         width: 100%;
-        margin-top: $sm-padding-y;
-        margin-bottom: $sm-padding-y;
+        margin-top: var(--sm-padding-y);
+        margin-bottom: var(--sm-padding-y);
     }
 }
 
@@ -56,7 +56,7 @@ $poll-blue: #1A73D4;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: $md-padding-y;
+    margin-bottom: var(--md-padding-y);
 
     > a {
         text-decoration: none;
@@ -64,10 +64,10 @@ $poll-blue: #1A73D4;
 }
 
 .instructions {
-    margin-top: $lg-padding-x;
-    margin-bottom: $lg-padding-x;
+    margin-top: var(--lg-padding-x);
+    margin-bottom: var(--lg-padding-x);
 
-    color: $color-text;
+    color: var(--color-text);
 }
 
 .grid {
@@ -84,17 +84,17 @@ $poll-blue: #1A73D4;
 }
 
 .pollBtn:nth-child(even) {
-    margin-left: $sm-padding-y;
+    margin-left: var(--sm-padding-y);
 }
 
 .pollBtn:nth-child(odd) {
-    margin-right: $sm-padding-y;
+    margin-right: var(--sm-padding-y);
 }
 
 .customBtn:hover,
 .pollBtn:hover {
     box-shadow: 0 0 0 1px $poll-blue;
-    background-color: $color-white;
+    background-color: var(--color-white);
     color: $poll-blue;
 
     > span {
@@ -105,14 +105,14 @@ $poll-blue: #1A73D4;
 
 .customBtn,
 .pollBtn {
-    margin-top: $sm-padding-y;
-    margin-bottom: $sm-padding-y;
-    background-color: $color-white;
-    box-shadow: 0 0 0 1px $color-gray-light;
-    color: $color-gray-light;
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 1px var(--color-gray-light);
+    color: var(--color-gray-light);
 
     > span {
-        color: $color-gray-light;
+        color: var(--color-gray-light);
     }
 
     > span:hover {
@@ -127,7 +127,7 @@ $poll-blue: #1A73D4;
         box-shadow: 0 0 0 1px $poll-blue;
     }
 
-    background-color: $color-white;
+    background-color: var(--color-white);
     box-shadow: 0 0 0 1px $poll-blue;
 
     > span {
@@ -137,7 +137,7 @@ $poll-blue: #1A73D4;
 
 .customBtn:focus,
 .pollBtn:focus {
-    background-color: $color-white;
+    background-color: var(--color-white);
     box-shadow: 0 0 0 1px $poll-blue;
 
     > span {
@@ -146,15 +146,15 @@ $poll-blue: #1A73D4;
 }
 
 .input {
-    @include inputFocus($color-blue-light);
+    @include inputFocus(var(--color-blue-light));
 
     outline: 0;
     margin: 0;
-    color: $color-text;
-    background: $color-white;
-    font-size: $font-size-small;
-    border: 1px solid $color-gray-lighter;
-    border-radius: $border-radius;
-    padding: $sm-padding-y * 1 $sm-padding-x * 0.25;
-    padding-left: $lg-padding-y;
+    color: var(--color-text);
+    background: var(--color-white);
+    font-size: var(--font-size-small);
+    border: 1px solid var(--color-gray-lighter);
+    border-radius: var(--border-radius);
+    //padding: var(--sm-padding-y) * 1 var(--sm-padding-x) * 0.25;
+    padding-left: var(--lg-padding-y);
 }

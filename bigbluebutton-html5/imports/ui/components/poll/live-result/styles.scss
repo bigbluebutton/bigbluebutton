@@ -9,8 +9,8 @@ $user-line-height: 1.75rem;
 
 .btn {
   width: 100%;
-  margin-top: $sm-padding-y;
-  margin-bottom: $sm-padding-y;
+  margin-top: var(--sm-padding-y);
+  margin-bottom: var(--sm-padding-y);
 }
 
 .main {
@@ -27,10 +27,10 @@ $user-line-height: 1.75rem;
 .left,
 .right,
 .center {
-  padding: $sm-padding-y;
+  padding: var(--sm-padding-y);
   margin-top: $sm-margin;
   margin-bottom: $sm-margin;
-  color: $color-text;
+  color: var(--color-text);
 }
 
 .left,
@@ -55,15 +55,15 @@ $user-line-height: 1.75rem;
 
 .container,
 .stats {
-  margin-bottom: $sm-padding-x;
+  margin-bottom: var(--sm-padding-x);
 }
 
 .stats {
   display: flex;
   flex-direction: column;
   border: 1px solid $stats-border-color;
-  border-radius: $border-size-large;
-  padding: $md-padding-x;
+  border-radius: var(--border-size-large);
+  padding: var(--md-padding-x);
 
   > div {
     display: flex;
@@ -90,7 +90,7 @@ $user-line-height: 1.75rem;
 
   .usersHeading,
   .responseHeading {
-    font-weight: $headings-font-weight;
+    font-weight: var(--headings-font-weight);
   }
   
   .usersHeading,
@@ -104,5 +104,5 @@ $user-line-height: 1.75rem;
   .item,
   .itemR {
     line-height: $user-line-height;
-    color: $color-text;
+    color: var(--color-text);
   }
