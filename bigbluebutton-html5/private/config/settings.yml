@@ -98,6 +98,7 @@ public:
     enableVideo: false
     enableVideoStats: false
     enableListenOnly: false
+    autoShareWebcam: false
   acl:
     viewer:
       subscriptions:
@@ -174,6 +175,9 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+  layout:
+    autoSwapLayout: false
+    hidePresentation: false
   media:
     WebRTCHangupRetryInterval: 2000
     vertoServerAddress: HOST
@@ -221,6 +225,7 @@ public:
         update: DRAW_UPDATE
         end: DRAW_END
     toolbar:
+      multiUserPenOnly: false
       colors:
       - label: black
         value: "#000000"
@@ -277,6 +282,22 @@ public:
         value: pencil
       - icon: hand
         value: hand
+      presenterTools:
+      - text
+      - line
+      - ellipse
+      - triangle
+      - rectangle
+      - pencil
+      - hand
+      multiUserTools:
+      - text
+      - line
+      - ellipse
+      - triangle
+      - rectangle
+      - pencil
+      - hand
   clientLog:
     server:
       enabled: true

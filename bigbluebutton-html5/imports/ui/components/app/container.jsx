@@ -42,6 +42,11 @@ const intlMessages = defineMessages({
   },
 });
 
+const endMeeting = (code) => {
+  Session.set('codeError', code);
+  Session.set('isMeetingEnded', true);
+};
+
 const AppContainer = (props) => {
   const {
     navbar,
@@ -77,8 +82,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
       if (fields.ejected || hasNewConnection) {
-        Session.set('codeError', '403');
-        Session.set('isMeetingEnded', true);
+        endMeeting('403');
       }
     },
   });
@@ -89,8 +93,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       if (isMeetingBreakout) {
         Auth.clearCredentials().then(window.close);
       } else {
-        Session.set('codeError', '410');
-        Session.set('isMeetingEnded', true);
+        endMeeting('410');
       }
     },
   });

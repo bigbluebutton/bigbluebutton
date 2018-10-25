@@ -185,7 +185,7 @@ class App extends Component {
     const { userListIsOpen } = this.props;
 
     // Variables for resizing user-list.
-    const USERLIST_MIN_WIDTH_PX = 100;
+    const USERLIST_MIN_WIDTH_PX = 150;
     const USERLIST_MAX_WIDTH_PX = 240;
     const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
 
