@@ -90,6 +90,12 @@ class Poll extends Component {
     this.back = this.back.bind(this);
   }
 
+  componentWillUnmount() {
+    const { stopPoll } = this.props;
+
+    stopPoll();
+  }
+
   componentWillMount() {
     this.nonPresenterRedirect();
   }
@@ -209,8 +215,6 @@ class Poll extends Component {
         <div className={styles.instructions}>
           {intl.formatMessage(intlMessages.activePollInstruction)}
         </div>
-
-
         <LiveResultContainer publishPoll={publishPoll} stopPoll={stopPoll} back={this.back} />
       </div>
     );
@@ -251,9 +255,9 @@ class Poll extends Component {
       <div>
         <header className={styles.header}>
           <Button
-            role="button"
             tabIndex={0}
-            label=""
+            label={intl.formatMessage(intlMessages.pollPaneTitle)}
+            icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
             onClick={() => {
@@ -264,11 +268,7 @@ class Poll extends Component {
               Session.set('forcePollOpen', true);
               Session.set('isUserListOpen', true);
             }}
-          >
-            <Icon iconName="left_arrow" />
-            {intl.formatMessage(intlMessages.pollPaneTitle)}
-          </Button>
-
+          />
 
           <Button
             onClick={() => {
