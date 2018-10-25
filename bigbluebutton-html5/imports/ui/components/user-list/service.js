@@ -258,7 +258,7 @@ const getOpenChats = (chatID) => {
 
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 
-const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
+const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
 
   const hasAuthority = currentUser.isModerator || user.isCurrent;

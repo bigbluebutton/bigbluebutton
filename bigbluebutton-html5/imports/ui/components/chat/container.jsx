@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Chat from './component';
 import ChatService from './service';
@@ -31,7 +32,7 @@ const intlMessages = defineMessages({
 class ChatContainer extends Component {
   componentDidMount() {
     // in case of reopening a chat, need to make sure it's removed from closed list
-    ChatService.removeFromClosedChatsSession(this.props.chatID);
+    ChatService.removeFromClosedChatsSession();
   }
   render() {
     return (
@@ -42,9 +43,8 @@ class ChatContainer extends Component {
   }
 }
 
-export default injectIntl(withTracker(({ params, intl }) => {
-  const chatID = params.chatID || PUBLIC_CHAT_KEY;
-
+export default injectIntl(withTracker(({ intl }) => {
+  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_KEY;
   let messages = [];
   let isChatLocked = ChatService.isChatLocked(chatID);
   let title = intl.formatMessage(intlMessages.titlePublic);
@@ -109,7 +109,7 @@ export default injectIntl(withTracker(({ params, intl }) => {
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
   } else {
-    messages = ChatService.getPrivateGroupMessages(chatID);
+    messages = ChatService.getPrivateGroupMessages();
 
     const user = ChatService.getUser(chatID);
     chatName = user.name;
@@ -155,7 +155,7 @@ export default injectIntl(withTracker(({ params, intl }) => {
   const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
 
   return {
-    chatID,
+    chatID: Session.get('idChatOpen'),
     chatName,
     title,
     messages,
@@ -170,13 +170,13 @@ export default injectIntl(withTracker(({ params, intl }) => {
       handleClosePrivateChat: chatId => ChatService.closePrivateChat(chatId),
 
       handleSendMessage: (message) => {
-        ChatService.updateScrollPosition(chatID, null);
-        return ChatService.sendGroupMessage(chatID, message);
+        ChatService.updateScrollPosition(null);
+        return ChatService.sendGroupMessage(message);
       },
 
-      handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),
+      handleScrollUpdate: position => ChatService.updateScrollPosition(position),
 
-      handleReadMessage: timestamp => ChatService.updateUnreadMessage(chatID, timestamp),
+      handleReadMessage: timestamp => ChatService.updateUnreadMessage(timestamp),
     },
   };
 })(ChatContainer));

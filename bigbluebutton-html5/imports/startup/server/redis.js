@@ -159,6 +159,9 @@ class RedisPubSub {
 
     if (ignoredMessages.includes(channel)
       || ignoredMessages.includes(eventName)) {
+      if (eventName === 'CheckAlivePongSysMsg') {
+        return;
+      }
       this.debug(`${eventName} skipped`);
       return;
     }

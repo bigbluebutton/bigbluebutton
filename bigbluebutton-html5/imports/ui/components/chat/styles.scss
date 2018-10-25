@@ -70,6 +70,12 @@
 .title {
   @extend %text-elipsis;
   flex: 1;
+
+  & > button, button:hover {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 
 .closeBtn {
@@ -89,6 +95,23 @@
     i {
       color: var(--color-gray);
     }
+  }
+}
+
+.hideBtn {
+  position: relative;
+  background-color: white;
+  display: block;
+  margin: 4px;
+  margin-bottom: 2px;
+  padding-left: 0px;
+
+  > i {
+    color: black;
+  }
+
+  &:hover {
+    background-color: #fff;
   }
 }
 

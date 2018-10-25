@@ -168,7 +168,6 @@ public:
     public_userid: public_chat_userid
     public_username: public_chat_username
     storage_key: UNREAD_CHATS
-    path_route: users/chat/
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
   layout:
