@@ -70,6 +70,12 @@
 .title {
   @extend %text-elipsis;
   flex: 1;
+
+  & > button, button:hover {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 
 .closeBtn {
