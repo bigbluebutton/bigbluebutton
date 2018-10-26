@@ -3,9 +3,9 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   -webkit-appearance: none;
 }
 .subTitle {
-  font-size: $font-size-base;
+  font-size: var(--font-size-base);
   text-align: justify;
-  color: $color-gray-light;
+  color: var(--color-gray-light);
 }
 
 .breakoutSettings {
@@ -26,16 +26,16 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .labelText {
-  color: $color-gray;
+  color: var(--color-gray);
   white-space: nowrap;
   margin-bottom: .5rem;
 }
 .duration,
 .inputRooms {
-  background-color: $color-white;
-  color: $color-gray;
-  border: 1px solid $color-gray-lighter;
-  border-radius: $border-radius;
+  background-color: var(--color-white);
+  color: var(--color-gray);
+  border: 1px solid var(--color-gray-lighter);
+  border-radius: var(--border-radius);
   width: 100%;
   padding-top: .25rem;
   padding-bottom: .25rem;
@@ -47,15 +47,15 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   text-align: center;
   padding: .25rem;
   &::placeholder {
-    color: $color-gray;
+    color: var(--color-gray);
     opacity: 1;
   }
 }
 
 .iconsColor {
   cursor: pointer;
-  color: $color-gray-light;
-  font-size: $font-size-large;
+  color: var(--color-gray-light);
+  font-size: var(--font-size-large);
   @include mq($small-only) {
     font-size: 2rem;
     margin-left: .5rem;
@@ -69,8 +69,8 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .randomText {
-  color: $color-primary;
-  font-size: $font-size-small;
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
   white-space: nowrap;
   margin-bottom: .5rem;
   align-self: flex-end;

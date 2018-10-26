@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
+
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
@@ -192,21 +192,16 @@ class BreakoutRoom extends Component {
 
   render() {
     const {
-      intl, endAllBreakouts, breakoutRooms, isPresenter,
+      intl, endAllBreakouts, breakoutRooms, isPresenter, closeBreakoutPanel,
     } = this.props;
     if (breakoutRooms.length <= 0) return null;
     return (
       <div className={styles.panel}>
-        <div className={styles.header}>
-          <Link
-            to="/users"
-            role="button"
-            className={styles.link}
-            href="/users"
-          >
+        <div className={styles.header} role="button" onClick={closeBreakoutPanel} >
+          <span >
             <Icon iconName="left_arrow" />
             {intl.formatMessage(intlMessages.breakoutTitle)}
-          </Link>
+          </span>
         </div>
         {this.renderBreakoutRooms()}
         {this.renderDuration()}

@@ -2,7 +2,7 @@
 
 .panel {
   background-color: #fff;
-  padding: $md-padding-x;
+  padding: var(--md-padding-x);
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -24,10 +24,11 @@
 
 .header {
   margin-bottom: 2rem;
+  cursor: pointer;
 }
 
 .content {
-  font-size: $font-size-small;
+  font-size: var(--font-size-small);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -36,8 +37,8 @@
 }
 
 .breakoutActions {
-  font-weight: $headings-font-weight;
-  color: $color-primary;
+  font-weight: var(--headings-font-weight);
+  color: var(--color-primary);
   & > button {
     padding: 0 0 0 .5rem;
   }
@@ -45,7 +46,7 @@
 .joinButton,
 .button {
   flex: 0 1 48%;
-  color: $color-primary;
+  color: var(--color-primary);
   margin: 0;
   font-weight: inherit;
 }
@@ -56,9 +57,9 @@
 
 .endButton {
   padding: .5rem;
-  font-weight: $headings-font-weight !important;
+  font-weight: var(--headings-font-weight) !important;
   border-radius: .2rem;
-  font-size: $font-size-small;  
+  font-size: var(--font-size-small);  
 }
 
 .overlayContainer {
@@ -71,7 +72,7 @@
   align-items: center;
   height: 100%;
   width: 100%;
-  color: $color-gray;
+  color: var(--color-gray);
 }
 
 

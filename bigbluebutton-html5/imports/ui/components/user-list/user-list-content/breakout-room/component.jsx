@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Link, withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
 
@@ -11,32 +11,27 @@ const intlMessages = defineMessages({
     description: 'breakout title',
   },
 });
-const USERLIST_PATH = 'users/';
-const BREAKOUT_PATH = 'breakout/';
+const toggleBreakoutPanel = () => {
+  const breakoutPanelState = Session.get('breakoutRoomIsOpen');
+  Session.set('breakoutRoomIsOpen', !breakoutPanelState);
+  Session.set('isChatOpen', false);
+};
 
 const BreakoutRoomItem = ({
   hasBreakoutRoom,
   intl,
-  location,
 }) => {
-  const linkPath = [USERLIST_PATH, BREAKOUT_PATH].join('');
-  const path = location.pathname.includes(linkPath) ? USERLIST_PATH : linkPath;
   if (hasBreakoutRoom) {
     return (
-      <div >
+      <div role="button" onClick={toggleBreakoutPanel}>
         <h2 className={styles.smallTitle}> {intl.formatMessage(intlMessages.breakoutTitle).toUpperCase()}</h2>
         <div className={styles.BreakoutRoomsItem}>
-          <Link
-            to={path}
-            className={styles.link}
-          >
-            <div className={styles.BreakoutRoomsContents}>
-              <div className={styles.BreakoutRoomsIcon} >
-                <Icon iconName="rooms" />
-              </div>
-              <span className={styles.BreakoutRoomsText}>{intl.formatMessage(intlMessages.breakoutTitle)}</span>
+          <div className={styles.BreakoutRoomsContents}>
+            <div className={styles.BreakoutRoomsIcon} >
+              <Icon iconName="rooms" />
             </div>
-          </Link>
+            <span className={styles.BreakoutRoomsText}>{intl.formatMessage(intlMessages.breakoutTitle)}</span>
+          </div>
         </div>
       </div>
     );
@@ -44,4 +39,4 @@ const BreakoutRoomItem = ({
   return <span />;
 };
 
-export default withRouter(injectIntl(BreakoutRoomItem));
+export default injectIntl(BreakoutRoomItem);

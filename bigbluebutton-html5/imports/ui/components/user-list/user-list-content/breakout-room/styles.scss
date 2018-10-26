@@ -12,29 +12,29 @@
   flex-grow: 0;
   display: flex;
   flex-flow: row;
-  padding-top: $lg-padding-y;
-  padding-bottom: $lg-padding-y;
+  padding-top: var(--lg-padding-y);
+  padding-bottom: var(--lg-padding-y);
 }
 
 .BreakoutRoomsIcon {
   display: flex;
   flex-flow: row;
   justify-content: space-between;
-  margin-left: $sm-padding-x / 2;
+  margin-left: var(--sm-padding-x) / 2;
   text-align: right;
   font-size: 175%;
   flex-shrink: 1;
-  color: $user-icons-color;
+  color: var(--user-icons-color);
 }
 
 .BreakoutRoomsText {
   @extend %flex-column;
   min-width: 0;
   flex-grow: 1;
-  margin-left: $sm-padding-x;
+  margin-left: var(--sm-padding-x);
   justify-content: center;
-  font-size: $font-size-small;
-  color: $color-gray-dark;
+  font-size: var(--font-size-small);
+  color: var(--color-gray-dark);
 }
 
 .BreakoutRoomsItem {
