@@ -1,11 +1,13 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
-$stats-border-color: #d4d9df;
-$stats-option-width: 4em;
-$stats-element-width: 17%;
-
-$sm-margin: 0.3125rem;
-$user-line-height: 1.75rem;
+:root {
+  --stats-border-color: #d4d9df;
+  --stats-option-width: 4em;
+  --stats-element-width: 17%;
+  
+  --sm-margin: 0.3125rem;
+  --user-line-height: 1.75rem;
+}
 
 .btn {
   width: 100%;
@@ -28,8 +30,8 @@ $user-line-height: 1.75rem;
 .right,
 .center {
   padding: var(--sm-padding-y);
-  margin-top: $sm-margin;
-  margin-bottom: $sm-margin;
+  margin-top: var(--sm-margin);
+  margin-bottom: var(--sm-margin);
   color: var(--color-text);
 }
 
@@ -37,11 +39,11 @@ $user-line-height: 1.75rem;
 .right {
   flex: 0 0 auto;
   position: relative;
-  min-width: $stats-element-width;
+  min-width: var(--stats-element-width);
 }
 
 .left {
-  width: $stats-option-width;
+  width: var(--stats-option-width);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -50,7 +52,7 @@ $user-line-height: 1.75rem;
 
 .right {
   text-align: right;
-  max-width: $stats-element-width;
+  max-width: var(--stats-element-width);
 }
 
 .container,
@@ -61,7 +63,7 @@ $user-line-height: 1.75rem;
 .stats {
   display: flex;
   flex-direction: column;
-  border: 1px solid $stats-border-color;
+  border: 1px solid var(--stats-border-color);
   border-radius: var(--border-size-large);
   padding: var(--md-padding-x);
 
@@ -98,11 +100,11 @@ $user-line-height: 1.75rem;
   .item,
   .itemR {
     width: 50%;
-    line-height: $user-line-height;
+    line-height: var(--user-line-height);
   }
 
   .item,
   .itemR {
-    line-height: $user-line-height;
+    line-height: var(--user-line-height);
     color: var(--color-text);
   }

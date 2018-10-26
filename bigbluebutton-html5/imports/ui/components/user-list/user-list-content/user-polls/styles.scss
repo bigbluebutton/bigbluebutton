@@ -1,18 +1,18 @@
 @import "../../styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
 
+
 $list-item-bg-hover: darken(#F3F6F9, 7%);
 $item-focus-border: #92BCEA;
 
 .smallTitle {
-    font-size: 0.85rem;
+    font-size: var(--font-size-small);
     font-weight: 600;
     text-transform: uppercase;
-    padding: 0 0.75rem;
-    margin: 0 0 0.625rem 0;
-    color: #8B9AA8;
-    margin-bottom: 12px;
-    margin-top: 8px;
+    padding: 0 var(--sm-padding-x);
+    color: var(--color-gray-light);
+    margin-bottom: var(--sm-padding-x);
+    margin-top: var(--sm-padding-x);
 }
 
 .scrollableList {
@@ -29,9 +29,9 @@ $item-focus-border: #92BCEA;
     flex-flow: row;
     flex-grow: 0;
     flex-shrink: 0;
-    padding-top: 10px;
-    padding-bottom: 8px;
-    padding-left: 12px;
+    padding-top: var(--lg-padding-y);
+    padding-bottom: var(--lg-padding-y);
+    padding-left: var(--lg-padding-y);
     text-decoration: none;
     width: 100%;
     color: var(--color-gray-dark);
@@ -52,7 +52,7 @@ $item-focus-border: #92BCEA;
         flex-grow: 1;
         line-height: 2;
         text-align: left;
-        padding-left: 10px;
+        padding-left: var(--lg-padding-y);
         text-overflow: ellipsis;
     }
 

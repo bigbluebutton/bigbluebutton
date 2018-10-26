@@ -1,12 +1,13 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/focus";
 
-$column-amount: 2;
-$poll-blue: #1A73D4;
+:root {
+    --column-amount: 2;
+    --poll-blue: #1A73D4;
+}
 
 .closeBtn {
     position: relative;
-    margin-left: 9.125rem;
 }
 
 .btn {
@@ -16,19 +17,19 @@ $poll-blue: #1A73D4;
 
 .hideBtn {
     position: relative;
-    background-color: white;
+    background-color: var(--color-white);
     display: block;
-    margin: 4px;
-    margin-bottom: 2px;
+    margin: var(--border-size-large);
+    margin-bottom: var(--border-size);
     padding-left: 0px;
 
     > i {
-        color: black;
-        font-size: 85%;
+        color: var(--color-gray-dark);
+        font-size: smaller;
     }
 
     &:hover {
-        background-color: #fff;
+        background-color: var(--color-white);
     }
   }
 
@@ -41,8 +42,8 @@ $poll-blue: #1A73D4;
 
     > input {
         width: 100%;
-        margin-top: .3rem;
-        margin-bottom: .3rem;
+        margin-top: var(--sm-padding-y);
+        margin-bottom: var(--sm-padding-y);
     }
 
     > input:first-child {
@@ -57,34 +58,29 @@ $poll-blue: #1A73D4;
 }
 
 .header {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     margin-bottom: var(--md-padding-y);
-
-    > a {
-        text-decoration: none;
-    }
 }
 
 .instructions {
-    margin-top: var(--lg-padding-x);
     margin-bottom: var(--lg-padding-x);
-
     color: var(--color-text);
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat($column-amount, 1fr);
+    grid-template-columns: repeat(var(--column-amount), 1fr);
 
     > pollBtn:nth-child(odd) {
         grid-column: 1;
     }
 
     > pollBtn:nth-child(even) {
-        grid-column: $column-amount;
+        grid-column: var(--column-amount);
     }
 }
 
@@ -98,12 +94,12 @@ $poll-blue: #1A73D4;
 
 .customBtn:hover,
 .pollBtn:hover {
-    box-shadow: 0 0 0 1px $poll-blue;
+    box-shadow: 0 0 0 1px var(--poll-blue);
     background-color: var(--color-white);
-    color: $poll-blue;
+    color: var(--poll-blue);
 
     > span {
-        color: $poll-blue;
+        color: var(--poll-blue);
         opacity: 1;
     }
 }
@@ -121,7 +117,7 @@ $poll-blue: #1A73D4;
     }
 
     > span:hover {
-        color: $poll-blue;
+        color: var(--poll-blue);
         opacity: 1;
     }
 }
@@ -129,24 +125,24 @@ $poll-blue: #1A73D4;
 .customBtn:active,
 .pollBtn:active {
     &:focus {
-        box-shadow: 0 0 0 1px $poll-blue;
+        box-shadow: 0 0 0 1px var(--poll-blue);
     }
 
     background-color: var(--color-white);
-    box-shadow: 0 0 0 1px $poll-blue;
+    box-shadow: 0 0 0 1px var(--poll-blue);
 
     > span {
-        color: $poll-blue;
+        color: var(--poll-blue);
     }
 }
 
 .customBtn:focus,
 .pollBtn:focus {
     background-color: var(--color-white);
-    box-shadow: 0 0 0 1px $poll-blue;
+    box-shadow: 0 0 0 1px var(--poll-blue);
 
     > span {
-        color: $poll-blue;
+        color: var(--poll-blue);
     }
 }
 

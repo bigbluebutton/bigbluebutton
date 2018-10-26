@@ -1,27 +1,32 @@
 @import "../../stylesheets/variables/_all";
 
-$poll-width: 18rem;
-$max-btn-width: 9em;
-$col-amount: 2;
+:root {
+  --col-amount: 2;
+  --max-btn-width: 9em;
+  --overlayIndex: 1015;
+  --overlayOpacity: 0.349;
+  --pollIndex: 1016;
+  --poll-width: 18rem;
+}
 
 .overlay {
   position: absolute;
   height: 100vh;
   width: 100vw;
-  z-index: 1015;
+  z-index: var(--overlayIndex);
   pointer-events: none;
 
-  @media screen and (max-width: 479px), screen and (max-height: 479px) {
-    background-color: rgba(0, 0, 0, 0.349);
+  @include mq($hasPhoneDimentions) {
+    background-color: rgba(0, 0, 0, var(--overlayOpacity));
   }
 }
 
 .pollingContainer {
   pointer-events:auto;
-  width: $poll-width;
+  width: var(--poll-width);
   position: absolute;
 
-  z-index: 1016;
+  z-index: var(--pollIndex);
   border: 1px solid var(--color-off-white);
   border-radius: var(--border-radius);
   box-shadow: var(--color-gray-dark) 0px 0px var(--lg-padding-y);
@@ -33,7 +38,7 @@ $col-amount: 2;
   bottom: var(--sm-padding-x);
   right: var(--sm-padding-x);
 
-  @media screen and (max-height: 479px), screen and (max-width: 479px)  {
+  @include mq($hasPhoneDimentions) {
     bottom: auto;
     right: auto;
     top: 50%;
@@ -52,25 +57,21 @@ $col-amount: 2;
 
 .pollingAnswers {
   display: grid;
-  grid-template-columns: repeat($col-amount, 1fr);
+  grid-template-columns: repeat(var(--col-amount), 1fr);
 
   > pollButtonWrapper:nth-child(odd) {
       grid-column: 1;
   }
 
   > pollButtonWrapper:nth-child(even) {
-      grid-column: $col-amount;
+      grid-column: var(--col-amount);
   }
 
-  @media screen and (max-width: 479px) {
+  @include mq($hasPhoneDimentions) {
     grid-template-columns: repeat(1, 1fr);
 
-    > pollButtonWrapper:nth-child(odd) {
-        grid-column: 1;
-    }
-  
-    > pollButtonWrapper:nth-child(even) {
-        grid-column: 1;
+    .pollButtonWrapper .button {
+      grid-column: 1;
     }
   }
 
@@ -85,8 +86,9 @@ $col-amount: 2;
 
 .pollingButton {
   width: 100%;
-  max-width: $max-btn-width;
-  @media screen and (max-width: 479px) { 
+  max-width: var(--max-btn-width);
+
+  @include mq($hasPhoneDimentions) {
     max-width: none;
   }
   white-space: nowrap;
