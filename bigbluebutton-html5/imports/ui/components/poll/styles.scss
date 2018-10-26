@@ -4,6 +4,7 @@
 :root {
     --column-amount: 2;
     --poll-blue: #1A73D4;
+    --headerOffset: -0.875rem;
 }
 
 .closeBtn {
@@ -59,6 +60,7 @@
 
 .header {
     position: relative;
+    top: var(--headerOffset);
     display: flex;
     flex-direction: row;
     align-items: center;
