@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
@@ -44,6 +45,10 @@ const defaultProps = {
   openChat: '',
 };
 
+const toggleChatOpen = () => {
+  Session.set('isChatOpen', !Session.get('isChatOpen'));
+};
+
 const ChatListItem = (props) => {
   const {
     chat,
@@ -66,7 +71,7 @@ const ChatListItem = (props) => {
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
       onClick={() => {
-        Session.set('isChatOpen', true);
+        toggleChatOpen();
         Session.set('idChatOpen', chat.id);
       }}
       id="chat-toggle-button"
