@@ -104,5 +104,9 @@
       "postcss-modules-scope": {},
       "autoprefixer": {}
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bigbluebutton/bigbluebutton.git"
   }
 }
