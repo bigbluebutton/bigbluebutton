@@ -7,7 +7,7 @@
   align-self: flex-end;
   width: 100%;
   position: relative;
-  margin-bottom: -$sm-padding-x;
+  margin-bottom: calc(-1 * var(--sm-padding-x));
 }
 
 .wrapper {
@@ -21,57 +21,59 @@
   justify-content: center;
   flex-grow: 0;
   flex-shrink: 0;
-  border: $border-size solid $color-gray-lighter;
+  border: var(--border-size) solid var(--color-gray-lighter);
   background: #fff;
-  border-radius: $border-radius 0 0 $border-radius;
-  color: $color-gray-light;
-  padding: $sm-padding-y $sm-padding-x;
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  color: var(--color-gray-light);
+  padding: var(--sm-padding-y) var(--sm-padding-x);
   transition: background .3s;
   cursor: pointer;
 
+  --bg-faded: rgba(167,179,189,0.25);
+
   &:hover,
   &:focus {
-    background-color: fade-out($color-gray-lighter, .75);
+    background-color: var(--bg-faded);
   }
 
   &:disabled,
   &[disabled] {
     cursor: not-allowed;
     opacity: .75;
-    background-color: fade-out($color-gray-lighter, .75);
+    background-color: var(--bg-faded);
   }
 }
 
 .input {
-  @include inputFocus($color-blue-light);
+  @include inputFocus(var(--color-blue-light));
 
   flex: 1;
   background: #fff;
   background-clip: padding-box;
   margin: 0;
-  color: $color-text;
+  color: var(--color-text);
   -webkit-appearance: none;
   outline: 0;
-  padding: $sm-padding-y * 2.5 $sm-padding-x * 1.25;
+  padding: calc(var(--sm-padding-y) * 2.5) calc(var(--sm-padding-x) * 1.25);
   resize: none;
   transition: none;
-  border-radius: $border-radius;
-  font-size: $font-size-base;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
   min-height: 2.5rem;
   max-height: 10rem;
-  border: 1px solid $color-gray-lighter;
-  box-shadow: 0 0 0 2px $color-gray-lighter;
+  border: 1px solid var(--color-gray-lighter);
+  box-shadow: 0 0 0 2px var(--color-gray-lighter);
 
   &:disabled,
   &[disabled] {
     cursor: not-allowed;
     opacity: .75;
-    background-color: fade-out($color-gray-lighter, .75);
+    background-color: rgba(167,179,189,0.25);
   }
 }
 
 .sendButton {
-  margin-left: $sm-padding-x;
+  margin-left: var(--sm-padding-x);
   align-self: center;
   font-size: 0.9rem;
   i {
@@ -80,10 +82,10 @@
 }
 
 .info {
-  font-size: $font-size-base * .75;
-  color: $color-gray-light;
+  font-size: calc(var(--font-size-base) * .75);
+  color: var(--color-gray-light);
   text-align: right;
-  padding: $border-size 0;
+  padding: var(--border-size) 0;
 
   &:before {
     content: "\00a0"; // non-breaking space

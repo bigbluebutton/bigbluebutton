@@ -66,6 +66,7 @@ export default class PresentationOverlay extends Component {
       slideWidth,
       slideHeight,
       slide,
+      presentationSize,
     } = props;
 
     this.fitToPage = false;
@@ -80,6 +81,9 @@ export default class PresentationOverlay extends Component {
 
     this.pageOrigW = slideWidth;
     this.pageOrigH = slideHeight;
+
+    this.parentW = presentationSize.presentationWidth;
+    this.parentH = presentationSize.presentationHeight;
 
     this.calcPageW = this.pageOrigW / (this.viewedRegionW / HUNDRED_PERCENT);
     this.calcPageH = this.pageOrigH / (this.viewedRegionH / HUNDRED_PERCENT);
@@ -109,6 +113,9 @@ export default class PresentationOverlay extends Component {
       zoom,
       delta,
       touchZoom,
+      presentationSize,
+      slideHeight,
+      slideWidth,
     } = this.props;
     const isDifferent = zoom !== this.state.zoom && !touchZoom;
     const moveSLide = ((delta.x !== prevProps.delta.x)
@@ -124,6 +131,20 @@ export default class PresentationOverlay extends Component {
 
     if (isDifferent) {
       this.toolbarZoom();
+    }
+
+    if (!prevProps.fitToWidth && this.props.fitToWidth) {
+      this.parentH = presentationSize.presentationHeight;
+      this.parentW = presentationSize.presentationWidth;
+      this.viewportH = this.parentH;
+      this.viewportW = this.parentW;
+      this.doZoomCall(HUNDRED_PERCENT, 0, 0);
+    }
+
+    if (!this.props.fitToWidth && prevProps.fitToWidth) {
+      this.viewportH = slideHeight;
+      this.viewportW = slideWidth;
+      this.doZoomCall(HUNDRED_PERCENT, 0, 0);
     }
   }
 

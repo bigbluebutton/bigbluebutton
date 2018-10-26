@@ -38,23 +38,23 @@
   display: none;
 }
 
-$overlay-width: 20vw;
-$overlay-min-width: 235px;
-$overlay-max-width: 20vw;
-$overlay-ratio: 16 / 9;
-
 .floatingOverlay {
+  --overlay-width: 20vw;
+  --overlay-min-width: 235px;
+  --overlay-max-width: 20vw;
+  --overlay-ratio: calc(16 / 9);
+
   @include mq($medium-up) {
     z-index: 1;
     position: fixed;
     margin: 0;
     bottom: .8rem;
     right: .8rem;
-    width: $overlay-width;
-    min-width: $overlay-min-width;
-    max-width: $overlay-max-width;
-    height: calc(#{$overlay-width} / #{$overlay-ratio});
-    min-height: calc(#{$overlay-min-width} / #{$overlay-ratio});
-    max-height: calc(#{$overlay-max-width} / #{$overlay-ratio});
+    width: var(--overlay-width);
+    min-width: var(--overlay-min-width);
+    max-width: var(--overlay-max-width);
+    height: calc(var(--overlay-width) / var(--overlay-ratio));
+    min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
+    max-height: calc(var(--overlay-max-width) / var(--overlay-ratio));
   }
 }

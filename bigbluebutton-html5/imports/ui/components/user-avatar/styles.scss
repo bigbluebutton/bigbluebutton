@@ -5,12 +5,14 @@
 /* Variables
  * ==========
  */
-$user-avatar-border: $color-gray-light;
-$user-avatar-text: $color-white;
-$user-indicator-voice-bg: $color-success;
-$user-indicator-muted-bg: $color-danger;
-$user-list-bg: $color-off-white;
-$user-color: currentColor; //picks the current color reference in the class
+:root {
+  --user-avatar-border: var(--color-gray-light);
+  --user-avatar-text: var(--color-white);
+  --user-indicator-voice-bg: var(--color-success);
+  --user-indicator-muted-bg: var(--color-danger);
+  --user-list-bg: var(--color-off-white);
+  --user-color: currentColor; //picks the current color reference in the class
+}
 
 .avatar {
   position: relative;
@@ -23,7 +25,8 @@ $user-color: currentColor; //picks the current color reference in the class
   transition: .3s ease-in-out;
   font-size: .85rem;
 
-  &:after, &:before {
+  &:after,
+  &:before {
     content: "";
     position: absolute;
     width: 0;
@@ -32,12 +35,12 @@ $user-color: currentColor; //picks the current color reference in the class
     color: inherit;
     top: auto;
     left: auto;
-    bottom: $user-indicators-offset;
-    right: $user-indicators-offset;
-    border: 1.5px solid $user-list-bg;
+    bottom: var(--user-indicators-offset);
+    right: var(--user-indicators-offset);
+    border: 1.5px solid var(--user-list-bg);
     border-radius: 50%;
-    background-color: $user-indicator-voice-bg;
-    color: $user-avatar-text;
+    background-color: var(--user-indicator-voice-bg);
+    color: var(--user-avatar-text);
     opacity: 0;
     transition: .3s ease-in-out;
     font-family: 'bbb-icons';
@@ -56,7 +59,7 @@ $user-color: currentColor; //picks the current color reference in the class
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: $user-color;
+  background-color: var(--user-color);
   border-radius: inherit;
   animation: pulse 1s infinite ease-in;
 }
@@ -87,7 +90,7 @@ $user-color: currentColor; //picks the current color reference in the class
 .voice {
   &:after {
     content: "\00a0\e931\00a0";
-    background-color: $user-indicator-voice-bg;
+    background-color: var(--user-indicator-voice-bg);
     top: 1.375rem;
     left: 1.375rem;
   }
@@ -96,7 +99,7 @@ $user-color: currentColor; //picks the current color reference in the class
 .muted {
   &:after {
     content: "\00a0\e932\00a0";
-    background-color: $user-indicator-muted-bg;
+    background-color: var(--user-indicator-muted-bg);
   }
 }
 
@@ -107,12 +110,14 @@ $user-color: currentColor; //picks the current color reference in the class
   }
 }
 
-.listenOnly, .muted, .voice {
+.listenOnly,
+.muted,
+.voice {
   @include indicatorStyles();
 }
 
 .content {
-  color: $user-avatar-text;
+  color: var(--user-avatar-text);
   top: 50%;
   position: absolute;
   text-align: center;
@@ -121,7 +126,8 @@ $user-color: currentColor; //picks the current color reference in the class
   font-size: 110%;
   text-transform: capitalize;
 
-  &, & > * {
+  &,
+  & > * {
     line-height: 0; // to keep centralized vertically
   }
 }

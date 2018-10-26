@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import addUserSetting from '/imports/api/users-settings/server/modifiers/addUserSetting';
 
@@ -26,10 +25,17 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'enableScreensharing',
       'enableVideo',
       'enableVideoStats',
+      'autoShareWebcam',
       // WHITEBOARD
       'multiUserPenOnly',
       'presenterTools',
       'multiUserTools',
+      // SKINNING/THEMMING
+      'customStyle',
+      'customStyleUrl',
+      // LAYOUT
+      'autoSwapLayout',
+      'hidePresentation',
     ];
     if (!handledHTML5Parameters.includes(key)) {
       return acc;

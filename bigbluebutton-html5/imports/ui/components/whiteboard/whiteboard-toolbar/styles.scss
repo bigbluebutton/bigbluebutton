@@ -1,20 +1,26 @@
 @import "../../../stylesheets/variables/_all";
 
-$toolbar-margin: .8rem;
-$toolbar-box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
-$toolbar-button-width: 3rem;
-$toolbar-button-height: 3rem;
-$toolbar-button-font-size: 1.75rem;
-$toolbar-button-border: 1px;
-$toolbar-button-border-radius: 5px;
-$toolbar-list-bg: darken($color-white, 10%);
-$toolbar-list-color: $color-gray;
+:root {
+  --toolbar-margin: .8rem;
+  --toolbar-box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  --toolbar-button-color: var(--btn-default-color);
+  --toolbar-button-bg: var(--btn-default-bg);  
+  --toolbar-button-width: 3rem;
+  --toolbar-button-height: 3rem;
+  --toolbar-button-font-size: 1.75rem;
+  --toolbar-button-border: 1px;
+  --toolbar-button-border-radius: 5px;
+  --toolbar-button-border-color: var(--color-gray-lighter);
+  --toolbar-list-bg: #ddd;
+  --toolbar-list-bg-focus: #c6c6c6;
+  --toolbar-list-color: var(--color-gray);
+}
 
 .toolbarContainer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-right: $toolbar-margin;
+  margin-right: var(--toolbar-margin);
   position: absolute;
   top: 0;
   right: 0;
@@ -33,17 +39,17 @@ $toolbar-list-color: $color-gray;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: $toolbar-box-shadow;
-  border-radius: $toolbar-button-border-radius;
+  box-shadow: var(--toolbar-box-shadow);
+  border-radius: var(--toolbar-button-border-radius);
   pointer-events: all;
 
   .buttonWrapper > .toolbarButton {
-    border-bottom: 1px solid $color-gray-lighter;
+    border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
   }
 
   .buttonWrapper:first-child > .toolbarButton {
-    border-top-left-radius: $toolbar-button-border-radius;
-    border-top-right-radius: $toolbar-button-border-radius;
+    border-top-left-radius: var(--toolbar-button-border-radius);
+    border-top-right-radius: var(--toolbar-button-border-radius);
 
     &.toolbarActive {
       border-top-left-radius: 0;
@@ -52,8 +58,8 @@ $toolbar-list-color: $color-gray;
 
   .buttonWrapper:last-child > .toolbarButton {
     border-bottom: 0;
-    border-bottom-left-radius: $toolbar-button-border-radius;
-    border-bottom-right-radius: $toolbar-button-border-radius;
+    border-bottom-left-radius: var(--toolbar-button-border-radius);
+    border-bottom-right-radius: var(--toolbar-button-border-radius);
 
     &.toolbarActive {
       border-bottom-left-radius: 0;
@@ -62,10 +68,10 @@ $toolbar-list-color: $color-gray;
 }
 
 .buttonWrapper {
-  width: $toolbar-button-width;
-  min-width: $toolbar-button-width;
-  height: $toolbar-button-height;
-  min-height: $toolbar-button-height;
+  width: var(--toolbar-button-width);
+  min-width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
+  min-height: var(--toolbar-button-height);
   position: relative;
 }
 
@@ -77,26 +83,30 @@ $toolbar-list-color: $color-gray;
   display: flex;
   flex-direction: row;
   align-items: center !important;
-  justify-content: center !important;
-  font-size: $toolbar-button-font-size;
+  justify-content: center !important;  
   position: relative;
   border-radius: 0;
   box-shadow: none !important;
   z-index: 1;
+  font-size: var(--toolbar-button-font-size);
+  color: var(--toolbar-button-color);
+  background-color: var(--toolbar-button-bg);
+  border-color: var(--toolbar-button-border-color);
 
-  &:focus, &:hover {
+  &:focus,
+  &:hover {
     border: 0;
   }
 
   i {
-    color: $color-gray;
+    color: var(--toolbar-button-color);
   }
 
   &.toolbarActive {
-    background-color: $toolbar-list-bg;
+    background-color: var(--toolbar-list-bg);
 
     i {
-      color: $toolbar-list-color;
+      color: var(--toolbar-list-color);
     }
   }
 }
@@ -106,66 +116,68 @@ $toolbar-list-color: $color-gray;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: $toolbar-button-height;
+  height: var(--toolbar-button-height);
   position: absolute;
-  right: $toolbar-button-height;
+  right: var(--toolbar-button-height);
   top: 0;
-  box-shadow: $toolbar-box-shadow;
+  box-shadow: var(--toolbar-box-shadow);
 
   .buttonWrapper:first-child > .toolbarListButton {
-    border-top-left-radius: $toolbar-button-border-radius;
-    border-bottom-left-radius: $toolbar-button-border-radius;
+    border-top-left-radius: var(--toolbar-button-border-radius);
+    border-bottom-left-radius: var(--toolbar-button-border-radius);
   }
 }
 
 .toolbarListButton {
-  width: $toolbar-button-width;
-  height: $toolbar-button-height;
+  width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: $toolbar-button-font-size;
-  background-color: $toolbar-list-bg;
+  font-size: var(--toolbar-button-font-size);
+  background-color: var(--toolbar-list-bg);
   border: 0 !important;
   box-shadow: none;
   border-radius: 0;
   padding: initial;
 
-  &:hover, &:focus {
-    background-color: darken($toolbar-list-bg, 10%);
+  &:hover,
+  &:focus {
+    background-color: #bbb;
   }
 
   i {
-    color: $toolbar-list-color;
+    color: var(--toolbar-list-color);
   }
 
   svg {
-    fill: $toolbar-list-color;
+    fill: var(--toolbar-list-color);
   }
 }
 
 .selectedListButton {
-  background-color: $toolbar-list-color !important;
+  background-color: var(--toolbar-list-color) !important;
 
   i {
-    color: darken($toolbar-list-bg, 10%) !important;
+    color: var(--toolbar-list-bg-focus) !important;
   }
 
   svg {
-    fill: darken($toolbar-list-bg, 10%);
+    fill: var(--toolbar-list-bg-focus);
   }
 }
 
 .customSvgIcon {
   position: absolute;
-  width: $toolbar-button-width;
-  height: $toolbar-button-height;
+  width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
 }
 
 .textThickness {
   font-family: Arial, sans-serif;
   font-weight: normal;
-  text-shadow: -1px 0 darken($toolbar-list-bg, 10%), 0 1px darken($toolbar-list-bg, 10%), 1px 0 darken($toolbar-list-bg, 10%), 0 -1px darken($toolbar-list-bg, 10%);
+  text-shadow: -1px 0 var(--toolbar-list-bg-focus), 0 1px var(--toolbar-list-bg-focus), 1px 0 var(--toolbar-list-bg-focus), 0 -1px var(--toolbar-list-bg-focus);
   margin: auto;
-  color: $toolbar-list-color;
+  color: var(--toolbar-list-color);
 }
+
