@@ -159,6 +159,10 @@ class WhiteboardToolbar extends Component {
     // we might need to trigger svg animation for Color and Thickness icons
     this.animateSvgIcons(prevState);
 
+    if (prevProps.annotations.length !== annotations.length && annotations.length === 0) {
+      this.handleAnnotationChange({ icon: null, value: null });
+    }
+
     if (!hadInAnnotations && annotations.length) {
       this.handleAnnotationChange(annotations[annotations.length - 1]);
     }
@@ -324,9 +328,10 @@ class WhiteboardToolbar extends Component {
 
   renderToolItem() {
     const { intl, annotations } = this.props;
-
+    const isDisabled = !annotations.length;
     return (
       <ToolbarMenuItem
+        disabled={isDisabled}
         label={intl.formatMessage(intlMessages.toolbarTools)}
         icon={this.state.annotationSelected.icon}
         onItemClick={this.displaySubMenu}
@@ -395,8 +400,8 @@ class WhiteboardToolbar extends Component {
   }
 
   renderThicknessItem() {
-    const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'hand';
+    const { intl, annotations } = this.props;
+    const isDisabled = this.state.annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -475,8 +480,8 @@ class WhiteboardToolbar extends Component {
   }
 
   renderColorItem() {
-    const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'hand';
+    const { intl, annotations } = this.props;
+    const isDisabled = this.state.annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
