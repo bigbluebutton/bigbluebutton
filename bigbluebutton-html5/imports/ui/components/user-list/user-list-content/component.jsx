@@ -78,7 +78,7 @@ class UserContent extends React.PureComponent {
             roving,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom(meeting.meetingId)} />
+        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipants
           {...{
             users,

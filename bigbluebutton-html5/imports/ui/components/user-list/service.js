@@ -191,8 +191,10 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
-const hasBreakoutRoom = (parentMeetingId) => {
-  return Breakouts.find({ parentMeetingId }).fetch().length > 0;
+const hasBreakoutRoom = () => {
+  console.error(Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0);
+  
+  return Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
 };
 
 const getOpenChats = (chatID) => {
