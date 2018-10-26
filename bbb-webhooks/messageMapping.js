@@ -259,12 +259,13 @@ module.exports = class MessageMapping {
     const data = messageObj.payload;
     this.mappedObject.data = {
       "type": "event",
-      "id": this.mapInternalMessage(messageObj.header.name),
+      "id": this.mapInternalMessage(messageObj),
       "attributes": {
         "meeting": {
           "internal-meeting-id": data.meeting_id,
           "external-meeting-id": data.external_meeting_id
         },
+        "record-id": data.record_id,
         "success": data.success,
         "step-time": data.step_time
       },
@@ -273,14 +274,18 @@ module.exports = class MessageMapping {
       }
     };
 
-    if (this.mappedObject.data["id"] == "rap-publish-ended") {
-      this.mappedObject.data["attributes"]["recording"] = {
+    if (data.workflow) {
+      this.mappedObject.data.attributes.workflow = data.workflow;
+    }
+
+    if (this.mappedObject.data.id === "rap-publish-ended") {
+      this.mappedObject.data.attributes.recording = {
         "name": data.metadata.meetingName,
-        "isBreakout": data.metadata.isBreakout,
-        "startTime": data.startTime,
-        "endTime": data.endTime,
+        "is-breakout": data.metadata.isBreakout,
+        "start-time": data.startTime,
+        "end-time": data.endTime,
         "size": data.playback.size,
-        "rawSize": data.rawSize,
+        "raw-size": data.rawSize,
         "metadata": data.metadata,
         "playback": data.playback,
         "download": data.download
