@@ -12,6 +12,7 @@ const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const CONNECTION_TERMINATED_EVENTS = ['iceConnectionFailed', 'iceConnectionClosed'];
+const CALL_CONNECT_NOTIFICATION_TIMEOUT = 500;
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -275,9 +276,15 @@ export default class SIPBridge extends BaseAudioBridge {
       const connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
       const handleConnectionCompleted = () => {
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
-        this.callback({ status: this.baseCallStates.started });
-        this.connectionCompleted = true;
-        resolve();
+        // We have to delay notifying that the call is connected because it is sometimes not
+        // actually ready and if the user says "Yes they can hear themselves" too quickly the
+        // B-leg transfer will fail
+        const that = this;
+        setTimeout(() => {
+          that.callback({ status: that.baseCallStates.started });
+          that.connectionCompleted = true;
+          resolve();
+        }, CALL_CONNECT_NOTIFICATION_TIMEOUT);
       };
       connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
