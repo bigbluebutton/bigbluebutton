@@ -340,7 +340,7 @@ module.exports = class MessageMapping {
       case "meeting_destroyed_event": return "meeting-ended";
       case "user_joined_message": return "user-joined";
       case "user_left_message": return "user-left";
-      case "user_listening_only": return (message.payload.listen_only === "true" ? "user-audio-listen-only-enabled" : "user-audio-listen-only-disabled");
+      case "user_listening_only": return (message.payload.listen_only ? "user-audio-listen-only-enabled" : "user-audio-listen-only-disabled");
       case "user_joined_voice_message": return "user-audio-voice-enabled";
       case "user_left_voice_message": return "user-audio-voice-disabled";
       case "user_shared_webcam_message": return "user-cam-broadcast-start";
