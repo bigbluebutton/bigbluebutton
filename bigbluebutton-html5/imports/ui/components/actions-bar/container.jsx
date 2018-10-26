@@ -14,7 +14,7 @@ export default withRouter(withTracker(({ }) => {
   const togglePollMenu = () => {
     const showPoll = Session.equals('isPollOpen', false) || !Session.get('isPollOpen');
 
-    const show = () => Session.set('isPollOpen', true);
+    const show = () => { Session.set('isPollOpen', true); Session.set('forcePollOpen', true); };
 
     const hide = () => Session.set('isPollOpen', false);
 

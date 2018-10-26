@@ -36,7 +36,10 @@ class UserPolls extends Component {
             icon="polling"
             onClick={() => {
               if (Session.equals('isChatOpen', true)) Session.set('isChatOpen', false);
-              if (Session.equals('isPollOpen', false)) Session.set('isPollOpen', true);
+
+              return Session.equals('isPollOpen', true)
+                ? Session.set('isPollOpen', false)
+                : Session.set('isPollOpen', true);
             }}
           >
             <Icon iconName="polling" className={styles.icon} />
