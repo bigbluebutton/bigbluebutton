@@ -6,11 +6,10 @@ import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
 import { shareScreen, unshareScreen, isVideoBroadcasting } from '../screenshare/service';
-import { withRouter } from 'react-router';
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
-export default withRouter(withTracker(({ }) => {
+export default withTracker(({ }) => {
   const togglePollMenu = () => {
     const showPoll = Session.equals('isPollOpen', false) || !Session.get('isPollOpen');
 
@@ -41,4 +40,4 @@ export default withRouter(withTracker(({ }) => {
     enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
     togglePollMenu,
   };
-})(ActionsBarContainer));
+})(ActionsBarContainer);
