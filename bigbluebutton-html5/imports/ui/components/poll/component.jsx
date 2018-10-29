@@ -4,8 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
-import Icon from '/imports/ui/components/icon/component';
-import LiveResultContainer from './live-result/container';
+import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
@@ -88,12 +87,6 @@ class Poll extends Component {
     this.getInputFields = this.getInputFields.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.back = this.back.bind(this);
-  }
-
-  componentWillUnmount() {
-    const { stopPoll } = this.props;
-
-    stopPoll();
   }
 
   componentWillMount() {
@@ -207,7 +200,7 @@ class Poll extends Component {
 
   renderActivePollOptions() {
     const {
-      intl, publishPoll, stopPoll,
+      intl, publishPoll, stopPoll, currentUser, currentPoll, getUser,
     } = this.props;
 
     return (
@@ -215,7 +208,16 @@ class Poll extends Component {
         <div className={styles.instructions}>
           {intl.formatMessage(intlMessages.activePollInstruction)}
         </div>
-        <LiveResultContainer publishPoll={publishPoll} stopPoll={stopPoll} back={this.back} />
+        <LiveResult
+          {...{
+            publishPoll,
+            stopPoll,
+            currentUser,
+            getUser,
+            currentPoll,
+          }}
+          back={this.back}
+        />
       </div>
     );
   }
@@ -248,7 +250,7 @@ class Poll extends Component {
 
   render() {
     const {
-      intl, stopPoll,
+      intl, stopPoll, currentPoll,
     } = this.props;
 
     return (
@@ -261,9 +263,6 @@ class Poll extends Component {
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
             onClick={() => {
-              if (this.state.isPolling) {
-                stopPoll();
-              }
               Session.set('isPollOpen', false);
               Session.set('forcePollOpen', true);
               Session.set('isUserListOpen', true);
@@ -272,7 +271,7 @@ class Poll extends Component {
 
           <Button
             onClick={() => {
-            if (this.state.isPolling) {
+            if (currentPoll) {
               stopPoll();
             }
             Session.set('isPollOpen', false);
@@ -285,7 +284,8 @@ class Poll extends Component {
 
         </header>
         {
-          this.state.isPolling ? this.renderActivePollOptions() : this.renderPollOptions()
+          this.state.isPolling || !this.state.isPolling && currentPoll
+          ? this.renderActivePollOptions() : this.renderPollOptions()
         }
       </div>
     );

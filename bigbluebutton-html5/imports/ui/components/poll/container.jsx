@@ -5,11 +5,14 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Presentations from '/imports/api/presentations';
 import PresentationAreaService from '/imports/ui/components/presentation/service';
+import Polls from '/imports/api/polls';
 import Poll from './component';
 
 const PollContainer = ({ ...props }) => <Poll {...props} />;
 
 export default withTracker(({ }) => {
+  Meteor.subscribe('current-poll', Auth.meetingID);
+
   const currentPresentation = Presentations.findOne({
     current: true,
   });
@@ -34,6 +37,10 @@ export default withTracker(({ }) => {
 
   const publishPoll = () => makeCall('publishPoll');
 
+  const currentPoll = Polls.findOne({ meetingId: Auth.meetingID });
+
+  const getUser = userId => Users.findOne({ userId });
+
   return {
     currentSlide,
     currentUser,
@@ -42,5 +49,7 @@ export default withTracker(({ }) => {
     startCustomPoll,
     stopPoll,
     publishPoll,
+    currentPoll,
+    getUser,
   };
 })(PollContainer);

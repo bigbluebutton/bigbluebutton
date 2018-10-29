@@ -32,8 +32,6 @@ class UserPolls extends Component {
             role="button"
             tabIndex={0}
             className={styles.pollLink}
-            label="Polling"
-            icon="polling"
             onClick={() => {
               if (Session.equals('isChatOpen', true)) Session.set('isChatOpen', false);
 

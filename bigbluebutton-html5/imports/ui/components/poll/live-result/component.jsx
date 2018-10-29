@@ -172,5 +172,4 @@ LiveResult.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  getUser: PropTypes.func.isRequired,
 };
