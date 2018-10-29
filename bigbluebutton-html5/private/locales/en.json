@@ -426,5 +426,6 @@
     "app.createBreakoutRoom.durationInMinutes": "Duration (minutes)",
     "app.createBreakoutRoom.randomlyAssign": "Randomly Assign",
     "app.createBreakoutRoom.endAllBreakouts": "End All Breakout Rooms",
+    "app.createBreakoutRoom.roomName": "{0} (Room - {1})",
     "app.createBreakoutRoom.modalDesc": "Complete the steps below to create rooms in your session, To add participants to a room."
 }

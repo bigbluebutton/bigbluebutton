@@ -9,6 +9,7 @@ export default {
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
   recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,
   meetingIsBreakout: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.isBreakout,
+  meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.name,
   hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
   toggleRecording: () => makeCall('toggleRecording'),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),

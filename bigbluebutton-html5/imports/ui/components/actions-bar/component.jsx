@@ -23,6 +23,7 @@ class ActionsBar extends React.PureComponent {
       createBreakoutRoom,
       meetingIsBreakout,
       hasBreakoutRoom,
+      meetingName,
     } = this.props;
 
     const {
@@ -48,6 +49,7 @@ class ActionsBar extends React.PureComponent {
             createBreakoutRoom,
             meetingIsBreakout,
             hasBreakoutRoom,
+            meetingName,
           }}
           />
         </div>

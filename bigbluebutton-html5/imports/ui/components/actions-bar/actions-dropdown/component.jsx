@@ -101,6 +101,7 @@ class ActionsDropdown extends Component {
       toggleRecording,
       meetingIsBreakout,
       hasBreakoutRoom,
+      meetingName,
     } = this.props;
 
     return _.compact([
@@ -143,8 +144,9 @@ class ActionsDropdown extends Component {
     const {
       createBreakoutRoom,
       mountModal,
+      meetingName,
     } = this.props;
-    mountModal(<BreakoutRoom createBreakoutRoom={createBreakoutRoom} />);
+    mountModal(<BreakoutRoom createBreakoutRoom={createBreakoutRoom} meetingName={meetingName} />);
   }
 
   render() {

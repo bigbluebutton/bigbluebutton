@@ -13,23 +13,27 @@ const intlMessages = defineMessages({
   },
   breakoutRoomDesc: {
     id: 'app.createBreakoutRoom.modalDesc',
-    description: 'modal title',
+    description: 'modal description',
   },
   confirmButton: {
     id: 'app.createBreakoutRoom.confirm',
-    description: 'modal title',
+    description: 'confirm button label',
   },
   numberOfRooms: {
     id: 'app.createBreakoutRoom.numberOfRooms',
-    description: 'modal title',
+    description: 'number of rooms label',
   },
   duration: {
     id: 'app.createBreakoutRoom.durationInMinutes',
-    description: 'modal title',
+    description: 'duration time label',
   },
   randomlyAssign: {
     id: 'app.createBreakoutRoom.randomlyAssign',
-    description: 'modal title',
+    description: 'randomly assign label',
+  },
+  roomName: {
+    id: 'app.createBreakoutRoom.roomName',
+    description: 'room intl to name the breakout meetings',
   },
 });
 const BREAKOUT_CONFIG = Meteor.settings.public.breakout;
@@ -48,17 +52,29 @@ class BreakoutRoom extends Component {
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
       durationTime: 1,
+      freeJoin: true,
     };
   }
 
   onCreateBreakouts() {
     const {
       createBreakoutRoom,
+      meetingName,
+      intl
     } = this.props;
 
     const { numberOfRooms, durationTime } = this.state;
+    const rooms = _.range(1, numberOfRooms + 1).map(value => ({
+      users: [],
+      name: intl.formatMessage(intlMessages.roomName, {
+        0: meetingName,
+        1: value,
+      }),
+      freeJoin: this.state.freeJoin,
+      sequence: value,
+    }));
 
-    createBreakoutRoom(numberOfRooms, durationTime, true);
+    createBreakoutRoom(rooms, durationTime, true);
   }
 
   changeNumberOfRooms(event) {
