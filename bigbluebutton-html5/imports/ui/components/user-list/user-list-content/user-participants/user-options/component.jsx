@@ -151,23 +151,21 @@ class UserOptions extends Component {
       />);
       this.menuItems.splice(1, 2, menuButton);
     } else {
-      const menuButton1 = (<DropdownListItem
+      const muteMeetingButtons = [(<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllLabel)}
         description={intl.formatMessage(intlMessages.muteAllDesc)}
         onClick={this.props.toggleMuteAllUsers}
-      />);
-
-      const menuButton2 = (<DropdownListItem
+      />), (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
         description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
         onClick={this.props.toggleMuteAllUsersExceptPresenter}
-      />);
-      this.menuItems.splice(1, 1, menuButton1);
-      this.menuItems.splice(2, 0, menuButton2);
+      />)];
+
+      this.menuItems.splice(1, 1, muteMeetingButtons[0], muteMeetingButtons[1]);
     }
   }
 
