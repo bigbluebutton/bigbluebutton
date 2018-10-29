@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import _ from 'lodash';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import ChatAudioAlert from './audio-alert/component';
@@ -113,7 +114,6 @@ class ChatAlert extends Component {
       disableNotify,
       openChats,
       intl,
-      currentChatID,
     } = this.props;
 
     if (disableNotify) return;
@@ -121,7 +121,7 @@ class ChatAlert extends Component {
     const hasUnread = ({ unreadCounter }) => unreadCounter > 0;
     const isNotNotified = ({ id, unreadCounter }) => unreadCounter !== this.state.notified[id];
     const isPrivate = ({ id }) => id !== PUBLIC_KEY;
-    const thisChatClosed = ({ id }) => id !== currentChatID;
+    const thisChatClosed = ({ id }) => !Session.equals('idChatOpen', id);
 
     const chatsNotify = openChats
       .filter(hasUnread)
@@ -158,7 +158,7 @@ class ChatAlert extends Component {
           const limitingMessages = flatMessages;
 
           return (<ChatPushAlert
-            key={id}
+            key={_.uniqueId('id-')}
             chatId={id}
             content={limitingMessages}
             message={<span >{message}</span>}
@@ -184,7 +184,6 @@ class ChatAlert extends Component {
       publicUserId,
       intl,
       disableNotify,
-      currentChatID,
     } = this.props;
 
     const publicUnread = UnreadMessages.getUnreadMessages(publicUserId);
@@ -192,7 +191,7 @@ class ChatAlert extends Component {
 
     if (disableNotify) return;
     if (!Service.hasUnreadMessages(publicUserId)) return;
-    if (currentChatID === PUBLIC_KEY) return;
+    if (Session.equals('idChatOpen', PUBLIC_KEY)) return;
 
     const checkIfBeenNotified = ({ sender, time }) =>
       time > (this.state.publicNotified[sender.id] || 0);

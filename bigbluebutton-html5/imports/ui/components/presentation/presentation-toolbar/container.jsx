@@ -14,6 +14,7 @@ const PresentationToolbarContainer = (props) => {
     actions,
     zoom,
     zoomChanger,
+    fitToWidthHandler,
   } = props;
 
   if (userIsPresenter) {
@@ -26,6 +27,7 @@ const PresentationToolbarContainer = (props) => {
           actions,
           zoom,
           zoomChanger,
+          fitToWidthHandler,
         }}
       />
     );
@@ -42,6 +44,7 @@ export default withTracker((params) => {
   } = data;
 
   return {
+    fitToWidthHandler: params.fitToWidthHandler,
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides,
     zoom: params.zoom,

@@ -6,22 +6,23 @@
   cursor: pointer;
   padding: 0;
   text-decoration: none;
-  color: $color-gray-dark;
+  color: var(--color-gray-dark);
+  background-color: var(--color-off-white);
 }
 
 .chatListItemLink {
   display: flex;
   flex-grow: 1;
   text-decoration: none;
-  padding-left: $sm-padding-x / 2;
-  padding-right: $sm-padding-x;
-  padding-top: $sm-padding-y;
-  padding-bottom: $sm-padding-y;
+  padding-left: calc(var(--sm-padding-x) / 2);
+  padding-right: var(--sm-padding-x);
+  padding-top: var(--sm-padding-y);
+  padding-bottom: var(--sm-padding-y);
   width: 100%;
 
   .chatListItem:first-child > & {
-    padding-top: $sm-padding-y * 1.85;
-    padding-bottom: $sm-padding-y * 1.85;
+    padding-top: calc(var(--sm-padding-y) * 1.85);
+    padding-bottom: calc(var(--sm-padding-y) * 1.85);
   }
 }
 
@@ -41,16 +42,16 @@
   @extend %text-elipsis;
   font-size: 0.9rem;
   font-weight: 400;
-  margin-left: $sm-padding-x;
-  margin-right: $sm-padding-x;
+  margin-left: var(--sm-padding-x);
+  margin-right: var(--sm-padding-x);
   position: relative;
-  top: $md-padding-y;
+  top: var(--md-padding-y);
   padding: .5rem 0;
   margin-top: -.5rem;
 }
 
 .active {
-  background-color: $list-item-bg-hover;
-  box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+  background-color: var(--list-item-bg-hover);
+  box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
   outline: none;
 }
