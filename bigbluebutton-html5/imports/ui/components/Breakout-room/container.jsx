@@ -11,7 +11,7 @@ export default withTracker((props) => {
   const {
     endAllBreakouts,
     requestJoinURL,
-    breakouts,
+    findBreakouts,
     breakoutRoomUser,
     transferUserToMeeting,
     transferToBreakout,
@@ -19,7 +19,7 @@ export default withTracker((props) => {
     isPresenter,
     closeBreakoutPanel,
   } = Service;
-  const breakoutRooms = breakouts();
+  const breakoutRooms = findBreakouts();
 
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
 

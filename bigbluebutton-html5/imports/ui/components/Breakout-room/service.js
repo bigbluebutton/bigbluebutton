@@ -7,14 +7,14 @@ import HumanizeSeconds from '/imports/utils/humanizeSeconds';
 import Users from '/imports/api/users';
 import mapUser from '/imports/ui/services/user/mapUser';
 
-const breakouts = () => {
+const findBreakouts = () => {
   const BreakoutRooms = Breakouts.find({ parentMeetingId: Auth.meetingID }, { sort: { sequence: 1 } }).fetch();
 
   return BreakoutRooms;
 };
 
 const breakoutRoomUser = (breakoutId) => {
-  const breakoutRooms = breakouts();
+  const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
   const breakoutUser = breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
   return breakoutUser;
@@ -34,7 +34,7 @@ const requestJoinURL = (breakoutId) => {
 const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transferUser', fromMeetingId, toMeetingId);
 
 const transferToBreakout = (fromMeetingId, breakoutId) => {
-  const breakoutRooms = breakouts();
+  const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
   const breakoutMeeting = Meetings.findOne({
     $and: [
@@ -55,7 +55,7 @@ const isPresenter = () => {
 const closeBreakoutPanel = () => Session.set('breakoutRoomIsOpen', false);
 
 export default {
-  breakouts,
+  findBreakouts,
   endAllBreakouts,
   requestJoinURL,
   breakoutRoomUser,
