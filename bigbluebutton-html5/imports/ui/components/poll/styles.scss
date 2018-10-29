@@ -9,6 +9,9 @@
 
 .closeBtn {
     position: relative;
+	> i {
+		color: var(--color-text);
+	}
 }
 
 .btn {

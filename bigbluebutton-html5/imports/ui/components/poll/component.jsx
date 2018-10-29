@@ -279,7 +279,8 @@ class Poll extends Component {
             Session.set('isUserListOpen', true);
           }}
             className={styles.closeBtn}
-            label="X"
+            icon="close"
+            size="sm"
           />
 
         </header>
