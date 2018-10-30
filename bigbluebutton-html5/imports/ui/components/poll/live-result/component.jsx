@@ -44,6 +44,30 @@ class LiveResult extends Component {
       ? [...users, ...responses.map(u => u.userId)]
       : [...users];
 
+    const sortByResponse = (a, b) => {
+      if (a.answer.toLowerCase() > b.answer.toLowerCase()) {
+        return -1;
+      } else if (a.answer.toLowerCase() < b.answer.toLowerCase()) {
+        return 1;
+      }
+      return 0;
+    };
+
+    const sortByName = (a, b) => {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1;
+      } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+        return 1;
+      }
+      return 0;
+    };
+
+    const sortUsers = (a, b) => {
+      let sort = sortByResponse(a, b);
+      if (sort === 0) sort = sortByName(a, b);
+      return sort;
+    };
+
     userAnswers = userAnswers.map(id => getUser(id))
       .filter(user => user.connectionStatus === 'online')
       .map((user) => {
@@ -59,6 +83,7 @@ class LiveResult extends Component {
           answer,
         };
       })
+      .sort(sortUsers)
       .reduce((acc, user) => [
         ...acc,
         <div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>,
