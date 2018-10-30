@@ -81,10 +81,10 @@ class LiveResult extends Component {
       } = currentPoll;
 
       if (responses && answers) {
-        responses.map((ur) => {
+        responses.forEach((ur) => {
           const user = getUser(ur.userId);
           if (user) {
-            answers.map((obj) => {
+            answers.forEach((obj) => {
               if (obj.id === ur.answerId) {
                 respondedUsers.push(<div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>);
                 respondedUsers.push(<div className={styles.itemR} key={_.uniqueId('stats-')}>{obj.key}</div>);
@@ -97,6 +97,7 @@ class LiveResult extends Component {
 
     return respondedUsers;
   }
+
 
   getUnresponsive() {
     const { currentPoll, getUser } = this.props;
@@ -112,9 +113,8 @@ class LiveResult extends Component {
     const usersList = _.compact(users);
 
     if (usersList) {
-      usersList.map((userId) => {
+      usersList.forEach((userId) => {
         const user = getUser(userId);
-
         if (user && user.connectionStatus == 'online') {
           usersToRespond.push(<div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>);
           usersToRespond.push(<div className={styles.itemR} key={_.uniqueId('stats-')}>-</div>);
@@ -127,7 +127,7 @@ class LiveResult extends Component {
 
   render() {
     const {
-      intl, publishPoll, stopPoll, back,
+      intl, publishPoll, stopPoll, handleBackClick,
     } = this.props;
 
     return (
@@ -149,7 +149,7 @@ class LiveResult extends Component {
         />
         <Button
           onClick={() => {
-            back();
+            handleBackClick();
           }}
           label={intl.formatMessage(intlMessages.backLabel)}
           color="default"

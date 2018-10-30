@@ -22,10 +22,8 @@ export default function startPoll(credentials, pollType, pollId, answers) {
 
   if (pollType === 'custom') {
     EVENT_NAME = 'StartCustomPollReqMsg';
-
     check(answers, Array);
     payload.answers = answers;
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   }
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

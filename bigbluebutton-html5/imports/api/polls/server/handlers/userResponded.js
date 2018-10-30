@@ -1,4 +1,3 @@
-
 import { check } from 'meteor/check';
 import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';

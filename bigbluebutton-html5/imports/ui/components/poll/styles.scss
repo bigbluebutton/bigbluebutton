@@ -2,9 +2,9 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 
 :root {
-    --column-amount: 2;
+    --poll-column-amount: 2;
     --poll-blue: #1A73D4;
-    --headerOffset: -0.875rem;
+    --poll-header-offset: -0.875rem;
 }
 
 .closeBtn {
@@ -63,7 +63,7 @@
 
 .header {
     position: relative;
-    top: var(--headerOffset);
+    top: var(--poll-header-offset);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -78,14 +78,14 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(var(--column-amount), 1fr);
+    grid-template-columns: repeat(var(--poll-column-amount), 1fr);
 
     > pollBtn:nth-child(odd) {
         grid-column: 1;
     }
 
     > pollBtn:nth-child(even) {
-        grid-column: var(--column-amount);
+        grid-column: var(--poll-column-amount);
     }
 }
 

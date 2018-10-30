@@ -86,7 +86,7 @@ class Poll extends Component {
     this.nonPresenterRedirect = this.nonPresenterRedirect.bind(this);
     this.getInputFields = this.getInputFields.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.back = this.back.bind(this);
+    this.handleBackClick = this.handleBackClick.bind(this);
   }
 
   componentWillMount() {
@@ -135,9 +135,7 @@ class Poll extends Component {
 
     this.inputEditor = [];
 
-    return customPollReq
-      ? this.setState({ customPollReq: false })
-      : this.setState({ customPollReq: true });
+    return this.setState({ customPollReq: !this.state.customPollReq });
   }
 
   renderQuickPollBtns() {
@@ -187,7 +185,7 @@ class Poll extends Component {
     );
   }
 
-  back() {
+  handleBackClick() {
     const { stopPoll } = this.props;
 
     stopPoll();
@@ -216,7 +214,7 @@ class Poll extends Component {
             getUser,
             currentPoll,
           }}
-          back={this.back}
+          handleBackClick={this.handleBackClick}
         />
       </div>
     );
