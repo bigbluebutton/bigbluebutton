@@ -29,9 +29,43 @@ class LiveResult extends Component {
   constructor(props) {
     super(props);
 
-    this.getUnresponsive = this.getUnresponsive.bind(this);
-    this.getRespondents = this.getRespondents.bind(this);
     this.getPollStats = this.getPollStats.bind(this);
+    this.renderAnswers = this.renderAnswers.bind(this);
+  }
+
+  renderAnswers() {
+    const { currentPoll, getUser } = this.props;
+
+    if (!currentPoll) return null;
+
+    const { answers, responses, users } = currentPoll;
+
+    let userAnswers = responses
+      ? [...users, ...responses.map(u => u.userId)]
+      : [...users];
+
+    userAnswers = userAnswers.map(id => getUser(id))
+      .filter(user => user.connectionStatus === 'online')
+      .map((user) => {
+        let answer = '-';
+
+        if (responses) {
+          const response = responses.find(r => r.userId === user.userId);
+          if (response) answer = answers[response.answerId].key;
+        }
+
+        return {
+          name: user.name,
+          answer,
+        };
+      })
+      .reduce((acc, user) => [
+        ...acc,
+        <div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>,
+        <div className={styles.itemR} key={_.uniqueId('stats-')}>{user.answer}</div>,
+      ], []);
+
+    return userAnswers;
   }
 
   getPollStats() {
@@ -67,64 +101,6 @@ class LiveResult extends Component {
     return pollStats;
   }
 
-  getRespondents() {
-    const { currentPoll, getUser } = this.props;
-
-    if (!currentPoll) return null;
-
-    const respondedUsers = [];
-
-    if (currentPoll) {
-      const {
-        answers,
-        responses,
-      } = currentPoll;
-
-      if (responses && answers) {
-        responses.forEach((ur) => {
-          const user = getUser(ur.userId);
-          if (user) {
-            answers.forEach((obj) => {
-              if (obj.id === ur.answerId) {
-                respondedUsers.push(<div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>);
-                respondedUsers.push(<div className={styles.itemR} key={_.uniqueId('stats-')}>{obj.key}</div>);
-              }
-            });
-          }
-        });
-      }
-    }
-
-    return respondedUsers;
-  }
-
-
-  getUnresponsive() {
-    const { currentPoll, getUser } = this.props;
-
-    if (!currentPoll) return null;
-
-    const {
-      users,
-    } = currentPoll;
-
-    const usersToRespond = [];
-
-    const usersList = _.compact(users);
-
-    if (usersList) {
-      usersList.forEach((userId) => {
-        const user = getUser(userId);
-        if (user && user.connectionStatus == 'online') {
-          usersToRespond.push(<div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>);
-          usersToRespond.push(<div className={styles.itemR} key={_.uniqueId('stats-')}>-</div>);
-        }
-      });
-    }
-
-    return usersToRespond;
-  }
-
   render() {
     const {
       intl, publishPoll, stopPoll, handleBackClick,
@@ -158,8 +134,7 @@ class LiveResult extends Component {
         <div className={styles.container}>
           <div className={styles.usersHeading}>{intl.formatMessage(intlMessages.usersTitle)}</div>
           <div className={styles.responseHeading}>{intl.formatMessage(intlMessages.responsesTitle)}</div>
-          {this.getRespondents()}
-          {this.getUnresponsive()}
+          {this.renderAnswers()}
         </div>
       </div>
     );
