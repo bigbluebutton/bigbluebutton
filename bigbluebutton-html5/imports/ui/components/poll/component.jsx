@@ -12,6 +12,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.pollPaneTitle',
     description: 'heading label for the poll menu',
   },
+  closeLabel: {
+    id: 'app.poll.closeLabel',
+    description: 'label for poll pane close button',
+  },
   hidePollDesc: {
     id: 'app.poll.hidePollDesc',
     description: 'aria label description for hide poll button',
@@ -268,6 +272,7 @@ class Poll extends Component {
           />
 
           <Button
+            label={intl.formatMessage(intlMessages.closeLabel)}
             onClick={() => {
             if (currentPoll) {
               stopPoll();
@@ -279,6 +284,7 @@ class Poll extends Component {
             className={styles.closeBtn}
             icon="close"
             size="sm"
+            hideLabel
           />
 
         </header>

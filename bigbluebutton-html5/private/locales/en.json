@@ -102,6 +102,7 @@
     "app.poll.activePollInstruction": "Leave this window open to allow others to respond to the poll. Selecting 'Publish Poll' or navigating back will end the poll.",
     "app.poll.publishLabel": "Publish Poll",
     "app.poll.backLabel": "Back to polling options",
+    "app.poll.closeLabel": "Close",
     "app.poll.customPlaceholder": "Add poll option",
     "app.poll.tf": "True / False",
     "app.poll.yn": "Yes / No",
