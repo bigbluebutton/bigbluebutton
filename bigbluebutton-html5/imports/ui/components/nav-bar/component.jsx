@@ -10,6 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles.scss';
 import Button from '../button/component';
@@ -44,19 +45,18 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  presentationTitle: PropTypes.string.isRequired,
-  hasUnreadMessages: PropTypes.bool.isRequired,
-  beingRecorded: PropTypes.object.isRequired,
+  presentationTitle: PropTypes.string,
+  hasUnreadMessages: PropTypes.bool,
+  beingRecorded: PropTypes.object,
+  shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
   beingRecorded: false,
+  shortcuts: '',
 };
-
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const TOGGLE_USERLIST_AK = SHORTCUTS_CONFIG.toggleUserList.accesskey;
 
 const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) =>
   mountModal(<BreakoutJoinConfirmation
@@ -82,7 +82,6 @@ class NavBar extends Component {
   componentDidUpdate(oldProps) {
     const {
       breakouts,
-      getBreakoutJoinURL,
       isBreakoutRoom,
       mountModal,
     } = this.props;
@@ -174,7 +173,11 @@ class NavBar extends Component {
 
   render() {
     const {
-      hasUnreadMessages, beingRecorded, isExpanded, intl,
+      hasUnreadMessages,
+      beingRecorded,
+      isExpanded,
+      intl,
+      shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
 
     const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
@@ -223,4 +226,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-export default withModalMounter(injectIntl(NavBar));
+export default withShortcutHelper(withModalMounter(injectIntl(NavBar)), 'toggleUserList');
