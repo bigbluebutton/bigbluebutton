@@ -17,23 +17,17 @@ export default function addPoll(meetingId, requesterId, poll) {
     ],
   });
 
-  let selector = {
+  const selectorA = {
     meetingId,
+    userId: { $ne: requesterId },
   };
 
-  const options = {
-    fields: {
-      userId: 1,
-      _id: 0,
-    },
-  };
-
-  const userIds = Users.find(selector, options)
+  const userIds = Users.find(selectorA)
     .fetch()
     .filter(user => user.userId !== requesterId)
     .map(user => user.userId);
 
-  selector = {
+  const selectorB = {
     meetingId,
     requester: requesterId,
     id: poll.id,
@@ -59,5 +53,5 @@ export default function addPoll(meetingId, requesterId, poll) {
     return Logger.info(`Upserted Poll id=${poll.id}`);
   };
 
-  return Polls.upsert(selector, modifier, cb);
+  return Polls.upsert(selectorB, modifier, cb);
 }
