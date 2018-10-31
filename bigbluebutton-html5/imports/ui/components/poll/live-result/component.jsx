@@ -29,7 +29,7 @@ class LiveResult extends Component {
   constructor(props) {
     super(props);
 
-    this.getPollStats = this.getPollStats.bind(this);
+    this.renderPollStats = this.renderPollStats.bind(this);
     this.renderAnswers = this.renderAnswers.bind(this);
   }
 
@@ -93,7 +93,7 @@ class LiveResult extends Component {
     return userAnswers;
   }
 
-  getPollStats() {
+  renderPollStats() {
     const { currentPoll } = this.props;
 
     const pollStats = [];
@@ -134,7 +134,7 @@ class LiveResult extends Component {
     return (
       <div>
         <div className={styles.stats}>
-          {this.getPollStats()}
+          {this.renderPollStats()}
         </div>
         <Button
           onClick={() => {

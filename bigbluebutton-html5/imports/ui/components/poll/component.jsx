@@ -86,9 +86,9 @@ class Poll extends Component {
 
     this.toggleCustomFields = this.toggleCustomFields.bind(this);
     this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
-    this.renderInputFields = this.renderInputFields.bind(this);
+    this.renderCustomView = this.renderCustomView.bind(this);
     this.nonPresenterRedirect = this.nonPresenterRedirect.bind(this);
-    this.getInputFields = this.getInputFields.bind(this);
+    this.renderInputFields = this.renderInputFields.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleBackClick = this.handleBackClick.bind(this);
   }
@@ -109,7 +109,7 @@ class Poll extends Component {
     this.setState({ customPollValues: this.inputEditor });
   }
 
-  getInputFields() {
+  renderInputFields() {
     const { intl } = this.props;
     const items = [];
 
@@ -139,7 +139,7 @@ class Poll extends Component {
 
     this.inputEditor = [];
 
-    return this.setState({ customPollReq: !this.state.customPollReq });
+    return this.setState({ customPollReq: !customPollReq });
   }
 
   renderQuickPollBtns() {
@@ -167,13 +167,13 @@ class Poll extends Component {
     return btns;
   }
 
-  renderInputFields() {
+  renderCustomView() {
     const { intl, startCustomPoll } = this.props;
     const isDisabled = _.compact(this.inputEditor).length < 2;
 
     return (
       <div className={styles.customInputWrapper}>
-        {this.getInputFields()}
+        {this.renderInputFields()}
         <Button
           onClick={() => {
             if (this.inputEditor.length > 1) {
@@ -245,7 +245,7 @@ class Poll extends Component {
           onClick={this.toggleCustomFields}
           label={intl.formatMessage(intlMessages.customPollLabel)}
         />
-        {!customPollReq ? null : this.renderInputFields()}
+        {!customPollReq ? null : this.renderCustomView()}
       </div>
     );
   }
