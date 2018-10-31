@@ -130,6 +130,7 @@ class Poll extends Component {
     const { currentUser } = this.props;
     if (!currentUser.presenter) {
       Session.set('isUserListOpen', true);
+      Session.set('forcePollOpen', false);
       return Session.set('isPollOpen', false);
     }
   }
