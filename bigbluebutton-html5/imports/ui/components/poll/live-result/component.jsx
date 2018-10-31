@@ -98,30 +98,30 @@ class LiveResult extends Component {
 
     const pollStats = [];
 
-    if (currentPoll) {
-      const {
-        answers,
-        numRespondents,
-      } = currentPoll;
+    if (!currentPoll) return;
 
-      if (answers) {
-        answers.map((obj) => {
-          const pct = Math.round(obj.numVotes / numRespondents * 100);
+    const {
+      answers,
+      numRespondents,
+    } = currentPoll;
 
-          return pollStats.push(<div className={styles.main} key={_.uniqueId('stats-')}>
-            <div className={styles.left}>
-              {obj.key}
-            </div>
-            <div className={styles.center}>
-              {obj.numVotes}
-            </div>
-            <div className={styles.right}>
-              {`${isNaN(pct) ? 0 : pct}%`}
-            </div>
-          </div>);
-        });
-      }
-    }
+    if (!answers) return;
+
+    answers.map((obj) => {
+      const pct = Math.round(obj.numVotes / numRespondents * 100);
+
+      return pollStats.push(<div className={styles.main} key={_.uniqueId('stats-')}>
+        <div className={styles.left}>
+          {obj.key}
+        </div>
+        <div className={styles.center}>
+          {obj.numVotes}
+        </div>
+        <div className={styles.right}>
+          {`${isNaN(pct) ? 0 : pct}%`}
+        </div>
+      </div>);
+    });
 
     return pollStats;
   }
