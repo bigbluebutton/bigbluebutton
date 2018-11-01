@@ -32,16 +32,24 @@ const intlMessages = defineMessages({
   },
 });
 
-const breakoutRemainingTimeContainer = (props) => {
-  if (_.isEmpty(props.message)) {
-    return null;
+class breakoutRemainingTimeContainer extends React.Component {
+  componentWillUnmount() {
+    clearInterval(timeRemainingInterval);
+    timeRemainingInterval = null;
+    timeRemaining = null;
   }
-  return (
-    <BreakoutRemainingTimeComponent>
-      {props.message}
-    </BreakoutRemainingTimeComponent>
-  );
-};
+
+  render() {
+    if (_.isEmpty(this.props.message)) {
+      return null;
+    }
+    return (
+      <BreakoutRemainingTimeComponent>
+        {this.props.message}
+      </BreakoutRemainingTimeComponent>
+    );
+  }
+}
 
 
 let timeRemaining = 0;
