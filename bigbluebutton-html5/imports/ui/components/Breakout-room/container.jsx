@@ -17,6 +17,7 @@ export default withTracker((props) => {
     transferToBreakout,
     meetingId,
     isPresenter,
+    isModerator,
     closeBreakoutPanel,
   } = Service;
   const breakoutRooms = findBreakouts();
@@ -34,6 +35,7 @@ export default withTracker((props) => {
     isMicrophoneUser,
     meetingId,
     isPresenter: isPresenter(),
+    isModerator: isModerator(),
     closeBreakoutPanel,
   };
 })(BreakoutContainer);

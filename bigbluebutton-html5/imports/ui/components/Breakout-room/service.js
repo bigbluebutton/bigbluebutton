@@ -3,12 +3,17 @@ import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
-import HumanizeSeconds from '/imports/utils/humanizeSeconds';
 import Users from '/imports/api/users';
 import mapUser from '/imports/ui/services/user/mapUser';
 
 const findBreakouts = () => {
-  const BreakoutRooms = Breakouts.find({ parentMeetingId: Auth.meetingID }, { sort: { sequence: 1 } }).fetch();
+  const BreakoutRooms = Breakouts.find({
+    parentMeetingId: Auth.meetingID,
+  }, {
+    sort: {
+      sequence: 1,
+    },
+  }).fetch();
 
   return BreakoutRooms;
 };
@@ -52,6 +57,12 @@ const isPresenter = () => {
   return mappedUser.isPresenter;
 };
 
+const isModerator = () => {
+  const User = Users.findOne({ intId: Auth.userID });
+  const mappedUser = mapUser(User);
+  return mappedUser.isModerator;
+};
+
 const closeBreakoutPanel = () => Session.set('breakoutRoomIsOpen', false);
 
 export default {
@@ -64,4 +75,5 @@ export default {
   meetingId: Auth.meetingID,
   isPresenter,
   closeBreakoutPanel,
+  isModerator,
 };

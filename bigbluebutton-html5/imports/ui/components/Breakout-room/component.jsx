@@ -192,7 +192,7 @@ class BreakoutRoom extends Component {
 
   render() {
     const {
-      intl, endAllBreakouts, breakoutRooms, isPresenter, closeBreakoutPanel,
+      intl, endAllBreakouts, breakoutRooms, isModerator, closeBreakoutPanel,
     } = this.props;
     if (breakoutRooms.length <= 0) return null;
     return (
@@ -206,7 +206,7 @@ class BreakoutRoom extends Component {
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {
-          isPresenter ?
+          isModerator ?
             (
               <Button
                 color="primary"
