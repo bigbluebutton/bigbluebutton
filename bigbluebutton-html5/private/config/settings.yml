@@ -142,6 +142,7 @@ public:
       - changeRole
       - ejectUserFromVoice
       - toggleRecording
+      - endAllBreakouts
     presenter:
       methods:
       - assignPresenter
@@ -157,7 +158,6 @@ public:
       - requestPresentationUploadToken
       - transferUser
       - createBreakoutRoom
-      - endAllBreakouts
   breakout:
     rooms:
       min: 2
