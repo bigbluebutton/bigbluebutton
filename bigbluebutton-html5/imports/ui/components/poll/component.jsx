@@ -87,18 +87,9 @@ class Poll extends Component {
     this.toggleCustomFields = this.toggleCustomFields.bind(this);
     this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
     this.renderCustomView = this.renderCustomView.bind(this);
-    this.nonPresenterRedirect = this.nonPresenterRedirect.bind(this);
     this.renderInputFields = this.renderInputFields.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleBackClick = this.handleBackClick.bind(this);
-  }
-
-  componentWillMount() {
-    this.nonPresenterRedirect();
-  }
-
-  componentDidUpdate() {
-    this.nonPresenterRedirect();
   }
 
   handleInputChange(index, event) {
@@ -124,15 +115,6 @@ class Poll extends Component {
     ));
 
     return items;
-  }
-
-  nonPresenterRedirect() {
-    const { currentUser } = this.props;
-    if (!currentUser.presenter) {
-      Session.set('isUserListOpen', true);
-      Session.set('forcePollOpen', false);
-      return Session.set('isPollOpen', false);
-    }
   }
 
   toggleCustomFields() {
