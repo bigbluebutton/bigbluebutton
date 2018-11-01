@@ -73,10 +73,16 @@ package org.bigbluebutton.core.managers
         }
       }
       if (!_reconnectTimeout.running)
+        _reconnectTimeout.reset();
         _reconnectTimeout.start();
     }
 
     private function timeout(e:TimerEvent = null):void {
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["connection"];
+      logData.logCode = "reconnect_timeout_hit";
+      LOGGER.info(JSON.stringify(logData));
+      
       _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
       _dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
     }

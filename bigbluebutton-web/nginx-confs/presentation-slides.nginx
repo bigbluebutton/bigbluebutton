@@ -1,0 +1,41 @@
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
+# Have nginx serve the presentation slides instead of tomcat as large files
+# causes tomcat to OOM. (ralam sept 20, 2018)
+
+        location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/svg\/(?<page_num>\d+)$ {
+		default_type image/svg+xml;
+                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/svgs/slide$page_num.svg;
+        }
+
+        location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/slide\/(?<page_num>\d+)$ {
+                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/slide-$page_num.swf;
+        }
+
+        location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/thumbnail\/(?<page_num>\d+)$ {
+		default_type image/png;
+                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/thumbnails/thumb-$page_num.png;
+        }
+
+        location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/textfiles\/(?<page_num>\d+)$ {
+		default_type text/plain;
+                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/textfiles/slide-$page_num.txt;
+        }
+
+

@@ -67,6 +67,8 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 			
 				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 				
+				var hostName:String = BBB.initConnectionManager().hostToUse;
+				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
 				
@@ -75,7 +77,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 						tunnelProtocol = ConnUtil.RTMPS;
 					}
 					
-					ssAppUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
+					ssAppUrl = tunnelProtocol + "://" + hostName + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
 
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
@@ -84,7 +86,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
 						nativeProtocol = ConnUtil.RTMPS;
 					}
 				
-					ssAppUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
+					ssAppUrl = nativeProtocol + "://" + hostName + "/" + result.app + "/" + UsersUtil.getInternalMeetingID();
 
 				}
 				

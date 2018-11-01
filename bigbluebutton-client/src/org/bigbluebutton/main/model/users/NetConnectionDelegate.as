@@ -19,6 +19,7 @@
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -66,7 +67,7 @@ package org.bigbluebutton.main.model.users
         private var reconnecting:Boolean = false;
         private var guestKickedOutCommand:Boolean = false;
         
-        private var maxConnectAttempt:int = 2;
+        private var maxConnectAttempt:int = 3;
         private var connectAttemptCount:int = 0;
         private var connectAttemptTimeout:Number = 5000;
         private var connectionTimer:Timer;
@@ -416,19 +417,19 @@ package org.bigbluebutton.main.model.users
             var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
             attemptSucceeded.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
             dispatcher.dispatchEvent(attemptSucceeded);
-        }
+		}
 
-        private function onReconnectFailed():void {
-					var logData:Object = UsersUtil.initLogData();
-					logData.url = bbbAppsUrl;
-					logData.tags = ["apps", "connection"];
-					logData.app = "apps";
-					logData.reconnecting = reconnecting;
-					logData.logCode = "connection_reconnect_attempt_failed";
-					LOGGER.info(JSON.stringify(logData));
-					
-            sendUserLoggedOutEvent();
-        }
+		private function onReconnectFailed():void {
+			var logData:Object = UsersUtil.initLogData();
+			logData.url = bbbAppsUrl;
+			logData.tags = ["apps", "connection"];
+			logData.app = "apps";
+			logData.reconnecting = reconnecting;
+			logData.logCode = "connection_reconnect_attempt_failed";
+			LOGGER.info(JSON.stringify(logData));
+
+			sendUserLoggedOutEvent();
+		}
         
         private function sendConnectionSuccessEvent(userid:String):void{
             var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
@@ -526,6 +527,8 @@ package org.bigbluebutton.main.model.users
 
 								var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 								
+								var hostName:String = BBB.initConnectionManager().hostToUse;
+								
 								if (BBB.initConnectionManager().isTunnelling) {
 									var tunnelProtocol: String = ConnUtil.RTMPT;
 									if (useRTMPS) {
@@ -533,7 +536,7 @@ package org.bigbluebutton.main.model.users
 										tunnelProtocol = ConnUtil.RTMPS;
 									}
 								
-									bbbAppsUrl = tunnelProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
+									bbbAppsUrl = tunnelProtocol + "://" + hostName + "/" + result.app + "/" + intMeetingId;
 									//LOGGER.debug("BBB APPS CONNECT tunnel = TRUE " + "url=" +  bbbAppsUrl);
 								} else {
 									var nativeProtocol: String = ConnUtil.RTMP;
@@ -541,7 +544,7 @@ package org.bigbluebutton.main.model.users
 										_netConnection.proxyType = ConnUtil.PROXY_BEST;
 										nativeProtocol = ConnUtil.RTMPS;
 									}
-									bbbAppsUrl = nativeProtocol + "://" + result.server + "/" + result.app + "/" + intMeetingId;
+									bbbAppsUrl = nativeProtocol + "://" + hostName + "/" + result.app + "/" + intMeetingId;
 									//LOGGER.debug("BBB APPS CONNECT tunnel = FALSE " + "url=" +  bbbAppsUrl);
 								
                 }
@@ -769,51 +772,56 @@ package org.bigbluebutton.main.model.users
                 }
             } else {
                 if (UsersUtil.isUserEjected()) {
-									
-										logData.reason = reason;
-										logData.app = "apps";
-										logData.logCode = "user_ejected_from_meeting";
-										LOGGER.info(JSON.stringify(logData));
 
-                    LOGGER.info(JSON.stringify(logData));
-										// Let the logout happen when receiving the user ejected message instead
-										// of here. Firefox and IE isn't closing the connection when using RTMPS
-										// which doesn't trigger this event. (ralam july 17, 2018)
-                 //   reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
-                 //   var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-                 //   dispatcher.dispatchEvent(cfe);
-                } else {
-										logData.reason = reason;
-										logData.app = "apps";
-										logData.logCode = "connection_failed";
-										LOGGER.info(JSON.stringify(logData));
-                    var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-                    dispatcher.dispatchEvent(e);
-                }
+                logData.reason = reason;
+                logData.app = "apps";
+                logData.logCode = "user_ejected_from_meeting";
+                LOGGER.info(JSON.stringify(logData));
 
+                reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
+                var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                dispatcher.dispatchEvent(cfe);
+            } else if (reconnecting && connectAttemptCount < maxConnectAttempt) {
+                logData.reason = reason;
+                logData.app = "apps";
+                logData.logCode = "reconnect_attempt_failed";
+                LOGGER.info(JSON.stringify(logData));
+                
+                var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+                attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                dispatcher.dispatchEvent(attemptFailedEvent);
+            } else {
+                logData.reason = reason;
+                logData.app = "apps";
+                logData.logCode = "connection_failed";
+                logData.reconnecting = reconnecting;
+                LOGGER.info(JSON.stringify(logData));
+                var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                dispatcher.dispatchEvent(e);
             }
-        }
-
-				private function sendUserLoggedOutEvent():void{
-					var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
-					dispatcher.dispatchEvent(e);
-				}
-				
-				private function sendGuestUserKickedOutEvent():void {
-					var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.MODERATOR_DENIED_ME);
-					dispatcher.dispatchEvent(e);
-				}
-				
-				public function onBWCheck(... rest):Number { 
-					return 0; 
-				} 
-				
-				public function onBWDone(... rest):void { 
-					var p_bw:Number; 
-					if (rest.length > 0) p_bw = rest[0]; 
-					// your application should do something here 
-					// when the bandwidth check is complete 
-					LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
-				}
 		}
+	}
+		
+		private function sendUserLoggedOutEvent():void{
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
+			dispatcher.dispatchEvent(e);
+		}
+		
+		private function sendGuestUserKickedOutEvent():void {
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.MODERATOR_DENIED_ME);
+			dispatcher.dispatchEvent(e);
+		}
+		
+		public function onBWCheck(... rest):Number { 
+			return 0; 
+		} 
+		
+		public function onBWDone(... rest):void { 
+			var p_bw:Number; 
+			if (rest.length > 0) p_bw = rest[0]; 
+			// your application should do something here 
+			// when the bandwidth check is complete 
+			LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
+		}
+	}
 }

@@ -34,7 +34,8 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-	
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+
 	public class JoinService
 	{  
 		private static const LOGGER:ILogger = getClassLogger(JoinService);      
@@ -127,7 +128,7 @@ package org.bigbluebutton.main.model.users
 				LOGGER.info(JSON.stringify(logData));
 				
 				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
+				dispatcher.dispatchEvent(new MeetingNotFoundEvent(ResourceUtil.getInstance().getString('bbb.mainshell.enterAPIFailed')));			
 			} else if (returncode == 'SUCCESS') {
 				logData.logCode = "enter_api_succeeded"; 
 				LOGGER.info(JSON.stringify(logData));

@@ -313,17 +313,4 @@ module.exports = class Audio extends BaseProvider {
     }), C.FROM_AUDIO);
     this.removeUser(connectionId);
   };
-
-  serverState (event) {
-    const { eventTag: { code }  } = { ...event };
-    switch (code) {
-      case C.MEDIA_SERVER_OFFLINE:
-        Logger.error(LOG_PREFIX, "Provider received MEDIA_SERVER_OFFLINE event");
-        this.emit(C.MEDIA_SERVER_OFFLINE, event);
-        break;
-
-      default:
-        Logger.warn(LOG_PREFIX, "Unknown server state", event);
-    }
-  }
 };
