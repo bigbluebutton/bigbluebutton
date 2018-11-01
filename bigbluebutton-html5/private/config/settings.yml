@@ -99,6 +99,9 @@ public:
     enableVideoStats: false
     enableListenOnly: false
     autoShareWebcam: false
+  allowOutsideCommands:
+    toggleRecording: false
+    toggleSelfVoice: false
   acl:
     viewer:
       subscriptions:

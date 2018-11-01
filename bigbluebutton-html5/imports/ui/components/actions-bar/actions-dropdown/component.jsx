@@ -9,7 +9,9 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import { styles } from '../styles';
+import ActionBarService from '../service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -67,8 +69,14 @@ class ActionsDropdown extends Component {
 
   componentWillMount() {
     this.presentationItemId = _.uniqueId('action-item-');
-    this.videoItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
+  }
+
+  componentDidMount() {
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
+      getFromUserSettings('outsideToggleRecording', false)) {
+      window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
+    }
   }
 
   componentWillUpdate(nextProps) {
