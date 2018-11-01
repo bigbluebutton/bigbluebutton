@@ -3,12 +3,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-
-
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -17,6 +14,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 
 import { styles } from '../styles';
 
@@ -82,9 +80,6 @@ const intlMessages = defineMessages({
     description: 'Describes help option',
   },
 });
-
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const OPEN_OPTIONS_AK = SHORTCUTS_CONFIG.openOptions.accesskey;
 
 class SettingsDropdown extends Component {
   constructor(props) {
@@ -210,7 +205,10 @@ class SettingsDropdown extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl,
+      shortcuts: OPEN_OPTIONS_AK,
+    } = this.props;
 
     return (
       <Dropdown
@@ -245,4 +243,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(SettingsDropdown));
+export default withShortcutHelper(withModalMounter(injectIntl(SettingsDropdown)), 'openOptions');
