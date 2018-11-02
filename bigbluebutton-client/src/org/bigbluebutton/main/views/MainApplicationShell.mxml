@@ -156,16 +156,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
 			private var globalDispatcher:Dispatcher;			
@@ -395,7 +385,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function removeGuestWindow(evt:BBBEvent):void {
-        LOGGER.debug("REMOVE GUEST WINDOW");
+        		LOGGER.debug("REMOVE GUEST WINDOW");
 				//if (guestWindow != null) {
 				//	guestWindow.remove(evt.payload.userId);
 				//}
