@@ -80,14 +80,6 @@
     background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
-  &:hover,
-  &:active {
-    &:before,
-    &:after {
-      opacity: 1;
-    }
-  }
-
   @include mq($medium-up) {
     flex: 5;
     order: 2;
@@ -126,7 +118,7 @@
 .compact {
   flex-basis: 4.6rem;
 }
-
+.breakoutRoom,
 .chat {
   @extend %full-page;
 
@@ -146,6 +138,15 @@
 
   @include mq($xlarge-up) {
     flex-basis: 20vw;
+  }
+}
+
+.breakoutRoom {
+  height: 100%;
+  width: 20vw;
+  background-color: var(--color-white);
+  @include mq($small-only) {
+    width: auto;
   }
 }
 

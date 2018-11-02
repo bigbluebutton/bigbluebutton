@@ -1,4 +1,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
+:root {
+  --color-white-with-transparency: #ffffff40;
+}
 
 .videoCanvas {
   --cam-dropdown-width: 70%;
@@ -51,7 +54,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid rgba(var(--color-white), .25);
+    border: 5px solid var(--color-white-with-transparency);
     border-radius: 5px;
     opacity: 0;
     transition: opacity .1s;
@@ -80,7 +83,7 @@
   @extend %media-area;
   position: absolute;
   background-color: var(--color-gray);
-  color: rgba(var(--color-white), .25);
+  color: var(--color-white-with-transparency);
   font-size: 2.5rem;
   text-align: center;
   white-space: nowrap;
@@ -132,6 +135,7 @@
 
 .dropdownTrigger {
   @extend %text-elipsis;
+  cursor: pointer;
   position: relative;
   background-color: rgba(var(--color-gray), .5);
   color: var(--color-white);

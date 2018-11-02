@@ -136,7 +136,7 @@ class AudioManager {
     this.isEchoTest = false;
     const { name } = browser();
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
-    const bridge  = this.useKurento? this.listenOnlyBridge : this.bridge;
+    const bridge = USE_KURENTO ? this.listenOnlyBridge : this.bridge;
 
     const callOptions = {
       isListenOnly: true,

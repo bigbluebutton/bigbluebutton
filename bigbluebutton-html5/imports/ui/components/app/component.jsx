@@ -6,6 +6,7 @@ import Modal from 'react-modal';
 import cx from 'classnames';
 import Resizable from 're-resizable';
 import browser from 'browser-detect';
+import BreakoutRoomContainer from '/imports/ui/components/Breakout-room/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -166,6 +167,18 @@ class App extends Component {
     );
   }
 
+  renderBreakoutRoom() {
+    const { hasBreakoutRooms, breakoutRoomIsOpen } = this.props;
+
+    if (!breakoutRoomIsOpen) return null;
+    if (!hasBreakoutRooms) return null;
+    return (
+      <div className={styles.breakoutRoom}>
+        <BreakoutRoomContainer />
+      </div>
+    );
+  }
+
   renderUserListResizable() {
     const { userListIsOpen } = this.props;
 
@@ -315,6 +328,7 @@ class App extends Component {
           {enableResize ? this.renderUserListResizable() : this.renderUserList()}
           {userListIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
           {enableResize ? this.renderChatResizable() : this.renderChat()}
+          {this.renderBreakoutRoom()}
           {this.renderSidebar()}
         </section>
         <ModalContainer />
