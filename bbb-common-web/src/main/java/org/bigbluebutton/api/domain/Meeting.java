@@ -261,7 +261,6 @@ public class Meeting {
 	  return isBreakout;
 	}
 	
-	   
     public void setHaveRecordingMarks(boolean marks) {
         haveRecordingMarks = marks;
     }

@@ -2009,7 +2009,7 @@ class ApiController {
     def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
     def presId = Util.generatePresentationId(presFilename)
-    File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId)
+    File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId)
     if (uploadDir != null) {
       def newFilename = Util.createNewFilename(presId, filenameExt)
       def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename);

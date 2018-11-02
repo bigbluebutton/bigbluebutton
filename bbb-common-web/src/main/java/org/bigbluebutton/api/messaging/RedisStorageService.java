@@ -24,21 +24,23 @@ public class RedisStorageService {
   public void start() {
     // Set the name of this client to be able to distinguish when doing
     // CLIENT LIST on redis-cli
-    redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+    redisPool = new JedisPool(new GenericObjectPoolConfig<Object>(), host, port, Protocol.DEFAULT_TIMEOUT, null,
       Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
   }
 
   public void recordMeetingInfo(String meetingId, Map<String, String> info) {
     Jedis jedis = redisPool.getResource();
     try {
-      for (String key : info.keySet()) {
-        log.debug("Storing metadata {} = {}", key, info.get(key));
+      if (log.isDebugEnabled()) {
+        for (Map.Entry<String,String> entry : info.entrySet()) {
+          log.debug("Storing metadata {} = {}", entry.getKey(), entry.getValue());
+        }
       }
 
       log.debug("Saving metadata in {}", meetingId);
       jedis.hmset("meeting:info:" + meetingId, info);
     } catch (Exception e) {
-      log.warn("Cannot record the info meeting: {}" + meetingId, e);
+      log.warn("Cannot record the info meeting: {}", meetingId, e);
     } finally {
       jedis.close();
     }
@@ -50,7 +52,7 @@ public class RedisStorageService {
       log.debug("Saving breakout metadata in {}", meetingId);
       jedis.hmset("meeting:breakout:" + meetingId, breakoutInfo);
     } catch (Exception e) {
-      log.warn("Cannot record the info meeting:" + meetingId, e);
+      log.warn("Cannot record the info meeting: {}", meetingId, e);
     } finally {
       jedis.close();
     }
