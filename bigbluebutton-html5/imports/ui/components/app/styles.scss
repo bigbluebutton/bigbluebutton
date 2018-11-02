@@ -80,14 +80,6 @@
     background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
-  &:hover,
-  &:active {
-    &:before,
-    &:after {
-      opacity: 1;
-    }
-  }
-
   @include mq($medium-up) {
     flex: 5;
     order: 2;

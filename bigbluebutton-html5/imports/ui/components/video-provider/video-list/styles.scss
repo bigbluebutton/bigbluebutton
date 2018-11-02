@@ -132,6 +132,7 @@
 
 .dropdownTrigger {
   @extend %text-elipsis;
+  cursor: pointer;
   position: relative;
   background-color: rgba(var(--color-gray), .5);
   color: var(--color-white);

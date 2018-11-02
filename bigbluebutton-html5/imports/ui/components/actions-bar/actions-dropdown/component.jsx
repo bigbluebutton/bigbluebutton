@@ -9,6 +9,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
 
@@ -64,9 +65,6 @@ const intlMessages = defineMessages({
     description: 'Description of create breakout room option',
   },
 });
-
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const OPEN_ACTIONS_AK = SHORTCUTS_CONFIG.openActions.accesskey;
 
 class ActionsDropdown extends Component {
   constructor(props) {
@@ -154,6 +152,7 @@ class ActionsDropdown extends Component {
       intl,
       isUserPresenter,
       isUserModerator,
+      shortcuts: OPEN_ACTIONS_AK,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -187,4 +186,4 @@ class ActionsDropdown extends Component {
 
 ActionsDropdown.propTypes = propTypes;
 
-export default withModalMounter(injectIntl(ActionsDropdown));
+export default withShortcutHelper(withModalMounter(injectIntl(ActionsDropdown)), 'openActions');
