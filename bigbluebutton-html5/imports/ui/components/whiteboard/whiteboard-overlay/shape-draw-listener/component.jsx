@@ -348,6 +348,6 @@ ShapeDrawListener.propTypes = {
     // Annotation thickness (not normalized)
     thickness: PropTypes.number.isRequired,
     // The name of the tool currently selected
-    tool: PropTypes.string.isRequired,
+    tool: PropTypes.string,
   }).isRequired,
 };

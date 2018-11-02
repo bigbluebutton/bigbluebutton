@@ -12,8 +12,10 @@ const getFontSize = () => {
   return applicationSettings ? applicationSettings.fontSize : '16px';
 };
 
+const getBreakoutRooms = () => Breakouts.find().fetch();
+
 function meetingIsBreakout() {
-  const breakouts = Breakouts.find().fetch();
+  const breakouts = getBreakoutRooms();
   return (breakouts && breakouts.some(b => b.breakoutId === Auth.meetingID));
 }
 
@@ -21,4 +23,5 @@ export {
   getCaptionsStatus,
   getFontSize,
   meetingIsBreakout,
+  getBreakoutRooms,
 };
