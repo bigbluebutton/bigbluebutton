@@ -1,3 +1,4 @@
+<#ftl output_format="XML" auto_esc=true>
 <recordID>${r.getId()}</recordID>
 
 <#if r.getMeeting()??>

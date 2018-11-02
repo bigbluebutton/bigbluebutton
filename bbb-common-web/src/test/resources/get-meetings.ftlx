@@ -1,3 +1,4 @@
+<#ftl output_format="XML" auto_esc=true>
 <#compress>
 <response>
 <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
@@ -51,15 +52,13 @@
 </attendee>
 </#list>
         </attendees>
-<#assign m = meetingDetail.meeting.getMetadata()>
-<metadata>
-  <#list m?keys as prop>
-    <#if m[prop]??>
-      <${prop}>${m[prop]}</${props}>
+  <metadata>
+  <#list meeting.getMetadata() as name, value>
+  	<#if value??>
+     <${name}>${value}</${name}>
     </#if>
   </#list>
-</metadata>
-
+  </metadata>
 <isBreakout>${meetingDetail.meeting.isBreakout()?c}</isBreakout>
 
 <#if meetingDetail.meeting.isBreakout()>
