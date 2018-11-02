@@ -18,7 +18,15 @@ class UserPolls extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl,
+      isPresenter,
+      pollIsOpen,
+      forcePollOpen,
+    } = this.props;
+
+    if (!isPresenter) return null;
+    if (!pollIsOpen && !forcePollOpen) return null;
 
     return (
       <div className={styles.messages}>

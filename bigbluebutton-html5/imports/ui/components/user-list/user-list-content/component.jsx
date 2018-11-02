@@ -66,9 +66,6 @@ class UserContent extends React.Component {
       hasBreakoutRoom,
     } = this.props;
 
-    const showPoll = pollIsOpen && currentUser.isPresenter;
-    const keepPollOpen = forcePollOpen && !pollIsOpen && currentUser.isPresenter;
-
     return (
       <div
         data-test="userListContent"
@@ -84,10 +81,13 @@ class UserContent extends React.Component {
             roving,
           }}
         />
-        {
-          showPoll || keepPollOpen ?
-            <UserPolls /> : null
-        }
+        <UserPolls
+          isPresenter={currentUser.isPresenter}
+          {...{
+            pollIsOpen,
+            forcePollOpen,
+          }}
+        />
         <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipants
           {...{
