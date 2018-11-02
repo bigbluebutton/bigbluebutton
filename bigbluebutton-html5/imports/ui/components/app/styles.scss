@@ -118,7 +118,7 @@
 .compact {
   flex-basis: 4.6rem;
 }
-
+.breakoutRoom,
 .chat {
   @extend %full-page;
 
@@ -138,6 +138,15 @@
 
   @include mq($xlarge-up) {
     flex-basis: 20vw;
+  }
+}
+
+.breakoutRoom {
+  height: 100%;
+  width: 20vw;
+  background-color: var(--color-white);
+  @include mq($small-only) {
+    width: auto;
   }
 }
 

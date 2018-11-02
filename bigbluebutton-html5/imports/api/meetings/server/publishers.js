@@ -14,7 +14,11 @@ function meetings(credentials) {
   Logger.info(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
 
   const selector = {
-    meetingId,
+    $or: [
+      { meetingId },
+      { 'meetingProp.isBreakout': true },
+      { 'breakoutProps.parentId': meetingId },
+    ],
   };
 
   const options = {

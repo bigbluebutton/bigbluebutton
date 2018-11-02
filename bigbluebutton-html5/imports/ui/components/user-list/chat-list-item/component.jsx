@@ -47,6 +47,7 @@ const defaultProps = {
 
 const toggleChatOpen = () => {
   Session.set('isChatOpen', !Session.get('isChatOpen'));
+  Session.set('breakoutRoomIsOpen', false);
 };
 
 const ChatListItem = (props) => {

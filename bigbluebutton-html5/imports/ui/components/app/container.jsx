@@ -15,6 +15,7 @@ import {
   getFontSize,
   getCaptionsStatus,
   meetingIsBreakout,
+  getBreakoutRooms,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -109,7 +110,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
+    hasBreakoutRooms: getBreakoutRooms().length > 0,
     userListIsOpen: Session.get('isUserListOpen'),
+    breakoutRoomIsOpen: Session.get('breakoutRoomIsOpen') && Session.get('isUserListOpen'),
     chatIsOpen: Session.get('isChatOpen') && Session.get('isUserListOpen'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
