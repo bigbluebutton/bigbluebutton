@@ -81,14 +81,6 @@
     background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
-  &:hover,
-  &:active {
-    &:before,
-    &:after {
-      opacity: 1;
-    }
-  }
-
   @include mq($medium-up) {
     flex: 5;
     order: 2;
@@ -127,8 +119,9 @@
   flex-basis: 4.6rem;
 }
 
-.chat,
-.poll {
+.poll,
+.breakoutRoom,
+.chat {
   @extend %full-page;
 
   order: 2;
@@ -154,6 +147,15 @@
   background-color: var(--color-white);
   min-width: var(--poll-pane-min-width);
   padding: 1rem;
+}
+
+.breakoutRoom {
+  height: 100%;
+  width: 20vw;
+  background-color: var(--color-white);
+  @include mq($small-only) {
+    width: auto;
+  }
 }
 
 .sidebar {

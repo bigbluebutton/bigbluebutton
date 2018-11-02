@@ -4,6 +4,7 @@ import { styles } from './styles';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
 import UserPolls from './user-polls/component';
+import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
@@ -62,6 +63,7 @@ class UserContent extends React.Component {
       getGroupChatPrivate,
       pollIsOpen,
       forcePollOpen,
+      hasBreakoutRoom,
     } = this.props;
 
     const showPoll = pollIsOpen && currentUser.isPresenter;
@@ -86,6 +88,7 @@ class UserContent extends React.Component {
           showPoll || keepPollOpen ?
             <UserPolls /> : null
         }
+        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipants
           {...{
             users,

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
@@ -23,9 +24,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const TOGGLE_CHAT_PUB_AK = SHORTCUTS_CONFIG.togglePublicChat.accesskey;
-
 const propTypes = {
   chat: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -39,14 +37,17 @@ const propTypes = {
   }).isRequired,
   tabIndex: PropTypes.number.isRequired,
   isPublicChat: PropTypes.func.isRequired,
+  shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   openChat: '',
+  shortcuts: '',
 };
 
 const toggleChatOpen = () => {
   Session.set('isChatOpen', !Session.get('isChatOpen'));
+  Session.set('breakoutRoomIsOpen', false);
 };
 
 const ChatListItem = (props) => {
@@ -57,6 +58,7 @@ const ChatListItem = (props) => {
     intl,
     tabIndex,
     isPublicChat,
+    shortcuts: TOGGLE_CHAT_PUB_AK,
   } = props;
 
   const isCurrentChat = chat.id === openChat;
@@ -114,4 +116,4 @@ const ChatListItem = (props) => {
 ChatListItem.propTypes = propTypes;
 ChatListItem.defaultProps = defaultProps;
 
-export default injectIntl(ChatListItem);
+export default withShortcutHelper(injectIntl(ChatListItem), 'togglePublicChat');

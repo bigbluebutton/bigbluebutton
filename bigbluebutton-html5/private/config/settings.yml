@@ -129,6 +129,7 @@ public:
       - createGroupChat
       - destroyGroupChat
       - sendGroupChatMsg
+      - requestJoinURL
     moderator:
       methods:
       - assignPresenter
@@ -141,6 +142,7 @@ public:
       - changeRole
       - ejectUserFromVoice
       - toggleRecording
+      - endAllBreakouts
     presenter:
       methods:
       - assignPresenter
@@ -154,9 +156,15 @@ public:
       - setPresentation
       - zoomSlide
       - requestPresentationUploadToken
+      - transferUser
+      - createBreakoutRoom
       - startPoll
       - stopPoll
       - publishPoll
+  breakout:
+    rooms:
+      min: 2
+      max: 8
   poll:
     max_custom: 5
   chat:

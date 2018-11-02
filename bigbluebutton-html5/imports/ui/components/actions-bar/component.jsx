@@ -21,6 +21,10 @@ class ActionsBar extends React.PureComponent {
       togglePollMenu,
       screenSharingCheck,
       enableVideo,
+      createBreakoutRoom,
+      meetingIsBreakout,
+      hasBreakoutRoom,
+      meetingName,
     } = this.props;
 
     const {
@@ -44,6 +48,10 @@ class ActionsBar extends React.PureComponent {
             record,
             toggleRecording,
             togglePollMenu,
+            createBreakoutRoom,
+            meetingIsBreakout,
+            hasBreakoutRoom,
+            meetingName,
           }}
           />
         </div>

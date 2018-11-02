@@ -38,6 +38,10 @@ export default withTracker(({ }) => {
     toggleRecording: Service.toggleRecording,
     screenSharingCheck: getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing),
     enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
+    createBreakoutRoom: Service.createBreakoutRoom,
+    meetingIsBreakout: Service.meetingIsBreakout(),
+    hasBreakoutRoom: Service.hasBreakoutRoom(),
+    meetingName: Service.meetingName(),
     togglePollMenu,
   };
 })(ActionsBarContainer);
