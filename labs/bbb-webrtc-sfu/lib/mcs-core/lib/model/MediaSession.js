@@ -32,7 +32,7 @@ module.exports = class MediaSession {
     this._options = options;
     this._adapter = options.adapter? options.adapter : C.STRING.KURENTO;
     this._name = options.name? options.name : C.STRING.DEFAULT_NAME;
-    this._MediaServer = MediaSession.getAdapter(this._adapter);
+    this._MediaServer = MediaSession.getAdapter(this._adapter, emitter);
     this.eventQueue = [];
   }
 
@@ -147,14 +147,14 @@ module.exports = class MediaSession {
     }
   }
 
-  static getAdapter (adapter) {
+  static getAdapter (adapter, emitter) {
     let obj = null;
 
     Logger.info("[mcs-media-session] Session is using the", adapter, "adapter");
 
     switch (adapter) {
       case C.STRING.KURENTO:
-        obj = new Kurento(kurentoUrl);
+        obj = new Kurento(kurentoUrl, emitter);
         break;
       case C.STRING.FREESWITCH:
         obj = new Freeswitch();

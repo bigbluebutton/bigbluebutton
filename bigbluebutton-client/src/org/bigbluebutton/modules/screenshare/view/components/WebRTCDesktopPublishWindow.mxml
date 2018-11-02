@@ -313,13 +313,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stopSharing();
 			}
 
-			public function startVideo(rtmp:String, videoWidth:Number, videoHeight:Number):void {
+			public function startVideo(streamURL:String, videoWidth:Number, videoHeight:Number):void {
 				red5StreamTimeout.stop();
 				
 				setCurrentState("dispFullRegionControlBar");
-				var myArray :Array = rtmp.split('/');
-				var meetingUrl:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
-				stream = rtmp.substring(rtmp.lastIndexOf('/')+1, rtmp.length);
+				
+				var videoURLPattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>[^\/]+)\/(?P<app>[^\/]+\/[^\/]+)\/(?P<stream>[^\/]+)/;
+				var videoURLResult:Array = videoURLPattern.exec(streamURL);
+				var protocolPattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>[^\/]+)\/(?P<app>[^\/]+)/;
+				var protocolURLResult:Array = protocolPattern.exec(dsOptions.uri);
+				
+				stream = videoURLResult.stream;
 				
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["webrtc-screenshare"];
@@ -329,11 +333,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				connection = new NetConnection();
 				
-				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<serverAndApp>.+)/;
-				var result:Array = pattern.exec(meetingUrl);
+				var useRTMPS: Boolean = protocolURLResult.protocol == ConnUtil.RTMPS;
 				
-				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
 				var ssAppUrl: String = null;
+				
+				var hostName:String = BBB.initConnectionManager().hostToUse;
 				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
@@ -344,7 +348,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					
 					
-					ssAppUrl = tunnelProtocol + "://" + result.serverAndApp;
+					ssAppUrl = tunnelProtocol + "://" + hostName + "/" + videoURLResult.app;
 					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
@@ -353,7 +357,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						nativeProtocol = ConnUtil.RTMPS;
 					}
 					
-					ssAppUrl = nativeProtocol + "://" + result.serverAndApp;
+					ssAppUrl = nativeProtocol + "://" + hostName + "/" + videoURLResult.app;
 					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
 				}
 				

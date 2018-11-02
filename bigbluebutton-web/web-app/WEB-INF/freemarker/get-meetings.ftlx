@@ -1,3 +1,4 @@
+<#ftl output_format="XML" auto_esc=true>
 <#compress>
 <response>
   <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
@@ -7,15 +8,15 @@
     <#items as meetingDetail>
       <#assign meeting = meetingDetail.getMeeting()>
       <meeting>
-        <meetingName>${meeting.getName()?html}</meetingName>
-        <meetingID>${meeting.getExternalId()?html}</meetingID>
+        <meetingName>${meeting.getName()}</meetingName>
+        <meetingID>${meeting.getExternalId()}</meetingID>
         <internalMeetingID>${meeting.getInternalId()}</internalMeetingID>
         <createTime>${meeting.getCreateTime()?c}</createTime>
         <createDate>${meetingDetail.getCreatedOn()}</createDate>
         <voiceBridge>${meeting.getTelVoice()}</voiceBridge>
         <dialNumber>${meeting.getDialNumber()}</dialNumber>
-        <attendeePW>${meeting.getViewerPassword()?html}</attendeePW>
-        <moderatorPW>${meeting.getModeratorPassword()?html}</moderatorPW>
+        <attendeePW>${meeting.getViewerPassword()}</attendeePW>
+        <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
         <running>${meeting.isRunning()?c}</running>
         <duration>${meeting.getDuration()}</duration>
         <hasUserJoined>${meeting.hasUserJoined()?c}</hasUserJoined>
@@ -33,7 +34,7 @@
         <#list meetingDetail.meeting.getUsers() as att>
           <attendee>
               <userID>${att.getExternalUserId()}</userID>
-              <fullName>${att.getFullname()?html}</fullName>
+              <fullName>${att.getFullname()}</fullName>
               <role>${att.getRole()}</role>
               <isPresenter>${att.isPresenter()?c}</isPresenter>
               <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
@@ -44,19 +45,20 @@
                   <#assign ucd = meetingDetail.meeting.getUserCustomData(att.getExternalUserId())>
                   <customdata>
                       <#list ucd?keys as prop>
-                          <${(prop)?html}>${(ucd[prop])?html}</${(prop)?html}>
+                          <${prop}>${ucd[prop]}</${prop}>
                       </#list>
                   </customdata>
               </#if>
           </attendee>
         </#list>
         </attendees>
-        <#assign m = meetingDetail.meeting.getMetadata()>
-        <metadata>
-        <#list m?keys as prop>
-           <${(prop)?html}>${(m[prop])?html}</${(prop)?html}>
-        </#list>
-        </metadata>
+	    <metadata>
+	    <#list meeting.getMetadata() as name, value>
+	       <#if value??>
+	         <${name}>${value}</${name}>
+	       </#if>
+	    </#list>
+	    </metadata>
 
         <isBreakout>${meetingDetail.meeting.isBreakout()?c}</isBreakout>
 

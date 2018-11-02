@@ -42,7 +42,7 @@ public class OfficeDocumentValidator {
         logData.put("message", "Cannot open PPTX file " + pres.getName());
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.error("-- analytics -- {}", logStr);
+        log.error("-- analytics -- {}", logStr, e);
 
         valid = false;
       }

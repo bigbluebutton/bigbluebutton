@@ -117,9 +117,9 @@ public class CallbackUrlService {
 	}
 
 	private boolean fetchCallbackUrl(final String callbackUrl) {
-		log.info("Calling callback url {}", callbackUrl);
-
 		String finalUrl = followRedirect(callbackUrl, 0, callbackUrl);
+
+		log.info("Calling callback url {}", finalUrl);
 
 		if (finalUrl == null) return false;
 

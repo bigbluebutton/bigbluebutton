@@ -81,8 +81,10 @@ package org.bigbluebutton.modules.videoconf.business
 				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
 				var result:Array = pattern.exec(options.uri);
 				
-				
 				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+				
+				var hostName:String = BBB.initConnectionManager().hostToUse;
+				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
 				
@@ -91,7 +93,7 @@ package org.bigbluebutton.modules.videoconf.business
 						tunnelProtocol = ConnUtil.RTMPS;
 					}
 				
-					videoConnUrl = tunnelProtocol + "://" + result.server + "/" + result.app;
+					videoConnUrl = tunnelProtocol + "://" + hostName + "/" + result.app;
 
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
@@ -100,7 +102,7 @@ package org.bigbluebutton.modules.videoconf.business
 						nativeProtocol = ConnUtil.RTMPS;
 					}
 				
-					videoConnUrl = nativeProtocol + "://" + result.server + "/" + result.app;
+					videoConnUrl = nativeProtocol + "://" + hostName + "/" + result.app;
 
 				}
 				

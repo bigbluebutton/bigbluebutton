@@ -86,20 +86,6 @@ module.exports = class Video extends BaseProvider {
     });
   }
 
-  serverState (event) {
-    const { eventTag: { code }  } = { ...event };
-    switch (code) {
-      case C.MEDIA_SERVER_OFFLINE:
-        Logger.error(LOG_PREFIX, "Video provider received MEDIA_SERVER_OFFLINE event");
-        this.emit(C.MEDIA_SERVER_OFFLINE, event);
-        break;
-
-      default:
-        Logger.warn(LOG_PREFIX, "Unknown server state", event);
-    }
-  }
-
-
   mediaState (event) {
     let msEvent = event.event;
 

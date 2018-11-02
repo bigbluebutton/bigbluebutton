@@ -41,6 +41,7 @@ public class PdfPageCounterHandler extends AbstractCommandHandler {
       m.find();
       return Integer.parseInt(m.group(1).trim());
     } catch (Exception e) {
+      log.error("Exception counting images", e);
       return 0;
     }
   }
