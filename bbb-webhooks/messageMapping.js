@@ -263,7 +263,7 @@ module.exports = class MessageMapping {
       "attributes": {
         "meeting": {
           "internal-meeting-id": data.meeting_id,
-          "external-meeting-id": data.external_meeting_id
+          "external-meeting-id": data.external_meeting_id || IDMapping.getExternalMeetingID(data.meeting_id)
         },
         "record-id": data.record_id,
         "success": data.success,
