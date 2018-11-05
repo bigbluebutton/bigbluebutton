@@ -143,9 +143,10 @@ public:
       - ejectUserFromVoice
       - toggleRecording
       - endAllBreakouts
+      - transferUser
+      - createBreakoutRoom
     presenter:
       methods:
-      - assignPresenter
       - switchSlide
       - modifyWhiteboardAccess
       - undoAnnotation
@@ -156,12 +157,6 @@ public:
       - setPresentation
       - zoomSlide
       - requestPresentationUploadToken
-      - transferUser
-      - createBreakoutRoom
-  breakout:
-    rooms:
-      min: 2
-      max: 8
   chat:
     min_message_length: 1
     max_message_length: 5000
