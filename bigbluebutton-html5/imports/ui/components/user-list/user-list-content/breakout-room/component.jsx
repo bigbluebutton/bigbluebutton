@@ -15,6 +15,7 @@ const toggleBreakoutPanel = () => {
   const breakoutPanelState = Session.get('breakoutRoomIsOpen');
   Session.set('breakoutRoomIsOpen', !breakoutPanelState);
   Session.set('isChatOpen', false);
+  Session.set('isPollOpen', false);
 };
 
 const BreakoutRoomItem = ({

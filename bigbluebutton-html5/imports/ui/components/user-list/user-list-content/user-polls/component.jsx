@@ -41,7 +41,8 @@ class UserPolls extends Component {
             tabIndex={0}
             className={styles.pollLink}
             onClick={() => {
-              if (Session.equals('isChatOpen', true)) Session.set('isChatOpen', false);
+              Session.set('isChatOpen', false);
+              Session.set('breakoutRoomIsOpen', false);
 
               return Session.equals('isPollOpen', true)
                 ? Session.set('isPollOpen', false)
