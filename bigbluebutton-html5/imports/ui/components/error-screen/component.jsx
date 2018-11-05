@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
@@ -34,6 +35,10 @@ const defaultProps = {
 };
 
 class ErrorScreen extends React.PureComponent {
+  componentDidMount() {
+    Meteor.disconnect();
+  }
+
   render() {
     const {
       intl,
