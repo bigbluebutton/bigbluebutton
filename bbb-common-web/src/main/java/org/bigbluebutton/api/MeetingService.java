@@ -647,7 +647,7 @@ public class MeetingService implements MessageListener {
         try {
             callbackUrl = new URIBuilder(new URI(callbackUrl))
                     .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
-                    .addParameter("meetingid", m.getExternalId()).build().toURL().toString();
+                    .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
         } catch (MalformedURLException e) {
             log.error("Malformed URL in callback url=[{}]", callbackUrl, e);
         } catch (URISyntaxException e) {
