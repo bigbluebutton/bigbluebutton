@@ -2,7 +2,6 @@ import Annotations from '/imports/api/annotations';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 function annotations(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -18,7 +17,7 @@ function annotations(credentials) {
 
 function publish(...args) {
   const boundAnnotations = annotations.bind(this);
-  return mapToAcl('subscriptions.annotations', boundAnnotations)(args);
+  return boundAnnotations(...args);
 }
 
 Meteor.publish('annotations', publish);
