@@ -75,7 +75,6 @@ object Dependencies {
     val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
     val jedis = "redis.clients" % "jedis" % Versions.jedis
 
-
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
   }
 

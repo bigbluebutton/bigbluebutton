@@ -1,7 +1,5 @@
 import org.bigbluebutton.build._
 
-organization := "org.bigbluebutton"
-
 version := "0.0.20-SNAPSHOT"
 
 scalaVersion := "2.12.7"
@@ -35,8 +33,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 Seq(Revolver.settings: _*)
-
-lazy val commonsWeb = (project in file(".")).settings(name := "bbb-common-message", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+lazy val commonMessage = (project in file(".")).settings(name := "bbb-common-message", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 //-----------
 // Packaging

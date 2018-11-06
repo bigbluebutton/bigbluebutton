@@ -16,6 +16,7 @@ object Dependencies {
     // Libraries
     val gson = "2.8.5"
     val jackson = "2.9.7"
+    val sl4j = "1.7.25"
     val lettuce = "5.1.2.RELEASE"
 
     // Test
@@ -28,6 +29,7 @@ object Dependencies {
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
+    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
   }
 
@@ -51,5 +53,6 @@ object Dependencies {
     Compile.scalaCompiler,
     Compile.googleGson,
     Compile.jacksonModule,
+    Compile.sl4jApi,
     Compile.lettuceCore) ++ testing
 }
