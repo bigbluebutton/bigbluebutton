@@ -12,6 +12,7 @@ import Icon from '../icon/component';
 import { styles } from './styles';
 import AudioService from '../audio/service';
 
+let breakoutNotified = false;
 const intlMessages = defineMessages({
 
   toastBreakoutRoomEnded: {
@@ -41,9 +42,13 @@ class ToastContainer extends React.Component {
 
 export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
   Breakouts.find().observeChanges({
+    added() {
+      breakoutNotified = false;
+    },
     removed() {
-      if (!AudioService.isUsingAudio()) {
+      if (!AudioService.isUsingAudio() && !breakoutNotified) {
         notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
+        breakoutNotified = true;
       }
     },
   });

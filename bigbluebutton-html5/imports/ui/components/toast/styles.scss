@@ -1,22 +1,24 @@
 @import "../../stylesheets/variables/_all";
 
-$toast-default-color: $color-white;
-$toast-default-bg: $color-gray;
+:root {
+  --toast-default-color: var(--color-white);
+  --toast-default-bg: var(--color-gray);
 
-$toast-info-color: $color-white;
-$toast-info-bg: $color-primary;
+  --toast-info-color: var(--color-white);
+  --toast-info-bg: var(--color-primary);
 
-$toast-success-color: $color-white;
-$toast-success-bg: $color-success;
+  --toast-success-color: var(--color-white);
+  --toast-success-bg: var(--color-success);
 
-$toast-error-color: $color-white;
-$toast-error-bg: $color-danger;
+  --toast-error-color: var(--color-white);
+  --toast-error-bg: var(--color-danger);
 
-$toast-warning-color: $color-white;
-$toast-warning-bg: $color-warning;
+  --toast-warning-color: var(--color-white);
+  --toast-warning-bg: var(--color-warning);
 
-$background: $color-white;
-$background-active: darken($color-white, 5%);
+  --background: var(--color-white);
+  --background-active: #eee;
+}
 
 @mixin notification-variant($icon-color, $icon-bg) {
   display: flex;
@@ -33,14 +35,14 @@ $background-active: darken($color-white, 5%);
 }
 
 .smallToastContainer {
-  background-color: inherit;  
+  background-color: inherit;
   margin: -.35rem;
 }
 
 .icon {
   align-self: flex-start;
   margin-bottom: auto;
-  margin-right: $sm-padding-x;
+  margin-right: var(--sm-padding-x);
   width: 2rem;
   border-radius: 50%;
   position: relative;
@@ -64,14 +66,14 @@ $background-active: darken($color-white, 5%);
   }
 }
 
-.separator { 
+.separator {
   height: 1px;
   width: 99%;
   position: absolute;
   margin-left: -.5em;
-  background-color: $color-gray-lighter;
-  margin-top: $line-height-computed * .5;
-  margin-bottom: $line-height-computed * .5;
+  background-color: var(--color-gray-lighter);
+  margin-top: calc(var(--line-height-computed) * .5);
+  margin-bottom: calc(var(--line-height-computed) * .5);
   @include mq($small-only) {
     position: relative;
     margin-left: auto;
@@ -81,7 +83,7 @@ $background-active: darken($color-white, 5%);
 .message {
   margin-top: auto;
   margin-bottom: auto;
-  font-size: $font-size-small;
+  font-size: var(--font-size-small);
   max-height: 15vh;
   overflow: auto;
 }
@@ -91,60 +93,60 @@ $background-active: darken($color-white, 5%);
 }
 
 .default {
-  @include notification-variant($toast-default-color, $toast-default-bg);
+  @include notification-variant(var(--toast-default-color), var(--toast-default-bg));
 }
 
 .info {
-  @include notification-variant($toast-info-color, $toast-info-bg);
+  @include notification-variant(var(--toast-info-color), var(--toast-info-bg));
 }
 
 .success {
-  @include notification-variant($toast-success-color, $toast-success-bg);
+  @include notification-variant(var(--toast-success-color), var(--toast-success-bg));
 }
 
 .error {
-  @include notification-variant($toast-error-color, $toast-error-bg);
+  @include notification-variant(var(--toast-error-color), var(--toast-error-bg));
 }
 
 .warning {
-  @include notification-variant($toast-warning-color, $toast-warning-bg);
+  @include notification-variant(var(--toast-warning-color), var(--toast-warning-bg));
 }
 
 .container {
   z-index: 9999;
   position: fixed;
-  padding: $sm-padding-y;
+  padding: var(--sm-padding-y);
   width: 15vw;
   min-width: 320px;
   box-sizing: border-box;
-  top: $md-padding-y;
-  right: $md-padding-y;
+  top: var(--md-padding-y);
+  right: var(--md-padding-y);
   max-height: 75vh;
   overflow: hidden;
 
   @include mq($small-only) {
-    left: $sm-padding-y;
+    left: var(--sm-padding-y);
     width: auto;
   }
 }
 
 .toast {
   position: relative;
-  margin-bottom: $sm-padding-x;
-  padding: $md-padding-x;
-  border-radius: $border-radius;
+  margin-bottom: var(--sm-padding-x);
+  padding: var(--md-padding-x);
+  border-radius: var(--border-radius);
   box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1), 0 2px 15px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   cursor: pointer;
-  color: $color-text;
-  background-color: $background;
+  color: var(--color-text);
+  background-color: var(--background);
   animation-duration: 0.75s;
   animation-fill-mode: both;
 
   &:hover,
   &:focus {
-    background-color: $background-active;
+    background-color: var(--background-active);
   }
 }
 
@@ -162,14 +164,14 @@ $background-active: darken($color-white, 5%);
   opacity: .5;
   transition: .3s ease;
   font-size: .35rem;
-  color: $color-gray-dark;
+  color: var(--color-gray-dark);
   padding: .4rem;
   line-height: 0;
   position: absolute;
-  top: $md-padding-y;
-  right: $md-padding-y;
+  top: var(--md-padding-y);
+  right: var(--md-padding-y);
   font-size: 70%;
-  top: $lg-padding-y;
+  top: var(--lg-padding-y);
   &:before {
     margin-left: -.2rem;
   }
@@ -186,7 +188,7 @@ $background-active: darken($color-white, 5%);
     align-self: flex-start;
     margin-top: auto;
     margin-bottom: auto;
-    margin-left: $sm-padding-x;
+    margin-left: var(--sm-padding-x);
     font-size: 1rem;
     line-height: 1;
     border: none;
@@ -201,7 +203,7 @@ $background-active: darken($color-white, 5%);
     width: 0;
   }
 }
-.backgroundColorInherit  {
+.backgroundColorInherit {
   background-color: inherit;
 }
 
@@ -213,6 +215,6 @@ $background-active: darken($color-white, 5%);
   height: 5px;
   z-index: 9999;
   animation: track-progress linear 1;
-  background-color: $color-gray-lighter;
-  border-radius: $border-radius;
+  background-color: var(--color-gray-lighter);
+  border-radius: var(--border-radius);
 }

@@ -34,6 +34,8 @@ const getUser = (userId) => {
   return mapUser(user);
 };
 
+const getMeeting = () => Meetings.findOne({});
+
 const mapGroupMessage = (message) => {
   const mappedMessage = {
     id: message._id,
@@ -86,7 +88,8 @@ const getPublicGroupMessages = () => {
   return publicGroupMessages;
 };
 
-const getPrivateGroupMessages = (chatID) => {
+const getPrivateGroupMessages = () => {
+  const chatID = Session.get('idChatOpen');
   const sender = getUser(Auth.userID);
 
   const privateChat = GroupChat.findOne({
@@ -141,7 +144,8 @@ const lastReadMessageTime = (receiverID) => {
   return UnreadMessages.get(chatType);
 };
 
-const sendGroupMessage = (chatID, message) => {
+const sendGroupMessage = (message) => {
+  const chatID = Session.get('idChatOpen');
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
   let chatId = PUBLIC_GROUP_CHAT_ID;
@@ -186,20 +190,22 @@ const getScrollPosition = (receiverID) => {
 };
 
 const updateScrollPosition =
-  (receiverID, position) => ScrollCollection.upsert(
-    { receiver: receiverID },
+  position => ScrollCollection.upsert(
+    { receiver: Session.get('idChatOpen') },
     { $set: { position } },
   );
 
-const updateUnreadMessage = (receiverID, timestamp) => {
-  const isPublic = receiverID === PUBLIC_CHAT_ID;
-  const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
+const updateUnreadMessage = (timestamp) => {
+  const chatID = Session.get('idChatOpen');
+  const isPublic = chatID === PUBLIC_CHAT_ID;
+  const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : chatID;
   return UnreadMessages.update(chatType, timestamp);
 };
 
 const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
 
-const closePrivateChat = (chatID) => {
+const closePrivateChat = () => {
+  const chatID = Session.get('idChatOpen');
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
   if (_.indexOf(currentClosedChats, chatID) < 0) {
@@ -210,7 +216,8 @@ const closePrivateChat = (chatID) => {
 };
 
 // if this private chat has been added to the list of closed ones, remove it
-const removeFromClosedChatsSession = (chatID) => {
+const removeFromClosedChatsSession = () => {
+  const chatID = Session.get('idChatOpen');
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
   if (_.indexOf(currentClosedChats, chatID) > -1) {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chatID));
@@ -267,6 +274,7 @@ export default {
   getPublicGroupMessages,
   getPrivateGroupMessages,
   getUser,
+  getMeeting,
   getScrollPosition,
   hasUnreadMessages,
   lastReadMessageTime,

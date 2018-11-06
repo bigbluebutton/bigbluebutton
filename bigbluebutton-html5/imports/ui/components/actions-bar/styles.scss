@@ -13,10 +13,10 @@
   justify-content: center;
 
   > * {
-    margin: 0 $sm-padding-x;
+    margin: 0 var(--sm-padding-x);
 
     @include mq($small-only) {
-      margin: 0 $sm-padding-y;
+      margin: 0 var(--sm-padding-y);
     }
   }
 }
@@ -24,8 +24,8 @@
 .left {
   position: absolute;
   @include mq($small-only) {
-    bottom: $sm-padding-x;
-    left: $sm-padding-x;
+    bottom: var(--sm-padding-x);
+    left: var(--sm-padding-x);
   }
 }
 

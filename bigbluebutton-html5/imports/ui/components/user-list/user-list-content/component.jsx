@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
+import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
@@ -63,6 +64,7 @@ class UserContent extends React.PureComponent {
       isPublicChat,
       openChats,
       getGroupChatPrivate,
+      hasBreakoutRoom,
     } = this.props;
 
     return (
@@ -80,6 +82,7 @@ class UserContent extends React.PureComponent {
             roving,
           }}
         />
+        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipants
           {...{
             users,

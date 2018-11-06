@@ -27,12 +27,14 @@ export default class PresentationArea extends Component {
         x: 0,
         y: 0,
       },
+      fitToWidth: false,
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
     this.touchUpdate = this.touchUpdate.bind(this);
     this.pointUpdate = this.pointUpdate.bind(this);
+    this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
   }
 
   componentDidMount() {
@@ -64,7 +66,7 @@ export default class PresentationArea extends Component {
       // By default presentation sizes are equal to the sizes of the refPresentationArea
       // direct parent of the svg wrapper
       let { clientWidth, clientHeight } = refPresentationArea;
-      
+
       // if a user is a presenter - this means there is a whiteboard toolbar on the right
       // and we have to get the width/height of the refWhiteboardArea
       // (inner hidden div with absolute position)
@@ -81,7 +83,7 @@ export default class PresentationArea extends Component {
   getInitialPresentationSizes() {
     // determining the presentationWidth and presentationHeight (available space for the svg)
     // on the initial load
-    
+
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // setting the state of the available space for the svg
@@ -159,6 +161,12 @@ export default class PresentationArea extends Component {
       touchZoom: bool,
     });
   }
+  fitToWidthHandler() {
+    this.setState({
+      fitToWidth: !this.state.fitToWidth,
+    });
+  }
+
   // renders the whole presentation area
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
@@ -169,7 +177,6 @@ export default class PresentationArea extends Component {
     // to control the size of the svg wrapper manually
     // and adjust cursor's thickness, so that svg didn't scale it automatically
     const adjustedSizes = this.calculateSize();
-
     // a reference to the slide object
     const slideObj = this.props.currentSlide;
 
@@ -183,13 +190,15 @@ export default class PresentationArea extends Component {
       viewBoxHeight,
       imageUri,
     } = slideObj.calculatedData;
-
+    const svgDimensions = this.state.fitToWidth ? {
+      width: 'inherit',
+    } : {
+      width: adjustedSizes.width,
+      height: adjustedSizes.height,
+    };
     return (
       <div
-        style={{
-          width: adjustedSizes.width,
-          height: adjustedSizes.height,
-        }}
+        style={svgDimensions}
       >
         <TransitionGroup>
           <CSSTransition
@@ -237,6 +246,7 @@ export default class PresentationArea extends Component {
                   physicalWidthRatio={adjustedSizes.width / width}
                   slideWidth={width}
                   slideHeight={height}
+                  radius={this.state.fitToWidth ? 2 : 5}
                 />
               </g>
               {this.renderOverlays(slideObj, adjustedSizes)}
@@ -279,6 +289,7 @@ export default class PresentationArea extends Component {
         getSvgRef={this.getSvgRef}
         presentationSize={this.getPresentationSizesAvailable()}
         touchZoom={this.state.touchZoom}
+        fitToWidth={this.state.fitToWidth}
       >
         <WhiteboardOverlayContainer
           getSvgRef={this.getSvgRef}
@@ -312,6 +323,7 @@ export default class PresentationArea extends Component {
         presentationId={this.props.currentSlide.presentationId}
         zoom={this.state.zoom}
         zoomChanger={this.zoomChanger}
+        fitToWidthHandler={this.fitToWidthHandler}
       />
     );
   }

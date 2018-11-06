@@ -35,6 +35,7 @@ UserListContainer.propTypes = propTypes;
 export default withTracker(({ chatID, compact }) => ({
   users: Service.getUsers(),
   meeting: Meetings.findOne({}),
+  hasBreakoutRoom: Service.hasBreakoutRoom(),
   currentUser: Service.getCurrentUser(),
   openChats: Service.getOpenChats(chatID),
   isBreakoutRoom: meetingIsBreakout(),

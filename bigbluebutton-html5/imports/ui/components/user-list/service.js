@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import GroupChat from '/imports/api/group-chat';
 import GroupChatMsg from '/imports/api/group-chat-msg';
+import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -190,6 +191,8 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
+const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
+
 const getOpenChats = (chatID) => {
   const privateChat = GroupChat
     .find({ users: { $all: [Auth.userID] } })
@@ -258,7 +261,7 @@ const getOpenChats = (chatID) => {
 
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 
-const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
+const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
 
   const hasAuthority = currentUser.isModerator || user.isCurrent;
@@ -453,6 +456,7 @@ export default {
   setCustomLogoUrl,
   getCustomLogoUrl,
   getGroupChatPrivate,
+  hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
 };

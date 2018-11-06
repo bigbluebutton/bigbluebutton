@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import { injectIntl } from 'react-intl';
 import UserDropdown from './user-dropdown/component';
 
@@ -21,7 +20,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  router: PropTypes.shape({}).isRequired,
   isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
@@ -50,7 +48,6 @@ class UserListItem extends Component {
       changeRole,
       setEmojiStatus,
       currentUser,
-      router,
       isBreakoutRoom,
       getAvailableActions,
       handleEmojiChange,
@@ -73,7 +70,6 @@ class UserListItem extends Component {
         changeRole,
         setEmojiStatus,
         currentUser,
-        router,
         isBreakoutRoom,
         getAvailableActions,
         handleEmojiChange,
@@ -89,4 +85,4 @@ class UserListItem extends Component {
 UserListItem.propTypes = propTypes;
 UserListItem.defaultProps = defaultProps;
 
-export default withRouter(injectIntl(UserListItem));
+export default injectIntl(UserListItem);

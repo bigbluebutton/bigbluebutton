@@ -1,10 +1,10 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { logoutRouteHandler } from '/imports/startup/client/auth';
 import Rating from './rating/component';
 import { styles } from './styles';
 
@@ -64,9 +64,6 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
-  router: PropTypes.shape({
-    push: PropTypes.func.isRequired,
-  }).isRequired,
 };
 
 class MeetingEnded extends React.PureComponent {
@@ -96,12 +93,8 @@ class MeetingEnded extends React.PureComponent {
       selected,
     } = this.state;
 
-    const {
-      router,
-    } = this.props;
-
     if (selected <= 0) {
-      router.push('/logout');
+      logoutRouteHandler();
       return;
     }
 
@@ -122,7 +115,9 @@ class MeetingEnded extends React.PureComponent {
     };
 
     fetch(url, options)
-      .finally(() => router.push('/logout'));
+      .finally(() => {
+        logoutRouteHandler();
+      });
   }
 
   render() {
@@ -173,4 +168,4 @@ class MeetingEnded extends React.PureComponent {
 
 MeetingEnded.propTypes = propTypes;
 
-export default injectIntl(withRouter(MeetingEnded));
+export default injectIntl(MeetingEnded);

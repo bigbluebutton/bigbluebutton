@@ -98,6 +98,7 @@ public:
     enableVideo: false
     enableVideoStats: false
     enableListenOnly: false
+    autoShareWebcam: false
   acl:
     viewer:
       subscriptions:
@@ -128,6 +129,7 @@ public:
       - createGroupChat
       - destroyGroupChat
       - sendGroupChatMsg
+      - requestJoinURL
     moderator:
       methods:
       - assignPresenter
@@ -142,6 +144,7 @@ public:
       - toggleRecording
       - muteAllUsers
       - muteAllExceptPresenter
+      - endAllBreakouts
     presenter:
       methods:
       - assignPresenter
@@ -155,6 +158,12 @@ public:
       - setPresentation
       - zoomSlide
       - requestPresentationUploadToken
+      - transferUser
+      - createBreakoutRoom
+  breakout:
+    rooms:
+      min: 2
+      max: 8
   chat:
     min_message_length: 1
     max_message_length: 5000
@@ -169,9 +178,11 @@ public:
     public_userid: public_chat_userid
     public_username: public_chat_username
     storage_key: UNREAD_CHATS
-    path_route: users/chat/
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+  layout:
+    autoSwapLayout: false
+    hidePresentation: false
   media:
     WebRTCHangupRetryInterval: 2000
     vertoServerAddress: HOST
@@ -219,6 +230,7 @@ public:
         update: DRAW_UPDATE
         end: DRAW_END
     toolbar:
+      multiUserPenOnly: false
       colors:
       - label: black
         value: "#000000"
@@ -275,6 +287,22 @@ public:
         value: pencil
       - icon: hand
         value: hand
+      presenterTools:
+      - text
+      - line
+      - ellipse
+      - triangle
+      - rectangle
+      - pencil
+      - hand
+      multiUserTools:
+      - text
+      - line
+      - ellipse
+      - triangle
+      - rectangle
+      - pencil
+      - hand
   clientLog:
     server:
       enabled: true

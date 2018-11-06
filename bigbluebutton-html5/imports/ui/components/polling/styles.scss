@@ -1,11 +1,5 @@
 @import "../../stylesheets/variables/_all";
 
-// pollingAnswer position offsets
-$xs-portrait-offset: 8.75em;
-$xs-landscape-offset: 4.75em;
-$s-portrait-offset: 11.75em;
-$s-landscape-offset: 1.75em;
-
 .pollingContainer {
   order: 2;
   width: 100%;
@@ -20,7 +14,7 @@ $s-landscape-offset: 1.75em;
 }
 
 .pollingTitle {
-  color: $color-white;
+  color: var(--color-white);
   white-space: nowrap;
   padding-bottom: 10px;
 }
@@ -37,16 +31,16 @@ $s-landscape-offset: 1.75em;
 
   :global(.browser-safari) & {
     @include mq($ip5-portrait) {
-      bottom: $xs-portrait-offset;
+      bottom: 8.75em;
     }
     @include mq($ip678-portrait) {
-      bottom: $s-portrait-offset;
+      bottom: 4.75em;
     }
     @include mq($ip5-landscape) {
-      bottom: $xs-landscape-offset;
+      bottom: 11.75em;
     }
     @include mq($ip678-landscape) {
-      bottom: $s-landscape-offset;
+      bottom: 1.75em;
     }
   }
 }
