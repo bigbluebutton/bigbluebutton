@@ -6,7 +6,7 @@ import Modal from 'react-modal';
 import cx from 'classnames';
 import Resizable from 're-resizable';
 import browser from 'browser-detect';
-import BreakoutRoomContainer from '/imports/ui/components/Breakout-room/container';
+import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
