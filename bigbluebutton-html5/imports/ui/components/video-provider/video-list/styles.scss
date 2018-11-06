@@ -1,10 +1,12 @@
 @import "/imports/ui/stylesheets/variables/_all";
-
-$cam-dropdown-width: 70%;
-$audio-indicator-width: 1.12rem;
-$audio-indicator-fs: 75%;
+:root {
+  --color-white-with-transparency: #ffffff40;
+}
 
 .videoCanvas {
+  --cam-dropdown-width: 70%;
+  --audio-indicator-width: 1.12rem;
+  --audio-indicator-fs: 75%;
   position: absolute;
   top: 0;
   left: 0;
@@ -52,12 +54,11 @@ $audio-indicator-fs: 75%;
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid rgba($color-white, .25);
+    border: 5px solid var(--color-white-with-transparency);
     border-radius: 5px;
     opacity: 0;
     transition: opacity .1s;
     pointer-events: none;
-
   }
 
   &.talking::after {
@@ -69,7 +70,7 @@ $audio-indicator-fs: 75%;
   position: relative;
   height: 100%;
   width: 100%;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 5px;
 }
 
@@ -81,8 +82,8 @@ $audio-indicator-fs: 75%;
 .connecting {
   @extend %media-area;
   position: absolute;
-  background-color: $color-gray;
-  color: rgba($color-white, .25);
+  background-color: var(--color-gray);
+  color: var(--color-white-with-transparency);
   font-size: 2.5rem;
   text-align: center;
   white-space: nowrap;
@@ -123,7 +124,7 @@ $audio-indicator-fs: 75%;
   flex: 1;
   display: flex;
   outline: none !important;
-  width: $cam-dropdown-width;
+  width: var(--cam-dropdown-width);
 
   @include mq($medium-up) {
     > [aria-expanded] {
@@ -134,9 +135,10 @@ $audio-indicator-fs: 75%;
 
 .dropdownTrigger {
   @extend %text-elipsis;
+  cursor: pointer;
   position: relative;
-  background-color: rgba($color-gray, .5);
-  color: $color-white;
+  background-color: rgba(var(--color-gray), .5);
+  color: var(--color-white);
   font-size: 80%;
   border-radius: 15px;
   padding: 0 1rem 0 .5rem !important;
@@ -167,17 +169,18 @@ $audio-indicator-fs: 75%;
   }
 }
 
-.muted, .voice {
+.muted,
+.voice {
   display: inline-block;
-  width: $audio-indicator-width;
-  height: $audio-indicator-width;
-  min-width: $audio-indicator-width;
-  min-height: $audio-indicator-width;
-  color: $color-white;
+  width: var(--audio-indicator-width);
+  height: var(--audio-indicator-width);
+  min-width: var(--audio-indicator-width);
+  min-height: var(--audio-indicator-width);
+  color: var(--color-white);
   border-radius: 50%;
 
   &::before {
-    font-size: $audio-indicator-fs;
+    font-size: var(--audio-indicator-fs);
   }
 }
 
@@ -185,8 +188,8 @@ $audio-indicator-fs: 75%;
   background: rgba(0,0,0,0.85);
   padding: 15px;
   height: 100%;
-  color: $color-white;
-  font-size: $font-size-small;
+  color: var(--color-white);
+  font-size: var(--font-size-small);
   border-radius: 5px;
   position: absolute;
   z-index: 1;
@@ -202,9 +205,9 @@ $audio-indicator-fs: 75%;
 }
 
 .muted {
-  background-color: $color-danger;
+  background-color: var(--color-danger);
 }
 
 .voice {
-  background-color: $color-success;
+  background-color: var(--color-success);
 }

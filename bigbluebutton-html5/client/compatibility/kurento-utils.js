@@ -38,11 +38,13 @@ function noop(error) {
         logger.error(error);
 }
 function trackStop(track) {
-    track.stop && track.stop();
+    track && track.stop && track.stop();
 }
 function streamStop(stream) {
-    stream.getTracks().forEach(trackStop);
+    let track = stream.track;
+    trackStop(track);
 }
+
 var dumpSDP = function (description) {
     if (typeof description === 'undefined' || description === null) {
         return '';
@@ -67,7 +69,9 @@ function bufferizeCandidates(pc, onerror) {
             break;
         case 'stable':
             if (pc.remoteDescription) {
-                pc.addIceCandidate(candidate, callback, callback);
+                pc.addIceCandidate(candidate).then(callback).catch(err => {
+                    callback(err);
+                });
                 break;
             }
         default:
@@ -228,7 +232,7 @@ function WebRtcPeer(mode, options, callback) {
                 candidategatheringdone = true;
         }
     });
-    pc.ontrack = options.onaddstream;
+    pc.onaddtrack = options.onaddstream;
     pc.onnegotiationneeded = options.onnegotiationneeded;
     this.on('newListener', function (event, listener) {
         if (event === 'icecandidate' || event === 'candidategatheringdone') {
@@ -300,7 +304,8 @@ function WebRtcPeer(mode, options, callback) {
             }).then(() => { remoteVideo.muted = false; played = true; attempt = 0;});
           }
         }
-        var stream = pc.getRemoteStreams()[0];
+
+        let stream = self.getRemoteStream();
 
         remoteVideo.oncanplaythrough = function() {
           playVideo();
@@ -338,10 +343,10 @@ function WebRtcPeer(mode, options, callback) {
         if (pc.signalingState === 'closed') {
             return callback('PeerConnection is closed');
         }
-        pc.setRemoteDescription(answer, function () {
+        pc.setRemoteDescription(answer).then(function () {
             setRemoteVideo();
             callback();
-        }, callback);
+        }).catch(callback);
     };
     this.processOffer = function (sdpOffer, callback) {
         callback = callback.bind(this);
@@ -398,10 +403,10 @@ function WebRtcPeer(mode, options, callback) {
             self.showLocalVideo();
         }
         if (videoStream) {
-            pc.addStream(videoStream);
+            videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
         }
         if (audioStream) {
-            pc.addStream(audioStream);
+            audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
         }
         var browser = parser.getBrowser();
         if (mode === 'sendonly' && (browser.name === 'Chrome' || browser.name === 'Chromium') && browser.major === 39) {
@@ -459,23 +464,28 @@ function createEnableDescriptor(type) {
         get: function () {
             if (!this.peerConnection)
                 return;
-            var streams = this.peerConnection.getLocalStreams();
-            if (!streams.length)
+
+            var senders = this.peerConnection.getSenders();
+            if (!senders.length)
                 return;
-            for (var i = 0, stream; stream = streams[i]; i++) {
-                var tracks = stream[method]();
-                for (var j = 0, track; track = tracks[j]; j++)
-                    if (!track.enabled)
-                        return false;
-            }
+
+            senders.forEach(sender => {
+                let track = sender.track;
+                if (!track.enabled && track.kind === type) {
+                    return false;
+                }
+            });
             return true;
         },
         set: function (value) {
             function trackSetEnable(track) {
                 track.enabled = value;
             }
-            this.peerConnection.getLocalStreams().forEach(function (stream) {
-                stream[method]().forEach(trackSetEnable);
+            this.peerConnection.getSenders().forEach(function (stream) {
+                let track = stream.track;
+                if (track.kind === type) {
+                    trackSetEnable(track);
+                }
             });
         }
     };
@@ -493,15 +503,43 @@ Object.defineProperties(WebRtcPeer.prototype, {
     'audioEnabled': createEnableDescriptor('Audio'),
     'videoEnabled': createEnableDescriptor('Video')
 });
-WebRtcPeer.prototype.getLocalStream = function (index) {
-    if (this.peerConnection) {
-        return this.peerConnection.getLocalStreams()[index || 0];
-    }
+WebRtcPeer.prototype.getLocalStream = function () {
+  if (this.localStream) {
+    return this.localStream;
+  }
+
+  if (this.peerConnection) {
+    this.localStream = new MediaStream();
+    this.peerConnection.getSenders().forEach((ls) => {
+      let track = ls.track;
+      if (track && !track.muted) {
+        this.localStream.addTrack(track);
+      }
+    });
+    return this.localStream;
+  }
 };
-WebRtcPeer.prototype.getRemoteStream = function (index) {
-    if (this.peerConnection) {
-        return this.peerConnection.getRemoteStreams()[index || 0];
-    }
+WebRtcPeer.prototype.getRemoteStream = function () {
+  if (this.remoteStream) {
+    return this.remoteStream;
+  }
+
+  if (this.peerConnection) {
+    this.remoteStream = new MediaStream();
+    this.peerConnection.getReceivers().forEach((rs) => {
+      let track = rs.track;
+      if (track) {
+        if (track.muted) {
+          track.onunmute = () => {
+            this.remoteStream.addTrack(track);
+          };
+          return;
+        }
+        this.remoteStream.addTrack(track);
+      }
+    });
+    return this.remoteStream;
+  }
 };
 WebRtcPeer.prototype.dispose = function () {
     // logger.debug('Disposing WebRtcPeer');
@@ -516,7 +554,13 @@ WebRtcPeer.prototype.dispose = function () {
         if (pc) {
             if (pc.signalingState === 'closed')
                 return;
-            pc.getLocalStreams().forEach(streamStop);
+            pc.getSenders().forEach(streamStop);
+            if (this.remoteStream) {
+                this.remoteStream = null;
+            }
+            if (this.localStream) {
+                this.localStream = null;
+            }
             pc.close();
         }
     } catch (err) {

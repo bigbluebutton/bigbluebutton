@@ -39,6 +39,7 @@ exports.EVENT.MEDIA_STATE.FLOW_IN = "MediaFlowInStateChange"
 exports.EVENT.MEDIA_STATE.ENDOFSTREAM = "EndOfStream"
 exports.EVENT.MEDIA_STATE.ICE = "OnIceCandidate"
 exports.EVENT.SERVER_STATE = "ServerState"
+exports.EVENT.ROOM_EMPTY = "RoomEmpty"
 
 exports.EVENT.RECORDING = {};
 exports.EVENT.RECORDING.STOPPED = 'Stopped';

@@ -199,7 +199,7 @@ public class ParamsProcessorUtil {
                 // Need to lowercase to maintain backward compatibility with
                 // 0.81
                 String metaName = removeMetaString(entry.getKey()).toLowerCase();
-                metas.put(metaName, params.get(entry.getValue()));
+                metas.put(metaName, entry.getValue());
             }
         }
 

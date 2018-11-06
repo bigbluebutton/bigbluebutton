@@ -6,12 +6,14 @@
  */
 
 // Actions
-.enter, .appear {
+.enter,
+.appear {
   opacity: 0;
   max-height: 0;
 }
 
-.enterActive, .appearActive {
+.enterActive,
+.appearActive {
   opacity: 1;
   transition: all 300ms;
   max-height: 10rem;
@@ -29,12 +31,14 @@
 }
 
 // Text under username
-.subUserNameEnter, .subUserNameAppear {
+.subUserNameEnter,
+.subUserNameAppear {
   opacity: 0.01;
   transform: translateY(-100%);
 }
 
-.subUserNameEnterActive, .subUserNameAppearActive {
+.subUserNameEnterActive,
+.subUserNameAppearActive {
   transform: translateY(0%);
   opacity: 1;
   transition: all 500ms;
@@ -53,22 +57,22 @@
 }
 
 .actionsHeader {
-  color: $color-gray;
+  color: var(--color-gray);
 
   &:hover {
-    color: $color-gray !important;
+    color: var(--color-gray) !important;
     cursor: default;
   }
 }
 
 .active {
-  background-color: $list-item-bg-hover;
-  box-shadow: inset 0 0 0 $border-size $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+  background-color: var(--list-item-bg-hover);
+  box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
   outline: none;
 }
 
 .usertListItemWithMenu {
-  background-color: $list-item-bg-hover;
+  background-color: var(--list-item-bg-hover);
 }
 
 .userListItem {
@@ -87,9 +91,9 @@
   display: flex;
   flex-flow: row;
 
-  padding-top: $lg-padding-y;
-  padding-bottom: $lg-padding-y;
-  padding-left: $lg-padding-y;
+  padding-top: var(--lg-padding-y);
+  padding-bottom: var(--lg-padding-y);
+  padding-left: var(--lg-padding-y);
 }
 
 .dropdown {
@@ -105,7 +109,8 @@
 }
 
 .emojiSelected {
-  span, i {
-    color: $color-primary;
+  span,
+  i {
+    color: var(--color-primary);
   }
 }

@@ -28,7 +28,7 @@ export default class Acl {
       authToken,
       validated: true,
       connectionStatus: 'online',
-      // TODO: We cant check for approved until we move subscription login out of <Base />
+      // TODO: We cant check for approved until we move subscription login out of <Base /> // TODO 4767
       // approved: true,
     });
 

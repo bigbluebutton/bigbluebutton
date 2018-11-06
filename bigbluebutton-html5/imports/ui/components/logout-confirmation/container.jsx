@@ -1,8 +1,8 @@
 import React from 'react';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter } from 'react-router';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import { Session } from 'meteor/session';
+
 import LogoutConfirmation from './component';
 import {
   isModerator,
@@ -13,14 +13,15 @@ const LogoutConfirmationContainer = props => (
   <LogoutConfirmation {...props} />
 );
 
-export default withRouter(withTracker(({ router }) => {
-  const APP_CONFIG = Meteor.settings.public.app;
-  const shouldShowFeedback = !meetingIsBreakout() && getFromUserSettings('askForFeedbackOnLogout', APP_CONFIG.askForFeedbackOnLogout);
-  const showFeedback = shouldShowFeedback ? () => router.push('/ended/430') : () => router.push('/logout');
+export default withTracker(() => {
+  const confirmLeaving = () => {
+    Session.set('isMeetingEnded', true);
+    Session.set('codeError', '430');
+  };
 
   return {
     showEndMeeting: !meetingIsBreakout() && isModerator(),
     handleEndMeeting: endMeeting,
-    showFeedback,
+    confirmLeaving,
   };
-})(LogoutConfirmationContainer));
+})(LogoutConfirmationContainer);

@@ -7,13 +7,13 @@ import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
+import browser from 'browser-detect';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const USE_SIP = MEDIA.useSIPAudio;
-const USE_KURENTO = Meteor.settings.public.kurento.enableListenOnly;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const MAX_LISTEN_ONLY_RETRIES = 2;
+const MAX_LISTEN_ONLY_RETRIES = 1;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -41,11 +41,13 @@ class AudioManager {
       outputDeviceId: null,
       muteHandle: null,
     });
+
+    this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
   }
 
   init(userData) {
     this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
-    if (USE_KURENTO) {
+    if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
@@ -129,11 +131,12 @@ class AudioManager {
       .then(() => this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)));
   }
 
-  joinListenOnly(retries = 0) {
+  async joinListenOnly(retries = 0) {
     this.isListenOnly = true;
     this.isEchoTest = false;
+    const { name } = browser();
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
-    const bridge  = USE_KURENTO? this.listenOnlyBridge : this.bridge;
+    const bridge = USE_KURENTO ? this.listenOnlyBridge : this.bridge;
 
     const callOptions = {
       isListenOnly: true,
@@ -141,25 +144,54 @@ class AudioManager {
       inputStream: this.createListenOnlyStream(),
     };
 
+    // Webkit ICE restrictions demand a capture device permission to release
+    // host candidates
+    if (name == 'safari') {
+      await this.askDevicesPermissions();
+    }
+
     // We need this until we upgrade to SIP 9x. See #4690
     const iceGatheringErr = 'ICE_TIMEOUT';
     const iceGatheringTimeout = new Promise((resolve, reject) => {
       setTimeout(reject, 12000, iceGatheringErr);
     });
 
+    const handleListenOnlyError = async (err) => {
+      if (iceGatheringTimeout) {
+        clearTimeout(iceGatheringTimeout);
+      }
+
+      logger.error('Listen only error:', err, 'on try', retries);
+      const error = {
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+      }
+      throw error;
+    }
+
     return this.onAudioJoining()
       .then(() => Promise.race([
         bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
         iceGatheringTimeout,
       ]))
-      .catch((err) => {
-        // If theres a iceGathering timeout we retry to join until MAX_LISTEN_ONLY_RETRIES
-        if (err === iceGatheringErr && retries < MAX_LISTEN_ONLY_RETRIES) {
-          this.joinListenOnly(++retries);
+      .catch(async (err) => {
+        if (retries < MAX_LISTEN_ONLY_RETRIES) {
+          // Fallback to SIP.js listen only in case of failure
+          if (this.useKurento) {
+            // Exit previous SFU session and clean audio tag state
+            window.kurentoExitAudio();
+            this.useKurento = false;
+            let audio = document.querySelector(MEDIA_TAG);
+            audio.muted = false;
+          }
+
+          try {
+            await this.joinListenOnly(++retries);
+          } catch (err) {
+            return handleListenOnlyError(err);
+          }
         } else {
-          clearTimeout(iceGatheringTimeout);
-          logger.error('Listen only error:', err);
-          throw err;
+          handleListenOnlyError(err);
         }
       });
   }
@@ -175,7 +207,7 @@ class AudioManager {
   exitAudio() {
     if (!this.isConnected) return Promise.resolve();
 
-    const bridge  = (USE_KURENTO && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
+    const bridge  = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
 
     this.isHangingUp = true;
     this.isEchoTest = false;

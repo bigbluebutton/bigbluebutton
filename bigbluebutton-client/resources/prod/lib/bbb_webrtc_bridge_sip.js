@@ -12,15 +12,15 @@ function webRTCCallback(message) {
 			if (message.errorcode !== 1004) {
 				message.cause = null;
 			}
-			monitorTracksStop();
+			//monitorTracksStop();
 			BBB.webRTCCallFailed(inEchoTest, message.errorcode, message.cause);
 			break;
 		case 'ended':
-			monitorTracksStop();
+			//monitorTracksStop();
 			BBB.webRTCCallEnded(inEchoTest);
 			break;
 		case 'started':
-			monitorTracksStart();
+			//monitorTracksStart();
 			BBB.webRTCCallStarted(inEchoTest);
 			break;
 		case 'connecting':
@@ -127,7 +127,7 @@ function stopWebRTCAudioTestJoinConference(){
 	webRTCCallback({'status': 'transferring'});
 	
 	transferTimeout = setTimeout( function() {
-		console.log("Call transfer failed. No response after 3 seconds");
+		console.log("Call transfer failed. No response after 5 seconds");
 		webRTCCallback({'status': 'failed', 'errorcode': 1008});
 		releaseUserMedia();
 		currentSession = null;
@@ -501,7 +501,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			callback({'status':'waitingforice'});
 			console.log('Waiting for ICE negotiation');
 			iceConnectedTimeout = setTimeout(function() {
-				console.log('5 seconds without ICE finishing');
+				console.log('10 seconds without ICE finishing');
 				callback({'status':'failed', 'errorcode': 1010}); // ICE negotiation timeout
 				releaseUserMedia();
 				currentSession = null;
@@ -510,7 +510,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 					userAgent = null;
 					userAgentTemp.stop();
 				}
-			}, 5000);
+			}, 10000);
 		}
 		clearTimeout(callTimeout);
 	});

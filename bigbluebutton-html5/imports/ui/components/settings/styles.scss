@@ -28,7 +28,7 @@
 
 .icon {
   margin-right: .5rem;
-  font-size: $font-size-large;
+  font-size: var(--font-size-large);
 }
 
 .tabSelector {
@@ -38,11 +38,11 @@
   flex: 0 0 auto;
   justify-content: flex-start;
   border: none !important;
-  padding: $md-padding-y $md-padding-x;
-  color: $color-gray-dark;
+  padding: var(--md-padding-y) var(--md-padding-x);
+  color: var(--color-gray-dark);
   border-radius: .2rem;
   cursor: pointer;
-  margin-bottom: $sm-padding-y;
+  margin-bottom: var(--sm-padding-y);
   align-items: center;
   flex-grow: 0;
   min-width: 0;
@@ -52,7 +52,7 @@
 
   @include mq($small-only) {
     max-width: 100%;
-    margin-right: $sm-padding-x;
+    margin-right: var(--sm-padding-x);
     & > .icon {
       display: none;
     }
@@ -60,12 +60,12 @@
 }
 
 .selected {
-  color: $color-white;
-  background-color: $color-primary;
+  color: var(--color-white);
+  background-color: var(--color-primary);
   font-weight: bold;
 
   & > .icon {
-    color: $color-white;
+    color: var(--color-white);
   }
 }
 

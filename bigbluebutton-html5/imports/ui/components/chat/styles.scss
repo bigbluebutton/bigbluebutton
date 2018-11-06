@@ -1,10 +1,9 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
-$icon-offset: -.4em;
-$background-active: darken($color-white, 5%);
 
-@mixin lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: $color-white) {
+
+@mixin lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: inherit) {
   display: block;
   box-orient: vertical;
   position: relative;
@@ -12,17 +11,17 @@ $background-active: darken($color-white, 5%);
 
   overflow: hidden;
   line-height: $lineHeight;
-  max-height: $lineHeight * $lineCount;
+  max-height: calc(#{"$lineHeight * $lineCount"});
 
   &:before {
-      content: '...';
-      width: 10%;
-      height: $lineHeight;
-      text-align: right;
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(to right, rgba(255, 255, 255, 0), $bgColor 75%);
+    content: '...';
+    width: 10%;
+    height: lineHeight;
+    text-align: right;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), $bgColor 75%);
   }
 
   &:after {
@@ -38,7 +37,7 @@ $background-active: darken($color-white, 5%);
 
 .chat {
   background-color: #fff;
-  padding: $md-padding-x;
+  padding: var(--md-padding-x);
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -55,9 +54,9 @@ $background-active: darken($color-white, 5%);
   flex-shrink: 0;
 
   a {
-    @include elementFocus($color-primary);
-    padding-bottom: $sm-padding-y;
-    padding-left: $sm-padding-y;
+    @include elementFocus(var(--color-primary));
+    padding-bottom: var(--sm-padding-y);
+    padding-left: var(--sm-padding-y);
     text-decoration: none;
     display: block;
   }
@@ -71,25 +70,48 @@ $background-active: darken($color-white, 5%);
 .title {
   @extend %text-elipsis;
   flex: 1;
+
+  & > button, button:hover {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 
 .closeBtn {
-  background-color: $color-white;
+  background-color: var(--color-white);
   flex: 0 0;
   padding: 0 0.25rem !important;
 
   i {
     font-size: 0.85em;
-    color: $color-gray-dark !important;
-    top: $icon-offset;
+    color: var(--color-gray-dark) !important;
+    top: -.4em;
   }
 
   &:focus,
-  &:hover{
-    background-color: $color-white !important;
-    i{
-      color: $color-gray;
+  &:hover {
+    background-color: var(--color-white) !important;
+    i {
+      color: var(--color-gray);
     }
+  }
+}
+
+.hideBtn {
+  position: relative;
+  background-color: white;
+  display: block;
+  margin: 4px;
+  margin-bottom: 2px;
+  padding-left: 0px;
+
+  > i {
+    color: black;
+  }
+
+  &:hover {
+    background-color: #fff;
   }
 }
 
@@ -109,15 +131,15 @@ $background-active: darken($color-white, 5%);
 .userNameMessage {
   margin: 0;
   font-size: 80%;
-  color: $color-gray-dark;
+  color: var(--color-gray-dark);
   font-weight: bold;
   background-color: inherit;
-  @include lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: inherit);
+  @include lineClamp(1em, 1);
 }
 
 .contentMessage {
   margin-top: .2rem;
   font-size: 80%;
   background-color: inherit;
-  @include lineClamp($lineHeight: $font-size-small, $lineCount: 10, $bgColor: inherit);
+  @include lineClamp(var(--font-size-small), 10);
 }

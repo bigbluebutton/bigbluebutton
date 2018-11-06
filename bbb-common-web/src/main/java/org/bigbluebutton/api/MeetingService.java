@@ -19,6 +19,9 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
@@ -61,6 +65,7 @@ import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken;
 import org.bigbluebutton.api.messaging.messages.RecordChapterBreak;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
+import org.bigbluebutton.api.messaging.messages.UpdateRecordingStatus;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
@@ -491,6 +496,14 @@ public class MeetingService implements MessageListener {
         message.meetingId, message.parentMeetingId);
     }
   }
+  
+  private void processUpdateRecordingStatus(UpdateRecordingStatus message) {
+    Meeting m = getMeeting(message.meetingId);
+      // Set only once
+      if (m != null && message.recording && !m.haveRecordingMarks()) {
+          m.setHaveRecordingMarks(message.recording);
+      }
+  }
 
   private void processEndMeeting(EndMeeting message) {
     gw.endMeeting(new EndMeetingMessage(message.meetingId));
@@ -631,6 +644,15 @@ public class MeetingService implements MessageListener {
       Map<String, String> metadata = m.getMetadata();
       if (metadata.containsKey(endCallbackUrl)) {
         String callbackUrl = metadata.get(endCallbackUrl);
+        try {
+            callbackUrl = new URIBuilder(new URI(callbackUrl))
+                    .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
+                    .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
+        } catch (MalformedURLException e) {
+            log.error("Malformed URL in callback url=[{}]", callbackUrl, e);
+        } catch (URISyntaxException e) {
+            log.error("URI Syntax error in callback url=[{}]", callbackUrl, e);
+        }
         callbackUrlService.handleMessage(new MeetingEndedEvent(callbackUrl));
       }
 
@@ -870,6 +892,8 @@ public class MeetingService implements MessageListener {
           processRecordingChapterBreak((RecordChapterBreak) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
+        } else if (message instanceof UpdateRecordingStatus) {
+          processUpdateRecordingStatus((UpdateRecordingStatus) message);
         }
       }
     };
@@ -907,11 +931,9 @@ public class MeetingService implements MessageListener {
               IMessage msg = receivedMessages.take();
               processMessage(msg);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
+              log.error("InterruptedException while starting Meeting Service", e);
             } catch (Exception e) {
-              log.error("Handling unexpected exception [{}]",
-                e.toString());
+              log.error("Handling unexpected exception", e);
             }
           }
         }
