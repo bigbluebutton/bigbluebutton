@@ -9,6 +9,9 @@ import logger from '/imports/startup/client/logger';
 import VideoService from './service';
 import VideoList from './video-list/component';
 
+import Storage from '/imports/ui/services/storage/session';
+import { Session } from 'meteor/session';
+
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
 
 const intlClientErrors = defineMessages({
@@ -394,6 +397,9 @@ class VideoProvider extends Component {
     } catch (error) {
       this.logger('error', 'Video provider failed to fetch ice servers, using default');
     } finally {
+      if (Session.get('WebcamDeviceId')) {
+        VIDEO_CONSTRAINTS.deviceId = { exact: Session.get('WebcamDeviceId') };
+      }
       const options = {
         mediaConstraints: {
           audio: false,
@@ -544,7 +550,6 @@ class VideoProvider extends Component {
     return (event) => {
       const connectionState = peer.peerConnection.iceConnectionState;
       if (connectionState === 'failed' || connectionState === 'closed') {
-
         // prevent the same error from being detected multiple times
         peer.peerConnection.oniceconnectionstatechange = null;
 
