@@ -3,24 +3,27 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-standard-app-packages@1.0.9
-arunoda:npm@0.2.6
-amplify
-blaze@2.1.8
-francocatena:status
-mizzao:timesync
-clinical:nightwatch
-cfs:power-queue
-cfs:reactive-list
-cfs:micro-queue
-reactive-var@1.0.11
-ecmascript@0.9.0
+meteor-base
+mobile-experience
+mongo
+reactive-var
+
+standard-minifier-css
+standard-minifier-js
+es5-shim
+ecmascript
+shell-server
+
+static-html
 react-meteor-data
-standard-minifier-css@1.3.5
-standard-minifier-js@2.2.0
-nathantreid:css-modules
-shell-server@0.3.0
-http@1.3.0
-dynamic-import@0.2.0
-rocketchat:streamer
+http
 session
+tracker
+check
+jquery
+
+nathantreid:css-modules@=3.1.4
+rocketchat:streamer
+cfs:power-queue
+cfs:micro-queue
+cfs:reactive-list

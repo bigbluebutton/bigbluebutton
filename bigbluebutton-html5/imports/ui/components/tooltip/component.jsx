@@ -43,8 +43,9 @@ class Tooltip extends Component {
     } = this.props;
 
     const options = {
-      position,
-      dynamicTitle: this.dynamicTitle,
+      placement: position,
+      performance: true,
+      // dynamicTitle: this.dynamicTitle,
       delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,
