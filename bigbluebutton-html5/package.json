@@ -10,11 +10,9 @@
     "start:prod": "meteor reset && ROOT_URL=http://127.0.0.1/html5client NODE_ENV=production meteor --production",
     "start:dev": "ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
-    "lint": "eslint . --ext .jsx,.js",
-    "precommit": "lint-staged"
+    "lint": "eslint . --ext .jsx,.js"
   },
   "lint-staged": {
-    "gitDir": "../",
     "linters": {
       "*.{js,jsx}": [
         "eslint --fix",
@@ -109,5 +107,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/bigbluebutton/bigbluebutton.git"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
