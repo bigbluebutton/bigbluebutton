@@ -18,12 +18,12 @@ const defaultProps = {
 };
 
 class Tooltip extends Component {
-  static wait(show, event) {
+  static wait(tip, event) {
     const tooltipTarget = event.target;
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-    show();
+    tip.show();
   }
 
   constructor(props) {
@@ -54,6 +54,7 @@ class Tooltip extends Component {
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
+
   onShow() {
     document.addEventListener('keyup', this.handleEscapeHide);
   }
