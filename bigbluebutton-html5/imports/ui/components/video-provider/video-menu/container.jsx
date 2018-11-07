@@ -1,12 +1,10 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import JoinVideoOptions from './component';
 import VideoMenuService from './service';
-
-import { withModalMounter } from '/imports/ui/components/modal/service';
-import AudioModalContainer from '/imports/ui/components/audio/audio-modal/container';
-import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 
 const intlMessages = defineMessages({
   joinVideo: {

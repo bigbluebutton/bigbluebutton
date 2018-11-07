@@ -1,4 +1,3 @@
-import cx from 'classnames';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
@@ -11,6 +10,7 @@ const propTypes = {
   closeModal: PropTypes.func.isRequired,
   startSharing: PropTypes.func.isRequired,
   changeWebcam: PropTypes.func.isRequired,
+  webcamDeviceId: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
@@ -63,7 +63,6 @@ class VideoPreview extends Component {
     };
 
     const {
-      intl,
       closeModal,
       startSharing,
       changeWebcam,
@@ -112,7 +111,7 @@ class VideoPreview extends Component {
         let isInitialDeviceSet = false;
         const webcams = [];
         devices.forEach((device) => {
-          if (device.kind == 'videoinput') {
+          if (device.kind === 'videoinput') {
             webcams.push(device);
             if (!isInitialDeviceSet) {
               this.changeWebcam(device.deviceId);
@@ -167,7 +166,13 @@ class VideoPreview extends Component {
           </h3>
           <div className={styles.content}>
             <div className={styles.col}>
-              <video id="preview" className={styles.preview} ref={(ref) => { this.video = ref; }} autoPlay playsInline />
+              <video
+                id="preview"
+                className={styles.preview}
+                ref={(ref) => { this.video = ref; }}
+                autoPlay
+                playsInline
+              />
             </div>
             <div className={styles.options}>
               <label className={styles.label}>

@@ -5,12 +5,10 @@ import VisibilityEvent from '/imports/utils/visibilityEvent';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
+import { Session } from 'meteor/session';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
-
-import Storage from '/imports/ui/services/storage/session';
-import { Session } from 'meteor/session';
 
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
 
@@ -478,7 +476,7 @@ class VideoProvider extends Component {
         // Increment reconnect interval
         this.restartTimer[id] = Math.min(2 * this.restartTimer[id], MAX_CAMERA_SHARE_FAILED_WAIT_TIME);
 
-        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer)
+        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer);
       }
     };
   }
