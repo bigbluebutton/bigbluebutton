@@ -216,6 +216,7 @@
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Share your screen with others",
     "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Stop sharing your screen with",
     "app.actionsBar.actionsDropdown.startRecording": "Start recording",
+    "app.actionsBar.actionsDropdown.stopRecording": "Stop recording",
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Create breakout rooms",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "create breakouts for split the current meeting ",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set Status",
