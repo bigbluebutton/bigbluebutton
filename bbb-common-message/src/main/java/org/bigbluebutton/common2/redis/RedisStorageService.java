@@ -1,7 +1,27 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.common2.redis;
 
 import java.util.Map;
 
+import org.bigbluebutton.common2.redis.commands.MeetingCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +30,8 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.dynamic.RedisCommandFactory;
+import io.lettuce.core.output.StatusOutput;
 
 public class RedisStorageService {
 
@@ -23,10 +45,11 @@ public class RedisStorageService {
     private int port;
     private String clientName;
 
+    MeetingCommands meetingCommands;
+
     public void start() {
         log.info("Starting RedisStorageService");
-        RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port)
-                .withClientName(this.clientName).build();
+        RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName).build();
         // @todo Add password if provided
         // if (!this.password.isEmpty()) {
         // redisUri.setPassword(this.password);
@@ -36,6 +59,12 @@ public class RedisStorageService {
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
 
         connection = redisClient.connect();
+        RedisCommandFactory factory = new RedisCommandFactory(connection);
+        initCommands(factory);
+    }
+
+    private void initCommands(RedisCommandFactory factory) {
+        meetingCommands = factory.getCommands(MeetingCommands.class);
     }
 
     public void stop() {
@@ -45,55 +74,32 @@ public class RedisStorageService {
     }
 
     public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-        RedisCommands<String, String> commands = connection.sync();
-        try {
-            if (log.isDebugEnabled()) {
-                for (Map.Entry<String, String> entry : info.entrySet()) {
-                    log.debug("Storing metadata {} = {}", entry.getKey(), entry.getValue());
-                }
-            }
-
-            log.debug("Saving metadata in {}", meetingId);
-            commands.hmset("meeting:info:" + meetingId, info);
-        } catch (Exception e) {
-            log.warn("Cannot record the info meeting: {}", meetingId, e);
-        } finally {
-            connection.close();
-        }
+        log.debug("Storing meeting {} metadata {}", meetingId, info);
+        recordMeeting(Keys.MEETING_INFO + meetingId, info);
     }
 
     public void recordBreakoutInfo(String meetingId, Map<String, String> breakoutInfo) {
-        RedisCommands<String, String> commands = connection.sync();
-        try {
-            log.debug("Saving breakout metadata in {}", meetingId);
-            commands.hmset("meeting:breakout:" + meetingId, breakoutInfo);
-        } catch (Exception e) {
-            log.warn("Cannot record the info meeting: {}", meetingId, e);
-        } finally {
-            connection.close();
-        }
+        log.debug("Saving breakout metadata in {}", meetingId);
+        recordMeeting(Keys.BREAKOUT_MEETING + meetingId, breakoutInfo);
     }
 
     public void addBreakoutRoom(String parentId, String breakoutId) {
-        RedisCommands<String, String> commands = connection.sync();
-        try {
-            log.debug("Saving breakout room for meeting {}", parentId);
-            commands.sadd("meeting:breakout:rooms:" + parentId, breakoutId);
-        } catch (Exception e) {
-            log.warn("Cannot record the info meeting:" + parentId, e);
-        } finally {
-            connection.close();
-        }
+        log.debug("Saving breakout room for meeting {}", parentId);
+        meetingCommands.addBreakoutRooms(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
     }
 
+    // @fixme: not used anywhere
     public void removeMeeting(String meetingId) {
+        log.debug("Removing meeting meeting {} inside a transaction", meetingId);
         RedisCommands<String, String> commands = connection.sync();
-        try {
-            commands.del("meeting-" + meetingId);
-            commands.srem("meetings", meetingId);
-        } finally {
-            connection.close();
-        }
+        commands.multi();
+        meetingCommands.deleteMeeting(Keys.MEETING + meetingId);
+        meetingCommands.deleteMeetings(Keys.MEETINGS + meetingId);
+        commands.exec();
+    }
+
+    private String recordMeeting(String key, Map<String, String> info) {
+        return meetingCommands.recordMeetingInfo(key, info);
     }
 
     public void setPassword(String password) {
