@@ -27,17 +27,6 @@
   }
 }
 
-%baseIndicatorLabel {
-  font-weight: 200;
-  font-size: var(--font-size-base);
-  margin: 0 0 0 0.5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  max-width: 20vw;
-}
-
 .recordIndicator {
   @extend %baseIndicator;
 }
@@ -49,16 +38,6 @@
   &:after {
     background-color: var(--color-gray);
   }
-}
-
-.recordingLabel {
-  @extend %baseIndicatorLabel;
-  color: var(--color-white);
-}
-
-.notRecordingLabel {
-  @extend %baseIndicatorLabel;
-  color: var(--color-gray);
 }
 
 .recordState {
