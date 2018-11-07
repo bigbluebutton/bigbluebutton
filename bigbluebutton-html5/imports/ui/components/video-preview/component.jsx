@@ -10,11 +10,6 @@ const propTypes = {
   closeModal: PropTypes.func.isRequired,
   startSharing: PropTypes.func.isRequired,
   changeWebcam: PropTypes.func.isRequired,
-  webcamDeviceId: PropTypes.string.isRequired,
-};
-
-const defaultProps = {
-  webcamDeviceId: null,
 };
 
 const intlMessages = defineMessages({
@@ -72,6 +67,16 @@ class VideoPreview extends Component {
     this.closeModal = closeModal;
     this.startSharing = startSharing;
     this.changeWebcam = changeWebcam;
+
+    this.deviceStream = null;
+  }
+
+  stopTracks() {
+    if (this.deviceStream) {
+      this.deviceStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
   }
 
   handleSelectWebcam(event) {
@@ -81,32 +86,29 @@ class VideoPreview extends Component {
     const constraints = {
       video: {
         deviceId: webcamValue ? { exact: webcamValue } : undefined,
-        width: {
-          max: 240,
-        },
-        height: {
-          max: 180,
-        },
       },
     };
+    this.stopTracks();
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       this.video.srcObject = stream;
+      this.deviceStream = stream;
+    }).catch((error) => {
+      console.log(error);
     });
+  }
+
+  handleStartSharing() {
+    this.stopTracks();
+    this.startSharing();
   }
 
   componentDidMount() {
     const constraints = {
-      video: {
-        width: {
-          max: 240,
-        },
-        height: {
-          max: 180,
-        },
-      },
+      video: true,
     };
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       this.video.srcObject = stream;
+      this.deviceStream = stream;
       navigator.mediaDevices.enumerateDevices().then((devices) => {
         let isInitialDeviceSet = false;
         const webcams = [];
@@ -212,7 +214,7 @@ class VideoPreview extends Component {
               <Button
                 color="primary"
                 label={intl.formatMessage(intlMessages.startSharingLabel)}
-                onClick={this.startSharing}
+                onClick={() => this.handleStartSharing()}
                 disabled={this.state.isStartSharingDisabled}
               />
             </div>
@@ -224,7 +226,6 @@ class VideoPreview extends Component {
 }
 
 VideoPreview.propTypes = propTypes;
-VideoPreview.defaultProps = defaultProps;
 
 export default injectIntl(VideoPreview);
 
