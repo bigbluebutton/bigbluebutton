@@ -1,10 +1,5 @@
 @import "../../../stylesheets/variables/_all";
 
-:root {
-  --recording-indicator-md: .5rem;
-  --recording-indicator-sm: -.25rem;
-}
-
 %baseIndicator {
   position: relative;
   display: inline-block;
@@ -15,13 +10,13 @@
 
   &:after {
     content: '';
-    width: var(--recording-indicator-md);
-    height: var(--recording-indicator-md);
+    width: calc(var(--font-size-base) / 2);
+    height: calc(var(--font-size-base) / 2);
     position: absolute;
     top: 50%;
     left: 50%;
-    margin-top: var(--recording-indicator-sm);
-    margin-left: var(--recording-indicator-sm);
+    margin-top: calc((var(--font-size-base) / -4));
+    margin-left: calc((var(--font-size-base) / -4));
     border-radius: 50%;
     background-color: var(--color-danger);
   }
