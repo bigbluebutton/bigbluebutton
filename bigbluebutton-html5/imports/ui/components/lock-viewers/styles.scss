@@ -3,7 +3,7 @@
 @import "/imports/ui/components/modal/simple/styles";
 
 .title {
-  color: $color-gray-dark;
+  color: var(--color-gray-dark);
   font-weight: 400;
   font-size: 1.3rem;
   margin: 0;
@@ -62,13 +62,13 @@
 }
 
 .label {
-  color: $color-gray-label;
+  color: var(--color-gray-label);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
 
 .labelSmall {
-  color: $color-link;
+  color: var(--color-link);
   font-size: 0.7rem;
   margin-bottom: 0.3rem;
 }
@@ -81,13 +81,13 @@
 }
 
 .select {
-  @include elementFocus($color-primary);
+  @include elementFocus(var(--color-primary));
 
-  background-color: $color-white;
-  border: $border-size solid $color-white;
-  border-radius: $border-size;
-  border-bottom: 0.1rem solid $color-gray-lighter;
-  color: $color-gray-label;
+  background-color: var(--color-white);
+  border: var(--border-size) solid var(--color-white);
+  border-radius: var(--border-size);
+  border-bottom: 0.1rem solid var(--color-gray-lighter);
+  color: var(--color-gray-label);
   width: 100%;
   height: 1.75rem;
   padding: 1px;
@@ -119,13 +119,13 @@
 }
 
 .swatch {
-  @include elementFocus($color-primary);
+  @include elementFocus(var(--color-primary));
 
   position: absolute;
   float: right;
-  background: $color-white;
-  border-radius: $border-size;
-  border: $border-size solid $color-gray-light;
+  background: var(--color-white);
+  border-radius: var(--border-size);
+  border: var(--border-size) solid var(--color-gray-light);
   display: inline-block;
   cursor: pointer;
 }
@@ -133,7 +133,7 @@
 .swatchInner {
   width: 3rem;
   height: 1.1rem;
-  border-radius: $border-size;
+  border-radius: var(--border-size);
 }
 
 .colorPickerOverlay {
@@ -164,17 +164,17 @@
 
 .closeBtn {
     position: relative;
-    background-color: $color-white;
+    background-color: var(--color-white);
   
     i {
-      color: $color-gray-light;
+      color: var(--color-gray-light);
     }
   
     &:focus,
     &:hover{
-      background-color: $color-gray-lighter;
+      background-color: var(--color-gray-lighter);
       i{
-        color: $color-gray;
+        color: var(--color-gray);
       }
     }
   }

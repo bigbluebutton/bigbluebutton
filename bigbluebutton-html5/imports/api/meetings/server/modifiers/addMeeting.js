@@ -69,10 +69,20 @@ export default function addMeeting(meeting) {
     meetingId,
   };
 
+  const lockSettingsProp = {
+    disableCam: false,
+    disableMic: false,
+    disablePrivChat: false,
+    disablePubChat: false,
+    lockOnJoin: true,
+    lockOnJoinConfigurable: false,
+    lockedLayout: false,
+  };
   const modifier = {
     $set: Object.assign(
       { meetingId },
       flat(meeting, { safe: true }),
+      { lockSettingsProp },
     ),
   };
 

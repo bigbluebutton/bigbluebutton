@@ -144,6 +144,9 @@ public:
       - toggleRecording
       - muteAllUsers
       - muteAllExceptPresenter
+      - toggleLockSettings
+      - toggleWebcamsOnlyForModerator
+      - transferUser
       - endAllBreakouts
     presenter:
       methods:
