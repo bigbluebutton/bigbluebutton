@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipants from './user-participants/component';
 import UserMessages from './user-messages/component';
+import UserPolls from './user-polls/component';
+import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
@@ -35,7 +37,7 @@ const defaultProps = {
   meeting: {},
 };
 
-class UserContent extends React.PureComponent {
+class UserContent extends React.Component {
   render() {
     const {
       users,
@@ -59,6 +61,9 @@ class UserContent extends React.PureComponent {
       isPublicChat,
       openChats,
       getGroupChatPrivate,
+      pollIsOpen,
+      forcePollOpen,
+      hasBreakoutRoom,
     } = this.props;
 
     return (
@@ -76,6 +81,14 @@ class UserContent extends React.PureComponent {
             roving,
           }}
         />
+        <UserPolls
+          isPresenter={currentUser.isPresenter}
+          {...{
+            pollIsOpen,
+            forcePollOpen,
+          }}
+        />
+        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipants
           {...{
             users,

@@ -159,7 +159,11 @@ class WhiteboardToolbar extends Component {
     // we might need to trigger svg animation for Color and Thickness icons
     this.animateSvgIcons(prevState);
 
-    if (!hadInAnnotations) {
+    if (prevProps.annotations.length !== annotations.length && annotations.length === 0) {
+      this.handleAnnotationChange({ icon: null, value: null });
+    }
+
+    if (!hadInAnnotations && annotations.length) {
       this.handleAnnotationChange(annotations[annotations.length - 1]);
     }
   }
@@ -323,10 +327,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderToolItem() {
-    const { intl } = this.props;
-
+    const { intl, annotations } = this.props;
+    const isDisabled = !annotations.length;
     return (
       <ToolbarMenuItem
+        disabled={isDisabled}
         label={intl.formatMessage(intlMessages.toolbarTools)}
         icon={this.state.annotationSelected.icon}
         onItemClick={this.displaySubMenu}
@@ -334,18 +339,18 @@ class WhiteboardToolbar extends Component {
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'annotationList' ? styles.toolbarActive : null)}
       >
-        {this.state.currentSubmenuOpen === 'annotationList' ?
+        {this.state.currentSubmenuOpen === 'annotationList' && annotations.length > 1 ?
           <ToolbarSubmenu
             type="annotations"
             customIcon={false}
             label="Annotations"
             onItemClick={this.handleAnnotationChange}
-            objectsToRender={this.props.annotations}
+            objectsToRender={annotations}
             objectSelected={this.state.annotationSelected}
             handleMouseEnter={this.handleMouseEnter}
             handleMouseLeave={this.handleMouseLeave}
           />
-        : null }
+          : null}
       </ToolbarMenuItem>
     );
   }
@@ -373,7 +378,7 @@ class WhiteboardToolbar extends Component {
             handleMouseEnter={this.handleMouseEnter}
             handleMouseLeave={this.handleMouseLeave}
           />
-        : null }
+          : null}
       </ToolbarMenuItem>
     );
   }
@@ -395,8 +400,8 @@ class WhiteboardToolbar extends Component {
   }
 
   renderThicknessItem() {
-    const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'hand';
+    const { intl, annotations } = this.props;
+    const isDisabled = this.state.annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -420,7 +425,7 @@ class WhiteboardToolbar extends Component {
             handleMouseEnter={this.handleMouseEnter}
             handleMouseLeave={this.handleMouseLeave}
           />
-        : null }
+          : null}
       </ToolbarMenuItem>
     );
   }
@@ -475,8 +480,8 @@ class WhiteboardToolbar extends Component {
   }
 
   renderColorItem() {
-    const { intl } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'hand';
+    const { intl, annotations } = this.props;
+    const isDisabled = this.state.annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -500,7 +505,7 @@ class WhiteboardToolbar extends Component {
             handleMouseEnter={this.handleMouseEnter}
             handleMouseLeave={this.handleMouseLeave}
           />
-        : null }
+          : null}
       </ToolbarMenuItem>
     );
   }
@@ -569,7 +574,10 @@ class WhiteboardToolbar extends Component {
 
     return (
       <ToolbarMenuItem
-        label={multiUser ? intl.formatMessage(intlMessages.toolbarMultiUserOff) : intl.formatMessage(intlMessages.toolbarMultiUserOn)}
+        label={multiUser ?
+           intl.formatMessage(intlMessages.toolbarMultiUserOff)
+           : intl.formatMessage(intlMessages.toolbarMultiUserOn)
+          }
         icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
         onItemClick={this.handleSwitchWhiteboardMode}
         className={cx(styles.toolbarButton, styles.notActive)}
@@ -584,17 +592,11 @@ class WhiteboardToolbar extends Component {
       <div className={styles.toolbarContainer}>
         <div className={styles.toolbarWrapper}>
           {this.renderToolItem()}
-          {annotationSelected.value === 'text' ?
-            this.renderFontItem()
-            :
-            this.renderThicknessItem()
-          }
+          {annotationSelected.value === 'text' ? this.renderFontItem() : this.renderThicknessItem()}
           {this.renderColorItem()}
           {this.renderUndoItem()}
           {this.renderClearAllItem()}
-          {isPresenter ?
-          this.renderMultiUserItem()
-        : null }
+          {isPresenter ? this.renderMultiUserItem() : null}
         </div>
       </div>
     );
@@ -605,6 +607,7 @@ WhiteboardToolbar.defaultProps = {
   colors: ANNOTATION_COLORS,
   thicknessRadiuses: THICKNESS_RADIUSES,
   fontSizes: FONT_SIZES,
+  intl: intlShape,
 };
 
 WhiteboardToolbar.propTypes = {
@@ -630,18 +633,18 @@ WhiteboardToolbar.propTypes = {
   // defines an array of font-sizes for the Font-size submenu of the text shape
   fontSizes: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.number.isRequired,
-  }).isRequired).isRequired,
+  }).isRequired),
 
   // defines an array of colors for the toolbar (color submenu)
   colors: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.string.isRequired,
-  }).isRequired).isRequired,
+  }).isRequired),
   // defines an array of thickness values for the toolbar and their corresponding session values
   thicknessRadiuses: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.number.isRequired,
-  }).isRequired).isRequired,
+  }).isRequired),
 
-  intl: intlShape.isRequired,
+  intl: intlShape,
 
 };
 

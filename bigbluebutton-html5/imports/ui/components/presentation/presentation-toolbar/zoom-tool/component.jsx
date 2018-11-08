@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from '../styles.scss';
+import HoldButton from './holdButton/component';
 
 const DELAY_MILLISECONDS = 200;
 const STEP_TIME = 100;
@@ -150,21 +151,27 @@ export default class ZoomTool extends Component {
     return (
       [
         ZoomTool.renderAriaLabelsDescs(),
-        (<Button
-          key="zoom-tool-1"
-          aria-labelledby="zoomInLabel"
-          aria-describedby="zoomInDesc"
-          role="button"
-          label="-"
-          icon="minus"
-          onClick={() => this.decrement()}
-          disabled={(value <= minBound)}
-          onMouseDown={() => this.mouseDownHandler(false)}
-          onMouseUp={this.mouseUpHandler}
-          onMouseLeave={this.mouseUpHandler}
-          className={styles.prevSlide}
-          hideLabel
-        />),
+        (
+          <HoldButton
+            key="zoom-tool-1"
+            exec={this.decrement}
+            value={value}
+            minBound={minBound}
+          >
+            <Button
+              key="zoom-tool-1"
+              aria-labelledby="zoomInLabel"
+              aria-describedby="zoomInDesc"
+              role="button"
+              label="-"
+              icon="minus"
+              onClick={() => {}}
+              disabled={(value <= minBound)}
+              className={styles.prevSlide}
+              hideLabel
+            />
+          </HoldButton>
+        ),
         (
           <span
             key="zoom-tool-2"
@@ -175,21 +182,27 @@ export default class ZoomTool extends Component {
             {`${this.state.value}%`}
           </span>
         ),
-        (<Button
-          key="zoom-tool-3"
-          aria-labelledby="zoomOutLabel"
-          aria-describedby="zoomOutDesc"
-          role="button"
-          label="+"
-          icon="plus"
-          onClick={() => this.increment()}
-          disabled={(value >= maxBound)}
-          onMouseDown={() => this.mouseDownHandler(true)}
-          onMouseUp={this.mouseUpHandler}
-          onMouseLeave={this.mouseUpHandler}
-          className={styles.skipSlide}
-          hideLabel
-        />),
+        (
+          <HoldButton
+            key="zoom-tool-3"
+            exec={this.increment}
+            value={value}
+            maxBound={maxBound}
+          >
+            <Button
+              key="zoom-tool-3"
+              aria-labelledby="zoomOutLabel"
+              aria-describedby="zoomOutDesc"
+              role="button"
+              label="+"
+              icon="plus"
+              onClick={() => {}}
+              disabled={(value >= maxBound)}
+              className={styles.skipSlide}
+              hideLabel
+            />
+          </HoldButton>
+        ),
       ]
     );
   }

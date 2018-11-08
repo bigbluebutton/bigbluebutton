@@ -109,33 +109,37 @@ KurentoManager.prototype.exitScreenShare = function () {
     this.kurentoScreenshare.dispose();
     this.kurentoScreenshare = null;
   }
-
-  if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
-    this.exitVideo();
-  }
 };
 
 KurentoManager.prototype.exitVideo = function () {
-  if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
-    if (this.kurentoVideo.webRtcPeer) {
-      this.kurentoVideo.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
-    }
+  try {
+    if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
+      if(this.kurentoVideo.webRtcPeer) {
+        this.kurentoVideo.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+      }
 
-    if (this.kurentoVideo.logger !== null) {
-      this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
-    }
+      if (this.kurentoVideo.logger !== null) {
+        this.kurentoVideo.logger.info('  [exitScreenShare] Exiting screensharing viewing');
+      }
 
-    if (this.kurentoVideo.ws !== null) {
-      this.kurentoVideo.ws.onclose = function () {};
-      this.kurentoVideo.ws.close();
-    }
+      if (this.kurentoVideo.ws !== null) {
+        this.kurentoVideo.ws.onclose = function () {};
+        this.kurentoVideo.ws.close();
+      }
 
-    if (this.kurentoVideo.pingInterval) {
-      clearInterval(this.kurentoVideo.pingInterval);
-    }
+      if (this.kurentoVideo.pingInterval) {
+        clearInterval(this.kurentoVideo.pingInterval);
+      }
 
-    this.kurentoVideo.dispose();
-    this.kurentoVideo = null;
+      this.kurentoVideo.dispose();
+      this.kurentoVideo = null;
+    }
+  }
+  catch (err) {
+    if (this.kurentoVideo) {
+      this.kurentoVideo.dispose();
+      this.kurentoVideo = null;
+    }
   }
 };
 
@@ -472,14 +476,10 @@ Kurento.prototype.setAudio = function (tag) {
 };
 
 Kurento.prototype.listenOnly = function () {
-  const self = this;
-  const remoteVideo = document.getElementById(this.renderTag);
-  remoteVideo.muted = true;
+  var self = this;
   if (!this.webRtcPeer) {
-    const options = {
-      audioStream: this.inputStream,
-      remoteVideo,
-      onicecandidate: this.onListenOnlyIceCandidate.bind(this),
+    var options = {
+      onicecandidate : this.onListenOnlyIceCandidate.bind(this),
       mediaConstraints: {
         audio: true,
         video: false,

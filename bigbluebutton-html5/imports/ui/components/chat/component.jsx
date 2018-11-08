@@ -4,11 +4,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import ChatDropdown from './chat-dropdown/component';
-import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -22,10 +22,6 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
-
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const HIDE_CHAT_AK = SHORTCUTS_CONFIG.hidePrivateChat.accesskey;
-const CLOSE_CHAT_AK = SHORTCUTS_CONFIG.closePrivateChat.accesskey;
 
 const Chat = (props) => {
   const {
@@ -42,7 +38,11 @@ const Chat = (props) => {
     maxMessageLength,
     actions,
     intl,
+    shortcuts,
   } = props;
+
+  const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
+  const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
 
   return (
     <div
@@ -74,6 +74,7 @@ const Chat = (props) => {
               hideLabel
               onClick={() => {
                 actions.handleClosePrivateChat(chatID);
+                Session.set('isChatOpen', false);
                 Session.set('idChatOpen', '');
               }}
               aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
@@ -108,7 +109,7 @@ const Chat = (props) => {
   );
 };
 
-export default injectWbResizeEvent(injectIntl(Chat));
+export default withShortcutHelper(injectWbResizeEvent(injectIntl(Chat)), ['hidePrivateChat', 'closePrivateChat']);
 
 const propTypes = {
   chatID: PropTypes.string.isRequired,

@@ -10,6 +10,8 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
 import ActionBarService from '../service';
 
@@ -56,20 +58,36 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopRecording',
     description: 'stop recording option',
   },
+  pollBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
+    description: 'poll menu toggle button label',
+  },
+  pollBtnDesc: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
+    description: 'poll menu toggle button description',
+  },
+  createBreakoutRoom: {
+    id: 'app.actionsBar.actionsDropdown.createBreakoutRoom',
+    description: 'Create breakout room option',
+  },
+  createBreakoutRoomDesc: {
+    id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
+    description: 'Description of create breakout room option',
+  },
 });
-
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const OPEN_ACTIONS_AK = SHORTCUTS_CONFIG.openActions.accesskey;
 
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
+    this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
   }
 
   componentWillMount() {
     this.presentationItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
+    this.pollId = _.uniqueId('action-item-');
+    this.createBreakoutRoomId = _.uniqueId('action-item-');
   }
 
   componentDidMount() {
@@ -96,9 +114,21 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
+      togglePollMenu,
+      meetingIsBreakout,
+      hasBreakoutRoom,
     } = this.props;
 
     return _.compact([
+      (isUserPresenter ?
+        <DropdownListItem
+          icon="user"
+          label={intl.formatMessage(intlMessages.pollBtnLabel)}
+          description={intl.formatMessage(intlMessages.pollBtnDesc)}
+          key={this.pollId}
+          onClick={() => togglePollMenu()}
+        />
+        : null),
       (isUserPresenter ?
         <DropdownListItem
           icon="presentation"
@@ -119,11 +149,28 @@ class ActionsDropdown extends Component {
           onClick={toggleRecording}
         />
         : null),
+      (isUserPresenter && !meetingIsBreakout && !hasBreakoutRoom ?
+        <DropdownListItem
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+          key={this.createBreakoutRoomId}
+          onClick={this.handleCreateBreakoutRoomClick}
+        />
+        : null),
     ]);
   }
 
   handlePresentationClick() {
     this.props.mountModal(<PresentationUploaderContainer />);
+  }
+  handleCreateBreakoutRoomClick() {
+    const {
+      createBreakoutRoom,
+      mountModal,
+      meetingName,
+    } = this.props;
+    mountModal(<BreakoutRoom createBreakoutRoom={createBreakoutRoom} meetingName={meetingName} />);
   }
 
   render() {
@@ -131,6 +178,7 @@ class ActionsDropdown extends Component {
       intl,
       isUserPresenter,
       isUserModerator,
+      shortcuts: OPEN_ACTIONS_AK,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -164,4 +212,4 @@ class ActionsDropdown extends Component {
 
 ActionsDropdown.propTypes = propTypes;
 
-export default withModalMounter(injectIntl(ActionsDropdown));
+export default withShortcutHelper(withModalMounter(injectIntl(ActionsDropdown)), 'openActions');

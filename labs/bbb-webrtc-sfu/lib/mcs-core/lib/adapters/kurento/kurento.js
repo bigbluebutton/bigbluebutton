@@ -7,18 +7,20 @@ const EventEmitter = require('events').EventEmitter;
 const Logger = require('../../../../utils/Logger');
 const isError = require('../../utils/util').isError;
 const ERRORS = require('./errors.js');
+const KURENTO_WEBSOCKET_POOL_SIZE = config.get('kurento-websocket-pool-size');
 
 let instance = null;
 
 module.exports = class MediaServer extends EventEmitter {
-  constructor(serverUri) {
+  constructor(serverUri, globalEmitter) {
     if (!instance){
       super();
       this._serverUri = serverUri;
+      this._globalEmitter = globalEmitter;
       this._mediaPipelines = {};
       this._mediaElements = {};
-      this._mediaServer;
-      this._status;
+      this._mediaServers;
+      this._status = C.STATUS.STOPPED;
       this._reconnectionRoutine = null;
       instance = this;
     }
@@ -29,9 +31,15 @@ module.exports = class MediaServer extends EventEmitter {
   init () {
     return new Promise(async (resolve, reject) => {
       try {
-        if (!this._mediaServer) {
-          this._mediaServer = await this._getMediaServerClient(this._serverUri);
-          Logger.info("[mcs-media] Retrieved media server client => " + this._mediaServer);
+        if (this._mediaServers == null || this._mediaServers.length === 0) {
+          this._mediaServers = [];
+          for (var i = 0; i < KURENTO_WEBSOCKET_POOL_SIZE; i++) {
+            let client = await this._getMediaServerClient(this._serverUri);
+            this._mediaServers.push(client);
+          }
+          this._globalEmitter.on(C.EVENT.ROOM_EMPTY, this._releasePipeline.bind(this));
+          Logger.info("[mcs-media] Retrieved", this._mediaServers.length, "media server clients");
+          this._status = C.STATUS.STARTING;
           this._monitorConnectionState();
           return resolve();
         }
@@ -56,10 +64,14 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   _monitorConnectionState () {
-    Logger.debug('[mcs-media] Monitoring connection state');
     try {
-      this._mediaServer.on('disconnect', this._onDisconnection.bind(this));
-      this._mediaServer.on('reconnected',this._onReconnection.bind(this));
+      if (this._mediaServers) {
+        Logger.debug('[mcs-media] Monitoring connection state');
+        this._mediaServers.forEach(ms => {
+          ms.on('disconnect', this._onDisconnection.bind(this));
+          ms.on('reconnected',this._onReconnection.bind(this));
+        });
+       }
     }
     catch (err) {
       this._handleError(err);
@@ -67,53 +79,82 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   _onDisconnection () {
-    Logger.error('[mcs-media] Media server was disconnected for some reason, will have to clean up all elements and notify users');
-    this._destroyElements();
-    this._destroyMediaServer();
-    this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
-    this._reconnectToServer();
+    if (this._status !== C.STATUS.STOPPED) {
+      Logger.error('[mcs-media] Media server was disconnected for some reason, will have to clean up all elements and notify users');
+      this._status = C.STATUS.STOPPED;
+      this._destroyElements();
+      this._destroyMediaServer();
+      this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
+      this._reconnectToServer();
+    }
   }
 
   _onReconnection (sameSession) {
     if (!sameSession) {
+      if (this._status !== C.STATUS.STOPPED) {
+        this._status = C.STATUS.RESTARTING;
+        this._destroyElements();
+        this._destroyMediaServer();
+        this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
+      }
+
+      this._status = C.STATUS.STARTED;
       Logger.info('[mcs-media] Media server is back online');
       this.emit(C.EVENT.MEDIA_SERVER_ONLINE);
     }
   }
 
   _reconnectToServer () {
-    if (this._reconnectionRoutine == null) {
+    if (this._reconnectionRoutine == null && this._status !== C.STATUS.RESTARTING) {
+      this._status = C.STATUS.RESTARTING;
       this._reconnectionRoutine = setInterval(async () => {
         try {
-          this._mediaServer = await this._getMediaServerClient(this._serverUri);
+          for (var i = 0; i < KURENTO_WEBSOCKET_POOL_SIZE; i++) {
+            let client = await this._getMediaServerClient(this._serverUri);
+            this._mediaServers.push(client);
+          }
+          Logger.info("[mcs-media] Retrieved", this._mediaServers.length, "media server clients");
           this._monitorConnectionState();
           clearInterval(this._reconnectionRoutine);
           this._reconnectionRoutine = null;
           Logger.warn("[mcs-media] Reconnection to media server succeeded");
         }
         catch (error) {
-          delete this._mediaServer;
+          this._mediaServers = [];
         }
       }, 2000);
     }
   }
 
+  _getClientFromPool () {
+    // Round robin the pool
+    let client = this._mediaServers.shift();
+    this._mediaServers.push(client);
+    return client;
+  }
 
   _getMediaPipeline (roomId) {
     return new Promise((resolve, reject) => {
       try {
+        let mediaServer = this._getClientFromPool();
         if (this._mediaPipelines[roomId]) {
-          Logger.warn('[mcs-media] Pipeline for', roomId, ' already exists.');
-          return resolve(this._mediaPipelines[roomId]);
+          mediaServer.getMediaobjectById(this._mediaPipelines[roomId].id, (error, pipeline) => {
+            if (error) {
+              return reject(this._handleError(error));
+            }
+            Logger.warn('[mcs-media] Pipeline for', roomId, 'already exists.', pipeline.id);
+            return resolve(pipeline);
+          });
+        } else {
+          mediaServer.create('MediaPipeline', (error, pipeline) => {
+            if (error) {
+              return reject(this._handleError(error));
+            }
+            this._mediaPipelines[roomId] = pipeline;
+            pipeline.activeElements = {};
+            resolve(pipeline);
+          });
         }
-        this._mediaServer.create('MediaPipeline', (error, pipeline) => {
-          if (error) {
-            return reject(this._handleError(error));
-          }
-          this._mediaPipelines[roomId] = pipeline;
-          pipeline.activeElements = 0;
-          resolve(pipeline);
-        });
       }
       catch (err) {
         return reject(this._handleError(err));
@@ -122,7 +163,7 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   _releasePipeline (room) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         Logger.debug("[mcs-media] Releasing room", room, "pipeline");
         const pipeline = this._mediaPipelines[room];
@@ -131,6 +172,7 @@ module.exports = class MediaServer extends EventEmitter {
             if (error) {
               return reject(this._handleError(error));
             }
+            Logger.debug("[mcs-media] Pipeline", pipeline.id, "released");
             delete this._mediaPipelines[room];
             return resolve()
           });
@@ -170,7 +212,7 @@ module.exports = class MediaServer extends EventEmitter {
           Logger.debug("[mcs-media] Creating element with keyframe interval set to", options.keyframeInterval);
           mediaElement.setKeyframeInterval(options.keyframeInterval);
         }
-        this._mediaPipelines[roomId].activeElements++;
+        this._mediaPipelines[roomId].activeElements[mediaElement.id] = mediaElement.id;
         resolve(mediaElement.id);
       }
       catch (err) {
@@ -179,13 +221,32 @@ module.exports = class MediaServer extends EventEmitter {
     });
   }
 
-  async startRecording (sourceId) {
-    const source = this._mediaElements[sourceId];
+  _getMediaElement (elementId) {
     return new Promise((resolve, reject) => {
-      if (source == null) {
-        return reject(this._handleError(ERRORS[40101]));
-      }
       try {
+        let mediaServer = this._getClientFromPool();
+        if (this._mediaElements[elementId]) {
+          mediaServer.getMediaobjectById(elementId, (error, element) => {
+            if (error || element == null) {
+              return reject(this._handleError(error));
+            }
+            Logger.trace('[mcs-media] Element', elementId, 'found');
+            return resolve(element);
+          });
+        } else {
+          return reject(this._handleError(ERRORS[40101]));
+        }
+      }
+      catch (err) {
+        return reject(this._handleError(err));
+      }
+    });
+  }
+
+  async startRecording (sourceId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const source = await this._getMediaElement(sourceId);
         source.record((err) => {
           if (err) {
             return reject(this._handleError(err));
@@ -200,13 +261,9 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   async _stopRecording (sourceId) {
-    const source = this._mediaElements[sourceId];
-
-    return new Promise((resolve, reject) => {
-      if (source == null) {
-        return reject(this._handleError(ERRORS[40101]));
-      }
+    return new Promise(async (resolve, reject) => {
       try {
+        const source = await this._getMediaElement(sourceId);
         source.stopAndWait((err) => {
           if (err) {
             return reject(this._handleError(err));
@@ -221,14 +278,11 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   async connect (sourceId, sinkId, type) {
-    const source = this._mediaElements[sourceId];
-    const sink = this._mediaElements[sinkId];
-
-    return new Promise((resolve, reject) => {
-      if (source == null || sink == null) {
-        return reject(this._handleError(ERRORS[40101]));
-      }
+    return new Promise(async (resolve, reject) => {
       try {
+        const source = await this._getMediaElement(sourceId);
+        const sink = await this._getMediaElement(sinkId);
+
         switch (type) {
           case 'ALL':
             source.connect(sink, (error) => {
@@ -268,14 +322,11 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   async disconnect (sourceId, sinkId, type) {
-    const source = this._mediaElements[sourceId];
-    const sink = this._mediaElements[sinkId];
-
-    return new Promise((resolve, reject) => {
-      if (source == null || sink == null) {
-        return reject(this._handleError(ERRORS[40101]));
-      }
+    return new Promise(async (resolve, reject) => {
       try {
+        const source = await this._getMediaElement(sourceId);
+        const sink = await this._getMediaElement(sinkId);
+
         switch (type) {
           case 'ALL':
             source.disconnect(sink, (error) => {
@@ -314,11 +365,26 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   stop (room, type, elementId) {
+    const pipeline = this._mediaPipelines[room];
+    const cleanPipeline = async (p) => {
+      if (p) {
+        if (p.activeElements[elementId]) {
+          delete p.activeElements[elementId];
+        }
+
+        const activeElements = Object.keys(p.activeElements).length;
+
+        Logger.info("[mcs-media] Pipeline has a total of", activeElements, "active elements");
+        if (activeElements <= 0) {
+          await this._releasePipeline(room);
+        }
+      }
+    }
+
     return new Promise(async (resolve, reject) => {
       try {
         Logger.info("[mcs-media] Releasing endpoint", elementId, "from room", room);
-        const mediaElement = this._mediaElements[elementId];
-        const pipeline = this._mediaPipelines[room];
+        const mediaElement = await this._getMediaElement(elementId);
 
         if (type === 'RecorderEndpoint') {
           await this._stopRecording(elementId);
@@ -329,26 +395,23 @@ module.exports = class MediaServer extends EventEmitter {
             if (error) {
               return reject(this._handleError(error));
             }
-
             delete this._mediaElements[elementId];
 
-            if (pipeline) {
-              pipeline.activeElements--;
+            cleanPipeline(pipeline);
 
-              Logger.info("[mcs-media] Pipeline has a total of", pipeline.activeElements, "active elements");
-              if (pipeline.activeElements <= 0) {
-                await this._releasePipeline(room);
-              }
-            }
             return resolve();
           });
         }
         else {
           Logger.warn("[mcs-media] Media element", elementId, "could not be found to stop");
+
+          cleanPipeline(pipeline);
+
           return resolve();
         }
       }
       catch (err) {
+        cleanPipeline(pipeline);
         this._handleError(err);
         resolve();
       }
@@ -356,9 +419,10 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   addIceCandidate (elementId, candidate) {
-    return new Promise((resolve, reject) => {
-      const mediaElement = this._mediaElements[elementId];
+    return new Promise(async (resolve, reject) => {
       try {
+        const mediaElement = await this._getMediaElement(elementId);
+
         if (mediaElement  && candidate) {
           mediaElement.addIceCandidate(candidate, (error) => {
             if (error) {
@@ -380,13 +444,10 @@ module.exports = class MediaServer extends EventEmitter {
 
   gatherCandidates (elementId) {
     Logger.info('[mcs-media] Gathering ICE candidates for ' + elementId);
-    const mediaElement = this._mediaElements[elementId];
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        if (mediaElement == null) {
-          return reject(this._handleError(ERRORS[40101]));
-        }
+        const mediaElement = await this._getMediaElement(elementId);
         mediaElement.gatherCandidates((error) => {
           if (error) {
             return reject(this._handleError(error));
@@ -435,10 +496,10 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   processOffer (elementId, sdpOffer) {
-    const mediaElement = this._mediaElements[elementId];
-
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
+        const mediaElement = await this._getMediaElement(elementId);
+
         if (mediaElement) {
           mediaElement.processOffer(sdpOffer, (error, answer) => {
             if (error) {

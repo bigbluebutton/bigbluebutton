@@ -269,8 +269,6 @@ $Id: $
         amIModerator = UsersUtil.amIModerator();
         amIPresenter = UsersUtil.amIPresenter();
         
-        settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
-        closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
         refreshRole(UsersUtil.amIModerator());
         emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
         
@@ -302,8 +300,6 @@ $Id: $
       
       private function refreshRole(moderator:Boolean = true):void {
         amIModerator = moderator;
-        
-        settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
         
         changeButtons(UsersUtil.amIPresenter());
 		
@@ -371,6 +367,8 @@ $Id: $
       
       private function changeButtons(presenter:Boolean):void {
         emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
+		settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+		closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
       }
       
       /*

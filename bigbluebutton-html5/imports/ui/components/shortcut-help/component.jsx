@@ -1,9 +1,11 @@
-import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import browser from 'browser-detect';
 import Modal from '/imports/ui/components/modal/simple/component';
 import _ from 'lodash';
 import { styles } from './styles';
+import withShortcutHelper from './service';
 
 const intlMessages = defineMessages({
   title: {
@@ -72,60 +74,69 @@ const intlMessages = defineMessages({
   },
 });
 
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
+const ShortcutHelpComponent = (props) => {
+  const { intl, shortcuts } = props;
+  const { name } = browser();
 
-class ShortcutHelpComponent extends Component {
-  render() {
-    const { intl } = this.props;
-    const shortcuts = Object.values(SHORTCUTS_CONFIG);
-    const { name } = browser();
+  let accessMod = null;
 
-    let accessMod = null;
-
-    switch (name) {
-      case 'chrome':
-      case 'edge':
-        accessMod = 'Alt';
-        break;
-      case 'firefox':
-        accessMod = 'Alt + Shift';
-        break;
-      case 'safari':
-      case 'crios':
-      case 'fxios':
-        accessMod = 'Control + Alt';
-        break;
-    }
-
-    return (
-      <Modal
-        title={intl.formatMessage(intlMessages.title)}
-        dismiss={{
-          label: intl.formatMessage(intlMessages.closeLabel),
-          description: intl.formatMessage(intlMessages.closeDesc),
-        }}
-      >
-        { !accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p> :
-        <span>
-          <table className={styles.shortcutTable}>
-            <tbody>
-              <tr>
-                <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
-                <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
-              </tr>
-              {shortcuts.map(shortcut => (
-                <tr key={_.uniqueId('hotkey-item-')}>
-                  <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
-                  <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
-                </tr>
-                  ))}
-            </tbody>
-          </table>
-        </span>
-        }
-      </Modal>
-    );
+  switch (name) {
+    case 'chrome':
+    case 'edge':
+      accessMod = 'Alt';
+      break;
+    case 'firefox':
+      accessMod = 'Alt + Shift';
+      break;
+    case 'safari':
+    case 'crios':
+    case 'fxios':
+      accessMod = 'Control + Alt';
+      break;
+    default:
+      break;
   }
-}
 
-export default injectIntl(ShortcutHelpComponent);
+  return (
+    <Modal
+      title={intl.formatMessage(intlMessages.title)}
+      dismiss={{
+        label: intl.formatMessage(intlMessages.closeLabel),
+        description: intl.formatMessage(intlMessages.closeDesc),
+      }}
+    >
+      {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p> :
+      <span>
+        <table className={styles.shortcutTable}>
+          <tbody>
+            <tr>
+              <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+              <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
+            </tr>
+            {shortcuts.map(shortcut => (
+              <tr key={_.uniqueId('hotkey-item-')}>
+                <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
+                <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </span>
+      }
+    </Modal>
+  );
+};
+
+ShortcutHelpComponent.defaultProps = {
+  intl: intlShape,
+};
+
+ShortcutHelpComponent.propTypes = {
+  intl: intlShape,
+  shortcuts: PropTypes.arrayOf(PropTypes.shape({
+    accesskey: PropTypes.string.isRequired,
+    descId: PropTypes.string.isRequired,
+  })).isRequired,
+};
+
+export default withShortcutHelper(injectIntl(ShortcutHelpComponent));

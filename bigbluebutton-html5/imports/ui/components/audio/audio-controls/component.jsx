@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -42,11 +43,6 @@ const defaultProps = {
   unmute: false,
 };
 
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const JOIN_AUDIO_AK = SHORTCUTS_CONFIG.joinAudio.accesskey;
-const LEAVE_AUDIO_AK = SHORTCUTS_CONFIG.leaveAudio.accesskey;
-const MUTE_UNMUTE_AK = SHORTCUTS_CONFIG.toggleMute.accesskey;
-
 class AudioControls extends Component {
   componentDidMount() {
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice ||
@@ -66,6 +62,7 @@ class AudioControls extends Component {
       glow,
       join,
       intl,
+      shortcuts,
     } = this.props;
 
     return (
@@ -84,7 +81,7 @@ class AudioControls extends Component {
             icon={unmute ? 'mute' : 'unmute'}
             size="lg"
             circle
-            accessKey={MUTE_UNMUTE_AK}
+            accessKey={shortcuts.toggleMute}
           /> : null}
         <Button
           className={styles.button}
@@ -99,7 +96,7 @@ class AudioControls extends Component {
           icon={join ? 'audio_off' : 'audio_on'}
           size="lg"
           circle
-          accessKey={join ? LEAVE_AUDIO_AK : JOIN_AUDIO_AK}
+          accessKey={join ? shortcuts.leaveAudio : shortcuts.joinAudio}
         />
       </span>);
   }
@@ -108,4 +105,4 @@ class AudioControls extends Component {
 AudioControls.propTypes = propTypes;
 AudioControls.defaultProps = defaultProps;
 
-export default injectIntl(AudioControls);
+export default withShortcutHelper(injectIntl(AudioControls), ['joinAudio', 'leaveAudio', 'toggleMute']);

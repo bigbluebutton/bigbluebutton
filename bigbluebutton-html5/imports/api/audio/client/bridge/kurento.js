@@ -62,10 +62,6 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     this.voiceBridge = voiceBridge;
   }
 
-  exitAudio(listenOnly) {
-    window.kurentoExitAudio();
-  }
-
   joinAudio({ isListenOnly, inputStream }, callback) {
     return new Promise(async (resolve, reject) => {
       this.callback = callback;
@@ -86,7 +82,18 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           inputStream,
         };
 
-        const onSuccess = ack => resolve(this.callback({ status: this.baseCallStates.started }));
+        const onSuccess = ack => {
+          const { webRtcPeer } = window.kurentoManager.kurentoAudio;
+          if (webRtcPeer) {
+            const audioTag = document.getElementById(MEDIA_TAG);
+            const stream = webRtcPeer.getRemoteStream();
+            audioTag.pause();
+            audioTag.srcObject = stream;
+            audioTag.muted = false;
+            audioTag.play();
+          }
+          resolve(this.callback({ status: this.baseCallStates.started }));
+        };
 
         const onFail = error => {
           const { reason } = error;

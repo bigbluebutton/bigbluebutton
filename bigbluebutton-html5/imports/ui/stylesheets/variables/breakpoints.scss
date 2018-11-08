@@ -41,15 +41,7 @@ $xlarge-only: "#{$screen} and (min-width:#{lower-bound($xlarge-range)}) and (max
 $xxlarge-up: "#{$screen} and (min-width:#{lower-bound($xxlarge-range)})";
 $xxlarge-only: "#{$screen} and (min-width:#{lower-bound($xxlarge-range)}) and (max-width:#{upper-bound($xxlarge-range)})";
 
-//iPhone 5 size range
-$ip5-range: "(min-device-width : 320px) and (max-device-width : 568px)";
-// iPhone 6, 7 and 8 size range
-$ip678-range: "(min-device-width : 375px) and (max-device-width : 667px)";
-
-$ip5-portrait: "#{$portrait} and #{$ip5-range}";
-$ip5-landscape: "#{$landscape} and #{$ip5-range}";
-$ip678-portrait: "#{$portrait} and #{$ip678-range}";
-$ip678-landscape: "#{$landscape} and #{$ip678-range}";
+$hasPhoneDimentions: "#{$screen} and (max-height: 479px), #{$screen} and (max-width: 479px)";
 
 $breakpoints: (
   'screen': $screen,

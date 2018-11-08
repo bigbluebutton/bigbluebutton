@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.users.services
   
   import mx.controls.Alert;
   import mx.utils.ObjectUtil;
+  import mx.collections.ArrayCollection;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -239,47 +240,51 @@ package org.bigbluebutton.modules.users.services
     private function handleUserJoinedVoiceConfToClientEvtMsg(msg: Object): void {
       var header: Object = msg.header as Object;
       var body: Object = msg.body as Object;
-      
+      processVoiceUserJoinedEvent(body);
+    }
+    
+    private function processVoiceUserJoinedEvent(vuser:Object):void {
       var vu: VoiceUser2x = new VoiceUser2x();
-      vu.intId = body.intId as String;
-      vu.voiceUserId = body.voiceUserId as String;
-      vu.callerName = body.callerName as String;
-      vu.callerNum = body.callerNum as String;
-      vu.muted = body.muted as Boolean;
-      vu.talking = body.talking as Boolean;
-      vu.callingWith = body.callingWith as String;
-      vu.listenOnly = body.listenOnly as Boolean;
+      vu.intId = vuser.intId as String;
+      vu.voiceUserId = vuser.voiceUserId as String;
+      vu.callerName = vuser.callerName as String;
+      vu.callerNum = vuser.callerNum as String;
+      vu.muted = vuser.muted as Boolean;
+      vu.talking = vuser.talking as Boolean;
+      vu.callingWith = vuser.callingWith as String;
+      vu.listenOnly = vuser.listenOnly as Boolean;
       
       LiveMeeting.inst().voiceUsers.add(vu);
       
       if (UsersUtil.isMe(vu.intId)) {
         LiveMeeting.inst().me.muted = vu.muted;
         LiveMeeting.inst().me.inVoiceConf = true;
-		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
+        //Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.joined"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
       bbbEvent.payload.userID = vu.intId;            
       globalDispatcher.dispatchEvent(bbbEvent);
-      
     }
     
-    private function handleUserLeftVoiceConfToClientEvtMsg(msg: Object):void {
-      var header: Object = msg.header as Object;
-      var body: Object = msg.body as Object;
-      var intId: String = body.intId as String;
-      
+    private function processVoiceUserLeftEvent(intId:String):void {
       LiveMeeting.inst().voiceUsers.remove(intId);
       
       if (UsersUtil.isMe(intId)) {
         LiveMeeting.inst().me.muted = false;
         LiveMeeting.inst().me.inVoiceConf = false;
-		//Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
+        //Toaster.toast(ResourceUtil.getInstance().getString("bbb.notification.audio.left"), ToastType.INFO, ToastIcon.AUDIO);
       }
       
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
       bbbEvent.payload.userID = intId;
       globalDispatcher.dispatchEvent(bbbEvent);
+    }
+    private function handleUserLeftVoiceConfToClientEvtMsg(msg: Object):void {
+      var header: Object = msg.header as Object;
+      var body: Object = msg.body as Object;
+      var intId: String = body.intId as String;
+      processVoiceUserLeftEvent(intId);
     }
     
     private function handleUserMutedEvtMsg(msg: Object): void {
@@ -375,21 +380,48 @@ package org.bigbluebutton.modules.users.services
       var guestsWaitingEvent:NewGuestWaitingEvent = new NewGuestWaitingEvent();
       dispatcher.dispatchEvent(guestsWaitingEvent);
     }
-
-    private function handleGetUsersMeetingRespMsg(msg: Object):void {
-      var body: Object = msg.body as Object;
-      var users: Array = body.users as Array;
-
-      for (var i:int = 0; i < users.length; i++) {
-        var user:Object = users[i] as Object;
-        processUserJoinedMeetingMsg(user);
+    
+    private function findUserInNewUsers(userId: String, newUsers:Array):Object {
+      for (var i:int = 0; i < newUsers.length; i++) {
+        var user:Object = newUsers[i] as Object;
+        var intId: String = user.intId as String;
+        if (userId == intId) return newUsers.removeAt(i);
       } 
+      return null;
     }
     
-    public function handleUserLeftMeetingEvtMsg(msg:Object):void {     
-      var body: Object = msg.body as Object;
-      var userId: String = body.intId as String;
+    private function handleGetUsersMeetingRespMsg(msg: Object):void {
+      var body: Object = msg.body as Object
+      var newUsers: Array = body.users as Array;
+
+      var oldUsers:Array = UsersUtil.getUsers().toArray();
       
+      for (var i:int = 0; i < oldUsers.length; i++) {
+        var user:User2x = oldUsers[i] as User2x;
+        var newUser:Object = findUserInNewUsers(user.intId, newUsers);
+        if (newUser != null) {
+          // The user is in both old users and new users.
+          // Just need to update this user with the new state.
+          processUserJoinedMeetingMsg(newUser);
+        } else {
+          // The user is in the old users but not in the new one.
+          // The user probably has left the meeting. Remove the user.
+          injectUserLeftEvent(user.intId);
+        }
+      } 
+      
+      if (newUsers.length > 0) {
+        // There are remaining new users that were not in the old users list.
+        // We need to join them into the users list.
+        for (var k:int = 0; k < newUsers.length; k++) {
+          var newUserK:Object = newUsers[k] as Object;
+          processUserJoinedMeetingMsg(newUserK);
+        }
+      }
+      
+    }
+    
+    private function injectUserLeftEvent(userId:String):void {
       var webUser:User2x = UsersUtil.getUser(userId);
       
       if (webUser != null) {
@@ -404,6 +436,12 @@ package org.bigbluebutton.modules.users.services
         joinEvent.userID = userId;
         dispatcher.dispatchEvent(joinEvent);	
       }
+    }
+    
+    public function handleUserLeftMeetingEvtMsg(msg:Object):void {     
+      var body: Object = msg.body as Object
+      var userId: String = body.intId as String;
+      injectUserLeftEvent(userId);
     }
     
     private function handleUserJoinedMeetingEvtMsg(msg:Object):void {
@@ -471,33 +509,68 @@ package org.bigbluebutton.modules.users.services
 
     }
     
+    private function findVoiceUserInNewVoiceUsers(userId: String, newVoiceUsers:Array):Object {
+      for (var i:int = 0; i < newVoiceUsers.length; i++) {
+        var user:Object = newVoiceUsers[i] as Object;
+        var intId: String = user.intId as String;
+        if (userId == intId) return newVoiceUsers.removeAt(i);
+      } 
+      return null;
+    }
+    
     private function handleGetVoiceUsersMeetingRespMsg(msg:Object):void {
       var body: Object = msg.body as Object;
-      var users: Array = body.users as Array;
-
-      for (var i:int = 0; i < users.length; i++) {
-        var user:Object = users[i] as Object;
-        var intId: String = user.intId as String;
-        var voiceUserId: String = user.voiceUserId as String;
-        var callingWith: String = user.callingWith as String;
-        var callerName: String = user.callerName as String;
-        var callerNum: String = user.callerNum as String;
-        var muted: Boolean = user.muted as Boolean;
-        var talking: Boolean = user.talking as Boolean;
-        var listenOnly: Boolean = user.listenOnly as Boolean;
-        
-        var vu: VoiceUser2x = new VoiceUser2x();
-        vu.intId = intId;
-        vu.voiceUserId = voiceUserId;
-        vu.callingWith = callingWith;
-        vu.callerName = callerName;
-        vu.callerNum = callerNum;
-        vu.muted = muted;
-        vu.talking = talking;
-        vu.listenOnly = listenOnly;
-				
-        LiveMeeting.inst().voiceUsers.add(vu);
+      var newVoiceUsers: Array = body.users as Array;
+      
+      var oldVoiceUsers:Array = LiveMeeting.inst().voiceUsers.getVoiceUsers().toArray();
+      
+      for (var i:int = 0; i < oldVoiceUsers.length; i++) {
+        var user:VoiceUser2x = oldVoiceUsers[i] as VoiceUser2x;
+        var newVoiceUser:Object = findVoiceUserInNewVoiceUsers(user.intId, newVoiceUsers);
+        if (newVoiceUser != null) {
+          // The user is in both old users and new users.
+          // Just need to update this user with the new state.
+          processAddVoiceUser(newVoiceUser);
+        } else {
+          // The user is in the old users but not in the new one.
+          // The user probably has left the meeting. Remove the user.
+          processVoiceUserLeftEvent(user.intId);
+        }
+      } 
+      
+      if (newVoiceUsers.length > 0) {
+        // There are remaining new users that were not in the old users list.
+        // We need to join them into the users list.
+        for (var k:int = 0; k < newVoiceUsers.length; k++) {
+          var newUserK:Object = newVoiceUsers[k] as Object;
+          processAddVoiceUser(newUserK);
+        }
       }
+      
+    }
+    
+    private function processAddVoiceUser(user:Object):void {
+
+      var intId: String = user.intId as String;
+      var voiceUserId: String = user.voiceUserId as String;
+      var callingWith: String = user.callingWith as String;
+      var callerName: String = user.callerName as String;
+      var callerNum: String = user.callerNum as String;
+      var muted: Boolean = user.muted as Boolean;
+      var talking: Boolean = user.talking as Boolean;
+      var listenOnly: Boolean = user.listenOnly as Boolean;
+      
+      var vu: VoiceUser2x = new VoiceUser2x();
+      vu.intId = intId;
+      vu.voiceUserId = voiceUserId;
+      vu.callingWith = callingWith;
+      vu.callerName = callerName;
+      vu.callerNum = callerNum;
+      vu.muted = muted;
+      vu.talking = talking;
+      vu.listenOnly = listenOnly;
+      
+      LiveMeeting.inst().voiceUsers.add(vu);      
     }
     
     private function handleGetWebcamStreamsMeetingRespMsg(msg:Object):void {

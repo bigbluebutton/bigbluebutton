@@ -1,0 +1,64 @@
+@import "../../styles.scss";
+@import "/imports/ui/stylesheets/variables/_all";
+
+
+$list-item-bg-hover: darken(#F3F6F9, 7%);
+$item-focus-border: #92BCEA;
+
+.smallTitle {
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0 var(--sm-padding-x);
+    color: var(--color-gray-light);
+    margin-bottom: var(--sm-padding-x);
+    margin-top: var(--sm-padding-x);
+}
+
+.scrollableList {
+    margin-left: 0.45rem;
+    margin-bottom: 1px;
+    outline: none;
+}
+
+.pollLink {
+    @extend %list-item;
+
+    cursor: pointer;
+    display: flex;
+    flex-flow: row;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-top: var(--lg-padding-y);
+    padding-bottom: var(--lg-padding-y);
+    padding-left: var(--lg-padding-y);
+    text-decoration: none;
+    width: 100%;
+    color: var(--color-gray-dark);
+    background-color: var(--color-off-white);
+
+    > i {
+        display: flex;
+        font-size: 175%;
+        color: #8B9AA8;
+        flex: 0 0 2.2rem;
+    }
+
+    > span {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: black;
+        position: relative;
+        flex-grow: 1;
+        line-height: 2;
+        text-align: left;
+        padding-left: var(--lg-padding-y);
+        text-overflow: ellipsis;
+    }
+
+    &:active {
+        background-color: $list-item-bg-hover;
+        box-shadow: inset 0 0 0 var(--border-size) $item-focus-border, inset 1px 0 0 1px $item-focus-border;
+        outline: none;
+    }
+}

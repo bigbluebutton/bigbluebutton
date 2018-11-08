@@ -90,8 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.TextEvent;
 			import flash.utils.setTimeout;
 			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
@@ -129,6 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.main.events.ExitApplicationEvent;
+			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -140,6 +139,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.options.LanguageOptions;
 			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.main.model.users.events.LookUpUserResultEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
@@ -155,10 +155,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			
-			
-			
 			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -352,7 +348,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function sendStartAllModulesEvent():void{
 				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
+				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));
+				dispatcher.dispatchEvent(new BBBEvent(BBBEvent.GET_LOCK_SETTINGS_EVENT));
 			}
 			
 			public function guestAllowed(evt:BBBEvent):void {
@@ -388,7 +385,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function removeGuestWindow(evt:BBBEvent):void {
-        LOGGER.debug("REMOVE GUEST WINDOW");
+        		LOGGER.debug("REMOVE GUEST WINDOW");
 				//if (guestWindow != null) {
 				//	guestWindow.remove(evt.payload.userId);
 				//}
@@ -615,38 +612,54 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			/**
-			 * Removes toolbars from the display list.
-			 * Used only when the user completely logged out.
-			 */
-			private function removeToolBars():void {
-				this.removeChild(toolbar);
-				this.removeChild(controlBar);
-			}
+            private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
+                mdiCanvas.removeAllPopUps();
+                removeToolBars();
+                progressBar.loadingFailed(e.reason);
+            }
 
-			private function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
-				if (! UsersUtil.isBreakout()) {
-					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
-				} else {
-					ExternalInterface.call("window.close");
-				}
-			}
+            private function showlogoutWindow(reason:String):void {
+                if ((layoutOptions != null && !layoutOptions.showLogoutWindow) || UsersUtil.iAskedToLogout()) {
+                    mdiCanvas.removeAllPopUps();
+                    removeToolBars();
+                    
+                    handleExitApplicationEvent();
+                } else {
+                    var loggedOutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, LoggedOutWindow, true) as LoggedOutWindow;
+                    if (loggedOutWindow) {
+                        loggedOutWindow.setReason(reason);
+                        mdiCanvas.removeAllPopUps();
+                        removeToolBars();
+                    }
+                }
+            }
 
-			private function redirectToLogoutUrl ():void {
-        		var logoutURL:String = BBB.getLogoutURL();
-				var request:URLRequest = new URLRequest(logoutURL);
+            /**
+             * Removes toolbars from the display list.
+             * Used only when the user completely logged out.
+             */
+            private function removeToolBars():void {
+                this.removeChild(toolbar);
+                this.removeChild(controlBar);
+            }
 
-				navigateToURL(request, '_self');
-			}
+            private function handleLogout(e:ConnectionFailedEvent):void {
+                if (e is ConnectionFailedEvent) {
+                    showlogoutWindow((e as ConnectionFailedEvent).type);
+                } else
+                    showlogoutWindow(ConnectionFailedEvent.USER_EJECTED_FROM_MEETING);
+            }
+
+            private function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
+                if (! UsersUtil.isBreakout()) {
+                    navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
+                } else {
+                    ExternalInterface.call("window.close");
+                }
+            }
 			
-
-			private function handleLogoutError(e:Event):void {
-
-				redirectToLogoutUrl();
-			}
-			
-			private function handleLogoutComplete(e:Event):void {	
-				redirectToLogoutUrl();
+			private function attemptReconnect(e:ConnectionFailedEvent):void{
+				handleLogout(e);
 			}
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {

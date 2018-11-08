@@ -70,12 +70,12 @@ package org.bigbluebutton.core
       return false;
     }
     
-	public static function setUserEjected(reasonCode: String):void {
-    LiveMeeting.inst().me.ejectedFromMeeting(reasonCode);
+    public static function setUserEjected(reasonCode: String):void {
+    	LiveMeeting.inst().me.ejectedFromMeeting(reasonCode);
 	}
 	
 	public static function isUserEjected():Boolean {
-    return LiveMeeting.inst().me.hasBeenEjected();
+    	return LiveMeeting.inst().me.hasBeenEjected();
 	}
 	
 	public static function getEjectReason():String {
@@ -306,19 +306,19 @@ package org.bigbluebutton.core
 	public static function isAnyoneLocked():Boolean {
 		return LiveMeeting.inst().users.isAnyUserLocked();
 	}
-    
-    
+
+
     public static function initLogData():Object {
         var logData:Object = new Object();
         if (getInternalMeetingID() != null) {
             logData.user = UsersUtil.getUserData();
         }
         logData.sessionToken = getUserSession();
-				logData.connections = BBB.initConnectionManager().getConnectionIds();
-				
-				var now:Date = new Date();
-				logData.utcTime = now.getTime();
-				logData.tzOffsetMin = now.getTimezoneOffset();
+        logData.connections = BBB.initConnectionManager().getConnectionIds();
+
+        var now:Date = new Date();
+        logData.utcTime = now.getTime();
+        logData.tzOffsetMin = now.getTimezoneOffset();
         return logData;
     }
     

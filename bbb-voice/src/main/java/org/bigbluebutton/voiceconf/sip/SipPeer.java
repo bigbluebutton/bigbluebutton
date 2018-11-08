@@ -148,7 +148,7 @@ public class SipPeer implements SipRegisterAgentListener {
        sipProvider.halt();
 	}
 
-    public void hangup(String clientId) {
+    public void hangup(String clientId, boolean notifyApps) {
         log.debug( "SIPUser hangup" );
 
         CallAgent ca = callManager.remove(clientId);
@@ -159,8 +159,12 @@ public class SipPeer implements SipRegisterAgentListener {
                 String destination = ca.getDestination();
                 ListenOnlyUser lou = GlobalCall.removeUser(clientId, destination);
                 if (lou != null) {
-                	log.info("User has disconnected from global audio, user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
-                	messagingService.userDisconnectedFromGlobalAudio(lou.voiceConf, lou.callerIdName);
+                  log.info("User has disconnected from global audio, user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
+                  if (notifyApps) {
+                    messagingService.userDisconnectedFromGlobalAudio(lou.voiceConf, lou.callerIdName);
+                  } else {
+                    log.info("Do not send a user disconnected from global audio. user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
+                  }
                 }
                 ca.hangup();
 
