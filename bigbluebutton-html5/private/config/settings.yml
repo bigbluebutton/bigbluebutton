@@ -158,10 +158,15 @@ public:
       - requestPresentationUploadToken
       - transferUser
       - createBreakoutRoom
+      - startPoll
+      - stopPoll
+      - publishPoll
   breakout:
     rooms:
       min: 2
       max: 8
+  poll:
+    max_custom: 5
   chat:
     min_message_length: 1
     max_message_length: 5000

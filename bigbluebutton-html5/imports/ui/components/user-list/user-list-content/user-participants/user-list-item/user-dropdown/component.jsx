@@ -172,6 +172,7 @@ class UserDropdown extends Component {
       user,
       isBreakoutRoom,
       getAvailableActions,
+      getGroupChatPrivate,
       handleEmojiChange,
       getEmojiList,
       setEmojiStatus,
@@ -234,6 +235,11 @@ class UserDropdown extends Component {
         'openChat',
         intl.formatMessage(messages.ChatLabel),
         () => {
+          getGroupChatPrivate(currentUser, user);
+          if (Session.equals('isPollOpen', true)) {
+            Session.set('isPollOpen', false);
+            Session.set('forcePollOpen', true);
+          }
           Session.set('idChatOpen', user.id);
           Session.set('isChatOpen', true);
         },
