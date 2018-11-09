@@ -1,10 +1,26 @@
-name := "bbb-fsesl-client"
+import org.bigbluebutton.build._
 
 description := "BigBlueButton custom FS-ESL client built on top of FS-ESL Java library."
 
-organization := "org.bigbluebutton"
+version := "0.0.7"
 
-version := "0.0.6"
+val compileSettings = Seq(
+  organization := "org.bigbluebutton",
+
+  scalacOptions ++= List(
+    "-unchecked",
+    "-deprecation",
+    "-Xlint",
+    "-Ywarn-dead-code",
+    "-language:_",
+    "-target:jvm-1.8",
+    "-encoding", "UTF-8"
+  ),
+  javacOptions ++= List(
+    "-Xlint:unchecked",
+    "-Xlint:deprecation"
+  )
+)
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -15,14 +31,8 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-libraryDependencies ++= {
-  Seq(
-	  "org.jboss.netty"          %  "netty"             % "3.2.10.Final",
-	  "junit"                    %  "junit"             % "4.12",
-	  "ch.qos.logback"           %  "logback-classic"   % "1.2.3"
-	)}
-
-seq(Revolver.settings: _*)
+Seq(Revolver.settings: _*)
+lazy val commonMessage = (project in file(".")).settings(name := "bbb-fsesl-client", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 //-----------
 // Packaging
