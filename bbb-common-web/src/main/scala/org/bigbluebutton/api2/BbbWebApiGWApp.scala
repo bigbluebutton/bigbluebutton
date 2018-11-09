@@ -5,12 +5,14 @@ import akka.actor.ActorSystem
 import akka.event.Logging
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
-import org.bigbluebutton.api2.endpoint.redis.{ AppsRedisSubscriberActor, MessageSender, RedisPublisher }
+import org.bigbluebutton.api2.endpoint.redis.{ WebRedisSubscriberActor }
+import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{ OldMeetingMsgHdlrActor, RegisterUser }
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.presentation.messages._
-
 import scala.concurrent.duration._
+import org.bigbluebutton.common2.redis._
+import org.bigbluebutton.common2.bus._
 
 class BbbWebApiGWApp(
   val oldMessageReceivedGW:        OldMessageReceivedGW,
@@ -27,7 +29,7 @@ class BbbWebApiGWApp(
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
-  private val redisPublisher = new RedisPublisher(system)
+  private val redisPublisher = new RedisPublisher(system, "BbbWebPub")
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
   private val messageSenderActorRef = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
 
@@ -55,7 +57,7 @@ class BbbWebApiGWApp(
   msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
 
   private val appsRedisSubscriberActor = system.actorOf(
-    AppsRedisSubscriberActor.props(receivedJsonMsgBus, oldMessageEventBus), "appsRedisSubscriberActor")
+    WebRedisSubscriberActor.props(receivedJsonMsgBus, oldMessageEventBus), "appsRedisSubscriberActor")
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
     ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")

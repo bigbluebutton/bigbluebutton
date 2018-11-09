@@ -46,7 +46,6 @@ libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.11"
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.5"
-libraryDependencies += "redis.clients" % "jedis" % "2.9.0"
 
 // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.7"

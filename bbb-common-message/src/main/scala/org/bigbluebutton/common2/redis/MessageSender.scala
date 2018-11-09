@@ -1,4 +1,4 @@
-package org.bigbluebutton.client.endpoint.redis
+package org.bigbluebutton.common2.redis
 
 class MessageSender(publisher: RedisPublisher) {
 

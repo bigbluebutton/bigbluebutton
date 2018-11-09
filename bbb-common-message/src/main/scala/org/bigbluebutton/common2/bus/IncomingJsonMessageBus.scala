@@ -1,13 +1,13 @@
-package org.bigbluebutton.api2.bus
+package org.bigbluebutton.common2.bus
 
 import akka.actor.ActorRef
-import akka.event.{EventBus, LookupClassification}
+import akka.event.{ EventBus, LookupClassification }
 
-case class JsonMsgFromAkkaApps(name: String, data: String)
-case class JsonMsgFromAkkaAppsEvent(val topic: String, val payload: JsonMsgFromAkkaApps)
+case class ReceivedJsonMessage(channel: String, data: String)
+case class IncomingJsonMessage(val topic: String, val payload: ReceivedJsonMessage)
 
-class JsonMsgFromAkkaAppsBus extends EventBus with LookupClassification {
-  type Event = JsonMsgFromAkkaAppsEvent
+class IncomingJsonMessageBus extends EventBus with LookupClassification {
+  type Event = IncomingJsonMessage
   type Classifier = String
   type Subscriber = ActorRef
 
@@ -23,10 +23,9 @@ class JsonMsgFromAkkaAppsBus extends EventBus with LookupClassification {
   // must define a full order over the subscribers, expressed as expected from
   // `java.lang.Comparable.compare`
   override protected def compareSubscribers(a: Subscriber, b: Subscriber): Int =
-  a.compareTo(b)
+    a.compareTo(b)
 
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
   override protected def mapSize: Int = 128
-
 }

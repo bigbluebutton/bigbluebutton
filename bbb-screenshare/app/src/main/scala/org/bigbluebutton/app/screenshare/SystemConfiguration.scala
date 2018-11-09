@@ -2,15 +2,9 @@ package org.bigbluebutton.app.screenshare
 
 import scala.util.Try
 import com.typesafe.config.ConfigFactory
+import org.bigbluebutton.common2.redis.RedisConfiguration
 
-trait SystemConfiguration {
-
-  //val config = ConfigFactory.load("screenshare-app")
-  val config = ConfigFactory.load()
-
-  lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
-  lazy val redisPort = Try(config.getInt("redis.port")).getOrElse(6379)
-  lazy val redisPassword = Try(config.getString("redis.password")).getOrElse("")
+trait SystemConfiguration extends RedisConfiguration {
 
   lazy val meetingManagerChannel = Try(config.getString("eventBus.meetingManagerChannel")).getOrElse("NOT FROM APP CONF")
 

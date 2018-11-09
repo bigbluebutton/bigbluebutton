@@ -1,13 +1,13 @@
-package org.bigbluebutton.app.screenshare.redis
+package org.bigbluebutton.common2.bus
 
 import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
 
-case class ReceivedJsonMessage(channel: String, data: String)
-case class IncomingJsonMessage(val topic: String, val payload: ReceivedJsonMessage)
+case class JsonMsgFromAkkaApps(name: String, data: String)
+case class JsonMsgFromAkkaAppsEvent(val topic: String, val payload: JsonMsgFromAkkaApps)
 
-class IncomingJsonMessageBus extends EventBus with LookupClassification {
-  type Event = IncomingJsonMessage
+class JsonMsgFromAkkaAppsBus extends EventBus with LookupClassification {
+  type Event = JsonMsgFromAkkaAppsEvent
   type Classifier = String
   type Subscriber = ActorRef
 
@@ -28,4 +28,5 @@ class IncomingJsonMessageBus extends EventBus with LookupClassification {
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
   override protected def mapSize: Int = 128
+
 }

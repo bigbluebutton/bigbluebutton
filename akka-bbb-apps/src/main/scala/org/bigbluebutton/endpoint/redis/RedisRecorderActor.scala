@@ -14,8 +14,8 @@ object RedisRecorderActor {
 }
 
 class RedisRecorderActor(val system: ActorSystem)
-    extends SystemConfiguration
-    with Actor with ActorLogging {
+  extends SystemConfiguration
+  with Actor with ActorLogging {
   val redis = RedisClient(redisHost, redisPort)(system)
 
   // Set the name of this client to be able to distinguish when doing

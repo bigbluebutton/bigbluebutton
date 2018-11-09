@@ -1,15 +1,13 @@
 package org.bigbluebutton.api2.endpoint.redis
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
 import org.bigbluebutton.api2.SystemConfiguration
 import redis.RedisClient
-
 
 case class RecordMeetingInfoMsg(meetingId: String, info: collection.immutable.Map[String, String])
 case class RecordBreakoutInfoMsg(meetingId: String, info: collection.immutable.Map[String, String])
 case class AddBreakoutRoomMsg(parentId: String, breakoutId: String)
 case class RemoveMeetingMsg(meetingId: String)
-
 
 object RedisDataStorageActor {
   def props(system: ActorSystem): Props = Props(classOf[RedisDataStorageActor], system)
@@ -24,12 +22,11 @@ class RedisDataStorageActor(val system: ActorSystem) extends Actor with ActorLog
   redis.clientSetname("BbbWebStore")
 
   def receive = {
-    case msg: RecordMeetingInfoMsg => handleRecordMeetingInfoMsg(msg)
+    case msg: RecordMeetingInfoMsg  => handleRecordMeetingInfoMsg(msg)
     case msg: RecordBreakoutInfoMsg => handleRecordBreakoutInfoMsg(msg)
-    case msg: AddBreakoutRoomMsg => handleAddBreakoutRoomMsg(msg)
-    case msg: RemoveMeetingMsg => handleRemoveMeetingMsg(msg)
+    case msg: AddBreakoutRoomMsg    => handleAddBreakoutRoomMsg(msg)
+    case msg: RemoveMeetingMsg      => handleRemoveMeetingMsg(msg)
   }
-
 
   def handleRecordMeetingInfoMsg(msg: RecordMeetingInfoMsg): Unit = {
     redis.hmset("meeting:info:" + msg.meetingId, msg.info)

@@ -11,7 +11,6 @@ object Dependencies {
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.3"
-    val pegdown = "1.6.0"
 
     // Libraries
     val akkaVersion = "2.5.17"
@@ -83,15 +82,13 @@ object Dependencies {
     val junit = "junit" % "junit" % Versions.junit % "test"
     val junitInteface = "com.novocode" % "junit-interface" % Versions.junitInterface % "test"
     val scalactic = "org.scalactic" % "scalactic_2.12" % Versions.scalactic % "test"
-    val pegdown = "org.pegdown" % "pegdown" % Versions.pegdown % "test"
   }
 
   val testing = Seq(
     Test.scalaTest,
     Test.junit,
     Test.junitInteface,
-    Test.scalactic,
-    Test.pegdown)
+    Test.scalactic)
 
   val runtime = Seq(
     Compile.scalaLibrary,

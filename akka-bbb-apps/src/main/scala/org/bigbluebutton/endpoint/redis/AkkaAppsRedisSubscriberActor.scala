@@ -1,22 +1,27 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.Props
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy.Resume
-import java.io.{ PrintWriter, StringWriter }
 import java.net.InetSocketAddress
 
-import redis.actors.RedisSubscriberActor
-import redis.api.pubsub.{ Message, PMessage }
-
-import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.bus.{ IncomingJsonMessage, IncomingJsonMessageBus, ReceivedJsonMessage }
+import org.bigbluebutton.common2.bus.IncomingJsonMessage
+import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
+import org.bigbluebutton.common2.bus.ReceivedJsonMessage
+import org.bigbluebutton.common2.redis.RedisAppSubscriberActor
+import org.bigbluebutton.common2.redis.RedisConfiguration
+import org.bigbluebutton.common2.redis.RedisSubscriber
+
+import akka.actor.Props
+import redis.actors.RedisSubscriberActor
+import redis.api.pubsub.Message
 import redis.api.servers.ClientSetname
+import java.io.StringWriter
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy.Resume
+import scala.concurrent.duration.DurationInt
+import java.io.PrintWriter
 
-object AppsRedisSubscriberActor extends SystemConfiguration {
+object AppsRedisSubscriberActor extends RedisSubscriber with RedisConfiguration {
 
-  val TO_AKKA_APPS = "bbb:to-akka-apps"
   val channels = Seq(toAkkaAppsRedisChannel, fromVoiceConfRedisChannel)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*", "bigbluebutton:from-bbb-transcode:*")
 
@@ -29,9 +34,11 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
                                redisPort: Int,
                                channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(
-      new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
+  extends RedisSubscriberActor(
+    new InetSocketAddress(redisHost, redisPort),
+    channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") })
+  with SystemConfiguration
+  with RedisAppSubscriberActor {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -55,10 +62,4 @@ class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: St
     }
   }
 
-  def onPMessage(pmessage: PMessage) {
-
-    // We don't use PSubscribe anymore, but an implementation of the method is required
-    //log.error("Should not be receiving a PMessage. It triggered on a match of pattern: " + pmessage.patternMatched)
-    //log.error(pmessage.data.utf8String)
-  }
 }

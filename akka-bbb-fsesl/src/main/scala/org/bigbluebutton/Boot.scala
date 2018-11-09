@@ -2,7 +2,8 @@ package org.bigbluebutton
 
 import akka.actor.{ ActorSystem }
 
-import org.bigbluebutton.endpoint.redis.{ AppsRedisSubscriberActor, RedisPublisher }
+import org.bigbluebutton.common2.redis.RedisPublisher
+import org.bigbluebutton.endpoint.redis.FSESLRedisSubscriberActor
 import org.bigbluebutton.freeswitch.{ RxJsonMsgHdlrActor, VoiceConferenceService }
 import org.bigbluebutton.freeswitch.bus.InsonMsgBus
 import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
@@ -13,7 +14,7 @@ object Boot extends App with SystemConfiguration {
 
   implicit val system = ActorSystem("bigbluebutton-fsesl-system")
 
-  val redisPublisher = new RedisPublisher(system)
+  val redisPublisher = new RedisPublisher(system, "BbbFsEslAkkaPub")
 
   val eslConnection = new DefaultManagerConnection(eslHost, eslPort, eslPassword)
 
@@ -34,6 +35,5 @@ object Boot extends App with SystemConfiguration {
   val redisMessageHandlerActor = system.actorOf(RxJsonMsgHdlrActor.props(fsApplication))
   inJsonMsgBus.subscribe(redisMessageHandlerActor, toFsAppsJsonChannel)
 
-  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(system, inJsonMsgBus), "redis-subscriber")
-
+  val redisSubscriberActor = system.actorOf(FSESLRedisSubscriberActor.props(system, inJsonMsgBus), "redis-subscriber")
 }

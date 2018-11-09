@@ -32,7 +32,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 Seq(Revolver.settings: _*)
-lazy val commonMessage = (project in file(".")).settings(name := "bbb-fsesl-client", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+lazy val bbbFSESLClient = (project in file(".")).settings(name := "bbb-fsesl-client", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 //-----------
 // Packaging
@@ -52,7 +52,7 @@ crossPaths := false
 // This forbids including Scala related libraries into the dependency
 autoScalaLibrary := false
 
-publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository")))
 
 //publishTo := {
 //  val nexus = "https://oss.sonatype.org/"
@@ -70,10 +70,10 @@ publishArtifact in Test := false
 
 // http://www.scala-sbt.org/release/docs/Artifacts.html
 // disable publishing the main API jar
-publishArtifact in (Compile, packageDoc) := false
+publishArtifact in(Compile, packageDoc) := false
 
 // disable publishing the main sources jar
-publishArtifact in (Compile, packageSrc) := false
+publishArtifact in(Compile, packageSrc) := false
 
 pomIncludeRepository := { _ => false }
 
@@ -82,14 +82,14 @@ pomExtra := (
     <url>git@github.com:bigbluebutton/bigbluebutton.git</url>
     <connection>scm:git:git@github.com:bigbluebutton/bigbluebutton.git</connection>
   </scm>
-  <developers>
-    <developer>
-      <id>ritzalam</id>
-      <name>Richard Alam</name>
-      <url>http://www.bigbluebutton.org</url>
-    </developer>
-  </developers>)
-  
+    <developers>
+      <developer>
+        <id>ritzalam</id>
+        <name>Richard Alam</name>
+        <url>http://www.bigbluebutton.org</url>
+      </developer>
+    </developers>)
+
 licenses := Seq("Apache License, Version 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
 homepage := Some(url("http://www.bigbluebutton.org"))

@@ -1,34 +1,39 @@
 package org.bigbluebutton.api2.endpoint.redis
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 import java.net.InetSocketAddress
 
 import akka.actor.SupervisorStrategy.Resume
-import akka.actor.{OneForOneStrategy, Props}
+import akka.actor.{ OneForOneStrategy, Props }
 import redis.api.servers.ClientSetname
 import redis.actors.RedisSubscriberActor
-import redis.api.pubsub.{Message, PMessage}
+import redis.api.pubsub.{ Message, PMessage }
 import scala.concurrent.duration._
 
-import org.bigbluebutton.api2.SystemConfiguration
-import org.bigbluebutton.api2.bus._
+import org.bigbluebutton.api2._
+import org.bigbluebutton.common2.redis._
+import org.bigbluebutton.common2.redis.RedisConfiguration
+import org.bigbluebutton.common2.bus._
 
-object AppsRedisSubscriberActor extends SystemConfiguration {
+object WebRedisSubscriberActor extends RedisSubscriber with RedisConfiguration {
 
   val channels = Seq(fromAkkaAppsRedisChannel)
   val patterns = Seq("bigbluebutton:from-bbb-apps:*")
 
   def props(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], jsonMsgBus, oldMessageEventBus,
+    Props(classOf[WebRedisSubscriberActor], jsonMsgBus, oldMessageEventBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
-                               redisPort: Int,
-                               channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
+class WebRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
+                              redisPort: Int,
+                              channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
+  extends RedisSubscriberActor(
+    new InetSocketAddress(redisHost, redisPort),
+    channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") })
+  with SystemConfiguration
+  with RedisAppSubscriberActor {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -39,7 +44,6 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
       Resume
     }
   }
-
 
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli
@@ -53,9 +57,10 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
     }
   }
 
-  def onPMessage(pmessage: PMessage) {
+  override def onPMessage(pmessage: PMessage) {
     log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
-    val receivedJsonMessage = new OldReceivedJsonMessage(pmessage.patternMatched,
+    val receivedJsonMessage = new OldReceivedJsonMessage(
+      pmessage.patternMatched,
       pmessage.channel, pmessage.data.utf8String)
 
     oldMessageEventBus.publish(OldIncomingJsonMessage(fromAkkaAppsOldJsonChannel, receivedJsonMessage))

@@ -1,17 +1,18 @@
 package org.bigbluebutton.client.endpoint.redis
 
-import akka.actor.{ActorLogging, OneForOneStrategy, Props}
+import akka.actor.{ ActorLogging, OneForOneStrategy, Props }
 import akka.actor.SupervisorStrategy.Resume
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 import java.net.InetSocketAddress
 
 import redis.actors.RedisSubscriberActor
-import redis.api.pubsub.{Message, PMessage}
+import redis.api.pubsub.{ Message, PMessage }
 
 import scala.concurrent.duration._
 import org.bigbluebutton.client._
-import org.bigbluebutton.client.bus.{JsonMsgFromAkkaApps, JsonMsgFromAkkaAppsBus, JsonMsgFromAkkaAppsEvent}
+import org.bigbluebutton.client.bus.{ JsonMsgFromAkkaApps, JsonMsgFromAkkaAppsBus, JsonMsgFromAkkaAppsEvent }
 import redis.api.servers.ClientSetname
+import org.bigbluebutton.common2.redis.RedisAppSubscriberActor
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
@@ -26,10 +27,11 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 
 class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, redisHost: String,
                                redisPort: Int,
-                               channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") })
-      with SystemConfiguration with ActorLogging {
+                               channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
+  extends RedisSubscriberActor(
+    new InetSocketAddress(redisHost, redisPort),
+    channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") })
+  with SystemConfiguration with ActorLogging with RedisAppSubscriberActor {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -40,7 +42,6 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, redisHost: St
       Resume
     }
   }
-
 
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli
@@ -53,10 +54,5 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, redisHost: St
       jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
     }
 
-  }
-
-  def onPMessage(pmessage: PMessage) {
-    // We don't use PSubscribe anymore, but an implementation of the method is required
-    log.error("Should not be receiving a PMessage. It triggered on a match of pattern: " + pmessage.patternMatched)
   }
 }

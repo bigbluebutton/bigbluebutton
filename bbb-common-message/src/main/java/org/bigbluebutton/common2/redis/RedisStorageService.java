@@ -31,7 +31,6 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.dynamic.RedisCommandFactory;
-import io.lettuce.core.output.StatusOutput;
 
 public class RedisStorageService {
 
