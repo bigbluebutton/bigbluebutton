@@ -3,6 +3,19 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
 
+Meteor.publish('current-poll', (meetingId) => {
+  check(meetingId, String);
+
+  const selector = {
+    meetingId,
+  };
+
+  Logger.info(`Publishing poll for meeting=${meetingId}`);
+
+  return Polls.find(selector);
+});
+
+
 function polls(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
