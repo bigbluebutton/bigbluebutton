@@ -21,6 +21,8 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'askForFeedbackOnLogout',
       // BRANDING
       'displayBrandingArea',
+      // SHORTCUTS
+      'shortcuts',
       // KURENTO
       'enableScreensharing',
       'enableVideo',

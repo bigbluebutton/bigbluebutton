@@ -5,6 +5,7 @@ const Logger = require('../utils/Logger');
 const EventEmitter = require('events').EventEmitter;
 const errors = require('../base/errors');
 const config = require('config');
+const LOG_PREFIX = '[base-provider]';
 
 module.exports = class BaseProvider extends EventEmitter {
   constructor () {
@@ -12,7 +13,31 @@ module.exports = class BaseProvider extends EventEmitter {
     this.sfuApp = "base";
   }
 
+  serverState (event) {
+    let code = null;
+    const { eventTag } = { ...event };
+    if (eventTag && eventTag.code) {
+      code = eventTag.code;
+    }
+
+    switch (code) {
+      case C.MEDIA_SERVER_OFFLINE:
+        Logger.error(LOG_PREFIX, "Provider received MEDIA_SERVER_OFFLINE event");
+        this.emit(C.MEDIA_SERVER_OFFLINE, event);
+        break;
+
+      default:
+        Logger.warn(LOG_PREFIX, "Unknown server state", event);
+    }
+  }
+
+
   _handleError (logPrefix, error, role, streamId) {
+    // Setting a default error in case it was unhandled
+    if (error == null) {
+      error = { code: 2200, reason: errors[2200] }
+    }
+
     if (this._validateErrorMessage(error)) {
       return error;
     }

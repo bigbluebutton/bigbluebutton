@@ -73,11 +73,13 @@ module.exports = class VideoManager extends BaseManager {
       case 'start':
         Logger.info(this._logPrefix, 'Received message [' + message.id + '] from connection ' + sessionId);
 
-        if (!video) {
-          video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
-
-          this._sessions[sessionId] = video;
+        if (video) {
+          await this._stopSession(sessionId);
         }
+
+        video = new Video(this._bbbGW, message.meetingId, message.cameraId, shared, message.connectionId);
+
+        this._sessions[sessionId] = video;
 
         try {
           const sdpAnswer = await video.start(message.sdpOffer);

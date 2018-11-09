@@ -148,6 +148,7 @@ class UserParticipants extends Component {
               removeUser,
               toggleVoice,
               changeRole,
+              getGroupChatPrivate,
             }}
             getScrollContainerRef={this.getScrollContainerRef}
           />

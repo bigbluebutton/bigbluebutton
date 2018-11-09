@@ -3,7 +3,7 @@
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
-    <porttest host="rtmp://HOST" application="video/portTest" timeout="10000"/>
+    <porttest host="rtmp://HOST" ipv4FallbackHost="" application="video/portTest" timeout="10000"/>
     <bwMon server="rtmp://HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" reconnWaitTime="2000" msgBusRed5="true"/>
     <language userSelectionEnabled="true"

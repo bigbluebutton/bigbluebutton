@@ -1,13 +1,14 @@
+<#ftl output_format="XML" auto_esc=true>
 <recordID>${r.getId()}</recordID>
 
 <#if r.getMeeting()??>
-    <meetingID>${r.getMeeting().getId()?html}</meetingID>
-    <externalMeetingID>${r.getMeeting().getExternalId()?html}</externalMeetingID>
-    <name>${r.getMeeting().getName()?html}</name>
+    <meetingID>${r.getMeeting().getId()}</meetingID>
+    <externalMeetingID>${r.getMeeting().getExternalId()}</externalMeetingID>
+    <name>${r.getMeeting().getName()}</name>
     <isBreakout>${r.getMeeting().isBreakout()?c}</isBreakout>
 <#else>
-    <meetingID>${r.getMeetingId()?html}</meetingID>
-    <name>${r.getMeetingName()?html}</name>
+    <meetingID>${r.getMeetingId()}</meetingID>
+    <name>${r.getMeetingName()}</name>
     <isBreakout>${r.isBreakout()?c}</isBreakout>
 </#if>
 
@@ -38,7 +39,7 @@
 <#assign m = r.getMeta().get()>
 <metadata>
     <#list m?keys as prop>
-        <${(prop)?html}>${((m[prop])?html)!""}</${(prop)?html}>
+        <${(prop)}>${((m[prop]))!""}</${(prop)}>
     </#list>
 </metadata>
 
@@ -64,7 +65,7 @@
                             <images>
                                 <#items as image>
                                     <#if image??>
-                                        <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()?html}">${image.getValue()!"Link not found."}</image>
+                                        <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()!"Link not found."}</image>
                                     </#if>
                                 </#items>
                             </images>

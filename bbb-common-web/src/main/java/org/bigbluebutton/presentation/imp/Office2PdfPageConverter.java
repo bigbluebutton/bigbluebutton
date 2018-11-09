@@ -69,7 +69,7 @@ public class Office2PdfPageConverter {
       logData.put("exception", e);
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.error("-- analytics -- {}", logStr);
+      log.error("-- analytics -- {}", logStr, e);
       return false;
     }
   }

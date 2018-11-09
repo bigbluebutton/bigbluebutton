@@ -70,6 +70,19 @@ module.exports = class ScreenshareManager extends BaseManager {
             this._stopSession(sessionId);
           });
 
+          // listen for presenter change to avoid inconsistent states on reconnection
+          if (role === C.SEND_ROLE) {
+            this._bbbGW.once(C.PRESENTER_ASSIGNED_2x+message.internalMeetingId, async (payload) => {
+              Logger.info(this._logPrefix, "Presenter changed, forcibly closing screensharing session at", message.internalMeetingId);
+              await this.closeSession(session, connectionId, role, sessionId);
+              this._bbbGW.publish(JSON.stringify({
+                connectionId: connectionId,
+                type: C.SCREENSHARE_APP,
+                id : 'close',
+              }), C.FROM_SCREENSHARE);
+            });
+          }
+
           Logger.info(this._logPrefix, "Sending startResponse to peer", sessionId, "for connection", session._id);
         }
         catch (error) {
@@ -101,17 +114,7 @@ module.exports = class ScreenshareManager extends BaseManager {
 
       case 'close':
         Logger.info(this._logPrefix, 'Connection ' + connectionId + ' closed');
-
-        if (session && session.constructor == Screenshare) {
-          if (role === C.SEND_ROLE && session) {
-            Logger.info(this._logPrefix, "Stopping presenter " + sessionId);
-            this._stopSession(sessionId);
-          }
-          if (role === C.RECV_ROLE && session) {
-            Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
-            session.stopViewer(message.connectionId);
-          }
-        }
+        this.closeSession(session, connectionId, role, sessionId);
         break;
 
       default:
@@ -120,6 +123,20 @@ module.exports = class ScreenshareManager extends BaseManager {
           ...errorMessage,
         }), C.FROM_SCREENSHARE);
         break;
+    }
+  }
+
+  async closeSession (session, connectionId, role, sessionId) {
+    if (session && session.constructor == Screenshare) {
+      if (role === C.SEND_ROLE && session) {
+        Logger.info(this._logPrefix, "Stopping presenter " + sessionId);
+        await this._stopSession(sessionId);
+        return;
+      }
+      if (role === C.RECV_ROLE && session) {
+        Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
+        await session.stopViewer(connectionId);
+      }
     }
   }
 };
