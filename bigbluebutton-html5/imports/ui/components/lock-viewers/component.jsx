@@ -59,7 +59,6 @@ const intlMessages = defineMessages({
   },
 });
 
-
 class LockViewersComponent extends Component {
   constructor(props) {
     super(props);
@@ -68,11 +67,11 @@ class LockViewersComponent extends Component {
       toggleLockSettings,
       toggleWebcamsOnlyForModerator,
     } = props;
+
     this.closeModal = closeModal;
     this.toggleLockSettings = toggleLockSettings;
     this.toggleWebcamsOnlyForModerator = toggleWebcamsOnlyForModerator;
   }
-
 
   render() {
     const { intl } = this.props;
@@ -96,28 +95,25 @@ class LockViewersComponent extends Component {
             onClick={this.closeModal}
           />
         </div>
-        <div className={styles.model}>
-          <div
-            className={styles.header}
-          >
+        <div className={styles.container}>
+          <div className={styles.header}>
             <div className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</div>
-
           </div>
           <div className={styles.description}>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
           </div>
           <br /><br />
           <div className={styles.form}>
-            <header className={styles.row}>
+            <header className={cx(styles.row, styles.subHeader)}>
               <div className={styles.bold}>{intl.formatMessage(intlMessages.featuresLable)}</div>
               <div className={styles.bold}>{intl.formatMessage(intlMessages.lockStatusLabel)}</div>
             </header>
             <div className={styles.row}>
               <div className={styles.col} aria-hidden="true">
                 <div className={styles.formElement}>
-                  <label className={styles.label}>
+                  <div className={styles.label}>
                     {intl.formatMessage(intlMessages.webcamLabel)}
-                  </label>
+                  </div>
                 </div>
               </div>
               <div className={styles.col}>
@@ -126,9 +122,10 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disableCam}
                     onChange={() => {
-                                            meeting.lockSettingsProp.disableCam = !meeting.lockSettingsProp.disableCam;
-                                            this.toggleLockSettings(meeting);
-                                        }}
+                      meeting.lockSettingsProp.disableCam =
+                        !meeting.lockSettingsProp.disableCam;
+                      this.toggleLockSettings(meeting);
+                    }}
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                   />
                 </div>
@@ -137,20 +134,21 @@ class LockViewersComponent extends Component {
             <div className={styles.row}>
               <div className={styles.col} aria-hidden="true">
                 <div className={styles.formElement}>
-                  <label className={styles.label}>
+                  <div className={styles.label}>
                     {intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
-                  </label>
+                  </div>
                 </div>
               </div>
               <div className={styles.col}>
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={false}
+                    defaultChecked={meeting.usersProp.webcamsOnlyForModerator}
                     onChange={() => {
-                                            meeting.usersProp.webcamsOnlyForModerator = !meeting.usersProp.webcamsOnlyForModerator;
-                                            this.toggleWebcamsOnlyForModerator(meeting);
-                                        }}
+                      meeting.usersProp.webcamsOnlyForModerator =
+                        !meeting.usersProp.webcamsOnlyForModerator;
+                      this.toggleWebcamsOnlyForModerator(meeting);
+                    }}
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
                   />
                 </div>
@@ -159,9 +157,9 @@ class LockViewersComponent extends Component {
             <div className={styles.row}>
               <div className={styles.col} aria-hidden="true">
                 <div className={styles.formElement}>
-                  <label className={styles.label}>
+                  <div className={styles.label}>
                     {intl.formatMessage(intlMessages.microphoneLable)}
-                  </label>
+                  </div>
                 </div>
               </div>
               <div className={styles.col}>
@@ -170,9 +168,10 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disableMic}
                     onChange={() => {
-                                            meeting.lockSettingsProp.disableMic = !meeting.lockSettingsProp.disableMic;
-                                            this.toggleLockSettings(meeting);
-                                        }}
+                      meeting.lockSettingsProp.disableMic =
+                        !meeting.lockSettingsProp.disableMic;
+                      this.toggleLockSettings(meeting);
+                    }}
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
                   />
                 </div>
@@ -181,9 +180,9 @@ class LockViewersComponent extends Component {
             <div className={styles.row}>
               <div className={styles.col} aria-hidden="true">
                 <div className={styles.formElement}>
-                  <label className={styles.label}>
+                  <div className={styles.label}>
                     {intl.formatMessage(intlMessages.publicChatLabel)}
-                  </label>
+                  </div>
                 </div>
               </div>
               <div className={styles.col}>
@@ -192,9 +191,10 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disablePubChat}
                     onChange={() => {
-                                            meeting.lockSettingsProp.disablePubChat = !meeting.lockSettingsProp.disablePubChat;
-                                            this.toggleLockSettings(meeting);
-                                        }}
+                      meeting.lockSettingsProp.disablePubChat =
+                        !meeting.lockSettingsProp.disablePubChat;
+                      this.toggleLockSettings(meeting);
+                    }}
                     ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
                   />
                 </div>
@@ -203,9 +203,9 @@ class LockViewersComponent extends Component {
             <div className={styles.row}>
               <div className={styles.col} aria-hidden="true">
                 <div className={styles.formElement}>
-                  <label className={styles.label}>
+                  <div className={styles.label}>
                     {intl.formatMessage(intlMessages.privateChatLable)}
-                  </label>
+                  </div>
                 </div>
               </div>
               <div className={styles.col}>
@@ -214,9 +214,10 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disablePrivChat}
                     onChange={() => {
-                                            meeting.lockSettingsProp.disablePrivChat = !meeting.lockSettingsProp.disablePrivChat;
-                                            this.toggleLockSettings(meeting);
-                                        }}
+                      meeting.lockSettingsProp.disablePrivChat =
+                        !meeting.lockSettingsProp.disablePrivChat;
+                      this.toggleLockSettings(meeting);
+                    }}
                     ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
                   />
                 </div>
@@ -225,9 +226,9 @@ class LockViewersComponent extends Component {
             <div className={styles.row}>
               <div className={styles.col} aria-hidden="true">
                 <div className={styles.formElement}>
-                  <label className={styles.label}>
+                  <div className={styles.label}>
                     {intl.formatMessage(intlMessages.layoutLable)}
-                  </label>
+                  </div>
                 </div>
               </div>
               <div className={styles.col}>
@@ -236,9 +237,10 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.lockedLayout}
                     onChange={() => {
-                                            meeting.lockSettingsProp.lockedLayout = !meeting.lockSettingsProp.lockedLayout;
-                                            this.toggleLockSettings(meeting);
-                                        }}
+                      meeting.lockSettingsProp.lockedLayout =
+                        !meeting.lockSettingsProp.lockedLayout;
+                      this.toggleLockSettings(meeting);
+                    }}
                     ariaLabel={intl.formatMessage(intlMessages.layoutLable)}
                   />
                 </div>

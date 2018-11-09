@@ -78,6 +78,7 @@ export default function addMeeting(meeting) {
     lockOnJoinConfigurable: false,
     lockedLayout: false,
   };
+
   const modifier = {
     $set: Object.assign(
       { meetingId },
