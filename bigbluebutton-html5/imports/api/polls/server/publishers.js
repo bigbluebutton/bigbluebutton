@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 Meteor.publish('current-poll', (meetingId) => {
   check(meetingId, String);
@@ -36,7 +35,7 @@ function polls(credentials) {
 
 function publish(...args) {
   const boundPolls = polls.bind(this);
-  return mapToAcl('subscriptions.polls', boundPolls)(args);
+  return boundPolls(...args);
 }
 
 Meteor.publish('polls', publish);

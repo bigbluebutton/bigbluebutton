@@ -2,7 +2,6 @@ import VoiceUsers from '/imports/api/voice-users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 function voiceUser(credentials) {
   const { meetingId, requesterUserId } = credentials;
@@ -17,7 +16,7 @@ function voiceUser(credentials) {
 
 function publish(...args) {
   const boundVoiceUser = voiceUser.bind(this);
-  return mapToAcl('subscriptions.voiceUser', boundVoiceUser)(args);
+  return boundVoiceUser(...args);
 }
 
 Meteor.publish('voiceUsers', publish);

@@ -149,7 +149,7 @@ class ActionsDropdown extends Component {
           onClick={toggleRecording}
         />
         : null),
-      (isUserPresenter && !meetingIsBreakout && !hasBreakoutRoom ?
+      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
         <DropdownListItem
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}

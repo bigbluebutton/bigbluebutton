@@ -23,6 +23,10 @@ const intlMessage = defineMessages({
     id: 'app.error.meeting.ended',
     description: 'user logged conference',
   },
+  'acl-not-allowed': {
+    id: 'app.error.removed',
+    description: 'Message to display when user is removed from the conference',
+  },
   messageEnded: {
     id: 'app.meeting.endedMessage',
     description: 'message saying to go back to home screen',
