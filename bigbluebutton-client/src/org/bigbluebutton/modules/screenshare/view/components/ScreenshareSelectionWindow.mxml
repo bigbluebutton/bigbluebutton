@@ -136,7 +136,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Button id="btnWebrtc" buttonMode="true" styleName="btnScreenshareSelectStyle" width="140" height="140"
 						   click="onWebrtcClick()"
 						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.webrtc.label2')}"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.label')}"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnWebrtc.accessibilityName')}" />
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.webrtc.label1')}"
 						  styleName="screenshareTypeTitle" />
@@ -145,7 +145,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Button id="btnJava" width="140" height="140" buttonMode="true" styleName="btnScreenshareSelectStyle"
 						   click="onJavaClick()"
 						   label="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.java.label2')}"
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.label')}"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.btnJava.accessibilityName')}" />
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.screenshareSelection.java.label1')}"
 						  styleName="screenshareTypeTitle" />

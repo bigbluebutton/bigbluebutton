@@ -127,7 +127,7 @@ public class OfficeToPdfConversionService {
     try {
       officeManager.start();
     } catch (OfficeException e) {
-      log.error(e.getMessage());
+      log.error("Could not start Office Manager", e);
     }
 
   }
@@ -136,7 +136,7 @@ public class OfficeToPdfConversionService {
     try {
       officeManager.stop();
     } catch (OfficeException e) {
-      log.error(e.getMessage());
+      log.error("Could not stop Office Manager", e);
     }
 
   }

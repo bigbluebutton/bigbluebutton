@@ -119,7 +119,6 @@
     line-height: 1.5;
     text-align: center;
     white-space: nowrap;
-    vertical-align: middle;
   }
 
   .buttonWrapper.sm & {
@@ -231,7 +230,6 @@
 .danger {
   @include button-variant(var(--btn-danger-color), var(--btn-danger-bg), var(--btn-danger-border));
 }
-
 
 /* Styles
  * ==========

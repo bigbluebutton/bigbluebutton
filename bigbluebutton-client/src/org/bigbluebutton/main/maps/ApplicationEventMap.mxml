@@ -45,11 +45,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</EventHandlers>
 	
 		<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
-			<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.tunnel}" />
+			<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event}" />
 		</EventHandlers>
 		
 		<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
-			<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.tunnel}" />
+			<MethodInvoker generator="{ModulesProxy}" method="portTestFailed" arguments="{event}" />
 		</EventHandlers>
 	
 	  <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
@@ -152,6 +152,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<MethodInvoker generator="{LogoutManager}" method="handleLogoutOnStopRecording" arguments="{event}"/>
 		</EventHandlers>
 		
+		<EventHandlers type="{BBBEvent.GET_LOCK_SETTINGS_EVENT}" >
+			<MethodInvoker generator="{UserService}" method="getLockSettings"/>
+		</EventHandlers>
 	</fx:Declarations>
 
 	<fx:Script>

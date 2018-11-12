@@ -69,10 +69,9 @@ const config = require('config');
         STOP_TRANSCODER_RESP_2x: "StopTranscoderSysRespMsg",
         GLOBAL_AUDIO_CONNECTED_2x: "UserConnectedToGlobalAudioMsg",
         GLOBAL_AUDIO_DISCONNECTED_2x: "UserDisconnectedFromGlobalAudioMsg",
-        // TODO: Check if this is the correct message in BBB 2.x
         DICONNECT_ALL_USERS_2x: "DisconnectAllClientsSysMsg",
-
         USER_CAM_BROADCAST_STOPPED_2x: "UserBroadcastCamStopMsg",
+        PRESENTER_ASSIGNED_2x: "PresenterAssignedEvtMsg",
 
         STREAM_IS_RECORDED: "StreamIsRecordedMsg",
 

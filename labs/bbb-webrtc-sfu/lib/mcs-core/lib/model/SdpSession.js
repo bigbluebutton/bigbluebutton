@@ -93,7 +93,7 @@ module.exports = class SdpSession extends MediaSession {
   }
 
     _hasAvailableCodec () {
-    return (this._offer.hasAvailableVideoCodec() === this._answer.hasAvailableVideoCodec()) &&
-      (this._offer.hasAvailableAudioCodec() === this._answer.hasAvailableAudioCodec());
+    return (this._offer.hasAvailableVideoCodec() && this._answer.hasAvailableVideoCodec()) ||
+      (this._offer.hasAvailableAudioCodec() && this._answer.hasAvailableAudioCodec());
   }
 }

@@ -37,6 +37,7 @@ Meteor.startup(() => {
       Session.set('isChatOpen', false);
       Session.set('idChatOpen', '');
       Session.set('isMeetingEnded', false);
+      Session.set('isPollOpen', false);
       Session.get('breakoutRoomIsOpen', false);
       render(<Base />, document.getElementById('app'));
     });

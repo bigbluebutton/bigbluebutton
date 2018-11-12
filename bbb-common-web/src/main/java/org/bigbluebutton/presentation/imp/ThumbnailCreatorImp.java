@@ -61,7 +61,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     try {
       success = generateThumbnails(thumbsDir, pres);
     } catch (InterruptedException e) {
-      log.warn("Interrupted Exception while generating thumbnails.");
+      log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
       success = false;
     }
 
@@ -165,7 +165,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     try {
       FileUtils.copyFile(new File(BLANK_THUMBNAIL), thumb);
     } catch (IOException e) {
-      log.error("IOException while copying blank thumbnail.");
+      log.error("IOException while copying blank thumbnail.", e);
     }
   }
 

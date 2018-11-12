@@ -29,7 +29,15 @@ module.exports = class WebsocketConnectionManager {
     const connectionId = data? data.connectionId : null;
     const ws = this.webSockets[connectionId];
     if (ws) {
-      this.sendMessage(ws, data);
+      if (data.id === 'close') {
+        try {
+          ws.close();
+        } catch (err) {
+          Logger.warn('[WebsocketConnectionManager] Error on closing WS for', connectionId,  err)
+        }
+      } else {
+        this.sendMessage(ws, data);
+      }
     }
   }
 

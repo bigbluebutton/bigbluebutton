@@ -1971,8 +1971,7 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-          true /* default presentation */);
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
     } else {
       log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
@@ -1981,14 +1980,22 @@ class ApiController {
 
         if ("presentation".equals(module.@name.toString())) {
           // need to iterate over presentation files and process them
+          Boolean current = true;
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), true /* default presentation */);
+              def fileName;
+              if (!StringUtils.isEmpty(document.@filename.toString())) {
+                  log.debug("user provided filename: [${module.@filename}]");
+                  fileName = document.@filename.toString();
+              }
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
+              current = false;
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), true /* default presentation */);
+                      conf.getInternalId(), current /* default presentation */);
+              current = false;
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
@@ -2002,7 +2009,7 @@ class ApiController {
     def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
     def presId = Util.generatePresentationId(presFilename)
-    File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId)
+    File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId)
     if (uploadDir != null) {
       def newFilename = Util.createNewFilename(presId, filenameExt)
       def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename);
@@ -2018,9 +2025,15 @@ class ApiController {
 
   }
 
-  def downloadAndProcessDocument(address, meetingId, current) {
-    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
-    String presFilename = address.tokenize("/")[-1];
+  def downloadAndProcessDocument(address, meetingId, current, fileName) {
+    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
+    String presFilename;
+    if (StringUtils.isEmpty(fileName)) {
+        presFilename = address.tokenize("/")[-1];
+    } else {
+        presFilename = fileName;
+    }
+    
     def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
 
@@ -2035,7 +2048,7 @@ class ApiController {
         // Hardcode pre-uploaded presentation to the default presentation window
         processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
       } else {
-        log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
+        log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
       }
     }
   }

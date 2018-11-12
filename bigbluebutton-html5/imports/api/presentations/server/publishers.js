@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 function presentations(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -18,7 +17,7 @@ function presentations(credentials) {
 
 function publish(...args) {
   const boundPresentations = presentations.bind(this);
-  return mapToAcl('subscriptions.presentations', boundPresentations)(args);
+  return boundPresentations(...args);
 }
 
 Meteor.publish('presentations', publish);

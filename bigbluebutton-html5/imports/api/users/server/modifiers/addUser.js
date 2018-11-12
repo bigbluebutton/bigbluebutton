@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
+import VoiceUsers from '/imports/api/voice-users/';
 
 import stringHash from 'string-hash';
 import flat from 'flat';
@@ -83,18 +84,21 @@ export default function addUser(meetingId, user) {
     ),
   };
 
-  addVoiceUser(meetingId, {
-    voiceUserId: '',
-    intId: userId,
-    callerName: user.name,
-    callerNum: '',
-    muted: false,
-    talking: false,
-    callingWith: '',
-    listenOnly: false,
-    voiceConf: '',
-    joined: false,
-  });
+  // Only add an empty VoiceUser if there isn't one already. We want to avoid overwriting good data
+  if (!VoiceUsers.findOne({ meetingId, intId: userId })) {
+    addVoiceUser(meetingId, {
+      voiceUserId: '',
+      intId: userId,
+      callerName: user.name,
+      callerNum: '',
+      muted: false,
+      talking: false,
+      callingWith: '',
+      listenOnly: false,
+      voiceConf: '',
+      joined: false,
+    });
+  }
 
   const cb = (err, numChanged) => {
     if (err) {

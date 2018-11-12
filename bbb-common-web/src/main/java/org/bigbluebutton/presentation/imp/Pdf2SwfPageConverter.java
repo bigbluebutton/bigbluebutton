@@ -40,16 +40,15 @@ import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 
 public class Pdf2SwfPageConverter implements PageConverter {
-  private static Logger log = LoggerFactory
-      .getLogger(Pdf2SwfPageConverter.class);
+    private static Logger log = LoggerFactory.getLogger(Pdf2SwfPageConverter.class);
 
-  private String SWFTOOLS_DIR;
-  private String fontsDir;
-  private long placementsThreshold;
-  private long defineTextThreshold;
-  private long imageTagThreshold;
-  private String convTimeout = "7s";
-  private int WAIT_FOR_SEC = 7;
+    private String SWFTOOLS_DIR;
+    private String fontsDir;
+    private long placementsThreshold;
+    private long defineTextThreshold;
+    private long imageTagThreshold;
+    private String convTimeout = "7s";
+    private int WAIT_FOR_SEC = 7;
 
   public boolean convert(File presentation, File output, int page,
       UploadedPresentation pres) {
@@ -77,7 +76,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
     try {
       process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
-      log.error(e.getMessage());
+      log.error("InterruptedException while creating SWF {}", pres.getName(), e);
     }
 
     long pdf2SwfEnd = System.currentTimeMillis();
@@ -134,7 +133,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
         logData.put("message", "Unable to create temporary files");
         gson = new Gson();
         logStr = gson.toJson(logData);
-        log.error("-- analytics -- {}", logStr);
+        log.error("-- analytics -- {}", logStr, ioException);
       }
 
       // long pdfStart = System.currentTimeMillis();
@@ -153,7 +152,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       try {
         processPng.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
-        log.error(e.getMessage());
+        log.error("InterruptedException while creating temporary PNG {}", pres.getName(), e);
       }
 
       //long pdfEnd = System.currentTimeMillis();
@@ -173,7 +172,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       try {
         processSwf.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
-        log.error(e.getMessage());
+          log.error("InterruptedException while creating SWF {}", pres.getName(), e);
       }
 
       //long png2swfEnd = System.currentTimeMillis();
@@ -215,23 +214,23 @@ public class Pdf2SwfPageConverter implements PageConverter {
     }
   }
 
-  public void setSwfToolsDir(String dir) {
-    SWFTOOLS_DIR = dir;
-  }
+    public void setSwfToolsDir(String dir) {
+        SWFTOOLS_DIR = dir;
+    }
 
-  public void setFontsDir(String dir) {
-    fontsDir = dir;
-  }
+    public void setFontsDir(String dir) {
+        fontsDir = dir;
+    }
 
-  public void setPlacementsThreshold(long threshold) {
-    placementsThreshold = threshold;
-  }
+    public void setPlacementsThreshold(long threshold) {
+        placementsThreshold = threshold;
+    }
 
-  public void setDefineTextThreshold(long threshold) {
-    defineTextThreshold = threshold;
-  }
+    public void setDefineTextThreshold(long threshold) {
+        defineTextThreshold = threshold;
+    }
 
-  public void setImageTagThreshold(long threshold) {
-    imageTagThreshold = threshold;
-  }
+    public void setImageTagThreshold(long threshold) {
+        imageTagThreshold = threshold;
+    }
 }
