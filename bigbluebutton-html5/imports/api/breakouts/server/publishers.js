@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import mapToAcl from '/imports/startup/mapToAcl';
 import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 
@@ -32,7 +31,7 @@ function breakouts(credentials) {
 
 function publish(...args) {
   const boundBreakouts = breakouts.bind(this);
-  return mapToAcl('subscriptions.breakouts', boundBreakouts)(args);
+  return boundBreakouts(...args);
 }
 
 Meteor.publish('breakouts', publish);

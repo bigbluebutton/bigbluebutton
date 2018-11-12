@@ -56,6 +56,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopRecording',
     description: 'stop recording option',
   },
+  pollBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
+    description: 'poll menu toggle button label',
+  },
+  pollBtnDesc: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
+    description: 'poll menu toggle button description',
+  },
   createBreakoutRoom: {
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoom',
     description: 'Create breakout room option',
@@ -77,6 +85,7 @@ class ActionsDropdown extends Component {
     this.presentationItemId = _.uniqueId('action-item-');
     this.videoItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
+    this.pollId = _.uniqueId('action-item-');
     this.createBreakoutRoomId = _.uniqueId('action-item-');
   }
 
@@ -97,12 +106,21 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
+      togglePollMenu,
       meetingIsBreakout,
       hasBreakoutRoom,
-      meetingName,
     } = this.props;
 
     return _.compact([
+      (isUserPresenter ?
+        <DropdownListItem
+          icon="user"
+          label={intl.formatMessage(intlMessages.pollBtnLabel)}
+          description={intl.formatMessage(intlMessages.pollBtnDesc)}
+          key={this.pollId}
+          onClick={() => togglePollMenu()}
+        />
+        : null),
       (isUserPresenter ?
         <DropdownListItem
           icon="presentation"
@@ -123,7 +141,7 @@ class ActionsDropdown extends Component {
           onClick={toggleRecording}
         />
         : null),
-      (isUserPresenter && !meetingIsBreakout && !hasBreakoutRoom ?
+      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
         <DropdownListItem
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}

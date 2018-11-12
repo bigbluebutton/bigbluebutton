@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.layout.managers
   import flash.events.TimerEvent;
   import flash.net.FileReference;
   import flash.utils.Timer;
+  import flash.utils.setTimeout;
   
   import mx.controls.Alert;
   import mx.core.FlexGlobals;
@@ -48,6 +49,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
@@ -89,7 +91,7 @@ package org.bigbluebutton.modules.layout.managers
         applyLayout(currentLayout);
       });
     }
-    
+	
     /**
      *  There's a race condition when the layouts combo doesn't get populated 
      *  with the server's layouts definition. The problem is that sometimes 
@@ -398,17 +400,16 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function checkPermissionsOverWindow(window:MDIWindow):void {
-			if (UsersUtil.amIModerator()) return;
-			if (window != null && !LayoutDefinition.ignoreWindow(window)) {
+			if (!UsersUtil.amIModerator() && window != null && !LayoutDefinition.ignoreWindow(window)) {
 				(window as CustomMdiWindow).unlocked = !_locked;
 			}
 		}
 
 		private function checkPermissionsOverAllWindows():void {
-			if (UsersUtil.amIModerator()) return;
-			if (_canvas == null || _canvas.windowManager == null) return;
-			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
-				checkPermissionsOverWindow(window);
+			if (!UsersUtil.amIModerator() && _canvas && _canvas.windowManager) {
+				for each (var window:MDIWindow in _canvas.windowManager.windowList) {
+					checkPermissionsOverWindow(window);
+				}
 			}
 		}
 

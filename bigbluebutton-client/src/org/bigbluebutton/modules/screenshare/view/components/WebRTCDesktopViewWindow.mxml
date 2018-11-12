@@ -26,7 +26,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:common="org.bigbluebutton.common.*"
 	xmlns:ss="org.bigbluebutton.modules.screenshare.view.components.*"
 	width="600" height="400"
-	initialize="init()"
 	layout="absolute"
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off"
@@ -46,11 +45,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Script>
 		<![CDATA[
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import mx.core.ScrollPolicy;
 			import mx.core.UIComponent;
 			import mx.utils.ObjectUtil;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -92,11 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable] private var baseIndex:int;
 
-			[Bindable] private var dsOptions:ScreenshareOptions;
-			
-			private function init():void {
-				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
-			}
+			[Bindable] private var dsOptions:ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 			
 			private function resizeVideoCanvas():void {
 				videoCanvas.width = this.width - VIDEO_WIDTH_PADDING;
@@ -149,17 +144,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// values will be in the meta data
 				streamWidth = width;
 				streamHeight = height;
-
-				var myArray :Array = rtmp.split('/');
-				// myArray.forEach ( function ( item:*, i:int, arr:Array) : void { JSLog.debug("^^^^" + i +"aa=" + item, logData); } );
-
-				streamID = myArray[5]; // Grab the streamID from the end of the rtmp string
-				var videoURL:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
-
-				connect(videoURL);
+				
+				connect(rtmp);
 			}
 
-			public function connect(rtmpUrl: String):void {
+			public function connect(streamURL: String):void {
 				if (nc) {
 					nc.removeEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 					nc.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
@@ -167,11 +156,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				nc = new NetConnection();
 				
-				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<serverAndApp>.+)/;
-				var result:Array = pattern.exec(rtmpUrl);
+				var videoURLPattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>[^\/]+)\/(?P<app>[^\/]+\/[^\/]+)\/(?P<stream>[^\/]+)/;
+				var videoURLResult:Array = videoURLPattern.exec(streamURL);
+				var protocolPattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>[^\/]+)\/(?P<app>[^\/]+)/;
+				var protocolURLResult:Array = protocolPattern.exec(dsOptions.uri);
 				
-				var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+				streamID = videoURLResult.stream;
+				
+				var useRTMPS: Boolean = protocolURLResult.protocol == ConnUtil.RTMPS;
 				var ssAppUrl: String = null;
+				
+				var hostName:String = BBB.initConnectionManager().hostToUse;
 				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
@@ -180,8 +175,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						tunnelProtocol = ConnUtil.RTMPS;
 					}
 					
-					
-					ssAppUrl = tunnelProtocol + "://" + result.serverAndApp;
+					ssAppUrl = tunnelProtocol + "://" + hostName + "/" + videoURLResult.app;
 					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = TRUE " + "url=" +  ssAppUrl);
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
@@ -190,7 +184,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						nativeProtocol = ConnUtil.RTMPS;
 					}
 				
-					ssAppUrl = nativeProtocol + "://" + result.serverAndApp;
+					ssAppUrl = nativeProtocol + "://" + hostName + "/" + videoURLResult.app;
 					LOGGER.debug("WEBRTC SSHARE CONNECT tunnel = FALSE " + "url=" +  ssAppUrl);
 				}
 				

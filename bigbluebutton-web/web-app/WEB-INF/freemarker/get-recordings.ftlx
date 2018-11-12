@@ -1,3 +1,4 @@
+<#ftl output_format="XML" auto_esc=true>
 <#compress>
 <response>
     <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
@@ -7,7 +8,7 @@
             <recording>
                 <#if r.hasError()>
                     <error>
-                        <recordID>${r.getMetadataXml()?html}</recordID>
+                        <recordID>${r.getMetadataXml()}</recordID>
                     </error>
                 <#else>
                     <#include "include-recording.ftlx">

@@ -19,6 +19,31 @@ object Users2x {
     users.remove(intId)
   }
 
+  def setUserLeftFlag(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.copy(userLeftFlag = UserLeftFlag(true, System.currentTimeMillis()))
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def resetUserLeftFlag(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def findAllExpiredUserLeftFlags(users: Users2x): Vector[UserState] = {
+    users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
+      System.currentTimeMillis() - u.userLeftFlag.leftOn > 10000)
+  }
+
   def numUsers(users: Users2x): Int = {
     users.toVector.length
   }
@@ -213,6 +238,8 @@ class Users2x {
 
 case class OldPresenter(userId: String, changedPresenterOn: Long)
 
+case class UserLeftFlag(left: Boolean, leftOn: Long)
+
 case class UserState(
   intId:            String,
   extId:            String,
@@ -227,7 +254,9 @@ case class UserState(
   avatar:           String,
   roleChangedOn:    Long    = System.currentTimeMillis(),
   lastActivityTime: Long    = TimeUtil.timeNowInMs(),
-  clientType:       String)
+  clientType:       String,
+  userLeftFlag: UserLeftFlag)
+
 
 case class UserIdAndName(id: String, name: String)
 

@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import PresentationPods from '/imports/api/presentation-pods';
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 function presentationPods(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -18,7 +17,7 @@ function presentationPods(credentials) {
 
 function publish(...args) {
   const boundPresentationPods = presentationPods.bind(this);
-  return mapToAcl('subscriptions.presentation-pods', boundPresentationPods)(args);
+  return boundPresentationPods(...args);
 }
 
 Meteor.publish('presentation-pods', publish);

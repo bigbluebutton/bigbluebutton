@@ -1,12 +1,18 @@
+# Websocket URL under which kurento is listening
 kurentoUrl: "ws://HOST/kurento"
+# The external IP of the host where Kurento is located
 kurentoIp: ""
+# The external IP of the host where Red5/BBB is located. Used for the RTMP url
 localIpAddress: ""
 acceptSelfSignedCertificate: false
 redisHost : "127.0.0.1"
 redisPort : "6379"
+# Port under which bbb-webrtc-sfu serves client
 clientPort : "3008"
+# The following UDP port boundary is related to the ports ffmpeg can use to generate the RTMP stream
 minVideoPort: 30000
 maxVideoPort: 33000
+# Timeout (ms) that triggers a failure when no media has reached the server
 mediaFlowTimeoutDuration: 5000
 from-screenshare: "from-screenshare-sfu"
 to-screenshare: "to-screenshare-sfu"
@@ -17,15 +23,24 @@ to-audio: "to-audio-sfu"
 to-akka: "to-akka-apps-redis-channel"
 from-akka: "from-akka-apps-redis-channel"
 common-message-version: "2.x"
+# FORCES H.264 for webcams. Endpoints without H.264 WILL NOT WORK.
+# Disabling it will make the process go untouched and may cause transcoding.
 webcam-force-h264: true
+# Preferred H.264 profile-level-id for webcams. Forces everyone to use CB
 webcam-preferred-h264-profile: "42e01f"
 # Target bitrate (kbps) for webcams. Value 0 leaves it unconstrained.
 webcam-target-bitrate: 300
+# FORCES H.264 for screenshare. Endpoints without H.264 WILL NOT WORK.
+# Disabling it will make the process go untouched and may cause transcoding.
 screenshare-force-h264: true
+# Preferred H.264 profile-level-id for screenshare. Forces everyone to use CB
 screenshare-preferred-h264-profile: "42e01f"
+# Base interval for keyframe requsitions to the screenshare streamer
 screenshareKeyframeInterval: 2
 # Target bitrate (kbps) for screenshare. Value 0 leaves it unconstrained.
 screenshare-target-bitrate: 0
+# Size of the websocket pool SFU uses to connect to Kurento.
+kurento-websocket-pool-size: 1
 
 recordScreenSharing: true
 recordWebcams: false
@@ -36,10 +51,12 @@ recordingFormat: 'mkv'
 
 redisExpireTime: 1209600 # 14 days as per the akka keys
 
+# Used for the listen only bridge. The IP MUST be the one where FS is binded to
 freeswitch:
     ip: 'FREESWITCH_IP'
     port: '5066'
 
+# Log levels, in order of specificity: info, warn, verbose, debug, trace
 log:
     filename: '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log'
     level: 'verbose'

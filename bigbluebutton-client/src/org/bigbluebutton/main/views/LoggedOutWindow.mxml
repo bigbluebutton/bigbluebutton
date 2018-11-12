@@ -176,6 +176,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case InvalidAuthTokenEvent.INVALID_AUTH_TOKEN:
 						message = ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken')
 						break;  
+					default:
+						message = reason;
 				}
 				if (message && UsersUtil.isBreakout()) {
 					message += "\n" + ResourceUtil.getInstance().getString('bbb.logout.breakoutRoomClose');
