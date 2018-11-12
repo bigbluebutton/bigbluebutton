@@ -38,7 +38,7 @@ const requestJoinURL = (breakoutId) => {
 
 const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transferUser', fromMeetingId, toMeetingId);
 
-const transferToBreakout = (fromMeetingId, breakoutId) => {
+const transferToBreakout = (breakoutId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
   const breakoutMeeting = Meetings.findOne({
@@ -48,7 +48,7 @@ const transferToBreakout = (fromMeetingId, breakoutId) => {
       { 'meetingProp.isBreakout': true },
     ],
   });
-  transferUserToMeeting(fromMeetingId, breakoutMeeting.meetingId);
+  transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
 };
 
 const isPresenter = () => {
@@ -63,6 +63,7 @@ const isModerator = () => {
   return mappedUser.isModerator;
 };
 
+
 const closeBreakoutPanel = () => Session.set('breakoutRoomIsOpen', false);
 
 export default {
@@ -72,7 +73,7 @@ export default {
   breakoutRoomUser,
   transferUserToMeeting,
   transferToBreakout,
-  meetingId: Auth.meetingID,
+  meetingId: () => Auth.meetingID,
   isPresenter,
   closeBreakoutPanel,
   isModerator,

@@ -99,10 +99,6 @@ public:
     enableVideoStats: false
     enableListenOnly: false
     autoShareWebcam: false
-  breakout:
-    rooms:
-      min: 2
-      max: 8
   poll:
     max_custom: 5
   chat:
