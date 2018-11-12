@@ -2,7 +2,6 @@ import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 function whiteboardMultiUser(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -16,7 +15,7 @@ function whiteboardMultiUser(credentials) {
 
 function publish(...args) {
   const boundMultiUser = whiteboardMultiUser.bind(this);
-  return mapToAcl('subscriptions.whiteboard-multi-user', boundMultiUser)(args);
+  return boundMultiUser(...args);
 }
 
 Meteor.publish('whiteboard-multi-user', publish);
