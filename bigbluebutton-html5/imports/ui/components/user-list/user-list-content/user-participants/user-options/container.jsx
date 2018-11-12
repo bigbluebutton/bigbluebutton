@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import mapUser from '/imports/ui/services/user/mapUser';
 import Users from '/imports/api/users/';
@@ -27,7 +26,6 @@ export default class UserOptionsContainer extends Component {
 
     this.muteMeeting = this.muteMeeting.bind(this);
     this.muteAllUsersExceptPresenter = this.muteAllUsersExceptPresenter.bind(this);
-    this.handleLockView = this.handleLockView.bind(this);
     this.handleClearStatus = this.handleClearStatus.bind(this);
   }
 
@@ -43,11 +41,6 @@ export default class UserOptionsContainer extends Component {
     const currentUser = Users.findOne({ userId: Auth.userID });
 
     muteAllExceptPresenter(currentUser.userId);
-  }
-
-  handleLockView() {
-    
-    logger.info('handleLockView function');
   }
 
   handleClearStatus() {
@@ -72,7 +65,6 @@ export default class UserOptionsContainer extends Component {
         <UserOptions
           toggleMuteAllUsers={this.muteMeeting}
           toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
-          toggleLockView={this.handleLockView}
           toggleStatus={this.handleClearStatus}
           isMeetingMuted={this.state.meetingMuted}
         /> : null

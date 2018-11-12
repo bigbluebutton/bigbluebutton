@@ -20,7 +20,6 @@ const propTypes = {
   toggleMuteAllUsers: PropTypes.func.isRequired,
   toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
   toggleStatus: PropTypes.func.isRequired,
-  toggleLockView: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -85,7 +84,7 @@ class UserOptions extends Component {
 
   componentWillMount() {
     const { intl, isMeetingMuted, mountModal } = this.props;
-    
+
     this.menuItems = _.compact([
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
