@@ -157,6 +157,11 @@ public:
       - setPresentation
       - zoomSlide
       - requestPresentationUploadToken
+      - startPoll
+      - stopPoll
+      - publishPoll
+  poll:	
+    max_custom: 5
   chat:
     min_message_length: 1
     max_message_length: 5000
