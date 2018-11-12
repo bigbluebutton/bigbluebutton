@@ -93,6 +93,7 @@ class ActionsDropdown extends Component {
   componentDidMount() {
     if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
       getFromUserSettings('outsideToggleRecording', false)) {
+      ActionBarService.connectRecordingObserver();
       window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
     }
   }

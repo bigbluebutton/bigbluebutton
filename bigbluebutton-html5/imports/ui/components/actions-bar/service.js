@@ -5,16 +5,31 @@ import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 
 const processOutsideToggleRecording = (e) => {
-  if (e.data === 'c_record') {
-    const newRecordingState = Meetings.findOne({ meetingId: Auth.meetingID }).recordProp.recording;
-    makeCall('toggleRecording')
-      .then(() => {
-        this.window.parent.postMessage({ response: { newRecordingState } }, '*');
-      });
+  switch (e.data) {
+    case 'c_record': {
+      makeCall('toggleRecording');
+      break;
+    }
+    case 'c_recording_status': {
+      const recordingState = Meetings.findOne({ meetingId: Auth.meetingID }).recordProp.recording;
+      const recordingMessage = recordingState ? 'recordingStarted' : 'recordingStopped';
+      this.window.parent.postMessage({ response: recordingMessage }, '*');
+      break;
+    }
+    default: {
+      // console.log(e.data);
+    }
   }
 };
 
+const connectRecordingObserver = () => {
+  // notify on load complete
+  this.window.parent.postMessage({ response: 'readyToConnect' }, '*');
+};
+
+
 export default {
+  connectRecordingObserver: () => connectRecordingObserver(),
   isUserPresenter: () => Users.findOne({ userId: Auth.userID }).presenter,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
   recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,

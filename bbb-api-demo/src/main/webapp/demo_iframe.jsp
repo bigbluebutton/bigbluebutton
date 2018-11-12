@@ -134,12 +134,29 @@ if (request.getParameterMap().isEmpty()) {
 %>
 
 <script language="javascript" type="text/javascript">
+	var recButton = document.createElement("button");
+	var muteButton = document.createElement("button");
+
         //EventListener(Getting message from iframe)
         window.addEventListener('message', function(e) {
-		console.error('message: ', e);
-                document.getElementById("output-content").innerHTML = JSON.stringify(e.data.response);
-                // document.getElementById("output-content").innerHTML = e.data.response;
+		handleMessage(e.data.response);
         });
+
+	function handleMessage(e) {
+		switch(e) {
+		  case 'readyToConnect': {
+		     console.error('readdddy');
+                     // get initial state
+                     getInitialState(); break; }
+		  case 'recordingStarted': { console.log('1'); recButton.innerHTML = "Stop Recording"; break;}
+		  case 'recordingStopped': { console.log('2'); recButton.innerHTML = "Start Recording"; break;}
+		  case 'selfMuted': { console.log('3'); muteButton.innerHTML = "Unmute me"; break;}
+		  case 'selfUnmuted': { console.log('4'); muteButton.innerHTML = "Mute me"; break;}
+		  default: console.log('neither', { e } );
+		}
+
+
+	}
 
         /********************functions for the controls************************/
         //Toggle Recording
@@ -153,9 +170,14 @@ if (request.getParameterMap().isEmpty()) {
         }
         ///////////////////////////////////////////////////////////////////////
 
-        //Clean up the body node before loading controls and the client
-        console.log("Join URL = <%=joinURL%>");
+	function getInitialState() {
+		console.log('getting initial state');
+		document.getElementById("client-content").contentWindow.postMessage("c_recording_status","*");
+	}
 
+        ///////////////////////////////////////////////////////////////////////
+
+        //Clean up the body node before loading controls and the client
         document.body.innerHTML = "";
 
         //Node for the Client
@@ -164,9 +186,12 @@ if (request.getParameterMap().isEmpty()) {
 
         var clientContent = document.createElement("iframe");
         clientContent.setAttribute("id","client-content");
-        clientContent.setAttribute("src","<%=joinURL%>");
+        // clientContent.setAttribute("src","<%=joinURL%>");
         // clientContent.setAttribute("src","https://MYDOMAIN.com/demo/demoHTML5.jsp");
         // clientContent.setAttribute("allow","microphone https://MYDOMAIN.com; camera https://MYDOMAIN.com");
+	clientContent.setAttribute("src","https://anton22.blindside-dev.com/demo/demoHTML5.jsp");
+        clientContent.setAttribute("allow","microphone https://anton22.blindside-dev.com; camera https://anton22.blindside-dev.com");
+
 
         client.appendChild(clientContent);
 
@@ -178,15 +203,13 @@ if (request.getParameterMap().isEmpty()) {
 
         /****************** Controls *****************************/
         //Node for the control which controls recording functionality of the html5Client
-        var recButton = document.createElement("button");
-        recButton.innerHTML = "Start/Stop Recording";
         recButton.setAttribute("onClick","recToggle();");
 
         controls.appendChild(recButton);
 
 
-	var muteButton = document.createElement("button");
-        muteButton.innerHTML = "Toggle mute";
+	// var muteButton = document.createElement("button");
+        // muteButton.innerHTML = "Toggle mute";
         muteButton.setAttribute("onClick","muteToggle();");
 
         controls.appendChild(muteButton);
@@ -200,10 +223,15 @@ if (request.getParameterMap().isEmpty()) {
 
         var outputContent = document.createElement("textarea");
         outputContent.setAttribute("id","output-content");
-        outputContent.setAttribute("rows","4");
+        outputContent.setAttribute("rows","2");
         outputContent.setAttribute("cols","50");
-
         output.appendChild(outputContent);
+
+        var currentStates = document.createElement("textarea");
+        currentStates.setAttribute("id","current-states");
+        currentStates.setAttribute("rows","2");
+        currentStates.setAttribute("cols","50");
+        output.appendChild(currentStates);
 
         //Append the nodes of contents to the body node
         document.body.appendChild(controls);
