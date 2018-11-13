@@ -198,16 +198,19 @@ controls.setAttribute('align', 'middle');
 controls.setAttribute('float', 'left');
 
 // ****************** Controls *****************************/
+function recToggle(){
+  document.getElementById("client-content").contentWindow.postMessage('c_record', '*');
+}
+
+function muteToggle(){
+  document.getElementById("client-content").contentWindow.postMessage('c_mute', '*');
+}
+
 // Node for the control which controls recording functionality of the html5Client
 recButton.setAttribute('onClick', 'recToggle();');
-
 controls.appendChild(recButton);
 
-
-// const muteButton = document.createElement('button');
-// muteButton.innerHTML = 'Toggle mute';
 muteButton.setAttribute('onClick', 'muteToggle();');
-
 controls.appendChild(muteButton);
 
 // Append the nodes of contents to the body node
