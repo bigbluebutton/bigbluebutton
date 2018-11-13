@@ -186,8 +186,12 @@ client.setAttribute('id', 'client');
 const clientContent = document.createElement('iframe');
 clientContent.setAttribute('id', 'client-content');
 clientContent.setAttribute('src','<%=joinURL%>');
-clientContent.setAttribute('src','https://MYDOMAIN.com/demo/demoHTML5.jsp');
-clientContent.setAttribute('allow','microphone https://MYDOMAIN.com; camera https://MYDOMAIN.com');
+
+// // in case your iframe is on a different domain MYDOMAIN.com
+// clientContent.setAttribute('src','https://MYDOMAIN.com/demo/demoHTML5.jsp');
+
+// to enable microphone or camera use allow your iframe domain explicitly
+// clientContent.setAttribute('allow','microphone https://MYDOMAIN.com; camera https://MYDOMAIN.com');
 
 client.appendChild(clientContent);
 
