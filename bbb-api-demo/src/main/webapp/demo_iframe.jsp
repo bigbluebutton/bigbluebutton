@@ -20,7 +20,6 @@ Authors: James Jung
          Anton Georgiev
 
 -->
-
 <%@ page language="java" contentType="text/html; charset=UTF-8"
         pageEncoding="UTF-8"%>
 <%
@@ -134,109 +133,95 @@ if (request.getParameterMap().isEmpty()) {
 %>
 
 <script language="javascript" type="text/javascript">
-	var recButton = document.createElement("button");
-	var muteButton = document.createElement("button");
 
-        //EventListener(Getting message from iframe)
-        window.addEventListener('message', function(e) {
-		handleMessage(e.data.response);
-        });
+const recButton = document.createElement('button');
+recButton.id = 'recButton';
+const muteButton = document.createElement('button');
+muteButton.id = 'muteButton';
 
-	function handleMessage(e) {
-		switch(e) {
-		  case 'readyToConnect': {
-		     console.error('readdddy');
-                     // get initial state
-                     getInitialState(); break; }
-		  case 'recordingStarted': { console.log('1'); recButton.innerHTML = "Stop Recording"; break;}
-		  case 'recordingStopped': { console.log('2'); recButton.innerHTML = "Start Recording"; break;}
-		  case 'selfMuted': { console.log('3'); muteButton.innerHTML = "Unmute me"; break;}
-		  case 'selfUnmuted': { console.log('4'); muteButton.innerHTML = "Mute me"; break;}
-		  default: console.log('neither', { e } );
-		}
+function getInitialState() {
+  document.getElementById('client-content').contentWindow.postMessage('c_recording_status', '*');
+  document.getElementById('client-content').contentWindow.postMessage('c_mute_status', '*');
+}
+
+function handleMessage(e) {
+  switch (e) {
+    case 'readyToConnect': {
+      // get initial state
+      getInitialState(); break; }
+    case 'recordingStarted': {
+      recButton.innerHTML = 'Stop Recording';
+      break;
+    }
+    case 'recordingStopped': {
+      recButton.innerHTML = 'Start Recording';
+      break;
+    }
+    case 'selfMuted': {
+      muteButton.innerHTML = 'Unmute me';
+      break;
+    }
+    case 'selfUnmuted': {
+      muteButton.innerHTML = 'Mute me';
+      break;
+    }
+    case 'notInAudio': {
+      muteButton.innerHTML = 'Not in audio';
+      document.getElementById('muteButton').disabled = true;
+      break;
+    }
+    case 'joinedAudio': {
+      muteButton.innerHTML = '';
+      document.getElementById('muteButton').disabled = false; getInitialState();
+      break;
+    }
+    default: console.log('neither', { e });
+  }
+}
+
+// EventListener(Getting message from iframe)
+window.addEventListener('message', function(e) {
+  handleMessage(e.data.response);
+});
+
+// Clean up the body node before loading controls and the client
+document.body.innerHTML = '';
+
+// Node for the Client
+const client = document.createElement('div');
+client.setAttribute('id', 'client');
+
+const clientContent = document.createElement('iframe');
+clientContent.setAttribute('id', 'client-content');
+clientContent.setAttribute('src','<%=joinURL%>');
+clientContent.setAttribute('src','https://MYDOMAIN.com/demo/demoHTML5.jsp');
+clientContent.setAttribute('allow','microphone https://MYDOMAIN.com; camera https://MYDOMAIN.com');
+
+client.appendChild(clientContent);
+
+// Node for the Controls
+const controls = document.createElement('div');
+controls.setAttribute('id', 'controls');
+controls.setAttribute('align', 'middle');
+controls.setAttribute('float', 'left');
+
+// ****************** Controls *****************************/
+// Node for the control which controls recording functionality of the html5Client
+recButton.setAttribute('onClick', 'recToggle();');
+
+controls.appendChild(recButton);
 
 
-	}
+// const muteButton = document.createElement('button');
+// muteButton.innerHTML = 'Toggle mute';
+muteButton.setAttribute('onClick', 'muteToggle();');
 
-        /********************functions for the controls************************/
-        //Toggle Recording
-        function recToggle(){
-                document.getElementById("client-content").contentWindow.postMessage("c_record","*");
-        }
+controls.appendChild(muteButton);
 
-	// Toggle muting
-	function muteToggle(){
-                document.getElementById("client-content").contentWindow.postMessage("c_mute","*");
-        }
-        ///////////////////////////////////////////////////////////////////////
+// Append the nodes of contents to the body node
+document.body.appendChild(controls);
+document.body.appendChild(client);
 
-	function getInitialState() {
-		console.log('getting initial state');
-		document.getElementById("client-content").contentWindow.postMessage("c_recording_status","*");
-	}
-
-        ///////////////////////////////////////////////////////////////////////
-
-        //Clean up the body node before loading controls and the client
-        document.body.innerHTML = "";
-
-        //Node for the Client
-        var client = document.createElement("div");
-        client.setAttribute("id","client");
-
-        var clientContent = document.createElement("iframe");
-        clientContent.setAttribute("id","client-content");
-        // clientContent.setAttribute("src","<%=joinURL%>");
-        // clientContent.setAttribute("src","https://MYDOMAIN.com/demo/demoHTML5.jsp");
-        // clientContent.setAttribute("allow","microphone https://MYDOMAIN.com; camera https://MYDOMAIN.com");
-	clientContent.setAttribute("src","https://anton22.blindside-dev.com/demo/demoHTML5.jsp");
-        clientContent.setAttribute("allow","microphone https://anton22.blindside-dev.com; camera https://anton22.blindside-dev.com");
-
-
-        client.appendChild(clientContent);
-
-        //Node for the Controls
-        var controls = document.createElement("div");
-        controls.setAttribute("id","controls");
-        controls.setAttribute("align","middle");
-        controls.setAttribute("float","left");
-
-        /****************** Controls *****************************/
-        //Node for the control which controls recording functionality of the html5Client
-        recButton.setAttribute("onClick","recToggle();");
-
-        controls.appendChild(recButton);
-
-
-	// var muteButton = document.createElement("button");
-        // muteButton.innerHTML = "Toggle mute";
-        muteButton.setAttribute("onClick","muteToggle();");
-
-        controls.appendChild(muteButton);
-
-        //////////////////////////////////////////////////////////
-
-        //Node for the output screen
-        var output = document.createElement("div");
-        output.setAttribute("id","output");
-        output.setAttribute("align","middle");
-
-        var outputContent = document.createElement("textarea");
-        outputContent.setAttribute("id","output-content");
-        outputContent.setAttribute("rows","2");
-        outputContent.setAttribute("cols","50");
-        output.appendChild(outputContent);
-
-        var currentStates = document.createElement("textarea");
-        currentStates.setAttribute("id","current-states");
-        currentStates.setAttribute("rows","2");
-        currentStates.setAttribute("cols","50");
-        output.appendChild(currentStates);
-
-        //Append the nodes of contents to the body node
-        document.body.appendChild(controls);
-        document.body.appendChild(output);
-        document.body.appendChild(client);
 </script>
 <%
         } else {
@@ -255,5 +240,4 @@ Error: getJoinURL() failed
 
 </body>
 </html>
-
 

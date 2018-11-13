@@ -10,12 +10,23 @@ import Service from '../service';
 const AudioControlsContainer = props => <AudioControls {...props} />;
 
 const processToggleMuteFromOutside = (e) => {
-  if (e.data === 'c_mute') {
-    const newMuteState = !AudioManager.isMuted;
-    makeCall('toggleSelfVoice')
-      .then(() => {
-        this.window.parent.postMessage({ response: { newMuteState } }, '*');
-      });
+  switch (e.data) {
+    case 'c_mute': {
+      makeCall('toggleSelfVoice');
+      break;
+    }
+    case 'c_mute_status': {
+      if (!AudioManager.isUsingAudio()) {
+        this.window.parent.postMessage({ response: 'notInAudio' }, '*');
+        return;
+      }
+      const muteState = AudioManager.isMuted ? 'selfMuted' : 'selfUnmuted';
+      this.window.parent.postMessage({ response: muteState }, '*');
+      break;
+    }
+    default: {
+      // console.log(e.data);
+    }
   }
 };
 

@@ -27,6 +27,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
+  processToggleMuteFromOutside: PropTypes.func.isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
@@ -45,9 +46,10 @@ const defaultProps = {
 
 class AudioControls extends Component {
   componentDidMount() {
+    const { processToggleMuteFromOutside } = this.props;
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice ||
       getFromUserSettings('outsideToggleSelfVoice', false)) {
-      window.addEventListener('message', this.props.processToggleMuteFromOutside);
+      window.addEventListener('message', processToggleMuteFromOutside);
     }
   }
 
