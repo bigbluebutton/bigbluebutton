@@ -61,14 +61,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="3" value="${screenshareConfSuffix}"/>
     </bean>
 
-    <bean id="redisStorageService" class="org.bigbluebutton.common2.redis.RedisStorageService"
-          init-method="start" destroy-method="stop">
-        <property name="host" value="${redisHost}"/>
-        <property name="port" value="${redisPort}"/>
-        <property name="password" value="${redisPassword:''}"/>
-        <property name="clientName" value="BbbRed5AppsPub"/>
-    </bean>
-
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
         <property name="recordingServiceGW" ref="recordingServiceGW"/>
     </bean>

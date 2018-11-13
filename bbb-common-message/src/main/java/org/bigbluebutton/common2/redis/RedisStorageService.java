@@ -22,6 +22,7 @@ package org.bigbluebutton.common2.redis;
 import java.util.Map;
 
 import org.bigbluebutton.common2.redis.commands.MeetingCommands;
+import org.bigbluebutton.common2.redis.commands.RecordingCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,7 @@ public class RedisStorageService {
     private String clientName;
 
     MeetingCommands meetingCommands;
+    RecordingCommands recordingCommands;
 
     public void start() {
         log.info("Starting RedisStorageService");
@@ -64,6 +66,7 @@ public class RedisStorageService {
 
     private void initCommands(RedisCommandFactory factory) {
         meetingCommands = factory.getCommands(MeetingCommands.class);
+        recordingCommands = factory.getCommands(RecordingCommands.class);
     }
 
     public void stop() {
@@ -85,6 +88,16 @@ public class RedisStorageService {
     public void addBreakoutRoom(String parentId, String breakoutId) {
         log.debug("Saving breakout room for meeting {}", parentId);
         meetingCommands.addBreakoutRooms(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
+    }
+
+    public void record(String meetingId, Map<String, String> event) {
+        log.debug("Recording meeting event {} inside a transaction", meetingId);
+        RedisCommands<String, String> commands = connection.sync();
+        commands.multi();
+        String msgid = recordingCommands.incrementRecords();
+        recordingCommands.recordEventName("recording:" + meetingId + ":" + msgid, event);
+        recordingCommands.recordEventValues("meeting:" + meetingId + ":" + "recordings", msgid);
+        commands.exec();
     }
 
     // @fixme: not used anywhere

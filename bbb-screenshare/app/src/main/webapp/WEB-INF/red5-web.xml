@@ -48,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <bean id="web.handler" class="org.bigbluebutton.app.screenshare.red5.Red5AppAdapter">
     <property name="streamBaseUrl" value="${streamBaseUrl}"/>
-    <property name="eventRecordingService" ref="eventRecordingService"/>
+    <property name="redisStorageService" ref="redisStorageService"/>
     <property name="recordingDirectory" value="${recordingDirectory}"/>
     <property name="application" ref="screenShareApplication"/>
     <property name="messageSender" ref="connectionInvokerService"/>
@@ -102,11 +102,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <bean id="connectionInvokerService" class="org.bigbluebutton.app.screenshare.red5.ConnectionInvokerService"
         init-method="start" destroy-method="stop">
-  </bean>
-
-  <bean id="eventRecordingService" class="org.bigbluebutton.app.screenshare.EventRecordingService">
-    <constructor-arg index="0" value="${redis.host}"/>
-    <constructor-arg index="1" value="${redis.port}"/>
   </bean>
 
   <bean id="redisRecorder" class="org.bigbluebutton.app.screenshare.server.recorder.EventRecorder">

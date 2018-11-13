@@ -11,6 +11,7 @@ import redis.api.servers.ClientSetname
 import redis.actors.RedisSubscriberActor
 import redis.api.pubsub.{ Message, PMessage }
 import scala.concurrent.duration._
+import org.bigbluebutton.common2.bus.{ IncomingJsonMessageBus, ReceivedJsonMessage, IncomingJsonMessage }
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
@@ -24,8 +25,8 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 }
 
 class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
-  redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
+                               redisPort: Int,
+                               channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
   extends RedisSubscriberActor(
     new InetSocketAddress(redisHost, redisPort),
     channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {

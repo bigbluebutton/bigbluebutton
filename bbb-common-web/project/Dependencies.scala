@@ -34,7 +34,6 @@ object Dependencies {
 
     // Redis
     val redisScala = "1.8.0"
-    val jedis = "2.9.0"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -72,7 +71,6 @@ object Dependencies {
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
 
     val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
-    val jedis = "redis.clients" % "jedis" % Versions.jedis
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
   }
@@ -108,7 +106,6 @@ object Dependencies {
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.redisScala,
-    Compile.jedis,
     Compile.bbbCommons,
   ) ++ testing
 }

@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,28 +16,21 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.app.screenshare;
 
+package org.bigbluebutton.common2.redis.commands;
 
 import java.util.Map;
 
-import redis.clients.jedis.Jedis;
+import io.lettuce.core.dynamic.Commands;
+import io.lettuce.core.dynamic.annotation.Command;
 
-public class EventRecordingService {
-	private static final String COLON = ":";
-	
-	private final String  host;
-	private final int port;
-	
-	public EventRecordingService(String host, int port) {
-		this.host = host;
-		this.port = port;
-	}
-	
-	public void record(String meetingId, Map<String, String> event) {		
-		Jedis jedis = new Jedis(host, port);
-		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording:" + meetingId + COLON + msgid, event);
-		jedis.rpush("meeting:" + meetingId + COLON + "recordings", msgid.toString());						
-	}
+public interface RecordingCommands extends Commands {
+    @Command("INCR global:nextRecordedMsgId")
+    String incrementRecords();
+
+    @Command("HMSET ?0 ?1")
+    String recordEventName(String meetingKey, Map<String, String> values);
+
+    @Command("RPUSH ?0 ?1")
+    String recordEventValues(String meetingKey, String values);
 }
