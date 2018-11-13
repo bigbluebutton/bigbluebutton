@@ -9,6 +9,8 @@ import org.bigbluebutton.common2.redis.RedisPublisher
 
 import scala.concurrent.duration._
 import org.bigbluebutton.common2.redis.MessageSender
+import org.bigbluebutton.api2.bus.MsgFromAkkaAppsEventBus
+import org.bigbluebutton.common2.bus.JsonMsgFromAkkaAppsBus
 
 class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfiguration{
 

@@ -10,11 +10,12 @@ import redis.api.pubsub.{ Message, PMessage }
 
 import scala.concurrent.duration._
 import org.bigbluebutton.client._
-import org.bigbluebutton.client.bus.{ JsonMsgFromAkkaApps, JsonMsgFromAkkaAppsBus, JsonMsgFromAkkaAppsEvent }
 import redis.api.servers.ClientSetname
 import org.bigbluebutton.common2.redis.RedisAppSubscriberActor
+import org.bigbluebutton.common2.bus.{ JsonMsgFromAkkaApps, JsonMsgFromAkkaAppsBus, JsonMsgFromAkkaAppsEvent }
+import org.bigbluebutton.common2.redis.{ RedisConfiguration, RedisSubscriber }
 
-object AppsRedisSubscriberActor extends SystemConfiguration {
+object AppsRedisSubscriberActor extends RedisSubscriber with RedisConfiguration with SystemConfiguration {
 
   val channels = Seq(fromAkkaAppsRedisChannel, fromAkkaAppsWbRedisChannel, fromAkkaAppsChatRedisChannel, fromAkkaAppsPresRedisChannel, fromThirdPartyRedisChannel)
   val patterns = Seq("bigbluebutton:from-bbb-apps:*")
