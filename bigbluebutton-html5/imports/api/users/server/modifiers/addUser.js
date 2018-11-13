@@ -86,6 +86,8 @@ export default function addUser(meetingId, user) {
 
   // Only add an empty VoiceUser if there isn't one already. We want to avoid overwriting good data
   if (!VoiceUsers.findOne({ meetingId, intId: userId })) {
+    const listenOnlyStart = !!(Meeting.lockSettingsProp.disableMic && user.role === 'VIEWER');
+
     addVoiceUser(meetingId, {
       voiceUserId: '',
       intId: userId,
@@ -94,7 +96,7 @@ export default function addUser(meetingId, user) {
       muted: false,
       talking: false,
       callingWith: '',
-      listenOnly: false,
+      listenOnly: listenOnlyStart,
       voiceConf: '',
       joined: false,
     });

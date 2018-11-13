@@ -8,6 +8,11 @@ import Resizable from 're-resizable';
 import browser from 'browser-detect';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import PollingContainer from '/imports/ui/components/polling/container';
+import PollContainer from '/imports/ui/components/poll/container';
+import AudioManager from '/imports/ui/services/audio-manager';
+import Users from '/imports/api/users/';
+import Meetings from '/imports/api/meetings';
+import Auth from '/imports/ui/services/auth';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -16,7 +21,7 @@ import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 import UserListContainer from '../user-list/container';
 import ChatContainer from '../chat/container';
-import PollContainer from '/imports/ui/components/poll/container';
+
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const USERLIST_COMPACT_WIDTH = 50;
@@ -330,7 +335,10 @@ class App extends Component {
       userListIsOpen, customStyle, customStyleUrl,
     } = this.props;
     const { enableResize } = this.state;
-
+    const meetingId = Auth.meetingID;
+    const meeting = Meetings.findOne({ meetingId });
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    AudioManager.joinListenOnly();
     return (
       <main className={styles.main}>
         <NotificationsBarContainer />
@@ -349,7 +357,7 @@ class App extends Component {
         </section>
         <PollingContainer />
         <ModalContainer />
-        <AudioContainer />
+        {currentUser.role === 'VIEWER' && meeting.lockSettingsProp.disableMic ? null : <AudioContainer />}
         <ToastContainer />
         <ChatAlertContainer />
         { customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null }
