@@ -37,14 +37,6 @@ Authors: James Jung
                         height:200px;
                         float:left;
                 }
-                .control {
-
-                }
-                #output {
-                        width:50%;
-                        height:200px;
-                        float:right;
-                }
                 #client {
                         width:100%;
                         height:700px;
