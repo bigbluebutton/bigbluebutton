@@ -229,7 +229,7 @@ export default class PencilDrawListener extends Component {
       width: '100%',
       height: '100%',
       touchAction: 'none',
-      zIndex: 2 ** 31 - 1, // maximun value of z-index to prevent other things from overlapping
+      zIndex: Math.pow(2, 31) - 1, // maximun value of z-index to prevent other things from overlapping
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/pencil.png') 2 22, default`,
     };
     const { contextMenuHandler } = this.props.actions;
