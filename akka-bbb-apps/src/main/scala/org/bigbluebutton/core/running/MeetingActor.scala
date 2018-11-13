@@ -151,6 +151,7 @@ class MeetingActor(
 
   def receive = {
     //=============================
+
     // 2x messages
     case msg: BbbCommonEnvCoreMsg             => handleBbbCommonEnvCoreMsg(msg)
 
@@ -192,6 +193,19 @@ class MeetingActor(
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
+    msg.core match {
+      case m: ClientToServerLatencyTracerMsg => handleMessageThatDoesNotAffectsInactivity(msg)
+      case _                                 => handleMessageThatAffectsInactivity(msg)
+    }
+  }
+
+  private def handleMessageThatDoesNotAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
+    msg.core match {
+      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
+    }
+  }
+
+  private def handleMessageThatAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
     val tracker = state.inactivityTracker.updateLastActivityTimestamp(TimeUtil.timeNowInMs())
     state = state.update(tracker)
 
@@ -233,7 +247,6 @@ class MeetingActor(
       case m: GetWhiteboardAccessReqMsg           => handleGetWhiteboardAccessReqMsg(m)
       case m: SendWhiteboardAnnotationPubMsg      => handleSendWhiteboardAnnotationPubMsg(m)
       case m: GetWhiteboardAnnotationsReqMsg      => handleGetWhiteboardAnnotationsReqMsg(m)
-      case m: ClientToServerLatencyTracerMsg      => handleClientToServerLatencyTracerMsg(m)
 
       // Poll
       case m: StartPollReqMsg                     => handleStartPollReqMsg(m)
@@ -444,7 +457,10 @@ class MeetingActor(
       updateParentMeetingWithUsers()
     }
 
-    if (Users2x.numUsers(liveMeeting.users2x) == 0) {
+    if (state.expiryTracker.userHasJoined &&
+      Users2x.numUsers(liveMeeting.users2x) == 0
+      && !state.expiryTracker.lastUserLeftOnInMs.isDefined) {
+      log.info("Setting meeting no more users. meetingId=" + props.meetingProp.intId)
       val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInMs())
       state.update(tracker)
     } else {
