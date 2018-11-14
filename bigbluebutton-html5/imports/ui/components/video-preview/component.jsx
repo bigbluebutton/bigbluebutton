@@ -5,6 +5,8 @@ import Button from '/imports/ui/components/button/component';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import { styles } from './styles';
 
+const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+
 const propTypes = {
   intl: intlShape.isRequired,
   closeModal: PropTypes.func.isRequired,
@@ -83,10 +85,9 @@ class VideoPreview extends Component {
     const webcamValue = event.target.value;
     this.setState({ webcamDeviceId: webcamValue });
     this.changeWebcam(webcamValue);
+    VIDEO_CONSTRAINTS.deviceId = webcamValue ? { exact: webcamValue } : undefined;
     const constraints = {
-      video: {
-        deviceId: webcamValue ? { exact: webcamValue } : undefined,
-      },
+      video: VIDEO_CONSTRAINTS,
     };
     this.stopTracks();
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
@@ -104,7 +105,7 @@ class VideoPreview extends Component {
 
   componentDidMount() {
     const constraints = {
-      video: true,
+      video: VIDEO_CONSTRAINTS,
     };
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       this.video.srcObject = stream;
