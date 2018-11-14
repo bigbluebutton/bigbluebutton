@@ -1,32 +1,31 @@
-name := "bbb-apps-common"
+import org.bigbluebutton.build._
 
 organization := "org.bigbluebutton"
 
-version := "0.0.3-SNAPSHOT"
+version := "0.0.4-SNAPSHOT"
 
-scalaVersion  := "2.12.6"
+val compileSettings = Seq(
+  organization := "org.bigbluebutton",
 
-scalacOptions ++= Seq(
-  "-unchecked",
-  "-deprecation",
-  "-Xlint",
-  "-Ywarn-dead-code",
-  "-language:_",
-  "-target:jvm-1.8",
-  "-encoding", "UTF-8"
+  scalacOptions ++= List(
+    "-unchecked",
+    "-deprecation",
+    "-Xlint",
+    "-Ywarn-dead-code",
+    "-language:_",
+    "-target:jvm-1.8",
+    "-encoding", "UTF-8"
+  ),
+  javacOptions ++= List(
+    "-Xlint:unchecked",
+    "-Xlint:deprecation"
+  )
 )
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
 // into eclipse.
 retrieveManaged := true
-
-testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
-
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
-
-val akkaVersion  = "2.5.14"
-val scalaTestV  = "2.2.6"
 
 // https://mvnrepository.com/artifact/org.scala-lang/scala-library
 libraryDependencies += "org.scala-lang" % "scala-library" % scalaVersion.value
@@ -43,7 +42,7 @@ libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
 
 libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.11"
 
-libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
+libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.20-SNAPSHOT"
 
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.5"
 
@@ -70,7 +69,8 @@ libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.3" % "test"
 
 libraryDependencies += "org.mockito" % "mockito-core" % "2.7.22" % "test"
 
-seq(Revolver.settings: _*)
+Seq(Revolver.settings: _*)
+lazy val appsCommons = (project in file(".")).settings(name := "bbb-apps-common", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 //-----------
 // Packaging
