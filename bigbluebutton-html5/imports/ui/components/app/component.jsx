@@ -9,7 +9,6 @@ import browser from 'browser-detect';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import PollingContainer from '/imports/ui/components/polling/container';
 import PollContainer from '/imports/ui/components/poll/container';
-import AudioManager from '/imports/ui/services/audio-manager';
 import Users from '/imports/api/users/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
@@ -338,7 +337,8 @@ class App extends Component {
     const meetingId = Auth.meetingID;
     const meeting = Meetings.findOne({ meetingId });
     const currentUser = Users.findOne({ userId: Auth.userID });
-    AudioManager.joinListenOnly();
+    const micsLocked = (currentUser.role === 'VIEWER' && meeting.lockSettingsProp.disableMic);
+
     return (
       <main className={styles.main}>
         <NotificationsBarContainer />
@@ -357,11 +357,11 @@ class App extends Component {
         </section>
         <PollingContainer />
         <ModalContainer />
-        {currentUser.role === 'VIEWER' && meeting.lockSettingsProp.disableMic ? null : <AudioContainer />}
+        {micsLocked ? null : <AudioContainer />}
         <ToastContainer />
         <ChatAlertContainer />
-        { customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null }
-        { customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null }
+        {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+        {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
       </main>
     );
   }

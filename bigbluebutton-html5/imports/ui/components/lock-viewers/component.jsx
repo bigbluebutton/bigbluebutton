@@ -84,27 +84,26 @@ class LockViewersComponent extends Component {
         className={styles.modal}
         onRequestClose={this.closeModal}
       >
-        <div className={styles.btnContainer}>
-          <Button
-            data-test="modalBaseCloseButton"
-            className={styles.closeBtn}
-            label={intl.formatMessage(intlMessages.closeLabel)}
-            icon="close"
-            size="md"
-            hideLabel
-            onClick={this.closeModal}
-          />
-        </div>
+
         <div className={styles.container}>
           <div className={styles.header}>
             <div className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</div>
+            <Button
+              data-test="modalBaseCloseButton"
+              className={styles.closeBtn}
+              label={intl.formatMessage(intlMessages.closeLabel)}
+              icon="close"
+              size="md"
+              hideLabel
+              onClick={this.closeModal}
+            />
           </div>
           <div className={styles.description}>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
           </div>
-          <br /><br />
+
           <div className={styles.form}>
-            <header className={cx(styles.row, styles.subHeader)}>
+            <header className={styles.subHeader}>
               <div className={styles.bold}>{intl.formatMessage(intlMessages.featuresLable)}</div>
               <div className={styles.bold}>{intl.formatMessage(intlMessages.lockStatusLabel)}</div>
             </header>

@@ -4,15 +4,17 @@
 
 :root{
   --modal-margin: 3rem;
+  --title-position-left: 2.2rem;
+  --closeBtn-position-left: 2.5rem;
 }
 
 .title {
+  position: relative;
+  left: var(--title-position-left);
   color: var(--color-gray-dark);
-  font-weight: 400;
-  font-size: var(--lg-padding-x);
-  margin: 0;
-  margin-bottom: var(--jumbo-padding-y);
-  text-align: center !important;
+  font-weight: bold;
+  font-size: var(--font-size-large);
+  text-align: center;
 }
 
 .form {
@@ -22,14 +24,17 @@
 
 .container{
     margin: var(--modal-margin);
-    margin-top: var(--indicator-padding);
     margin-bottom: var(--lg-padding-x);
 }
 
 .subHeader{
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
   color: var(--color-gray-label);
   font-size: var(--font-size-base);
-  margin-bottom: var(--jumbo-padding-y) !important;
+  margin-bottom: var(--title-position-left);
 }
 
 .modal {
@@ -44,6 +49,7 @@
 .description{
     text-align: center;
     color: var(--color-gray);
+    margin-bottom: var(--jumbo-padding-y)
 }
 .row {
   display: flex;
@@ -79,24 +85,16 @@
   flex-flow: row;
 }
 
-.title {
-  font-weight: bold;
-  text-align: center;
-}
-
 .bold{
     font-weight: bold;
 }
 
-.btnContainer {
-    display: flex;
-    justify-content: flex-end;
-}
-
 .closeBtn {
+
     position: relative;
     background-color: var(--color-white);
-  
+    left: var(--closeBtn-position-left);
+    bottom: var(--closeBtn-position-left);
     i {
       color: var(--color-gray-light);
     }
@@ -110,9 +108,10 @@
     }
   }
 
-  .header {
-    margin: 0;
-    padding: 0;
-    border: none;
-    line-height: var(--jumbo-padding-y);
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: var(--title-position-left);
+  margin-bottom: var(--lg-padding-y);
   }
