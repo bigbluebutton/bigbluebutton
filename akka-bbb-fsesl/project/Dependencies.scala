@@ -67,6 +67,7 @@ object Dependencies {
     Compile.scalaLibrary,
     Compile.scalaCompiler,
     Compile.akkaActor,
+    Compile.akkaSl4fj,
     Compile.logback,
     Compile.commonsCodec,
     Compile.apacheLang,

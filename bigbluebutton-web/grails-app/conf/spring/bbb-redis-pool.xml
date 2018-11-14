@@ -17,7 +17,7 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
--->nses/>. -->
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:util="http://www.springframework.org/schema/util"

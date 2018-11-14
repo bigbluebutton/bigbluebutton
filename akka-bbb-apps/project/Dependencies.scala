@@ -76,6 +76,7 @@ object Dependencies {
     Compile.scalaLibrary,
     Compile.scalaCompiler,
     Compile.akkaActor,
+    Compile.akkaSl4fj,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.quicklens,
