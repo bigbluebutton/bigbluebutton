@@ -9,9 +9,11 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
+import ActionBarService from '../service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -56,6 +58,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopRecording',
     description: 'stop recording option',
   },
+  pollBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
+    description: 'poll menu toggle button label',
+  },
+  pollBtnDesc: {
+    id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
+    description: 'poll menu toggle button description',
+  },
   createBreakoutRoom: {
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoom',
     description: 'Create breakout room option',
@@ -75,9 +85,17 @@ class ActionsDropdown extends Component {
 
   componentWillMount() {
     this.presentationItemId = _.uniqueId('action-item-');
-    this.videoItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
+    this.pollId = _.uniqueId('action-item-');
     this.createBreakoutRoomId = _.uniqueId('action-item-');
+  }
+
+  componentDidMount() {
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
+      getFromUserSettings('outsideToggleRecording', false)) {
+      ActionBarService.connectRecordingObserver();
+      window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
+    }
   }
 
   componentWillUpdate(nextProps) {
@@ -97,12 +115,21 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
+      togglePollMenu,
       meetingIsBreakout,
       hasBreakoutRoom,
-      meetingName,
     } = this.props;
 
     return _.compact([
+      (isUserPresenter ?
+        <DropdownListItem
+          icon="user"
+          label={intl.formatMessage(intlMessages.pollBtnLabel)}
+          description={intl.formatMessage(intlMessages.pollBtnDesc)}
+          key={this.pollId}
+          onClick={() => togglePollMenu()}
+        />
+        : null),
       (isUserPresenter ?
         <DropdownListItem
           icon="presentation"
@@ -123,7 +150,7 @@ class ActionsDropdown extends Component {
           onClick={toggleRecording}
         />
         : null),
-      (isUserPresenter && !meetingIsBreakout && !hasBreakoutRoom ?
+      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
         <DropdownListItem
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}

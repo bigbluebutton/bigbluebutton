@@ -1,66 +1,97 @@
 @import "../../stylesheets/variables/_all";
 
-.pollingContainer {
-  order: 2;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding-bottom: 5px;
+:root {
+  --col-amount: 2;
+  --max-btn-width: 9em;
+  --overlayIndex: 1015;
+  --overlayOpacity: 0.349;
+  --pollIndex: 1016;
+  --poll-width: 18rem;
+}
 
-  @include mq($medium-up) {
-    padding-bottom: 10px;
+.overlay {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  z-index: var(--overlayIndex);
+  pointer-events: none;
+
+  @include mq($hasPhoneDimentions) {
+    pointer-events: auto;
+    background-color: rgba(0, 0, 0, var(--overlayOpacity));
+  }
+}
+
+.pollingContainer {
+  pointer-events:auto;
+  width: var(--poll-width);
+  position: absolute;
+
+  z-index: var(--pollIndex);
+  border: 1px solid var(--color-off-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--color-gray-dark) 0px 0px var(--lg-padding-y);
+  align-items: center;
+  text-align: center;
+  font-weight: 600;
+  padding: var(--md-padding-y);
+  background-color: var(--color-white);
+  bottom: var(--sm-padding-x);
+  right: var(--sm-padding-x);
+
+  @include mq($hasPhoneDimentions) {
+    bottom: auto;
+    right: auto;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
   }
 }
 
 .pollingTitle {
-  color: var(--color-white);
+  color: var(--color-text);
   white-space: nowrap;
-  padding-bottom: 10px;
+  padding-bottom: var(--md-padding-y);
+  padding-top: var(--md-padding-y);
 }
 
 .pollingAnswers {
-  align-items: center;
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: auto;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-  z-index: 1;
+  grid-template-columns: repeat(var(--col-amount), 1fr);
 
-  :global(.browser-safari) & {
-    @include mq($ip5-portrait) {
-      bottom: 8.75em;
-    }
-    @include mq($ip678-portrait) {
-      bottom: 4.75em;
-    }
-    @include mq($ip5-landscape) {
-      bottom: 11.75em;
-    }
-    @include mq($ip678-landscape) {
-      bottom: 1.75em;
+  > pollButtonWrapper:nth-child(odd) {
+      grid-column: 1;
+  }
+
+  > pollButtonWrapper:nth-child(even) {
+      grid-column: var(--col-amount);
+  }
+
+  @include mq($hasPhoneDimentions) {
+    grid-template-columns: repeat(1, 1fr);
+
+    .pollButtonWrapper .button {
+      grid-column: 1;
     }
   }
+
+  z-index: 1;
 }
 
 .pollButtonWrapper {
   text-align: center;
-  margin-left: 5px;
-  overflow: hidden;
-
-  @include mq($medium-up) {
-    margin-left: 10px;
-  }
-
-  &:first-of-type {
-    margin-left: 0;
-  }
+  padding: var(--sm-padding-y);
+  width: 100%;
 }
 
 .pollingButton {
   width: 100%;
+  max-width: var(--max-btn-width);
+
+  @include mq($hasPhoneDimentions) {
+    max-width: none;
+  }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

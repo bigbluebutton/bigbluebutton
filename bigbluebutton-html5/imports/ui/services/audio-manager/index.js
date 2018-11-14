@@ -136,7 +136,7 @@ class AudioManager {
     this.isEchoTest = false;
     const { name } = browser();
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
-    const bridge = USE_KURENTO ? this.listenOnlyBridge : this.bridge;
+    const bridge = this.useKurento ? this.listenOnlyBridge : this.bridge;
 
     const callOptions = {
       isListenOnly: true,
@@ -146,7 +146,7 @@ class AudioManager {
 
     // Webkit ICE restrictions demand a capture device permission to release
     // host candidates
-    if (name == 'safari') {
+    if (name === 'safari') {
       await this.askDevicesPermissions();
     }
 
@@ -162,12 +162,11 @@ class AudioManager {
       }
 
       logger.error('Listen only error:', err, 'on try', retries);
-      const error = {
+      throw {
         type: 'MEDIA_ERROR',
         message: this.messages.error.MEDIA_ERROR,
-      }
-      throw error;
-    }
+      };
+    };
 
     return this.onAudioJoining()
       .then(() => Promise.race([
@@ -181,14 +180,14 @@ class AudioManager {
             // Exit previous SFU session and clean audio tag state
             window.kurentoExitAudio();
             this.useKurento = false;
-            let audio = document.querySelector(MEDIA_TAG);
+            const audio = document.querySelector(MEDIA_TAG);
             audio.muted = false;
           }
 
           try {
             await this.joinListenOnly(++retries);
-          } catch (err) {
-            return handleListenOnlyError(err);
+          } catch (error) {
+            return handleListenOnlyError(error);
           }
         } else {
           handleListenOnlyError(err);
@@ -207,7 +206,7 @@ class AudioManager {
   exitAudio() {
     if (!this.isConnected) return Promise.resolve();
 
-    const bridge  = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
+    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
 
     this.isHangingUp = true;
     this.isEchoTest = false;
@@ -235,6 +234,12 @@ class AudioManager {
         changed: (id, fields) => {
           if (fields.muted !== undefined && fields.muted !== this.isMuted) {
             this.isMuted = fields.muted;
+            const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
+            window.parent.postMessage({ response: muteState }, '*');
+          }
+
+          if (fields.joined) {
+            window.parent.postMessage({ response: 'joinedAudio' }, '*');
           }
 
           if (fields.talking !== undefined && fields.talking !== this.isTalking) {
@@ -313,17 +318,14 @@ class AudioManager {
       new window.AudioContext() :
       new window.webkitAudioContext();
 
-    // Create a placeholder buffer to upstart audio context
-    const pBuffer = this.listenOnlyAudioContext.createBuffer(2, this.listenOnlyAudioContext.sampleRate * 3, this.listenOnlyAudioContext.sampleRate);
+    const dest = this.listenOnlyAudioContext.createMediaStreamDestination();
 
-    var dest = this.listenOnlyAudioContext.createMediaStreamDestination();
-
-    let audio = document.querySelector(MEDIA_TAG);
+    const audio = document.querySelector(MEDIA_TAG);
 
     // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    audio.src = 'resources/sounds/silence.mp3'
+    audio.src = 'resources/sounds/silence.mp3';
 
-    audio.play().catch(e => {
+    audio.play().catch((e) => {
       logger.warn('Error on playing test audio:', e);
     });
 

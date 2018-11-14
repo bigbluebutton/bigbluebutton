@@ -10,27 +10,16 @@
 
   &:after {
     content: '';
-    width: var(--font-size-base) / 2;
-    height: var(--font-size-base) / 2;
+    width: calc(var(--font-size-base) / 2);
+    height: calc(var(--font-size-base) / 2);
     position: absolute;
     top: 50%;
     left: 50%;
-    margin-top: -(var(--font-size-base) / 4);
-    margin-left: -(var(--font-size-base) / 4);
+    margin-top: calc((var(--font-size-base) / -4));
+    margin-left: calc((var(--font-size-base) / -4));
     border-radius: 50%;
     background-color: var(--color-danger);
   }
-}
-
-%baseIndicatorLabel {
-  font-weight: 200;
-  font-size: var(--font-size-base);
-  margin: 0 0 0 0.5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  max-width: 20vw;
 }
 
 .recordIndicator {
@@ -44,16 +33,6 @@
   &:after {
     background-color: var(--color-gray);
   }
-}
-
-.recordingLabel {
-  @extend %baseIndicatorLabel;
-  color: var(--color-white);
-}
-
-.notRecordingLabel {
-  @extend %baseIndicatorLabel;
-  color: var(--color-gray);
 }
 
 .recordState {

@@ -5,6 +5,7 @@
   --actionsbar-height: 75px; // TODO: Change to ActionsBar real height
   --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
   --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
+  --poll-pane-min-width: 20em;
 }
 
 .main {
@@ -92,8 +93,7 @@
   @extend %text-elipsis;
 
   z-index: 2;
-  overflow: visible;
-
+  overflow: visible;  
   order: 1;
 
   @include mq($small-only) {
@@ -118,6 +118,8 @@
 .compact {
   flex-basis: 4.6rem;
 }
+
+.poll,
 .breakoutRoom,
 .chat {
   @extend %full-page;
@@ -139,6 +141,12 @@
   @include mq($xlarge-up) {
     flex-basis: 20vw;
   }
+}
+
+.poll {
+  background-color: var(--color-white);
+  min-width: var(--poll-pane-min-width);
+  padding: 1rem;
 }
 
 .breakoutRoom {

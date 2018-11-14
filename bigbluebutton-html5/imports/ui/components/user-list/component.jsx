@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles';
 import CustomLogo from './custom-logo/component';
-import UserContent from './user-list-content/component';
+import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
@@ -75,7 +75,7 @@ class UserList extends Component {
           && CustomLogoUrl
           ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
-        {<UserContent
+        {<UserContentContainer
           {...{
           intl,
           openChats,
