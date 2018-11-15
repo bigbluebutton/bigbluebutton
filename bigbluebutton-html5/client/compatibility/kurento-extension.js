@@ -11,7 +11,7 @@ Kurento = function (
   internalMeetingId,
   onFail,
   onSuccess,
-  options = {},
+  options = {}
 ) {
   this.ws = null;
   this.video = null;
@@ -633,7 +633,7 @@ window.getScreenConstraints = function (sendSource, callback) {
         },
         (response) => {
           resolve(response);
-        },
+        }
       );
     });
   };
