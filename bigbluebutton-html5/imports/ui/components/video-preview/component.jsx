@@ -66,6 +66,8 @@ class VideoPreview extends Component {
     } = props;
 
     this.handleJoinVideo = this.handleJoinVideo.bind(this);
+    this.handleProceed = this.handleProceed.bind(this);
+    this.handleStartSharing = this.handleStartSharing.bind(this);
     this.closeModal = closeModal;
     this.startSharing = startSharing;
     this.changeWebcam = changeWebcam;
@@ -99,8 +101,16 @@ class VideoPreview extends Component {
   }
 
   handleStartSharing() {
+    const { resolve } = this.props;
     this.stopTracks();
     this.startSharing();
+    if (resolve) resolve();
+  }
+
+  handleProceed() {
+    const { resolve } = this.props;
+    this.closeModal();
+    if (resolve) resolve();
   }
 
   componentDidMount() {
@@ -150,7 +160,7 @@ class VideoPreview extends Component {
         <ModalBase
           overlayClassName={styles.overlay}
           className={styles.modal}
-          onRequestClose={this.closeModal}
+          onRequestClose={this.handleProceed}
         >
           <header
             className={styles.header}
@@ -161,7 +171,7 @@ class VideoPreview extends Component {
               icon="close"
               size="md"
               hideLabel
-              onClick={this.closeModal}
+              onClick={this.handleProceed}
             />
           </header>
           <h3 className={styles.title}>
@@ -210,7 +220,7 @@ class VideoPreview extends Component {
             <div className={styles.actions}>
               <Button
                 label={intl.formatMessage(intlMessages.cancelLabel)}
-                onClick={this.closeModal}
+                onClick={this.handleProceed}
               />
               <Button
                 color="primary"

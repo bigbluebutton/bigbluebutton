@@ -47,10 +47,6 @@ const intlMessages = defineMessages({
 
 class MediaContainer extends Component {
   componentWillMount() {
-    const { willMount } = this.props;
-    if (willMount) {
-      willMount();
-    }
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
     document.addEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
   }
@@ -134,13 +130,6 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   if (data.swapLayout) {
     data.floatingOverlay = true;
     data.hideOverlay = hidePresentation;
-  }
-
-  const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
-  const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
-
-  if (enableVideo && autoShareWebcam) {
-    data.willMount = () => mountModal(<VideoPreviewContainer />);
   }
 
   MediaContainer.propTypes = propTypes;
