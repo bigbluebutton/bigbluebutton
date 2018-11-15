@@ -54,7 +54,7 @@ module.exports = class WebHooks {
               });
               break;
             case "user-joined":
-              UserMapping.addMapping(message.data.attributes.user["internal-user-id"],message.data.attributes.user["external-user-id"], intId, () => {
+              UserMapping.addOrUpdateMapping(message.data.attributes.user["internal-user-id"],message.data.attributes.user["external-user-id"], intId, message.data.attributes.user, () => {
                 processMessage();
               });
               break;

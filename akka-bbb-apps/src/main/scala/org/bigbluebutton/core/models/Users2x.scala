@@ -252,11 +252,10 @@ case class UserState(
   locked:           Boolean,
   presenter:        Boolean,
   avatar:           String,
-  roleChangedOn:    Long    = System.currentTimeMillis(),
-  lastActivityTime: Long    = TimeUtil.timeNowInMs(),
+  roleChangedOn:    Long         = System.currentTimeMillis(),
+  lastActivityTime: Long         = TimeUtil.timeNowInMs(),
   clientType:       String,
-  userLeftFlag: UserLeftFlag)
-
+  userLeftFlag:     UserLeftFlag)
 
 case class UserIdAndName(id: String, name: String)
 
