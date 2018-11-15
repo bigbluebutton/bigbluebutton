@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import ModalBase from '/imports/ui/components/modal/base/component';
+import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
 
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
@@ -47,6 +48,10 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.webcamNotFoundLabel',
     description: 'Webcam not found label',
   },
+  sharingError: {
+    id: 'app.video.sharingError',
+    description: 'Error on sharing webcam',
+  },
 });
 
 class VideoPreview extends Component {
@@ -84,6 +89,10 @@ class VideoPreview extends Component {
   }
 
   handleSelectWebcam(event) {
+    const {
+      intl,
+    } = this.props;
+
     const webcamValue = event.target.value;
     this.setState({ webcamDeviceId: webcamValue });
     this.changeWebcam(webcamValue);
@@ -96,7 +105,7 @@ class VideoPreview extends Component {
       this.video.srcObject = stream;
       this.deviceStream = stream;
     }).catch((error) => {
-      console.log(error);
+      notify(intl.formatMessage(intlMessages.sharingError), 'error', 'video');
     });
   }
 
