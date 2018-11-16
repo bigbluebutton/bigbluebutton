@@ -4,6 +4,7 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import ModalBase from '/imports/ui/components/modal/base/component';
 import { notify } from '/imports/ui/services/notification';
+import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
@@ -106,6 +107,7 @@ class VideoPreview extends Component {
       this.deviceStream = stream;
     }).catch((error) => {
       notify(intl.formatMessage(intlMessages.sharingError), 'error', 'video');
+      logger.error(error);
     });
   }
 
