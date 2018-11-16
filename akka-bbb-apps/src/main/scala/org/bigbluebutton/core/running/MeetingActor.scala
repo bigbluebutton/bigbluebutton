@@ -573,7 +573,7 @@ class MeetingActor(
   }
 
   def removeUsersWithExpiredUserLeftFlag(liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
-    val leftUsers = Users2x.findAllExpiredUserLeftFlags(liveMeeting.users2x)
+    val leftUsers = Users2x.findAllExpiredUserLeftFlags(liveMeeting.users2x, expiryTracker.meetingExpireWhenLastUserLeftInMs)
     leftUsers foreach { leftUser =>
       for {
         u <- Users2x.remove(liveMeeting.users2x, leftUser.intId)
