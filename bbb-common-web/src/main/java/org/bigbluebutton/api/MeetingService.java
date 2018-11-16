@@ -178,19 +178,7 @@ public class MeetingService implements MessageListener {
 
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", m.getInternalId());
-      logData.put("externalMeetingId", m.getExternalId());
-      logData.put("name", m.getName());
-      logData.put("event", "kick_off_ingest_and_processing");
-      logData.put("description", "Start processing of recording.");
-
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-
-      log.info("Initiate recording processing: data={}", logStr);
-
-      processRecording(m.getInternalId());
+      processRecording(m);
     }
   }
 
@@ -403,8 +391,21 @@ public class MeetingService implements MessageListener {
     recordingService.updateMetaParams(idList, metaParams);
   }
 
-  public void processRecording(String meetingId) {
-    recordingService.startIngestAndProcessing(meetingId);
+  public void processRecording(Meeting m) {
+    if (m.isRecord()) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", m.getInternalId());
+      logData.put("externalMeetingId", m.getExternalId());
+      logData.put("name", m.getName());
+      logData.put("event", "kick_off_ingest_and_processing");
+      logData.put("description", "Start processing of recording.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info("Initiate recording processing: data={}", logStr);
+      recordingService.startIngestAndProcessing(m.getInternalId());
+    }
   }
 
   public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
@@ -481,7 +482,7 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
       m.setForciblyEnded(true);
-      processRecording(m.getInternalId());
+      processRecording(m);
       destroyMeeting(m.getInternalId());
       meetings.remove(m.getInternalId());
       removeUserSessions(m.getInternalId());
