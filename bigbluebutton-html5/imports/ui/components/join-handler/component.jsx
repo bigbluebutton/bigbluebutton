@@ -8,6 +8,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
+
 class JoinHandler extends Component {
   static setError(codeError) {
     Session.set('hasError', true);
@@ -94,8 +95,12 @@ class JoinHandler extends Component {
         .then(response => response.json())
         .then(({ response }) => response)
         .then((resp) => {
-          if (resp.returncode !== 'FAILED') return resolve(resp);
+          if (resp.returncode !== 'FAILED') {
+            logger.info(`User successfully went through main.joinRouteHandler with [${resp}].`);
+            return resolve(resp);
+          }
           const e = new Error('Session not found');
+          logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(resp));
           return reject(e);
         });
     });
@@ -104,9 +109,10 @@ class JoinHandler extends Component {
       .then(setCustomData)
       .then(setAuth)
       .then(setLogoURl)
-      .then(() => Session.set('isUserListOpen', deviceInfo.type().isPhone))
       .then(logUserInfo)
+      .then(() => Session.set('isUserListOpen', deviceInfo.type().isPhone))
       .finally(() => this.changeToJoin(true));
+
   }
 
   render() {
