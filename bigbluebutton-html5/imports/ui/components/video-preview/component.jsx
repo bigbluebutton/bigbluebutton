@@ -59,16 +59,11 @@ class VideoPreview extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      webcamDeviceId: null,
-      availableWebcams: null,
-      isStartSharingDisabled: false,
-    };
-
     const {
       closeModal,
       startSharing,
       changeWebcam,
+      webcamDeviceId,
     } = props;
 
     this.handleJoinVideo = this.handleJoinVideo.bind(this);
@@ -77,8 +72,15 @@ class VideoPreview extends Component {
     this.closeModal = closeModal;
     this.startSharing = startSharing;
     this.changeWebcam = changeWebcam;
+    this.webcamDeviceId = webcamDeviceId;
 
     this.deviceStream = null;
+
+    this.state = {
+      webcamDeviceId: this.webcamDeviceId,
+      availableWebcams: null,
+      isStartSharingDisabled: false,
+    };
   }
 
   stopTracks() {
@@ -125,6 +127,7 @@ class VideoPreview extends Component {
   }
 
   componentDidMount() {
+    const { webcamDeviceId } = this.props;
     const constraints = {
       video: VIDEO_CONSTRAINTS,
     };
@@ -134,6 +137,11 @@ class VideoPreview extends Component {
       navigator.mediaDevices.enumerateDevices().then((devices) => {
         let isInitialDeviceSet = false;
         const webcams = [];
+        if (webcamDeviceId) {
+          this.changeWebcam(webcamDeviceId);
+          this.setState({ webcamDeviceId });
+          isInitialDeviceSet = true;
+        }
         devices.forEach((device) => {
           if (device.kind === 'videoinput') {
             webcams.push(device);
@@ -204,7 +212,7 @@ class VideoPreview extends Component {
               </label>
               {this.state.availableWebcams && this.state.availableWebcams.length > 0 ? (
                 <select
-                  defaultValue={this.state.webcamDeviceId}
+                  value={this.state.webcamDeviceId}
                   className={styles.select}
                   onChange={this.handleSelectWebcam.bind(this)}
                 >

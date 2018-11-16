@@ -16,5 +16,6 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
     VideoService.joinVideo();
   },
   changeWebcam: deviceId => Service.changeWebcam(deviceId),
+  webcamDeviceId: Service.webcamDeviceId(),
 }))(VideoPreviewContainer));
 
