@@ -3,9 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
-import Auth from '/imports/ui/services/auth';
 import ModalBase from '/imports/ui/components/modal/base/component';
-import Meetings from '/imports/api/meetings';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -74,9 +72,7 @@ class LockViewersComponent extends Component {
   }
 
   render() {
-    const { intl } = this.props;
-    const meetingId = Auth.meetingID;
-    const meeting = Meetings.findOne({ meetingId });
+    const { intl, meeting } = this.props;
 
     return (
       <ModalBase

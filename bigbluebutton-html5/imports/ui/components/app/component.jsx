@@ -9,9 +9,6 @@ import browser from 'browser-detect';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import PollingContainer from '/imports/ui/components/polling/container';
 import PollContainer from '/imports/ui/components/poll/container';
-import Users from '/imports/api/users/';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -331,13 +328,9 @@ class App extends Component {
 
   render() {
     const {
-      userListIsOpen, customStyle, customStyleUrl,
+      userListIsOpen, customStyle, customStyleUrl, micsLocked,
     } = this.props;
     const { enableResize } = this.state;
-    const meetingId = Auth.meetingID;
-    const meeting = Meetings.findOne({ meetingId });
-    const currentUser = Users.findOne({ userId: Auth.userID });
-    const micsLocked = (currentUser.role === 'VIEWER' && meeting.lockSettingsProp.disableMic);
 
     return (
       <main className={styles.main}>
