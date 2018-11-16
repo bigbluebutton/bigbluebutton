@@ -18,8 +18,7 @@ const propTypes = {
 export default class UserOptionsContainer extends Component {
   constructor(props) {
     super(props);
-    const meetingId = Auth.meetingID;
-    const meeting = Meetings.findOne({ meetingId });
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
 
     this.state = {
       meetingMuted: meeting.voiceProp.muteOnStart,
@@ -63,8 +62,8 @@ export default class UserOptionsContainer extends Component {
   render() {
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsModerator = mapUser(currentUser).isModerator;
-    const meetingId = Auth.meetingID;
-    const meeting = Meetings.findOne({ meetingId });
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+
     this.state.meetingMuted = meeting.voiceProp.muteOnStart;
 
     return (

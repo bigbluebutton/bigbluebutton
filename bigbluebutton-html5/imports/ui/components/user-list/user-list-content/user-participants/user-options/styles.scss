@@ -1,10 +1,9 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 :root{
-  --icon-offset-left: -.44em;
-  --icon-offset-top: -.38em;
-  --square-side-length: 1.56rem;
-  --dropdown-offset-top: 4.8rem;
+  --icon-offset-left: -.5em;
+  --icon-offset-top: -.4em;
+  --dropdown-offset-top: 4.5rem;
   --dropdown-offset-right: -0.2rem;
 }
 
@@ -22,8 +21,8 @@
   margin-right: var(--sm-padding-y);
 
   span:first-child {
-    width: var(--square-side-length);
-    height: var(--square-side-length);
+    width: var(--jumbo-padding-y);
+    height: var(--jumbo-padding-y);
   }
 
   i {
