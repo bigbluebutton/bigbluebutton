@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Session } from 'meteor/session';
-import _ from 'lodash';
 import { log } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
