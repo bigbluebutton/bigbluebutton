@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Session } from 'meteor/session'; 
+import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
