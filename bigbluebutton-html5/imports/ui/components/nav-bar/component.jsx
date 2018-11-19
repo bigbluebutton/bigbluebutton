@@ -16,6 +16,7 @@ import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import { Session } from 'meteor/session';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -109,7 +110,12 @@ class NavBar extends Component {
   }
 
   handleToggleUserList() {
-    this.props.toggleUserList();
+    Session.set(
+      'openPanel',
+      Session.get('openPanel') === 'userlist'
+        ? ''
+        : 'userlist',
+    );
   }
 
   inviteUserToBreakout(breakout) {

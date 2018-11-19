@@ -17,6 +17,8 @@ import { styles } from './styles';
 import UserListContainer from '../user-list/container';
 import ChatContainer from '../chat/container';
 import PollContainer from '/imports/ui/components/poll/container';
+import PanelManager from '/imports/ui/components/panel-manager/component';
+import { Session } from 'meteor/session';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const USERLIST_COMPACT_WIDTH = 50;
@@ -106,6 +108,10 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
+  }
+
+  renderPanel() {
+    return <PanelManager openPanel={Session.get('openPanel')} />;
   }
 
   renderPoll() {
@@ -346,6 +352,7 @@ class App extends Component {
           {this.renderPoll()}
           {this.renderBreakoutRoom()}
           {this.renderSidebar()}
+          {this.renderPanel()}
         </section>
         <PollingContainer />
         <ModalContainer />

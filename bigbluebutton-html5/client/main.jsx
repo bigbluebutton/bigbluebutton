@@ -34,6 +34,8 @@ Meteor.startup(() => {
     }
     authenticatedRouteHandler(() => {
       // set defaults
+      Session.set('openPanel', '');
+
       Session.set('isChatOpen', false);
       Session.set('idChatOpen', '');
       Session.set('isMeetingEnded', false);

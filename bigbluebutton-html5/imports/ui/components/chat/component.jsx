@@ -56,7 +56,7 @@ const Chat = (props) => {
         >
           <Button
             onClick={() => {
-              Session.set('isChatOpen', false);
+              Session.set('openPanel', 'userlist');
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
@@ -74,8 +74,7 @@ const Chat = (props) => {
               hideLabel
               onClick={() => {
                 actions.handleClosePrivateChat(chatID);
-                Session.set('isChatOpen', false);
-                Session.set('idChatOpen', '');
+                Session.set('openPanel', 'userlist');
               }}
               aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
               label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}

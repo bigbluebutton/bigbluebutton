@@ -127,7 +127,10 @@ class ActionsDropdown extends Component {
           label={intl.formatMessage(intlMessages.pollBtnLabel)}
           description={intl.formatMessage(intlMessages.pollBtnDesc)}
           key={this.pollId}
-          onClick={() => togglePollMenu()}
+          onClick={() => {
+            Session.set('openPanel', 'poll');
+            Session.set('forcePollOpen', true);
+          }}
         />
         : null),
       (isUserPresenter ?

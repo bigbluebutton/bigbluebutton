@@ -248,9 +248,7 @@ class Poll extends Component {
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
             className={styles.hideBtn}
             onClick={() => {
-              Session.set('isPollOpen', false);
-              Session.set('forcePollOpen', true);
-              Session.set('isUserListOpen', true);
+              Session.set('openPanel', 'userlist');
             }}
           />
 
@@ -260,9 +258,8 @@ class Poll extends Component {
             if (currentPoll) {
               stopPoll();
             }
-            Session.set('isPollOpen', false);
+            Session.set('openPanel', 'userlist');
             Session.set('forcePollOpen', false);
-            Session.set('isUserListOpen', true);
           }}
             className={styles.closeBtn}
             icon="close"

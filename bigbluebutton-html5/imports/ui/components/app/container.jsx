@@ -67,7 +67,6 @@ const AppContainer = (props) => {
   );
 };
 
-
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
   const isMeetingBreakout = meetingIsBreakout();
@@ -117,6 +116,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     pollIsOpen: Session.get('isPollOpen') && Session.get('isUserListOpen'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
+    openPanel: Session.get('openPanel'),
   };
 })(AppContainer)));
 

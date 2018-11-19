@@ -117,8 +117,7 @@ class LiveResult extends Component {
           onClick={() => {
             publishPoll();
             stopPoll();
-            Session.set('isUserListOpen', true);
-            Session.set('isPollOpen', false);
+            Session.set('openPanel', 'userlist');
             Session.set('forcePollOpen', false);
           }}
           label={intl.formatMessage(intlMessages.publishLabel)}

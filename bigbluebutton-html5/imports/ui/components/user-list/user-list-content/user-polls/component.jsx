@@ -41,12 +41,12 @@ class UserPolls extends Component {
             tabIndex={0}
             className={styles.pollLink}
             onClick={() => {
-              Session.set('isChatOpen', false);
-              Session.set('breakoutRoomIsOpen', false);
-
-              return Session.equals('isPollOpen', true)
-                ? Session.set('isPollOpen', false)
-                : Session.set('isPollOpen', true);
+              Session.set(
+'openPanel',
+                Session.get('openPanel') === 'poll'
+                  ? 'userlist'
+                  : 'poll',
+              );
             }}
           >
             <Icon iconName="polling" className={styles.icon} />
