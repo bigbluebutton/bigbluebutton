@@ -5,6 +5,7 @@ import VisibilityEvent from '/imports/utils/visibilityEvent';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
+import { Session } from 'meteor/session';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
@@ -177,6 +178,7 @@ class VideoProvider extends Component {
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.addEventListener('message', this.onWsMessage);
+    window.addEventListener('beforeunload', this.unshareWebcam);
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
@@ -394,6 +396,9 @@ class VideoProvider extends Component {
     } catch (error) {
       this.logger('error', 'Video provider failed to fetch ice servers, using default');
     } finally {
+      if (Session.get('WebcamDeviceId')) {
+        VIDEO_CONSTRAINTS.deviceId = { exact: Session.get('WebcamDeviceId') };
+      }
       const options = {
         mediaConstraints: {
           audio: false,
@@ -472,7 +477,7 @@ class VideoProvider extends Component {
         // Increment reconnect interval
         this.restartTimer[id] = Math.min(2 * this.restartTimer[id], MAX_CAMERA_SHARE_FAILED_WAIT_TIME);
 
-        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer)
+        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer);
       }
     };
   }
@@ -541,7 +546,6 @@ class VideoProvider extends Component {
     return (event) => {
       const connectionState = peer.peerConnection.iceConnectionState;
       if (connectionState === 'failed' || connectionState === 'closed') {
-
         // prevent the same error from being detected multiple times
         peer.peerConnection.oniceconnectionstatechange = null;
 
