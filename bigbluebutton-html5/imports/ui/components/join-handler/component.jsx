@@ -16,7 +16,7 @@ class JoinHandler extends Component {
   }
   constructor(props) {
     super(props);
-    this.fetchTolken = this.fetchTolken.bind(this);
+    this.fetchToken = this.fetchToken.bind(this);
     this.changeToJoin = this.changeToJoin.bind(this);
 
     this.state = {
@@ -25,14 +25,14 @@ class JoinHandler extends Component {
   }
 
   componentDidMount() {
-    this.fetchTolken();
+    this.fetchToken();
   }
 
   changeToJoin(bool) {
     this.setState({ joined: bool });
   }
 
-  fetchTolken() {
+  fetchToken() {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
     if (!sessionToken) {
@@ -72,7 +72,7 @@ class JoinHandler extends Component {
       return resp;
     };
 
-    const setLogoURl = (resp) => {
+    const setLogoURL = (resp) => {
       setCustomLogoUrl(resp.customLogoURL);
       return resp;
     };
@@ -108,7 +108,7 @@ class JoinHandler extends Component {
     validAuth
       .then(setCustomData)
       .then(setAuth)
-      .then(setLogoURl)
+      .then(setLogoURL)
       .then(logUserInfo)
       .then(() => Session.set('isUserListOpen', deviceInfo.type().isPhone))
       .finally(() => this.changeToJoin(true));
