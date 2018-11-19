@@ -23,8 +23,8 @@
 }
 
 .container {
-    margin: var(--modal-margin);
-    margin-bottom: var(--lg-padding-x);
+  margin: var(--modal-margin);
+  margin-bottom: var(--lg-padding-x);
 }
 
 .subHeader {
@@ -38,19 +38,20 @@
 }
 
 .modal {
-    @extend .modal;
-    padding: var(--jumbo-padding-y);
- }
+  @extend .modal;
+  padding: var(--jumbo-padding-y);
+}
 
 .overlay {
-    @extend .overlay;
-  }
-
-.description{
-    text-align: center;
-    color: var(--color-gray);
-    margin-bottom: var(--jumbo-padding-y)
+  @extend .overlay;
 }
+
+.description {
+  text-align: center;
+  color: var(--color-gray);
+  margin-bottom: var(--jumbo-padding-y)
+}
+
 .row {
   display: flex;
   flex-flow: row;
@@ -86,26 +87,26 @@
 }
 
 .bold {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .closeBtn {
+  position: relative;
+  background-color: var(--color-white);
+  left: var(--closeBtn-position-left);
+  bottom: var(--closeBtn-position-left);
 
-    position: relative;
-    background-color: var(--color-white);
-    left: var(--closeBtn-position-left);
-    bottom: var(--closeBtn-position-left);
-    i {
-      color: var(--color-gray-light);
-    }
+  i {
+    color: var(--color-gray-light);
+   }
   
-    &:focus,
-    &:hover{
+  &:focus,
+  &:hover {
       background-color: var(--color-gray-lighter);
-      i{
-        color: var(--color-gray);
-      }
+    i {
+      color: var(--color-gray);
     }
+  }
 }
 
 .header {
