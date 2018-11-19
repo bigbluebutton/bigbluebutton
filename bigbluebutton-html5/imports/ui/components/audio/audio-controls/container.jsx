@@ -43,16 +43,11 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     glow: Service.isTalking() && !Service.isMuted(),
     handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
     handleJoinAudio: () => {
-      const meetingId = Auth.meetingID;
-      const meeting = Meetings.findOne({ meetingId });
+      const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
       const currentUser = Users.findOne({ userId: Auth.userID });
       const micsLocked = (currentUser.role === 'VIEWER' && meeting.lockSettingsProp.disableMic);
 
-      if (!micsLocked) {
-        mountModal(<AudioModalContainer />);
-      } else {
-        Service.joinListenOnly();
-      }
+      return micsLocked ? Service.joinListenOnly() : mountModal(<AudioModalContainer />);
     },
     handleLeaveAudio: () => Service.exitAudio(),
   }))(AudioControlsContainer));
