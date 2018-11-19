@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -9,6 +10,17 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { styles } from './styles';
+
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  isMeetingMuted: PropTypes.bool.isRequired,
+  toggleMuteAllUsers: PropTypes.func.isRequired,
+  toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
+  toggleStatus: PropTypes.func.isRequired,
+  toggleLockView: PropTypes.func.isRequired,
+};
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -30,6 +42,14 @@ const intlMessages = defineMessages({
   muteAllDesc: {
     id: 'app.userList.userOptions.muteAllDesc',
     description: 'Mute all description',
+  },
+  unmuteAllLabel: {
+    id: 'app.userList.userOptions.unmuteAllLabel',
+    description: 'Unmute all label',
+  },
+  unmuteAllDesc: {
+    id: 'app.userList.userOptions.unmuteAllDesc',
+    description: 'Unmute all desc',
   },
   lockViewersLabel: {
     id: 'app.userList.userOptions.lockViewersLabel',
@@ -59,11 +79,11 @@ class UserOptions extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.alterMenu = this.alterMenu.bind(this);
   }
 
   componentWillMount() {
-    const { intl } = this.props;
-
+    const { intl, isMeetingMuted } = this.props;
     this.menuItems = _.compact([
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -94,6 +114,16 @@ class UserOptions extends Component {
         onClick={this.props.toggleLockView}
       />),
     ]);
+
+    if (isMeetingMuted) {
+      this.alterMenu();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isMeetingMuted !== this.props.isMeetingMuted) {
+      this.alterMenu();
+    }
   }
 
   onActionsShow() {
@@ -106,6 +136,37 @@ class UserOptions extends Component {
     this.setState({
       isUserOptionsOpen: false,
     });
+  }
+
+  alterMenu() {
+    const { intl, isMeetingMuted } = this.props;
+
+    if (isMeetingMuted) {
+      const menuButton = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="unmute"
+        label={intl.formatMessage(intlMessages.unmuteAllLabel)}
+        description={intl.formatMessage(intlMessages.unmuteAllDesc)}
+        onClick={this.props.toggleMuteAllUsers}
+      />);
+      this.menuItems.splice(1, 2, menuButton);
+    } else {
+      const muteMeetingButtons = [(<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllLabel)}
+        description={intl.formatMessage(intlMessages.muteAllDesc)}
+        onClick={this.props.toggleMuteAllUsers}
+      />), (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+        onClick={this.props.toggleMuteAllUsersExceptPresenter}
+      />)];
+
+      this.menuItems.splice(1, 1, muteMeetingButtons[0], muteMeetingButtons[1]);
+    }
   }
 
   render() {
@@ -147,4 +208,5 @@ class UserOptions extends Component {
   }
 }
 
+UserOptions.propTypes = propTypes;
 export default withModalMounter(injectIntl(UserOptions));

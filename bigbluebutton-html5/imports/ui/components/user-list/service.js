@@ -364,6 +364,10 @@ const removeUser = (userId) => {
 
 const toggleVoice = (userId) => { userId === Auth.userID ? makeCall('toggleSelfVoice') : makeCall('toggleVoice', userId); };
 
+const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
+
+const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
+
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const roving = (event, itemCount, changeState) => {
@@ -438,6 +442,8 @@ export default {
   assignPresenter,
   removeUser,
   toggleVoice,
+  muteAllUsers,
+  muteAllExceptPresenter,
   changeRole,
   getUsers,
   getOpenChats,

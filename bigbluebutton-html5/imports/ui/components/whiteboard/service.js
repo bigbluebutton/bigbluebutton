@@ -32,19 +32,23 @@ function handleAddedAnnotation({
   }
 
   const fakeAnnotation = Annotations.findOne({ id: `${annotation.id}-fake` });
-  const fakePoints = fakeAnnotation.annotationInfo.points;
-  const { points: lastPoints } = annotation.annotationInfo;
+  let fakePoints;
 
-  if (annotation.annotationType !== 'pencil') {
-    Annotations.update(fakeAnnotation._id, {
-      $set: {
-        position: annotation.position,
-        'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END ?
-          annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
-      },
-      $inc: { version: 1 }, // TODO: Remove all this version stuff
-    });
-    return;
+  if (fakeAnnotation) {
+    fakePoints = fakeAnnotation.annotationInfo.points;
+    const { points: lastPoints } = annotation.annotationInfo;
+
+    if (annotation.annotationType !== 'pencil') {
+      Annotations.update(fakeAnnotation._id, {
+        $set: {
+          position: annotation.position,
+          'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END ?
+            annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
+        },
+        $inc: { version: 1 }, // TODO: Remove all this version stuff
+      });
+      return;
+    }
   }
 
   Annotations.upsert(query.selector, query.modifier, (err) => {

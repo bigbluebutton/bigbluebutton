@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Rating from './rating/component';
 import { styles } from './styles';
+
 
 const intlMessage = defineMessages({
   410: {
@@ -19,6 +21,10 @@ const intlMessage = defineMessages({
   430: {
     id: 'app.error.meeting.ended',
     description: 'user logged conference',
+  },
+  'acl-not-allowed': {
+    id: 'app.error.removed',
+    description: 'Message to display when user is removed from the conference',
   },
   messageEnded: {
     id: 'app.meeting.endedMessage',
@@ -93,6 +99,11 @@ class MeetingEnded extends React.PureComponent {
     this.sendFeedback = this.sendFeedback.bind(this);
     this.shouldShowFeedback = getFromUserSettings('askForFeedbackOnLogout', Meteor.settings.public.app.askForFeedbackOnLogout);
   }
+
+  componentDidMount() {
+    Meteor.disconnect();
+  }
+
   setSelectedStar(starNumber) {
     this.setState({
       selected: starNumber,

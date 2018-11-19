@@ -99,69 +99,11 @@ public:
     enableVideoStats: false
     enableListenOnly: false
     autoShareWebcam: false
-  acl:
-    viewer:
-      subscriptions:
-      - users
-      - cursor
-      - screenshare
-      - meetings
-      - polls
-      - chat
-      - presentations
-      - annotations
-      - slides
-      - captions
-      - breakouts
-      - voiceUsers
-      - whiteboard-multi-user
-      - presentation-pods
-      - group-chat
-      - group-chat-msg
-      - users-settings
-      methods:
-      - listenOnlyToggle
-      - userLogout
-      - setEmojiStatus
-      - toggleSelfVoice
-      - publishVote
-      - sendChat
-      - createGroupChat
-      - destroyGroupChat
-      - sendGroupChatMsg
-      - requestJoinURL
-    moderator:
-      methods:
-      - assignPresenter
-      - removeUser
-      - muteUser
-      - unmuteUser
-      - endMeeting
-      - toggleVoice
-      - clearPublicChatHistory
-      - changeRole
-      - ejectUserFromVoice
-      - toggleRecording
-      - endAllBreakouts
-    presenter:
-      methods:
-      - assignPresenter
-      - switchSlide
-      - modifyWhiteboardAccess
-      - undoAnnotation
-      - clearWhiteboard
-      - moveCursor
-      - sendAnnotation
-      - removePresentation
-      - setPresentation
-      - zoomSlide
-      - requestPresentationUploadToken
-      - transferUser
-      - createBreakoutRoom
-  breakout:
-    rooms:
-      min: 2
-      max: 8
+  allowOutsideCommands:
+    toggleRecording: false
+    toggleSelfVoice: false
+  poll:
+    max_custom: 5
   chat:
     min_message_length: 1
     max_message_length: 5000

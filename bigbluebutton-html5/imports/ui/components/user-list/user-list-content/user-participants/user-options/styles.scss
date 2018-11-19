@@ -1,12 +1,19 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root{
+  --icon-offset-left: -.5em;
+  --icon-offset-top: -.4em;
+  --dropdown-offset-top: 4.5rem;
+  --dropdown-offset-right: -0.2rem;
+}
+
 .dropdown {
   position: static;
 }
 
 .dropdownContent {
-  top: 4.8rem;
-  margin-right: -0.2rem;
+  top: var(--dropdown-offset-top);
+  margin-right: var(--dropdown-offset-right);
 }
 
 .optionsButton{
@@ -14,13 +21,13 @@
   margin-right: var(--sm-padding-y);
 
   span:first-child {
-    width: 1.56rem;
-    height: 1.56rem;
+    width: var(--jumbo-padding-y);
+    height: var(--jumbo-padding-y);
   }
 
   i {
-    top: -.38em;
-    left: -.44em;
+    top: var(--icon-offset-top);
+    left: var(--icon-offset-left);
     color: var(--color-gray-dark) !important;
     background-color: transparent !important;
   }
@@ -33,3 +40,4 @@
   }
 
 }
+

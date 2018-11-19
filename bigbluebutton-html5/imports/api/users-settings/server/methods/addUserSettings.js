@@ -38,6 +38,9 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       // LAYOUT
       'autoSwapLayout',
       'hidePresentation',
+      // OUTSIDE COMMANDS
+      'outsideToggleSelfVoice',
+      'outsideToggleRecording',
     ];
     if (!handledHTML5Parameters.includes(key)) {
       return acc;
