@@ -592,7 +592,7 @@ module.exports = class MediaServer extends EventEmitter {
   }
 
   _destroyMediaServer() {
-    delete this._mediaServer;
+    delete this._mediaServers;
   }
 
   _handleError(err) {
