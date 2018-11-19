@@ -70,8 +70,7 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-  const meetingId = Auth.meetingID;
-  const meeting = Meetings.findOne({ meetingId });
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
