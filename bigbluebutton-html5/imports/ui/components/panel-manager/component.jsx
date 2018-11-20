@@ -6,7 +6,6 @@ import PollContainer from '/imports/ui/components/poll/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
 import { styles } from '/imports/ui/components/app/styles';
-import cx from 'classnames';
 import _ from 'lodash';
 
 const intlMessages = defineMessages({
@@ -24,24 +23,24 @@ class PanelManager extends Component {
   constructor() {
     super();
 
-    this.padUL = _.uniqueId('userlist-pad-');
-    this.keyUL = _.uniqueId('userlist-');
-    this.keyBR = _.uniqueId('breakoutroom-');
-    this.keyC = _.uniqueId('chat-');
-    this.keyP = _.uniqueId('poll-');
+    this.padKey = _.uniqueId('resize-pad-');
+    this.userlistKey = _.uniqueId('userlist-');
+    this.breakoutroomKey = _.uniqueId('breakoutroom-');
+    this.chatKey = _.uniqueId('chat-');
+    this.pollKey = _.uniqueId('poll-');
   }
 
   renderUserList() {
     const {
       intl,
+      enableResize,
     } = this.props;
-
-    const userListStyle = {};
 
     return (
       <div
-        className={cx(styles.userList, userListStyle)}
+        className={styles.userList}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
+        key={enableResize ? null : this.userlistKey}
       >
         <UserListContainer />
       </div>
@@ -76,7 +75,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableUserList = node; }}
         className={styles.resizableUserList}
         enable={resizableEnableOptions}
-        key={this.keyUL}
+        key={this.userlistKey}
       >
         {this.renderUserList()}
       </Resizable>
@@ -84,12 +83,13 @@ class PanelManager extends Component {
   }
 
   renderChat() {
-    const { intl } = this.props;
+    const { intl, enableResize } = this.props;
 
     return (
       <section
         className={styles.chat}
         aria-label={intl.formatMessage(intlMessages.chatLabel)}
+        key={enableResize ? null : this.chatKey}
       >
         <ChatContainer />
       </section>
@@ -121,7 +121,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
         enable={resizableEnableOptions}
-        key={this.keyC}
+        key={this.chatKey}
       >
         {this.renderChat()}
       </Resizable>
@@ -130,7 +130,7 @@ class PanelManager extends Component {
 
   renderPoll() {
     return (
-      <div className={styles.poll} key={this.keyP}>
+      <div className={styles.poll} key={this.pollKey}>
         <PollContainer />
       </div>
     );
@@ -138,19 +138,20 @@ class PanelManager extends Component {
 
   renderBreakoutRoom() {
     return (
-      <div className={styles.breakoutRoom}>
-        <BreakoutRoomContainer key={this.keyBR} />
+      <div className={styles.breakoutRoom} key={this.breakoutroomKey}>
+        <BreakoutRoomContainer />
       </div>
     );
   }
 
   render() {
     const { enableResize } = this.props;
+    const resizePad = <div className={styles.userlistPad} key={this.padKey} />;
 
     switch (this.props.openPanel) {
       case 'chat': return enableResize ? [
         this.renderUserListResizable(),
-        <div className={styles.userlistPad} key={this.padUL} />,
+        resizePad,
         this.renderChatResizable(),
       ] : [
         this.renderUserList(),
@@ -158,7 +159,7 @@ class PanelManager extends Component {
       ];
       case 'poll': return enableResize ? [
         this.renderUserListResizable(),
-        <div className={styles.userlistPad} key={this.padUL} />,
+        resizePad,
         this.renderPoll(),
       ] : [
         this.renderUserList(),
@@ -166,7 +167,7 @@ class PanelManager extends Component {
       ];
       case 'breakoutroom': return enableResize ? [
         this.renderUserListResizable(),
-        <div className={styles.userlistPad} key={this.padUL} />,
+        resizePad,
         this.renderBreakoutRoom(),
       ] : [
         this.renderUserList(),

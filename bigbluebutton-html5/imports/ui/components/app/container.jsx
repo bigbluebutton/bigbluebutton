@@ -106,18 +106,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  const openPanel = Session.get('openPanel');
-
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
-    userListIsOpen: !Session.equals('openPanel', ''),
-    breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
-    chatIsOpen: Session.equals('openPanel', 'chat'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
-    openPanel,
+    breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
+    chatIsOpen: Session.equals('openPanel', 'chat'),
+    openPanel: Session.get('openPanel'),
+    userListIsOpen: !Session.equals('openPanel', ''),
   };
 })(AppContainer)));
 
