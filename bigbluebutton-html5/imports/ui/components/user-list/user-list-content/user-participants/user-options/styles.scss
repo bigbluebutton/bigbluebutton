@@ -15,6 +15,10 @@
   top: var(--menu-offset-top);
   right: var(--menu-offset-right);
   width: var(--menu-width);
+
+  @include mq($small-only) {
+    width: 100vw;
+  }
 }
 
 .optionsButton{
