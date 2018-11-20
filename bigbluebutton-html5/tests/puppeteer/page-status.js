@@ -6,27 +6,28 @@ class StatusTestPage extends Page {
   async test() {
     await this.createBBBMeeting();
     await this.joinWithoutAudio();
-    await this.page.screenshot({ path: 'screenshots/test-status-0.png' });
+
+    await this.screenshot('test-status-0.png', true);
     const status0 = await this.getTestElements();
 
-    await this.page.click(e.firstUser);
-    await this.page.click(e.setStatus);
-    await this.page.click(e.applaud);
-    await helper.sleep(100);
-    await this.page.screenshot({ path: 'screenshots/test-status-1.png' });
+    await this.click(e.firstUser);
+    await this.click(e.setStatus, true);
+    await this.click(e.applaud, true);
+
+    await this.screenshot('test-status-1.png', true);
     const status1 = await this.getTestElements();
 
-    await this.page.click(e.firstUser);
-    await this.page.click(e.setStatus);
-    await this.page.click(e.away);
-    await helper.sleep(100);
-    await this.page.screenshot({ path: 'screenshots/test-status-2.png' });
+    await this.click(e.firstUser);
+    await this.click(e.setStatus, true);
+    await this.click(e.away, true);
+
+    await this.screenshot('test-status-2.png', true);
     const status2 = await this.getTestElements();
 
-    await this.page.click(e.firstUser);
-    await this.page.click(e.clearStatus);
-    await helper.sleep(100);
-    await this.page.screenshot({ path: 'screenshots/test-status-3.png' });
+    await this.click(e.firstUser);
+    await this.click(e.clearStatus, true);
+
+    await this.screenshot('test-status-3.png', true);
     const status3 = await this.getTestElements();
 
     console.log('\nStatus at start of meeting:');

@@ -44,33 +44,25 @@ class Page {
   async joinBBBMeeting(meetingID) {
     const joinURL = helper.getJoinURL(meetingID, params, true);
     await this.goto(joinURL);
+    await this.page.waitForSelector(e.audioDialog, { timeout: 60000 });
   }
 
   // Joins a BigBlueButton as a listener
   async joinAudioListenOnly() {
-    await this.page.waitFor(e.listenButton);
-    await this.page.click(e.listenButton);
-    await this.elementRemoved(e.audioDialog);
+    await this.click(e.listenButton);
     console.log('Joined meeting as listener');
   }
 
   // Joins a BigBlueButton meeting with a microphone
   async joinAudioMicrophone() {
-    await this.page.waitFor(e.microphoneButton);
-    await this.page.click(e.microphoneButton);
-    await this.page.waitFor(e.echoYes);
-    await helper.sleep(500); // Echo test confirmation sometimes fails without this
-    await this.page.click(e.echoYes);
-    await this.elementRemoved(e.audioDialog);
+    await this.click(e.microphoneButton);
+    await this.click(e.echoYes, true);
     console.log('Joined meeting with microphone');
   }
 
   // Joins a BigBlueButton meeting without audio
   async joinWithoutAudio() {
-    await this.page.waitFor(e.listenButton);
-    await this.page.waitFor(e.closeAudio);
-    await this.page.click(e.closeAudio);
-    await this.elementRemoved(e.audioDialog);
+    await this.click(e.closeAudio, true);
     console.log('Joined meeting without audio');
   }
 
@@ -116,6 +108,23 @@ class Page {
     for (let i = 0; i < count; i++) {
       await this.page.keyboard.press('ArrowUp');
     }
+  }
+
+  async click(element, relief = false) {
+    if (relief) await helper.sleep(1000);
+    await this.page.waitForSelector(element, { timeout: 60000 });
+    await this.page.click(element);
+  }
+
+  async type(element, text, relief = false) {
+    if (relief) await helper.sleep(1000);
+    await this.page.waitForSelector(element, { timeout: 60000 });
+    await this.page.type(element, text);
+  }
+
+  async screenshot(path, relief = false) {
+    if (relief) await helper.sleep(1000);
+    await this.page.screenshot({ path: 'screenshots/' + path });
   }
 }
 

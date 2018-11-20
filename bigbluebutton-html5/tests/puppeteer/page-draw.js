@@ -7,10 +7,8 @@ class DrawTestPage extends Page {
     await this.createBBBMeeting();
     await this.joinWithoutAudio();
 
-    await this.page.waitFor(e.tools);
-    await this.page.click(e.tools);
-    await this.page.waitFor(e.rectangle);
-    await this.page.click(e.rectangle);
+    await this.click(e.tools);
+    await this.click(e.rectangle);
     await this.page.waitFor(e.whiteboard);
 
     const shapes0 = await this.getTestElements();
@@ -22,8 +20,7 @@ class DrawTestPage extends Page {
     await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.page.mouse.up();
 
-    await helper.sleep(500);
-    await this.page.screenshot({ path: 'screenshots/test-draw.png' });
+    await this.screenshot('test-draw.png', true);
     const shapes1 = await this.getTestElements();
 
     console.log('\nShapes before drawing box:');

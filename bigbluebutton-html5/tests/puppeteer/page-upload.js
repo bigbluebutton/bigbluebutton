@@ -7,24 +7,22 @@ class UploadTestPage extends Page {
     await this.createBBBMeeting();
     await this.joinWithoutAudio();
 
-    await this.page.waitFor(e.actions);
     await this.page.waitFor(e.whiteboard);
     await this.page.waitFor(e.skipSlide);
-    await this.page.click(e.actions);
-    await this.page.waitFor(e.uploadPresentation);
 
     const slides0 = await this.getTestElements();
 
-    await this.page.click(e.uploadPresentation);
+    await this.click(e.actions);
+    await this.click(e.uploadPresentation);
+
     await this.page.waitFor(e.fileUpload);
     const fileUpload = await this.page.$(e.fileUpload);
     await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
-    await this.page.waitFor(e.start);
-    await this.page.click(e.start);
+
+    await this.click(e.start);
     await this.elementRemoved(e.start);
 
-    await helper.sleep(1000);
-    await this.page.screenshot({ path: 'screenshots/test-upload.png' });
+    await this.page.screenshot('test-upload.png', true);
     const slides1 = await this.getTestElements();
 
     console.log('\nSlides before presentation upload:');

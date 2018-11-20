@@ -9,18 +9,15 @@ class ChatTestPage extends Page {
     await this.createBBBMeeting();
     await this.joinWithoutAudio();
 
-    await this.page.waitFor(e.chatButton);
-    await this.page.click(e.chatButton);
+    await this.click(e.chatButton);
     await this.page.waitFor(e.chatBox);
     await this.page.waitFor(e.chatMessages);
 
     const messages0 = await this.getTestElements();
 
-    await this.page.type(e.chatBox, 'Hello world!');
-    await this.page.click(e.sendButton);
-    await helper.sleep(500);
-
-    await this.page.screenshot({ path: 'screenshots/test-chat.png' });
+    await this.type(e.chatBox, 'Hello world!');
+    await this.click(e.sendButton);
+    await this.screenshot('test-chat.png', true);
 
     const messages1 = await this.getTestElements();
 

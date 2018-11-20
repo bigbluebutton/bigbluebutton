@@ -9,16 +9,18 @@ class SlideSwitchTestPage extends Page {
 
     await this.page.waitFor(e.whiteboard);
     await this.page.waitFor(e.presentationToolbarWrapper);
-    await helper.sleep(500);
-    await this.page.screenshot({ path: 'screenshots/test-switch-slides-0.png' });
+
+    await this.screenshot('test-switch-slides-0.png', true);
     const svg0 = await this.getTestElements();
-    await this.page.click(e.nextSlide);
-    await helper.sleep(500);
-    await this.page.screenshot({ path: 'screenshots/test-switch-slides-1.png' });
+
+    await this.click(e.nextSlide, true);
+
+    await this.screenshot('test-switch-slides-1.png', true);
     const svg1 = await this.getTestElements();
-    await this.page.click(e.prevSlide);
-    await helper.sleep(500);
-    await this.page.screenshot({ path: 'screenshots/test-switch-slides-2.png' });
+
+    await this.click(e.prevSlide, true);
+
+    await this.screenshot('test-switch-slides-2.png', true);
     const svg2 = await this.getTestElements();
 
     console.log('\nStarting slide:');
