@@ -5,6 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
 
@@ -77,19 +78,6 @@ class MeetingEnded extends React.PureComponent {
     const comment = textarea.value;
     return comment;
   }
-
-  static logoutRouteHandler() {
-    Auth.logout()
-      .then((logoutURL = window.location.origin) => {
-        const protocolPattern = /^((http|https):\/\/)/;
-
-        window.location.href =
-          protocolPattern.test(logoutURL) ?
-            logoutURL :
-            `http://${logoutURL}`;
-      });
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -116,7 +104,7 @@ class MeetingEnded extends React.PureComponent {
     } = this.state;
 
     if (selected <= 0) {
-      MeetingEnded.logoutRouteHandler();
+      logoutRouteHandler();
       return;
     }
 
@@ -138,7 +126,7 @@ class MeetingEnded extends React.PureComponent {
 
     fetch(url, options)
       .finally(() => {
-        MeetingEnded.logoutRouteHandler();
+        logoutRouteHandler();
       });
   }
 
