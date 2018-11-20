@@ -265,7 +265,7 @@ class UserDropdown extends Component {
       ));
     }
 
-    if (allowedToUnmuteAudio && user.id === currentUser.id) {
+    if (allowedToUnmuteAudio) {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),
