@@ -3,17 +3,18 @@
 :root{
   --icon-offset-left: -.5em;
   --icon-offset-top: -.4em;
-  --dropdown-offset-top: 4.5rem;
-  --dropdown-offset-right: -0.2rem;
+  --menu-offset-right: -6px;
+  --menu-offset-top: -7px;
+  --menu-width: 10rem;
 }
-
-.dropdown {
-  position: static;
+ .dropdown {
+  position: absolute;
+  right: 0px;
 }
-
-.dropdownContent {
-  top: var(--dropdown-offset-top);
-  margin-right: var(--dropdown-offset-right);
+ .dropdownContent {
+  top: var(--menu-offset-top);
+  right: var(--menu-offset-right);
+  width: var(--menu-width);
 }
 
 .optionsButton{
@@ -28,6 +29,7 @@
   i {
     top: var(--icon-offset-top);
     left: var(--icon-offset-left);
+    font-size: 145% !important;
     color: var(--color-gray-dark) !important;
     background-color: transparent !important;
   }
