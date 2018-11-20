@@ -25,12 +25,14 @@ export default function handlePresenterAssigned(credentials, meetingId) {
   const prevPresenter = Users.findOne(selector);
 
   // no previous presenters
+  // The below code is responsible for set Meeting presenter to be default pod presenter as well.
+  // It's been handled here because right now akka-apps don't handle all cases scenarios.
   if (!prevPresenter) {
     const currentDefaultPodPresenter = PresentationPods.findOne(defaultPodSelector);
 
     const { currentPresenterId } = currentDefaultPodPresenter;
 
-    const fakeCredentials = {
+    const podPresenterCredentials = {
       meetingId,
       requesterUserId: assignedBy,
     };
@@ -39,11 +41,11 @@ export default function handlePresenterAssigned(credentials, meetingId) {
       const oldPresenter = Users.findOne({ userId: currentPresenterId });
 
       if (oldPresenter.connectionStatus === 'offline') {
-        return assignPresenter(fakeCredentials, presenterId);
+        return assignPresenter(podPresenterCredentials, presenterId);
       }
       return true;
     }
-    return assignPresenter(fakeCredentials, presenterId);
+    return assignPresenter(podPresenterCredentials, presenterId);
   }
 
   return changeRole(ROLE_PRESENTER, false, prevPresenter.userId, meetingId, assignedBy);
