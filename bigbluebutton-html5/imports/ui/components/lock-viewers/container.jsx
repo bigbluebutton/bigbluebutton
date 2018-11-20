@@ -8,20 +8,17 @@ import LockViewersComponent from './component';
 
 const LockViewersContainer = props => <LockViewersComponent {...props} />;
 
-export default withModalMounter(withTracker(({ mountModal }) => {
-  const meetingId = Auth.meetingID;
-  return {
-    closeModal() {
-      mountModal(null);
-    },
+export default withModalMounter(withTracker(({ mountModal }) => ({
+  closeModal() {
+    mountModal(null);
+  },
 
-    toggleLockSettings(meeting) {
-      makeCall('toggleLockSettings', meeting);
-    },
+  toggleLockSettings(meeting) {
+    makeCall('toggleLockSettings', meeting);
+  },
 
-    toggleWebcamsOnlyForModerator(meeting) {
-      makeCall('toggleWebcamsOnlyForModerator', meeting);
-    },
-    meeting: (Meetings.findOne({ meetingId })),
-  };
-})(LockViewersContainer));
+  toggleWebcamsOnlyForModerator(meeting) {
+    makeCall('toggleWebcamsOnlyForModerator', meeting);
+  },
+  meeting: (Meetings.findOne({ meetingId: Auth.meetingID })),
+}))(LockViewersContainer));
