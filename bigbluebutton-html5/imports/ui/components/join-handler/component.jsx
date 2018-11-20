@@ -110,7 +110,7 @@ class JoinHandler extends Component {
       .then(setLogoURL)
       .then(logUserInfo)
       .then(() => {
-        Session.set('openPanel', deviceInfo.type().isPhone ? 'userlist' : '');
+        Session.set('openPanel', deviceInfo.type().isPhone ? '' : 'userlist');
         Session.set('idChatOpen', '');
       })
       .finally(() => this.changeToJoin(true));
