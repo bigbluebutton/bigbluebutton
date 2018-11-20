@@ -115,7 +115,6 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
-      togglePollMenu,
       meetingIsBreakout,
       hasBreakoutRoom,
     } = this.props;

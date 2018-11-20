@@ -7,6 +7,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
 import { styles } from '/imports/ui/components/app/styles';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -22,6 +23,12 @@ const intlMessages = defineMessages({
 class PanelManager extends Component {
   constructor() {
     super();
+
+    this.padUL = _.uniqueId('userlist-pad-');
+    this.keyUL = _.uniqueId('userlist-');
+    this.keyBR = _.uniqueId('breakoutroom-');
+    this.keyC = _.uniqueId('chat-');
+    this.keyP = _.uniqueId('poll-');
   }
 
   renderUserList() {
@@ -69,6 +76,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableUserList = node; }}
         className={styles.resizableUserList}
         enable={resizableEnableOptions}
+        key={this.keyUL}
       >
         {this.renderUserList()}
       </Resizable>
@@ -113,6 +121,7 @@ class PanelManager extends Component {
         ref={(node) => { this.resizableChat = node; }}
         className={styles.resizableChat}
         enable={resizableEnableOptions}
+        key={this.keyC}
       >
         {this.renderChat()}
       </Resizable>
@@ -121,7 +130,7 @@ class PanelManager extends Component {
 
   renderPoll() {
     return (
-      <div className={styles.poll}>
+      <div className={styles.poll} key={this.keyP}>
         <PollContainer />
       </div>
     );
@@ -130,26 +139,40 @@ class PanelManager extends Component {
   renderBreakoutRoom() {
     return (
       <div className={styles.breakoutRoom}>
-        <BreakoutRoomContainer />
+        <BreakoutRoomContainer key={this.keyBR} />
       </div>
     );
   }
 
   render() {
+    const { enableResize } = this.props;
+
     switch (this.props.openPanel) {
-      case 'chat': return [
+      case 'chat': return enableResize ? [
         this.renderUserListResizable(),
+        <div className={styles.userlistPad} key={this.padUL} />,
         this.renderChatResizable(),
+      ] : [
+        this.renderUserList(),
+        this.renderChat(),
       ];
-      case 'poll': return [
+      case 'poll': return enableResize ? [
         this.renderUserListResizable(),
+        <div className={styles.userlistPad} key={this.padUL} />,
+        this.renderPoll(),
+      ] : [
+        this.renderUserList(),
         this.renderPoll(),
       ];
-      case 'breakoutroom': return [
+      case 'breakoutroom': return enableResize ? [
         this.renderUserListResizable(),
+        <div className={styles.userlistPad} key={this.padUL} />,
+        this.renderBreakoutRoom(),
+      ] : [
+        this.renderUserList(),
         this.renderBreakoutRoom(),
       ];
-      case 'userlist': return this.renderUserListResizable();
+      case 'userlist': return enableResize ? this.renderUserListResizable() : this.renderUserList();
       default: break;
     }
     return null;

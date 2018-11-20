@@ -42,7 +42,7 @@ class UserPolls extends Component {
             className={styles.pollLink}
             onClick={() => {
               Session.set(
-'openPanel',
+                'openPanel',
                 Session.get('openPanel') === 'poll'
                   ? 'userlist'
                   : 'poll',

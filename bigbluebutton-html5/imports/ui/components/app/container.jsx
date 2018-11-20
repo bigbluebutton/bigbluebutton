@@ -106,17 +106,18 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
+  const openPanel = Session.get('openPanel');
+
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
-    userListIsOpen: Session.get('isUserListOpen'),
-    breakoutRoomIsOpen: Session.get('breakoutRoomIsOpen') && Session.get('isUserListOpen'),
-    chatIsOpen: Session.get('isChatOpen') && Session.get('isUserListOpen'),
-    pollIsOpen: Session.get('isPollOpen') && Session.get('isUserListOpen'),
+    userListIsOpen: !Session.equals('openPanel', ''),
+    breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
+    chatIsOpen: Session.equals('openPanel', 'chat'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
-    openPanel: Session.get('openPanel'),
+    openPanel,
   };
 })(AppContainer)));
 

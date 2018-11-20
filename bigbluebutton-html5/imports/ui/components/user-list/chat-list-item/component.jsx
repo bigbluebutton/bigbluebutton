@@ -74,7 +74,7 @@ const ChatListItem = (props) => {
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
       onClick={() => {
         Session.set(
-'openPanel',
+          'openPanel',
           Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === chat.id
             ? 'userlist' : 'chat',
         );
