@@ -17,11 +17,6 @@ exports.leaveAudio = 'button[aria-label="Leave Audio"]';
 exports.videoMenu = 'button[aria-label="Open video menu dropdown"]';
 exports.screenShare = 'button[aria-label="Share your screen"]';
 
-exports.chatButton = 'div._imports_ui_components_user_list_chat_list_item__styles__chatName';
-exports.chatBox = '#message-input';
-exports.sendButton = '[aria-label="Send Message"]';
-exports.chatMessages = '#chat-messages';
-
 exports.whiteboard = 'svg._imports_ui_components_presentation__styles__svgStyles';
 exports.toolbox = '._imports_ui_components_whiteboard_whiteboard_toolbar__styles__toolbarContainer';
 exports.tools = 'button[aria-label="Tools"]';
