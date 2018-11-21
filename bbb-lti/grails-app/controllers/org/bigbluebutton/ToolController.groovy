@@ -328,9 +328,21 @@ class ToolController {
             recording.put("unixDate", startTime / 1000)
             // Add sanitized thumbnails
             recording.put("thumbnails", sanitizeThumbnails(recording.playback.format))
-            recording.put("playbacks", new ArrayList(recording.playback.format))
+            recording.put("playbacks", sanitizePlayback(recording.playback.format))
         }
         return recordings
+    }
+
+    private List<Object> sanitizePlayback(Object format) {
+        def response = new ArrayList<Object>()
+        if (format instanceof Map<?,?>) {
+            response.add(format)
+        } else if (format instanceof Collection<?>) {
+            response = new ArrayList(format)
+        } else {
+            response = format
+        }
+        return response
     }
 
     private List<Object> sanitizeThumbnails(Object format) {
