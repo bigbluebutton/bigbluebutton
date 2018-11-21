@@ -76,12 +76,8 @@ class BreakoutRoom extends Component {
     createBreakoutRoom(rooms, durationTime, this.state.freeJoin);
   }
 
-  changeNumberOfRooms(event) {
-    this.setState({ numberOfRooms: Number.parseInt(event.target.value, 10) });
-  }
-
-  changeDurationTime(event) {
-    this.setState({ durationTime: Number.parseInt(event.target.value, 10) || '' });
+  setFreeJoin(e) {
+    this.setState({ freeJoin: e.target.checked });
   }
 
   increaseDurationTime() {
@@ -93,8 +89,13 @@ class BreakoutRoom extends Component {
     this.setState({ durationTime: number < 1 ? 1 : number });
   }
 
-  setFreeJoin(e) {
-    this.setState({ freeJoin: e.target.checked });
+  changeDurationTime(event) {
+    this.setState({ durationTime: Number.parseInt(event.target.value, 10) || '' });
+  }
+
+
+  changeNumberOfRooms(event) {
+    this.setState({ numberOfRooms: Number.parseInt(event.target.value, 10) });
   }
 
   render() {
