@@ -1006,6 +1006,16 @@ check_configuration() {
                 echo "#"
             fi
         fi
+
+        if [[ $PROTOCOL == "https" ]]; then
+                if ! grep -q 7443 /etc/bigbluebutton/nginx/sip.nginx; then
+                        echo "# Warning: Server is using HTTPS, but sip.nginx is not listening"
+                        echo "# on port 7443"
+                        echo "#"
+                        echo "#    /etc/bigbluebutton/nginx/sip.nginx"
+                        echo 
+                fi
+        fi
 }
 
 
