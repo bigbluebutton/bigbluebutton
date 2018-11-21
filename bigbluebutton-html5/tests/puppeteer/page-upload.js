@@ -22,7 +22,7 @@ class UploadTestPage extends Page {
     await this.click(e.start);
     await this.elementRemoved(e.start);
 
-    await this.page.screenshot('test-upload.png', true);
+    await this.screenshot('test-upload.png', true);
     const slides1 = await this.getTestElements();
 
     console.log('\nSlides before presentation upload:');
