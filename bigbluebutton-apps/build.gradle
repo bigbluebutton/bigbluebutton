@@ -39,7 +39,8 @@ dependencies {
   // Red5
   providedCompile 'org.red5:red5-server:1.0.10-M5@jar'
   providedCompile 'org.red5:red5-server-common:1.0.10-M5@jar'
-  
+  providedCompile 'org.red5:red5-io:1.0.10-M5@jar'
+
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.2.3@jar'
   providedCompile 'ch.qos.logback:logback-classic:1.2.3@jar'
@@ -60,7 +61,7 @@ dependencies {
   compile 'org.apache.commons:commons-pool2:2.6.0'
  
    compile 'com.google.code.gson:gson:2.8.5'
-   providedCompile 'org.apache.commons:commons-lang3:3.7'
+   providedCompile 'org.apache.commons:commons-lang3:3.8.1'
 
   compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.20-SNAPSHOT'
   compile 'org.bigbluebutton:bbb-apps-common_2.12:0.0.4-SNAPSHOT'

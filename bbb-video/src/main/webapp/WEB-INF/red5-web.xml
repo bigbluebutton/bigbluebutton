@@ -58,28 +58,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<bean id="meetingManager" class="org.bigbluebutton.app.video.MeetingManager"/>
 
-    <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
-        <property name="messageSender" ref="redisSender"/>
-    </bean>
-    
-
-
-	<bean id="messageDistributor" class="org.bigbluebutton.common2.redis.pubsub.MessageDistributor">
-		<property name="messageHandler" ref="receivedMessageHandler"/>
-		<property name="messageListeners">
-			<set>
-				<ref bean="meetingMessageHandler" />
-			</set>
-		</property>
-	</bean>
-
-	<bean id="meetingMessageHandler" class="org.bigbluebutton.red5.pubsub.MeetingMessageHandler">
-		<property name="meetingManager" ref="meetingManager"/>
-		<property name="connInvokerService" ref="connInvokerService"/>
-	</bean>
-
-	<bean id="receivedMessageHandler" class="org.bigbluebutton.common2.redis.pubsub.ReceivedMessageHandler"
-		  init-method="start" destroy-method="stop">
-	</bean>
-
 </beans>

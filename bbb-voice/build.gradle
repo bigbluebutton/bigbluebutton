@@ -25,17 +25,18 @@ dependencies {
   providedCompile 'org.apache.mina:mina-core:2.0.17@jar'
   providedCompile 'org.apache.mina:mina-integration-beans:2.0.17@jar'
   providedCompile 'org.apache.mina:mina-integration-jmx:2.0.17@jar'
-	
-  // Spring 
-  providedCompile 'org.springframework:spring-web:4.3.20.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.3.20.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.3.20.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.3.20.RELEASE@jar'
 
+  // Spring 
+  providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar' 
+  providedCompile 'org.springframework:spring-beans:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.3.13.RELEASE@jar'
+
+  // Red5
   providedCompile 'org.red5:red5-server:1.0.10-M5@jar'
   providedCompile 'org.red5:red5-server-common:1.0.10-M5@jar'
   providedCompile 'org.red5:red5-io:1.0.10-M5@jar'
-	  
+
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.2.3@jar'
   providedCompile 'ch.qos.logback:logback-classic:1.2.3@jar'

@@ -27,14 +27,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 	
-	<bean id="messagingService" class="org.bigbluebutton.voiceconf.messaging.RedisMessagingService">
-		<property name="redisMessageSender"> <ref bean="redisMessageSender"/></property>
-	</bean>
-
 	<bean id="redisMessageSender" class="org.bigbluebutton.common2.redis.pubsub.MessageSender"
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
+		<property name="password" value="${redisPassword:''}" />
+	</bean>
+	
+	<bean id="messagingService" class="org.bigbluebutton.voiceconf.messaging.RedisMessagingService">
+		<property name="redisMessageSender"> <ref bean="redisMessageSender"/></property>
 	</bean>
 
 	<bean id="meetingMessageHandler" class="org.bigbluebutton.voiceconf.messaging.MeetingMessageHandler">
@@ -45,6 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
+		<property name="password" value="${redisPassword:''}" />
 		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
 	</bean>
 

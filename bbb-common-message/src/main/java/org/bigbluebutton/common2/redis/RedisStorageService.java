@@ -36,8 +36,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     private long keyExpiry;
 
-    // MeetingCommands meetingCommands;
-    // RecordingCommands recordingCommands;
     RedisCommands<String, String> commands;
     private StatefulRedisConnection<String, String> connection;
 
@@ -53,6 +51,7 @@ public class RedisStorageService extends RedisAwareCommunicator {
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
 
         connection = redisClient.connect();
+        commands = connection.sync();
     }
 
     public void stop() {
@@ -78,7 +77,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     public void record(String meetingId, Map<String, String> event) {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
-        RedisCommands<String, String> commands = connection.sync();
         commands.multi();
         Long msgid = commands.incr("global:nextRecordedMsgId");
         commands.hmset("recording:" + meetingId + ":" + msgid, event);
@@ -89,7 +87,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
     // @fixme: not used anywhere
     public void removeMeeting(String meetingId) {
         log.debug("Removing meeting meeting {} inside a transaction", meetingId);
-        RedisCommands<String, String> commands = connection.sync();
         commands.multi();
         commands.del(Keys.MEETING + meetingId);
         commands.srem(Keys.MEETINGS + meetingId);
@@ -98,7 +95,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     public void recordAndExpire(String meetingId, Map<String, String> event) {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
-        RedisCommands<String, String> commands = connection.sync();
         commands.multi();
 
         Long msgid = commands.incr("global:nextRecordedMsgId");
@@ -116,7 +112,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
     }
 
     private String recordMeeting(String key, Map<String, String> info) {
-        RedisCommands<String, String> commands = connection.sync();
         return commands.hmset(key, info);
     }
 
