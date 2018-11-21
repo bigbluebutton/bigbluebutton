@@ -36,6 +36,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</property>
 	</bean>
 	
+	<import resource="bbb-redis-messaging.xml"/>
+	
+	<bean id="clientConnectionManager" class="org.bigbluebutton.voiceconf.red5.ClientConnectionManager"/>
+	
+	<bean id="connInvokerService" class="org.bigbluebutton.voiceconf.red5.ConnectionInvokerService"
+	     init-method="start" destroy-method="stop"/>
 	
 	<bean id="web.context" class="org.red5.server.Context"
 		autowire="byType" />
@@ -64,22 +70,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="messagingService" ref="messagingService"/>
 	</bean>
 
-	<bean id="voiceconf.service" class="org.bigbluebutton.voiceconf.red5.Service">
-		<property name="sipPeerManager" ref="sipPeerManager"/>
-	</bean>
-
-	<bean id="connInvokerService" class="org.bigbluebutton.voiceconf.red5.ConnectionInvokerService"
-		  init-method="start" destroy-method="stop"/>
-
 	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
 		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
 		<property name="sipRemotePort" value="${freeswitch.port}"/>
 		<property name="messagingService" ref="messagingService"/>
-		
 	</bean>
-	
-	<bean id="clientConnectionManager" class="org.bigbluebutton.voiceconf.red5.ClientConnectionManager"/>
 
-	<import resource="bbb-redis-messaging.xml"/>
+	<bean id="voiceconf.service" class="org.bigbluebutton.voiceconf.red5.Service">
+		<property name="sipPeerManager" ref="sipPeerManager"/>
+	</bean>
 
 </beans>

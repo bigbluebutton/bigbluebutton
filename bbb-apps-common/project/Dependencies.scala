@@ -32,7 +32,7 @@ object Dependencies {
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
     val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
-    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion % "provided"
+    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val quicklens = "com.softwaremill.quicklens" %% "quicklens" % Versions.quicklens

@@ -29,6 +29,7 @@ object Dependencies {
 
     // Redis
     val redisScala = "1.8.0"
+    val lettuce = "5.1.2.RELEASE"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -65,6 +66,7 @@ object Dependencies {
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool2
 
     val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
+    val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
   }
@@ -84,6 +86,7 @@ object Dependencies {
     Compile.scalaLibrary,
     Compile.scalaReflect,
     Compile.akkaActor,
+    Compile.akkaSl4fj,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.red5Server,
@@ -100,5 +103,6 @@ object Dependencies {
     Compile.apacheLang,
     Compile.apachePool2,
     Compile.redisScala,
+    Compile.lettuceCore,
     Compile.bbbCommons) ++ testing
 }

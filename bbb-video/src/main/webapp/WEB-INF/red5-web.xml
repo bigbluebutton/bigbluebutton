@@ -32,6 +32,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    	</list>
 	    </property>
 	</bean>
+	
+	<import resource="bbb-redis-messaging.xml"/>
 
 	<bean id="web.context" class="org.red5.server.Context"
 		autowire="byType" />
@@ -44,6 +46,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="contextPath" value="${webapp.contextPath}" />
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
+	
+	<bean id="connInvokerService" class="org.bigbluebutton.app.video.ConnectionInvokerService"
+		  init-method="start" destroy-method="stop"/>
+
+	<bean id="meetingManager" class="org.bigbluebutton.app.video.MeetingManager"/>
 
 	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication">
 	   <property name="packetTimeout" value="10000"/>
@@ -52,10 +59,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="meetingManager" ref="meetingManager"/>
 		<property name="connInvokerService" ref="connInvokerService"/>
 	</bean>
-
-	<bean id="connInvokerService" class="org.bigbluebutton.app.video.ConnectionInvokerService"
-		  init-method="start" destroy-method="stop"/>
-
-	<bean id="meetingManager" class="org.bigbluebutton.app.video.MeetingManager"/>
 
 </beans>

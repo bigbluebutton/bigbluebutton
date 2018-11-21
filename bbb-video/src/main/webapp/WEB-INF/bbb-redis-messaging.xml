@@ -30,25 +30,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="redisStorageService"
 		class="org.bigbluebutton.common2.redis.RedisStorageService"
 		init-method="start" destroy-method="stop">
-		<property name="host" value="${redisHost}" />
-		<property name="port" value="${redisPort}" />
-		<property name="password" value="${redisPassword:''}" />
-		<property name="clientName" value="BbbRed5AppsPub" />
+		<property name="host" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<property name="password" value="${redis.password:''}" />
+		<property name="expireKey" value="${redis.keyExpiry}" />
+		<property name="clientName" value="BbbRed5VideoStore" />
 	</bean>
 	
 	<bean id="messageReceiver" class="org.bigbluebutton.common2.redis.pubsub.MessageReceiver"
 		  init-method="start" destroy-method="stop">
-		<property name="host" value="${redisHost}" />
-		<property name="port" value="${redisPort}" />
-		<property name="password" value="${redisPassword:''}" />
+		<property name="host" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<property name="password" value="${redis.password:''}" />
+		<property name="clientName" value="BbbRed5VideoReceiver" />
 		<property name="messageHandler" ref="receivedMessageHandler"/>
 	</bean>
 
     <bean id="redisSender" class="org.bigbluebutton.common2.redis.pubsub.MessageSender" 
                     init-method="start" destroy-method="stop">
-		<property name="host" value="${redisHost}" />
-		<property name="port" value="${redisPort}" />
-		<property name="password" value="${redisPassword:''}" />
+		<property name="host" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<property name="clientName" value="BbbRed5VideoSender" />
+		<property name="password" value="${redis.password:''}" />
     </bean>
     
       <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">

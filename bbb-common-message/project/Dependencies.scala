@@ -17,7 +17,7 @@ object Dependencies {
     val gson = "2.8.5"
     val jackson = "2.9.7"
     val sl4j = "1.7.25"
-    val red5 = "1.0.10-M9"
+    val red5 = "1.0.10-M5"
 
     // Redis
     val redisScala = "1.8.0"
@@ -38,8 +38,8 @@ object Dependencies {
     val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j % "runtime"
     val red5 = "org.red5" % "red5-server-common" % Versions.red5
 
-    val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
     val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
+    val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
   }
 
   object Test {

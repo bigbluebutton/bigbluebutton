@@ -17,6 +17,13 @@ repositories {
   mavenLocal()
 }
 
+configurations {
+    runtime.exclude group: "org.slf4j", module: "slf4j-api"
+    runtime.exclude group: "org.red5", module: "red5-server"
+    runtime.exclude group: "org.red5", module: "red5-server-common"
+    runtime.exclude group: "org.red5", module: "red5-io"
+}
+
 dependencies {
   // Servlet
   providedCompile 'javax.servlet:servlet-api:2.5@jar'

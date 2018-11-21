@@ -25,8 +25,8 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 }
 
 class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
-                               redisPort: Int,
-                               channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
+  redisPort: Int,
+  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
   extends RedisSubscriberActor(
     new InetSocketAddress(redisHost, redisPort),
     channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {

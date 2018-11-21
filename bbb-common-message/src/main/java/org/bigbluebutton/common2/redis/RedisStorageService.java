@@ -34,7 +34,7 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     private static Logger log = LoggerFactory.getLogger(RedisStorageService.class);
 
-    private long keyExpiry;
+    private long expireKey;
 
     RedisCommands<String, String> commands;
     private StatefulRedisConnection<String, String> connection;
@@ -105,10 +105,14 @@ public class RedisStorageService extends RedisAwareCommunicator {
          * event into redis even if the meeting is not recorded. (ralam sept 23,
          * 2015)
          */
-        commands.expire("meeting:" + meetingId + ":recordings", keyExpiry);
+        commands.expire("meeting:" + meetingId + ":recordings", expireKey);
         commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
-        commands.expire("meeting:" + meetingId + ":recordings", keyExpiry);
+        commands.expire("meeting:" + meetingId + ":recordings", expireKey);
         commands.exec();
+    }
+
+    public void setExpireKey(long expireKey) {
+        this.expireKey = expireKey;
     }
 
     private String recordMeeting(String key, Map<String, String> info) {
