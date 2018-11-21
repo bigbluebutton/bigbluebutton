@@ -328,6 +328,7 @@ class ToolController {
             recording.put("unixDate", startTime / 1000)
             // Add sanitized thumbnails
             recording.put("thumbnails", sanitizeThumbnails(recording.playback.format))
+            recording.put("playbacks", new ArrayList(recording.playback.format))
         }
         return recordings
     }
