@@ -21,8 +21,6 @@ package org.bigbluebutton.common2.redis;
 
 import java.util.Map;
 
-import org.bigbluebutton.common2.redis.commands.MeetingCommands;
-import org.bigbluebutton.common2.redis.commands.RecordingCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +29,6 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
-import io.lettuce.core.dynamic.RedisCommandFactory;
 
 public class RedisStorageService extends RedisAwareCommunicator {
 
@@ -39,9 +36,9 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     private long keyExpiry;
 
-    MeetingCommands meetingCommands;
-    RecordingCommands recordingCommands;
-
+    // MeetingCommands meetingCommands;
+    // RecordingCommands recordingCommands;
+    RedisCommands<String, String> commands;
     private StatefulRedisConnection<String, String> connection;
 
     public void start() {
@@ -56,13 +53,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
 
         connection = redisClient.connect();
-        RedisCommandFactory factory = new RedisCommandFactory(connection);
-        initCommands(factory);
-    }
-
-    private void initCommands(RedisCommandFactory factory) {
-        meetingCommands = factory.getCommands(MeetingCommands.class);
-        recordingCommands = factory.getCommands(RecordingCommands.class);
     }
 
     public void stop() {
@@ -83,18 +73,16 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     public void addBreakoutRoom(String parentId, String breakoutId) {
         log.debug("Saving breakout room for meeting {}", parentId);
-        meetingCommands.addBreakoutRooms(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
+        commands.sadd(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
     }
 
     public void record(String meetingId, Map<String, String> event) {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
         RedisCommands<String, String> commands = connection.sync();
         commands.multi();
-        // @fixme increment Long msgid =
-        // recordingCommands.incrementRecords("global:nextRecordedMsgId");
-        Long msgid = 999L;
-        recordingCommands.recordEventName("recording:" + meetingId + ":" + msgid, event);
-        recordingCommands.recordEventValues("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
+        Long msgid = commands.incr("global:nextRecordedMsgId");
+        commands.hmset("recording:" + meetingId + ":" + msgid, event);
+        commands.rpush("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
         commands.exec();
     }
 
@@ -103,8 +91,8 @@ public class RedisStorageService extends RedisAwareCommunicator {
         log.debug("Removing meeting meeting {} inside a transaction", meetingId);
         RedisCommands<String, String> commands = connection.sync();
         commands.multi();
-        meetingCommands.deleteMeeting(Keys.MEETING + meetingId);
-        meetingCommands.deleteMeetings(Keys.MEETINGS + meetingId);
+        commands.del(Keys.MEETING + meetingId);
+        commands.srem(Keys.MEETINGS + meetingId);
         commands.exec();
     }
 
@@ -113,26 +101,23 @@ public class RedisStorageService extends RedisAwareCommunicator {
         RedisCommands<String, String> commands = connection.sync();
         commands.multi();
 
-        // @fixme increment Long msgid =
-        // recordingCommands.incrementRecords("global:nextRecordedMsgId");
-        Long msgid = 999L;
-        recordingCommands.recordEventName("recording:" + meetingId + ":" + msgid, event);
-        recordingCommands.recordEventValues("meeting:" + meetingId + ":recordings", Long.toString(msgid));
+        Long msgid = commands.incr("global:nextRecordedMsgId");
+        commands.hmset("recording:" + meetingId + ":" + msgid, event);
+        commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
         /**
          * We set the key to expire after 14 days as we are still recording the
          * event into redis even if the meeting is not recorded. (ralam sept 23,
          * 2015)
          */
-        // @fixme buggy recordingCommands.expireKey("meeting:" + meetingId +
-        // ":recordings", keyExpiry);
-        recordingCommands.recordEventValues("meeting:" + meetingId + ":recordings", Long.toString(msgid));
-        // @fixme buggy recordingCommands.expireKey("meeting:" + meetingId +
-        // ":recordings", keyExpiry);
+        commands.expire("meeting:" + meetingId + ":recordings", keyExpiry);
+        commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
+        commands.expire("meeting:" + meetingId + ":recordings", keyExpiry);
         commands.exec();
     }
 
     private String recordMeeting(String key, Map<String, String> info) {
-        return meetingCommands.recordMeetingInfo(key, info);
+        RedisCommands<String, String> commands = connection.sync();
+        return commands.hmset(key, info);
     }
 
 }
