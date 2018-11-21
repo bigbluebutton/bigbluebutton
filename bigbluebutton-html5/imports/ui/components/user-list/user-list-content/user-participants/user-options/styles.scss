@@ -3,17 +3,19 @@
 :root{
   --icon-offset-left: -.5em;
   --icon-offset-top: -.4em;
-  --menu-offset-right: -6px;
-  --menu-offset-top: -7px;
+  --dropdown-offset-right: -6px;
+  --dropdown-offset-top: -7px;
   --menu-width: 10rem;
 }
- .dropdown {
+
+.dropdown {
   position: absolute;
   right: 0px;
 }
- .dropdownContent {
-  top: var(--menu-offset-top);
-  right: var(--menu-offset-right);
+ 
+.dropdownContent {
+  top: var(--dropdown-offset-top);
+  right: var(--dropdown-offset-right);
   width: var(--menu-width);
 
   @include mq($small-only) {
