@@ -77,6 +77,7 @@ export default function addMeeting(meeting) {
     lockOnJoin: true,
     lockOnJoinConfigurable: false,
     lockedLayout: false,
+    setBy: 'temp',
   };
 
   const modifier = {
