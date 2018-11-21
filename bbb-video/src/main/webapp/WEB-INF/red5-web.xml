@@ -47,7 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication">
 	   <property name="packetTimeout" value="10000"/>
-		<property name="eventRecordingService" ref="redisRecorder"/>
+		<property name="eventRecordingService" ref="redisStorageService"/>
 		<property name="messagePublisher" ref="redisPublisher"/>
 		<property name="meetingManager" ref="meetingManager"/>
 		<property name="connInvokerService" ref="connInvokerService"/>
@@ -62,21 +62,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="messageSender" ref="redisSender"/>
     </bean>
     
-	<bean id="redisRecorder" class="org.bigbluebutton.app.video.EventRecordingService"
-		  init-method="start" destroy-method="stop">
-        <constructor-arg index="0" value="${redis.host}"/>
-        <constructor-arg index="1" value="${redis.port}"/>
-        <constructor-arg index="2" value="${redis.keyExpiry}"/>
-    </bean>
 
-	<bean id="messageReceiver" class="org.bigbluebutton.red5.pubsub.MessageReceiver"
-		  init-method="start" destroy-method="stop">
-		<property name="host" value="${redis.host}"/>
-		<property name="port" value="${redis.port}"/>
-		<property name="messageHandler" ref="receivedMessageHandler"/>
-	</bean>
 
-	<bean id="messageDistributor" class="org.bigbluebutton.red5.pubsub.MessageDistributor">
+	<bean id="messageDistributor" class="org.bigbluebutton.common2.redis.pubsub.MessageDistributor">
 		<property name="messageHandler" ref="receivedMessageHandler"/>
 		<property name="messageListeners">
 			<set>
@@ -90,13 +78,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="connInvokerService" ref="connInvokerService"/>
 	</bean>
 
-	<bean id="receivedMessageHandler" class="org.bigbluebutton.red5.pubsub.ReceivedMessageHandler"
+	<bean id="receivedMessageHandler" class="org.bigbluebutton.common2.redis.pubsub.ReceivedMessageHandler"
 		  init-method="start" destroy-method="stop">
 	</bean>
 
-    <bean id="redisSender" class="org.bigbluebutton.red5.pubsub.MessageSender" 
-                    init-method="start" destroy-method="stop">
-		<property name="host" value="${redis.host}"/>
-		<property name="port" value="${redis.port}"/>
-    </bean>
 </beans>

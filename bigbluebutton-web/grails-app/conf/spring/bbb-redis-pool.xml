@@ -33,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="host" value="${redisHost}" />
 		<property name="port" value="${redisPort}" />
 		<property name="password" value="${redisPassword:''}" />
-		<property name="clientName" value="BbbRed5AppsPub" />
+		<property name="clientName" value="BbbWeb" />
 	</bean>
 
 	<bean id="redisMessageHandler"

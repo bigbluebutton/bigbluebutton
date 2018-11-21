@@ -17,6 +17,7 @@ object Dependencies {
     val gson = "2.8.5"
     val jackson = "2.9.7"
     val sl4j = "1.7.25"
+    val red5 = "1.0.10-M9"
 
     // Redis
     val redisScala = "1.8.0"
@@ -34,7 +35,8 @@ object Dependencies {
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
-    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j
+    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j % "runtime"
+    val red5 = "org.red5" % "red5-server-common" % Versions.red5
 
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
     val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
@@ -60,6 +62,7 @@ object Dependencies {
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.sl4jApi,
+    Compile.red5,
     Compile.lettuceCore,
     Compile.redisScala) ++ testing
 }

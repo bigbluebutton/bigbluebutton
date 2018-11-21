@@ -17,26 +17,36 @@
 *
 */
 
-package org.bigbluebutton.common2.redis.commands;
+package org.bigbluebutton.common2.redis;
 
-import java.util.List;
-import java.util.Map;
+import io.lettuce.core.RedisClient;
 
-import io.lettuce.core.dynamic.Commands;
-import io.lettuce.core.dynamic.annotation.Command;
+public abstract class RedisAwareCommunicator {
 
-public interface MeetingCommands extends Commands {
-    List<String> mget(String... keys);
+    protected RedisClient redisClient;
 
-    @Command("DEL ?0")
-    Long deleteMeeting(String meetingKey);
+    protected String host;
+    protected String password;
+    protected int port;
+    protected String clientName;
 
-    @Command("SREM ?0")
-    Long deleteMeetings(String meetingsKey);
+    public abstract void start();
 
-    @Command("HMSET ?0 ?1")
-    String recordMeetingInfo(String meetingKey, Map<String, String> values);
+    public abstract void stop();
 
-    @Command("SADD ?0 ?1")
-    Long addBreakoutRooms(String parentKey, String breakoutId);
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 }

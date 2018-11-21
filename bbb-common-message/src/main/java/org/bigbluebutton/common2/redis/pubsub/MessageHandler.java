@@ -16,8 +16,8 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.voiceconf.messaging;
+package org.bigbluebutton.common2.redis.pubsub;
 
 public interface MessageHandler {
-	void handleMessage(String pattern, String channel, String message);
+    void handleMessage(String pattern, String channel, String message);
 }

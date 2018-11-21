@@ -1,4 +1,4 @@
-package org.bigbluebutton.red5.pubsub;
+package org.bigbluebutton.common2.redis.pubsub;
 
 public class ReceivedMessage {
     private final String pattern;

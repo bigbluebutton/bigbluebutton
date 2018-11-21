@@ -25,12 +25,16 @@ import io.lettuce.core.dynamic.Commands;
 import io.lettuce.core.dynamic.annotation.Command;
 
 public interface RecordingCommands extends Commands {
-    @Command("INCR global:nextRecordedMsgId")
-    String incrementRecords();
+    // Temporary deactivated due to a bug
+    // @Command("INCR ?0")
+    // Long incrementRecords(String key);
 
     @Command("HMSET ?0 ?1")
     String recordEventName(String meetingKey, Map<String, String> values);
 
     @Command("RPUSH ?0 ?1")
-    String recordEventValues(String meetingKey, String values);
+    Long recordEventValues(String meetingKey, String values);
+    // Buggy command !!
+    // @Command("EXPIRE ?0 ?1")
+    // Boolean expireKey(String key, long seconds);
 }

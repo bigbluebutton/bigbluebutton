@@ -33,20 +33,16 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.dynamic.RedisCommandFactory;
 
-public class RedisStorageService {
+public class RedisStorageService extends RedisAwareCommunicator {
 
     private static Logger log = LoggerFactory.getLogger(RedisStorageService.class);
 
-    private RedisClient redisClient;
-    private StatefulRedisConnection<String, String> connection;
-
-    private String host;
-    private String password;
-    private int port;
-    private String clientName;
+    private long keyExpiry;
 
     MeetingCommands meetingCommands;
     RecordingCommands recordingCommands;
+
+    private StatefulRedisConnection<String, String> connection;
 
     public void start() {
         log.info("Starting RedisStorageService");
@@ -94,9 +90,11 @@ public class RedisStorageService {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
         RedisCommands<String, String> commands = connection.sync();
         commands.multi();
-        String msgid = recordingCommands.incrementRecords();
+        // @fixme increment Long msgid =
+        // recordingCommands.incrementRecords("global:nextRecordedMsgId");
+        Long msgid = 999L;
         recordingCommands.recordEventName("recording:" + meetingId + ":" + msgid, event);
-        recordingCommands.recordEventValues("meeting:" + meetingId + ":" + "recordings", msgid);
+        recordingCommands.recordEventValues("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
         commands.exec();
     }
 
@@ -110,23 +108,31 @@ public class RedisStorageService {
         commands.exec();
     }
 
+    public void recordAndExpire(String meetingId, Map<String, String> event) {
+        log.debug("Recording meeting event {} inside a transaction", meetingId);
+        RedisCommands<String, String> commands = connection.sync();
+        commands.multi();
+
+        // @fixme increment Long msgid =
+        // recordingCommands.incrementRecords("global:nextRecordedMsgId");
+        Long msgid = 999L;
+        recordingCommands.recordEventName("recording:" + meetingId + ":" + msgid, event);
+        recordingCommands.recordEventValues("meeting:" + meetingId + ":recordings", Long.toString(msgid));
+        /**
+         * We set the key to expire after 14 days as we are still recording the
+         * event into redis even if the meeting is not recorded. (ralam sept 23,
+         * 2015)
+         */
+        // @fixme buggy recordingCommands.expireKey("meeting:" + meetingId +
+        // ":recordings", keyExpiry);
+        recordingCommands.recordEventValues("meeting:" + meetingId + ":recordings", Long.toString(msgid));
+        // @fixme buggy recordingCommands.expireKey("meeting:" + meetingId +
+        // ":recordings", keyExpiry);
+        commands.exec();
+    }
+
     private String recordMeeting(String key, Map<String, String> info) {
         return meetingCommands.recordMeetingInfo(key, info);
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
 }

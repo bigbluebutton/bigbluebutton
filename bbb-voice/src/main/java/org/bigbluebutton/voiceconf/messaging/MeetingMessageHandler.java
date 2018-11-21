@@ -3,6 +3,8 @@ package org.bigbluebutton.voiceconf.messaging;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.bigbluebutton.common2.redis.pubsub.MessageHandler;
 import org.bigbluebutton.voiceconf.messaging.messages.ValidateConnTokenRespMsg;
 import org.bigbluebutton.voiceconf.red5.ConnectionInvokerService;
 import org.red5.logging.Red5LoggerFactory;

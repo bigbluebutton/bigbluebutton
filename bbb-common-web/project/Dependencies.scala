@@ -47,7 +47,7 @@ object Dependencies {
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
     val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
-    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion
+    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion % "runtime"
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
@@ -55,7 +55,6 @@ object Dependencies {
     val freeMaker = "org.freemarker" % "freemarker" % Versions.freemaker
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
-
 
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val jodConverter = "org.jodconverter" % "jodconverter-local" % Versions.jodConverter

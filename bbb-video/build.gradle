@@ -27,10 +27,10 @@ dependencies {
   providedCompile 'org.apache.mina:mina-integration-jmx:2.0.17@jar'
 
   // Spring
-  providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar'
-  providedCompile  'org.springframework:spring-beans:4.3.12.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.3.12.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.3.20.RELEASE@jar'
+  providedCompile  'org.springframework:spring-beans:4.3.20.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.3.20.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.3.20.RELEASE@jar'
 
   providedCompile 'org.red5:red5-server:1.0.10-M5@jar'
   providedCompile 'org.red5:red5-server-common:1.0.10-M5@jar'
@@ -56,12 +56,11 @@ dependencies {
   testRuntime 'org.easymock:easymock:2.4@jar'
 
   //redis
-  compile 'redis.clients:jedis:2.9.0'
-  compile 'org.apache.commons:commons-pool2:2.3'
-  compile 'com.google.code.gson:gson:2.5'
+  compile 'org.apache.commons:commons-pool2:2.6.0'
+  compile 'com.google.code.gson:gson:2.8.5'
 
-  compile 'org.apache.commons:commons-lang3:3.7'
-  compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'
+  compile 'org.apache.commons:commons-lang3:3.8.1'
+  compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.20-SNAPSHOT'
 }
 
 test {

@@ -39,7 +39,7 @@ object Dependencies {
     val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
     val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion
 
-    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback % "runtime"
+    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
