@@ -45,7 +45,7 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     handleJoinAudio: () => {
       const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
       const currentUser = Users.findOne({ userId: Auth.userID });
-      const micsLocked = (currentUser.role === 'VIEWER' && meeting.lockSettingsProp.disableMic);
+      const micsLocked = (currentUser.locked && meeting.lockSettingsProp.disableMic);
 
       return micsLocked ? Service.joinListenOnly() : mountModal(<AudioModalContainer />);
     },

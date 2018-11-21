@@ -11,6 +11,7 @@ export default function toggleWebcamsOnlyForModerator(credentials, meeting) {
 
   check(meetingId, String);
   check(requesterUserId, String);
+  check(meeting.usersProp.webcamsOnlyForModerator, Boolean);
 
   const payload = {
     webcamsOnlyForModerator: meeting.usersProp.webcamsOnlyForModerator,

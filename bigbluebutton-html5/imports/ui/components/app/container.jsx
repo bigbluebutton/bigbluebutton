@@ -118,7 +118,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     pollIsOpen: Session.get('isPollOpen') && Session.get('isUserListOpen'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
-    micsLocked: (currentUser.role === 'VIEWER' && meeting.lockSettingsProp.disableMic),
+    micsLocked: (currentUser.locked && meeting.lockSettingsProp.disableMic),
   };
 })(AppContainer)));
 

@@ -11,6 +11,13 @@ export default function toggleLockSettings(credentials, meeting) {
 
   check(meetingId, String);
   check(requesterUserId, String);
+  check(meeting.lockSettingsProp.disableCam, Boolean);
+  check(meeting.lockSettingsProp.disableMic, Boolean);
+  check(meeting.lockSettingsProp.disablePrivChat, Boolean);
+  check(meeting.lockSettingsProp.disablePubChat, Boolean);
+  check(meeting.lockSettingsProp.lockedLayout, Boolean);
+  check(meeting.lockSettingsProp.lockOnJoin, Boolean);
+  check(meeting.lockSettingsProp.lockOnJoinConfigurable, Boolean);
 
   const payload = {
     disableCam: meeting.lockSettingsProp.disableCam,
