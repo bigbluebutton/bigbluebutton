@@ -15,11 +15,12 @@ const processToggleMuteFromOutside = (e) => {
       makeCall('toggleSelfVoice');
       break;
     }
+    case 'get_audio_joined_status': {
+      const audioJoinedState = AudioManager.isConnected ? 'joinedAudio' : 'notInAudio';
+      this.window.parent.postMessage({ response: audioJoinedState }, '*');
+      break;
+    }
     case 'c_mute_status': {
-      if (!AudioManager.isUsingAudio()) {
-        this.window.parent.postMessage({ response: 'notInAudio' }, '*');
-        return;
-      }
       const muteState = AudioManager.isMuted ? 'selfMuted' : 'selfUnmuted';
       this.window.parent.postMessage({ response: muteState }, '*');
       break;
