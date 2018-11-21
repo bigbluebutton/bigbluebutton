@@ -4,6 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import browser from 'browser-detect';
 
 
 const MEDIA = Meteor.settings.public.media;
@@ -12,7 +13,7 @@ const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const CONNECTION_TERMINATED_EVENTS = ['iceConnectionFailed', 'iceConnectionClosed'];
-const CALL_CONNECT_NOTIFICATION_TIMEOUT = 500;
+const CALL_CONNECT_NOTIFICATION_TIMEOUT = 1000;
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -280,11 +281,12 @@ export default class SIPBridge extends BaseAudioBridge {
         // actually ready and if the user says "Yes they can hear themselves" too quickly the
         // B-leg transfer will fail
         const that = this;
+        const notificationTimeout = (browser().name == 'firefox'? CALL_CONNECT_NOTIFICATION_TIMEOUT : 0);
         setTimeout(() => {
           that.callback({ status: that.baseCallStates.started });
           that.connectionCompleted = true;
           resolve();
-        }, CALL_CONNECT_NOTIFICATION_TIMEOUT);
+        }, notificationTimeout);
       };
       connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
