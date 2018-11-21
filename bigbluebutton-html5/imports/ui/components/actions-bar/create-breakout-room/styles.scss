@@ -11,8 +11,9 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 .breakoutSettings {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr; 
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr;
   grid-gap: 1rem;
+  margin-bottom: 1rem;
   @include mq($small-only) {
     grid-template-columns: 1fr ;
     grid-template-rows: 1fr 1fr 1fr; 
@@ -74,4 +75,18 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   white-space: nowrap;
   margin-bottom: .5rem;
   align-self: flex-end;
+}
+
+.freeJoinCheckbox {
+  width: 1rem;
+  height: 1rem;
+}
+
+.freeJoinLabel {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-small);
+  & > * {
+    margin-right: .5rem;
+  }
 }

@@ -47,11 +47,11 @@ class BreakoutRoom extends Component {
     this.increaseDurationTime = this.increaseDurationTime.bind(this);
     this.decreaseDurationTime = this.decreaseDurationTime.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
-
+    this.setFreeJoin = this.setFreeJoin.bind(this);
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
       durationTime: 1,
-      freeJoin: true,
+      freeJoin: false,
     };
   }
 
@@ -73,7 +73,7 @@ class BreakoutRoom extends Component {
       sequence: value,
     }));
 
-    createBreakoutRoom(rooms, durationTime, true);
+    createBreakoutRoom(rooms, durationTime, this.state.freeJoin);
   }
 
   changeNumberOfRooms(event) {
@@ -93,6 +93,10 @@ class BreakoutRoom extends Component {
     this.setState({ durationTime: number < 1 ? 1 : number });
   }
 
+  setFreeJoin(e) {
+    this.setState({ freeJoin: e.target.checked });
+  }
+
   render() {
     const { intl } = this.props;
     return (
@@ -110,7 +114,7 @@ class BreakoutRoom extends Component {
             {intl.formatMessage(intlMessages.breakoutRoomDesc)}
           </p>
           <div className={styles.breakoutSettings}>
-            <label>
+            <label htmlFor="numberOfRooms">
               <p className={styles.labelText}>{intl.formatMessage(intlMessages.numberOfRooms)}</p>
               <select
                 name="numberOfRooms"
@@ -123,7 +127,7 @@ class BreakoutRoom extends Component {
                 }
               </select>
             </label>
-            <label >
+            <label htmlFor="breakoutRoomTime" >
               <p className={styles.labelText}>{intl.formatMessage(intlMessages.duration)}</p>
               <div className={styles.durationArea}>
                 <input
@@ -160,6 +164,17 @@ class BreakoutRoom extends Component {
             </label>
             <p className={styles.randomText}>{intl.formatMessage(intlMessages.randomlyAssign)}</p>
           </div>
+
+          <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel}>
+            <input
+              type="checkbox"
+              className={styles.freeJoinCheckbox}
+              onChange={this.setFreeJoin}
+              checked={this.state.freeJoin}
+            />
+            Allow users to choose a breakout room to join
+          </label>
+
         </div>
       </Modal >
     );
