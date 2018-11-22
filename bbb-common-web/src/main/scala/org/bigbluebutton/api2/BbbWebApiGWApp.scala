@@ -26,8 +26,6 @@ class BbbWebApiGWApp(
 
   val log = Logging(system, getClass)
 
-  log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
-
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
   private val redisPublisher = new RedisPublisher(system, "BbbWebPub")
   private val msgSender: MessageSender = new MessageSender(redisPublisher)

@@ -41,7 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}" />
 		<property name="port" value="${redis.port}" />
-		<property name="password" value="${redis.password:''}" />
+		<property name="password" value="${redis.password:}" />
 		<property name="expireKey" value="${redis.keyExpiry}" />
 		<property name="clientName" value="BbbRed5VideoStore" />
 	</bean>
@@ -50,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}" />
 		<property name="port" value="${redis.port}" />
-		<property name="password" value="${redis.password:''}" />
+		<property name="password" value="${redis.password:}" />
 		<property name="clientName" value="BbbRed5VideoReceiver" />
 		<property name="messageHandler" ref="receivedMessageHandler"/>
 	</bean>
@@ -60,7 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="host" value="${redis.host}" />
 		<property name="port" value="${redis.port}" />
 		<property name="clientName" value="BbbRed5VideoSender" />
-		<property name="password" value="${redis.password:''}" />
+		<property name="password" value="${redis.password:}" />
     </bean>
     
       <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">

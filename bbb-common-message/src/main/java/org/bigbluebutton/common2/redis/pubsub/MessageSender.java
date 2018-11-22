@@ -47,10 +47,9 @@ public class MessageSender extends RedisAwareCommunicator {
         // CLIENT LIST on redis-cli // "BbbRed5VoicePub"
 
         RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName).build();
-        // @todo Add password if provided
-        // if (!this.password.isEmpty()) {
-        // redisUri.setPassword(this.password);
-        // }
+        if (!this.password.isEmpty()) {
+            redisUri.setPassword(this.password);
+        }
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
