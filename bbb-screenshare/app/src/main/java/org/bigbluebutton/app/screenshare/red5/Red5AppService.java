@@ -3,7 +3,6 @@ package org.bigbluebutton.app.screenshare.red5;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
@@ -178,10 +177,6 @@ public class Red5AppService {
     log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
 
     handler.screenShareClientPongMessage(meetingId, userId, streamId, timestamp.longValue());
-  }
-
-  private Long genTimestamp() {
-    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
   }
 
   public void setAppHandler(Red5AppHandler handler) {
