@@ -12,7 +12,8 @@
 .container{
   display: flex;
   align-items: center;
-  margin-bottom: .3rem;
+  margin-bottom: var(--lg-padding-y);
+  margin-top: var(--sm-padding-x);
 }
 
 .scrollableList {
