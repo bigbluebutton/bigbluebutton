@@ -112,7 +112,8 @@ class JoinHandler extends Component {
       .then(setLogoURL)
       .then(logUserInfo)
       .then(() => Session.set('isUserListOpen', deviceInfo.type().isPhone))
-      .finally(() => this.changeToJoin(true));
+      .then(() => this.changeToJoin(true))
+      .catch(() => this.changeToJoin(true));
   }
 
   render() {

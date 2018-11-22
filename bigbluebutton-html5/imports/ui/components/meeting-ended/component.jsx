@@ -125,7 +125,10 @@ class MeetingEnded extends React.PureComponent {
     };
 
     fetch(url, options)
-      .finally(() => {
+      .then(() => {
+        logoutRouteHandler();
+      })
+      .catch(() => {
         logoutRouteHandler();
       });
   }
