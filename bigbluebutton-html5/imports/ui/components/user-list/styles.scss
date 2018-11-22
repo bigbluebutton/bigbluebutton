@@ -121,6 +121,11 @@
   color: var(--color-gray-light);
 }
 
+.userListColumn {
+  @extend %flex-column;
+  min-height: 0;
+}
+
 .enter,
 .appear {
   opacity: 0.01;

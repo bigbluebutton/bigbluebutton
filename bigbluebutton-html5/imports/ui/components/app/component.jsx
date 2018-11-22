@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { Session } from 'meteor/session';
 import Modal from 'react-modal';
 import browser from 'browser-detect';
+import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
@@ -11,8 +13,6 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
-import PanelManager from '/imports/ui/components/panel-manager/component';
-import { Session } from 'meteor/session';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
@@ -188,7 +188,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl,
+      customStyle, customStyleUrl, micsLocked,
     } = this.props;
 
     return (
@@ -205,11 +205,11 @@ class App extends Component {
         </section>
         <PollingContainer />
         <ModalContainer />
-        <AudioContainer />
+        {micsLocked ? null : <AudioContainer />}
         <ToastContainer />
         <ChatAlertContainer />
-        { customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null }
-        { customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null }
+        {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+        {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
       </main>
     );
   }

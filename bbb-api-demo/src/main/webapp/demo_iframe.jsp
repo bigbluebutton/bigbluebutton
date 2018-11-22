@@ -133,10 +133,11 @@ muteButton.id = 'muteButton';
 
 function getInitialState() {
   document.getElementById('client-content').contentWindow.postMessage('c_recording_status', '*');
-  document.getElementById('client-content').contentWindow.postMessage('c_mute_status', '*');
+  document.getElementById('client-content').contentWindow.postMessage('get_audio_joined_status', '*');
 }
 
 function handleMessage(e) {
+  let neverJoinedAudio = true;
   switch (e) {
     case 'readyToConnect': {
       // get initial state
@@ -160,11 +161,18 @@ function handleMessage(e) {
     case 'notInAudio': {
       muteButton.innerHTML = 'Not in audio';
       document.getElementById('muteButton').disabled = true;
+      if (neverJoinedAudio) {
+        // poll every 1 sec to check if we joined audio
+        setTimeout(function(){
+          document.getElementById('client-content').contentWindow.postMessage('get_audio_joined_status', '*');
+        }, 1000);}
       break;
     }
     case 'joinedAudio': {
+      neverJoinedAudio = false;
       muteButton.innerHTML = '';
-      document.getElementById('muteButton').disabled = false; getInitialState();
+      document.getElementById('muteButton').disabled = false;
+      document.getElementById('client-content').contentWindow.postMessage('c_mute_status', '*');
       break;
     }
     default: console.log('neither', { e });

@@ -12,9 +12,6 @@ import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 
-const APP_CONFIG = Meteor.settings.public.app;
-const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
-
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
@@ -277,7 +274,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
                               && user.isVoiceUser
                               && !user.isListenOnly
                               && user.isMuted
-                              && (ALLOW_MODERATOR_TO_UNMUTE_AUDIO || user.isCurrent);
+                              && user.isCurrent;
 
   const allowedToResetStatus = hasAuthority
       && user.emoji.status !== EMOJI_STATUSES.none
