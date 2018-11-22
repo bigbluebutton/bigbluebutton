@@ -33,6 +33,8 @@ class LtiService {
     def mode = "simple"
     def restrictedAccess = "true"
     def recordedByDefault = "false"
+    def canvasPlacements = ""
+    def canvasPlacementName = "BigBlueButton"
 
     Map<String, String> consumerMap
 

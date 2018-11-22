@@ -362,6 +362,26 @@ class ToolController {
         def icon = 'http://' + lti_endpoint + '/assets/icon.ico'
         def secure_icon = 'https://' + lti_endpoint + '/assets/icon.ico'
         def isSSLEnabled = ltiService.isSSLEnabled('https://' + lti_endpoint + '/tool/test')
+        def extension_url = isSSLEnabled ? secure_launch_url : launch_url
+        def extension_icon = isSSLEnabled ? secure_icon : icon
+        def canvasPlacements = ''
+        def canvasPlacementsList = ltiService.canvasPlacements
+        if (canvasPlacementsList.length > 0) {
+            canvasPlacements += '' +
+                '    <blti:extensions platform="canvas.instructure.com">'
+            canvasPlacementsList.each { placement ->
+                canvasPlacements += '' +
+                    '        <lticm:options name="' + placement + '">' +
+                    '          <lticm:property name="canvas_icon_class">icon-lti</lticm:property>' +
+                    '          <lticm:property name="icon_url">' + extension_icon + '</lticm:property>' +
+                    '          <lticm:property name="text">' + ltiService.canvasPlacementName + '</lticm:property>' +
+                    '          <lticm:property name="url">' + extension_url + '</lticm:property>' +
+                    '        </lticm:options>'
+            }
+            canvasPlacements += '' +
+                '    </blti:extensions>'
+        }
+
         def cartridge = '' +
                 '<?xml version="1.0" encoding="UTF-8"?>' +
                 '<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"' +
@@ -385,6 +405,7 @@ class ToolController {
                 '        <lticp:description>Open source web conferencing system for distance learning.</lticp:description>' +
                 '        <lticp:url>http://www.bigbluebutton.org/</lticp:url>' +
                 '    </blti:vendor>' +
+                canvasPlacements +
                 '    <cartridge_bundle identifierref="BLTI001_Bundle"/>' +
                 '    <cartridge_icon identifierref="BLTI001_Icon"/>' +
                 '</cartridge_basiclti_link>'
