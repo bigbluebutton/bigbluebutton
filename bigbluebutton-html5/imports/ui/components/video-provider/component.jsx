@@ -388,7 +388,7 @@ class VideoProvider extends Component {
   }
 
   async createWebRTCPeer(id, shareWebcam) {
-    const { meetingId, sessionToken } = this.props;
+    const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
 
     try {
@@ -448,6 +448,7 @@ class VideoProvider extends Component {
             sdpOffer: offerSdp,
             cameraId: id,
             meetingId,
+            voiceBridge,
           };
           this.sendMessage(message);
 

@@ -126,6 +126,11 @@ class VideoService {
     return Auth.sessionToken;
   }
 
+  voiceBridge() {
+    const voiceBridge = Meetings.findOne({ meetingId: Auth.meetingID }).voiceProp.voiceConf;
+    return voiceBridge;
+  }
+
   isConnected() {
     return this.isConnected;
   }
@@ -157,4 +162,5 @@ export default {
   meetingId: () => videoService.meetingId(),
   getAllUsersVideo: () => videoService.getAllUsersVideo(),
   sessionToken: () => videoService.sessionToken(),
+  voiceBridge: () => videoService.voiceBridge(),
 };
