@@ -3,6 +3,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
+import Users from '/imports/api/users/';
+import Meetings from '/imports/api/meetings';
+import Auth from '/imports/ui/services/auth';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
 import Service from '../service';
@@ -40,6 +43,12 @@ export default withModalMounter(withTracker(({ mountModal }) =>
     disable: Service.isConnecting() || Service.isHangingUp(),
     glow: Service.isTalking() && !Service.isMuted(),
     handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
-    handleJoinAudio: () => mountModal(<AudioModalContainer />),
+    handleJoinAudio: () => {
+      const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+      const currentUser = Users.findOne({ userId: Auth.userID });
+      const micsLocked = (currentUser.locked && meeting.lockSettingsProp.disableMic);
+
+      return micsLocked ? Service.joinListenOnly() : mountModal(<AudioModalContainer />);
+    },
     handleLeaveAudio: () => Service.exitAudio(),
   }))(AudioControlsContainer));
