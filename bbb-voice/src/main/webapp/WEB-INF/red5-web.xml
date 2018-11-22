@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
@@ -55,6 +54,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="contextPath" value="${webapp.contextPath}" />
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
+	
+	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
+		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
+		<property name="sipRemotePort" value="${freeswitch.port}"/>
+		<property name="messagingService" ref="messagingService"/>
+	</bean>
+
+	<bean id="voiceconf.service" class="org.bigbluebutton.voiceconf.red5.Service">
+		<property name="sipPeerManager" ref="sipPeerManager"/>
+	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.voiceconf.red5.Application">
 		<property name="sipClientRtpIp" value="${bbb.sip.app.ip}" />
@@ -68,16 +77,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="clientConnectionManager" ref="clientConnectionManager"/>
 		<property name="connInvokerService" ref="connInvokerService"/>
 		<property name="messagingService" ref="messagingService"/>
-	</bean>
-
-	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
-		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
-		<property name="sipRemotePort" value="${freeswitch.port}"/>
-		<property name="messagingService" ref="messagingService"/>
-	</bean>
-
-	<bean id="voiceconf.service" class="org.bigbluebutton.voiceconf.red5.Service">
-		<property name="sipPeerManager" ref="sipPeerManager"/>
 	</bean>
 
 </beans>

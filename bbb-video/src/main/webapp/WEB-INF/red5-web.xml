@@ -21,8 +21,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:lang="http://www.springframework.org/schema/lang"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang 
+                           http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
 	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 	    <property name="locations">
@@ -34,6 +36,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<import resource="bbb-redis-messaging.xml"/>
+	
+	<bean id="meetingManager" class="org.bigbluebutton.app.video.MeetingManager"/>
+	
+	<bean id="connInvokerService" class="org.bigbluebutton.app.video.ConnectionInvokerService"
+		  init-method="start" destroy-method="stop"/>
 
 	<bean id="web.context" class="org.red5.server.Context"
 		autowire="byType" />
@@ -47,11 +54,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 	
-	<bean id="connInvokerService" class="org.bigbluebutton.app.video.ConnectionInvokerService"
-		  init-method="start" destroy-method="stop"/>
-
-	<bean id="meetingManager" class="org.bigbluebutton.app.video.MeetingManager"/>
-
 	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication">
 	   <property name="packetTimeout" value="10000"/>
 		<property name="eventRecordingService" ref="redisStorageService"/>

@@ -38,10 +38,10 @@ dependencies {
   providedCompile 'org.apache.mina:mina-integration-jmx:2.0.17@jar'
 
   // Spring 
-  providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar' 
-  providedCompile 'org.springframework:spring-beans:4.3.12.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.3.12.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.3.13.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.3.20.RELEASE@jar' 
+  providedCompile 'org.springframework:spring-beans:4.3.20.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.3.20.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.3.20.RELEASE@jar'
 
   // Red5
   providedCompile 'org.red5:red5-server:1.0.10-M5@jar'
@@ -58,7 +58,7 @@ dependencies {
   	
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
-  providedCompile 'org.springframework:spring-aop:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-aop:4.3.20.RELEASE@jar'
   compile 'aopalliance:aopalliance:1.0@jar'
 	     
   // Testing

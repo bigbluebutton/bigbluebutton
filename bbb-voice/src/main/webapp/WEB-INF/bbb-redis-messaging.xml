@@ -27,6 +27,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 	
+	<bean id="redisMessageDistributor" class="org.bigbluebutton.common2.redis.pubsub.MessageDistributor">
+		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
+		<property name="messageListeners">
+			<set>
+				<ref bean="meetingMessageHandler" />
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="redisMessageHandler" class="org.bigbluebutton.common2.redis.pubsub.ReceivedMessageHandler"
+		  init-method="start" destroy-method="stop">
+		<property name="messageDistributor"><ref bean="redisMessageDistributor" /></property>
+	</bean>
+
 	<bean id="redisMessageSender" class="org.bigbluebutton.common2.redis.pubsub.MessageSender"
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
@@ -50,20 +64,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="password" value="${redis.password:''}" />
 		<property name="clientName" value="BbbRed5VideoReceiver" />
 		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
-	</bean>
-
-	<bean id="redisMessageHandler" class="org.bigbluebutton.common2.redis.pubsub.ReceivedMessageHandler"
-		  init-method="start" destroy-method="stop">
-		<property name="messageDistributor"><ref bean="redisMessageDistributor" /></property>
-	</bean>
-
-	<bean id="redisMessageDistributor" class="org.bigbluebutton.common2.redis.pubsub.MessageDistributor">
-		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
-		<property name="messageListeners">
-			<set>
-				<ref bean="meetingMessageHandler" />
-			</set>
-		</property>
 	</bean>
 
 </beans>

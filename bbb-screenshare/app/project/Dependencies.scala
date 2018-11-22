@@ -17,7 +17,7 @@ object Dependencies {
     val jackson = "2.9.7"
     val logback = "1.2.3"
     val springVersion = "4.3.20.RELEASE"
-    val red5 = "1.0.10-M9"
+    val red5 = "1.0.10-M5"
     val servlet = "2.5"
     val ffmpeg = "4.0.2-1.4.3"
     val openCv = "1.4.3"
