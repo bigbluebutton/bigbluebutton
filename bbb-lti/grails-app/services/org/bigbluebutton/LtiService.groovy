@@ -146,4 +146,9 @@ class LtiService {
     def String getScheme(request) {
         return request.isSecure() ? "https" : "http"
     }
+
+    def String[] getCanvasPlacements() {
+        return this.canvasPlacements
+    }
 }
+
