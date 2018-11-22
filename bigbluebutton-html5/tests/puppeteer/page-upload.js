@@ -3,10 +3,11 @@ const helper = require('./helper');
 const e = require('./elements');
 
 class UploadTestPage extends Page {
-  async test() {
-    await this.createBBBMeeting();
-    await this.joinWithoutAudio();
+  constructor() {
+    super('presentation-upload');
+  }
 
+  async test() {
     await this.page.waitFor(e.whiteboard);
     await this.page.waitFor(e.skipSlide);
 
@@ -22,7 +23,7 @@ class UploadTestPage extends Page {
     await this.click(e.start);
     await this.elementRemoved(e.start);
 
-    await this.screenshot('test-upload.png', true);
+    await this.screenshot(true);
     const slides1 = await this.getTestElements();
 
     console.log('\nSlides before presentation upload:');

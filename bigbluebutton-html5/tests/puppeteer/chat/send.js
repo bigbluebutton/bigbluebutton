@@ -1,11 +1,14 @@
 // Test: Sending a chat message
 
 const Page = require('../page');
-const helper = require('../helper');
 const e = require('./elements');
 const util = require('./util');
 
 class Send extends Page {
+  constructor() {
+    super('chat-send');
+  }
+
   async test() {
     await util.openChat(this);
 
@@ -13,9 +16,9 @@ class Send extends Page {
     // []
     const chat0 = await util.getTestElements(this);
 
-    await this.type(e.chatBox, 'Hello world!');
+    await this.type(e.chatBox, e.message);
     await this.click(e.sendButton);
-    await this.screenshot('test-chat.png', true);
+    await this.screenshot(true);
 
     // Must be:
     // [{ "name": "User1\nXX:XX XM", "message": "Hello world!" }]
@@ -23,7 +26,7 @@ class Send extends Page {
 
     const response =
       chat0.length == 0 &&
-      chat1[0].message == 'Hello world!';
+      chat1[0].message == e.message;
 
     return response;
   }

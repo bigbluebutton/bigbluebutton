@@ -6,3 +6,5 @@ exports.chatOptions = '[aria-label="Chat Options"]';
 exports.chatClear = 'i._imports_ui_components_dropdown_list__styles__itemIcon.icon-bbb-delete';
 exports.chatCopy = 'i._imports_ui_components_dropdown_list__styles__itemIcon.icon-bbb-copy';
 exports.chatSave = 'i._imports_ui_components_dropdown_list__styles__itemIcon.icon-bbb-save_notes';
+
+exports.message = 'Hello World!';

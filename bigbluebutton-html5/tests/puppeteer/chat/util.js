@@ -1,8 +1,6 @@
 const e = require('./elements');
 
 async function openChat(test) {
-  await test.createBBBMeeting();
-  await test.joinWithoutAudio();
   await test.click(e.chatButton);
   await test.page.waitFor(e.chatBox);
   await test.page.waitFor(e.chatMessages);

@@ -3,31 +3,32 @@ const helper = require('./helper');
 const e = require('./elements');
 
 class StatusTestPage extends Page {
-  async test() {
-    await this.createBBBMeeting();
-    await this.joinWithoutAudio();
+  constructor() {
+    super('user-status');
+  }
 
-    await this.screenshot('test-status-0.png', true);
+  async test() {
+    await this.screenshot(true);
     const status0 = await this.getTestElements();
 
     await this.click(e.firstUser);
     await this.click(e.setStatus, true);
     await this.click(e.applaud, true);
 
-    await this.screenshot('test-status-1.png', true);
+    await this.screenshot(true);
     const status1 = await this.getTestElements();
 
     await this.click(e.firstUser);
     await this.click(e.setStatus, true);
     await this.click(e.away, true);
 
-    await this.screenshot('test-status-2.png', true);
+    await this.screenshot(true);
     const status2 = await this.getTestElements();
 
     await this.click(e.firstUser);
     await this.click(e.clearStatus, true);
 
-    await this.screenshot('test-status-3.png', true);
+    await this.screenshot(true);
     const status3 = await this.getTestElements();
 
     console.log('\nStatus at start of meeting:');

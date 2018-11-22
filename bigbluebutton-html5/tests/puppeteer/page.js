@@ -4,15 +4,30 @@ const params = require('./params');
 const e = require('./elements');
 
 class Page {
-  // Initializes the page
+  constructor(name) {
+    this.name = name;
+    this.screenshotIndex = 0;
+    this.meetingId;
+  }
+
+  // Join BigBlueButton meeting
   async init(args) {
     this.browser = await puppeteer.launch(args);
     this.page = await this.browser.newPage();
+
+    await this.setDownloadBehavior(__dirname + '/downloads');
+
+    this.meetingId = await helper.createMeeting(params);
+    const joinURL = helper.getJoinURL(this.meetingId, params, true);
+
+    await this.page.goto(joinURL);
+    await this.page.waitForSelector(e.audioDialog, { timeout: 60000 });
+    await this.click(e.closeAudio, true);
   }
 
-  // Navigates to a page
-  async goto(page) {
-    this.page.goto(page);
+  async setDownloadBehavior(downloadPath) {
+    const downloadBehavior = { behavior: 'allow', downloadPath: downloadPath };
+    await this.page._client.send('Page.setDownloadBehavior', downloadBehavior);
   }
 
   // Run the test for the page
@@ -31,38 +46,6 @@ class Page {
   // Get the default arguments for creating a page
   static getArgs() {
     return { headless: true, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
-  }
-
-  // Creates a BigBlueButton meeting
-  async createBBBMeeting() {
-    const meetingID = await helper.createMeeting(params);
-    await this.joinBBBMeeting(meetingID);
-    return meetingID;
-  }
-
-  // Navigates the page to join a BigBlueButton meeting
-  async joinBBBMeeting(meetingID) {
-    const joinURL = helper.getJoinURL(meetingID, params, true);
-    await this.goto(joinURL);
-    await this.page.waitForSelector(e.audioDialog, { timeout: 60000 });
-  }
-
-  // Joins a BigBlueButton as a listener
-  async joinAudioListenOnly() {
-    await this.click(e.listenButton);
-    console.log('Joined meeting as listener');
-  }
-
-  // Joins a BigBlueButton meeting with a microphone
-  async joinAudioMicrophone() {
-    await this.click(e.microphoneButton);
-    await this.click(e.echoYes, true);
-    console.log('Joined meeting with microphone');
-  }
-
-  // Joins a BigBlueButton meeting without audio
-  async joinWithoutAudio() {
-    await this.click(e.closeAudio, true);
   }
 
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
@@ -121,9 +104,18 @@ class Page {
     await this.page.type(element, text);
   }
 
-  async screenshot(path, relief = false) {
+  async screenshot(relief = false) {
     if (relief) await helper.sleep(1000);
-    await this.page.screenshot({ path: 'screenshots/' + path });
+    const path = 'screenshots/' + this.name + '-' + this.screenshotIndex + '.png';
+    await this.page.screenshot({ path: path });
+    this.screenshotIndex++;
+  }
+
+  async paste(element) {
+    await this.click(element);
+    await this.page.keyboard.down('ControlLeft');
+    await this.page.keyboard.press('KeyV');
+    await this.page.keyboard.up('ControlLeft');
   }
 }
 

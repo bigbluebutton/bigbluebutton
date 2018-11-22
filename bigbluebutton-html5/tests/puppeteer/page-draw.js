@@ -3,10 +3,11 @@ const helper = require('./helper');
 const e = require('./elements');
 
 class DrawTestPage extends Page {
-  async test() {
-    await this.createBBBMeeting();
-    await this.joinWithoutAudio();
+  constructor() {
+    super('whiteboard-draw');
+  }
 
+  async test() {
     await this.click(e.tools);
     await this.click(e.rectangle);
     await this.page.waitFor(e.whiteboard);
@@ -20,7 +21,7 @@ class DrawTestPage extends Page {
     await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.page.mouse.up();
 
-    await this.screenshot('test-draw.png', true);
+    await this.screenshot(true);
     const shapes1 = await this.getTestElements();
 
     console.log('\nShapes before drawing box:');
