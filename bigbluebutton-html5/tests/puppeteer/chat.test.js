@@ -1,33 +1,50 @@
 const Page = require('./page');
 const Send = require('./chat/send');
 const Clear = require('./chat/clear');
+const Copy = require('./chat/copy');
 
-describe('Chat tests', () => {
+describe('Chat', () => {
 
-  test('Tests sending a message in chat', async () => {
+  test('Send message', async () => {
     const test = new Send();
+    let response;
     try {
       await test.init(Page.getArgs());
-      await test.test();
-      await test.close();
+      response = await test.test();
     } catch (e) {
       console.log(e);
+    } finally {
       await test.close();
-      throw new Error('Test failed');
     }
+    expect(response).toBe(true);
   });
 
-  test('Tests cleaning a message in chat', async () => {
+  test('Clear chat', async () => {
     const test = new Clear();
+    let response;
     try {
       await test.init(Page.getArgs());
-      await test.test();
-      await test.close();
+      response = await test.test();
     } catch (e) {
       console.log(e);
+    } finally {
       await test.close();
-      throw new Error('Test failed');
     }
+    expect(response).toBe(true);
+  });
+
+  test('Copy chat', async () => {
+    const test = new Copy();
+    let response;
+    try {
+      await test.init(Page.getArgs());
+      response = await test.test();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
   });
 
 });

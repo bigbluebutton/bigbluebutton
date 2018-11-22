@@ -9,18 +9,23 @@ class Send extends Page {
   async test() {
     await util.openChat(this);
 
-    const messages0 = await util.getTestElements(this);
+    // Must be:
+    // []
+    const chat0 = await util.getTestElements(this);
 
     await this.type(e.chatBox, 'Hello world!');
     await this.click(e.sendButton);
     await this.screenshot('test-chat.png', true);
 
-    const messages1 = await util.getTestElements(this);
+    // Must be:
+    // [{ "name": "User1\nXX:XX XM", "message": "Hello world!" }]
+    const chat1 = await util.getTestElements(this);
 
-    console.log('\nChat messages before posting:');
-    console.log(JSON.stringify(messages0, null, 2));
-    console.log('\nChat messages after posting:');
-    console.log(JSON.stringify(messages1, null, 2));
+    const response =
+      chat0.length == 0 &&
+      chat1[0].message == 'Hello world!';
+
+    return response;
   }
 }
 

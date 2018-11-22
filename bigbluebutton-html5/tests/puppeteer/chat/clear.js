@@ -9,19 +9,27 @@ class Clear extends Page {
   async test() {
     await util.openChat(this);
 
-    const messages0 = await util.getTestElements(this);
+    await this.type(e.chatBox, 'Hello world!');
+    await this.click(e.sendButton);
+    await this.screenshot('clear-chat0.png', true);
+
+    // Must be:
+    // [{ "name": "User1\nXX:XX XM", "message": "Hello world!" }]
+    const chat0 = await util.getTestElements(this);
 
     await this.click(e.chatOptions);
     await this.click(e.chatClear, true);
-    await this.screenshot('clear-chat.png', true);
+    await this.screenshot('clear-chat1.png', true);
 
-    // TODO: this must change
-    const messages1 = await util.getTestElements(this);
+    // Must be:
+    // []
+    const chat1 = await util.getTestElements(this);
 
-    console.log('\nChat messages before cleaning:');
-    console.log(JSON.stringify(messages0, null, 2));
-    console.log('\nChat messages after cleaning:');
-    console.log(JSON.stringify(messages1, null, 2));
+    const response =
+      chat0[0].message == 'Hello world!' &&
+      chat1.length == 0;
+
+    return response;
   }
 }
 

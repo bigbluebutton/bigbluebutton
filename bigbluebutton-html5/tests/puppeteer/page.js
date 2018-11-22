@@ -63,7 +63,6 @@ class Page {
   // Joins a BigBlueButton meeting without audio
   async joinWithoutAudio() {
     await this.click(e.closeAudio, true);
-    console.log('Joined meeting without audio');
   }
 
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
