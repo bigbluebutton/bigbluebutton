@@ -63,7 +63,7 @@
 
 PATH=$PATH:/sbin
 
-if [ "$UID" != 0 ]
+if [ "$(whoami)" != 0 ]
 	then [ -x "$(which sudo)" ] && SUDO="$(which sudo)"
 	else echo "bbb-conf must be ran as root!" && exit 1
 fi
