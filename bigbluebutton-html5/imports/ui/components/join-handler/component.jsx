@@ -71,6 +71,7 @@ class JoinHandler extends Component {
       return resp;
     };
 
+    const setLogoutURL = (url) => Auth.logoutURL = url;
     const setLogoURL = (resp) => {
       setCustomLogoUrl(resp.customLogoURL);
       return resp;
@@ -94,11 +95,12 @@ class JoinHandler extends Component {
         .then(response => response.json())
         .then(({ response }) => response)
         .then((resp) => {
+          setLogoutURL(resp.logoutURL);
           if (resp.returncode !== 'FAILED') {
             logger.info(`User successfully went through main.joinRouteHandler with [${resp}].`);
             return resolve(resp);
           }
-          const e = new Error('Session not found');
+          const e = new Error('Session not found');          
           logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(resp));
           return reject(e);
         });
@@ -113,7 +115,8 @@ class JoinHandler extends Component {
         Session.set('openPanel', deviceInfo.type().isPhone ? '' : 'userlist');
         Session.set('idChatOpen', '');
       })
-      .finally(() => this.changeToJoin(true));
+      .then(() => this.changeToJoin(true))
+      .catch(() => this.changeToJoin(true));
   }
 
   render() {

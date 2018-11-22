@@ -31,11 +31,9 @@ if [[ $files = *"bigbluebutton-html5"* ]]; then
     } > /dev/null
 
     cd tests/puppeteer
-    npm install
     conf=$(docker exec $(docker ps -q) bbb-conf --secret | grep "Secret:")
     secret=$(echo $conf | cut -d' ' -f2)
     export BBB_SHARED_SECRET=$secret
-
     node html5-check.js
     npm test
   fi

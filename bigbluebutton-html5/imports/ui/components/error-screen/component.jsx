@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Button from '/imports/ui/components/button/component';
+import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -66,7 +67,7 @@ class ErrorScreen extends React.PureComponent {
         <div className={styles.content}>
           <Button
             size="sm"
-            onClick={() => Session.set('isMeetingEnded', true)}
+            onClick={logoutRouteHandler}
             label={intl.formatMessage(intlMessages.leave)}
           />
         </div>
