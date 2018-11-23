@@ -1,6 +1,6 @@
 // Test: Sending a chat message
 
-const Page = require('../page');
+const Page = require('../core/page');
 const e = require('./elements');
 const util = require('./util');
 

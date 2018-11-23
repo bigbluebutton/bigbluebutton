@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 const helper = require('./helper');
-const params = require('./params');
+const params = require('../params');
 const e = require('./elements');
 
 class Page {
@@ -8,6 +8,13 @@ class Page {
     this.name = name;
     this.screenshotIndex = 0;
     this.meetingId;
+    this.parentDir = this.getParentDir(__dirname);
+  }
+
+  getParentDir(dir) {
+    let tmp = dir.split('/');
+    tmp.pop();
+    return tmp.join('/');
   }
 
   // Join BigBlueButton meeting
@@ -15,13 +22,13 @@ class Page {
     this.browser = await puppeteer.launch(args);
     this.page = await this.browser.newPage();
 
-    await this.setDownloadBehavior(__dirname + '/downloads');
+    await this.setDownloadBehavior(this.parentDir + '/downloads');
 
     this.meetingId = await helper.createMeeting(params);
     const joinURL = helper.getJoinURL(this.meetingId, params, true);
 
     await this.page.goto(joinURL);
-    await this.page.waitForSelector(e.audioDialog, { timeout: 60000 });
+    await this.page.waitForSelector(e.audioDialog, { timeout: 0 });
     await this.click(e.closeAudio, true);
   }
 
@@ -106,7 +113,8 @@ class Page {
 
   async screenshot(relief = false) {
     if (relief) await helper.sleep(1000);
-    const path = 'screenshots/' + this.name + '-' + this.screenshotIndex + '.png';
+    const filename = this.name + '-' + this.screenshotIndex + '.png';
+    const path = this.parentDir + '/screenshots/' + filename;
     await this.page.screenshot({ path: path });
     this.screenshotIndex++;
   }

@@ -1,5 +1,4 @@
-const Page = require('./page');
-const helper = require('./helper');
+const Page = require('../core/page');
 const e = require('./elements');
 
 class DrawTestPage extends Page {
@@ -28,6 +27,9 @@ class DrawTestPage extends Page {
     console.log(shapes0);
     console.log('\nShapes after drawing box:');
     console.log(shapes1);
+
+    // TODO: Check test
+    return true
   }
 
   async getTestElements() {

@@ -1,6 +1,7 @@
-const Page = require('./page');
-const helper = require('./helper');
+const Page = require('../core/page');
 const e = require('./elements');
+const we = require('../whiteboard/elements');
+const ce = require('../core/elements');
 
 class UploadTestPage extends Page {
   constructor() {
@@ -8,12 +9,12 @@ class UploadTestPage extends Page {
   }
 
   async test() {
-    await this.page.waitFor(e.whiteboard);
+    await this.page.waitFor(we.whiteboard);
     await this.page.waitFor(e.skipSlide);
 
     const slides0 = await this.getTestElements();
 
-    await this.click(e.actions);
+    await this.click(ce.actions);
     await this.click(e.uploadPresentation);
 
     await this.page.waitFor(e.fileUpload);
@@ -32,6 +33,9 @@ class UploadTestPage extends Page {
     console.log('\nSlides after presentation upload:');
     console.log(slides1.slideList);
     console.log(slides1.svg);
+
+    // TODO: Check test
+    return true
   }
 
   async getTestElements() {

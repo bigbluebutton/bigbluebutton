@@ -1,4 +1,4 @@
-const Page = require('./page');
+const Page = require('./core/page');
 const Send = require('./chat/send');
 const Clear = require('./chat/clear');
 const Copy = require('./chat/copy');
