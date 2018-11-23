@@ -59,8 +59,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}" />
 		<property name="port" value="${redis.port}" />
-		<property name="clientName" value="BbbRed5VideoSender" />
 		<property name="password" value="${redis.password:}" />
+		<property name="clientName" value="BbbRed5VideoSender" />
     </bean>
     
       <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">

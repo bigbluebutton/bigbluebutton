@@ -35,8 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    </property>
 	</bean>
 	
-	<import resource="bbb-redis-messaging.xml"/>
-	
 	<bean id="meetingManager" class="org.bigbluebutton.app.video.MeetingManager"/>
 	
 	<bean id="connInvokerService" class="org.bigbluebutton.app.video.ConnectionInvokerService"
@@ -61,5 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="meetingManager" ref="meetingManager"/>
 		<property name="connInvokerService" ref="connInvokerService"/>
 	</bean>
+	
+	<import resource="bbb-redis-messaging.xml"/>
 
 </beans>

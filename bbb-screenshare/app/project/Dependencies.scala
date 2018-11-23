@@ -16,14 +16,14 @@ object Dependencies {
     val gson = "2.8.5"
     val jackson = "2.9.7"
     val logback = "1.2.3"
-    val springVersion = "4.3.20.RELEASE"
+    val springVersion = "4.3.12.RELEASE"
     val red5 = "1.0.10-M5"
     val servlet = "2.5"
     val ffmpeg = "4.0.2-1.4.3"
     val openCv = "1.4.3"
 
     // Apache Commons
-    val lang = "3.8.1"
+    val lang = "3.7"
     val codec = "1.11"
     val pool2 = "2.6.0"
 
