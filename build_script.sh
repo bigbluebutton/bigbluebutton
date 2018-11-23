@@ -30,7 +30,7 @@ if [[ $files = *"bigbluebutton-html5"* ]]; then
       echo $docker
     } > /dev/null
 
-    cd tests/puppeteer
+    cd tests/puppeteer/core
     conf=$(docker exec $(docker ps -q) bbb-conf --secret | grep "Secret:")
     secret=$(echo $conf | cut -d' ' -f2)
     export BBB_SHARED_SECRET=$secret
