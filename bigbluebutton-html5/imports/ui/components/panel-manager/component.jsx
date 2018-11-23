@@ -145,38 +145,36 @@ class PanelManager extends Component {
   }
 
   render() {
-    const { enableResize } = this.props;
-    const resizePad = <div className={styles.userlistPad} key={this.padKey} />;
+    const { enableResize, openPanel } = this.props;
+    if (openPanel === '') return null;
 
-    switch (this.props.openPanel) {
-      case 'chat': return enableResize ? [
-        this.renderUserListResizable(),
-        resizePad,
-        this.renderChatResizable(),
-      ] : [
-        this.renderUserList(),
-        this.renderChat(),
-      ];
-      case 'poll': return enableResize ? [
-        this.renderUserListResizable(),
-        resizePad,
-        this.renderPoll(),
-      ] : [
-        this.renderUserList(),
-        this.renderPoll(),
-      ];
-      case 'breakoutroom': return enableResize ? [
-        this.renderUserListResizable(),
-        resizePad,
-        this.renderBreakoutRoom(),
-      ] : [
-        this.renderUserList(),
-        this.renderBreakoutRoom(),
-      ];
-      case 'userlist': return enableResize ? this.renderUserListResizable() : this.renderUserList();
-      default: break;
+    const panels = [this.renderUserList()];
+    const resizablePanels = [
+      this.renderUserListResizable(),
+      <div className={styles.userlistPad} key={this.padKey} />,
+    ];
+
+    if (openPanel === 'chat') {
+      enableResize
+        ? resizablePanels.push(this.renderChatResizable())
+        : panels.push(this.renderChat());
     }
-    return null;
+
+    if (openPanel === 'poll') {
+      enableResize
+        ? resizablePanels.push(this.renderPoll())
+        : panels.push(this.renderPoll());
+    }
+
+    if (openPanel === 'breakoutroom') {
+      enableResize
+        ? resizablePanels.push(this.renderBreakoutRoom())
+        : panels.push(this.renderBreakoutRoom());
+    }
+
+    return enableResize
+      ? resizablePanels
+      : panels;
   }
 }
 
