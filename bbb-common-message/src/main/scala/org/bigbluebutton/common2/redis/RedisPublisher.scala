@@ -7,7 +7,7 @@ import redis.RedisClient
 
 class RedisPublisher(val system: ActorSystem, val clientName: String) extends RedisConfiguration {
 
-  val redis = RedisClient(redisHost, redisPort)(system)
+  val redis = RedisClient(host = redisHost, password = Some(redisPassword), port= redisPort)(system)
 
   val log = Logging(system, getClass)
 
@@ -18,5 +18,5 @@ class RedisPublisher(val system: ActorSystem, val clientName: String) extends Re
   def publish(channel: String, data: String) {
     redis.publish(channel, ByteString(data))
   }
-
+ 
 }

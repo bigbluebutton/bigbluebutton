@@ -15,7 +15,7 @@ object RedisDataStorageActor {
 
 class RedisDataStorageActor(val system: ActorSystem) extends Actor with ActorLogging with SystemConfiguration {
 
-  val redis = RedisClient(redisHost, redisPort)(system)
+  val redis = RedisClient(host = redisHost, password = Some(redisPassword), port = redisPort)(system)
 
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli
