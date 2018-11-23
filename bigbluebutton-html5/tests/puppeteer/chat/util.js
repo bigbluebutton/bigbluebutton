@@ -2,8 +2,8 @@ const e = require('./elements');
 
 async function openChat(test) {
   await test.click(e.chatButton);
-  await test.page.waitFor(e.chatBox);
-  await test.page.waitFor(e.chatMessages);
+  await test.waitForSelector(e.chatBox);
+  await test.waitForSelector(e.chatMessages);
 }
 
 async function getTestElements(test) {

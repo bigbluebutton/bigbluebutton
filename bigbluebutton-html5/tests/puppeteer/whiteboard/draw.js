@@ -1,7 +1,7 @@
 const Page = require('../core/page');
 const e = require('./elements');
 
-class DrawTestPage extends Page {
+class Draw extends Page {
   constructor() {
     super('whiteboard-draw');
   }
@@ -9,7 +9,7 @@ class DrawTestPage extends Page {
   async test() {
     await this.click(e.tools);
     await this.click(e.rectangle);
-    await this.page.waitFor(e.whiteboard);
+    await this.waitForSelector(e.whiteboard);
 
     const shapes0 = await this.getTestElements();
 
@@ -38,4 +38,4 @@ class DrawTestPage extends Page {
   }
 }
 
-module.exports = exports = DrawTestPage;
+module.exports = exports = Draw;

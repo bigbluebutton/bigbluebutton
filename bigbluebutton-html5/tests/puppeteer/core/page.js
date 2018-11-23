@@ -28,7 +28,7 @@ class Page {
     const joinURL = helper.getJoinURL(this.meetingId, params, true);
 
     await this.page.goto(joinURL);
-    await this.page.waitForSelector(e.audioDialog, { timeout: 0 });
+    await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
   }
 
@@ -101,13 +101,13 @@ class Page {
 
   async click(element, relief = false) {
     if (relief) await helper.sleep(1000);
-    await this.page.waitForSelector(element, { timeout: 60000 });
+    await this.waitForSelector(element);
     await this.page.click(element);
   }
 
   async type(element, text, relief = false) {
     if (relief) await helper.sleep(1000);
-    await this.page.waitForSelector(element, { timeout: 60000 });
+    await this.waitForSelector(element);
     await this.page.type(element, text);
   }
 
@@ -124,6 +124,10 @@ class Page {
     await this.page.keyboard.down('ControlLeft');
     await this.page.keyboard.press('KeyV');
     await this.page.keyboard.up('ControlLeft');
+  }
+
+  async waitForSelector(element) {
+    await this.page.waitForSelector(element, { timeout: 0 });
   }
 }
 
