@@ -1,27 +1,30 @@
-const Page = require('./page');
-const helper = require('./helper');
+const Page = require('../core/page');
 const e = require('./elements');
+const we = require('../whiteboard/elements');
+const ce = require('../core/elements');
 
-class UploadTestPage extends Page {
+class Upload extends Page {
   constructor() {
     super('presentation-upload');
   }
 
   async test() {
-    await this.page.waitFor(e.whiteboard);
-    await this.page.waitFor(e.skipSlide);
+    await this.waitForSelector(we.whiteboard);
+    await this.waitForSelector(e.skipSlide);
 
     const slides0 = await this.getTestElements();
 
-    await this.click(e.actions);
+    await this.click(ce.actions);
     await this.click(e.uploadPresentation);
 
-    await this.page.waitFor(e.fileUpload);
+    await this.waitForSelector(e.fileUpload);
     const fileUpload = await this.page.$(e.fileUpload);
     await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
 
     await this.click(e.start);
+    console.log('\nWaiting for the new presentation to upload...');
     await this.elementRemoved(e.start);
+    console.log('\nPresentation uploaded!');
 
     await this.screenshot(true);
     const slides1 = await this.getTestElements();
@@ -32,6 +35,9 @@ class UploadTestPage extends Page {
     console.log('\nSlides after presentation upload:');
     console.log(slides1.slideList);
     console.log(slides1.svg);
+
+    // TODO: Check test
+    return true
   }
 
   async getTestElements() {
@@ -42,4 +48,4 @@ class UploadTestPage extends Page {
   }
 }
 
-module.exports = exports = UploadTestPage;
+module.exports = exports = Upload;
