@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
@@ -15,7 +15,7 @@ const propTypes = {
   setEmojiStatus: PropTypes.func.isRequired,
 };
 
-export default class UserOptionsContainer extends Component {
+export default class UserOptionsContainer extends PureComponent {
   constructor(props) {
     super(props);
     const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
