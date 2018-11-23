@@ -35,6 +35,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.roomName',
     description: 'room intl to name the breakout meetings',
   },
+  freeJoinLabel: {
+    id: 'app.createBreakoutRoom.freeJoin',
+    description: 'free join label',
+  },
 });
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
@@ -51,7 +55,7 @@ class BreakoutRoom extends Component {
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
       durationTime: 1,
-      freeJoin: false,
+      freeJoin: true,
     };
   }
 
@@ -173,9 +177,8 @@ class BreakoutRoom extends Component {
               onChange={this.setFreeJoin}
               checked={this.state.freeJoin}
             />
-            Allow users to choose a breakout room to join
+            {intl.formatMessage(intlMessages.freeJoinLabel)}
           </label>
-
         </div>
       </Modal >
     );
