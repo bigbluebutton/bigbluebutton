@@ -104,11 +104,14 @@ class App extends Component {
 
   renderPanel() {
     const { enableResize } = this.state;
+    const { openPanel } = this.props;
 
     return (
       <PanelManager
         enableResize={enableResize}
-        openPanel={Session.get('openPanel')}
+        {...{
+          openPanel,
+        }}
       />
     );
   }

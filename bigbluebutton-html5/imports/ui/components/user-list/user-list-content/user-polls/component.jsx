@@ -15,6 +15,17 @@ const intlMessages = defineMessages({
 class UserPolls extends Component {
   constructor(props) {
     super(props);
+
+    this.handleClickTogglePoll = this.handleClickTogglePoll.bind(this);
+  }
+
+  handleClickTogglePoll() {
+    Session.set(
+      'openPanel',
+      Session.get('openPanel') === 'poll'
+        ? 'userlist'
+        : 'poll',
+    );
   }
 
   render() {
@@ -40,14 +51,7 @@ class UserPolls extends Component {
             role="button"
             tabIndex={0}
             className={styles.pollLink}
-            onClick={() => {
-              Session.set(
-                'openPanel',
-                Session.get('openPanel') === 'poll'
-                  ? 'userlist'
-                  : 'poll',
-              );
-            }}
+            onClick={this.handleClickTogglePoll}
           >
             <Icon iconName="polling" className={styles.icon} />
             <span className={styles.label} >{intl.formatMessage(intlMessages.pollLabel)}</span>
