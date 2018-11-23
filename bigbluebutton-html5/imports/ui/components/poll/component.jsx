@@ -92,6 +92,16 @@ class Poll extends Component {
     this.handleBackClick = this.handleBackClick.bind(this);
   }
 
+  componentDidUpdate() {
+    const { currentUser } = this.props;
+
+    if (!currentUser.presenter) {
+      Session.set('openPanel', 'userlist');
+      Session.set('forcePollOpen', false);
+    }
+  }
+
+
   handleInputChange(index, event) {
     // This regex will replace any instance of 2 or more consecutive white spaces
     // with a single white space character.
@@ -235,8 +245,10 @@ class Poll extends Component {
 
   render() {
     const {
-      intl, stopPoll, currentPoll,
+      intl, stopPoll, currentPoll, currentUser,
     } = this.props;
+
+    if (!currentUser.presenter) return null;
 
     return (
       <div>
