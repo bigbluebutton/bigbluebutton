@@ -117,10 +117,19 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .roomUserItem {
-  width: 10rem;
-  margin-left: .25rem;
+  width: 11rem;
+  margin: 0;
+  padding-top: .25rem;
+  padding-bottom: .25rem;
+  padding-left: .25rem;
+  margin-right: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+}
+
+.selectedItem {
+  background-color: var(--color-primary);
+  color: var(--color-white)
 }

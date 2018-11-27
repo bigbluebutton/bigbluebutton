@@ -5,6 +5,7 @@ import _ from 'lodash';
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
 import { styles } from './styles';
 import Icon from '../../icon/component';
+import cx from 'classnames';
 
 const intlMessages = defineMessages({
   breakoutRoomTitle: {
@@ -67,8 +68,10 @@ class BreakoutRoom extends Component {
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
     this.renderFreeJoinCheck = this.renderFreeJoinCheck.bind(this);
+
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
+      seletedId: '',
       users: [],
       durationTime: 1,
       freeJoin: false,
@@ -169,12 +172,17 @@ class BreakoutRoom extends Component {
       ev.preventDefault();
       const data = ev.dataTransfer.getData('text');
       this.changeUserRoom(data, room);
+      this.setState({ seletedId: '' });
     };
 
     return (
       <div className={styles.boxContainer}>
         <label htmlFor="BreakoutRoom">
-          <p className={styles.freeJoinLabel}>{intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })}</p>
+          <p
+            className={styles.freeJoinLabel}
+          >
+            {intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })}
+          </p>
           <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop} >
             {this.renderUserItemByRoom(0)}
           </div>
@@ -271,17 +279,27 @@ class BreakoutRoom extends Component {
   }
 
   renderUserItemByRoom(room) {
-    const drag = (ev) => {
+    const dragStart = (ev) => {
       ev.dataTransfer.setData('text', ev.target.id);
+      this.setState({ seletedId: ev.target.id });
+    };
+
+    const dragEnd = (ev) => {
+      this.setState({ seletedId: '' });
     };
 
     return this.getUserByRoom(room)
       .map(user => (
         <p
           id={user.userId}
-          className={styles.roomUserItem}
+          className={cx(
+            styles.roomUserItem,
+            this.state.seletedId === user.userId ? styles.selectedItem : null,
+            )
+          }
           draggable
-          onDragStart={drag}
+          onDragStart={dragStart}
+          onDragEnd={dragEnd}
         >
           {user.userName}
         </p>));
