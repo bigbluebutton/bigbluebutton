@@ -161,8 +161,15 @@ class ActionsDropdown extends Component {
       createBreakoutRoom,
       mountModal,
       meetingName,
+      users,
     } = this.props;
-    mountModal(<BreakoutRoom createBreakoutRoom={createBreakoutRoom} meetingName={meetingName} />);
+
+    mountModal(
+      <BreakoutRoom
+        createBreakoutRoom={createBreakoutRoom}
+        meetingName={meetingName}
+        users={users}
+      />);
   }
 
   render() {

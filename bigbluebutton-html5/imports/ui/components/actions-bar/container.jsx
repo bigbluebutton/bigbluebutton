@@ -44,5 +44,6 @@ export default withTracker(({ }) => {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
     togglePollMenu,
+    users: Service.users(),
   };
 })(ActionsBarContainer);

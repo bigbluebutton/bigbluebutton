@@ -1,4 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
@@ -89,4 +91,36 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   & > * {
     margin-right: .5rem;
   }
+}
+
+.boxContainer {
+  height: 50vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 33% 33% 33%;
+  grid-gap: 1rem;
+}
+
+.breakoutBox {
+  @include scrollbox-vertical();
+  width: 100%;
+  height: 80%;
+  min-height: 5rem;
+  max-height: 8rem;
+  border: 1px solid var(--color-gray-lighter);
+  border-radius: var(--border-radius); 
+}
+
+.freeJoinLabel {
+  font-size: var(--font-size-small);
+  font-weight: bolder;
+}
+
+.roomUserItem {
+  width: 10rem;
+  margin-left: .25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
 }

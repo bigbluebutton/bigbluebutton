@@ -440,6 +440,7 @@
     "app.createBreakoutRoom.generatedURL": "Generated",
     "app.createBreakoutRoom.duration": "Duration {0}",
     "app.createBreakoutRoom.room": "Room {0}",
+    "app.createBreakoutRoom.notAssigned": "Not Assigned ({0})",
     "app.createBreakoutRoom.join": "Join Room",
     "app.createBreakoutRoom.joinAudio": "Join audio",
     "app.createBreakoutRoom.returnAudio": "Return audio",
