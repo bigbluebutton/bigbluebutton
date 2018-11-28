@@ -44,3 +44,17 @@
     box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
   }
 }
+
+.btn {
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
+    border: 1.5px solid var(--color-white);
+  }
+
+  span:hover {
+    border: 1.5px solid rgba(255,255,255, .5);
+  }
+}

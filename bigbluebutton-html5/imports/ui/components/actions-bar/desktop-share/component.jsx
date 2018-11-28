@@ -5,6 +5,7 @@ import browser from 'browser-detect';
 import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
+import cx from 'classnames';
 import { styles } from '../styles';
 
 const propTypes = {
@@ -68,14 +69,14 @@ const DesktopShare = ({
   };
   return (screenSharingCheck && !isMobileBrowser && isUserPresenter ?
     <Button
-      className={styles.button}
-      icon={isVideoBroadcasting ? 'desktop_off' : 'desktop'}
+      className={cx(styles.button, isVideoBroadcasting || styles.btn)}
+      icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
       label={intl.formatMessage(isVideoBroadcasting ?
           intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
       description={intl.formatMessage(isVideoBroadcasting ?
           intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
-      color={isVideoBroadcasting ? 'danger' : 'primary'}
-      ghost={false}
+      color={isVideoBroadcasting ? 'primary' : ''}
+      ghost={!isVideoBroadcasting}
       hideLabel
       circle
       size="lg"

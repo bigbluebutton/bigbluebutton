@@ -71,7 +71,7 @@ class AudioControls extends Component {
       <span className={styles.container}>
         {mute ?
           <Button
-            className={glow ? cx(styles.button, styles.glow) : styles.button}
+            className={glow ? cx(styles.button, styles.glow) : cx(styles.button, !unmute || styles.ghostButton)}
             onClick={handleToggleMuteMicrophone}
             disabled={disable}
             hideLabel
@@ -79,14 +79,15 @@ class AudioControls extends Component {
               intl.formatMessage(intlMessages.muteAudio)}
             aria-label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) :
               intl.formatMessage(intlMessages.muteAudio)}
-            color="primary"
+            color={!unmute ? 'primary' : ''}
+            ghost={unmute}
             icon={unmute ? 'mute' : 'unmute'}
             size="lg"
             circle
             accessKey={shortcuts.toggleMute}
           /> : null}
         <Button
-          className={styles.button}
+          className={cx(styles.button, join || styles.ghostButton)}
           onClick={join ? handleLeaveAudio : handleJoinAudio}
           disabled={disable}
           hideLabel
@@ -94,8 +95,8 @@ class AudioControls extends Component {
             intl.formatMessage(intlMessages.joinAudio)}
           label={join ? intl.formatMessage(intlMessages.leaveAudio) :
             intl.formatMessage(intlMessages.joinAudio)}
-          color={join ? 'danger' : 'primary'}
-          icon={join ? 'audio_off' : 'audio_on'}
+          color={join ? 'primary' : ''}
+          icon={join ? 'audio_on' : 'audio_off'}
           size="lg"
           circle
           accessKey={join ? shortcuts.leaveAudio : shortcuts.joinAudio}
