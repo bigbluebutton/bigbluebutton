@@ -1,7 +1,10 @@
 const e = require('./elements');
+const ce = require('../core/elements');
 
 async function openChat(test) {
-  await test.click(e.chatButton);
+  // TODO: Check this if it's open before click
+  await test.click(ce.userList);
+  await test.click(e.chatButton,true);
   await test.waitForSelector(e.chatBox);
   await test.waitForSelector(e.chatMessages);
 }
