@@ -98,14 +98,25 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 33% 33% 33%;
-  grid-gap: 1rem;
+  grid-gap: 1.5rem 1rem;
+}
+
+.changeToWarn {
+  position: relative;
+  & > .breakoutBox {
+    border-color: var(--color-danger) !important;
+  }
+
+  & > .freeJoinLabel {
+    color: var(--color-danger);
+  }
 }
 
 .breakoutBox {
   @include scrollbox-vertical();
   width: 100%;
   height: 80%;
-  min-height: 5rem;
+  min-height: 4rem;
   max-height: 8rem;
   border: 1px solid var(--color-gray-lighter);
   border-radius: var(--border-radius); 
@@ -114,6 +125,15 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 .freeJoinLabel {
   font-size: var(--font-size-small);
   font-weight: bolder;
+}
+
+.leastOneWarn {
+  margin: .25rem;
+  position: absolute;
+  font-size: var(--font-size-small);
+  color: var(--color-danger);
+  font-weight: 200;
+  white-space: nowrap;
 }
 
 .roomUserItem {
@@ -132,4 +152,8 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 .selectedItem {
   background-color: var(--color-primary);
   color: var(--color-white)
+}
+
+.dontShow {
+  display: none;
 }
