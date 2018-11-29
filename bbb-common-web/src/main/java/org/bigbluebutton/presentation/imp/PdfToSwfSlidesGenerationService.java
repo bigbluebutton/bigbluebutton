@@ -54,7 +54,7 @@ public class PdfToSwfSlidesGenerationService {
 
   private TextFileCreator textFileCreator;
   private SvgImageCreator svgImageCreator;
-  private long MAX_CONVERSION_TIME = 5 * 60 * 1000L * 1000L;
+  private long MAX_CONVERSION_TIME = 5 * 60 * 1000L * 1000L * 1000L;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
   private boolean svgImagesRequired;
@@ -344,7 +344,7 @@ public class PdfToSwfSlidesGenerationService {
   }
 
   public void setMaxConversionTime(int minutes) {
-    MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L;
+    MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L * 1000L;
   }
 
   public void setSwfSlidesGenerationProgressNotifier(
