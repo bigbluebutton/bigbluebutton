@@ -1,4 +1,5 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/actions-bar/styles.scss";
 
 .container {
   display: flex;
@@ -46,4 +47,8 @@
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
+}
+
+.ghostButton {
+  @extend .btn;
 }
