@@ -69,7 +69,7 @@ const JoinVideoOptions = ({
           onClick={() => null}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.videoMenuDesc)}
-          color={isSharingVideo ? 'primary' : ''}
+          color={isSharingVideo ? 'primary' : 'default'}
           icon={isSharingVideo ? 'video' : 'video_off'}
           ghost={!isSharingVideo}
           size="lg"

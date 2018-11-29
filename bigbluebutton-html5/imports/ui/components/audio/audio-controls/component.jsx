@@ -79,7 +79,7 @@ class AudioControls extends Component {
               intl.formatMessage(intlMessages.muteAudio)}
             aria-label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) :
               intl.formatMessage(intlMessages.muteAudio)}
-            color={!unmute ? 'primary' : ''}
+            color={!unmute ? 'primary' : 'default'}
             ghost={unmute}
             icon={unmute ? 'mute' : 'unmute'}
             size="lg"
@@ -95,7 +95,7 @@ class AudioControls extends Component {
             intl.formatMessage(intlMessages.joinAudio)}
           label={join ? intl.formatMessage(intlMessages.leaveAudio) :
             intl.formatMessage(intlMessages.joinAudio)}
-          color={join ? 'primary' : ''}
+          color={join ? 'primary' : 'default'}
           icon={join ? 'audio_on' : 'audio_off'}
           size="lg"
           circle

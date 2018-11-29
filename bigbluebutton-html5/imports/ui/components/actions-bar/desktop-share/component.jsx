@@ -75,7 +75,7 @@ const DesktopShare = ({
           intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
       description={intl.formatMessage(isVideoBroadcasting ?
           intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
-      color={isVideoBroadcasting ? 'primary' : ''}
+      color={isVideoBroadcasting ? 'primary' : 'default'}
       ghost={!isVideoBroadcasting}
       hideLabel
       circle

@@ -51,10 +51,10 @@
     box-shadow: none;
     background-color: transparent !important;
     color: var(--color-white) !important;
-    border: 1.5px solid var(--color-white);
+    border: 1.5px solid var(--color-white) !important;
   }
 
   span:hover {
-    border: 1.5px solid rgba(255,255,255, .5);
+    border: 1.5px solid rgba(255,255,255, .5) !important;
   }
 }
