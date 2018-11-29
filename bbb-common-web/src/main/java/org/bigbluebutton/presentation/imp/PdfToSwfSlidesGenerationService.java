@@ -54,13 +54,11 @@ public class PdfToSwfSlidesGenerationService {
 
   private TextFileCreator textFileCreator;
   private SvgImageCreator svgImageCreator;
-  private long MAX_CONVERSION_TIME = 5 * 60 * 1000L;
+  private long MAX_CONVERSION_TIME = 5 * 60 * 1000L * 1000L;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
   private boolean svgImagesRequired;
   private boolean generatePngs;
-
-  private static final long CONVERSION_TIMEOUT = 20000000000L; // 20s
 
   public PdfToSwfSlidesGenerationService(int numConversionThreads) {
     executor = Executors.newFixedThreadPool(numConversionThreads);
@@ -194,7 +192,7 @@ public class PdfToSwfSlidesGenerationService {
       };
 
       Future<PdfToSwfSlide> f = executor.submit(c);
-      long endNanos = System.nanoTime() + CONVERSION_TIMEOUT;
+      long endNanos = System.nanoTime() + MAX_CONVERSION_TIME;
       try {
         // Only wait for the remaining time budget
         long timeLeft = endNanos - System.nanoTime();
@@ -346,7 +344,7 @@ public class PdfToSwfSlidesGenerationService {
   }
 
   public void setMaxConversionTime(int minutes) {
-    MAX_CONVERSION_TIME = minutes * 60 * 1000L;
+    MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L;
   }
 
   public void setSwfSlidesGenerationProgressNotifier(
