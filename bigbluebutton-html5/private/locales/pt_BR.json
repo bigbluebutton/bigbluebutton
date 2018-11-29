@@ -397,7 +397,13 @@
     "app.videoDock.webcamFocusLabel": "Focar",
     "app.videoDock.webcamFocusDesc": "Focar a webcam selecionada",
     "app.videoDock.webcamUnfocusLabel": "Desfocar",
-    "app.videoDock.webcamUnfocusDesc": "Desfocar a webcam selecionada"
-
+    "app.videoDock.webcamUnfocusDesc": "Desfocar a webcam selecionada",
+    "app.externalVideo.start": "Compartilhar novo vídeo",
+    "app.externalVideo.stop": "Parar compartilhamento",
+    "app.externalVideo.title": "Compartilhar vídeo do Youtube",
+    "app.externalVideo.input": "Endereço do Youtube",
+    "app.externalVideo.urlError": "Este endereço não é um vídeo youtube válido",
+    "app.externalVideo.close": "Fechar",
+    "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartilhar vídeo"
 }
 
