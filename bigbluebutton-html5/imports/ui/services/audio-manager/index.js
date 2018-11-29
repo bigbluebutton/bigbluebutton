@@ -238,10 +238,6 @@ class AudioManager {
             window.parent.postMessage({ response: muteState }, '*');
           }
 
-          if (fields.joined) {
-            window.parent.postMessage({ response: 'joinedAudio' }, '*');
-          }
-
           if (fields.talking !== undefined && fields.talking !== this.isTalking) {
             this.isTalking = fields.talking;
           }
@@ -254,6 +250,7 @@ class AudioManager {
     }
 
     if (!this.isEchoTest) {
+      window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.messages.info.JOINED_AUDIO);
     }
   }
@@ -278,6 +275,7 @@ class AudioManager {
     if (!this.error && !this.isEchoTest) {
       this.notify(this.messages.info.LEFT_AUDIO);
     }
+    window.parent.postMessage({ response: 'notInAudio' }, '*');
   }
 
   callStateCallback(response) {

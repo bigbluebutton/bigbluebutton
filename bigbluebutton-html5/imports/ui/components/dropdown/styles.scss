@@ -205,7 +205,7 @@
 
   &:after,
   &:before {
-    left: calc(var(--dropdown-caret-width) / 2);
+    left: var(--dropdown-caret-width);
   }
 }
 
