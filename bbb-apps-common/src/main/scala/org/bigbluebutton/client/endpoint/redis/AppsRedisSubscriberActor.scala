@@ -18,17 +18,35 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq(fromAkkaAppsRedisChannel, fromAkkaAppsWbRedisChannel, fromAkkaAppsChatRedisChannel, fromAkkaAppsPresRedisChannel)
   val patterns = Seq("bigbluebutton:from-bbb-apps:*")
 
-  def props(jsonMsgBus: JsonMsgFromAkkaAppsBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], jsonMsgBus,
-      redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
+  def props(
+                   jsonMsgBus: JsonMsgFromAkkaAppsBus,
+                   redisHost: String,
+                   redisPort: Int,
+                   redisPassword: Option[String]): Props =
+    Props(classOf[AppsRedisSubscriberActor],
+      jsonMsgBus,
+      redisHost,
+      redisPort,
+      redisPassword,
+      channels,
+      patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, redisHost: String,
-                               redisPort: Int,
-                               channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") })
+class AppsRedisSubscriberActor(
+                                      jsonMsgBus: JsonMsgFromAkkaAppsBus,
+                                      redisHost: String,
+                                      redisPort: Int,
+                                      redisPassword: Option[String],
+                                      channels: Seq[String] = Nil,
+                                      patterns: Seq[String] = Nil)
+    extends RedisSubscriberActor(
+      new InetSocketAddress(
+        redisHost,
+        redisPort),
+        channels,
+      patterns,
+      redisPassword,
+      onConnectStatus = connected => { println(s"connected: $connected") })
       with SystemConfiguration with ActorLogging {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {

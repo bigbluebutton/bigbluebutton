@@ -8,13 +8,21 @@ import org.bigbluebutton.client.meeting.MeetingManagerActor
 
 import scala.concurrent.duration._
 
-class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfiguration{
+class ClientGWApplication(
+                                 val msgToClientGW: MsgToClientGW,
+                                 redisHost: String,
+                                 redisPort: Int,
+                                 redisPassword: String) extends SystemConfiguration{
 
   implicit val system = ActorSystem("bbb-apps-common")
   implicit val timeout = akka.util.Timeout(3 seconds)
 
   val log = Logging(system, getClass)
 
+
+  println("************************* REDIS PASSWORD " + redisPassword)
+
+  val redisPass = Option(redisPassword)
 
   log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
@@ -24,7 +32,12 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
   private val msgToAkkaAppsEventBus = new MsgToAkkaAppsEventBus
   private val msgToClientEventBus = new MsgToClientEventBus
 
-  private val redisPublisher = new RedisPublisher(system)
+  private val redisPublisher = new RedisPublisher(
+    system,
+    redisHost,
+    redisPort,
+    redisPass)
+
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
   private val messageSenderActorRef = system.actorOf(
@@ -51,7 +64,11 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
   msgToClientEventBus.subscribe(msgToClientJsonActor, toClientChannel)
 
   private val appsRedisSubscriberActor = system.actorOf(
-    AppsRedisSubscriberActor.props(receivedJsonMsgBus), "appsRedisSubscriberActor")
+    AppsRedisSubscriberActor.props(
+      receivedJsonMsgBus,
+      redisHost,
+      redisPort,
+      redisPass), "appsRedisSubscriberActor")
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
     ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")

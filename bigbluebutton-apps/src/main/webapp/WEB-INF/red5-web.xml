@@ -64,6 +64,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="clientGWApp" class="org.bigbluebutton.client.ClientGWApplication" destroy-method="shutdown">
         <constructor-arg index="0" ref="msgToClientGW"/>
+        <constructor-arg index="1" value="${redisHost}"/>
+        <constructor-arg index="2" value="${redisPort}"/>
+        <constructor-arg index="3" value="${redisPassword}"/>
     </bean>
 
     <bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService"
