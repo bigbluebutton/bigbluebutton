@@ -22,10 +22,27 @@ object Boot extends App with SystemConfiguration {
 
   val outGW = new OutMessageGatewayImp(outBus2)
 
-  val redisPublisher = new RedisPublisher(system)
+  val redisPass = Option(redisPassword)
+
+  val redisPublisher = new RedisPublisher(
+    system,
+    redisHost,
+    redisPort,
+    redisPass
+  )
+
   val msgSender = new MessageSender(redisPublisher)
 
-  val redisRecorderActor = system.actorOf(RedisRecorderActor.props(system), "redisRecorderActor")
+  val redisRecorderActor = system.actorOf(
+    RedisRecorderActor.props(
+      system,
+      redisHost,
+      redisPort,
+      redisPass,
+      keysExpiresInSec
+    ),
+    "redisRecorderActor"
+  )
 
   recordingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
@@ -46,7 +63,16 @@ object Boot extends App with SystemConfiguration {
   val redisMessageHandlerActor = system.actorOf(ReceivedJsonMsgHandlerActor.props(bbbMsgBus, incomingJsonMessageBus))
   incomingJsonMessageBus.subscribe(redisMessageHandlerActor, toAkkaAppsJsonChannel)
 
-  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(incomingJsonMessageBus), "redis-subscriber")
+  val channels = Seq(toAkkaAppsRedisChannel, fromVoiceConfRedisChannel)
+  val redisSubscriberActor = system.actorOf(
+    AppsRedisSubscriberActor.props(
+      incomingJsonMessageBus,
+      redisHost,
+      redisPort,
+      redisPass,
+      channels
+    ), "redis-subscriber"
+  )
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
 

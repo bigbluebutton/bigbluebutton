@@ -5,9 +5,14 @@ import akka.actor.ActorSystem
 import org.bigbluebutton.SystemConfiguration
 import akka.util.ByteString
 
-class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
+class RedisPublisher(
+  val system:    ActorSystem,
+  redisHost:     String,
+  redisPort:     Int,
+  redisPassword: Option[String]
+) {
 
-  val redis = RedisClient(redisHost, redisPort)(system)
+  val redis = RedisClient(redisHost, redisPort, redisPassword)(system)
 
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli
