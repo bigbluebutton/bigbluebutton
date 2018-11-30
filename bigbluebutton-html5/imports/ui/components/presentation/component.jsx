@@ -215,6 +215,7 @@ export default class PresentationArea extends Component {
             timeout={{ enter: 400 }}
           >
             <svg
+              data-test="whiteboard"
               width={width}
               height={height}
               ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
