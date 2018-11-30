@@ -66,13 +66,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  init-method="start" destroy-method="stop">
         <constructor-arg index="0" value="${redis.host}"/>
         <constructor-arg index="1" value="${redis.port}"/>
-        <constructor-arg index="2" value="${redis.keyExpiry}"/>
+		<constructor-arg index="2" value="${redis.password}"/>
+        <constructor-arg index="3" value="${redis.keyExpiry}"/>
     </bean>
 
 	<bean id="messageReceiver" class="org.bigbluebutton.red5.pubsub.MessageReceiver"
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
+		<property name="password" value="${redis.password}"/>
 		<property name="messageHandler" ref="receivedMessageHandler"/>
 	</bean>
 
@@ -98,5 +100,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
+		<property name="password" value="${redis.password}"/>
     </bean>
 </beans>

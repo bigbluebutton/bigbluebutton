@@ -4,6 +4,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -23,16 +24,27 @@ public class MessageReceiver {
 
     private String host;
     private int port;
+    private String password;
 
     public void stop() {
         receiveMessage = false;
     }
 
     public void start() {
+        if (StringUtils.isEmpty(password)) {
+            // Need to set to NULL if password is empty so that Jedis won't
+            // AUTH with redis. (ralam nov 29, 2018)
+            password = null;
+        }
         log.info("Ready to receive messages from Redis pubsub.");
         try {
             receiveMessage = true;
             jedis = new Jedis(host, port);
+
+            if (password != null) {
+                jedis.auth(password);
+            }
+
             // Set the name of this client to be able to distinguish when doing
             // CLIENT LIST on redis-cli
             jedis.clientSetname("BbbRed5VideoSub");
@@ -64,6 +76,11 @@ public class MessageReceiver {
     public void setPort(int port) {
         this.port = port;
     }
+
+    public void setPassword(String password){
+        this.password = password;
+    }
+
 
     public void setMessageHandler(ReceivedMessageHandler handler) {
         this.handler = handler;
