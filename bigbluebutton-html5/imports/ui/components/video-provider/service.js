@@ -106,7 +106,8 @@ class VideoService {
 
   isLocked() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID });
-    return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
+    const lockSetings = m.lockSettingsProp || {};
+    return lockSetings ? lockSetings.disableCam : false;
   }
 
   userId() {
