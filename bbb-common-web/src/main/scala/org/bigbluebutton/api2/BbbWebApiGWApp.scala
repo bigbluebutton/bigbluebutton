@@ -16,7 +16,11 @@ class BbbWebApiGWApp(
   val oldMessageReceivedGW:        OldMessageReceivedGW,
   val screenshareRtmpServer:       String,
   val screenshareRtmpBroadcastApp: String,
-  val screenshareConfSuffix:       String) extends IBbbWebApiGWApp with SystemConfiguration {
+  val screenshareConfSuffix:       String,
+  val redisHost: String,
+  val redisPort: Int,
+  val redisPassword: String
+                    ) extends IBbbWebApiGWApp with SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-web-common")
 
@@ -24,10 +28,12 @@ class BbbWebApiGWApp(
 
   val log = Logging(system, getClass)
 
-  log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
+  // Need to wrap redisPassword into Option as it may be
+  // null (ralam nov 29, 2018)
+  private val redisPass = Option(redisPassword)
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
-  private val redisPublisher = new RedisPublisher(system)
+  private val redisPublisher = new RedisPublisher(system, redisHost, redisPort, redisPass)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
   private val messageSenderActorRef = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
 
@@ -37,6 +43,8 @@ class BbbWebApiGWApp(
   private val oldMessageEventBus = new OldMessageEventBus
   private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus
   private val msgToAkkaAppsEventBus = new MsgToAkkaAppsEventBus
+
+
 
   /**
    * Not used for now as we will still user MeetingService for 2.0 (ralam july 4, 2017)
@@ -55,7 +63,13 @@ class BbbWebApiGWApp(
   msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
 
   private val appsRedisSubscriberActor = system.actorOf(
-    AppsRedisSubscriberActor.props(receivedJsonMsgBus, oldMessageEventBus), "appsRedisSubscriberActor")
+    AppsRedisSubscriberActor.props(
+      receivedJsonMsgBus,
+      oldMessageEventBus,
+      redisHost,
+      redisPort,
+      redisPass),
+    "appsRedisSubscriberActor")
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
     ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
