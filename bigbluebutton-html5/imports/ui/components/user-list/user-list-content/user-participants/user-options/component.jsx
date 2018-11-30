@@ -186,11 +186,11 @@ class UserOptions extends Component {
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="settings"
-            circle
             ghost
             color="primary"
             hideLabel
             className={styles.optionsButton}
+            size="sm"
             onClick={() => null}
           />
         </DropdownTrigger>

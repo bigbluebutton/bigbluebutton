@@ -71,7 +71,11 @@ class JoinHandler extends Component {
       return resp;
     };
 
-    const setLogoutURL = (url) => Auth.logoutURL = url;
+    const setLogoutURL = (url) => {
+      Auth.logoutURL = url;
+      return true;
+    };
+
     const setLogoURL = (resp) => {
       setCustomLogoUrl(resp.customLogoURL);
       return resp;
@@ -97,10 +101,10 @@ class JoinHandler extends Component {
         .then((resp) => {
           setLogoutURL(resp.logoutURL);
           if (resp.returncode !== 'FAILED') {
-            logger.info(`User successfully went through main.joinRouteHandler with [${resp}].`);
+            logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(resp)}].`);
             return resolve(resp);
           }
-          const e = new Error('Session not found');          
+          const e = new Error('Session not found');
           logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(resp));
           return reject(e);
         });
