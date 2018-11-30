@@ -59,11 +59,10 @@ public class PdfToSwfSlidesGenerationService {
   private ThumbnailCreator thumbnailCreator;
   private TextFileCreator textFileCreator;
   private SvgImageCreator svgImageCreator;
-  private long MAX_CONVERSION_TIME = 5 * 60 * 1000;
+  private long MAX_CONVERSION_TIME = 5 * 60 * 1000L * 1000L * 1000L;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
   private boolean svgImagesRequired;
-  private final long CONVERSION_TIMEOUT = 20000000000L; // 20s
 
   public PdfToSwfSlidesGenerationService(int numConversionThreads) {
     executor = Executors.newFixedThreadPool(numConversionThreads);
@@ -172,7 +171,6 @@ public class PdfToSwfSlidesGenerationService {
   private void generateSlides(UploadedPresentation pres,
       List<PdfToSwfSlide> slides,
       CompletionService<PdfToSwfSlide> completionService) {
-    long MAXWAIT = MAX_CONVERSION_TIME * 60 /* seconds */ * 1000 /* millis */;
     int slidesCompleted = 0;
 
     long presConvStart = System.currentTimeMillis();
@@ -187,7 +185,7 @@ public class PdfToSwfSlidesGenerationService {
       };
 
       Future<PdfToSwfSlide> f = executor.submit(c);
-      long endNanos = System.nanoTime() + CONVERSION_TIMEOUT;
+      long endNanos = System.nanoTime() + MAX_CONVERSION_TIME;
       try {
         // Only wait for the remaining time budget
         long timeLeft = endNanos - System.nanoTime();
@@ -325,7 +323,7 @@ public class PdfToSwfSlidesGenerationService {
   }
 
   public void setMaxConversionTime(int minutes) {
-    MAX_CONVERSION_TIME = minutes * 60 * 1000;
+    MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L * 1000L;
   }
 
   public void setSwfSlidesGenerationProgressNotifier(
