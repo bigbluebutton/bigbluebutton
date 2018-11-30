@@ -29,7 +29,7 @@ object Dependencies {
 
     // Redis
     val redisScala = "1.8.0"
-    val lettuce = "5.1.2.RELEASE"
+    val lettuce = "5.1.3.RELEASE"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"

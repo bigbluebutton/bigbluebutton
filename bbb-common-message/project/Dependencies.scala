@@ -18,10 +18,11 @@ object Dependencies {
     val jackson = "2.9.7"
     val sl4j = "1.7.25"
     val red5 = "1.0.10-M5"
+    val pool = "2.6.0"
 
     // Redis
     val redisScala = "1.8.0"
-    val lettuce = "5.1.2.RELEASE"
+    val lettuce = "5.1.3.RELEASE"
 
     // Test
     val scalaTest = "3.0.5"
@@ -37,6 +38,7 @@ object Dependencies {
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
     val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j % "runtime"
     val red5 = "org.red5" % "red5-server-common" % Versions.red5
+    val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
 
     val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
@@ -63,6 +65,7 @@ object Dependencies {
     Compile.jacksonModule,
     Compile.sl4jApi,
     Compile.red5,
+    Compile.apachePool2,
     Compile.lettuceCore,
     Compile.redisScala) ++ testing
 }

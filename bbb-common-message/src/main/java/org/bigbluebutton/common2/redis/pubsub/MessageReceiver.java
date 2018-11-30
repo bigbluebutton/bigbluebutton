@@ -1,5 +1,9 @@
 package org.bigbluebutton.common2.redis.pubsub;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.bigbluebutton.common2.redis.RedisAwareCommunicator;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -11,13 +15,16 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
+import io.lettuce.core.support.ConnectionPoolSupport;
 
 public class MessageReceiver extends RedisAwareCommunicator {
     private static Logger log = Red5LoggerFactory.getLogger(MessageReceiver.class, "video");
 
     private ReceivedMessageHandler handler;
 
-    private StatefulRedisPubSubConnection<String, String> connection;
+    GenericObjectPool<StatefulRedisPubSubConnection<String, String>> connectionPool;
+
+    private final Executor runExec = Executors.newSingleThreadExecutor();
 
     private volatile boolean receiveMessage = false;
 
@@ -34,23 +41,33 @@ public class MessageReceiver extends RedisAwareCommunicator {
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
-        connection = redisClient.connectPubSub();
 
-        try {
-            if (receiveMessage) {
-                connection.addListener(new MessageListener());
+        connectionPool = ConnectionPoolSupport.createGenericObjectPool(() -> redisClient.connectPubSub(),
+                createPoolingConfig());
 
-                RedisPubSubAsyncCommands<String, String> async = connection.async();
-                RedisFuture<Void> future = async.subscribe(FROM_BBB_APPS_PATTERN);
+        Runnable messageReceiver = new Runnable() {
+            public void run() {
+                if (receiveMessage) {
+                    try (StatefulRedisPubSubConnection<String, String> connection = connectionPool.borrowObject()) {
+                        if (receiveMessage) {
+                            connection.addListener(new MessageListener());
+
+                            RedisPubSubAsyncCommands<String, String> async = connection.async();
+                            RedisFuture<Void> future = async.subscribe(FROM_BBB_APPS_PATTERN);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error resubscribing to channels: ", e);
+                    }
+                }
             }
-        } catch (Exception e) {
-            log.error("Error resubscribing to channels: ", e);
-        }
+        };
+
+        runExec.execute(messageReceiver);
     }
 
     public void stop() {
         receiveMessage = false;
-        connection.close();
+        connectionPool.close();
         redisClient.shutdown();
         log.info("MessageReceiver Stopped");
     }
@@ -69,7 +86,13 @@ public class MessageReceiver extends RedisAwareCommunicator {
         @Override
         public void message(String pattern, String channel, String message) {
             log.debug("RECEIVED onPMessage" + channel + " message=\n" + message);
-            handler.handleMessage(pattern, channel, message);
+            Runnable task = new Runnable() {
+                public void run() {
+                    handler.handleMessage(pattern, channel, message);
+                }
+            };
+
+            runExec.execute(task);
         }
 
         @Override

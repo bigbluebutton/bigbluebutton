@@ -21,9 +21,9 @@ sudo cp target/webapp/WEB-INF/lib/bbb-screenshare-akka_2.12-0.0.3.jar \
  target/webapp/WEB-INF/lib/spring-webmvc-4.3.12.RELEASE.jar  \
  target/webapp/WEB-INF/lib/rediscala_2.12-1.8.0.jar  \
  target/webapp/WEB-INF/lib/bbb-common-message_2.12-0.0.20-SNAPSHOT.jar \
- target/webapp/WEB-INF/lib/lettuce-core-5.1.2.RELEASE.jar \
+ target/webapp/WEB-INF/lib/lettuce-core-5.1.3.RELEASE.jar \
  target/webapp/WEB-INF/lib/netty-* \
- target/webapp/WEB-INF/lib/reactor-core-3.2.2.RELEASE.jar \
+ target/webapp/WEB-INF/lib/reactor-core-3.2.3.RELEASE.jar \
  target/webapp/WEB-INF/lib/reactive-streams-1.0.2.jar \
   /usr/share/red5/webapps/screenshare/WEB-INF/lib/
 

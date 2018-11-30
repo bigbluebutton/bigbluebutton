@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.common2.redis;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+
 import io.lettuce.core.RedisClient;
 
 public abstract class RedisAwareCommunicator {
@@ -48,5 +50,20 @@ public abstract class RedisAwareCommunicator {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    protected GenericObjectPoolConfig createPoolingConfig() {
+        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+        config.setMaxTotal(32);
+        config.setMaxIdle(8);
+        config.setMinIdle(1);
+        config.setTestOnBorrow(true);
+        config.setTestOnReturn(true);
+        config.setTestWhileIdle(true);
+        config.setNumTestsPerEvictionRun(12);
+        config.setMaxWaitMillis(5000);
+        config.setTimeBetweenEvictionRunsMillis(60000);
+        config.setBlockWhenExhausted(true);
+        return config;
     }
 }
