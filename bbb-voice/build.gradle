@@ -69,7 +69,6 @@ war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/sip")
 }
 
-
 task deploy() << {
 	def red5AppsDir = '/usr/share/red5/webapps'
 	def sipDir = new File("${red5AppsDir}/sip")
@@ -80,4 +79,3 @@ task deploy() << {
     	fileset(dir: "$buildDir/sip")
     }
 }
-

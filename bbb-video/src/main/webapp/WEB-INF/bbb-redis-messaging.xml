@@ -63,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="clientName" value="BbbRed5VideoSender" />
     </bean>
     
-      <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
+    <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
         <property name="messageSender" ref="redisSender"/>
     </bean>
     

@@ -24,8 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/util 
-			http://www.springframework.org/schema/util/spring-util-2.0.xsd
-			">
+			http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 	
 	<bean id="redisMessageDistributor" class="org.bigbluebutton.common2.redis.pubsub.MessageDistributor">
 		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>

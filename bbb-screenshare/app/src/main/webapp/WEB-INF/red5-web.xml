@@ -35,9 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </property>
   </bean>
   
-  <import resource="bbb-redis-messaging.xml"/>
-  
-  
   <bean id="screenShareApplication" class="org.bigbluebutton.app.screenshare.ScreenShareApplication">
     <constructor-arg index="0" ref="messageBus"/>
     <constructor-arg index="1" value="${jnlpFile}"/>
@@ -105,5 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         </set>
       </property>
   </bean>
+
+   <import resource="bbb-redis-messaging.xml"/>
 
 </beans>

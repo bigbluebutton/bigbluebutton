@@ -12,7 +12,7 @@ import org.bigbluebutton.common2.msgs.UserBroadcastCamStopMsg;
 import org.bigbluebutton.common2.msgs.UserBroadcastCamStopMsgBody;
 import org.bigbluebutton.common2.msgs.ValidateConnAuthTokenSysMsg;
 import org.bigbluebutton.common2.msgs.ValidateConnAuthTokenSysMsgBody;
-import org.bigbluebutton.common2.redis.MessageSender;
+import org.bigbluebutton.common2.redis.pubsub.MessageSender;
 
 import com.google.gson.Gson;
 
