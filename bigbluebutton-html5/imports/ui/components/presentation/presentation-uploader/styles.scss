@@ -152,13 +152,17 @@ $item-height: 1rem;
   }
 }
 
-.dropzone {
+.dropzoneWrapper {
   width: 100%;
-  display: block;
+  display: flex;
+  margin-top: $lg-padding-y * 5;
+}
+
+.dropzone {
+  flex: auto;
   border: 2px dashed;
   border-radius: $border-radius;
-  padding: ($lg-padding-y * 2.5) ($lg-padding-x * 2.5);
-  margin-top: $lg-padding-y * 5;
+  padding: ($lg-padding-y * 2.5) ($lg-padding-x);
   text-align: center;
   font-size: $font-size-large;
   cursor: pointer;

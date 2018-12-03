@@ -66,6 +66,7 @@
     "app.presentationUploder.dismissDesc": "Close the modal window and discard your changes",
     "app.presentationUploder.dropzoneLabel": "Drag files here to upload",
     "app.presentationUploder.browseFilesLabel": "or browse for files",
+    "app.presentationUploder.browseImagesLabel": "or browse/capture for images",
     "app.presentationUploder.fileToUpload": "To be uploaded...",
     "app.presentationUploder.currentBadge": "Current",
     "app.presentationUploder.genericError": "Ops, something went wrong",

@@ -6,6 +6,7 @@ import update from 'immutability-helper';
 import cx from 'classnames';
 import _ from 'lodash';
 import logger from '/imports/startup/client/logger';
+import browser from 'browser-detect';
 
 import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
@@ -70,6 +71,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.browseFilesLabel',
     description: 'message use on the file browser',
   },
+  browseImagesLabel: {
+    id: 'app.presentationUploder.browseImagesLabel',
+    description: 'message use on the image browser',
+  },
   fileToUpload: {
     id: 'app.presentationUploder.fileToUpload',
     description: 'message used in the file selected for upload',
@@ -118,6 +123,12 @@ const intlMessages = defineMessages({
     description: 'warns the user that the conversion failed because of the page count',
   },
 });
+
+const BROWSER_RESULTS = browser();
+const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false) ||
+  (BROWSER_RESULTS && BROWSER_RESULTS.os ?
+    BROWSER_RESULTS.os.includes('Android') : // mobile flag doesn't always work
+    false);
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -232,8 +243,10 @@ class PresentationUploader extends Component {
     });
   }
 
-  handleFiledrop(files, rejected) {
-    const presentationsToUpload = files.map((file) => {
+  handleFiledrop(files, files2) {
+    const [ accepted, rejected ] = _.partition(files.concat(files2), (f) => this.props.fileValidMimeTypes.includes(f.type));
+
+    const presentationsToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
 
       return {
@@ -467,6 +480,41 @@ class PresentationUploader extends Component {
     );
   }
 
+  renderPicDropzone() {
+    const {
+      intl,
+      fileSizeMin,
+      fileSizeMax,
+      fileValidMimeTypes,
+    } = this.props;
+
+    const { disableActions } = this.state;
+
+    if (disableActions) return null;
+
+    return (
+      <Dropzone
+        multiple
+        className={styles.dropzone}
+        activeClassName={styles.dropzoneActive}
+        rejectClassName={styles.dropzoneReject}
+        accept="image/*"
+        minSize={fileSizeMin}
+        maxSize={fileSizeMax}
+        disablePreview
+        onDrop={this.handleFiledrop}
+      >
+        <Icon className={styles.dropzoneIcon} iconName="upload" />
+        <p className={styles.dropzoneMessage}>
+          {intl.formatMessage(intlMessages.dropzoneLabel)}&nbsp;
+          <span className={styles.dropzoneLink}>
+            {intl.formatMessage(intlMessages.browseImagesLabel)}
+          </span>
+        </p>
+      </Dropzone>
+    );
+  }
+
   renderDropzone() {
     const {
       intl,
@@ -485,7 +533,7 @@ class PresentationUploader extends Component {
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
         rejectClassName={styles.dropzoneReject}
-        accept={fileValidMimeTypes.join()}
+        accept={isMobileBrowser ? '' : fileValidMimeTypes.join()}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}
         disablePreview
@@ -525,7 +573,10 @@ class PresentationUploader extends Component {
       >
         <p>{intl.formatMessage(intlMessages.message)}</p>
         {this.renderPresentationList()}
-        {this.renderDropzone()}
+        <div className={styles.dropzoneWrapper}>
+          {isMobileBrowser ? this.renderPicDropzone() : null}
+          {this.renderDropzone()}
+        </div>
       </ModalFullscreen>
     );
   }
