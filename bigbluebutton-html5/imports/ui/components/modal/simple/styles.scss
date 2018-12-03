@@ -22,6 +22,11 @@
   flex-shrink: 0;
 }
 
+.headerNoBorder {
+  display: flex;
+  flex-shrink: 0;
+}
+
 .title {
   @extend %text-elipsis;
   flex: 1;

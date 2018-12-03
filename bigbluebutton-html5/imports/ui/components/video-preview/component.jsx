@@ -2,9 +2,9 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import ModalBase from '/imports/ui/components/modal/base/component';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
+import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
@@ -175,82 +175,69 @@ class VideoPreview extends Component {
     } = this.props;
 
     return (
-      <span>
-        <ModalBase
-          overlayClassName={styles.overlay}
-          className={styles.modal}
-          onRequestClose={this.handleProceed}
-        >
-          <header
-            className={styles.header}
-          >
+      <Modal
+        overlayClassName={styles.overlay}
+        className={styles.modal}
+        onRequestClose={this.handleProceed}
+        hideBorder
+      >
+        <div className={styles.title}>
+          {intl.formatMessage(intlMessages.webcamSettingsTitle)}
+        </div>
+        <div className={styles.content}>
+          <div className={styles.col}>
+            <video
+              id="preview"
+              className={styles.preview}
+              ref={(ref) => { this.video = ref; }}
+              autoPlay
+              playsInline
+            />
+          </div>
+          <div className={styles.options}>
+            <label className={styles.label}>
+              {intl.formatMessage(intlMessages.cameraLabel)}
+            </label>
+            {this.state.availableWebcams && this.state.availableWebcams.length > 0 ? (
+              <select
+                value={this.state.webcamDeviceId}
+                className={styles.select}
+                onChange={this.handleSelectWebcam.bind(this)}
+              >
+                <option disabled>
+                  {intl.formatMessage(intlMessages.webcamOptionLabel)}
+                </option>
+                {this.state.availableWebcams.map((webcam, index) => (
+                  <option key={index} value={webcam.deviceId}>
+                    {webcam.label}
+                  </option>
+                  ))}
+              </select>
+              ) :
+              <select
+                className={styles.select}
+              >
+                <option disabled>
+                  {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+                </option>
+              </select>}
+          </div>
+        </div>
+        <div className={styles.footer}>
+          <div className={styles.actions}>
             <Button
-              className={styles.closeBtn}
-              label={intl.formatMessage(intlMessages.closeLabel)}
-              icon="close"
-              size="md"
-              hideLabel
+              label={intl.formatMessage(intlMessages.cancelLabel)}
               onClick={this.handleProceed}
             />
-          </header>
-          <h3 className={styles.title}>
-            {intl.formatMessage(intlMessages.webcamSettingsTitle)}
-          </h3>
-          <div className={styles.content}>
-            <div className={styles.col}>
-              <video
-                id="preview"
-                className={styles.preview}
-                ref={(ref) => { this.video = ref; }}
-                autoPlay
-                playsInline
-              />
-            </div>
-            <div className={styles.options}>
-              <label className={styles.label}>
-                {intl.formatMessage(intlMessages.cameraLabel)}
-              </label>
-              {this.state.availableWebcams && this.state.availableWebcams.length > 0 ? (
-                <select
-                  value={this.state.webcamDeviceId}
-                  className={styles.select}
-                  onChange={this.handleSelectWebcam.bind(this)}
-                >
-                  <option disabled>
-                    {intl.formatMessage(intlMessages.webcamOptionLabel)}
-                  </option>
-                  {this.state.availableWebcams.map((webcam, index) => (
-                    <option key={index} value={webcam.deviceId}>
-                      {webcam.label}
-                    </option>
-                  ))}
-                </select>
-              ) :
-                <select
-                  className={styles.select}
-                >
-                  <option disabled>
-                    {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
-                  </option>
-                </select>}
-            </div>
+            <Button
+              color="primary"
+              label={intl.formatMessage(intlMessages.startSharingLabel)}
+              onClick={() => this.handleStartSharing()}
+              disabled={this.state.isStartSharingDisabled}
+            />
           </div>
-          <div className={styles.footer}>
-            <div className={styles.actions}>
-              <Button
-                label={intl.formatMessage(intlMessages.cancelLabel)}
-                onClick={this.handleProceed}
-              />
-              <Button
-                color="primary"
-                label={intl.formatMessage(intlMessages.startSharingLabel)}
-                onClick={() => this.handleStartSharing()}
-                disabled={this.state.isStartSharingDisabled}
-              />
-            </div>
-          </div>
-        </ModalBase>
-      </span>
+        </div>
+      </Modal>
     );
   }
 }
