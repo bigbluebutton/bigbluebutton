@@ -78,6 +78,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.genericError',
     description: 'generic error while uploading/converting',
   },
+  rejectedError: {
+    id: 'app.presentationUploder.rejectedError',
+    description: 'some files rejected, please check the file mime types',
+  },
   uploadProcess: {
     id: 'app.presentationUploder.upload.progress',
     description: 'message that indicates the percentage of the upload',
@@ -228,7 +232,7 @@ class PresentationUploader extends Component {
     });
   }
 
-  handleFiledrop(files) {
+  handleFiledrop(files, rejected) {
     const presentationsToUpload = files.map((file) => {
       const id = _.uniqueId(file.name);
 
@@ -275,6 +279,11 @@ class PresentationUploader extends Component {
         this.handleCurrentChange(presentationsToUpload[0].id);
       }
     });
+
+
+    if (rejected.length > 0) {
+        notify(this.props.intl.formatMessage(intlMessages.rejectedError), 'error');
+    }
   }
 
   handleCurrentChange(id) {
