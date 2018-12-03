@@ -29,7 +29,6 @@ export default function handlePresenterAssigned(credentials, meetingId) {
   // It's been handled here because right now akka-apps don't handle all cases scenarios.
   if (!prevPresenter) {
     const currentDefaultPodPresenter = PresentationPods.findOne(defaultPodSelector);
-
     const { currentPresenterId } = currentDefaultPodPresenter;
 
     const podPresenterCredentials = {
@@ -37,15 +36,17 @@ export default function handlePresenterAssigned(credentials, meetingId) {
       requesterUserId: assignedBy,
     };
 
-    if (currentDefaultPodPresenter.currentPresenterId !== '') {
-      const oldPresenter = Users.findOne({ userId: currentPresenterId });
-
-      if (oldPresenter.connectionStatus === 'offline') {
-        return assignPresenter(podPresenterCredentials, presenterId);
-      }
-      return true;
+    if (currentPresenterId === '') {
+      return assignPresenter(podPresenterCredentials, presenterId);
     }
-    return assignPresenter(podPresenterCredentials, presenterId);
+
+    const oldPresenter = Users.findOne({ userId: currentPresenterId, connectionStatus: 'offline' });
+
+    if (oldPresenter) {
+      return assignPresenter(podPresenterCredentials, presenterId);
+    }
+
+    return true;
   }
 
   return changeRole(ROLE_PRESENTER, false, prevPresenter.userId, meetingId, assignedBy);
