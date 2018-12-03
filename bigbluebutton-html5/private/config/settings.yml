@@ -9,7 +9,7 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.0-rc
+    bbbServerVersion: 2.2-dev
     copyright: "©2018 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     lockOnJoin: true
