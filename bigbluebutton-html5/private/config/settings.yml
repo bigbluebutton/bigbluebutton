@@ -243,17 +243,9 @@ public:
       - pencil
       - hand
   clientLog:
-    server:
-      enabled: true
-      level: info
-    console:
-      enabled: false
-      level: debug
-    external:
-      enabled: false
-      level: info
-      url: https://LOG_HOST/html5Log
-      method: POST
+    server: { enabled: true, level: info }
+    console: { enabled: true, level: debug }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST }
 private:
   app:
     captionsChunkLength: 1000
