@@ -5,6 +5,8 @@ import cx from 'classnames';
 import ModalBase, { withModalState } from '../base/component';
 import { styles } from './styles.scss';
 
+import ToastContainer from '/imports/ui/components/toast/container';
+
 const propTypes = {
   title: PropTypes.string.isRequired,
   confirm: PropTypes.shape({
@@ -88,6 +90,7 @@ class ModalFullscreen extends Component {
         </div>
         <div id="modalDismissDescription" hidden>{dismiss.description}</div>
         <div id="modalConfirmDescription" hidden>{confirm.description}</div>
+        <ToastContainer />
       </ModalBase>
     );
   }
