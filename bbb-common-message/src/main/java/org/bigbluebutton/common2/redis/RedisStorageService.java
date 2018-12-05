@@ -36,22 +36,18 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     private static Logger log = LoggerFactory.getLogger(RedisStorageService.class);
 
-    private int expireKey;
-
     GenericObjectPool<StatefulRedisConnection<String, String>> connectionPool;
 
     public void start() {
         log.info("Starting RedisStorageService with client name: {}", clientName);
-        RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName).build();
-        if (!this.password.isEmpty()) {
-            redisUri.setPassword(this.password);
-        }
+        RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName)
+                .withPassword(this.password).build();
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
 
-        connectionPool = ConnectionPoolSupport.createGenericObjectPool(() -> redisClient.connectPubSub(),
-                createPoolingConfig());
+        connectionPool = ConnectionPoolSupport.createGenericObjectPool(
+                () -> (codec != null) ? redisClient.connect(codec) : redisClient.connect(), createPoolingConfig());
     }
 
     public void stop() {
@@ -122,7 +118,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
             Long msgid = commands.incr("global:nextRecordedMsgId");
             commands.hmset("recording:" + meetingId + ":" + msgid, event);
-            commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
             /**
              * We set the key to expire after 14 days as we are still recording
              * the event into redis even if the meeting is not recorded. (ralam
@@ -139,10 +134,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         }
     }
 
-    public void setExpireKey(int expireKey) {
-        this.expireKey = expireKey;
-    }
-
     private String recordMeeting(String key, Map<String, String> info) {
         log.debug("Storing metadata {}", info);
         String result = "";
@@ -155,6 +146,5 @@ public class RedisStorageService extends RedisAwareCommunicator {
             connectionPool.close();
         }
         return result;
-
     }
 }

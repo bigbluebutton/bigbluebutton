@@ -1,40 +1,29 @@
 package org.bigbluebutton.endpoint.redis
 
-import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
-import org.bigbluebutton.SystemConfiguration
-import redis.RedisClient
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.StringOps
+
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.record.events._
+import org.bigbluebutton.common2.redis.RedisStorageProvider
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.record.events._
+
+import akka.actor.Actor
+import akka.actor.ActorLogging
+import akka.actor.ActorSystem
+import akka.actor.Props
 
 object RedisRecorderActor {
   def props(system: ActorSystem): Props = Props(classOf[RedisRecorderActor], system)
 }
 
-class RedisRecorderActor(val system: ActorSystem)
-  extends SystemConfiguration
+class RedisRecorderActor(system: ActorSystem)
+  extends RedisStorageProvider(system, "BbbAppsAkkaRecorder")
+  with SystemConfiguration
   with Actor with ActorLogging {
-  val redis = RedisClient(host = redisHost, password = Some(redisPassword), port= redisPort)(system)
 
-  // Set the name of this client to be able to distinguish when doing
-  // CLIENT LIST on redis-cli
-  redis.clientSetname("BbbAppsAkkaRecorder")
-
-  val COLON = ":"
-
-  private def record(session: String, message: collection.immutable.Map[String, String]): Unit = {
-    for {
-      msgid <- redis.incr("global:nextRecordedMsgId")
-      key = "recording" + COLON + session + COLON + msgid
-      _ <- redis.hmset(key.mkString, message)
-      _ <- redis.expire(key.mkString, keysExpiresInSec)
-      key2 = "meeting" + COLON + session + COLON + "recordings"
-      _ <- redis.rpush(key2.mkString, msgid.toString)
-      result <- redis.expire(key2.mkString, keysExpiresInSec)
-    } yield result
-
+  private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
+    redis.recordAndExpire(session, message)
   }
 
   def receive = {
@@ -121,7 +110,7 @@ class RedisRecorderActor(val system: ActorSystem)
       ev.setMessage(msg.body.msg.message)
       ev.setColor(msg.body.msg.color)
 
-      record(msg.header.meetingId, ev.toMap)
+      record(msg.header.meetingId, ev.toJavaMap)
     }
   }
 
@@ -129,7 +118,7 @@ class RedisRecorderActor(val system: ActorSystem)
     val ev = new ClearPublicChatRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
@@ -139,7 +128,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPresentationName(msg.body.presentation.id)
     ev.setOriginalFilename(msg.body.presentation.name)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
 
     if (msg.body.presentation.current) {
       recordSharePresentationEvent(msg.header.meetingId, msg.body.podId, msg.body.presentation.id)
@@ -154,7 +143,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setSlide(getPageNum(msg.body.pageId))
     ev.setId(msg.body.pageId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
@@ -168,7 +157,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setWidthRatio(msg.body.widthRatio)
     ev.setHeightRatio(msg.body.heightRatio)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleRemovePresentationEvtMsg(msg: RemovePresentationEvtMsg) {
@@ -177,7 +166,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleSetPresentationDownloadableEvtMsg(msg: SetPresentationDownloadableEvtMsg) {
@@ -187,7 +176,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPresentationName(msg.body.presentationId)
     ev.setDownloadable(msg.body.downloadable)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
@@ -200,7 +189,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPodId(msg.body.podId)
     ev.setCurrentPresenter(msg.body.currentPresenterId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleRemovePresentationPodEvtMsg(msg: RemovePresentationPodEvtMsg) {
@@ -208,7 +197,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleSetPresenterInPodRespMsg(msg: SetPresenterInPodRespMsg) {
@@ -217,7 +206,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPodId(msg.body.podId)
     ev.setNextPresenterId(msg.body.nextPresenterId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def recordSharePresentationEvent(meetingId: String, podId: String, presentationId: String) {
@@ -227,7 +216,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPresentationName(presentationId)
     ev.setShare(true)
 
-    record(meetingId, ev.toMap)
+    record(meetingId, ev.toJavaMap)
   }
 
   private def getPageNum(id: String): Integer = {
@@ -266,7 +255,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPosition(annotation.position)
     ev.addAnnotation(annotation.annotationInfo)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleSendCursorPositionEvtMsg(msg: SendCursorPositionEvtMsg) {
@@ -279,7 +268,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setXPercent(msg.body.xPercent)
     ev.setYPercent(msg.body.yPercent)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleClearWhiteboardEvtMsg(msg: ClearWhiteboardEvtMsg) {
@@ -291,7 +280,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setUserId(msg.body.userId)
     ev.setFullClear(msg.body.fullClear)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleUndoWhiteboardEvtMsg(msg: UndoWhiteboardEvtMsg) {
@@ -302,7 +291,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setWhiteboardId(msg.body.whiteboardId)
     ev.setUserId(msg.body.userId)
     ev.setShapeId(msg.body.annotationId)
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
@@ -313,7 +302,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setName(msg.body.name)
     ev.setRole(msg.body.role)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
@@ -321,7 +310,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.intId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handlePresenterAssignedEvtMsg(msg: PresenterAssignedEvtMsg): Unit = {
@@ -331,7 +320,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setName(msg.body.presenterName)
     ev.setAssignedBy(msg.body.assignedBy)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
   private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
@@ -352,7 +341,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setStatus(statusName)
     ev.setValue(statusValue)
 
-    record(meetingId, ev.toMap)
+    record(meetingId, ev.toJavaMap)
   }
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg) {
@@ -365,7 +354,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMuted(msg.body.muted)
     ev.setTalking(msg.body.talking)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
@@ -374,7 +363,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setBridge(msg.body.voiceConf)
     ev.setParticipant(msg.body.intId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleUserMutedVoiceEvtMsg(msg: UserMutedVoiceEvtMsg) {
@@ -384,7 +373,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setParticipant(msg.body.intId)
     ev.setMuted(msg.body.muted)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleUserTalkingVoiceEvtMsg(msg: UserTalkingVoiceEvtMsg) {
@@ -394,7 +383,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setParticipant(msg.body.intId)
     ev.setTalking(msg.body.talking)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleVoiceRecordingStartedEvtMsg(msg: VoiceRecordingStartedEvtMsg) {
@@ -404,7 +393,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setRecordingTimestamp(msg.body.timestamp)
     ev.setFilename(msg.body.stream)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleVoiceRecordingStoppedEvtMsg(msg: VoiceRecordingStoppedEvtMsg) {
@@ -414,7 +403,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setRecordingTimestamp(msg.body.timestamp)
     ev.setFilename(msg.body.stream)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) {
@@ -426,7 +415,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setLocaleCode(msg.body.localeCode)
     ev.setText(msg.body.text)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
@@ -434,7 +423,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMeetingId(msg.header.meetingId)
     ev.setStreamPath(msg.body.stream)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) {
@@ -442,7 +431,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMeetingId(msg.header.meetingId)
     ev.setStreamPath(msg.body.stream)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   /*
@@ -462,7 +451,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setUserId(msg.body.setBy)
     ev.setRecordingStatus(msg.body.recording)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleRecordStatusResetSysMsg(msg: RecordStatusResetSysMsg) {
@@ -471,7 +460,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setUserId(msg.body.setBy)
     ev.setRecordingStatus(msg.body.recording)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg) {
@@ -480,14 +469,14 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setUserId(msg.body.setBy)
     ev.setWebcamsOnlyForModerator(msg.body.webcamsOnlyForModerator)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleEndAndKickAllSysMsg(msg: EndAndKickAllSysMsg): Unit = {
     val ev = new EndAndKickAllRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
@@ -495,7 +484,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setMeetingId(msg.header.meetingId)
     ev.setChapterBreakTimestamp(msg.body.timestamp)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handlePollStartedEvtMsg(msg: PollStartedEvtMsg): Unit = {
@@ -503,7 +492,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setPollId(msg.body.pollId)
     ev.setAnswers(msg.body.poll.answers)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
@@ -512,7 +501,7 @@ class RedisRecorderActor(val system: ActorSystem)
     ev.setUserId(msg.header.userId)
     ev.setAnswerId(msg.body.answerId)
 
-    record(msg.header.meetingId, ev.toMap)
+    record(msg.header.meetingId, ev.toJavaMap)
   }
 
   private def handlePollStoppedEvtMsg(msg: PollStoppedEvtMsg): Unit = {
@@ -527,6 +516,6 @@ class RedisRecorderActor(val system: ActorSystem)
     val ev = new PollStoppedRecordEvent()
     ev.setPollId(pollId)
 
-    record(meetingId, ev.toMap)
+    record(meetingId, ev.toJavaMap)
   }
 }

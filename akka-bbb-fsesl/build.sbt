@@ -30,7 +30,6 @@ val compileSettings = Seq(
 
 resolvers ++= Seq(
   "spray repo" at "http://repo.spray.io/",
-  "rediscala" at "http://dl.bintray.com/etaty/maven",
   "blindside-repos" at "http://blindside.googlecode.com/svn/repository/"
 )
 

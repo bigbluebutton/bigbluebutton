@@ -1,14 +1,14 @@
 package org.bigbluebutton
 
-import akka.actor.{ ActorSystem }
-
+import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
 import org.bigbluebutton.common2.redis.RedisPublisher
 import org.bigbluebutton.endpoint.redis.FSESLRedisSubscriberActor
 import org.bigbluebutton.freeswitch.{ RxJsonMsgHdlrActor, VoiceConferenceService }
-import org.bigbluebutton.freeswitch.bus.InsonMsgBus
 import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
 import org.bigbluebutton.freeswitch.voice.freeswitch.{ ConnectionManager, ESLEventListener, FreeswitchApplication }
 import org.freeswitch.esl.client.manager.DefaultManagerConnection
+
+import akka.actor.ActorSystem
 
 object Boot extends App with SystemConfiguration {
 
@@ -31,7 +31,7 @@ object Boot extends App with SystemConfiguration {
   val fsApplication = new FreeswitchApplication(connManager, fsProfile)
   fsApplication.start()
 
-  val inJsonMsgBus = new InsonMsgBus
+  val inJsonMsgBus = new IncomingJsonMessageBus
   val redisMessageHandlerActor = system.actorOf(RxJsonMsgHdlrActor.props(fsApplication))
   inJsonMsgBus.subscribe(redisMessageHandlerActor, toFsAppsJsonChannel)
 

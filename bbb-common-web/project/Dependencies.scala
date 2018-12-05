@@ -32,9 +32,6 @@ object Dependencies {
     val io = "2.6"
     val pool = "2.6.0"
 
-    // Redis
-    val redisScala = "1.8.0"
-
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
 
@@ -69,8 +66,6 @@ object Dependencies {
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
 
-    val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
-
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
   }
 
@@ -104,7 +99,5 @@ object Dependencies {
     Compile.apacheLang,
     Compile.apacheIo,
     Compile.apachePool2,
-    Compile.redisScala,
-    Compile.bbbCommons,
-  ) ++ testing
+    Compile.bbbCommons) ++ testing
 }

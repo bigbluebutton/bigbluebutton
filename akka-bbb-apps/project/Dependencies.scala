@@ -24,9 +24,6 @@ object Dependencies {
     val lang = "3.8.1"
     val codec = "1.11"
 
-    // Redis
-    val redisScala = "1.8.0"
-
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
 
@@ -51,8 +48,6 @@ object Dependencies {
     val sprayJson = "io.spray" % "spray-json_2.12" % Versions.spray
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
-
-    val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
   }
@@ -84,6 +79,5 @@ object Dependencies {
     Compile.commonsCodec,
     Compile.sprayJson,
     Compile.apacheLang,
-    Compile.redisScala,
     Compile.bbbCommons) ++ testing
 }

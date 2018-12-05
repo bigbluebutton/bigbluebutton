@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat
 
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.TimestampGenerator
+import scala.collection._
 
 trait RecordEvent {
   import RecordEvent._
@@ -70,12 +71,17 @@ trait RecordEvent {
     eventMap.put(EVENT, event)
   }
 
+  // @fixme : not used anymore
   /**
    * Convert the event into a Map to be recorded.
    * @return
    */
   final def toMap(): Map[String, String] = {
     eventMap.toMap
+  }
+
+  final def toJavaMap(): java.util.Map[java.lang.String, java.lang.String] = {
+    eventMap.asInstanceOf[java.util.Map[java.lang.String, java.lang.String]]
   }
 }
 

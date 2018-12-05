@@ -1,22 +1,15 @@
 package org.bigbluebutton.common2.redis
 
 import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.util.ByteString
-import redis.RedisClient
 
-class RedisPublisher(val system: ActorSystem, val clientName: String) extends RedisConfiguration {
+class RedisPublisher(system: ActorSystem, clientName: String) extends RedisClientProvider(system, clientName) {
+  val connection = redis.connectPubSub()
 
-  val redis = RedisClient(host = redisHost, password = Some(redisPassword), port= redisPort)(system)
-
-  val log = Logging(system, getClass)
-
-  // Set the name of this client to be able to distinguish when doing
-  // CLIENT LIST on redis-cli
-  redis.clientSetname(clientName)
+  redis.connect()
 
   def publish(channel: String, data: String) {
-    redis.publish(channel, ByteString(data))
+    val async = connection.async();
+    async.publish(channel, data);
   }
- 
+
 }

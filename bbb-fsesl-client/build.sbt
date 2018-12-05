@@ -2,7 +2,7 @@ import org.bigbluebutton.build._
 
 description := "BigBlueButton custom FS-ESL client built on top of FS-ESL Java library."
 
-version := "0.0.7"
+version := "0.0.7-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",

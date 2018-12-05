@@ -1,8 +1,12 @@
 package org.bigbluebutton.api2.endpoint.redis
 
-import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
 import org.bigbluebutton.api2.SystemConfiguration
-import redis.RedisClient
+import org.bigbluebutton.common2.redis.RedisStorageProvider
+
+import akka.actor.Actor
+import akka.actor.ActorLogging
+import akka.actor.ActorSystem
+import akka.actor.Props
 
 case class RecordMeetingInfoMsg(meetingId: String, info: collection.immutable.Map[String, String])
 case class RecordBreakoutInfoMsg(meetingId: String, info: collection.immutable.Map[String, String])
@@ -13,13 +17,10 @@ object RedisDataStorageActor {
   def props(system: ActorSystem): Props = Props(classOf[RedisDataStorageActor], system)
 }
 
-class RedisDataStorageActor(val system: ActorSystem) extends Actor with ActorLogging with SystemConfiguration {
-
-  val redis = RedisClient(host = redisHost, password = Some(redisPassword), port = redisPort)(system)
-
-  // Set the name of this client to be able to distinguish when doing
-  // CLIENT LIST on redis-cli
-  redis.clientSetname("BbbWebStore")
+class RedisDataStorageActor(val system: ActorSystem)
+  extends RedisStorageProvider(system, "BbbWebStore")
+  with SystemConfiguration
+  with Actor with ActorLogging {
 
   def receive = {
     case msg: RecordMeetingInfoMsg  => handleRecordMeetingInfoMsg(msg)
@@ -29,20 +30,19 @@ class RedisDataStorageActor(val system: ActorSystem) extends Actor with ActorLog
   }
 
   def handleRecordMeetingInfoMsg(msg: RecordMeetingInfoMsg): Unit = {
-    redis.hmset("meeting:info:" + msg.meetingId, msg.info)
+    redis.recordMeetingInfo(msg.meetingId, msg.info.asInstanceOf[java.util.Map[java.lang.String, java.lang.String]]);
   }
 
   def handleRecordBreakoutInfoMsg(msg: RecordBreakoutInfoMsg): Unit = {
-    redis.hmset("meeting:breakout:" + msg.meetingId, msg.info)
+    redis.recordBreakoutInfo(msg.meetingId, msg.info.asInstanceOf[java.util.Map[java.lang.String, java.lang.String]])
   }
 
   def handleAddBreakoutRoomMsg(msg: AddBreakoutRoomMsg): Unit = {
-    redis.sadd("meeting:breakout:rooms:" + msg.parentId, msg.breakoutId)
+    redis.addBreakoutRoom(msg.parentId, msg.breakoutId)
   }
 
   def handleRemoveMeetingMsg(msg: RemoveMeetingMsg): Unit = {
-    redis.del("meeting-" + msg.meetingId)
-    redis.srem("meetings", msg.meetingId)
+    redis.removeMeeting(msg.meetingId)
   }
 
 }

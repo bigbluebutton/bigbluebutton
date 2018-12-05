@@ -28,7 +28,6 @@ object Dependencies {
     val pool2 = "2.6.0"
 
     // Redis
-    val redisScala = "1.8.0"
     val lettuce = "5.1.3.RELEASE"
 
     // BigBlueButton
@@ -65,7 +64,6 @@ object Dependencies {
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool2
 
-    val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
@@ -102,7 +100,6 @@ object Dependencies {
     Compile.commonsCodec,
     Compile.apacheLang,
     Compile.apachePool2,
-    Compile.redisScala,
     Compile.lettuceCore,
     Compile.bbbCommons) ++ testing
 }

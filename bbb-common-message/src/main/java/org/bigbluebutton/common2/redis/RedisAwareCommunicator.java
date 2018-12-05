@@ -31,6 +31,7 @@ public abstract class RedisAwareCommunicator {
     protected String password;
     protected int port;
     protected String clientName;
+    protected int expireKey;
 
     public abstract void start();
 
@@ -50,6 +51,10 @@ public abstract class RedisAwareCommunicator {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public void setExpireKey(int expireKey) {
+        this.expireKey = expireKey;
     }
 
     protected GenericObjectPoolConfig createPoolingConfig() {

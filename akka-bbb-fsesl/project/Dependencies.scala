@@ -19,12 +19,9 @@ object Dependencies {
     val lang = "3.8.1"
     val codec = "1.11"
 
-    // Redis
-    val redisScala = "1.8.0"
-
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
-    val bbbFsesl = "0.0.7"
+    val bbbFsesl = "0.0.7-SNAPSHOT"
 
     // Test
     val scalaTest = "3.0.5"
@@ -43,8 +40,6 @@ object Dependencies {
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
-
-    val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
     val bbbFseslClient = "org.bigbluebutton" % "bbb-fsesl-client" % Versions.bbbFsesl
@@ -71,7 +66,6 @@ object Dependencies {
     Compile.logback,
     Compile.commonsCodec,
     Compile.apacheLang,
-    Compile.redisScala,
     Compile.bbbCommons,
     Compile.bbbFseslClient) ++ testing
 }

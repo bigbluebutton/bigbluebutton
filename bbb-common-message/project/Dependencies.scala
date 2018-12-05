@@ -21,7 +21,6 @@ object Dependencies {
     val pool = "2.6.0"
 
     // Redis
-    val redisScala = "1.8.0"
     val lettuce = "5.1.3.RELEASE"
 
     // Test
@@ -40,7 +39,6 @@ object Dependencies {
     val red5 = "org.red5" % "red5-server-common" % Versions.red5
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
 
-    val redisScala = "com.github.etaty" % "rediscala_2.12" % Versions.redisScala
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
   }
 
@@ -66,6 +64,5 @@ object Dependencies {
     Compile.sl4jApi,
     Compile.red5,
     Compile.apachePool2,
-    Compile.lettuceCore,
-    Compile.redisScala) ++ testing
+    Compile.lettuceCore) ++ testing
 }
