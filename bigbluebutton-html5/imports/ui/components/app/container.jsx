@@ -70,6 +70,7 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
@@ -114,8 +115,10 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     userListIsOpen: Session.get('isUserListOpen'),
     breakoutRoomIsOpen: Session.get('breakoutRoomIsOpen') && Session.get('isUserListOpen'),
     chatIsOpen: Session.get('isChatOpen') && Session.get('isUserListOpen'),
+    pollIsOpen: Session.get('isPollOpen') && Session.get('isUserListOpen'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
+    micsLocked: (currentUser.locked && meeting.lockSettingsProp.disableMic),
   };
 })(AppContainer)));
 

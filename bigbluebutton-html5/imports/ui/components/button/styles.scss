@@ -119,7 +119,6 @@
     line-height: 1.5;
     text-align: center;
     white-space: nowrap;
-    vertical-align: middle;
   }
 
   .buttonWrapper.sm & {
@@ -144,7 +143,8 @@
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden;
-  display: block;
+  display: none !important;
+  
 }
 
 .icon {
@@ -231,7 +231,6 @@
 .danger {
   @include button-variant(var(--btn-danger-color), var(--btn-danger-bg), var(--btn-danger-border));
 }
-
 
 /* Styles
  * ==========

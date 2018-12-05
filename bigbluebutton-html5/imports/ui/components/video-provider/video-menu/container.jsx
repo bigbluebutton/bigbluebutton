@@ -1,6 +1,8 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import JoinVideoOptions from './component';
 import VideoMenuService from './service';
 
@@ -33,6 +35,7 @@ const JoinVideoOptionsContainer = (props) => {
     swapLayoutAllowed,
     baseName,
     intl,
+    mountModal,
     ...restProps
   } = props;
   const videoItems = [
@@ -49,7 +52,7 @@ const JoinVideoOptionsContainer = (props) => {
       description: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
       label: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
       disabled: isDisabled && !isSharingVideo,
-      click: isSharingVideo ? handleCloseVideo : handleJoinVideo,
+      click: isSharingVideo ? handleCloseVideo : () => { mountModal(<VideoPreviewContainer />); },
       id: isSharingVideo ? 'leave-video-button' : 'join-video-button',
     },
   ];
@@ -57,11 +60,11 @@ const JoinVideoOptionsContainer = (props) => {
   return <JoinVideoOptions {...{ videoItems, isSharingVideo, ...restProps }} />;
 };
 
-export default injectIntl(withTracker(() => ({
+export default withModalMounter(injectIntl(withTracker(() => ({
   baseName: VideoMenuService.baseName,
   isSharingVideo: VideoMenuService.isSharingVideo(),
   isDisabled: VideoMenuService.isDisabled(),
   videoShareAllowed: VideoMenuService.videoShareAllowed(),
   toggleSwapLayout: VideoMenuService.toggleSwapLayout,
   swapLayoutAllowed: VideoMenuService.swapLayoutAllowed(),
-}))(JoinVideoOptionsContainer));
+}))(JoinVideoOptionsContainer)));

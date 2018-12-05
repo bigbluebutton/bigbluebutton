@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
@@ -81,7 +80,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class SettingsDropdown extends Component {
+class SettingsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -105,45 +104,43 @@ class SettingsDropdown extends Component {
       description={fullscreenDesc}
       onClick={this.props.handleToggleFullscreen}
     />),
-    (<DropdownListItem
-      key={_.uniqueId('list-item-')}
-      icon="settings"
-      label={intl.formatMessage(intlMessages.settingsLabel)}
-      description={intl.formatMessage(intlMessages.settingsDesc)}
-      onClick={() => mountModal(<SettingsMenuContainer />)}
-    />),
-    (<DropdownListItem
-      key={_.uniqueId('list-item-')}
-      icon="about"
-      label={intl.formatMessage(intlMessages.aboutLabel)}
-      description={intl.formatMessage(intlMessages.aboutDesc)}
-      onClick={() => mountModal(<AboutContainer />)}
-    />),
-    !helpButton ? null
-      : (
-        <DropdownListItem
-          key={_.uniqueId('list-item-')}
-          icon="help"
-          label={intl.formatMessage(intlMessages.helpLabel)}
-          description={intl.formatMessage(intlMessages.helpDesc)}
-          onClick={() => window.open('https://bigbluebutton.org/videos/')}
-        />
-      ),
-    (<DropdownListItem
-      key={_.uniqueId('list-item-')}
-      icon="shortcuts"
-      label={intl.formatMessage(intlMessages.hotkeysLabel)}
-      description={intl.formatMessage(intlMessages.hotkeysDesc)}
-      onClick={() => mountModal(<ShortcutHelpComponent />)}
-    />),
-    (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-    (<DropdownListItem
-      key={_.uniqueId('list-item-')}
-      icon="logout"
-      label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-      description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-      onClick={() => mountModal(<LogoutConfirmationContainer />)}
-    />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="settings"
+        label={intl.formatMessage(intlMessages.settingsLabel)}
+        description={intl.formatMessage(intlMessages.settingsDesc)}
+        onClick={() => mountModal(<SettingsMenuContainer />)}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="about"
+        label={intl.formatMessage(intlMessages.aboutLabel)}
+        description={intl.formatMessage(intlMessages.aboutDesc)}
+        onClick={() => mountModal(<AboutContainer />)}
+      />),
+      !helpButton ? null :
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="help"
+        label={intl.formatMessage(intlMessages.helpLabel)}
+        description={intl.formatMessage(intlMessages.helpDesc)}
+        onClick={() => window.open('https://bigbluebutton.org/videos/')}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="shortcuts"
+        label={intl.formatMessage(intlMessages.hotkeysLabel)}
+        description={intl.formatMessage(intlMessages.hotkeysDesc)}
+        onClick={() => mountModal(<ShortcutHelpComponent />)}
+      />),
+      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="logout"
+        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+        onClick={() => mountModal(<LogoutConfirmationContainer />)}
+      />),
     ]);
 
     // Removes fullscreen button if not on Android

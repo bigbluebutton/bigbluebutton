@@ -6,7 +6,9 @@ import Modal from 'react-modal';
 import cx from 'classnames';
 import Resizable from 're-resizable';
 import browser from 'browser-detect';
-import BreakoutRoomContainer from '/imports/ui/components/Breakout-room/container';
+import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
+import PollingContainer from '/imports/ui/components/polling/container';
+import PollContainer from '/imports/ui/components/poll/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -15,6 +17,7 @@ import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 import UserListContainer from '../user-list/container';
 import ChatContainer from '../chat/container';
+
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const USERLIST_COMPACT_WIDTH = 50;
@@ -47,6 +50,7 @@ const propTypes = {
   closedCaption: PropTypes.element,
   userListIsOpen: PropTypes.bool.isRequired,
   chatIsOpen: PropTypes.bool.isRequired,
+  pollIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -103,6 +107,18 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
+  }
+
+  renderPoll() {
+    const { pollIsOpen } = this.props;
+
+    if (!pollIsOpen) return null;
+
+    return (
+      <div className={styles.poll}>
+        <PollContainer />
+      </div>
+    );
   }
 
   renderNavBar() {
@@ -310,7 +326,7 @@ class App extends Component {
 
   render() {
     const {
-      userListIsOpen, customStyle, customStyleUrl,
+      userListIsOpen, customStyle, customStyleUrl, micsLocked,
     } = this.props;
     const { enableResize } = this.state;
 
@@ -326,15 +342,17 @@ class App extends Component {
           {enableResize ? this.renderUserListResizable() : this.renderUserList()}
           {userListIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
           {enableResize ? this.renderChatResizable() : this.renderChat()}
+          {this.renderPoll()}
           {this.renderBreakoutRoom()}
           {this.renderSidebar()}
         </section>
+        <PollingContainer />
         <ModalContainer />
-        <AudioContainer />
+        {micsLocked ? null : <AudioContainer />}
         <ToastContainer />
         <ChatAlertContainer />
-        { customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null }
-        { customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null }
+        {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+        {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
       </main>
     );
   }

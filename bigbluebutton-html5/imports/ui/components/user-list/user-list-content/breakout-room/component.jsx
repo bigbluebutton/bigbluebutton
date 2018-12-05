@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
 import Icon from '/imports/ui/components/icon/component';
@@ -15,6 +14,7 @@ const toggleBreakoutPanel = () => {
   const breakoutPanelState = Session.get('breakoutRoomIsOpen');
   Session.set('breakoutRoomIsOpen', !breakoutPanelState);
   Session.set('isChatOpen', false);
+  Session.set('isPollOpen', false);
 };
 
 const BreakoutRoomItem = ({

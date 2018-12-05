@@ -92,8 +92,8 @@ class BreakoutRoom extends Component {
   }
 
   transferUserToBreakoutRoom(breakoutId) {
-    const { transferToBreakout, meetingId } = this.props;
-    transferToBreakout(meetingId, breakoutId);
+    const { transferToBreakout } = this.props;
+    transferToBreakout(breakoutId);
     this.setState({ joinedAudioOnly: true, breakoutId });
   }
   returnBackToMeeeting(breakoutId) {
@@ -105,7 +105,7 @@ class BreakoutRoom extends Component {
   renderUserActions(breakoutId) {
     const {
       isMicrophoneUser,
-      isPresenter,
+      isModerator,
       intl,
     } = this.props;
 
@@ -117,7 +117,7 @@ class BreakoutRoom extends Component {
       waiting,
     } = this.state;
 
-    const presenterJoinedAudio = isMicrophoneUser && isPresenter;
+    const moderatorJoinedAudio = isMicrophoneUser && isModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
     const audioAction = joinedAudioOnly ?
       () => this.returnBackToMeeeting(breakoutId) :
@@ -133,13 +133,13 @@ class BreakoutRoom extends Component {
           className={styles.joinButton}
         />
         {
-          presenterJoinedAudio ?
+          moderatorJoinedAudio ?
             [
               ('|'),
               (
                 <Button
                   label={
-                    presenterJoinedAudio &&
+                    moderatorJoinedAudio &&
                     stateBreakoutId === breakoutId &&
                     joinedAudioOnly
                       ?

@@ -12,9 +12,6 @@ import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 
-const APP_CONFIG = Meteor.settings.public.app;
-const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
-
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
@@ -191,6 +188,8 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
+const getUsersId = () => getUsers().map(u => u.id);
+
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
 
 const getOpenChats = (chatID) => {
@@ -277,7 +276,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
                               && user.isVoiceUser
                               && !user.isListenOnly
                               && user.isMuted
-                              && (ALLOW_MODERATOR_TO_UNMUTE_AUDIO || user.isCurrent);
+                              && user.isCurrent;
 
   const allowedToResetStatus = hasAuthority
       && user.emoji.status !== EMOJI_STATUSES.none
@@ -364,6 +363,10 @@ const removeUser = (userId) => {
 
 const toggleVoice = (userId) => { userId === Auth.userID ? makeCall('toggleSelfVoice') : makeCall('toggleVoice', userId); };
 
+const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
+
+const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
+
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const roving = (event, itemCount, changeState) => {
@@ -438,8 +441,11 @@ export default {
   assignPresenter,
   removeUser,
   toggleVoice,
+  muteAllUsers,
+  muteAllExceptPresenter,
   changeRole,
   getUsers,
+  getUsersId,
   getOpenChats,
   getCurrentUser,
   getAvailableActions,

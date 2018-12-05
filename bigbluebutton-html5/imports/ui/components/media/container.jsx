@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import Media from './component';
 import MediaService, { getSwapLayout } from './service';
 import PresentationPodsContainer from '../presentation-pod/container';
@@ -45,10 +47,6 @@ const intlMessages = defineMessages({
 
 class MediaContainer extends Component {
   componentWillMount() {
-    const { willMount } = this.props;
-    if (willMount) {
-      willMount();
-    }
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
     document.addEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
   }
@@ -101,7 +99,7 @@ class MediaContainer extends Component {
   }
 }
 
-export default withTracker(() => {
+export default withModalMounter(withTracker(({ mountModal }) => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
@@ -134,13 +132,6 @@ export default withTracker(() => {
     data.hideOverlay = hidePresentation;
   }
 
-  const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
-  const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
-
-  if (enableVideo && autoShareWebcam) {
-    data.willMount = VideoService.joinVideo;
-  }
-
   MediaContainer.propTypes = propTypes;
   return data;
-})(injectIntl(MediaContainer));
+})(injectIntl(MediaContainer)));

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -65,7 +65,7 @@ const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mou
 
 const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
-class NavBar extends Component {
+class NavBar extends PureComponent {
   constructor(props) {
     super(props);
 

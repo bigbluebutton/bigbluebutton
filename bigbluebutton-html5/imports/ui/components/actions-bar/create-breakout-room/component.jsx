@@ -36,9 +36,8 @@ const intlMessages = defineMessages({
     description: 'room intl to name the breakout meetings',
   },
 });
-const BREAKOUT_CONFIG = Meteor.settings.public.breakout;
-const MIN_BREAKOUT_ROOMS = BREAKOUT_CONFIG.rooms.min;
-const MAX_BREAKOUT_ROOMS = BREAKOUT_CONFIG.rooms.max;
+const MIN_BREAKOUT_ROOMS = 2;
+const MAX_BREAKOUT_ROOMS = 8;
 
 class BreakoutRoom extends Component {
   constructor(props) {
@@ -60,7 +59,7 @@ class BreakoutRoom extends Component {
     const {
       createBreakoutRoom,
       meetingName,
-      intl
+      intl,
     } = this.props;
 
     const { numberOfRooms, durationTime } = this.state;
@@ -113,7 +112,12 @@ class BreakoutRoom extends Component {
           <div className={styles.breakoutSettings}>
             <label>
               <p className={styles.labelText}>{intl.formatMessage(intlMessages.numberOfRooms)}</p>
-              <select name="numberOfRooms" className={styles.inputRooms} value={this.state.numberOfRooms} onChange={this.changeNumberOfRooms}>
+              <select
+                name="numberOfRooms"
+                className={styles.inputRooms}
+                value={this.state.numberOfRooms}
+                onChange={this.changeNumberOfRooms}
+              >
                 {
                   _.range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map(item => (<option key={_.uniqueId('value-')}>{item}</option>))
                 }
@@ -122,7 +126,13 @@ class BreakoutRoom extends Component {
             <label >
               <p className={styles.labelText}>{intl.formatMessage(intlMessages.duration)}</p>
               <div className={styles.durationArea}>
-                <input type="number" className={styles.duration} min={MIN_BREAKOUT_ROOMS} value={this.state.durationTime} onChange={this.changeDurationTime} />
+                <input
+                  type="number"
+                  className={styles.duration}
+                  min={MIN_BREAKOUT_ROOMS}
+                  value={this.state.durationTime}
+                  onChange={this.changeDurationTime}
+                />
                 <span>
                   <HoldButton
                     key="decrease-breakout-time"

@@ -1,35 +1,41 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --user-manage-menu-top : -0.5rem;
+  --user-manage-menu-right : -0.75rem;
+  --user-manage-menu-width : 10rem;
+}
+
 .dropdown {
-  position: static;
+  position: absolute;
+  right: 0;
 }
 
 .dropdownContent {
-  top: 4.8rem;
-  margin-right: -0.2rem;
+  top: var(--user-manage-menu-top);
+  right: var(--user-manage-menu-right);
+  width: var(--user-manage-menu-width);
+
+  @include mq($small-only) {
+    width: 100vw;
+  }
 }
 
 .optionsButton{
+  border-radius: 50%;
   display: block;
-  margin-right: var(--sm-padding-y);
-
-  span:first-child {
-    width: 1.56rem;
-    height: 1.56rem;
-  }
+  padding: 0;
 
   i {
-    top: -.38em;
-    left: -.44em;
+    width: auto;
+    font-size: var(--font-size-base) !important;
     color: var(--color-gray-dark) !important;
     background-color: transparent !important;
   }
 
   &:hover,
   &:focus {
-    > span:first-child {
-      background-color: transparent !important;
-    }
+    background-color: var(--color-off-white) !important;
   }
-
 }
+

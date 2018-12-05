@@ -21,7 +21,10 @@ if (!config.hooks.channels) {
   config.hooks.channels = {
     mainChannel: 'from-akka-apps-redis-channel',
     rapChannel: 'bigbluebutton:from-rap',
-    chatChannel: 'from-akka-apps-chat-redis-channel'
+    chatChannel: 'from-akka-apps-chat-redis-channel',
+    compMeetingChannel: 'bigbluebutton:from-bbb-apps:meeting',
+    compUserChannel: 'bigbluebutton:from-bbb-apps:users',
+    compChatChannel: 'bigbluebutton:from-bbb-apps:chat'
   }
  }
 // IP where permanent hook will post data (more than 1 URL means more than 1 permanent hook)

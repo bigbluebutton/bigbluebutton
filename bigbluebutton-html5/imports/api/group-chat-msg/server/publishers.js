@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 function groupChatMsg(credentials, chatsIds) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -27,7 +26,7 @@ function groupChatMsg(credentials, chatsIds) {
 
 function publish(...args) {
   const boundGroupChat = groupChatMsg.bind(this);
-  return mapToAcl('subscriptions.group-chat-msg', boundGroupChat)(args);
+  return boundGroupChat(...args);
 }
 
 Meteor.publish('group-chat-msg', publish);

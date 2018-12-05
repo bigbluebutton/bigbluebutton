@@ -1,6 +1,5 @@
 import { getMultiUserStatus } from '/imports/api/common/server/helpers';
 import RedisPubSub from '/imports/startup/server/redis';
-import Acl from '/imports/startup/acl';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 

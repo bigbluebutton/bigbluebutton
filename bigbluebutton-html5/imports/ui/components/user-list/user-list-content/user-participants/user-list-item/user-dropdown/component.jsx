@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
@@ -90,12 +90,11 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
-  meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
 };
 
-class UserDropdown extends Component {
+class UserDropdown extends PureComponent {
   /**
    * Return true if the content fit on the screen, false otherwise.
    *
@@ -172,6 +171,7 @@ class UserDropdown extends Component {
       user,
       isBreakoutRoom,
       getAvailableActions,
+      getGroupChatPrivate,
       handleEmojiChange,
       getEmojiList,
       setEmojiStatus,
@@ -234,6 +234,11 @@ class UserDropdown extends Component {
         'openChat',
         intl.formatMessage(messages.ChatLabel),
         () => {
+          getGroupChatPrivate(currentUser, user);
+          if (Session.equals('isPollOpen', true)) {
+            Session.set('isPollOpen', false);
+            Session.set('forcePollOpen', true);
+          }
           Session.set('idChatOpen', user.id);
           Session.set('isChatOpen', true);
         },
@@ -428,7 +433,7 @@ class UserDropdown extends Component {
       user,
       intl,
       isMeetingLocked,
-      meeting,
+      meetingId,
     } = this.props;
 
     const {
@@ -475,7 +480,7 @@ class UserDropdown extends Component {
               user,
               compact,
               intl,
-              meeting,
+              meetingId,
               isMeetingLocked,
               userAriaLabel,
               isActionsOpen,

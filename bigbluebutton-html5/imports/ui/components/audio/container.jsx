@@ -6,6 +6,7 @@ import _ from 'lodash';
 import Breakouts from '/imports/api/breakouts';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 
@@ -77,12 +78,16 @@ let didMountAutoJoin = false;
 
 export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
   const APP_CONFIG = Meteor.settings.public.app;
+  const KURENTO_CONFIG = Meteor.settings.public.kurento;
 
   const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
   const openAudioModal = mountModal.bind(
     null,
     <AudioModalContainer />,
   );
+  const openVideoPreviewModal = () => new Promise((resolve) => {
+    mountModal(<VideoPreviewContainer resolve={resolve} />);
+  });
   if (Service.audioLocked() && Service.isConnected() && !Service.isListenOnly()) {
     Service.exitAudio();
     notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
@@ -130,8 +135,15 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       Service.init(messages);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       if (!autoJoin || didMountAutoJoin) return;
-      openAudioModal();
-      didMountAutoJoin = true;
+
+      const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
+      const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
+      if (enableVideo && autoShareWebcam) {
+        openVideoPreviewModal().then(() => { openAudioModal(); didMountAutoJoin = true; });
+      } else {
+        openAudioModal();
+        didMountAutoJoin = true;
+      }
     },
   };
 })(AudioContainer)));
