@@ -188,6 +188,8 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
+const getUsersId = () => getUsers().map(u => u.id);
+
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
 
 const getOpenChats = (chatID) => {
@@ -443,6 +445,7 @@ export default {
   muteAllExceptPresenter,
   changeRole,
   getUsers,
+  getUsersId,
   getOpenChats,
   getCurrentUser,
   getAvailableActions,

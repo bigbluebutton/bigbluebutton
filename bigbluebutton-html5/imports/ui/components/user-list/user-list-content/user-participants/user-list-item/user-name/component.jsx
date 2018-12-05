@@ -43,9 +43,10 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   userAriaLabel: PropTypes.string.isRequired,
+  meetingId: PropTypes.string.isRequired,
+  isActionsOpen: PropTypes.bool.isRequired,
 };
 
 const UserName = (props) => {
@@ -54,7 +55,7 @@ const UserName = (props) => {
     intl,
     compact,
     isMeetingLocked,
-    meeting,
+    meetingId,
     userAriaLabel,
     isActionsOpen,
   } = props;
@@ -69,7 +70,7 @@ const UserName = (props) => {
     return null;
   }
 
-  if (isMeetingLocked(meeting.meetingId) && user.isLocked) {
+  if (isMeetingLocked(meetingId) && user.isLocked) {
     userNameSub.push(<span>
       <Icon iconName="lock" />
       {intl.formatMessage(messages.locked)}
@@ -81,7 +82,12 @@ const UserName = (props) => {
   }
 
   return (
-    <div className={styles.userName} role="button" aria-label={userAriaLabel} aria-expanded={isActionsOpen}>
+    <div
+      className={styles.userName}
+      role="button"
+      aria-label={userAriaLabel}
+      aria-expanded={isActionsOpen}
+    >
       <span className={styles.userNameMain}>
         {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
@@ -90,7 +96,7 @@ const UserName = (props) => {
           <span className={styles.userNameSub}>
             {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
           </span>
-        : null
+          : null
       }
     </div>
   );

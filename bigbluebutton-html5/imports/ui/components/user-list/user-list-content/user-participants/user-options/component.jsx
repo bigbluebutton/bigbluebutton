@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
@@ -69,7 +69,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserOptions extends Component {
+class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
 
