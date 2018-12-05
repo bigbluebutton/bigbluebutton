@@ -98,58 +98,58 @@ class SettingsDropdown extends Component {
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     const { showHelpButton: helpButton } = Meteor.settings.public.app;
 
-    this.menuItems =_.compact( [(<DropdownListItem
+    this.menuItems = _.compact([(<DropdownListItem
       key={_.uniqueId('list-item-')}
       icon={fullscreenIcon}
       label={fullscreenLabel}
       description={fullscreenDesc}
       onClick={this.props.handleToggleFullscreen}
     />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="settings"
-        label={intl.formatMessage(intlMessages.settingsLabel)}
-        description={intl.formatMessage(intlMessages.settingsDesc)}
-        onClick={() => mountModal(<SettingsMenuContainer />)}
-      />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="about"
-        label={intl.formatMessage(intlMessages.aboutLabel)}
-        description={intl.formatMessage(intlMessages.aboutDesc)}
-        onClick={() => mountModal(<AboutContainer />)}
-      />),
-      !helpButton ? null :
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="help"
-        label={intl.formatMessage(intlMessages.helpLabel)}
-        description={intl.formatMessage(intlMessages.helpDesc)}
-        onClick={() => window.open('https://bigbluebutton.org/videos/')}
-      />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="shortcuts"
-        label={intl.formatMessage(intlMessages.hotkeysLabel)}
-        description={intl.formatMessage(intlMessages.hotkeysDesc)}
-        onClick={() => mountModal(<ShortcutHelpComponent />)}
-      />),
-      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="logout"
-        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => mountModal(<LogoutConfirmationContainer />)}
-      />),
-    ])
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="settings"
+      label={intl.formatMessage(intlMessages.settingsLabel)}
+      description={intl.formatMessage(intlMessages.settingsDesc)}
+      onClick={() => mountModal(<SettingsMenuContainer />)}
+    />),
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="about"
+      label={intl.formatMessage(intlMessages.aboutLabel)}
+      description={intl.formatMessage(intlMessages.aboutDesc)}
+      onClick={() => mountModal(<AboutContainer />)}
+    />),
+    !helpButton ? null
+      : (
+        <DropdownListItem
+          key={_.uniqueId('list-item-')}
+          icon="help"
+          label={intl.formatMessage(intlMessages.helpLabel)}
+          description={intl.formatMessage(intlMessages.helpDesc)}
+          onClick={() => window.open('https://bigbluebutton.org/videos/')}
+        />
+      ),
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="shortcuts"
+      label={intl.formatMessage(intlMessages.hotkeysLabel)}
+      description={intl.formatMessage(intlMessages.hotkeysDesc)}
+      onClick={() => mountModal(<ShortcutHelpComponent />)}
+    />),
+    (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="logout"
+      label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+      description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+      onClick={() => mountModal(<LogoutConfirmationContainer />)}
+    />),
+    ]);
 
     // Removes fullscreen button if not on Android
     if (!isAndroid) {
       this.menuItems.shift();
     }
-
-
   }
 
   componentWillReceiveProps(nextProps) {
@@ -193,13 +193,15 @@ class SettingsDropdown extends Component {
   alterMenu(props) {
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
 
-    const newFullScreenButton = (<DropdownListItem
-      key={_.uniqueId('list-item-')}
-      icon={fullscreenIcon}
-      label={fullscreenLabel}
-      description={fullscreenDesc}
-      onClick={this.props.handleToggleFullscreen}
-    />);
+    const newFullScreenButton = (
+      <DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon={fullscreenIcon}
+        label={fullscreenLabel}
+        description={fullscreenDesc}
+        onClick={this.props.handleToggleFullscreen}
+      />
+    );
     this.menuItems = this.menuItems.slice(1);
     this.menuItems.unshift(newFullScreenButton);
   }
@@ -224,7 +226,7 @@ class SettingsDropdown extends Component {
             ghost
             circle
             hideLabel
-            className={cx(styles.btn, styles.btnSettings)}
+            className={styles.btn}
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler

@@ -34,7 +34,6 @@ class Tooltip extends Component {
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
     this.delay = [150, 50];
-    this.dynamicTitle = true;
   }
 
   componentDidMount() {
@@ -45,7 +44,7 @@ class Tooltip extends Component {
     const options = {
       placement: position,
       performance: true,
-      // dynamicTitle: this.dynamicTitle,
+      content: this.props.title,
       delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,

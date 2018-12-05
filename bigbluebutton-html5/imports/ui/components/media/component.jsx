@@ -30,7 +30,6 @@ export default class Media extends Component {
 
     const contentClassName = cx({
       [styles.content]: true,
-      [styles.hasOverlay]: !hideOverlay,
     });
 
     const overlayClassName = cx({

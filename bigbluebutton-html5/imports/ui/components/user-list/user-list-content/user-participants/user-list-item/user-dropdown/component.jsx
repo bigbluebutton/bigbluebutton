@@ -13,8 +13,8 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
-import UserName from './../user-name/component';
-import UserIcons from './../user-icons/component';
+import UserName from '../user-name/component';
+import UserIcons from '../user-icons/component';
 
 const messages = defineMessages({
   presenter: {
@@ -365,15 +365,13 @@ class UserDropdown extends Component {
         dropdownVisible: true,
       };
 
-      const isDropdownVisible =
-        UserDropdown.checkIfDropdownIsVisible(
-          dropdownContent.offsetTop,
-          dropdownContent.offsetHeight,
-        );
+      const isDropdownVisible = UserDropdown.checkIfDropdownIsVisible(
+        dropdownContent.offsetTop,
+        dropdownContent.offsetHeight,
+      );
 
       if (!isDropdownVisible) {
-        const offsetPageTop =
-          ((dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop);
+        const offsetPageTop = ((dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop);
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -403,9 +401,9 @@ class UserDropdown extends Component {
     const { clientType } = user;
     const isVoiceOnly = clientType === 'dial-in-user';
 
-    const iconUser = user.emoji.status !== 'none' ?
-      (<Icon iconName={normalizeEmojiName(user.emoji.status)} />) :
-      user.name.toLowerCase().slice(0, 2);
+    const iconUser = user.emoji.status !== 'none'
+      ? (<Icon iconName={normalizeEmojiName(user.emoji.status)} />)
+      : user.name.toLowerCase().slice(0, 2);
 
     const iconVoiceOnlyUser = (<Icon iconName="speak_louder" />);
 
@@ -444,7 +442,6 @@ class UserDropdown extends Component {
 
     const userItemContentsStyle = {};
 
-    userItemContentsStyle[styles.userItemContentsCompact] = compact;
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !this.state.isActionsOpen;
     userItemContentsStyle[styles.usertListItemWithMenu] = this.state.isActionsOpen;
