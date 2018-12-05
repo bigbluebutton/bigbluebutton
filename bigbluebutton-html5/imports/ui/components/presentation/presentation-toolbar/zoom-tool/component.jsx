@@ -12,42 +12,39 @@ export default class ZoomTool extends Component {
   static renderAriaLabelsDescs() {
     return (
       <div hidden key="hidden-div">
-        {/* Zoom in button aria */}
         <div id="zoomInLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomInLabel"
-            description="Aria label for when switching to previous slide"
-            defaultMessage="Previous slide"
+            description="Aria label for increment zoom level"
+            defaultMessage="Increment zoom"
           />
         </div>
         <div id="zoomInDesc">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomInDesc"
-            description="Aria description for when switching to previous slide"
-            defaultMessage="Change the presentation to the previous slide"
+            description="Aria description for increment zoom level"
+            defaultMessage="Increment zoom"
           />
         </div>
-        {/* Zoom out button aria */}
         <div id="zoomOutLabel">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomOutLabel"
-            description="Aria label for when switching to next slide"
-            defaultMessage="Next slide"
+            description="Aria label for decrement zoom level"
+            defaultMessage="Decrement zoom"
           />
         </div>
         <div id="zoomOutDesc">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomOutDesc"
-            description="Aria description for when switching to next slide"
-            defaultMessage="Change the presentation to the next slide"
+            description="Aria description for decrement zoom level"
+            defaultMessage="Decrement zoom"
           />
         </div>
-        {/* Zoom indicator aria */}
         <div id="zoomIndicator">
           <FormattedMessage
             id="app.presentation.presentationToolbar.zoomIndicator"
-            description="Aria label for when switching to a specific slide"
-            defaultMessage="Skip slide"
+            description="Aria label for current zoom level"
+            defaultMessage="Current zoom level"
           />
         </div>
       </div>
@@ -160,8 +157,8 @@ export default class ZoomTool extends Component {
           >
             <Button
               key="zoom-tool-1"
-              aria-labelledby="zoomInLabel"
-              aria-describedby="zoomInDesc"
+              aria-labelledby="zoomOutLabel"
+              aria-describedby="zoomOutDesc"
               role="button"
               label="-"
               icon="minus"
@@ -175,7 +172,7 @@ export default class ZoomTool extends Component {
         (
           <span
             key="zoom-tool-2"
-            aria-labelledby="prevSlideLabel"
+            aria-labelledby="zoomIndicator"
             aria-describedby={this.state.value}
             className={styles.zoomPercentageDisplay}
           >
@@ -191,8 +188,8 @@ export default class ZoomTool extends Component {
           >
             <Button
               key="zoom-tool-3"
-              aria-labelledby="zoomOutLabel"
-              aria-describedby="zoomOutDesc"
+              aria-labelledby="zoomInLabel"
+              aria-describedby="zoomInDesc"
               role="button"
               label="+"
               icon="plus"
