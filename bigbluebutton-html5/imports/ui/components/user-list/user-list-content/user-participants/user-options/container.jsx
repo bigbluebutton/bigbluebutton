@@ -4,7 +4,6 @@ import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import mapUser from '/imports/ui/services/user/mapUser';
 import Users from '/imports/api/users/';
-import Meetings from '/imports/api/meetings';
 import UserOptions from './component';
 
 
@@ -13,12 +12,14 @@ const propTypes = {
   muteAllUsers: PropTypes.func.isRequired,
   muteAllExceptPresenter: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  meeting: PropTypes.shape({}).isRequired,
 };
 
 export default class UserOptionsContainer extends PureComponent {
   constructor(props) {
     super(props);
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+
+    const { meeting } = this.props;
 
     this.state = {
       meetingMuted: meeting.voiceProp.muteOnStart,
@@ -62,7 +63,7 @@ export default class UserOptionsContainer extends PureComponent {
   render() {
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsModerator = mapUser(currentUser).isModerator;
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    const { meeting } = this.props;
 
     this.state.meetingMuted = meeting.voiceProp.muteOnStart;
 
