@@ -6,7 +6,8 @@ import org.bigbluebutton.SystemConfiguration
 
 class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
 
-  val redis = RedisClient(redisHost, redisPort)(system)
+  val redisPass = Option(redisPassword)
+  val redis = RedisClient(redisHost, redisPort, redisPass)(system)
 
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli
