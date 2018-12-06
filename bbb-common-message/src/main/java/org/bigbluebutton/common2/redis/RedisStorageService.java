@@ -21,7 +21,6 @@ package org.bigbluebutton.common2.redis;
 
 import java.util.Map;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +29,12 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
-import io.lettuce.core.support.ConnectionPoolSupport;
 
 public class RedisStorageService extends RedisAwareCommunicator {
 
     private static Logger log = LoggerFactory.getLogger(RedisStorageService.class);
 
-    GenericObjectPool<StatefulRedisConnection<String, String>> connectionPool;
+    StatefulRedisConnection<String, String> connection;
 
     public void start() {
         log.info("Starting RedisStorageService with client name: {}", clientName);
@@ -46,12 +44,11 @@ public class RedisStorageService extends RedisAwareCommunicator {
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
 
-        connectionPool = ConnectionPoolSupport.createGenericObjectPool(() -> redisClient.connect(),
-                createPoolingConfig());
+        connection = redisClient.connect();
     }
 
     public void stop() {
-        connectionPool.close();
+        connection.close();
         redisClient.shutdown();
         log.info("RedisStorageService Stopped");
     }
@@ -68,67 +65,52 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     public void addBreakoutRoom(String parentId, String breakoutId) {
         log.debug("Saving breakout room for meeting {}", parentId);
-        try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
-            RedisCommands<String, String> commands = connection.sync();
-            commands.sadd(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
-        } catch (Exception e) {
-            log.error("Cannot add breakout room data: {}", parentId, e);
-        }
+        RedisCommands<String, String> commands = connection.sync();
+        commands.sadd(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
+        connection.close();
     }
 
     public void record(String meetingId, Map<String, String> event) {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
-        try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
-            RedisCommands<String, String> commands = connection.sync();
-            Long msgid = commands.incr("global:nextRecordedMsgId");
-            commands.hmset("recording:" + meetingId + ":" + msgid, event);
-            commands.rpush("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
-        } catch (Exception e) {
-            log.debug("Cannot record meeting data: {}", meetingId, e);
-        }
+        RedisCommands<String, String> commands = connection.sync();
+        Long msgid = commands.incr("global:nextRecordedMsgId");
+        commands.hmset("recording:" + meetingId + ":" + msgid, event);
+        commands.rpush("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
+        connection.close();
     }
 
     // @fixme: not used anywhere
     public void removeMeeting(String meetingId) {
         log.debug("Removing meeting meeting {} inside a transaction", meetingId);
-        try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
-            RedisCommands<String, String> commands = connection.sync();
-            commands.del(Keys.MEETING + meetingId);
-            commands.srem(Keys.MEETINGS + meetingId);
-        } catch (Exception e) {
-            log.debug("Cannot remove meeting data : {}", meetingId, e);
-        }
+        RedisCommands<String, String> commands = connection.sync();
+        commands.del(Keys.MEETING + meetingId);
+        commands.srem(Keys.MEETINGS + meetingId);
+        connection.close();
     }
 
     public void recordAndExpire(String meetingId, Map<String, String> event) {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
-        try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
-            RedisCommands<String, String> commands = connection.sync();
+        RedisCommands<String, String> commands = connection.sync();
 
-            Long msgid = commands.incr("global:nextRecordedMsgId");
-            commands.hmset("recording:" + meetingId + ":" + msgid, event);
-            /**
-             * We set the key to expire after 14 days as we are still recording
-             * the event into redis even if the meeting is not recorded. (ralam
-             * sept 23, 2015)
-             */
-            commands.expire("meeting:" + meetingId + ":recordings", expireKey);
-            commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
-            commands.expire("meeting:" + meetingId + ":recordings", expireKey);
-        } catch (Exception e) {
-            log.error("Cannot record data with expire: {}", meetingId, e);
-        }
+        Long msgid = commands.incr("global:nextRecordedMsgId");
+        commands.hmset("recording:" + meetingId + ":" + msgid, event);
+        /**
+         * We set the key to expire after 14 days as we are still recording the
+         * event into redis even if the meeting is not recorded. (ralam sept 23,
+         * 2015)
+         */
+        commands.expire("meeting:" + meetingId + ":recordings", expireKey);
+        commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
+        commands.expire("meeting:" + meetingId + ":recordings", expireKey);
+        connection.close();
     }
 
     private String recordMeeting(String key, Map<String, String> info) {
         log.debug("Storing metadata {}", info);
         String result = "";
-        try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
-            RedisCommands<String, String> commands = connection.sync();
-            result = commands.hmset(key, info);
-        } catch (Exception e) {
-            log.debug("Cannot record data with expire: {}", key, e);
-        }
+        RedisCommands<String, String> commands = connection.sync();
+        result = commands.hmset(key, info);
+        connection.close();
         return result;
     }
 }
