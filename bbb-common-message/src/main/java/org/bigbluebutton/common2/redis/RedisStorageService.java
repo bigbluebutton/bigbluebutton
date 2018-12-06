@@ -46,8 +46,8 @@ public class RedisStorageService extends RedisAwareCommunicator {
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
 
-        connectionPool = ConnectionPoolSupport.createGenericObjectPool(
-                () -> (codec != null) ? redisClient.connect(codec) : redisClient.connect(), createPoolingConfig());
+        connectionPool = ConnectionPoolSupport.createGenericObjectPool(() -> redisClient.connect(),
+                createPoolingConfig());
     }
 
     public void stop() {
@@ -73,8 +73,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
             commands.sadd(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
         } catch (Exception e) {
             log.error("Cannot add breakout room data: {}", parentId, e);
-        } finally {
-            connectionPool.close();
         }
     }
 
@@ -82,15 +80,11 @@ public class RedisStorageService extends RedisAwareCommunicator {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
         try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
             RedisCommands<String, String> commands = connection.sync();
-            commands.multi();
             Long msgid = commands.incr("global:nextRecordedMsgId");
             commands.hmset("recording:" + meetingId + ":" + msgid, event);
             commands.rpush("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
-            commands.exec();
         } catch (Exception e) {
             log.debug("Cannot record meeting data: {}", meetingId, e);
-        } finally {
-            connectionPool.close();
         }
     }
 
@@ -99,14 +93,10 @@ public class RedisStorageService extends RedisAwareCommunicator {
         log.debug("Removing meeting meeting {} inside a transaction", meetingId);
         try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
             RedisCommands<String, String> commands = connection.sync();
-            commands.multi();
             commands.del(Keys.MEETING + meetingId);
             commands.srem(Keys.MEETINGS + meetingId);
-            commands.exec();
         } catch (Exception e) {
             log.debug("Cannot remove meeting data : {}", meetingId, e);
-        } finally {
-            connectionPool.close();
         }
     }
 
@@ -114,7 +104,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         log.debug("Recording meeting event {} inside a transaction", meetingId);
         try (StatefulRedisConnection<String, String> connection = connectionPool.borrowObject()) {
             RedisCommands<String, String> commands = connection.sync();
-            commands.multi();
 
             Long msgid = commands.incr("global:nextRecordedMsgId");
             commands.hmset("recording:" + meetingId + ":" + msgid, event);
@@ -126,11 +115,8 @@ public class RedisStorageService extends RedisAwareCommunicator {
             commands.expire("meeting:" + meetingId + ":recordings", expireKey);
             commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
             commands.expire("meeting:" + meetingId + ":recordings", expireKey);
-            commands.exec();
         } catch (Exception e) {
             log.error("Cannot record data with expire: {}", meetingId, e);
-        } finally {
-            connectionPool.close();
         }
     }
 
@@ -142,8 +128,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
             result = commands.hmset(key, info);
         } catch (Exception e) {
             log.debug("Cannot record data with expire: {}", key, e);
-        } finally {
-            connectionPool.close();
         }
         return result;
     }
