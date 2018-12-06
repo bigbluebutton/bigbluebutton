@@ -9,6 +9,7 @@ import browser from 'browser-detect';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import PollingContainer from '/imports/ui/components/polling/container';
 import PollContainer from '/imports/ui/components/poll/container';
+import logger from '/imports/startup/client/logger';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -95,6 +96,8 @@ class App extends Component {
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
+
+    logger.info('Client loaded successfully');
   }
 
   componentWillUnmount() {
