@@ -43,11 +43,14 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
+        eventBus = redisClient.getResources().eventBus();
+        eventBusSubscription = eventBus.get().subscribe(e -> connectionStatusHandler(e, log));
 
         connection = redisClient.connect();
     }
 
     public void stop() {
+        eventBusSubscription.dispose();
         connection.close();
         redisClient.shutdown();
         log.info("RedisStorageService Stopped");
@@ -93,15 +96,17 @@ public class RedisStorageService extends RedisAwareCommunicator {
         RedisCommands<String, String> commands = connection.sync();
 
         Long msgid = commands.incr("global:nextRecordedMsgId");
-        commands.hmset("recording:" + meetingId + ":" + msgid, event);
+        String key = "recording:" + meetingId + ":" + msgid;
+        commands.hmset(key, event);
         /**
          * We set the key to expire after 14 days as we are still recording the
          * event into redis even if the meeting is not recorded. (ralam sept 23,
          * 2015)
          */
-        commands.expire("meeting:" + meetingId + ":recordings", expireKey);
-        commands.rpush("meeting:" + meetingId + ":recordings", Long.toString(msgid));
-        commands.expire("meeting:" + meetingId + ":recordings", expireKey);
+        commands.expire(key, expireKey);
+        key = "meeting:" + meetingId + ":recordings";
+        commands.rpush(key, Long.toString(msgid));
+        commands.expire(key, expireKey);
         connection.close();
     }
 

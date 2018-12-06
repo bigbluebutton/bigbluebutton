@@ -43,6 +43,8 @@ public class MessageSender extends RedisAwareCommunicator {
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
+        eventBus = redisClient.getResources().eventBus();
+        eventBusSubscription = eventBus.get().subscribe(e -> connectionStatusHandler(e, log));
 
         connectionPool = ConnectionPoolSupport.createGenericObjectPool(() -> redisClient.connectPubSub(),
                 createPoolingConfig());

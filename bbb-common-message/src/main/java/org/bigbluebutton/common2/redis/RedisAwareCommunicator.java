@@ -20,12 +20,24 @@
 package org.bigbluebutton.common2.redis;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.slf4j.Logger;
 
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.event.Event;
+import io.lettuce.core.event.EventBus;
+import io.lettuce.core.event.connection.ConnectedEvent;
+import io.lettuce.core.event.connection.ConnectionActivatedEvent;
+import io.lettuce.core.event.connection.ConnectionDeactivatedEvent;
+import io.lettuce.core.event.connection.DisconnectedEvent;
+import reactor.core.Disposable;
 
 public abstract class RedisAwareCommunicator {
 
     protected RedisClient redisClient;
+
+    protected Disposable eventBusSubscription;
+
+    protected EventBus eventBus;
 
     protected String host;
     protected String password;
@@ -39,6 +51,18 @@ public abstract class RedisAwareCommunicator {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    protected void connectionStatusHandler(Event event, Logger log) {
+        if (event instanceof ConnectedEvent) {
+            log.info("Connected to redis");
+        } else if (event instanceof ConnectionActivatedEvent) {
+            log.info("Connected to redis activated");
+        } else if (event instanceof DisconnectedEvent) {
+            log.info("Disconnected from redis");
+        } else if (event instanceof ConnectionDeactivatedEvent) {
+            log.info("Connected to redis deactivated");
+        }
     }
 
     public void setClientName(String clientName) {

@@ -39,9 +39,9 @@ class Red5AppsRedisSubscriberActor(system: ActorSystem, jsonMsgBus: JsonMsgFromA
       }
       def message(pattern: String, channel: String, message: String): Unit = { log.info("Subscribed to channel {} with pattern {}", channel, pattern) }
       def psubscribed(pattern: String, count: Long): Unit = { log.info("Subscribed to pattern {}", pattern) }
-      def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed to pattern {}", pattern) }
+      def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed from pattern {}", pattern) }
       def subscribed(channel: String, count: Long): Unit = { log.info("Subscribed to pattern {}", channel) }
-      def unsubscribed(channel: String, count: Long): Unit = { log.info("Subscribed to channel {}", channel) }
+      def unsubscribed(channel: String, count: Long): Unit = { log.info("Unsubscribed from channel {}", channel) }
     })
   }
 

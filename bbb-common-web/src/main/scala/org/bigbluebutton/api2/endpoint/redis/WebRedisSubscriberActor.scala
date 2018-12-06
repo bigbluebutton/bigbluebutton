@@ -42,9 +42,9 @@ class WebRedisSubscriberActor(
         oldMessageEventBus.publish(OldIncomingJsonMessage(fromAkkaAppsOldJsonChannel, receivedJsonMessage))
       }
       def psubscribed(pattern: String, count: Long): Unit = { log.info("Subscribed to pattern {}", pattern) }
-      def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed to pattern {}", pattern) }
+      def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed from pattern {}", pattern) }
       def subscribed(channel: String, count: Long): Unit = { log.info("Subscribed to pattern {}", channel) }
-      def unsubscribed(channel: String, count: Long): Unit = { log.info("Subscribed to channel {}", channel) }
+      def unsubscribed(channel: String, count: Long): Unit = { log.info("Unsubscribed from channel {}", channel) }
     })
   }
 

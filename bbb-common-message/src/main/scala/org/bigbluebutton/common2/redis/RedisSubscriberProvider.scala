@@ -18,7 +18,10 @@ import java.io.PrintWriter
 abstract class RedisSubscriberProvider(system: ActorSystem, clientName: String,
                                        channels: Seq[String], patterns: Seq[String],
                                        jsonMsgBus: IncomingJsonMessageBus)
-  extends RedisClientProvider(system, clientName) with Actor with ActorLogging {
+  extends RedisClientProvider(system, clientName) with RedisConnectionHandler with Actor with ActorLogging {
+
+  subscribeToEventBus(redis, log)
+
   var connection = redis.connectPubSub()
 
   def addListener(appChannel: String) {
@@ -31,9 +34,9 @@ abstract class RedisSubscriberProvider(system: ActorSystem, clientName: String,
       }
       def message(pattern: String, channel: String, message: String): Unit = { log.info("Subscribed to channel {} with pattern {}", channel, pattern) }
       def psubscribed(pattern: String, count: Long): Unit = { log.info("Subscribed to pattern {}", pattern) }
-      def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed to pattern {}", pattern) }
+      def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed from pattern {}", pattern) }
       def subscribed(channel: String, count: Long): Unit = { log.info("Subscribed to pattern {}", channel) }
-      def unsubscribed(channel: String, count: Long): Unit = { log.info("Subscribed to channel {}", channel) }
+      def unsubscribed(channel: String, count: Long): Unit = { log.info("Unsubscribed from channel {}", channel) }
     })
   }
 
@@ -51,10 +54,6 @@ abstract class RedisSubscriberProvider(system: ActorSystem, clientName: String,
       log.error(sw.toString())
       Resume
     }
-  }
-  
-  def publishEvent() {
-    
   }
 
   def receive = {
