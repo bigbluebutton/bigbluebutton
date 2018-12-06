@@ -151,3 +151,15 @@ case class ValidateConnAuthTokenSysRespMsg(header: BbbCoreHeaderWithMeetingId,
                                            body: ValidateConnAuthTokenSysRespMsgBody) extends BbbCoreMsg
 case class ValidateConnAuthTokenSysRespMsgBody(meetingId: String, userId: String,
                                                connId: String, authzed: Boolean, app: String)
+
+object PublishedRecordingSysMsg { val NAME = "PublishedRecordingSysMsg" }
+case class PublishedRecordingSysMsg(header: BbbCoreBaseHeader, body: PublishedRecordingSysMsgBody) extends BbbCoreMsg
+case class PublishedRecordingSysMsgBody(recordId: String)
+
+object UnpublishedRecordingSysMsg { val NAME = "UnpublishedRecordingSysMsg" }
+case class UnpublishedRecordingSysMsg(header: BbbCoreBaseHeader, body: UnpublishedRecordingSysMsgBody) extends BbbCoreMsg
+case class UnpublishedRecordingSysMsgBody(recordId: String)
+
+object DeletedRecordingSysMsg { val NAME = "DeletedRecordingSysMsg" }
+case class DeletedRecordingSysMsg(header: BbbCoreBaseHeader, body: DeletedRecordingSysMsgBody) extends BbbCoreMsg
+case class DeletedRecordingSysMsgBody(recordId: String)
