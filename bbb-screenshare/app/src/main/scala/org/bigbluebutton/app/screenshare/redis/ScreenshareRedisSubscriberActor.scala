@@ -17,7 +17,7 @@ object ScreenshareRedisSubscriberActor extends SystemConfiguration {
       classOf[ScreenshareRedisSubscriberActor],
       system, jsonMsgBus,
       redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
+      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class ScreenshareRedisSubscriberActor(
