@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import mapUser from '/imports/ui/services/user/mapUser';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 
@@ -69,6 +70,7 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUserIsLocked = mapUser(currentUser).isLocked;
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const isMeetingBreakout = meetingIsBreakout();
 
@@ -115,7 +117,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     pollIsOpen: Session.get('isPollOpen') && Session.get('isUserListOpen'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
-    micsLocked: (currentUser.locked && meeting.lockSettingsProp.disableMic),
+    micsLocked: (currentUserIsLocked && meeting.lockSettingsProp.disableMic),
   };
 })(AppContainer)));
 
