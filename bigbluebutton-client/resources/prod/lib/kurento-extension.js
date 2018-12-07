@@ -10,6 +10,7 @@ const ON_ICE_CANDIDATE_MSG = "iceCandidate";
 const START_MSG = "start";
 const START_RESPONSE_MSG = "startResponse";
 const PING_INTERVAL = 15000;
+const MAX_RECONN_ATTEMPS_SFU = 4;
 
 Kurento = function (
   tag,
@@ -28,6 +29,8 @@ Kurento = function (
   this.screen = null;
   this.webRtcPeer = null;
   this.mediaCallback = null;
+  this.started = false;
+  this.reconnectionAttemps = 0;
 
   this.voiceBridge = voiceBridge;
   this.internalMeetingId = internalMeetingId;
@@ -88,18 +91,19 @@ this.KurentoManager = function () {
 
 KurentoManager.prototype.exitScreenShare = function () {
   console.log('  [exitScreenShare] Exiting screensharing');
-  if (typeof this.kurentoScreenshare !== 'undefined' && this.kurentoScreenshare) {
-    if (this.kurentoScreenshare.ws !== null) {
-      this.kurentoScreenshare.ws.onclose = function () {};
-      this.kurentoScreenshare.ws.close();
-    }
+  if (this.kurentoScreenshare && this.kurentoScreenshare.ws !== null) {
+    this.kurentoScreenshare.ws.onclose = function () {};
+    this.kurentoScreenshare.ws.close();
+  }
 
-    if (this.kurentoScreenshare.pingInterval) {
-      clearInterval(this.kurentoScreenshare.pingInterval);
-    }
+  if (this.kurentoScreenshare && this.kurentoScreenshare.pingInterval) {
+    clearInterval(this.kurentoScreenshare.pingInterval);
+  }
 
+  if (this.kurentoScreenshare) {
+    this.kurentoScreenshare.started = false;
     this.kurentoScreenshare.dispose();
-    this.kurentoScreenshare = null;
+    delete this.kurentoScreenshare;
   }
 
   if (typeof this.kurentoVideo !== 'undefined' && this.kurentoVideo) {
@@ -231,17 +235,26 @@ Kurento.prototype.downscaleResolution = function (oldWidth, oldHeight) {
 Kurento.prototype.init = function () {
   const self = this;
   if ('WebSocket' in window) {
-    console.log('this browser supports websockets');
+    console.debug('this browser supports websockets');
     this.ws = new WebSocket(this.socketUrl);
 
     this.ws.onmessage = this.onWSMessage.bind(this);
     this.ws.onclose = (close) => {
-      kurentoManager.exitScreenShare();
-      self.onFail('Websocket connection closed');
+      if (this.started) {
+        kurentoManager.exitScreenShare();
+        self.onFail('Websocket connection closed');
+      }
     };
     this.ws.onerror = (error) => {
-      kurentoManager.exitScreenShare();
-      self.onFail('Websocket connection error');
+      console.error("Websocket connection error", error);
+      if (!this.started && this.reconnectionAttemps < MAX_RECONN_ATTEMPS_SFU) {
+        this.reconnectionAttemps++;
+        console.debug("Attempting to reconnect on retry", this.reconnectionAttemps);
+        this.init();
+      } else {
+        kurentoManager.exitScreenShare();
+        self.onFail('Websocket connection error');
+      }
     };
     this.ws.onopen = function () {
       self.pingInterval = setInterval(self.ping.bind(self), PING_INTERVAL);
@@ -298,6 +311,7 @@ Kurento.prototype.startResponse = function (message) {
     }
   } else {
     console.debug(`Procedure for`, message.type, `was accepted with SDP => ${message.sdpAnswer}`);
+    this.started = true;
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
 };
