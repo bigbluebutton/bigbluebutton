@@ -243,7 +243,7 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
     val startTimeElem =  <startTime>{startTime}</startTime>
     val endTimeElem = <endTime>{endTime}</endTime>
     val participantsElem = <participants>{participants}</participants>
-
+    val rawSizeElem = <rawSize>{rawSize}</rawSize>
 
     val buffer = new scala.xml.NodeBuffer
     buffer += recordIdElem
@@ -256,6 +256,7 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
     buffer += startTimeElem
     buffer += endTimeElem
     buffer += participantsElem
+    buffer += rawSizeElem
 
     meta foreach (m => buffer += metaToElem(m))
     breakout foreach (b => buffer += b.toXml())
@@ -285,6 +286,7 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
     buffer += startTimeElem
     buffer += endTimeElem
     buffer += participantsElem
+    buffer += rawSizeElem
 
     meeting foreach { m =>
       buffer += m.toMetadataXml()
@@ -320,8 +322,6 @@ case class RecMeta(id: String, meetingId: String, internalMeetingId: Option[ Str
 
     dataMetrics foreach(p => buffer += p.toMetadataXml())
 
-    buffer += rawSizeElem
-
     <recording>{buffer}</recording>
   }
 }
@@ -346,11 +346,13 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
     val urlElem = <url>{link}</url>
     val processTimeElem = <processingTime>{processingTime}</processingTime>
     val lengthElem = <length>{duration / 60000}</length>
+    val sizeElem = <size>{size}</size>
 
     buffer += formatElem
     buffer += urlElem
     buffer += processTimeElem
     buffer += lengthElem
+    buffer += sizeElem
 
     extensions foreach {ext =>
       ext.head.child foreach {child =>
@@ -369,12 +371,13 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
     val urlElem = <link>{link}</link>
     val processTimeElem = <processing_time>{processingTime}</processing_time>
     val lengthElem = <duration>{duration}</duration>
+    val sizeElem = <size>{size}</size>
 
     buffer += formatElem
     buffer += urlElem
     buffer += processTimeElem
     buffer += lengthElem
-
+    buffer += sizeElem
 
     extensions foreach {ext =>
       buffer += ext.head
@@ -390,11 +393,13 @@ case class RecMetaPlayback(format: String, link: String, processingTime: Int,
     val urlElem = <url>{link}</url>
     val processTimeElem = <processingTime>{processingTime}</processingTime>
     val lengthElem = <length>{duration / 60000}</length>
+    val sizeElem = <size>{size}</size>
 
     buffer += formatElem
     buffer += urlElem
     buffer += processTimeElem
     buffer += lengthElem
+    buffer += sizeElem
 
     extensions foreach {ext =>
       ext.head.child foreach {child =>
@@ -530,6 +535,7 @@ case class RecMetaResponse(
     val startTimeElem =  <startTime>{startTime}</startTime>
     val endTimeElem = <endTime>{endTime}</endTime>
     val participantsElem = <participants>{participants}</participants>
+    val rawSizeElem = <rawSize>{rawSize}</rawSize>
 
     val buffer = new scala.xml.NodeBuffer
     buffer += recordIdElem
@@ -542,6 +548,7 @@ case class RecMetaResponse(
     buffer += startTimeElem
     buffer += endTimeElem
     buffer += participantsElem
+    buffer += rawSizeElem
 
     meta foreach (m => buffer += metaToElem(m))
     breakout foreach (b => buffer += b.toXml())
@@ -551,7 +558,13 @@ case class RecMetaResponse(
 
     // Iterate over all formats before include the playback tag
     val formats = new scala.xml.NodeBuffer
-    playbacks foreach(p => formats += p.toFormatXml())
+    var size = 0L
+    playbacks foreach(p => {
+      size += p.size
+      formats += p.toFormatXml()
+    })
+    val sizeElem = <size>{size}</size>
+    buffer += sizeElem
     val playbackElem = <playback>{formats}</playback>
     buffer += playbackElem
 
