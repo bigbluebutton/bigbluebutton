@@ -70,7 +70,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         log.debug("Saving breakout room for meeting {}", parentId);
         RedisCommands<String, String> commands = connection.sync();
         commands.sadd(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
-        connection.close();
     }
 
     public void record(String meetingId, Map<String, String> event) {
@@ -79,7 +78,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         Long msgid = commands.incr("global:nextRecordedMsgId");
         commands.hmset("recording:" + meetingId + ":" + msgid, event);
         commands.rpush("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
-        connection.close();
     }
 
     // @fixme: not used anywhere
@@ -88,7 +86,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         RedisCommands<String, String> commands = connection.sync();
         commands.del(Keys.MEETING + meetingId);
         commands.srem(Keys.MEETINGS + meetingId);
-        connection.close();
     }
 
     public void recordAndExpire(String meetingId, Map<String, String> event) {
@@ -107,7 +104,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         key = "meeting:" + meetingId + ":recordings";
         commands.rpush(key, Long.toString(msgid));
         commands.expire(key, expireKey);
-        connection.close();
     }
 
     private String recordMeeting(String key, Map<String, String> info) {
@@ -115,7 +111,6 @@ public class RedisStorageService extends RedisAwareCommunicator {
         String result = "";
         RedisCommands<String, String> commands = connection.sync();
         result = commands.hmset(key, info);
-        connection.close();
         return result;
     }
 }
