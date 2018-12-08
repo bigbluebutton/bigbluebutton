@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -8,7 +9,18 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import { styles } from './styles';
+
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  isMeetingMuted: PropTypes.bool.isRequired,
+  toggleMuteAllUsers: PropTypes.func.isRequired,
+  toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
+  toggleStatus: PropTypes.func.isRequired,
+};
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -31,6 +43,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.muteAllDesc',
     description: 'Mute all description',
   },
+  unmuteAllLabel: {
+    id: 'app.userList.userOptions.unmuteAllLabel',
+    description: 'Unmute all label',
+  },
+  unmuteAllDesc: {
+    id: 'app.userList.userOptions.unmuteAllDesc',
+    description: 'Unmute all desc',
+  },
   lockViewersLabel: {
     id: 'app.userList.userOptions.lockViewersLabel',
     description: 'Lock viewers label',
@@ -49,7 +69,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserOptions extends Component {
+class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -59,10 +79,11 @@ class UserOptions extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.alterMenu = this.alterMenu.bind(this);
   }
 
   componentWillMount() {
-    const { intl } = this.props;
+    const { intl, isMeetingMuted, mountModal } = this.props;
 
     this.menuItems = _.compact([
       (<DropdownListItem
@@ -91,9 +112,19 @@ class UserOptions extends Component {
         icon="lock"
         label={intl.formatMessage(intlMessages.lockViewersLabel)}
         description={intl.formatMessage(intlMessages.lockViewersDesc)}
-        onClick={this.props.toggleLockView}
+        onClick={() => mountModal(<LockViewersContainer />)}
       />),
     ]);
+
+    if (isMeetingMuted) {
+      this.alterMenu();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isMeetingMuted !== this.props.isMeetingMuted) {
+      this.alterMenu();
+    }
   }
 
   onActionsShow() {
@@ -106,6 +137,37 @@ class UserOptions extends Component {
     this.setState({
       isUserOptionsOpen: false,
     });
+  }
+
+  alterMenu() {
+    const { intl, isMeetingMuted } = this.props;
+
+    if (isMeetingMuted) {
+      const menuButton = (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="unmute"
+        label={intl.formatMessage(intlMessages.unmuteAllLabel)}
+        description={intl.formatMessage(intlMessages.unmuteAllDesc)}
+        onClick={this.props.toggleMuteAllUsers}
+      />);
+      this.menuItems.splice(1, 2, menuButton);
+    } else {
+      const muteMeetingButtons = [(<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllLabel)}
+        description={intl.formatMessage(intlMessages.muteAllDesc)}
+        onClick={this.props.toggleMuteAllUsers}
+      />), (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+        onClick={this.props.toggleMuteAllUsersExceptPresenter}
+      />)];
+
+      this.menuItems.splice(1, 1, muteMeetingButtons[0], muteMeetingButtons[1]);
+    }
   }
 
   render() {
@@ -124,11 +186,11 @@ class UserOptions extends Component {
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="settings"
-            circle
             ghost
             color="primary"
             hideLabel
             className={styles.optionsButton}
+            size="sm"
             onClick={() => null}
           />
         </DropdownTrigger>
@@ -147,4 +209,5 @@ class UserOptions extends Component {
   }
 }
 
+UserOptions.propTypes = propTypes;
 export default withModalMounter(injectIntl(UserOptions));

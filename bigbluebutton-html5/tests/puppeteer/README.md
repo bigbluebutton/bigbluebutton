@@ -11,7 +11,7 @@ To run these tests, you will need the following:
 
 These instructions assume you have the BigBlueButton repository cloned into a directory named `bigbluebutton`.
 
-First, install the required modules with `npm install`, from this directory. When Puppeteer installs, it will automatically install the Chromium browser in which the tests will run.
+First, you need to have the dependencies installed with `meteor npm install`, from the `bigbluebutton-html5` directory. When Puppeteer installs, it will automatically install the Chromium browser in which the tests will run.
 
 To run individual tests, you can also optionally install Jest globally with `sudo npm install jest -g`.
 

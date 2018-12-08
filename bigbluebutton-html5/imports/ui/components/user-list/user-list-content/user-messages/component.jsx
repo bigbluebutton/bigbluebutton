@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
@@ -38,7 +38,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserMessages extends Component {
+class UserMessages extends PureComponent {
   constructor() {
     super();
 

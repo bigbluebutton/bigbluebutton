@@ -5,6 +5,7 @@ import VisibilityEvent from '/imports/utils/visibilityEvent';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
+import { Session } from 'meteor/session';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
@@ -177,6 +178,7 @@ class VideoProvider extends Component {
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.addEventListener('message', this.onWsMessage);
+    window.addEventListener('beforeunload', this.unshareWebcam);
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
@@ -352,7 +354,7 @@ class VideoProvider extends Component {
 
     // in this case, 'closed' state is not caused by an error;
     // we stop listening to prevent this from being treated as an error
-    if (this.webRtcPeers[id]) {
+    if (this.webRtcPeers[id] && this.webRtcPeers[id].peerConnection) {
       this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = null;
     }
 
@@ -378,7 +380,9 @@ class VideoProvider extends Component {
     const webRtcPeer = this.webRtcPeers[id];
     if (webRtcPeer) {
       this.logger('info', 'Stopping WebRTC peer', { cameraId: id });
-      webRtcPeer.dispose();
+      if (typeof webRtcPeer.dispose === 'function') {
+        webRtcPeer.dispose();
+      }
       delete this.webRtcPeers[id];
     } else {
       this.logger('warn', 'No WebRTC peer to stop (not an error)', { cameraId: id });
@@ -386,14 +390,24 @@ class VideoProvider extends Component {
   }
 
   async createWebRTCPeer(id, shareWebcam) {
-    const { meetingId, sessionToken } = this.props;
+    const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
+
+    // Check if the peer is already being processed
+    if (this.webRtcPeers[id]) {
+      return;
+    }
+
+    this.webRtcPeers[id] = {};
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(sessionToken);
     } catch (error) {
       this.logger('error', 'Video provider failed to fetch ice servers, using default');
     } finally {
+      if (Session.get('WebcamDeviceId')) {
+        VIDEO_CONSTRAINTS.deviceId = { exact: Session.get('WebcamDeviceId') };
+      }
       const options = {
         mediaConstraints: {
           audio: false,
@@ -443,6 +457,7 @@ class VideoProvider extends Component {
             sdpOffer: offerSdp,
             cameraId: id,
             meetingId,
+            voiceBridge,
           };
           this.sendMessage(message);
 
@@ -451,8 +466,10 @@ class VideoProvider extends Component {
           peer.didSDPAnswered = true;
         });
       });
-      this.webRtcPeers[id].peerConnection.oniceconnectionstatechange =
-        this._getOnIceConnectionStateChangeCallback(id);
+      if (this.webRtcPeers[id].peerConnection) {
+        this.webRtcPeers[id].peerConnection.oniceconnectionstatechange =
+          this._getOnIceConnectionStateChangeCallback(id);
+      }
     }
   }
 
@@ -472,7 +489,7 @@ class VideoProvider extends Component {
         // Increment reconnect interval
         this.restartTimer[id] = Math.min(2 * this.restartTimer[id], MAX_CAMERA_SHARE_FAILED_WAIT_TIME);
 
-        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer)
+        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer);
       }
     };
   }
@@ -541,7 +558,6 @@ class VideoProvider extends Component {
     return (event) => {
       const connectionState = peer.peerConnection.iceConnectionState;
       if (connectionState === 'failed' || connectionState === 'closed') {
-
         // prevent the same error from being detected multiple times
         peer.peerConnection.oniceconnectionstatechange = null;
 

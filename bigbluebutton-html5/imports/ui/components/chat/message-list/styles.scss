@@ -11,7 +11,7 @@
   overflow-y: auto;
   padding-left: var(--md-padding-x);
   margin-left: calc(-1 * var(--md-padding-x));
-  padding-right: var(--md-padding-x);
+  padding-right: var(--sm-padding-y);
   margin-right: calc(-1 * var(--md-padding-x));
   padding-bottom: var(--md-padding-x);
   margin-bottom: calc(-1 * var(--md-padding-x));
@@ -22,7 +22,7 @@
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  margin-right: calc(-1 * var(--md-padding-x));
+  margin-right: auto;
   padding-right: var(--md-padding-x);
   padding-top: 0;
   &:after {

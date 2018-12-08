@@ -1420,10 +1420,12 @@ class ApiController {
     UserSession userSession = null;
 
     String respMessage = "Session " + sessionToken + " not found."
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
+    if (!session[sessionToken]) {
+      reject = true;
+    } else if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
       reject = true;
       respMessage = "Session " + sessionToken + " not found."
-    }  else {
+    } else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
@@ -1560,7 +1562,9 @@ class ApiController {
       println("Session token = [" + sessionToken + "]")
     }
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
+    if (!session[sessionToken]) {
+      reject = true;
+    } else if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
       reject = true;
     else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);

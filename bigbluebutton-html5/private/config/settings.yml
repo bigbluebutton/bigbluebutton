@@ -9,7 +9,7 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.0-rc
+    bbbServerVersion: 2.2-dev
     copyright: "©2018 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     lockOnJoin: true
@@ -75,7 +75,6 @@ public:
     branding:
       displayBrandingArea: false
     allowHTML5Moderator: true
-    allowModeratorToUnmuteAudio: true
     httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
@@ -99,72 +98,9 @@ public:
     enableVideoStats: false
     enableListenOnly: false
     autoShareWebcam: false
-  acl:
-    viewer:
-      subscriptions:
-      - users
-      - cursor
-      - screenshare
-      - meetings
-      - polls
-      - chat
-      - presentations
-      - annotations
-      - slides
-      - captions
-      - breakouts
-      - voiceUsers
-      - whiteboard-multi-user
-      - presentation-pods
-      - group-chat
-      - group-chat-msg
-      - users-settings
-      methods:
-      - listenOnlyToggle
-      - userLogout
-      - setEmojiStatus
-      - toggleSelfVoice
-      - publishVote
-      - sendChat
-      - createGroupChat
-      - destroyGroupChat
-      - sendGroupChatMsg
-      - requestJoinURL
-    moderator:
-      methods:
-      - assignPresenter
-      - removeUser
-      - muteUser
-      - unmuteUser
-      - endMeeting
-      - toggleVoice
-      - clearPublicChatHistory
-      - changeRole
-      - ejectUserFromVoice
-      - toggleRecording
-      - endAllBreakouts
-    presenter:
-      methods:
-      - assignPresenter
-      - switchSlide
-      - modifyWhiteboardAccess
-      - undoAnnotation
-      - clearWhiteboard
-      - moveCursor
-      - sendAnnotation
-      - removePresentation
-      - setPresentation
-      - zoomSlide
-      - requestPresentationUploadToken
-      - transferUser
-      - createBreakoutRoom
-      - startPoll
-      - stopPoll
-      - publishPoll
-  breakout:
-    rooms:
-      min: 2
-      max: 8
+  allowOutsideCommands:
+    toggleRecording: false
+    toggleSelfVoice: false
   poll:
     max_custom: 5
   chat:
@@ -307,17 +243,9 @@ public:
       - pencil
       - hand
   clientLog:
-    server:
-      enabled: true
-      level: info
-    console:
-      enabled: false
-      level: debug
-    external:
-      enabled: false
-      level: info
-      url: https://LOG_HOST/html5Log
-      method: POST
+    server: { enabled: true, level: info }
+    console: { enabled: true, level: debug }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST }
 private:
   app:
     captionsChunkLength: 1000

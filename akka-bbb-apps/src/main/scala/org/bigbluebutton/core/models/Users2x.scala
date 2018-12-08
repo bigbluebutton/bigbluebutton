@@ -39,9 +39,16 @@ object Users2x {
     }
   }
 
-  def findAllExpiredUserLeftFlags(users: Users2x): Vector[UserState] = {
-    users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
-      System.currentTimeMillis() - u.userLeftFlag.leftOn > 10000)
+  def findAllExpiredUserLeftFlags(users: Users2x, meetingExpireWhenLastUserLeftInMs: Long): Vector[UserState] = {
+    if (meetingExpireWhenLastUserLeftInMs > 0) {
+      users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
+        System.currentTimeMillis() - u.userLeftFlag.leftOn > 1000)
+    } else {
+      // When meetingExpireWhenLastUserLeftInMs is set zero we need to
+      // remove user right away to end the meeting as soon as possible.
+      // ralam Nov 16, 2018
+      users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0)
+    }
   }
 
   def numUsers(users: Users2x): Int = {
@@ -252,11 +259,10 @@ case class UserState(
   locked:           Boolean,
   presenter:        Boolean,
   avatar:           String,
-  roleChangedOn:    Long    = System.currentTimeMillis(),
-  lastActivityTime: Long    = TimeUtil.timeNowInMs(),
+  roleChangedOn:    Long         = System.currentTimeMillis(),
+  lastActivityTime: Long         = TimeUtil.timeNowInMs(),
   clientType:       String,
-  userLeftFlag: UserLeftFlag)
-
+  userLeftFlag:     UserLeftFlag)
 
 case class UserIdAndName(id: String, name: String)
 

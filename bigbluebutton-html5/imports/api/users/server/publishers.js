@@ -3,7 +3,6 @@ import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 import userLeaving from './methods/userLeaving';
 
@@ -68,7 +67,7 @@ function users(credentials) {
 
 function publish(...args) {
   const boundUsers = users.bind(this);
-  return mapToAcl('subscriptions.users', boundUsers)(args);
+  return boundUsers(...args);
 }
 
 Meteor.publish('users', publish);

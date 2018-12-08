@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -81,7 +81,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class SettingsDropdown extends Component {
+class SettingsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -98,7 +98,7 @@ class SettingsDropdown extends Component {
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     const { showHelpButton: helpButton } = Meteor.settings.public.app;
 
-    this.menuItems =_.compact( [(<DropdownListItem
+    this.menuItems = _.compact([(<DropdownListItem
       key={_.uniqueId('list-item-')}
       icon={fullscreenIcon}
       label={fullscreenLabel}
@@ -142,14 +142,12 @@ class SettingsDropdown extends Component {
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
         onClick={() => mountModal(<LogoutConfirmationContainer />)}
       />),
-    ])
+    ]);
 
     // Removes fullscreen button if not on Android
     if (!isAndroid) {
       this.menuItems.shift();
     }
-
-
   }
 
   componentWillReceiveProps(nextProps) {

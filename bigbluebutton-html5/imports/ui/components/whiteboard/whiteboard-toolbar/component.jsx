@@ -562,7 +562,7 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
-        icon="circle_close"
+        icon="delete"
         onItemClick={this.handleClearAll}
         className={cx(styles.toolbarButton, styles.notActive)}
       />

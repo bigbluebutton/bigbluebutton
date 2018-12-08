@@ -9,7 +9,6 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Auth from '/imports/ui/services/auth';
-import Acl from '/imports/startup/acl';
 import Button from '/imports/ui/components/button/component';
 
 import ChatService from './../service';
@@ -80,8 +79,11 @@ class ChatDropdown extends Component {
     const saveIcon = 'save_notes';
     const copyIcon = 'copy';
 
+    const user = ChatService.getUser(Auth.userID);
+
     return _.compact([
       <DropdownListItem
+        data-test="chatSave"
         icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
         key={this.actionsKey[0]}
@@ -99,13 +101,15 @@ class ChatDropdown extends Component {
         }}
       />,
       <DropdownListItem
+        data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
       />,
-      Acl.can('methods.clearPublicChatHistory', Auth.credentials) ? (
+      user.isModerator ? (
         <DropdownListItem
+          data-test="chatClear"
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
           key={this.actionsKey[2]}

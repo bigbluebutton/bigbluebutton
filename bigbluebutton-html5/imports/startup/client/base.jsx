@@ -82,7 +82,7 @@ class Base extends Component {
     // this.props.annotationsHandler.stop();
 
     if (subscriptionsReady) {
-      logger.info('Client loaded successfully');
+      logger.info('Subscriptions are ready');
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
