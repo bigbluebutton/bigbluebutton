@@ -63,11 +63,12 @@
 
 PATH=$PATH:/sbin
 
-if [ "$(id -u)" != "0" ]
-	then if [ -x "$(which sudo)" ]
-		then SUDO="$(which sudo)"
-		else echo "bbb-conf must be ran as root!" && exit 1
-	fi
+if [ "$(id -u)" != "0" ]; then 
+  if [ -x "$(which sudo)" ]; then 
+    SUDO="$(which sudo)"
+  else 
+    echo "bbb-conf must be ran as root!" && exit 1
+  fi
 fi
 
 source /etc/bigbluebutton/bigbluebutton-release
@@ -144,7 +145,7 @@ fi
 #
 if [ -f $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
 	if cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -q ^bigbluebutton.web.logoutURL=$; then
-		"$SUDO" sed -i s/^bigbluebutton.web.logoutURL=$/bigbluebutton.web.logoutURL=default/g $SERVLET_DIR/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+		$SUDO sed -i s/^bigbluebutton.web.logoutURL=$/bigbluebutton.web.logoutURL=default/g $SERVLET_DIR/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 	fi
 fi
 
@@ -753,7 +754,7 @@ if [ $SAMBA ]; then
         # Instal Samba
         #
         if ! dpkg-query -s samba > /dev/null 2>&1; then
-                "$SUDO" apt-get install -y --force-yes samba ant
+          $SUDO apt-get install -y --force-yes samba ant
         fi
 
         #
@@ -772,9 +773,9 @@ if [ $SAMBA ]; then
    directory mask = 0775
    guest ok = yes
    force user = $USER
-" | "$SUDO" tee -a /etc/samba/smb.conf > /dev/null 2>&1
+" | $SUDO tee -a /etc/samba/smb.conf > /dev/null 2>&1
 
-                "$SUDO" /etc/init.d/smbd restart
+                $SUDO /etc/init.d/smbd restart
 
         echo "
 You can now access your development folder through:
@@ -1563,10 +1564,10 @@ if [ $CHECK ]; then
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
         if grep -q ws-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$("$SUDO" cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="//;s/".*//;p}')
+          WEBRTC_SOCKET=$($SUDO cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="//;s/".*//;p}')
         fi
         if grep -q wss-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$("$SUDO" cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="//;s/".*//;p}')
+          WEBRTC_SOCKET=$($SUDO cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="//;s/".*//;p}')
         fi
 	echo
 	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
@@ -1731,7 +1732,7 @@ if [ $DEBUG ]; then
 
 
 	rm -rf /tmp/t
-	"$SUDO" grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
+	$SUDO grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $SERVLET_LOGS/ -- "
 		cat /tmp/t
@@ -1750,7 +1751,7 @@ if [ $DEBUG ]; then
 
 	if [ $DISTRIB_ID == "Ubuntu" ]; then
 		rm -rf /tmp/t
-		"$SUDO" grep --directories=skip -i exception /var/log/syslog > /tmp/t 
+		$SUDO grep --directories=skip -i exception /var/log/syslog > /tmp/t 
 		if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/syslog -- "
 			cat /tmp/t
@@ -1760,7 +1761,7 @@ if [ $DEBUG ]; then
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  "$SUDO" grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t 
+		  $SUDO grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
 			cat /tmp/t
@@ -1770,7 +1771,7 @@ if [ $DEBUG ]; then
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  "$SUDO" grep --directories=skip -i exception /var/log/bigbluebutton/* > /tmp/t 
+		  $SUDO grep --directories=skip -i exception /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t
@@ -1797,13 +1798,13 @@ if [ -n "$HOST" ]; then
 	# Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
 	#
 	echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
-	"$SUDO" sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
+	$SUDO sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
-	"$SUDO" sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+	$SUDO sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
-	"$SUDO" sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
+	$SUDO sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
 
 	#
 	# Update configuration for BigBlueButton client (and preserve hostname for chromeExtensionLink if exists)
@@ -1813,26 +1814,26 @@ if [ -n "$HOST" ]; then
 	chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
 	
 	echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-	"$SUDO" sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g" \
+	$SUDO sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g" \
 		/var/www/bigbluebutton/client/conf/config.xml
 
 	if ! echo "$chromeExtensionLinkURL" | grep -q '""'; then
-		"$SUDO" sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \
+		$SUDO sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \
 			/var/www/bigbluebutton/client/conf/config.xml
 	fi
 
 	echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
-	"$SUDO" sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
+	$SUDO sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
 
 	#
 	# Update configuration for BigBlueButton web app
 	#
 	echo "Assigning $HOST for web application URL in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
 
-	"$SUDO" sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
+	$SUDO sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
-	"$SUDO" sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
+	$SUDO sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
@@ -1840,7 +1841,7 @@ if [ -n "$HOST" ]; then
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL_HTTP://$HOST/screenshare/screenshare.jnlp
 
 	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
-		"$SUDO" sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
+		$SUDO sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
 	fi
 
         #
@@ -1865,7 +1866,7 @@ if [ -n "$HOST" ]; then
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
 		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/demo/bbb_api_conf.jsp"
-		"$SUDO" sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
+		$SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
 			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
 	
