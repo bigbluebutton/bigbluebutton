@@ -19,6 +19,7 @@
 package org.bigbluebutton.voiceconf.red5.media;
 
 import java.net.DatagramSocket;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -28,7 +29,6 @@ import org.red5.server.api.scope.IScope;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.message.Constants;
-import org.red5.server.scope.Scope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
 

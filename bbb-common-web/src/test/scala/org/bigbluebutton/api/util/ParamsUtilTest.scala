@@ -1,7 +1,5 @@
 package org.bigbluebutton.api.util
 
-import org.scalatest._
-
 class ParamsUtilTest extends UnitSpec {
 
   it should "strip out control chars from text" in {

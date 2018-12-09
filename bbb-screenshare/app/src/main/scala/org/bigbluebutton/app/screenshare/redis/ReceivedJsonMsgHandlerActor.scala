@@ -6,6 +6,7 @@ import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
 
 import scala.reflect.runtime.universe._
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.common2.bus.ReceivedJsonMessage
 
 object ReceivedJsonMsgHandlerActor {
   def props(screenshareManager: ActorRef): Props =

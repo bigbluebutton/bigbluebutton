@@ -21,11 +21,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.bigbluebutton.app.video.converter.H263Converter;
 import org.bigbluebutton.app.video.converter.VideoRotator;
+import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -39,11 +44,9 @@ import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.scheduling.QuartzSchedulingService;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
-import com.google.gson.Gson;
 import org.springframework.util.StringUtils;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+
+import com.google.gson.Gson;
 
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
@@ -53,7 +56,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private QuartzSchedulingService scheduler;
 
     private MessagePublisher publisher;
-    private EventRecordingService recordingService;
+    private RedisStorageService recordingService;
     private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
 
     private int packetTimeout = 10000;
@@ -518,7 +521,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			event.put("stream", stream.getPublishedName());
 			event.put("duration", new Long(publishDuration).toString());
 			event.put("eventName", "StopWebcamShareEvent");
-			recordingService.record(scopeName, event);
+			recordingService.recordAndExpire(scopeName, event);
 		}
 	}
 
@@ -526,7 +529,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		this.packetTimeout = timeout;
 	}
 
-	public void setEventRecordingService(EventRecordingService s) {
+	public void setEventRecordingService(RedisStorageService s) {
 		recordingService = s;
 	}
 

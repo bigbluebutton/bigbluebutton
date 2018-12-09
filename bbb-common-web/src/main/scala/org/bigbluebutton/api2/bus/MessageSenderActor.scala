@@ -4,7 +4,7 @@ import java.io.{PrintWriter, StringWriter}
 
 import akka.actor.SupervisorStrategy.Resume
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props}
-import org.bigbluebutton.api2.endpoint.redis.MessageSender
+import org.bigbluebutton.common2.redis.MessageSender
 import scala.concurrent.duration._
 
 object MessageSenderActor {

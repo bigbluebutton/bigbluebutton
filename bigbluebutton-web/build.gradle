@@ -2,9 +2,9 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 task resolveDeps(type: Copy) {
-    into('lib')
-    from configurations.default
-    from configurations.default.allArtifacts.file
+  into('lib')
+  from configurations.default
+  from configurations.default.allArtifacts.file
 }
 
 repositories {
@@ -12,41 +12,34 @@ repositories {
   mavenLocal()
 }
 
+configurations {
+    runtime.exclude group: "org.slf4j", module: "slf4j-api"
+    compile.exclude group: "org.red5", module: "red5-server-common"
+}
+  
 dependencies {
-	compile 'org.bigbluebutton:bbb-common-web:0.0.2-SNAPSHOT'
-
+  compile 'org.bigbluebutton:bbb-common-web:0.0.3-SNAPSHOT'
 
   // XML creation speedup
   compile 'org.freemarker:freemarker:2.3.28'
 
-	//junit
-	compile 'junit:junit:4.8.2'
+  //junit
+  testCompile 'junit:junit:4.12'
 
-	// Testing
-	testCompile 'org.testng:testng:5.8@jar'
-	testCompile 'org.easymock:easymock:2.4@jar'
+  // Testing
+  testCompile 'org.testng:testng:6.14.3@jar'
+  testCompile 'org.easymock:easymock:4.0.1@jar'
 }
 
 sourceSets {
-	main {
-			java {
-					srcDir 'src/java'
-			}
-			resources {
-					srcDir 'src/resources'
-			}
-	}
-	test {
-		java {
-				srcDir 'test/unit'
-		}
-		resources {
-				srcDir 'test/resources'
-		}
-}
+  main {
+    java { srcDir 'src/java' }
+    resources { srcDir 'src/resources' }
+  }
+  test {
+    java { srcDir 'test/unit' }
+    resources { srcDir 'test/resources' }
+  }
 }
 
-test {
-	useTestNG()
-}
-
+test { useTestNG() }
