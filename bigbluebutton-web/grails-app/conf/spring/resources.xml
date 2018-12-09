@@ -61,28 +61,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="3" value="${screenshareConfSuffix}"/>
     </bean>
 
-    <bean id="redisStorageService" class="org.bigbluebutton.api.messaging.RedisStorageService"
-          init-method="start" destroy-method="stop">
-        <property name="host" value="${redisHost}"/>
-        <property name="port" value="${redisPort}"/>
-    </bean>
-
-
-    <bean id="redisMessageHandler" class="org.bigbluebutton.api.messaging.ReceivedMessageHandler"
-          init-method="start" destroy-method="stop">
-    </bean>
-
-
-    <bean id="redisMessageDistributor" class="org.bigbluebutton.api.messaging.MessageDistributor">
-        <property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
-        <property name="messageListeners">
-            <set>
-                <ref bean="meetingService" />
-                <ref bean="keepAliveService" />
-            </set>
-        </property>
-    </bean>
-
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
         <property name="recordingServiceGW" ref="recordingServiceGW"/>
     </bean>
@@ -154,9 +132,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <import resource="doc-conversion.xml"/>
-    <import resource="bbb-redis-pool.xml"/>
-    <!--
     <import resource="bbb-redis-messaging.xml"/>
-    -->
     <import resource="turn-stun-servers.xml"/>
 </beans>

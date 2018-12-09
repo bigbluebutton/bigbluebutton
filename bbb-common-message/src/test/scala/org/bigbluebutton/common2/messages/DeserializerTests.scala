@@ -1,12 +1,11 @@
 package org.bigbluebutton.common2.messages
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.messages.MessageBody.CreateMeetingReqMsgBody
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.common2.{TestFixtures, UnitSpec2}
+import org.bigbluebutton.common2.{ TestFixtures, UnitSpec2 }
 
-import scala.util.{Failure, Success}
-
+import scala.util.{ Failure, Success }
 
 class DeserializerTests extends UnitSpec2 with TestFixtures {
 
@@ -28,7 +27,7 @@ class DeserializerTests extends UnitSpec2 with TestFixtures {
     println(map)
     map match {
       case Success(envJsNodeMsg) => assert(envJsNodeMsg.core.isInstanceOf[JsonNode])
-      case Failure(ex) => fail("Failed to decode json message " + ex)
+      case Failure(ex)           => fail("Failed to decode json message " + ex)
     }
   }
 
@@ -46,11 +45,12 @@ class DeserializerTests extends UnitSpec2 with TestFixtures {
     println(map)
 
     map match {
-      case Success(envJsNodeMsg) => assert(envJsNodeMsg.core.isInstanceOf[JsonNode])
-        val createMeetingReqMsg = Deserializer.toCreateMeetingReqMsg(envJsNodeMsg.envelope, envJsNodeMsg.core)
-        createMeetingReqMsg match {
+      case Success(envJsNodeMsg) =>
+        assert(envJsNodeMsg.core.isInstanceOf[JsonNode])
+        val (msg, exception) = Deserializer.toBbbCommonMsg[CreateMeetingReqMsg](envJsNodeMsg.core)
+        msg match {
           case Some(cmrq) => assert(cmrq.isInstanceOf[CreateMeetingReqMsg])
-          case None => fail("Failed to decode CreateMeetingReqMsg")
+          case None       => fail("Failed to decode CreateMeetingReqMsg")
         }
       case Failure(ex) => fail("Failed to decode json message " + ex)
     }
@@ -71,11 +71,12 @@ class DeserializerTests extends UnitSpec2 with TestFixtures {
     println(map)
 
     map match {
-      case Success(envJsNodeMsg) => assert(envJsNodeMsg.core.isInstanceOf[JsonNode])
+      case Success(envJsNodeMsg) =>
+        assert(envJsNodeMsg.core.isInstanceOf[JsonNode])
         val (msg, exception) = Deserializer.toBbbCommonMsg[CreateMeetingReqMsg](envJsNodeMsg.core)
         msg match {
           case Some(cmrq) => assert(cmrq.isInstanceOf[CreateMeetingReqMsg])
-          case None => fail("Should have successfully decoded CreateMeetingReqMsg ")
+          case None       => fail("Should have successfully decoded CreateMeetingReqMsg ")
         }
       case Failure(ex) => fail("Failed to decode json message " + ex)
     }
@@ -103,7 +104,7 @@ class DeserializerTests extends UnitSpec2 with TestFixtures {
     val (result, error) = Deserializer.toBbbCoreMessageFromClient(jsonMsg)
     result match {
       case Some(msg) => assert(msg.header.name == "foo")
-      case None => fail("Should have deserialized message but failed with error: " + error)
+      case None      => fail("Should have deserialized message but failed with error: " + error)
     }
   }
 }

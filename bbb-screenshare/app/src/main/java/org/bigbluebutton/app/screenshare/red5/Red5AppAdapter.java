@@ -24,24 +24,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bigbluebutton.app.screenshare.IScreenShareApplication;
+import org.bigbluebutton.app.screenshare.MeetingManager;
+import org.bigbluebutton.app.screenshare.VideoStream;
+import org.bigbluebutton.app.screenshare.VideoStreamListener;
+import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
-import org.red5.server.api.stream.IServerStream;
-import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.scheduling.QuartzSchedulingService;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
-import org.red5.server.scheduling.QuartzSchedulingService;
+
 import com.google.gson.Gson;
-import org.bigbluebutton.app.screenshare.MeetingManager;
-import org.bigbluebutton.app.screenshare.VideoStreamListener;
-import org.bigbluebutton.app.screenshare.VideoStream;
-import org.bigbluebutton.app.screenshare.EventRecordingService;
-import org.bigbluebutton.app.screenshare.IScreenShareApplication;
-import org.bigbluebutton.app.screenshare.ScreenshareStreamListener;
 
 public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppAdapter.class, "screenshare");
@@ -49,7 +47,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   // Scheduler
   private QuartzSchedulingService scheduler;
 
-  private EventRecordingService recordingService;
+  private RedisStorageService redisStorageService;
   private IScreenShareApplication app;
   private String streamBaseUrl;
   private ConnectionInvokerService sender;
@@ -196,7 +194,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 				log.info(logStr2);
 
 				VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
-								recordVideoStream, recordingDirectory, packetTimeout, scheduler, recordingService);
+								recordVideoStream, recordingDirectory, packetTimeout, scheduler, redisStorageService);
 				ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
 				stream.addStreamListener(listener);
 				VideoStream vstream = new VideoStream(stream, listener, cstream);
@@ -255,8 +253,8 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     this.meetingManager = meetingManager;
   }
 
-  public void setEventRecordingService(EventRecordingService s) {
-    recordingService = s;
+  public void setRedisStorageService(RedisStorageService s) {
+    redisStorageService = s;
   }
 
   public void setStreamBaseUrl(String baseUrl) {
