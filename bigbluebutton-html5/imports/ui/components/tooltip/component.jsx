@@ -39,12 +39,13 @@ class Tooltip extends Component {
   componentDidMount() {
     const {
       position,
+      title,
     } = this.props;
 
     const options = {
       placement: position,
       performance: true,
-      content: this.props.title,
+      content: title,
       delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,

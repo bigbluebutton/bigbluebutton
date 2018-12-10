@@ -2,10 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { createLogger, format, transports } from 'winston';
 
 const Logger = createLogger({
-  levels: {
-    error: 0, warn: 1, info: 2, verbose: 3, debug: 4,
-  },
   format: format.combine(
+    format.colorize({ level: true }),
     format.splat(),
     format.simple(),
   ),
