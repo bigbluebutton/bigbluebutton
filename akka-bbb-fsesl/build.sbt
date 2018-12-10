@@ -76,7 +76,7 @@ val user = "bigbluebutton"
 val group = "bigbluebutton"
 
 // user which will execute the application
-daemonUser in Linux := user        
+daemonUser in Linux := user
 
 // group which will execute the application
 daemonGroup in Linux := group
