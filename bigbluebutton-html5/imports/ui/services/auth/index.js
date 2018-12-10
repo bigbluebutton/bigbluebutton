@@ -137,7 +137,16 @@ class Auth {
     };
   }
 
-  set(meetingId, requesterUserId, requesterToken, logoutURL, sessionToken, fullname, externUserID, confname) {
+  set(
+    meetingId,
+    requesterUserId,
+    requesterToken,
+    logoutURL,
+    sessionToken,
+    fullname,
+    externUserID,
+    confname,
+  ) {
     this.meetingID = meetingId;
     this.userID = requesterUserId;
     this.token = requesterToken;

@@ -56,7 +56,7 @@ class JoinHandler extends Component {
         location: window.location.href,
       };
 
-      logger.info(clientInfo); 
+      logger.info(clientInfo);
     };
 
     const setAuth = (resp) => {
@@ -88,7 +88,7 @@ class JoinHandler extends Component {
         meetingID, internalUserID, customdata,
       } = resp;
 
-      
+
       return new Promise((resolve) => {
         if (customdata.length) {
           makeCall('addUserSettings', meetingID, internalUserID, customdata).then(r => resolve(r));
