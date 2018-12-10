@@ -66,7 +66,8 @@ object Dependencies {
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
 
-    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons
+    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons excludeAll (
+      ExclusionRule(organization = "org.red5"))
   }
 
   object Test {
