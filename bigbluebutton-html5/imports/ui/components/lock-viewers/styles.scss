@@ -9,7 +9,6 @@
 }
 
 .title {
-  position: relative;
   left: var(--title-position-left);
   color: var(--color-gray-dark);
   font-weight: bold;
@@ -24,6 +23,7 @@
 
 .container {
   margin: var(--modal-margin);
+  margin-top: 0;
   margin-bottom: var(--lg-padding-x);
 }
 

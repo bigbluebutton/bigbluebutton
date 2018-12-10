@@ -73,6 +73,8 @@
 }
 
 .title {
+  display: block;
+  color: var(--color-background);
   font-size: 1.4rem;
   text-align: center;
 }
