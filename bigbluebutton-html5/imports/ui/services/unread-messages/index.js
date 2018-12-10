@@ -40,9 +40,11 @@ class UnreadMessagesTracker {
       sender: { $ne: Auth.userID },
     };
     if (chatID === PUBLIC_GROUP_CHAT_ID) {
-      filter.chatId = { $not: { $ne: chatID } };
+      filter.chatId = { $eq: chatID };
     } else {
       const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
+
+      filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
 
       if (privateChat) {
         filter.chatId = privateChat.chatId;
