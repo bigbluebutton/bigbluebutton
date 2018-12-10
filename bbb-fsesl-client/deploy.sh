@@ -1,2 +1,1 @@
-sbt clean
-sbt publish publishLocal
+sbt clean publish publishLocal

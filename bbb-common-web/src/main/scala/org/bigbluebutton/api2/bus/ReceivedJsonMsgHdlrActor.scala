@@ -1,6 +1,7 @@
 package org.bigbluebutton.api2.bus
 
 import org.bigbluebutton.api2.SystemConfiguration
+import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.msgs._
 import com.fasterxml.jackson.databind.JsonNode
 import akka.actor.Actor

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.stream.IBroadcastStream;
@@ -46,11 +47,11 @@ import org.red5.server.net.rtmp.event.VideoData;
  *
  */
 public class ScreenshareStreamListener implements IStreamListener {
-	private EventRecordingService recordingService;
+	private RedisStorageService recordingService;
 	private volatile boolean firstPacketReceived = false;
 	private String recordingDir;
 	
-	public ScreenshareStreamListener(EventRecordingService s, String recordingDir) {
+	public ScreenshareStreamListener(RedisStorageService s, String recordingDir) {
 	  this.recordingService = s;
 	  this.recordingDir = recordingDir;
 	}

@@ -2,9 +2,9 @@ package org.bigbluebutton.freeswitch
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
-import org.bigbluebutton.endpoint.redis.RedisPublisher
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
+import org.bigbluebutton.common2.redis.RedisPublisher
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService with SystemConfiguration {
 

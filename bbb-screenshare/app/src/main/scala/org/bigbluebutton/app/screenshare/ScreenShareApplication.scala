@@ -26,10 +26,11 @@ import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
 import akka.actor.ActorSystem
-import org.bigbluebutton.app.screenshare.redis.{ AppsRedisSubscriberActor, IncomingJsonMessageBus, ReceivedJsonMsgHandlerActor }
+import org.bigbluebutton.app.screenshare.redis.{ ScreenshareRedisSubscriberActor, ReceivedJsonMsgHandlerActor }
 
 import scala.concurrent.{ Await, Future, TimeoutException }
 import scala.concurrent.duration._
+import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
 
 class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   val streamBaseUrl: String) extends IScreenShareApplication
@@ -46,7 +47,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   //logger.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   val incomingJsonMessageBus = new IncomingJsonMessageBus
-  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(incomingJsonMessageBus), "redis-subscriber")
+  val redisSubscriberActor = system.actorOf(ScreenshareRedisSubscriberActor.props(system, incomingJsonMessageBus), "redis-subscriber")
 
   val screenShareManager = system.actorOf(ScreenshareManager.props(system, bus), "screenshare-manager")
 

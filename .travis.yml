@@ -27,7 +27,7 @@ env:
     - BBB_SERVER_URL=http://localhost/bigbluebutton/api
 
 script:
-  - travis_wait bash ./build_script.sh $JOB_TYPE
+  - travis_wait 30 bash ./build_script.sh $JOB_TYPE
 
 after_script:
   - docker stop $docker
