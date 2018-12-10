@@ -31,20 +31,25 @@ class AuthenticatedHandler extends Component {
       }
     });
   }
-  static authenticatedRouteHandler(callback) {
+  static async authenticatedRouteHandler(callback) {
     if (Auth.loggedIn) {
       callback();
     }
 
     AuthenticatedHandler.addReconnectObservable();
 
-    Auth.authenticate()
-      .then(callback)
-      .catch((reason) => {
-        log('error', reason);
-        AuthenticatedHandler.setError(reason.error);
-        callback();
-      });
+    const setReason = (reason) => {
+      log('error', reason);
+      AuthenticatedHandler.setError(reason.error);
+      callback();
+    };
+
+    try {
+      const getAuthenticate = await Auth.authenticate();
+      callback(getAuthenticate);
+    } catch (error) {
+      setReason(error);
+    }
   }
   constructor(props) {
     super(props);
