@@ -221,7 +221,7 @@ class Auth {
           computation.stop();
           clearTimeout(validationTimeout);
           // setTimeout to prevent race-conditions with subscription
-          setTimeout(resolve, 100);
+          setTimeout(() => resolve(true), 100);
         }
       });
 

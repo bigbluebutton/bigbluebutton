@@ -31,7 +31,7 @@ class JoinHandler extends Component {
     this.setState({ joined: bool });
   }
 
-  fetchToken() {
+  async fetchToken() {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
     if (!sessionToken) {
@@ -56,7 +56,7 @@ class JoinHandler extends Component {
         location: window.location.href,
       };
 
-      logger.info(clientInfo);
+      logger.info(clientInfo); 
     };
 
     const setAuth = (resp) => {
@@ -64,11 +64,13 @@ class JoinHandler extends Component {
         meetingID, internalUserID, authToken, logoutUrl,
         fullname, externUserID, confname,
       } = resp;
-      Auth.set(
-        meetingID, internalUserID, authToken, logoutUrl,
-        sessionToken, fullname, externUserID, confname,
-      );
-      return resp;
+      return new Promise((resolve) => {
+        Auth.set(
+          meetingID, internalUserID, authToken, logoutUrl,
+          sessionToken, fullname, externUserID, confname,
+        );
+        resolve(resp);
+      });
     };
 
     const setLogoutURL = (url) => {
@@ -86,38 +88,33 @@ class JoinHandler extends Component {
         meetingID, internalUserID, customdata,
       } = resp;
 
-      if (customdata.length) {
-        makeCall('addUserSettings', meetingID, internalUserID, customdata);
-      }
-      return resp;
+      
+      return new Promise((resolve) => {
+        if (customdata.length) {
+          makeCall('addUserSettings', meetingID, internalUserID, customdata).then(r => resolve(r));
+        }
+        resolve(true);
+      });
     };
     // use enter api to get params for the client
     const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
 
-    const validAuth = new Promise((resolve, reject) => {
-      fetch(url, { credentials: 'same-origin' })
-        .then(response => response.json())
-        .then(({ response }) => response)
-        .then((resp) => {
-          setLogoutURL(resp.logoutURL);
-          if (resp.returncode !== 'FAILED') {
-            logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(resp)}].`);
-            return resolve(resp);
-          }
-          const e = new Error('Session not found');
-          logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(resp));
-          return reject(e);
-        });
-    });
-
-    validAuth
-      .then(setCustomData)
-      .then(setAuth)
-      .then(setLogoURL)
-      .then(logUserInfo)
-      .then(() => Session.set('isUserListOpen', deviceInfo.type().isPhone))
-      .then(() => this.changeToJoin(true))
-      .catch(() => this.changeToJoin(true));
+    const fetchContent = await fetch(url, { credentials: 'same-origin' });
+    const parseToJson = await fetchContent.json();
+    const { response } = parseToJson;
+    setLogoutURL(response);
+    if (response.returncode !== 'FAILED') {
+      await setAuth(response);
+      await setCustomData(response);
+      setLogoURL(response);
+      logUserInfo();
+      Session.set('isUserListOpen', deviceInfo.type().isPhone);
+      logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
+    } else {
+      const e = new Error('Session not found');
+      logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
+    }
+    this.changeToJoin(true);
   }
 
   render() {
