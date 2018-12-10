@@ -22,17 +22,10 @@ const PlayerState = {
   CUED: 5,
 }
 
-const propTypes = {
-};
-
-const defaultProps = {
-};
-
 class VideoPlayer extends Component {
 
   player = null;
   syncInterval = null;
-  time = null;
   playerState = PlayerState.UNSTARTED;
   presenterCommand = false;
   preventStateChange = false;
@@ -61,10 +54,11 @@ class VideoPlayer extends Component {
   }
 
   handleResize = () => {
-    if (!this.player)
+    let el = this.refPlayer;
+
+    if (!this.player || !el)
       return;
 
-    let el = this.refPlayer;
     let parent = el.parentElement;
     let w = parent.clientWidth;
     let h = parent.clientHeight;
@@ -197,6 +191,10 @@ class VideoPlayer extends Component {
       }
     }
   };
+
+  componentWillUnmount() {
+    clearInterval(this.syncInterval);
+  }
 
   render () {
     return (

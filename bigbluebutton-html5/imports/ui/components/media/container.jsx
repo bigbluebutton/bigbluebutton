@@ -135,7 +135,9 @@ export default withModalMounter(withTracker(() => {
   }
 
   if (MediaService.shouldShowExternalVideo()) {
-    data.children = <ExternalVideoContainer isPresenter={MediaService.isUserPresenter()} videoId={getVideoUrl()} />;
+    const presenter = MediaService.isUserPresenter();
+    const url = getVideoUrl();
+    data.children = <ExternalVideoContainer isPresenter={presenter} videoId={url} />;
   }
 
   MediaContainer.propTypes = propTypes;

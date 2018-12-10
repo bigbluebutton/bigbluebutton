@@ -170,14 +170,16 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
-      (isUserPresenter && allowExternalVideo ?
-        <DropdownListItem
-          icon="video"
-          label={intl.formatMessage(intlMessages.externalVideoLabel)}
-          description="External Video"
-          key="external-video"
-          onClick={this.handleExternalVideoClick}
-        />
+      (isUserPresenter && allowExternalVideo
+        ? (
+          <DropdownListItem
+            icon="video"
+            label={intl.formatMessage(intlMessages.externalVideoLabel)}
+            description="External Video"
+            key="external-video"
+            onClick={this.handleExternalVideoClick}
+          />
+        )
         : null),
       (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
         ? (
