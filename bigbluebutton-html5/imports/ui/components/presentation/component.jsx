@@ -135,6 +135,7 @@ export default class PresentationArea extends Component {
       height: adjustedHeight,
     };
   }
+
   zoomChanger(zoom) {
     let newZoom = zoom;
     const isDifferent = newZoom !== this.state.zoom;
@@ -146,6 +147,7 @@ export default class PresentationArea extends Component {
     }
     if (isDifferent) this.setState({ zoom: newZoom });
   }
+
   pointUpdate(pointX, pointY) {
     this.setState({
       delta: {
@@ -154,11 +156,13 @@ export default class PresentationArea extends Component {
       },
     });
   }
+
   touchUpdate(bool) {
     this.setState({
       touchZoom: bool,
     });
   }
+
   fitToWidthHandler() {
     this.setState({
       fitToWidth: !this.state.fitToWidth,
@@ -168,8 +172,8 @@ export default class PresentationArea extends Component {
   // renders the whole presentation area
   renderPresentationArea() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
-    if (!this.props.currentSlide ||
-        !this.props.currentSlide.calculatedData) {
+    if (!this.props.currentSlide
+        || !this.props.currentSlide.calculatedData) {
       return null;
     }
     // to control the size of the svg wrapper manually
@@ -213,6 +217,7 @@ export default class PresentationArea extends Component {
             timeout={{ enter: 400 }}
           >
             <svg
+              data-test="whiteboard"
               width={width}
               height={height}
               ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
@@ -327,8 +332,8 @@ export default class PresentationArea extends Component {
   }
 
   renderWhiteboardToolbar() {
-    if (!this.props.currentSlide ||
-        !this.props.currentSlide.calculatedData) {
+    if (!this.props.currentSlide
+        || !this.props.currentSlide.calculatedData) {
       return null;
     }
 
@@ -352,11 +357,11 @@ export default class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {this.state.showSlide ?
-              this.renderPresentationArea()
+          {this.state.showSlide
+            ? this.renderPresentationArea()
             : null }
-          {this.props.userIsPresenter || this.props.multiUser ?
-              this.renderWhiteboardToolbar()
+          {this.props.userIsPresenter || this.props.multiUser
+            ? this.renderWhiteboardToolbar()
             : null }
         </div>
         {this.renderPresentationToolbar()}

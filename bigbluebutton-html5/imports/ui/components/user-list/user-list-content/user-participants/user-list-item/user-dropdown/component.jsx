@@ -150,6 +150,7 @@ class UserDropdown extends PureComponent {
           iconRight,
         }}
         className={key === this.props.getEmoji ? styles.emojiSelected : null}
+        data-test={key}
       />
     );
   }
@@ -469,6 +470,7 @@ class UserDropdown extends PureComponent {
 
     const contents = (
       <div
+        data-test={user.isCurrent ? 'userListItemCurrent' : null}
         className={!actions.length ? styles.userListItem : null}
       >
         <div className={styles.userItemContents}>

@@ -82,7 +82,7 @@ class Base extends Component {
     // this.props.annotationsHandler.stop();
 
     if (subscriptionsReady) {
-      logger.info('Client loaded successfully');
+      logger.info('Subscriptions are ready');
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
@@ -130,8 +130,7 @@ const BaseContainer = withTracker(() => {
     },
   };
 
-  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
-    Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
   const chats = GroupChat.find({
     $or: [

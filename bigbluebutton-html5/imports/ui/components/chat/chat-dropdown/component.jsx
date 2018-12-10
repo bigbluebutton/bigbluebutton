@@ -11,7 +11,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 
-import ChatService from './../service';
+import ChatService from '../service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -83,6 +83,7 @@ class ChatDropdown extends Component {
 
     return _.compact([
       <DropdownListItem
+        data-test="chatSave"
         icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
         key={this.actionsKey[0]}
@@ -100,6 +101,7 @@ class ChatDropdown extends Component {
         }}
       />,
       <DropdownListItem
+        data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
@@ -107,6 +109,7 @@ class ChatDropdown extends Component {
       />,
       user.isModerator ? (
         <DropdownListItem
+          data-test="chatClear"
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
           key={this.actionsKey[2]}

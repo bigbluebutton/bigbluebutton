@@ -67,6 +67,7 @@ const ChatListItem = (props) => {
 
   return (
     <div
+      data-test="chatButton"
       role="button"
       className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
@@ -87,26 +88,31 @@ const ChatListItem = (props) => {
 
       <div className={styles.chatListItemLink}>
         <div className={styles.chatIcon}>
-          {chat.icon ?
-            <ChatIcon icon={chat.icon} />
-            :
-            <ChatAvatar
-              isModerator={chat.isModerator}
-              color={chat.color}
-              name={chat.name.toLowerCase().slice(0, 2)}
-            />}
+          {chat.icon
+            ? <ChatIcon icon={chat.icon} />
+            : (
+              <ChatAvatar
+                isModerator={chat.isModerator}
+                color={chat.color}
+                name={chat.name.toLowerCase().slice(0, 2)}
+              />
+            )}
         </div>
         <div className={styles.chatName}>
-          {!compact ?
-            <span className={styles.chatNameMain}>
-              {isPublicChat(chat) ?
-              intl.formatMessage(intlMessages.titlePublic) : chat.name}
-            </span> : null}
+          {!compact
+            ? (
+              <span className={styles.chatNameMain}>
+                {isPublicChat(chat)
+                  ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+              </span>
+            ) : null}
         </div>
-        {(chat.unreadCounter > 0) ?
-          <ChatUnreadCounter
-            counter={chat.unreadCounter}
-          />
+        {(chat.unreadCounter > 0)
+          ? (
+            <ChatUnreadCounter
+              counter={chat.unreadCounter}
+            />
+          )
           : null}
       </div>
     </div>

@@ -13,6 +13,7 @@ class JoinHandler extends Component {
     Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
+
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
@@ -101,7 +102,14 @@ class JoinHandler extends Component {
         .then((resp) => {
           setLogoutURL(resp.logoutURL);
           if (resp.returncode !== 'FAILED') {
-            logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(resp)}].`);
+            let logString;
+            try {
+              logString = JSON.stringify(resp);
+            } catch (e) {
+              logger.error(`Could not stringify object ${resp}`);
+              logString = resp;
+            }
+            logger.info(`User successfully went through main.joinRouteHandler with [${logString}].`);
             return resolve(resp);
           }
           const e = new Error('Session not found');
@@ -123,9 +131,9 @@ class JoinHandler extends Component {
   render() {
     const { children } = this.props;
     const { joined } = this.state;
-    return joined ?
-      children :
-      (<LoadingScreen />);
+    return joined
+      ? children
+      : (<LoadingScreen />);
   }
 }
 

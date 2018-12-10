@@ -1,3 +1,1 @@
-sbt clean
-sbt run
-
+sbt clean run
