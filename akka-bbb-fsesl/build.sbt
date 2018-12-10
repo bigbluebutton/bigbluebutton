@@ -79,9 +79,6 @@ val group = "bigbluebutton"
 daemonUser in Linux := user        
 
 // group which will execute the application
-daemonGroup in Linux := group 
-
-mappings in(Universal, packageBin) += file("src/main/resources/application.conf") -> "conf/application.conf"
-mappings in(Universal, packageBin) += file("src/main/resources/logback.xml") -> "conf/logback.xml"
+daemonGroup in Linux := group
 
 debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")
