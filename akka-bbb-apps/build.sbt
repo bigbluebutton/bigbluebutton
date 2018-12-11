@@ -39,7 +39,6 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-Seq(Revolver.settings: _*)
 lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 scalariformAutoformat := false
@@ -73,5 +72,8 @@ daemonUser in Linux := user
 
 // group which will execute the application
 daemonGroup in Linux := group
+
+mappings in(Universal, packageBin) += file("src/main/resources/application.conf") -> "conf/application.conf"
+mappings in(Universal, packageBin) += file("src/main/resources/logback.xml") -> "conf/logback.xml"
 
 debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")
