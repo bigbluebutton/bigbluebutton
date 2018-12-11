@@ -13,7 +13,7 @@ case class BreakoutProps(parentId: String, sequence: Int, freeJoin: Boolean, bre
 
 case class PasswordProp(moderatorPass: String, viewerPass: String)
 
-case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean)
+case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
 
 case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
 

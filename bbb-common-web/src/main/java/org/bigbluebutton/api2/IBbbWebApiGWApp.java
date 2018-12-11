@@ -25,7 +25,8 @@ public interface IBbbWebApiGWApp {
                      Integer userInactivityInspectTimerInMinutes,
                      Integer userInactivityThresholdInMinutes,
                      Integer userActivitySignResponseDelayInMinutes,
-                     Boolean muteOnStart);
+                     Boolean muteOnStart,
+                     Boolean keepEvents);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

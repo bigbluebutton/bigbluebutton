@@ -13,6 +13,7 @@ redis_port: 6379
 
 # For PRODUCTION
 log_dir: /var/log/bigbluebutton
+events_dir: /var/bigbluebutton/events
 recording_dir: /var/bigbluebutton/recording
 published_dir: /var/bigbluebutton/published
 playback_host: 127.0.0.1

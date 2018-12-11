@@ -107,6 +107,7 @@ public class MeetingService implements MessageListener {
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
+  private boolean keepEvents;
 
   private ParamsProcessorUtil paramsProcessorUtil;
   private PresentationUrlDownloadService presDownloadService;
@@ -249,16 +250,20 @@ public class MeetingService implements MessageListener {
     return false;
   }
 
+  private boolean storeEvents(Meeting m) {
+    return m.isRecord() || keepEvents;
+  }
+
   private void handleCreateMeeting(Meeting m) {
     if (m.isBreakout()) {
       Meeting parent = meetings.get(m.getParentMeetingId());
       parent.addBreakoutRoom(m.getExternalId());
-      if (parent.isRecord()) {
+      if (storeEvents(parent)) {
         storeService.addBreakoutRoom(parent.getInternalId(), m.getInternalId());
       }
     }
 
-    if (m.isRecord()) {
+    if (storeEvents(m)) {
       Map<String, String> metadata = new TreeMap<>();
       metadata.putAll(m.getMetadata());
       // TODO: Need a better way to store these values for recordings
@@ -307,7 +312,7 @@ public class MeetingService implements MessageListener {
             m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserActivitySignResponseDelayInMinutes(),
-            m.getUserInactivityThresholdInMinutes(), m.getMuteOnStart());
+            m.getUserInactivityThresholdInMinutes(), m.getMuteOnStart(), keepEvents);
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -513,6 +518,7 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       m.setForciblyEnded(true);
       processRecording(m);
+      if (keepEvents) recordingService.markAsEnded(m.getInternalId());
       destroyMeeting(m.getInternalId());
       meetings.remove(m.getInternalId());
       removeUserSessions(m.getInternalId());
@@ -975,5 +981,9 @@ public class MeetingService implements MessageListener {
 
   public void setStunTurnService(StunTurnService s) {
     stunTurnService = s;
+  }
+
+  public void setKeepEvents(boolean value) {
+    keepEvents = value;
   }
 }
