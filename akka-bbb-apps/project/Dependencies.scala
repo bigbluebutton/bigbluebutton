@@ -43,7 +43,7 @@ object Dependencies {
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
     val quicklens = "com.softwaremill.quicklens" %% "quicklens" % Versions.quicklens
-    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback % "runtime"
+    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
     val sprayJson = "io.spray" % "spray-json_2.12" % Versions.spray
 
