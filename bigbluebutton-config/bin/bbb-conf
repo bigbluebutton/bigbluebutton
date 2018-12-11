@@ -75,7 +75,7 @@ fi
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
-# Figure out our environment
+# Figure out our environment (Debian vs. CentOS)
 #
 
 RED5_DIR=/usr/share/red5
