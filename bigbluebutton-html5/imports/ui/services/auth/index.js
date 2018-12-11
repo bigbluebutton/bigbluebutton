@@ -137,7 +137,16 @@ class Auth {
     };
   }
 
-  set(meetingId, requesterUserId, requesterToken, logoutURL, sessionToken, fullname, externUserID, confname) {
+  set(
+    meetingId,
+    requesterUserId,
+    requesterToken,
+    logoutURL,
+    sessionToken,
+    fullname,
+    externUserID,
+    confname,
+  ) {
     this.meetingID = meetingId;
     this.userID = requesterUserId;
     this.token = requesterToken;
@@ -221,7 +230,7 @@ class Auth {
           computation.stop();
           clearTimeout(validationTimeout);
           // setTimeout to prevent race-conditions with subscription
-          setTimeout(resolve, 100);
+          setTimeout(() => resolve(true), 100);
         }
       });
 

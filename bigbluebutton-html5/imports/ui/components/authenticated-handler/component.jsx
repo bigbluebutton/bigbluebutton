@@ -11,6 +11,7 @@ class AuthenticatedHandler extends Component {
     Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
+
   static shouldAuthenticate(status, lastStatus) {
     return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
   }
@@ -31,21 +32,28 @@ class AuthenticatedHandler extends Component {
       }
     });
   }
-  static authenticatedRouteHandler(callback) {
+
+  static async authenticatedRouteHandler(callback) {
     if (Auth.loggedIn) {
       callback();
     }
 
     AuthenticatedHandler.addReconnectObservable();
 
-    Auth.authenticate()
-      .then(callback)
-      .catch((reason) => {
-        log('error', reason);
-        AuthenticatedHandler.setError(reason.error);
-        callback();
-      });
+    const setReason = (reason) => {
+      log('error', reason);
+      AuthenticatedHandler.setError(reason.error);
+      callback();
+    };
+
+    try {
+      const getAuthenticate = await Auth.authenticate();
+      callback(getAuthenticate);
+    } catch (error) {
+      setReason(error);
+    }
   }
+
   constructor(props) {
     super(props);
     this.changeState = this.changeState.bind(this);
