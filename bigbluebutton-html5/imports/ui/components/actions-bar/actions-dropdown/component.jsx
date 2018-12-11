@@ -11,6 +11,7 @@ import PresentationUploaderContainer from '/imports/ui/components/presentation/p
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import RecordingContainer from '/imports/ui/components/recording/container';
 import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
 import ActionBarService from '../service';
@@ -114,9 +115,9 @@ class ActionsDropdown extends Component {
       allowStartStopRecording,
       isRecording,
       record,
-      toggleRecording,
       togglePollMenu,
       meetingIsBreakout,
+      mountModal,
       hasBreakoutRoom,
     } = this.props;
 
@@ -148,7 +149,7 @@ class ActionsDropdown extends Component {
           description={intl.formatMessage(isRecording ?
             intlMessages.stopRecording : intlMessages.startRecording)}
           key={this.recordId}
-          onClick={toggleRecording}
+          onClick={() => mountModal(<RecordingContainer />)}
         />
         : null),
       (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
