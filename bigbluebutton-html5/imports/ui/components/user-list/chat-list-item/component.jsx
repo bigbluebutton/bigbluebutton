@@ -45,8 +45,16 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const toggleChatOpen = () => {
-  Session.set('isChatOpen', !Session.get('isChatOpen'));
+const toggleChats = (chatId) => {
+  const lastChatId = Session.get('idChatOpen');
+  const isChatOpen = Session.get('isChatOpen');
+
+  if (lastChatId === '' || chatId === lastChatId) {
+    Session.set('isChatOpen', !isChatOpen);
+  } else {
+    Session.set('isChatOpen', true);
+  }
+
   Session.set('breakoutRoomIsOpen', false);
 };
 
@@ -74,7 +82,7 @@ const ChatListItem = (props) => {
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
       onClick={() => {
-        toggleChatOpen();
+        toggleChats(chat.id);
         Session.set('idChatOpen', chat.id);
 
         if (Session.equals('isPollOpen', true)) {
