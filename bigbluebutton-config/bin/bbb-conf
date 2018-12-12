@@ -503,7 +503,7 @@ display_bigbluebutton_status () {
             units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
         fi
 
-        line='————————————————————►'
+        line='——————————————————————►'
         for unit in $units; do
             status=$(systemctl is-active "$unit")
             if [ "$status" = "active" ]; then
