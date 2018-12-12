@@ -81,6 +81,9 @@ const ChatListItem = (props) => {
           Session.set('isPollOpen', false);
           Session.set('forcePollOpen', true);
         }
+        if (Session.equals('isNoteOpen', true)) {
+          Session.set('isNoteOpen', false);
+        }
       }}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}

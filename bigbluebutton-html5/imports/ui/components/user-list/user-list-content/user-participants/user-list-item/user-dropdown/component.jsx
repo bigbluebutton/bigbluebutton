@@ -240,6 +240,9 @@ class UserDropdown extends PureComponent {
             Session.set('isPollOpen', false);
             Session.set('forcePollOpen', true);
           }
+          if (Session.equals('isNoteOpen', true)) {
+            Session.set('isNoteOpen', false);
+          }
           Session.set('idChatOpen', user.id);
           Session.set('isChatOpen', true);
         },

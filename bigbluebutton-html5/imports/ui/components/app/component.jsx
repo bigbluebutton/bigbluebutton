@@ -18,6 +18,7 @@ import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 import UserListContainer from '../user-list/container';
 import ChatContainer from '../chat/container';
+import NoteContainer from '../note/container';
 
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -31,6 +32,10 @@ const intlMessages = defineMessages({
   chatLabel: {
     id: 'app.chat.label',
     description: 'Aria-label for Chat Section',
+  },
+  noteLabel: {
+    id: 'app.note.label',
+    description: 'Aria-label for Note Section',
   },
   mediaLabel: {
     id: 'app.media.label',
@@ -51,6 +56,7 @@ const propTypes = {
   closedCaption: PropTypes.element,
   userListIsOpen: PropTypes.bool.isRequired,
   chatIsOpen: PropTypes.bool.isRequired,
+  noteIsOpen: PropTypes.bool.isRequired,
   pollIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
@@ -162,7 +168,7 @@ class App extends Component {
 
   renderUserList() {
     const {
-      intl, chatIsOpen, userListIsOpen,
+      intl, chatIsOpen, userListIsOpen, noteIsOpen,
     } = this.props;
 
     const { compactUserList } = this.state;
@@ -179,7 +185,7 @@ class App extends Component {
       <div
         className={cx(styles.userList, userListStyle)}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
-        aria-hidden={chatIsOpen}
+        aria-hidden={chatIsOpen || noteIsOpen}
       >
         <UserListContainer />
       </div>
@@ -292,6 +298,56 @@ class App extends Component {
     );
   }
 
+  renderNote() {
+    const { intl, noteIsOpen } = this.props;
+
+    if (!noteIsOpen) return null;
+
+    return (
+      <section
+        className={styles.note}
+        aria-label={intl.formatMessage(intlMessages.noteLabel)}
+      >
+        <NoteContainer />
+      </section>
+    );
+  }
+
+  renderNoteResizable() {
+    const { noteIsOpen } = this.props;
+
+    // Variables for resizing chat.
+    const NOTE_MIN_WIDTH = '10%';
+    const NOTE_MAX_WIDTH = '25%';
+    const NOTE_DEFAULT_WIDTH = '15%';
+
+    if (!noteIsOpen) return null;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (
+      <Resizable
+        defaultSize={{ width: NOTE_DEFAULT_WIDTH }}
+        minWidth={NOTE_MIN_WIDTH}
+        maxWidth={NOTE_MAX_WIDTH}
+        ref={(node) => { this.resizableChat = node; }}
+        className={styles.resizableChat}
+        enable={resizableEnableOptions}
+      >
+        {this.renderNote()}
+      </Resizable>
+    );
+  }
+
   renderMedia() {
     const {
       media, intl, chatIsOpen, userListIsOpen,
@@ -347,6 +403,7 @@ class App extends Component {
           {enableResize ? this.renderUserListResizable() : this.renderUserList()}
           {userListIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
           {enableResize ? this.renderChatResizable() : this.renderChat()}
+          {enableResize ? this.renderNoteResizable() : this.renderNote()}
           {this.renderPoll()}
           {this.renderBreakoutRoom()}
           {this.renderSidebar()}

@@ -24,6 +24,7 @@ export default withTracker(() => {
     const hide = () => Session.set('isPollOpen', false);
 
     Session.set('isChatOpen', false);
+    Session.set('isNoteOpen', false);
     Session.set('breakoutRoomIsOpen', false);
 
     return showPoll ? show() : hide();

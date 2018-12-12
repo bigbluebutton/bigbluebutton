@@ -38,6 +38,7 @@ class UserPolls extends PureComponent {
             className={styles.pollLink}
             onClick={() => {
               Session.set('isChatOpen', false);
+              Session.set('isNoteOpen', false);
               Session.set('breakoutRoomIsOpen', false);
 
               return Session.equals('isPollOpen', true)

@@ -81,6 +81,7 @@ class AuthenticatedHandler extends Component {
     Session.set('isChatOpen', false);
     Session.set('idChatOpen', '');
     Session.set('isMeetingEnded', false);
+    Session.set('isNoteOpen', false);
     Session.set('isPollOpen', false);
     Session.set('breakoutRoomIsOpen', false);
 
