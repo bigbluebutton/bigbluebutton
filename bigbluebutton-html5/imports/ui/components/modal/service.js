@@ -1,5 +1,5 @@
 import { Tracker } from 'meteor/tracker';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 
 const currentModal = {
   component: null,
@@ -19,7 +19,7 @@ export const getModal = () => {
 };
 
 export const withModalMounter = ComponentToWrap =>
-  class ModalMounterWrapper extends Component {
+  class ModalMounterWrapper extends PureComponent {
     static mount(modalComponent) {
       showModal(null);
       // defer the execution to a subsequent event loop

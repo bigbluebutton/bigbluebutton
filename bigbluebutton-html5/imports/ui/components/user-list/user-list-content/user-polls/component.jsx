@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
@@ -12,23 +12,17 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserPolls extends Component {
-  constructor(props) {
-    super(props);
-
-    this.handleClickTogglePoll = this.handleClickTogglePoll.bind(this);
-  }
-
-  handleClickTogglePoll() {
-    Session.set(
-      'openPanel',
-      Session.get('openPanel') === 'poll'
-        ? 'userlist'
-        : 'poll',
-    );
-  }
-
+class UserPolls extends PureComponent {
   render() {
+    const handleClickTogglePoll = () => {
+      Session.set(
+        'openPanel',
+        Session.get('openPanel') === 'poll'
+          ? 'userlist'
+          : 'poll',
+      );
+    }
+
     const {
       intl,
       isPresenter,
@@ -51,7 +45,7 @@ class UserPolls extends Component {
             role="button"
             tabIndex={0}
             className={styles.pollLink}
-            onClick={this.handleClickTogglePoll}
+            onClick={handleClickTogglePoll}
           >
             <Icon iconName="polling" className={styles.icon} />
             <span className={styles.label} >{intl.formatMessage(intlMessages.pollLabel)}</span>

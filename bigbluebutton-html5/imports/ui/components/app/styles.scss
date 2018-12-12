@@ -1,4 +1,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/general";
+@import "/imports/ui/stylesheets/variables/palette";
+@import "/imports/ui/stylesheets/variables/typography";
 
 :root {
   --navbar-height: 63px; // TODO: Change to NavBar real height

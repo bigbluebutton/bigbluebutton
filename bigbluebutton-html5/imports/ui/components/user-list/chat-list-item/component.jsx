@@ -71,6 +71,7 @@ const ChatListItem = (props) => {
 
   return (
     <div
+      data-test="chatButton"
       role="button"
       className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}

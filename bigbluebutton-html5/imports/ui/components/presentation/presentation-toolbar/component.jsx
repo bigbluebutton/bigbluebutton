@@ -4,12 +4,10 @@ import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import browser from 'browser-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
+import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 
-const STEP = 5;
-const HUNDRED_PERCENT = 100;
-const MAX_PERCENT = 400;
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -242,8 +240,8 @@ class PresentationToolbar extends Component {
         }
         {
           !isMobileBrowser ?
-              <span className={styles.zoomWrapper}>
-                <ZoomTool
+            <span className={styles.zoomWrapper}>
+              <ZoomTool
                 value={zoom}
                 change={this.change}
                 minBound={HUNDRED_PERCENT}

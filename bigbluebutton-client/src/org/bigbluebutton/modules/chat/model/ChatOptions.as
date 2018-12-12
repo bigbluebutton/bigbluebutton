@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.chat.model {
 		public var privateEnabled:Boolean = true;
 
 		[Bindable]
-		public var groupEnabled:Boolean = true;
+		public var groupEnabled:Boolean = false;
 
 		[Bindable]
 		public var fontSize:String = "14";

@@ -4,6 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
+import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
@@ -137,7 +138,16 @@ class Auth {
     };
   }
 
-  set(meetingId, requesterUserId, requesterToken, logoutURL, sessionToken, fullname, externUserID, confname) {
+  set(
+    meetingId,
+    requesterUserId,
+    requesterToken,
+    logoutURL,
+    sessionToken,
+    fullname,
+    externUserID,
+    confname,
+  ) {
     this.meetingID = meetingId;
     this.userID = requesterUserId;
     this.token = requesterToken;
@@ -207,7 +217,11 @@ class Auth {
         const User = Users.findOne(selector);
 
         // Skip in case the user is not in the collection yet or is a dummy user
-        if (!User || !('intId' in User)) return;
+        if (!User || !('intId' in User)) {
+          logger.info('re-send validateAuthToken for delayed authentication');
+          makeCall('validateAuthToken');
+          return;
+        }
 
         if (User.ejected) {
           reject({
@@ -221,7 +235,7 @@ class Auth {
           computation.stop();
           clearTimeout(validationTimeout);
           // setTimeout to prevent race-conditions with subscription
-          setTimeout(resolve, 100);
+          setTimeout(() => resolve(true), 100);
         }
       });
 

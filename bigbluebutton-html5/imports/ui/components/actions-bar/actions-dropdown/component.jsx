@@ -134,6 +134,7 @@ class ActionsDropdown extends Component {
         : null),
       (isUserPresenter ?
         <DropdownListItem
+          data-test="uploadPresentation"
           icon="presentation"
           label={intl.formatMessage(intlMessages.presentationLabel)}
           description={intl.formatMessage(intlMessages.presentationDesc)}

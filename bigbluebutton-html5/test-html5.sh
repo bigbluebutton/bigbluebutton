@@ -22,7 +22,9 @@ echo $BBB_SHARED_SECRET
 
 # Run tests
 if [ $status -eq 0 ]; then
-  npm test
+  # runInBand will force jest to run in a single thread
+  # https://jestjs.io/docs/en/troubleshooting#tests-are-extremely-slow-on-docker-and-or-continuous-integration-ci-server
+  npm test -- --runInBand
 fi
 
 # Stop Docker container

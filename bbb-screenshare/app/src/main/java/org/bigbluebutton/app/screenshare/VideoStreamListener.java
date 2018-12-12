@@ -17,24 +17,24 @@
  */
 package org.bigbluebutton.app.screenshare;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.bigbluebutton.common2.redis.RedisStorageService;
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.scheduling.IScheduledJob;
 import org.red5.server.api.scheduling.ISchedulingService;
-import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.IStreamPacket;
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.scheduling.QuartzSchedulingService;
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
 
 import com.google.gson.Gson;
-import java.text.SimpleDateFormat;
 
 /**
  * Class to listen for the first video packet of the webcam.
@@ -54,7 +54,7 @@ import java.text.SimpleDateFormat;
 public class VideoStreamListener implements IStreamListener {
   private static final Logger log = Red5LoggerFactory.getLogger(VideoStreamListener.class, "screenshare");
 
-  private EventRecordingService recordingService;
+  private RedisStorageService redisStorageService;
   private volatile boolean firstPacketReceived = false;
 
   // Maximum time between video packets
@@ -96,14 +96,14 @@ public class VideoStreamListener implements IStreamListener {
   public VideoStreamListener(String meetingId, String streamId, Boolean record,
                              String recordingDir, int packetTimeout,
                              QuartzSchedulingService scheduler,
-                             EventRecordingService recordingService) {
+                             RedisStorageService recordingService) {
     this.meetingId = meetingId;
     this.streamId = streamId;
     this.record = record;
     this.videoTimeout = packetTimeout;
     this.recordingDir = recordingDir;
     this.scheduler = scheduler;
-    this.recordingService = recordingService;
+    this.redisStorageService = recordingService;
 
     // start the worker to monitor if we are still receiving video packets
     timeoutJobName = scheduler.addScheduledJob(videoTimeout, new TimeoutJob());
@@ -166,7 +166,7 @@ public class VideoStreamListener implements IStreamListener {
 					event.put(DATE, sdf.format(recordingStartTime));
 					event.put("eventName", "DeskshareStartedEvent");
 
-					recordingService.record(meetingId, event);
+					redisStorageService.record(meetingId, event);
 
 
 					Gson gson = new Gson();
@@ -233,7 +233,7 @@ public class VideoStreamListener implements IStreamListener {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 			event.put(DATE, sdf.format(now));
 			event.put("eventName", "DeskshareStoppedEvent");
-      recordingService.record(meetingId, event);
+      redisStorageService.record(meetingId, event);
 
 			Gson gson = new Gson();
 			String logStr = gson.toJson(event);
