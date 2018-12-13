@@ -16,6 +16,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.notesTitle',
     description: 'Title for the notes list',
   },
+  title: {
+    id: 'app.note.title',
+    description: 'Title for the shared notes',
+  },
 });
 
 class UserNotes extends PureComponent {
@@ -49,7 +53,7 @@ class UserNotes extends PureComponent {
             }}
           >
             <Icon iconName='copy' className={styles.icon} />
-            <span className={styles.label} >{intl.formatMessage(intlMessages.notesTitle)}</span>
+            <span className={styles.label} >{intl.formatMessage(intlMessages.title)}</span>
           </div>
         </div>
       </div>
