@@ -130,8 +130,8 @@ begin
 
   BigBlueButton.logger.debug("Running rap-archive-worker...")
   
-  keep_events_from_ended_meeting(recording_dir)
   archive_recorded_meetings(recording_dir)
+  keep_events_from_ended_meeting(recording_dir)
 
   BigBlueButton.logger.debug("rap-archive-worker done")
 
