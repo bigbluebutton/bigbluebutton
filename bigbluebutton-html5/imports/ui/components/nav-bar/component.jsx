@@ -59,14 +59,12 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) =>
-  mountModal(<BreakoutJoinConfirmation
-    breakout={breakout}
-    breakoutName={breakoutName}
-  />);
+const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(<BreakoutJoinConfirmation
+  breakout={breakout}
+  breakoutName={breakoutName}
+/>);
 
-const closeBreakoutJoinConfirmation = mountModal =>
-  mountModal(null);
+const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
 class NavBar extends PureComponent {
   constructor(props) {
@@ -145,7 +143,9 @@ class NavBar extends PureComponent {
       <Dropdown isOpen={this.state.isActionsOpen}>
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName="down-arrow" />
+            {presentationTitle}
+            {' '}
+            <Icon iconName="down-arrow" />
           </h1>
         </DropdownTrigger>
         <DropdownContent
@@ -168,7 +168,6 @@ class NavBar extends PureComponent {
 
     return (
       <DropdownListItem
-        className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
         onClick={openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)}
@@ -213,9 +212,9 @@ class NavBar extends PureComponent {
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          {beingRecorded.record ?
-            <span className={styles.presentationTitleSeparator}>|</span>
-          : null}
+          {beingRecorded.record
+            ? <span className={styles.presentationTitleSeparator}>|</span>
+            : null}
           <RecordingIndicator
             {...beingRecorded}
             title={intl.formatMessage(intlMessages[recordingMessage])}

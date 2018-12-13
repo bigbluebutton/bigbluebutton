@@ -122,8 +122,8 @@ class ApplicationMenu extends BaseMenu {
     const { isLargestFontSize, isSmallestFontSize } = this.state;
 
     return (
-      <div className={styles.tabContent}>
-        <div className={styles.header}>
+      <div>
+        <div>
           <h3 className={styles.title}>
             {intl.formatMessage(intlMessages.applicationSectionTitle)}
           </h3>

@@ -47,7 +47,7 @@ export default class Checkbox extends Component {
     return (
       <div className={cx({
         [styles.disabled]: !!disabled,
-      }, styles.container, className)}
+      }, className)}
       >
         <input
           type="checkbox"
@@ -59,9 +59,9 @@ export default class Checkbox extends Component {
           disabled={disabled}
         />
         <div role="presentation" onClick={this.handleChange}>
-          { checked ?
-            <Icon iconName="check" className={cx(styles.icon, styles.checked)} /> :
-            <Icon iconName="circle" className={styles.icon} />
+          { checked
+            ? <Icon iconName="check" className={cx(styles.icon, styles.checked)} />
+            : <Icon iconName="circle" className={styles.icon} />
           }
         </div>
         <div id={ariaLabelledBy} hidden>{ariaLabel}</div>

@@ -12,7 +12,7 @@ class Page {
   }
 
   getParentDir(dir) {
-    let tmp = dir.split('/');
+    const tmp = dir.split('/');
     tmp.pop();
     return tmp.join('/');
   }
@@ -22,7 +22,7 @@ class Page {
     this.browser = await puppeteer.launch(args);
     this.page = await this.browser.newPage();
 
-    await this.setDownloadBehavior(this.parentDir + '/downloads');
+    await this.setDownloadBehavior(`${this.parentDir}/downloads`);
 
     this.meetingId = await helper.createMeeting(params);
     const joinURL = helper.getJoinURL(this.meetingId, params, true);
@@ -33,7 +33,7 @@ class Page {
   }
 
   async setDownloadBehavior(downloadPath) {
-    const downloadBehavior = { behavior: 'allow', downloadPath: downloadPath };
+    const downloadBehavior = { behavior: 'allow', downloadPath };
     await this.page._client.send('Page.setDownloadBehavior', downloadBehavior);
   }
 
@@ -113,9 +113,9 @@ class Page {
 
   async screenshot(relief = false) {
     if (relief) await helper.sleep(1000);
-    const filename = this.name + '-' + this.screenshotIndex + '.png';
-    const path = this.parentDir + '/screenshots/' + filename;
-    await this.page.screenshot({ path: path });
+    const filename = `${this.name}-${this.screenshotIndex}.png`;
+    const path = `${this.parentDir}/screenshots/${filename}`;
+    await this.page.screenshot({ path });
     this.screenshotIndex++;
   }
 

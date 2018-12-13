@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
@@ -191,13 +190,15 @@ class SettingsDropdown extends PureComponent {
   alterMenu(props) {
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
 
-    const newFullScreenButton = (<DropdownListItem
-      key={_.uniqueId('list-item-')}
-      icon={fullscreenIcon}
-      label={fullscreenLabel}
-      description={fullscreenDesc}
-      onClick={this.props.handleToggleFullscreen}
-    />);
+    const newFullScreenButton = (
+      <DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon={fullscreenIcon}
+        label={fullscreenLabel}
+        description={fullscreenDesc}
+        onClick={this.props.handleToggleFullscreen}
+      />
+    );
     this.menuItems = this.menuItems.slice(1);
     this.menuItems.unshift(newFullScreenButton);
   }
@@ -222,7 +223,7 @@ class SettingsDropdown extends PureComponent {
             ghost
             circle
             hideLabel
-            className={cx(styles.btn, styles.btnSettings)}
+            className={styles.btn}
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler

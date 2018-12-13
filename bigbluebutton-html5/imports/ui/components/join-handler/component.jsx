@@ -13,6 +13,7 @@ class JoinHandler extends Component {
     Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
+
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
@@ -120,9 +121,9 @@ class JoinHandler extends Component {
   render() {
     const { children } = this.props;
     const { joined } = this.state;
-    return joined ?
-      children :
-      (<LoadingScreen />);
+    return joined
+      ? children
+      : (<LoadingScreen />);
   }
 }
 
