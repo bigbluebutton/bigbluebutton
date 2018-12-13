@@ -460,6 +460,7 @@
     "app.createBreakoutRoom.generatedURL": "Generated",
     "app.createBreakoutRoom.duration": "Duration {0}",
     "app.createBreakoutRoom.room": "Room {0}",
+    "app.createBreakoutRoom.notAssigned": "Not Assigned ({0})",
     "app.createBreakoutRoom.join": "Join Room",
     "app.createBreakoutRoom.joinAudio": "Join audio",
     "app.createBreakoutRoom.returnAudio": "Return audio",
@@ -469,5 +470,7 @@
     "app.createBreakoutRoom.randomlyAssign": "Randomly Assign",
     "app.createBreakoutRoom.endAllBreakouts": "End All Breakout Rooms",
     "app.createBreakoutRoom.roomName": "{0} (Room - {1})",
+    "app.createBreakoutRoom.freeJoin": "Allow users to choose a breakout room to join",
+    "app.createBreakoutRoom.leastOneWarnBreakout": "You must place at least one user in a breakout room.",
     "app.createBreakoutRoom.modalDesc": "Complete the steps below to create rooms in your session, To add participants to a room."
 }

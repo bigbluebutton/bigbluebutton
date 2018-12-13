@@ -39,5 +39,6 @@ export default withTracker(() => {
     meetingIsBreakout: Service.meetingIsBreakout(),
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
+    users: Service.users(),
   };
 })(ActionsBarContainer);
