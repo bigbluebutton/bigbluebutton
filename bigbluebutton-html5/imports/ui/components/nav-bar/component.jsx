@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
+import Auth from '/imports/ui/services/auth';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -97,6 +98,10 @@ class NavBar extends PureComponent {
       if (!breakout.users) {
         return;
       }
+
+      const userOnMeeting = breakout.users.filter(u => u.userId === Auth.userID).length;
+
+      if (!userOnMeeting) return;
 
       if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout);
