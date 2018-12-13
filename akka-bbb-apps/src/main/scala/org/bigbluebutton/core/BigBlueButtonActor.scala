@@ -117,13 +117,7 @@ class BigBlueButtonActor(
       case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
 
-        // Check if we are keeping the events
-        var props =  msg.body.props.copy()
-        if (props.recordProp.keepEvents) {
-          val recordProp = msg.body.props.recordProp.copy(record = true)
-          props = msg.body.props.copy(recordProp = recordProp)
-        }
-        val m = RunningMeeting(props, outGW, eventBus)
+        val m = RunningMeeting(msg.body.props, outGW, eventBus)
 
         /** Subscribe to meeting and voice events. **/
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
