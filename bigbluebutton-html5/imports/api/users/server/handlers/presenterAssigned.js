@@ -30,6 +30,7 @@ export default function handlePresenterAssigned({ body }, meetingId) {
     };
 
     const defaultPodSelector = {
+      meetingId,
       podId: 'DEFAULT_PRESENTATION_POD',
     };
     const currentDefaultPodPresenter = PresentationPods.findOne(defaultPodSelector);
@@ -39,7 +40,7 @@ export default function handlePresenterAssigned({ body }, meetingId) {
       return setPresenterInPodReqMsg(setPresenterPayload);
     }
 
-    const oldPresenter = Users.findOne({ userId: currentPresenterId, connectionStatus: 'offline' });
+    const oldPresenter = Users.findOne({ meetingId, userId: currentPresenterId, connectionStatus: 'offline' });
 
     if (oldPresenter) {
       return setPresenterInPodReqMsg(setPresenterPayload);
