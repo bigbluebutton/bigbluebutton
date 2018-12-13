@@ -124,6 +124,7 @@ public:
     enabled: false
     url: ETHERPAD_HOST
     config:
+      noColors: true
       showControls: true
       rtl: false
   layout:
