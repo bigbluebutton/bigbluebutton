@@ -1,3 +1,3 @@
 import './eventHandlers';
-// import './methods';
+import './methods';
 import './publishers';
