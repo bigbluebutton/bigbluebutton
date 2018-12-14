@@ -6,6 +6,8 @@ import ActionsDropdown from './actions-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-menu/container';
 
+import PresentationOptionsContainer from './presentation-options/component';
+
 class ActionsBar extends React.PureComponent {
   render() {
     const {
@@ -25,6 +27,8 @@ class ActionsBar extends React.PureComponent {
       hasBreakoutRoom,
       meetingName,
       users,
+      isLayoutSwapped,
+      toggleSwapLayout,
     } = this.props;
 
     const {
@@ -77,6 +81,14 @@ class ActionsBar extends React.PureComponent {
             screenSharingCheck,
           }}
           />
+        </div>
+        <div className={styles.right}>
+          { isLayoutSwapped ?
+            <PresentationOptionsContainer
+              toggleSwapLayout={toggleSwapLayout}
+            />
+            : null
+          }
         </div>
       </div>
     );

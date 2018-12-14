@@ -10,6 +10,8 @@ import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
+import MediaService from '../media/service';
+import PresentationCloseButton from './presentation-close-button/component';
 
 export default class PresentationArea extends Component {
   constructor() {
@@ -314,6 +316,28 @@ export default class PresentationArea extends Component {
     );
   }
 
+  renderPresentationClose() {
+    if (!this.props.currentSlide || !MediaService.shouldEnableSwapLayout()) {
+      return null;
+    }
+
+    const adjustedSizes = this.calculateSize();
+    const marginRight = (this.state.presentationWidth - adjustedSizes.width) / 2.0;
+    const marginTop = (this.state.presentationHeight - adjustedSizes.height) / 2.0;
+
+    const style = {
+      right: `${marginRight}px`,
+      top: `${marginTop}px`,
+    };
+
+    return (
+      <PresentationCloseButton
+        innerStyle={style}
+        toggleSwapLayout={MediaService.toggleSwapLayout}
+      />
+    );
+  }
+
   renderPresentationToolbar() {
     if (!this.props.currentSlide) {
       return null;
@@ -357,8 +381,9 @@ export default class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {this.state.showSlide
-            ? this.renderPresentationArea()
+          { this.renderPresentationClose() }
+          {this.state.showSlide ?
+              this.renderPresentationArea()
             : null }
           {this.props.userIsPresenter || this.props.multiUser
             ? this.renderWhiteboardToolbar()

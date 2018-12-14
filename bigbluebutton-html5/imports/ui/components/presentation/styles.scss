@@ -64,3 +64,20 @@
   right: 0;
   bottom: 0;
 }
+
+.topRight {
+  position: absolute;
+}
+
+.close {
+  i {
+    color: var(--toolbar-button-color);
+    font-weight: bold;
+  }
+  cursor: pointer;
+
+  button.span.button {
+    background-color: rgba(0,0,0,0.1);
+  }
+}
+

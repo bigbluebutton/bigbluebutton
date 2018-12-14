@@ -2,13 +2,15 @@
 
 .actionsbar,
 .left,
-.center {
+.center,
+.right {
   display: flex;
   flex-direction: row;
 }
 
 .left,
-.center {
+.center,
+.right {
   flex: 1;
   justify-content: center;
 
@@ -27,6 +29,12 @@
     bottom: var(--sm-padding-x);
     left: var(--sm-padding-x);
   }
+}
+
+.right {
+  position: absolute;
+  bottom: var(--sm-padding-x);
+  right: var(--sm-padding-x);
 }
 
 .centerWithActions {
