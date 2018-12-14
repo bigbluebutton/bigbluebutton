@@ -7,8 +7,12 @@ export default function clearBreakouts(breakoutId) {
       breakoutId,
     };
 
-    return Breakouts.remove(selector);
+    return Breakouts.remove(selector, () => {
+      Logger.info(`Cleared Breakouts (${breakoutId})`);
+    });
   }
 
-  return Breakouts.remove({}, Logger.info('Cleared Breakouts (all)'));
+  return Breakouts.remove({}, () => {
+    Logger.info('Cleared Breakouts (all)');
+  });
 }

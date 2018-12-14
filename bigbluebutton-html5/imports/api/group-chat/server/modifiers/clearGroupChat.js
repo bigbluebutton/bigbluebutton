@@ -4,5 +4,7 @@ import clearGroupChatMsg from '/imports/api/group-chat-msg/server/modifiers/clea
 
 export default function clearGroupChat(meetingId) {
   clearGroupChatMsg(meetingId);
-  return GroupChat.remove({ meetingId }, Logger.info(`Cleared GroupChat (${meetingId})`));
+  return GroupChat.remove({ meetingId }, () => {
+    Logger.info(`Cleared GroupChat (${meetingId})`);
+  });
 }
